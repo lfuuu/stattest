@@ -8,6 +8,7 @@ use app\classes\Encrypt;
 use app\classes\StatModule;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\BillCorrection;
 use app\models\BillDocument;
 use app\models\Business;
 use app\models\ClientAccount;
@@ -400,7 +401,7 @@ class m_newaccounts extends IModule
             $sum[$fixclient_data['currency']]['ts']
                 ? 'IF(bill_date >= "' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)'
                 : '1'
-            ) . ' as in_sum
+            ) . ' as in_sum, sum_correction
             from
                 newbills P
                 left join tt_troubles t using (bill_no)
@@ -872,6 +873,8 @@ class m_newaccounts extends IModule
         }
 
         $design->assign("_showHistoryBill", Yii::$app->view->render('//layouts/_showHistory', ['model' => $newbill]));
+
+        $design->assign('bill_correction_info', $newbill->getCorrectionInfo());
 
         $design->AddMain('newaccounts/bill_view.tpl');
 
@@ -2602,21 +2605,22 @@ class m_newaccounts extends IModule
                 ($bill->Get('inv2to1') && ($source == BillDocument::ID_RESOURCE)) ? 1 : $source);
         }
 
-        if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
-            if (date(DateTimeZoneHelper::DATE_FORMAT, $inv_date) != date(DateTimeZoneHelper::DATE_FORMAT, $bill->GetTs())) {
-                $bill->SetClientDate(date(DateTimeZoneHelper::DATE_FORMAT, $inv_date));
-            }
-        }
 
         if ($is_four_order) {
             $row = $db->QuerySelectRow('newpayments', array('bill_no' => $bill->GetNo()));
-            if ($row['payment_date']) {
+            if ($row && $row['payment_date']) {
                 $da = explode('-', $row['payment_date']);
                 $inv_date = mktime(0, 0, 0, $da[1], $da[2], $da[0]);
             } else {
                 $inv_date = time();
             }
             unset($da, $row);
+        }
+
+        if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
+            if (date(DateTimeZoneHelper::DATE_FORMAT, $inv_date) != date(DateTimeZoneHelper::DATE_FORMAT, $bill->GetTs())) {
+                $bill->SetClientDate(date(DateTimeZoneHelper::DATE_FORMAT, $inv_date));
+            }
         }
 
 
@@ -2627,63 +2631,8 @@ class m_newaccounts extends IModule
             ) && $do_assign
         ) {//привязанный к фактуре счет
             //не отображать если оплата позже счета-фактуры
-            $query = "
-                SELECT
-                    *,
-                    UNIX_TIMESTAMP(payment_date) as payment_date_ts
-                FROM
-                    newpayments
-                WHERE
-                    payment_no<>''
-                AND
-                    `sum`>=0
-                AND
-                    (
-                        bill_no='" . $bdata['bill_no'] . "'
-                    OR
-                        bill_vis_no='" . $bdata['bill_no'] . "'
-                    )
-                AND
-                    1  IN (
-                        SELECT
-                            newpayments.payment_date
-                                BETWEEN
-                                    adddate(
-                                        date_format(newbills.bill_date,'%Y-%m-01'),
-                                        interval -1 month
-                                    )
-                                AND
-                                    adddate(
-                                        adddate(
-                                            date_format(newbills.bill_date,'%Y-%m-01'),
-                                            interval 1 month
-                                        ),
-                                        interval -1 day
-                                    )
-                        FROM
-                            newbills
-                        WHERE
-                            newbills.bill_no = IFNULL(
-                                (
-                                    SELECT np1.bill_no
-                                    FROM newpayments np1
-                                    WHERE np1.bill_no = '" . $bdata['bill_no'] . "'
-                                    GROUP BY np1.bill_no
-                                ),
-                                (
-                                    SELECT np2.bill_vis_no
-                                    FROM newpayments np2
-                                    WHERE np2.bill_vis_no = '" . $bdata['bill_no'] . "'
-                                    GROUP BY np2.bill_vis_no
-                                )
-                            )
-                    ) /*or bill_no = '201109/0574'*/
-            ";
 
-            $inv_pays = $db->AllRecords($query, null, MYSQL_ASSOC);
-            if ($inv_pays) {
-                $design->assign('inv_pays', $inv_pays);
-            }
+            ($inv_pays = $bill->getInvoicePayments()) && $design->assign('inv_pays', $inv_pays);
         }
 
         $bdata['ts'] = $bill->GetTs();
@@ -2703,8 +2652,15 @@ class m_newaccounts extends IModule
         }
         unset($li);
 
-        $billLines = self::do_print_prepare_filter($obj, $source, $L_prev, $period_date,
-            (($obj == BillDocument::TYPE_INVOICE || $obj == BillDocument::TYPE_UPD) && $source == BillDocument::ID_GOODS), $isSellBook ? true : false, $origObj);
+        $billLines = self::do_print_prepare_filter(
+            $obj,
+            $source,
+            $L_prev,
+            $period_date,
+            (($obj == BillDocument::TYPE_INVOICE || $obj == BillDocument::TYPE_UPD) && $source == BillDocument::ID_GOODS),
+            $isSellBook ? true : false,
+            $origObj
+        );
 
         if ($is_four_order) {
             $billLines =& $L_prev;
@@ -2713,6 +2669,25 @@ class m_newaccounts extends IModule
 
         if ($bill->Client('type_of_bill') == ClientAccount::TYPE_OF_BILL_SIMPLE) {
             $billLines = \app\models\BillLine::compactLines($billLines, $bill->Client()->contragent->lang_code, $bill->Get('price_include_vat'));
+        }
+
+        // скорректированные с/ф только если они есть и не в книге продаж.
+        $correctionInfo = null;
+        if (!$isSellBook && $bill->Get('sum_correction') && $obj != 'bill') {
+
+            $billCorrection = BillCorrection::findOne([
+                'bill_no' => $bill->Get('bill_no'),
+                'type_id' => $source
+            ]);
+
+            $correctionInfo = [
+                'number' => $billCorrection->number,
+                'date' => (new DateTime($billCorrection->date))->getTimestamp()
+            ];
+
+            if ($billCorrection) {
+                $billLines = $billCorrection->getLines()->asArray()->all();
+            }
         }
 
 
@@ -2779,6 +2754,7 @@ class m_newaccounts extends IModule
             $design->assign('opener', 'interface');
             $design->assign('bill', $bdata);
             $design->assign('bill_lines', $billLines);
+            $design->assign('correction_info', $correctionInfo);
             $total_amount = 0;
             foreach ($billLines as $line) {
                 $total_amount += round($line['amount'], 2);
@@ -4861,6 +4837,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $excel->download('Книга продаж');
         }
 
+        $design->assign('correctionList', $this->_makeCorrectionList($date_from, $date_to));
+
         $design->assign('data', $R);
         $design->assign('sum', $S);
 
@@ -4941,6 +4919,32 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 }
             }
         }
+    }
+
+    /**
+     * Корректировочный лист
+     *
+     * @param string $dateFromStr
+     * @param string $dateToStr
+     * @return array
+     */
+    private function _makeCorrectionList($dateFromStr, $dateToStr)
+    {
+        $data = [];
+
+        $dateFrom = new DateTime($dateFromStr);
+        $dateTo = new DateTime($dateToStr);
+
+        $query = BillCorrection::find()
+            ->where(['between', 'date', $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT), $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)])
+            ->orderBy(['date' => SORT_ASC, 'bill_no' => SORT_ASC]);
+
+        /** @var BillCorrection $billCorrection */
+        foreach ($query->each() as $billCorrection) {
+            $data[((new DateTime($billCorrection->date))->getTimestamp())][] = $billCorrection;
+        }
+
+        return $data;
     }
 
     function newaccounts_pay_rebill($fixclient)

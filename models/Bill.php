@@ -52,6 +52,7 @@ use yii\helpers\Url;
  * @property int $organization_id
  * @property string $pay_bill_until
  * @property int $is_pay_overdue
+ * @property float $sum_correction
  * @property string $payment_date
  *
  * @property-read ClientAccount $clientAccount   ??
@@ -349,14 +350,15 @@ class Bill extends ActiveRecord
     }
 
     /**
+     * @param bool $isToView
      * @return string
      */
-    public function getUrl()
+    public function getUrl($isToView = true)
     {
         return Url::toRoute([
             '/',
             'module' => 'newaccounts',
-            'action' => 'bill_view',
+            'action' => $isToView ? 'bill_view' : 'bill_edit',
             'bill' => $this->bill_no
         ]);
     }
@@ -475,5 +477,15 @@ class Bill extends ActiveRecord
     public function is1C()
     {
         return strpos("/", $this->bill_no) !== false;
+    }
+
+    /**
+     * Информация о корректирующих документа
+     *
+     * @return array
+     */
+    public function getCorrectionInfo()
+    {
+        return BillCorrection::getInfo($this);
     }
 }

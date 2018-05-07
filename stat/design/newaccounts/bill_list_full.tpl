@@ -123,7 +123,7 @@
 
 <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
     <tr>
-        <td class="header" valign="bottom" colspan="3"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
+        <td class="header" valign="bottom" colspan="4"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
         <td class="header" valign="bottom">&nbsp;</td>
         <td class="header" valign="bottom" colspan="3"><b>Платёж</b></td>
         <td class="header" valign="bottom" colspan="3"><b>Разбивка оплаты</b></td>
@@ -133,14 +133,15 @@
     <tr>
         <td class="header" valign="bottom">Дата</td>
         <td class="header" valign="bottom">Номер</td>
-        <td class="header" valign="bottom">Сумма</td>
+        <td class="header sum_column" valign="bottom">Сумма</td>
+        <td class="header sum_column" valign="bottom">Исправленная сумма</td>
         <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
-        <td class="header" valign="bottom">Сумма</td>
-        <td class="header" valign="bottom">Дата</td>
+        <td class="header sum_column" valign="bottom">Сумма</td>
+        <td class="header payment_info_column" valign="bottom">Дата</td>
         <td class="header" valign="bottom">Кто</td>
         <td class="header" valign="bottom">разница</td>
-        <td class="header" valign="bottom">Сумма оплаты</td>
-        <td class="header" valign="bottom">Дата платежа</td>
+        <td class="header sum_column" valign="bottom">Сумма оплаты</td>
+        <td class="header payment_info_column" valign="bottom">Дата платежа</td>
     </tr>
     {foreach from=$billops item=op key=key name=outer}
         {count_comments v=$op}
@@ -155,6 +156,7 @@
                 <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}"{if $op.isCanceled==1} style="text-decoration: line-through;"{/if}>
                     <a href="{$LINK_START}module=newaccounts&action=bill_view&{if $op.bill.type == "income_order"}income_order_id={$op.bill.bill_id}{else}bill={$op.bill.bill_no}{/if}">{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br />({$op.bill.bill_no_ext}){/if}</a></td>
                 <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
+                <td rowspan="{$rowspan}" align="right">{if $op.bill.sum_correction}{$op.bill.sum_correction|money:$op.bill.currency}{/if}</td>
             {else}
                 <td colspan="3" rowspan="{$rowspan}">&nbsp;</td>
             {/if}
@@ -255,7 +257,7 @@
                         <td colspan="2">&nbsp;</td>
                 {/if}
             {else}
-                <td colspan="7" rowspan="1">&nbsp;</td>
+                <td colspan="8" rowspan="1">&nbsp;</td>
                 <td>
                     {if isset($qrs[$op.bill.bill_no].11) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].11}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].11}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank title="Акт-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].11}"></a>А1<br/>{/if}
                     {if isset($qrs[$op.bill.bill_no].12) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].12}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].12}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank title="Акт-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].12}"></a>A2<br/>{/if}
@@ -267,13 +269,13 @@
                 {if isset($op.bill.comment) && $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="6" class="comment">{$op.bill.comment|strip_tags}</td>
+                        <td colspan="7" class="comment">{$op.bill.comment|strip_tags}</td>
                 {/if}
             {/if}
         </tr>
         {if isset($op.organization_switched) &&  $op.organization_switched}
             <tr>
-                <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.organization_switched.name}</td>
+                <td colspan="13" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.organization_switched.name}</td>
             </tr>
         {/if}
     {/foreach}

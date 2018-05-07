@@ -53,6 +53,8 @@ class BillLine extends ActiveRecord
     const LINE_TYPE_GOOD = 'good';
     const LINE_TYPE_ALL4NET = 'all4net';
 
+    const DATE_DEFAULT = '0000-00-00';
+
     public $isHistoryVersioning = false;
 
     /**

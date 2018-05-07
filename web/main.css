@@ -440,3 +440,11 @@ div.indicator-danger {
 .error {
 	color: #c40000;
 }
+
+table.price .sum_column {
+	width: 100px;
+}
+
+table.price .payment_info_column {
+	width: 200px;
+}
