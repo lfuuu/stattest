@@ -394,12 +394,12 @@
                         <br />
                     {/foreach}
                     <br>
-                    <a href="/bill/print?&billNo={$bill.bill_no}&docType=uu_invoice&isPdf=0" target="_blank"><div class="flag flag-hu"></div>Invoice #{$bill.uu_bill_id}</a>
+                    <a href="/bill/print?&billNo={$bill.bill_no}&docType=uu_invoice&emailed=1&isPdf=0" target="_blank"><div class="flag flag-hu"></div>Invoice #{$bill.uu_bill_id}</a>
                 {/if}
                 <br>
-                <a href="/bill/print?&billNo={$bill.bill_no}&docType=proforma&isPdf=0" target="_blank"><div class="flag flag-us"></div>Proforma Invoice #{$bill.bill_no}</a>
+                <a href="/bill/print?&billNo={$bill.bill_no}&docType=proforma&emailed=1&isPdf=0" target="_blank"><div class="flag flag-us"></div>Proforma Invoice #{$bill.bill_no}</a>
                 <br>
-                <a href="/bill/print?&billNo={$bill.bill_no}&docType=bill_operator&isPdf=0" target="_blank"><div class="flag flag-us"></div>Счет операторский #{$bill.bill_no}</a>
+                <a href="/bill/print?&billNo={$bill.bill_no}&docType=bill_operator&emailed=1&isPdf=0" target="_blank"><div class="flag flag-us"></div>Счет операторский #{$bill.bill_no}</a>
             </td>
         </tr>
     </table>
