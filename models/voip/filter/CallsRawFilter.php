@@ -593,7 +593,7 @@ class CallsRawFilter extends CallsRaw
 
         $query->leftJoin(
             ["{$alias}_nrd" => 'nnp.number_range_destination'],
-            "{$alias}_nrd.number_range_id = " . $param
+            "{$alias}_nrd.destination_id = " . $param
         );
 
         $query3 && $query3->addSelect(["{$alias}_destination_id" => new Expression('NULL')]);
