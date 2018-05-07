@@ -10,6 +10,7 @@ use app\modules\nnp\models\PackagePricelist;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
@@ -32,13 +33,14 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffVoipCity[] */
     public $tariffVoipCities;
 
+    /** @var TariffCountry[] */
+    public $tariffCountries;
+
     /** @var TariffVoipNdcType[] */
     public $tariffNdcTypes;
 
     /** @var TariffOrganization[] */
     public $tariffOrganizations;
-
-    public $countryId;
 
     /**
      * @return TariffResource[]
@@ -64,6 +66,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return TariffOrganization[]
      */
     abstract public function getTariffOrganizations();
+
+    /**
+     * @return TariffCountry[]
+     */
+    abstract public function getTariffCountries();
 
     /**
      * @return Tariff
@@ -124,6 +131,9 @@ abstract class TariffForm extends \app\classes\Form
             unset($post['TariffPeriod'], $post['TariffResource'], $post['Package']);
         }
 
+        $this->tariffOrganizations = $this->getTariffOrganizations();
+        $this->tariffCountries = $this->getTariffCountries();
+
         switch ($this->tariff->service_type_id) {
 
             case ServiceType::ID_VPBX:
@@ -137,8 +147,6 @@ abstract class TariffForm extends \app\classes\Form
                 $this->tariffNdcTypes = $this->getTariffVoipNdcTypes();
                 break;
         }
-
-        $this->tariffOrganizations = $this->getTariffOrganizations();
 
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
@@ -182,6 +190,14 @@ abstract class TariffForm extends \app\classes\Form
                 if (isset($post['TariffResource'])) {
                     $this->tariffResources = $this->crudMultiple($this->tariffResources, $post, $tariffResource);
                 }
+
+                $tariffOrganization = new TariffOrganization();
+                $tariffOrganization->tariff_id = $this->id;
+                $this->tariffOrganizations = $this->crudMultipleSelect2($this->tariffOrganizations, $post, $tariffOrganization, 'organization_id');
+
+                $tariffCountries = new TariffCountry();
+                $tariffCountries->tariff_id = $this->id;
+                $this->tariffCountries = $this->crudMultipleSelect2($this->tariffCountries, $post, $tariffCountries, 'country_id');
 
                 switch ($this->tariff->service_type_id) {
 
@@ -230,7 +246,7 @@ abstract class TariffForm extends \app\classes\Form
                         if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
                             $tariffVoipCity = new TariffVoipCity();
                             $tariffVoipCity->tariff_id = $this->id;
-                            $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+                            $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, (count($this->tariffCountries) == 1) ? $post : [], $tariffVoipCity, 'city_id');
 
                             $tariffVoipNdcType = new TariffVoipNdcType();
                             $tariffVoipNdcType->tariff_id = $this->id;
@@ -242,17 +258,13 @@ abstract class TariffForm extends \app\classes\Form
                         // только для телефонии
                         $tariffVoipCity = new TariffVoipCity();
                         $tariffVoipCity->tariff_id = $this->id;
-                        $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+                        $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, (count($this->tariffCountries) == 1) ? $post : [], $tariffVoipCity, 'city_id');
 
                         $tariffVoipNdcType = new TariffVoipNdcType();
                         $tariffVoipNdcType->tariff_id = $this->id;
                         $this->tariffNdcTypes = $this->crudMultipleSelect2($this->tariffNdcTypes, $post, $tariffVoipNdcType, 'ndc_type_id');
                         break;
                 }
-
-                $tariffOrganization = new TariffOrganization();
-                $tariffOrganization->tariff_id = $this->id;
-                $this->tariffOrganizations = $this->crudMultipleSelect2($this->tariffOrganizations, $post, $tariffOrganization, 'organization_id');
             }
 
             if ($this->validateErrors) {
@@ -282,6 +294,7 @@ abstract class TariffForm extends \app\classes\Form
     private function _cloneTariff()
     {
         $tariffCloned = $this->_cloneTariffTariff();
+        $this->_cloneTariffCountry($tariffCloned);
         $this->_cloneTariffVoipCity($tariffCloned);
         $this->_cloneTariffVoipNdcType($tariffCloned);
         $this->_cloneTariffOrganization($tariffCloned);
@@ -309,7 +322,6 @@ abstract class TariffForm extends \app\classes\Form
             'tariff_status_id',
             'currency_id',
             'count_of_validity_period',
-            'country_id',
             'tariff_person_id',
             'is_autoprolongation',
             'is_charge_after_blocking',
@@ -353,6 +365,32 @@ abstract class TariffForm extends \app\classes\Form
             if (!$voipCityCloned->save()) {
                 $this->validateErrors += $voipCityCloned->getFirstErrors();
                 throw new ModelValidationException($voipCityCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. TariffCountry
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffCountry(Tariff $tariffCloned)
+    {
+        $voipCountries = $this->tariff->voipCountries;
+        $fieldNames = [
+            'country_id',
+        ];
+        foreach ($voipCountries as $voipCountry) {
+            $voipCountryCloned = new TariffVoipCity();
+            $voipCountryCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $voipCountryCloned->$fieldName = $voipCountry->$fieldName;
+            }
+
+            if (!$voipCountryCloned->save()) {
+                $this->validateErrors += $voipCountryCloned->getFirstErrors();
+                throw new ModelValidationException($voipCountryCloned);
             }
         }
     }

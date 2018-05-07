@@ -26,6 +26,7 @@ $this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [A
 $this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::className()]]);
 
+/** @var ClientContragent[] $contragents */
 $contragents = ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();
 $contragentsOptions = [];
 

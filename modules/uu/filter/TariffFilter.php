@@ -4,6 +4,7 @@ namespace app\modules\uu\filter;
 
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipNdcType;
@@ -41,7 +42,7 @@ class TariffFilter extends Tariff
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
+        $rules[] = [['country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
         return $rules;
     }
 
@@ -70,7 +71,7 @@ class TariffFilter extends Tariff
     public function search()
     {
         $query = Tariff::find()
-            ->joinWith('country')
+            ->joinWith('tariffCountries')
             ->joinWith('status')
             ->with('tariffPeriods')
             ->with('voipCities');
@@ -80,13 +81,13 @@ class TariffFilter extends Tariff
         ]);
 
         $tariffTableName = Tariff::tableName();
+        $tariffCountryTableName = TariffCountry::tableName();
 
         $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
         $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_person_id !== '' && $query->andWhere([$tariffTableName . '.tariff_person_id' => $this->tariff_person_id]);
         $this->tag_id !== '' && $query->andWhere([$tariffTableName . '.tag_id' => $this->tag_id]);
         $this->currency_id !== '' && $query->andWhere([$tariffTableName . '.currency_id' => $this->currency_id]);
-        $this->country_id !== '' && $query->andWhere([$tariffTableName . '.country_id' => $this->country_id]);
         $this->service_type_id !== '' && $query->andWhere([$tariffTableName . '.service_type_id' => $this->service_type_id]);
         $this->is_autoprolongation !== '' && $query->andWhere([$tariffTableName . '.is_autoprolongation' => (int)$this->is_autoprolongation]);
         $this->is_charge_after_blocking !== '' && $query->andWhere([$tariffTableName . '.is_charge_after_blocking' => (int)$this->is_charge_after_blocking]);
@@ -94,6 +95,8 @@ class TariffFilter extends Tariff
         $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
         $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
+
+        $this->country_id !== '' && $query->andWhere([$tariffCountryTableName . '.country_id' => $this->country_id]);
 
         if ($this->voip_city_id !== '') {
             $query->joinWith('voipCities');

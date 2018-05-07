@@ -25,6 +25,7 @@ use app\tests\codeception\fixtures\DestinationFixture;
 use app\tests\codeception\fixtures\EntryPointFixture;
 use app\tests\codeception\fixtures\NumberFixture;
 use app\tests\codeception\fixtures\TariffVoipPackageFixture;
+use app\tests\codeception\fixtures\uu\TariffCountryFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
@@ -115,6 +116,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
 
         // Loading fixtures universal fixtures
         (new TariffFixture)->load();
+        (new TariffCountryFixture)->load();
         (new TariffOrganizationFixture)->load();
         (new TariffVoipCityFixture)->load();
         (new TariffVoipNdcTypeFixture)->load();
@@ -157,6 +159,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
         (new TariffPeriodFixture)->unload();
         (new TariffResourceFixture)->unload();
         (new TariffOrganizationFixture)->unload();
+        (new TariffCountryFixture)->unload();
         (new TariffFixture)->unload();
     }
 

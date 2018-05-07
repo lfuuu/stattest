@@ -24,6 +24,7 @@ use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffPerson;
@@ -507,9 +508,9 @@ class UuController extends ApiInternalController
 
         $tariffQuery = Tariff::find();
         $tariffTableName = Tariff::tableName();
+
         $id && $tariffQuery->andWhere([$tariffTableName . '.id' => $id]);
         $service_type_id && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$service_type_id]);
-        $country_id && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$country_id]);
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
         !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
         !is_null($is_postpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
@@ -519,22 +520,32 @@ class UuController extends ApiInternalController
         $tariff_tag_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_tag_id' => $tariff_tag_id]);
         $voip_group_id && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int)$voip_group_id]);
 
+        if ($country_id) {
+            $tariffQuery
+                ->joinWith('tariffCountries')
+                ->andWhere([TariffCountry::tableName() . '.country_id' => $country_id]);
+        }
+
         if ($voip_city_id) {
-            $tariffQuery->joinWith('voipCities');
-            $tariffVoipCityTableName = TariffVoipCity::tableName();
-            $tariffQuery->andWhere([$tariffVoipCityTableName . '.city_id' => $voip_city_id]);
+            $tariffQuery
+                ->joinWith('voipCities')
+                ->andWhere([
+                    'OR',
+                    [TariffVoipCity::tableName() . '.city_id' => $voip_city_id], // если в тарифе хоть один город, то надо только точное соотвествие
+                    [TariffVoipCity::tableName() . '.city_id' => null] // если в тарифе ни одного города нет, то это означает "любой город этой страны"
+                ]);
         }
 
         if ($voip_ndc_type_id) {
-            $tariffQuery->joinWith('voipNdcTypes');
-            $tariffVoipNdcTypeTableName = TariffVoipNdcType::tableName();
-            $tariffQuery->andWhere([$tariffVoipNdcTypeTableName . '.ndc_type_id' => $voip_ndc_type_id]);
+            $tariffQuery
+                ->joinWith('voipNdcTypes')
+                ->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $voip_ndc_type_id]);
         }
 
         if ($organization_id) {
-            $tariffQuery->joinWith('organizations');
-            $tariffOrganizationTableName = TariffOrganization::tableName();
-            $tariffQuery->andWhere([$tariffOrganizationTableName . '.organization_id' => $organization_id]);
+            $tariffQuery
+                ->joinWith('organizations')
+                ->andWhere([TariffOrganization::tableName() . '.organization_id' => $organization_id]);
         }
 
         $result = [];

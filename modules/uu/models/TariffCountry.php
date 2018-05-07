@@ -3,23 +3,23 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
-use app\models\City;
+use app\models\Country;
 use yii\db\ActiveQuery;
 
 /**
- * Телефония. Города
+ * Страны тарифа
  *
  * @property integer $id
  * @property integer $tariff_id
- * @property integer $city_id
+ * @property integer $country_id
  *
  * @property-read Tariff $tariff
- * @property-read City $city
+ * @property-read Country $country
  *
- * @method static TariffVoipCity findOne($condition)
- * @method static TariffVoipCity[] findAll($condition)
+ * @method static TariffCountry findOne($condition)
+ * @method static TariffCountry[] findAll($condition)
  */
-class TariffVoipCity extends ActiveRecord
+class TariffCountry extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -42,7 +42,7 @@ class TariffVoipCity extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'uu_tariff_voip_city';
+        return 'uu_tariff_country';
     }
 
     /**
@@ -51,8 +51,8 @@ class TariffVoipCity extends ActiveRecord
     public function rules()
     {
         return [
-            [['tariff_id', 'city_id',], 'integer'],
-            [['tariff_id', 'city_id',], 'required'],
+            [['tariff_id', 'country_id',], 'integer'],
+            [['tariff_id', 'country_id',], 'required'],
         ];
     }
 
@@ -67,9 +67,9 @@ class TariffVoipCity extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getCity()
+    public function getCountry()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
 
     /**
@@ -79,7 +79,7 @@ class TariffVoipCity extends ActiveRecord
      */
     public function __toString()
     {
-        return $this->city->name;
+        return $this->country->name_rus;
     }
 
     /**
@@ -93,9 +93,9 @@ class TariffVoipCity extends ActiveRecord
     {
         switch ($field) {
 
-            case 'city_id':
-                if ($city = City::findOne(['id' => $value])) {
-                    return $city->getLink();
+            case 'country_id':
+                if ($country = Country::findOne(['id' => $value])) {
+                    return $country->getLink();
                 }
                 break;
         }

@@ -14,6 +14,7 @@ use app\models\Currency;
 use app\modules\uu\controllers\TariffController;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffTag;
@@ -38,11 +39,18 @@ $viewParams = [
 <div class="well">
     <h2>Тариф <?= $helpConfluence = $this->render('//layouts/_helpConfluence', Tariff::getHelpConfluence()) ?></h2>
 
-    <?php
-    if (!$tariff->isNewRecord) {
-        ?>
-        <div class="row">
+    <div class="row">
 
+        <div class="col-sm-4">
+            <?= $form->field($tariff, 'name')
+                ->textInput(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options)
+                ->label($tariff->getAttributeLabel('name') . $helpConfluence)
+            ?>
+        </div>
+
+        <?php
+        if (!$tariff->isNewRecord) {
+            ?>
             <div class="col-sm-2">
                 <label><?= $tariff->getAttributeLabel('insert_user_id') ?></label>
                 <div><?= $tariff->insertUser ?
@@ -73,22 +81,12 @@ $viewParams = [
                         (new DateTimeWithUserTimezone($tariff->update_time))->getDateTime() :
                         Yii::t('common', '(not set)') ?></div>
             </div>
-
-        </div>
-        <?php
-    }
-    ?>
+            <?php
+        }
+        ?>
+    </div>
 
     <div class="row">
-        <div class="col-sm-2">
-            <?= $form->field($tariff, 'country_id')
-                ->widget(Select2::className(), [
-                    'data' => Country::getList($tariff->isNewRecord),
-                    'options' => $options,
-                ])
-                ->label($tariff->getAttributeLabel('country_id') . $helpConfluence)
-            ?>
-        </div>
 
         <div class="col-sm-2">
             <?= $form->field($tariff, 'currency_id')
@@ -100,11 +98,16 @@ $viewParams = [
             ?>
         </div>
 
-        <div class="col-sm-4">
-            <?= $form->field($tariff, 'name')
-                ->textInput(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options)
-                ->label($tariff->getAttributeLabel('name') . $helpConfluence)
-            ?>
+        <div class="col-sm-6">
+            <label><?= Yii::t('models/' . TariffCountry::tableName(), 'country_id') . $helpConfluence ?></label>
+            <?= Select2::widget([
+                'name' => 'TariffCountry[]',
+                'value' => array_keys($formModel->tariffCountries),
+                'data' => Country::getList($isWithEmpty = false),
+                'options' => [
+                    'multiple' => true,
+                ],
+            ]) ?>
         </div>
 
         <div class="col-sm-2">

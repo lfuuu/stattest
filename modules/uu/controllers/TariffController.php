@@ -77,7 +77,7 @@ class TariffController extends BaseController
     public function actionNew($serviceTypeId, $countryId = null)
     {
         /** @var TariffAddForm $formModel */
-        $formModel = new TariffAddForm(['serviceTypeId' => $serviceTypeId, 'countryId' => $countryId]);
+        $formModel = new TariffAddForm(['serviceTypeId' => $serviceTypeId, 'tariffCountries' => [$countryId => true]]);
 
         // сообщение об ошибке
         if ($formModel->validateErrors) {
@@ -104,7 +104,7 @@ class TariffController extends BaseController
     {
         try {
             /** @var TariffEditForm $formModel */
-            $formModel = new TariffEditForm(['id' => $id, 'countryId' => $countryId]);
+            $formModel = new TariffEditForm(['id' => $id, 'tariffCountries' => [$countryId => true]]);
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 

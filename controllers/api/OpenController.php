@@ -14,6 +14,7 @@ use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
@@ -431,11 +432,12 @@ final class OpenController extends Controller
         $isDefault = true;
         $serviceTypeId = ServiceType::ID_VOIP;
 
-        $tariffQuery = Tariff::find();
+        $tariffQuery = Tariff::find()
+            ->with('tariffCountries')
+            ->andWhere([TariffCountry::tableName() . '.country_id' => (int)$countryId]);
         $tariffTableName = Tariff::tableName();
 
         $serviceTypeId && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$serviceTypeId]);
-        $countryId && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$countryId]);
         $currencyId && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currencyId]);
         !is_null($isDefault) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$isDefault]);
         !is_null($isPostpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$isPostpaid]);
@@ -443,13 +445,19 @@ final class OpenController extends Controller
         $tariffPersonId && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariffPersonId]]);
 
         if ($voipCityId) {
-            $tariffQuery->joinWith('voipCities');
-            $tariffQuery->andWhere([TariffVoipCity::tableName() . '.city_id' => $voipCityId]);
+            $tariffQuery
+                ->joinWith('voipCities')
+                ->andWhere([
+                    'OR',
+                    [TariffVoipCity::tableName() . '.city_id' => $voipCityId], // если в тарифе хоть один город, то надо только точное соотвествие
+                    [TariffVoipCity::tableName() . '.city_id' => null] // если в тарифе ни одного города нет, то это означает "любой город этой страны"
+                ]);
         }
 
         if ($serviceTypeId == ServiceType::ID_VOIP && $ndcTypeId) {
-            $tariffQuery->joinWith('voipNdcTypes');
-            $tariffQuery->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId]);
+            $tariffQuery
+                ->joinWith('voipNdcTypes')
+                ->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId]);
         }
 
         /** @var Tariff $tariff */
@@ -494,9 +502,10 @@ final class OpenController extends Controller
         $tariffTableName = Tariff::tableName();
         $tariffPackagesQuery = Tariff::find()
             ->joinWith('voipNdcTypes')
+            ->with('tariffCountries')
             ->where([
                 $tariffTableName . '.service_type_id' => array_keys(ServiceType::$packages),
-                $tariffTableName . '.country_id' => $tariff->country_id,
+                TariffCountry::tableName() . '.country_id' => $countryId,
                 $tariffTableName . '.currency_id' => $tariff->currency_id,
                 $tariffTableName . '.is_default' => 1,
                 $tariffTableName . '.tariff_status_id' => $packageStatusIds,
@@ -507,7 +516,11 @@ final class OpenController extends Controller
         if ($voipCityId) {
             $tariffPackagesQuery
                 ->joinWith('voipCities')
-                ->andWhere([TariffVoipCity::tableName() . '.city_id' => $voipCityId]);
+                ->andWhere([
+                    'OR',
+                    [TariffVoipCity::tableName() . '.city_id' => $voipCityId], // если в тарифе хоть один город, то надо только точное соотвествие
+                    [TariffVoipCity::tableName() . '.city_id' => null] // если в тарифе ни одного города нет, то это означает "любой город этой страны"
+                ]);
         }
 
         /** @var Tariff $tariffPackage */

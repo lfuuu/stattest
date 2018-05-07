@@ -12,6 +12,7 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\proxies\AccountTariffProxy;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffStatus;
@@ -167,9 +168,16 @@ class AccountTariffFilter extends AccountTariff
         $this->tariff_status_id !== '' && $query->andWhere(['tariff.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_is_include_vat !== '' && $query->andWhere(['tariff.is_include_vat' => $this->tariff_is_include_vat]);
         $this->tariff_is_postpaid !== '' && $query->andWhere(['tariff.is_postpaid' => $this->tariff_is_postpaid]);
-        $this->tariff_country_id !== '' && $query->andWhere(['tariff.country_id' => $this->tariff_country_id]);
         $this->tariff_currency_id !== '' && $query->andWhere(['tariff.currency_id' => $this->tariff_currency_id]);
         $this->tariff_is_default !== '' && $query->andWhere(['tariff.is_default' => $this->tariff_is_default]);
+
+        if ($this->tariff_country_id !== '') {
+            $query
+                ->innerJoin(TariffCountry::tableName() . ' as tariff_country', 'tariff.id = tariff_country.tariff_id')
+                ->andWhere(['tariff_country.country_id' => $this->tariff_country_id]);
+        }
+
+        $isEmmptyAccountManagerName = ($this->account_manager_name !== '');
 
         if (
             $this->account_manager_name !== '' ||
@@ -183,9 +191,9 @@ class AccountTariffFilter extends AccountTariff
             $query->innerJoin($clientContractTableName, "clients.contract_id = $clientContractTableName.id");
 
             // Присоединение столбца "Ак. менеджер"
-            if ($this->account_manager_name !== '') {
+            if ($isEmptyAccountManagerName) {
                 $query
-                    ->leftJoin(User::tableName() . ' amu', "$clientContractTableName.account_manager = amu.user")
+                    ->leftJoin(User::tableName() . ' amu', $clientContractTableName . '.account_manager = amu.user')
                     ->andWhere(['amu.user' => $this->account_manager_name]);
             }
 
@@ -258,21 +266,23 @@ class AccountTariffFilter extends AccountTariff
                 $this->uu_account_tariff_log_actual_from_utc_disc_to !== '' && $query->andWhere(['<=', "DATE_FORMAT(uatl_date_disc.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_disc_to]);
 
                 // Присоединение столбцов "Дата продажи" и "Дата допродажи"
-                $query->innerJoin($clientContragentTableName, "$clientContractTableName.contragent_id = $clientContragentTableName.id");
+                $query->innerJoin($clientContragentTableName, $clientContractTableName . '.contragent_id = ' . $clientContragentTableName . '.id');
 
                 // Фильтрация столбца "Дата продажи"
                 if ($this->date_sale_from !== '' || $this->date_sale_to !== '') {
-                    $query->andWhere(['>', "$clientContragentTableName.created_at", new Expression('NOW() - INTERVAL 1 MONTH')]);
+                    $query->andWhere(['>', $clientContragentTableName . '.created_at', new Expression('NOW() - INTERVAL 1 MONTH')]);
                 }
-                $this->date_sale_from !== '' && $query->andWhere(['>=', "DATE_FORMAT($clientContragentTableName.created_at, '%Y-%m-%d')", $this->date_sale_from]);
-                $this->date_sale_to !== '' && $query->andWhere(['<=', "DATE_FORMAT($clientContragentTableName.created_at, '%Y-%m-%d')", $this->date_sale_to]);
+
+                $this->date_sale_from !== '' && $query->andWhere(['>=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_sale_from]);
+                $this->date_sale_to !== '' && $query->andWhere(['<=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_sale_to]);
 
                 // Фильтрация столбца "Дата допродажи"
                 if ($this->date_before_sale_from !== '' || $this->date_before_sale_to !== '') {
-                    $query->andWhere(['<=', "$clientContragentTableName.created_at", new Expression('NOW() - INTERVAL 1 MONTH')]);
+                    $query->andWhere(['<=', "{$clientContragentTableName}.created_at", new Expression('NOW() - INTERVAL 1 MONTH')]);
                 }
-                $this->date_before_sale_from !== '' && $query->andWhere(['>=', "DATE_FORMAT($clientContragentTableName.created_at, '%Y-%m-%d')", $this->date_before_sale_from]);
-                $this->date_before_sale_to !== '' && $query->andWhere(['<=', "DATE_FORMAT($clientContragentTableName.created_at, '%Y-%m-%d')", $this->date_before_sale_to]);
+
+                $this->date_before_sale_from !== '' && $query->andWhere(['>=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_before_sale_from]);
+                $this->date_before_sale_to !== '' && $query->andWhere(['<=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_before_sale_to]);
             }
         }
 

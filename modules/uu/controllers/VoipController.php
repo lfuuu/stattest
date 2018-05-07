@@ -155,8 +155,6 @@ class VoipController extends BaseController
         $didGroupId && $numbers->setDidGroup($didGroupId);
         $operatorAccountId && $numbers->setOperatorAccount($operatorAccountId);
         $mask && $numbers->setNumberLike($mask);
-        //$numbers->setIsShowInLk(City::IS_SHOW_IN_LK_API_ONLY); // В стате можно подключать номера, даже если город недоступен ни в API ни в ЛК
-
         $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);
         $limit && $numbers->setLimit($limit);
 

@@ -225,13 +225,19 @@ class TariffPeriod extends ActiveRecord
         }
 
         if ($countryId) {
-            $activeQuery->andWhere(['tariff.country_id' => $countryId]);
+            $activeQuery
+                ->innerJoin(TariffCountry::tableName() . ' as tariff_country', 'tariff.id = tariff_country.tariff_id')
+                ->andWhere(['tariff_country.country_id' => $countryId]);
         }
 
         if ($cityId && in_array($serviceTypeId, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {
             $activeQuery
-                ->innerJoin(TariffVoipCity::tableName() . ' tariff_cities', 'tariff.id = tariff_cities.tariff_id')
-                ->andWhere(['tariff_cities.city_id' => $cityId]);
+                ->leftJoin(TariffVoipCity::tableName() . ' tariff_cities', 'tariff.id = tariff_cities.tariff_id')
+                ->andWhere([
+                    'OR',
+                    ['tariff_cities.city_id' => $cityId], // если в тарифе хоть один город, то надо только точное соотвествие
+                    ['tariff_cities.city_id' => null] // если в тарифе ни одного города нет, то это означает "любой город этой страны"
+                ]);
         }
 
         if ($ndcTypeId && in_array($serviceTypeId, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {

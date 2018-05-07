@@ -3,7 +3,6 @@ return [
     'id' => 'ID',
     'name' => 'Name',
     'service_type_id' => 'Service type',
-    'country_id' => 'Country',
     'is_autoprolongation' => 'Autoprolongation',
     'is_charge_after_blocking' => 'Is charge after blocking',
     'is_include_vat' => 'Is include VAT',

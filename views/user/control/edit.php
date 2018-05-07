@@ -17,6 +17,7 @@ use yii\widgets\Breadcrumbs;
 /** @var User $model */
 
 $cities = ['' => '-- Выберите город --'];
+/** @var City $city */
 foreach (City::find()->orderBy('country_id desc')->all() as $city) {
     $cities[$city->id] = $city->country->name . ' / ' . $city->name;
 }

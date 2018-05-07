@@ -13,12 +13,14 @@ use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffVoipCity;
 use kartik\select2\Select2;
 
-$tariffVoipCities = $formModel->tariffVoipCities;
-$cityList = City::getList($isWithEmpty = false, $formModel->tariff->country_id);
-$tariff = $formModel->tariff;
-
 $tariffVoipCityTableName = TariffVoipCity::tableName();
 $tariffTableName = Tariff::tableName();
+$tariff = $formModel->tariff;
+
+$tariffCountries = $tariff->tariffCountries;
+$cityList = (count($tariffCountries) == 1) ?
+    City::getList($isWithEmpty = false, reset($tariffCountries)->country_id) : // для одной страны - ее города
+    []; // для многих стран - города нет смысла выбирать
 ?>
 
 <div class="row">
@@ -30,7 +32,7 @@ $tariffTableName = Tariff::tableName();
         </label>
         <?= Select2::widget([
             'name' => 'TariffVoipCity[]',
-            'value' => array_keys($tariffVoipCities),
+            'value' => array_keys($formModel->tariffVoipCities),
             'data' => $cityList,
             'options' => [
                 'multiple' => true,

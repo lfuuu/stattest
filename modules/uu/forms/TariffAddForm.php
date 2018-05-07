@@ -2,10 +2,10 @@
 
 namespace app\modules\uu\forms;
 
-use app\models\Country;
 use app\models\Currency;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
@@ -36,7 +36,6 @@ class TariffAddForm extends TariffForm
     {
         $tariff = new Tariff();
         $tariff->service_type_id = $this->serviceTypeId;
-        $tariff->country_id = $this->countryId ?: Country::RUSSIA;
         $tariff->currency_id = Currency::RUB;
         $tariff->tariff_status_id = TariffStatus::ID_PUBLIC;
         $tariff->count_of_validity_period = 0;
@@ -93,5 +92,13 @@ class TariffAddForm extends TariffForm
     public function getTariffOrganizations()
     {
         return [new TariffOrganization()];
+    }
+
+    /**
+     * @return TariffCountry[]
+     */
+    public function getTariffCountries()
+    {
+        return [new TariffCountry()];
     }
 }

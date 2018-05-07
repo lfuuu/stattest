@@ -3,6 +3,7 @@
 namespace app\modules\uu\forms;
 
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
@@ -33,13 +34,11 @@ class TariffEditForm extends TariffForm
         /** @var Tariff $tariff */
         $tariff = Tariff::find()
             ->where($tariffTableName . '.id = :id', [':id' => $this->id])
-            ->joinWith(['tariffPeriods', 'country', 'status'])
+            ->joinWith(['tariffPeriods', 'status'])
             ->one();
         if (!$tariff) {
             throw new \InvalidArgumentException(\Yii::t('common', 'Wrong ID'));
         }
-
-        $this->countryId && $tariff->country_id = $this->countryId;
 
         return $tariff;
     }
@@ -83,5 +82,13 @@ class TariffEditForm extends TariffForm
     public function getTariffOrganizations()
     {
         return $this->tariff->organizations;
+    }
+
+    /**
+     * @return TariffCountry[]
+     */
+    public function getTariffCountries()
+    {
+        return $this->tariff->tariffCountries;
     }
 }

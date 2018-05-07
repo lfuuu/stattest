@@ -9,6 +9,7 @@
 use app\classes\grid\column\CurrencyColumn;
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
+use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
@@ -19,7 +20,6 @@ use app\classes\grid\column\universal\UserColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\uu\column\DatacenterColumn;
 use app\modules\uu\column\InfrastructureLevelColumn;
@@ -94,7 +94,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
         'label' => 'Ак. менеджер',
         'attribute' => 'account_manager_name',
         'class' => UserColumn::className(),
-        'value' => function(AccountTariffProxy $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             return $accountTariff->clientAccount->contract->getAccountManagerName();
         },
     ];
@@ -167,12 +167,34 @@ $columns = array_merge($columns, [
     [
         'label' => 'Страна',
         'attribute' => 'tariff_country_id',
+        'format' => 'html',
         'class' => CountryColumn::className(),
+        'isAddLink' => false,
+        'contentOptions' => [
+            'class' => 'nowrap',
+        ],
         'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
-            $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
+            if (!$tariffPeriod) {
+                return '';
+            }
 
-            return $tariff ? $tariff->country_id : null;
+            $maxCount = 2;
+            $tariff = $tariffPeriod->tariff;
+            $tariffCountries = $tariff->tariffCountries;
+            $count = count($tariffCountries);
+            if ($count <= $maxCount) {
+                return implode('<br/>', $tariffCountries);
+            }
+
+            $maxCount--;
+
+            return sprintf(
+                '%s<br/><abbr title="%s">… %d…</abbr>',
+                implode('<br/>', array_slice($tariffCountries, 0, $maxCount)),
+                implode(PHP_EOL, array_slice($tariffCountries, $maxCount)),
+                $count - $maxCount
+            );
         }
     ],
     [

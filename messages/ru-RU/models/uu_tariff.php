@@ -3,7 +3,6 @@ return [
     'id' => 'ID',
     'name' => 'Название',
     'service_type_id' => 'Тип услуги',
-    'country_id' => 'Страна',
     'is_autoprolongation' => 'Автопролонгация',
     'is_charge_after_blocking' => 'Списывать после блокировки',
     'is_include_vat' => 'Включая НДС',

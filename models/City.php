@@ -21,7 +21,9 @@ use yii\helpers\Url;
  *
  * @property-read Country $country
  * @property-read Region $region
- * @property int $ndcTypeId
+ *
+ * @method static City findOne($condition)
+ * @method static City[] findAll($condition)
  */
 class City extends ActiveRecord
 {

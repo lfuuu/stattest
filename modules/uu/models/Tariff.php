@@ -6,7 +6,6 @@ use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
-use app\models\Country;
 use app\models\Currency;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
@@ -28,7 +27,6 @@ use yii\helpers\Url;
  * @property integer $tariff_status_id
  * @property string $currency_id
  * @property integer $count_of_validity_period
- * @property integer $country_id
  * @property integer $tariff_person_id
  * @property integer $is_autoprolongation
  * @property integer $is_charge_after_blocking
@@ -41,7 +39,6 @@ use yii\helpers\Url;
  * @property-read TariffResource[] $tariffResources
  * @property-read TariffResource[] $tariffResourcesIndexedByResourceId
  * @property-read ServiceType $serviceType
- * @property-read Country $country
  * @property-read TariffStatus $status
  * @property-read TariffPerson $person
  * @property-read TariffPeriod[] $tariffPeriods
@@ -60,6 +57,7 @@ use yii\helpers\Url;
  * @property integer $vm_id
  * @property-read TariffVm $vm
  *
+ * @property-read TariffCountry[] $tariffCountries
  * @property-read TariffVoipGroup $voipGroup
  * @property-read TariffVoipCity[] $voipCities
  * @property-read TariffOrganization[] $organizations
@@ -141,7 +139,6 @@ class Tariff extends ActiveRecord
                     'is_charge_after_blocking',
                     'is_default',
                     'is_postpaid',
-                    'country_id',
                     'vm_id',
                     'tag_id',
                 ],
@@ -280,14 +277,6 @@ class Tariff extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getCountry()
-    {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
     public function getStatus()
     {
         return $this->hasOne(TariffStatus::className(), ['id' => 'tariff_status_id']);
@@ -340,6 +329,15 @@ class Tariff extends ActiveRecord
     {
         return $this->hasMany(TariffVoipCity::className(), ['tariff_id' => 'id'])
             ->indexBy('city_id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTariffCountries()
+    {
+        return $this->hasMany(TariffCountry::className(), ['tariff_id' => 'id'])
+            ->indexBy('country_id');
     }
 
     /**
@@ -467,12 +465,13 @@ class Tariff extends ActiveRecord
     /**
      * Найти и вернуть дефолтные пакеты
      *
+     * @param int $countryId
      * @param int $cityId
      * @param int $ndcTypeId
      * @param int[] $tariffStatuses
      * @return Tariff[]|null
      */
-    public function findDefaultPackages($cityId, $ndcTypeId, $tariffStatuses = [])
+    public function findDefaultPackages($countryId, $cityId, $ndcTypeId, $tariffStatuses = [])
     {
         if ($this->service_type_id != ServiceType::ID_VOIP || !$ndcTypeId) {
             // пакеты по умолчанию только для телефонии. Даже для пакетов транков их нет
@@ -481,9 +480,10 @@ class Tariff extends ActiveRecord
 
         $tariffTableName = self::tableName();
         $query = self::find()
+            ->with('tariffCountries')
             ->where([
                 $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
-                $tariffTableName . '.country_id' => $this->country_id,
+                TariffCountry::tableName() . '.country_id' => $countryId,
                 $tariffTableName . '.currency_id' => $this->currency_id,
                 // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
                 $tariffTableName . '.is_default' => 1,
@@ -530,12 +530,6 @@ class Tariff extends ActiveRecord
                 }
                 break;
 
-            case 'country_id':
-                if ($country = Country::findOne(['code' => $value])) {
-                    return $country->getLink();
-                }
-                break;
-
             case 'tag_id':
                 if ($tariffTag = TariffTag::findOne(['id' => $value])) {
                     return $tariffTag->name;
@@ -577,6 +571,8 @@ class Tariff extends ActiveRecord
         if ($count <= $maxCount) {
             return implode('<br/>', $organizations);
         }
+
+        $maxCount--;
 
         return sprintf(
             '%s<br/><abbr title="%s">… %d…</abbr>',

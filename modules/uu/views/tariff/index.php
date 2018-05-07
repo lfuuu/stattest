@@ -26,6 +26,7 @@ use app\modules\uu\filter\TariffFilter;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
@@ -100,8 +101,31 @@ $columns = [
         'class' => CurrencyColumn::className(),
     ],
     [
+        'label' => Html::encode(Yii::t('models/' . TariffCountry::tableName(), 'country_id')),
         'attribute' => 'country_id',
+        'format' => 'html',
         'class' => CountryColumn::className(),
+        'isAddLink' => false,
+        'contentOptions' => [
+            'class' => 'nowrap',
+        ],
+        'value' => function (Tariff $tariff) {
+            $maxCount = 2;
+            $tariffCountries = $tariff->tariffCountries;
+            $count = count($tariffCountries);
+            if ($count <= $maxCount) {
+                return implode('<br/>', $tariffCountries);
+            }
+
+            $maxCount--;
+
+            return sprintf(
+                '%s<br/><abbr title="%s">… %d…</abbr>',
+                implode('<br/>', array_slice($tariffCountries, 0, $maxCount)),
+                implode(PHP_EOL, array_slice($tariffCountries, $maxCount)),
+                $count - $maxCount
+            );
+        },
     ],
     [
         'attribute' => 'tariff_status_id',
@@ -185,13 +209,15 @@ $cityColumn = [
             return implode('<br/>', $voipCities);
         }
 
+        $maxCount--;
+
         return sprintf(
             '%s<br/><abbr title="%s">… %d…</abbr>',
             implode('<br/>', array_slice($voipCities, 0, $maxCount)),
             implode(PHP_EOL, array_slice($voipCities, $maxCount)),
             $count - $maxCount
         );
-    }
+    },
 ];
 
 $ndcTypeColumn = [
@@ -211,13 +237,15 @@ $ndcTypeColumn = [
             return implode('<br/>', $voipNdcTypes);
         }
 
+        $maxCount--;
+
         return sprintf(
             '%s<br/><abbr title="%s">… %d…</abbr>',
             implode('<br/>', array_slice($voipNdcTypes, 0, $maxCount)),
             implode(PHP_EOL, array_slice($voipNdcTypes, $maxCount)),
             $count - $maxCount
         );
-    }
+    },
 ];
 
 // столбцы для конкретной услуги
@@ -241,7 +269,7 @@ switch ($serviceType->id) {
             'class' => TariffVoipGroupColumn::className(),
             'value' => function (Tariff $tariff) {
                 return $tariff->voip_group_id;
-            }
+            },
         ];
 
         $columns[] = [
@@ -352,7 +380,7 @@ foreach ($resources as $resource) {
             }
 
             return $tariffResource->amount ? '+' : '-';
-        }
+        },
     ];
 }
 

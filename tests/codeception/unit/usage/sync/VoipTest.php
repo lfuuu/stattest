@@ -8,10 +8,12 @@ use app\models\ClientAccount;
 use app\models\EntryPoint;
 use app\models\EventQueue;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\tests\codeception\fixtures\uu\TariffCountryFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
@@ -39,9 +41,11 @@ class Voip extends _TestCase
         TariffVoipCity::deleteAll();
         TariffOrganization::deleteAll();
         TariffVoipNdcType::deleteAll();
+        TariffCountry::deleteAll();
         Tariff::deleteAll();
 
         (new TariffFixture())->load();
+        (new TariffCountryFixture())->load();
         (new TariffOrganizationFixture())->load();
         (new TariffVoipCityFixture())->load();
         (new TariffVoipNdcTypeFixture)->load();

@@ -17,6 +17,7 @@ use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffResourceLogFixture;
+use app\tests\codeception\fixtures\uu\TariffCountryFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
@@ -41,6 +42,7 @@ class UbillerTest extends _TestCase
     protected function load()
     {
         (new TariffFixture)->load();
+        (new TariffCountryFixture)->load();
         (new TariffOrganizationFixture)->load();
         (new TariffVoipCityFixture)->load();
         (new TariffVoipNdcTypeFixture)->load();
@@ -77,6 +79,7 @@ class UbillerTest extends _TestCase
         (new TariffOrganizationFixture)->unload();
         (new TariffVoipCityFixture)->unload();
         (new TariffVoipNdcTypeFixture)->unload();
+        (new TariffCountryFixture)->unload();
         (new TariffFixture)->unload();
     }
 
