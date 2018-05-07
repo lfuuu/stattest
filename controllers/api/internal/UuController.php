@@ -607,7 +607,7 @@ class UuController extends ApiInternalController
             'is_postpaid' => $tariff->is_postpaid,
             'currency' => $tariff->currency_id,
             'service_type' => $this->_getIdNameRecord($tariff->serviceType),
-            'country' => $this->_getIdNameRecord($tariff->country, 'code'),
+            // 'country' => $this->_getIdNameRecord($tariff->country, 'code'), // @todo multi
             'tariff_status' => $this->_getIdNameRecord($tariff->status),
             'tariff_person' => $this->_getIdNameRecord($tariff->person),
             'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
