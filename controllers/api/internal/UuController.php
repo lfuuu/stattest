@@ -596,6 +596,8 @@ class UuController extends ApiInternalController
         }
 
         $package = $tariff->package;
+        $tariffCountries = $tariff->tariffCountries;
+        $tariffCountry = reset($tariffCountries);
         return [
             'id' => $tariff->id,
             'name' => $tariff->name,
@@ -607,7 +609,7 @@ class UuController extends ApiInternalController
             'is_postpaid' => $tariff->is_postpaid,
             'currency' => $tariff->currency_id,
             'service_type' => $this->_getIdNameRecord($tariff->serviceType),
-            // 'country' => $this->_getIdNameRecord($tariff->country, 'code'), // @todo multi
+            'country' => $this->_getIdNameRecord($tariffCountry ? $tariffCountry->country : null, 'code'), // @todo multi
             'tariff_status' => $this->_getIdNameRecord($tariff->status),
             'tariff_person' => $this->_getIdNameRecord($tariff->person),
             'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
