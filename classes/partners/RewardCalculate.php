@@ -3,6 +3,7 @@
 namespace app\classes\partners;
 
 use app\classes\Assert;
+use app\classes\HandlerLogger;
 use app\classes\partners\handler\AHandler;
 use app\classes\partners\handler\CallChatHandler;
 use app\classes\partners\handler\TrunkHandler;
@@ -44,10 +45,16 @@ abstract class RewardCalculate
 
         $contract = $clientAccount->contract;
         $partnerContractId = $contract->partner_contract_id ?: $contract->contragent->partner_contract_id; // COALESCE(контракт.партнер, контрагент.партнер)
-        Assert::isNotEmpty($partnerContractId);
+        if (!$partnerContractId) {
+            HandlerLogger::me()->add('PartnerContractId is null, where clientAccountId #' . $clientAccountId);
+            return;
+        }
 
         $bill = Bill::findOne(['id' => $billId]);
-        Assert::isObject($bill, 'Bill #' . $billId . ' not found');
+        if (!$bill) {
+            HandlerLogger::me()->add('Bill #' . $billId . ' not found');
+            return;
+        }
 
         // Список используемых настроек вознаграждений
         $contractRewards = (new Query)
