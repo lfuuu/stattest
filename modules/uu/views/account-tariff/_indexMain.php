@@ -81,11 +81,10 @@ $dateDisconnectTariffColumn = null;
 if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT])) {
     if ($serviceType->id == ServiceType::ID_VOIP) {
         $dateTestTariffColumn = [
-            'label' => 'Дата включения на тестовый тариф',
-            'attribute' => 'uu_account_tariff_log_actual_from_utc_test',
+            'attribute' => 'test_connect_date',
             'class' => DateRangeDoubleColumn::className(),
             'value' => function (AccountTariffProxy $accountTariff) {
-                return $accountTariff->uu_account_tariff_log_actual_from_utc_test ?: '';
+                return $accountTariff->test_connect_date ?: '';
             },
         ];
     }
@@ -120,9 +119,11 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
     ];
 
     $dateDisconnectTariffColumn = [
-        'label' => 'Дата отключения',
         'class' => DateRangeDoubleColumn::className(),
-        'attribute' => 'uu_account_tariff_log_actual_from_utc_disc',
+        'attribute' => 'disconnect_date',
+        'value' => function (AccountTariffProxy $accountTariff) {
+            return $accountTariff->disconnect_date ?: '';
+        },
     ];
 }
 

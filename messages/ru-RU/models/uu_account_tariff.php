@@ -30,4 +30,6 @@ return [
     'insert_user_id' => 'Кто создал',
     'update_time' => 'Когда редактировал, UTC',
     'update_user_id' => 'Кто редактировал',
+    'test_connect_date' => 'Дата включения на тестовый тариф',
+    'disconnect_date' => 'Дата отключения',
 ];

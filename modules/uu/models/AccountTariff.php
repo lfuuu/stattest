@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\classes\validators\FormFieldValidator;
+use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
 use app\modules\uu\behaviors\AccountTariffVoipNumber;
@@ -26,6 +27,7 @@ use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+use yii\base\Event;
 
 /**
  * Универсальная услуга
@@ -54,6 +56,8 @@ use yii\db\Expression;
  * @property string $account_log_period_utc
  * @property string $account_log_resource_utc
  * @property string $calltracking_params
+ * @property string $test_connect_date
+ * @property string $disconnect_date
  */
 class AccountTariff extends ActiveRecord
 {
@@ -158,6 +162,46 @@ class AccountTariff extends ActiveRecord
                         ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
                     ],
                     'value' => Yii::$app->user->getId(),
+                ],
+                [
+                    'class' => AttributeBehavior::className(),
+                    'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_UPDATE => 'test_connect_date',
+                    ],
+                    'value' => function(Event $event) {
+                        /** @var AccountTariff $accountTariff */
+                        $accountTariff = $event->sender;
+
+                        // Дата включения на тестовый тариф
+                        if (
+                            $accountTariff->getOldAttribute('tariff_period_id') == null &&
+                            $accountTariff->tariff_period_id !== null &&
+                            $accountTariff->tariffPeriod->tariff->isTest
+                        ) {
+                            return (new \DateTime())
+                                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                        }
+
+                        return null;
+                    },
+                ],
+                [
+                    'class' => AttributeBehavior::className(),
+                    'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_UPDATE => 'disconnect_date',
+                    ],
+                    'value' => function(Event $event) {
+                        /** @var AccountTariff $accountTariff */
+                        $accountTariff = $event->sender;
+
+                        // Дата отключения
+                        if ($accountTariff->getOldAttribute('tariff_period_id') != null && $accountTariff->tariff_period_id == null) {
+                            return (new \DateTime())
+                                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                        }
+
+                        return null;
+                    },
                 ],
             ]
         );

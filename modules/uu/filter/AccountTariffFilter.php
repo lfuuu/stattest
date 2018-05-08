@@ -8,14 +8,12 @@ use app\models\ClientContragent;
 use app\models\Number;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\proxies\AccountTariffProxy;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
-use app\modules\uu\models\TariffStatus;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 
@@ -61,14 +59,15 @@ class AccountTariffFilter extends AccountTariff
     public $account_manager_name = '';
 
     // Проксируемые фильтруемые значения
-    public $uu_account_tariff_log_actual_from_utc_test_from = '';
-    public $uu_account_tariff_log_actual_from_utc_test_to = '';
-    public $uu_account_tariff_log_actual_from_utc_disc_from = '';
-    public $uu_account_tariff_log_actual_from_utc_disc_to = '';
     public $date_sale_from = '';
     public $date_sale_to = '';
     public $date_before_sale_from = '';
     public $date_before_sale_to = '';
+
+    public $test_connect_date_to = '';
+    public $test_connect_date_from = '';
+    public $disconnect_date_to = '';
+    public $disconnect_date_from = '';
 
     /**
      * @param int $serviceTypeId
@@ -117,10 +116,10 @@ class AccountTariffFilter extends AccountTariff
         $rules[] = [
             [
                 'account_manager_name',
-                'uu_account_tariff_log_actual_from_utc_test_from',
-                'uu_account_tariff_log_actual_from_utc_test_to',
-                'uu_account_tariff_log_actual_from_utc_disc_from',
-                'uu_account_tariff_log_actual_from_utc_disc_to',
+                'test_connect_date_to',
+                'test_connect_date_from',
+                'disconnect_date_to',
+                'disconnect_date_from',
                 'date_sale_from',
                 'date_sale_to',
                 'date_before_sale_from',
@@ -177,16 +176,14 @@ class AccountTariffFilter extends AccountTariff
                 ->andWhere(['tariff_country.country_id' => $this->tariff_country_id]);
         }
 
-        $isEmmptyAccountManagerName = ($this->account_manager_name !== '');
+        $isEmptyAccountManagerName = ($this->account_manager_name !== '');
+        $isSpecialServiceType = in_array($this->service_type_id, [
+            ServiceType::ID_VPBX,
+            ServiceType::ID_VOIP,
+            ServiceType::ID_CALL_CHAT
+        ]);
 
-        if (
-            $this->account_manager_name !== '' ||
-            in_array($this->service_type_id, [
-                ServiceType::ID_VPBX,
-                ServiceType::ID_VOIP,
-                ServiceType::ID_CALL_CHAT
-            ])
-        ) {
+        if ($this->account_manager_name !== '' || $isSpecialServiceType) {
             $clientContractTableName = ClientContract::tableName();
             $query->innerJoin($clientContractTableName, "clients.contract_id = $clientContractTableName.id");
 
@@ -197,73 +194,22 @@ class AccountTariffFilter extends AccountTariff
                     ->andWhere(['amu.user' => $this->account_manager_name]);
             }
 
-            if (in_array($this->service_type_id, [
-                    ServiceType::ID_VPBX,
-                    ServiceType::ID_VOIP,
-                    ServiceType::ID_CALL_CHAT
-                ]
-            )) {
+            if ($isSpecialServiceType) {
                 $clientContragentTableName = ClientContragent::tableName();
-                $accountTariffLogTableName = AccountTariffLog::tableName();
-
-                $db = AccountTariff::getDb();
 
                 if ($this->service_type_id == ServiceType::ID_VOIP) {
-                    $query->select(array_merge($query->select, [
-                        'uu_account_tariff_log_actual_from_utc_test' => 'uatl_date_test.actual_from_utc',
-                    ]));
-
-                    // Создание временной таблицы для столбца "Дата включения на тестовый тариф"
-                    $db->createCommand("
-                        CREATE TEMPORARY TABLE IF NOT EXISTS uatl_date_test (
-                          INDEX (account_tariff_id)
-                        ) AS (
-                          SELECT
-                            uatl.account_tariff_id,
-                            MIN(uatl.actual_from_utc) actual_from_utc
-                          FROM {$accountTariffLogTableName} uatl
-                            INNER JOIN {$tariffPeriodTableName} utp
-                              ON uatl.tariff_period_id = utp.id
-                            INNER JOIN {$tariffTableName} ut
-                              ON ut.id = utp.tariff_id
-                          WHERE
-                            uatl.tariff_period_id IS NOT NULL AND
-                            ut.tariff_status_id IN (" . TariffStatus::ID_TEST . ", " . TariffStatus::ID_VOIP_8800_TEST . ")
-                          GROUP BY uatl.account_tariff_id
-                        )
-                    ")->execute();
-
-                    // Присоединение столбца "Дата включения на тестовый тариф"
-                    $query->leftJoin('uatl_date_test', "{$accountTariffTableName}.id = uatl_date_test.account_tariff_id");
-
                     // Фильтрация столбца "Дата включения на тестовый тариф"
-                    $this->uu_account_tariff_log_actual_from_utc_test_from !== '' && $query->andWhere(['>=', "DATE_FORMAT(uatl_date_test.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_test_from]);
-                    $this->uu_account_tariff_log_actual_from_utc_test_to !== '' && $query->andWhere(['<=', "DATE_FORMAT(uatl_date_test.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_test_to]);
+                    $this->test_connect_date_from !== '' && $query->andWhere(['>=', 'test_connect_date', $this->test_connect_date_from . ' 00:00:00']);
+                    $this->test_connect_date_to !== '' && $query->andWhere(['<=', 'test_connect_date', $this->test_connect_date_to . ' 23:59:59']);
                 }
 
-                // Создание временной таблицы для столбца "Дата отключения"
-                $db->createCommand("
-                    CREATE TEMPORARY TABLE IF NOT EXISTS uatl_date_disc (
-                          INDEX (account_tariff_id)
-                    ) AS (
-                      SELECT account_tariff_id, MIN(actual_from_utc) actual_from_utc
-                      FROM {$accountTariffLogTableName}
-                      WHERE tariff_period_id IS NULL
-                      GROUP BY account_tariff_id
-                    )
-                ")->execute();
-
                 $query->select(array_merge($query->select, [
-                    'uu_account_tariff_log_actual_from_utc_disc' => 'uatl_date_disc.actual_from_utc',
                     'client_contragent_created_at' => 'client_contragent.created_at',
                 ]));
 
-                // Присоединение столбца "Дата отключения"
-                $query->leftJoin('uatl_date_disc', "{$accountTariffTableName}.id = uatl_date_disc.account_tariff_id");
-
                 // Фильтрация столбца "Дата отключения"
-                $this->uu_account_tariff_log_actual_from_utc_disc_from !== '' && $query->andWhere(['>=', "DATE_FORMAT(uatl_date_disc.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_disc_from]);
-                $this->uu_account_tariff_log_actual_from_utc_disc_to !== '' && $query->andWhere(['<=', "DATE_FORMAT(uatl_date_disc.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_disc_to]);
+                $this->disconnect_date_from !== '' && $query->andWhere(['>=', 'disconnect_date', $this->disconnect_date_from . ' 00:00:00']);
+                $this->disconnect_date_to !== '' && $query->andWhere(['<=', 'disconnect_date', $this->disconnect_date_to . ' 23:59:59']);
 
                 // Присоединение столбцов "Дата продажи" и "Дата допродажи"
                 $query->innerJoin($clientContragentTableName, $clientContractTableName . '.contragent_id = ' . $clientContragentTableName . '.id');
@@ -273,16 +219,16 @@ class AccountTariffFilter extends AccountTariff
                     $query->andWhere(['>', $clientContragentTableName . '.created_at', new Expression('NOW() - INTERVAL 1 MONTH')]);
                 }
 
-                $this->date_sale_from !== '' && $query->andWhere(['>=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_sale_from]);
-                $this->date_sale_to !== '' && $query->andWhere(['<=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_sale_to]);
+                $this->date_sale_from !== '' && $query->andWhere(['>=', "$clientContragentTableName.created_at", $this->date_sale_from . ' 00:00:00']);
+                $this->date_sale_to !== '' && $query->andWhere(['<=', "$clientContragentTableName.created_at", $this->date_sale_to . ' 23:59:59']);
 
                 // Фильтрация столбца "Дата допродажи"
                 if ($this->date_before_sale_from !== '' || $this->date_before_sale_to !== '') {
                     $query->andWhere(['<=', "{$clientContragentTableName}.created_at", new Expression('NOW() - INTERVAL 1 MONTH')]);
                 }
 
-                $this->date_before_sale_from !== '' && $query->andWhere(['>=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_before_sale_from]);
-                $this->date_before_sale_to !== '' && $query->andWhere(['<=', "DATE_FORMAT({$clientContragentTableName}.created_at, '%Y-%m-%d')", $this->date_before_sale_to]);
+                $this->date_before_sale_from !== '' && $query->andWhere(['>=', "$clientContragentTableName.created_at", $this->date_before_sale_from . ' 00:00:00']);
+                $this->date_before_sale_to !== '' && $query->andWhere(['<=', "$clientContragentTableName.created_at", $this->date_before_sale_to . ' 23:59:59']);
             }
         }
 
