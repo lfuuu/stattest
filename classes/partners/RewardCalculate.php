@@ -94,18 +94,29 @@ abstract class RewardCalculate
 
             $rewardsSettingsByType = $contractRewards[$service];
 
-            if (
-                $rewardsSettingsByType['period_type'] === ClientContractReward::PERIOD_MONTH
-                && $rewardsSettingsByType['period_month'] < BillLine::find()
-                    ->where([
-                        'service' => $service,
-                        'id_service' => $line->id_service,
-                    ])
-                    ->andWhere(['<', 'date_to', $line->date_to])
-                    ->count()
-            ) {
-                // Период выплат ограничен и их кол-во не превышает настроенное
-                continue;
+            if ($rewardsSettingsByType['period_type'] === ClientContractReward::PERIOD_MONTH) {
+                $db = BillLine::getDb();
+                $billLineTableName = BillLine::tableName();
+
+                $result = $db->createCommand("
+                    SELECT (TIMESTAMPDIFF(
+                        MONTH,
+                        COALESCE (
+                            (
+                                SELECT MIN(date_from) date_from
+                                FROM {$billLineTableName}
+                                WHERE service = '{$service}' AND id_service = {$line->id_service}
+                            ), 
+                            '{$line->date_from}'
+                        ),
+                        '{$line->date_from}'
+                    ) >= {$rewardsSettingsByType['period_month']} ) forbid_rewarding;
+                ")->queryOne();
+
+                if ($result['forbid_rewarding']) {
+                    // Период выплат ограничен и их кол-во не превышает настроенное
+                    continue;
+                }
             }
 
             // Определение обработчика начисления вознаграждения
@@ -122,7 +133,7 @@ abstract class RewardCalculate
             }
 
             $reward = PartnerRewards::findOne(['bill_id' => $bill, 'line_pk' => $line->pk]);
-            if (is_null($reward)) {
+            if ($reward === null) {
                 $reward = new PartnerRewards;
                 $reward->bill_id = $bill->id;
                 $reward->line_pk = $line->pk;
