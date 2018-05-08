@@ -241,8 +241,8 @@ trait CallsRawSlowReport
             );
         }
 
-        $query1 = $this->setDestinationCondition($query1, $query3, $this->dst_destinations_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
-        $query2 = $this->setDestinationCondition($query2, $query3, $this->src_destinations_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
+        $query1 = $this->setDestinationCondition($query1, $query3, $this->dst_destinations_ids, 'dst');
+        $query2 = $this->setDestinationCondition($query2, $query3, $this->src_destinations_ids, 'src');
 
 
         if ($this->src_number_type_ids) {

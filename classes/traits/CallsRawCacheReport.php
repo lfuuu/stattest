@@ -81,11 +81,8 @@ trait CallsRawCacheReport
             ->reportCondition('dst_nnp_country_code', $this->dst_countries_ids)
             ->reportCondition('disconnect_cause', $this->disconnect_causes);
 
-        $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group) ? true : false;
-        $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group) ? true : false;
-
-        $query = $this->setDestinationCondition($query, null, $this->src_destinations_ids, 'src_nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
-        $query = $this->setDestinationCondition($query, null, $this->dst_destinations_ids, 'dst_nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
+        $query = $this->setDestinationCondition($query, null, $this->src_destinations_ids, 'src');
+        $query = $this->setDestinationCondition($query, null, $this->dst_destinations_ids, 'dst');
 
         $this->is_success_calls
         && $query->andWhere(['or', 'session_time > 0', ['disconnect_cause' => DisconnectCause::$successCodes]]);

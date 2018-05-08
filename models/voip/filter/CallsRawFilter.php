@@ -576,25 +576,27 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
-     * Добавление фильтрации по направлению и/или типу звонка
+     * Добавление фильтрации по направлению
      *
      * @param CTEQuery $query
+     * @param $query3
      * @param array $destination
-     * @param mixed $param
+     * @param $alias
      * @return CTEQuery
+     * @internal param mixed $param
      */
-    private function setDestinationCondition(CTEQuery $query, $query3, $destination, $param, $isGroup, $alias)
+    private function setDestinationCondition(CTEQuery $query, $query3, $destination, $alias)
     {
-        if (!$destination && !$isGroup) {
+        if (!$destination) {
             return $query;
         }
 
-        $destination && $query->andWhere(["{$alias}_nrd.destination_id" => $destination]);
-
         $query->leftJoin(
             ["{$alias}_nrd" => 'nnp.number_range_destination'],
-            "{$alias}_nrd.destination_id = " . $param
+            "{$alias}_nrd.number_range_id = cr.nnp_number_range_id"
         );
+
+        $query->andWhere(["{$alias}_nrd.destination_id" => $destination]);
 
         $query3 && $query3->addSelect(["{$alias}_destination_id" => new Expression('NULL')]);
 
