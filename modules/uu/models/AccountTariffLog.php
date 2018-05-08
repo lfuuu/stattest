@@ -666,6 +666,29 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
+        if ($accountTariff->service_type_id === ServiceType::ID_VOIP_PACKAGE_CALLS) {
+            // только для пакетов звонков
+            /** @var AccountTariff[] $accountTariffSiblings */
+            $accountTariffSiblings = AccountTariff::find()
+                ->where(
+                    [
+                        'service_type_id' => $accountTariff->service_type_id,
+                        'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                        'tariff_period_id' => $this->tariff_period_id,
+                    ]
+                )
+                ->andWhere(['!=', 'id', (int)$this->account_tariff_id])// кроме себя же
+                ->all();
+            foreach ($accountTariffSiblings as $accountTariffSibling) {
+                if (!$accountTariffSibling->tariffPeriod->tariff->getPackageMinutes()->count()) {
+                    // пакет с минутами подключать повторно можно (минуты суммируются), а все остальное нельзя (не имеет смысла, ибо дешевый прайслист и так действует)
+                    $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
+                    $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
+                    return;
+                }
+            }
+        }
+
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
         if (AccountTariffLog::find()
