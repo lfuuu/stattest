@@ -377,20 +377,20 @@ abstract class TariffForm extends \app\classes\Form
      */
     private function _cloneTariffCountry(Tariff $tariffCloned)
     {
-        $voipCountries = $this->tariff->voipCountries;
+        $tariffCountries = $this->tariff->tariffCountries;
         $fieldNames = [
             'country_id',
         ];
-        foreach ($voipCountries as $voipCountry) {
-            $voipCountryCloned = new TariffVoipCity();
-            $voipCountryCloned->tariff_id = $tariffCloned->id;
+        foreach ($tariffCountries as $tariffCountry) {
+            $tariffCountryCloned = new TariffCountry();
+            $tariffCountryCloned->tariff_id = $tariffCloned->id;
             foreach ($fieldNames as $fieldName) {
-                $voipCountryCloned->$fieldName = $voipCountry->$fieldName;
+                $tariffCountryCloned->$fieldName = $tariffCountry->$fieldName;
             }
 
-            if (!$voipCountryCloned->save()) {
-                $this->validateErrors += $voipCountryCloned->getFirstErrors();
-                throw new ModelValidationException($voipCountryCloned);
+            if (!$tariffCountryCloned->save()) {
+                $this->validateErrors += $tariffCountryCloned->getFirstErrors();
+                throw new ModelValidationException($tariffCountryCloned);
             }
         }
     }
