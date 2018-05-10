@@ -140,11 +140,25 @@ class ClientContragent extends HistoryActiveRecord
     {
         return [
             'inn' => 'ИНН',
+            'inn_euro' => 'ЕвроИНН',
             'kpp' => 'КПП',
             'name' => 'Название',
             'name_full' => 'Название полное',
             'address_jur' => 'Юридический адрес',
             'legal_type' => 'Юридический тип',
+            'fio' => 'ФИО Исполнительного органа',
+            'comment' => 'Комментарий',
+            'okpo' => 'Код ОКПО',
+            'okvd' => 'Код ОКВЭД',
+            'ogrn' => 'Код ОГРН',
+            'opf_id' => 'Код ОПФ',
+            'country_id' => 'Страна',
+            'lang_code' => 'Язык',
+            'tax_regime' => 'Налоговый режим',
+            'position' => 'Должность Исполнительного органа',
+            'sale_channel_id' => 'Откуда узнали о нас',
+            'partner_contract_id' => 'Партнер',
+            'super_id' => 'Супер-клиент',
         ];
     }
 
@@ -277,5 +291,64 @@ class ClientContragent extends HistoryActiveRecord
     public function getPartnerContract()
     {
         return $this->hasOne(ClientContact::className(), ['id' => 'partner_contract_id']);
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+            case 'super_id':
+                if ($clientSuper = ClientSuper::findOne(['id' => $value])) {
+                    return $clientSuper->name;
+                }
+                break;
+            case 'partner_contract_id':
+                if ($clientContact = ClientContact::findOne(['id' => $value])) {
+                    return $clientContact->data;
+                }
+                break;
+            case 'opf_id':
+                if (!$value) {
+                    return '';
+                }
+
+                if ($codeOpf = CodeOpf::findOne(['id' => $value])) {
+                    return $codeOpf->name;
+                }
+                break;
+            case 'country_id':
+                if ($country = Country::findOne(['code' => $value])) {
+                    return $country->getLink();
+                }
+                break;
+            case 'sale_channel_id':
+                if (!$value) {
+                    return '';
+                }
+
+                $saleChannelList = SaleChannel::getList();
+                if (isset($saleChannelList[$value])) {
+                    return $saleChannelList[$value];
+                }
+                break;
+        }
+        return $value;
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return ['id'];
     }
 }
