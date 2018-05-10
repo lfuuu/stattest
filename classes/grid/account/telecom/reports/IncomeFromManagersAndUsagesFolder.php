@@ -36,6 +36,8 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
         return [
             'contragent',
             'account_manager',
+            'legal_entity',
+            'currency',
             'service',
             'is_payed',
             'abon',
@@ -125,7 +127,15 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
         ]);
 
         // $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->groupBy(['cg.name', 'cr.account_manager', 'l.service', 'b.is_payed', 'b.bill_date']);
+        $query->groupBy([
+            'cg.name',
+            'cr.account_manager',
+            'l.service',
+            'b.is_payed',
+            'b.bill_date',
+            'cr.organization_id',
+            'c.currency'
+        ]);
     }
 
     /**
@@ -169,6 +179,6 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
      */
     public function getColspan()
     {
-        return 4;
+        return 6;
     }
 }

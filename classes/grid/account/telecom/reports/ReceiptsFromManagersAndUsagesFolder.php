@@ -39,6 +39,8 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
         return [
             'company',
             'account_manager',
+            'legal_entity',
+            'currency',
             'service_type',
             'is_payed',
             'sum_connection',
@@ -80,6 +82,8 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
             'c.id',
             "concat(c.id, '( ', cg.name, ' )') company",
             'amu.name account_manager_name',
+            'cr.organization_id',
+            'c.currency',
             'uat.service_type_id service_type',
             'b.is_payed',
         ], $this->getQuerySummarySelect(), ['b.bill_date']);
@@ -111,7 +115,9 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
                 'cr.account_manager',
                 'uat.service_type_id',
                 'b.is_payed',
-                'b.bill_date'
+                'b.bill_date',
+                'cr.organization_id',
+                'c.currency',
             ]);
     }
 
@@ -203,6 +209,6 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
      */
     public function getColspan()
     {
-        return 4;
+        return 6;
     }
 }
