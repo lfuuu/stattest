@@ -344,7 +344,7 @@ abstract class AccountTariffForm extends Form
         return new ActiveDataProvider([
             'query' => AccountTariffLog::find()
                 ->where('account_tariff_id = :id', ['id' => $this->accountTariff->id])
-                ->orderBy(['actual_from_utc' => SORT_DESC, 'id' => SORT_DESC]),
+                ->orderBy(['id' => SORT_DESC]),
             'pagination' => [
                 'pageSize' => 10,
             ],

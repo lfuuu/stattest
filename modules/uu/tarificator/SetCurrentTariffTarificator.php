@@ -46,7 +46,6 @@ class SetCurrentTariffTarificator extends Tarificator
                         account_tariff.id = account_tariff_log.account_tariff_id
                         AND account_tariff_log.actual_from_utc <= :now
                     ORDER BY
-                        account_tariff_log.actual_from_utc DESC,
                         account_tariff_log.id DESC
                     LIMIT 1
                 ) AS new_tariff_period_id
