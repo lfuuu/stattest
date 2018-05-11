@@ -105,7 +105,8 @@ class ClientSearch extends ClientAccount
         $query
             ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
             ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
-            ->innerJoin(['super_client' => ClientSuper::tableName()], 'super_client.id = contragent.super_id');
+            ->innerJoin(['super_client' => ClientSuper::tableName()], 'super_client.id = contragent.super_id')
+            ->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
 
         $query
             ->orFilterWhere(['client.id' => $this->id])
@@ -114,6 +115,7 @@ class ClientSearch extends ClientAccount
             ->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
             ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
             ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName])
+            ->orFilterWhere(['LIKE', 'contact.data', $this->companyName])
             ->orFilterWhere(['LIKE', 'inn', $this->inn])
             ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
 
@@ -125,7 +127,6 @@ class ClientSearch extends ClientAccount
         }
 
         if ($this->email) {
-            $query->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
             $query
                 ->andFilterWhere(['LIKE', 'contact.data', $this->email])
                 ->andFilterWhere(['contact.type' => 'email']);
