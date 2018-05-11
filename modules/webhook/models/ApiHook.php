@@ -3,6 +3,7 @@
 namespace app\modules\webhook\models;
 
 use app\models\ClientContact;
+use app\modules\uu\models\AccountTariff;
 use yii\base\Model;
 
 class ApiHook extends Model
@@ -109,16 +110,32 @@ class ApiHook extends Model
         if ($this->did[0] == '+') {
             $this->dids = [$this->did];
         } else {
-            list($phoneRemain, $this->dids) = ClientContact::dao()->getE164($this->did);
+            list(, $this->dids) = ClientContact::dao()->getE164($this->did);
         }
 
-        return ClientContact::find()
+        $clientContacts = ClientContact::find()
             ->where([
                 'type' => ClientContact::$phoneTypes,
                 'data' => $this->dids,
             ])
             ->orderBy(['client_id' => SORT_DESC])
             ->all();
+
+        if ($clientContacts) {
+            return $clientContacts;
+        }
+
+        $dids = array_map(function ($item) {
+            return str_replace('+', '', $item);
+        }, $this->dids);
+
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()
+            ->andWhere(['voip_number' => $dids])
+            ->andWhere(['IS NOT', 'tariff_period_id', null])
+            ->one();
+
+        return $accountTariff ? $accountTariff->clientAccount->contacts : [];
     }
 
     /**
