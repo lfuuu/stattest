@@ -140,11 +140,11 @@ SQL;
         }
 
         if ($this->payment_date_before !== '') {
-            $query->andWhere(['>=', new Expression('DATE_FORMAT(bills.payment_date, "%Y-%m")'), $this->payment_date_before]);
+            $query->andWhere(['>=', new Expression('DATE_FORMAT(bills.bill_date, "%Y-%m")'), $this->payment_date_before]);
         }
 
         if ($this->payment_date_after !== '') {
-            $query->andWhere(['<=', new Expression('DATE_FORMAT(bills.payment_date, "%Y-%m")'), $this->payment_date_after]);
+            $query->andWhere(['<=', new Expression('DATE_FORMAT(bills.bill_date, "%Y-%m")'), $this->payment_date_after]);
         }
 
         $dataProvider = new ArrayDataProvider([
