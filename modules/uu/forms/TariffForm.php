@@ -226,6 +226,7 @@ abstract class TariffForm extends \app\classes\Form
 
                         $package->load($post);
                         $package->currency_id = $this->tariff->currency_id;
+                        $package->price_min = reset($this->tariffPeriods)->price_min;
                         if (!$package->save()) {
                             $this->validateErrors += $package->getFirstErrors();
                             throw new ModelValidationException($package);

@@ -13,7 +13,7 @@ use yii\db\ActiveQuery;
  * @property integer $id
  * @property float $price_per_period
  * @property float $price_setup
- * @property float $price_min
+ * @property integer $price_min
  * @property int $tariff_id
  * @property int $charge_period_id
  *
@@ -69,8 +69,9 @@ class TariffPeriod extends ActiveRecord
         return [
             [['price_per_period', 'price_min', 'price_setup'], 'required'],
             [['charge_period_id'], 'required'],
-            [['price_per_period', 'price_min', 'price_setup'], 'number'],
+            [['price_per_period', 'price_setup'], 'number'],
             ['charge_period_id', 'validatorPeriod'],
+            ['price_min', 'integer'],
         ];
     }
 

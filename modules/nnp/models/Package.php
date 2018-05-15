@@ -22,6 +22,7 @@ use yii\helpers\Url;
  * @property bool $is_include_vat
  * @property string $name
  * @property integer $location_id
+ * @property float $price_min
  *
  * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
  * @property-read PackageMinute[] $packageMinutes
@@ -54,7 +55,8 @@ class Package extends ActiveRecord
             'currency_id' => 'Валюта',
             'is_include_vat' => 'Включая НДС', // дубль из Tariff
             'name' => 'Название', // дубль из Tariff
-            'location_id' => 'Местоположение'
+            'location_id' => 'Местоположение',
+            'price_min' => 'МГП',
         ];
     }
 
