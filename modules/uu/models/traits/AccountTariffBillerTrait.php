@@ -34,7 +34,7 @@ trait AccountTariffBillerTrait
         $datetime = DateTimeZoneHelper::getUtcDateTime()
             ->setTime(0, 0, 0);
 
-        if (self::$_isFullTarification || $datetime->format('d') < 10) {
+        if (self::$_isFullTarification || $datetime->format('d') < 3) {
             // Начало месяца. Этот и предыдущий
             return $datetime->modify('first day of previous month');
         }

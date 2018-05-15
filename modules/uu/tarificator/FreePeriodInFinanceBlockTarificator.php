@@ -67,7 +67,7 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
                 WHERE
                     set_zero.event = :setZeroBalance 
                     AND set_zero.`date` <= :min_day_date
-                    AND client.is_blocked = 1
+                    AND client.balance < -client.credit
             ) t
             
             WHERE
