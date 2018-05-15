@@ -3,75 +3,6 @@
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\Tariff;
 
-$vpbxBaseResources = [
-    [
-        'amount' => 0.2,
-        'price_per_unit' => 98,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_DISK,
-    ],
-    [
-        'amount' => 3,
-        'price_per_unit' => 39,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_ABONENT,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_EXT_DID,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_RECORD,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_FAX,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
-    ],
-];
-
-$vpbxResources = [];
-
-$v = 0;
-foreach ([
-             Tariff::DELTA + 3,
-             Tariff::TEST_VPBX_ID,
-             Tariff::START_VPBX_ID
-         ] as $tariffId) {
-    $vpbxResourcesTmp = $vpbxBaseResources;
-    foreach ($vpbxResourcesTmp as &$resource) {
-        $resource['tariff_id'] = $tariffId;
-
-        $v++;
-    }
-    $vpbxResources = array_merge($vpbxResources, $vpbxResourcesTmp);
-}
-
-
 $allTariffResources = [
     // тариф 1
     [
@@ -281,4 +212,96 @@ $allTariffResources = [
     ],
 ];
 
-return array_merge($allTariffResources, $vpbxResources);
+$vpbxBaseResources = [
+    [
+        'amount' => 0.2,
+        'price_per_unit' => 98,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_DISK,
+    ],
+    [
+        'amount' => 3,
+        'price_per_unit' => 39,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_ABONENT,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_EXT_DID,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_RECORD,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_FAX,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
+    ],
+];
+
+$voipBaseResources = [
+    [
+        'amount' => 1,
+        'price_per_unit' => 25,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VOIP_LINE,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 26,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VOIP_FMC,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 27,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VOIP_MOBILE_OUTBOUND,
+    ],
+];
+
+foreach ([
+             Tariff::DELTA + 3,
+             Tariff::TEST_VPBX_ID,
+             Tariff::START_VPBX_ID
+         ] as $tariffId) {
+    foreach ($vpbxBaseResources as $tariffResource) {
+        $tariffResource['tariff_id'] = $tariffId;
+        $allTariffResources[] = $tariffResource;
+    }
+}
+
+foreach ([
+             Tariff::TEST_VOIP_ID,
+         ] as $tariffId) {
+    foreach ($voipBaseResources as $tariffResource) {
+        $tariffResource['tariff_id'] = $tariffId;
+        $allTariffResources[] = $tariffResource;
+    }
+}
+
+return $allTariffResources;

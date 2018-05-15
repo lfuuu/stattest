@@ -18,67 +18,7 @@ $dateTimeYesterday = (new DateTimeImmutable())
     ->modify('-1 day')
     ->setTime(0, 0, 0);
 
-return [
-
-    // Tariff with autoprolongation
-    // тест 1
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_ABONENT,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_EXT_DID,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_RECORD,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_FAX,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-
+$accountTariffResourceLogs = [
     // тест 2
     [
         // 1го сразу же подключил дневной тариф
@@ -186,119 +126,34 @@ return [
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
-
-    // Tariff without autoprolongation
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 3,
-        'resource_id' => Resource::ID_VPBX_ABONENT,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 3,
-        'resource_id' => Resource::ID_VPBX_EXT_DID,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 3,
-        'resource_id' => Resource::ID_VPBX_RECORD,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 3,
-        'resource_id' => Resource::ID_VPBX_FAX,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 3,
-        'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 3,
-        'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 3,
-        'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-
-    // ресурсы при пересекающихся сменах тарифов
-    [
-        'account_tariff_id' => AccountTariff::DELTA + 5,
-        'resource_id' => Resource::ID_VPBX_ABONENT,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 5,
-        'resource_id' => Resource::ID_VPBX_EXT_DID,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 5,
-        'resource_id' => Resource::ID_VPBX_RECORD,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 5,
-        'resource_id' => Resource::ID_VPBX_FAX,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 5,
-        'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 5,
-        'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // инициализация с 1го
-        'account_tariff_id' => AccountTariff::DELTA + 5,
-        'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
-        'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
 ];
+
+$resources = [
+    Resource::ID_VPBX_ABONENT,
+    Resource::ID_VPBX_EXT_DID,
+    Resource::ID_VPBX_RECORD,
+    Resource::ID_VPBX_FAX,
+    Resource::ID_VPBX_MIN_ROUTE,
+    Resource::ID_VPBX_GEO_ROUTE,
+    Resource::ID_VPBX_SUB_ACCOUNT,
+];
+$accountTariffIds = [
+    AccountTariff::DELTA + 1,
+    AccountTariff::DELTA + 3,
+    AccountTariff::DELTA + 4,
+];
+
+foreach ($accountTariffIds as $accountTariffId) {
+    foreach ($resources as $resource) {
+        $accountTariffResourceLogs[] = [
+            // инициализация с 1го
+            'account_tariff_id' => $accountTariffId,
+            'resource_id' => $resource,
+            'amount' => 1,
+            'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        ];
+    }
+}
+
+return $accountTariffResourceLogs;

@@ -7,16 +7,30 @@ use app\classes\ActaulizerVoipNumbers;
 use app\models\ClientAccount;
 use app\models\EntryPoint;
 use app\models\EventQueue;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountLogMin;
+use app\modules\uu\models\AccountLogPeriod;
+use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\AccountLogSetup;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Bill;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\tests\codeception\fixtures\uu\AccountTariffFixture;
+use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
+use app\tests\codeception\fixtures\uu\AccountTariffResourceLogFixture;
 use app\tests\codeception\fixtures\uu\TariffCountryFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
+use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use tests\codeception\unit\_TestCase;
@@ -37,6 +51,16 @@ class Voip extends _TestCase
 
         $this->_transaction = \Yii::$app->db->beginTransaction();
 
+        AccountLogSetup::deleteAll();
+        AccountLogPeriod::deleteAll();
+        AccountLogResource::deleteAll();
+        AccountLogMin::deleteAll();
+        AccountEntry::deleteAll();
+        Bill::deleteAll();
+        AccountTariffResourceLog::deleteAll();
+        AccountTariffLog::deleteAll();
+        AccountTariff::deleteAll();
+        TariffResource::deleteAll();
         TariffPeriod::deleteAll();
         TariffVoipCity::deleteAll();
         TariffOrganization::deleteAll();
@@ -44,12 +68,16 @@ class Voip extends _TestCase
         TariffCountry::deleteAll();
         Tariff::deleteAll();
 
-        (new TariffFixture())->load();
-        (new TariffCountryFixture())->load();
-        (new TariffOrganizationFixture())->load();
-        (new TariffVoipCityFixture())->load();
+        (new TariffFixture)->load();
+        (new TariffCountryFixture)->load();
+        (new TariffOrganizationFixture)->load();
+        (new TariffVoipCityFixture)->load();
         (new TariffVoipNdcTypeFixture)->load();
         (new TariffPeriodFixture)->load();
+        (new TariffResourceFixture)->load();
+        (new AccountTariffFixture)->load();
+        (new AccountTariffLogFixture)->load();
+        (new AccountTariffResourceLogFixture)->load();
 
         $this->_accountUsage = _ClientAccount::createOne(EntryPoint::RU1);
         $this->_accountUniversal = _ClientAccount::createOne(EntryPoint::RU5);

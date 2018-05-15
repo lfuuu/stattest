@@ -29,6 +29,10 @@ class HandlerLogger extends Singleton
      */
     public function add($log)
     {
+        if (!$log) {
+            return;
+        }
+
         $this->_logs[] = $log;
     }
 

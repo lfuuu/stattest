@@ -59,7 +59,7 @@ class AccountTariffBiller extends Behavior
             'client_account_id' => $accountTariff->client_account_id,
         ],
             $isForceAdd = false,
-            // 1. Чтобы пересчет был не по каждому ресурсу услуге, а один на всю услугу
+            // 1. Чтобы пересчет был не по каждому ресурсу услуги, а один на всю услугу
             // 2. Костыль, чтобы обработка очереди не обгоняла сохранение
             $nextStart = DateTimeZoneHelper::getUtcDateTime()
                 ->modify('+1 minute')
@@ -81,48 +81,16 @@ class AccountTariffBiller extends Behavior
         $accountTariffId = $params['account_tariff_id'];
         $clientAccountId = $params['client_account_id'];
 
-        Yii::info('AccountTariffBiller. Before SetCurrentTariffTarificator', 'uu');
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
-
-        Yii::info('AccountTariffBiller. Before SyncResourceTarificator', 'uu');
         (new SyncResourceTarificator())->tarificate($accountTariffId);
-
-        // Биллинг отложить можно, а вот установку текущего тарифа (+сопутствующие триггеры) откладывать нельзя
-        // Теоретически клиент может уйти в минус, но массово подключают только юриков, а у них кредит есть, так что все хорошо.
-//        $count = AccountTariff::find()
-//            ->where(['client_account_id' => $clientAccountId])
-//            ->count();
-//        if ($count > self::MAX_ACCOUNT_TARIFFS) {
-//            HandlerLogger::me()->add('Слишком много услуг на УЛС');
-//            return;
-//        }
-
-        Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId);
-
-        Yii::info('AccountTariffBiller. Before AccountLogPeriodTarificator', 'uu');
         (new AccountLogPeriodTarificator)->tarificate($accountTariffId);
-
-        Yii::info('AccountTariffBiller. Before AccountLogResourceTarificator', 'uu');
         (new AccountLogResourceTarificator)->tarificate($accountTariffId);
-
-        Yii::info('AccountTariffBiller. Before AccountLogMinTarificator', 'uu');
         (new AccountLogMinTarificator)->tarificate($accountTariffId);
-
-        Yii::info('AccountTariffBiller. Before AccountEntryTarificator', 'uu');
         (new AccountEntryTarificator)->tarificate($accountTariffId);
-
-        Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
         (new BillTarificator)->tarificate($accountTariffId);
-
-        // это не обязательно делать в реалтайме. По крону вполне сойдет
-        // Yii::info('AccountTariffBiller. Before BillConverterTarificator', 'uu');
-        // (new BillConverterTarificator)->tarificate($clientAccountId);
-
-        Yii::info('AccountTariffBiller. Before RealtimeBalanceTarificator', 'uu');
+        // (new BillConverterTarificator)->tarificate($clientAccountId); // это не обязательно делать в реалтайме. По крону вполне сойдет
         (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
-
-        Yii::info('AccountTariffBiller. Before CreditMgpTarificator', 'uu');
         (new CreditMgpTarificator)->tarificate($clientAccountId);
 
         HandlerLogger::me()->add(ob_get_clean());

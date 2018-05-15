@@ -420,7 +420,7 @@ class AccountTariffResourceLog extends ActiveRecord
         }
 
         $credit = $clientAccount->credit; // кредитный лимит
-        $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
+        $realtimeBalance = $clientAccount->balance;
         $realtimeBalanceWithCredit = ($realtimeBalance + $credit);
 
         $warnings = $clientAccount->getVoipWarnings();

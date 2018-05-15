@@ -15,9 +15,15 @@ use app\modules\transfer\components\services\Processor;
 use app\modules\transfer\components\services\regular\RegularTransfer;
 use app\modules\transfer\components\services\universal\UniversalTransfer;
 use app\modules\transfer\forms\services\BaseForm;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountLogMin;
+use app\modules\uu\models\AccountLogPeriod;
+use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Bill;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffVoipNdcType;
@@ -145,6 +151,12 @@ abstract class _BaseService extends \yii\codeception\TestCase
         TariffVoipPackage::deleteAll();
 
         // Unload universal data
+        AccountLogSetup::deleteAll();
+        AccountLogPeriod::deleteAll();
+        AccountLogResource::deleteAll();
+        AccountLogMin::deleteAll();
+        AccountEntry::deleteAll();
+        Bill::deleteAll();
         AccountTariffResourceLog::deleteAll();
         AccountTariffLog::deleteAll();
         AccountTariff::deleteAll();

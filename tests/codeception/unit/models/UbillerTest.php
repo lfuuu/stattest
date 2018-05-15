@@ -2,8 +2,8 @@
 
 namespace tests\codeception\unit\models;
 
+use app\classes\HandlerLogger;
 use app\helpers\DateTimeZoneHelper;
-use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -32,6 +32,9 @@ use tests\codeception\unit\_TestCase;
  */
 class UbillerTest extends _TestCase
 {
+    /**
+     * @throws \Exception
+     */
     protected function setUp()
     {
         parent::setUp();
@@ -39,6 +42,9 @@ class UbillerTest extends _TestCase
         $this->load();
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function load()
     {
         (new TariffFixture)->load();
@@ -52,15 +58,14 @@ class UbillerTest extends _TestCase
         (new AccountTariffLogFixture)->load();
         (new AccountTariffResourceLogFixture)->load();
 
-        ob_start();
+        AccountTariff::setIsFullTarification(true);
+        (new SetCurrentTariffTarificator)->tarificate(null, false);
+        (new AutoCloseAccountTariffTarificator)->tarificate(null, false);
 
-        $setCurrentTariffTarificator = new SetCurrentTariffTarificator;
-        $setCurrentTariffTarificator->tarificate(null, false);
-
-        $autoCloseAccountTariffTarificator = new AutoCloseAccountTariffTarificator;
-        $autoCloseAccountTariffTarificator->tarificate(null, false);
-
-        ob_end_clean();
+        $logs = HandlerLogger::me()->get();
+        $textLogs = $logs ? print_r($logs, true) : '';
+        $this->assertEquals('', $textLogs);
+        HandlerLogger::me()->clear();
     }
 
     protected function unload()
@@ -71,6 +76,7 @@ class UbillerTest extends _TestCase
         AccountLogMin::deleteAll();
         AccountEntry::deleteAll();
         Bill::deleteAll();
+
         (new AccountTariffResourceLogFixture)->unload();
         (new AccountTariffLogFixture)->unload();
         (new AccountTariffFixture)->unload();
@@ -89,8 +95,6 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogHugeFromToTariffs1()
     {
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
@@ -139,8 +143,6 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogHugeFromToTariffs2()
     {
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
@@ -207,8 +209,6 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogFromToTariffs1()
     {
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeFirstDayOfCurMonth = (new DateTimeImmutable())->modify('first day of this month');
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
@@ -292,8 +292,6 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogFromToTariffs2()
     {
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeFirstDayOfCurMonth = (new DateTimeImmutable())->modify('first day of this month');
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
@@ -416,8 +414,6 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogWithoutAutoprolongation1()
     {
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeYesterday = (new DateTimeImmutable())
             ->modify('-1 day')
             ->setTime(0, 0, 0);
@@ -461,8 +457,6 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogWithoutAutoprolongation2()
     {
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeYesterday = (new DateTimeImmutable())
             ->modify('-1 day')
             ->setTime(0, 0, 0);
@@ -506,8 +500,6 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogTrafficResource()
     {
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
         $dateTimeLastDayOfPrevMonth = (new DateTimeImmutable())->modify('last day of previous month');
 
@@ -606,8 +598,6 @@ class UbillerTest extends _TestCase
         //
         // всего должно быть 3 + 12 = 15 платных транзакций
 
-        AccountTariff::setIsFullTarification(true);
-
         $dateTimeFirstDayOfThisMonth = (new DateTimeImmutable())->modify('first day of this month');
 
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
@@ -617,97 +607,93 @@ class UbillerTest extends _TestCase
         $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 2])->one();
         $this->assertNotEmpty($accountTariff);
 
-        /** @var AccountLogFromToResource[][] $untarificatedResourceOptionPeriodss */
-        $untarificatedResourceOptionPeriodss = $accountTariff->getUntarificatedResourceOptionPeriods();
+        $accountLogResources = $accountTariff->accountLogResources;
 
-        // всего у ВАТС должен быть 6 ресурсов
-        $this->assertEquals(7, count($untarificatedResourceOptionPeriodss));
+        $this->assertEquals(99, count($accountLogResources));
 
-        // но для тестирования ограничимся только "линиями"
-        $this->assertTrue(isset($untarificatedResourceOptionPeriodss[Resource::ID_VPBX_ABONENT]));
-
-        /** @var AccountLogFromToResource[] $untarificatedResourceOptionPeriods */
-        $untarificatedResourceOptionPeriods = $untarificatedResourceOptionPeriodss[Resource::ID_VPBX_ABONENT];
-
-        // должно быть 15 платных транзакций
-        $this->assertEquals(15, count($untarificatedResourceOptionPeriods));
+        // У ВАТС 7 ресурсов. Для тестирования ограничимся только "линиями" (15 транзакций)
+        /** @var AccountLogResource[] $accountLogResources */
+        $accountLogResources = array_filter($accountLogResources, function (AccountLogResource $accountLogResource) {
+            return $accountLogResource->tariffResource->resource_id == Resource::ID_VPBX_ABONENT;
+        });
+        $this->assertEquals(15, count($accountLogResources));
 
         // по дневному тарифу:
         //      1-1: 1 линия (бесплатно)
         //      1-1: +2 линий
-        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(2, $untarificatedResourceOptionPeriod->amountOverhead);
-        $this->assertEquals(1 /* дневной */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+        $accountLogResource = array_shift($accountLogResources);
+        $this->assertEquals(2, $accountLogResource->amount_overhead);
+        $this->assertEquals(1 /* дневной */, $accountLogResource->tariff_period_id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_from
         );
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_to
         );
 
         // по дневному тарифу:
         //      1-1: +3 линий
-        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(3, $untarificatedResourceOptionPeriod->amountOverhead);
-        $this->assertEquals(1 /* дневной */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+        $accountLogResource = array_shift($accountLogResources);
+        $this->assertEquals(3, $accountLogResource->amount_overhead);
+        $this->assertEquals(1 /* дневной */, $accountLogResource->tariff_period_id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_from
         );
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_to
         );
 
         // по месячному тарифу:
         //      2-30: 1 линия (бесплатно)
         //      2-30: +5 линий
-        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(5, $untarificatedResourceOptionPeriod->amountOverhead);
-        $this->assertEquals(2 /* месячный */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+        $accountLogResource = array_shift($accountLogResources);
+        $this->assertEquals(5, $accountLogResource->amount_overhead);
+        $this->assertEquals(2 /* месячный */, $accountLogResource->tariff_period_id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_from
         );
         $this->assertEquals(
             $dateTimeLastDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_to
         );
 
         // по годовому тарифу:
         //      4-30: 1 линия (бесплатно)
         //      4-30: +1 линии и еще 11 месяцев 1-30 числа
-        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(1, $untarificatedResourceOptionPeriod->amountOverhead);
-        $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+        $accountLogResource = array_shift($accountLogResources);
+        $this->assertEquals(1, $accountLogResource->amount_overhead);
+        $this->assertEquals(3 /* годовой */, $accountLogResource->tariff_period_id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->modify('+3 day')->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_from
         );
         $this->assertEquals(
             $dateTimeLastDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            $accountLogResource->date_to
         );
 
         // и еще 11 месяцев 1-30 числа
         for ($i = 0; $i < 11; $i++) {
-            $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-            $this->assertEquals(1, $untarificatedResourceOptionPeriod->amountOverhead);
-            $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+            $accountLogResource = array_shift($accountLogResources);
+            $this->assertEquals(1, $accountLogResource->amount_overhead);
+            $this->assertEquals(3 /* годовой */, $accountLogResource->tariff_period_id);
             $this->assertEquals(
                 $dateTimeFirstDayOfThisMonth
                     ->modify('+' . $i . ' month')
                     ->format(DateTimeZoneHelper::DATE_FORMAT),
-                $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+                $accountLogResource->date_from
             );
             $this->assertEquals(
                 $dateTimeFirstDayOfThisMonth
                     ->modify('+' . $i . ' month')
                     ->modify('last day of this month')
                     ->format(DateTimeZoneHelper::DATE_FORMAT),
-                $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+                $accountLogResource->date_to
             );
         }
     }

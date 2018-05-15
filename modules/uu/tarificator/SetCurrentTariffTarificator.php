@@ -76,11 +76,6 @@ SQL;
             $isWithTransaction && $transaction = $db->beginTransaction();
             try {
 
-                if ($accountTariff->tariff_period_id && $accountTariff->tariff_period_id != $row['new_tariff_period_id'] && $row['new_tariff_period_id']) {
-                    // Билинговать с новым тарифом при смене тарифа (но не при закрытии услуги)
-                    $this->checkBalance($accountTariff);
-                }
-
                 if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
 
                     if (!$accountTariff->tariff_period_id) {
@@ -108,6 +103,11 @@ SQL;
                         ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                     if (!$accountTariff->save()) {
                         throw new ModelValidationException($accountTariff);
+                    }
+
+                    if ($accountTariff->tariff_period_id) {
+                        // Билинговать с новым тарифом при смене тарифа (но не при закрытии услуги)
+                        $this->checkBalance($accountTariff);
                     }
                 } else {
                     $eventType = null;
@@ -236,6 +236,7 @@ SQL;
                 $isWithTransaction && $transaction->rollBack();
                 $this->out(PHP_EOL . 'Error. ' . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
+                HandlerLogger::me()->add($e->getMessage());
                 if ($accountTariffId) {
                     throw $e;
                 }
@@ -259,21 +260,26 @@ SQL;
     protected function checkBalance(AccountTariff $accountTariff)
     {
         ob_start();
-        (new AccountLogSetupTarificator)->tarificateAccountTariff($accountTariff);
-        (new AccountLogPeriodTarificator)->tarificateAccountTariff($accountTariff);
-        (new AccountLogResourceTarificator)->tarificateAccountTariffOption($accountTariff);
-        (new AccountLogMinTarificator)->tarificate($accountTariff->id);
-        (new AccountEntryTarificator)->tarificate($accountTariff->id);
-        (new BillTarificator)->tarificate($accountTariff->id);
-        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
-        HandlerLogger::me()->add(ob_get_clean());
+        try {
+            (new AccountLogSetupTarificator)->tarificateAccountTariff($accountTariff);
+            (new AccountLogPeriodTarificator)->tarificateAccountTariff($accountTariff);
+            (new AccountLogResourceTarificator)->tarificateAccountTariffOption($accountTariff);
+            (new AccountLogMinTarificator)->tarificate($accountTariff->id);
+            (new AccountEntryTarificator)->tarificate($accountTariff->id);
+            (new BillTarificator)->tarificate($accountTariff->id);
+            (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
+            HandlerLogger::me()->add(ob_get_clean());
+        } catch (\Exception $e) {
+            HandlerLogger::me()->add(ob_get_clean());
+            throw $e;
+        }
 
         // баланс изменился, надо перезагрузить clientAccount
         $accountTariff->refresh();
         $clientAccount = $accountTariff->clientAccount;
 
         $credit = $clientAccount->credit; // кредитный лимит
-        $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
+        $realtimeBalance = $clientAccount->balance;
         $realtimeBalanceWithCredit = $realtimeBalance + $credit;
 
         if ($realtimeBalanceWithCredit < 0) {
