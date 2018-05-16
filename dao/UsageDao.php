@@ -89,18 +89,6 @@ class UsageDao extends Singleton
         }
 
         switch ($this->_account->contract->business_id) {
-            case Business::OTT: {
-                // только один транк, и сколько угодно номеров в ОТТ
-                if ($serviceTypeId == ServiceType::ID_TRUNK) {
-                    return $this->_returnValue(
-                        !$this->_hasService(ServiceType::ID_TRUNK),
-                        'Для ЛС с подразделением ОТТ можно добавить только один транк'
-                    );
-                }
-
-                return true;
-            }
-
             case Business::OPERATOR: {
                 return $this->_returnValue(
                     in_array($serviceTypeId, [ServiceType::ID_TRUNK, ServiceType::ID_INFRASTRUCTURE]),
