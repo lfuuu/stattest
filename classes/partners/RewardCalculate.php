@@ -85,7 +85,9 @@ abstract class RewardCalculate
                 continue;
             }
 
-            if ($line->service == BillDao::UU_SERVICE) {
+            if (!$line->service) {
+            	continue;
+            } elseif ($line->service == BillDao::UU_SERVICE) {
                 // для УУ определить соответствующий тип неуниверсальной услуги
                 $accountTariff = $line->accountTariff;
                 $serviceType = $accountTariff ? $accountTariff->serviceType : null;
