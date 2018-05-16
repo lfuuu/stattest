@@ -25,7 +25,7 @@ $request = Yii::$app->request->get();
             <div class="btn-group" id="btn-options">
                 <button type="submit" class="btn btn-link btn-xs">Искать по</button>
                 <button type="submit" class="btn btn-primary btn-xs" data-search="clients"
-                        data-placeholder="№ ЛС, названию, телефону или почте">Клиентам
+                        data-placeholder="№ ЛС или Названию">Клиентам
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="contractNo"
                         data-placeholder="Номеру договора">Договору
@@ -62,6 +62,9 @@ $request = Yii::$app->request->get();
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubleComment"
                         data-placeholder="Комментарий к заявке">Комментарий к заявке
+                </button>
+                <button type="submit" class="btn btn-default btn-xs" data-search="contactPhone"
+                        data-placeholder="Телефон">Контактный номер
                 </button>
             </div>
         </div>

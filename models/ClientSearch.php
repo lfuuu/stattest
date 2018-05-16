@@ -9,7 +9,7 @@ use yii\db\Expression;
 class ClientSearch extends ClientAccount
 {
 
-    public $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl;
+    public $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl, $contactPhone;
 
     protected $companyName, $inn, $contractNo;
 
@@ -29,7 +29,8 @@ class ClientSearch extends ClientAccount
                     'address',
                     'adsl',
                     'account_manager',
-                    'manager'
+                    'manager',
+                    'contactPhone',
                 ],
                 'string'
             ],
@@ -115,7 +116,7 @@ class ClientSearch extends ClientAccount
             ->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
             ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
             ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName])
-            ->orFilterWhere(['LIKE', 'contact.data', $this->companyName])
+            ->orFilterWhere(['LIKE', 'contact.data', $this->contactPhone])
             ->orFilterWhere(['LIKE', 'inn', $this->inn])
             ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
 
