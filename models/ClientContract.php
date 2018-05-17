@@ -474,7 +474,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function isPartnerAgent()
     {
-        return $this->contragent->partner_contract_id;
+        return $this->partner_contract_id ?: $this->contragent->partner_contract_id;
     }
 
     /**
