@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\ClientContract;
 use Yii;
 use app\classes\Singleton;
 use app\models\ClientAccount;
@@ -11,10 +12,25 @@ class PartnerDao extends Singleton
     public static function getClientsStructure(ClientAccount $account)
     {
         $data = [];
+        $contractTableName = ClientContract::tableName();
+        $contragentTableName = ClientContragent::tableName();
+
+        $contragentsActiveQuery = ClientContragent::find()
+            ->joinWith('contractsActiveQuery')
+            ->where([
+                'OR',
+                [
+                    // Из contragent, если партнера нет в contract
+                    'AND',
+                    [$contragentTableName . '.partner_contract_id' => $account->contract_id],
+                    [$contractTableName . '.partner_contract_id' => null],
+                ],
+                // Из contract
+                [$contractTableName . '.partner_contract_id' => $account->contract_id],
+            ]);
+
         /** @var ClientContragent $c */
-        foreach (ClientContragent::find()
-                     ->where(['partner_contract_id' => $account->contract_id])
-                     ->each() as $c) {
+        foreach ($contragentsActiveQuery->each() as $c) {
             $superId = $c->super_id;
             if (!isset($data[$superId])) {
                 $data[$superId] = [
