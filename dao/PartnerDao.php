@@ -15,7 +15,7 @@ class PartnerDao extends Singleton
         $contractTableName = ClientContract::tableName();
         $contragentTableName = ClientContragent::tableName();
 
-        $contragentsActiveQuery = ClientContragent::find()
+        $contragents = ClientContragent::find()
             ->joinWith('contractsActiveQuery')
             ->where([
                 'OR',
@@ -27,10 +27,12 @@ class PartnerDao extends Singleton
                 ],
                 // Из contract
                 [$contractTableName . '.partner_contract_id' => $account->contract_id],
-            ]);
+            ])
+            ->indexBy('id')
+            ->all();
 
         /** @var ClientContragent $c */
-        foreach ($contragentsActiveQuery->each() as $c) {
+        foreach ($contragents as $c) {
             $superId = $c->super_id;
             if (!isset($data[$superId])) {
                 $data[$superId] = [
@@ -41,6 +43,10 @@ class PartnerDao extends Singleton
 
             $contracts = [];
             foreach ($c->contracts as $cc) {
+                if ($cc->partner_contract_id != null && $cc->partner_contract_id != $account->contract_id) {
+                    continue ;
+                }
+
                 $accounts = [];
                 foreach (ClientAccount::find()
                              ->where(['contract_id' => $cc->id])
