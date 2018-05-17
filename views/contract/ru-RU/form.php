@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\BaseView;
+use app\dao\PartnerDao;
 use app\forms\client\ContractEditForm;
 use app\models\Business;
 use app\models\BusinessProcess;
@@ -147,6 +148,10 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
             ->widget(Select2::className(), [
                 'data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),
             ])
+            ->label(
+                $model->getAttributeLabel('partner_contract_id') .
+                $this->render('//layouts/_helpConfluence', PartnerDao::getHelpConfluence())
+            )
         ?>
     </div>
 </div>

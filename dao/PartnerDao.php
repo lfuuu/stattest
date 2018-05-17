@@ -71,4 +71,12 @@ class PartnerDao extends Singleton
         }
         return $data;
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 25887631, 'message' => 'Партнер'];
+    }
 }

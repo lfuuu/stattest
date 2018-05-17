@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\dao\PartnerDao;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Country;
@@ -269,11 +270,12 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
         </div>
 
         <div class="col-sm-3 bottom-indent">
-            <?=
-            $f->field($model, 'partner_contract_id')
-                ->widget(Select2::className(), [
-                    'data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),
-                ])
+            <?= $f->field($model, 'partner_contract_id')
+                ->widget(Select2::className(), ['data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),])
+                ->label(
+                        $model->getAttributeLabel('partner_contract_id') .
+                        $this->render('//layouts/_helpConfluence', PartnerDao::getHelpConfluence())
+                )
             ?>
         </div>
 
