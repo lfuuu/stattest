@@ -328,7 +328,6 @@ class AccountTariffResourceLog extends ActiveRecord
                 'resource_id' => $this->resource_id,
             ])
             ->orderBy([
-                'actual_from_utc' => SORT_DESC,
                 'id' => SORT_DESC,
             ])
             ->one();

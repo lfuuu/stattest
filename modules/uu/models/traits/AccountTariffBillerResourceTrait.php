@@ -256,7 +256,6 @@ trait AccountTariffBillerResourceTrait
         $accountTariffResourceLogs = $accountTariffResourceLogsQuery
             ->orderBy(
                 [
-                    'actual_from_utc' => SORT_ASC, // обязательно по порядку!
                     'id' => SORT_ASC,
                 ])
             ->all();

@@ -193,7 +193,7 @@ trait AccountTariffRelationsTrait
     public function getAccountTariffLogs()
     {
         return $this->hasMany(AccountTariffLog::className(), ['account_tariff_id' => 'id'])
-            ->orderBy(['actual_from_utc' => SORT_DESC, 'id' => SORT_DESC])
+            ->orderBy(['id' => SORT_DESC])
             ->indexBy('id');
     }
 
@@ -208,7 +208,6 @@ trait AccountTariffRelationsTrait
             ->orderBy(
                 [
                     'resource_id' => SORT_ASC,
-                    'actual_from_utc' => SORT_DESC,
                     'id' => SORT_DESC,
                 ])
             ->indexBy('id');
