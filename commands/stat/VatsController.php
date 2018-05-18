@@ -119,10 +119,6 @@ class VatsController extends Controller
         $insert = [];
 
         foreach ($list as $record) {
-            if (!$record['int_number_count']) {
-                continue;
-            }
-
             $insert[$record['stat_product_id']] = [
                 $day,
                 $record['account_id'],
