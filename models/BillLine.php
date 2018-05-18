@@ -249,4 +249,72 @@ class BillLine extends ActiveRecord
         return $data;
     }
 
+    /**
+     * Унификация с uuBill. НДС
+     *
+     * @return float
+     */
+    public function getVat()
+    {
+        return $this->sum_tax;
+    }
+
+    /**
+     * Унификация с uuBill. Ставка НДС
+     * @return int
+     */
+    public function getVat_rate()
+    {
+        return $this->tax_rate;
+    }
+
+    /**
+     * Унификация с uuBill. Сумма без НДС
+     *
+     * @return float
+     */
+    public function getPrice_without_vat()
+    {
+        return $this->sum_without_tax;
+    }
+
+    /**
+     * Унификация с uuBill. Сумма НДС
+     *
+     * @return float
+     */
+    public function getPrice_with_vat()
+    {
+        return $this->sum_tax;
+    }
+
+    /**
+     * Унификация с uuBill. Кол-во
+     *
+     * @return float
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    /**
+     * Унификация с uuBill. Название проводки
+     *
+     * @return string
+     */
+    public function getFullName()
+    {
+        return $this->item;
+    }
+
+    /**
+     * Унификация с uuBill.
+     *
+     * @return string
+     */
+    public function getTypeUnitName()
+    {
+        return '';
+    }
 }

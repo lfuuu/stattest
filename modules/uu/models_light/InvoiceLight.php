@@ -6,11 +6,12 @@ use app\classes\Assert;
 use app\classes\Smarty;
 use app\forms\templates\uu\InvoiceForm;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Language;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\Bill;
+use app\modules\uu\models\Bill as uuBill;
 use DateTime;
 use Yii;
 use yii\base\Component;
@@ -105,16 +106,23 @@ class InvoiceLight extends Component
         $accountTariffTableName = AccountTariff::tableName();
         $accountEntryTableName = AccountEntry::tableName();
 
-        $items = AccountEntry::find()
-            ->joinWith('accountTariff')
-            ->where([$accountTariffTableName . '.client_account_id' => $this->_clientAccount->id])
-            ->andWhere(['>', $accountEntryTableName . '.price_with_vat', 0])
-            ->andWhere(['bill_id' => $this->_bill->id])
-            ->orderBy([
-                'account_tariff_id' => SORT_ASC,
-                'type_id' => SORT_ASC,
-            ])
-            ->all();
+        $items = [];
+        if ($this->_bill instanceof uuBill) {
+            $items = AccountEntry::find()
+                ->joinWith('accountTariff')
+                ->where([
+                    $accountTariffTableName . '.client_account_id' => $this->_clientAccount->id,
+                    $accountEntryTableName . '.bill_id' => $this->_bill->id,
+                ])
+                ->andWhere(['>', $accountEntryTableName . '.price_with_vat', 0])
+                ->orderBy([
+                    $accountEntryTableName . '.account_tariff_id' => SORT_ASC,
+                    $accountEntryTableName . '.type_id' => SORT_ASC,
+                ])
+                ->all();
+        } elseif ($this->_bill instanceof Bill) {
+            $items = $this->_bill->lines;
+        }
 
         if (count($items)) {
             // Данные о счете
@@ -134,7 +142,7 @@ class InvoiceLight extends Component
                 'bill.*',
                 'entries' => new Expression('COUNT(entry.id)'),
             ])
-            ->from(['bill' => Bill::tableName()])
+            ->from(['bill' => uuBill::tableName()])
             ->leftJoin(['entry' => AccountEntry::tableName()], 'entry.bill_id = bill.id')
             ->where(['bill.client_account_id' => $this->_clientAccount->id])
             ->andWhere(['bill.date' => $this->_date . '-01'])

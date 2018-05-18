@@ -52,20 +52,22 @@ class InvoiceDocument extends DocumentReport
 
         $bill = $this->bill;
 
-        if (!$bill || !$bill->uu_bill_id) {
+        if (!$bill) {
             throw new InvalidParamException();
         }
 
-        $uuBill = uuBill::findOne(['id' => $bill->uu_bill_id]);
+        if ($bill->uu_bill_id) {
+            $bill = uuBill::findOne(['id' => $bill->uu_bill_id]);
 
-        if (!$uuBill) {
-            throw new InvalidParamException();
+            if (!$bill) {
+                throw new InvalidParamException();
+            }
         }
 
         $clientAccount = $bill->clientAccount;
 
         $this->_invoice = (new InvoiceLight($clientAccount))
-            ->setBill($uuBill)
+            ->setBill($bill)
             ->setLanguage($clientAccount->contragent->lang_code);
 
         return $this->_invoice->render();

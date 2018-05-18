@@ -30,7 +30,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
     {
         parent::__construct();
 
-        $this->id = $bill->id;
+        $this->id = $bill instanceof Bill ? $bill->bill_no : $bill->id;
         $this->date = $bill->date;
         $this->_language = $language;
 

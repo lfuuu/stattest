@@ -488,4 +488,14 @@ class Bill extends ActiveRecord
     {
         return BillCorrection::getInfo($this);
     }
+
+    /**
+     * Унификация с uuBill. Дата счета.
+     *
+     * @return string
+     */
+    public function getDate()
+    {
+        return $this->bill_date;
+    }
 }

@@ -517,7 +517,7 @@
                     дате первой</a>{else}по дате первой{/if}<br/>
             </td>
             <td valign="top" style="width:300px;">
-                {if $bill_client.account_version == 5}
+                {if $bill_client.account_version == 5 && $bill.uu_bill_id}
                     {foreach from=$listOfInvoices item=item}
                         <div title="{$item.langTitle}" class="flag flag-{$item.langFlag}"></div>
                         <a href="/uu/invoice/view?langCode={$item.langCode}&month={$item.month}" target="_blank">
@@ -525,11 +525,12 @@
                         </a>
                         <br/>
                     {/foreach}
-                    <br>
-                    <a href="/bill/print?&billNo={$bill.bill_no}&docType=uu_invoice&emailed=1&isPdf=0" target="_blank">
-                        <div class="flag flag-hu"></div>
-                        Invoice #{$bill.uu_bill_id}</a>
                 {/if}
+                <br>
+                <a href="/bill/print?&billNo={$bill.bill_no}&docType=uu_invoice&emailed=1&isPdf=0" target="_blank">
+                    <div class="flag flag-hu"></div>
+                    Invoice #{if $bill.uu_bill_id}{$bill.uu_bill_id}{else}{$bill.bill_no}{/if}</a>
+
                 <br>
                 <a href="/bill/print?&billNo={$bill.bill_no}&docType=proforma&emailed=1&isPdf=0" target="_blank">
                     <div class="flag flag-us"></div>

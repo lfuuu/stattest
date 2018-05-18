@@ -47,7 +47,7 @@ class InvoiceController extends BaseController
      * @param null|string $langCode
      * @return bool|string
      */
-    public function actionView($clientAccountId = null, $month = null, $langCode = null)
+    public function actionView($clientAccountId = null, $month = null, $langCode = null, $billNo = null)
     {
         // Вернуть текущего клиента, если он есть
         !$clientAccountId && $clientAccountId = $this->_getCurrentClientAccountId();
