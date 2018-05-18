@@ -33,6 +33,6 @@ class SuspendedFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::WELLTIME_MAINTENANCE_MAINTENANCE_FREE]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::WELLTIME_MAINTENANCE_SUSPENDED]);
     }
 }
