@@ -1707,10 +1707,13 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error(
-                print_r(['editAccountTariff', $e->getMessage(), $account_tariff_ids, $tariff_period_id, $actual_from, $user_info], true),
-                Module::LOG_CATEGORY_API
-            );
+            $code = $e->getCode();
+            if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
+                \Yii::error(
+                    print_r(['editAccountTariff', $e->getMessage(), $account_tariff_ids, $tariff_period_id, $actual_from, $user_info], true),
+                    Module::LOG_CATEGORY_API
+                );
+            }
             throw $e;
         }
     }
