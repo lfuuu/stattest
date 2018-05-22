@@ -89,35 +89,14 @@ class UsageDao extends Singleton
         }
 
         switch ($this->_account->contract->business_id) {
-            case Business::OPERATOR: {
+            case Business::OPERATOR:
                 return $this->_returnValue(
                     in_array($serviceTypeId, [ServiceType::ID_TRUNK, ServiceType::ID_INFRASTRUCTURE]),
                     'Для ЛС с подразделением Межоператорка можно добавить только транки или инфраструктуру'
                 );
-            }
 
-            default: {
-                // или транк, или телефония. Что-то одно
-                switch ($serviceTypeId) {
-                    case ServiceType::ID_TRUNK: {
-                        return $this->_returnValue(
-                            !$this->_hasService(ServiceType::ID_VOIP),
-                            'Транк не совместим с данным ЛС'
-                        );
-                    }
-
-                    case ServiceType::ID_VOIP: {
-                        return $this->_returnValue(
-                            !$this->_hasService(ServiceType::ID_TRUNK),
-                            'Услуга номера не совместима с данным ЛС'
-                        );
-                    }
-
-                    default: {
-                        return true;
-                    }
-                }
-            }
+            default:
+                return true;
         }
     }
 
