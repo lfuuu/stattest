@@ -1,7 +1,7 @@
 <?php
+
 namespace app\forms\client;
 
-use Yii;
 use yii\base\Exception;
 use app\classes\Form;
 use app\classes\traits\DoubleAttributeLabelTrait;
@@ -182,6 +182,12 @@ class ContragentEditForm extends Form
             [['super_id', 'country_id', 'opf_id', 'partner_contract_id', 'sale_channel_id'], 'integer'],
             ['lang_code', 'string'],
         ];
+
+        // Валидация КПП, состоящая из 9 цифр, для контрагентов юр.лиц. со страной Россия
+        if ($this->contragent->country->code == Country::RUSSIA && $this->contragent->legal_type == ClientContragent::LEGAL_TYPE) {
+            $rules[] = [['kpp'], 'match', 'pattern' => '/^[0-9]{9}$/', 'message' => 'КПП должен содержать 9 цифр.'];
+        }
+
         return $rules;
     }
 
