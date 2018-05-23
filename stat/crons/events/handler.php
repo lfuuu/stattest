@@ -65,6 +65,7 @@ function doEvents($consoleParam)
     $isFeedbackServer = ApiFeedback::isAvailable();
     $isAccountTariffLightServer = SyncAccountTariffLight::isAvailable();
     $isNnpServer = NnpModule::isAvailable();
+    $isCallTrackingServer = CallTrackingModule::isAvailable();
     $isAtolServer = \app\modules\atol\classes\Api::me()->isAvailable();
     $isMttServer = MttAdapter::me()->isAvailable();
     $isFreeNumberServer = FreeNumberAdapter::me()->isAvailable();
@@ -664,15 +665,24 @@ function doEvents($consoleParam)
                 // CallTracking Module
                 // --------------------------------------------
                 case CallTrackingModule::EVENT_EXPORT_ACCOUNT_TARIFF:
-                    \app\modules\callTracking\models\AccountTariff::setActive(
-                        $param['uu_account_tariff'], $param['is_active']
-                    );
+                    if ($isCallTrackingServer) {
+                        \app\modules\callTracking\models\AccountTariff::setActive(
+                            $param['uu_account_tariff'], $param['is_active']
+                        );
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+
                     break;
 
                 case CallTrackingModule::EVENT_EXPORT_VOIP_NUMBER:
-                    \app\modules\callTracking\models\VoipNumber::setActive(
-                        $param['uu_account_tariff'], $param['is_active']
-                    );
+                    if ($isCallTrackingServer) {
+                        \app\modules\callTracking\models\VoipNumber::setActive(
+                            $param['uu_account_tariff'], $param['is_active']
+                        );
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
                     break;
 
                 // --------------------------------------------

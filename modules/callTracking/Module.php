@@ -3,6 +3,7 @@
 namespace app\modules\callTracking;
 
 use app\classes\helpers\ArrayHelper;
+use app\modules\callTracking\models\AccountTariff;
 use Yii;
 
 /**
@@ -38,5 +39,13 @@ class Module extends \yii\base\Module
         }
 
         Yii::configure($this, $params);
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isAvailable()
+    {
+        return strpos(AccountTariff::getDb()->username, 'readonly') === false;
     }
 }
