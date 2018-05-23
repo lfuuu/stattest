@@ -140,6 +140,18 @@ SQL;
                                 ActaulizerVoipNumbers::me()->actualizeByNumber($accountTariff->voip_number, $accountTariff->id); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
                             }
                         }
+
+                        $callTrackingModule = Yii::$app->getModule('callTracking');
+                        $callTrackingParams = $callTrackingModule->params;
+                        if (isset($callTrackingParams['client_account_id']) && $callTrackingParams['client_account_id'] == $accountTariff->client_account_id) {
+                            // При выключении или выключении услуги добавить в очередь экспорт номера
+                            if (in_array($eventType, [ImportantEventsNames::UU_SWITCHED_ON, ImportantEventsNames::UU_SWITCHED_OFF])) {
+                                EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_VOIP_NUMBER, [
+                                    'uu_account_tariff' => $accountTariff,
+                                    'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON ? true : false)
+                                ]);
+                            }
+                        }
                         break;
 
                     case ServiceType::ID_VOIP_PACKAGE_CALLS:
@@ -199,6 +211,18 @@ SQL;
                                 // сменить тариф
                                 break;
                         }
+                        break;
+
+                    case ServiceType::ID_CALLTRACKING:
+                        if ($eventType == ImportantEventsNames::UU_UPDATED) {
+                            return ;
+                        }
+
+                        // При выключении или выключении услуги добавить в очередь экспорт номера
+                        EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
+                            'uu_account_tariff' => $accountTariff,
+                            'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON ? true : false)
+                        ]);
                         break;
                 }
 

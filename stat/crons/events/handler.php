@@ -33,6 +33,7 @@ use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\classes\SyncVps;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\Module as UuModule;
+use app\modules\callTracking\Module as CallTrackingModule;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -657,6 +658,21 @@ function doEvents($consoleParam)
                         Socket::PARAM_USER_ID_TO => $param['notified_user_id'],
                         Socket::PARAM_MESSAGE_HTML => 'Просмотреть выполненную задачу можно по ' . $completedEventMessage,
                     ]);
+                    break;
+
+                // --------------------------------------------
+                // CallTracking Module
+                // --------------------------------------------
+                case CallTrackingModule::EVENT_EXPORT_ACCOUNT_TARIFF:
+                    \app\modules\callTracking\models\AccountTariff::setActive(
+                        $param['uu_account_tariff'], $param['is_active']
+                    );
+                    break;
+
+                case CallTrackingModule::EVENT_EXPORT_VOIP_NUMBER:
+                    \app\modules\callTracking\models\VoipNumber::setActive(
+                        $param['uu_account_tariff'], $param['is_active']
+                    );
                     break;
 
                 // --------------------------------------------

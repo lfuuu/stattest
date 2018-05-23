@@ -55,6 +55,11 @@ if (file_exists($file = __DIR__ . '/db_pg_nnp.local.php')) {
     $dbPgNnp = ArrayHelper::merge($dbPgNnp, require($file));
 }
 
+$dbPgCallTracking = require(__DIR__ . '/db_pg_call_tracking.php');
+if (file_exists($file = __DIR__ . '/db_pg_call_tracking.local.php')) {
+    $dbPgCallTracking = ArrayHelper::merge($dbPgNnp, require($file));
+}
+
 $dbStatistic = require(__DIR__ . '/db_pgsql.php');
 if (file_exists($file = __DIR__ . '/db_pg_statistic.local.php')) {
     $dbStatistic = ArrayHelper::merge($dbStatistic, require($file));
@@ -141,6 +146,7 @@ $config = [
             'url' => 'http://dbro.mcn.ru/dbro'
         ],
         'dbPgNnp' => $dbPgNnp,
+        'dbPgCallTracking' => $dbPgCallTracking,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -194,6 +200,7 @@ $config = [
         ],
         'glpi' => ['class' => 'app\modules\glpi\Module'],
         'nnp' => ['class' => 'app\modules\nnp\Module'],
+        'callTracking' => ['class' => 'app\modules\callTracking\Module'],
         'uu' => ['class' => 'app\modules\uu\Module'],
         'socket' => ['class' => 'app\modules\socket\Module'],
         'webhook' => ['class' => 'app\modules\webhook\Module'],
