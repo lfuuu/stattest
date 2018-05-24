@@ -113,7 +113,7 @@ SQL;
                     $eventType = null;
                 }
 
-                if ($eventType == ImportantEventsNames::UU_SWITCHED_ON) {
+                if ($eventType === ImportantEventsNames::UU_SWITCHED_ON) {
                     EventQueue::go(\app\modules\uu\Module::EVENT_UU_SWITCHED_ON, [
                         'client_account_id' => $accountTariff->client_account_id,
                         'account_tariff_id' => $accountTariff->id,
@@ -141,15 +141,16 @@ SQL;
                             }
                         }
 
+                        /** @var \app\modules\callTracking\Module $callTrackingModule */
                         $callTrackingModule = Yii::$app->getModule('callTracking');
                         $callTrackingParams = $callTrackingModule->params;
                         if (isset($callTrackingParams['client_account_id']) && $callTrackingParams['client_account_id'] == $accountTariff->client_account_id) {
                             // При выключении или выключении услуги добавить в очередь экспорт номера
-                            if (in_array($eventType, [ImportantEventsNames::UU_SWITCHED_ON, ImportantEventsNames::UU_SWITCHED_OFF])) {
+                            if (in_array($eventType, [ImportantEventsNames::UU_SWITCHED_ON, ImportantEventsNames::UU_SWITCHED_OFF], true)) {
                                 EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_VOIP_NUMBER, [
                                     'account_tariff_id' => $accountTariff->id,
                                     'voip_number' => $accountTariff->voip_number,
-                                    'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON ? true : false)
+                                    'is_active' => $eventType === ImportantEventsNames::UU_SWITCHED_ON,
                                 ]);
                             }
                         }

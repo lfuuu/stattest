@@ -16,6 +16,7 @@ use app\models\EventQueue;
 use app\models\EventQueueIndicator;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\modules\atol\Module as AtolModule;
+use app\modules\callTracking\Module as CallTrackingModule;
 use app\modules\freeNumber\classes\FreeNumberAdapter;
 use app\modules\freeNumber\Module as FreeNumberModule;
 use app\modules\mtt\classes\MttAdapter;
@@ -33,7 +34,6 @@ use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\classes\SyncVps;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\Module as UuModule;
-use app\modules\callTracking\Module as CallTrackingModule;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -672,7 +672,6 @@ function doEvents($consoleParam)
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
-
                     break;
 
                 case CallTrackingModule::EVENT_EXPORT_VOIP_NUMBER:
