@@ -667,7 +667,7 @@ function doEvents($consoleParam)
                 case CallTrackingModule::EVENT_EXPORT_ACCOUNT_TARIFF:
                     if ($isCallTrackingServer) {
                         \app\modules\callTracking\models\AccountTariff::setActive(
-                            $param['uu_account_tariff'], $param['is_active']
+                            $param['account_tariff_id'], $param['is_active']
                         );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
@@ -678,7 +678,7 @@ function doEvents($consoleParam)
                 case CallTrackingModule::EVENT_EXPORT_VOIP_NUMBER:
                     if ($isCallTrackingServer) {
                         \app\modules\callTracking\models\VoipNumber::setActive(
-                            $param['uu_account_tariff'], $param['is_active']
+                            $param['voip_number'], $param['is_active']
                         );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;

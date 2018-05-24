@@ -22,7 +22,7 @@ class MttRawFilter extends MttRaw
     public $id = '';
     public $account_id = '';
     public $number_service_id = '';
-    public $serviceid = '';
+    public $serviceid = [];
     public $src_number = '';
     public $dst_number = '';
 

@@ -51,19 +51,19 @@ class VoipNumber extends ActiveRecord
     }
 
     /**
-     * @param UuAccountTariff $uuAccountTariff
+     * @param int $voip_number
      * @param bool $isActive
      * @throws ModelValidationException
      */
-    public static function setActive(UuAccountTariff $uuAccountTariff, $isActive)
+    public static function setActive($voip_number, $isActive)
     {
-        $voipNumber = self::findOne(['voip_number' => $uuAccountTariff->voip_number]);
+        $voipNumber = self::findOne(['number' => $voip_number]);
         if (!$voipNumber) {
             if (!$isActive) {
                 return;
             }
             $voipNumber = new self;
-            $voipNumber->number = $uuAccountTariff->voip_number;
+            $voipNumber->number = $voip_number;
             $voipNumber->is_active = true;
         } else {
             $voipNumber->is_active = $isActive;

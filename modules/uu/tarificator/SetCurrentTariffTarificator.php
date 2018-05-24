@@ -147,7 +147,8 @@ SQL;
                             // При выключении или выключении услуги добавить в очередь экспорт номера
                             if (in_array($eventType, [ImportantEventsNames::UU_SWITCHED_ON, ImportantEventsNames::UU_SWITCHED_OFF])) {
                                 EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_VOIP_NUMBER, [
-                                    'uu_account_tariff' => $accountTariff,
+                                    'account_tariff_id' => $accountTariff->id,
+                                    'voip_number' => $accountTariff->voip_number,
                                     'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON ? true : false)
                                 ]);
                             }
@@ -220,7 +221,7 @@ SQL;
 
                         // При выключении или выключении услуги добавить в очередь экспорт номера
                         EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
-                            'uu_account_tariff' => $accountTariff,
+                            'account_tariff_id' => $accountTariff->id,
                             'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON ? true : false)
                         ]);
                         break;

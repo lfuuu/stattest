@@ -9,9 +9,9 @@ use Yii;
  * @property int $id
  * @property int $account_tariff_id
  * @property int $voip_number
- * @property int $start_dt
- * @property int $disconnect_dt
- * @property int $stop_dt
+ * @property string $start_dt
+ * @property string $disconnect_dt
+ * @property string $stop_dt
  * @property string $user_agent
  * @property string $ip
  * @property string $url

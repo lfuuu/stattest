@@ -49,19 +49,19 @@ class AccountTariff extends ActiveRecord
     }
 
     /**
-     * @param UuAccountTariff $uuAccountTariff
+     * @param int $accountTariffId
      * @param bool $isActive
      * @throws ModelValidationException
      */
-    public static function setActive(UuAccountTariff $uuAccountTariff, $isActive)
+    public static function setActive($accountTariffId, $isActive)
     {
-        $accountTariff = self::findOne(['id' => $uuAccountTariff->id]);
+        $accountTariff = self::findOne(['id' => $accountTariffId]);
         if (!$accountTariff) {
             if (!$isActive) {
                 return;
             }
             $accountTariff = new self;
-            $accountTariff->id = $uuAccountTariff->id;
+            $accountTariff->id = $accountTariffId;
             $accountTariff->is_active = true;
         } else {
             $accountTariff->is_active = $isActive;
