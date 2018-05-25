@@ -12,8 +12,6 @@ use yii\base\Object;
 
 class CalltrackingResourceReader extends Object implements ResourceReaderInterface
 {
-    const COST_AMOUNT = 0.5;
-
     /**
      * Вернуть количество потраченного ресурса
      *
@@ -68,7 +66,7 @@ class CalltrackingResourceReader extends Object implements ResourceReaderInterfa
                 "
             )->queryScalar();
 
-        return new Amounts(($minutes ?: 0) * self::COST_AMOUNT, 0);
+        return new Amounts((int)$minutes, 0);
     }
 
     /**
