@@ -59,7 +59,7 @@ class LogFilter extends Log
         $this->voip_number !== '' && $query->where(['voip_number' => $this->voip_number]);
         $this->user_agent !== '' && $query->andWhere(['user_agent' => $this->user_agent]);
         $this->ip !== '' && $query->andWhere(['ip' => $this->ip]);
-        $this->url !== '' && $query->andWhere(['url' => $this->url]);
+        $this->url !== '' && $query->andWhere(['like', 'url', $this->url]);
         $this->referrer !== '' && $query->andWhere(['referrer' => $this->referrer]);
 
         $this->start_dt_from !== '' && $query->andWhere(['>=', 'start_dt', $this->start_dt_from]);
