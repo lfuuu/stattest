@@ -6,12 +6,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Pricelist;
 use app\models\Business;
 use app\models\BusinessProcess;
-use app\models\Country;
-use app\models\mtt_raw\MttRaw;
-use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\TariffPeriod;
 use Yii;
-use yii\db\Expression;
 use yii\helpers\Url;
 
 
@@ -81,9 +76,6 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Статистика')
                 ->addStatModuleItems('stats')
-                ->addItem('СМС', ['/uu/mtt?MttRawFilter[serviceid][0]=' . MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK . '&MttRawFilter[serviceid][1]=' . MttRaw::SERVICE_ID_SMS_IN_ROAMING], ['services_voip.r'])
-                ->addItem('Моб. Интернет', ['/uu/mtt?MttRawFilter[serviceid][0]=' . MttRaw::SERVICE_ID_INET_IN_HOMENETWORK . '&MttRawFilter[serviceid][1]=' . MttRaw::SERVICE_ID_INET_IN_ROAMING], ['services_voip.r'])
-                ->addItem('CallTracking', ['/callTracking/log'], ['services_voip.r'])
                 ->addItem('Отчёт по файлам', ['/file/report'], ['stats.report'])
                 ->addItem('Отчет по OnLime', ['/reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['/reports/onlime-devices-report'], ['stats.report'])

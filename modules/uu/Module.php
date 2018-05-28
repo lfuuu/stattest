@@ -4,6 +4,7 @@ namespace app\modules\uu;
 
 use app\classes\Navigation;
 use app\classes\NavigationBlock;
+use app\models\mtt_raw\MttRaw;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
@@ -110,6 +111,9 @@ class Module extends \yii\base\Module
                     'AccountLogMonitorFilter[month]' => date('Y-m'),
                 ],
                     ['newaccounts_balance.read'])
+                ->addItem('СМС', ['/uu/mtt?MttRawFilter[serviceid][0]=' . MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK . '&MttRawFilter[serviceid][1]=' . MttRaw::SERVICE_ID_SMS_IN_ROAMING], ['services_voip.r'])
+                ->addItem('Моб. Интернет', ['/uu/mtt?MttRawFilter[serviceid][0]=' . MttRaw::SERVICE_ID_INET_IN_HOMENETWORK . '&MttRawFilter[serviceid][1]=' . MttRaw::SERVICE_ID_INET_IN_ROAMING], ['services_voip.r'])
+                ->addItem('CallTracking', ['/callTracking/log'], ['services_voip.r'])
         );
     }
 }

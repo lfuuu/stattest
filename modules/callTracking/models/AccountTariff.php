@@ -3,7 +3,6 @@
 namespace app\modules\callTracking\models;
 
 use app\exceptions\ModelValidationException;
-use app\modules\uu\models\AccountTariff as UuAccountTariff;
 use app\classes\model\ActiveRecord;
 use Yii;
 

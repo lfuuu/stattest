@@ -123,7 +123,7 @@ switch ($formModel->serviceTypeId) {
                 $accountTariff->voip_number,
         ];
 
-        if ($formModel->ndcTypeId === NdcType::ID_MOBILE) {
+        if ($formModel->ndcTypeId == NdcType::ID_MOBILE) {
             $attributes[] = [
                 'label' => 'Статистика MTT',
                 'format' => 'html',
@@ -151,6 +151,19 @@ switch ($formModel->serviceTypeId) {
                 }
             ];
         }
+        break;
+
+    case ServiceType::ID_CALLTRACKING:
+        $attributes[] = [
+            'label' => 'Статистика',
+            'format' => 'html',
+            'value' => function (AccountTariff $accountTariff) {
+                return $this->render('//layouts/_buttonLink',
+                    ['url' => Url::toRoute(['/callTracking/log',]),
+                    'text' => 'CallTracking',
+                ]);
+            }
+        ];
         break;
 
     case ServiceType::ID_ONE_TIME:

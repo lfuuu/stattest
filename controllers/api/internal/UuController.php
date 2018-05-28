@@ -57,6 +57,57 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Definition(definition = "GetCalltrackingLogs", type = "object",
+     *   @SWG\Property(property = "id", type = "integer", description = "ID"),
+     *   @SWG\Property(property = "account_tariff_id", type = "integer", description = "Услуга"),
+     *   @SWG\Property(property = "voip_number", type = "integer", description = "Телефонный номер"),
+     *   @SWG\Property(property = "start_dt", type = "string", description = "Время начала аренды номера"),
+     *   @SWG\Property(property = "disconnect_dt", type = "string", description = "Время разрыва коннекта с юзер-агентом"),
+     *   @SWG\Property(property = "stop_dt", type = "string", description = "Время окончания аренды номера"),
+     *   @SWG\Property(property = "user_agent", type = "string", description = "User agent"),
+     *   @SWG\Property(property = "ip", type = "string", description = "IP"),
+     *   @SWG\Property(property = "url", type = "string", description = "URL"),
+     *   @SWG\Property(property = "referrer", type = "string", description = "Referrer"),
+     * ),
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-calltracking-logs", summary = "Список Calltracking логов", operationId = "GetCalltrackingLogs",
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "Услуга", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "start_dt", type = "string", description = "Время начала аренды номера", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "stop_dt", type = "string", description = "Время окончания аренды номера", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Список Calltracking логов",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/GetCalltrackingLogs"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param int $account_tariff_id
+     * @param string $start_dt
+     * @param string $stop_dt
+     *
+     * @return array
+     */
+    public function actionGetCalltrackingLogs($account_tariff_id, $start_dt, $stop_dt)
+    {
+        $result = [];
+
+        if ($account_tariff_id) {
+            /** @var \app\modules\callTracking\models\Log $logs */
+            $logs = \app\modules\callTracking\models\Log::find()
+                ->where(['account_tariff_id' => $account_tariff_id])
+                ->andWhere('start_dt :: date >= :start_dt', ['start_dt' => $start_dt])
+                ->andWhere('stop_dt :: date <= :stop_dt', ['stop_dt' => $stop_dt]);
+
+            foreach ($logs->each() as $log) {
+                $result[] = $log->getAttributes();
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-service-types", summary = "Список типов услуг", operationId = "GetServiceTypes",
      *
      *   @SWG\Response(response = 200, description = "Список типов услуг (ВАТС, телефония, интернет и пр.)",

@@ -47,6 +47,7 @@ return [
     'Resource #42' => 'Mobile internet',
     'Resource #43' => 'Outbound traffic option from mobile numbers',
     'Resource #44' => 'Amount of numbers from requests',
+    'Resource #45' => 'Minutes',
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
 ];
