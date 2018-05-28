@@ -14,6 +14,7 @@ use app\models\TroubleState;
 use app\models\User;
 use app\modules\socket\classes\Socket;
 use app\modules\webhook\models\ApiHook;
+use app\modules\webhook\models\ContactsMessage;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
@@ -30,6 +31,7 @@ class ApiController extends Controller
     /** @var ClientAccount */
     private $_clientAccount = null;
     private $_clientContacts = [];
+    private $_clientContactsIsOrigin = null;
 
     /**
      * Инициализация
@@ -169,9 +171,15 @@ class ApiController extends Controller
      */
     private function _makeContactsAndClientAccount(ApiHook $apiHook)
     {
-        // отправить уведомление менеджеру
-        // найти контакты
-        $this->_clientContacts = $apiHook->getClientContacts();
+        /**
+         * Получение контактов клиента c последующим установлением
+         * переменной _clientContactsIsOrigin
+         *
+         * @see ContactsMessage
+         */
+        $contactsMessage = $apiHook->getClientContacts();
+        $this->_clientContacts = $contactsMessage->contacts;
+        $this->_clientContactsIsOrigin = $contactsMessage->isOrigin;
 
         $this->_clientAccount = $clientAccount = null;
         foreach ($this->_clientContacts as $clientContact) {
@@ -235,6 +243,7 @@ class ApiController extends Controller
             'clientContacts' => $this->_clientContacts,
             'messageId' => $messageId,
             'block' => ['down' => $downBlock],
+            'clientContactsIsOrigin' => $this->_clientContactsIsOrigin,
         ]);
 
         if (!$apiHook->isEventTypesWithContent()) {

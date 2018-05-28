@@ -99,12 +99,14 @@ class ApiHook extends Model
     }
 
     /**
-     * @return ClientContact[]
+     * @return ContactsMessage
      */
     public function getClientContacts()
     {
+        $contactsMessage = new ContactsMessage;
+
         if (!$this->did) {
-            return [];
+            return $contactsMessage;
         }
 
         if ($this->did[0] == '+') {
@@ -122,7 +124,9 @@ class ApiHook extends Model
             ->all();
 
         if ($clientContacts) {
-            return $clientContacts;
+            $contactsMessage->isOrigin = true;
+            $contactsMessage->contacts = $clientContacts;
+            return $contactsMessage;
         }
 
         $dids = array_map(function ($item) {
@@ -135,7 +139,14 @@ class ApiHook extends Model
             ->andWhere(['IS NOT', 'tariff_period_id', null])
             ->one();
 
-        return $accountTariff ? $accountTariff->clientAccount->contacts : [];
+        if ($accountTariff && $clientContacts = $accountTariff->clientAccount->contacts) {
+            $contactsMessage->isOrigin = false;
+            $contactsMessage->contacts = !empty($clientContacts) ?
+                [array_shift($clientContacts)] : [];
+            return $contactsMessage;
+        }
+
+        return $contactsMessage;
     }
 
     /**

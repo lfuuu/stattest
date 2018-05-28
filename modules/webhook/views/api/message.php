@@ -5,6 +5,7 @@
  * @var \app\classes\BaseView $this
  * @var string $did
  * @var string $abon
+ * @var bool $clientContactsIsOrigin
  * @var ClientContact[] $clientContacts
  */
 
@@ -29,8 +30,7 @@ use app\models\ClientContact;
             }
 
             if ($i++ > 12) {
-                // слишком много все равно не вместится
-                break;
+                break; // слишком много все равно не вместится
             }
 
             $contract = $clientAccount->contract;
@@ -38,7 +38,9 @@ use app\models\ClientContact;
             $super = $contract->super;
             ?>
             <tr data-client_account_id="<?= $clientAccount->id ?>">
-                <td><?= Html::encode($clientContact->comment) ?></td>
+                <?php if ($clientContactsIsOrigin) : ?>
+                    <td><?= Html::encode($clientContact->comment) ?></td>
+                <?php endif ?>
                 <td><?= Html::a($clientAccount->getAccountType() . ' ' . $clientAccount->id, $clientAccount->getUrl()) ?></td>
                 <td>Дог. <?= $contract->number ?></td>
                 <td><?= Html::encode($contragent->name) ?></td>
