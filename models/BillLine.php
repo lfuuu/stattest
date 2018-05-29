@@ -243,6 +243,8 @@ class BillLine extends ActiveRecord
             $oLine->calculateSum($isPriceIncludeVat);
             $line = $oLine->getAttributes();
 
+            $line['outprice'] = $line['price'];
+
             $data[] = $line;
         }
 
