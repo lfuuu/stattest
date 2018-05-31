@@ -6,7 +6,20 @@
 namespace app\classes\traits;
 
 use app\classes\yii\CTEQuery;
+use app\models\billing\CallsRaw;
+use app\models\billing\ClientContractType;
+use app\models\billing\Clients;
+use app\models\billing\CurrencyRate;
+use app\models\billing\ServiceTrunk;
+use app\models\billing\Trunk;
+use app\models\billing\TrunkGroupItem;
+use app\models\billing\TrunkTrunkRule;
 use app\models\Organization;
+use app\modules\nnp\models\City;
+use app\modules\nnp\models\Country;
+use app\modules\nnp\models\NumberRange;
+use app\modules\nnp\models\Operator;
+use app\modules\nnp\models\Region;
 use Yii;
 use yii\db\Expression;
 use app\models\billing\DisconnectCause;
@@ -47,18 +60,18 @@ trait CallsRawSlowReport
                     'cr.server_id',
                 ]
             )
-            ->from('calls_raw.calls_raw cr')
-            ->leftJoin('auth.trunk t', 't.id = cr.trunk_id')
-            ->leftJoin('billing.service_trunk st', 'st.id = cr.trunk_service_id')
-            ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
-            ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
-            ->leftJoin('nnp.country nc', 'nc.code = cr.nnp_country_code')
-            ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
-            ->leftJoin('nnp.city ci', 'ci.id = cr.nnp_city_id')
-            ->leftJoin('billing.clients c', 'c.id = cr.account_id')
-            ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
-            ->andWhere('cr.orig')
-            ->orderBy('connect_time')
+            ->from(['cr' => CallsRaw::tableName()])
+            ->leftJoin(['t' => Trunk::tableName()], 't.id = cr.trunk_id')
+            ->leftJoin(['st' => ServiceTrunk::tableName()], 'st.id = cr.trunk_service_id')
+            ->leftJoin(['cct' => ClientContractType::tableName()], 'cct.id = st.contract_type_id')
+            ->leftJoin(['o' => Operator::tableName()], 'o.id = cr.nnp_operator_id')
+            ->leftJoin(['nc' => Country::tableName()], 'nc.code = cr.nnp_country_code')
+            ->leftJoin(['r' => Region::tableName()], 'r.id = cr.nnp_region_id')
+            ->leftJoin(['ci' => City::tableName()], 'ci.id = cr.nnp_city_id')
+            ->leftJoin(['c' => Clients::tableName()], 'c.id = cr.account_id')
+            ->leftJoin(['rate' => CurrencyRate::tableName()], 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
+            ->andWhere(['cr.orig' => true])
+            ->orderBy(['connect_time' => SORT_ASC])
             ->limit(500);
 
         $query2->select(
@@ -76,18 +89,18 @@ trait CallsRawSlowReport
                 'cr.server_id',
             ]
         )
-            ->from('calls_raw.calls_raw cr')
-            ->leftJoin('auth.trunk t', 't.id = cr.trunk_id')
-            ->leftJoin('billing.service_trunk st', 'st.id = cr.trunk_service_id')
-            ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
-            ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
-            ->leftJoin('nnp.country nc', 'nc.code = cr.nnp_country_code')
-            ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
-            ->leftJoin('nnp.city ci', 'ci.id = cr.nnp_city_id')
-            ->leftJoin('billing.clients c', 'c.id = cr.account_id')
-            ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
-            ->andWhere('NOT cr.orig')
-            ->orderBy('connect_time')
+            ->from(['cr' => CallsRaw::tableName()])
+            ->leftJoin(['t' => Trunk::tableName()], 't.id = cr.trunk_id')
+            ->leftJoin(['st' => ServiceTrunk::tableName()], 'st.id = cr.trunk_service_id')
+            ->leftJoin(['cct' => ClientContractType::tableName()], 'cct.id = st.contract_type_id')
+            ->leftJoin(['o' => Operator::tableName()], 'o.id = cr.nnp_operator_id')
+            ->leftJoin(['nc' => Country::tableName()], 'nc.code = cr.nnp_country_code')
+            ->leftJoin(['r' => Region::tableName()], 'r.id = cr.nnp_region_id')
+            ->leftJoin(['ci' => City::tableName()], 'ci.id = cr.nnp_city_id')
+            ->leftJoin(['c' => Clients::tableName()], 'c.id = cr.account_id')
+            ->leftJoin(['rate' => CurrencyRate::tableName()], 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
+            ->andWhere(['cr.orig' => false])
+            ->orderBy(['connect_time' => SORT_ASC])
             ->limit(500);
 
         $null = new Expression('NULL');
@@ -154,8 +167,15 @@ trait CallsRawSlowReport
         $query1->limit(-1)->orderBy([]);
 
         if ($this->src_trunk_group_ids) {
-            $query1->innerJoin('auth.trunk_group_item tgi', 'tgi.trunk_id = t.id');
-            $query1->andWhere(['tgi.trunk_group_id' => $this->src_trunk_group_ids]);
+            $query = (new Query())
+                ->select('tgi.trunk_id')
+                ->distinct()
+                ->from([
+                    'tgi' => TrunkGroupItem::tableName()
+                ])
+                ->where(['tgi.trunk_group_id' => $this->src_trunk_group_ids]);
+
+            $query1->andWhere(['t.id' => $query]);
         }
 
         if ($this->dst_trunk_group_ids) {
@@ -163,9 +183,9 @@ trait CallsRawSlowReport
                 ->select('tgi2.trunk_id')
                 ->distinct()
                 ->from([
-                    'tgi' => 'auth.trunk_group_item',
-                    'ttr' => 'auth.trunk_trunk_rule',
-                    'tgi2' => 'auth.trunk_group_item',
+                    'tgi' => TrunkGroupItem::tableName(),
+                    'ttr' => TrunkTrunkRule::tableName(),
+                    'tgi2' => TrunkGroupItem::tableName(),
                 ])
                 ->where([
                     'tgi.trunk_group_id' => $this->dst_trunk_group_ids
@@ -178,14 +198,14 @@ trait CallsRawSlowReport
 
 
         if ($this->is_exclude_internal_trunk_orig) {
-            $query1->leftJoin('billing.service_trunk bst', 'cr.trunk_service_id = bst.id');
-            $query1->leftJoin('billing.clients bc', 'bc.id = bst.client_account_id AND bc.organization_id = '. Organization::INTERNAL_OFFICE);
+            $query1->leftJoin(['bst' => ServiceTrunk::tableName()], 'cr.trunk_service_id = bst.id');
+            $query1->leftJoin(['bc' => Clients::tableName()], 'bc.id = bst.client_account_id AND bc.organization_id = ' . Organization::INTERNAL_OFFICE);
             $query1->andWhere(['bc.id' => null]);
         }
 
         if ($this->is_exclude_internal_trunk_term) {
-            $query2->leftJoin('billing.service_trunk bst', 'cr.trunk_service_id = bst.id');
-            $query2->leftJoin('billing.clients bc', 'bc.id = bst.client_account_id AND bc.organization_id = '. Organization::INTERNAL_OFFICE);
+            $query2->leftJoin(['bst' => ServiceTrunk::tableName()], 'cr.trunk_service_id = bst.id');
+            $query2->leftJoin(['bc' => Clients::tableName()], 'bc.id = bst.client_account_id AND bc.organization_id = ' . Organization::INTERNAL_OFFICE);
             $query2->andWhere(['bc.id' => null]);
         }
 
@@ -195,7 +215,7 @@ trait CallsRawSlowReport
             $query1->andWhere(['cr.trunk_id' => $this->src_physical_trunks_ids])
             && $query3
             && $query3
-                ->leftJoin('auth.trunk t1', 'src_route = t1.trunk_name')
+                ->leftJoin(['t1' => Trunk::tableName()], 'src_route = t1.trunk_name')
                 ->andWhere(['t1.id' => $this->src_physical_trunks_ids]);
         }
 
@@ -203,7 +223,7 @@ trait CallsRawSlowReport
             $query2->andWhere(['cr.trunk_id' => $this->dst_physical_trunks_ids])
             && $query3
             && $query3
-                ->leftJoin('auth.trunk t2', 'dst_route = t2.trunk_name')
+                ->leftJoin(['t2' => Trunk::tableName()], 'dst_route = t2.trunk_name')
                 ->andWhere(['t2.id' => $this->dst_physical_trunks_ids]);
         }
 
@@ -229,14 +249,14 @@ trait CallsRawSlowReport
 
         if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
             $query1->leftJoin(
-                ["dst_nr" => 'nnp.number_range'],
+                ["dst_nr" => NumberRange::tableName()],
                 "dst_nr.id = cr.nnp_number_range_id"
             );
         }
 
         if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
             $query1->leftJoin(
-                ["src_nr" => 'nnp.number_range'],
+                ["src_nr" => NumberRange::tableName()],
                 "src_nr.id = cr.nnp_number_range_id"
             );
         }
