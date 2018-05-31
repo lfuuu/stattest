@@ -56,45 +56,20 @@ class LkWizardState extends ActiveRecord
      *
      * @param int $contractId
      * @param int $troubleId
-     * @param int $countryCode
+     * @param string $type
      * @return bool
      */
-    public static function create($contractId, $troubleId = 0, $countryCode = Country::RUSSIA)
+    public static function create($contractId, $troubleId = 0, $type = self::TYPE_RUSSIA)
     {
         $wizard = new self();
         $wizard->contract_id = $contractId;
         $wizard->step = 1;
         $wizard->state = "process";
         $wizard->trouble_id = $troubleId;
-        $wizard->type = self::_getWizardTypeByCountryCode($countryCode);
+        $wizard->type = $type;
         $wizard->is_on = 1;
 
         return $wizard->save();
-    }
-
-    /**
-     * Получение типа визарда по стране
-     *
-     * @param integer $countryId
-     * @return string
-     */
-    private static function _getWizardTypeByCountryCode($countryId)
-    {
-        switch ($countryId) {
-
-            case Country::HUNGARY:
-            case Country::GERMANY:
-            case Country::AUSTRIA:
-                return LkWizardState::TYPE_HUNGARY;
-                break;
-
-            case Country::SLOVAKIA:
-                return LkWizardState::TYPE_SLOVAK;
-                break;
-
-            default:
-                return LkWizardState::TYPE_RUSSIA;
-        }
     }
 
     public function getStepName()

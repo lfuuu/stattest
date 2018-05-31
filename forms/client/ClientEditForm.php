@@ -8,11 +8,11 @@ class ClientEditForm extends Form
 {
     public $id,
         $name,
-        $financial_manager_id;
+        $financial_manager_id,
+        $entry_point_id
+    ;
 
     protected $super = null;
-
-    //public $ddate = null;
 
     public function rules()
     {
@@ -33,11 +33,11 @@ class ClientEditForm extends Form
         if ($this->id) {
             $this->super = ClientSuper::findOne($this->id);
             if ($this->super === null) {
-                throw new Exception('SuperClient not found');
+                throw new \Exception('SuperClient not found');
             }
             $this->setAttributes($this->super->getAttributes(), false);
         } else {
-            throw new Exception('You must send id');
+            throw new \Exception('You must send id');
         }
     }
 
@@ -59,5 +59,15 @@ class ClientEditForm extends Form
     public function getIsNewRecord()
     {
         return $this->id ? false : true;
+    }
+
+    /**
+     * Имя точки подключения
+     *
+     * @return string
+     */
+    public function getEntryPointName()
+    {
+        return $this->super->entryPoint ? $this->super->entryPoint->name : '';
     }
 }

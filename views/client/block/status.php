@@ -1,6 +1,7 @@
 <?php
 
 /** @var \app\classes\BaseView $this */
+
 /** @var \app\forms\client\ContractEditForm $contractForm */
 
 use app\classes\Html;
@@ -29,18 +30,21 @@ $currentBusinessProcessStatus = BusinessProcessStatus::findOne($contractForm->bu
         ])
     ]);
     ?>
-    <div class="row" style="background-color: <?= isset($currentBusinessProcessStatus['color']) ? $currentBusinessProcessStatus['color'] : '' ?>;">
+    <div class="row"
+         style="background-color: <?= isset($currentBusinessProcessStatus['color']) ? $currentBusinessProcessStatus['color'] : '' ?>;">
         <div class="col-sm-3">
-            Статус: <b><?= isset($currentBusinessProcessStatus['name']) ? $currentBusinessProcessStatus['name'] : '...' ?></b>
+            Статус:
+            <b><?= isset($currentBusinessProcessStatus['name']) ? $currentBusinessProcessStatus['name'] : '...' ?></b>
             <a href="#" class="status-block-toggle">
-                <img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть" />
+                <img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть"/>
             </a>
         </div>
         <div class="col-sm-9">
 
             <?php if ($account->lkWizardState) : ?>
                 <b style="color: green;"> Wizard
-                    включен (<?= $account->lkWizardState->type ?>) </b>, шаг: <?= $account->lkWizardState->step ?> (<?= $account->lkWizardState->stepName ?>)
+                    включен (<?= LkWizardState::$name[$account->lkWizardState->type] ?>
+                    ) </b>, шаг: <?= $account->lkWizardState->step ?> (<?= $account->lkWizardState->stepName ?>)
                 <small>
                     [
                     <?= Html::a('выключить', ['/account/change-wizard-state', 'id' => $account->id, 'state' => 'off']) ?>
@@ -68,31 +72,43 @@ $currentBusinessProcessStatus = BusinessProcessStatus::findOne($contractForm->bu
                     <?php if ($account->lkWizardState->step != 3): ?>
                         | <?= Html::a('*след шаг*', ['/account/change-wizard-state', 'id' => $account->id, 'state' => 'next']) ?>
                     <?php endif; ?>
+
+                    <?php if ($account->lkWizardState->step == 1): ?>
+                        <?php foreach (LkWizardState::$name as $type => $name) if ($type != $account->lkWizardState->type) { ?>
+                            | <?= Html::a($name, ['/account/change-wizard-type', 'id' => $account->id, 'type' => $type]) ?>
+                        <?php } ?>
+                    <?php endif; ?>
+
                     ]
                 </small>
             <?php else: ?>
                 <?php if (LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id)): ?>
                     <b style="color: gray;"> Wizard выключен</b>
-                    [<?= Html::a('включить', ['/account/change-wizard-state', 'id' => $account->id, 'state' => 'on' ]) ?>]
+                    [<?= Html::a('включить', ['/account/change-wizard-state', 'id' => $account->id, 'state' => 'on']) ?>]
                 <?php endif; ?>
             <?php endif; ?>
 
         </div>
     </div>
     <div class="row" id="statuses">
-        <div class="col-sm-6"><small>Комментарии к договору</small>:
+        <div class="col-sm-6">
+            <small>Комментарии к договору</small>
+            :
             <?php foreach ($account->contract->comments as $comment): ?>
                 <div class="col-sm-12">
                     <input type="checkbox"
                            name="ContractEditForm[public_comment][<?= $comment->id ?>]" <?= $comment->is_publish ? 'checked' : '' ?> />
-                    <b><?= $comment->user ?> <?= DateTimeZoneHelper::getDateTime($comment->ts) ?>: </b><?= $comment->comment ?>
+                    <b><?= $comment->user ?> <?= DateTimeZoneHelper::getDateTime($comment->ts) ?>
+                        : </b><?= $comment->comment ?>
                 </div>
             <?php endforeach; ?>
         </div>
-        <div class="col-sm-6"><small>Комментарии к ЛС:</small>
+        <div class="col-sm-6">
+            <small>Комментарии к ЛС:</small>
             <?php foreach ($account->comments as $comment): ?>
                 <div class="col-sm-12">
-                    <b><?= $comment->user->user ?> <?= DateTimeZoneHelper::getDateTime($comment->created_at) ?>: </b><?= $comment->comment ?>
+                    <b><?= $comment->user->user ?> <?= DateTimeZoneHelper::getDateTime($comment->created_at) ?>
+                        : </b><?= $comment->comment ?>
                 </div>
             <?php endforeach; ?>
         </div>

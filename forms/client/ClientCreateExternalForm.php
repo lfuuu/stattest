@@ -288,6 +288,7 @@ class ClientCreateExternalForm extends Form
 
         Yii::info($super);
         $this->super_id = $super->id;
+        $this->entryPoint && $super->entry_point_id = $this->entryPoint->id;
 
         $super->name = ($this->entryPoint ? $this->entryPoint->name_prefix : $super->name) . $super->id;
 
@@ -466,7 +467,7 @@ class ClientCreateExternalForm extends Form
         LkWizardState::create(
             $this->contract_id,
             $this->troubleId,
-            $this->entryPoint ? $this->entryPoint->country_id : Country::RUSSIA
+            $this->entryPoint && $this->entryPoint->wizard_type ? $this->entryPoint->wizard_type: LkWizardState::TYPE_RUSSIA
         );
 
         return true;

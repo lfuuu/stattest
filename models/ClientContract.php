@@ -49,6 +49,7 @@ use yii\db\ActiveQuery;
  * @property-read ClientDocument $contractInfo
  * @property-read ClientSuper $super
  * @property-read ClientContact $partnerContract
+ * @property-read LkWizardState $lkWizardState
  *
  * @property-read string $managerName
  * @property-read string $accountManagerName
@@ -326,6 +327,14 @@ class ClientContract extends HistoryActiveRecord
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getLkWizardState()
+    {
+        return $this->hasOne(LkWizardState::className(), ['contract_id' => 'id']);
     }
 
     /**

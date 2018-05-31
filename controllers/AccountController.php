@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\exceptions\ModelValidationException;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
 use app\models\ClientAccount;
@@ -14,6 +15,7 @@ use app\models\Country;
 use app\models\LkWizardState;
 use Yii;
 use yii\base\Exception;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 use yii\web\Response;
 
@@ -82,7 +84,7 @@ class AccountController extends BaseController
                     LkWizardState::create(
                         $account->contract->id,
                         0,
-                        $account->contract->contragent->country_id
+                        LkWizardState::TYPE_RUSSIA
                     );
                 }
             } else {
@@ -109,6 +111,36 @@ class AccountController extends BaseController
         }
 
         return $this->redirect(['client/view', 'id' => $id]);
+    }
+
+    public function actionChangeWizardType($id, $type)
+    {
+        $accountId = $id;
+
+        /** @var ClientAccount $account */
+        $account = ClientAccount::findOne(['id' => $accountId]);
+
+        if (
+            !$account
+            || !($contract = $account->contract)
+            || !LkWizardState::isBPStatusAllow($contract->business_process_status_id, $contract->id)
+            || !($wizard = $contract->lkWizardState)
+
+        ) {
+            throw new \LogicException("Wizard не доступен на данном статусе бизнес процесса");
+        }
+
+        if (!in_array($type, array_keys(LkWizardState::$name))) {
+            throw new InvalidParamException('Неверный тип Wizardа');
+        }
+
+        $wizard->type = $type;
+
+        if (!$wizard->save()) {
+            throw new ModelValidationException($wizard);
+        }
+
+        return $this->redirect(['client/view', 'id' => $accountId]);
     }
 
     /**

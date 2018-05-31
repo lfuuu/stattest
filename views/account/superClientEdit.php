@@ -37,6 +37,16 @@ use kartik\widgets\DatePicker;
                         'type' => Form::INPUT_DROPDOWN_LIST,
                         'items' => \app\models\User::getUserListByDepart(28, $isEnabled = true)
                     ],
+                    'entry_point_id' => [
+                        'type' => Form::INPUT_TEXT,
+                        'options' => [
+                            'value' => $model->entryPointName,
+                            'readonly' => true
+                        ],
+                        'columnOptions' => [
+                            'colspan' => 2,
+                        ]
+                    ],
                 ],
             ]);
 

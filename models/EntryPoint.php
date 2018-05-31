@@ -25,6 +25,7 @@ use app\helpers\DateTimeZoneHelper;
  * @property int $is_default
  * @property int $region_id
  * @property int $connect_trouble_user_id
+ * @property string $wizard_type
  * @property Country country
  * @property User connectTroubleUser
  */
@@ -96,7 +97,8 @@ class EntryPoint extends ActiveRecord
                     'client_contract_business_process_id',
                     'client_contract_business_process_status_id',
                     'region_id',
-                    'connect_trouble_user_id'
+                    'connect_trouble_user_id',
+                    'wizard_type'
                 ],
                 'required'
             ],
@@ -106,6 +108,7 @@ class EntryPoint extends ActiveRecord
             ['organization_id', 'in', 'range' => array_keys(Organization::dao()->getList())],
             ['currency_id', 'in', 'range' => array_keys(Currency::getList())],
             ['timezone_name', 'in', 'range' => Region::getTimezoneList()],
+            ['wizard_type', 'in', 'range' => array_keys(LkWizardState::$name)],
             [['is_postpaid', 'is_default'], 'boolean'],
             ['account_version', 'in', 'range' => array_keys(ClientAccount::$versions)],
             [['credit', 'voip_credit_limit_day', 'voip_limit_mn_day'], 'integer', 'min' => 0],
@@ -145,6 +148,7 @@ class EntryPoint extends ActiveRecord
             'is_default' => 'По-умолчанию',
             'region_id' => 'Точка подключения',
             'connect_trouble_user_id' => 'Пользовтель, для создания траблы на подключение',
+            'wizard_type' => "Тип Wizard'а",
         ];
     }
 

@@ -149,7 +149,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
         </div>
 
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'client_contract_business_process_status_id')
                     ->dropDownList(
@@ -158,6 +158,14 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                             ->indexBy('id')
                             ->all()
                     )
+                ?>
+            </div>
+
+
+            <div class="col-sm-2">
+                <?= $form
+                    ->field($model, 'wizard_type')
+                    ->dropDownList(LkWizardState::$name)
                 ?>
             </div>
 

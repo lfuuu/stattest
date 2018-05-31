@@ -14,9 +14,11 @@ use app\dao\ClientSuperDao;
  * @property string $name
  * @property int $financial_manager_id
  * @property bool $is_lk_exists
+ * @property string $entry_point_id
  * @property-read ClientContragent[] $contragents
  * @property-read ClientContract[] $contracts
  * @property-read ClientAccount[] $accounts
+ * @property-read EntryPoint $entryPoint
  */
 class ClientSuper extends ActiveRecord
 {
@@ -35,7 +37,8 @@ class ClientSuper extends ActiveRecord
     {
         return [
             'name' => 'Название',
-            'financial_manager_id' => 'Финансовый менеджер'
+            'financial_manager_id' => 'Финансовый менеджер',
+            'entry_point_id' => 'Точка подключения',
         ];
     }
 
@@ -90,6 +93,14 @@ class ClientSuper extends ActiveRecord
     public function getAccounts()
     {
         return $this->hasMany(ClientAccount::className(), ['super_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEntryPoint()
+    {
+        return $this->hasOne(EntryPoint::className(), ['id' => 'entry_point_id']);
     }
 
     /**
