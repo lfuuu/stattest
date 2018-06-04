@@ -85,6 +85,8 @@ class ApiLk
 
         $clientCountryId = $account->country_id;
 
+        $organizationId = $account->contract->organization_id;
+
         foreach ($R as $r) {
             if (strtotime($r["bill"]["bill_date"]) < $cutOffDate) {
                 continue;
@@ -100,7 +102,7 @@ class ApiLk
                 'sum' => $b['sum'],
                 'type' => $b['nal'],
                 'pays' => [],
-                'link' => self::_getBillDocumentLinks($billModel, $clientCountryId)
+                'link' => self::_getBillDocumentLinks($billModel, $clientCountryId, $organizationId)
             ];
 
             foreach ($r["pays"] as $p) {
@@ -313,6 +315,8 @@ class ApiLk
             throw new Exception("bill_not_found");
         }
 
+        $organizationId = $account->contract->organization_id;
+
         $lines = [];
 
         /** @var \app\models\BillLine $line */
@@ -335,7 +339,7 @@ class ApiLk
                 "sum_total" => number_format($billModel->sum, 2, '.', ''),
                 "dtypes" => ["bill_no" => $billModel->bill_no, "ts" => (new DateTime($billModel->bill_date))->getTimestamp()]
             ],
-            "link" => self::_getBillDocumentLinks($billModel, $accountCountryId),
+            "link" => self::_getBillDocumentLinks($billModel, $accountCountryId, $organizationId),
         ];
 
         return $ret;
@@ -346,13 +350,14 @@ class ApiLk
      *
      * @param Bill $bill
      * @param integer $clientCountryId
+     * @param integer $organizationId
      * @return array
      */
-    private static function _getBillDocumentLinks(Bill $bill, $clientCountryId)
+    private static function _getBillDocumentLinks(Bill $bill, $clientCountryId, $organizationId)
     {
         $dt = $bill->document;
 
-        if (!$dt) {
+        if (!$dt || \app\models\Organization::isMcnTeleсomKft($organizationId)) {
             return [];
         }
 

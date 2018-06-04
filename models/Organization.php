@@ -55,6 +55,7 @@ class Organization extends ActiveRecord
     const TEL2TEL_KFT = 10; // Для некоторых стран это переводится как "TEL2TEL_LTD", но не надо это путать с id=16
     const TEL2TEL_LTD = 16;
     const INTERNAL_OFFICE = 18; // Взаиморасчеты MCN - Внутренний офис
+    const MCN_TELECOM_KFT_SK = 19; // MCNtelecom Kft. Словакия
     const TEL2TEL_GMBH = 20;
     const AB_SERVICE_MARCOMNET = 14;
 
@@ -429,5 +430,16 @@ class Organization extends ActiveRecord
     public function getLink()
     {
         return Html::a(Html::encode($this->name), $this->getUrl());
+    }
+
+    /**
+     * Является ли организация "MCN Telecom Kft."
+     *
+     * @param int $organizationId
+     * @return bool
+     */
+    public static function isMcnTeleсomKft($organizationId)
+    {
+        return in_array($organizationId, [self::TEL2TEL_KFT, self::MCN_TELECOM_KFT_SK]);
     }
 }
