@@ -289,4 +289,21 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         $userId = Yii::$app->user->getId();
         return $userId && $userId != User::SYSTEM_USER_ID;
     }
+
+    /**
+     * Проверяем, что текущий пользователь является менеджером или аккаунт-менеджером
+     *
+     * @return bool
+     */
+    public static function isManagerLogined()
+    {
+        $managers = self::find()
+            ->select(['user'])
+            ->where([
+                'depart_id' => User::DEPART_SALES, 'enabled' => 'yes'
+            ])
+            ->column();
+
+        return in_array(Yii::$app->user->identity->user, $managers);
+    }
 }

@@ -689,6 +689,11 @@ class AccountTariffLog extends ActiveRecord
             }
         }
 
+        // Любой менеджер или аккаунт-менеджер имеет право добавлять неограниченное количество пакетов в день
+        if (User::isManagerLogined()) {
+            return;
+        }
+
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
         if (AccountTariffLog::find()
@@ -713,6 +718,7 @@ class AccountTariffLog extends ActiveRecord
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_FUTURE;
             return;
         }
+
     }
 
     /**
