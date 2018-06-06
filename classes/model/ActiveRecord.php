@@ -4,6 +4,7 @@ namespace app\classes\model;
 
 use app\classes\grid\column\DataColumn;
 use app\exceptions\ModelValidationException;
+use app\models\ClientAccount;
 use app\modules\nnp\models\FilterQuery;
 use ReflectionClass;
 use ReflectionProperty;
@@ -316,5 +317,15 @@ class ActiveRecord extends \yii\db\ActiveRecord
 
         $db->createCommand('SET statement_timeout TO ' . $timeout)
             ->execute();
+    }
+
+    /**
+     * Получаем максимальный Идентификатор модели
+     *
+     * @return mixed
+     */
+    public static function getMaxId()
+    {
+        return self::find()->max('id');
     }
 }

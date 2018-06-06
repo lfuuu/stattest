@@ -290,7 +290,7 @@ class ClientCreateExternalForm extends Form
         $this->super_id = $super->id;
         $this->entryPoint && $super->entry_point_id = $this->entryPoint->id;
 
-        $super->name = ($this->entryPoint ? $this->entryPoint->name_prefix : $super->name) . $super->id;
+        $super->name = ($this->entryPoint ? $this->entryPoint->name_prefix : $super->name);
 
         if (!$super->save()) {
             throw new ModelValidationException($super);

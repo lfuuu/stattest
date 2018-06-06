@@ -11,6 +11,7 @@ use app\classes\behaviors\SetTaxVoip;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
+use app\exceptions\ModelValidationException;
 use app\helpers\SetFieldTypeHelper;
 use app\models\ClientDocument;
 use yii\db\ActiveQuery;
@@ -195,6 +196,15 @@ class ClientContract extends HistoryActiveRecord
         return parent::save($runValidation, $attributeNames);
     }
 
+    public function beforeSave($isInsert)
+    {
+        if ($isInsert) {
+            $this->id = ClientAccount::getMaxId() + 1;
+        }
+
+        return parent::beforeSave($isInsert);
+    }
+
     /**
      * @param bool $insert
      * @param array $changedAttributes
@@ -206,6 +216,7 @@ class ClientContract extends HistoryActiveRecord
         if ($insert) {
             $contragent = ClientContragent::findOne($this->contragent_id);
             $client = new ClientAccount();
+            $client->id = $this->id;
             $client->contract_id = $this->id;
             $client->super_id = $this->super_id;
             $client->country_id = $contragent->country_id;
@@ -214,15 +225,16 @@ class ClientContract extends HistoryActiveRecord
             $client->client = '';
             $client->sale_channel = 0;
             $client->consignee = '';
-            $client->validate();
-            $client->save();
-
             $client->client = 'id' . $client->id;
-            $client->save();
+            if (!$client->save()) {
+                throw new ModelValidationException($client);
+            }
 
             $this->newClient = $client;
             $this->number = (string)$client->id;
-            $this->save();
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
         }
 
         foreach ($this->getAccounts() as $account) {

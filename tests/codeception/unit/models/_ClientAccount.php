@@ -51,7 +51,7 @@ class _ClientAccount extends \app\models\ClientAccount
         }
 
         if (!$clientForm->create()) {
-            throw new ModelValidationException($clientForm);
+            throw new \Exception('Client not created (ClientCreateExternalForm)');
         }
 
         return self::findOne(['id' => $clientForm->account_id]);
