@@ -14,7 +14,7 @@ $baseView = $this;
 // Создаем dataProvider раньше, потому что уже необходимо отображать первую статистику
 $dataProvider = $filterModel->search();
 // Анонимная функция расчета итоговых значений по вознаграждениям
-$totalCountingFunction = function ($type = '') use ($filterModel){
+$totalCountingFunction = function ($type = '') use ($filterModel) {
     $total = 0;
     $attribute = $type === '' ? 'summary' : 'possibleSummary';
     foreach ([
@@ -25,16 +25,22 @@ $totalCountingFunction = function ($type = '') use ($filterModel){
         $total += $filterModel->{$attribute}[$key];
     }
     return number_format($total, 2);
-}
+};
+// Анонимная функция форматирования цены, требуемая в том числе и при экспорте отчета
+$priceFormatFunction = function ($price) {
+    return number_format($price, 2, ',', ' ');
+};
+
 ?>
-<div class="row">
-    <div class="col-sm-6 text-left">
-        <div style="padding-left:15px;">
-            <h2>Итого по начисленному вознаграждению: <?=  $totalCountingFunction(); ?></h2>
-            <h3>Рассчетная сумма вознаграждения по неоплаченным счетам: <?= $totalCountingFunction('possible') ?></h3>
+    <div class="row">
+        <div class="col-sm-6 text-left">
+            <div style="padding-left:15px;">
+                <h2>Итого по начисленному вознаграждению: <?= $totalCountingFunction(); ?></h2>
+                <h3>Рассчетная сумма вознаграждения по неоплаченным
+                    счетам: <?= $totalCountingFunction('possible') ?></h3>
+            </div>
         </div>
     </div>
-</div>
 <?= GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
@@ -60,6 +66,7 @@ $totalCountingFunction = function ($type = '') use ($filterModel){
         [
             'class' => 'kartik\grid\ExpandRowColumn',
             'width' => '50px',
+            'hiddenFromExport' => false,
             'value' => function () {
                 return GridView::ROW_COLLAPSED;
             },
@@ -92,108 +99,108 @@ $totalCountingFunction = function ($type = '') use ($filterModel){
         [
             'headerOptions' => ['class' => 'hidden'],
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['paid_summary'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['paid_summary']);
             },
         ],
         [
             'headerOptions' => ['class' => 'hidden'],
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['paid_summary_reward'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['paid_summary_reward']);
             },
         ],
         [
             'label' => 'Разовое',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['once'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['once']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от подключения',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['percentage_once'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['percentage_once']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от абонентской платы',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['percentage_of_fee'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['percentage_of_fee']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от превышения',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['percentage_of_over'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['percentage_of_over']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от маржи',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['percentage_of_margin'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['percentage_of_margin']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'headerOptions' => ['class' => 'hidden'],
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['possible_paid_summary'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['possible_paid_summary']);
             },
         ],
         [
             'headerOptions' => ['class' => 'hidden'],
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['possible_paid_summary_reward'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['possible_paid_summary_reward']);
             },
         ],
         [
             'label' => 'Разовое',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['possible_once'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['possible_once']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от подключения',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['possible_percentage_once'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['possible_percentage_once']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от абонентской платы',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['possible_percentage_of_fee'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['possible_percentage_of_fee']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от превышения',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['possible_percentage_of_over'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['possible_percentage_of_over']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'label' => '% от маржи',
             'format' => 'raw',
-            'value' => function ($row) {
-                return number_format($row['possible_percentage_of_margin'], 2);
+            'value' => function ($row) use ($priceFormatFunction) {
+                return $priceFormatFunction($row['possible_percentage_of_margin']);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
@@ -210,46 +217,46 @@ $totalCountingFunction = function ($type = '') use ($filterModel){
                     'options' => ['colspan' => 2, 'class' => 'text-left'],
                 ],
                 [
-                    'content' => number_format($filterModel->summary['paid_summary'], 2),
+                    'content' => $priceFormatFunction($filterModel->summary['paid_summary']),
                 ],
                 [
-                    'content' => number_format($filterModel->summary['paid_summary_reward'], 2),
+                    'content' => $priceFormatFunction($filterModel->summary['paid_summary_reward']),
                 ],
                 [
-                    'content' => number_format($filterModel->summary['once'], 2),
+                    'content' => $priceFormatFunction($filterModel->summary['once']),
                 ],
                 [
-                    'content' => number_format($filterModel->summary['percentage_once'], 2),
+                    'content' => $priceFormatFunction($filterModel->summary['percentage_once']),
                 ],
                 [
-                    'content' => number_format($filterModel->summary['percentage_of_fee'], 2),
+                    'content' => $priceFormatFunction($filterModel->summary['percentage_of_fee']),
                 ],
                 [
-                    'content' => number_format($filterModel->summary['percentage_of_over'], 2),
+                    'content' => $priceFormatFunction($filterModel->summary['percentage_of_over']),
                 ],
                 [
-                    'content' => number_format($filterModel->summary['percentage_of_margin'], 2),
+                    'content' => $priceFormatFunction($filterModel->summary['percentage_of_margin']),
                 ],
                 [
-                    'content' => number_format($filterModel->possibleSummary['paid_summary'], 2),
+                    'content' => $priceFormatFunction($filterModel->possibleSummary['paid_summary']),
                 ],
                 [
-                    'content' => number_format($filterModel->possibleSummary['paid_summary_reward'], 2),
+                    'content' => $priceFormatFunction($filterModel->possibleSummary['paid_summary_reward']),
                 ],
                 [
-                    'content' => number_format($filterModel->possibleSummary['once'], 2),
+                    'content' => $priceFormatFunction($filterModel->possibleSummary['once']),
                 ],
                 [
-                    'content' => number_format($filterModel->possibleSummary['percentage_once'], 2),
+                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_once']),
                 ],
                 [
-                    'content' => number_format($filterModel->possibleSummary['percentage_of_fee'], 2),
+                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_of_fee']),
                 ],
                 [
-                    'content' => number_format($filterModel->possibleSummary['percentage_of_over'], 2),
+                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_of_over']),
                 ],
                 [
-                    'content' => number_format($filterModel->possibleSummary['percentage_of_margin'], 2),
+                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_of_margin']),
                 ],
             ],
         ]
