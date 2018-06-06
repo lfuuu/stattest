@@ -150,7 +150,7 @@ class Region extends ActiveRecord
             $orderBy = ['name' => SORT_ASC],
             $where = [
                 'AND',
-                ['type_id' => $typeId?:[self::TYPE_NODE, self::TYPE_POINT]],
+                ['type_id' => $typeId?:array_keys(self::$typeNames)],
                 $countryId ? ['country_id' => $countryId] : []
             ]
         );
