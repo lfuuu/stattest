@@ -428,7 +428,8 @@ class m_newaccounts extends IModule
                     "" nal,
                     0,
                     1 in_sum,
-                    0 as is_pay_overdue
+                    0 as is_pay_overdue,
+                    null as sum_correction
 
                     FROM `g_income_order` g
                         LEFT JOIN tt_troubles t ON (g.id = t.bill_id)
