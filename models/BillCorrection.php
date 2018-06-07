@@ -304,4 +304,14 @@ class BillCorrection extends ActiveRecord
         return $this->_getSumInLines($lines);
     }
 
+    /**
+     * Сумма скорректированной с/ф
+     * 
+     * @return float
+     */
+    public function getSum()
+    {
+        return $this->_getSumInLines($this->lines);
+    }
+
 }
