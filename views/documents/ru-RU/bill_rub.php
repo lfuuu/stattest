@@ -223,13 +223,10 @@ $payerCompany = $document->getPayer();
     </p>
 <?php endif; ?>
 
-<table border="0" align=center cellspacing="1" cellpadding="0">
-    <col width="*"/>
-    <col width="250"/>
-    <col width="*"/>
+<table border="0" align=center cellspacing="1" cellpadding="0" style="padding-left: 100px; width: 600px;">
     <tbody>
     <tr>
-        <td><?= $director->post_nominative; ?></td>
+        <td nowrap><?= $director->post_nominative; ?></td>
         <?php if ($document->sendEmail): ?>
             <td>
                 <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
@@ -260,7 +257,7 @@ $payerCompany = $document->getPayer();
         <td>/ <?= $director->name_nominative; ?> /</td>
     </tr>
     <tr>
-        <td>Главный бухгалтер</td>
+        <td nowrap>Главный бухгалтер</td>
         <?php if ($document->sendEmail) : ?>
             <td>
                 <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $accountant->signature_file_name)):
