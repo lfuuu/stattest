@@ -15,6 +15,7 @@ use app\models\BusinessProcessStatus;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\ClientContract;
 use app\models\ClientSuper;
 use app\models\Country;
 use app\models\DidGroup;
@@ -77,6 +78,8 @@ class ClientCreateExternalForm extends Form
         $account_version = ClientAccount::VERSION_BILLER_USAGE,
 
         $entry_point_id = '',
+
+        $utm_parameters = [],
 
         $troubleId = null;
     /** @var EntryPoint */
@@ -156,8 +159,7 @@ class ClientCreateExternalForm extends Form
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
             ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
-            ['ip', 'safe']
-
+            [['ip', 'utm_parameters'], 'safe'],
         ];
         return $rules;
     }
@@ -281,6 +283,7 @@ class ClientCreateExternalForm extends Form
     {
         $super = new ClientSuper();
         $super->name = $this->company ?: 'Client #';
+        $this->utm_parameters && $super->utm = is_array($this->utm_parameters) ? json_encode(array_filter($this->utm_parameters)) : $this->utm_parameters;
         $super->validate();
         if (!$super->save()) {
             throw new ModelValidationException($super);
@@ -301,8 +304,24 @@ class ClientCreateExternalForm extends Form
         $contragent->address_jur = $this->address;
         $contragent->legal_type = 'legal';
         $contragent->country_id = $this->country_id;
+
+        // Установка партнера
+        $partnerContractId = null;
         if ($this->partner_contract_id) {
-            $contragent->partner_contract_id = $this->partner_contract_id;
+            $partnerContractId = $this->partner_contract_id;
+        } elseif (isset($this->utm_parameters['utm_referral_id'])) {
+            $partnerAccount = ClientAccount::findOne(['id' => $this->utm_parameters['utm_referral_id']]);
+            if ($partnerContract = $partnerAccount->contract) {
+                $partnerContractId = $partnerContract->id;
+            }
+        }
+
+        if (
+            $partnerContractId
+            && ($partnerContract = ClientContract::findOne(['id' => $partnerContractId]))
+            && $partnerContract->isPartner()
+        ) {
+            $contragent->partner_contract_id = $partnerContract->id;
         }
 
         if ($this->entryPoint) {
@@ -467,7 +486,7 @@ class ClientCreateExternalForm extends Form
         LkWizardState::create(
             $this->contract_id,
             $this->troubleId,
-            $this->entryPoint && $this->entryPoint->wizard_type ? $this->entryPoint->wizard_type: LkWizardState::TYPE_RUSSIA
+            $this->entryPoint && $this->entryPoint->wizard_type ? $this->entryPoint->wizard_type : LkWizardState::TYPE_RUSSIA
         );
 
         return true;

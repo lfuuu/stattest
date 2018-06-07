@@ -14,7 +14,8 @@ use app\dao\ClientSuperDao;
  * @property string $name
  * @property int $financial_manager_id
  * @property bool $is_lk_exists
- * @property string $entry_point_id
+ * @property int $entry_point_id
+ * @property string $utm
  * @property-read ClientContragent[] $contragents
  * @property-read ClientContract[] $contracts
  * @property-read ClientAccount[] $accounts
