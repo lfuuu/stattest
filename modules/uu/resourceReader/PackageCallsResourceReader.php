@@ -102,6 +102,8 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
 
         $connectTime = $dateTimeUtc->format(DATE_ATOM);
 
+        CallsRaw::setPgTimeout(CallsRaw::PG_CALCULATE_RESOURCE_TIMEOUT);
+
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
         $query = CallsRaw::find()

@@ -23,8 +23,6 @@ class UbillerController extends Controller
      */
     public function actionIndex()
     {
-        CallsRaw::setPgTimeout(Locks::PG_DEFAULT_TIMEOUT);
-
         // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
         // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
         // обязательно это вызывать до транзакций (чтобы они правильно посчитали)
