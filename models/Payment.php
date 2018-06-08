@@ -53,6 +53,7 @@ class Payment extends ActiveRecord
     const BANK_RAIFFEISEN = 'raiffeisen';
     const BANK_PROMSVIAZBANK = 'promsviazbank';
     const BANK_TATRA = 'tatra';
+    const BANK_RAIFFEISEN_AUSTRIA = 'raiffeisen_austria';
 
     const ECASH_CYBERPLAT = 'cyberplat';
     const ECASH_YANDEX = 'yandex';
@@ -77,6 +78,7 @@ class Payment extends ActiveRecord
         self::BANK_PROMSVIAZBANK => 'Промсвязьбанк',
         self::BANK_RAIFFEISEN => 'Raiffeisen Bank Zrt.',
         self::BANK_TATRA => 'TATRA BANKA A.S.',
+        self::BANK_RAIFFEISEN_AUSTRIA => 'Raiffeisenlandesbank Niederösterreich-Wien AG',
     ];
 
     public static $ecash = [
