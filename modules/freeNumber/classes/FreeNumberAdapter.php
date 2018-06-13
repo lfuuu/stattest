@@ -65,7 +65,14 @@ class FreeNumberAdapter extends Singleton
     public function isAvailable()
     {
         $params = $this->_module->params;
-        return $params['host'] && $params['port'] && $params['user'] && $params['pass'] && $params['vhost'];
+
+        return $params
+            && isset($params['host']) && $params['host']
+            && isset($params['port']) && $params['port']
+            && isset($params['user']) && $params['user']
+            && isset($params['pass'])
+            && isset($params['vhost']) && $params['vhost']
+            ;
     }
 
     /**

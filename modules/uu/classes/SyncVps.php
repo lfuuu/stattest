@@ -47,7 +47,7 @@ class SyncVps
         if (!$accountTariff->tariff_period_id) {
             // выключить
             if ($accountTariff->vm_elid_id) {
-                $apiVps->vpsStop($accountTariff->vm_elid_id);
+                $apiVps->vpsStop($accountTariff->vm_elid_id, $accountTariff->client_account_id);
                 // ... и запомнить
                 $accountTariff->vm_elid_id = null;
                 if (!$accountTariff->save()) {
@@ -65,6 +65,7 @@ class SyncVps
             // уже есть - обновить
             $tariffResources = $tariff->tariffResources;
             $apiVps->vpsUpdate(
+                $accountTariff->client_account_id,
                 $accountTariff->vm_elid_id,
                 $resourceRam = (int)$tariffResources[Resource::ID_VPS_RAM],
                 $resourceProcessor = (int)$tariffResources[Resource::ID_VPS_PROCESSOR]
@@ -79,7 +80,8 @@ class SyncVps
                 $password,
                 $domain = 'example.com',
                 $preset = $tariff->vm_id,
-                $vmClientId
+                $vmClientId,
+                $accountTariff->clientAccount->id
             );
             if (!$vmElidId) {
                 throw new InvalidParamException('Ошибка создания VPS ' . $accountTariffId);
@@ -123,6 +125,7 @@ class SyncVps
         $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
 
         ApiVps::me()->vpsUpdate(
+            $clientAccountId,
             $accountTariff->vm_elid_id,
             isset($resources[Resource::ID_VPS_RAM]) ? $resources[Resource::ID_VPS_RAM] : null,
             isset($resources[Resource::ID_VPS_PROCESSOR]) ? $resources[Resource::ID_VPS_PROCESSOR] : null,
@@ -229,7 +232,7 @@ class SyncVps
         }
 
         $apiVps = ApiVps::me();
-        $vmClientId = $apiVps->userCreate($name = 'client_' . $clientAccount->id, $password = Utils::password_gen());
+        $vmClientId = $apiVps->userCreate($name = 'client_' . $clientAccount->id, $password = Utils::password_gen(), $clientAccount->id);
         if (!$vmClientId) {
             throw new \LogicException('Ошибка создания клиента в Vps');
         }

@@ -91,11 +91,10 @@ class HttpRequest extends \yii\httpclient\Request
     /**
      * Выполнить запрос, проверить ответ и вернуть полученные данные
      *
+     * @param null|string $requestCheckType тип проверяемого запроса. Для обработки спецефических исключений
      * @return mixed
-     * @throws InvalidCallException
-     * @throws BadRequestHttpException
      */
-    public function getResponseDataWithCheck()
+    public function getResponseDataWithCheck($requestCheckType = null)
     {
         $this->addHeaders(['Content-Type' => 'application/json']);
 
@@ -107,6 +106,16 @@ class HttpRequest extends \yii\httpclient\Request
         ]);
 
         $response = $this->send();
+
+        // исключительная обраотка запросов к VPS.
+        if ($requestCheckType == 'vps') {
+
+            // Ответ с переводом строки считается как "выполненно"
+            if ($response->content == "\n") {
+                return ['doc' => 'ok'];
+            }
+        }
+
         $responseData = $response->data;
 
         if (!$responseData) {

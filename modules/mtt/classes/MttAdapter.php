@@ -147,7 +147,14 @@ class MttAdapter extends Singleton
     public function isAvailable()
     {
         $params = $this->_module->params;
-        return $params['HOST'] && $params['PORT'] && $params['USER'] && $params['PASS'] && $params['VHOST'];
+
+        return $params
+            && isset($params['HOST']) && $params['HOST']
+            && isset($params['PORT']) && $params['PORT']
+            && isset($params['USER']) && $params['USER']
+            && isset($params['PASS'])
+            && isset($params['VHOST']) && $params['VHOST']
+            ;
     }
 
     /**

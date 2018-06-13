@@ -90,7 +90,7 @@ class ApiVps extends Singleton
             ->setMethod('get')
             ->setData($data)
             ->setUrl($this->_getUrl())
-            ->getResponseDataWithCheck();
+            ->getResponseDataWithCheck('vps');
     }
 
     /**
@@ -98,19 +98,18 @@ class ApiVps extends Singleton
      *
      * @param string $name
      * @param string $password
+     * @param integer $clientAccountId
      * @return int
-     * @throws InvalidConfigException
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
      */
-    public function userCreate($name, $password)
+    public function userCreate($name, $password, $clientAccountId)
     {
         $data = [
             'func' => self::FUNC_USER_EDIT,
             'name' => $name,
             'passwd' => $password,
             'confirm' => $password,
+
+            'client_id' => $clientAccountId, // for important event
         ];
         $result = $this->exec($data); // $result = [doc => 'UserAdministrator 16id40821develuser.edit', id => 33, ok => '']
 
@@ -164,19 +163,16 @@ class ApiVps extends Singleton
      * @param string $password
      * @param string $domain
      * @param string $preset
-     * @param int $clientId
+     * @param int $vmClientId
+     * @param int $clientAccountId
      * @return int
-     * @throws InvalidConfigException
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
      */
-    public function vpsCreate($name, $password, $domain, $preset, $clientId)
+    public function vpsCreate($name, $password, $domain, $preset, $vmClientId, $clientAccountId)
     {
         $data = [
             'func' => self::FUNC_VPS_EDIT,
             'name' => $name,
-            'user' => $clientId,
+            'user' => $vmClientId,
             'password' => $password,
             'confirm' => $password,
             'domain' => $domain,
@@ -187,6 +183,8 @@ class ApiVps extends Singleton
 
         if ($result['elid']) {
             $data['result'] = (int)$result['elid'];
+            $data['ip'] = $result['ip'];
+            $data['client_id'] = $clientAccountId; // for important event
             // создать важное событие
             ImportantEvents::create(
                 ImportantEventsNames::VPS_CREATE,
@@ -200,17 +198,14 @@ class ApiVps extends Singleton
     /**
      * Обновить VPS
      *
+     * @param int $clientAccountId
      * @param int $vmId
      * @param int $resourceRam
      * @param int $resourceProcessor
      * @param int $resourceHdd
      * @return string
-     * @throws InvalidConfigException
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
      */
-    public function vpsUpdate($vmId, $resourceRam, $resourceProcessor, $resourceHdd = null)
+    public function vpsUpdate($clientAccountId, $vmId, $resourceRam, $resourceProcessor, $resourceHdd = null)
     {
         $data = [
             'func' => self::FUNC_VPS_EDIT,
@@ -241,6 +236,9 @@ class ApiVps extends Singleton
         if ($result['doc']) {
             $data['result'] = $result['doc'];
             $data['hdd'] = $resourceHdd;
+
+            $data['client_id'] = $clientAccountId;
+
             // создать важное событие
             ImportantEvents::create(
                 ImportantEventsNames::VPS_UPDATE,
@@ -285,13 +283,10 @@ class ApiVps extends Singleton
      * Архивировать VPS
      *
      * @param int $vmId
+     * @param int $clientAccountId
      * @return string
-     * @throws InvalidConfigException
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
      */
-    public function vpsStop($vmId)
+    public function vpsStop($vmId, $clientAccountId)
     {
         $data = [
             'func' => self::FUNC_VPS_STOP,
@@ -301,6 +296,7 @@ class ApiVps extends Singleton
 
         if ($result['doc']) {
             $data['result'] = $result['doc'];
+            $data['client_id'] = $clientAccountId;
             // создать важное событие
             ImportantEvents::create(
                 ImportantEventsNames::VPS_STOP,
@@ -315,13 +311,10 @@ class ApiVps extends Singleton
      * Удалить VPS
      *
      * @param int $vmId
+     * @param int $clientAccountId
      * @return string
-     * @throws InvalidConfigException
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
      */
-    public function vpsDrop($vmId)
+    public function vpsDrop($vmId, $clientAccountId)
     {
         $data = [
             'func' => self::FUNC_VPS_DELETE,
@@ -331,6 +324,7 @@ class ApiVps extends Singleton
 
         if ($result['doc']) {
             $data['result'] = $result['doc'];
+            $data['client_id'] = $clientAccountId;
             // создать важное событие
             ImportantEvents::create(
                 ImportantEventsNames::VPS_DROP,
