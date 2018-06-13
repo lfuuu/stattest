@@ -22,6 +22,7 @@ class DocumentReportFactory extends Singleton
             BillDocRepRuRUB::className(),
             BillDocRepHuHUF::className(),
             BillDocRepEnUSD::className(),
+            BillDocRepEnEUR::className(),
             DocNoticeMCMTelekom::className(),
             DocSoglMCMTelekom::className(),
             DocSoglMCNTelekom::className(),

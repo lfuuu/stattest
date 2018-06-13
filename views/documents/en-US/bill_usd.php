@@ -13,6 +13,8 @@ $organizationSwift = $organization->getSettlementAccount(\app\models\Organizatio
 $organizationIban = $organization->getSettlementAccount(\app\models\OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_IBAN);
 $contragent = $bill->clientAccount->contragent;
 
+!isset($currency) && $currency = 'USD';
+
 $hDate = function ($dateStr) {
     return (new DateTime($dateStr))->format('d.m.Y');
 }
@@ -51,12 +53,13 @@ $hDate = function ($dateStr) {
 
                         $data = [];
 
-                        foreach ([Currency::EUR, Currency::USD] as $currency) {
-                            if (isset($ibanProperties['bank_account_' . $currency])
-                                && isset($ibanProperties['bank_account_' . $currency]['value'])
-                                && trim($ibanProperties['bank_account_' . $currency]['value'])
+                        foreach ([Currency::EUR, Currency::USD] as $_currency) {
+                            if (
+                                isset($ibanProperties['bank_account_' . $_currency])
+                                && isset($ibanProperties['bank_account_' . $_currency]['value'])
+                                && trim($ibanProperties['bank_account_' . $_currency]['value'])
                             ) {
-                                $data[] = $ibanProperties['bank_account_' . $currency]['value'] . ' (' . $currency . ')';
+                                $data[] = $ibanProperties['bank_account_' . $_currency]['value'] . ' (' . $_currency . ')';
                             }
                         }
 
@@ -147,10 +150,10 @@ VAT Number: <?= $contragent->inn_euro ?>
     <th>Description</th>
     <th>Billing period</th>
     <th>Volume, min</th>
-    <th>Amount, USD</th>
+    <th>Amount, <?= $currency ?></th>
     <th>VAT rate, %</th>
-    <th>VAT amount, USD</th>
-    <th>Amount inc. VAT, USD</th>
+    <th>VAT amount, <?= $currency ?></th>
+    <th>Amount inc. VAT, <?= $currency ?></th>
     </thead>
     <tbody>
     <?php
