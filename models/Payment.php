@@ -78,7 +78,7 @@ class Payment extends ActiveRecord
         self::BANK_PROMSVIAZBANK => 'Промсвязьбанк',
         self::BANK_RAIFFEISEN => 'Raiffeisen Bank Zrt.',
         self::BANK_TATRA => 'TATRA BANKA A.S.',
-        self::BANK_RAIFFEISEN_AUSTRIA => 'Raiffeisenlandesbank Niederösterreich-Wien AG',
+        self::BANK_RAIFFEISEN_AUSTRIA => 'Raiffeisenlandesbank Niederösterreich-Wien AG (Austria)',
     ];
 
     public static $ecash = [
