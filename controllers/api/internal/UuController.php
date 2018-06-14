@@ -3,6 +3,7 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\DynamicModel;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
@@ -1348,6 +1349,52 @@ class UuController extends ApiInternalController
         }
 
         return $result;
+    }
+
+    /**
+     * @SWG\Definition(definition = "accountTariffsCount", type = "object",
+     *   @SWG\Property(property = "count", type = "integer", description = "Количество услуг"),
+     * ),
+     *
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-account-tariffs-count", summary = "Количество всех услуг у ЛС", operationId = "GetAccountTariffsCount",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "Тип услуги", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Количество всех услуг у ЛС",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountTariffsCount"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @param int $client_account_id
+     * @param int $service_type_id
+     * @return array
+     * @throws InvalidParamException
+     * @throws \yii\db\Exception
+     */
+    public function actionGetAccountTariffsCount($client_account_id, $service_type_id)
+    {
+        $model = DynamicModel::validateData([
+            'client_account_id' => $client_account_id,
+            'service_type_id' => $service_type_id
+        ], [
+            [['client_account_id', 'service_type_id'], 'required'],
+            [['client_account_id', 'service_type_id'], 'integer']
+        ]);
+        $model->validateWithException();
+
+        $accountTariffQuery = AccountTariff::find()
+            ->where([
+                'client_account_id' => $client_account_id,
+                'service_type_id' => $service_type_id
+            ]);
+
+        return [
+            'count' => $accountTariffQuery->count(),
+        ];
     }
 
     /**

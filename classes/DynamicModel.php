@@ -1,11 +1,46 @@
 <?php
+
 namespace app\classes;
 
+use yii\base\InvalidParamException;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
 class DynamicModel extends \yii\base\DynamicModel
 {
+    /**
+     * Валидирование переменных и в случае провальной валидации выбрасывать HttpException
+     *
+     * @param int $code
+     * @throws InvalidParamException
+     */
+    public function validateWithException($code = 1)
+    {
+        if ($this->validate()) {
+            return;
+        }
+        throw new InvalidParamException(self::getErrorsByString($this->getErrors()), $code);
+    }
+
+    /**
+     * Получение ошибок в виде строки
+     *
+     * @param array $errors
+     * @return string
+     */
+    public static function getErrorsByString(array $errors)
+    {
+        $message = '';
+        foreach ($errors as $attribute => $error) {
+            $message .= "Аттрибут '$attribute': ";
+            foreach ($error as $subError) {
+                $message .= $subError;
+            }
+            $message .= '; ';
+        }
+        return $message;
+    }
+
     /**
      * Validates the given data with the specified validation rules.
      * This method will create a DynamicModel instance, populate it with the data to be validated,
