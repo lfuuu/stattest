@@ -121,8 +121,11 @@ $columns = [
         'attribute' => 'beauty_level',
         'class' => BeautyLevelColumn::className(),
         'value' => function (Card $card) {
-            $imsi = reset($card->imsies);
-            return $imsi->number->beauty_level;
+            $imsies = $card->imsies;
+            foreach ($imsies as $imsi) {
+                return $imsi->number->beauty_level;
+            }
+            return '';
         },
     ],
 
@@ -131,8 +134,11 @@ $columns = [
         'attribute' => 'number_status',
         'class' => NumberStatusColumn::className(),
         'value' => function (Card $card) {
-            $imsi = reset($card->imsies);
-            return $imsi->number->status;
+            $imsies = $card->imsies;
+            foreach ($imsies as $imsi) {
+                return $imsi->number->status;
+            }
+            return '';
         },
     ],
 

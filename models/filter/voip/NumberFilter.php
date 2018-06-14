@@ -22,6 +22,7 @@ class NumberFilter extends Number
     public $client_id = '';
     public $country_id = '';
     public $ndc_type_id = '';
+    public $imsi = '';
 
     public $calls_per_month_2_from = '';
     public $calls_per_month_2_to = '';
@@ -41,6 +42,7 @@ class NumberFilter extends Number
     {
         return [
             [['number', 'status', 'number_tech'], 'string'],
+            [['imsi'], 'integer'],
             [['city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
@@ -100,6 +102,17 @@ class NumberFilter extends Number
         $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_to]);
 
         $this->country_id !== '' && $query->andWhere([$numberTableName . '.country_code' => $this->country_id]);
+
+        switch ($this->imsi) {
+            case GetListTrait::$isNull:
+                $query->andWhere($numberTableName . '.imsi IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere($numberTableName . '.imsi IS NOT NULL');
+                break;
+            default:
+                break;
+        }
 
         switch ($this->usage_id) {
             case GetListTrait::$isNull:

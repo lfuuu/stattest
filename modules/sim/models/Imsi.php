@@ -4,6 +4,7 @@ namespace app\modules\sim\models;
 
 use app\classes\model\ActiveRecord;
 use app\models\Number;
+use app\modules\sim\behaviors\ImsiRelationBehavior;
 use Yii;
 use yii\db\ActiveQuery;
 
@@ -85,6 +86,7 @@ class Imsi extends ActiveRecord
             parent::behaviors(),
             [
                 \app\classes\behaviors\HistoryChanges::className(),
+                ImsiRelationBehavior::className(),
             ]
         );
     }

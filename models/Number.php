@@ -7,8 +7,6 @@ use app\classes\model\ActiveRecord;
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
 use app\modules\nnp\models\NdcType;
-use app\modules\nnp\models\NumberRange;
-use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -45,6 +43,7 @@ use yii\helpers\Url;
  * @property int $is_service
  * @property integer $fmc_trunk_id
  * @property integer $mvno_trunk_id
+ * @property integer $imsi
  *
  * @property-read City $city
  * @property-read Country $country
@@ -124,6 +123,7 @@ class Number extends ActiveRecord
             'status' => 'Статус',
             'ndc_type_id' => 'Тип номера',
             'number_tech' => 'Технический номер',
+            'imsi' => 'Привязка к сим-карте',
         ];
     }
 
@@ -135,6 +135,7 @@ class Number extends ActiveRecord
         return [
             [['status', 'number_tech'], 'string'],
             [['beauty_level'], 'integer'],
+            [['imsi'], 'integer'],
             [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }

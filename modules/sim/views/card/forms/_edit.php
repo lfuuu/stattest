@@ -49,7 +49,7 @@ use yii\widgets\ActiveForm;
 <?= $this->render('../_editImsi', ['card' => $card]) ?>
 
 <div class="form-group text-right">
-    <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+    <?= $this->render('//layouts/_buttonCancel', ['url' => '/sim/card/']) ?>
     <?= Html::tag('div', $card->isNewRecord ? 'Создать' : 'Обновить', [
             'id' => $card->isNewRecord ? 'submitButtonCreateCard' : $submitButtonId,
             'class' => ['btn', 'btn-primary'],

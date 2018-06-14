@@ -131,6 +131,10 @@ $columns = [
         'class' => NumberStatusColumn::className(),
     ],
     [
+        'attribute' => 'imsi',
+        'class' => IsNullAndNotNullColumn::className(),
+    ],
+    [
         'attribute' => 'ndc_type_id',
         'class' => NdcTypeColumn::className()
     ],

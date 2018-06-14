@@ -10,6 +10,8 @@ use app\models\ClientAccount;
 use app\models\Number;
 use app\models\NumberLog;
 use app\modules\nnp\models\NdcType;
+use app\modules\sim\models\Imsi;
+use app\modules\sim\models\Card;
 use kartik\widgets\ActiveForm;
 
 echo app\classes\Html::formLabel($this->title = 'Номер ' . $number->number);
@@ -44,7 +46,12 @@ echo \yii\widgets\Breadcrumbs::widget([
                     <td>Статус</td>
                     <th><?= Number::$statusList[$number->status] ?></th>
                 </tr>
-
+                <?php if ($number->imsi && $imsi = Imsi::findOne(['imsi' => $number->imsi])) : ?>
+                    <tr>
+                        <td>Привязка к сим-карте</td>
+                        <th><?= Html::a($number->imsi, Card::getUrlById($imsi->iccid)) ?></th>
+                    </tr>
+                <?php  endif; ?>
                 <?php if ($number->client_id) : ?>
                     <tr>
                         <td>Лицевой счет</td>

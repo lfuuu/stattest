@@ -4,6 +4,7 @@ namespace app\modules\sim;
 
 use app\classes\Navigation;
 use app\classes\NavigationBlock;
+use app\classes\helpers\ArrayHelper;
 use Yii;
 
 class Module extends \yii\base\Module
@@ -22,6 +23,16 @@ class Module extends \yii\base\Module
         if (Yii::$app instanceof \yii\console\Application) {
             $this->controllerNamespace = 'app\modules\sim\commands';
         }
+
+        // подключить конфиги
+        $params = require __DIR__ . '/config/params.php';
+
+        $localConfigFileName = __DIR__ . '/config/params.local.php';
+        if (file_exists($localConfigFileName)) {
+            $params = ArrayHelper::merge($params, require $localConfigFileName);
+        }
+
+        Yii::configure($this, $params);
     }
 
     /**
