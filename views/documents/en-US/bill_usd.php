@@ -13,7 +13,7 @@ $organizationSwift = $organization->getSettlementAccount(\app\models\Organizatio
 $organizationIban = $organization->getSettlementAccount(\app\models\OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_IBAN);
 $contragent = $bill->clientAccount->contragent;
 
-!isset($currency) && $currency = 'USD';
+!isset($currency) && $currency = $bill->currency;
 
 $hDate = function ($dateStr) {
     return (new DateTime($dateStr))->format('d.m.Y');
