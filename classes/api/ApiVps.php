@@ -183,7 +183,7 @@ class ApiVps extends Singleton
 
         if ($result['elid']) {
             $data['result'] = (int)$result['elid'];
-            $data['ip'] = $result['ip'];
+            $data['vps_ip'] = $result['ip'];
             $data['client_id'] = $clientAccountId; // for important event
             // создать важное событие
             ImportantEvents::create(
