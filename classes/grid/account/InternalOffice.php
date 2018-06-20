@@ -1,15 +1,14 @@
 <?php
 namespace app\classes\grid\account;
 
-use app\classes\grid\account\internaloffice\internaloffice\ClosedFolder;
-use app\classes\grid\account\internaloffice\internaloffice\InternalOfficeFolder;
 use app\models\BusinessProcess;
 use app\models\Business;
-use Yii;
-
 
 class InternalOffice extends AccountGrid
 {
+    /* Использование трейта, который генерирует массив объектов GenericFolder, исходя из текущего контекста BusinessProcessStatus */
+    use GenericFolderTrait;
+
     public function getBusiness()
     {
         return Business::INTERNAL_OFFICE;
@@ -20,12 +19,20 @@ class InternalOffice extends AccountGrid
         return BusinessProcess::INTERNAL_OFFICE;
     }
 
-    public function getFolders()
+    /**
+     * @return array
+     */
+    public function getColumns()
     {
         return [
-            InternalOfficeFolder::create($this),
-            ClosedFolder::create($this),
+            'status',
+            'id',
+            'company',
+            'created',
+            'currency',
+            'sale_channel',
+            'manager',
+            'region',
         ];
     }
-
 }

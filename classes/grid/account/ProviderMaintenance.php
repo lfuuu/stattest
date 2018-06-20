@@ -1,20 +1,15 @@
 <?php
+
 namespace app\classes\grid\account;
 
-use app\classes\grid\account\provider\maintenance\ActingFolder;
-use app\classes\grid\account\provider\maintenance\ClosedFolder;
-use app\classes\grid\account\provider\maintenance\GPONFolder;
-use app\classes\grid\account\provider\maintenance\OnceFolder;
-use app\classes\grid\account\provider\maintenance\SelfBuyFolder;
-use app\classes\grid\account\provider\maintenance\ServiceFolder;
-use app\classes\grid\account\provider\maintenance\VOLSFolder;
 use app\models\BusinessProcess;
 use app\models\Business;
-use Yii;
-
 
 class ProviderMaintenance extends AccountGrid
 {
+    /* Использование трейта, который генерирует массив объектов GenericFolder, исходя из текущего контекста BusinessProcessStatus */
+    use GenericFolderTrait;
+
     public function getBusiness()
     {
         return Business::PROVIDER;
@@ -25,17 +20,20 @@ class ProviderMaintenance extends AccountGrid
         return BusinessProcess::PROVIDER_MAINTENANCE;
     }
 
-    public function getFolders()
+    /**
+     * @return array
+     */
+    public function getColumns()
     {
         return [
-            GPONFolder::create($this),
-            VOLSFolder::create($this),
-            ServiceFolder::create($this),
-            ActingFolder::create($this),
-            ClosedFolder::create($this),
-            SelfBuyFolder::create($this),
-            OnceFolder::create($this),
+            'status',
+            'id',
+            'company',
+            'created',
+            'currency',
+            'sale_channel',
+            'manager',
+            'region',
         ];
     }
-
 }

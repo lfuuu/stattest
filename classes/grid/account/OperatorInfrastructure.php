@@ -1,23 +1,15 @@
 <?php
+
 namespace app\classes\grid\account;
 
-use app\classes\grid\account\operator\infrastructure\ActingFolder;
-use app\classes\grid\account\operator\infrastructure\FormalFolder;
-use app\classes\grid\account\operator\infrastructure\BlockedFolder;
-use app\classes\grid\account\operator\infrastructure\IncomingFolder;
-use app\classes\grid\account\operator\infrastructure\NegotiationsFolder;
-use app\classes\grid\account\operator\infrastructure\OneTimeFolder;
-use app\classes\grid\account\operator\infrastructure\SuspendedFolder;
-use app\classes\grid\account\operator\infrastructure\FailureFolder;
-use app\classes\grid\account\operator\infrastructure\TerminatedFolder;
-use app\classes\grid\account\operator\infrastructure\TestingFolder;
-use app\classes\grid\account\operator\infrastructure\TrashFolder;
 use app\models\BusinessProcess;
 use app\models\Business;
-use Yii;
 
 class OperatorInfrastructure extends AccountGrid
 {
+    /* Использование трейта, который генерирует массив объектов GenericFolder, исходя из текущего контекста BusinessProcessStatus */
+    use GenericFolderTrait;
+
     public function getBusiness()
     {
         return Business::OPERATOR;
@@ -28,21 +20,24 @@ class OperatorInfrastructure extends AccountGrid
         return BusinessProcess::OPERATOR_INFRASTRUCTURE;
     }
 
-    public function getFolders()
-    {
-        return [
-            IncomingFolder::create($this),
-            NegotiationsFolder::create($this),
-            TestingFolder::create($this),
-            ActingFolder::create($this),
-            FormalFolder::create($this),
-            SuspendedFolder::create($this),
-            TerminatedFolder::create($this),
-            BlockedFolder::create($this),
-            FailureFolder::create($this),
-            TrashFolder::create($this),
-            OneTimeFolder::create($this),
-        ];
-    }
-
+	/**
+	 * @return array
+	 */
+	public function getColumns()
+	{
+		return [
+			'status',
+			'id',
+			'company',
+			'contractNo',
+			'contract_created',
+			'currency',
+			'manager',
+			'account_manager',
+			'region',
+			'federal_district',
+			'contract_type',
+			'financial_type',
+		];
+	}
 }
