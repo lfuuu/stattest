@@ -132,7 +132,11 @@ SQL;
             ->innerJoin(['line' => BillLine::tableName()], 'line.pk = rewards.line_pk');
 
         $query
-            ->andWhere(['contragent.partner_contract_id' => $this->partner_contract_id])
+            ->andWhere([
+                'OR',
+                ['contract.partner_contract_id' => $this->partner_contract_id],
+                ['contragent.partner_contract_id' => $this->partner_contract_id]
+            ])
             ->andWhere(['>=', 'line.sum', 0]);
 
         if (!$this->isExtendsMode) {
