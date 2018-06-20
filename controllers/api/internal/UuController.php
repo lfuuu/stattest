@@ -1710,10 +1710,13 @@ class UuController extends ApiInternalController
             return $accountTariff->id;
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error(
-                print_r(['AddAccountTariff', $e->getMessage(), $post], true),
-                Module::LOG_CATEGORY_API
-            );
+            $code = $e->getCode();
+            if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
+                \Yii::error(
+                    print_r(['AddAccountTariff', $e->getMessage(), $post], true),
+                    Module::LOG_CATEGORY_API
+                );
+            }
 
             $post['error'] = $e->getMessage();
             $post['file'] = $e->getFile() . ':' . $e->getLine();
