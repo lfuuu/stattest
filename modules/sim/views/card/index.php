@@ -34,7 +34,7 @@ $baseView = $this;
 $columns = [
     [
         'class' => ActionColumn::className(),
-        'template' => '{update} {delete}',
+        'template' => '{update}',
         'buttons' => [
             'update' => function ($url, Card $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [

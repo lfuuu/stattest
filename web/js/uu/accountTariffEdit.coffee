@@ -56,6 +56,11 @@ class AccountTariffEdit
       @isIncludeVat = $('#isIncludeVat').val()
       @organizationId = $('#organizationId').val()
 
+      # Дополнительное поле "Статус склада мобильных номеров"
+      @warehouseField = $('#voipNumbersWarehouseStatusField')
+      @warehouseStatus = @warehouseField.find('#voipNumbersWarehouseStatus')
+      $('#' + @warehouseStatus.attr('id')).on('change', @showNumbersList)
+
       $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
       # показать список номеров и обновить тариф
@@ -96,6 +101,9 @@ class AccountTariffEdit
     cityId = @city.val()
     ndcTypeId = @ndcType.val()
 
+    # поведение поля "Статус склада мобильных номеров"
+    @mobileDynamicBehavior(@warehouseStatus, @warehouseField)
+
     if ndcTypeId
       @ndcType.parent().parent().removeClass(@errorClassName)
     else
@@ -119,6 +127,14 @@ class AccountTariffEdit
       @operatorAccount.prop('disabled', true)
       @operatorAccount.val('').trigger('change')
 
+  # Динамическое поведение при мобильном типе NDC
+  mobileDynamicBehavior: (target, envelope) =>
+    if !@ndcType.val() || @ndcType.val() != '2'
+      target.val('').trigger('change')
+      envelope.css({display: 'none'})
+    else
+      envelope.css({display: 'block'})
+
 # при изменении DID-группы
   onDidGroupChange: =>
     @reloadTariffList()
@@ -136,16 +152,17 @@ class AccountTariffEdit
       return
 
     $.get '/uu/voip/get-free-numbers', {
-      countryId: countryId,
-      cityId: cityId,
-      didGroupId: didGroupId,
-      operatorAccountId: @operatorAccount.val(),
-      rowClass: @numbersListClass.val(),
-      orderByField: @numbersListOrderByField.val(),
+      countryId: countryId
+      cityId: cityId
+      didGroupId: didGroupId
+      operatorAccountId: @operatorAccount.val()
+      rowClass: @numbersListClass.val()
+      orderByField: @numbersListOrderByField.val()
       orderByType: @numbersListOrderByType.val()
       mask: @numbersListMask.val()
       limit: @numbersListLimit.val()
       ndcTypeId: ndcTypeId
+      warehouseStatusId: @warehouseStatus.val()
     }, (html) =>
       @showHideTariffDiv(html)
 

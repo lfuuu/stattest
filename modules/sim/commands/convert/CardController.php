@@ -2,45 +2,47 @@
 
 namespace app\modules\sim\commands\convert;
 
-use app\exceptions\ModelValidationException;
 use app\models\Number;
+use app\modules\sim\models\Card;
 use app\modules\sim\models\Imsi;
 use yii\console\Controller;
 
 class CardController extends Controller
 {
     /**
-     * Создание связей между sim_imsi и voip_numbers
+     * Синхронизация статуса склада из sim_card и imsi из sim_imsi в voip_numbers
      */
-    public function actionCreateRelations()
+    public function actionSynchronization()
     {
-        $imsies = Imsi::find()
-            ->where([
-                'AND',
-                ['IS NOT', 'msisdn', null],
-                // Временно пропускаем номер 79587980598, т.к. он используется на 3-х сим-картах
-                ['!=', 'msisdn', '79587980598']
-            ]);
-
-        /** @var Imsi $imsi */
-        foreach ($imsies->each() as $imsi) {
-            /** @var Number $number */
-            $number = Number::findOne(['number' => $imsi->msisdn]);
-            if (!$number) {
-                echo "Номер {$imsi->msisdn} найден в sim_imsi, но не найден в voip_numbers" . PHP_EOL;
+        $cardQuery = Card::find();
+        // Получаем список всех сим-карт
+        foreach ($cardQuery->each() as $card) {
+            /** @var Card $card */
+            $imsies = $card->imsies;
+            if (!$imsies) {
+                echo sprintf('Сим-карта %s не имеет привязанных номеров', $card->iccid) . PHP_EOL;
                 continue;
             }
-
-            $transaction = Number::getDb()->beginTransaction();
-            try {
-                $number->imsi = $imsi->imsi;
-                if (!$number->save()) {
-                    throw new ModelValidationException($number);
+            // Получаем все привязанные номера к сим-карте с последующим присвоением номеру в таблице voip_numbers imsi и статуса склада сим-карты
+            foreach ($imsies as $imsi) {
+                /** @var Imsi $imsi */
+                // TODO: Список номеров, которые игнорируются при синхронизации
+                if ($imsi->msisdn === null || in_array($imsi->msisdn, Number::LIST_SKIPPING)) {
+                    continue;
                 }
-                $transaction->commit();
-            } catch (ModelValidationException $e) {
-                echo $e->getMessage() . PHP_EOL;
-                $transaction->rollBack();
+                /** @var Number $number */
+                $number = Number::findOne(['number' => $imsi->msisdn]);
+                if (!$number) {
+                    echo "Номер {$imsi->msisdn} найден в sim_imsi, но не найден в voip_numbers" . PHP_EOL;
+                    continue;
+                }
+                // Присваивание imsi номеру
+                $number->imsi = $imsi->imsi;
+                // Присваивание склада сим-карты номеру
+                $number->warehouse_status_id = $card->status_id;
+                if (!$number->save()) {
+                    echo sprintf('Ошибка при сохранении номера %s', $card->status_id, $number->number) . PHP_EOL;
+                }
             }
         }
     }

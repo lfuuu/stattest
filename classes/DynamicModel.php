@@ -14,7 +14,7 @@ class DynamicModel extends \yii\base\DynamicModel
      * @param int $code
      * @throws InvalidParamException
      */
-    public function validateWithException($code = 1)
+    public function validateWithException($code = -1)
     {
         if ($this->validate()) {
             return;

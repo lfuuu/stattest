@@ -117,6 +117,7 @@ class VoipController extends BaseController
      * @param string $mask
      * @param int $limit
      * @param string $ndcTypeId
+     * @param int $warehouseStatusId
      * @return string
      * @throws \InvalidArgumentException
      * @throws \yii\base\InvalidParamException
@@ -131,22 +132,29 @@ class VoipController extends BaseController
         $orderByType = null,
         $mask = '',
         $limit = FreeNumberFilter::LIMIT,
-        $ndcTypeId = ''
-    ) {
+        $ndcTypeId = '',
+        $warehouseStatusId = null
+    )
+    {
         $numbers = new FreeNumberFilter;
 
-        if ($ndcTypeId == NdcType::ID_MCN_LINE) {
-            // "линия без номера"
-            $number = UsageVoip::dao()->getNextLineNumber();
-            return Html::checkbox(
-                'AccountTariffVoip[voip_numbers][]',
-                true,
-                [
-                    'value' => $number,
-                    'label' => $number,
-                    'class' => 'disabled',
-                ]
-            );
+        switch ($ndcTypeId) {
+            case NdcType::ID_MOBILE:
+                $warehouseStatusId && $numbers->setWarehouseStatus($warehouseStatusId);
+                break;
+            case NdcType::ID_MCN_LINE:
+                // "линия без номера"
+                $number = UsageVoip::dao()->getNextLineNumber();
+                return Html::checkbox(
+                    'AccountTariffVoip[voip_numbers][]',
+                    true,
+                    [
+                        'value' => $number,
+                        'label' => $number,
+                        'class' => 'disabled',
+                    ]
+                );
+                break;
         }
 
         $numbers->setCountry($countryId);

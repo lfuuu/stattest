@@ -80,6 +80,25 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * Фильтруем по статусу склада сим-карты, который импортирован из таблицы sim_card в таблицу voip_numbers
+     *
+     * @param $warehouseStatusId
+     * @return $this
+     */
+    public function setWarehouseStatus($warehouseStatusId)
+    {
+        if ($warehouseStatusId == static::STATUS_WAREHOUSE_NO_RELATION) {
+            $this->_query->andWhere([parent::tableName() . '.imsi' => null]);
+        } else {
+            $this->_query->andWhere([parent::tableName() . '.warehouse_status_id' => $warehouseStatusId]);
+        }
+        // TODO: Список номеров, которые игнорируются при синхронизации
+        $this->_query->andWhere(['not in', parent::tableName() . '.number', parent::LIST_SKIPPING]);
+
+        return $this;
+    }
+
+    /**
      * @param int[] $regions
      * @return $this
      */

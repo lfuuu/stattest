@@ -44,6 +44,7 @@ use yii\helpers\Url;
  * @property integer $fmc_trunk_id
  * @property integer $mvno_trunk_id
  * @property integer $imsi
+ * @property integer $warehouse_status_id
  *
  * @property-read City $city
  * @property-read Country $country
@@ -71,6 +72,19 @@ class Number extends ActiveRecord
 
     const STATUS_GROUP_ACTIVE = 'active';
     const STATUS_GROUP_NOTACTIVE = 'notactive';
+
+    /**
+     * Номер не привязан к сим-карте, т.е. отсутствует imsi
+     * @see CardController::actionAssignImsi
+     */
+    const STATUS_WAREHOUSE_NO_RELATION = -1;
+
+    /**
+     * Список номеров, которые игнорируются при синхронизации
+     *
+     * @see \app\modules\sim\commands\convert\CardController::actionSynchronization()
+     */
+    const LIST_SKIPPING = ['79587980598'];
 
     const NUMBER_MAX_LINE = 10000; // если Number до этого числа - это линия, если больше - номер
 
@@ -124,6 +138,7 @@ class Number extends ActiveRecord
             'ndc_type_id' => 'Тип номера',
             'number_tech' => 'Технический номер',
             'imsi' => 'Привязка к сим-карте',
+            'warehouse_status_id' => 'Статус скалада сим-карты',
         ];
     }
 
@@ -135,7 +150,7 @@ class Number extends ActiveRecord
         return [
             [['status', 'number_tech'], 'string'],
             [['beauty_level'], 'integer'],
-            [['imsi'], 'integer'],
+            [['imsi', 'warehouse_status_id'], 'integer'],
             [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }

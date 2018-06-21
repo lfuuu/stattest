@@ -11,6 +11,7 @@ use app\assets\AppAsset;
 use app\classes\Html;
 use app\models\City;
 use app\models\ClientAccount;
+use app\modules\sim\models\CardStatus;
 use app\models\Country;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
@@ -188,6 +189,21 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                 ->input('string', [
                     'id' => 'voipNumbersListMask',
                 ]) ?>
+        </div>
+
+        <div class="col-sm-4" id="voipNumbersWarehouseStatusField" style="display: none;">
+            <?php
+                $statuses = CardStatus::getList($isWithEmpty = true, $isWithNullAndNotNull = false);
+                // Добавление статуса "Отсутствует на складе".
+                $statuses[Number::STATUS_WAREHOUSE_NO_RELATION] = 'Не привязан к сим-карте (вне склада)';
+                echo $form->field($accountTariffVoip, 'voip_numbers_warehouse_status')
+                    ->widget(Select2::className(), [
+                        'data' => $statuses,
+                        'options' => [
+                            'id' => 'voipNumbersWarehouseStatus',
+                        ],
+                    ])
+            ?>
         </div>
 
     </div>
