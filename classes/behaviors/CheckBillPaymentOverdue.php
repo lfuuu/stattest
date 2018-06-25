@@ -71,8 +71,9 @@ class CheckBillPaymentOverdue extends Behavior
             $bill->is_pay_overdue = $isOverdue;
             $bill->isSetPayOverdue = $isOverdue;
 
-            $this->_checkClientAccount($bill->clientAccount, $isOverdue);
         }
+
+        $this->_checkClientAccount($bill->clientAccount, $isOverdue);
     }
 
     /**

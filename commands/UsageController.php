@@ -359,6 +359,39 @@ class UsageController extends Controller
     }
 
     /**
+     * Проверяем правильность установки блокировки по не уплате счета
+     */
+    public function actionRecheckClientOverdue()
+    {
+        $query = Yii::$app->db->createCommand("SELECT bill_no
+FROM
+  (SELECT
+     (SELECT bill_no
+      FROM newbills b
+      WHERE b.client_id = a.client_id
+      ORDER BY bill_date
+      LIMIT 1) AS bill_no,
+     a.*,
+     c.is_bill_pay_overdue
+   FROM (SELECT
+           client_id,
+           max(is_pay_overdue) AS max_v,
+           min(is_pay_overdue) AS min_v
+         FROM newbills
+         GROUP BY client_id) a, clients c
+   WHERE a.client_id = c.id
+   HAVING max_v != is_bill_pay_overdue
+  ) a")->query();
+
+        $count = 0;
+        while ($billNo = $query->readColumn(0)) {
+            $bill = Bill::findOne(['bill_no' => $billNo]);
+            echo PHP_EOL . $count++ . ': ' . $bill->client_id;
+            $bill->trigger(Bill::TRIGGER_CHECK_OVERDUE);
+        }
+    }
+
+    /**
      * Генерация событий о блокировке через 7/3/1 день по трафику телефонии
      */
     public function actionCheckVoipBlockByTrafficAlert()
