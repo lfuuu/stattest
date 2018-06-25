@@ -20,4 +20,23 @@ class VirtpbxStat extends ActiveRecord
     {
         return 'virtpbx_stat';
     }
+
+    /**
+     * Получаем последнее значение статистики
+     *
+     * @param int $usageId
+     * @param string $field
+     * @return array|int
+     */
+    public static function getLastValue($usageId, $field = null)
+    {
+        $query = self::find()
+            ->where(['usage_id' => $usageId])
+            ->orderBy(['date' => SORT_DESC])
+            ->limit(1);
+
+        $field && $query->select($field);
+
+        return $field ? $query->scalar() : $query->one();
+    }
 }

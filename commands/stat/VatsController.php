@@ -3,7 +3,7 @@ namespace app\commands\stat;
 
 use app\classes\api\ApiVpbx;
 use app\helpers\DateTimeZoneHelper;
-use app\models\Virtpbx;
+use app\models\VirtpbxStat;
 use DateTime;
 use Yii;
 use yii\console\Controller;
@@ -143,7 +143,7 @@ class VatsController extends Controller
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            Virtpbx::deleteAll(
+            VirtpbxStat::deleteAll(
                 [
                     'and',
                     'date = :date',
@@ -162,7 +162,7 @@ class VatsController extends Controller
 
             if (count($insert)) {
                 Yii::$app->db->createCommand()->batchInsert(
-                    Virtpbx::tableName(),
+                    VirtpbxStat::tableName(),
                     ['date', 'client_id', 'usage_id', 'use_space', 'numbers', 'ext_did_count', 'call_recording_enabled', 'faxes_enabled'],
                     $insert
                 )->execute();
