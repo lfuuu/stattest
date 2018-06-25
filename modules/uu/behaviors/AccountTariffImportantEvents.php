@@ -3,9 +3,11 @@
 namespace app\modules\uu\behaviors;
 
 use app\classes\model\ActiveRecord;
+use app\models\EventQueue;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use app\modules\callTracking\Module;
 use app\modules\uu\models\AccountTariff;
 use yii\base\Behavior;
 use yii\base\Event;
@@ -21,7 +23,25 @@ class AccountTariffImportantEvents extends Behavior
         return [
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
             ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
         ];
+    }
+
+    /**
+     * @param Event $event
+     */
+    public function beforeUpdate(Event $event)
+    {
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = $event->sender;
+        if ($accountTariff->isAttributeChanged('calltracking_params')) {
+            // При обновлении calltracking_params в услуге добавить в очередь экспорт номера
+            EventQueue::go(Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
+                'account_tariff_id' => $accountTariff->id,
+                'is_active' => (bool)$accountTariff->tariff_period_id,
+                'calltracking_params' => $accountTariff->calltracking_params,
+            ]);
+        }
     }
 
     /**

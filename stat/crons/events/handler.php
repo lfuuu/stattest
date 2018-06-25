@@ -667,7 +667,7 @@ function doEvents($consoleParam)
                 case CallTrackingModule::EVENT_EXPORT_ACCOUNT_TARIFF:
                     if ($isCallTrackingServer) {
                         \app\modules\callTracking\models\AccountTariff::setActive(
-                            $param['account_tariff_id'], $param['is_active']
+                            $param['account_tariff_id'], $param['is_active'], $param['calltracking_params']
                         );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;

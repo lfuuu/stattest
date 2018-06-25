@@ -223,7 +223,8 @@ SQL;
                         // При выключении или выключении услуги добавить в очередь экспорт номера
                         EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
                             'account_tariff_id' => $accountTariff->id,
-                            'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON ? true : false)
+                            'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON),
+                            'calltracking_params' => $accountTariff->calltracking_params,
                         ]);
                         break;
                 }

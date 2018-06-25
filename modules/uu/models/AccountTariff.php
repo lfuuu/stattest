@@ -269,6 +269,11 @@ class AccountTariff extends ActiveRecord
                 },
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
+            ['calltracking_params', function ($value) {
+                if ($value && !json_decode($value)) {
+                    $this->addError('calltracking_params', 'Невалидный JSON формат');
+                }
+            }],
         ];
     }
 }

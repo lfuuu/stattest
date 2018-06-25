@@ -50,9 +50,10 @@ class AccountTariff extends ActiveRecord
     /**
      * @param int $accountTariffId
      * @param bool $isActive
+     * @param string $calltrackingParams
      * @throws ModelValidationException
      */
-    public static function setActive($accountTariffId, $isActive)
+    public static function setActive($accountTariffId, $isActive, $calltrackingParams)
     {
         $accountTariff = self::findOne(['id' => $accountTariffId]);
         if (!$accountTariff) {
@@ -65,6 +66,7 @@ class AccountTariff extends ActiveRecord
         } else {
             $accountTariff->is_active = $isActive;
         }
+        $accountTariff->calltracking_params = $calltrackingParams;
 
         if (!$accountTariff->save()) {
             throw new ModelValidationException($accountTariff);
