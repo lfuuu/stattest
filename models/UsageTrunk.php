@@ -205,10 +205,9 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     {
         $now = new DateTime('now');
 
-        $activationDt = new DateTime($this->activation_dt);
         $expireDt = new DateTime($this->expire_dt);
 
-        return $activationDt <= $now and $expireDt >= $now;
+        return $expireDt >= $now;
     }
 
     /**
