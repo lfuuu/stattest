@@ -691,7 +691,7 @@ class CallsRawFilter extends CallsRaw
         if (Yii::$app->cache->exists($queryCacheKey)) {
             $result = Yii::$app->cache->get($queryCacheKey);
         } else {
-            $result = $query->createCommand(CallsRaw::getDb())->queryAll();
+            $result = $query->createCommand(Yii::$app->dbPg)->queryAll(); // переключено на основной сервер
             if ($result !== false) {
                 Yii::$app->cache->set($queryCacheKey, $result);
                 CallsRaw::addReportCacheKey($queryCacheKey);
