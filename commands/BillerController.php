@@ -327,12 +327,19 @@ class BillerController extends Controller
     }
 
     /**
-     * Завершение сбербанковских платежей
+     * Завершение сбербанковских платежей (запускать каждую минуту)
      */
     public function actionSberbankOrdersFinishing()
     {
-        $date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-            ->modify('-3 days');
+        $now = new \DateTimeImmutable('now');
+
+        if ($now->format('i') == 0) { // в 00 минут каждого часа.
+            $date = $now->modify('-3 day');
+        } else if (($now->format('i') % 10) == 0) { // каждые 10 минут
+            $date = $now->modify('-2 hour');
+        } else { // каждую минуту
+            $date = $now->modify('-10 minute');
+        }
 
         $sberbankApi = new SberbankApi();
 
