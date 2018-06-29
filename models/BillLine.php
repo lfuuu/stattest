@@ -287,7 +287,7 @@ class BillLine extends ActiveRecord
      */
     public function getPrice_with_vat()
     {
-        return $this->sum_tax;
+        return $this->sum;
     }
 
     /**
