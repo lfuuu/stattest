@@ -44,10 +44,22 @@ if ($isUu) {
     /** @var AccountTariff[] $accountTariffs */
     $accountTariffs = AccountTariff::find()
         ->where(['prev_account_tariff_id' => $usage->id])
-        ->andWhere(['IS NOT', 'tariff_period_id', null])
         ->all();
     foreach ($accountTariffs as $accountTariff) {
-        $tariff = $accountTariff->tariffPeriod->tariff;
+        if (!$accountTariff->isActive()) {
+            continue;
+        }
+
+        $tariffPeriod = $accountTariff->tariffPeriod;
+        if ($tariffPeriod) {
+            $tariff = $tariffPeriod->tariff;
+        } else {
+            $tariffLog = reset($accountTariff->accountTariffLogs);
+            if (!($tariffPeriod = $tariffLog->tariffPeriod)) {
+                continue;
+            }
+            $tariff = $tariffPeriod->tariff;
+        }
 
         switch ($accountTariff->service_type_id) {
 
