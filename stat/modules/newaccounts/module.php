@@ -2681,12 +2681,11 @@ class m_newaccounts extends IModule
                 'type_id' => $source
             ]);
 
-            $correctionInfo = [
-                'number' => $billCorrection->number,
-                'date' => (new DateTime($billCorrection->date))->getTimestamp()
-            ];
-
             if ($billCorrection) {
+                $correctionInfo = [
+                    'number' => $billCorrection->number,
+                    'date' => (new DateTime($billCorrection->date))->getTimestamp()
+                ];
                 $billLines = $billCorrection->getLines()->asArray()->all();
             }
         }
