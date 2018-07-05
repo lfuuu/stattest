@@ -54,9 +54,9 @@ $form = ActiveForm::begin();
     <table class="table table-condensed table-striped">
         <tr>
             <th width=1%>&#8470;</th>
-            <th width=80%>Наименование</th>
-            <th>Количество</th>
-            <th>Цена</th>
+            <th width=70%>Наименование</th>
+            <th width=14%>Количество</th>
+            <th width=15%>Цена</th>
             <th>
                 Удаление
                 <input type="checkbox" id="mark_del"

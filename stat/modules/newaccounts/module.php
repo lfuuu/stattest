@@ -2681,11 +2681,14 @@ class m_newaccounts extends IModule
                 'type_id' => $source
             ]);
 
+
             if ($billCorrection) {
                 $correctionInfo = [
                     'number' => $billCorrection->number,
-                    'date' => (new DateTime($billCorrection->date))->getTimestamp()
+                    'date' => (new DateTime($billCorrection->date)),
+                    'date_timestamp' => (new DateTime($billCorrection->date))->getTimestamp()
                 ];
+
                 $billLines = $billCorrection->getLines()->asArray()->all();
             }
         }
@@ -2764,8 +2767,14 @@ class m_newaccounts extends IModule
             $clientAccount = ClientAccount::findOne($account['id'])
                 ->loadVersionOnDate($bill->Get('bill_date'));
 
+            $date = $bill->Get('bill_date');
+
+            if ($correctionInfo) {
+                $date = $correctionInfo['date']->format(DateTimeZoneHelper::DATE_FORMAT);
+            }
+
             /** @var ClientAccount $clientAccount */
-            $organization = $clientAccount->contract->organization;
+            $organization = $clientAccount->contract->getOrganization($date);
 
             $organization_info = $organization->getOldModeInfo();
 
