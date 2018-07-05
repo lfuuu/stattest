@@ -1,7 +1,8 @@
 <?php
 
-/** @var \app\classes\documents\DocumentReport $document */
+/** @var DocumentReport $document */
 
+use app\classes\documents\DocumentReport;
 use app\classes\Html;
 use app\helpers\MediaFileHelper;
 use app\models\Currency;
@@ -17,7 +18,9 @@ $contragent = $bill->clientAccount->contragent;
 
 $hDate = function ($dateStr) {
     return (new DateTime($dateStr))->format('d.m.Y');
-}
+};
+
+$isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERATOR;
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -149,7 +152,8 @@ VAT Number: <?= $contragent->inn_euro ?>
     <th>No</th>
     <th>Description</th>
     <th>Billing period</th>
-    <th>Volume, min</th>
+    <?php if (!$isOperatorBill) { ?>
+        <th>Volume, min</th><?php } ?>
     <th>Amount, <?= $currency ?></th>
     <th>VAT rate, %</th>
     <th>VAT amount, <?= $currency ?></th>
@@ -163,7 +167,8 @@ VAT Number: <?= $contragent->inn_euro ?>
             <td align="center"><?= ($idx + 1); ?></td>
             <td align="center"><?= $line->item ?></td>
             <td align="center"><?= $hDate($line->date_from) . ' - ' . $hDate($line->date_to) ?></td>
-            <td align="center"><?= $line->amount ?></td>
+            <?php if (!$isOperatorBill) { ?>
+                <td align="center"><?= $line->amount ?></td><?php } ?>
             <td align="center"><?= $line->price ?></td>
             <td align="center"><?= $line->tax_rate ?></td>
             <td align="center"><?= $line->sum_tax ?></td>
@@ -176,7 +181,7 @@ VAT Number: <?= $contragent->inn_euro ?>
         $total['sum'] += $line->sum;
     endforeach; ?>
     <tr>
-        <td colspan="4" align="right"><b>Total Amount Due:</b></td>
+        <td colspan="<?= $isOperatorBill ? 3 : 4 ?>" align="right"><b>Total Amount Due:</b></td>
         <td align="center"><?= number_format($total['amount'], 2, '.', '') ?></td>
         <td align="center">&nbsp;</td>
         <td align="center"><?= number_format($total['tax'], 2, '.', '') ?></td>

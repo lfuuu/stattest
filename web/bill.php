@@ -51,7 +51,7 @@ if (
 } else {
     global $design;
 
-    $design->assign('dbg', (bool)$_REQUEST['dbg']);
+    $design->assign('dbg', isset($_REQUEST['dbg']) && (bool)$_REQUEST['dbg']);
     $design->assign('emailed', $isEmailed);
 
     \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');

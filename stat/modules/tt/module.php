@@ -734,8 +734,11 @@ where c.client="'.$trouble['client_orig'].'"')
 
         $design->assign('is_trouble_with_lead', (bool)$lead);
         $design->assign('saleChannels', \app\models\SaleChannel::getList(true));
-        $design->assign('leadSaleChannelId', $lead->sale_channel_id);
-        $design->assign('leadData', $lead->data);
+        if ($lead) {
+            $design->assign('leadSaleChannelId', $lead->sale_channel_id);
+            $design->assign('leadData', $lead->data);
+        }
+
 
         $this->prepareTimeTable();
         $design->AddMain('tt/trouble.tpl');
