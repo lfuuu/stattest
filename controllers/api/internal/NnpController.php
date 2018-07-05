@@ -11,6 +11,7 @@ use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region;
+use yii\base\InvalidParamException;
 use yii\db\Expression;
 
 class NnpController extends ApiInternalController
@@ -337,7 +338,8 @@ class NnpController extends ApiInternalController
         $is_active = '1',
         $limit = self::LIMIT,
         $offset = 0
-    ) {
+    )
+    {
 
         $query = NumberRange::find();
         $numberRangeTableName = NumberRange::tableName();
@@ -445,4 +447,81 @@ class NnpController extends ApiInternalController
             'is_active' => (int)$numberRange->is_active,
         ];
     }
+
+
+    /**
+     * @SWG\Get(tags = {"NationalNumberPlan"}, path = "/internal/nnp/check-number-by-filter", summary = "Проверить номер по фильтру", operationId = "NnpCheckNumberByFilter",
+     *   @SWG\Parameter(name = "number", type = "integer", description = "Телефонный номер", in = "query", default = ""),
+     *   @SWG\Parameter(name = "filter", type = "string", description = "фильтр в формате json", in = "query", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Результат соответстивия номера и фильтру",
+     *     @SWG\Schema(type = "string")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   ),
+     * ),
+     */
+    /**
+     * @param integer $number
+     * @param string $filter
+     * @return bool
+     */
+    public function actionCheckNumberByFilter($number, $filter)
+    {
+        /**
+         * Пример:
+         *
+         * Номер:79648899998
+         * Фильтр: {"country_code":["10002","643"],"region_id":["16748","81"],"city_id":["116886","103675"],"ndc_type_id":["2"],"is_list_black":true}
+         */
+        $number = intval($number);
+
+        if (!$number || !$filter) {
+            throw new InvalidParamException('Invalid Parameter');
+        }
+
+        $filter = json_decode($filter, true);
+
+        if (!$filter || !isset($filter['is_list_black'])) {
+            throw new InvalidParamException('Invalid Parameter');
+        }
+
+        $numberRangeQuery = NumberRange::find()
+            ->where(['AND',
+                ['<=', 'full_number_from', $number],
+                ['>=', 'full_number_to', $number]
+            ]);
+
+        $isParamSet = false;
+        foreach (['country_code', 'region_id', 'city_id', 'ndc_type_id', 'operator_id'] as $field) {
+            if (isset($filter[$field]) && $filter[$field]) {
+                $numberRangeQuery->andWhere([$field => $filter[$field]]);
+                $isParamSet = true;
+            }
+        }
+
+        if (!$isParamSet) { // без параметров
+            return !$filter['is_list_black'];
+        }
+
+        $result = NumberRange::getDb()->createCommand(
+            NumberRange::getDb()
+                ->getQueryBuilder()
+                ->selectExists(
+                    $numberRangeQuery
+                        ->createCommand()
+                        ->rawSql
+                )
+        )
+            ->cache(86400)
+            ->queryScalar();
+
+        if ($filter['is_list_black']) {
+            return !$result;
+        }
+
+        return $result;
+    }
+
 }
