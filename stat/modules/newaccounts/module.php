@@ -1395,6 +1395,7 @@ class m_newaccounts extends IModule
             'Уведомление о передачи прав: ' => array('notice_mcm_telekom'),
             'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
             'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => array('sogl_mcn_telekom'),
+            'Кредит-нота: ' => array('credit_note'),
         );
 
         foreach ($D as $k => $rs) {
