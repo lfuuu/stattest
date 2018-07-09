@@ -18,8 +18,8 @@ use app\models\ClientAccount;
 use app\models\ClientContractReward;
 use app\models\PartnerRewards;
 use app\models\Transaction;
+use app\modules\uu\models\ServiceType;
 use yii\db\Expression;
-use yii\db\Query;
 
 abstract class RewardCalculate
 {
@@ -32,32 +32,32 @@ abstract class RewardCalculate
     ];
 
     /**
-     * @param int $clientAccountId
-     * @param int $billId
+     * @param ClientAccount|int $clientAccount
+     * @param Bill|int $bill
      * @param string $createdAt
      * @throws \yii\base\Exception
      */
-    public static function run($clientAccountId, $billId, $createdAt)
+    public static function run($clientAccount, $bill, $createdAt)
     {
-        /** @var ClientAccount $clientAccount */
-        $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
+        if (!($clientAccount instanceof ClientAccount)) {
+            $id = $clientAccount;
+            $clientAccount = ClientAccount::findOne(['id' => $id]);
+        }
         Assert::isObject($clientAccount);
-
+        if (!($bill instanceof Bill)) {
+            $id = $bill;
+            $bill = Bill::findOne(['id' => $id]);
+        }
+        Assert::isObject($bill);
+        // Получение partner_contract_id для дальнейшего поиска партнерской настройки
         $contract = $clientAccount->contract;
-        $partnerContractId = $contract->partner_contract_id ?: $contract->contragent->partner_contract_id; // COALESCE(контракт.партнер, контрагент.партнер)
+        $partnerContractId = $contract->partner_contract_id ?: $contract->contragent->partner_contract_id;
         if (!$partnerContractId) {
-            HandlerLogger::me()->add('PartnerContractId is null, where clientAccountId #' . $clientAccountId);
+            HandlerLogger::me()->add(sprintf('pci_%s ', $contract->id));
             return;
         }
-
-        $bill = Bill::findOne(['id' => $billId]);
-        if (!$bill) {
-            HandlerLogger::me()->add('Bill #' . $billId . ' not found');
-            return;
-        }
-
-        // Список используемых настроек вознаграждений
-        $contractRewards = (new Query)
+        // Список используемых настроек вознаграждений, которые группируются по типу, из которого берется самое последнее вознаграждение
+        $contractRewards = ClientContractReward::find()
             ->select([
                 'usage_type',
                 'once_only',
@@ -68,46 +68,49 @@ abstract class RewardCalculate
                 'period_type',
                 'period_month',
             ])
-            ->from([
-                'rewards' => (new Query)
-                    ->from(ClientContractReward::tableName())
+            ->innerJoin([
+                'groupped' => ClientContractReward::find()
+                    ->select(['id' => new Expression('MAX(id)')])
                     ->where(['contract_id' => $partnerContractId])
-                    ->andWhere(['<', 'actual_from', new Expression('CAST(:createdAt AS DATE)', ['createdAt' => $createdAt])])
-                    ->orderBy(['actual_from' => SORT_DESC])
-            ])
-            ->groupBy('usage_type')
+                    ->andWhere(['<', 'actual_from', $createdAt])
+                    ->groupBy('usage_type')
+            ], 'groupped.id = ' . ClientContractReward::tableName() . '.id')
             ->indexBy('usage_type')
+            ->asArray()
             ->all();
-
-        foreach ($bill->lines as $line) {
-
-            if ($line->sum < 0) {
-                continue;
-            }
-
-            if (!$line->service) {
-            	continue;
-            } elseif ($line->service == BillDao::UU_SERVICE) {
-                // для УУ определить соответствующий тип неуниверсальной услуги
+        if (!$contractRewards) {
+            return;
+        }
+        // Получение строчек текущего счета
+        $linesQuery = BillLine::find()
+            ->where([
+                'bill_no' => $bill->bill_no,
+                'type' => BillLine::LINE_TYPE_SERVICE,
+            ])
+            ->andWhere(['>', 'sum', 0])
+            ->andWhere(['IS NOT', 'service', null]);
+        foreach ($linesQuery->each() as $line) {
+            // Для универсальной услуги получаем тип неуниверсальной услуги
+            if ($line->service == BillDao::UU_SERVICE) {
                 $accountTariff = $line->accountTariff;
+                /** @var ServiceType $serviceType */
                 $serviceType = $accountTariff ? $accountTariff->serviceType : null;
                 $service = $serviceType ? $serviceType->getUsageName() : null;
             } else {
                 $service = $line->service;
             }
-
-            if (!array_key_exists($service, $contractRewards)) {
-                // В настройках вознаграждения нет данного типа услуги
+            // В настройках вознаграждения нет данного типа услуги
+            if (!isset($contractRewards[$service])) {
                 continue;
             }
-
             $rewardsSettingsByType = $contractRewards[$service];
-
+            // Если периодом услуги является месяц, то нужно проверить пролонгацию
             if ($rewardsSettingsByType['period_type'] === ClientContractReward::PERIOD_MONTH) {
-                $db = BillLine::getDb();
+                // Пролонгация - месяц добавление настройки к остальной пролонгации
+                $prolongation = (int)$rewardsSettingsByType['period_month'] + 1;
+                // Проверка попадания строчки счета в пролонгацию для расчета вознаграждения
                 $billLineTableName = BillLine::tableName();
-
-                $result = $db->createCommand("
+                $isCanReward = BillLine::getDb()->createCommand("
                     SELECT (TIMESTAMPDIFF(
                         MONTH,
                         COALESCE (
@@ -115,46 +118,42 @@ abstract class RewardCalculate
                                 SELECT MIN(date_from) date_from
                                 FROM {$billLineTableName}
                                 WHERE service = '{$service}' AND id_service = {$line->id_service}
-                            ), 
+                            ),
                             '{$line->date_from}'
                         ),
                         '{$line->date_from}'
-                    ) >= {$rewardsSettingsByType['period_month']} ) forbid_rewarding;
-                ")->queryOne();
-
-                if ($result['forbid_rewarding']) {
-                    // Период выплат ограничен и их кол-во не превышает настроенное
+                    ) >= {$prolongation} ) val;
+                ")
+                    ->queryScalar();
+                // Период выплат ограничен и их количество не превышает настроенное
+                if ($isCanReward) {
                     continue;
                 }
             }
-
             // Определение обработчика начисления вознаграждения
             $rewardClassName = self::$services[$service];
             /** @var AHandler $rewardsHandler */
             $rewardsHandler = new $rewardClassName([
                 'clientAccountVersion' => $clientAccount->account_version,
             ]);
-
+            // Получение обработчиков для строчки счета (Разовое, % от подключения, % от абонентской платы, % от превышения, % от маржи)
             $serviceObj = $rewardsHandler->getService($line->id_service);
+            // Услуга исключена из вознаграждений
             if ($rewardsHandler->isExcludeService($serviceObj)) {
-                // Услуга исключена из вознаграждений
                 continue;
             }
-
-            $reward = PartnerRewards::findOne(['bill_id' => $bill, 'line_pk' => $line->pk]);
-            if ($reward === null) {
+            // Попытка найти партнерское вознаграждение
+            if (!($reward = PartnerRewards::findOne(['bill_id' => $bill, 'line_pk' => $line->pk]))) {
                 $reward = new PartnerRewards;
                 $reward->bill_id = $bill->id;
                 $reward->line_pk = $line->pk;
             }
-
             $reward->created_at = $createdAt;
-
+            // Выполнение рассчета прикрепленными обработчиками
             foreach ($rewardsHandler->getAvailableRewards() as $rewardClass) {
                 /** @var Reward $rewardClass */
                 $rewardClass::calculate($reward, $line, $rewardsSettingsByType);
             }
-
             if (!$reward->save()) {
                 throw new ModelValidationException($reward);
             }

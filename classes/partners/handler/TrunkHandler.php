@@ -4,7 +4,6 @@ namespace app\classes\partners\handler;
 
 use app\classes\Assert;
 use app\classes\model\ActiveRecord;
-use app\classes\partners\rewards\MarginPercentageReward;
 use app\classes\partners\rewards\ResourcePercentageReward;
 use app\models\ClientAccount;
 use app\models\UsageTrunk;
@@ -19,7 +18,6 @@ class TrunkHandler extends AHandler
     {
         return [
             ResourcePercentageReward::class,
-            MarginPercentageReward::class,
         ];
     }
 

@@ -4,7 +4,6 @@ namespace app\models;
 
 use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
-use app\classes\behaviors\PartnerRewardsCalculation;
 use app\classes\behaviors\SetBillPaymentDate;
 use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\ActiveRecord;
@@ -129,7 +128,6 @@ class Bill extends ActiveRecord
     public function behaviors()
     {
         return [
-            'PartnerRewardsCalculate' => PartnerRewardsCalculation::className(),
             'SetBillPaymentOverdue' => SetBillPaymentOverdue::className(),
             'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::className(),
             'BillChangeLog' => BillChangeLog::className(),

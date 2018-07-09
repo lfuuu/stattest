@@ -5,6 +5,7 @@ namespace app\classes\partners\rewards;
 use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\PartnerRewards;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogSetup;
 
 abstract class EnablePercentageReward
@@ -39,24 +40,11 @@ abstract class EnablePercentageReward
             }
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL: {
-                $calculatedRewards = PartnerRewards::find()
-                    ->where([
-                        'bill_id' => $line->bill->id,
-                        'line_pk' => $line->pk,
-                    ])
-                    ->count();
-
-                if (!$calculatedRewards) {
-                    // Если вознаграждение еще не рассчитано
-                    $setupSummary =
-                        AccountLogSetup::find()
-                            ->select('SUM(price)')
-                            ->where(['account_entry_id' => $line->uu_account_entry_id])
-                            ->scalar();
-
-                    if ($setupSummary) {
-                        $reward->percentage_once = $settings[self::getField()] * $setupSummary / 100;
-                    }
+                $accountEntry = AccountEntry::findOne([
+                    'id' => $line->uu_account_entry_id
+                ]);
+                if ($accountEntry && $accountEntry->type_id === AccountEntry::TYPE_ID_SETUP) {
+                    $reward->percentage_once = $settings[self::getField()] * $accountEntry->price_without_vat / 100;
                 }
                 break;
             }

@@ -13,33 +13,59 @@ use yii\console\Controller;
 class PartnerRewardController extends Controller
 {
     /**
-     * Расчет партнерских вознаграждений за последние 24 месяца
+     * Расчет партнерских вознаграждений по оплаченным счетам за последние сутки
      */
-    public function actionCalculateRewardsFor24Months()
+    public function actionCalculateRewardsFor1Day()
+    {
+        // Получение всех счетов за последние сутки
+        $date = (new DateTime)
+            ->modify('-1 day')
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
+        echo 'Получение всех оплаченных счетов, начиная с ' . $date . PHP_EOL;
+        $bills = Bill::find()
+            ->where(['payment_date' => $date]);
+        $this->_calculateRewards($bills);
+    }
+
+    /**
+     * Расчет партнерских вознаграждений по оплаченным счетам за последние 6 месяцев
+     */
+    public function actionCalculateRewardsFor6Months()
     {
         echo 'Удаление всех записей, где событие: ' . EventQueue::PARTNER_REWARD . PHP_EOL;
         EventQueue::deleteAll(['event' => EventQueue::PARTNER_REWARD]);
-
         echo 'Удаление все партнерских вознаграждений перед перерасчетом' . PHP_EOL;
         PartnerRewards::deleteAll();
 
-        // Получение всех счетов за последние 24 месяца
-        $date = (new DateTime)->modify('-2 years')->format('Y-m-d');
-        echo 'Получение всех счетов, начиная с ' . $date . PHP_EOL;
-        $bills = Bill::find()->where(['>', 'bill_date', $date]);
+        // Поиск по оплаченным счетам за последние 6 месяцев
+        $date = (new DateTime)
+            ->modify('-6 months')
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
+        echo 'Получение всех оплаченных счетов, начиная с ' . $date . PHP_EOL;
+        $bills = Bill::find()
+            ->where(['AND',
+                ['>=', 'payment_date', $date],
+                ['=', 'is_payed', Bill::STATUS_IS_PAID],
+            ]);
+        $this->_calculateRewards($bills);
+    }
+
+    /**
+     * @param \app\queries\BillQuery $bills
+     */
+    private function _calculateRewards($bills)
+    {
         /**
          * Перерасчет всех партнерских вознаграждений за последние 24 месяца
          * @uses ClassName: PartnerRewardsCalculation, Method: calculateRewards
          */
-        $createdAt = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
-            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $createdAt = (new \DateTime())->format(DateTimeZoneHelper::DATE_FORMAT);
         foreach ($bills->each() as $bill) {
             /** @var Bill $bill */
             try {
-                RewardCalculate::run($bill->client_id, $bill->id, $createdAt);
-                echo '. ';
-            } catch (\yii\base\Exception $e) {
-                echo 'Bill#' . $bill->id . ': ' . $e->getMessage() . PHP_EOL;
+                RewardCalculate::run($bill->clientAccount, $bill, $createdAt);
+            } catch (\Exception $e) {
+                echo sprintf("Bill %s: %s ", $bill->id, $e->getMessage());
             }
         }
     }

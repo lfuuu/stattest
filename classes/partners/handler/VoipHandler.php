@@ -6,7 +6,6 @@ use app\classes\Assert;
 use app\classes\model\ActiveRecord;
 use app\classes\partners\rewards\EnablePercentageReward;
 use app\classes\partners\rewards\EnableReward;
-use app\classes\partners\rewards\MarginPercentageReward;
 use app\classes\partners\rewards\MonthlyFeePercentageReward;
 use app\classes\partners\rewards\ResourcePercentageReward;
 use app\models\ClientAccount;
@@ -26,7 +25,6 @@ class VoipHandler extends AHandler
             EnablePercentageReward::class,
             MonthlyFeePercentageReward::class,
             ResourcePercentageReward::class,
-            MarginPercentageReward::class,
         ];
     }
 
