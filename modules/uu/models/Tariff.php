@@ -468,10 +468,11 @@ class Tariff extends ActiveRecord
      * @param int $countryId
      * @param int $cityId
      * @param int $ndcTypeId
+     * @param bool $isIncludeVat
      * @param int[] $tariffStatuses
      * @return Tariff[]|null
      */
-    public function findDefaultPackages($countryId, $cityId, $ndcTypeId, $tariffStatuses = [])
+    public function findDefaultPackages($countryId, $cityId, $ndcTypeId, $isIncludeVat, $tariffStatuses = [])
     {
         if ($this->service_type_id != ServiceType::ID_VOIP || !$ndcTypeId) {
             // пакеты по умолчанию только для телефонии. Даже для пакетов транков их нет
@@ -488,6 +489,7 @@ class Tariff extends ActiveRecord
                 // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
                 $tariffTableName . '.is_default' => 1,
                 $tariffTableName . '.tariff_status_id' => $tariffStatuses,
+                $tariffTableName . '.is_include_vat' => $isIncludeVat,
             ]);
 
         if ($cityId) {

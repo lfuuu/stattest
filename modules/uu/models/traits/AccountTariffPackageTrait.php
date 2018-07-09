@@ -93,7 +93,14 @@ trait AccountTariffPackageTrait
             $countryId = null;
         }
 
-        $defaultPackages = $tariffPeriod->tariff->findDefaultPackages($countryId, $this->city_id, $number ? $number->ndc_type_id : null, $tariffStatuses);
+        $defaultPackages = $tariffPeriod->tariff->findDefaultPackages(
+            $countryId,
+            $this->city_id,
+            $number ? $number->ndc_type_id : null,
+            $tariffPeriod->tariff->is_include_vat,
+            $tariffStatuses
+        );
+
         if (!$defaultPackages) {
             Yii::error('Не найден базовый пакет для услуги ' . $this->id, 'uu');
             return;
