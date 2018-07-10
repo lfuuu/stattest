@@ -975,6 +975,7 @@ class m_newaccounts extends IModule
         }
 
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
+        $design->assign('clientAccountVersion', $fixclient_data['account_version']);
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
@@ -1057,6 +1058,7 @@ class m_newaccounts extends IModule
         $date_from_active = get_param_raw("date_from_active", 'N');
         $price_include_vat = get_param_raw("price_include_vat", 'N');
         $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
+        $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
         $bill_no_ext_date = $dateFrom->getSqlDay();
 
         $bill = new \Bill($bill_no);
@@ -1070,6 +1072,7 @@ class m_newaccounts extends IModule
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
+        $bill->SetIsToUuInvoice($isToUuInvoice);
 
         if ($date_from_active == 'Y') {
             $bill->SetExtNoDate($bill_no_ext_date);

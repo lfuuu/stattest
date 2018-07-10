@@ -1,27 +1,26 @@
-
 <ul class="breadcrumb">
-	<li>
-		<a href="/">Главная</a>
-	</li>
-	<li>
-		<a href="/client/view?id={$bill.client_id}">Аккаунт: {$bill.client_id}</a>
-	</li>
-	<li>
-		<a href="/?module=newaccounts&action=bill_view&bill={$bill.bill_no}">Счет №{$bill.bill_no}</a>
-	</li>
-	<li>
-		<a href="?module=newaccounts&action=bill_edit&bill={$bill.bill_no}">Редактирование</a>
-	</li>
+    <li>
+        <a href="/">Главная</a>
+    </li>
+    <li>
+        <a href="/client/view?id={$bill.client_id}">Аккаунт: {$bill.client_id}</a>
+    </li>
+    <li>
+        <a href="/?module=newaccounts&action=bill_view&bill={$bill.bill_no}">Счет №{$bill.bill_no}</a>
+    </li>
+    <li>
+        <a href="?module=newaccounts&action=bill_edit&bill={$bill.bill_no}">Редактирование</a>
+    </li>
 
 </ul>
 
 <h2>Бухгалтерия {$fixclient}</h2>
 <H3>Редактирование проводки</H3>
 <form action="?" method=post id=form name=form>
-	<input type=hidden name=module value=newaccounts>
-	<input type=hidden name=bill value={$bill.bill_no}>
-	<input type=hidden name=action value=bill_apply>
-	<input type=hidden name=client_id value={$bill.client_id}>
+    <input type=hidden name=module value=newaccounts>
+    <input type=hidden name=bill value={$bill.bill_no}>
+    <input type=hidden name=action value=bill_apply>
+    <input type=hidden name=client_id value={$bill.client_id}>
 
     <div class="well">
         <div class="row">
@@ -87,10 +86,21 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-4">
                 <div class="form-group">
                     <label>Исполнитель:</label>
                     {html_options name='courier' options=$l_couriers selected=$bill.courier_id}
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    {if !$bill.uu_bill_id && $clientAccountVersion == 5}
+                    <label>Включить в У-с/ф:</label>
+                    <input type="checkbox" value="Y"
+                           name="is_to_uu_invoice" {if $bill.is_to_uu_invoice} checked{/if}>
+                        {else}
+                        &nbsp;
+                    {/if}
                 </div>
             </div>
             <div class="col-sm-4">
@@ -116,72 +126,86 @@
         {assign var="isDisabledLines" value=true}
     {/if}
 
-	<table class="table table-condensed table-striped">
-		<tr>
-			<th width=1%>&#8470;</th>
-			<th width=80%>Наименование</th>
-			<th>Количество</th>
-			<th>Цена</th>
-			<th>Тип</th>
-			<th>
-				Удаление
-				<input type="checkbox" id="mark_del" onchange="if (this.checked) $('input.mark_del').attr('checked','checked'); else $('input.mark_del').removeAttr('checked');"{if $isDisabledLines} disabled{/if}/>
-			</th>
-		</tr>
-		{foreach from=$bill_lines item=item key=key name=outer}
-		<tr>
-			<td>{$smarty.foreach.outer.iteration}.</td>
-			<td><input class="form-control input-sm" value="{if isset($item.item)}{$item.item|escape:"input_value_quotes"}{/if}" name=item[{$key}]{if $isDisabledLines} disabled{/if}></td>
-			<td><input class="form-control input-sm" style="width: 100px" value="{if isset($item.amount)}{$item.amount}{/if}" name=amount[{$key}]{if $isDisabledLines} disabled{/if}></td>
-			<td><input class="form-control input-sm" style="width: 80px" value="{if isset($item.price)}{$item.price}{/if}" name=price[{$key}]{if $isDisabledLines} disabled{/if}></td>
-			<td>
-				<select class="form-control input-sm" style="width: 90px" name=type[{$key}]{if $isDisabledLines} disabled{/if}>
-					<option value='service'{if isset($item.type) && $item.type=='service'} selected{/if}>услуга &nbsp; &nbsp; &nbsp;обычная</option>
-					<option value='zalog'{if isset($item.type) && $item.type=='zalog'} selected{/if}>залог &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;(попадает в с/ф-3)</option>
-					<option value='zadatok'{if isset($item.type) && $item.type=='zadatok'} selected{/if}>задаток &nbsp; (не попадает в с/ф)</option>
-					<option value='good'{if isset($item.type) && $item.type=='good'} selected{/if}>товар</option>
-				</select>
-			</td>
-			<td><input type="checkbox" class="mark_del" name="del[{$key}]" value="1"{if $isDisabledLines} disabled{/if}/></td>
-		</tr>
-		{/foreach}
-	</table>
-	<div style="text-align: center">
-		<input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if $isDisabledLines} disabled{/if}>
-	</div>
+    <table class="table table-condensed table-striped">
+        <tr>
+            <th width=1%>&#8470;</th>
+            <th width=80%>Наименование</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Тип</th>
+            <th>
+                Удаление
+                <input type="checkbox" id="mark_del"
+                       onchange="if (this.checked) $('input.mark_del').attr('checked','checked'); else $('input.mark_del').removeAttr('checked');"{if $isDisabledLines} disabled{/if}/>
+            </th>
+        </tr>
+        {foreach from=$bill_lines item=item key=key name=outer}
+            <tr>
+                <td>{$smarty.foreach.outer.iteration}.</td>
+                <td><input class="form-control input-sm"
+                           value="{if isset($item.item)}{$item.item|escape:"input_value_quotes"}{/if}"
+                           name=item[{$key}]{if $isDisabledLines} disabled{/if}></td>
+                <td><input class="form-control input-sm" style="width: 100px"
+                           value="{if isset($item.amount)}{$item.amount}{/if}"
+                           name=amount[{$key}]{if $isDisabledLines} disabled{/if}></td>
+                <td><input class="form-control input-sm" style="width: 80px"
+                           value="{if isset($item.price)}{$item.price}{/if}"
+                           name=price[{$key}]{if $isDisabledLines} disabled{/if}></td>
+                <td>
+                    <select class="form-control input-sm" style="width: 90px"
+                            name=type[{$key}]{if $isDisabledLines} disabled{/if}>
+                        <option value='service'{if isset($item.type) && $item.type=='service'} selected{/if}>услуга
+                            &nbsp; &nbsp; &nbsp;обычная
+                        </option>
+                        <option value='zalog'{if isset($item.type) && $item.type=='zalog'} selected{/if}>залог &nbsp;
+                            &nbsp;&nbsp; &nbsp;&nbsp;(попадает в с/ф-3)
+                        </option>
+                        <option value='zadatok'{if isset($item.type) && $item.type=='zadatok'} selected{/if}>задаток
+                            &nbsp; (не попадает в с/ф)
+                        </option>
+                        <option value='good'{if isset($item.type) && $item.type=='good'} selected{/if}>товар</option>
+                    </select>
+                </td>
+                <td><input type="checkbox" class="mark_del" name="del[{$key}]"
+                           value="1"{if $isDisabledLines} disabled{/if}/></td>
+            </tr>
+        {/foreach}
+    </table>
+    <div style="text-align: center">
+        <input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if $isDisabledLines} disabled{/if}>
+    </div>
 </form>
 
 <script>
-	{literal}
+    {literal}
 
     $('#bill_date_from').datepicker({
-        dateFormat: 'dd-mm-yy',
-        maxDate: $('#pay_bill_until').val(),
-        onClose: function (selectedDate) {
-            $('#pay_bill_until').datepicker('option', 'minDate', selectedDate);
-        }
+      dateFormat: 'dd-mm-yy',
+      maxDate: $('#pay_bill_until').val(),
+      onClose: function (selectedDate) {
+        $('#pay_bill_until').datepicker('option', 'minDate', selectedDate);
+      }
     });
 
     $('#pay_bill_until').datepicker({
-        dateFormat: 'dd-mm-yy',
-        minDate: $('#bill_date_from').val(),
-        onClose: function (selectedDate) {
-            $('#bill_date_from').datepicker('option', 'maxDate', selectedDate);
-        }
+      dateFormat: 'dd-mm-yy',
+      minDate: $('#bill_date_from').val(),
+      onClose: function (selectedDate) {
+        $('#bill_date_from').datepicker('option', 'maxDate', selectedDate);
+      }
     });
 
 
-	function activateDatePicker(elm)
-	{
-		$('#date_from').attr('disabled', !elm.checked);
-	}
+    function activateDatePicker(elm) {
+      $('#date_from').attr('disabled', !elm.checked);
+    }
 
-	function mark_del(){
-		if (document.getElementById('mark_del').checked)
-			$('input.mark_del').attr('checked','checked');
-		else
-			$('input.mark_del').removeAttr('checked');
-	}
+    function mark_del() {
+      if (document.getElementById('mark_del').checked)
+        $('input.mark_del').attr('checked', 'checked');
+      else
+        $('input.mark_del').removeAttr('checked');
+    }
 
-	{/literal}
+    {/literal}
 </script>

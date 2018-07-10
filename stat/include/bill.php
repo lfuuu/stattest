@@ -231,6 +231,16 @@ class Bill {
             $db->QueryUpdate("courier", array("id"), array("id" => $courierId, "is_used" => "1"));
         }
     }
+
+    public function SetIsToUuInvoice($isToUuInvoice = null)
+    {
+        if ($isToUuInvoice === null) {
+            return;
+        }
+
+        $this->Set('is_to_uu_invoice', (int)(bool)$isToUuInvoice);
+    }
+
     public function EditLine($sort,$title,$amount,$price,$type) {
 
         $this->changed = 1;

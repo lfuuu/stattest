@@ -53,6 +53,7 @@ use yii\helpers\Url;
  * @property int $is_pay_overdue
  * @property float $sum_correction
  * @property string $payment_date
+ * @property bool $is_to_uu_invoice
  *
  * @property-read ClientAccount $clientAccount   ??
  * @property-read BillLine[] $lines   ??
@@ -183,6 +184,7 @@ class Bill extends ActiveRecord
             'pay_bill_until' => 'Оплатить счет до',
             'is_pay_overdue' => 'Просрочена оплата счета',
             'payment_date' => 'Дата оплаты счета',
+            'is_to_uu_invoice' => 'Включить в У-с/ф',
         ];
     }
 

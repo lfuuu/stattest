@@ -7,6 +7,7 @@ use app\classes\Smarty;
 use app\forms\templates\uu\InvoiceForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Language;
 use app\modules\uu\models\AccountEntry;
@@ -120,6 +121,28 @@ class InvoiceLight extends Component
                     $accountEntryTableName . '.type_id' => SORT_ASC,
                 ])
                 ->all();
+
+            if ($this->_bill->is_converted) {
+
+                $sBill = Bill::findOne(['uu_bill_id' => $this->_bill->id]);
+
+                if (!$sBill) {
+                    throw new InvalidParamException('Счет №' . $this->_bill->id . ' не найден');
+                }
+
+                $additionItems = BillLine::find()
+                    ->alias('bl')
+                    ->joinWith('bill b')
+                    ->where([
+                        'b.bill_date' => $sBill->bill_date,
+                        'b.is_to_uu_invoice' => 1,
+                    ])
+                    ->andWhere(['>', 'bl.sum', 0])
+                    ->all();
+
+                $additionItems && $items = array_merge($items, $additionItems);
+            }
+
         } elseif ($this->_bill instanceof Bill) {
             $items = $this->_bill->lines;
         }
