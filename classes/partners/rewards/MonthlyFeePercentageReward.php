@@ -4,7 +4,7 @@ namespace app\classes\partners\rewards;
 
 use app\models\BillLine;
 use app\models\PartnerRewards;
-use app\models\Transaction;
+use app\modules\uu\models\AccountEntry;
 
 abstract class MonthlyFeePercentageReward implements Reward
 {
@@ -27,11 +27,12 @@ abstract class MonthlyFeePercentageReward implements Reward
      */
     public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
     {
-        if (!array_key_exists(self::getField(), $settings)) {
+        if (!array_key_exists(self::getField(), $settings) || $line->isResource()) {
             return false;
         }
-
-        if (!$line->isResource()) {
+        // Проверяем, что тип строчки счета в проводках - Абонентская плата
+        $accountEntry = $line->accountEntry;
+        if ($accountEntry && $accountEntry->type_id == AccountEntry::TYPE_ID_PERIOD) {
             $reward->percentage_of_fee = $settings[self::getField()] * $line->sum / 100;
         }
 

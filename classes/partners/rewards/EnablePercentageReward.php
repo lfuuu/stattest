@@ -40,11 +40,9 @@ abstract class EnablePercentageReward
             }
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL: {
-                $accountEntry = AccountEntry::findOne([
-                    'id' => $line->uu_account_entry_id
-                ]);
-                if ($accountEntry && $accountEntry->type_id === AccountEntry::TYPE_ID_SETUP) {
-                    $reward->percentage_once = $settings[self::getField()] * $accountEntry->price_without_vat / 100;
+                $accountEntry = $line->accountEntry;
+                if ($accountEntry && $accountEntry->type_id == AccountEntry::TYPE_ID_SETUP) {
+                    $reward->percentage_once = $settings[self::getField()] * $accountEntry->price_with_vat / 100;
                 }
                 break;
             }

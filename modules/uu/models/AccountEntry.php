@@ -48,9 +48,9 @@ class AccountEntry extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
-    const TYPE_ID_SETUP = -1;
-    const TYPE_ID_PERIOD = -2;
-    const TYPE_ID_MIN = -3;
+    const TYPE_ID_SETUP = -1; // Подключение
+    const TYPE_ID_PERIOD = -2; // Абонентская плата
+    const TYPE_ID_MIN = -3; // Минимальная плата
 
     const AMOUNT_PRECISION = 8;
 
