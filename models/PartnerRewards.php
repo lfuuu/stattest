@@ -16,7 +16,6 @@ use app\classes\model\ActiveRecord;
  */
 class PartnerRewards extends ActiveRecord
 {
-
     /**
      * @return string
      */
@@ -25,4 +24,20 @@ class PartnerRewards extends ActiveRecord
         return 'partner_rewards';
     }
 
+    /**
+     * Вознаграждение не должно формироваться, если поля "Разовое", "% от подключения","% от абонентской платы",
+     * "% от превышения","% от маржи" является null или 0.00
+     *
+     * @return bool
+     */
+    public function isNullable()
+    {
+        return !(
+            $this->once > 0 ||
+            $this->percentage_once > 0 ||
+            $this->percentage_of_fee > 0 ||
+            $this->percentage_of_over > 0 ||
+            $this->percentage_of_margin > 0
+        );
+    }
 }

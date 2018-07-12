@@ -57,27 +57,7 @@ abstract class RewardCalculate
             return;
         }
         // Список используемых настроек вознаграждений, которые группируются по типу, из которого берется самое последнее вознаграждение
-        $contractRewards = ClientContractReward::find()
-            ->select([
-                'usage_type',
-                'once_only',
-                'percentage_once_only',
-                'percentage_of_fee',
-                'percentage_of_over',
-                'percentage_of_margin',
-                'period_type',
-                'period_month',
-            ])
-            ->innerJoin([
-                'groupped' => ClientContractReward::find()
-                    ->select(['id' => new Expression('MAX(id)')])
-                    ->where(['contract_id' => $partnerContractId])
-                    ->andWhere(['<', 'actual_from', $createdAt])
-                    ->groupBy('usage_type')
-            ], 'groupped.id = ' . ClientContractReward::tableName() . '.id')
-            ->indexBy('usage_type')
-            ->asArray()
-            ->all();
+        $contractRewards = ClientContractReward::getActualByContract($partnerContractId, $createdAt);
         if (!$contractRewards) {
             return;
         }
@@ -110,7 +90,7 @@ abstract class RewardCalculate
                 $prolongation = (int)$rewardsSettingsByType['period_month'] + 1;
                 // Проверка попадания строчки счета в пролонгацию для расчета вознаграждения
                 $billLineTableName = BillLine::tableName();
-                $isCanReward = BillLine::getDb()->createCommand("
+                $isCantReward = (bool)BillLine::getDb()->createCommand("
                     SELECT (TIMESTAMPDIFF(
                         MONTH,
                         COALESCE (
@@ -126,7 +106,7 @@ abstract class RewardCalculate
                 ")
                     ->queryScalar();
                 // Период выплат ограничен и их количество не превышает настроенное
-                if ($isCanReward) {
+                if ($isCantReward) {
                     continue;
                 }
             }
@@ -154,6 +134,12 @@ abstract class RewardCalculate
                 /** @var Reward $rewardClass */
                 $rewardClass::calculate($reward, $line, $rewardsSettingsByType);
             }
+            // Пропускаем счета с нулевыми суммами по "Разовое" или "% от подключения" или "% от абонентской платы"
+            // или "% от превышения" или "% от маржи"
+            if ($reward->isNullable()) {
+                continue;
+            }
+
             if (!$reward->save()) {
                 throw new ModelValidationException($reward);
             }

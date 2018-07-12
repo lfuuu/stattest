@@ -33,11 +33,16 @@ $priceFormatFunction = function ($price) {
 
 ?>
     <div class="row">
+        <div class="col-sm-12 text-left">
+            <?= $this->render('_client_contract_rewards', [
+                'filterModel' => $filterModel,
+            ]); ?>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-sm-6 text-left">
             <div style="padding-left:15px;">
                 <h2>Итого по начисленному вознаграждению: <?= $totalCountingFunction(); ?></h2>
-                <h3>Рассчетная сумма вознаграждения по неоплаченным
-                    счетам: <?= $totalCountingFunction('possible') ?></h3>
             </div>
         </div>
     </div>
@@ -53,9 +58,6 @@ $priceFormatFunction = function ($price) {
                 ['content' => 'Сумма оплаченных счетов', 'options' => ['rowspan' => 2],],
                 ['content' => 'Сумма оплаченных услуг, за которые начисленно вознаграждение', 'options' => ['rowspan' => 2],],
                 ['content' => 'Сумма вознаграждения', 'options' => ['colspan' => 5],],
-                ['content' => 'Сумма неоплаченных счетов', 'options' => ['rowspan' => 2],],
-                ['content' => 'Сумма неоплаченных услуг, за которые начисленно вознаграждение', 'options' => ['rowspan' => 2],],
-                ['content' => 'Расчетная сумма вознаграждения (по неоплаченным счетам)', 'options' => ['colspan' => 5],],
             ],
             'options' => [
                 'class' => GridView::DEFAULT_HEADER_CLASS,
@@ -150,60 +152,6 @@ $priceFormatFunction = function ($price) {
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
-        [
-            'headerOptions' => ['class' => 'hidden'],
-            'format' => 'raw',
-            'value' => function ($row) use ($priceFormatFunction) {
-                return $priceFormatFunction($row['possible_paid_summary']);
-            },
-        ],
-        [
-            'headerOptions' => ['class' => 'hidden'],
-            'format' => 'raw',
-            'value' => function ($row) use ($priceFormatFunction) {
-                return $priceFormatFunction($row['possible_paid_summary_reward']);
-            },
-        ],
-        [
-            'label' => 'Разовое',
-            'format' => 'raw',
-            'value' => function ($row) use ($priceFormatFunction) {
-                return $priceFormatFunction($row['possible_once']);
-            },
-            'hAlign' => GridView::ALIGN_CENTER,
-        ],
-        [
-            'label' => '% от подключения',
-            'format' => 'raw',
-            'value' => function ($row) use ($priceFormatFunction) {
-                return $priceFormatFunction($row['possible_percentage_once']);
-            },
-            'hAlign' => GridView::ALIGN_CENTER,
-        ],
-        [
-            'label' => '% от абонентской платы',
-            'format' => 'raw',
-            'value' => function ($row) use ($priceFormatFunction) {
-                return $priceFormatFunction($row['possible_percentage_of_fee']);
-            },
-            'hAlign' => GridView::ALIGN_CENTER,
-        ],
-        [
-            'label' => '% от превышения',
-            'format' => 'raw',
-            'value' => function ($row) use ($priceFormatFunction) {
-                return $priceFormatFunction($row['possible_percentage_of_over']);
-            },
-            'hAlign' => GridView::ALIGN_CENTER,
-        ],
-        [
-            'label' => '% от маржи',
-            'format' => 'raw',
-            'value' => function ($row) use ($priceFormatFunction) {
-                return $priceFormatFunction($row['possible_percentage_of_margin']);
-            },
-            'hAlign' => GridView::ALIGN_CENTER,
-        ],
     ],
     'afterHeader' => [
         [
@@ -236,27 +184,6 @@ $priceFormatFunction = function ($price) {
                 ],
                 [
                     'content' => $priceFormatFunction($filterModel->summary['percentage_of_margin']),
-                ],
-                [
-                    'content' => $priceFormatFunction($filterModel->possibleSummary['paid_summary']),
-                ],
-                [
-                    'content' => $priceFormatFunction($filterModel->possibleSummary['paid_summary_reward']),
-                ],
-                [
-                    'content' => $priceFormatFunction($filterModel->possibleSummary['once']),
-                ],
-                [
-                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_once']),
-                ],
-                [
-                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_of_fee']),
-                ],
-                [
-                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_of_over']),
-                ],
-                [
-                    'content' => $priceFormatFunction($filterModel->possibleSummary['percentage_of_margin']),
                 ],
             ],
         ]

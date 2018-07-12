@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\model\ActiveRecord;
 use DateTime;
+use yii\db\Expression;
 
 /**
  * @property int $contract_id
@@ -110,4 +111,39 @@ class ClientContractReward extends ActiveRecord
         return $actualFrom > $now;
     }
 
+    /**
+     * Получение последних настроек партнерских вознаграждений, сгруппированных по типу
+     *
+     * @param integer $partnerContractId
+     * @param string $createdAt
+     * @param boolean $isSpecial
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public static function getActualByContract($partnerContractId, $createdAt, $isSpecial = true)
+    {
+        $query = self::find();
+        if ($isSpecial) {
+            $query->select([
+                'usage_type',
+                'once_only',
+                'percentage_once_only',
+                'percentage_of_fee',
+                'percentage_of_over',
+                'percentage_of_margin',
+                'period_type',
+                'period_month',
+            ]);
+        }
+        return $query
+            ->innerJoin([
+                'groupped' => ClientContractReward::find()
+                    ->select(['id' => new Expression('MAX(id)')])
+                    ->where(['contract_id' => $partnerContractId])
+                    ->andWhere(['<', 'actual_from', $createdAt])
+                    ->groupBy('usage_type')
+            ], 'groupped.id = ' . ClientContractReward::tableName() . '.id')
+            ->indexBy('usage_type')
+            ->asArray()
+            ->all();
+    }
 }
