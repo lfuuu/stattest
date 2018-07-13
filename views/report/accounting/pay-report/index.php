@@ -31,14 +31,14 @@ $baseView = $this;
 
 $columns = [
     [
-        'attribute' => 'id',
+        'attribute' => 'client_id',
         'class' => IntegerColumn::className(),
     ],
 
     [
-        'attribute' => 'client_id',
-        'label' => $filterModel->getAttributeLabel('client_id'),
-        'class' => IntegerColumn::className(),
+        'attribute' => 'client_name',
+        'label' => $filterModel->getAttributeLabel('client_name'),
+        'class' => StringColumn::className(),
         'format' => 'raw',
         'value' => function (Payment $payment) {
             return Html::tag('small',

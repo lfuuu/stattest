@@ -4,6 +4,7 @@ namespace app\models\filter;
 
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\ClientContragent;
 use app\models\Payment;
 use app\models\PaymentAtol;
 use yii\data\ActiveDataProvider;
@@ -62,6 +63,7 @@ class PayReportFilter extends Payment
             [
                 [
                     'bill_no',
+                    'client_name',
                     'currency',
                     'date_by',
                     'user_id',
@@ -132,6 +134,14 @@ class PayReportFilter extends Payment
                 ->innerJoin(['c' => ClientAccount::tableName()], 'c.id = p.client_id')
                 ->innerJoin(['cc' => ClientContract::tableName()], 'cc.id = c.contract_id')
                 ->andWhere(['cc.organization_id' => $this->organization_id]);
+        }
+
+        if ($this->client_name !== '') {
+            $query
+                ->innerJoin(['c' => ClientAccount::tableName()], 'c.id = p.client_id')
+                ->innerJoin(['cc' => ClientContract::tableName()], 'cc.id = c.contract_id')
+                ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id = cc.contragent_id')
+                ->andWhere(['like', 'cg.name', $this->client_name]);
         }
 
         $this->bill_no !== '' && $query->andWhere(['LIKE', 'p.bill_no', $this->bill_no]);
