@@ -42,6 +42,7 @@ trait CallsRawSlowReport
         $query1
             ->select(
                 [
+                    'cr.id',
                     'cr.cdr_id',
                     'cr.connect_time',
                     'cr.billed_time session_time',
@@ -76,6 +77,7 @@ trait CallsRawSlowReport
 
         $query2->select(
             [
+                'cr.peer_id',
                 'cr.cdr_id',
                 'cr.connect_time',
                 't.name dst_route',
@@ -322,7 +324,8 @@ trait CallsRawSlowReport
         $query4
             ->select(['*', '(@(cr1.sale)) - cr2.cost_price margin'])
             ->from(['cr1' => $query1, 'cr2' => $query2])
-            ->where('cr1.cdr_id = cr2.cdr_id');
+//            ->where('cr1.cdr_id = cr2.cdr_id')
+            ->andWhere('cr1.id = cr2.peer_id');
 
         // временно отключим этот фунционал
         // $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
