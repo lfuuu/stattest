@@ -4,10 +4,12 @@ namespace app\dao;
 
 use app\classes\HandlerLogger;
 use app\classes\Language;
+use app\classes\model\ActiveRecord;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\billing\CallsRaw;
 use app\models\billing\Trunk;
 use app\models\BillLine;
 use app\models\BillOwner;
@@ -824,6 +826,23 @@ SQL;
             $trunkNamesStr = implode(", ", $trunks);
         }
 
+        CallsRaw::setPgTimeout(ActiveRecord::PG_CALCULATE_RESOURCE_TIMEOUT);
+
+        $result = CallsRaw::find()
+            ->select([
+                'sale_sum' => new Expression('SUM(cost)'),
+                'session_time_sum' => new Expression('SUM(billed_time)')
+            ])
+            ->where(['between', 'connect_time', $periodStart->format(DateTimeZoneHelper::DATETIME_FORMAT), $periodEnd->format(DateTimeZoneHelper::DATETIME_FORMAT)])
+            ->andWhere(['trunk_id' => $physicalTrunkIds])
+            ->asArray()
+            ->one();
+
+        if (!$result) {
+            return;
+        }
+
+/*
         $report = new CallsRawFilter();
 
         if (!$report->load(
@@ -847,8 +866,9 @@ SQL;
         }
 
         $result = reset($result);
+*/
 
-        $sum = $result['sale_sum'];
+        $sum = abs($result['sale_sum']);
         $billedTime = $result['session_time_sum'] / 60;
 
         $lineItem = Yii::t(
