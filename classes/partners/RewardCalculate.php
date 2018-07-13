@@ -19,7 +19,6 @@ use app\models\ClientContractReward;
 use app\models\PartnerRewards;
 use app\models\Transaction;
 use app\modules\uu\models\ServiceType;
-use yii\db\Expression;
 
 abstract class RewardCalculate
 {
