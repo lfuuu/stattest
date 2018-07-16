@@ -5,6 +5,7 @@ use app\classes\Html;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Number;
 use app\models\billing\Pricelist;
 use app\models\billing\Trunk;
@@ -18,13 +19,15 @@ use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
-/** @var \app\models\ClientAccount $clientAccount */
-/** @var \app\models\UsageTrunk $usage */
-/** @var \app\forms\usage\UsageTrunkEditForm $model */
-/** @var UsageTrunkSettings[] $origination */
-/** @var UsageTrunkSettings[] $termination */
-/** @var UsageTrunkSettings[] $destination */
-/** @var \app\classes\BaseView $this */
+/**
+ * @var \app\models\ClientAccount $clientAccount
+ * @var \app\models\UsageTrunk $usage
+ * @var \app\forms\usage\UsageTrunkEditForm $model
+ * @var UsageTrunkSettings[] $origination
+ * @var UsageTrunkSettings[] $termination
+ * @var UsageTrunkSettings[] $destination
+ * @var \app\classes\BaseView $this
+ */
 
 $this->registerJsFile('@web/js/behaviors/usage-trunk-pricelist-link.js', ['depends' => [AppAsset::className()]]);
 
@@ -61,14 +64,20 @@ if ($isUu) {
             $tariff = $tariffPeriod->tariff;
         }
 
-        switch ($accountTariff->service_type_id) {
+        // Дата начала действия пакета с учетом таймзоны клиента
+         $actualFrom = (new \DateTimeImmutable($accountTariff->tariff_period_utc,
+                    new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
+                    ->setTimezone(new \DateTimeZone($clientAccount->timezone_name))
+                    ->format(DateTimeZoneHelper::DATE_FORMAT);
+        $tariffNameFull = sprintf('%s с (%s)', $tariff->name, $actualFrom);
 
+        switch ($accountTariff->service_type_id) {
             case ServiceType::ID_TRUNK_PACKAGE_ORIG:
-                $origPackages[$tariff->id] = $tariff->name;
+                $origPackages[$tariff->id] = $tariffNameFull;
                 break;
 
             case ServiceType::ID_TRUNK_PACKAGE_TERM:
-                $termPackages[$tariff->id] = $tariff->name;
+                $termPackages[$tariff->id] = $tariffNameFull;
                 break;
         }
     }
