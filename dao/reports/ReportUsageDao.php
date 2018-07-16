@@ -811,7 +811,7 @@ class ReportUsageDao extends Singleton
 
             /** @var AccountTariff $accountTariff */
             foreach ($accountTariffs->each() as $accountTariff) {
-                $region = $accountTariff->city->region;
+                $region = $accountTariff->number->regionModel;
                 $usages[] = [
                     'id' => $accountTariff->id,
                     'phone_num' => $accountTariff->voip_number,
