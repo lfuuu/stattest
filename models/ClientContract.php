@@ -438,7 +438,7 @@ class ClientContract extends HistoryActiveRecord
             $link->andWhere(['usage_type' => $usageType]);
         }
 
-        $link->orderBy(['actual_from' => SORT_DESC]);
+        $link->orderBy(['id' => SORT_DESC]);
 
         return $link->all();
     }
