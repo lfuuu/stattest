@@ -36,6 +36,7 @@ class Package extends ActiveRecord
 
     const LOCATION_LOCAL = 1;
     const LOCATION_GUEST = 2;
+    const LOCATION_FOREIGN = 3;
 
     /**
      * Имена полей
@@ -172,6 +173,7 @@ class Package extends ActiveRecord
         $list = [
             self::LOCATION_LOCAL => 'Домашний регион',
             self::LOCATION_GUEST => 'Гостевой регион',
+            self::LOCATION_FOREIGN => 'Зарубежный роуминг',
         ];
 
         if ($isWithEmpty) {
