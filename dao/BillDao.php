@@ -834,7 +834,10 @@ SQL;
                 'session_time_sum' => new Expression('SUM(billed_time)')
             ])
             ->where(['between', 'connect_time', $periodStart->format(DateTimeZoneHelper::DATETIME_FORMAT), $periodEnd->format(DateTimeZoneHelper::DATETIME_FORMAT)])
-            ->andWhere(['trunk_id' => $physicalTrunkIds])
+            ->andWhere([
+                'trunk_id' => $physicalTrunkIds,
+                'orig' => true,
+            ])
             ->asArray()
             ->one();
 
