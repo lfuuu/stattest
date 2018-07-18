@@ -139,7 +139,6 @@ class ClientContractReward extends ActiveRecord
                 'groupped' => ClientContractReward::find()
                     ->select(['id' => new Expression('MAX(id)')])
                     ->where(['contract_id' => $partnerContractId])
-                    ->andWhere(['<', 'actual_from', $createdAt])
                     ->groupBy('usage_type')
             ], 'groupped.id = ' . ClientContractReward::tableName() . '.id')
             ->indexBy('usage_type')

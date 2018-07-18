@@ -50,7 +50,6 @@ $rewards = $contract->getModel()->getRewards($usageType);
                             'widgetOptions' => [
                                 'ShowIcon' => false,
                                 'MonthFormat' => 'yy-mm',
-                                'MinMonth' => (count($rewards) ? '+1m' : '0m'),
                             ],
                         ]
                     )
