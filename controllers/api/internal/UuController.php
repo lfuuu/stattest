@@ -520,13 +520,13 @@ class UuController extends ApiInternalController
 
                 case ServiceType::ID_VOIP:
                     if (!$voip_number) {
-                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан телефонный номер', AccountTariff::ERROR_CODE_NUMBER_NOT_FOUND);
                     }
 
                     /** @var \app\models\Number $number */
                     $number = Number::findOne(['number' => $voip_number]);
                     if (!$number) {
-                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_NUMBER_NOT_FOUND);
                     }
 
                     if (!$account_tariff_id && $number->status != Number::STATUS_INSTOCK) {
@@ -540,13 +540,13 @@ class UuController extends ApiInternalController
 
                 case ServiceType::ID_VOIP_PACKAGE_CALLS:
                     if (!$voip_number) {
-                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан телефонный номер', AccountTariff::ERROR_CODE_NUMBER_NOT_FOUND);
                     }
 
                     /** @var \app\models\Number $number */
                     $number = Number::findOne(['number' => $voip_number]);
                     if (!$number) {
-                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_NUMBER_NOT_FOUND);
                     }
 
                     $priceLevelField = 'tariff_status_package' . $clientAccount->price_level;
