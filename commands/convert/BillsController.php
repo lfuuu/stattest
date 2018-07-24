@@ -3,6 +3,8 @@
 namespace app\commands\convert;
 
 use app\models\Bill;
+use app\models\Payment;
+use app\models\PaymentOrder;
 use yii\console\Controller;
 
 class BillsController extends Controller
@@ -12,48 +14,76 @@ class BillsController extends Controller
      */
     public function actionRebuildPaymentDateColumn()
     {
-        Bill::getDb()
-            ->createCommand('
-                UPDATE newbills newbills
+        $db = Bill::getDb();
+        $billTableName = Bill::tableName();
+        $newpaymentsTableName = Payment::tableName();
+        $newpaymentsOrdersTableName = PaymentOrder::tableName();
+        $transaction = $db->beginTransaction();
+        try {
+            $db->createCommand("
+                DROP TEMPORARY TABLE IF EXISTS temporary_newpayments;
+                CREATE TEMPORARY TABLE temporary_newpayments (INDEX(bill_no)) AS (
+                  SELECT bill_no, MAX(payment_date) payment_date
+                  FROM {$newpaymentsTableName} newpayments
+                  WHERE sum > 0
+                  GROUP BY bill_no
+                );
+                DROP TEMPORARY TABLE IF EXISTS temporary_payments_orders;
+                CREATE TEMPORARY TABLE temporary_payments_orders (INDEX(bill_no)) AS (
+                  SELECT
+                    payments_orders_groupped.bill_no,
+                    newpayments.payment_date
+                  FROM (
+                    SELECT bill_no, MAX(payment_id) payment_id
+                    FROM {$newpaymentsOrdersTableName}
+                    WHERE sum > 0
+                    GROUP BY bill_no
+                  ) payments_orders_groupped
+                    INNER JOIN {$newpaymentsTableName} newpayments ON payments_orders_groupped.payment_id = newpayments.id
+                );
+                UPDATE {$billTableName} newbills
                   INNER JOIN (
                     SELECT
-                     bills.id bills_id,
-                     COALESCE(payments.payment_date, payments_orders.payment_date, null) payment_date
-                    FROM newbills bills
-                      LEFT JOIN (
-                        SELECT bill_no, MAX(payment_date) payment_date
-                        FROM newpayments
-                        WHERE sum > 0
-                        GROUP BY bill_no
-                      ) payments
-                        ON payments.bill_no = bills.bill_no
-                      LEFT JOIN (
-                        SELECT payments_orders_groupped.bill_no, newpayments.payment_date
-                        FROM (
-                          SELECT bill_no, MAX(payment_id) payment_id
-                          FROM newpayments_orders
-                          WHERE sum > 0
-                          GROUP BY bill_no
-                        ) payments_orders_groupped
-                          INNER JOIN newpayments
-                            ON payments_orders_groupped.payment_id = newpayments.id
-                      ) payments_orders
-                       ON payments_orders.bill_no = bills.bill_no
-                    WHERE bills.is_payed = 1 AND bills.sum > 0
-                  ) temporal ON newbills.id = temporal.bills_id
+                     newbills.id bills_id,
+                     CASE WHEN newbills.bill_date > COALESCE(temporary_newpayments.payment_date, temporary_payments_orders.payment_date, null) THEN
+                       newbills.bill_date
+                     ELSE
+                       COALESCE(temporary_newpayments.payment_date, temporary_payments_orders.payment_date, null)
+                     END payment_date
+                    FROM
+                     {$billTableName} newbills
+                     LEFT JOIN temporary_newpayments
+                       ON temporary_newpayments.bill_no = newbills.bill_no
+                     LEFT JOIN temporary_payments_orders
+                       ON temporary_payments_orders.bill_no = newbills.bill_no
+                    WHERE
+                     newbills.is_payed = 1 AND newbills.sum > 0
+                    ) temporal ON newbills.id = temporal.bills_id
                 SET newbills.payment_date = temporal.payment_date
                 WHERE newbills.is_payed = 1 AND newbills.sum > 0;
-            ')
-            ->execute();
+                DROP TEMPORARY TABLE IF EXISTS temporary_newpayments;
+                DROP TEMPORARY TABLE IF EXISTS temporary_payments_orders;
+            ")->execute();
+            $transaction->commit();
+        } catch(\Exception $e) {
+            $transaction->rollBack();
+            echo $e->getMessage() . PHP_EOL;
+        }
     }
 
     /**
      * Удаление данных из колонки `payment_date` модели Bill
      */
     public function actionClearPaymentDateColumn()
-    {
-        Bill::updateAll([
-            'payment_date' => null,
-        ]);
+    {   $db = Bill::getDb();
+        $transaction = $db->beginTransaction();
+        try {
+            Bill::updateAll(['payment_date' => null,]);
+            $transaction->commit();
+        } catch(\Exception $e) {
+            $transaction->rollBack();
+            echo $e->getMessage() . PHP_EOL;
+        }
+
     }
 }
