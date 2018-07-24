@@ -3726,7 +3726,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                     if ($b) {
                         $payment = new Payment();
                         $payment->client_id = $client['id'];
-                        $payment->payment_no = intval($P['pay']);
+                        $payment->payment_no = $P['pay'];
                         $payment->bill_no = $P['bill_no'];
                         $payment->bill_vis_no = $P['bill_no'];
                         $payment->payment_date = $P['date'];

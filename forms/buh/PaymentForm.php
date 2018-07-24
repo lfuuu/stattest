@@ -27,8 +27,8 @@ class PaymentForm extends Form
     public function rules()
     {
         return [
-            [['id', 'client_id', 'payment_no',], 'integer'],
-            [['bill_no', 'type', 'ecash_operator', 'comment', 'bank'], 'string'],
+            [['id', 'client_id'], 'integer'],
+            [['bill_no', 'type', 'ecash_operator', 'comment', 'bank', 'payment_no'], 'string'],
             [['payment_date', 'oper_date'], 'string'],
             [['currency', 'original_currency'], 'string'],
             [['sum', 'original_sum'], 'double'],
