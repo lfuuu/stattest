@@ -502,6 +502,10 @@ class NumberBeautyDao extends Singleton
                  * @example NUM-XX-YY 283-22-00
                  */
                 '/^\d\d\d(\d)\1(\d)\2$/',
+                /**
+                 * @example XXX-YY-NUM2 666-44-97
+                 */
+                '/^(\d)\1{2}(\d)\2{1}\d\d$/',
             ],
         ],
         DidGroup::BEAUTY_LEVEL_BRONZE => [
