@@ -20,6 +20,7 @@ use app\modules\sim\models\Card;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 ?>
 
@@ -38,13 +39,7 @@ $columns = [
         'buttons' => [
             'update' => function ($url, Card $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, Card $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
+                        'url' => Url::to(['/sim/card/edit', 'originIccid' => $model->iccid]),
                     ]
                 );
             },

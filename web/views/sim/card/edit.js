@@ -1,84 +1,4 @@
-// Метод обмена MSISDN между SIM-картами
-$('#buttonBetweenCards').click(function () {
-    let originCard = $('#origin_card');
-    let virtualCard = $('#virtual_card');
-
-    // Отключаем кнопку пока выполняется запрос
-    $('#buttonBetweenCards').attr('disabled', true);
-
-    // Добавляем предупреждение
-    displayFlashMessage('warning', 'Не обновляйте и не закрывайте страницу, пока операция не будет завершена');
-
-    $.ajax({
-        type: 'post',
-        url: $('#buttonBetweenCards').attr('value'),
-        data: {
-            'cards_iccid': {
-                'origin': originCard.find('#card-iccid').attr('value'),
-                'virtual': virtualCard.find('#virtualcard-iccid').attr('value')
-            }
-        }
-    }).done(function (response) {
-        if (response.status === 'success') {
-            originCard.find('.signature_msisdn').first().attr('value', response.data.msisdn.origin);
-            virtualCard.find('.signature_msisdn').first().attr('value', response.data.msisdn.virtual);
-        }
-        $('#flash_message').remove();
-        handleResult(response.status, response.message, '#buttonBetweenCards');
-    });
-});
-
-// Метод обмена MSISDN между SIM-картой и неназначенным номером
-$('#buttonUnassignedNumber').click(function () {
-    let originCard = $('#origin_card');
-    let unassigned_number = $('#unassigned_number');
-
-    // Отключаем кнопку пока выполняется запрос
-    $('#buttonUnassignedNumber').attr('disabled', true);
-
-    $.ajax({
-        type: 'post',
-        url: $('#buttonUnassignedNumber').attr('value'),
-        data: {
-            'origin_iccid': originCard.find('#card-iccid').attr('value'),
-            'unassigned_number': unassigned_number.attr('value')
-        }
-    }).done(function (response) {
-        if (response.status === 'success') {
-            originCard.find('.signature_msisdn').first().attr('value', response.data.msisdn_origin);
-            unassigned_number.attr('value', response.data.unassigned_number);
-        }
-        handleResult(response.status, response.message, '#buttonUnassignedNumber');
-    });
-});
-
-// Метод замены потерянной SIM-карты
-$('#buttonLostCard').click(function () {
-    let originCard = $('#origin_card');
-    let virtualCard = $('#virtual_card');
-
-    // Отключаем кнопку пока выполняется запрос
-    $('#buttonLostCard').attr('disabled', true);
-
-    $.ajax({
-        type: 'post',
-        url: $('#buttonLostCard').attr('value'),
-        data: {
-            'cards_iccid': {
-                'origin': originCard.find('#card-iccid').attr('value'),
-                'virtual': virtualCard.find('#virtualcard-iccid').attr('value')
-            }
-        }
-    }).done(function (response) {
-        if (response.status === 'success') {
-            originCard.find('.signature_msisdn').first().attr('value', response.data.msisdn_origin);
-            unassigned_number.attr('value', response.data.unassigned_number);
-        }
-        handleResult(response.status, response.message, '#buttonLostCard');
-    });
-});
-
-// Метод создания OriginCard
+// Событие создания OriginCard
 $('#submitButtonCreateCard').click(function () {
     let origin_card = $('#origin_card');
     $('#submitButtonCreateCard').attr('disabled', true);
@@ -86,53 +6,180 @@ $('#submitButtonCreateCard').click(function () {
         type: 'post',
         url: '/sim/card/create-card',
         data: origin_card.serialize()
-    }).done(function (result) {
-        if (result.status === 'success') {
-            window.location.href = result.data.redirect;
+    }).done(function (response) {
+        if (response.status === 'success') {
+            window.location.href = response.data.redirect;
         } else {
-            handleResult(result.status, result.message, '#submitButtonCreateCard');
+            $('#submitButtonCreateCard').attr('disabled', false);
+            displayMessage(response.status, response.message);
         }
     });
 });
 
-// Метод обновления OriginCard
+// Событие обновления OriginCard
 $('#submitButtonOriginCard').click(function () {
-    let origin_card = $('#origin_card');
-    $('#submitButtonOriginCard').attr('disabled', true);
-    $.ajax({
-        type: 'post',
-        url: '/sim/card/update-card',
-        data: origin_card.serialize()
-    }).done(function (result) {
-        handleResult(result.status, result.message, '#submitButtonOriginCard');
-    });
+    updateCard($('#origin_card'), '#submitButtonOriginCard');
 });
 
-// Метод обновления VirtualCard
+// Событие обновления VirtualCard
 $('#submitButtonVirtualCard').click(function () {
-    let virtual_card = $('#virtual_card');
-    $('#submitButtonVirtualCard').attr('disabled', true);
+    updateCard($('#virtual_card'), '#submitButtonVirtualCard',);
+});
+
+// Метод обмена MSISDN между SIM-картами
+$('#buttonBetweenCards').click(function () {
+    let originCard = $('#origin_card');
+    let virtualCard = $('#virtual_card');
+    // Отключаем кнопку пока выполняется запрос
+    $('#buttonBetweenCards').attr('disabled', true);
+    // Добавляем предупреждение
+    displayMessage('warning', 'Не обновляйте и не закрывайте страницу, пока операция не будет завершена');
+    // Выполняем запрос на сервер
     $.ajax({
         type: 'post',
-        url: '/sim/card/update-card',
-        data: virtual_card.serialize()
-    }).done(function (result) {
-        handleResult(result.status, result.message, '#submitButtonVirtualCard');
+        url: $('#buttonBetweenCards').attr('value'),
+        data: {
+            'origin_imsi': getImsi(originCard),
+            'virtual_imsi': getImsi(virtualCard),
+        }
+    }).done(function (response) {
+        $('#flash_message').remove();
+        if (response.status === 'success') {
+            setMsisdn(originCard, response.data.origin_msisdn);
+            setMsisdn(virtualCard, response.data.virtual_msisdn);
+        }
+        $('#buttonBetweenCards').attr('disabled', false);
+        displayMessage(response.status, response.message);
     });
 });
 
-// Обработка результата запроса выводом сообщения с результатом, разблокировка кнопки
-function handleResult(type, message, button_id) {
-    displayFlashMessage(type, message);
-    setTimeout(function () {
+// Метод обмена MSISDN между SIM-картой и неназначенным номером
+$('#buttonUnassignedNumber').click(function () {
+    let originCard = $('#origin_card');
+    // Отключаем кнопку пока выполняется запрос
+    $('#buttonUnassignedNumber').attr('disabled', true);
+    // Добавляем предупреждение
+    displayMessage('warning', 'Не обновляйте и не закрывайте страницу, пока операция не будет завершена');
+    // Выполняем запрос на сервер
+    $.ajax({
+        type: 'post',
+        url: $('#buttonUnassignedNumber').attr('value'),
+        data: {
+            'origin_imsi': getImsi(originCard),
+            'virtual_number': $('#raw_number').attr('value'),
+        }
+    }).done(function (response) {
         $('#flash_message').remove();
+        if (response.status === 'success') {
+            setMsisdn(originCard, response.data.origin_msisdn);
+            $('#virtual_number').text(response.data.virtual_number);
+        }
+        $('#buttonUnassignedNumber').attr('disabled', false);
+        displayMessage(response.status, response.message);
+    });
+});
+
+// Общая функция обновления модели Card
+function updateCard(object, button_id) {
+    $(button_id).attr('disabled', true);
+    $.ajax({
+        type: 'post',
+        url: '/sim/card/update-card',
+        data: object.serialize()
+    }).done(function (response) {
         $(button_id).attr('disabled', false);
-    }, 10000);
+        displayMessage(response.status, response.message);
+        // Удаление сообщения при нажатии
+        $('#flash_message').click(function () {
+            $(this).alert('close');
+        });
+    });
 }
 
-// Уведомляем о результате операции и удаляем сообщение через 10 секунд
-function displayFlashMessage(type, message) {
+// Функция отображения сообщения
+function displayMessage(type, message) {
     $('.layout-content').before(
-        '<div id="flash_message" style="font-weight: bold;" class="alert alert-' + type + ' fade in text-center">' + message + '</div>'
+        '<div id="flash_message" style="font-weight: bold;" class="alert alert-' + type + ' fade in text-center">' +
+        message +
+        '</div>'
     );
+}
+
+// Блокировка поля ввода raw_number, если в поле warehouse_status выбрано какое-либо значение
+$('#warehouse_status').on('change', function (e) {
+    if ($(this).select2('data')[0].id !== '') {
+        $('#raw_number').val(null);
+        $("#raw_number").prop('disabled', true);
+    } else {
+        $("#raw_number").prop('disabled', false);
+    }
+});
+// Блокировка поля warehouse_status, если в поле raw_number выбрано какое-либо значение
+$('#raw_number').on('change', function (e) {
+    if ($(this).val() !== '') {
+        $('#warehouse_status').val(null).trigger('change.select2');
+        $("#warehouse_status").prop('disabled', true);
+    } else {
+        $("#warehouse_status").prop('disabled', false);
+    }
+});
+
+// Функция получения imsi значения из таблицы, основным условием является статус MVNO-патнера, равным одному
+function getImsi(object) {
+    let result = null;
+    $.each((object).find('.chargePeriod .table tbody tr'), function (key, value) {
+        let cells = value.cells;
+        let partner = null;
+        for (let i = 0; i < cells.length; i++) {
+            if (cells[i].className === 'list-cell__imsi') {
+                result = cells[i].firstChild.value;
+                if (partner) {
+                    break;
+                }
+            }
+            if (cells[i].className === 'list-cell__partner_id') {
+                partner = cells[i].firstChild.firstChild.value;
+                if (result) {
+                    break;
+                }
+            }
+        }
+        if (result && parseInt(partner) === 1) {
+            return false;
+        } else {
+            result = null;
+            partner = null;
+        }
+    });
+    return result;
+}
+
+// Функция установки msisdn значения из полученных параметров, основным условием является статус MVNO-патнера, равным одному
+function setMsisdn(object, msisdn) {
+    $.each((object).find('.chargePeriod .table tbody tr'), function (key, value) {
+        let cells = value.cells;
+        let isChanged = false;
+        let partner = null;
+        for (let i = 0; i < cells.length; i++) {
+            if (cells[i].className === 'list-cell__msisdn') {
+                cells[i].firstChild.firstChild.value = msisdn;
+                isChanged = true;
+                if (partner) {
+                    break;
+                }
+            }
+            if (cells[i].className === 'list-cell__partner_id') {
+                partner = cells[i].firstChild.firstChild.value;
+                if (isChanged) {
+                    break;
+                }
+            }
+        }
+        if (isChanged && parseInt(partner) === 1) {
+            return false;
+        } else {
+            isChanged = null;
+            partner = null;
+        }
+    });
 }

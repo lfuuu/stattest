@@ -3,30 +3,29 @@
 namespace app\modules\sim\controllers;
 
 use app\classes\BaseController;
-use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
-use app\modules\sim\classes\MttApiMvnoConnector;
+use app\modules\sim\classes\workers\MsisdnsWorker;
+use app\modules\sim\classes\workers\UnassignedNumberWorker;
 use app\modules\sim\filters\CardFilter;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\CardStatus;
-use app\modules\sim\models\CardSupport;
+use app\modules\sim\models\Dsm;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\VirtualCard;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\helpers\Url;
 
 /**
  * SIM-карты
  */
 class CardController extends BaseController
 {
-    // Установить юзерские фильтры + добавить фильтр по клиенту, если он есть
-    use AddClientAccountFilterTraits;
-
     /**
      * @return array
      */
@@ -62,7 +61,6 @@ class CardController extends BaseController
     public function actionIndex()
     {
         $filterModel = new CardFilter();
-        // $this->_addClientAccountFilter($filterModel);
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [
@@ -75,74 +73,82 @@ class CardController extends BaseController
      */
     public function actionNew()
     {
-        $originCard = new Card;
-        $originCard->is_active = true;
-        $originCard->status_id = CardStatus::ID_DEFAULT;
+        $card = new Card;
+        $card->is_active = true;
+        $card->status_id = CardStatus::ID_DEFAULT;
 
-        return $this->render('edit', [
-            'originCard' => $originCard,
-        ]);
+        // Создание Data State Model
+        $dsm = new Dsm;
+        $dsm->origin = $card;
+
+        return $this->render('edit', ['dsm' => $dsm,]);
     }
 
     /**
-     * Метод редактирования сим-карты
+     * Редактирование сим-карты
      *
-     * @param  integer $iccid
      * @return string|Response
      * @throws NotFoundHttpException
      * @throws \yii\db\Exception
      */
-    public function actionEdit($iccid)
+    public function actionEdit()
     {
-        if (!$iccid || !$originCard = Card::findOne(['iccid' => $iccid])) {
+        $request = Yii::$app->request;
+        $queryGet = $request->getQueryParams();
+        // Получение запрашиваемой сим-карты с дополнительными связями
+        if (!isset($queryGet['originIccid']) || !($originCard = Card::findOne(['iccid' => $queryGet['originIccid']]))) {
             throw new NotFoundHttpException;
         }
-
-        $imsies = $originCard->imsies;
-        if ($this->loadFromInput($originCard, $imsies, new Imsi())) {
+        $originImsies = $originCard->imsies;
+        if ($this->loadFromInput($originCard, $imsies, new Imsi)) {
             return $this->redirect($originCard->getUrl());
         }
+        // Создание Data State Model
+        $dsm = new Dsm;
+        $dsm->origin = $originCard;
 
-        $request = Yii::$app->request;
-
-        // Поддерживающий класс, содержащий состояние процесса
-        $cardSupport = new CardSupport;
-        $cardSupport->origin_card = $originCard;
-
-        if ($statusParam = (int)$request->post('status')) {
-            /*
-             * Замена потерянной SIM-карты
-             * Выбираем первую свободную сим-карту с заданным через параметры запроса статусом
-             */
-            $cardSupport->virtual_card = VirtualCard::findOne([
-                'status_id' => $statusParam, 'client_account_id' => null, 'is_active' => 1,
-            ]);
-            $cardSupport->behaviour = CardSupport::LOST_CARD;
-        } else if ($numberParam = $request->post('number')) {
-            // Обмен MSISDN между сим-картами или Обмен MSISDN между сим-картой и неназначенным номером
-            $number = Number::findOne([
-                'number' => $numberParam, 'status' => Number::STATUS_INSTOCK, 'ndc_type_id' => NdcType::ID_MOBILE,
-            ]);
-
-            if (!$number) {
-                return $this->_erroneousBehavior($cardSupport, "Свободный мобильный номер {$numberParam} не найден");
-            }
-
-            $imsi = Imsi::findOne(['msisdn' => $number->number]);
-            // Нужен именно объект VirtualCard, а не Card, который можно получить через связь Imsi
-            if ($imsi && $virtualCard = VirtualCard::findOne(['iccid' => $imsi->iccid])) {
-                $cardSupport->virtual_card = $virtualCard;
-                $cardSupport->behaviour = CardSupport::BETWEEN_CARDS;
-            } else {
-                if (!$number->imsi) {
-                    return $this->_erroneousBehavior($cardSupport, "Номер {$numberParam} не привязан к сим-карте и не является неназначенным");
+        // Формирование DSM по приоритету: номер - склад
+        if ($request->isPost) {
+            if ($rawNumber = $request->post(Dsm::ENV_WITH_RAW_NUMBER)) {
+                $dsm->rawNumber = $rawNumber;
+                //  Временно пропускаем номер 79587980598, т.к. он используется на 3-х сим-картах
+                if ($rawNumber === '79587980598') {
+                    $dsm->errorMessages[] = sprintf('Номер %s используется на нескольких сим-картах', $rawNumber);
+                    goto ret;
                 }
-                $cardSupport->unassigned_number = $number;
-                $cardSupport->behaviour = CardSupport::UNASSIGNED_NUMBER;
+                // Поиск запрашиваемого номера
+                $number = Number::findOne([
+                    'number' => $rawNumber,
+                    'status' => Number::STATUS_INSTOCK, // Статус продажи
+                    'ndc_type_id' => NdcType::ID_MOBILE // Только мобильные номера
+                ]);
+                if (!$number) {
+                    $dsm->errorMessages[] = sprintf('Номер %s не найден. Возможно он не продается или не мобильный', $rawNumber);
+                    goto ret;
+                }
+                // Поиск Imsi, для получения виртуальной сим-карты
+                $virtualImsi = Imsi::findOne(['msisdn' => $number->number]);
+                if ($virtualImsi && $virtualCard = VirtualCard::findOne(['iccid' => $virtualImsi->iccid])) {
+                    $dsm->virtual = $virtualCard;
+                } else {
+                    $dsm->unassignedNumber = $number;
+                }
+            } else if ($warehouseStatus = $request->post(Dsm::ENV_WITH_WAREHOUSE)) {
+                $dsm->warehouseId = $warehouseStatus;
+                $virtual_card = VirtualCard::findOne([
+                    'status_id' => $warehouseStatus,
+                    'is_active' => 1, // Активный
+                    'client_account_id' => null, // Не должен быть привязан
+                    ]);
+                if (!$virtual_card) {
+                    $dsm->errorMessages[] = sprintf('Виртуальная сим-карта по статусу склада %s не найдена', $warehouseStatus);
+                    goto ret;
+                }
+                $dsm->virtual = $virtual_card;
             }
         }
-
-        return $this->render('edit', ['cardSupport' => $cardSupport]);
+        ret:
+            return $this->render('edit', ['dsm' => $dsm]);
     }
 
     /**
@@ -153,92 +159,25 @@ class CardController extends BaseController
      */
     public function actionChangeMsisdn()
     {
-        $transaction = Yii::$app->db->beginTransaction();
+        $request = $this->_getAjaxRequest();
+        // Выполнение синхронизации
         try {
-            $request = $this->_getAjaxRequest();
-            $cardsIccid = $request->post('cards_iccid');
-            // Базовые проверки данных, по которым будут загружаться OriginCard и VirtualCard
-            if (count($cardsIccid) !== 2 || !isset($cardsIccid['origin']) || !isset($cardsIccid['virtual'])) {
-                return ['status' => 'danger', 'message' => 'Невалидные параметры в ключе cards_iccid'];
-            }
-
-            /** @var Card $originCard */
-            $originCard = Card::findOne(['iccid' => (int)$cardsIccid['origin']]);
-            if (!$originCard) {
-                throw new NotFoundHttpException("OriginCard с ICCID#{$cardsIccid['origin']} не найдена");
-            }
-
-            /** @var Card $virtualCard */
-            $virtualCard = Card::findOne(['iccid' => (int)$cardsIccid['virtual']]);
-            if (!$virtualCard) {
-                throw new NotFoundHttpException("VirtualCard с ICCID#{$cardsIccid['virtual']} не найдена");
-            }
-
-            // Получаем связанную модель Imsi
-            $originImsies = $originCard->imsies;
-            $virtualImsies = $virtualCard->imsies;
-
-            /**
-             * @var Imsi $originImsi
-             * @var Imsi $virtualImsi
-             */
-            $originImsi = reset($originImsies);
-            $virtualImsi = reset($virtualImsies);
-
-            // Инициализируем историю логгирования процесса
-            $initializeLogging = [
-                'location' => 'initialize',
-                'details' => [
-                    'origin' => [
-                        'card' => $originCard->getAttributes(),
-                        'imsi' => $originImsi->getAttributes(),
-                    ],
-                    'virtual' => [
-                        'card' => $virtualCard->getAttributes(),
-                        'imsi' => $virtualImsi->getAttributes(),
-                    ],
-                ],
-                'status' => 'ok',
-            ];
-
-            // Производим обмен параметров MSISDN между оригинальной и виртуальной сим-картами без временной переменной
-            list($virtualImsi->msisdn, $originImsi->msisdn) = [$originImsi->msisdn, $virtualImsi->msisdn];
-
-            // Сохраняем обновленные модели Imsi
-            if (!$originImsi->save()) {
-                throw new NotFoundHttpException($originImsi);
-            }
-            if (!$virtualImsi->save()) {
-                throw new NotFoundHttpException($virtualImsi);
-            }
-
-            $logging[] = $initializeLogging;
-
-            /**
-             * Внимание. При отладке использовать два тестовых MSISDNs - 79587980447, 79587980446
-             * API работает с боевым окружением. Весь процесс обмена через MVNO логгируется в Graylog
-             * @link http://glogstat.mcn.ru
-             *
-             * Обмен MSISDN между SIM-картами. Первым параметром - Origin MSISDN, вторым - Virtual MSISDN.
-             * Порядок обратный, т.к. уже произошел обмен MSISDNs между моделями в текущем контексте, но не произошел в MVNO
-             */
-            $this->_callChangeMsisdns($virtualImsi->msisdn, $originImsi->msisdn, $logging);
-
-            $transaction->commit();
+            /** @var Imsi[] $imsies */
+            $imsies = $this->_getImsiesFromRequest($request);
+            // Вызов воркера, выполняющего локальные и удаленные операции
+            $msisdnsWorker = new MsisdnsWorker($imsies['origin'], $imsies['virtual']);
+            $response = $msisdnsWorker->callOnionSync([
+                Card::getDb()->beginTransaction(), Number::getDb()->beginTransaction()
+            ]);
             return [
                 'status' => 'success',
-                'message' => sprintf('Произошел обмен MSISDNs с ICCID %s, имеющим номер MSISDN %d и ICCID %s, имеющим MSISDN %d',
-                    $originImsi->iccid,  $virtualImsi->msisdn, $virtualImsi->iccid, $originImsi->msisdn
+                'data' => $response,
+                'message' => sprintf(
+                    'Успешная синхронизация. Подробнее: OriginImsi: %s, OriginMsisdn: %s. VirtualImsi: %s, VirtualMsisdn: %s.',
+                    $imsies['origin']->imsi, $response['origin_msisdn'], $imsies['virtual']->imsi, $response['virtual_msisdn']
                 ),
-                'data' => [
-                    'msisdn' => [
-                        'origin' => $originImsi->msisdn,
-                        'virtual' => $virtualImsi->msisdn
-                    ]
-                ]
             ];
-        } catch (NotFoundHttpException $e) {
-            $transaction->rollBack();
+        } catch (\Exception $e) {
             return ['status' => 'danger', 'message' => $e->getMessage()];
         }
     }
@@ -251,34 +190,44 @@ class CardController extends BaseController
      */
     public function actionChangeUnassignedNumber()
     {
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-            $request = $this->_getAjaxRequest();
-            // Обмен MSISDN между SIM-картой и неназначенным номером
-            # $this->_callChangeUnassignedNumber('', '');
-            throw new NotFoundHttpException('Данный метод временно не поддерживается');
-        } catch (NotFoundHttpException $e) {
-            $transaction->rollBack();
-            return ['status' => 'danger', 'message' => $e->getMessage()];
+        $request = $this->_getAjaxRequest();
+        // Получение параметров с формы
+        $originImsiParam = $request->post('origin_imsi');
+        $virtualNumberParam = $request->post('virtual_number');
+        // Базовые проверки данных, по которым будут загружаться OriginCard и VirtualNumber
+        if (!$originImsiParam || !$virtualNumberParam) {
+            return ['status' => 'danger', 'message' => 'Невалидные параметры origin_iccid или virtual_number'];
         }
-    }
-
-    /**
-     * Метод замены потерянной SIM-карты
-     *
-     * @return array
-     * @throws \yii\db\Exception
-     */
-    public function actionChangeIccidAndImsi()
-    {
-        $transaction = Yii::$app->db->beginTransaction();
+        // Выполнение синхронизации
         try {
-            $request = $this->_getAjaxRequest();
-            // Замена потерянной SIM-карты
-            # $this->_callChangeIccidAndImsi();
-            throw new NotFoundHttpException('Данный метод временно не поддерживается');
-        } catch (NotFoundHttpException $e) {
-            $transaction->rollBack();
+            /** @var Imsi $originImsi */
+            if (!($originImsi = Imsi::findOne(['imsi' => $originImsiParam, 'partner_id' => 1]))) {
+                throw new InvalidParamException(sprintf('OriginImsi %s не найдена', $originImsiParam));
+            }
+            // Получение свободного непривязанного мобильного номера
+            $condition = [
+                'number' => $virtualNumberParam,
+                'status' => Number::STATUS_INSTOCK,
+                'ndc_type_id' => NdcType::ID_MOBILE,
+                'imsi' => null // свободный номер не должен иметь связь с сим-картой
+            ];
+            if (!$virtualNumber = Number::findOne($condition)) {
+                throw new InvalidParamException(sprintf('Непривязанный мобильный номер с msisdn: %d не найден', $virtualNumberParam));
+            }
+            // Вызов воркера, выполняющего локальные и удаленные операции
+            $unassignedNumberWorker = new UnassignedNumberWorker($originImsi, $virtualNumber);
+            $response = $unassignedNumberWorker->callOnionSync([
+                Card::getDb()->beginTransaction(), Number::getDb()->beginTransaction()
+            ]);
+            return [
+                'status' => 'success',
+                'data' => $response,
+                'message' => sprintf(
+                    'Номера успешно обменяны межды сим-картой и непривязанным номером. Детализация: OriginImsi: %s, OriginMsisdn: %s. VirtualNumber: %s.',
+                    $originImsi->imsi, $response['origin_msisdn'], $response['virtual_number']
+                ),
+            ];
+        } catch (\Exception $e) {
             return ['status' => 'danger', 'message' => $e->getMessage()];
         }
     }
@@ -303,7 +252,9 @@ class CardController extends BaseController
             $this->_loadFromSerialize($card, $request->post());
             $transaction->commit();
             return ['status' => 'success', 'message' => 'Успешое выполнение операции по сохранение сим-карты',
-                'data' => ['redirect' => $card->getUrl()]
+                'data' => [
+                    'redirect' => Url::to(['/sim/card/edit', 'originIccid' => $card->iccid]),
+                ],
             ];
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -345,7 +296,7 @@ class CardController extends BaseController
             return ['status' => 'success',
                 'message' => 'Успешое выполнение операции по обновлению сим-карты',
             ];
-        } catch (NotFoundHttpException $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             return ['status' => 'danger', 'message' => $e->getMessage()];
         }
@@ -377,6 +328,16 @@ class CardController extends BaseController
      */
     private function _loadFromSerialize(Card $card, array $post)
     {
+        // Дополнительная проверка для Сим-карт, запрещая создавать более одной Imsi со статусом MVNO-партнера = 1 (MTT)
+        if (isset($post['Imsi']) && $post['Imsi']) {
+            $result = 0;
+            foreach ($post['Imsi'] as $imsi) {
+                if ($imsi['partner_id'] == 1 && ++$result > 1) {
+                    throw new NotFoundHttpException('Для MVNO-партнера разрешается только один статус MTT');
+                }
+            }
+        }
+
         // Сохраняем сим-карту и дочерние элементы
         if (!$card->load($post) || !$card->save()) {
             throw new ModelValidationException($card);
@@ -392,191 +353,27 @@ class CardController extends BaseController
     }
 
     /**
-     * API-метод изменения MSISDNs между сим-картами
+     * Получение сим-карт из запроса
      *
-     * @param string $originMsisdn
-     * @param string $virtualMsisdn
-     * @param array $logging
-     * @throws NotFoundHttpException
+     * @param \yii\web\Request $request
+     * @return array
      */
-    private function _callChangeMsisdns($originMsisdn, $virtualMsisdn, $logging)
+    private function _getImsiesFromRequest($request)
     {
-        /** @var MttApiMvnoConnector $mttApiMvnoConnector */
-        $mttApiMvnoConnector = MttApiMvnoConnector::me();
-        $transferMsisdn = $mttApiMvnoConnector->getTransferMsisdn();
-
-        // Transfer MSISDN должен быть свободен
-        $currentLogging = [
-            'location' => 'is_msisdn_opened',
-            'details' => [
-                'params' => [
-                    'msisdn' => $transferMsisdn,
-                ],
-            ],
-            'status' => 'ok',
+        list($originImsiParam, $virtualImsiParam) = [
+            $request->post('origin_imsi'),  $request->post('virtual_imsi')
         ];
-        if (!$mttApiMvnoConnector->isMsisdnOpened($transferMsisdn)) {
-            $this->_logCurrentException($logging, $currentLogging);
-            throw new NotFoundHttpException('Трансферный MSISDN ' . $transferMsisdn . ' занят');
+        // Проверка наличия требуемых параметров
+        if (!$originImsiParam || !$virtualImsiParam) {
+            throw new InvalidParamException('Невалидные параметры в ключе cards_iccid');
         }
-        $logging[] = $currentLogging;
-
-        // Получение и обработка originAccountMvno по Origin MSISDN
-        $originAccountMvno = $mttApiMvnoConnector->getAccountData(['msisdn' => $originMsisdn]);
-        $currentLogging = [
-            'location' => 'get_account_data',
-            'details' => [
-                'params' => [
-                    'msisdn' => $originMsisdn,
-                ],
-                'response' => $originAccountMvno->getAttributes(),
-            ],
-            'status' => 'ok',
-        ];
-        if ($originAccountMvno->isEmpty) {
-            $this->_logCurrentException($logging, $currentLogging);
-            throw new NotFoundHttpException('Аккаунт с MSISDN#' . $originMsisdn . ' отсутствует');
+        // Проверка существования моделей, которые должны иметь MVNO-партнера - MTT
+        if (!($originImsi = Imsi::findOne(['imsi' => $originImsiParam, 'partner_id' => 1]))) {
+            throw new InvalidParamException(sprintf('OriginImsi %s не найдена', $originImsiParam));
         }
-        $logging[] = $currentLogging;
-
-        // Получение и обработка virtualAccountMvno по Virtual MSISDN
-        $virtualAccountMvno = $mttApiMvnoConnector->getAccountData(['msisdn' => $virtualMsisdn]);
-        $currentLogging = [
-            'location' => 'get_account_data',
-            'details' => [
-                'params' => [
-                    'msisdn' => $virtualMsisdn,
-                ],
-                'response' => $virtualAccountMvno->getAttributes(),
-            ],
-            'status' => 'ok',
-        ];
-        if ($virtualAccountMvno->isEmpty) {
-            $this->_logCurrentException($logging, $currentLogging);
-            throw new NotFoundHttpException('Аккаунт с MSISDN#' . $virtualMsisdn . ' отсутствует');
+        if (!($virtualImsi = Imsi::findOne(['imsi' => $virtualImsiParam, 'partner_id' => 1]))) {
+            throw new InvalidParamException(sprintf('OriginImsi %s не найдена', $virtualImsiParam));
         }
-        $logging[] = $currentLogging;
-
-        // В originAccountMvno освобождаем Origin MSISDN и заменяем его свободным Transfer MSISDN
-        $updateCustomerOrigin = $mttApiMvnoConnector
-            ->updateCustomer(['customerName' => $originAccountMvno->customer_name, 'additionalFields' => ['msisdn' => $transferMsisdn]]);
-        $currentLogging = [
-            'location' => 'update_customer',
-            'details' => [
-                'params' => [
-                    'customer_name' => $originAccountMvno->customer_name,
-                    'msisdn' => $transferMsisdn,
-                ],
-                'response' => $updateCustomerOrigin->getAttributes(),
-            ],
-            'status' => 'ok',
-        ];
-
-        // Проверяем, что Origin MSISDN модели originAccountMvno освобожден и заменен на Transfer MSISDN
-        if (!$mttApiMvnoConnector->isMsisdnOpened($originAccountMvno->sip_id) || $mttApiMvnoConnector->isMsisdnOpened($transferMsisdn)) {
-            $this->_logCurrentException($logging, $currentLogging);
-            throw new NotFoundHttpException('Произошла ошибка при трансфере с MSISDN#' . $originAccountMvno->sip_id . ' на Transfer MSISDN');
-        }
-        $logging[] = $currentLogging;
-
-        // В virtualAccountMvno освобождаем Virtual MSISDN и заменяем его освобожденным Origin MSISDN от originAccountMvno
-        $updateCustomerVirtual = $mttApiMvnoConnector
-            ->updateCustomer(['customerName' => $virtualAccountMvno->customer_name, 'additionalFields' => ['msisdn' => $originAccountMvno->sip_id]]);
-        $currentLogging = [
-            'location' => 'update_customer',
-            'details' => [
-                'params' => [
-                    'customer_name' => $virtualAccountMvno->customer_name,
-                    'msisdn' => $originAccountMvno->sip_id,
-                ],
-                'response' => $updateCustomerVirtual->getAttributes(),
-            ],
-            'status' => 'ok',
-        ];
-
-        // Проверяем, что Virtual MSISDN модели virtualAccountMvno освобожден и заменен освобожденным Origin MSISDN модели originAccountMvno
-        if ($mttApiMvnoConnector->isMsisdnOpened($originAccountMvno->sip_id) || !$mttApiMvnoConnector->isMsisdnOpened($virtualAccountMvno->sip_id)) {
-            $this->_logCurrentException($logging, $currentLogging);
-            throw new NotFoundHttpException('Произошла ошибка при трансфере с MSISDN#' . $originAccountMvno->sip_id . ' на Transfer MSISDN');
-        }
-        $logging[] = $currentLogging;
-
-        // В originAccountMvno освобождаем Transfer MSISDN и заменяем его освобожденным Virtual MSISDN от virtualAccountMvno
-        $updateCustomerOrigin = $mttApiMvnoConnector
-            ->updateCustomer(['customerName' => $originAccountMvno->customer_name, 'additionalFields' => ['msisdn' => $virtualAccountMvno->sip_id]]);
-        $currentLogging = [
-            'location' => 'update_customer',
-            'details' => [
-                'params' => [
-                    'customer_name' => $originAccountMvno->customer_name,
-                    'msisdn' => $virtualAccountMvno->sip_id,
-                ],
-                'response' => $updateCustomerOrigin->getAttributes(),
-            ],
-            'status' => 'ok',
-        ];
-
-        // Transfer MSISDN должен быть свободен
-        if (!$mttApiMvnoConnector->isMsisdnOpened($transferMsisdn) || $mttApiMvnoConnector->isMsisdnOpened($originAccountMvno->sip_id)) {
-            $this->_logCurrentException($logging, $currentLogging);
-            throw new NotFoundHttpException('Трансферный MSISDN занят');
-        }
-        $logging[] = $currentLogging;
-
-        Yii::warning($logging, __METHOD__);
-    }
-
-    /**
-     * API-метод изменения MSISDNs между сим-картой и неназначенным номером
-     *
-     * @param $originMsisdn
-     * @param $unassignedNumber
-     * @throws NotFoundHttpException
-     */
-    private function _callChangeUnassignedNumber($originMsisdn, $unassignedNumber)
-    {
-        /** @var MttApiMvnoConnector $mttApiMvnoConnector */
-        $mttApiMvnoConnector = MttApiMvnoConnector::me();
-        # TODO: реализация api-метода по взаимодействия с MvnoConnector
-    }
-
-    /**
-     * API-метод изменения MSISDNs между сим-картой и неназначенным номером
-     *
-     * @throws NotFoundHttpException
-     */
-    private function _callChangeIccidAndImsi()
-    {
-        /** @var MttApiMvnoConnector $mttApiMvnoConnector */
-        $mttApiMvnoConnector = MttApiMvnoConnector::me();
-        # TODO: реализация api-метода по взаимодействия с MvnoConnector
-    }
-
-    /**
-     * Формирование CardSupport при ошибочном поведении
-     *
-     * @param CardSupport $cardSupport
-     * @param string $message
-     * @return string
-     */
-    private function _erroneousBehavior($cardSupport, $message)
-    {
-        $cardSupport->behaviour = CardSupport::ERROR_BEHAVIOUR;
-        $cardSupport->message = $message;
-        return $this->render('edit', ['cardSupport' => $cardSupport]);
-    }
-
-    /**
-     * При возникновении исключительной ситуации в момент синхронизации по API с MVNO
-     * изменять статус и логгировать текущее состояние
-     *
-     * @param array $logging
-     * @param array s$currentLogging
-     */
-    private function _logCurrentException($logging, $currentLogging)
-    {
-        $currentLogging['status'] = 'exception';
-        $logging[] = $currentLogging;
-        Yii::warning($logging, __METHOD__);
+        return ['origin' => $originImsi, 'virtual' => $virtualImsi,];
     }
 }

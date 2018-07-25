@@ -4,7 +4,6 @@
  *
  * @var \app\classes\BaseView $this
  * @var Card $card
- * @var \yii\widgets\ActiveForm $form
  */
 
 use app\modules\sim\models\Card;
@@ -15,7 +14,7 @@ use kartik\editable\Editable;
 use unclead\widgets\TabularColumn;
 use unclead\widgets\TabularInput;
 
-$imsi = new Imsi();
+$imsi = new Imsi;
 $imsi->is_active = true;
 $imsi->status_id = ImsiStatus::ID_DEFAULT;
 $attributeLabels = $imsi->attributeLabels();
@@ -32,10 +31,9 @@ $showHistory = '';
 if (!$card->isNewRecord) {
     // это нужно сделать ДО TabularInput, иначе он попортит данные $imsies
     $showHistory = $this->render('//layouts/_showHistory', [
-        'parentModel' => [new Imsi(), $card->iccid],
+        'parentModel' => [new Imsi, $card->iccid],
     ]);
 }
-
 ?>
 
 <div class="well chargePeriod">
@@ -46,17 +44,25 @@ if (!$card->isNewRecord) {
             [
                 'name' => 'imsi',
                 'title' => $attributeLabels['imsi'],
+                'options' => [
+                    'class' => 'signature_imsi',
+                    'onFocus' => "if ($(this).parent().css('width') !== '150px') { $(this).parent().css('width', '150px'); }",
+                ],
             ],
             [
                 'name' => 'msisdn',
                 'title' => $attributeLabels['msisdn'],
                 'options' => [
-                    'class' => 'signature_msisdn'
+                    'class' => 'signature_msisdn',
+                    'onFocus' => "if ($(this).parent().css('width') !== '150px') { $(this).parent().css('width', '150px'); }",
                 ],
             ],
             [
                 'name' => 'did',
                 'title' => $attributeLabels['did'],
+                'options' => [
+                    'onFocus' => "if ($(this).parent().css('width') !== '150px') { $(this).parent().css('width', '150px'); }",
+                ],
             ],
             [
                 'name' => 'actual_from',

@@ -66,7 +66,7 @@ class MttApiMvnoConnector extends Singleton
      * @param array $params
      * @return AccountMvno
      */
-    public function updateCustomer($params)
+    private function _updateCustomer($params)
     {
         $response = $this->_call(self::METHOD_UPDATE_CUSTOMER, $params);
         return new AccountMvno($response);
@@ -81,6 +81,40 @@ class MttApiMvnoConnector extends Singleton
     }
 
     /**
+     * Метод обновления аккаунта пользователя по msisdn
+     *
+     * @param $customerName
+     * @param $msisdn
+     * @return AccountMvno
+     */
+    public function updateCustomerByMsisdn($customerName, $msisdn)
+    {
+        return $this->_updateCustomer([
+            'customerName' => $customerName,
+            'additionalFields' => [
+                'msisdn' => $msisdn
+            ],
+        ]);
+    }
+
+    /**
+     * Метод обновления аккаунта пользователя по imsi
+     *
+     * @param $customerName
+     * @param $imsi
+     * @return AccountMvno
+     */
+    public function updateCustomerByImsi($customerName, $imsi)
+    {
+        return $this->_updateCustomer([
+            'customerName' => $customerName,
+            'additionalFields' => [
+                'imsi' => $imsi
+            ],
+        ]);
+    }
+
+    /**
      * Метод, проверяющий статус MSISDN на доступность
      *
      * @param string $msisdn
@@ -88,7 +122,29 @@ class MttApiMvnoConnector extends Singleton
      */
     public function isMsisdnOpened($msisdn)
     {
-        $response = $this->_call(self::METHOD_GET_ACCOUNT_DATA, ['msisdn' => $msisdn]);
+        return $this->_isOpened(['msisdn' => $msisdn]);
+    }
+
+    /**
+     * Метод, проверяющий статус IMSI на доступность
+     *
+     * @param $imsi
+     * @return bool
+     */
+    public function isImsiOpened($imsi)
+    {
+        return $this->_isOpened(['imsi' => $imsi]);
+    }
+
+    /**
+     * Метод проверки свободности аккаунта пользователя на основе входящих параметров (imsi, msisdn)
+     *
+     * @param array $params
+     * @return bool
+     */
+    private function _isOpened($params)
+    {
+        $response = $this->_call(self::METHOD_GET_ACCOUNT_DATA, $params);
         $accountMvno = new AccountMvno($response);
         return $accountMvno->isEmpty;
     }
