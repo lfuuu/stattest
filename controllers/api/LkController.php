@@ -10,7 +10,10 @@ use app\models\Currency;
 use app\models\media\ClientFiles;
 use app\models\Payment;
 use app\models\SberbankOrder;
+use app\models\UsageVoip;
 use app\models\User;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use app\classes\Assert;
 use app\classes\DynamicModel;
@@ -258,12 +261,11 @@ class LkController extends ApiController
             [
                 ['account_id', AccountIdValidator::className()],
                 ['sum', 'double', 'min' => 10, 'max' => 15000],
+                ['is_pay_page', 'boolean'],
             ]
         );
 
-        if ($form->hasErrors()) {
-            throw new ModelValidationException($form);
-        }
+        $form->validateWithException();
 
         $bill = Bill::dao()->getPrepayedBillOnSum($form->account_id, $form->sum, Currency::RUB, $isForceCreate = true);
 
@@ -288,7 +290,8 @@ class LkController extends ApiController
                 $form->account_id,
                 $bill->bill_no,
                 $form->sum,
-                $bill->clientAccount->currency
+                $bill->clientAccount->currency,
+                $form->is_pay_page
             );
 
             $sbOrder->status = SberbankOrder::STATUS_REGISTERED;
@@ -317,7 +320,6 @@ class LkController extends ApiController
         $form = DynamicModel::validateData(
             \Yii::$app->request->bodyParams,
             [
-                ['account_id', AccountIdValidator::className()],
                 ['order_id', 'required']
             ]
         );
@@ -352,5 +354,36 @@ class LkController extends ApiController
         return [
             'status' => 'ok'
         ];
+    }
+
+    public function actionGetAccountByPhone()
+    {
+        $form = DynamicModel::validateData(
+            \Yii::$app->request->bodyParams,
+            [
+                ['phone', 'required']
+            ]
+        );
+
+        /** @var UsageVoip $usage */
+        $usage = UsageVoip::find()->actual()->phone($form->phone)->one();
+
+        if ($usage) {
+            return ['account_id' => $usage->clientAccount->id];
+        }
+
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()->where([
+            'voip_number' => $form->phone,
+            'service_type_id' => ServiceType::ID_VOIP
+        ])
+            ->andWhere(['NOT', ['tariff_period_id' => null]])
+            ->one();
+
+        if ($accountTariff) {
+            return ['account_id' => $accountTariff->client_account_id];
+        }
+
+        return false;
     }
 }

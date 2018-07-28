@@ -53,17 +53,18 @@ class SberbankApi
      * @param string $orderNumber
      * @param float $sum
      * @param string $currency
+     * @param bool $isPayPage
      * @return array
      * @internal param array $options
      */
-    public function register($clientId, $orderNumber, $sum, $currency)
+    public function register($clientId, $orderNumber, $sum, $currency, $isPayPage = false)
     {
         $options = [
             'orderNumber' => $orderNumber,
             'amount' => $sum * 100, // in cents
             'currency' => Currency::getCodeById($currency),
-            'returnUrl' => $this->_lkHost . 'app?#accounts/add_pay/sbcard',
-            'failUrl' => $this->_lkHost . 'app?#accounts/add_pay/failed',
+            'returnUrl' => $isPayPage ? $this->_lkHost . 'pay/sbcard' : $this->_lkHost . 'app?#accounts/add_pay/sbcard',
+            'failUrl' => $isPayPage ? $this->_lkHost . 'pay/failed' : $this->_lkHost . 'app?#accounts/add_pay/failed',
             'description' => 'Prepayment order No #' . $orderNumber,
             'pageView' => 'DESKTOP',
             'clientId' => $clientId,
