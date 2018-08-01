@@ -392,19 +392,36 @@ class ApiLk
             return $data;
         }
 
+        $invoices = [];
+        $isUseInvoice = false;
+
+        if ($bill->bill_date >= '2018-08-01') { // c 1
+            $invoices = \app\models\Invoice::find()
+                ->where(['bill_no' => $bill->bill_no])
+                ->indexBy('type_id')
+                ->all();
+
+            $isUseInvoice = true;
+        }
+
         $conf = [
-            'i1' => [['object' => 'invoice-1', 'key' => 'invoice1']],
-            'i2' => [['object' => 'invoice-2', 'key' => 'invoice2']],
-            'a1' => [['object' => 'akt-1', 'key' => 'akt1']],
-            'a2' => [['object' => 'akt-2', 'key' => 'akt2']],
-            'ia1' => [['object' => 'upd-1', 'key' => 'upd1']],
-            'ia2' => [['object' => 'upd-2', 'key' => 'upd2']],
-            'i3' => [['object' => 'upd-3', 'key' => 'updt'], ['object' => 'lading', 'key' => 'lading']],
+            'i1' => [['object' => 'invoice-1', 'key' => 'invoice1', 'obj' => 1]],
+            'i2' => [['object' => 'invoice-2', 'key' => 'invoice2', 'obj' => 2]],
+            'a1' => [['object' => 'akt-1', 'key' => 'akt1', 'obj' => 1]],
+            'a2' => [['object' => 'akt-2', 'key' => 'akt2', 'obj' => 2]],
+            'ia1' => [['object' => 'upd-1', 'key' => 'upd1', 'obj' => 1]],
+            'ia2' => [['object' => 'upd-2', 'key' => 'upd2', 'obj' => 2]],
+            'i3' => [['object' => 'upd-3', 'key' => 'updt', 'obj' => 3], ['object' => 'lading', 'key' => 'lading', 'obj' => null]],
         ];
 
 
         foreach ($conf as $dtKey => $dtConf) {
             if (isset($dt[$dtKey]) && $dt[$dtKey]) {
+
+                if ($isUseInvoice && $dtConf[0]['obj'] && !isset($invoices[$dtConf[0]['obj']])) { // пропускаем документы, которых нет в "книге" продаж
+                    continue;
+                }
+
                 $data[$dtConf[$dt[$dtKey] - 1]['key']] = API__print_bill_url . Encrypt::encodeArray([
                         'bill' => $bill->bill_no,
                         'object' => $dtConf[$dt[$dtKey] - 1]['object'],

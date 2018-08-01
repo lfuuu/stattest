@@ -213,10 +213,10 @@ class MailJob {
                 $this->get_object_link('bill',
                     $r['bill_no'],2, $isPDF); // вот тут косяк. Здешняя библиотека sql не готова к таким зигзагам. Если счетов больше чем 1 - будет выход из цикла.
 
-            $bill = new Bill($r["bill_no"]);
-            $modelBill = \app\models\Bill::findOne(['bill_no' => $r['bill_no']]);
+            // $bill = new Bill($r["bill_no"]);
+            // $modelBill = \app\models\Bill::findOne(['bill_no' => $r['bill_no']]);
 
-            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs_static($bill);
+            // list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs_static($bill);
             /*
             if($b_sf[1]) $T .="\nСчет-фактура ".$r['bill_no']."-1: ".$this->get_object_link('invoice',$r['bill_no'],1);
             if($b_sf[2]) $T .="\nСчет-фактура ".$r['bill_no']."-2: ".$this->get_object_link('invoice',$r['bill_no'],2);
@@ -225,6 +225,9 @@ class MailJob {
             if($b_sf[6]) $T .="\nСчет-фактура ".$r['bill_no']."-5: ".$this->get_object_link('invoice',$r['bill_no'],6);
             */
 
+
+            /** Переход на книгу продаж с 1авг 2018 */
+            /*
             $b_sf[1] && $T .= "\nСчет-фактура " . $r['bill_no'] . "-1: " . $this->get_object_link('invoice', $r['bill_no'], 1, $isPDF);
             $b_sf[2] &&  $T .= "\nСчет-фактура " . $r['bill_no'] . "-2: " . $this->get_object_link('invoice', $r['bill_no'], 2, $isPDF);
             $b_akt[1] &&  $T .= "\nАкт " . $r['bill_no'] . "-1: " . $this->get_object_link('akt', $r['bill_no'], 1, $isPDF);
@@ -233,6 +236,7 @@ class MailJob {
             $b_upd[1] && $T .= "\nУПД " . $r['bill_no'] . "-1: " . $this->get_object_link('upd', $r['bill_no'], 1, $isPDF);
             $b_upd[2] && $T .= "\nУПД " . $r['bill_no'] . "-2: " . $this->get_object_link('upd', $r['bill_no'], 2, $isPDF);
             $b_sf[4] && $T .="\nТоварная накладная ".$r['bill_no'].": ".$this->get_object_link('lading',$r['bill_no'], $isPDF);
+            */
 
             $T .="\n";
 		}
