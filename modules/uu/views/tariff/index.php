@@ -76,10 +76,10 @@ $columns = [
                 );
             },
             'delete' => function ($url, Tariff $model, $key) use ($baseView) {
+                $params = array_merge(['id' => $model->id], $_GET);
                 return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
+                    'url' => '/uu/tariff/edit?'. http_build_query($params)
+                ]);
             },
         ],
         'hAlign' => GridView::ALIGN_CENTER,

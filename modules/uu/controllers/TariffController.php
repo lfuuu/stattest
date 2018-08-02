@@ -95,16 +95,21 @@ class TariffController extends BaseController
     /**
      * Редактировать
      *
-     * @param int $id
-     * @param int $countryId
      * @return string
      * @throws \yii\base\InvalidParamException
      */
-    public function actionEdit($id, $countryId = null)
+    public function actionEdit()
     {
+        $query = Yii::$app->getRequest()
+            ->getQueryParams();
         try {
             /** @var TariffEditForm $formModel */
-            $formModel = new TariffEditForm(['id' => $id, 'tariffCountries' => [$countryId => true]]);
+            $formModel = new TariffEditForm([
+                'id' => (isset($query['id']) ? (int)$query['id'] : null),
+                'tariffCountries' => [
+                    (isset($query['countryId']) ? $query['countryId'] : null) => true
+                ]
+            ]);
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 
@@ -123,7 +128,9 @@ class TariffController extends BaseController
             }
 
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was dropped successfully'));
-            return $this->redirect(['index', 'serviceTypeId' => $formModel->tariff->service_type_id]);
+            // Очищаем данные о текущем тарифе из параметров, сохраняя остальные, и производим редирект на index
+            unset($query['id']);
+            return $this->redirect(array_merge(['index'], $query));
         }
 
         return $this->render('edit', ['formModel' => $formModel, 'clientAccount' => $this->getFixClient()]);
