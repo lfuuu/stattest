@@ -8,6 +8,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\User;
 use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\AccountTariffLogTimeHistory;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
@@ -108,6 +109,7 @@ class AccountTariffLog extends ActiveRecord
                 \app\classes\behaviors\HistoryChanges::className(),
                 AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
                 FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
+                AccountTariffLogTimeHistory::className(), // Обновление время продажи и допродажи в модели AccountTariff
             ]
         );
     }

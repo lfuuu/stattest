@@ -11,6 +11,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\helper\AccountTariffHelper;
@@ -35,6 +36,7 @@ use yii\db\ActiveQuery;
  * @property-read TariffPeriod $tariffPeriod
  * @property-read Datacenter $datacenter
  * @property-read UsageTrunk $usageTrunk
+ * @property-read  AccountTariffHeap $accountTariffHeap
  *
  * @property-read AccountLogSetup[] $accountLogSetups
  * @property-read AccountLogPeriod[] $accountLogPeriods
@@ -219,5 +221,13 @@ trait AccountTariffRelationsTrait
     public function getHelper()
     {
         return new AccountTariffHelper($this);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariffHeap()
+    {
+        return $this->hasOne(AccountTariffHeap::className(), ['account_tariff_id' => 'id']);
     }
 }

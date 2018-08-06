@@ -4,18 +4,16 @@ namespace app\modules\uu\filter;
 
 use app\classes\traits\GetListTrait;
 use app\models\ClientContract;
-use app\models\ClientContragent;
 use app\models\Number;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\proxies\AccountTariffProxy;
+use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use yii\data\ActiveDataProvider;
-use yii\db\Expression;
 
 /**
  * Фильтрация для AccountTariff
@@ -138,14 +136,16 @@ class AccountTariffFilter extends AccountTariff
     public function search()
     {
         $accountTariffTableName = AccountTariff::tableName();
+        $accountTariffHeap = AccountTariffHeap::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
 
-        $query = AccountTariffProxy::find()
+        $query = AccountTariff::find()
             ->select(["{$accountTariffTableName}.*"])
             ->joinWith('clientAccount')
             ->joinWith('region')
             ->joinWith('tariffPeriod')
+            ->leftJoin($accountTariffHeap . ' uath', "uath.account_tariff_id = {$accountTariffTableName}.id")
             ->leftJoin($tariffTableName . ' tariff', 'tariff.id = ' . $tariffPeriodTableName . '.tariff_id');
 
         if ($this->serviceType && $this->serviceType->isPackage()) {
@@ -195,40 +195,24 @@ class AccountTariffFilter extends AccountTariff
             }
 
             if ($isSpecialServiceType) {
-                $clientContragentTableName = ClientContragent::tableName();
 
                 if ($this->service_type_id == ServiceType::ID_VOIP) {
                     // Фильтрация столбца "Дата включения на тестовый тариф"
-                    $this->test_connect_date_from !== '' && $query->andWhere(['>=', 'test_connect_date', $this->test_connect_date_from . ' 00:00:00']);
-                    $this->test_connect_date_to !== '' && $query->andWhere(['<=', 'test_connect_date', $this->test_connect_date_to . ' 23:59:59']);
+                    $this->test_connect_date_from !== '' && $query->andWhere(['>=', 'uath.test_connect_date', $this->test_connect_date_from . ' 00:00:00']);
+                    $this->test_connect_date_to !== '' && $query->andWhere(['<=', 'uath.test_connect_date', $this->test_connect_date_to . ' 23:59:59']);
                 }
-
-                $query->select(array_merge($query->select, [
-                    'client_contragent_created_at' => 'client_contragent.created_at',
-                ]));
-
-                // Фильтрация столбца "Дата отключения"
-                $this->disconnect_date_from !== '' && $query->andWhere(['>=', 'disconnect_date', $this->disconnect_date_from . ' 00:00:00']);
-                $this->disconnect_date_to !== '' && $query->andWhere(['<=', 'disconnect_date', $this->disconnect_date_to . ' 23:59:59']);
-
-                // Присоединение столбцов "Дата продажи" и "Дата допродажи"
-                $query->innerJoin($clientContragentTableName, $clientContractTableName . '.contragent_id = ' . $clientContragentTableName . '.id');
 
                 // Фильтрация столбца "Дата продажи"
-                if ($this->date_sale_from !== '' || $this->date_sale_to !== '') {
-                    $query->andWhere(['>', $clientContragentTableName . '.created_at', new Expression('NOW() - INTERVAL 1 MONTH')]);
-                }
-
-                $this->date_sale_from !== '' && $query->andWhere(['>=', "$clientContragentTableName.created_at", $this->date_sale_from . ' 00:00:00']);
-                $this->date_sale_to !== '' && $query->andWhere(['<=', "$clientContragentTableName.created_at", $this->date_sale_to . ' 23:59:59']);
+                $this->date_sale_from !== '' && $query->andWhere(['>=', 'uath.date_sale', $this->date_sale_from . ' 00:00:00']);
+                $this->date_sale_to !== '' && $query->andWhere(['<=', 'uath.date_sale', $this->date_sale_to . ' 23:59:59']);
 
                 // Фильтрация столбца "Дата допродажи"
-                if ($this->date_before_sale_from !== '' || $this->date_before_sale_to !== '') {
-                    $query->andWhere(['<=', "{$clientContragentTableName}.created_at", new Expression('NOW() - INTERVAL 1 MONTH')]);
-                }
+                $this->date_before_sale_from !== '' && $query->andWhere(['>=', 'uath.date_before_sale', $this->date_before_sale_from . ' 00:00:00']);
+                $this->date_before_sale_to !== '' && $query->andWhere(['<=', 'uath.date_before_sale', $this->date_before_sale_to . ' 23:59:59']);
 
-                $this->date_before_sale_from !== '' && $query->andWhere(['>=', "$clientContragentTableName.created_at", $this->date_before_sale_from . ' 00:00:00']);
-                $this->date_before_sale_to !== '' && $query->andWhere(['<=', "$clientContragentTableName.created_at", $this->date_before_sale_to . ' 23:59:59']);
+                // Фильтрация столбца "Дата отключения"
+                $this->disconnect_date_from !== '' && $query->andWhere(['>=', 'uath.disconnect_date', $this->disconnect_date_from . ' 00:00:00']);
+                $this->disconnect_date_to !== '' && $query->andWhere(['<=', 'uath.disconnect_date', $this->disconnect_date_to . ' 23:59:59']);
             }
         }
 

@@ -32,6 +32,7 @@ class TariffStatus extends ActiveRecord
     const ID_SPECIAL = 2;
     const ID_ARCHIVE = 3;
     const ID_TEST = 4;
+    const ID_ARCHIVE_TEST = 57;
 
     const ID_VOIP_8800 = 5;
     const ID_VOIP_8800_TEST = 9;
@@ -41,6 +42,10 @@ class TariffStatus extends ActiveRecord
     const ID_VOIP_MVNO = 14;
 
     const ID_INTERNET_ADSL = 8;
+
+    const TEST_LIST = [
+        self::ID_TEST, self::ID_VOIP_8800_TEST, self::ID_ARCHIVE_TEST
+    ];
 
     /**
      * @return string
