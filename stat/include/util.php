@@ -1071,55 +1071,6 @@ class welltime{
 }
 */
 
-class sender
-{
-    static function sendICQMsg($user, $msg)
-    {
-        global $db;
-
-        $msg = str_replace("&nbsp;", " ", $msg);
-        $msg = str_replace("&amp;", "&", $msg);
-        $msg = str_replace(array("#171;", "#187;","&quot;"), "\"", $msg);
-
-        $db->QueryInsert("tt_send", array(
-                    "user" => $user,
-                    "text" => $msg
-                    )
-                );
-
-        /*
-        $icq = $db->GetValue("select icq from user_users where user = '".$user."'");
-
-        // this code to get user icq uin
-        if($icq)
-            send::icq($icq, $msg);
-        */
-    }
-}
-
-class send
-{
-    function icq($uin, $msg)
-    {
-        include_once(INCLUDE_PATH.'WebIcqLite.class.php');
-
-        $icq = new WebIcqLite();
-        if($icq->connect('661127544', 'eiS8vaimD#'))
-        {
-            if(!$icq->send_message($uin, iconv("utf-8", "cp1251", $msg)))
-            {
-                echo $icq->error;
-            }else{
-                echo 'Message sent';
-            }
-            $icq->disconnect();
-        }else{
-            echo $icq->error;
-        }
-    }
-
-}
-
 class event
 {
     public static function setReject($bill, $state)

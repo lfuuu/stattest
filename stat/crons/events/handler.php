@@ -10,6 +10,7 @@ use app\classes\api\ApiVps;
 use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\classes\partners\RewardCalculate;
+use app\classes\sender\RocketChat;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\EventQueue;
@@ -358,6 +359,11 @@ function doEvents($consoleParam)
                 case EventQueue::PARTNER_REWARD:
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
                     break;
+
+                case EventQueue::TROUBLE_NOTIFIER_EVENT:
+                    RocketChat::me()->sendTroubleNotifier($param);
+                    break;
+
 
                 // --------------------------------------------
                 // Псевдо-логирование

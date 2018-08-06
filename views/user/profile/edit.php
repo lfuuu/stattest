@@ -69,7 +69,7 @@ echo Html::formLabel('Профайл пользователя');
         'columns' => 4,
         'attributes' => [
             'email' => ['type' => Form::INPUT_TEXT],
-            'icq' => ['type' => Form::INPUT_TEXT],
+            'rocket_nick' => ['type' => Form::INPUT_TEXT],
             'phone_work' => ['type' => Form::INPUT_TEXT],
             'phone_mobile' => ['type' => Form::INPUT_TEXT],
         ],

@@ -128,7 +128,7 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 5,
         'attributes' => [
-            'icq' => ['type' => Form::INPUT_TEXT],
+            'rocket_nick' => ['type' => Form::INPUT_TEXT],
             'photo' => [
                 'type' => Form::INPUT_WIDGET,
                 'widgetClass' => FileInput::className(),

@@ -37,5 +37,6 @@ return [
             'main' => '@app/web/export/health/health.json',
         ],
     ],
+    'rocket_chat_token' => '',
     'sormRegions' => [],
 ];

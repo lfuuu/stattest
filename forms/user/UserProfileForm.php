@@ -18,7 +18,7 @@ class UserProfileForm extends UserForm
         $email,
         $phone_work,
         $phone_mobile,
-        $icq,
+        $rocket_nick,
         $language,
         $city_id,
         $photo,

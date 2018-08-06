@@ -10,6 +10,7 @@
   8 | отработано
 */
 use app\exceptions\ModelValidationException;
+use app\models\EventQueue;
 use app\models\TroubleState;
 use yii\base\InvalidParamException;
 use yii\db\ActiveRecord;
@@ -2700,13 +2701,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function checkTroubleToSend($tId)
     {
-        return;
-
-        // out of use
-
         global $db;
 
-        $rs = $db->AllRecords("SELECT user_main,comment  FROM `tt_stages` where trouble_id='".$tId."' order by stage_id desc limit 2");
+        $rs = $db->AllRecords("SELECT user_main, comment  FROM `tt_stages` where trouble_id='".$tId."' order by stage_id desc limit 2");
 
         $user = $userFrom = false;
         $comment = "";
@@ -2726,12 +2723,20 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($user && $p["user_author"] != "1c-vitrina")
         {
-            sender::sendICQMsg($user,
-                    "Заявка #".$tId." (клиент ".$p["client"].") назначен: ".$user.($userFrom ? " (был ".$userFrom.")" : "")."\n".
-                    "Создатель: ".$p["user_author"]."\n".
-                    "Проблема: ".$p["problem"]."\n\n".
-                    ($comment ? "Последний коментарий: ".$comment."\n\n" : "")
-                    );
+            $userModel = \app\models\User::findByUsername($user);
+            $userFromModel = \app\models\User::findByUsername($userFrom);
+            $msg = "Заявка #" . $tId . " (клиент " . $p["client"] . ") назначен(а): " . $userModel . ($userFrom ? " (был(а) " . $userFromModel . ")" : "") . "\n" .
+                "Создатель: " . $p["user_author"] . "\n" .
+                "Проблема: " . $p["problem"] . "\n\n" .
+                ($comment ? "Последний коментарий: " . $comment . "\n\n" : "");
+
+
+            EventQueue::go(EventQueue::TROUBLE_NOTIFIER_EVENT, [
+                'user' => $user,
+                'trouble_id' => $tId,
+                'text' => $msg,
+            ]);
+
         }
     }
 

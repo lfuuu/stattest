@@ -22,6 +22,7 @@ use yii\helpers\Url;
  * @property string $data_flag
  * @property integer $depart_id
  * @property string $enabled
+ * @property string $rocket_nick
  *
  * @method static User findOne($condition)
  */
@@ -305,5 +306,13 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             ->column();
 
         return in_array(Yii::$app->user->identity->user, $managers);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
     }
 }

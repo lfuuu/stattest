@@ -18,8 +18,8 @@
 	<TR><TD class=left>e-mail:</TD><TD>
 	{$emp_user.email}
 	</TD></TR>
-	<TR><TD class=left>ICQ:</TD><TD>
-	{$emp_user.icq}
+	<TR><TD class=left>Nick в Rocket.Chat:</TD><TD>
+	{$emp_user.rocket_nick}
 	</TD></TR>
 
 	<TR><TD colspan=2 align=center><img src='images/users/{$emp_user.id}.{$emp_user.photo}'>

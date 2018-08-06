@@ -101,6 +101,7 @@ class EventQueue extends ActiveRecord
     const VPBX_BLOCKED = 'vpbx_blocked';
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
     const COMET_NOTIFIER_EVENT = 'comet_notifier_event';
+    const TROUBLE_NOTIFIER_EVENT = 'trouble_notifier_event';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 

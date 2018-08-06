@@ -103,7 +103,7 @@ class m_users {
 				'email'				=> get_param_protected('email'),
 				'phone_work'		=> get_param_protected('phone_work'),
 				'phone_mobile'		=> get_param_protected('phone_mobile'),
-				'icq'				=> get_param_protected('icq'),
+				'rocket_nick'	    => get_param_protected('rocket_nick'),
                 'enabled'           => get_param_protected('enabled', 'no'),
 			    'courier_id'        => get_param_protected('courier_id'),
 				);
@@ -134,7 +134,7 @@ class m_users {
 								'email="'.$f['email'].'",'.
 								'phone_work="'.$f['phone_work']. '",' .
 								'phone_mobile="'.$f['phone_mobile']. '",' .
-								'icq="'.$f['icq']. '",' .
+								'rocket_nick="'.$f['rocket_nick']. '",' .
 								'language="'.$f['language']. '",' .
 								'enabled="'.$f['enabled']. '",' .
 								'courier_id="'.$f['courier_id'].'",'.
