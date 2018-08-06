@@ -334,7 +334,7 @@
     </tr>
 </table>
 
-{if !$is_new_invoice && !$isClosed && !$all4net_order_number && !$1c_bill_flag}
+{if !$isClosed && !$all4net_order_number && !$1c_bill_flag}
     <table>
         <tr>
             <td>

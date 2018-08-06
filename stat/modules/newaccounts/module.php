@@ -4522,12 +4522,15 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     ) {
                         $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['sum'];
                         $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['sum'] : 0;
+
+                        $invoice = \app\models\Invoice::findOne(['bill_no' => $A['bill']['bill_no'], 'type_id' => $I]);
+
                         $R[$A['inv_date'] + ($Rc++)] = array(
                             'type' => 'inv',
-                            'date' => $A['inv_date'],
+                            'date' => /* $invoice ? $invoice->date : */ $A['inv_date'],
                             'sum_income' => $sum_in,
                             'sum_outcome' => $sum_out,
-                            'inv_no' => $A['inv_no'],
+                            'inv_no' => $invoice ? $invoice->number : $A['inv_no'],
                             'bill_no' => $A['bill']['bill_no'],
                             'inv_num' => $I,
                         );

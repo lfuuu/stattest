@@ -54,7 +54,7 @@
             if (obj['type'] == 'invoice') {
               return '<div style="overflow: hidden; width: 98%;">'
                 + '<a href="' + obj['url'] + '" title="С/ф № ' + obj['bill_no'] + '">'
-                + ' С/ф № ' + obj['bill_no'] + ' #' + obj['type_id'] + (obj['is_reversal'] ? ' сторнирована' : '')
+                + ' С/ф'+ '#' + obj['type_id'] + ' Счет № ' + obj['bill_no'] + (obj['is_reversal'] ? ' (сторнирована)' : '')
                 + '</a></div>';
             }
             else {
