@@ -226,48 +226,7 @@ class BillCorrection extends ActiveRecord
      */
     private function _getOriginalBillLinesByTypeId($typeId)
     {
-        $lines = [];
-
-        $bill = $this->bill;
-        $clientAccount = $bill->clientAccount;
-
-        if ($clientAccount->type_of_bill == ClientAccount::TYPE_OF_BILL_SIMPLE) {
-            $lines = BillLine::compactLines(
-                $bill->lines,
-                $bill->clientAccount->contragent->lang_code,
-                $bill->price_include_vat
-            );
-        }
-
-        /** @var BillLine $line */
-        foreach ($bill->lines as $line) {
-
-            if ($line->type != BillLine::LINE_TYPE_SERVICE) {
-                continue;
-            }
-
-            $isAllow = false;
-            // в первой с/ф только проводки с датой по-умолчанию - они заведены в ручную, и абонентка за текущий месяц. Всё отсальное - с/ф 2
-            if ($typeId == BillCorrection::TYPE_INVOICE_1) {
-                if (
-                    $line->date_from == BillLine::DATE_DEFAULT
-                    || $line->date_from >= $bill->bill_date) {
-                    $isAllow = true;
-                }
-            } elseif ($typeId == BillCorrection::TYPE_INVOICE_2) {
-                if ($line->date_from != BillLine::DATE_DEFAULT
-                    && $line->date_from < $bill->bill_date)
-                    $isAllow = true;
-            }
-
-            if (!$isAllow) {
-                continue;
-            }
-
-            $lines[] = $line;
-        }
-
-        return $lines;
+        return $this->bill->getLinesByTypeId($typeId);
     }
 
     /**

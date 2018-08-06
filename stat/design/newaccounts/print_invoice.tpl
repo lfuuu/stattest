@@ -1,7 +1,7 @@
 <html>
 <head>
 <LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
-<title>СЧЕТ-ФАКТУРА N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
+<title>СЧЕТ-ФАКТУРА N {if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if} от {$inv_date|mdate:"d.m.Y г."}</title>
 <META http-equiv=Content-Type content="text/html; charset=utf-8">
 <style>
 @page {literal}{size: landscape;}
@@ -34,8 +34,8 @@
 <table border="0" cellpadding="0" cellspacing="15">
 {if $inv_is_new3}
 <tr><td colspan="2"><p align="center">
-<strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}
-        {if !$without_date_date} 
+<strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
+        {if !$without_date_date}
             от {if $is_four_order && isset($inv_pays)}
                     {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}
                {else}

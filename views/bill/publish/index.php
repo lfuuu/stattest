@@ -96,6 +96,35 @@ use app\models\Region;
     </fieldset>
 </div>
 
+<div class="well" style="width: 500px;">
+    <fieldset>
+        <label>Создание с/ф по организации</label>
+        <form action="/bill/publish/invoices" method="post">
+            <div class="col-sm-12">
+                <div class="col-sm-8">
+                    <?php
+                    echo Html::dropDownList(
+                        'organizationId',
+                        $organizationId,
+                        ['' => 'Выберите организацию'] + \app\models\Organization::dao()->getList(),
+                        ['class' => 'form-control select2', 'style' => 'width: 250px;',]
+                    );
+                    ?>
+                </div>
+                <div class="col-sm-4">
+                    <input type="submit" value="Сгенерировать" class="btn btn-primary" />
+                </div>
+                <div class="col-sm-12">
+                    <div class="col-sm-8">
+                        <a href="/bill/publish/invoices-for-all">Сгенерировать для всех организаций</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</div>
+
+
 <div class="well text-center" style="width: 500px;">
     <?php if (!$isNotificationsOn) : ?>
         <a class="btn <?=($isNotificationsRunning ? 'btn-warning' : 'btn-primary')?>" href="/monitoring/notification-off" role="button">Отключить оповещения</a>

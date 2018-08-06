@@ -45,6 +45,9 @@ class InvoiceNextIdx extends Behavior
 
         $invoice->idx = $maxIdx + 1;
         $invoice->organization_id = $invoice->bill->organization_id;
-        $invoice->number = $invoice->type_id . (new \DateTimeImmutable($invoice->date))->format('ym') . sprintf("%02d", $invoice->organization_id) . '-' . sprintf("%04d", $invoice->idx);
+        $invoice->number = $invoice->type_id .
+            (new \DateTimeImmutable($invoice->date))->format('ym') .
+            sprintf("%02d", $invoice->organization_id) . '-' .
+            sprintf("%04d", $invoice->idx);
     }
 }

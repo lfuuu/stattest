@@ -1,7 +1,7 @@
 <html>
     <head>
         <link title=default href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet />
-        <title>Акт &#8470;{$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
+        <title>Акт &#8470;{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if} от {$inv_date|mdate:"d.m.Y г."}</title>
         <meta http-equiv=Content-Type content="text/html; charset=utf-8" />
     </head>
 
@@ -10,7 +10,7 @@
             <tr>
                 <td>
                     {if $bill_client.firma == 'mcn_telekom'}
-                        {$bill.bill_no}{$inv_no}
+                        {if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
                     {/if}
                     <br /><br />
                     {if $to_client == "true" && ($bill_client.firma == 'mcn' || $bill_client.firma == 'mcn_telekom')}
@@ -41,7 +41,7 @@
 
         <div align="center">
             <h2>
-                Акт &#8470;{$bill.bill_no}{$inv_no}{if !$without_date_date} от {$inv_date|mdate:"d.m.Y г."}{else} от {$without_date_date|mdate:"d.m.Y г."}{/if}
+                Акт &#8470;{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}{if !$without_date_date} от {$inv_date|mdate:"d.m.Y г."}{else} от {$without_date_date|mdate:"d.m.Y г."}{/if}
                 {if $correction_info}<br>Исправление №{$correction_info.number} от {$correction_info.date_timestamp|mdate:"d.m.Y г."}{/if}
             </h2>
 

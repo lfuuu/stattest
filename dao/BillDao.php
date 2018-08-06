@@ -9,12 +9,14 @@ use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\BillCorrection;
 use app\models\billing\CallsRaw;
 use app\models\billing\Trunk;
 use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\Currency;
+use app\models\Invoice;
 use app\models\LogBill;
 use app\models\Organization;
 use app\models\Payment;
@@ -34,8 +36,8 @@ use yii\db\Query;
 class BillDao extends Singleton
 {
     const PRICE_PRECISION = 2;
-    const ADMISSIBLE_COMPUTATION_ERROR_AMOUNT  = 0.0001;
-    const ADMISSIBLE_COMPUTATION_ERROR_SUM  = 0.01;
+    const ADMISSIBLE_COMPUTATION_ERROR_AMOUNT = 0.0001;
+    const ADMISSIBLE_COMPUTATION_ERROR_SUM = 0.01;
 
     const UU_SERVICE = 'uu_account_tariff';
 
@@ -845,31 +847,31 @@ SQL;
             return;
         }
 
-/*
-        $report = new CallsRawFilter();
+        /*
+                $report = new CallsRawFilter();
 
-        if (!$report->load(
-            [
-                'CallsRawFilter' => [
-                    'connect_time_from' => $periodStart->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                    'connect_time_to' => $periodEnd->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                    'src_physical_trunks_ids' => $physicalTrunkIds,
-                    'currency' => $account->currency,
-                    'aggr' => ['sale_sum', 'session_time_sum']
-                ]
-            ]
-        )) {
-            throw new \LogicException('CallsRawFilter not load parameters');
-        }
+                if (!$report->load(
+                    [
+                        'CallsRawFilter' => [
+                            'connect_time_from' => $periodStart->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                            'connect_time_to' => $periodEnd->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                            'src_physical_trunks_ids' => $physicalTrunkIds,
+                            'currency' => $account->currency,
+                            'aggr' => ['sale_sum', 'session_time_sum']
+                        ]
+                    ]
+                )) {
+                    throw new \LogicException('CallsRawFilter not load parameters');
+                }
 
-        $result = $report->getReport(false);
+                $result = $report->getReport(false);
 
-        if (!$result) {
-            return;
-        }
+                if (!$result) {
+                    return;
+                }
 
-        $result = reset($result);
-*/
+                $result = reset($result);
+        */
 
         $sum = abs($result['sale_sum']);
         $billedTime = $result['session_time_sum'] / 60;
@@ -897,10 +899,148 @@ SQL;
             $periodEnd->modify('-1 day')
         );
 
-        $bill->comment  = 'Авансовый автоматический счет на ' . round($sum, 2) . ' ' . $account->currency;
+        $bill->comment = 'Авансовый автоматический счет на ' . round($sum, 2) . ' ' . $account->currency;
 
         if (!$bill->save()) {
             throw new ModelValidationException($bill);
+        }
+    }
+
+    public static function getLinesByTypeId($bill, $typeId)
+    {
+        $lines = [];
+
+        $clientAccount = $bill->clientAccount;
+
+        $billLines = $bill->lines;
+
+        if ($clientAccount->type_of_bill == ClientAccount::TYPE_OF_BILL_SIMPLE) {
+            $billLines = BillLine::compactLines(
+                $bill->lines,
+                $bill->clientAccount->contragent->lang_code,
+                $bill->price_include_vat
+            );
+        }
+
+        // скорректированные с/ф только если они есть и не в книге продаж.
+        $correctionInfo = null;
+        if ($bill->sum_correction) {
+
+            $billCorrection = BillCorrection::findOne([
+                'bill_no' => $bill->bill_no,
+                'type_id' => $typeId
+            ]);
+
+            $billCorrection && $billLines = $billCorrection->getLines()->asArray()->all();
+        }
+
+
+        /** @var BillLine $line */
+        foreach ($billLines as $line) {
+
+            $dateFrom = is_array($line) ? $line['date_from'] : $line->date_from;
+            $type = is_array($line) ? $line['type'] : $line->type;
+
+            if (in_array($typeId, [Invoice::TYPE_1, Invoice::TYPE_2]) && $type != BillLine::LINE_TYPE_SERVICE) {
+                continue;
+            }
+
+            if ($typeId == Invoice::TYPE_GOOD && $type != BillLine::LINE_TYPE_GOOD) {
+                continue;
+            }
+
+            $isAllow = false;
+            // в первой с/ф только проводки с датой по-умолчанию - они заведены в ручную, и абонентка за текущий месяц. Всё отсальное - с/ф 2
+            if ($typeId == Invoice::TYPE_1) {
+                if (
+                    $dateFrom == BillLine::DATE_DEFAULT
+                    || $dateFrom >= $bill->bill_date) {
+                    $isAllow = true;
+                }
+            } elseif ($typeId == Invoice::TYPE_2) {
+                if ($dateFrom != BillLine::DATE_DEFAULT
+                    && $dateFrom < $bill->bill_date)
+                    $isAllow = true;
+            } elseif ($typeId == Invoice::TYPE_GOOD) {
+                $isAllow = $type == BillLine::LINE_TYPE_GOOD;
+            }
+
+            if (!$isAllow) {
+                continue;
+            }
+
+            $lines[] = $line;
+        }
+
+        return $lines;
+
+    }
+
+    public static function generateInvoices(Bill $bill)
+    {
+        if ($bill->bill_date < '2018-08-01') { // 1 авг 2018 новый формат с/ф
+            return;
+        }
+
+        try {
+            foreach (Invoice::$types as $typeId) {
+                $invoiceDate = Invoice::getDate($bill, $typeId)->format(DateTimeZoneHelper::DATE_FORMAT);
+
+                $invoice = Invoice::findOne(['bill_no' => $bill->bill_no, 'type_id' => $typeId]);
+
+                $lines = $bill->getLinesByTypeId($typeId);
+
+                if ($lines) {
+                    $sum = BillLine::getSumLines($lines);
+
+                    if (!$invoice) {
+                        $invoice = new Invoice();
+                        $invoice->bill_no = $bill->bill_no;
+                        $invoice->type_id = $typeId;
+                        $invoice->sum = 0;
+                    }
+
+                    $invoice->date = $invoiceDate;
+                    $invoice->is_reversal = 0;
+
+                    if ($invoice->sum != $sum) {
+                        $invoice->sum = $sum;
+                    }
+
+                    if (!$invoice->save()) {
+                        throw new ModelValidationException($invoice);
+                    }
+
+                } elseif ($invoice) {
+                    $invoice->is_reversal = 1;
+
+                    if (!$invoice->save()) {
+                        throw new ModelValidationException($invoice);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Сторнирование с/ф счета
+     *
+     * @param Bill $bill
+     * @throws ModelValidationException
+     */
+    public function invoiceReversal(Bill $bill)
+    {
+        $invoices = Invoice::find()->where(['bill_no' => $bill->bill_no]);
+
+        /** @var Invoice $invoice */
+        foreach ($invoices->each() as $invoice) {
+            $invoice->is_reversal = 1;
+
+            if (!$invoice->save()) {
+                throw new ModelValidationException($invoice);
+            }
         }
     }
 }

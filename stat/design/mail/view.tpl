@@ -15,6 +15,7 @@
 <a href='#' onclick='form.body.value+="\n%UBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные(красные)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%PBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью(желтые)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Не полностью оплаченные(красные и желтые)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%INVOICE"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Закрывающие документы (с/ф, акт, УПД)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>Приказ (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>Уведомление (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DIRECTOR_TELEKOM%";return false;'>Новый директор Надточеева</a><br><br>

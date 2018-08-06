@@ -252,6 +252,21 @@ class BillLine extends ActiveRecord
     }
 
     /**
+     * Сумма по линиям
+     *
+     * @param array $lines
+     * @return float
+     */
+    public static function getSumLines($lines)
+    {
+        return array_reduce($lines,
+            function ($sum, $line) {
+                $sum += is_array($line) ? $line['sum'] : $line->sum;
+                return $sum;
+            }, 0);
+    }
+
+    /**
      * Унификация с uuBill. НДС
      *
      * @return float

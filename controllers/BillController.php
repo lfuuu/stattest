@@ -128,6 +128,10 @@ class BillController extends BaseController
                 $billCorrection->refresh();
                 $billCorrection->recalcSumCorrection();
 
+                if ($billCorrection->bill->invoices) {
+                    $billCorrection->bill->generateInvoices();
+                }
+
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();

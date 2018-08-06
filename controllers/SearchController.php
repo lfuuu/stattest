@@ -8,6 +8,7 @@ use app\exceptions\ModelValidationException;
 use app\models\Bank;
 use app\models\Bill;
 use app\models\GoodsIncomeOrder;
+use app\models\Invoice;
 use app\models\Trouble;
 use app\models\TroubleStage;
 use Yii;
@@ -51,6 +52,25 @@ class SearchController extends BaseController
                         ];
                     } else {
                         return $this->redirect($bill->getUrl());
+                    }
+                }
+
+                $invoice = Invoice::findOne(['number' => trim($search)]);
+                if ($invoice) {
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [
+                            [
+                                'url' => $invoice->bill->getUrl(),
+                                'value' => $invoice->number,
+                                'type_id' => $invoice->type_id,
+                                'is_reversal' => $invoice->is_reversal,
+                                'bill_no' => $invoice->bill->bill_no,
+                                'type' => 'invoice',
+                            ]
+                        ];
+                    } else {
+                        return $this->redirect($invoice->bill->getUrl());
                     }
                 }
 

@@ -38,17 +38,6 @@ class CallsDao extends Singleton
         $timeField = 'connect_time'
     ) {
 
-        if (CallsAggr::tableName() == $callsTable) {
-            $join = "";
-            $costPriceField = "cost_price";
-        } else {
-            $join = "left join " . $callsTable . " as cr2 ON (cr1.peer_id = cr2.id
-                            and cr2." . $timeField . " >= :fromDate
-                            and cr2." . $timeField . " <= :toDate
-            )";
-            $costPriceField = "cr2.cost";
-        }
-
         $command =
             CallsRaw::getDb()
                 ->createCommand("
@@ -57,10 +46,9 @@ class CallsDao extends Singleton
                                 case cr1.mob when true then 5 else 4 end
                             else cr1.destination_id end rdest,
                             cast( - sum(cr1.cost) as NUMERIC(10,2)) as price,
-                            cast(   sum(" . $costPriceField . ") as NUMERIC(10,2)) as cost_price
+                            0 as cost_price
                         from
                             " . $callsTable . " as cr1
-                        " . $join . "
                         where
                             cr1.number_service_id = :numberServiceId
                             and cr1.account_id = :accountId

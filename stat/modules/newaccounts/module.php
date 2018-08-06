@@ -758,6 +758,19 @@ class m_newaccounts extends IModule
         }
         $design->assign('admin_order', $adminNum);
 
+
+        $design->assign('is_new_invoice', $bill->Get('bill_date') >= '2018-08-01');
+        $design->assign('invoice_info', \app\models\Invoice::find()
+            ->select(['sum', 'is_reversal', 'type_id'])
+            ->where([
+                'bill_no' => $bill->GetNo()
+            ])
+            ->indexBy('type_id')
+            ->asArray()
+            ->all()
+        );
+
+
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_extends_info', $newbill->extendsInfo);
         $design->assign('bill_manager', getUserName(Bill::dao()->getManager($bill->GetNo())));
@@ -890,15 +903,15 @@ class m_newaccounts extends IModule
 
     function get_bill_docs(\Bill &$bill, $L = null)
     {
-        return self::get_bill_docs_static($bill, $L);
+        return self::get_bill_docs_static($bill->GetNo(), $L);
     }
 
-    static function get_bill_docs_static(\Bill &$bill, $L = null)
+    static function get_bill_docs_static($billNo, $L = null)
     {
         $bill_akts = $bill_invoices = $bill_upd = array();
 
-        if (($doctypes = BillDocument::dao()->getByBillNo($bill->GetNo())) == false) {
-            $doctypes = BillDocument::dao()->updateByBillNo($bill->GetNo(), $L, true);
+        if (($doctypes = BillDocument::dao()->getByBillNo($billNo)) == false) {
+            $doctypes = BillDocument::dao()->updateByBillNo($billNo, $L, true);
         }
 
         if ($doctypes && count($doctypes) > 0) {
@@ -1051,6 +1064,13 @@ class m_newaccounts extends IModule
             return;
         }
 
+        $billModel = Bill::findOne(['bill_no' => $bill_no]);
+
+        if (!$billModel) {
+            return;
+        }
+
+
 
         $bill_nal = get_param_raw("nal");
         $billCourier = get_param_raw("courier");
@@ -1066,6 +1086,18 @@ class m_newaccounts extends IModule
             return;
         }
         $bill_date = new DatePickerValues('bill_date', $bill->Get('bill_date'));
+
+        // проверка на изменений даты счета, при наличии зарегестрированной с/ф и выхода за пределы месяца
+        if ($bill_date->getSqlDay() != $billModel->bill_date && $billModel->invoices) {
+            $billDateFrom = (new DateTimeImmutable($billModel->bill_date))->modify('first day of this month');
+            $billDateTo = $billDateFrom->modify('last day of this month');
+            if ($bill_date->day < $billDateFrom || $bill_date->day > $billDateTo) {
+                \Yii::$app->session->addFlash('error', 'Нельзя менять дату счета если зарегестрирована с/ф');
+                header("Location: ?module=newaccounts&action=bill_edit&bill=" . $bill_no);
+                exit();
+            }
+        }
+
         $bill->Set('bill_date', $bill_date->getSqlDay());
         $billPayBillUntil = new DatePickerValues('pay_bill_until', $bill->Get('pay_bill_until'));
         $bill->Set('pay_bill_until', $billPayBillUntil->getSqlDay());
@@ -1097,20 +1129,35 @@ class m_newaccounts extends IModule
             exit();
         }
 
-        $lines = $bill->GetLines();
-        $lines[$bill->GetMaxSort() + 1] = [];
-        $lines[$bill->GetMaxSort() + 2] = [];
-        $lines[$bill->GetMaxSort() + 3] = [];
-        foreach ($lines as $k => $arr_v) {
-            if (((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item'])) || isset($del[$k])) {
-                $bill->RemoveLine($k);
-            } elseif (isset($item[$k]) && $item[$k] && isset($arr_v['item'])) {
-                $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k]);
-            } elseif (isset($item[$k]) && $item[$k]) {
-                $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '');
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+
+            $lines = $bill->GetLines();
+            $lines[$bill->GetMaxSort() + 1] = [];
+            $lines[$bill->GetMaxSort() + 2] = [];
+            $lines[$bill->GetMaxSort() + 3] = [];
+            foreach ($lines as $k => $arr_v) {
+                if (((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item'])) || isset($del[$k])) {
+                    $bill->RemoveLine($k);
+                } elseif (isset($item[$k]) && $item[$k] && isset($arr_v['item'])) {
+                    $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k]);
+                } elseif (isset($item[$k]) && $item[$k]) {
+                    $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '');
+                }
             }
+
+            $bill->Save();
+
+            // если есть зарегистрированная с/ф, то обновить.
+            if ($billModel->invoices) {
+                $billModel->generateInvoices();
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
-        $bill->Save();
+
 
         ClientAccount::dao()->updateBalance($bill->Client('id'), false);
         unset($bill);
@@ -2747,6 +2794,31 @@ class m_newaccounts extends IModule
             $design->assign('cpe', $cpe);
             $design->assign('curr', $curr);
             if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
+
+                $newInvoiceNumber = false;
+
+                if ($invoice = \app\models\Invoice::findOne([
+                    'bill_no' => $bill->Get('bill_no'),
+                    'type_id' => $source,
+                    'is_reversal' => 0,
+                ])) {
+                    $newInvoiceNumber = $invoice->number;
+                }
+
+                if (!$newInvoiceNumber && $bill->Get('bill_date') >= '2018-08-01') {
+                    echo 'Документ не готов';
+
+                    // @TODO
+                    // debug
+
+                    mail("adima123@yandex.ru", "Document not ready", $bill->Get('bill_no').': '. $bill->Get('bill_date')." - ".$source);
+
+                    exit;
+                }
+
+
+                $design->assign('inv_number', $newInvoiceNumber);
+
                 $design->assign('inv_no', '-' . $source);
                 $design->assign('inv_date', $inv_date);
                 $design->assign('inv_is_new', ($inv_date >= mktime(0, 0, 0, 5, 1, 2006)));

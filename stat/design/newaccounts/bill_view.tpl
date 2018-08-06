@@ -26,8 +26,10 @@
                     {if !$bill.uu_bill_id}
                         <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
                         /
+                        {if !$is_new_invoice}
                         <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>
                         /
+                            {/if}
                     {/if}
                 {/if}
             {elseif $1c_bill_flag}
@@ -38,7 +40,7 @@
                     /
                 {/if}
             {/if}
-
+<br>
             {if !$1c_bill_flag}
                 {if $bill_invoices[1]}
                     <a href="/bill/correction-invoice?bill_no={$bill.bill_no}&type_id=1">
@@ -332,7 +334,7 @@
     </tr>
 </table>
 
-{if !$isClosed && !$all4net_order_number && !$1c_bill_flag}
+{if !$is_new_invoice && !$isClosed && !$all4net_order_number && !$1c_bill_flag}
     <table>
         <tr>
             <td>
@@ -515,6 +517,43 @@
                     обычно</a>{else}как обычно{/if} /
                 {if $bill.inv2to1==0}<a href="/bill/bill/set-invoice2-date-as-invoice1?billId={$bill.id}&value=1">по
                     дате первой</a>{else}по дате первой{/if}<br/>
+
+                <hr>
+                {if $is_new_invoice}
+                    {if $invoice_info}
+                        {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3) || isset($invoice_info.4)}Книга продаж:<br>{/if}
+                        {if isset($invoice_info.1) && !$invoice_info.1.is_reversal}с/ф 1: {$invoice_info.1.sum|round:2}
+                            <br>
+                        {/if}
+                        {if isset($invoice_info.2) && !$invoice_info.2.is_reversal}с/ф 2: {$invoice_info.2.sum|round:2}
+                            <br>
+                        {/if}
+                        {if isset($invoice_info.3) && !$invoice_info.3.is_reversal}с/ф 3: {$invoice_info.3.sum|round:2}
+                            <br>
+                        {/if}
+                        {if isset($invoice_info.4) && !$invoice_info.4.is_reversal}с/ф 4: {$invoice_info.4.sum|round:2}
+                            <br>
+                        {/if}
+
+                        {assign var="is_reversaled" value=0}
+                        {if isset($invoice_info.1) && $invoice_info.1.is_reversal}Сторинирована с/ф 1:<br>{assign var="is_reversaled" value=1}{/if}
+                        {if isset($invoice_info.2) && $invoice_info.2.is_reversal}Сторинирована с/ф 2:<br>{assign var="is_reversaled" value=1}{/if}
+                        {if isset($invoice_info.3) && $invoice_info.3.is_reversal}Сторинирована с/ф 3<br>{assign var="is_reversaled" value=1}{/if}
+                        {if isset($invoice_info.4) && $invoice_info.4.is_reversal}Сторинирована с/ф 4<br>{assign var="is_reversaled" value=1}{/if}
+
+                        {if $is_reversaled}
+                            <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Восстановить</a>
+                        {else}
+                            <a href="/bill/publish/invoice-reversal?bill_no={$bill.bill_no}">удалить</a>
+                        {/if}
+                        <br><br>
+                    {else}
+                        По счету не создана счет-фактура.
+                        <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Создать</a>
+                    {/if}
+                {/if}
+
+
             </td>
             <td valign="top" style="width:300px;">
                 {if $bill_client.account_version == 5 && $bill.uu_bill_id}

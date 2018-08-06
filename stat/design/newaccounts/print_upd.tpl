@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 
-<title>Универсальный передаточный документ N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
+<title>Универсальный передаточный документ N {if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if} от {$inv_date|mdate:"d.m.Y г."}</title>
 
 
 <style>
@@ -91,7 +91,7 @@ table.contract_table td {
                                 </tr>
                                 <tr>
                                     <td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
-                                    <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{$bill.bill_no}{$inv_no}</span></p></td>
+                                    <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}</span></p></td>
                                     <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
                                     <td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>
                                 {if !$without_date_date}

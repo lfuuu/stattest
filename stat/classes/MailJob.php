@@ -7,6 +7,9 @@ class MailJob {
 	public $client = array();
 	public $encoding = 'utf-8';
 	public $emails = array();
+
+	private $_isInvoice = null;
+
 	private static $prepared = 0;
 
 	public function __construct($id = null) {
@@ -152,7 +155,8 @@ class MailJob {
         return '';
     }
 
-	public function _get_bills($match){
+	public function _get_bills($match)
+    {
 		global $db;
 
         require_once(INCLUDE_PATH."bill.php");
@@ -242,10 +246,56 @@ class MailJob {
 		}
 		return $T;
 	}
-	
-	
-	public function Template($str,$format = 'text'){
 
+    public function _get_invoices($mathes)
+    {
+        $this->_isInvoice = false;
+        $isPdf = (bool)$mathes[1];
+
+        $dateStart = (new DateTimeImmutable($mathes[3].'-01'));
+        $dateEnd = $dateStart->modify('+1 month')->modify('-1 day');
+
+        $billQuery = \app\models\Bill::find()
+            ->where(['client_id' => $this->client['id']])
+            ->andWhere([
+                'between',
+                'bill_date',
+                $dateStart->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT),
+                $dateEnd->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT),
+            ]);
+
+        $msg = '';
+        /** @var \app\models\Bill $bill */
+        foreach ($billQuery->each() as $bill) {
+            $invoices = $bill->invoices;
+
+            if (!$invoices) {
+                continue;
+            }
+
+            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs_static($bill->bill_no);
+
+            isset($invoices[1]) && $invoice1 = $invoices[1];
+            isset($invoices[2]) && $invoice2 = $invoices[2];
+
+            $b_sf[1] && $invoice1 && $msg .= "\nСчет-фактура " . $invoice1->number . ": " . $this->get_object_link('invoice', $invoice1->bill_no, 1, $isPdf);
+            $b_sf[2] && $invoice2 && $msg .= "\nСчет-фактура " . $invoice2->number . ": " . $this->get_object_link('invoice', $invoice2->bill_no, 2, $isPdf);
+            $b_akt[1] && $invoice1 && $msg .= "\nАкт " . $invoice1->number . ": " . $this->get_object_link('akt', $invoice1->bill_no, 1, $isPdf);
+            $b_akt[2] && $invoice2 && $msg .= "\nАкт " . $invoice2->number . ": " . $this->get_object_link('akt', $invoice2->bill_no, 2, $isPdf);
+            $b_upd[1] && $invoice1 && $msg .= "\nУПД " . $invoice1->number . ": " . $this->get_object_link('upd', $invoice1->bill_no, 1, $isPdf);
+            $b_upd[2] && $invoice2 && $msg .= "\nУПД " . $invoice2->number . ": " . $this->get_object_link('upd', $invoice2->bill_no, 2, $isPdf);
+
+        }
+
+        $msg && $this->_isInvoice = true;
+
+        return $msg;
+	}
+	
+	
+	public function Template($str,$format = 'text')
+    {
+        $this->_isInvoice = null;
 
 		$text = $this->data[$str];
 		if($this->encoding!='utf-8')
@@ -259,6 +309,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(U)(PDF)?BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
 		$text = preg_replace_callback('/%(P)(PDF)?BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
 		$text = preg_replace_callback('/%(N)(PDF)?BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
+		$text = preg_replace_callback('/%(PDF)?(INVOICE)(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_invoices'),$text);
 		$text = preg_replace_callback('/%(NOTICE)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(ORDER)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(DIRECTOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
@@ -312,25 +363,39 @@ class MailJob {
 		$Mail->Subject = $this->Template('template_subject');
 		$Mail->Body = $this->Template('template_body');
 
-		$r = array('job_id'=>$this->data['job_id'],'client'=>$this->client['client']);
-		if(!(@$Mail->Send())){
-			$ret = $Mail->ErrorInfo;
-			$r['send_message'] = $Mail->ErrorInfo;
-			$r['letter_state'] = 'error';
-		}else{
-			$ret = true;
-			$r['send_message'] = '';
-			$r['letter_state'] = 'sent';
-		}
-		$r['send_date'] = array('NOW()');
-		$db->QueryUpdate('mail_letter',array('job_id','client'),$r);
-		return $ret;
+        $r = ['job_id' => $this->data['job_id'], 'client' => $this->client['client']];
+
+        if ($this->isRejectedByInvoice()) {
+            $ret = $r['send_message'] = 'Нет документов для отправки';
+            $r['letter_state'] = 'error';
+        } elseif (!(@$Mail->Send())) {
+            $ret = $r['send_message'] = $Mail->ErrorInfo;
+            $r['letter_state'] = 'error';
+        } else {
+            $ret = true;
+            $r['send_message'] = '';
+            $r['letter_state'] = 'sent';
+        }
+        $r['send_date'] = ['NOW()'];
+        $db->QueryUpdate('mail_letter', ['job_id', 'client'], $r);
+        return $ret;
 	}
+
 	function get_cur_state()
 	{
 	    global $db;
 	    $res = $db->GetValue('select job_state from mail_job where job_id='.$this->data['job_id']);
 	    
 	    return $res;
+	}
+
+    /**
+     * У счета нет документов для отправки
+     *
+     * @return bool
+     */
+    public function isRejectedByInvoice()
+    {
+        return $this->_isInvoice === false;
 	}
 }

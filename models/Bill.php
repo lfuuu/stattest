@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\behaviors\BillChangeLog;
+use app\classes\behaviors\BillInvoiceReversal;
 use app\classes\behaviors\CheckBillPaymentOverdue;
 use app\classes\behaviors\SetBillPaymentDate;
 use app\classes\behaviors\SetBillPaymentOverdue;
@@ -62,6 +63,7 @@ use yii\helpers\Url;
  * @property-read Payment $creditNote
  * @property-read uuBill $universalBill
  * @property-read Trouble $trouble
+ * @property-read Invoice[] $invoices
  * @property-read array $document
  */
 class Bill extends ActiveRecord
@@ -134,6 +136,7 @@ class Bill extends ActiveRecord
             'BillChangeLog' => BillChangeLog::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetBillPaymentDate' => SetBillPaymentDate::className(),
+            'BillInvoicesReversal' => BillInvoiceReversal::className(),
         ];
     }
 
@@ -282,6 +285,17 @@ class Bill extends ActiveRecord
     public function getTrouble()
     {
         return $this->hasOne(Trouble::className(), ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoices()
+    {
+        return $this->hasMany(Invoice::className(), ['bill_no' => 'bill_no'])
+            ->where(['is_reversal' => 0])
+            ->orderBy(['type_id' => SORT_ASC])
+            ->indexBy('type_id');
     }
 
     /**
@@ -470,13 +484,50 @@ class Bill extends ActiveRecord
     }
 
     /**
+     * Сгенерировать с/ф
+     *
+     * @return mixed
+     */
+    public function generateInvoices()
+    {
+        return self::dao()->generateInvoices($this);
+    }
+
+    /**
+     * Получение позиций счета по типу
+     *
+     * @param $typeId
+     * @return array
+     */
+    public function getLinesByTypeId($typeId)
+    {
+        return self::dao()->getLinesByTypeId($this, $typeId);
+    }
+
+    /**
      * Это счет 1С
      *
      * @return bool
      */
     public function is1C()
     {
-        return strpos("/", $this->bill_no) !== false;
+        return strpos($this->bill_no, "/") !== false;
+    }
+
+    /**
+     * Это ручная услуга
+     *
+     * @return bool
+     */
+    public function isOnTimeService()
+    {
+        $lines = $this->lines;
+
+        if(count($lines) != 1) return false;
+
+        $line = reset($lines);
+
+        return $line->type == BillLine::LINE_TYPE_SERVICE && $line->id_service == 0;
     }
 
     /**
