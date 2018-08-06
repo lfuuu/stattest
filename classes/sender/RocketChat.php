@@ -23,7 +23,7 @@ class RocketChat extends Singleton
      */
     public function sendTroubleNotifier($param)
     {
-        if (!\Yii::$app->params['rocket_chat_token']) {
+        if (!isset($param['text']) || !$param['text'] || !\Yii::$app->params['rocket_chat_token']) {
             return false;
         }
 
@@ -34,9 +34,9 @@ class RocketChat extends Singleton
             return false;
         }
 
+        $param['text'] .= "\nhttps://stat.mcn.ru/?module=tt&action=view&id=" . $param['trouble_id'];
+
         $this->send($user->rocket_nick, $param['text']);
-
-
     }
 
     public function send($rocketNick, $msg)
