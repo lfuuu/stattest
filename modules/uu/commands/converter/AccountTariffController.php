@@ -55,7 +55,7 @@ class AccountTariffController extends Controller
                       AND
                     ut.tariff_status_id IN ({$tariffTestStatuses})
                   GROUP BY
-                    uatl.account_tariff_id
+                    uatl.account_tariff_id;
             ")->execute();
             echo 'Создание временной таблицы disconnect_date_virtual' . PHP_EOL;
             $db->createCommand("
@@ -68,7 +68,7 @@ class AccountTariffController extends Controller
                   WHERE
                     uatl.tariff_period_id IS NULL
                   GROUP BY
-                    uatl.account_tariff_id
+                    uatl.account_tariff_id;
             ")->execute();
             echo 'Создание временной таблицы date_sale_virtual' . PHP_EOL;
             $db->createCommand("
@@ -90,7 +90,8 @@ class AccountTariffController extends Controller
                     ut.tariff_status_id NOT IN ({$tariffTestStatuses})
                       AND
                     uat.prev_account_tariff_id IS NULL
-                  GROUP BY uat.client_account_id
+                  GROUP BY 
+                    uat.client_account_id;
             ")->execute();
             echo 'Создание временной таблицы date_before_sale_virtual' . PHP_EOL;
             $db->createCommand("
@@ -113,7 +114,7 @@ class AccountTariffController extends Controller
                       AND
                     uat.prev_account_tariff_id IS NULL
                   GROUP BY
-                    uat.id
+                    uat.id;
             ")->execute();
             echo 'Создание временной таблицы uu_account_tariff_heap_virtual' . PHP_EOL;
             $db->createCommand("
@@ -150,27 +151,7 @@ class AccountTariffController extends Controller
                         LEFT JOIN date_sale_virtual
                           ON uat.client_account_id = date_sale_virtual.client_account_id
                         -- получение минимальной даты по каждой коммерческой услуге конкретного клиента
-                        LEFT JOIN (
-                          SELECT
-                            uat.id account_tariff_id,
-                            MIN(uatl.actual_from_utc) actual_from_utc
-                          FROM
-                            {$accountTariffTableName} uat
-                            LEFT JOIN {$accountTariffLogTableName} uatl
-                              ON uat.id = uatl.account_tariff_id
-                            LEFT JOIN {$tariffPeriodTableName} utp
-                              ON uatl.tariff_period_id = utp.id
-                            LEFT JOIN {$tariffTableName} ut
-                              ON utp.tariff_id = ut.id
-                          WHERE
-                            uatl.tariff_period_id IS NOT NULL
-                            AND
-                            ut.tariff_status_id NOT IN ({$tariffTestStatuses})
-                            AND
-                            uat.prev_account_tariff_id IS NULL
-                          GROUP BY
-                            uat.id
-                        ) date_before_sale_virtual
+                        LEFT JOIN date_before_sale_virtual
                           ON uat.id = date_before_sale_virtual.account_tariff_id
                     ) prepared
                       ON uat.id = prepared.account_tariff_id;
@@ -198,8 +179,7 @@ class AccountTariffController extends Controller
                   test_connect_date = uathv.test_connect_date,
                   date_sale = uathv.sale_date,
                   date_before_sale = uathv.sale_before_date,
-                  disconnect_date = uathv.disconnect_date
-                ;
+                  disconnect_date = uathv.disconnect_date;
             ")->execute();
             echo 'Удаление временных таблиц uu_account_tariff_heap_virtual, test_connect_date_virtual, disconnect_date_virtual, date_before_sale если они существуют...' . PHP_EOL;
             $db->createCommand("
