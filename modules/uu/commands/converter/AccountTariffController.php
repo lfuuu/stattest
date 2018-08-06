@@ -31,11 +31,91 @@ class AccountTariffController extends Controller
                 'date_before_sale' => null,
                 'disconnect_date' => null,
             ]);
-            echo 'Удаление временной таблицы, если она существует...' . PHP_EOL;
+            echo 'Удаление временных таблиц uu_account_tariff_heap_virtual, test_connect_date_virtual, disconnect_date_virtual, date_before_sale если они существуют...' . PHP_EOL;
             $db->createCommand("
+                DROP TEMPORARY TABLE IF EXISTS test_connect_date_virtual;
+                DROP TEMPORARY TABLE IF EXISTS disconnect_date_virtual;
+                DROP TEMPORARY TABLE IF EXISTS date_sale_virtual;
+                DROP TEMPORARY TABLE IF EXISTS date_before_sale;
                 DROP TEMPORARY TABLE IF EXISTS {$accountTariffHeapTableName}_virtual;
             ")->execute();
-            echo 'Создание временной таблицы...' . PHP_EOL;
+            echo 'Создание временной таблицы test_connect_date_virtual' . PHP_EOL;
+            $db->createCommand("
+                CREATE TEMPORARY TABLE test_connect_date_virtual (INDEX(account_tariff_id)) AS
+                  SELECT
+                    uatl.account_tariff_id account_tariff_id,
+                    MIN(uatl.actual_from_utc) actual_from_utc
+                  FROM {$accountTariffLogTableName} uatl
+                    INNER JOIN {$tariffPeriodTableName} utp
+                      ON uatl.tariff_period_id = utp.id
+                    INNER JOIN {$tariffTableName} ut
+                      ON ut.id = utp.tariff_id
+                  WHERE
+                    uatl.tariff_period_id IS NOT NULL
+                      AND
+                    ut.tariff_status_id IN ({$tariffTestStatuses})
+                  GROUP BY
+                    uatl.account_tariff_id
+            ")->execute();
+            echo 'Создание временной таблицы disconnect_date_virtual' . PHP_EOL;
+            $db->createCommand("
+                CREATE TEMPORARY TABLE disconnect_date_virtual (INDEX(account_tariff_id)) AS
+                  SELECT
+                    uatl.account_tariff_id account_tariff_id,
+                    MAX(uatl.actual_from_utc) actual_from_utc
+                  FROM
+                    {$accountTariffLogTableName} uatl
+                  WHERE
+                    uatl.tariff_period_id IS NULL
+                  GROUP BY
+                    uatl.account_tariff_id
+            ")->execute();
+            echo 'Создание временной таблицы date_sale_virtual' . PHP_EOL;
+            $db->createCommand("
+                CREATE TEMPORARY TABLE date_sale_virtual (INDEX(client_account_id)) AS
+                  SELECT
+                    uat.client_account_id client_account_id,
+                    MIN(uatl.actual_from_utc) actual_from_utc
+                  FROM
+                    {$accountTariffLogTableName} uatl
+                    INNER JOIN {$accountTariffTableName} uat
+                      ON uatl.account_tariff_id = uat.id
+                    LEFT JOIN {$tariffPeriodTableName} utp
+                      ON uatl.tariff_period_id = utp.id
+                    LEFT JOIN {$tariffTableName} ut
+                      ON utp.tariff_id = ut.id
+                  WHERE
+                    uatl.tariff_period_id IS NOT NULL
+                      AND
+                    ut.tariff_status_id NOT IN ({$tariffTestStatuses})
+                      AND
+                    uat.prev_account_tariff_id IS NULL
+                  GROUP BY uat.client_account_id
+            ")->execute();
+            echo 'Создание временной таблицы date_before_sale_virtual' . PHP_EOL;
+            $db->createCommand("
+                CREATE TEMPORARY TABLE date_before_sale_virtual (INDEX(account_tariff_id)) AS
+                  SELECT
+                    uat.id account_tariff_id,
+                    MIN(uatl.actual_from_utc) actual_from_utc
+                  FROM
+                    {$accountTariffTableName} uat
+                    LEFT JOIN {$accountTariffLogTableName} uatl
+                      ON uat.id = uatl.account_tariff_id
+                    LEFT JOIN {$tariffPeriodTableName} utp
+                      ON uatl.tariff_period_id = utp.id
+                    LEFT JOIN {$tariffTableName} ut
+                      ON utp.tariff_id = ut.id
+                  WHERE
+                    uatl.tariff_period_id IS NOT NULL
+                      AND
+                    ut.tariff_status_id NOT IN ({$tariffTestStatuses})
+                      AND
+                    uat.prev_account_tariff_id IS NULL
+                  GROUP BY
+                    uat.id
+            ")->execute();
+            echo 'Создание временной таблицы uu_account_tariff_heap_virtual' . PHP_EOL;
             $db->createCommand("
                 CREATE TEMPORARY TABLE {$accountTariffHeapTableName}_virtual (INDEX(account_tariff_id)) AS
                   SELECT
@@ -49,70 +129,26 @@ class AccountTariffController extends Controller
                       -- основной суб-запрос, собирающий всю необходимую информацию для обновления
                       SELECT
                         uat.id account_tariff_id,
-                        selected_test_connect_date.actual_from_utc test_connect_date,
-                        selected_disconnect_date.actual_from_utc disconnect_date,
+                        test_connect_date_virtual.actual_from_utc test_connect_date,
+                        disconnect_date_virtual.actual_from_utc disconnect_date,
                         -- если дата продажи + 2 недели больше, чем даты допродажи, то дата допродажи и будет датой продажи
-                        CASE WHEN DATE_ADD(selected_date_sale.actual_from_utc, INTERVAL 2 WEEK) >= selected_date_before_sale.actual_from_utc
-                          THEN selected_date_before_sale.actual_from_utc
+                        CASE WHEN DATE_ADD(date_sale_virtual.actual_from_utc, INTERVAL 2 WEEK) >= date_before_sale_virtual.actual_from_utc
+                          THEN date_before_sale_virtual.actual_from_utc
                         END sale_date,
                         -- если дата продажи + 2 недели меньше, чем дата допродажи, то дата допродажи сохраняется
-                        CASE WHEN DATE_ADD(selected_date_sale.actual_from_utc, INTERVAL 2 WEEK) < selected_date_before_sale.actual_from_utc
-                          THEN selected_date_before_sale.actual_from_utc
+                        CASE WHEN DATE_ADD(date_sale_virtual.actual_from_utc, INTERVAL 2 WEEK) < date_before_sale_virtual.actual_from_utc
+                          THEN date_before_sale_virtual.actual_from_utc
                         END sale_before_date
                       FROM {$accountTariffTableName} uat
                         -- получение информации для колонки 'Дата включения на тестовый тариф, utc'
-                        LEFT JOIN (
-                          SELECT
-                            uatl.account_tariff_id,
-                            MIN(uatl.actual_from_utc) actual_from_utc
-                          FROM {$accountTariffLogTableName} uatl
-                            INNER JOIN {$tariffPeriodTableName} utp
-                              ON uatl.tariff_period_id = utp.id
-                            INNER JOIN {$tariffTableName} ut
-                              ON ut.id = utp.tariff_id
-                          WHERE
-                            uatl.tariff_period_id IS NOT NULL
-                            AND
-                            ut.tariff_status_id IN ({$tariffTestStatuses})
-                          GROUP BY
-                            uatl.account_tariff_id
-                        ) selected_test_connect_date
-                          ON uat.id = selected_test_connect_date.account_tariff_id
+                        LEFT JOIN test_connect_date_virtual
+                          ON uat.id = test_connect_date_virtual.account_tariff_id
                         -- получение информации для колонки 'Дата отключения, utc'
-                        LEFT JOIN (
-                          SELECT
-                            uatl.account_tariff_id,
-                            MAX(uatl.actual_from_utc) actual_from_utc
-                          FROM
-                            {$accountTariffLogTableName} uatl
-                          WHERE
-                            uatl.tariff_period_id IS NULL
-                          GROUP BY
-                            uatl.account_tariff_id
-                        ) selected_disconnect_date
-                          ON uat.id = selected_disconnect_date.account_tariff_id
+                        LEFT JOIN disconnect_date_virtual
+                          ON uat.id = disconnect_date_virtual.account_tariff_id
                         -- получение минимальной даты по всем коммерческим услугам конкретного клиента
-                        LEFT JOIN (
-                          SELECT
-                            uat.client_account_id,
-                            MIN(uatl.actual_from_utc) actual_from_utc
-                          FROM
-                            {$accountTariffLogTableName} uatl
-                            INNER JOIN {$accountTariffTableName} uat
-                              ON uatl.account_tariff_id = uat.id
-                            LEFT JOIN {$tariffPeriodTableName} utp
-                              ON uatl.tariff_period_id = utp.id
-                            LEFT JOIN {$tariffTableName} ut
-                              ON utp.tariff_id = ut.id
-                          WHERE
-                            uatl.tariff_period_id IS NOT NULL
-                            AND
-                            ut.tariff_status_id NOT IN ({$tariffTestStatuses})
-                            AND
-                            uat.prev_account_tariff_id IS NULL
-                          GROUP BY uat.client_account_id
-                        ) selected_date_sale
-                          ON uat.client_account_id = selected_date_sale.client_account_id
+                        LEFT JOIN date_sale_virtual
+                          ON uat.client_account_id = date_sale_virtual.client_account_id
                         -- получение минимальной даты по каждой коммерческой услуге конкретного клиента
                         LEFT JOIN (
                           SELECT
@@ -134,8 +170,8 @@ class AccountTariffController extends Controller
                             uat.prev_account_tariff_id IS NULL
                           GROUP BY
                             uat.id
-                        ) selected_date_before_sale
-                          ON uat.id = selected_date_before_sale.account_tariff_id
+                        ) date_before_sale_virtual
+                          ON uat.id = date_before_sale_virtual.account_tariff_id
                     ) prepared
                       ON uat.id = prepared.account_tariff_id;
             ")->execute();
@@ -165,8 +201,12 @@ class AccountTariffController extends Controller
                   disconnect_date = uathv.disconnect_date
                 ;
             ")->execute();
-            echo 'Удаление временной таблицы, если она существует...' . PHP_EOL;
+            echo 'Удаление временных таблиц uu_account_tariff_heap_virtual, test_connect_date_virtual, disconnect_date_virtual, date_before_sale если они существуют...' . PHP_EOL;
             $db->createCommand("
+                DROP TEMPORARY TABLE IF EXISTS test_connect_date_virtual;
+                DROP TEMPORARY TABLE IF EXISTS disconnect_date_virtual;
+                DROP TEMPORARY TABLE IF EXISTS date_sale_virtual;
+                DROP TEMPORARY TABLE IF EXISTS date_before_sale;
                 DROP TEMPORARY TABLE IF EXISTS {$accountTariffHeapTableName}_virtual;
             ")->execute();
             $transaction->commit();
