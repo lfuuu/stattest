@@ -31,12 +31,12 @@ class AccountTariffController extends Controller
                 'date_before_sale' => null,
                 'disconnect_date' => null,
             ]);
-            echo 'Удаление временных таблиц uu_account_tariff_heap_virtual, test_connect_date_virtual, disconnect_date_virtual, date_before_sale если они существуют...' . PHP_EOL;
+            echo 'Удаление временных таблиц uu_account_tariff_heap_virtual, test_connect_date_virtual, disconnect_date_virtual, date_before_sale_virtual если они существуют...' . PHP_EOL;
             $db->createCommand("
                 DROP TEMPORARY TABLE IF EXISTS test_connect_date_virtual;
                 DROP TEMPORARY TABLE IF EXISTS disconnect_date_virtual;
                 DROP TEMPORARY TABLE IF EXISTS date_sale_virtual;
-                DROP TEMPORARY TABLE IF EXISTS date_before_sale;
+                DROP TEMPORARY TABLE IF EXISTS date_before_sale_virtual;
                 DROP TEMPORARY TABLE IF EXISTS {$accountTariffHeapTableName}_virtual;
             ")->execute();
             echo 'Создание временной таблицы test_connect_date_virtual' . PHP_EOL;
@@ -181,12 +181,12 @@ class AccountTariffController extends Controller
                   date_before_sale = uathv.sale_before_date,
                   disconnect_date = uathv.disconnect_date;
             ")->execute();
-            echo 'Удаление временных таблиц uu_account_tariff_heap_virtual, test_connect_date_virtual, disconnect_date_virtual, date_before_sale если они существуют...' . PHP_EOL;
+            echo 'Удаление временных таблиц uu_account_tariff_heap_virtual, test_connect_date_virtual, disconnect_date_virtual, date_before_sale_virtual если они существуют...' . PHP_EOL;
             $db->createCommand("
                 DROP TEMPORARY TABLE IF EXISTS test_connect_date_virtual;
                 DROP TEMPORARY TABLE IF EXISTS disconnect_date_virtual;
                 DROP TEMPORARY TABLE IF EXISTS date_sale_virtual;
-                DROP TEMPORARY TABLE IF EXISTS date_before_sale;
+                DROP TEMPORARY TABLE IF EXISTS date_before_sale_virtual;
                 DROP TEMPORARY TABLE IF EXISTS {$accountTariffHeapTableName}_virtual;
             ")->execute();
             $transaction->commit();
