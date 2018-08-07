@@ -7,6 +7,7 @@ use app\models\DidGroup;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\AccountTariffVoipFlat;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffStatus;
@@ -129,14 +130,17 @@ class AccountTariffVoipFlatController extends Controller
                     $accountTariffVoipFlat->ndc_type = isset($this->_ndcTypeList[$number->ndc_type_id]) ?
                         $this->_ndcTypeList[$number->ndc_type_id] : $number->ndc_type_id;
                 }
-                // Дата включения на тестовый тариф
-                $accountTariffVoipFlat->test_connect_date = $model->test_connect_date;
-                // Дата продажи
-                $accountTariffVoipFlat->date_sale = $model->date_sale;
-                // Дата допродажи
-                $accountTariffVoipFlat->date_before_sale = $model->date_before_sale;
-                // Дата отключения
-                $accountTariffVoipFlat->disconnect_date = $model->disconnect_date;
+                /** @var AccountTariffHeap $accountTariffHeap */
+                if ($accountTariffHeap = $model->getAccountTariffHeap()->one()) {
+                    // Дата включения на тестовый тариф
+                    $accountTariffVoipFlat->test_connect_date = $accountTariffHeap->test_connect_date;
+                    // Дата продажи
+                    $accountTariffVoipFlat->date_sale = $accountTariffHeap->date_sale;
+                    // Дата допродажи
+                    $accountTariffVoipFlat->date_before_sale = $accountTariffHeap->date_before_sale;
+                    // Дата отключения
+                    $accountTariffVoipFlat->disconnect_date = $accountTariffHeap->disconnect_date;
+                }
                 // Аккаунт - менеджер
                 $accountTariffVoipFlat->account_manager_name = $model->clientAccount->contract->getAccountManagerName();
 
