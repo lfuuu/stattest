@@ -2720,7 +2720,11 @@ class m_newaccounts extends IModule
         }
 
         if ($bill->Client('type_of_bill') == ClientAccount::TYPE_OF_BILL_SIMPLE) {
-            $billLines = \app\models\BillLine::compactLines($billLines, $bill->Client()->contragent->lang_code, $bill->Get('price_include_vat'));
+            $billLines = \app\models\BillLine::compactLines(
+                $billLines,
+                $bill->Client()->contragent->lang_code,
+                $bill->Get('price_include_vat')
+            );
         }
 
         // скорректированные с/ф только если они есть и не в книге продаж.

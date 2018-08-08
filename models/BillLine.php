@@ -223,7 +223,7 @@ class BillLine extends ActiveRecord
         });
 
         foreach ($idx as $row) {
-            $line = $row['first_line'];
+            $line = is_object($row['first_line']) ? (clone $row['first_line']) : $row['first_line'];
             $line['amount'] = $row['sums']['amount'];
             $line['sum'] = $row['sums']['sum'];
             $line['sum_without_tax'] = $row['sums']['sum_without_tax'];
