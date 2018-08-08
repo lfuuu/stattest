@@ -124,7 +124,7 @@ class Card extends ActiveRecord
      */
     public static function getUrlById($iccid)
     {
-        return Url::to(['/sim/card/edit', 'iccid' => $iccid]);
+        return Url::to(['/sim/card/edit', 'originIccid' => $iccid]);
     }
 
     /**
