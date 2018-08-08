@@ -71,10 +71,10 @@ class Invoice extends ActiveRecord
 
         switch ($typeId) {
             case self::TYPE_1:
-                return $date->modify('first day of this month');
+                return $date->modify('last day of this month');
                 break;
             case self::TYPE_2:
-                return $date->modify('first day of previous month');
+                return $date->modify('last day of previous month');
                 break;
             case self::TYPE_GOOD:
                 return self::_getBillWithGoodDate($bill, $date);
@@ -100,7 +100,7 @@ class Invoice extends ActiveRecord
             return $date;
         }
 
-        return $defaultDate;
+        return false;
     }
 
     private static function _getShippedDateFromTouble(Bill $bill)

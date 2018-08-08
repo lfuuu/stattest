@@ -939,6 +939,11 @@ SQL;
         foreach ($billLines as $line) {
 
             $dateFrom = is_array($line) ? $line['date_from'] : $line->date_from;
+            $dateFrom == BillLine::DATE_DEFAULT && $dateFrom = $bill->bill_date; // ручная проводка без даты
+
+            $dateFrom = (new \DateTimeImmutable($dateFrom))->modify('first day of this month');
+            $billDate = (new \DateTimeImmutable($bill->bill_date))->modify('first day of this month');
+
             $type = is_array($line) ? $line['type'] : $line->type;
 
             if (in_array($typeId, [Invoice::TYPE_1, Invoice::TYPE_2]) && $type != BillLine::LINE_TYPE_SERVICE) {
@@ -954,12 +959,12 @@ SQL;
             if ($typeId == Invoice::TYPE_1) {
                 if (
                     $dateFrom == BillLine::DATE_DEFAULT
-                    || $dateFrom >= $bill->bill_date) {
+                    || $dateFrom >= $billDate) {
                     $isAllow = true;
                 }
             } elseif ($typeId == Invoice::TYPE_2) {
                 if ($dateFrom != BillLine::DATE_DEFAULT
-                    && $dateFrom < $bill->bill_date)
+                    && $dateFrom < $billDate)
                     $isAllow = true;
             } elseif ($typeId == Invoice::TYPE_GOOD) {
                 $isAllow = $type == BillLine::LINE_TYPE_GOOD;
@@ -984,7 +989,12 @@ SQL;
 
         try {
             foreach (Invoice::$types as $typeId) {
-                $invoiceDate = Invoice::getDate($bill, $typeId)->format(DateTimeZoneHelper::DATE_FORMAT);
+                $invoiceDate = Invoice::getDate($bill, $typeId);
+
+                // если нет даты документа, то и с/ф регистрировать не надо
+                if (!$invoiceDate) {
+                    continue;
+                }
 
                 $invoice = Invoice::findOne(['bill_no' => $bill->bill_no, 'type_id' => $typeId]);
 
@@ -1000,10 +1010,10 @@ SQL;
                         $invoice->sum = 0;
                     }
 
-                    $invoice->date = $invoiceDate;
+                    $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
                     $invoice->is_reversal = 0;
 
-                    if ($invoice->sum != $sum) {
+                    if (abs((float)$invoice->sum - $sum) > 0.001) {
                         $invoice->sum = $sum;
                     }
 
@@ -1012,6 +1022,11 @@ SQL;
                     }
 
                 } elseif ($invoice) {
+
+                    if ($invoice->is_reversal) {
+                        continue;
+                    }
+
                     $invoice->is_reversal = 1;
 
                     if (!$invoice->save()) {
