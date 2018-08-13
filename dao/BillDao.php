@@ -716,6 +716,7 @@ SQL;
      * @param string $currency
      * @param int $isForcePriceIncludeVat
      * @return Bill
+     * @throws \Exception
      * @internal param \DateTime|null $date
      */
     public function createBill(ClientAccount $clientAccount, $currency = null, $isForcePriceIncludeVat = null)
@@ -882,27 +883,37 @@ SQL;
             ['service' => $trunkNamesStr, 'date_range' => '', 'minutes' => $billedTime],
             Language::normalizeLang($account->contract->contragent->lang_code)
         );
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $bill = $this->createBill($account);
+        try {
+            $bill = $this->createBill($account);
 
-        HandlerLogger::me()->add(date('r') . ': accountId: ' . $account->id . ': ' .
-            $bill->bill_no . ' ' . $lineItem . ' ' .
-            str_replace(["\n", "\r"], '', print_r($result, true))
-        );
+            HandlerLogger::me()->add(date('r') . ': accountId: ' . $account->id . ': ' .
+                $bill->bill_no . ' ' . $lineItem . ' ' .
+                str_replace(["\n", "\r"], '', print_r($result, true))
+            );
 
-        $bill->addLine(
-            $lineItem,
-            1,
-            $sum,
-            BillLine::LINE_TYPE_ZADATOK,
-            $periodStart,
-            $periodEnd->modify('-1 day')
-        );
+            $bill->addLine(
+                $lineItem,
+                1,
+                $sum,
+                BillLine::LINE_TYPE_ZADATOK,
+                $periodStart,
+                $periodEnd->modify('-1 day')
+            );
 
-        $bill->comment = 'Авансовый автоматический счет на ' . round($sum, 2) . ' ' . $account->currency;
+            $bill->comment = 'Авансовый автоматический счет на ' . round($sum, 2) . ' ' . $account->currency;
 
-        if (!$bill->save()) {
-            throw new ModelValidationException($bill);
+            if (!$bill->save()) {
+                throw new ModelValidationException($bill);
+            }
+
+            $transaction->commit();
+        }catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+
+            throw $e;
         }
     }
 
