@@ -314,6 +314,7 @@ class PayPal
 
         $response = (new HttpClient())
             ->createRequest()
+            ->addOptions([CURLOPT_SSLVERSION => 1])
             ->setUrl($this->_endPoint)
             ->setMethod('post')
             ->setData($requestParams)
