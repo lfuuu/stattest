@@ -94,6 +94,8 @@ class AccountLogPeriodTarificator extends Tarificator
             $maxDateTimeTo = $accountTariff
                 ->clientAccount
                 ->getDatetimeWithTimezone($maxDateTo)
+                ->setTime(0, 0, 0)
+                ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))// перевести в UTC
                 ->modify('+1 day'); // "оплачено по" означает "00:00", а нам надо "23:59"
             $accountTariff->account_log_period_utc = $maxDateTimeTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
             if (!$accountTariff->save()) {
