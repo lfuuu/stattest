@@ -1047,8 +1047,8 @@ SQL;
                     $sum = BillLine::getSumLines($lines);
 
                     // не вносим отрицательные суммы
-                    if ($sum <= 0 && $invoice) {
-                        $invoice->setReversal();
+                    if ($sum <= 0) {
+                        $invoice && $invoice->setReversal();
                         continue;
                     }
 

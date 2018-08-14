@@ -759,7 +759,7 @@ class m_newaccounts extends IModule
         $design->assign('admin_order', $adminNum);
 
 
-        $design->assign('is_new_invoice', $bill->Get('bill_date') >= '2018-08-01');
+        $design->assign('is_new_invoice', $bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING);
         $design->assign('invoice_info', \app\models\Invoice::find()
             ->select(['sum', 'is_reversal', 'type_id'])
             ->where([
@@ -2813,7 +2813,7 @@ class m_newaccounts extends IModule
                     }
                 }
 
-                if (!$newInvoiceNumber && $bill->Get('bill_date') >= '2018-08-01') {
+                if (!$newInvoiceNumber && $bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
                     echo 'Документ не готов';
 
                     // @TODO
@@ -4533,7 +4533,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                         $invoice = null;
 
-                        if ($bill->Get('bill_date') >= '2018-08-01') {
+                        if ($bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
                             $invoice = \app\models\Invoice::findOne([
                                 'bill_no' => $A['bill']['bill_no'],
                                 'type_id' => $I,
