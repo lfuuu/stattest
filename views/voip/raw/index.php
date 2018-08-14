@@ -4,14 +4,25 @@
  *
  * @var CallsRawFilter $filterModel
  * @var \app\classes\BaseView $this
+ * @var boolean $isSupport
+ * @var boolean $isCache
  */
 
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\models\voip\filter\CallsRawFilter;
+use app\classes\grid\column\universal\CheckboxColumn;
 use app\modules\nnp\column\NdcTypeColumn;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
+
+// Если вызывающий контроллер не поддерживает кеширование
+if (!isset($isCache)) {
+    $isCache = false;
+}
+if (!isset($isSupport)) {
+    $isSupport = false;
+}
 
 if (!isset(Yii::$app->request->get()['_pjax'])) {
     echo Breadcrumbs::widget([
@@ -22,6 +33,13 @@ if (!isset(Yii::$app->request->get()['_pjax'])) {
     ]);
 
     $filter = require '_indexFilters.php';
+    // Если поддержка кеша не требуется, то дополнитить выводимые колонки
+    if ($isCache) {
+        $filter[] = [
+            'attribute' => 'calls_with_duration',
+            'class' => CheckboxColumn::className(),
+        ];
+    }
 }
 
 $aggrDigitCount = [
@@ -101,6 +119,21 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     }
 } else {
     $columns = require '_indexColumns.php';
+    // Если поддержка кеша не требуется, то дополнитить выводимые колонки
+    if (!$isCache) {
+        $columns[] = [
+            'label' => 'Номер А',
+            'attribute' => 'src_number',
+        ];
+        $columns[] = [
+            'label' => 'Номер В',
+            'attribute' => 'dst_number',
+        ];
+        $columns[] = [
+            'label' => 'ПДД',
+            'attribute' => 'pdd',
+        ];
+    }
 }
 
 $chooseError = function () use ($filterModel) {
@@ -116,7 +149,7 @@ $chooseError = function () use ($filterModel) {
     return $error;
 };
 
-$dataProvider = $filterModel->getReport();
+$dataProvider = $filterModel->getReport(true, $isSupport, $isCache);
 
 try {
     GridView::separateWidget([
@@ -140,24 +173,58 @@ try {
             'filterModel' => $filterModel,
             'columns' => $columns,
         ]),
-        'panelHeadingTemplate' => '<div class="pull-right">
-                                        {extraButtons}
-                                    </div>
-                                    <div class="pull-left">
-                                        {summary}
-                                    </div>
-                                    <h3 class="panel-title">
-                                        {heading}
-                                    </h3>
-                                    <div class="clearfix"></div>'
+        'panelHeadingTemplate' => $isSupport ?
+            '
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>В режиме кэширования будут недоступны некоторые фильтры</h2>
+                    </div>
+                    <div class="col-md-12">
+                        <input type="checkbox" value="1" id="isCacheCheckbox">
+                        <label for="isCacheCheckbox">Использовать кэш</label>
+                    </div>
+                    <script>
+                        $(document).ready(function(){
+                            let $url = new URL(window.location.href);
+                            if (parseInt($url.searchParams.get("isCache")) === 1) {
+                                $("#isCacheCheckbox").prop("checked", true);
+                                $("#callsrawfilter-src_number").prop("disabled", true);
+                                $("#callsrawfilter-dst_number").prop("disabled", true);
+                                $("#callsrawfilter-src_destinations_ids").prop("disabled", true);
+                                $("#callsrawfilter-dst_destinations_ids").prop("disabled", true)
+                                $("#callsrawfilter-session_time_from").prop("disabled", true);
+                                $("#callsrawfilter-session_time_to").prop("disabled", true);
+                            }
+                            $("#isCacheCheckbox").on("click", function () {
+                                if ($(this).is(":not(:checked)")) {
+                                    $url.searchParams.set("isCache", "0");
+                                    $("#callsrawfilter-src_number").prop("disabled", false);
+                                    $("#callsrawfilter-dst_number").prop("disabled", false);
+                                    $("#callsrawfilter-src_destinations_ids").prop("disabled", false);
+                                    $("#callsrawfilter-dst_destinations_ids").prop("disabled", false)
+                                    $("#callsrawfilter-session_time_from").prop("disabled", false);
+                                    $("#callsrawfilter-session_time_to").prop("disabled", false);
+                                } else {
+                                    $url.searchParams.set("isCache", "1");
+                                    $("#callsrawfilter-src_number").prop("disabled", true);
+                                    $("#callsrawfilter-dst_number").prop("disabled", true);
+                                    $("#callsrawfilter-src_destinations_ids").prop("disabled", true);
+                                    $("#callsrawfilter-dst_destinations_ids").prop("disabled", true)
+                                    $("#callsrawfilter-session_time_from").prop("disabled", true);
+                                    $("#callsrawfilter-session_time_to").prop("disabled", true);
+                                }
+                                window.location.href = $url.href;
+                            });
+                        });
+                    </script>
+                </div>
+            ' : '',
     ]);
 } catch (yii\db\Exception $e) {
-    if ($e->getCode() == 8) {
-        Yii::$app->session->addFlash(
-            'error',
-            'Запрос слишком тяжелый, чтобы выполниться. Задайте, пожалуйста, другие фильтры'
-        );
-    } else {
-        Yii::$app->session->addFlash('error', 'Ошибка выполнения запроса: ' . $e->getMessage());
-    }
+    Yii::$app->session->addFlash(
+        'error',
+        ($e->getCode() == 8) ?
+            'Запрос слишком тяжелый, чтобы выполниться. Задайте, пожалуйста, другие фильтры' :
+            'Ошибка выполнения запроса: ' . $e->getMessage()
+    );
 }

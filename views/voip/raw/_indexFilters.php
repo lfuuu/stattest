@@ -87,8 +87,6 @@ return [
         ],
         'isWithEmpty' => false
     ],
-
-
     [
         'attribute' => 'src_physical_trunks_ids',
         'class' => TrunkColumn::className(),
@@ -133,7 +131,6 @@ return [
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
-
     [
         'attribute' => 'src_logical_trunks_ids',
         'class' => ServiceTrunkColumn::className(),
@@ -154,7 +151,6 @@ return [
             'multiple' => true,
         ],
     ],
-
     [
         'attribute' => 'src_countries_ids',
         'class' => CountryColumn::className(),
@@ -251,7 +247,6 @@ return [
         ],
         'isWithEmpty' => false,
     ],
-
     [
         'attribute' => 'src_number_type_ids',
         'class' => NdcTypeColumn::className(),
@@ -278,7 +273,6 @@ return [
         'attribute' => 'is_exclude_internal_trunk_orig',
         'class' => CheckboxColumn::className(),
     ],
-
     [
         'attribute' => 'session_time',
         'class' => IntegerRangeColumn::className(),

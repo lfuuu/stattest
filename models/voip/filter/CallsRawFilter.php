@@ -82,7 +82,7 @@ use yii\db\Expression;
  */
 class CallsRawFilter extends CallsRaw
 {
-    use \app\classes\traits\CallsRawCacheReport;
+    use \app\classes\traits\CallsRawReport;
     use \app\classes\traits\CallsRawSlowReport;
 
     const UNATTAINABLE_SESSION_TIME = 2592000;
@@ -113,7 +113,6 @@ class CallsRawFilter extends CallsRaw
         'acd_u' => 'SUM(session_time) / NULLIF(SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END)), 0)',
         'asr_u' => 'SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END))::real / NULLIF(COUNT(cr1.connect_time)::real, 0)',
     ];
-
     public $currencyDependentFields = [
         'sale_sum',
         'sale_avg',
@@ -129,7 +128,6 @@ class CallsRawFilter extends CallsRaw
         'margin_max',
         'margin_percent',
     ];
-
     public $server_ids = [];
     public $connect_time_from = null;
     public $connect_time_to = null;
@@ -158,7 +156,6 @@ class CallsRawFilter extends CallsRaw
     public $dst_destinations_ids = [];
     public $src_number_type_ids = [];
     public $dst_number_type_ids = [];
-
     public $src_operator_name = null;
     public $dst_operator_name = null;
     public $src_region_name = null;
@@ -168,35 +165,22 @@ class CallsRawFilter extends CallsRaw
     public $src_city_name = null;
     public $dst_city_name = null;
     public $session_time = null;
-
+    public $calls_with_duration = null;
     public $group = [];
-
     public $aggr = [];
-
     public $group_period = '';
-
     public $sort = null;
-
     public $currency = Currency::RUB;
     public $currency_rate = 1;
-
     public $sale = null;
-
     public $cost_price = null;
-
     public $margin = null;
-
     public $orig_rate = null;
-
     public $term_rate = null;
-
     public $dateStart = null;
-
     public $dbConn = null;
-
     public $src_trunk_group_ids = null;
     public $dst_trunk_group_ids = null;
-
     public $is_exclude_internal_trunk_term = null;
     public $is_exclude_internal_trunk_orig = null;
 
@@ -213,6 +197,7 @@ class CallsRawFilter extends CallsRaw
                     'is_success_calls',
                     'session_time_from',
                     'session_time_to',
+                    'calls_with_duration',
                     'is_exclude_internal_trunk_term',
                     'is_exclude_internal_trunk_orig',
                 ],
@@ -326,6 +311,7 @@ class CallsRawFilter extends CallsRaw
                 'src_physical_trunks_ids' => 'Физический транк-оригинатор',
                 'src_trunk_group_ids' => 'Группа транка-оригинатора',
                 'session_time' => 'Длительность разговора',
+                'calls_with_duration' => 'Только звонки с длительностью',
                 'src_operator_ids' => 'Оператор номера А',
                 'dst_operator_ids' => 'Оператор номера В',
                 'disconnect_causes' => 'Код завершения',
@@ -353,7 +339,6 @@ class CallsRawFilter extends CallsRaw
                 'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
                 'is_exclude_internal_trunk_orig' => 'Исключить внутренние транки Оригинационные',
                 'aggr' => 'Что считать',
-
             ];
     }
 
@@ -413,40 +398,47 @@ class CallsRawFilter extends CallsRaw
     {
         $groups = [];
 
-        // простые именнованые значения
+        // именнованые значения
         foreach ([
-                     'src_route',
-                     'dst_route',
-                     'src_number',
-                     'dst_number',
-                     'src_operator_name',
-                     'dst_operator_name',
-                     'src_country_name',
-                     'dst_country_name',
-                     'src_region_name',
-                     'dst_region_name',
-                     'src_city_name',
-                     'dst_city_name',
-                     'src_ndc_type_id',
-                     'dst_ndc_type_id',
-                     'sale',
-                     'cost_price',
-                     'orig_rate',
-                     'term_rate'
-                 ] as $field) {
+            'src_route',
+            'dst_route',
+            'src_number',
+            'dst_number',
+            'src_operator_name',
+            'dst_operator_name',
+            'src_country_name',
+            'dst_country_name',
+            'src_region_name',
+            'dst_region_name',
+            'src_city_name',
+            'dst_city_name',
+            'src_ndc_type_id',
+            'dst_ndc_type_id',
+            'sale',
+            'cost_price',
+            'orig_rate',
+            'term_rate'
+        ] as $field) {
             $groups[$field] = $this->getAttributeLabel($field);
         }
 
         return $groups;
     }
 
+    /**
+     * @return array
+     */
     public function getAggrGroups()
     {
+        // Если используется кэширование, то заменить при агрегации информацию по выборке
+        if ($this->_isRequestCaching()) {
+            $this->aggrConst['calls_count'] = 'SUM(number_of_calls)';
+            $this->aggrConst['asr'] = str_replace('COUNT(cr1.connect_time)', 'SUM(number_of_calls)', $this->aggrConst['asr']);
+            $this->aggrConst['asr_u'] = str_replace('COUNT(cr1.connect_time)', 'SUM(number_of_calls)', $this->aggrConst['asr_u']);
+        }
+
         $fields = array_keys($this->aggrConst);
-
-        $that = $this;
-
-        $fields = array_map(function ($value) use ($that) {
+        $fields = array_map(function ($value){
             return $this->getAttributeLabel($value);
         }, array_combine($fields, $fields));
 
@@ -604,30 +596,28 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
-     * Отчет по calls_raw (живет по адресу /voip/raw)
+     * Отчет по calls_raw (/voip/raw или /voip/raw/with-cache)
      *
-     * @return ActiveDataProvider|ArrayDataProvider
+     * @param bool $isGetDataProvider
+     * @param bool $isSupport
+     * @param bool $isCache
+     * @return array|mixed|ArrayDataProvider
+     * @throws \yii\db\Exception
      */
-    public function getReport($isGetDataProvider = true)
+    public function getReport($isGetDataProvider = true, $isSupport = false, $isCache = false)
     {
         if ($this->currency != Currency::RUB && $this->currency_rate) {
             $this->currency_rate = CurrencyRate::dao()->getRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT));
         }
 
         if (!$this->isFilteringPossible() || !$this->isNnpFiltersPossible()) {
-            return $isGetDataProvider
-                ? new ArrayDataProvider(['allModels' => [],])
-                : [];
+            return $isGetDataProvider ?
+                new ArrayDataProvider(['allModels' => [],]) : [];
         }
 
-        /*
-        $last_month = (new \DateTime())->setTimestamp(mktime(0, 0, 0, date('m') - 1, 1));
-
-        $query = $this->dateStart >= $last_month ? $this->_getCacheReport() : $this->_getSlowReport();
-        */
-
-
-        $query = $this->_getSlowReport();
+        // Формирование запроса с учетом флага кеширования
+        $query = $isSupport ?
+            $this->_getReport($isCache) : $this->_getSlowReport();
 
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
@@ -647,11 +637,8 @@ class CallsRawFilter extends CallsRaw
 
             $sort = [];
             foreach ($fields as $key => $value) {
-                if (!is_int($key)) {
-                    $sort[] = $key;
-                } else {
-                    $sort[] = $this->getGroupKeyParts($value)[0];
-                }
+                $sort[] = !is_int($key) ?
+                    $key : $this->getGroupKeyParts($value)[0];
             }
 
             $query->select($fields)
@@ -663,12 +650,10 @@ class CallsRawFilter extends CallsRaw
                 'connect_time',
                 'session_time',
                 'disconnect_cause',
-                'src_number',
                 'src_operator_name',
                 'src_country_name',
                 'src_region_name',
                 'src_city_name',
-                'dst_number',
                 'dst_operator_name',
                 'dst_country_name',
                 'dst_region_name',
@@ -682,24 +667,30 @@ class CallsRawFilter extends CallsRaw
                 'margin',
                 'orig_rate',
                 'term_rate',
-                'pdd',
             ];
-        }
-
-        $queryCacheKey = CallsRaw::getCacheKey($query);
-
-        if (Yii::$app->cache->exists($queryCacheKey)) {
-            $result = Yii::$app->cache->get($queryCacheKey);
-        } else {
-            $result = $query->createCommand(Yii::$app->dbPg)->queryAll(); // переключено на основной сервер
-            if ($result !== false) {
-                Yii::$app->cache->set($queryCacheKey, $result);
-                CallsRaw::addReportCacheKey($queryCacheKey);
+            // Добавление полей, которые не поддерживает кеширование
+            if (!$isSupport || !$isCache) {
+                $sort = array_merge($sort, [
+                    'src_number', 'dst_number', 'pdd'
+                ]);
             }
         }
 
-
-        $count = count($result);
+        if ($isSupport && $isCache) {
+            $result = $query->createCommand(Yii::$app->dbPg)
+                ->queryAll();
+        } else {
+            $queryCacheKey = CallsRaw::getCacheKey($query);
+            if (Yii::$app->cache->exists($queryCacheKey)) {
+                $result = Yii::$app->cache->get($queryCacheKey);
+            } else {
+                $result = $query->createCommand(Yii::$app->dbPg)->queryAll();
+                if ($result) {
+                    Yii::$app->cache->set($queryCacheKey, $result);
+                    CallsRaw::addReportCacheKey($queryCacheKey);
+                }
+            }
+        }
 
         if (!$isGetDataProvider) {
             $this->_setCurrencyRate($result);
@@ -710,7 +701,7 @@ class CallsRawFilter extends CallsRaw
             [
                 'allModels' => $result,
                 'pagination' => [],
-                'totalCount' => $count,
+                'totalCount' => count($result),
                 'sort' => [
                     'defaultOrder' => [(isset($sort[0]) ? $sort[0] : 'connect_time') => SORT_DESC],
                     'attributes' => $sort,
@@ -733,5 +724,17 @@ class CallsRawFilter extends CallsRaw
                 }
             }
         }
+    }
+
+    /**
+     * Является ли текущий вопрос с запросом на кэширование
+     *
+     * @return bool
+     */
+    private function _isRequestCaching()
+    {
+        return
+            Yii::$app->controller->action->id == 'with-cache' &&
+            Yii::$app->getRequest()->get('isCache') == 1;
     }
 }

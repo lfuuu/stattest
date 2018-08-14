@@ -47,7 +47,8 @@ class RawController extends BaseController
                             'get-trunk-groups',
                             'save-filter',
                             'get-filters',
-                            'get-saved-filter-data'
+                            'get-saved-filter-data',
+                            'with-cache',
                         ],
                         'roles' => ['voip.access'],
                     ],
@@ -215,7 +216,7 @@ class RawController extends BaseController
      * Получить параметры фильтра
      *
      * @param null $id
-     * @return bool
+     * @return array|bool
      */
     public function actionGetFilterQueryData($id = null)
     {
@@ -240,31 +241,46 @@ class RawController extends BaseController
     }
 
     /**
-     * Контроллер страницы /voip/raw
+     * Метод, не поддерживающий кеширование
      *
      * @return string
      */
     public function actionIndex()
     {
-        CallsRaw::getDb()->createCommand("set work_mem = '500MB'")->execute();
+        CallsRaw::getDb()
+            ->createCommand("set work_mem = '500MB'")->execute();
 
-        $model = new CallsRawFilter();
+        $model = new CallsRawFilter;
         $model->load(Yii::$app->request->get());
 
-        if (!isset(Yii::$app->request->get()['_pjax'])) {
-            return $this->render(
-                'index',
-                [
-                    'filterModel' => $model
-                ]
-            );
-        }
-
-        return $this->renderPartial(
-            'index',
-            [
-                'filterModel' => $model
-            ]);
+        $params = [
+            'filterModel' => $model,
+        ];
+        return !isset(Yii::$app->request->get()['_pjax']) ?
+            $this->render('index', $params) : $this->renderPartial('index', $params);
     }
 
+    /**
+     * Метод, поддерживающий кеширование
+     *
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    public function actionWithCache()
+    {
+        // Задаём объём памяти для внутренних операций
+        CallsRaw::getDb()
+            ->createCommand("set work_mem = '500MB'")->execute();
+        // Получение фильтра
+        $model = new CallsRawFilter;
+        $model->load(Yii::$app->request->get());
+
+        $params = [
+            'filterModel' => $model,
+            'isSupport' => Yii::$app->controller->action->id == 'with-cache',
+            'isCache' => Yii::$app->getRequest()->get('isCache') == 1,
+        ];
+        return !isset(Yii::$app->request->get()['_pjax']) ?
+            $this->render('index', $params) : $this->renderPartial('index', $params);
+    }
 }

@@ -12,7 +12,6 @@ namespace app\classes\yii;
 use app\classes\traits\GetListTrait;
 use yii\db\Command;
 use yii\db\Connection;
-use yii\db\Expression;
 use yii\db\Query;
 use Yii;
 use app\classes\McnQueryBuilder;
@@ -51,7 +50,7 @@ class CTEQuery extends Query
         if ($db === null) {
             $db = Yii::$app->getDb();
         }
-        
+
         $builder = new McnQueryBuilder($db);
         list ($sql, $params) = $builder->build($this);
 
@@ -137,35 +136,30 @@ class CTEQuery extends Query
             $condition = [$param => $property];
             if (is_array($property)) {
                 $nullOrNotNullCondition = [];
-
-                if(($key = array_search(GetListTrait::$isNull, $property)) !== false) {
+                if (($key = array_search(GetListTrait::$isNull, $property)) !== false) {
                     unset($property[$key]);
                     $nullOrNotNullCondition = [$param => null];
                 } elseif (($key = array_search(GetListTrait::$isNotNull, $property)) !== false) {
                     unset($property[$key]);
                     $nullOrNotNullCondition = ['NOT', [$param => null]];
                 }
-
                 if ($nullOrNotNullCondition) {
-                    if ($property) {
-                        $condition = ['OR', [$param => $property], $nullOrNotNullCondition];
-                    } else {
-                        $condition = $nullOrNotNullCondition;
-                    }
+                    $condition = $property ?
+                        ['OR', [$param => $property], $nullOrNotNullCondition] :
+                        $nullOrNotNullCondition;
                 }
             } else {
-                if ($property == GetListTrait::$isNull) {
-                    $condition = [$param => null];
-                }
-
-                if ($property == GetListTrait::$isNotNull) {
-                    $condition = ['NOT', [$param => null]];
+                switch ($property) {
+                    case GetListTrait::$isNull:
+                        $condition = [$param => null];
+                        break;
+                    case GetListTrait::$isNotNull:
+                        $condition = ['NOT', [$param => null]];
+                        break;
                 }
             }
-
             $this->andWhere($condition);
         }
-
         return $this;
     }
 }

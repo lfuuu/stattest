@@ -27,10 +27,6 @@ return [
         'class' => DisconnectCauseColumn::className(),
     ],
     [
-        'label' => 'Номер А',
-        'attribute' => 'src_number',
-    ],
-    [
         'label' => 'Оператор А',
         'attribute' => 'src_operator_name',
     ],
@@ -45,10 +41,6 @@ return [
     [
         'label' => 'Город А',
         'attribute' => 'src_city_name',
-    ],
-    [
-        'label' => 'Номер В',
-        'attribute' => 'dst_number',
     ],
     [
         'label' => 'Оператор В',
@@ -121,9 +113,5 @@ return [
             return $model['term_rate'] / $filterModel->currency_rate;
         },
         'format' => ['decimal', 4],
-    ],
-    [
-        'label' => 'ПДД',
-        'attribute' => 'pdd',
     ],
 ];
