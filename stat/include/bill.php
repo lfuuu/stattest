@@ -423,7 +423,7 @@ class Bill {
 
 		$db->Query($query);
 		$pay = $db->NextRecord(MYSQL_ASSOC);
-		if($pay['type'] == 'PAY'){
+		if($pay && $pay['type'] == 'PAY'){
 
             $tax_rate = $this->Client()->getTaxRate();
             $ret_x['tax_rate'] = $tax_rate;

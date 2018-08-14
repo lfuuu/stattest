@@ -49,5 +49,6 @@ class InvoiceNextIdx extends Behavior
             (new \DateTimeImmutable($invoice->date))->format('ym') .
             sprintf("%02d", $invoice->organization_id) . '-' .
             sprintf("%04d", $invoice->idx);
+        $invoice->add_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 }

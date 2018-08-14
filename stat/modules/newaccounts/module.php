@@ -2803,10 +2803,14 @@ class m_newaccounts extends IModule
 
                 if ($invoice = \app\models\Invoice::findOne([
                     'bill_no' => $bill->Get('bill_no'),
-                    'type_id' => $source,
+                    'type_id' => $is_four_order ? \app\models\Invoice::TYPE_PREPAID : $source,
                     'is_reversal' => 0,
                 ])) {
                     $newInvoiceNumber = $invoice->number;
+
+                    if ($is_four_order) {
+                        $inv_date = (new \DateTimeImmutable($invoice->date))->getTimestamp();
+                    }
                 }
 
                 if (!$newInvoiceNumber && $bill->Get('bill_date') >= '2018-08-01') {
@@ -4527,14 +4531,22 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['sum'];
                         $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['sum'] : 0;
 
-                        $invoice = \app\models\Invoice::findOne(['bill_no' => $A['bill']['bill_no'], 'type_id' => $I]);
+                        $invoice = null;
+
+                        if ($bill->Get('bill_date') >= '2018-08-01') {
+                            $invoice = \app\models\Invoice::findOne([
+                                'bill_no' => $A['bill']['bill_no'],
+                                'type_id' => $I,
+                                'is_reversal' => 0
+                            ]);
+                        }
 
                         $R[$A['inv_date'] + ($Rc++)] = array(
                             'type' => 'inv',
                             'date' => /* $invoice ? $invoice->date : */ $A['inv_date'],
                             'sum_income' => $sum_in,
                             'sum_outcome' => $sum_out,
-                            'inv_no' => $invoice ? $invoice->number : $A['inv_no'],
+                            'inv_no' => $invoice === null ? $A['inv_no'] : ($invoice ? $invoice->number : "***" . $A['inv_no'] . "***"),
                             'bill_no' => $A['bill']['bill_no'],
                             'inv_num' => $I,
                         );
@@ -4833,7 +4845,12 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             foreach ($AA as $p) {
                 //while(($p = mysql_fetch_assoc($res))!==false){
 
-                $bill = new \Bill($p['bill_no']);
+                try {
+                    $bill = new \Bill($p['bill_no']);
+                }catch (\Exception $e) {
+                    continue;
+                }
+
                 for ($I = 1; $I <= 3; $I++) {
 
                     $A = false;//$this->bb_cache__get($p["bill_no"]."--".$I);
@@ -4891,7 +4908,13 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                 $A['bill']['kpp'] = '-----';
                             }
 
-                            $A['bill']['inv_no'] = $A['inv_no'];
+                            $invoice = \app\models\Invoice::findOne([
+                                'bill_no' => $A['bill']['bill_no'],
+                                'type_id' => $I,
+                                'is_reversal' => 0
+                            ]);
+
+                            $A['bill']['inv_no'] = $invoice ? $invoice->number : $A['inv_no'];
 
                             if ($p['is_rollback']) {
                                 foreach (array('ts', 'sum_tax', 'sum_without_tax', 'sum') as $f) {

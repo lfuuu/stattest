@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use app\dao\BillDao;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
 use yii\base\InvalidParamException;
@@ -333,5 +334,121 @@ class BillLine extends ActiveRecord
     public function getTypeUnitName()
     {
         return '';
+    }
+
+    public static function refactLinesWithFourOrderFacture(Bill $bill, $lines)
+    {
+        $ret_x = [
+            'is_four_order' => true,
+
+            'bill_no' => '',
+            'sort' => 1,
+            'item' => 'Предварительная оплата ',
+            'service' => 'usage_ip_ports',
+            'id_service' => 2945,
+            'date_from' => '',
+            'date_to' => '',
+            'type' => 'service',
+            'id' => '',
+            'ts_from' => '',
+            'ts_to' => '',
+            'tax' => 0,
+            'country_id' => 0,
+            'okvd_code' => 0,
+            'okvd' => "",
+            'amount' => 1,
+            'price' => '',
+            'outprice' => '',
+            'tax_type_id' => null,
+            'sum' => '',
+            'sum_without_tax' => 0,
+            'sum_tax' => 0,
+        ];
+
+        $billTable = Bill::tableName();
+        $paymentTable = Payment::tableName();
+
+        $pay = \Yii::$app->db->createCommand("
+			SELECT
+				sum(`subq`.`sum`) `sum`,
+				`subq`.`type`
+			FROM
+				(
+					SELECT
+						IFNULL(`np`.`sum`,`nb`.`sum`) `sum`,
+						IF(IFNULL(`np`.`sum`,FALSE),'PAY','BILL') `type`
+					FROM
+						{$billTable} `nb`
+					LEFT JOIN
+						{$paymentTable} `np`
+					ON
+						`np`.`bill_no` = `nb`.`bill_no`
+					WHERE
+						`nb`.`bill_no` = '" . $bill->bill_no . "'
+				) subq
+			GROUP BY
+				`subq`.`type`
+		")->queryOne();
+
+        if ($pay['type'] == 'PAY') {
+
+            $tax_rate = $bill->clientAccount->getTaxRate();
+            $ret_x['tax_rate'] = $tax_rate;
+
+            $ret_x['sum'] = $pay['sum'];
+            $ret_x['sum_tax'] = $pay['sum'] * $tax_rate / (100 + $tax_rate);
+        }
+
+
+        foreach ($lines as $key => &$item) {
+            if (
+                $item['sum'] > 0
+                && preg_match('/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС|^\s*Перенос|^\s*Выезд|^\s*Сервисное\s+обслуживание|^\s*Хостинг|^\s*Подключение|^\s*Внутренняя\s+линия|^\s*Абонентское\s+обслуживание|^\s*Услуга\s+доставки|^\s*Виртуальный\s+почтовый|^\s*Размещение\s+сервера|^\s*Настройка[0-9a-zA-Zа-яА-Я]+АТС|^Дополнительный\sIP[\s\-]адрес|^Поддержка\sпервичного\sDNS|^Поддержка\sвторичного\sDNS|^Аванс\sза\sподключение\sинтернет-канала|^Администрирование\sсервер|^Обслуживание\sрабочей\sстанции|^Оптимизация\sсайта|^Неснижаемый\sостаток/', $item['item'])
+            ) {
+                $item['item'] = str_replace('Абонентская', 'абонентскую', str_replace('плата', 'плату', $item['item']));
+                $item['item'] = str_replace('Поддержка', 'поддержку', $item['item']);
+                $item['item'] = str_replace('Виртуальная', 'виртуальную', $item['item']);
+                $item['item'] = str_replace('Перенос', 'перенос', $item['item']);
+                $item['item'] = str_replace('Выезд', 'выезд', $item['item']);
+                $item['item'] = str_replace('Сервисное', 'сервисное', $item['item']);
+                $item['item'] = str_replace('Хостинг', 'хостинг', $item['item']);
+                $item['item'] = str_replace('Подключение', 'подключение', $item['item']);
+                $item['item'] = str_replace('Внутренняя линия', 'внутреннюю линию', $item['item']);
+                $item['item'] = str_replace('Услуга', 'услугу', $item['item']);
+                $item['item'] = str_replace('Виртуальный', 'виртуальный', $item['item']);
+                $item['item'] = str_replace('Размещение', 'размещение', $item['item']);
+                $item['item'] = str_replace('Аванс за', '', $item['item']);
+                $item['item'] = str_replace('Оптимизация', 'оптимизацию', $item['item']);
+                $item['item'] = str_replace('Обслуживание', 'обслуживание', $item['item']);
+                $item['item'] = str_replace('Администрирование', 'администрирование', $item['item']);
+
+                $item['item'] = 'Авансовый платеж за ' . $item['item'];
+
+                $ret_x['item'] .= $item['item'] . ";<br />";
+                $ret_x['bill_no'] = $item['bill_no'];
+                $ret_x['date_from'] = $item['date_from'];
+                $ret_x['date_to'] = $item['date_to'];
+                $ret_x['id'] = $item['pk'];
+                $ret_x['date_from'] = $item['date_from'];
+                $ret_x['date_to'] = $item['date_to'];
+
+                if ($pay['type'] == 'BILL') {
+                    $ret_x['sum'] += $item['sum'];
+                    $ret_x['sum_tax'] += $item['sum_tax'];
+                }
+            } else {
+                if ($pay['type'] == 'PAY' && $item['type'] <> 'zalog') {
+                    $ret_x['sum'] -= $item['sum'];
+                    $ret_x['sum_tax'] -= $item['sum_tax'];
+                }
+                if ($item['type'] == 'zadatok') {
+                    $ret_x['sum'] += $item['sum'];
+                    $ret_x['sum_tax'] += $item['sum_tax'];
+                }
+                unset($lines[$key]);
+            }
+        }
+
+        return $ret_x['sum'] > 0 ? [$ret_x] : false;
     }
 }

@@ -520,8 +520,10 @@
 
                 <hr>
                 {if $is_new_invoice}
+                    Книга продаж:<br>
                     {if $invoice_info}
-                        {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3) || isset($invoice_info.4)}Книга продаж:<br>{/if}
+                        {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3)}{/if}
+
                         {if isset($invoice_info.1) && !$invoice_info.1.is_reversal}с/ф 1: {$invoice_info.1.sum|round:2}
                             <br>
                         {/if}
@@ -531,26 +533,41 @@
                         {if isset($invoice_info.3) && !$invoice_info.3.is_reversal}с/ф 3: {$invoice_info.3.sum|round:2}
                             <br>
                         {/if}
-                        {if isset($invoice_info.4) && !$invoice_info.4.is_reversal}с/ф 4: {$invoice_info.4.sum|round:2}
-                            <br>
-                        {/if}
+
 
                         {assign var="is_reversaled" value=0}
                         {if isset($invoice_info.1) && $invoice_info.1.is_reversal}Сторинирована с/ф 1:<br>{assign var="is_reversaled" value=1}{/if}
                         {if isset($invoice_info.2) && $invoice_info.2.is_reversal}Сторинирована с/ф 2:<br>{assign var="is_reversaled" value=1}{/if}
-                        {if isset($invoice_info.3) && $invoice_info.3.is_reversal}Сторинирована с/ф 3<br>{assign var="is_reversaled" value=1}{/if}
-                        {if isset($invoice_info.4) && $invoice_info.4.is_reversal}Сторинирована с/ф 4<br>{assign var="is_reversaled" value=1}{/if}
+                        {if isset($invoice_info.3) && $invoice_info.3.is_reversal}Сторинирована с/ф 3:<br>{assign var="is_reversaled" value=1}{/if}
 
-                        {if $is_reversaled}
-                            <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Восстановить</a>
-                        {else}
-                            <a href="/bill/publish/invoice-reversal?bill_no={$bill.bill_no}">удалить</a>
-                        {/if}
-                        <br><br>
+                            {if $is_reversaled}
+                                <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Восстановить</a>
+                            {else}
+                                {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3)}
+                                    <a href="/bill/publish/invoice-reversal?bill_no={$bill.bill_no}">удалить</a>
+                                {/if}
+                            {/if}
+                        <br>
                     {else}
-                        По счету не создана счет-фактура.
+                        нет с/ф
                         <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Создать</a>
                     {/if}
+
+                    <br>
+
+                    {if isset($invoice_info.4) && !$invoice_info.4.is_reversal}
+                        Авансовая с/ф: {$invoice_info.4.sum|round:2}
+                        <a href="/bill/publish/invoice-ab-reversal?bill_no={$bill.bill_no}">(удалить)</a><br>
+                    {/if}
+
+                    {if isset($invoice_info.4) && $invoice_info.4.is_reversal}
+                        Сторинирована с/ф 4<br>
+                    {/if}
+
+                    {if !isset($invoice_info.4) || $invoice_info.4.is_reversal}
+                        <a href="/bill/publish/make-ab-invoice?bill_no={$bill.bill_no}">+авансовая с/ф</a>
+                    {/if}
+
                 {/if}
 
 

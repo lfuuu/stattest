@@ -19,6 +19,7 @@ use app\models\filter\FreeNumberFilter;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use app\models\Invoice;
 use app\models\Language as LanguageModel;
 use app\models\LkClientSettings;
 use app\models\LkNoticeSetting;
@@ -395,11 +396,8 @@ class ApiLk
         $invoices = [];
         $isUseInvoice = false;
 
-        if ($bill->bill_date >= '2018-08-01') { // c 1
-            $invoices = \app\models\Invoice::find()
-                ->where(['bill_no' => $bill->bill_no])
-                ->indexBy('type_id')
-                ->all();
+        if ($bill->bill_date >= Invoice::DATE_ACCOUNTING) {
+            $invoices = $bill->invoices;
 
             $isUseInvoice = true;
         }

@@ -32,7 +32,7 @@ class PublishController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['make-invoice', 'invoice-reversal'],
+                        'actions' => ['make-invoice', 'make-ab-invoice', 'invoice-reversal'],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                     [
@@ -158,7 +158,6 @@ class PublishController extends BaseController
         $this->_genetateInvocesForBill($query);
 
         return $this->redirect(['/bill/publish/index', 'organizationId' => $organizationId]);
-
     }
 
     /**
@@ -167,14 +166,19 @@ class PublishController extends BaseController
     public function actionInvoicesForAll()
     {
         $query = Bill::find()
-            ->alias('b')
-        ;
+            ->alias('b');
 
         $this->_genetateInvocesForBill($query);
 
         return $this->redirect(['/bill/publish/index']);
     }
 
+    /**
+     * Создание с/ф у счета
+     *
+     * @param string $bill_no
+     * @return \yii\web\Response
+     */
     public function actionMakeInvoice($bill_no)
     {
         $billQuery = Bill::find()
@@ -188,6 +192,7 @@ class PublishController extends BaseController
 
         if (!$bill) {
             Yii::$app->session->addFlash('error', 'Счет не найден');
+            exit();
         } else {
             $this->_genetateInvocesForBill($billQuery);
         }
@@ -219,12 +224,19 @@ class PublishController extends BaseController
         return $this->redirect(['/bill/publish/index']);
     }
 
+    /**
+     * Сторнирование с/ф
+     *
+     * @param string $bill_no
+     * @return \yii\web\Response
+     */
     public function actionInvoiceReversal($bill_no)
     {
         $bill = Bill::findOne(['bill_no' => $bill_no]);
 
         if (!$bill) {
             Yii::$app->session->addFlash('error', 'Счет не найден');
+            exit();
         }
 
         Bill::dao()->invoiceReversal($bill);
@@ -232,6 +244,47 @@ class PublishController extends BaseController
         return $this->redirect($bill->getUrl());
     }
 
+    /**
+     * Создание авансовой с/ф
+     *
+     * @param string $bill_no
+     * @return \yii\web\Response
+     */
+    public function actionMakeAbInvoice($bill_no)
+    {
+        /** @var Bill $bill */
+        $bill = Bill::find()
+            ->alias('b')
+            ->where(['bill_no' => $bill_no])
+            ->one();
 
+        if (!$bill) {
+            Yii::$app->session->addFlash('error', 'Счет не найден');
+            exit();
+        } else {
+            $bill->generateAbInvoice();
+        }
 
+        return $this->redirect($bill->getUrl());
+    }
+
+    /**
+     * Сторнирование авансовой с/ф
+     *
+     * @param string $bill_no
+     * @return \yii\web\Response
+     */
+    public function actionInvoiceAbReversal($bill_no)
+    {
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+
+        if (!$bill) {
+            Yii::$app->session->addFlash('error', 'Счет не найден');
+            exit();
+        }
+
+        Bill::dao()->invoiceReversal($bill, true);
+
+        return $this->redirect($bill->getUrl());
+    }
 }

@@ -494,6 +494,16 @@ class Bill extends ActiveRecord
     }
 
     /**
+     * Сгенерировать авансовую с/ф
+     *
+     * @return mixed
+     */
+    public function generateAbInvoice()
+    {
+        return self::dao()->generateInvoices($this, true);
+    }
+
+    /**
      * Получение позиций счета по типу
      *
      * @param $typeId

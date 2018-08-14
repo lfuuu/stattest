@@ -15,6 +15,7 @@ use app\models\billing\Trunk;
 use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
+use app\models\ClientAccountOptions;
 use app\models\Currency;
 use app\models\Invoice;
 use app\models\LogBill;
@@ -925,6 +926,10 @@ SQL;
 
         $billLines = $bill->lines;
 
+        if ($typeId == Invoice::TYPE_PREPAID) {
+            return $billLines;
+        }
+
         if ($clientAccount->type_of_bill == ClientAccount::TYPE_OF_BILL_SIMPLE) {
             $billLines = BillLine::compactLines(
                 $bill->lines,
@@ -992,14 +997,37 @@ SQL;
 
     }
 
-    public static function generateInvoices(Bill $bill)
+    public static function generateInvoices(Bill $bill, $is4Invoice = false)
     {
-        if ($bill->bill_date < '2018-08-01') { // 1 авг 2018 новый формат с/ф
+        if ($bill->bill_date < Invoice::DATE_ACCOUNTING) { // 1 авг 2018 новый формат с/ф
             return;
         }
 
+        $clientAccount = $bill->clientAccount;
+
+        // только рублевые ЛС и ЛС с выгрузкой
+        if (
+            $clientAccount->currency != Currency::RUB
+            || !$clientAccount->getOptionValue(ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK)
+        ) {
+
+            // выключаем ошибочно включеные
+            foreach ($bill->invoices as $invoice) {
+                $invoice->setReversal();
+            }
+
+            return;
+        }
+
+
         try {
-            foreach (Invoice::$types as $typeId) {
+            $types = Invoice::$types;
+
+            if ($is4Invoice) {
+                $types = [Invoice::TYPE_PREPAID];
+            }
+
+            foreach ($types as $typeId) {
                 $invoiceDate = Invoice::getDate($bill, $typeId);
 
                 // если нет даты документа, то и с/ф регистрировать не надо
@@ -1011,8 +1039,18 @@ SQL;
 
                 $lines = $bill->getLinesByTypeId($typeId);
 
+                if ($typeId == Invoice::TYPE_PREPAID) {
+                    $lines = BillLine::refactLinesWithFourOrderFacture($bill, $lines);
+                }
+
                 if ($lines) {
                     $sum = BillLine::getSumLines($lines);
+
+                    // не вносим отрицательные суммы
+                    if ($sum <= 0 && $invoice) {
+                        $invoice->setReversal();
+                        continue;
+                    }
 
                     if (!$invoice) {
                         $invoice = new Invoice();
@@ -1033,16 +1071,7 @@ SQL;
                     }
 
                 } elseif ($invoice) {
-
-                    if ($invoice->is_reversal) {
-                        continue;
-                    }
-
-                    $invoice->is_reversal = 1;
-
-                    if (!$invoice->save()) {
-                        throw new ModelValidationException($invoice);
-                    }
+                    $invoice->setReversal();
                 }
             }
         } catch (\Exception $e) {
@@ -1054,19 +1083,15 @@ SQL;
      * Сторнирование с/ф счета
      *
      * @param Bill $bill
-     * @throws ModelValidationException
+     * @param bool $is4Invoice
      */
-    public function invoiceReversal(Bill $bill)
+    public function invoiceReversal(Bill $bill, $is4Invoice = false)
     {
-        $invoices = Invoice::find()->where(['bill_no' => $bill->bill_no]);
+        $invoices = Invoice::find()->where(['bill_no' => $bill->bill_no, 'type_id' => $is4Invoice ? Invoice::TYPE_PREPAID : Invoice::$types]);
 
         /** @var Invoice $invoice */
         foreach ($invoices->each() as $invoice) {
-            $invoice->is_reversal = 1;
-
-            if (!$invoice->save()) {
-                throw new ModelValidationException($invoice);
-            }
+            $invoice->setReversal();
         }
     }
 }
