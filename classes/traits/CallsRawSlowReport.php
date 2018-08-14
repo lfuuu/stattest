@@ -249,18 +249,16 @@ trait CallsRawSlowReport
         $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group);
         $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group);
 
+        $numberRangeTableName = NumberRange::tableName();
         if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
             $query1->leftJoin(
-                ["dst_nr" => NumberRange::tableName()],
+                ["dst_nr" => $numberRangeTableName],
                 "dst_nr.id = cr.nnp_number_range_id"
             );
         }
 
         if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
-            $query1->leftJoin(
-                ["src_nr" => NumberRange::tableName()],
-                "src_nr.id = cr.nnp_number_range_id"
-            );
+            $query2->leftJoin(['src_nr' => $numberRangeTableName], 'src_nr.id = cr.nnp_number_range_id');
         }
 
         $query1 = $this->setDestinationCondition($query1, $query3, $this->dst_destinations_ids, 'dst');
