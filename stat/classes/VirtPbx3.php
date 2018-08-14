@@ -118,11 +118,13 @@ class VirtPbx3Checker
                             FROM uu_account_tariff 
                             WHERE prev_usage_id = :nextUsageId
                             AND service_type_id = :serviceTypeId
+                            LIMIT 1 
                         ),
                         (
                             SELECT id
                             FROM usage_virtpbx 
                             WHERE prev_usage_id = :nextUsageId
+                            LIMIT 1
                         )
                     )
                 ", [':nextUsageId' => $usageId, ':serviceTypeId' => ServiceType::ID_VPBX])->queryScalar();
