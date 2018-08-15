@@ -2042,7 +2042,7 @@ class m_newaccounts extends IModule
             case 'sogl_mcm_telekom':
             case 'sogl_mcn_telekom': {
                 if ($billModel) {
-                    $report = DocumentReportFactory::me()->getReport($billModel, $obj);
+                    $report = DocumentReportFactory::me()->getReport($billModel, $obj, get_param_raw('emailed', false));
                     echo $is_pdf ? $report->renderAsPDF() : $report->render();
                     exit;
                 }

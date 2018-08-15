@@ -1,7 +1,7 @@
 <?php
 
 /** @var \app\classes\documents\CreditNoteDocument $document */
-$note = $document->bill->creditNote;
+use app\classes\Html;use app\helpers\MediaFileHelper;$note = $document->bill->creditNote;
 
 if (!$note) {
     echo 'Credit Note не найден';
@@ -24,6 +24,8 @@ $documentDateFormat = function ($dateStr) {
 
 
 $director = $document->bill->clientAccount->contract->organization->director;
+
+$organization = $document->organization;
 
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5.0 Transitional//EN">
 <html>
@@ -85,7 +87,63 @@ $director = $document->bill->clientAccount->contract->organization->director;
 </p>
 <p style="margin-bottom: 0cm; line-height: 100%">&nbsp;&nbsp;&nbsp;&nbsp;</p>
 <p style="margin-bottom: 0cm; line-height: 100%">
-    <?= $director->post_nominative ?> _____________ /<?= $director->name_nominative ?>/</p>
+    <table>
+    <tr>
+        <td><?= $director->post_nominative ?></td>
+    <?php if ($document->sendEmail): ?>
+<td>
+    <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
+        $image_options = [
+            'width' => 140,
+            'border' => 0,
+            'align' => 'top',
+            'style' => "margin-bottom: 17px;"
+        ];
+
+        if ($inline_img):
+            echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
+        else:
+            array_walk($image_options, function (&$item, $key) {
+                $item = $key . '="' . $item . '"';
+            });
+            ?>
+            <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
+        <?php endif; ?>
+            </td>
+    <?php else: ?>
+            <td>_________________________________</td>
+    <?php endif; ?>
+<?php else: ?>
+        <td>_________________________________</td>
+<?php endif; ?>
+
+        <td>/<?= $director->name_nominative ?>/</td>
+
+<td>
+<?php if ($document->sendEmail): ?>
+    <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
+        $image_options = [
+            'width' => 200,
+            'border' => 0,
+            'style' => 'position:relative; right: 230px; top:4px; z-index:-10; margin-bottom:-150px;',
+        ];
+
+        if ($inline_img):
+            echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
+        else:
+            array_walk($image_options, function (&$item, $key) {
+                $item = $key . '="' . $item . '"';
+            });
+            ?>
+            <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
+        <?php endif; ?>
+    <?php endif; ?>
+<?php endif; ?>
+</td>
+</tr>
+</table>
+
+
 <p style="margin-bottom: 0cm; line-height: 100%; padding-left: 170px;">(подпись)&nbsp;&nbsp;&nbsp;</p>
 <p style="margin-bottom: 0cm; line-height: 100%"><br/>
 
