@@ -13,7 +13,6 @@ use app\models\billing\CallsRaw;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use Yii;
-use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
 use yii\db\Expression;

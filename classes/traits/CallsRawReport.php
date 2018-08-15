@@ -18,8 +18,7 @@ use app\models\billing\CurrencyRate;
 use app\models\billing\ServiceTrunk;
 use app\models\billing\Trunk;
 use app\models\billing\TrunkGroupItem;
-// TODO: Класс написан в отдельном пул-реквесте
-// use app\models\billing\TrunkTrunkRule;
+use app\models\billing\TrunkTrunkRule;
 use app\models\Organization;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\Country;
@@ -186,33 +185,33 @@ trait CallsRawReport
         }
         // Добавление условия для поля t1.id
         if ($this->src_trunk_group_ids) {
-            $query = (new Query())
-                ->select('tgi1.trunk_id')
-                ->distinct()
-                ->from([
-                    'tgi1' => TrunkGroupItem::tableName()
-                ])
-                ->where(['tgi1.trunk_group_id' => $this->src_trunk_group_ids]);
-
-            $query->andWhere(['t1.id' => $query]);
+            $query->andWhere([
+                't1.id' => (new Query())
+                    ->select('tgi1.trunk_id')
+                    ->distinct()
+                    ->from([
+                        'tgi1' => TrunkGroupItem::tableName()
+                    ])
+                    ->where(['tgi1.trunk_group_id' => $this->src_trunk_group_ids])
+            ]);
         }
         // Добавление условия для поля t2.id
         if ($this->dst_trunk_group_ids) {
-            $query = (new Query())
-                ->select('tgi2.trunk_id')
-                ->distinct()
-                ->from([
-                    'tgi2' => TrunkGroupItem::tableName(),
-                    'ttr' => 'auth.trunk_trunk_rule',
-                    'tgi3' => TrunkGroupItem::tableName(),
-                ])
-                ->where([
-                    'tgi.trunk_group_id' => $this->dst_trunk_group_ids,
-                    'ttr.trunk_id' => 'tgi2.trunk_id',
-                    'tgi3.trunk_group_id' => 'ttr.trunk_group_id',
-                ]);
-
-            $query->andWhere(['t2.id' => $query]);
+            $query->andWhere([
+                't2.id' => (new Query())
+                    ->select('tgi2.trunk_id')
+                    ->distinct()
+                    ->from([
+                        'tgi2' => TrunkGroupItem::tableName(),
+                        'ttr' => TrunkTrunkRule::tableName(),
+                        'tgi3' => TrunkGroupItem::tableName(),
+                    ])
+                    ->where([
+                        'tgi.trunk_group_id' => $this->dst_trunk_group_ids,
+                        'ttr.trunk_id' => 'tgi2.trunk_id',
+                        'tgi3.trunk_group_id' => 'ttr.trunk_group_id',
+                    ])
+            ]);
         }
         // Left joins к алиасу cr1 таблицы calls_raw.calls_raw с дополнительным условием
         if ($this->is_exclude_internal_trunk_orig) {
