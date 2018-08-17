@@ -11,9 +11,9 @@
 </h3>
 <table align=center width=90%><tr><td align=left>г. Москва </td><td align=right>"__" ___________ {*if $cpe.actual_from<=date('Y-m-d')}<b>{$cpe.actual_from|mdate:"Y"}</b>{else*}{php}echo date("Y");{/php}{*/if*} г.</td></tr></table>
 </center>
-<p>Настоящий акт составлен между Абонентом <b>{$client.company_full}</b>, в&nbsp;лице 
-<b>{$client.signer_positionV} {$client.signer_nameV}</b> и&nbsp;Оператором 
-{$firma.name} в&nbsp;лице {$firm_director.position_} {$firm_director.name_} о
+<p>Настоящий акт составлен между Абонентом <b>{$client.company_full}</b>, именуемым в дальнейшем АБОНЕНТ, в качестве исполнительного органа и уполномоченного лица выступает
+<b>{$client.signer_position} {$client.signer_name}</b> и&nbsp;Оператором
+{$firma.name}, именуемым в дальнейшем ОПЕРАТОР, в качестве исполнительного органа и уполномоченного лица выступает {$firm_director.position} {$firm_director.name} о
 том, что:</p>
 <ol>
 <li>
