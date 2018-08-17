@@ -2869,8 +2869,8 @@ class m_newaccounts extends IModule
             $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
             //** /Выпилить */
 
-            ClientCS::Fetch($account['id']);
-            $design->assign('bill_client', $account);
+            ClientCS::Fetch($clientAccount);
+            $design->assign('bill_client', $clientAccount);
             return true;
         } else {
             if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {

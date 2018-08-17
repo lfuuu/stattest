@@ -148,8 +148,12 @@ bgColor="#FFFFFF">
 
 {*** to ***}
 {capture name=to}
-{$bill_client.company_full}, {$bill_client.address_post}<br />
-{if $bill_client.bank_properties}{$bill_client.bank_properties}{else}р/с {$bill_client.corr_acc}, в {$bill_client.bank_name} ({$bill_client.bank_city}), к/с {$bill_client.corr_acc}{/if}, БИК&nbsp;{$bill_client.bik}, ИНН{if $bill_client.kpp}/КПП{/if} {$bill_client.inn}{if $bill_client.kpp}/{$bill_client.kpp}{/if}
+    {if isset($bill_client.is_with_consignee) && $$bill_client.is_with_consignee && $bill_client.consignee}
+        {$bill_client.consignee}
+    {else}
+        {$bill_client.company_full}, {$bill_client.address_post}
+    {/if}
+    <br>{if $bill_client.bank_properties}{$bill_client.bank_properties}{else}р/с {$bill_client.corr_acc}, в {$bill_client.bank_name} ({$bill_client.bank_city}), к/с {$bill_client.corr_acc}{/if}, БИК&nbsp;{$bill_client.bik}, ИНН{if $bill_client.kpp}/КПП{/if} {$bill_client.inn}{if $bill_client.kpp}/{$bill_client.kpp}{/if}
 {/capture}
 
 {*** from_send ***}
