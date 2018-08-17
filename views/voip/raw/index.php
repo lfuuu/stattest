@@ -33,7 +33,7 @@ if (!isset(Yii::$app->request->get()['_pjax'])) {
     ]);
 
     $filter = require '_indexFilters.php';
-    // Если поддержка кеша не требуется, то дополнитить выводимые колонки
+    // Если требуется поддержка кеша, то дополнитить выводимые колонки
     if ($isCache) {
         $filter[] = [
             'attribute' => 'calls_with_duration',

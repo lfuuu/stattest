@@ -3,6 +3,8 @@
  * Фильтры для отчета по calls_raw
  *
  * @var CallsRawFilter $filterModel
+ * @var bool $isSupport
+ * @var bool $isCache
  */
 
 use app\classes\grid\column\billing\ContractColumn;
@@ -13,6 +15,7 @@ use app\classes\grid\column\billing\TrunkColumn;
 use app\classes\grid\column\universal\CheckboxColumn;
 use app\classes\grid\column\universal\ConstructColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
+use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -29,7 +32,8 @@ use app\classes\grid\column\billing\TrunkGroupColumn;
 return [
     [
         'attribute' => 'connect_time',
-        'class' => DateTimeRangeDoubleColumn::className(),
+        'class' => $isSupport && $isCache ?
+            DateRangeDoubleColumn::className() : DateTimeRangeDoubleColumn::className(),
         'filterOptions' => [
             'class' => 'alert-danger'
         ],

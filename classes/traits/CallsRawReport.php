@@ -250,8 +250,8 @@ trait CallsRawReport
             ->reportCondition($aliasResolverFunc('cr1.trunk_service_id'), $this->src_logical_trunks_ids)
             ->reportCondition($aliasResolverFunc('cr2.trunk_service_id'), $this->dst_logical_trunks_ids)
 
-            ->reportCondition($aliasResolverFunc('st1.contract_id'), $this->dst_contracts_ids)
-            ->reportCondition($aliasResolverFunc('st2.contract_id'), $this->src_contracts_ids)
+            ->reportCondition('st1.contract_id', $this->dst_contracts_ids)
+            ->reportCondition('st2.contract_id', $this->src_contracts_ids)
 
             ->reportCondition($aliasResolverFunc('cr1.nnp_operator_id'), $this->dst_operator_ids)
             ->reportCondition($aliasResolverFunc('cr2.nnp_operator_id'), $this->src_operator_ids)
