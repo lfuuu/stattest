@@ -65,6 +65,7 @@ use yii\helpers\Url;
  * @property-read Trouble $trouble
  * @property-read Invoice[] $invoices
  * @property-read array $document
+ * @property-read Payment[] $payments
  */
 class Bill extends ActiveRecord
 {
@@ -304,6 +305,15 @@ class Bill extends ActiveRecord
     public function getCreditNote()
     {
         return self::dao()->getCreditNote($this);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPayments()
+    {
+        return $this->hasMany(Payment::className(), ['bill_no' => 'bill_no'])
+            ->orderBy(['payment_date' => SORT_ASC]);
     }
 
     /**

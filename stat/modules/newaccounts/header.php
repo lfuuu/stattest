@@ -102,6 +102,11 @@ class m_newaccounts_head extends IModuleHead{
                 }
             }),
             array('Книга продаж',		'balance_sell'),
+            array('Книга продаж (новая)',		function() {
+                if (Yii::$app->user->can('newaccounts_balance.read')) {
+                    return ['report/accounting/sale-book/'];
+                }
+            }),
             array('Отчёт по долгам',	'debt_report'),
             array('Почтовый реестр',	'postreg_report'),
             array('',					'pi_list'),

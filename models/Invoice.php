@@ -64,6 +64,11 @@ class Invoice extends ActiveRecord
         return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
     }
 
+    public function getDateImmutable()
+    {
+        return (new \DateTimeImmutable($this->date));
+    }
+
     /**
      * Получает даты по типу
      *
