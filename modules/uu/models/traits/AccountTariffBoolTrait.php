@@ -152,6 +152,17 @@ trait AccountTariffBoolTrait
     }
 
     /**
+     * Услуга включена сейчас или уже отключена
+     *
+     * @return bool
+     */
+    public function isStarted()
+    {
+        return $this->tariff_period_id || count($this->accountTariffLogs) > 1;
+    }
+
+
+    /**
      * Можно ли отменить последнюю смену количества ресурса
      *
      * @param \app\modules\uu\models\Resource $resource

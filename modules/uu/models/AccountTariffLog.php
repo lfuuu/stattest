@@ -714,6 +714,12 @@ class AccountTariffLog extends ActiveRecord
                     (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT) // "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
                 ]
             )
+            ->andWhere(
+                [
+                    '!=',
+                    $accountTariffLogTableName . '.id',
+                    $this->id // Всё, кроме этого пакета. Необходимо при изменении даты включения.
+                ])
             ->count()
         ) {
             $this->addError($attribute, 'Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла.');

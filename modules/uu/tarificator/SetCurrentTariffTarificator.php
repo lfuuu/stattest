@@ -60,6 +60,8 @@ SQL;
             $sql .= ' HAVING IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)';
         }
 
+        $sql .= " ORDER BY account_tariff.id ASC"; // Основная услуга всегда включается раньше своих пакетов
+
         $query = $db->createCommand(
             $sql,
             [
@@ -72,6 +74,15 @@ SQL;
         foreach ($query as $row) {
 
             $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
+
+            if (
+                $accountTariff->prev_account_tariff_id
+                && ($mainAccountTariff = AccountTariff::findOne(['id' => $accountTariff->prev_account_tariff_id]))
+                && !$mainAccountTariff->tariff_period_id
+            ) {
+                // Пакет не включается, т.к. не включена основная услуга. У пакетов уже перенесена дата включения.
+                continue;
+            }
 
             $isWithTransaction && $transaction = $db->beginTransaction();
             try {
@@ -217,7 +228,7 @@ SQL;
 
                     case ServiceType::ID_CALLTRACKING:
                         if ($eventType == ImportantEventsNames::UU_UPDATED) {
-                            return ;
+                            return;
                         }
 
                         // При выключении или выключении услуги добавить в очередь экспорт номера
@@ -256,6 +267,31 @@ SQL;
                     // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
                     // throw new ModelValidationException($accountTariffLog);
                 }
+
+
+                // Сдвигаем дату включения невключенных пакетов вместе с основной услугой
+                $packages = $accountTariff->nextAccountTariffs;
+                foreach ($packages as $package) {
+                    if ($package->isStarted()) {
+                        continue;
+                    }
+
+                    // только для ещё невключенных пакетов
+                    $packageLogs = $package->accountTariffLogs;
+                    $packageLog = reset($packageLogs);
+
+                    // пакет должен включится позже
+                    if ($packageLog->actual_from_utc > $accountTariffLog->actual_from_utc) {
+                        continue;
+                    }
+
+                    $packageLog->actual_from_utc = $accountTariffLog->actual_from_utc;
+
+                    if (!$packageLog->save()) {
+                        throw new ModelValidationException($packageLog);
+                    }
+                }
+
 
                 $isWithTransaction && $transaction->commit();
 
