@@ -1,6 +1,6 @@
 <?php
 
-namespace app\commands\convert;
+namespace app\commands;
 
 use app\models\billing\CallsRawCache;
 use Yii;
