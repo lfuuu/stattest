@@ -6,6 +6,8 @@ use app\models\TariffInternet;
 use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
 use app\models\UsageTechCpe;
+use app\models\UsageTrunk;
+use app\models\UsageTrunkSettings;
 use yii\helpers\Url;
 
 $actual = function ($from, $to) {
@@ -416,17 +418,16 @@ if ($has) :
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($services['trunk'] as $trunk): ?>
+                            <?php foreach ($services['trunk'] as $trunk):
+                                /** @var UsageTrunk $trunk */
+                                $helper = $trunk->getHelper();
+                            ?>
                                 <tr bgcolor="<?= ($trunk->status == 'working') ? ($actual($trunk->actual_from, $trunk->actual_to) ? '#EEDCA9' : '#FFFFF5') : '#FFE0E0' ?>">
                                     <td>
-                                        <a href="/usage/trunk/edit?id=<?= $trunk->id ?>" target="_blank">
-                                            <?= $trunk->id; ?>
-                                        </a>
+                                        <?= Html::a($trunk->id, $helper->getEditLink(), ['target' => '_blank']); ?>
                                     </td>
                                     <td>
-                                        <a href="/usage/trunk/edit?id=<?= $trunk->id ?>" target="_blank">
-                                            <?= $renderDate($trunk->actual_from, $trunk->actual_to); ?>
-                                        </a>
+                                        <?= Html::a($renderDate($trunk->actual_from, $trunk->actual_to), $helper->getEditLink(), ['target' => '_blank']); ?>
                                     </td>
                                     <td><?= $trunk->connectionPoint->name; ?></td>
                                     <td><?= $trunk->trunk->name; ?></td>
@@ -448,9 +449,28 @@ if ($has) :
                                         <?php if($trunk->orig_min_payment && $trunk->term_min_payment): ?>
                                             /
                                         <?php endif; ?>
-                                        <?php if ($trunk->term_min_payment): ?>
-                                            Терминация: <?= $trunk->term_min_payment; ?>
-                                        <?php endif; ?>
+                                        <?php
+                                            /** @var UsageTrunkSettings[] $trunkSettings */
+                                            $trunkSettings = UsageTrunkSettings::find()
+                                                ->where([
+                                                    'usage_id' => $trunk->id,
+                                                    'type' => UsageTrunkSettings::TYPE_TERMINATION
+                                                ])
+                                                ->all();
+                                            // Отображение минимального платежа
+                                            if (count($trunkSettings) === 1) {
+                                                echo sprintf(
+                                                    '<b>Терминация:</b> %d',
+                                                    array_shift($trunkSettings)->minimum_cost
+                                                );
+                                            } else {
+                                                echo array_reduce($trunkSettings, function ($content, $trunkSetting) {
+                                                    $content .= sprintf('<b>Терминация#%s:</b> %s<br>', $trunkSetting->id, $trunkSetting->minimum_cost);
+                                                    return $content;
+                                                }, '');
+                                            }
+                                            unset($trunkSettings);
+                                        ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
