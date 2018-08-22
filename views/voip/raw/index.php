@@ -17,29 +17,23 @@ use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
 // Если вызывающий контроллер не поддерживает кеширование
-if (!isset($isCache)) {
-    $isCache = false;
-}
-if (!isset($isSupport)) {
-    $isSupport = false;
-}
+!isset($isCache) && $isCache = false;
+!isset($isSupport) && $isSupport = false;
 
-if (!isset(Yii::$app->request->get()['_pjax'])) {
-    echo Breadcrumbs::widget([
-        'links' => [
-            ['label' => 'Телефония'],
-            ['label' => $this->title = 'Отчет по данным calls_raw'],
-        ],
-    ]);
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Телефония'],
+        ['label' => $this->title = 'Отчет по данным calls_raw'],
+    ],
+]);
 
-    $filter = require '_indexFilters.php';
-    // Если требуется поддержка кеша, то дополнитить выводимые колонки
-    if ($isCache) {
-        $filter[] = [
-            'attribute' => 'calls_with_duration',
-            'class' => CheckboxColumn::className(),
-        ];
-    }
+$filter = require '_indexFilters.php';
+// Если требуется поддержка кеша, то дополнитить выводимые колонки
+if ($isCache) {
+    $filter[] = [
+        'attribute' => 'calls_with_duration',
+        'class' => CheckboxColumn::className(),
+    ];
 }
 
 $aggrDigitCount = [

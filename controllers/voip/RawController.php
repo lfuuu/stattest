@@ -253,11 +253,9 @@ class RawController extends BaseController
         $model = new CallsRawFilter;
         $model->load(Yii::$app->request->get());
 
-        $params = [
+        return $this->render('index', [
             'filterModel' => $model,
-        ];
-        return !isset(Yii::$app->request->get()['_pjax']) ?
-            $this->render('index', $params) : $this->renderPartial('index', $params);
+        ]);
     }
 
     /**
@@ -271,16 +269,15 @@ class RawController extends BaseController
         // Задаём объём памяти для внутренних операций
         CallsRaw::getDb()
             ->createCommand("set work_mem = '500MB'")->execute();
+
         // Получение фильтра
         $model = new CallsRawFilter;
         $model->load(Yii::$app->request->get());
 
-        $params = [
+        return $this->render('index', [
             'filterModel' => $model,
             'isSupport' => Yii::$app->controller->action->id == 'with-cache',
             'isCache' => Yii::$app->getRequest()->get('isCache') == 1,
-        ];
-        return !isset(Yii::$app->request->get()['_pjax']) ?
-            $this->render('index', $params) : $this->renderPartial('index', $params);
+        ]);
     }
 }
