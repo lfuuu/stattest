@@ -36,6 +36,9 @@ class ClientCounter extends ActiveRecord
     // Ошибка синхронизации балансов
     public $isSyncError = false;
 
+    // массовый пересчет
+    public $isMass = false;
+
     // Локальный кеш
     private static $_localCache = [];
 
@@ -73,7 +76,7 @@ class ClientCounter extends ActiveRecord
             case ClientAccount::VERSION_BILLER_USAGE:
                 // старый (текущий) биллинг
 
-                Yii::info('Баланс нормальный ЛС# ' . $this->clientAccount->id . ' '
+                Yii::info('Баланс '.($this->isMass ? 'массовый' : 'нормальный').' ' .($this->isLocal ? 'неверный' : ''). ' ЛС# ' . $this->clientAccount->id . ' '
                     . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
 
                 return
@@ -86,7 +89,7 @@ class ClientCounter extends ActiveRecord
                 // новый (универсальный) биллинг
                 // пересчитывается в RealtimeBalanceTarificator
 
-                Yii::info('Баланс нормальный УЛС# ' . $this->clientAccount->id . ' '
+                Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный' : '') . ' УЛС# ' . $this->clientAccount->id . ' '
                     . ($this->clientAccount->balance + $this->getDaySummary()) . ' = ' . $this->clientAccount->balance . ' + ' . $this->getDaySummary() . ' / ' . $this->amount_sum);
 
                 return $this->clientAccount->balance + $this->getDaySummary();
@@ -229,9 +232,12 @@ class ClientCounter extends ActiveRecord
             $billingLastBillingDate = static::$_localCacheFastMass[$clientAccountId]['amount_date'];
             $accountLastBillingDate = static::$_localCacheFastMassLastAccountDate[$clientAccountId];
 
+            $isLocal = false;
+
             if ($billingLastBillingDate != $accountLastBillingDate) {
                 $billingCounter = static::_getLocalCounter($clientAccountId)->toArray();
                 Yii::warning('Баланс массовый не синхронизирован. ЛС#' . $clientAccountId . ' (' . $billingLastBillingDate . ' != ' . $accountLastBillingDate . ') ' . static::$_localCacheFastMass[$clientAccountId]['amount_sum'] . ', ' . $billingCounter['amount_sum']);
+                $isLocal = true;
             } else {
                 $billingCounter = static::$_localCacheFastMass[$clientAccountId];
             }
@@ -242,6 +248,8 @@ class ClientCounter extends ActiveRecord
             $counter->amount_day_sum = $billingCounter['amount_day_sum'];
             $counter->amount_mn_day_sum = $billingCounter['amount_mn_day_sum'];
             $counter->amount_month_sum = $billingCounter['amount_month_sum'];
+            $counter->isMass = true;
+            $counter->isLocal = $isLocal;
             // $counter->save();
             return $counter;
         }
@@ -253,6 +261,7 @@ class ClientCounter extends ActiveRecord
         $counter->amount_day_sum = 0;
         $counter->amount_mn_day_sum = 0;
         $counter->amount_month_sum = 0;
+        $counter->isMass = true;
 
         return $counter;
     }
