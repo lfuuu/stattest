@@ -72,6 +72,10 @@ class ClientCounter extends ActiveRecord
 
             case ClientAccount::VERSION_BILLER_USAGE:
                 // старый (текущий) биллинг
+
+                Yii::info('Баланс нормальный ЛС# ' . $this->clientAccount->id . ' '
+                    . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
+
                 return
                     $this->clientAccount->credit > -1 ?
                         $this->clientAccount->balance + $this->amount_sum :
@@ -81,6 +85,10 @@ class ClientCounter extends ActiveRecord
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг
                 // пересчитывается в RealtimeBalanceTarificator
+
+                Yii::info('Баланс нормальный УЛС# ' . $this->clientAccount->id . ' '
+                    . ($this->clientAccount->balance + $this->getDaySummary()) . ' = ' . $this->clientAccount->balance . ' + ' . $this->getDaySummary() . ' / ' . $this->amount_sum);
+
                 return $this->clientAccount->balance + $this->getDaySummary();
 
             default:
@@ -164,11 +172,8 @@ class ClientCounter extends ActiveRecord
 
             if ($billingCounter->amount_date != $lastAccountDate) {
                 $localCounter->isSyncError = true;
-                Yii::error('Баланс ЛС#' . $clientAccountId . ' Неверный. ' . $billingCounter->amount_date . ' != ' . $lastAccountDate . '(' . $billingCounter->amount_sum . ', ' . $localCounter->amount_sum . ')');
-                throw new \UnexpectedValueException('Пересчет в биллинге не закончен. Нет актуального баланса. ЛС#' . $clientAccountId);
+                throw new \UnexpectedValueException('Баланс неверный.  ЛС#' . $clientAccountId . ' ' . $billingCounter->amount_date . ' != ' . $lastAccountDate . '(' . $billingCounter->amount_sum . ', ' . $localCounter->amount_sum . ')');
             }
-
-            Yii::info('Баланс ЛС#' . $clientAccountId . ' ' . $billingCounter->amount_date . ': ' . $billingCounter->amount_sum);
 
             $localCounter->amount_sum = $billingCounter->amount_sum;
             $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
@@ -226,10 +231,9 @@ class ClientCounter extends ActiveRecord
 
             if ($billingLastBillingDate != $accountLastBillingDate) {
                 $billingCounter = static::_getLocalCounter($clientAccountId)->toArray();
-                Yii::warning('Баланс не синхронизирован. ЛС#' . $clientAccountId . ' (' . $billingLastBillingDate . ' != ' . $accountLastBillingDate . ') ' . static::$_localCacheFastMass[$clientAccountId]['amount_sum'] . ', ' . $billingCounter['amount_sum']);
+                Yii::warning('Баланс массовый не синхронизирован. ЛС#' . $clientAccountId . ' (' . $billingLastBillingDate . ' != ' . $accountLastBillingDate . ') ' . static::$_localCacheFastMass[$clientAccountId]['amount_sum'] . ', ' . $billingCounter['amount_sum']);
             } else {
                 $billingCounter = static::$_localCacheFastMass[$clientAccountId];
-                Yii::info('Баланс массовый ЛС#' . $clientAccountId . ' ' . $billingCounter['amount_date'] . ': ' . $billingCounter['amount_sum']);
             }
 
             $counter = new self;
