@@ -14,7 +14,6 @@ use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
 use app\modules\uu\tarificator\BillTarificator;
-use app\modules\uu\tarificator\CreditMgpTarificator;
 use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use app\modules\uu\tarificator\SyncResourceTarificator;
@@ -91,7 +90,6 @@ class AccountTariffBiller extends Behavior
         (new BillTarificator)->tarificate($accountTariffId);
         // (new BillConverterTarificator)->tarificate($clientAccountId); // это не обязательно делать в реалтайме. По крону вполне сойдет
         (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
-        (new CreditMgpTarificator)->tarificate($clientAccountId);
 
         HandlerLogger::me()->add(ob_get_clean());
     }
