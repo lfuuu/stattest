@@ -15,6 +15,23 @@ use yii\db\ActiveQuery;
 class ChangeBeautyLevelsController extends Controller
 {
     /**
+     * Был произведен перенос некоторых масок для шестизначных и семизначных номеров из группы "Платина" в группу
+     * "Эксклюзив"
+     */
+    public function actionPlatinumToExclusiveLevels()
+    {
+        $numbers = Number::find()
+            ->innerJoin(['city' => City::tableName()], 'city.id = voip_numbers.city_id')
+            ->where([
+                'voip_numbers.country_code' => Country::RUSSIA,
+                'voip_numbers.beauty_level' => DidGroup::BEAUTY_LEVEL_PLATINUM,
+                'city.postfix_length' => [6, 7],
+            ]);
+        // Применяем ко всем номерам красивость
+        $this->_changeBeautyLevel($numbers);
+    }
+
+    /**
      * Изменение статусов красивости и без группы - Служебные:
      * для Австрии с типами Geographic, Nomadic
      * для России с типом Mobile и городом - Москва

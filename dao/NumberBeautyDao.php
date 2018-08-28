@@ -16,9 +16,17 @@ class NumberBeautyDao extends Singleton
         DidGroup::BEAUTY_LEVEL_EXCLUSIVE => [
             6 => [
                 /**
-                 * @example XXXXXX 22-22-22
+                 * @example XX-XX-XX 22-22-22
+                 * @example XX-XX-YX 66-66-26
+                 * @example XX-YY-YY 66-22-22
+                 * @example XX-XX-YY 66-66-22
+                 * @example XX-XY-YY 66-62-22
                  */
                 '/^(\d)\1{5}$/',
+                '/^(\d)\1{3}\d\1{1}$/',
+                '/^(\d)\1{1}(\d)\2{3}$/',
+                '/^(\d)\1{3}(\d)\2{1}$/',
+                '/^(\d)\1{2}(\d)\2{2}$/',
                 /**
                  * @example Z-XXXXX 28-88-88
                  * @example YYYYY-X 77-77-70
@@ -37,6 +45,34 @@ class NumberBeautyDao extends Singleton
                  */
                 '/^(\d)\1{5}\d$/',
                 '/^\d(\d)\1{5}$/',
+                /**
+                 * @example XXX-Y-XXX 666-2-666
+                 */
+                '/^(\d)\1{2}\d\1{3}$/',
+                /**
+                 * @example XYX-XX-XX 939-99-99
+                 * @example XX-Y-XXXX 44-3-4444
+                 */
+                '/^(\d)\d\1{5}$/',
+                '/^(\d)\1\d\1{3}$/',
+                /**
+                 * @example XX-YYYYY 225-55-55
+                 * @example XXXXX-YY 333-33-44
+                 * @example X-YYYYY-X 7-00000-7
+                 */
+                '/^(\d)\1(\d)\2{4}$/',
+                '/^(\d)\1{4}(\d)\2$/',
+                '/^(\d)(\d)\2{4}\1$/',
+                /**
+                 * @example XXX-YYYY 444-22-22
+                 * @example XXXX-YYY 22-22-444
+                 */
+                '/^(\d)\1{2}(\d)\2{3}$/',
+                '/^(\d)\1{3}(\d)\2{2}$/',
+                /**
+                 * @example X-YY-XXXX 2-33-2222
+                 */
+                '/^(\d)(\d)\2\1{4}$/',
             ],
         ],
         DidGroup::BEAUTY_LEVEL_PLATINUM => [
@@ -47,16 +83,6 @@ class NumberBeautyDao extends Singleton
                  */
                 '/^(\d)\1{1}\d\1{3}$/',
                 '/^(\d)\1{2}\d\1{2}$/',
-                /**
-                 * @example XX-XX-YX 66-66-26
-                 * @example XX-YY-YY 66-22-22
-                 * @example XX-XX-YY 66-66-22
-                 * @example XX-XY-YY 66-62-22
-                 */
-                '/^(\d)\1{3}\d\1{1}$/',
-                '/^(\d)\1{1}(\d)\2{3}$/',
-                '/^(\d)\1{3}(\d)\2{1}$/',
-                '/^(\d)\1{2}(\d)\2{2}$/',
                 /**
                  * @example XX-YY-XX 22-66-22
                  * @example XX-XX-NUM2 22-22-NUM2
@@ -74,45 +100,21 @@ class NumberBeautyDao extends Singleton
             ],
             7 => [
                 /**
-                 * @example XXX-Y-XXX 666-2-666
-                 */
-                '/^(\d)\1{2}\d\1{3}$/',
-                /**
-                 * @example XYX-XX-XX 939-99-99
-                 * @example XX-Y-XXXX 44-3-4444
                  * @example XXXX-Y-XX 2222-3-22
                  * @example XXXXX-Y-X 55555-6-5
                  */
-                '/^(\d)\d\1{5}$/',
-                '/^(\d)\1\d\1{3}$/',
                 '/^(\d)\1{3}\d\1{2}$/',
                 '/^(\d)\1{4}\d\1$/',
-                /**
-                 * @example XX-YYYYY 225-55-55
-                 * @example XXXXX-YY 333-33-44
-                 * @example X-YYYYY-X 7-00000-7
-                 */
-                '/^(\d)\1(\d)\2{4}$/',
-                '/^(\d)\1{4}(\d)\2$/',
-                '/^(\d)(\d)\2{4}\1$/',
-                /**
-                 * @example XXX-YYYY 444-22-22
-                 * @example XXXX-YYY 22-22-444
-                 */
-                '/^(\d)\1{2}(\d)\2{3}$/',
-                '/^(\d)\1{3}(\d)\2{2}$/',
                 /**
                  * @example XX-YYY-XX 22-555-22
                  */
                 '/^(\d)\1(\d)\2{2}\1{2}$/',
                 /**
                  * @example XXXX-YY-X 222-23-32
-                 * @example X-YY-XXXX 2-33-2222
                  * @example XX-YY-XXX 22-33-222
                  * @example XXX-YY-XX 222-33-22
                  */
                 '/^(\d)\1{3}(\d)\2\1$/',
-                '/^(\d)(\d)\2\1{4}$/',
                 '/^(\d)\1(\d)\2\1{3}$/',
                 '/^(\d)\1{2}(\d)\2\1{2}$/',
                 /**
