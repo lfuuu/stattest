@@ -116,6 +116,7 @@
     <tr>
         <td class="header" valign="bottom">Дата</td>
         <td class="header" valign="bottom">Номер</td>
+        <td class="header" valign="bottom">Дата оплаты счета</td>
         <td class="header" valign="bottom">Сумма</td>
         <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
         <td class="header" valign="bottom">Сумма</td>
@@ -136,6 +137,7 @@
                 <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}"{if $op.isCanceled==1} style="text-decoration: line-through;"{/if}>
                     <a href="{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}">{$op.bill.bill_no}</a>
                 </td>
+                <td rowspan="{$rowspan}">{$op.bill.payment_date}</td>
                 <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
             {else}
                 <td colspan="3" rowspan="{$rowspan}">&nbsp;</td>

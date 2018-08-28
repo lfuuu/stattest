@@ -54,7 +54,7 @@
         <div class="row">
             <div class="col-sm-4">
                 <div class="form-group">
-                    <label>Дата оплаты счета:</label>
+                    <label>Оплатить до:</label>
                     <input class="form-control input-sm" type=text id=pay_bill_until name=pay_bill_until
                            value="{$pay_bill_until}">
                 </div>

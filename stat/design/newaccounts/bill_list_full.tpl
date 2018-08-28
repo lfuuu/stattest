@@ -123,7 +123,7 @@
 
 <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
     <tr>
-        <td class="header" valign="bottom" colspan="4"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
+        <td class="header" valign="bottom" colspan="5"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
         <td class="header" valign="bottom">&nbsp;</td>
         <td class="header" valign="bottom" colspan="3"><b>Платёж</b></td>
         <td class="header" valign="bottom" colspan="3"><b>Разбивка оплаты</b></td>
@@ -133,6 +133,7 @@
     <tr>
         <td class="header" valign="bottom">Дата</td>
         <td class="header" valign="bottom">Номер</td>
+        <td class="header" valign="bottom">Дата оплаты счета</td>
         <td class="header sum_column" valign="bottom">Сумма</td>
         <td class="header sum_column" valign="bottom">Исправленная сумма</td>
         <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
@@ -154,7 +155,9 @@
             {if isset($op.bill) && $op.bill}
                 <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}{if $op.bill.is_pay_overdue}color: #c40000;{/if}">{$op.bill.bill_date}</td>
                 <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}"{if $op.isCanceled==1} style="text-decoration: line-through;"{/if}>
-                    <a href="{$LINK_START}module=newaccounts&action=bill_view&{if $op.bill.type == "income_order"}income_order_id={$op.bill.bill_id}{else}bill={$op.bill.bill_no}{/if}">{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br />({$op.bill.bill_no_ext}){/if}</a></td>
+                    <a href="{$LINK_START}module=newaccounts&action=bill_view&{if $op.bill.type == "income_order"}income_order_id={$op.bill.bill_id}{else}bill={$op.bill.bill_no}{/if}">{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br />({$op.bill.bill_no_ext}){/if}</a>
+                </td>
+                <td rowspan="{$rowspan}">{$op.bill.payment_date}</td>
                 <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
                 <td rowspan="{$rowspan}" align="right">{if $op.bill.sum_correction}{$op.bill.sum_correction|money:$op.bill.currency}{/if}</td>
             {else}

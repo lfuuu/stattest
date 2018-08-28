@@ -396,7 +396,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q = '
                 select * from (
             select
-                "bill" as type, bill_no, "" as bill_id, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,is_pay_overdue,
+                "bill" as type, bill_no, "" as bill_id, bill_no_ext, bill_date, payment_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,is_pay_overdue,
                 ' . (
             $sum[$fixclient_data['currency']]['ts']
                 ? 'IF(bill_date >= "' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)'
