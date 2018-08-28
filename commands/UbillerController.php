@@ -49,11 +49,12 @@ class UbillerController extends Controller
         // проводки
         $this->actionEntry();
 
+		// Не списывать абонентку и минималку (обнулять транзакции) за ВТОРОЙ и последующие периоды при финансовой блокировке
+		// Должно идти после actionEntry (чтобы проводки уже были), но до actionBill (чтобы проводки правильно учлись в счете)
+		$this->actionFreePeriodInFinanceBlock();
+
         // счета
         $this->actionBill();
-
-        // Не списывать абонентку и минималку при финансовой блокировке
-        $this->actionFreePeriodInFinanceBlock();
 
         // Конвертировать счета в старую бухгалтерию
         $this->actionBillConverter();
@@ -165,7 +166,8 @@ class UbillerController extends Controller
     }
 
     /**
-     * Не списывать абонентку и минималку при финансовой блокировке. 1 секунда
+     * Не списывать абонентку и минималку (обнулять транзакции) за ВТОРОЙ и последующие периоды при финансовой блокировке. 1 секунда
+	 * Должно идти после actionEntry (чтобы проводки уже были), но до actionBill (чтобы проводки правильно учлись в счете)
      */
     public function actionFreePeriodInFinanceBlock()
     {
