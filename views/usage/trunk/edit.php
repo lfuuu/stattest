@@ -64,20 +64,19 @@ if ($isUu) {
             $tariff = $tariffPeriod->tariff;
         }
 
-        // Дата начала действия пакета с учетом таймзоны клиента
-         $actualFrom = (new \DateTimeImmutable($accountTariff->tariff_period_utc,
-                    new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
-                    ->setTimezone(new \DateTimeZone($clientAccount->timezone_name))
-                    ->format(DateTimeZoneHelper::DATE_FORMAT);
-        $tariffNameFull = sprintf('%s с (%s)', $tariff->name, $actualFrom);
+        // Дата подключения пакета
+        $accountTariffLog = reset($accountTariff->accountTariffLogs);
+        if ($accountTariffLog) {
+            $accountTariffLogActualFrom = Yii::$app->formatter->asDate($accountTariffLog->actual_from, DateTimeZoneHelper::HUMAN_DATE_FORMAT);
+            $value = sprintf('%s с (%s)', $tariff->name, $accountTariffLogActualFrom);
+        }
 
         switch ($accountTariff->service_type_id) {
             case ServiceType::ID_TRUNK_PACKAGE_ORIG:
-                $origPackages[$tariff->id] = $tariffNameFull;
+                $origPackages[$tariff->id] = $value ?: $tariff->name;
                 break;
-
             case ServiceType::ID_TRUNK_PACKAGE_TERM:
-                $termPackages[$tariff->id] = $tariffNameFull;
+                $termPackages[$tariff->id] = $value ?: $tariff->name;
                 break;
         }
     }
