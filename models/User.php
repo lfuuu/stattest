@@ -33,15 +33,21 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         getList as getListTrait;
     }
 
+    const USER_KIM = 'kim'; // Ким Александр
+    const USER_KIM_ID = 70; // Ким Александр
+
     const SYSTEM_USER = 'system';
     const SYSTEM_USER_ID = 60;
     const CLIENT_USER_ID = 25;
     const LK_USER_ID = 177;
-    const DEFAULT_ACCOUNT_MANAGER_USER_ID = 10; // Владимир Ан
-    const DEFAULT_ACCOUNT_MANAGER_USER = 'ava'; // Владимир Ан
     const USER_NICK = 'nick'; // Михайлов Николай
     const USER_KOSHELEV = 'koshelev'; // Кошелев Сергей
     const USER_VOSTROKNUTOV = 'vostroknutov'; // Михаил Вострокнутов
+
+
+    const DEFAULT_ACCOUNT_MANAGER_USER_ID = self::USER_KIM_ID;
+    const DEFAULT_ACCOUNT_MANAGER_USER = self::USER_KIM;
+
 
     const DEPART_SALES = 28;
     const DEPART_PURCHASE = 29;

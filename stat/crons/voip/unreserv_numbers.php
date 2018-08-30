@@ -132,10 +132,9 @@ function notifyManagers($data = array())
 
         echo "\n\n".$message;
 
-        if (!strlen($r['manager'])) $r['manager'] = 'ava';
+        if (!strlen($r['manager'])) $r['manager'] = \app\models\User::USER_KIM;
 
         mail(ADMIN_EMAIL, "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"], "Content-Type: text/plain; charset=\"utf-8\"");
-        mail("ava@mcn.ru", "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"], "Content-Type: text/plain; charset=\"utf-8\"");
 
         ApiLk::createTT($message, $r['client'], $r['manager']);
     }

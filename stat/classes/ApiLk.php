@@ -43,7 +43,7 @@ class ApiLk
 
     const MAX_LK_NOTIFICATION_CONTACTS = 6;
 
-    const DEFAULT_MANAGER = 'ava';
+    const DEFAULT_MANAGER = User::DEFAULT_ACCOUNT_MANAGER_USER;
 
     /**
      * @param $clientId
