@@ -11,8 +11,8 @@ use app\modules\sim\models\Imsi;
 use app\modules\sim\models\ImsiPartner;
 use app\modules\sim\models\ImsiStatus;
 use kartik\editable\Editable;
-use unclead\widgets\TabularColumn;
-use unclead\widgets\TabularInput;
+use unclead\multipleinput\TabularColumn;
+use app\widgets\TabularInput\TabularInput;
 
 $imsi = new Imsi;
 $imsi->is_active = true;

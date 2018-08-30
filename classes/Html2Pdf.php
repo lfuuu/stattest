@@ -3,7 +3,7 @@
 namespace app\classes;
 
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Класс генерации PDF из HTML
@@ -15,7 +15,7 @@ use yii\base\Object;
  *
  * @package app\classes
  */
-class Html2Pdf extends Object
+class Html2Pdf extends BaseObject
 {
 
     /** @var string */

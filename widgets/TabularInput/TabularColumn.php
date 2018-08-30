@@ -5,7 +5,7 @@ namespace app\widgets\TabularInput;
 
 use yii\db\ActiveRecord;
 
-class TabularColumn extends \unclead\widgets\TabularColumn
+class TabularColumn extends \unclead\multipleinput\TabularColumn
 {
     /**
      * @inheritdoc

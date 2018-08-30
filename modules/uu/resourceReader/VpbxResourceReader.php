@@ -8,9 +8,9 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use DateTimeImmutable;
 use Yii;
-use yii\base\Object;
+use yii\base\BaseObject;
 
-abstract class VpbxResourceReader extends Object implements ResourceReaderInterface
+abstract class VpbxResourceReader extends BaseObject implements ResourceReaderInterface
 {
     protected $fieldName = '';
 

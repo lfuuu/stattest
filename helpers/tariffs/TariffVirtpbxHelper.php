@@ -2,11 +2,11 @@
 
 namespace app\helpers\tariffs;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\Url;
 use app\models\tariffs\TariffInterface;
 
-class TariffVirtpbxHelper extends Object implements TariffHelperInterface
+class TariffVirtpbxHelper extends BaseObject implements TariffHelperInterface
 {
 
     private $tariff;

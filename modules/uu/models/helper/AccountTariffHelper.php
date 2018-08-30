@@ -7,10 +7,10 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 
-class AccountTariffHelper extends Object implements UsageHelperInterface
+class AccountTariffHelper extends BaseObject implements UsageHelperInterface
 {
     /** @var AccountTariff */
     private $_accountTariff;

@@ -4,14 +4,14 @@ namespace app\helpers\usages;
 
 use app\models\UsageVoip;
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\classes\Html;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 
-class UsageVirtpbxHelper extends Object implements UsageHelperInterface
+class UsageVirtpbxHelper extends BaseObject implements UsageHelperInterface
 {
 
     use UsageHelperTrait;

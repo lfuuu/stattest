@@ -8,7 +8,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use DateTimeImmutable;
 use DateTimeZone;
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class SmsResourceReader
@@ -16,7 +16,7 @@ use yii\base\Object;
  *
  * @property bool $isMonthPricePerUnit
  */
-class SmsResourceReader extends Object implements ResourceReaderInterface
+class SmsResourceReader extends BaseObject implements ResourceReaderInterface
 {
     const COST_AMOUNT = 0.47; // Себестоимость MTT без НДС, руб
 

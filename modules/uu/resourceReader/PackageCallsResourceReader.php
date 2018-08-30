@@ -10,10 +10,10 @@ use app\modules\uu\models\TariffPeriod;
 use DateTimeImmutable;
 use DateTimeZone;
 use Yii;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\Query;
 
-abstract class PackageCallsResourceReader extends Object implements ResourceReaderInterface
+abstract class PackageCallsResourceReader extends BaseObject implements ResourceReaderInterface
 {
     /** @var [] кэш данных */
     private $_callsByPrice = []; // [$date => [$packagePriceId => [0 => $price, 1 => $costPrice]]]

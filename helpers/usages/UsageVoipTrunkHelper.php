@@ -4,11 +4,11 @@ namespace app\helpers\usages;
 
 use app\models\UsageTrunk;
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use app\models\usages\UsageInterface;
 use yii\helpers\Url;
 
-class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
+class UsageVoipTrunkHelper extends BaseObject implements UsageHelperInterface
 {
 
     use UsageHelperTrait;

@@ -1,9 +1,9 @@
 <?php
 namespace app\classes;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
-class Enum extends Object
+class Enum extends BaseObject
 {
     protected static $names = [];
 

@@ -3,13 +3,13 @@
 namespace app\helpers\usages;
 
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 use app\models\UsageIpPorts;
 
-class UsageIpPortsHelper extends Object implements UsageHelperInterface
+class UsageIpPortsHelper extends BaseObject implements UsageHelperInterface
 {
 
     use UsageHelperTrait;

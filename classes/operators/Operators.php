@@ -3,11 +3,11 @@
 namespace app\classes\operators;
 
 use Yii;
-use yii\base\Object;
+use yii\base\BaseObject;
 use app\dao\reports\ReportExtendsOperatorsDao;
 use app\classes\excel\OnlimeOperatorToExcel;
 
-abstract class Operators extends Object
+abstract class Operators extends BaseObject
 {
 
     const STORE_ID = '8e5c7b22-8385-11df-9af5-001517456eb1';

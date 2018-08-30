@@ -7,7 +7,7 @@ use app\dao\BillDao;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class BillLine

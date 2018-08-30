@@ -8,9 +8,9 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use DateTimeImmutable;
 use DateTimeZone;
-use yii\base\Object;
+use yii\base\BaseObject;
 
-class CalltrackingResourceReader extends Object implements ResourceReaderInterface
+class CalltrackingResourceReader extends BaseObject implements ResourceReaderInterface
 {
     /**
      * Вернуть количество потраченного ресурса

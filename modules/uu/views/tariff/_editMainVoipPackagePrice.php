@@ -14,8 +14,8 @@ use app\modules\nnp\models\PackagePrice;
 use app\modules\uu\controllers\TariffController;
 use app\modules\uu\models\ServiceType;
 use kartik\editable\Editable;
-use unclead\widgets\TabularColumn;
-use unclead\widgets\TabularInput;
+use unclead\multipleinput\TabularColumn;
+use app\widgets\TabularInput\TabularInput;
 
 $packagePrice = new PackagePrice;
 $attributeLabels = $packagePrice->attributeLabels();

@@ -5,7 +5,7 @@ namespace app\widgets\TabularInput;
 
 use yii\db\ActiveRecord;
 
-class TabularInput extends \unclead\widgets\TabularInput
+class TabularInput extends \unclead\multipleinput\TabularInput
 {
     /** @var ActiveRecord $newModel Новая (которая добавляется по плюсику) модель */
     public $newModel = null;

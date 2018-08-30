@@ -3,13 +3,13 @@
 namespace app\helpers\usages;
 
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 use app\models\UsageExtra;
 
-class UsageExtraHelper extends Object implements UsageHelperInterface
+class UsageExtraHelper extends BaseObject implements UsageHelperInterface
 {
 
     use UsageHelperTrait;

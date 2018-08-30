@@ -2,7 +2,7 @@
 
 namespace app\classes\notification;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use app\classes\notification\processors\NotificationProcessor;
 use app\classes\notification\processors\ZeroBalanceNotificationProcessor;
 use app\classes\notification\processors\MinBalanceNotificationProcessor;
@@ -11,7 +11,7 @@ use app\classes\notification\processors\DayLimitNotificationProcessor;
 use app\classes\notification\processors\DayMnLimitNotificationProcessor;
 
 
-class Notification extends Object
+class Notification extends BaseObject
 {
     /**
      * Проверка создания основных событий оповещений

@@ -13,8 +13,8 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\uu\controllers\TariffController;
 use app\modules\uu\models\ServiceType;
 use kartik\editable\Editable;
-use unclead\widgets\TabularColumn;
-use unclead\widgets\TabularInput;
+use unclead\multipleinput\TabularColumn;
+use app\widgets\TabularInput\TabularInput;
 
 $packageMinute = new PackageMinute;
 $attributeLabels = $packageMinute->attributeLabels();

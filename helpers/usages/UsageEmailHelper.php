@@ -3,13 +3,13 @@
 namespace app\helpers\usages;
 
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 use app\models\UsageEmails;
 use app\models\ClientAccount;
 
-class UsageEmailHelper extends Object implements UsageHelperInterface
+class UsageEmailHelper extends BaseObject implements UsageHelperInterface
 {
 
     use UsageHelperTrait;

@@ -11,7 +11,7 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\widgets\TabularInput\TabularInput;
 use kartik\form\ActiveForm;
-use unclead\widgets\TabularColumn;
+use unclead\multipleinput\TabularColumn;
 
 ?>
 

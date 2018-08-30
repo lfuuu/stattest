@@ -7,7 +7,7 @@ use app\models\ClientAccount;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\base\NotSupportedException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 use app\classes\BillQRCode;
 use app\controllers\SiteController;
@@ -17,7 +17,7 @@ use app\models\Bill;
 /**
  * @property Organization $organization
  */
-abstract class DocumentReport extends Object
+abstract class DocumentReport extends BaseObject
 {
 
     const TEMPLATE_PATH = '@app/views/documents/';

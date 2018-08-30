@@ -5,11 +5,11 @@ namespace app\helpers\usages;
 use app\models\UsageCallChat;
 use app\models\usages\UsageInterface;
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
-class UsageCallChatHelper extends Object implements UsageHelperInterface
+class UsageCallChatHelper extends BaseObject implements UsageHelperInterface
 {
 
     use UsageHelperTrait;

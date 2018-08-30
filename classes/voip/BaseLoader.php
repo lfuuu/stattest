@@ -2,9 +2,9 @@
 
 namespace app\classes\voip;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
-abstract class BaseLoader extends Object
+abstract class BaseLoader extends BaseObject
 {
 
     /**

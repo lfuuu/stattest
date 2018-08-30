@@ -17,8 +17,8 @@ use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use kartik\editable\Editable;
-use unclead\widgets\TabularColumn;
-use unclead\widgets\TabularInput;
+use unclead\multipleinput\TabularColumn;
+use app\widgets\TabularInput\TabularInput;
 
 $tariff = $formModel->tariff;
 $tariffPeriods = $formModel->tariffPeriods;
