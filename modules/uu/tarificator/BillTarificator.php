@@ -39,7 +39,10 @@ class BillTarificator extends Tarificator
             INSERT INTO {$billTableName}
             (date, client_account_id, price)
                 SELECT DISTINCT
-                    IF(account_entry.is_next_month = 1, account_entry.date + INTERVAL 1 MONTH, account_entry.date) AS date,
+                    IF(account_entry.is_next_month = 1, 
+                        DATE_FORMAT(account_entry.date, '%Y-%m-01') + INTERVAL 1 MONTH, 
+                        DATE_FORMAT(account_entry.date, '%Y-%m-01')
+                    ) AS date,
                     account_tariff.client_account_id,
                     0
                 FROM
@@ -71,7 +74,10 @@ SQL;
             WHERE
                 account_entry.account_tariff_id = account_tariff.id
                 AND account_entry.bill_id IS NULL
-                AND IF(account_entry.is_next_month = 1, account_entry.date + INTERVAL 1 MONTH, account_entry.date) = bill.date
+                AND IF(account_entry.is_next_month = 1, 
+                    DATE_FORMAT(account_entry.date, '%Y-%m-01') + INTERVAL 1 MONTH, 
+                    DATE_FORMAT(account_entry.date, '%Y-%m-01')
+                ) = bill.date
                 AND account_tariff.client_account_id = bill.client_account_id
                 AND account_tariff.client_account_id = client_account.id
                 {$sqlAndWhere}

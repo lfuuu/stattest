@@ -35,23 +35,57 @@ class AccountEntryTarificator extends Tarificator
         // Подключение
         // Транзакции группировать в проводки следующего месяца
         $this->out('Проводки за подключение');
-        $this->_tarificate(AccountLogSetup::tableName(), new Expression((string)AccountEntry::TYPE_ID_SETUP), 'date', 'date', $accountTariffId, $isSplitByMonths = 1);
+        $this->_tarificate(
+            AccountLogSetup::tableName(),
+            new Expression((string)AccountEntry::TYPE_ID_SETUP),
+            'date',
+            'date',
+            $accountTariffId,
+            $isSplitByMonths = true,
+            $isGroupPerDayToMonth = true
+        );
 
         // Абонентская плата
         // Постоплатные: все транзакции группировать в проводки следующего месяца
         // Предоплатные: помесячные транзакции от 1го числа группировать в проводки того же месяца. Остальные транзакции (посуточные или не от 1го числа) группировать в проводки следующего месяца
+        // Посуточные проводки не группировать в транзакции, а так и оставлять 1-в-1 независимо от типа оплаты
         $this->out(PHP_EOL . 'Проводки за абоненскую плату');
-        $this->_tarificate(AccountLogPeriod::tableName(), new Expression((string)AccountEntry::TYPE_ID_PERIOD), 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 1);
+        $this->_tarificate(
+            AccountLogPeriod::tableName(),
+            new Expression((string)AccountEntry::TYPE_ID_PERIOD),
+            'date_from',
+            'date_to',
+            $accountTariffId,
+            $isSplitByMonths = true,
+            $isGroupPerDayToMonth = false
+        );
 
         // Ресурсы
-        // (аналогично абонентке)
+        // (аналогично абонентке за исключением группировки - группировать всегда)
         $this->out(PHP_EOL . 'Проводки за ресурсы');
-        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 1, 'account_log.cost_price');
+        $this->_tarificate(
+            AccountLogResource::tableName(),
+            'tariff_resource_id',
+            'date_from',
+            'date_to',
+            $accountTariffId,
+            $isSplitByMonths = true,
+            $isGroupPerDayToMonth = true,
+            'account_log.cost_price'
+        );
 
         // Минимальная плата
         // Транзакции группировать в проводки следующего месяца
         $this->out(PHP_EOL . 'Проводки за минимальную плату');
-        $this->_tarificate(AccountLogMin::tableName(), new Expression((string)AccountEntry::TYPE_ID_MIN), 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 0);
+        $this->_tarificate(
+            AccountLogMin::tableName(),
+            new Expression((string)AccountEntry::TYPE_ID_MIN),
+            'date_from',
+            'date_to',
+            $accountTariffId,
+            $isSplitByMonths = false,
+            $isGroupPerDayToMonth = true
+        );
 
         // Расчёт НДС
         $this->out(PHP_EOL . 'Расчёт НДС');
@@ -68,11 +102,12 @@ class AccountEntryTarificator extends Tarificator
      * @param string $dateFieldNameFrom
      * @param string $dateFieldNameTo
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
-     * @param int $isSplitByMonths делить ли на прошлый/будущий месяц
+     * @param bool $isSplitByMonths делить ли на прошлый/будущий месяц
+     * @param bool $isGroupPerDayToMonth группировать ли посуточные транзакции в проводки по месяцам
      * @param int|float|string $costPrice Себестоимость. Значение и "account_log.поле"
      * @throws \yii\db\Exception
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isSplitByMonths, $costPrice = 0)
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isSplitByMonths, $isGroupPerDayToMonth, $costPrice = 0)
     {
         /** @var Connection $db */
         $db = Yii::$app->db;
@@ -100,13 +135,20 @@ class AccountEntryTarificator extends Tarificator
             $isNextMonthSql = 'true';
         }
 
+        if ($isGroupPerDayToMonth) {
+            $isGroupPerDayToMonthSql = "'%Y-%m-01'";
+        } else {
+            // если посуточно, то не группировать транзакции в проводки по месяцам, а оставлять 1-в-1
+            $isGroupPerDayToMonthSql = "IF(account_log.`{$dateFieldNameTo}` = account_log.`{$dateFieldNameFrom}`, '%Y-%m-%d', '%Y-%m-01')";
+        }
+
         // создать пустые проводки
         $this->out('. ');
         $insertSQL = <<<SQL
             INSERT INTO {$accountEntryTableName}
             (date, account_tariff_id, type_id, price, is_next_month, tariff_period_id, date_from, date_to)
                 SELECT DISTINCT
-                    DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, "%Y-%m-01") AS date,
+                    DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, {$isGroupPerDayToMonthSql}) AS date,
                     account_log.account_tariff_id,
                     {$typeId} as type_id,
                     0 AS price,
@@ -142,7 +184,7 @@ SQL;
             WHERE
                 account_log.account_entry_id IS NULL
                 AND account_entry.is_next_month = IF(client_account.is_postpaid = 1 OR {$isNextMonthSql}, 1, 0)
-                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, "%Y-%m-01")
+                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, {$isGroupPerDayToMonthSql})
                 AND account_entry.type_id = {$typeId}
                 AND account_entry.account_tariff_id = account_log.account_tariff_id
                 AND account_entry.tariff_period_id = account_log.tariff_period_id
