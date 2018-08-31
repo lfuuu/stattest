@@ -453,14 +453,6 @@ class AccountTariffResourceLog extends ActiveRecord
             return null;
         }
 
-        if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
-            $error = sprintf('ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
-            $this->_shiftActualFrom($error);
-            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
-            return null;
-        }
-
-
         $maxPaidAmount = $accountTariff->getMaxPaidAmount($tariffPeriod->tariff, $this->resource_id);
         $accountLogFromToResource = new AccountLogFromToResource;
         $accountLogFromToResource->dateFrom = new DateTimeImmutable($this->actual_from);
@@ -471,18 +463,29 @@ class AccountTariffResourceLog extends ActiveRecord
         $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogResource($accountTariff, $accountLogFromToResource, $this->resource_id);
         $priceResources = $accountLogResource->price;
 
-        if ($realtimeBalanceWithCredit < $priceResources) {
-            $error = sprintf(
-                'На ЛС %.2f %s и кредит %.2f %s, что меньше стоимости ресурсов %.2f',
-                $realtimeBalance,
-                $clientAccount->currency,
-                $credit,
-                $clientAccount->currency,
-                $priceResources
-            );
-            $this->_shiftActualFrom($error);
-            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
-            return $accountLogResource;
+        if ($priceResources > 0) {
+            // Эти проверки только для платного ресурса
+
+            if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
+                $error = sprintf('Платные ресурсы нельзя подключить, потому что ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
+                $this->_shiftActualFrom($error);
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
+                return null;
+            }
+
+            if ($realtimeBalanceWithCredit < $priceResources) {
+                $error = sprintf(
+                    'На ЛС %.2f %s и кредит %.2f %s, что меньше стоимости ресурсов %.2f',
+                    $realtimeBalance,
+                    $clientAccount->currency,
+                    $credit,
+                    $clientAccount->currency,
+                    $priceResources
+                );
+                $this->_shiftActualFrom($error);
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
+                return $accountLogResource;
+            }
         }
 
         // все хорошо - денег хватает

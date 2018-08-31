@@ -430,20 +430,6 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
-            $error = sprintf('ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
-            if ($isCountLogs) {
-                // смена тарифа
-                $this->_shiftActualFrom($error);
-            } else {
-                // подключение новой услуги
-                $this->addError($attribute, $error);
-            }
-
-            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
-            return;
-        }
-
         $accountLogFromToTariff = new AccountLogFromToTariff();
         $accountLogFromToTariff->dateFrom = new DateTimeImmutable($this->actual_from);
         $accountLogFromToTariff->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToTariff->dateFrom);
@@ -504,24 +490,42 @@ class AccountTariffLog extends ActiveRecord
         // суммарный платеж
         $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceResources + $priceMin;
 
-        if ($realtimeBalanceWithCredit < $tariffPrice) {
-            $error = sprintf(
-                'На ЛС %.2f и кредит %.2f = %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f + абонентка %.2f + ресурсы %.2f + минималка %.2f)',
-                $realtimeBalance,
-                $credit,
-                $realtimeBalanceWithCredit,
-                $clientAccount->currency,
-                $tariffPrice,
-                $clientAccount->currency,
-                $accountLogSetup->price,
-                $accountLogPeriod->price,
-                $priceResources,
-                $priceMin
-            );
+        if ($tariffPrice > 0) {
+            // Эти проверки только для платной услуги
 
-            $this->addError($attribute, $error);
-            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
-            return;
+            if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
+                $error = sprintf('Платную услугу нельзя подключить, потому что ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
+                if ($isCountLogs) {
+                    // смена тарифа
+                    $this->_shiftActualFrom($error);
+                } else {
+                    // подключение новой услуги
+                    $this->addError($attribute, $error);
+                }
+
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
+                return;
+            }
+
+            if ($realtimeBalanceWithCredit < $tariffPrice) {
+                $error = sprintf(
+                    'На ЛС %.2f и кредит %.2f = %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f + абонентка %.2f + ресурсы %.2f + минималка %.2f)',
+                    $realtimeBalance,
+                    $credit,
+                    $realtimeBalanceWithCredit,
+                    $clientAccount->currency,
+                    $tariffPrice,
+                    $clientAccount->currency,
+                    $accountLogSetup->price,
+                    $accountLogPeriod->price,
+                    $priceResources,
+                    $priceMin
+                );
+
+                $this->addError($attribute, $error);
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
+                return;
+            }
         }
 
         // все хорошо - денег хватает
