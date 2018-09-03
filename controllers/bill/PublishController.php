@@ -14,6 +14,7 @@ use app\models\Organization;
 use app\models\Param;
 use app\models\Region;
 use Yii;
+use yii\base\InvalidArgumentException;
 use yii\db\Query;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
@@ -141,11 +142,16 @@ class PublishController extends BaseController
     /**
      * Генерация счет-фактур по организации
      *
-     * @param int $organizationId
      * @return \yii\web\Response
      */
-    public function actionInvoices($organizationId)
+    public function actionInvoices()
     {
+        $organizationId = \Yii::$app->request->post('organizationId');
+
+        if (!$organizationId) {
+            throw new InvalidArgumentException('organizationId нет');
+        }
+
         $query = Bill::find()
             ->from(['b' => Bill::tableName()])
             ->innerJoin(['c' => ClientAccount::tableName()], 'c.id = b.client_id')
@@ -155,6 +161,7 @@ class PublishController extends BaseController
                 'b.is_show_in_lk' => 0
             ]);
 
+        $this->_filterQueryByThisMonth($query);
         $this->_genetateInvocesForBill($query);
 
         return $this->redirect(['/bill/publish/index', 'organizationId' => $organizationId]);
@@ -168,9 +175,24 @@ class PublishController extends BaseController
         $query = Bill::find()
             ->alias('b');
 
+        $this->_filterQueryByThisMonth($query);
         $this->_genetateInvocesForBill($query);
 
         return $this->redirect(['/bill/publish/index']);
+    }
+
+    private function _filterQueryByThisMonth($query)
+    {
+        $from = (new \DateTimeImmutable())->setTime(0, 0, 0)->modify('first day of this month');
+        $to = $from->modify('last day of this month');
+
+        $query->andWhere([
+            'between',
+            'b.bill_date',
+            $from->format(DateTimeZoneHelper::DATE_FORMAT),
+            $to->format(DateTimeZoneHelper::DATE_FORMAT)
+        ]);
+
     }
 
     /**
@@ -206,15 +228,6 @@ class PublishController extends BaseController
      */
     private function _genetateInvocesForBill(Query $query)
     {
-        $from = (new \DateTimeImmutable())->setTime(0, 0, 0)->modify('first day of this month');
-        $to = $from->modify('last day of this month');
-
-        $query->andWhere([
-            'between',
-            'b.bill_date',
-            $from->format(DateTimeZoneHelper::DATE_FORMAT),
-            $to->format(DateTimeZoneHelper::DATE_FORMAT)
-        ]);
 
         /** @var Bill $bill */
         foreach ($query->each() as $bill) {
