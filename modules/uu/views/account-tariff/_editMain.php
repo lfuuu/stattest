@@ -110,14 +110,6 @@ if (!$serviceType) {
             ?>
         </div>
 
-        <?php // комментарий ?>
-        <div class="col-sm-4">
-            <?= $form->field($accountTariff, 'comment')
-                ->textarea()
-                ->label($accountTariff->getAttributeLabel('comment') . $helpConfluence)
-            ?>
-        </div>
-
         <?php // основная услуга ?>
         <div class="col-sm-3">
             <label><?= $accountTariff->getAttributeLabel('prev_account_tariff_id') . $helpConfluence ?></label>
@@ -136,6 +128,17 @@ if (!$serviceType) {
         </div>
 
     </div>
+
+    <div class="row">
+        <?php // комментарий ?>
+        <div class="col-sm-12">
+            <?= $form->field($accountTariff, 'comment')
+                ->textarea(['style' => 'height: 175px'])
+                ->label($accountTariff->getAttributeLabel('comment') . $helpConfluence)
+            ?>
+        </div>
+    </div>
+
 
     <?php
     // свойства тарифа конкретного типа услуги (ВАТС, телефония и пр.)

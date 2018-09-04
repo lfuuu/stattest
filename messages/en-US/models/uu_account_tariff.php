@@ -6,7 +6,7 @@ return [
     'region_id' => 'Attachment point',
     'city_id' => 'City',
     'prev_account_tariff_id' => 'Main service',
-    'comment' => 'Comment',
+    'comment' => 'Tech data',
     'voip_number' => 'Number',
     'vm_elid_id' => 'ID VPS',
     'trunk_id' => 'Trunk',
