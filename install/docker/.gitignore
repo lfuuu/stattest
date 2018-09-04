@@ -1,0 +1,6 @@
+id_rsa
+nginx.conf
+nginx.default.conf
+.pgpass
+php-fpm.www.conf
+php.ini
