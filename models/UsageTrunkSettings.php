@@ -33,6 +33,16 @@ class UsageTrunkSettings extends ActiveRecord
     const MIN_MARGIN_VALUE = 2;
 
     /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+        ];
+    }
+
+    /**
      * @return string
      */
     public static function tableName()

@@ -210,7 +210,6 @@ echo Breadcrumbs::widget([
                 'actions' => [
                     'type' => Form::INPUT_RAW,
                     'value' =>
-
                         Html::tag(
                             'div',
                             ($isUu ?
@@ -233,7 +232,11 @@ echo Breadcrumbs::widget([
     echo Html::hiddenInput('scenario', 'default', ['id' => 'scenario']);
     ActiveForm::end();
     ?>
-
+    <div class="row" style="margin-bottom: 50px;">
+        <div class="col-sm-12 form-group">
+            <?= $this->render('//layouts/_showHistory', ['model' => $usage]) ?>
+        </div>
+    </div>
     <?php if ($usage->orig_enabled) : ?>
         <div class="row">
             <div class="col-sm-2">
@@ -292,6 +295,11 @@ echo Breadcrumbs::widget([
                             UsageTrunkSettings::MIN_MARGIN_PERCENT => '%'
                         ], ['style' => 'min-width: 90px']) ?></td>
                     <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
+                </tr>
+                <tr>
+                    <td colspan="5">
+                        <?= $this->render('//layouts/_showHistory', ['model' => $rule]); ?>
+                    </td>
                 </tr>
                 <?php
                 ActiveForm::end();
@@ -378,6 +386,11 @@ echo Breadcrumbs::widget([
                     <td><?= $form->field($formModel, 'minimum_cost', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 80px']) ?></td>
                     <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
                 </tr>
+                <tr>
+                    <td colspan="5">
+                        <?= $this->render('//layouts/_showHistory', ['model' => $rule]); ?>
+                    </td>
+                </tr>
                 <?php
                 ActiveForm::end();
                 ?>
@@ -423,6 +436,11 @@ echo Breadcrumbs::widget([
             <tr>
                 <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
                 <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <?= $this->render('//layouts/_showHistory', ['model' => $rule]); ?>
+                </td>
             </tr>
             <?php
             ActiveForm::end();

@@ -57,6 +57,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
             'UsageTrunkId' => \app\classes\behaviors\UsageTrunkId::className(),
             'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
             'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
 
