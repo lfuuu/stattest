@@ -151,7 +151,10 @@ abstract class AccountTariffForm extends Form
 
             // Создание/редактирование обычной услуги
             Yii::info('AccountTariffForm. Before accountTariff->load', 'uu');
-            if ($this->accountTariff->load($post)) {
+            if (
+                $this->accountTariff->load($post)
+                && $this->accountTariffLog->load($post)
+            ) {
 
                 // услуга
                 if ($this->accountTariff->save()) {
@@ -170,7 +173,7 @@ abstract class AccountTariffForm extends Form
                         $usageTrunk->client_account_id = $this->accountTariff->client_account_id;
                         $usageTrunk->connection_point_id = $this->accountTariff->region_id;
                         $usageTrunk->trunk_id = (int)$post['trunkId'];
-                        $usageTrunk->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+                        $usageTrunk->actual_from = $this->accountTariffLog->actual_from;
                         $usageTrunk->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
                         $usageTrunk->status = UsageTrunk::STATUS_CONNECTING;
                         if (!$usageTrunk->save()) {
@@ -369,7 +372,8 @@ abstract class AccountTariffForm extends Form
         &$defaultTariffPeriodId,
         $isWithEmpty = false,
         $isWithNullAndNotNull = false
-    ) {
+    )
+    {
         $accountTariff = $this->accountTariff;
         $accountTariffVoip = $this->accountTariffVoip;
         $clientAccount = $accountTariff->clientAccount;
