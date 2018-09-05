@@ -121,6 +121,7 @@ class DocumentController extends BaseController
 
     /**
      * @param int $id
+     * @return string
      * @throws Exception
      */
     public function actionPrint($id)
@@ -131,8 +132,7 @@ class DocumentController extends BaseController
             throw new Exception('Документ не найден');
         }
 
-        echo $document->getFileContent();
-        Yii::$app->end();
+        return $document->getFileContent();
     }
 
     /**
