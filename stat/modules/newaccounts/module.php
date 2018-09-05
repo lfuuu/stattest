@@ -420,6 +420,7 @@ class m_newaccounts extends IModule
                     g.id as bill_id,
                     "" as bill_no_ext,
                     cast(date as date) as bill_date,
+                    "" as payment_date, 
                     client_card_id as client_id,
                     if(currency = "RUB", "RUB", currency) as currency,
                     sum,
