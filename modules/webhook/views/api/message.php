@@ -36,6 +36,7 @@ use app\models\ClientContact;
             $contract = $clientAccount->contract;
             $contragent = $contract->contragent;
             $super = $contract->super;
+            $accountManager = $clientAccount->getUserAccountManager();
             ?>
             <tr data-client_account_id="<?= $clientAccount->id ?>">
                 <?php if ($clientContactsIsOrigin) : ?>
@@ -45,6 +46,7 @@ use app\models\ClientContact;
                 <td>Дог. <?= $contract->number ?></td>
                 <td><?= Html::encode($contragent->name) ?></td>
                 <td><?= ($contragent->name != $super->name) ? Html::encode($super->name) : '' ?></td>
+                <td>Ак. менеджер: <?= $accountManager->name; ?></td>
             </tr>
         <?php endforeach ?>
     </table>
