@@ -61,7 +61,7 @@ use kartik\widgets\ActiveForm;
         <div class="col-sm-3">
             <?= $f->field($model, 'account_version')->dropDownList(
                 ClientAccount::$versions,
-                $model->clientM->isAbleChangeAccountVersion() ? [] : ['disabled' => 'disabled']
+                $model->clientM->isAbleChangeAccountVersion() ? ['options' => [ClientAccount::DEFAULT_ACCOUNT_VERSION => ['selected' => true]],] : ['disabled' => 'disabled', 'options' => [ClientAccount::DEFAULT_ACCOUNT_VERSION => ['selected' => true]],]
             ) ?>
         </div>
     </div>

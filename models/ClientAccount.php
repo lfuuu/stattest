@@ -148,6 +148,9 @@ class ClientAccount extends HistoryActiveRecord
     const STATUS_DISTR = 'distr';
     const STATUS_BLOCKED = 'blocked';
 
+    const VERSION_BILLER_USAGE = 4;
+    const VERSION_BILLER_UNIVERSAL = 5;
+
     const DEFAULT_REGION = Region::MOSCOW;
     const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 2000; // BIL-2081: http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=14221857
     const DEFAULT_VOIP_MN_LIMIT_DAY = 1000;
@@ -155,9 +158,7 @@ class ClientAccount extends HistoryActiveRecord
     const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
     const DEFAULT_CREDIT = 0;
     const DEFAULT_PRICE_LEVEL = 1;
-
-    const VERSION_BILLER_USAGE = 4;
-    const VERSION_BILLER_UNIVERSAL = 5;
+    const DEFAULT_ACCOUNT_VERSION = self::VERSION_BILLER_UNIVERSAL;
 
     const TYPE_OF_BILL_SIMPLE = false;
     const TYPE_OF_BILL_DETAILED = true;
@@ -284,7 +285,7 @@ class ClientAccount extends HistoryActiveRecord
             ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC],
             ['region', 'default', 'value' => self::DEFAULT_REGION],
             ['credit', 'default', 'value' => self::DEFAULT_CREDIT],
-            ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE],
+            ['account_version', 'default', 'value' => self::DEFAULT_ACCOUNT_VERSION],
             ['account_version', 'validatorAccountVersion'],
             ['pay_bill_until_days', 'default', 'value' => self::PAY_BILL_UNTIL_DAYS],
             ['price_type', 'default', 'value' => GoodPriceType::DEFAULT_PRICE_LIST],

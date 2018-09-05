@@ -75,7 +75,7 @@ class ClientCreateExternalForm extends Form
 
         $ip = '',
         $connect_region = Region::MOSCOW,
-        $account_version = ClientAccount::VERSION_BILLER_USAGE,
+        $account_version = ClientAccount::DEFAULT_ACCOUNT_VERSION,
 
         $entry_point_id = '',
 
@@ -158,7 +158,7 @@ class ClientCreateExternalForm extends Form
             ['country_id', 'default', 'value' => Country::RUSSIA],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
-            ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
+            ['account_version', 'default', 'value' => ClientAccount::DEFAULT_ACCOUNT_VERSION],
             [['ip', 'utm_parameters'], 'safe'],
         ];
         return $rules;

@@ -8,6 +8,7 @@ use app\models\LkWizardState;
 use app\models\Region;
 use kartik\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
+use app\models\ClientAccount;
 
 /** @var \app\models\EntryPoint $model */
 /** @var ActiveForm $form */
@@ -108,7 +109,10 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
 
             <div class="col-sm-2">
                 <?= $form
-                    ->field($model, 'account_version')->dropDownList(\app\models\ClientAccount::$versions)
+                    ->field($model, 'account_version')->dropDownList(
+                            ClientAccount::$versions,
+                            ['options' => [ClientAccount::DEFAULT_ACCOUNT_VERSION => ['selected' => true]],]
+                    )
                 ?>
             </div>
 

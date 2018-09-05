@@ -18,7 +18,9 @@ class AccountVersionColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = ['' => '----'] + ClientAccount::$versions;
+        $versions = ClientAccount::$versions;
+        ksort($versions);
+        $this->filter = ['' => '----'] + $versions;
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' account-version-column';
     }
