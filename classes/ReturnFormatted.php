@@ -32,14 +32,14 @@ class ReturnFormatted extends Singleton
             case self::FORMAT_OPTIONS:
                 $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
                 $response->format = Response::FORMAT_HTML;
-                echo Html::renderSelectOptions($defaultValue, $values);
+                $response->content = Html::renderSelectOptions($defaultValue, $values);
                 break;
 
             case self::FORMAT_JSON:
             default:
                 $response->headers->set('Content-Type', 'application/json');
                 $response->format = Response::FORMAT_JSON;
-                echo json_encode($values);
+                $response->content = json_encode($values);
                 break;
         }
 
