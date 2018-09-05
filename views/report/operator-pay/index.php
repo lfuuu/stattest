@@ -4,13 +4,18 @@
  * @var \app\models\filter\OperatorPayFilter $filterModel
  */
 
+use app\classes\grid\column\universal\BusinessColumn;
+use app\classes\grid\column\universal\BusinessProcessColumn;
+use app\classes\grid\column\universal\BusinessProcessStatusColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\StringWithLinkColumn;
+use app\classes\grid\column\universal\UserColumn;
 use app\classes\grid\GridView;
+use app\models\filter\OperatorPayFilter;
 use yii\helpers\Html;
 use yii\widgets\Breadcrumbs;
 
@@ -38,11 +43,24 @@ $filterColumns = [
     [
         'attribute' => 'checking_bill_state',
         'filterType' => GridView::FILTER_SELECT2,
-        'filter' => $filterModel->getCheckingBillStateList(),
+        'filter' => [
+            OperatorPayFilter::STATE_BILL_ALL => 'Все',
+            OperatorPayFilter::STATE_BILL_PAID => 'Оплачен',
+            OperatorPayFilter::STATE_BILL_UNPAID => 'Не оплачен',
+        ],
+        'class' => \app\classes\grid\column\DataColumn::className()
+    ],
+    [
+        'attribute' => 'payment_verified',
+        'filterType' => GridView::FILTER_SELECT2,
+        'filter' => [
+            OperatorPayFilter::STATE_PAYMENT_ALL => 'Все',
+            OperatorPayFilter::STATE_PAYMENT_VERIFIED => 'Проверена',
+            OperatorPayFilter::STATE_PAYMENT_UNVERIFIED => 'Не проверена',
+        ],
         'class' => \app\classes\grid\column\DataColumn::className()
     ],
 ];
-
 
 $columns = [
     [
@@ -99,6 +117,31 @@ $columns = [
         'class' => DateRangeDoubleColumn::className(),
     ],
     [
+        'label' => 'Подразделение',
+        'attribute' => 'business_id',
+        'class' => BusinessColumn::className(),
+    ],
+    [
+        'label' => 'Бизнес-процесс',
+        'attribute' => 'business_process_id',
+        'class' => BusinessProcessColumn::className(),
+    ],
+    [
+        'label' => 'Статус бизнес-процесса',
+        'attribute' => 'business_process_status_id',
+        'class' => BusinessProcessStatusColumn::className(),
+    ],
+    [
+        'label' => 'Менеджер',
+        'attribute' => 'manager',
+        'class' => UserColumn::className(),
+    ],
+    [
+        'label' => 'Ак. менеджер',
+        'attribute' => 'account_manager',
+        'class' => UserColumn::className(),
+    ],
+    [
         'attribute' => 'comment',
         'label' => $filterModel->getAttributeLabel('comment'),
         'format' => 'raw',
@@ -106,11 +149,31 @@ $columns = [
     ],
 ];
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
-    'beforeHeader' => [ // фильтры над гридом
+    'afterHeader' => [
+        [
+            'options' => ['class' => \kartik\grid\GridView::TYPE_WARNING],
+            'columns' => [
+                [
+                    'content' => Yii::t('common', 'Summary'),
+                    'options' => ['colspan' => 3, 'class' => 'text-left'],
+                ],
+                [
+                    'content' => $dataProvider->query->sum('b.sum'),
+                ],
+                [
+                    'content' => '',
+                    'options' => ['colspan' => 9, 'class' => 'text-left'],
+                ],
+            ],
+        ]
+    ],
+    'beforeHeader' => [
         'columns' => $filterColumns,
     ],
 ]);

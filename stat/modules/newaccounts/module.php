@@ -6,6 +6,7 @@ use app\classes\BillQRCode;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\Encrypt;
 use app\classes\StatModule;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillCorrection;
@@ -731,7 +732,14 @@ class m_newaccounts extends IModule
             // stat bills
         } elseif (preg_match("/\d{6}-\d{4,6}/", $_GET["bill"]) || preg_match('/^\d{10,}$/', $_GET['bill'])) {
             $a = 1;
-            //nothing
+            // Попытка установки статуса "Проверено"
+            if (isset($_POST['select_doer']) && $bill = Bill::findOne(['bill_no' => $_GET['bill']])) {
+                $bill->courier_id = $bill->courier_id > 0 ?
+                    0 : Yii::$app->user->identity->id;
+                if (!$bill->save()) {
+                    throw new ModelValidationException($bill);
+                }
+            }
         } else {
             die("Неизвестный тип документа");
         }

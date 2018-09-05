@@ -92,19 +92,6 @@
     {if !$isClosed}
         <tr>
             <td width="33%">
-                Выбрать исполнителя:
-                <form method='POST'>
-                    <input type='hidden' name='select_doer' value='1'/>
-                    <input type='hidden' name='bill_no' value='{$bill.bill_no}'/>
-                    <select class="select2" name='doer' style="width: 200px">
-                        <option value='0'>Отсутствует</option>
-                        {foreach from=$doers item='doer'}
-                            <option value='{$doer.id}'>{$doer.name} - {$doer.depart}</option>{/foreach}
-                    </select>
-                    <input type='submit' value='Выбрать'/>
-                </form>
-            </td>
-            <td width="33%">
                 <div style="float: left;">Комментарий</div>
                 {if $bill.comment}
                     <div style="float: left; margin-left: 10px; background: url('/images/icons/edit.gif') no-repeat 0 0; width: 16px; height: 16px;">
@@ -130,17 +117,10 @@
                 </div>
             </td>
             <td width="33%">
-                Предпологаемый тип платежа:
-                <form action="?" method=post>
-                    <input type=hidden name=module value=newaccounts>
-                    <input type=hidden name=bill value="{$bill.bill_no}">
-                    <input type=hidden name=action value="bill_nal">
-                    <select name="nal">
-                        <option value='---'>Не выбрано</option>
-                        <option value="beznal">безнал</option>
-                        <option value="nal">нал</option>
-                        <option value="prov">пров</option>
-                    </select>
+                <form method='POST'>
+                    <input type="hidden" name="select_doer" value="1"/>
+                    <input type="checkbox" id="courier_id" name="courier_id" {if $bill.courier_id > 0}checked{/if}/>
+                    <label for="courier_id">Оплата проверена</label>
                     <input type='submit' value='Выбрать'/>
                 </form>
             </td>

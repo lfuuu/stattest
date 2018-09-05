@@ -28,6 +28,14 @@ class OperatorPayFilter extends Bill
     const CHECKING_BILL_PAID_AND_VERIFIED = 3;
     const CHECKING_BILL_ALL = 4;
 
+    const STATE_BILL_ALL = 0;
+    const STATE_BILL_PAID = 1;
+    const STATE_BILL_UNPAID = 2;
+
+    const STATE_PAYMENT_ALL = 0;
+    const STATE_PAYMENT_VERIFIED = 1;
+    const STATE_PAYMENT_UNVERIFIED = 2;
+
     public $pay_bill_until_from = '';
     public $pay_bill_until_to = '';
 
@@ -47,10 +55,16 @@ class OperatorPayFilter extends Bill
     public $currency = '';
     public $pay_date = '';
     public $comment = '';
+    public $manager = '';
+    public $account_manager = '';
+    public $business_id = '';
+    public $business_process_id = '';
+    public $business_process_status_id = '';
 
     public $organization_id = Organization::MCN_TELECOM_RETAIL;
     public $bill_type = self::BILL_TYPE_ALL;
-    public $checking_bill_state = self::CHECKING_BILL_PAID_AND_UNVERIFIED;
+    public $checking_bill_state = '';
+    public $payment_verified = '';
 
     /**
      * @return array
@@ -58,7 +72,21 @@ class OperatorPayFilter extends Bill
     public function rules()
     {
         return [
-            [['client_id', 'sum_from', 'sum_to', 'organization_id', 'bill_type', 'checking_bill_state'], 'integer'],
+            [
+                [
+                    'client_id',
+                    'sum_from',
+                    'sum_to',
+                    'organization_id',
+                    'bill_type',
+                    'checking_bill_state',
+                    'payment_verified',
+                    'business_id',
+                    'business_process_id',
+                    'business_process_status_id',
+                ],
+                'integer'
+            ],
             [
                 [
                     'bill_no',
@@ -71,7 +99,9 @@ class OperatorPayFilter extends Bill
                     'pay_bill_until_from',
                     'pay_bill_until_to',
                     'payment_date_from',
-                    'payment_date_to'
+                    'payment_date_to',
+                    'manager',
+                    'account_manager',
                 ],
                 'string'
             ],
@@ -87,7 +117,8 @@ class OperatorPayFilter extends Bill
                 'payment_date' => 'Дата платежа',
                 'organization_id' => 'Организация',
                 'bill_type' => 'Тип счета',
-                'checking_bill_state' => 'Состояние счета'
+                'checking_bill_state' => 'Состояние счета',
+                'payment_verified' => 'Оплата проверена',
             ];
     }
 
@@ -99,7 +130,16 @@ class OperatorPayFilter extends Bill
     public function search()
     {
         $query = (new Query())
-            ->select(['b.*', 'name' => 'cg.name', 'p.payment_date'])
+            ->select([
+                'b.*',
+                'name' => 'cg.name',
+                'p.payment_date',
+                'ct.business_id',
+                'ct.business_process_id',
+                'ct.business_process_status_id',
+                'ct.manager manager',
+                'ct.account_manager account_manager'
+            ])
             ->from(['b' => Bill::tableName()])
             ->innerJoin(['c' => ClientAccount::tableName()], 'c.id = b.client_id')
             ->innerJoin(['ct' => ClientContract::tableName()], 'ct.id = c.contract_id')
@@ -132,31 +172,39 @@ class OperatorPayFilter extends Bill
 
         $this->organization_id !== '' && $query->andWhere(['ct.organization_id' => $this->organization_id]);
 
+        $this->manager !== '' && $query->andWhere(['ct.manager' => $this->manager]);
+        $this->account_manager !== '' && $query->andWhere(['account_manager' => $this->account_manager]);
+
+        $this->business_id !== '' && $query->andWhere(['ct.business_id' => $this->business_id]);
+        $this->business_process_id !== '' && $query->andWhere(['ct.business_process_id' => $this->business_process_id]);
+        $this->business_process_status_id !== '' && $query->andWhere(['ct.business_process_status_id' => $this->business_process_status_id]);
+
         if ($this->bill_type != self::BILL_TYPE_ALL) {
             $query->andWhere([($this->bill_type == self::BILL_TYPE_INCOME ? '>' : '<'), 'b.sum', 0]);
         }
 
-        if ($this->checking_bill_state != self::CHECKING_BILL_ALL) {
+        if ($this->checking_bill_state) {
             switch ($this->checking_bill_state) {
-                // Неоплаченные и непроверенные
-                case self::CHECKING_BILL_UNPAID_AND_UNVERIFIED:
-                    $query
-                        ->andWhere(['p.id' => null])
-                        ->andWhere(['b.courier_id' => 0]);
+                // Оплаченные счета
+                case self::STATE_BILL_PAID :
+                    $query->andWhere(['IS NOT', 'p.id', null]);
                     break;
-
-                // Оплаченные и непроверенные
-                case self::CHECKING_BILL_PAID_AND_UNVERIFIED:
-                    $query
-                        ->andWhere(['IS NOT', 'p.id', null])
-                        ->andWhere(['b.courier_id' => 0]);
+                // Неоплаченные счета
+                case self::STATE_BILL_UNPAID :
+                    $query->andWhere(['p.id' => null]);
                     break;
+            }
+        }
 
-                // Оплаченные и проверенные
-                case self::CHECKING_BILL_PAID_AND_VERIFIED:
-                    $query
-                        ->andWhere(['IS NOT', 'p.id', null])
-                        ->andWhere(['NOT', ['b.courier_id' => 0]]);
+        if ($this->payment_verified) {
+            switch ($this->payment_verified) {
+                // Проверенная оплата
+                case self::STATE_PAYMENT_VERIFIED :
+                    $query->andWhere(['NOT', ['b.courier_id' => 0]]);
+                    break;
+                // Не проверенная оплата
+                case self::STATE_PAYMENT_UNVERIFIED :
+                    $query->andWhere(['b.courier_id' => 0]);
                     break;
             }
         }

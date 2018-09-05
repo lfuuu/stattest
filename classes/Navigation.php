@@ -51,7 +51,7 @@ class Navigation
             $accountBlock->addItem('Перенос эл. платежей', '/payment/yandex-transfer', 'newaccounts_payments.delete');
         }
 
-        $accountBlock->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit');
+        $accountBlock->addItem('Реестр неоплаченных счетов', '/report/operator-pay/', 'clients.edit');
         $accountBlock->addItem('Платежи',
             [
                 '/report/accounting/pay-report/',

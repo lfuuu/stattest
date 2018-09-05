@@ -19,7 +19,7 @@ class OperatorPayController extends BaseController
      */
     public function actionIndex()
     {
-        $this->view->title = 'Реестр неоплаченных счетов поставщиков';
+        $this->view->title = 'Реестр неоплаченных счетов';
         $filterModel = new OperatorPayFilter();
         $filterModel->load(Yii::$app->request->get());
 
