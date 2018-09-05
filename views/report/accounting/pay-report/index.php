@@ -96,6 +96,11 @@ $columns = [
     ],
 
     [
+        'attribute' => 'payment_date',
+        'class' => DateRangeDoubleColumn::className(),
+    ],
+
+    [
         'attribute' => 'add_date',
         'class' => DateRangeDoubleColumn::className(),
     ],

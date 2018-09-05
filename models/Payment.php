@@ -136,7 +136,7 @@ class Payment extends ActiveRecord
             'payment_no' => 'Номер платежа',
             'bill_no' => 'Счет',
             'bill_vis_no' => 'Прикрепленый счет',
-            'payment_date' => 'Дата отправки платежа',
+            'payment_date' => 'Дата совершения  платежа',
             'oper_date' => 'Дата получения платежа',
             'payment_rate' => 'Курс конвертации валюты',
             'type' => 'Тип платежа',
