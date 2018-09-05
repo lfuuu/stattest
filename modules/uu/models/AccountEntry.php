@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
+use app\models\BillLine;
 use app\models\Language;
 use Yii;
 use yii\db\ActiveQuery;
@@ -30,6 +31,7 @@ use yii\helpers\Url;
  * @property string $date_to Максимальная дата транзакций
  *
  * @property-read Bill $bill
+ * @property-read BillLine $billLine
  * @property-read AccountTariff $accountTariff
  * @property-read TariffPeriod $tariffPeriod
  * @property-read TariffResource $tariffResource
@@ -109,6 +111,14 @@ class AccountEntry extends ActiveRecord
     public function getBill()
     {
         return $this->hasOne(Bill::className(), ['id' => 'bill_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBillLine()
+    {
+        return $this->hasOne(BillLine::className(), ['uu_account_entry_id' => 'id']);
     }
 
     /**
@@ -309,7 +319,7 @@ class AccountEntry extends ActiveRecord
                     /** @var AccountLogResource[] $accountLogResources */
                     $accountLogResources = $this->getAccountLogResources()->andWhere(['>', 'amount_overhead', 0])->all();
                     if (!count($accountLogResources)) {
-                        return 0;
+                        return $this->_getAmountFromBillLines($this->id);
                     }
 
                     $amount = array_reduce(
@@ -325,6 +335,18 @@ class AccountEntry extends ActiveRecord
                 Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
                 return 0;
         }
+    }
+
+    /**
+     * @param integer $accountEntryId
+     * @return float
+     */
+    private function _getAmountFromBillLines($accountEntryId)
+    {
+        // Т.к. логи трутся за предыдущий месяц на 3е число нового месяца, данные о количестве недоступно.
+        // Забераем из строк счета.
+        // @TODO
+        return $this->billLine ? round($this->billLine->amount, 2) : 0;
     }
 
     /**

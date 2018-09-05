@@ -54,7 +54,7 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
                 'amount' => $itemAmount,
                 'unit_code' => '-',
                 'unit' => $item->getTypeUnitName($billLanguage),
-                'price_per_unit' => ($itemAmount > 0 ? (float)$item->price_without_vat / $itemAmount : ''),
+                'price_per_unit' => ($itemAmount > 0 ? round((float)$item->price_without_vat / $itemAmount, 2) : ''),
                 'price_without_vat' => $item->price_without_vat,
                 'price_with_vat' => $item->price_with_vat,
                 'vat_rate' => $item->vat_rate,
