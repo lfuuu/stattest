@@ -7,8 +7,6 @@ return [
     'tariff_period_id' => 'Универсальный тариф',
     'account_tariff_id' => 'Универсальная услуга',
     'period_price' => 'Минимальная цена за месяц, ¤',
-    'price_with_coefficient' => 'Минимальная цена за период, ¤',
-    'price_resource' => 'Стоимость ресурсов, ¤',
     'price' => 'Стоимость, ¤',
     'coefficient' => 'Коэффициент',
     'account_entry_id' => 'Проводка',

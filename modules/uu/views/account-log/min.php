@@ -95,14 +95,6 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
     ],
     [
-        'attribute' => 'price_with_coefficient',
-        'class' => IntegerRangeColumn::className(),
-    ],
-    [
-        'attribute' => 'price_resource',
-        'class' => IntegerRangeColumn::className(),
-    ],
-    [
         'attribute' => 'price',
         'class' => IntegerRangeColumn::className(),
     ],

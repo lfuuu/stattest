@@ -27,12 +27,6 @@ class AccountLogMinFilter extends AccountLogMin
     public $coefficient_from = '';
     public $coefficient_to = '';
 
-    public $price_with_coefficient_from = '';
-    public $price_with_coefficient_to = '';
-
-    public $price_resource_from = '';
-    public $price_resource_to = '';
-
     public $price_from = '';
     public $price_to = '';
 
@@ -48,8 +42,8 @@ class AccountLogMinFilter extends AccountLogMin
         return [
             [['id', 'client_account_id', 'tariff_period_id', 'service_type_id', 'account_entry_id'], 'integer'],
 
-            [['period_price_from', 'coefficient_from', 'price_from', 'price_with_coefficient_from', 'price_resource_from'], 'double'],
-            [['period_price_to', 'coefficient_to', 'price_to', 'price_with_coefficient_to', 'price_resource_to'], 'double'],
+            [['period_price_from', 'coefficient_from', 'price_from'], 'double'],
+            [['period_price_to', 'coefficient_to', 'price_to'], 'double'],
 
             [['date_from_from', 'date_to_from'], 'string', 'max' => 255],
             [['date_from_to', 'date_to_to'], 'string', 'max' => 255],
@@ -87,12 +81,6 @@ class AccountLogMinFilter extends AccountLogMin
 
         $this->coefficient_from !== '' && $query->andWhere(['>=', $accountLogMinTableName . '.coefficient', $this->coefficient_from]);
         $this->coefficient_to !== '' && $query->andWhere(['<=', $accountLogMinTableName . '.coefficient', $this->coefficient_to]);
-
-        $this->price_with_coefficient_from !== '' && $query->andWhere(['>=', $accountLogMinTableName . '.price_with_coefficient', $this->price_with_coefficient_from]);
-        $this->price_with_coefficient_to !== '' && $query->andWhere(['<=', $accountLogMinTableName . '.price_with_coefficient', $this->price_with_coefficient_to]);
-
-        $this->price_resource_from !== '' && $query->andWhere(['>=', $accountLogMinTableName . '.price_resource', $this->price_resource_from]);
-        $this->price_resource_to !== '' && $query->andWhere(['<=', $accountLogMinTableName . '.price_resource', $this->price_resource_to]);
 
         $this->price_from !== '' && $query->andWhere(['>=', $accountLogMinTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountLogMinTableName . '.price', $this->price_to]);

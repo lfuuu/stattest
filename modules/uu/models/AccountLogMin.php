@@ -16,9 +16,7 @@ use yii\helpers\Url;
  * @property int $account_tariff_id
  * @property float $period_price кэш tariffPeriod -> price_min
  * @property float $coefficient кэш (date_to - date_from) / n
- * @property float $price_with_coefficient кэш period_price * coefficient
- * @property float $price_resource кэш SUM(account_log_resource.price)
- * @property float $price кэш $price_with_coefficient - $price_resource
+ * @property float $price кэш period_price * coefficient
  * @property string $insert_time
  * @property int $account_entry_id
  *
@@ -51,7 +49,7 @@ class AccountLogMin extends ActiveRecord
     {
         return [
             [['id', 'tariff_period_id', 'account_tariff_id'], 'integer'],
-            [['period_price', 'coefficient', 'price', 'price_with_coefficient', 'price_resource'], 'double'],
+            [['period_price', 'coefficient', 'price'], 'double'],
             [['date_from', 'date_to'], 'string', 'max' => 255],
         ];
     }

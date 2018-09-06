@@ -7,9 +7,7 @@ return [
     'tariff_period_id' => 'Tariff',
     'account_tariff_id' => 'Service',
     'period_price' => 'Month price',
-    'price_with_coefficient' => 'Period cost',
-    'price_resource' => 'Resource cost',
-    'price' => 'Total cost',
+    'price' => 'Cost',
     'coefficient' => 'Coefficient',
     'account_entry_id' => 'Entry',
 ];
