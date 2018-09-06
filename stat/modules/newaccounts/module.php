@@ -1084,6 +1084,7 @@ class m_newaccounts extends IModule
         $bill_nal = get_param_raw("nal");
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
+        $invoice_no_ext = get_param_raw("invoice_no_ext");
         $date_from_active = get_param_raw("date_from_active", 'N');
         $price_include_vat = get_param_raw("price_include_vat", 'N');
         $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
@@ -1113,6 +1114,7 @@ class m_newaccounts extends IModule
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
+        $bill->SetInvoiceNoExt($invoice_no_ext);
         $bill->SetIsToUuInvoice($isToUuInvoice);
 
         if ($date_from_active == 'Y') {

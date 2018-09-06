@@ -211,6 +211,12 @@ class Bill {
             $this->Set("bill_no_ext", $bill_no_ext);
         }
     }
+    public function SetInvoiceNoExt($no)
+    {
+        if ($this->bill["bill_no_ext"] != $no) {
+            $this->Set("invoice_no_ext", $no);
+        }
+    }
     public function SetExtNoDate($bill_no_ext_date = '0000-00-00')
     {
         if ($this->bill["bill_no_ext_date"] != $bill_no_ext_date) {

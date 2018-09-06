@@ -94,6 +94,10 @@
             </div>
             <div class="col-sm-4">
                 <div class="form-group">
+                    {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
+                        <label>Номер внешней с/ф</label>
+                        <input type="text" class="form-control input-sm" name="invoice_no_ext" value="{$bill.invoice_no_ext}">
+                    {/if}
                     {if !$bill.uu_bill_id && $clientAccountVersion == 5}
                     <label>Включить в У-с/ф:</label>
                     <input type="checkbox" value="Y"
