@@ -276,7 +276,7 @@ class GridViewExport extends GridView
             throw new BadRequestHttpException('Cannot create export file');
         }
 
-        echo Json::encode([
+        \Yii::$app->response->content = Json::encode([
             'total' => $this->provider->getTotalCount(),
             'key' => $key,
         ]);
@@ -332,7 +332,7 @@ class GridViewExport extends GridView
         }
         $driver->setData($input->key, $data);
 
-        echo Json::encode([
+        \Yii::$app->response->content = Json::encode([
             'success' => true,
             'total' => $this->provider->getTotalCount(),
             'iteration' => $input->offset,
