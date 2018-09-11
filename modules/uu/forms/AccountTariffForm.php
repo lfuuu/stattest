@@ -153,7 +153,6 @@ abstract class AccountTariffForm extends Form
             Yii::info('AccountTariffForm. Before accountTariff->load', 'uu');
             if (
                 $this->accountTariff->load($post)
-                && $this->accountTariffLog->load($post)
             ) {
 
                 // услуга
@@ -161,7 +160,7 @@ abstract class AccountTariffForm extends Form
                     $this->id = $this->accountTariff->id;
                     $this->isSaved = true;
 
-                    if ($this->accountTariff->service_type_id == ServiceType::ID_TRUNK && isset($post['trunkId'])) {
+                    if ($this->accountTariff->service_type_id == ServiceType::ID_TRUNK && isset($post['trunkId']) && $this->accountTariffLog->load($post)) {
                         // isset($post['trunkId']) гарантирует, что сюда попадаем только при создании не-мультитранка, но не при редактировании (там return) и не при создании мультитранка (там disabled)
                         if (!(int)$post['trunkId']) {
                             throw new LogicException('Не указан транк');

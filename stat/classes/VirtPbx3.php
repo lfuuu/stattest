@@ -252,7 +252,7 @@ class VirtPbx3
     }
 
     /**
-     * @return null|void
+     * @return ApiVpbx
      */
     public static function getApi()
     {
