@@ -72,13 +72,7 @@
                     docNum = docNum.replace(e, "");
                     $("#dlg_edit__number").val(docNum);
 
-                    var isOK = false
-                    if (docNum.length == 11 || docNum.length == 13) {
-                        if (docNum.substr(0, 3) == "201") {
-                            isOK = true
-                        }
-                    }
-                    if (isOK) {
+                    if (docNum.length >= 11 && docNum.length <= 13) {
                         location.href = "./?module=newaccounts&action=docs_unrec&file=" + escape(file) + "&type=" + docType + "&number=" + escape(docNum) + "&recognize=true";
                     } else {
                         alert("Проверте введеный номер!");
