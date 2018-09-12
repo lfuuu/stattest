@@ -8,6 +8,7 @@ use app\exceptions\ModelValidationException;
 use app\models\ClientContragent;
 use app\models\ClientAccount;
 use app\models\ContractType;
+use app\models\LkWizardState;
 
 /**
  * Class WizardContragentEuroForm
@@ -45,7 +46,7 @@ class WizardContragentEuroForm extends Form
         $rules[] = [['middle_name'], 'safe'];
         $rules[] = [['legal_type'], 'in', 'range' => [ClientContragent::LEGAL_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::IP_TYPE], 'message' => 'format_error'];
 
-        $rules[] = [['address_post'], FormFieldValidator::className()];
+        $rules[] = [['address_post'], FormFieldValidator::class];
 
         $rules[] = [
             ['is_inn'],
@@ -56,7 +57,7 @@ class WizardContragentEuroForm extends Form
             'message' => 'wizard_fill_field'
         ];
 
-        foreach (['required', FormFieldValidator::className()] as $validator) {
+        foreach (['required', FormFieldValidator::class] as $validator) {
 
             $validatorMessageRuleAdd = ($validator == 'required' ? ['message' => 'wizard_fill_field'] : []);
 
@@ -80,7 +81,7 @@ class WizardContragentEuroForm extends Form
             $rules[] = [
                     ['position'],
                     $validator,
-                    'on' => 'euro',
+                    'on' => [LkWizardState::TYPE_HUNGARY, LkWizardState::TYPE_AUSTRIA],
                     'when' => function ($model) {
                         return $model->legal_type == ClientContragent::LEGAL_TYPE;
                     }
@@ -97,7 +98,7 @@ class WizardContragentEuroForm extends Form
             $rules[] = [
                     'ogrn',
                     $validator,
-                    'on' => 'slovak',
+                    'on' => LkWizardState::TYPE_SLOVAK,
                     'when' => function ($model) {
                         return in_array($model->legal_type, [ClientContragent::IP_TYPE, ClientContragent::LEGAL_TYPE]);
                     }
@@ -106,7 +107,7 @@ class WizardContragentEuroForm extends Form
             $rules[] = [
                     'passport_number',
                     $validator,
-                    'on' => 'slovak',
+                    'on' => [LkWizardState::TYPE_SLOVAK, LkWizardState::TYPE_AUSTRIA],
                     'when' => function ($model) {
                         return $model->legal_type == ClientContragent::PERSON_TYPE;
                     }
@@ -115,7 +116,7 @@ class WizardContragentEuroForm extends Form
             $rules[] = [
                     ['name', 'last_name', 'first_name', 'inn', 'address_jur', 'fio'],
                     $validator,
-                    'on' => 'slovak',
+                    'on' => LkWizardState::TYPE_SLOVAK,
                     'when' => function ($model) {
                         return $model->legal_type == ClientContragent::IP_TYPE;
                     }
@@ -160,7 +161,9 @@ class WizardContragentEuroForm extends Form
 
             $person->first_name = $this->first_name;
             $person->last_name = $this->last_name;
-            $person->middle_name = $this->middle_name;
+            if ($this->scenario != LkWizardState::TYPE_AUSTRIA) {
+                $person->middle_name = $this->middle_name;
+            }
             $person->birthplace = $this->address_birth;
             $person->birthday = $this->birthday;
             $person->registration_address = $this->address;
@@ -168,7 +171,11 @@ class WizardContragentEuroForm extends Form
 
         $account->address_post = $this->address_post;
 
-        if ($this->scenario == 'slovak') {
+        if (in_array($this->scenario, [LkWizardState::TYPE_SLOVAK, LkWizardState::TYPE_AUSTRIA])){
+            $contragent->comment = $this->passport_number;
+        }
+
+        if ($this->scenario == LkWizardState::TYPE_SLOVAK) {
             $contragent->ogrn = $this->ogrn;
             $person->passport_number = $this->passport_number;
 
@@ -190,7 +197,7 @@ class WizardContragentEuroForm extends Form
 
         if (
             $contragent->legal_type == ClientContragent::PERSON_TYPE
-            || ($this->scenario == 'slovak' && ClientContragent::IP_TYPE)
+            || ($this->scenario == LkWizardState::TYPE_SLOVAK && ClientContragent::IP_TYPE)
         ) {
             if (!$person->save(false)) {
                 throw new ModelValidationException($person);

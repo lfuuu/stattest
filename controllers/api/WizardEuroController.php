@@ -22,6 +22,8 @@ use app\forms\lk_wizard\ContactForm;
  */
 class WizardEuroController extends WizardBaseController
 {
+    protected $wizardType = LkWizardState::TYPE_HUNGARY;
+
     protected $lastStep = 3;
 
     /**
@@ -219,7 +221,7 @@ class WizardEuroController extends WizardBaseController
             "contact_phone" => $contact->data,
             "is_rules_accept_person" => (bool)$this->wizard->is_rules_accept_person,
 
-            "address" => ($c->person ? $c->person->registration_address : "")
+            "address" => ($c->person ? $c->person->registration_address : ""),
         ];
         return $d;
     }
@@ -251,8 +253,8 @@ class WizardEuroController extends WizardBaseController
         $contactForm = new ContactForm();
         $acceptForm = new AcceptsForm();
 
-        $form->setScenario('euro');
-        $contactForm->setScenario('euro');
+        $form->setScenario($this->wizardType);
+        $contactForm->setScenario($this->wizardType);
 
         if ($stepData['legal_type'] != ClientContragent::IP_TYPE) {
             $stepData['fio'] = ($stepData['legal_type'] == ClientContragent::LEGAL_TYPE ?

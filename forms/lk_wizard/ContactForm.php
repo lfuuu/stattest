@@ -4,6 +4,7 @@ namespace app\forms\lk_wizard;
 use app\classes\Form;
 use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\LkWizardState;
 use app\models\User;
 
 /**
@@ -24,7 +25,7 @@ class ContactForm extends Form
 
         $rules[] = [['contact_phone'], 'required', 'message' => 'wizard_fill_field'];
         $rules[] = ['contact_fio', 'required', 'on' => 'mcn', 'message' => 'wizard_fill_field'];
-        $rules[] = ['fio', 'required', 'on' => ['euro', 'slovak'], 'message' => 'wizard_fill_field'];
+        $rules[] = ['fio', 'required', 'on' => [LkWizardState::TYPE_HUNGARY, LkWizardState::TYPE_SLOVAK, LkWizardState::TYPE_AUSTRIA], 'message' => 'wizard_fill_field'];
 
         return $rules;
     }

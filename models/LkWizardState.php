@@ -29,11 +29,13 @@ class LkWizardState extends ActiveRecord
     const TYPE_RUSSIA = 'mcn';
     const TYPE_HUNGARY = 'euro';
     const TYPE_SLOVAK = 'slovak';
+    const TYPE_AUSTRIA = 'austria';
 
     public static $name = [
         self::TYPE_RUSSIA => 'Российский',
         self::TYPE_HUNGARY => 'Венгерский',
         self::TYPE_SLOVAK => 'Словацкий',
+        self::TYPE_AUSTRIA => 'Австрйский',
     ];
 
     const STATE_PROCESS = 'process';
@@ -48,7 +50,7 @@ class LkWizardState extends ActiveRecord
 
     public function getTrouble()
     {
-        return $this->hasOne(Trouble::className(), ["id" => "trouble_id"]);
+        return $this->hasOne(Trouble::class, ["id" => "trouble_id"]);
     }
 
     /**
