@@ -133,7 +133,6 @@ class OperatorPayFilter extends Bill
             ->select([
                 'b.*',
                 'name' => 'cg.name',
-                'p.payment_date',
                 'ct.business_id',
                 'ct.business_process_id',
                 'ct.business_process_status_id',
@@ -160,8 +159,8 @@ class OperatorPayFilter extends Bill
         $this->pay_bill_until_from !== '' && $query->andWhere(['>=', 'b.pay_bill_until', $this->pay_bill_until_from]);
         $this->pay_bill_until_to !== '' && $query->andWhere(['<=', 'b.pay_bill_until', $this->pay_bill_until_to]);
 
-        $this->payment_date_from !== '' && $query->andWhere(['>=', 'p.payment_date', $this->payment_date_from]);
-        $this->payment_date_to !== '' && $query->andWhere(['<=', 'p.payment_date', $this->payment_date_to]);
+        $this->payment_date_from !== '' && $query->andWhere(['>=', 'b.payment_date', $this->payment_date_from]);
+        $this->payment_date_to !== '' && $query->andWhere(['<=', 'b.payment_date', $this->payment_date_to]);
 
         $this->sum_from !== '' && $query->andWhere(['<=', 'b.sum', $this->sum_from]);
         $this->sum_to !== '' && $query->andWhere(['>=', 'b.sum', $this->sum_to]);
@@ -184,15 +183,10 @@ class OperatorPayFilter extends Bill
         }
 
         if ($this->checking_bill_state) {
-            switch ($this->checking_bill_state) {
-                // Оплаченные счета
-                case self::STATE_BILL_PAID :
-                    $query->andWhere(['IS NOT', 'p.id', null]);
-                    break;
-                // Неоплаченные счета
-                case self::STATE_BILL_UNPAID :
-                    $query->andWhere(['p.id' => null]);
-                    break;
+            if ($this->checking_bill_state == Bill::STATUS_IS_PAID) {
+                $query->andWhere(['b.is_payed' => Bill::STATUS_IS_PAID]);
+            } else {
+                $query->andWhere(['!=', 'b.is_payed', Bill::STATUS_IS_PAID]);
             }
         }
 
@@ -211,7 +205,7 @@ class OperatorPayFilter extends Bill
 
         $query->orderBy([
             // сначала полностью неоплаченные счета, потом частично
-            new Expression('IF(p.payment_date IS NULL, :maxDate, p.payment_date) DESC', ['maxDate' => UsageInterface::MIDDLE_DATE]),
+            new Expression('IF(b.payment_date IS NULL, :maxDate, b.payment_date) DESC', ['maxDate' => UsageInterface::MIDDLE_DATE]),
         ]);
         $query->addOrderBy([
             'pay_bill_until' => SORT_DESC
