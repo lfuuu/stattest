@@ -5,6 +5,7 @@ namespace app\modules\uu\forms;
 use app\classes\Form;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
 use app\modules\uu\models\AccountLogResource;
@@ -151,9 +152,17 @@ abstract class AccountTariffForm extends Form
 
             // Создание/редактирование обычной услуги
             Yii::info('AccountTariffForm. Before accountTariff->load', 'uu');
-            if (
-                $this->accountTariff->load($post)
-            ) {
+            if ($this->accountTariff->load($post)) {
+
+                if ($this->accountTariff->service_type_id == ServiceType::ID_VPBX
+                    && $this->accountTariff->isAttributeChanged('region_id')
+                ) {
+                    EventQueue::go(\app\modules\uu\Module::EVENT_VPBX, [
+                        'client_account_id' => $this->accountTariff->client_account_id,
+                        'account_tariff_id' => $this->accountTariff->id,
+                        'region_id' => $this->accountTariff->region_id,
+                    ]);
+                }
 
                 // услуга
                 if ($this->accountTariff->save()) {
