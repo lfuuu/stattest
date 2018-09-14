@@ -28,6 +28,7 @@ use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\column\TariffStatusColumn;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTrouble;
 use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\ServiceType;
 use app\widgets\GridViewExport\GridViewExport;
@@ -379,6 +380,25 @@ if ($serviceType) {
             ];
             break;
     }
+}
+
+// Добавление колонки "Заявка ЛИД" для услуг с типами: ВАТС, Телефония, Звонок-чат
+if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT], true)) {
+    $columns[] = [
+        'label' => 'Заявка ЛИД',
+        'attribute' => 'trouble_id',
+        'format' => 'raw',
+        'value' => function(AccountTariff $accountTariff) {
+            $value = '';
+            $accountTroubles = AccountTrouble::find()
+                ->where(['account_tariff_id' => $accountTariff->id]);
+            foreach ($accountTroubles->each() as $accountTrouble) {
+                /** @var AccountTrouble $accountTrouble */
+                $value .= Html::a($accountTrouble->trouble_id, ["index.php?module=tt&action=view&id=$accountTrouble->trouble_id"]);
+            }
+            return $value;
+        }
+    ];
 }
 
 $dataProvider = $filterModel->search();

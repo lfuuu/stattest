@@ -2,7 +2,15 @@
 
 namespace app\classes\behaviors\important_events;
 
-use app\models\TroubleState;
+use app\exceptions\ModelValidationException;
+use app\models\TroubleStage;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffHeap;
+use app\modules\uu\models\AccountTrouble;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffStatus;
 use Yii;
 use yii\base\Behavior;
 use yii\base\ModelEvent;
@@ -11,10 +19,10 @@ use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\models\Trouble;
+use yii\db\Expression;
 
 class TroubleStages extends Behavior
 {
-
     /**
      * @return array
      */
@@ -32,12 +40,19 @@ class TroubleStages extends Behavior
      */
     public function registerAddEvent($event)
     {
-        /** @var Trouble $trouble */
-        $trouble = Trouble::findOne($event->sender->trouble_id);
+        /**
+         * @var TroubleStage $troubleStage
+         * @var Trouble $trouble
+         */
+        $troubleStage = $event->sender;
+        $trouble = Trouble::findOne($troubleStage->trouble_id);
 
-        if (is_null($trouble->stage)) {
+        if (!$trouble || $trouble->stage === null) {
             return false;
         }
+
+        /** @var ClientAccount $account*/
+        $account = $trouble->account;
 
         if (
             $trouble->stage->state_id != $event->sender->state_id
@@ -47,7 +62,7 @@ class TroubleStages extends Behavior
                 ImportantEventsSources::SOURCE_STAT, [
                     'trouble_id' => $trouble->id,
                     'stage_id' => $trouble->stage->stage_id,
-                    'client_id' => $trouble->account->id,
+                    'client_id' => $account->id,
                     'user_id' => Yii::$app->user->id,
                 ]);
         }
@@ -57,7 +72,7 @@ class TroubleStages extends Behavior
                 ImportantEventsSources::SOURCE_STAT, [
                     'trouble_id' => $trouble->id,
                     'stage_id' => $trouble->stage->stage_id,
-                    'client_id' => $trouble->account->id,
+                    'client_id' => $account->id,
                     'user_id' => Yii::$app->user->id,
                 ]);
         }
@@ -67,12 +82,52 @@ class TroubleStages extends Behavior
                 ImportantEventsSources::SOURCE_STAT, [
                     'trouble_id' => $trouble->id,
                     'stage_id' => $trouble->stage->stage_id,
-                    'client_id' => $trouble->account->id,
+                    'client_id' => $account->id,
                     'user_id' => Yii::$app->user->id,
                 ]);
         }
 
+        // Создание связи между услугой и заявкой, когда состояние стало"Выполнен"
+        if ($troubleStage->isStateIncluded()) {
+            $accountTariffIds = AccountTariff::find()
+                ->select('uat.id')
+                ->alias('uat')
+                ->leftJoin(['uath' => AccountTariffHeap::tableName()], 'uat.id = uath.account_tariff_id')
+                ->leftJoin(['utp' => TariffPeriod::tableName()], 'uat.tariff_period_id = utp.id')
+                ->leftJoin(['ut' => Tariff::tableName()], 'utp.tariff_id = ut.id')
+                ->where([
+                    'uat.client_account_id' => $account->id,
+                    'uat.prev_account_tariff_id' => null,
+                    'uat.service_type_id' => [
+                        ServiceType::ID_VPBX,
+                        ServiceType::ID_VOIP,
+                        ServiceType::ID_CALL_CHAT,
+                    ],
+                ])
+                ->andWhere(['between',
+                    'uath.date_sale', $trouble->date_creation, new Expression('NOW()')
+                ])
+                ->andWhere(['AND',
+                    ['NOT', ['uat.tariff_period_id' => null]],
+                    ['NOT', ['ut.tariff_status_id' => TariffStatus::TEST_LIST]],
+                ])
+                ->column();
+
+            // Сохранение связей между услугой и заявкой
+            foreach ($accountTariffIds as $accountTariffId) {
+                $accountTrouble = AccountTrouble::findOne(['account_tariff_id' => $accountTariffId]);
+                // Пропускаем, т.к. услуга уже закреплена за более ранним ЛИДом
+                if ($accountTrouble) {
+                    continue;
+                }
+                $accountTrouble = new AccountTrouble;
+                $accountTrouble->trouble_id = $trouble->id;
+                $accountTrouble->account_tariff_id = $accountTariffId;
+                if (!$accountTrouble->save()) {
+                    throw new ModelValidationException($accountTrouble);
+                }
+            }
+        }
         return true;
     }
-
 }

@@ -8,6 +8,7 @@ use app\models\Number;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffHeap;
+use app\modules\uu\models\AccountTrouble;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
@@ -67,6 +68,9 @@ class AccountTariffFilter extends AccountTariff
     public $disconnect_date_to = '';
     public $disconnect_date_from = '';
 
+    // Связанный лид с услугами
+    public $trouble_id = '';
+
     /**
      * @param int $serviceTypeId
      */
@@ -102,7 +106,8 @@ class AccountTariffFilter extends AccountTariff
                 'tariff_is_postpaid',
                 'tariff_country_id',
                 'tariff_organization_id',
-                'tariff_is_default'
+                'tariff_is_default',
+                'trouble_id',
             ],
             'integer'
         ];
@@ -138,15 +143,18 @@ class AccountTariffFilter extends AccountTariff
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffHeap = AccountTariffHeap::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
+        $accountTroubleTableName = AccountTrouble::tableName();
         $tariffTableName = Tariff::tableName();
+        $numberTableName = Number::tableName();
 
         $query = AccountTariff::find()
             ->select(["{$accountTariffTableName}.*"])
             ->joinWith('clientAccount')
             ->joinWith('region')
             ->joinWith('tariffPeriod')
-            ->leftJoin($accountTariffHeap . ' uath', "uath.account_tariff_id = {$accountTariffTableName}.id")
-            ->leftJoin($tariffTableName . ' tariff', 'tariff.id = ' . $tariffPeriodTableName . '.tariff_id');
+            ->leftJoin("{$accountTroubleTableName} at", "{$accountTariffTableName}.id = at.account_tariff_id")
+            ->leftJoin("{$accountTariffHeap} uath", "uath.account_tariff_id = {$accountTariffTableName}.id")
+            ->leftJoin("{$tariffTableName} tariff", 'tariff.id = ' . $tariffPeriodTableName . '.tariff_id');
 
         if ($this->serviceType && $this->serviceType->isPackage()) {
             $query
@@ -228,7 +236,7 @@ class AccountTariffFilter extends AccountTariff
             $query
                 ->joinWith('number')
                 ->with('number');
-            $this->number_ndc_type_id !== '' && $query->andWhere([Number::tableName() . '.ndc_type_id' => $this->number_ndc_type_id]);
+            $this->number_ndc_type_id !== '' && $query->andWhere([$numberTableName . '.ndc_type_id' => $this->number_ndc_type_id]);
         }
 
         switch ($this->prev_account_tariff_tariff_id) {
@@ -263,8 +271,9 @@ class AccountTariffFilter extends AccountTariff
         $this->account_log_period_utc_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.account_log_period_utc', $this->account_log_period_utc_from]);
         $this->account_log_period_utc_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.account_log_period_utc', $this->account_log_period_utc_to]);
 
-        $numberTableName = Number::tableName();
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
+
+        $this->trouble_id !== '' && $query->andWhere(['at.trouble_id' => $this->trouble_id]);
 
         switch ($this->tariff_period_id) {
             case '':
