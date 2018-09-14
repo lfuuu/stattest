@@ -10,6 +10,7 @@ use app\models\ClientAccount;
 use app\models\Country;
 use app\models\dictionary\PublicSite;
 use app\models\filter\FreeNumberFilter;
+use app\models\Number;
 use app\models\Region;
 use app\modules\uu\models\AccountTariff;
 use InvalidArgumentException;
@@ -75,30 +76,61 @@ class CountriesController extends ApiInternalController
                 'order' => SORT_ASC,
                 'name' => SORT_ASC,
             ])
+            ->indexBy('id')
             ->all();
+
+        $citieIds = array_keys($cities);
+
+        $freeNumbersCountData = $ndcsData = [];
+
+        if ($withNumbers || $withNdcs) {
+            $query = (new FreeNumberFilter)
+                ->setIsService(false)
+                ->setCities($citieIds)
+                ->getQuery()
+                ->groupBy('city_id')
+                ->indexBy('city_id')
+                ->asArray();
+        }
+
+        if ($withNumbers) {
+            $freeNumbersCountQuery = clone $query;
+            $freeNumbersCountData = $freeNumbersCountQuery->select([
+                'count' => new Expression('COUNT(*)')
+            ])
+                ->column();
+        }
+
+        if ($withNdcs) {
+            $ndcsQuery = clone $query;
+            $ndcsData = $ndcsQuery->select([
+                'nds' => new Expression('GROUP_CONCAT(DISTINCT ndc)')
+            ])
+                ->column();
+        }
+
+        if ($withNdcTypeIds) {
+            $ndcTypeIdsPreData = (new FreeNumberFilter)
+                ->setIsService(false)
+                ->setCities($citieIds)
+                ->getQuery()
+                ->distinct()
+                ->select(['city_id', 'ndc', 'ndc_type_id'])
+                ->asArray()
+                ->all();
+
+            foreach($ndcTypeIdsPreData as $d) {
+                $ndcTypeIdsData[$d['city_id']][$d['ndc']] = $d['ndc_type_id'];
+            }
+        }
 
         foreach ($cities as $city) {
 
-            $freeNumbersCount = $withNumbers ?
-                (new FreeNumberFilter)
-                    ->setIsService(false)
-                    ->setCity($city->id)
-                    ->count() :
-                0;
+            $freeNumbersCount = $withNumbers && isset($freeNumbersCountData[$city->id]) ? $freeNumbersCountData[$city->id] : 0;
 
-            $ndcs = $withNdcs ?
-                (new FreeNumberFilter)
-                    ->setIsService(false)
-                    ->setCity($city->id)
-                    ->getDistinct('ndc') :
-                [];
+            $ndcs = $withNdcs && isset($ndcsData[$city->id]) ? explode(",", $ndcsData[$city->id]) : [];
 
-            $ndcTypeIds = $withNdcTypeIds ?
-                (new FreeNumberFilter)
-                    ->setIsService(false)
-                    ->setCity($city->id)
-                    ->getDistinct('ndc_type_id', 'ndc') :
-                [];
+            $ndcTypeIds = $withNdcTypeIds && isset($ndcTypeIdsData[$city->id]) ? $ndcTypeIdsData[$city->id]: [];
 
             $result[] = [
                 'city_id' => $city->id,
@@ -247,7 +279,8 @@ class CountriesController extends ApiInternalController
     public function actionGetRegions(
         $country_id = null,
         $client_account_id = null
-    ) {
+    )
+    {
         $regions = Region::find()
             ->where([
                 'is_active' => 1,
