@@ -10,15 +10,15 @@
   8 | отработано
 */
 use app\exceptions\ModelValidationException;
+use app\models\ClientContactType;
 use app\models\EventQueue;
 use app\models\TroubleState;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
-use yii\base\ModelEvent;
 use app\dao\TroubleDao;
 use app\models\support\TicketComment;
 use app\models\UsageVoip;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\classes\BaseView;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Trouble as YiiTrouble;
@@ -534,6 +534,22 @@ class m_tt extends IModule{
         $design->AddMain('tt/report_form.tpl');
     }
 
+    /**
+     * Функция сохранения контакта клиента из заявки ЛИДа
+     */
+    function tt_save_client_contacts()
+    {
+        foreach ([
+            'contact_phone', 'client_id', 'contact_comment', 'trouble_id', 'lead_create_contact'
+        ] as $key) {
+            if (!isset($_POST[$key]) || !$_POST[$key]) {
+                throw new LogicException("Невалидный параметр $key");
+            }
+        }
+        $this->saveClientContacts((int)$_POST['client_id'], $_POST['contact_phone'], $_POST['contact_comment']);
+        header('Location: ?module=tt&action=view&id=' .(int)$_POST['trouble_id']);
+    }
+
     //всякие функции
     function tt_view($fixclient){
         global $db,$design,$user;
@@ -740,7 +756,6 @@ where c.client="'.$trouble['client_orig'].'"')
             $design->assign('leadData', $lead->data);
         }
 
-
         $this->prepareTimeTable();
         $design->AddMain('tt/trouble.tpl');
 
@@ -790,6 +805,37 @@ where c.client="'.$trouble['client_orig'].'"')
 
         }
         return $strs;
+    }
+
+    /**
+     * Функция сохранения контакта клиента из заявки ЛИДа
+     *
+     * @param int $clientId
+     * @param string $contactPhone
+     * @param string $contactComment
+     */
+    function saveClientContacts($clientId, $contactPhone, $contactComment)
+    {
+        $client = ClientAccount::findOne(['id' => $clientId]);
+        if (!$client) {
+            Yii::$app->session->setFlash('error', "Клиент {$clientId} не найден");
+            return;
+        }
+        try {
+            // Создание контакта и комментария с типом "Телефон"
+            $contact = new ClientContact;
+            $contact->client_id = $client->id;
+            $contact->type = ClientContactType::TYPE_PHONE;
+            $contact->data = $contactPhone;
+            $contact->comment = $contactComment;
+            $contact->user_id = Yii::$app->user->identity->id;
+            if (!$contact->save()) {
+                throw new ModelValidationException($contact);
+            }
+        } catch (ModelValidationException $e) {
+            Yii::$app->session->setFlash('error', $e->getMessage());
+            return;
+        }
     }
 
     /**

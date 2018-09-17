@@ -87,8 +87,18 @@
                         </a>, <span
                                 style='font-size:11px'>{$tt_trouble.date_creation|udate_with_timezone:'Y.m.d H:i:s'}</span>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-3">
                         {if $leadData}Кто/кому: {$leadData.did} -&gt; {$leadData.did_mcn}{/if}
+                    </div>
+                    <div class="col-sm-3">
+                        <form action="?module=tt&action=save_client_contacts" method="post" style="padding:0; margin:0">
+                            <input type="hidden" name="lead_create_contact" value="1"/>
+                            <input type="hidden" name="trouble_id" value="{$tt_trouble.id}"/>
+                            <input type="hidden" name="client_id" value="{$tt_client.id}"/>
+                            <input type="hidden" name="contact_phone" value="{$leadData.did}"/>
+                            <input type="text" name="contact_comment" placeholder="Комментарий"/>
+                            <input type="submit" class="button" value="Создать контакт"/>
+                        </form>
                     </div>
                 </div>
 
@@ -113,8 +123,8 @@
                         {if $is_trouble_with_lead}
                             Откуда вы о нас узнали:
                             <div class="input-group col-sm-8">
-                                <select id="sale_channel_id" name="sale_channel_id" class="form-control"/>
-                                {html_options options=$saleChannels selected=$leadSaleChannelId}
+                                <select id="sale_channel_id" name="sale_channel_id" class="form-control">
+                                    {html_options options=$saleChannels selected=$leadSaleChannelId}
                                 </select>
                                 <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
                                 <span class="input-group-btn" title="Сохранить">
@@ -137,7 +147,13 @@
     {if $tt_trouble.trouble_subtype}
         <tr>
             <td align="right">Тип заявки:</td>
-            <td>{$tt_trouble.trouble_subtype}</td>
+            <td>
+                <div class="row">
+                    <div class="col-sm-6">
+                        {$tt_trouble.trouble_subtype}
+                    </div>
+                </div>
+            </td>
         </tr>
     {/if}
     <tr>
