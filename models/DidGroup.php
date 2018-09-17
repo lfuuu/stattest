@@ -199,6 +199,20 @@ class DidGroup extends ActiveRecord
     }
 
     /**
+     * @return Country
+     */
+    public function getCachedCountry()
+    {
+        static $cache = [];
+
+        if (!isset($cache[$this->country_code])) {
+            $cache[$this->country_code] = $this->country;
+        }
+
+        return $cache[$this->country_code];
+    }
+
+    /**
      * Вернуть список всех доступных значений
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением

@@ -180,6 +180,20 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @return Country
+     */
+    public function getCachedCountry()
+    {
+        static $cache = [];
+
+        if (!isset($cache[$this->country_code])) {
+            $cache[$this->country_code] = $this->country;
+        }
+
+        return $cache[$this->country_code];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getDidGroup()
@@ -232,8 +246,8 @@ class Number extends ActiveRecord
             return null;
         }
 
-        if (!is_null($currency) && $this->didGroup->country->currency_id != $currency) {
-            if (($tariffCurrencyRate = CurrencyRate::dao()->getRate($this->didGroup->country->currency_id))) {
+        if (!is_null($currency) && $this->getCachedDidGroup()->getCachedCountry()->currency_id != $currency) {
+            if (($tariffCurrencyRate = CurrencyRate::dao()->getRate($this->getCachedDidGroup()->getCachedCountry()->currency_id))) {
                 $price *= $tariffCurrencyRate;
             }
 
@@ -267,7 +281,7 @@ class Number extends ActiveRecord
     public function getOriginPrice($clientAccount = null)
     {
         $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
-        return (float)$this->didGroup->{$priceField};
+        return (float)$this->getCachedDidGroup()->{$priceField};
     }
 
     /**
@@ -280,7 +294,7 @@ class Number extends ActiveRecord
         try {
 
             $formattedResult->setAttributes([
-                'currency' => $this->didGroup->country->currency_id,
+                'currency' => $this->getCachedDidGroup()->getCachedCountry()->currency_id,
                 'price' => $this->getOriginPrice($clientAccount),
             ]);
 
@@ -292,6 +306,20 @@ class Number extends ActiveRecord
         }
 
         return $formattedResult;
+    }
+
+    /**
+     * @return DidGroup
+     */
+    public function getCachedDidGroup()
+    {
+        static $cache = [];
+
+        if (!isset($cache[$this->did_group_id])) {
+            $cache[$this->did_group_id] = $this->didGroup;
+        }
+
+        return $cache[$this->did_group_id];
     }
 
     /**

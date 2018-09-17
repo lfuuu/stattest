@@ -205,7 +205,7 @@ final class OpenController extends Controller
         foreach ($numbers->result() as $freeNumber) {
             $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount);
 
-            $didGroup = $freeNumber->didGroup;
+            $didGroup = $freeNumber->getCachedDidGroup();
 
             $tariffStatusId = $clientAccount ?
                 $didGroup->{'tariff_status_main' . $priceLevel} :
@@ -372,7 +372,7 @@ final class OpenController extends Controller
                 continue;
             }
 
-            $didGroup = $freeNumber->didGroup;
+            $didGroup = $freeNumber->getCachedDidGroup();
 
             // создать новую группу
             // для reuse берем другой метод и выкидываем ненужное
@@ -391,7 +391,7 @@ final class OpenController extends Controller
             }
 
             !$countryId && $countryId = $freeNumber->country_code;
-            !$currencyId && $currencyId = $freeNumber->country->currency_id;
+            !$currencyId && $currencyId = $freeNumber->getCachedCountry()->currency_id;
 
             $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->ndc_type_id);
 

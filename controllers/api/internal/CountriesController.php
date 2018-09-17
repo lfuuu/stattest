@@ -81,7 +81,7 @@ class CountriesController extends ApiInternalController
 
         $citieIds = array_keys($cities);
 
-        $freeNumbersCountData = $ndcsData = [];
+        $freeNumbersCountData = $ndcsData = $ndcTypeIdsData = [];
 
         if ($withNumbers || $withNdcs) {
             $query = (new FreeNumberFilter)

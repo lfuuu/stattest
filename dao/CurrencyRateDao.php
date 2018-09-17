@@ -26,11 +26,19 @@ class CurrencyRateDao extends Singleton
             return 1;
         }
 
-        $currencyQuery = CurrencyRate::find()
-            ->currency($currency)
-            ->onDate($date);
+        static $cache = [];
 
-        $currencyRate = $currencyQuery->one();
+        if (!isset($cache[$currency][$date])) {
+            $currencyQuery = CurrencyRate::find()
+                ->currency($currency)
+                ->onDate($date);
+
+            $cache[$currency][$date] = $currencyQuery->one();
+        }
+
+        $currencyRate = $cache[$currency][$date];
+
+
         Assert::isObject($currencyRate, 'Missing rate for "' . $currency . '" at date "' . $date . '"');
 
         return $currencyRate->rate;
