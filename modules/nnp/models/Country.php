@@ -5,6 +5,7 @@ namespace app\modules\nnp\models;
 use app\classes\model\ActiveRecord;
 use app\modules\nnp\media\CountryMedia;
 use Yii;
+use yii\db\ArrayExpression;
 use yii\helpers\Url;
 
 /**
@@ -138,6 +139,11 @@ class Country extends ActiveRecord
         }
 
         $prefixes = $this->prefixes;
+
+        if ($prefixes instanceof ArrayExpression) {
+            return $this->_prefixes = $prefixes->getValue();
+        }
+
         $prefixes = str_replace(['{', '}'], '', $prefixes);
         return $this->_prefixes = explode(',', $prefixes);
     }
