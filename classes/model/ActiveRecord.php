@@ -329,4 +329,15 @@ class ActiveRecord extends \yii\db\ActiveRecord
     {
         return self::find()->max('id');
     }
+
+    /**
+     * Модификация данных по набору полей в дочерних методах
+     *
+     * @param array $data
+     * @return array
+     */
+    public static function getClarifyFieldValue($data)
+    {
+        return $data;
+    }
 }

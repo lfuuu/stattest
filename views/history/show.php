@@ -35,11 +35,16 @@ foreach ($changes as $k => $change):
     endif;
 
     $prevModelId = $change->model_id;
-    ?>
 
-    <?php
     $newData = json_decode($change->data_json, true);
     $oldData = json_decode($change->prev_data_json, true);
+
+    // Для модели app\models\HistoryChanges изменить отображение package_id
+    if ($change instanceof app\models\HistoryChanges && class_exists($change->model)) {
+        $function = "{$change->model}::getClarifyFieldValue";
+        $newData = call_user_func($function, $newData);
+        $oldData = call_user_func($function, $oldData);
+    }
 
     /** @var array $data */
     if ($newData) {
