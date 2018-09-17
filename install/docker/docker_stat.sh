@@ -16,7 +16,7 @@ set +e
 build()
 {
 	set -e
-	if [ $(docker images| grep $IMAGE | wc -l) -ne 0 ]; then
+	if [ $(docker images| grep -w $IMAGE | wc -l) -ne 0 ]; then
 		echo "please make rm before build"
 		exit 1
 	fi
@@ -102,7 +102,7 @@ rm()
 	fi
 	volume=$(docker inspect -f '{{range .Mounts}}{{.Name}}{{end}}' $CONTAINER)
 	docker rm -f $CONTAINER
-	docker rmi $IMAGE
+	docker rmi -f $IMAGE
 	docker volume rm $volume
 }
 
