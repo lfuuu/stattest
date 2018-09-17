@@ -9,6 +9,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\tarificator\Tarificator;
 use Yii;
 use yii\console\Controller;
+use yii\console\ExitCode;
 
 /**
  * Универсальный тарификатор (тарификатор универсальных услуг)
@@ -65,7 +66,7 @@ class UbillerController extends Controller
         // Месячную финансовую блокировку заменить на постоянную
         // $this->actionFinanceBlock();
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -95,13 +96,13 @@ class UbillerController extends Controller
             $tarificator = (new $className($isEcho = true));
             $tarificator->tarificate();
             echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
-            return Controller::EXIT_CODE_NORMAL;
+            return ExitCode::OK;
 
         } catch (\Exception $e) {
             Yii::error('Ошибка универсального тарификатора');
             Yii::error($e);
             printf('Error. %s %s', $e->getMessage(), $e->getTraceAsString());
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 

@@ -4,6 +4,7 @@ namespace app\modules\glpi\commands;
 
 use app\modules\glpi\classes\Glpi;
 use yii\console\Controller;
+use yii\console\ExitCode;
 
 class ApiController extends Controller
 {
@@ -30,6 +31,6 @@ class ApiController extends Controller
         $glpi->killSession();
 
         echo PHP_EOL;
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 }

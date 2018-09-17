@@ -10,6 +10,7 @@ use app\models\ClientSuper;
 use app\models\Param;
 use Yii;
 use yii\console\Controller;
+use yii\console\ExitCode;
 
 class LkController extends Controller
 {
@@ -28,7 +29,7 @@ class LkController extends Controller
             if ($now < $switchOnDate) {
                 echo PHP_EOL . '[lk/check-notification][+] Оповещения отключены ' . $switchOnDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 Yii::info('[lk/check-notification][+] Оповещения отключены ' . $switchOnDate->format(DateTimeZoneHelper::DATETIME_FORMAT));
-                return Controller::EXIT_CODE_NORMAL;
+                return ExitCode::OK;
             }
 
             echo PHP_EOL . '[lk/check-notification][-] Оповещения включены ' . $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
@@ -69,6 +70,6 @@ class LkController extends Controller
         echo PHP_EOL . " count clients checked: " . $count;
         echo PHP_EOL;
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 }

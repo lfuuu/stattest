@@ -21,6 +21,7 @@ use DateTime;
 use app\classes\bill\ClientAccountBiller;
 use app\models\ClientAccount;
 use yii\console\Controller;
+use yii\console\ExitCode;
 use yii\db\Expression;
 
 class BillerController extends Controller
@@ -67,12 +68,12 @@ class BillerController extends Controller
         } catch (\Exception $e) {
             Yii::error('ОШИБКА ТАРИФИКАТОРА');
             Yii::error($e);
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
         Yii::info("Тарификатор закончил работу");
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -103,10 +104,10 @@ class BillerController extends Controller
         } catch (\Exception $e) {
             Yii::error('ОШИБКА ТАРИФИКАТОРА. Лицевой счет: ' . $clientAccount->id);
             Yii::error($e);
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -218,12 +219,12 @@ class BillerController extends Controller
         } catch (\Exception $e) {
             Yii::error('Ошибка прогнозирования');
             Yii::error($e);
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
         Yii::info("Прогнозирование законилось");
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
 

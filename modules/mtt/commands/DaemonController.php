@@ -4,6 +4,7 @@ namespace app\modules\mtt\commands;
 
 use app\modules\mtt\classes\MttAdapter;
 use yii\console\Controller;
+use yii\console\ExitCode;
 
 class DaemonController extends Controller
 {
@@ -20,6 +21,6 @@ class DaemonController extends Controller
         MttAdapter::me()->runReceiverDaemon();
 
         echo PHP_EOL;
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 }

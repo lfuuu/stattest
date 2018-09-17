@@ -5,6 +5,7 @@ use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
 use app\models\Region;
 use yii\console\Controller;
+use yii\console\ExitCode;
 
 /**
  * Контакты
@@ -92,6 +93,6 @@ class ContactController extends Controller
             }
         }
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 }

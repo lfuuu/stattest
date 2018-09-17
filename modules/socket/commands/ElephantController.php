@@ -5,6 +5,7 @@ namespace app\modules\socket\commands;
 use app\modules\socket\classes\Socket;
 use ElephantIO\Exception\ServerConnectionFailureException;
 use yii\console\Controller;
+use yii\console\ExitCode;
 
 class ElephantController extends Controller
 {
@@ -62,11 +63,11 @@ class ElephantController extends Controller
 
         try {
             return Socket::me()->emit($params) ?
-                Controller::EXIT_CODE_NORMAL :
-                Controller::EXIT_CODE_ERROR;
+                ExitCode::OK :
+                ExitCode::UNSPECIFIED_ERROR;
         } catch (ServerConnectionFailureException $e) {
             echo 'Error: Сокет-сервер не запущен' . PHP_EOL;
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 }

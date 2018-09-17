@@ -20,6 +20,7 @@ use DateTime;
 use app\models\ClientAccount;
 use yii\console\Controller;
 use app\forms\usage\UsageVoipEditForm;
+use yii\console\ExitCode;
 use yii\db\Expression;
 use yii\db\Query;
 
@@ -55,10 +56,10 @@ class UsageController extends Controller
         } catch (\Exception $e) {
             Yii::error($e);
             throw $e;
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -102,7 +103,7 @@ class UsageController extends Controller
             echo implode("\n", $info);
         }
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     private function cleanUsages(\DateTime $date, $action)
@@ -255,7 +256,7 @@ class UsageController extends Controller
             }
         }
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -308,10 +309,10 @@ class UsageController extends Controller
         } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error($e);
-            return Controller::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**

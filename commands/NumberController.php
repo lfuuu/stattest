@@ -11,6 +11,7 @@ use DateTime;
 use DateTimeImmutable;
 use Yii;
 use yii\console\Controller;
+use yii\console\ExitCode;
 use yii\helpers\ArrayHelper;
 
 
@@ -152,7 +153,7 @@ class NumberController extends Controller
         $this->actionCalcCallsPerMonth1();
         $this->actionCalcCallsPerMonth2();
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -166,7 +167,7 @@ class NumberController extends Controller
 
         $this->calcCallsPerMonth('calls_per_month_0', $dtFrom, $dtTo = null);
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -180,7 +181,7 @@ class NumberController extends Controller
 
         $this->calcCallsPerMonth('calls_per_month_1', $dtFrom, $dtTo);
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -194,7 +195,7 @@ class NumberController extends Controller
 
         $this->calcCallsPerMonth('calls_per_month_2', $dtFrom, $dtTo);
 
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**

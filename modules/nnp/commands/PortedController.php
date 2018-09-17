@@ -7,6 +7,7 @@ use app\modules\nnp\models\Number;
 use app\modules\nnp\models\NumberRange;
 use Yii;
 use yii\console\Controller;
+use yii\console\ExitCode;
 use yii\db\Connection;
 
 abstract class PortedController extends Controller
@@ -56,14 +57,14 @@ abstract class PortedController extends Controller
             $this->readData();
             // $transaction->commit();
             echo PHP_EOL . 'Окончание импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
-            return self::EXIT_CODE_NORMAL;
+            return ExitCode::OK;
 
         } catch (\Exception $e) {
             // $transaction->rollBack();
             Yii::error('Ошибка импорта');
             Yii::error($e);
             echo 'Ошибка: ' . $e->getMessage();
-            return self::EXIT_CODE_ERROR;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
     }
 

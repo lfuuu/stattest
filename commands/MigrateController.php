@@ -3,6 +3,7 @@ namespace app\commands;
 
 use Yii;
 use yii\console\Exception;
+use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\helpers\FileHelper;
 
@@ -52,13 +53,13 @@ class MigrateController extends \yii\console\controllers\MigrateController
             if (!$this->applyMigrations()) {
                 echo "\nMigration failed. The rest of the migrations are canceled.\n";
 
-                return self::EXIT_CODE_ERROR;
+                return ExitCode::UNSPECIFIED_ERROR;
             }
 
             if (!$this->applyFixtures()) {
                 echo "\nMigration failed. The rest of the fixtures are canceled.\n";
 
-                return self::EXIT_CODE_ERROR;
+                return ExitCode::UNSPECIFIED_ERROR;
             }
 
             echo "Database successfully recreated.\n";
