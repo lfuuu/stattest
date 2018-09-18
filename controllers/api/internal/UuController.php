@@ -1330,6 +1330,15 @@ class UuController extends ApiInternalController
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
 
+        $key = 'actionGetAccountTariffsWithPackages-'.$id.'.'.$client_account_id.'.'.$service_type_id.'.'.$voip_number.'.'.$limit.'.'.$offset;
+        if ($client_account_id != 47197) {
+            $key = false;
+        }
+
+        if ($key && \Yii::$app->cache->exists($key)) {
+            return \Yii::$app->cache->get($key);
+        }
+
         $accountTariffTableName = AccountTariff::tableName();
 
         $accountTariffQuery = AccountTariff::find();
@@ -1346,6 +1355,10 @@ class UuController extends ApiInternalController
         $result = [];
         foreach ($accountTariffQuery->each() as $accountTariff) {
             $result[] = $this->_getAccountTariffWithPackagesRecord($accountTariff);
+        }
+
+        if ($key) {
+            \Yii::$app->cache->set($key, $result, 600);
         }
 
         return $result;
