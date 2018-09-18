@@ -448,3 +448,12 @@ table.price .sum_column {
 table.price .payment_info_column {
 	width: 200px;
 }
+
+label.notactive {
+	color: lightgrey;
+}
+
+label.invalid {
+	text-decoration: line-through;
+	color: grey;
+}

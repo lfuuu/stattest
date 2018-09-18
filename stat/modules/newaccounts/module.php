@@ -805,7 +805,32 @@ class m_newaccounts extends IModule
            
          */
 
+        $invoices = [];
+        if ($bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
+            $invoices = \app\models\Invoice::find()->where([
+                'bill_no' => $bill->Get('bill_no'),
+                'is_reversal' => 0,
+            ])
+                ->distinct()
+                ->select('type_id')
+
+                ->asArray()
+                ->column();
+        }
+
         list($bill_akts, $bill_invoices, $bill_upd) = $this->get_bill_docs($bill, $L);
+
+        if ($invoices) {
+            foreach (\app\models\Invoice::$types as $invoiceType) {
+                if (in_array($invoiceType, $invoices)) {
+                    continue;
+                }
+
+                $bill_akts[$invoiceType] && $bill_akts[$invoiceType] = -1;
+                $bill_invoices[$invoiceType] && $bill_invoices[$invoiceType] = -1;
+                $bill_upd[$invoiceType] && $bill_upd[$invoiceType] = -1;
+            }
+        }
 
         $design->assign('bill_akts', $bill_akts);
 

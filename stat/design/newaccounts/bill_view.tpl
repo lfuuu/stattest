@@ -40,7 +40,7 @@
                     /
                 {/if}
             {/if}
-<br>
+            <br>
             {if !$1c_bill_flag}
                 {if $bill_invoices[1]}
                     <a href="/bill/correction-invoice?bill_no={$bill.bill_no}&type_id=1">
@@ -379,31 +379,42 @@
                         for="cb4c"{if !in_array('payment', $client|client_options:mail_delivery_variant)} style="text-decoration: line-through;"{/if}>Сопроводительное
                     письмо</label><br/>
 
-                <input type=checkbox value="1" name="invoice-1" id=cb5><label
-                        for="cb5"{if !$bill_invoices[1]} style="color:#C0C0C0"{/if}>Счёт-фактура (1
-                    абонентка)</label><br>
-                <input type=checkbox value="1" name="invoice-2" id=cb6><label
-                        for="cb6"{if !$bill_invoices[2]} style="color:#C0C0C0"{/if}>Счёт-фактура (2
-                    превышение)</label><br>
-                <input type=checkbox value="1" name="invoice-3" id=cb7><label
-                        for="cb7"{if !$bill_invoices[3]} style="color:#C0C0C0"{/if}>Счёт-фактура (3
-                    оборудование)</label><br>
-                <input type=checkbox value="1" name="invoice-4" id=cbc><label
-                        for="cbc"{if $bill_invoices[5] eq 0} style="color:#C0C0C0"{elseif $bill_invoices[5] eq -1} style="background-color:#ffc0c0;font-style: italic;"{/if}>Счёт-фактура
-                    (4 аванс)</label><br>
+                <input type=checkbox value="1" name="invoice-1" id=cb5>
+                <label for="cb5" class="{if !$bill_invoices[1]}notactive {/if}{if $bill_invoices[1] == -1}invalid{/if}">
+                    Счёт-фактура (1 абонентка)
+                </label><br>
+                <input type=checkbox value="1" name="invoice-2" id=cb6>
+                <label for="cb6" class="{if !$bill_invoices[2]}notactive {/if}{if $bill_invoices[2] == -1}invalid{/if}">
+                    Счёт-фактура (2 превышение)
+                </label><br>
+                <input type=checkbox value="1" name="invoice-3" id=cb7>
+                <label for="cb7" class="{if !$bill_invoices[3]}notactive {/if}{if $bill_invoices[3] == -1}invalid{/if}">
+                    Счёт-фактура (3 оборудование)
+                </label><br>
+                <input type=checkbox value="1" name="invoice-4" id=cbc>
+                <label for="cbc"{if $bill_invoices[5] eq 0} style="color:#C0C0C0"{elseif $bill_invoices[5] eq -1} style="background-color:#ffc0c0;font-style: italic;"{/if}>
+                    Счёт-фактура (4 аванс)
+                </label><br>
 
-                <input type=checkbox value="1" name="upd-1" id="upd1"><label
-                        for="upd1"{if !$bill_upd[1]} style="color:#C0C0C0"{/if}>УПД (1 абонентка)</label>
+                <input type=checkbox value="1" name="upd-1" id="upd1">
+                <label for="upd1" class="{if !$bill_upd[1]}notactive {/if}{if $bill_upd[1] == -1}invalid{/if}">
+                    УПД (1 абонентка)
+                </label>
+
                 <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-1&to_print=true&is_word=true">MS
                     Word</a><br/>
 
-                <input type=checkbox value="1" name="upd-2" id="upd2"><label
-                        for="upd2"{if !$bill_upd[2]} style="color:#C0C0C0"{/if}>УПД (2 превышение)</label>
+                <input type=checkbox value="1" name="upd-2" id="upd2">
+                <label for="upd2" class="{if !$bill_upd[2]}notactive {/if}{if $bill_upd[2] == -1}invalid{/if}">
+                    УПД (2 превышение)
+                </label>
                 <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-2&to_print=true&is_word=true">MS
                     Word</a><br/>
 
-                <input type=checkbox value="1" name="upd-3" id="updt"><label
-                        for="updt"{if !$bill_invoices[3]} style="color:#C0C0C0"{/if}>УПД (Т оборудование)</label>
+                <input type=checkbox value="1" name="upd-3" id="updt">
+                <label for="updt" class="{if !$bill_invoice[3]}notactive {/if}{if $bill_invoice[3] == -1}invalid{/if}">
+                    УПД (Т оборудование)
+                </label>
                 <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-3&to_print=true&is_word=true">MS
                     Word</a><br/>
 
@@ -416,18 +427,24 @@
                 <input type=button class=button value='Поехали' onclick="doFormSend()"/>
             </td>
             <td valign=top style="border-width:1 1 1 0; border-style:solid;border-color:#808080">
-                <input type=checkbox value="1" name="akt-1" id="cb8"><label
-                        for="cb8"{if !$bill_akts[1]} style="color:#C0C0C0"{/if}>Акт (1 абонентка)</label>
+                <input type=checkbox value="1" name="akt-1" id="cb8">
+                <label for="cb8" class="{if !$bill_akts[1]}notactive {/if}{if $bill_akts[1] == -1}invalid{/if}">
+                    Акт (1 абонентка)
+                </label>
                 <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-1&to_print=true&is_word=true">MS
                     Word</a><br/>
 
-                <input type=checkbox value="1" name="akt-2" id="cb9"><label
-                        for="cb9"{if !$bill_akts[2]} style="color:#C0C0C0"{/if}>Акт (2 превышение)</label>
+                <input type=checkbox value="1" name="akt-2" id="cb9">
+                <label for="cb9" class="{if !$bill_akts[2]}notactive {/if}{if $bill_akts[2] == -1}invalid{/if}">
+                    Акт (2 превышение)
+                </label>
                 <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-2&to_print=true&is_word=true">MS
                     Word</a><br/>
 
-                <input type=checkbox value="1" name="akt-3" id="cba"><label
-                        for="cba"{if !$bill_akts[3]} style="color:#C0C0C0"{/if}>Акт (3 оборудование)</label><br/>
+                <input type=checkbox value="1" name="akt-3" id="cba">
+                <label for="cba" class="{if !$bill_akts[3]}notactive {/if}{if $bill_akts[3] == -1}invalid{/if}">
+                    Акт (3 оборудование)
+                </label><br/>
 
                 <input type=checkbox value="1" name="lading" id="cbb"><label
                         for="cbb"{if !$bill_invoices[4]} style="color:#C0C0C0"{/if}>Накладная</label>
@@ -500,7 +517,8 @@
 
                 <hr>
                 {if $is_new_invoice}
-                    Книга продаж:<br>
+                    Книга продаж:
+                    <br>
                     {if $invoice_info}
                         {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3)}{/if}
 
@@ -516,32 +534,38 @@
 
 
                         {assign var="is_reversaled" value=0}
-                        {if isset($invoice_info.1) && $invoice_info.1.is_reversal}Сторинирована с/ф 1:<br>{assign var="is_reversaled" value=1}{/if}
-                        {if isset($invoice_info.2) && $invoice_info.2.is_reversal}Сторинирована с/ф 2:<br>{assign var="is_reversaled" value=1}{/if}
-                        {if isset($invoice_info.3) && $invoice_info.3.is_reversal}Сторинирована с/ф 3:<br>{assign var="is_reversaled" value=1}{/if}
+                        {if isset($invoice_info.1) && $invoice_info.1.is_reversal}Сторинирована с/ф 1:
+                            <br>
+                            {assign var="is_reversaled" value=1}{/if}
+                        {if isset($invoice_info.2) && $invoice_info.2.is_reversal}Сторинирована с/ф 2:
+                            <br>
+                            {assign var="is_reversaled" value=1}{/if}
+                        {if isset($invoice_info.3) && $invoice_info.3.is_reversal}Сторинирована с/ф 3:
+                            <br>
+                            {assign var="is_reversaled" value=1}{/if}
 
-                            {if $is_reversaled}
-                                <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Восстановить</a>
-                            {else}
-                                {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3)}
-                                    <a href="/bill/publish/invoice-reversal?bill_no={$bill.bill_no}">удалить</a>
-                                {/if}
+                        {if $is_reversaled}
+                            <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Восстановить</a>
+                        {else}
+                            {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3)}
+                                <a href="/bill/publish/invoice-reversal?bill_no={$bill.bill_no}">удалить</a>
                             {/if}
+                        {/if}
                         <br>
                     {else}
                         нет с/ф
                         <a href="/bill/publish/make-invoice?bill_no={$bill.bill_no}">Создать</a>
                     {/if}
-
                     <br>
-
                     {if isset($invoice_info.4) && !$invoice_info.4.is_reversal}
                         Авансовая с/ф: {$invoice_info.4.sum|round:2}
-                        <a href="/bill/publish/invoice-ab-reversal?bill_no={$bill.bill_no}">(удалить)</a><br>
+                        <a href="/bill/publish/invoice-ab-reversal?bill_no={$bill.bill_no}">(удалить)</a>
+                        <br>
                     {/if}
 
                     {if isset($invoice_info.4) && $invoice_info.4.is_reversal}
-                        Сторинирована с/ф 4<br>
+                        Сторинирована с/ф 4
+                        <br>
                     {/if}
 
                     {if !isset($invoice_info.4) || $invoice_info.4.is_reversal}
