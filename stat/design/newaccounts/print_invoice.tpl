@@ -34,7 +34,9 @@
 <table border="0" cellpadding="0" cellspacing="15">
 {if $inv_is_new3}
 <tr><td colspan="2"><p align="center">
-<strong>СЧЕТ-ФАКТУРА N&nbsp;{if !$inv_number}{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
+<strong>
+    {if !$is_document_ready}<b style="color:red;">***ДОКУМЕНТ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ***</b><br>{/if}
+    СЧЕТ-ФАКТУРА N&nbsp;{if !$inv_number}{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
         {if !$without_date_date}
             от {if $is_four_order && isset($inv_pays)}
                     {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}

@@ -90,7 +90,9 @@ table.contract_table td {
 											</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
+                                    <td style='width:100pt;'>
+										{if !$is_document_ready}<b style="color:red;">***ДОКУМЕНТ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ***</b><br>{/if}
+										<p><span>Счет-фактура N</span></p></td>
                                     <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}</span></p></td>
                                     <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
                                     <td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>

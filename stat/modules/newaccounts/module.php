@@ -2824,16 +2824,7 @@ class m_newaccounts extends IModule
                     }
                 }
 
-                if (!$newInvoiceNumber && $bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
-                    echo 'Документ не готов';
-
-                    // @TODO
-                    // debug
-
-                    mail("adima123@yandex.ru", "Document not ready", $bill->Get('bill_no').': '. $bill->Get('bill_date')." - ".$source);
-
-                    exit;
-                }
+                $design->assign('is_document_ready', $newInvoiceNumber || $bill->Get('bill_date') < \app\models\Invoice::DATE_ACCOUNTING);
 
 
                 $design->assign('inv_number', $newInvoiceNumber);
