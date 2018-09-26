@@ -61,6 +61,11 @@ $columns = [
     ],
 
     [
+        'attribute' => 'country_id',
+        'class' => \app\modules\nnp\column\CountryColumn::className(),
+    ],
+
+    [
         'attribute' => 'status_id',
         'class' => StatusColumn::className(),
     ],

@@ -14,6 +14,7 @@ class DestinationFilter extends Destination
     public $name = '';
     public $status_id = '';
     public $land_id = '';
+    public $country_id = '';
     public $addition_prefix_destination = '';
     public $subtraction_prefix_destination = '';
 
@@ -84,6 +85,8 @@ class DestinationFilter extends Destination
             $query->andWhere(['subtractionPrefixDestinations.is_addition' => false]);
             $query->andWhere(['subtractionPrefixDestinations.prefix_id' => $this->subtraction_prefix_destination]);
         }
+
+        $this->country_id !== '' && $query->andWhere(["{$destinationTableName}.country_id" => $this->country_id]);
 
         return $dataProvider;
     }

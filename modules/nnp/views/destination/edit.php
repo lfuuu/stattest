@@ -46,19 +46,26 @@ if (!$destination->isNewRecord) {
     <div class="row">
 
         <?php // Название ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($destination, 'name')->textInput() ?>
         </div>
 
         <?php // Территория ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($destination, 'land_id')->widget(Select2::className(), [
                 'data' => Land::getList($isWithEmpty = true),
             ]) ?>
         </div>
 
+        <?php // Страна ?>
+        <div class="col-sm-3">
+            <?= $form->field($destination, 'country_id')->widget(Select2::className(), [
+                'data' => \app\modules\nnp\models\Country::getList($isWithEmpty = true)
+            ]) ?>
+        </div>
+
         <?php // Статус ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($destination, 'status_id')->widget(Select2::className(), [
                 'data' => Status::getList($isWithEmpty = true),
             ]) ?>

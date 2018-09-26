@@ -15,6 +15,7 @@ use yii\helpers\Url;
  * @property int $land_id
  * @property int $status_id
  * @property string $name
+ * @property int country_id
  *
  * @property-read Land $land
  * @property-read Status $status
@@ -37,8 +38,9 @@ class Destination extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
-            'land_id' => 'Территория',
+            'land_id' => 'Группа',
             'status_id' => 'Статус',
+            'country_id' => 'Страна',
         ];
     }
 
@@ -59,7 +61,7 @@ class Destination extends ActiveRecord
     {
         return [
             [['name'], 'string'],
-            [['land_id', 'status_id'], 'integer'],
+            [['land_id', 'status_id', 'country_id'], 'integer'],
         ];
     }
 
