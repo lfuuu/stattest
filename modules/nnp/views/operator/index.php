@@ -60,6 +60,10 @@ $columns = [
         'indexBy' => 'code',
     ],
     [
+        'attribute' => 'group',
+        'class' => \app\modules\nnp\column\OperatorTypeColumn::className(),
+    ],
+    [
         'attribute' => 'name',
         'class' => StringColumn::className(),
     ],

@@ -12,6 +12,7 @@ use yii\helpers\Url;
  * @property string $name_translit
  * @property int $country_code
  * @property int $cnt
+ * @property int $type
  *
  * @property-read Country $country
  */
@@ -23,6 +24,33 @@ class Operator extends ActiveRecord
     }
 
     const MIN_CNT = 10;
+
+    /*
+     * Группа оператора:
+     *
+     * - Regular (RGL) (по умолчанию)
+     * - Major (MJR)
+     * - Selfservice (SFS)
+     * - Suspend (SPD)
+     * - International (INT)
+     * - Arhive (ARH)
+     * */
+
+    const GROUP_RGL = 0;
+    const GROUP_MJR = 1;
+    const GROUP_SFS = 2;
+    const GROUP_SPD = 3;
+    const GROUP_INT = 4;
+    const GROUP_ARH = 5;
+
+    public static $groups = [
+        self::GROUP_RGL => 'Regular (RGL)',
+        self::GROUP_MJR => 'Major (MJR)',
+        self::GROUP_SFS => 'Selfservice (SFS)',
+        self::GROUP_SPD => 'Suspend (SPD)',
+        self::GROUP_INT => 'International (INT)',
+        self::GROUP_ARH => 'Arhive (ARH)',
+    ];
 
     /**
      * Имена полей
@@ -37,6 +65,7 @@ class Operator extends ActiveRecord
             'name_translit' => 'Название транслитом',
             'country_code' => 'Страна',
             'cnt' => 'Кол-во номеров',
+            'group' => 'Группа оператора',
         ];
     }
 
@@ -57,7 +86,7 @@ class Operator extends ActiveRecord
     {
         return [
             [['name', 'name_translit'], 'string'],
-            [['country_code'], 'integer'],
+            [['country_code', 'group'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
     }

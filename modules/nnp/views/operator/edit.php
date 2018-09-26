@@ -83,6 +83,15 @@ if (!$operator->isNewRecord) {
 
     </div>
 
+    <div class="row">
+        <?php // Группа оператора ?>
+        <div class="col-sm-3">
+            <?= $form->field($operator, 'group')->widget(Select2::className(), [
+                'data' => ['' => '- Все -'] + Operator::$groups,
+            ]) ?>
+        </div>
+    </div>
+
     <?php // кнопки ?>
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>

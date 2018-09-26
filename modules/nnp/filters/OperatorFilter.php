@@ -16,6 +16,7 @@ class OperatorFilter extends Operator
     public $country_code = '';
     public $cnt_from = '';
     public $cnt_to = '';
+    public $group = '';
 
     /**
      * @return array
@@ -24,7 +25,7 @@ class OperatorFilter extends Operator
     {
         return [
             [['name', 'name_translit'], 'string'],
-            [['id', 'country_code', 'cnt_from', 'cnt_to'], 'integer'],
+            [['id', 'country_code', 'cnt_from', 'cnt_to', 'group'], 'integer'],
         ];
     }
 
@@ -48,6 +49,8 @@ class OperatorFilter extends Operator
 
         $this->cnt_from !== '' && $query->andWhere(['>=', $operatorTableName . '.cnt', $this->cnt_from]);
         $this->cnt_to !== '' && $query->andWhere(['<=', $operatorTableName . '.cnt', $this->cnt_to]);
+
+        $this->group !== '' && $query->andWhere(["{$operatorTableName}.group" => $this->group]);
 
         return $dataProvider;
     }
