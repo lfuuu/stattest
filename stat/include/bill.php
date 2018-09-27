@@ -213,7 +213,7 @@ class Bill {
     }
     public function SetInvoiceNoExt($no)
     {
-        if ($this->bill["bill_no_ext"] != $no) {
+        if ($this->bill["invoice_no_ext"] != $no) {
             $this->Set("invoice_no_ext", $no);
         }
     }
