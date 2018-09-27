@@ -31,7 +31,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, Destination $model, $key) use ($baseView) {
@@ -52,12 +52,12 @@ $columns = [
 
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 
     [
         'attribute' => 'land_id',
-        'class' => LandColumn::className(),
+        'class' => LandColumn::class,
     ],
 
     [
@@ -67,13 +67,13 @@ $columns = [
 
     [
         'attribute' => 'status_id',
-        'class' => StatusColumn::className(),
+        'class' => StatusColumn::class,
     ],
 
     [
         'label' => 'Префиксы (+)',
         'attribute' => 'addition_prefix_destination',
-        'class' => PrefixColumn::className(),
+        'class' => PrefixColumn::class,
         'isAddLink' => false,
         'format' => 'html',
         'value' => function (Destination $destination) {
@@ -90,7 +90,7 @@ $columns = [
     [
         'label' => 'Префиксы (-)',
         'attribute' => 'subtraction_prefix_destination',
-        'class' => PrefixColumn::className(),
+        'class' => PrefixColumn::class,
         'isAddLink' => false,
         'format' => 'html',
         'value' => function (Destination $destination) {

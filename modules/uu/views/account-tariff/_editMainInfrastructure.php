@@ -24,7 +24,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?php // город ?>
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'city_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => City::getList(
                     $isWithEmpty = true,
                     $countryId = null,
@@ -40,7 +40,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?php // проект ?>
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'infrastructure_project')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => AccountTariff::getInfrastructureProjectList($isWithEmpty = true),
             ])
             ->label($accountTariff->getAttributeLabel('infrastructure_project') . $helpConfluence)
@@ -50,7 +50,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?php // уровень ?>
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'infrastructure_level')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => AccountTariff::getInfrastructureLevelList($isWithEmpty = true),
             ])
             ->label($accountTariff->getAttributeLabel('infrastructure_level') . $helpConfluence)
@@ -60,7 +60,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?php // тех. площадка ?>
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'datacenter_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => Datacenter::getList($isWithEmpty = true),
             ])
             ->label($accountTariff->getAttributeLabel('datacenter_id') . $helpConfluence)

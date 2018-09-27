@@ -83,14 +83,14 @@ if (!$region->isNewRecord) {
         <?php // Страна ?>
         <div class="col-sm-3">
             <?= $form->field($region, 'country_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => Country::getList($isWithEmpty = $region->isNewRecord),
                 ]) ?>
         </div>
 
         <div class="col-sm-3">
             <?= $form->field($region, 'type_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => \app\models\Region::$typeNames,
                 ]) ?>
         </div>

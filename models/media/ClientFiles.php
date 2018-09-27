@@ -58,7 +58,7 @@ class ClientFiles extends ActiveRecord
     public function rules()
     {
         return [
-            ['tags_filter', ArrayValidator::className(), 'on' => 'default'],
+            ['tags_filter', ArrayValidator::class, 'on' => 'default'],
         ];
     }
 
@@ -67,7 +67,7 @@ class ClientFiles extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**
@@ -75,7 +75,7 @@ class ClientFiles extends ActiveRecord
      */
     public function getContract()
     {
-        return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
+        return $this->hasOne(ClientContract::class, ['id' => 'contract_id']);
     }
 
     /**

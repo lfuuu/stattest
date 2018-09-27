@@ -17,7 +17,7 @@ class DateRangePickerColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $this->filterType = DateRangePicker::className();
+        $this->filterType = DateRangePicker::class;
 
         $this->filterWidgetOptions = [
             'name' => $this->name,

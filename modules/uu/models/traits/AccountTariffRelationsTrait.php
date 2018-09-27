@@ -57,7 +57,7 @@ trait AccountTariffRelationsTrait
      */
     public function getTariffPeriod()
     {
-        return $this->hasOne(TariffPeriod::className(), ['id' => 'tariff_period_id']);
+        return $this->hasOne(TariffPeriod::class, ['id' => 'tariff_period_id']);
     }
 
     /**
@@ -65,7 +65,7 @@ trait AccountTariffRelationsTrait
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_account_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_account_id']);
     }
 
     /**
@@ -73,7 +73,7 @@ trait AccountTariffRelationsTrait
      */
     public function getPrevAccountTariff()
     {
-        return $this->hasOne(self::className(), ['id' => 'prev_account_tariff_id']);
+        return $this->hasOne(self::class, ['id' => 'prev_account_tariff_id']);
     }
 
     /**
@@ -81,7 +81,7 @@ trait AccountTariffRelationsTrait
      */
     public function getNextAccountTariffs()
     {
-        return $this->hasMany(self::className(), ['prev_account_tariff_id' => 'id'])
+        return $this->hasMany(self::class, ['prev_account_tariff_id' => 'id'])
             ->indexBy('id');
     }
 
@@ -90,7 +90,7 @@ trait AccountTariffRelationsTrait
      */
     public function getPrevUsage()
     {
-        return $this->hasOne(self::className(), ['id' => 'prev_usage_id']);
+        return $this->hasOne(self::class, ['id' => 'prev_usage_id']);
     }
 
     /**
@@ -98,7 +98,7 @@ trait AccountTariffRelationsTrait
      */
     public function getNextUsage()
     {
-        return $this->hasOne(self::className(), ['prev_usage_id' => 'id']);
+        return $this->hasOne(self::class, ['prev_usage_id' => 'id']);
     }
 
     /**
@@ -106,7 +106,7 @@ trait AccountTariffRelationsTrait
      */
     public function getRegion()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region_id']);
+        return $this->hasOne(Region::class, ['id' => 'region_id']);
     }
 
     /**
@@ -114,7 +114,7 @@ trait AccountTariffRelationsTrait
      */
     public function getCity()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**
@@ -122,7 +122,7 @@ trait AccountTariffRelationsTrait
      */
     public function getNumber()
     {
-        return $this->hasOne(\app\models\Number::className(), ['number' => 'voip_number']);
+        return $this->hasOne(\app\models\Number::class, ['number' => 'voip_number']);
     }
 
     /**
@@ -130,7 +130,7 @@ trait AccountTariffRelationsTrait
      */
     public function getServiceType()
     {
-        return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+        return $this->hasOne(ServiceType::class, ['id' => 'service_type_id']);
     }
 
     /**
@@ -138,7 +138,7 @@ trait AccountTariffRelationsTrait
      */
     public function getDatacenter()
     {
-        return $this->hasOne(Datacenter::className(), ['id' => 'datacenter_id']);
+        return $this->hasOne(Datacenter::class, ['id' => 'datacenter_id']);
     }
 
     /**
@@ -146,7 +146,7 @@ trait AccountTariffRelationsTrait
      */
     public function getUsageTrunk()
     {
-        return $this->hasOne(UsageTrunk::className(), ['id' => 'id']);
+        return $this->hasOne(UsageTrunk::class, ['id' => 'id']);
     }
 
     /**
@@ -154,7 +154,7 @@ trait AccountTariffRelationsTrait
      */
     public function getResources()
     {
-        return $this->hasMany(Resource::className(), ['service_type_id' => 'service_type_id'])
+        return $this->hasMany(Resource::class, ['service_type_id' => 'service_type_id'])
             ->indexBy('id')
             ->orderBy(['id' => SORT_ASC]);
     }
@@ -164,7 +164,7 @@ trait AccountTariffRelationsTrait
      */
     public function getAccountLogSetups()
     {
-        return $this->hasMany(AccountLogSetup::className(), ['account_tariff_id' => 'id'])
+        return $this->hasMany(AccountLogSetup::class, ['account_tariff_id' => 'id'])
             ->indexBy('id')
             ->orderBy(['id' => SORT_ASC]);
     }
@@ -174,7 +174,7 @@ trait AccountTariffRelationsTrait
      */
     public function getAccountLogPeriods()
     {
-        return $this->hasMany(AccountLogPeriod::className(), ['account_tariff_id' => 'id'])
+        return $this->hasMany(AccountLogPeriod::class, ['account_tariff_id' => 'id'])
             ->indexBy('id')
             ->orderBy(['id' => SORT_ASC]);
     }
@@ -184,7 +184,7 @@ trait AccountTariffRelationsTrait
      */
     public function getAccountLogResources()
     {
-        return $this->hasMany(AccountLogResource::className(), ['account_tariff_id' => 'id'])
+        return $this->hasMany(AccountLogResource::class, ['account_tariff_id' => 'id'])
             ->indexBy('id')
             ->orderBy(['id' => SORT_ASC]);
     }
@@ -194,7 +194,7 @@ trait AccountTariffRelationsTrait
      */
     public function getAccountTariffLogs()
     {
-        return $this->hasMany(AccountTariffLog::className(), ['account_tariff_id' => 'id'])
+        return $this->hasMany(AccountTariffLog::class, ['account_tariff_id' => 'id'])
             ->orderBy(['id' => SORT_DESC])
             ->indexBy('id');
     }
@@ -205,7 +205,7 @@ trait AccountTariffRelationsTrait
      */
     public function getAccountTariffResourceLogs($resourceId = null)
     {
-        return $this->hasMany(AccountTariffResourceLog::className(), ['account_tariff_id' => 'id'])
+        return $this->hasMany(AccountTariffResourceLog::class, ['account_tariff_id' => 'id'])
             ->andWhere($resourceId ? ['resource_id' => $resourceId] : [])
             ->orderBy(
                 [
@@ -228,6 +228,6 @@ trait AccountTariffRelationsTrait
      */
     public function getAccountTariffHeap()
     {
-        return $this->hasOne(AccountTariffHeap::className(), ['account_tariff_id' => 'id']);
+        return $this->hasOne(AccountTariffHeap::class, ['account_tariff_id' => 'id']);
     }
 }

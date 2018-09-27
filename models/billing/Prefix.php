@@ -40,7 +40,7 @@ class Prefix extends ActiveRecord
      */
     public function getGeo()
     {
-        return $this->hasOne(Geo::className(), ['id' => 'geo_id']);
+        return $this->hasOne(Geo::class, ['id' => 'geo_id']);
     }
 
     /**

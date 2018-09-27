@@ -108,7 +108,7 @@ class Region extends ActiveRecord
      */
     public function getDatacenter()
     {
-        return $this->hasOne(Datacenter::className(), ['region' => 'id']);
+        return $this->hasOne(Datacenter::class, ['region' => 'id']);
     }
 
     /**
@@ -116,7 +116,7 @@ class Region extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**
@@ -124,7 +124,7 @@ class Region extends ActiveRecord
      */
     public function getCities()
     {
-        return $this->hasMany(City::className(), ['connection_point_id' => 'id'])
+        return $this->hasMany(City::class, ['connection_point_id' => 'id'])
             ->andWhere(['in_use' => 1])
             ->orderBy(['order' => SORT_ASC]);
     }

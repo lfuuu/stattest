@@ -59,13 +59,13 @@ class RegistryForm extends Form
             ],
             [
                 ['country_id', 'city_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'comment'],
-                FormFieldValidator::className()
+                FormFieldValidator::class
             ],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
             ['city_id', 'validateCity', 'on' => 'save'],
             ['source', 'in', 'range' => array_keys(VoipRegistrySourceEnum::$names), 'on' => 'save'],
             ['ndc_type_id', 'in', 'range' => array_keys(NdcType::getList()), 'on' => 'save'],
-            ['account_id', AccountIdValidator::className(), 'on' => 'save'],
+            ['account_id', AccountIdValidator::class, 'on' => 'save'],
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
             ['number_from', 'validateNumbersRange'],

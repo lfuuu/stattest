@@ -74,7 +74,7 @@ class Person extends ActiveRecord
     public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
     {
         return
-            $this->hasMany(PersonI18N::className(), ['person_id' => 'id'])
+            $this->hasMany(PersonI18N::class, ['person_id' => 'id'])
                 ->andWhere(['lang_code' => $langCode])
                 ->indexBy('field')
                 ->all();
@@ -111,7 +111,7 @@ class Person extends ActiveRecord
         $personI18N = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
-                [self::$_virtualPropertiesI18N, ArrayValidator::className()],
+                [self::$_virtualPropertiesI18N, ArrayValidator::class],
             ]
         );
 

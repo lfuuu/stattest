@@ -52,15 +52,15 @@ $accountTariffTableName = AccountTariff::tableName();
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'is_next_month',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'date',
-        'class' => MonthColumn::className(),
+        'class' => MonthColumn::class,
         'value' => function (AccountEntry $accountEntry) {
             return datefmt_format_object(new DateTime($accountEntry->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
         },
@@ -68,7 +68,7 @@ $columns = [
     [
         'label' => Yii::t('models/' . $accountTariffTableName, 'client_account_id'),
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (AccountEntry $accountEntry) {
             return $accountEntry->accountTariff->clientAccount->getLink();
@@ -77,14 +77,14 @@ $columns = [
     [
         'label' => Yii::t('models/' . $accountTariffTableName, 'service_type_id'),
         'attribute' => 'service_type_id',
-        'class' => ServiceTypeColumn::className(),
+        'class' => ServiceTypeColumn::class,
         'value' => function (AccountEntry $accountEntry) {
             return $accountEntry->accountTariff->serviceType->name;
         },
     ],
     [
         'attribute' => 'account_tariff_id',
-        'class' => TariffPeriodColumn::className(),
+        'class' => TariffPeriodColumn::class,
         'format' => 'html',
         'serviceTypeId' => $filterModel->service_type_id,
         'value' => function (AccountEntry $accountEntry) {
@@ -97,34 +97,34 @@ $columns = [
     ],
     [
         'attribute' => 'type_id',
-        'class' => AccountEntryTypeColumn::className(),
+        'class' => AccountEntryTypeColumn::class,
         'value' => function (AccountEntry $accountEntry) {
             return $accountEntry->getName(Language::LANGUAGE_DEFAULT, $isFullDocument = false);
         },
     ],
     [
         'attribute' => 'price',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'cost_price',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'price_without_vat',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'vat_rate',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'vat',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'price_with_vat',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'label' => 'Транзакции, ¤',
@@ -171,7 +171,7 @@ $columns = [
     ],
     [
         'attribute' => 'bill_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (AccountEntry $accountEntry) {
             $bill = $accountEntry->bill;

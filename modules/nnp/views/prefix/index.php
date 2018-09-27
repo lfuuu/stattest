@@ -31,18 +31,18 @@ $baseView = $this;
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
 
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 
     [
         'label' => 'Направления (+)',
         'attribute' => 'addition_prefix_destination',
-        'class' => DestinationColumn::className(),
+        'class' => DestinationColumn::class,
         'isAddLink' => false,
         'format' => 'html',
         'value' => function (Prefix $prefix) {
@@ -59,7 +59,7 @@ $columns = [
     [
         'label' => 'Направления (-)',
         'attribute' => 'subtraction_prefix_destination',
-        'class' => DestinationColumn::className(),
+        'class' => DestinationColumn::class,
         'isAddLink' => false,
         'format' => 'html',
         'value' => function (Prefix $prefix) {

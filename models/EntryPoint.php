@@ -172,7 +172,7 @@ class EntryPoint extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**
@@ -180,7 +180,7 @@ class EntryPoint extends ActiveRecord
      */
     public function getConnectTroubleUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'connect_trouble_user_id']);
+        return $this->hasOne(User::class, ['id' => 'connect_trouble_user_id']);
     }
 
     /**

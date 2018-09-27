@@ -10,7 +10,7 @@ use app\classes\Html;
 use app\classes\grid\GridView;
 use app\classes\grid\column\universal\TagsColumn;
 
-$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::class]]);
 
 $model = new ClientFiles;
 $dataProvider = $model->search($contract->id);
@@ -25,7 +25,7 @@ $baseView = $this;
     'filterModel' => $model,
     'columns' => [
         [
-            'class' => ActionColumn::className(),
+            'class' => ActionColumn::class,
             'template' => '{delete} {send}',
             'buttons' => [
                 'delete' => function ($url, $model) use ($baseView) {

@@ -149,7 +149,7 @@ class ClientCreateExternalForm extends Form
                     'site_name',
                     'entry_point_id',
                 ],
-                FormFieldValidator::className()
+                FormFieldValidator::class
             ],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id', 'account_version'], 'integer'],

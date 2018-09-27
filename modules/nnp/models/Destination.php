@@ -97,7 +97,7 @@ class Destination extends ActiveRecord
      */
     public function getPrefixDestinations()
     {
-        return $this->hasMany(PrefixDestination::className(), ['destination_id' => 'id'])
+        return $this->hasMany(PrefixDestination::class, ['destination_id' => 'id'])
             ->indexBy('prefix_id');
     }
 
@@ -124,7 +124,7 @@ class Destination extends ActiveRecord
      */
     public function getLand()
     {
-        return $this->hasOne(Land::className(), ['id' => 'land_id']);
+        return $this->hasOne(Land::class, ['id' => 'land_id']);
     }
 
     /**
@@ -132,6 +132,6 @@ class Destination extends ActiveRecord
      */
     public function getStatus()
     {
-        return $this->hasOne(Land::className(), ['id' => 'status_id']);
+        return $this->hasOne(Land::class, ['id' => 'status_id']);
     }
 }

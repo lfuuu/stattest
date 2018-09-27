@@ -36,7 +36,7 @@ class ClientContragentPerson extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
 

@@ -18,11 +18,11 @@ class TicketListForm extends ListForm
     public function rules()
     {
         return [
-            ['client_account_id', AccountIdValidator::className()],
+            ['client_account_id', AccountIdValidator::class],
             [
                 'status',
-                ArrayValidator::className(),
-                'validator' => ['class' => EnumValidator::className(), 'enum' => TicketStatusEnum::className()]
+                ArrayValidator::class,
+                'validator' => ['class' => EnumValidator::class, 'enum' => TicketStatusEnum::class]
             ],
         ];
     }

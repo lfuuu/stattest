@@ -49,7 +49,7 @@ class SyncErrorsUsageVpbx extends SyncErrorsUsageBase
      */
     public function getServiceClass()
     {
-        return UsageVirtpbx::className();
+        return UsageVirtpbx::class;
     }
 
     /**

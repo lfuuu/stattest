@@ -50,12 +50,12 @@ class ClientSuper extends ActiveRecord
     {
         return [
             'EventQueueAddEvent' => [
-                'class' => EventQueueAddEvent::className(),
+                'class' => EventQueueAddEvent::class,
                 'insertEvent' => EventQueue::ADD_SUPER_CLIENT
             ],
 
             'CheckCreateCoreAdmin' => [
-                'class' => EventQueueAddEvent::className(),
+                'class' => EventQueueAddEvent::class,
                 'insertEvent' => EventQueue::CHECK_CREATE_CORE_OWNER,
                 'isWithIndicator' => true
             ]
@@ -77,7 +77,7 @@ class ClientSuper extends ActiveRecord
      */
     public function getContragents()
     {
-        return $this->hasMany(ClientContragent::className(), ['super_id' => 'id']);
+        return $this->hasMany(ClientContragent::class, ['super_id' => 'id']);
     }
 
     /**
@@ -85,7 +85,7 @@ class ClientSuper extends ActiveRecord
      */
     public function getContracts()
     {
-        return $this->hasMany(ClientContract::className(), ['super_id' => 'id']);
+        return $this->hasMany(ClientContract::class, ['super_id' => 'id']);
     }
 
     /**
@@ -93,7 +93,7 @@ class ClientSuper extends ActiveRecord
      */
     public function getAccounts()
     {
-        return $this->hasMany(ClientAccount::className(), ['super_id' => 'id']);
+        return $this->hasMany(ClientAccount::class, ['super_id' => 'id']);
     }
 
     /**
@@ -101,7 +101,7 @@ class ClientSuper extends ActiveRecord
      */
     public function getEntryPoint()
     {
-        return $this->hasOne(EntryPoint::className(), ['id' => 'entry_point_id']);
+        return $this->hasOne(EntryPoint::class, ['id' => 'entry_point_id']);
     }
 
     /**

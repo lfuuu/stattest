@@ -125,8 +125,8 @@ class TicketController extends ApiController
         $model = DynamicModel::validateData(
             Yii::$app->request->bodyParams,
             [
-                ['client_account_id', AccountIdValidator::className()],
-                ['ticket_id', TicketIdValidator::className()],
+                ['client_account_id', AccountIdValidator::class],
+                ['ticket_id', TicketIdValidator::class],
                 [['ticket_id'], 'required'],
             ]
         );
@@ -258,8 +258,8 @@ class TicketController extends ApiController
         $model = DynamicModel::validateData(
             Yii::$app->request->bodyParams,
             [
-                ['client_account_id', AccountIdValidator::className()],
-                ['ticket_id', TicketIdValidator::className()],
+                ['client_account_id', AccountIdValidator::class],
+                ['ticket_id', TicketIdValidator::class],
                 [['ticket_id'], 'required'],
             ]
         );

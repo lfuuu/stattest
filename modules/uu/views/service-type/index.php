@@ -32,7 +32,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}',
         'buttons' => [
             'update' => function ($url, ServiceType $model, $key) use ($baseView) {
@@ -46,11 +46,11 @@ $columns = [
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'close_after_days',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
 ];
 

@@ -37,8 +37,8 @@ class ClientAccountComment extends ActiveRecord
             [['comment', 'account_id'], 'required'],
             ['user_id', 'integer'],
             ['user_id', 'default', 'value' => User::SYSTEM_USER_ID],
-            ['account_id', AccountIdValidator::className()],
-            ['comment', FormFieldValidator::className()],
+            ['account_id', AccountIdValidator::class],
+            ['comment', FormFieldValidator::class],
             ['comment', 'string', 'min' => 3],
         ];
     }
@@ -46,7 +46,7 @@ class ClientAccountComment extends ActiveRecord
     public function behaviors()
     {
         return [
-            CreatedAt::className()
+            CreatedAt::class
         ];
     }
 
@@ -55,7 +55,7 @@ class ClientAccountComment extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**

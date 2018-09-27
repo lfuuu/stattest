@@ -39,7 +39,7 @@ class BaseForm extends Form
         return [
             [['targetClientAccount', 'sourceClientAccount',], 'required'],
             [['targetClientAccount', 'sourceClientAccount',], 'integer'],
-            [['contracts', 'clients',], ArrayValidator::className()],
+            [['contracts', 'clients',], ArrayValidator::class],
         ];
     }
 
@@ -60,7 +60,7 @@ class BaseForm extends Form
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContragent::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContragent::class,
         ];
     }
 

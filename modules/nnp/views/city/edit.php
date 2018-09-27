@@ -46,7 +46,7 @@ if (!$city->isNewRecord) {
 
         <?php // Страна ?>
         <div class="col-sm-2">
-            <?= $form->field($city, 'country_code')->widget(Select2::className(), [
+            <?= $form->field($city, 'country_code')->widget(Select2::class, [
                 'data' => Country::getList($isWithEmpty = true),
             ]) ?>
             <div>
@@ -57,7 +57,7 @@ if (!$city->isNewRecord) {
         </div>
 
         <div class="col-sm-2">
-            <?= $form->field($city, 'region_id')->widget(Select2::className(), [
+            <?= $form->field($city, 'region_id')->widget(Select2::class, [
                 'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $city->country_code),
             ]) ?>
             <div>

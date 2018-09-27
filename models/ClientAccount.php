@@ -303,19 +303,19 @@ class ClientAccount extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'AccountPriceIncludeVat' => AccountPriceIncludeVat::className(),
-            'SetOldStatus' => SetOldStatus::className(),
-            'ActualizeClientVoip' => ActualizeClientVoip::className(),
-            'ClientAccountComments' => ClientAccountComments::className(),
-            'ClientAccountEvent' => \app\classes\behaviors\important_events\ClientAccount::className(),
-            'ClientAccountSyncEvent' => ClientAccountSyncEvent::className(),
+            'AccountPriceIncludeVat' => AccountPriceIncludeVat::class,
+            'SetOldStatus' => SetOldStatus::class,
+            'ActualizeClientVoip' => ActualizeClientVoip::class,
+            'ClientAccountComments' => ClientAccountComments::class,
+            'ClientAccountEvent' => \app\classes\behaviors\important_events\ClientAccount::class,
+            'ClientAccountSyncEvent' => ClientAccountSyncEvent::class,
             'EventQueueAddEvent' => [
-                'class' => EventQueueAddEvent::className(),
+                'class' => EventQueueAddEvent::class,
                 'insertEvent' => EventQueue::ADD_ACCOUNT
             ],
-            'EffectiveVATRate' => EffectiveVATRate::className(),
-            'SetTaxVoip' => SetTaxVoip::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(), // Логирование изменений всегда в конце
+            'EffectiveVATRate' => EffectiveVATRate::class,
+            'SetTaxVoip' => SetTaxVoip::class,
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class, // Логирование изменений всегда в конце
         ];
     }
 
@@ -401,7 +401,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getSuperClient()
     {
-        return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+        return $this->hasOne(ClientSuper::class, ['id' => 'super_id']);
     }
 
     /**
@@ -409,7 +409,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getCurrencyModel()
     {
-        return $this->hasOne(Currency::className(), ['id' => 'currency']);
+        return $this->hasOne(Currency::class, ['id' => 'currency']);
     }
 
     /**
@@ -601,7 +601,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getBusiness()
     {
-        return $this->hasOne(Business::className(), ['id' => 'business_id']);
+        return $this->hasOne(Business::class, ['id' => 'business_id']);
     }
 
     /**
@@ -617,7 +617,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**
@@ -625,7 +625,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getAccountRegion()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::class, ['id' => 'region']);
     }
 
     /**
@@ -641,7 +641,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getComments()
     {
-        return $this->hasMany(ClientAccountComment::className(), ['account_id' => 'id']);
+        return $this->hasMany(ClientAccountComment::class, ['account_id' => 'id']);
     }
 
     /**
@@ -649,7 +649,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getLastAccountComment()
     {
-        return $this->hasOne(ClientAccountComment::className(), ['account_id' => 'id'])->orderBy(['created_at' => SORT_DESC])->limit(1);
+        return $this->hasOne(ClientAccountComment::class, ['account_id' => 'id'])->orderBy(['created_at' => SORT_DESC])->limit(1);
     }
 
     /**
@@ -705,7 +705,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getContract($date = '')
     {
-        return $this->getCachedHistoryModel(ClientContract::className(), $this->contract_id, $date, $this);
+        return $this->getCachedHistoryModel(ClientContract::class, $this->contract_id, $date, $this);
     }
 
     /**
@@ -754,7 +754,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getAllContacts()
     {
-        return $this->hasMany(ClientContact::className(), ['client_id' => 'id'])
+        return $this->hasMany(ClientContact::class, ['client_id' => 'id'])
             ->indexBy('id')
             ->orderBy([
                 'type' => SORT_ASC,
@@ -788,7 +788,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getContacts()
     {
-        return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
+        return $this->hasMany(ClientContact::class, ['client_id' => 'id']);
     }
 
     /**
@@ -796,7 +796,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getAccountTariffs()
     {
-        return $this->hasMany(AccountTariff::className(), ['client_account_id' => 'id']);
+        return $this->hasMany(AccountTariff::class, ['client_account_id' => 'id']);
     }
 
     /**
@@ -804,7 +804,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageVoips()
     {
-        return $this->hasMany(UsageVoip::className(), ['client' => 'client']);
+        return $this->hasMany(UsageVoip::class, ['client' => 'client']);
     }
 
     /**
@@ -812,7 +812,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageTechCpes()
     {
-        return $this->hasMany(UsageTechCpe::className(), ['client' => 'client']);
+        return $this->hasMany(UsageTechCpe::class, ['client' => 'client']);
     }
 
     /**
@@ -820,7 +820,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageWelltimes()
     {
-        return $this->hasMany(UsageWelltime::className(), ['client' => 'client']);
+        return $this->hasMany(UsageWelltime::class, ['client' => 'client']);
     }
 
     /**
@@ -828,7 +828,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageExtras()
     {
-        return $this->hasMany(UsageExtra::className(), ['client' => 'client']);
+        return $this->hasMany(UsageExtra::class, ['client' => 'client']);
     }
 
     /**
@@ -836,7 +836,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageVirtpbxs()
     {
-        return $this->hasMany(UsageVirtpbx::className(), ['client' => 'client']);
+        return $this->hasMany(UsageVirtpbx::class, ['client' => 'client']);
     }
 
     /**
@@ -844,7 +844,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageSmses()
     {
-        return $this->hasMany(UsageSms::className(), ['client' => 'client']);
+        return $this->hasMany(UsageSms::class, ['client' => 'client']);
     }
 
     /**
@@ -852,7 +852,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageIpPorts()
     {
-        return $this->hasMany(UsageIpPorts::className(), ['client' => 'client']);
+        return $this->hasMany(UsageIpPorts::class, ['client' => 'client']);
     }
 
     /**
@@ -860,7 +860,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageTrunks()
     {
-        return $this->hasMany(UsageTrunk::className(), ['client_account_id' => 'id']);
+        return $this->hasMany(UsageTrunk::class, ['client_account_id' => 'id']);
     }
 
     /**
@@ -868,7 +868,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageCallChats()
     {
-        return $this->hasMany(UsageCallChat::className(), ['client' => 'client']);
+        return $this->hasMany(UsageCallChat::class, ['client' => 'client']);
     }
 
     /**
@@ -877,7 +877,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getAdditionalInn($isActive = true)
     {
-        return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])
+        return $this->hasMany(ClientInn::class, ['client_id' => 'id'])
             ->andWhere(['is_active' => (int)$isActive])
             ->all();
     }
@@ -887,7 +887,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getAdditionalPayAcc()
     {
-        return $this->hasMany(ClientPayAcc::className(), ['client_id' => 'id']);
+        return $this->hasMany(ClientPayAcc::class, ['client_id' => 'id']);
     }
 
     /**
@@ -895,7 +895,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getLkClientSettings()
     {
-        return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
+        return $this->hasOne(LkClientSettings::class, ['client_id' => 'id']);
     }
 
     /**
@@ -903,7 +903,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getTariffStatus()
     {
-        return $this->hasOne(TariffStatus::className(), ['id' => 'uu_tariff_status_id']);
+        return $this->hasOne(TariffStatus::class, ['id' => 'uu_tariff_status_id']);
     }
 
     /**
@@ -911,7 +911,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getLkNoticeSetting()
     {
-        return $this->hasMany(LkNoticeSetting::className(), ['client_id' => 'id']);
+        return $this->hasMany(LkNoticeSetting::class, ['client_id' => 'id']);
     }
 
     /**
@@ -941,7 +941,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getOptions()
     {
-        return $this->hasMany(ClientAccountOptions::className(), ['client_account_id' => 'id']);
+        return $this->hasMany(ClientAccountOptions::class, ['client_account_id' => 'id']);
     }
 
     /**
@@ -1227,7 +1227,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getLkSettings()
     {
-        return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
+        return $this->hasOne(LkClientSettings::class, ['client_id' => 'id']);
     }
 
     /**
@@ -1235,7 +1235,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getFlag()
     {
-        return $this->hasOne(ClientFlag::className(), ['account_id' => 'id']);
+        return $this->hasOne(ClientFlag::class, ['account_id' => 'id']);
     }
 
     /**

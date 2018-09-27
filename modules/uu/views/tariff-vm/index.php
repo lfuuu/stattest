@@ -34,7 +34,7 @@ $this->title = Yii::t('tariff', 'Tariff VPS');
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, TariffVm $model, $key) use ($baseView) {
@@ -54,11 +54,11 @@ $columns = [
     ],
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 ];
 

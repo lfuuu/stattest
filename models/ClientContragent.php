@@ -106,7 +106,7 @@ class ClientContragent extends HistoryActiveRecord
         $rules = [
             ['country_id', 'required'],
             ['country_id', 'integer'],
-            [['inn', 'kpp'], InnKppValidator::className()],
+            [['inn', 'kpp'], InnKppValidator::class],
         ];
         return $rules;
     }
@@ -119,12 +119,12 @@ class ClientContragent extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'ContragentCountry' => ContragentCountry::className(),
-            'EffectiveVATRate' => EffectiveVATRate::className(),
-            'SetTaxVoip' => SetTaxVoip::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'ContragentCountry' => ContragentCountry::class,
+            'EffectiveVATRate' => EffectiveVATRate::class,
+            'SetTaxVoip' => SetTaxVoip::class,
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => null,
                 'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
@@ -271,7 +271,7 @@ class ClientContragent extends HistoryActiveRecord
      */
     public function getContractsActiveQuery()
     {
-        return $this->hasMany(ClientContract::className(), ['contragent_id' => 'id']);
+        return $this->hasMany(ClientContract::class, ['contragent_id' => 'id']);
     }
 
     /**
@@ -281,7 +281,7 @@ class ClientContragent extends HistoryActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**
@@ -291,7 +291,7 @@ class ClientContragent extends HistoryActiveRecord
      */
     public function getSuper()
     {
-        return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+        return $this->hasOne(ClientSuper::class, ['id' => 'super_id']);
     }
 
     /**
@@ -299,7 +299,7 @@ class ClientContragent extends HistoryActiveRecord
      */
     public function getPartnerContract()
     {
-        return $this->hasOne(ClientContact::className(), ['id' => 'partner_contract_id']);
+        return $this->hasOne(ClientContact::class, ['id' => 'partner_contract_id']);
     }
 
     /**

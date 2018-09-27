@@ -203,14 +203,14 @@ class AccountEditForm extends Form
             ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],
             ['bill_rename1', 'in', 'range' => ['no', 'yes']],
             ['status', 'default', 'value' => ClientAccount::STATUS_INCOME],
-            ['bik', BikValidator::className()],
+            ['bik', BikValidator::class],
             ['lk_balance_view_mode', 'in', 'range' => array_keys(ClientAccount::$balanceViewMode)],
             [
                 'options',
                 'default',
                 'value' => [ClientAccountOptions::OPTION_MAIL_DELIVERY => ClientAccountOptions::OPTION_MAIL_DELIVERY_DEFAULT_VALUE]
             ],
-            [['options',], ArrayValidator::className()],
+            [['options',], ArrayValidator::class],
             ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
             ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED],
             ['pay_bill_until_days', 'integer', 'min' => 20, 'max' => 1000],

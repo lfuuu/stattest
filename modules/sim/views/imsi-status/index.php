@@ -28,7 +28,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, ImsiStatus $model, $key) use ($baseView) {
@@ -48,11 +48,11 @@ $columns = [
     ],
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 ];
 

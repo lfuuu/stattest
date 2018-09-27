@@ -43,7 +43,7 @@ class ClientSubAccount extends HistoryActiveRecord
     {
         return [
             ['id', 'required', 'on' => ['save']],
-            ['account_id', AccountIdValidator::className(), 'skipOnEmpty' => true],
+            ['account_id', AccountIdValidator::class, 'skipOnEmpty' => true],
             [
                 [
                     'id',

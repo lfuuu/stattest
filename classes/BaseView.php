@@ -245,13 +245,13 @@ class BaseView extends View
             do {
                 if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetJsView = $assetViewFile . '.js'))) {
                     $this->registerJsFile($assetJsView, [
-                        'depends' => [AppAsset::className(),],
+                        'depends' => [AppAsset::class,],
                         'position' => self::POS_FINALLY_END,
                     ]);
                 }
 
                 if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetCssView = $assetViewFile . '.css'))) {
-                    $this->registerCssFile($assetCssView, ['depends' => [AppAsset::className(),]]);
+                    $this->registerCssFile($assetCssView, ['depends' => [AppAsset::class,]]);
                 }
 
                 $parts = explode(DIRECTORY_SEPARATOR, trim($assetViewFile, DIRECTORY_SEPARATOR));

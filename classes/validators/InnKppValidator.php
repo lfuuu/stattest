@@ -17,8 +17,8 @@ class InnKppValidator extends Validator
     {
         parent::init();
         $this->attrValidator = [
-            'inn' => InnValidator::className(),
-            'kpp' => KppValidator::className(),
+            'inn' => InnValidator::class,
+            'kpp' => KppValidator::class,
         ];
     }
 

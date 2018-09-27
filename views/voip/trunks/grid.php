@@ -29,21 +29,21 @@ echo Breadcrumbs::widget([
 $columns = [
     [
         'attribute' => 'connection_point_id',
-        'class' => ConnectionPointColumn::className(),
+        'class' => ConnectionPointColumn::class,
     ],
     [
         'attribute' => 'trunk_ids',
-        'class' => TrunkSuperClientColumn::className(),
+        'class' => TrunkSuperClientColumn::class,
     ],
     [
         'attribute' => 'contragent_id',
-        'class' => TrunkContragentColumn::className(),
+        'class' => TrunkContragentColumn::class,
         'trunkId' => $filterModel->trunk_id,
         'connectionPointId' => $filterModel->connection_point_id,
     ],
     [
         'attribute' => 'contract_number',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'format' => 'raw',
         'value' => function ($row) {
             return $row['contract_number'];
@@ -51,30 +51,30 @@ $columns = [
     ],
     [
         'attribute' => 'contract_type_id',
-        'class' => TrunkContractTypeColumn::className(),
+        'class' => TrunkContractTypeColumn::class,
         'filterByBusinessProcessId' => $filterModel->business_process_id,
     ],
     [
         'attribute' => 'business_process_id',
-        'class' => TrunkBusinessColumn::className(),
+        'class' => TrunkBusinessColumn::class,
     ],
     [
         'attribute' => 'trunk_id',
-        'class' => UsageTrunkColumn::className(),
+        'class' => UsageTrunkColumn::class,
         'filterByServerIds' => $filterModel->connection_point_id,
     ],
     [
         'attribute' => 'description',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'actual_from',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'what_is_enabled',
         'label' => 'Ориг / Терм',
-        'class' => TrunkTypeColumn::className(),
+        'class' => TrunkTypeColumn::class,
         'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];

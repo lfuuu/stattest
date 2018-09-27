@@ -28,7 +28,7 @@ class VoipServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageVoip::className();
+        return UsageVoip::class;
     }
 
     /**

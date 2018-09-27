@@ -133,12 +133,12 @@ class Bill extends ActiveRecord
     public function behaviors()
     {
         return [
-            'SetBillPaymentOverdue' => SetBillPaymentOverdue::className(),
-            'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::className(),
-            'BillChangeLog' => BillChangeLog::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'SetBillPaymentDate' => SetBillPaymentDate::className(),
-            'BillInvoicesReversal' => BillInvoiceReversal::className(),
+            'SetBillPaymentOverdue' => SetBillPaymentOverdue::class,
+            'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::class,
+            'BillChangeLog' => BillChangeLog::class,
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+            'SetBillPaymentDate' => SetBillPaymentDate::class,
+            'BillInvoicesReversal' => BillInvoiceReversal::class,
         ];
     }
 
@@ -220,7 +220,7 @@ class Bill extends ActiveRecord
      */
     public function getLines()
     {
-        return $this->hasMany(BillLine::className(), ['bill_no' => 'bill_no']);
+        return $this->hasMany(BillLine::class, ['bill_no' => 'bill_no']);
     }
 
     /**
@@ -228,7 +228,7 @@ class Bill extends ActiveRecord
      */
     public function getTransactions()
     {
-        return $this->hasMany(Transaction::className(), ['bill_id' => 'id']);
+        return $this->hasMany(Transaction::class, ['bill_id' => 'id']);
     }
 
     /**
@@ -263,7 +263,7 @@ class Bill extends ActiveRecord
      */
     public function getExtendsInfo()
     {
-        return $this->hasOne(BillExtendsInfo::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(BillExtendsInfo::class, ['bill_no' => 'bill_no']);
     }
 
     /**
@@ -271,7 +271,7 @@ class Bill extends ActiveRecord
      */
     public function getCurrencyModel()
     {
-        return $this->hasOne(Currency::className(), ['id' => 'currency']);
+        return $this->hasOne(Currency::class, ['id' => 'currency']);
     }
 
     /**
@@ -279,7 +279,7 @@ class Bill extends ActiveRecord
      */
     public function getUniversalBill()
     {
-        return $this->hasOne(uuBill::className(), ['id' => 'uu_bill_id']);
+        return $this->hasOne(uuBill::class, ['id' => 'uu_bill_id']);
     }
 
     /**
@@ -287,7 +287,7 @@ class Bill extends ActiveRecord
      */
     public function getTrouble()
     {
-        return $this->hasOne(Trouble::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(Trouble::class, ['bill_no' => 'bill_no']);
     }
 
     /**
@@ -295,7 +295,7 @@ class Bill extends ActiveRecord
      */
     public function getInvoices()
     {
-        return $this->hasMany(Invoice::className(), ['bill_no' => 'bill_no'])
+        return $this->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
             ->where(['is_reversal' => 0])
             ->orderBy(['type_id' => SORT_ASC])
             ->indexBy('type_id');
@@ -314,7 +314,7 @@ class Bill extends ActiveRecord
      */
     public function getPayments()
     {
-        return $this->hasMany(Payment::className(), ['bill_no' => 'bill_no'])
+        return $this->hasMany(Payment::class, ['bill_no' => 'bill_no'])
             ->orderBy(['payment_date' => SORT_ASC]);
     }
 

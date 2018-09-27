@@ -22,7 +22,7 @@ class VoipServiceDao extends UsageDao
      */
     public function init()
     {
-        $this->usageClass = UsageVoip::className();
+        $this->usageClass = UsageVoip::class;
 
         parent::init();
     }

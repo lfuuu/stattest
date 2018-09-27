@@ -27,7 +27,7 @@ $filter = [
         'attribute' => 'date',
         'name' => 'date',
         'label' => 'Период',
-        'class' => DateRangePickerColumn::className(),
+        'class' => DateRangePickerColumn::class,
         'value' => $filterModel->date,
     ],
 ];

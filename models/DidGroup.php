@@ -187,7 +187,7 @@ class DidGroup extends ActiveRecord
      */
     public function getCity()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**
@@ -195,7 +195,7 @@ class DidGroup extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
     /**

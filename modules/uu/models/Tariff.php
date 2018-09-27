@@ -94,17 +94,17 @@ class Tariff extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
                 [
                     // Установить "когда создал" и "когда обновил"
-                    'class' => TimestampBehavior::className(),
+                    'class' => TimestampBehavior::class,
                     'createdAtAttribute' => 'insert_time',
                     'updatedAtAttribute' => 'update_time',
                     'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
                 ],
                 [
                     // Установить "кто создал" и "кто обновил"
-                    'class' => AttributeBehavior::className(),
+                    'class' => AttributeBehavior::class,
                     'attributes' => [
                         ActiveRecord::EVENT_BEFORE_INSERT => ['insert_user_id', 'update_user_id'],
                         ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
@@ -198,7 +198,7 @@ class Tariff extends ActiveRecord
      */
     public function getCurrency()
     {
-        return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
+        return $this->hasOne(Currency::class, ['id' => 'currency_id']);
     }
 
     /**
@@ -206,7 +206,7 @@ class Tariff extends ActiveRecord
      */
     public function getPackage()
     {
-        return $this->hasOne(Package::className(), ['tariff_id' => 'id']);
+        return $this->hasOne(Package::class, ['tariff_id' => 'id']);
     }
 
     /**
@@ -214,7 +214,7 @@ class Tariff extends ActiveRecord
      */
     public function getPackageMinutes()
     {
-        return $this->hasMany(PackageMinute::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(PackageMinute::class, ['tariff_id' => 'id'])
             ->indexBy('id');
     }
 
@@ -223,7 +223,7 @@ class Tariff extends ActiveRecord
      */
     public function getPackagePrices()
     {
-        return $this->hasMany(PackagePrice::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(PackagePrice::class, ['tariff_id' => 'id'])
             ->orderBy(['weight' => SORT_DESC])
             ->indexBy('id');
     }
@@ -233,7 +233,7 @@ class Tariff extends ActiveRecord
      */
     public function getPackagePricelists()
     {
-        return $this->hasMany(PackagePricelist::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(PackagePricelist::class, ['tariff_id' => 'id'])
             ->indexBy('id');
     }
 
@@ -252,7 +252,7 @@ class Tariff extends ActiveRecord
      */
     public function getTariffResources()
     {
-        return $this->hasMany(TariffResource::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(TariffResource::class, ['tariff_id' => 'id'])
             ->indexBy('id');
     }
 
@@ -270,7 +270,7 @@ class Tariff extends ActiveRecord
      */
     public function getTariffPeriods()
     {
-        return $this->hasMany(TariffPeriod::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(TariffPeriod::class, ['tariff_id' => 'id'])
             ->indexBy('id');
     }
 
@@ -279,7 +279,7 @@ class Tariff extends ActiveRecord
      */
     public function getStatus()
     {
-        return $this->hasOne(TariffStatus::className(), ['id' => 'tariff_status_id']);
+        return $this->hasOne(TariffStatus::class, ['id' => 'tariff_status_id']);
     }
 
     /**
@@ -287,7 +287,7 @@ class Tariff extends ActiveRecord
      */
     public function getPerson()
     {
-        return $this->hasOne(TariffPerson::className(), ['id' => 'tariff_person_id']);
+        return $this->hasOne(TariffPerson::class, ['id' => 'tariff_person_id']);
     }
 
     /**
@@ -295,7 +295,7 @@ class Tariff extends ActiveRecord
      */
     public function getVm()
     {
-        return $this->hasOne(TariffVm::className(), ['id' => 'vm_id']);
+        return $this->hasOne(TariffVm::class, ['id' => 'vm_id']);
     }
 
     /**
@@ -303,7 +303,7 @@ class Tariff extends ActiveRecord
      */
     public function getServiceType()
     {
-        return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+        return $this->hasOne(ServiceType::class, ['id' => 'service_type_id']);
     }
 
     /**
@@ -311,7 +311,7 @@ class Tariff extends ActiveRecord
      */
     public function getTag()
     {
-        return $this->hasOne(TariffTag::className(), ['id' => 'tag_id']);
+        return $this->hasOne(TariffTag::class, ['id' => 'tag_id']);
     }
 
     /**
@@ -319,7 +319,7 @@ class Tariff extends ActiveRecord
      */
     public function getVoipGroup()
     {
-        return $this->hasOne(TariffVoipGroup::className(), ['id' => 'voip_group_id']);
+        return $this->hasOne(TariffVoipGroup::class, ['id' => 'voip_group_id']);
     }
 
     /**
@@ -327,7 +327,7 @@ class Tariff extends ActiveRecord
      */
     public function getVoipCities()
     {
-        return $this->hasMany(TariffVoipCity::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(TariffVoipCity::class, ['tariff_id' => 'id'])
             ->indexBy('city_id');
     }
 
@@ -336,7 +336,7 @@ class Tariff extends ActiveRecord
      */
     public function getTariffCountries()
     {
-        return $this->hasMany(TariffCountry::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(TariffCountry::class, ['tariff_id' => 'id'])
             ->indexBy('country_id');
     }
 
@@ -345,7 +345,7 @@ class Tariff extends ActiveRecord
      */
     public function getVoipNdcTypes()
     {
-        return $this->hasMany(TariffVoipNdcType::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(TariffVoipNdcType::class, ['tariff_id' => 'id'])
             ->indexBy('ndc_type_id');
     }
 
@@ -354,7 +354,7 @@ class Tariff extends ActiveRecord
      */
     public function getOrganizations()
     {
-        return $this->hasMany(TariffOrganization::className(), ['tariff_id' => 'id'])
+        return $this->hasMany(TariffOrganization::class, ['tariff_id' => 'id'])
             ->indexBy('organization_id');
     }
 

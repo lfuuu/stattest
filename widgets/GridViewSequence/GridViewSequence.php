@@ -20,7 +20,7 @@ class GridViewSequence extends GridView
      */
     public function init()
     {
-        array_unshift($this->columns, ['class' => SequenceColumn::className()]);
+        array_unshift($this->columns, ['class' => SequenceColumn::class]);
 
         $modelName = $this->dataProvider->query->modelClass;
         $modelClass = new $modelName;

@@ -39,7 +39,7 @@ $this->title = $tariffStatus->isNewRecord ? Yii::t('common', 'Create') : $tariff
         </div>
 
         <div class="col-sm-4">
-            <?= $form->field($tariffStatus, 'service_type_id')->widget(Select2::className(), [
+            <?= $form->field($tariffStatus, 'service_type_id')->widget(Select2::class, [
                 'data' => ServiceType::getList($isWithEmpty = true),
             ]) ?>
         </div>

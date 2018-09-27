@@ -256,7 +256,7 @@ class Voip extends _TestCase
         $event = EventQueue::find()->one();
 
         $this->assertNotNull($event);
-        $this->assertInstanceOf(EventQueue::className(), $event);
+        $this->assertInstanceOf(EventQueue::class, $event);
 
         $this->assertEquals($event->event, EventQueue::ATS3__SYNC);
 

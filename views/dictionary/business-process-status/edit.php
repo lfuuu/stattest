@@ -54,7 +54,7 @@ if (!$status->isNewRecord) {
         <?php // Название ?>
         <div class="col-sm-4">
             <?= $form->field($status, 'business_process_id')
-                ->widget(Select2::className(), ['data' => $businessProcesses,]) ?>
+                ->widget(Select2::class, ['data' => $businessProcesses,]) ?>
         </div>
 
         <?php // Название ?>

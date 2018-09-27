@@ -73,7 +73,7 @@ class Template extends ActiveRecord
     public function behaviors()
     {
         return [
-            'Template' => TemplateEvent::className(),
+            'Template' => TemplateEvent::class,
         ];
     }
 

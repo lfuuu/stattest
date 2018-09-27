@@ -62,7 +62,7 @@ class LkController extends ApiController
         $form = DynamicModel::validateData(
             Yii::$app->request->bodyParams,
             [
-                ['account_id', AccountIdValidator::className()],
+                ['account_id', AccountIdValidator::class],
             ]
         );
 
@@ -127,7 +127,7 @@ class LkController extends ApiController
         $form = DynamicModel::validateData(
             ['account_id' => $accountId],
             [
-                ['account_id', AccountIdValidator::className()],
+                ['account_id', AccountIdValidator::class],
             ]
         );
 
@@ -202,7 +202,7 @@ class LkController extends ApiController
         $form = DynamicModel::validateData(
             Yii::$app->request->bodyParams,
             [
-                ['account_id', AccountIdValidator::className()],
+                ['account_id', AccountIdValidator::class],
             ]
         );
 
@@ -259,7 +259,7 @@ class LkController extends ApiController
         $form = DynamicModel::validateData(
             \Yii::$app->request->bodyParams,
             [
-                ['account_id', AccountIdValidator::className()],
+                ['account_id', AccountIdValidator::class],
                 ['sum', 'double', 'min' => 10, 'max' => 15000],
                 ['is_pay_page', 'boolean'],
             ]

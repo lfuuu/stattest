@@ -68,32 +68,32 @@ $columns = [
 
     [
         'attribute' => 'country_id',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
     ],
     [
         'attribute' => 'city_id',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
     ],
     [
         'attribute' => 'source',
-        'class' => EnumColumn::className(),
-        'enum' => VoipRegistrySourceEnum::className(),
+        'class' => EnumColumn::class,
+        'enum' => VoipRegistrySourceEnum::class,
     ],
     [
         'attribute' => 'ndc_type_id',
-        'class' => NdcTypeColumn::className()
+        'class' => NdcTypeColumn::class
     ],
     [
         'attribute' => 'ndc',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'number_from',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'number_to',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'value' => function ($model) {
@@ -103,7 +103,7 @@ $columns = [
     ],
     [
         'attribute' => 'account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function ($model) {
             return Html::a('ЛС ' . $model['account_id'], ['/client/view', 'id' => $model['account_id']]);

@@ -44,7 +44,7 @@ class SberbankOrder extends ActiveRecord
     public function behaviors()
     {
         return [
-            'createdAt' => CreatedAt::className(),
+            'createdAt' => CreatedAt::class,
         ];
     }
 
@@ -55,7 +55,7 @@ class SberbankOrder extends ActiveRecord
      */
     public function getBill()
     {
-        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
     }
 
     /**

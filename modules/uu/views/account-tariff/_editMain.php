@@ -103,7 +103,7 @@ if (!$serviceType) {
         <?php // регион ?>
         <div class="col-sm-2">
             <?= $form->field($accountTariff, 'region_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => Region::getList(true),
                 ])
                 ->label($accountTariff->getAttributeLabel('region_id') . $helpConfluence)

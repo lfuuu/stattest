@@ -69,7 +69,7 @@ class ImsiPartner extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
             ]
         );
     }
@@ -79,7 +79,7 @@ class ImsiPartner extends ActiveRecord
      */
     public function getImsies()
     {
-        return $this->hasMany(Imsi::className(), ['partner_id' => 'id'])
+        return $this->hasMany(Imsi::class, ['partner_id' => 'id'])
             ->indexBy('id');
     }
 
@@ -88,7 +88,7 @@ class ImsiPartner extends ActiveRecord
      */
     public function getTermTrunk()
     {
-        return $this->hasOne(Trunk::className(), ['id' => 'term_trunk_id']);
+        return $this->hasOne(Trunk::class, ['id' => 'term_trunk_id']);
     }
 
     /**
@@ -96,7 +96,7 @@ class ImsiPartner extends ActiveRecord
      */
     public function getOrigTrunk()
     {
-        return $this->hasOne(Trunk::className(), ['id' => 'orig_trunk_id']);
+        return $this->hasOne(Trunk::class, ['id' => 'orig_trunk_id']);
     }
 
     /**

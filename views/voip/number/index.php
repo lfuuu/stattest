@@ -48,7 +48,7 @@ $month2 = $month1->modify('-1 month');
 
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}', // {delete}
         'buttons' => [
             'update' => function ($url, \app\models\Number $model, $key) use ($baseView) {
@@ -68,26 +68,26 @@ $columns = [
     ],
     [
         'attribute' => 'number',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
         'attribute' => 'calls_per_month_2',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month1, 'php:m'),
         'attribute' => 'calls_per_month_1',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month0, 'php:m'),
         'attribute' => 'calls_per_month_0',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'usage_id',
-        'class' => IsNullAndNotNullColumn::className(),
+        'class' => IsNullAndNotNullColumn::class,
         'format' => 'html',
         'value' => function (\app\models\Number $number) {
             return $number->usage_id ?
@@ -102,7 +102,7 @@ $columns = [
     ],
     [
         'attribute' => 'client_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'isNullAndNotNull' => true,
         'format' => 'html',
         'value' => function (\app\models\Number $number) {
@@ -115,7 +115,7 @@ $columns = [
         'label' => 'Страна',
         'attribute' => 'country_id',
         'format' => 'html',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'value' => function (\app\models\Number $number) {
             return $number->country_code ?
                 $number->country->getLink()
@@ -124,27 +124,27 @@ $columns = [
     ],
     [
         'attribute' => 'city_id',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
     ],
     [
         'attribute' => 'status',
-        'class' => NumberStatusColumn::className(),
+        'class' => NumberStatusColumn::class,
     ],
     [
         'attribute' => 'imsi',
-        'class' => IsNullAndNotNullColumn::className(),
+        'class' => IsNullAndNotNullColumn::class,
     ],
     [
         'attribute' => 'ndc_type_id',
-        'class' => NdcTypeColumn::className()
+        'class' => NdcTypeColumn::class
     ],
     [
         'attribute' => 'beauty_level',
-        'class' => BeautyLevelColumn::className(),
+        'class' => BeautyLevelColumn::class,
     ],
     [
         'attribute' => 'did_group_id',
-        'class' => DidGroupColumn::className(),
+        'class' => DidGroupColumn::class,
         'value' => function (\app\models\Number $number) {
             $didGroup = $number->didGroup;
             return Html::a($didGroup->name, $didGroup->getUrl());
@@ -152,7 +152,7 @@ $columns = [
     ],
     [
         'attribute' => 'number_tech',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 ];
 

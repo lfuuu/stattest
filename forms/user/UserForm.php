@@ -60,7 +60,7 @@ class UserForm extends Form
                 'integer'
             ],
             ['photo', 'file'],
-            ['rights', ArrayValidator::className()],
+            ['rights', ArrayValidator::class],
             ['city_id', 'default', 'value' => City::DEFAULT_USER_CITY_ID],
             ['language', 'default', 'value' => Language::LANGUAGE_DEFAULT],
         ];

@@ -29,7 +29,7 @@ use yii\widgets\Breadcrumbs;
  * @var \app\classes\BaseView $this
  */
 
-$this->registerJsFile('@web/js/behaviors/usage-trunk-pricelist-link.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/usage-trunk-pricelist-link.js', ['depends' => [AppAsset::class]]);
 
 $trunk = Trunk::findOne($usage->trunk_id);
 
@@ -160,13 +160,13 @@ echo Breadcrumbs::widget([
         <div class="col-sm-4">
             <?= $form
                 ->field($model, 'actual_from')
-                ->widget(DateControl::className(), ['autoWidget' => false, 'readonly' => true])
+                ->widget(DateControl::class, ['autoWidget' => false, 'readonly' => true])
             ?>
         </div>
         <div class="col-sm-2">
             <?= $form
                 ->field($model, 'actual_to')
-                ->widget(DateControl::className(), [
+                ->widget(DateControl::class, [
                     'pluginOptions' => [
                         'startDate' => 'today',
                     ],
@@ -482,7 +482,7 @@ echo Breadcrumbs::widget([
                 'form' => $form,
                 'columns' => 3,
                 'attributes' => [
-                    'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+                    'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::class],
                     'x2' => [
                         'type' => Form::INPUT_RAW,
                         'value' => '

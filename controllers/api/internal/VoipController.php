@@ -87,8 +87,8 @@ class VoipController extends ApiInternalController
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
                 ['offset', 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000],
-                ['account_id', AccountIdValidator::className()],
-                ['number', UsageVoipValidator::className(), 'account_id_field' => 'account_id'],
+                ['account_id', AccountIdValidator::class],
+                ['number', UsageVoipValidator::class, 'account_id_field' => 'account_id'],
             ]
         );
 

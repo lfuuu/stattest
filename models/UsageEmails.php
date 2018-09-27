@@ -23,7 +23,7 @@ class UsageEmails extends ActiveRecord implements UsageInterface
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::class,
         ];
     }
 
@@ -82,7 +82,7 @@ class UsageEmails extends ActiveRecord implements UsageInterface
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**

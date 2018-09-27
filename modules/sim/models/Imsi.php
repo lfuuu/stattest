@@ -72,7 +72,7 @@ class Imsi extends ActiveRecord
             [['imsi', 'iccid', 'msisdn', 'did', 'is_active', 'is_anti_cli', 'is_roaming', 'status_id', 'partner_id', 'is_default'], 'integer'],
             [['actual_from', 'actual_to'], 'date', 'format' => 'php:Y-m-d'],
             ['did', 'default', 'value' => null], // иначе пустая строка получается, ибо в БД это поле varchar
-            ['did', 'exist', 'skipOnError' => true, 'targetClass' => Number::className(), 'targetAttribute' => ['did' => 'number']],
+            ['did', 'exist', 'skipOnError' => true, 'targetClass' => Number::class, 'targetAttribute' => ['did' => 'number']],
         ];
     }
 
@@ -84,8 +84,8 @@ class Imsi extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
-                \app\modules\sim\behaviors\ImsiBehavior::className(),
+                \app\classes\behaviors\HistoryChanges::class,
+                \app\modules\sim\behaviors\ImsiBehavior::class,
             ]
         );
     }
@@ -95,7 +95,7 @@ class Imsi extends ActiveRecord
      */
     public function getCard()
     {
-        return $this->hasOne(Card::className(), ['iccid' => 'iccid']);
+        return $this->hasOne(Card::class, ['iccid' => 'iccid']);
     }
 
     /**
@@ -103,7 +103,7 @@ class Imsi extends ActiveRecord
      */
     public function getNumber()
     {
-        return $this->hasOne(Number::className(), ['number' => 'msisdn']);
+        return $this->hasOne(Number::class, ['number' => 'msisdn']);
     }
 
     /**
@@ -111,7 +111,7 @@ class Imsi extends ActiveRecord
      */
     public function getStatus()
     {
-        return $this->hasOne(ImsiStatus::className(), ['id' => 'status_id']);
+        return $this->hasOne(ImsiStatus::class, ['id' => 'status_id']);
     }
 
     /**
@@ -119,7 +119,7 @@ class Imsi extends ActiveRecord
      */
     public function getPartner()
     {
-        return $this->hasOne(ImsiPartner::className(), ['id' => 'partner_id']);
+        return $this->hasOne(ImsiPartner::class, ['id' => 'partner_id']);
     }
 
     /**

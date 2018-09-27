@@ -56,7 +56,7 @@ class MonitorUuShiftTariff extends Monitor
 SQL;
         $db = AccountTariffLog::getDb();
         $row = $db->createCommand($sql, [
-            ':model' => AccountTariffLog::className(),
+            ':model' => AccountTariffLog::class,
             ':action' => HistoryChanges::ACTION_UPDATE,
             ':date' => DateTimeZoneHelper::getUtcDateTime()->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
         ])->queryOne();

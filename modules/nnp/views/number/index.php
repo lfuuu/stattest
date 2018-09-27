@@ -35,7 +35,7 @@ $baseView = $this;
 $filterColumns = [
     [
         'attribute' => 'country_code',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'indexBy' => 'code',
         'isWithEmpty' => false,
         'filterInputOptions' => [
@@ -44,21 +44,21 @@ $filterColumns = [
     ],
     [
         'attribute' => 'operator_source',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'region_source',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'city_source',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 ];
 
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}',
         'buttons' => [
             'update' => function ($url, \app\modules\nnp\models\Number $model, $key) use ($baseView) {
@@ -73,16 +73,16 @@ $columns = [
     [
         'label' => 'Номер',
         'attribute' => 'full_number',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'label' => 'Номер',
         'attribute' => 'full_number',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'operator_id',
-        'class' => OperatorColumn::className(),
+        'class' => OperatorColumn::class,
         'countryCode' => $filterModel->country_code,
         // 'isWithNullAndNotNull' => false,
         'isWithEmpty' => false,
@@ -92,7 +92,7 @@ $columns = [
     ],
     [
         'attribute' => 'region_id',
-        'class' => RegionColumn::className(),
+        'class' => RegionColumn::class,
         // 'isWithNullAndNotNull' => true,
         'countryCodes' => $filterModel->country_code,
         'isWithEmpty' => false,
@@ -102,7 +102,7 @@ $columns = [
     ],
     [
         'attribute' => 'city_id',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
         // 'isWithNullAndNotNull' => true,
         'countryCodes' => $filterModel->country_code,
         'regionIds' => $filterModel->region_id,

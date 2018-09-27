@@ -48,7 +48,7 @@ class Lead extends ActiveRecord
     public function behaviors()
     {
         return [
-            'createdAt' => CreatedAt::className(),
+            'createdAt' => CreatedAt::class,
         ];
     }
 
@@ -65,7 +65,7 @@ class Lead extends ActiveRecord
      */
     public function getAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'account_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'account_id']);
     }
 
     /**
@@ -73,7 +73,7 @@ class Lead extends ActiveRecord
      */
     public function getTrouble()
     {
-        return $this->hasOne(Trouble::className(), ['id' => 'trouble_id']);
+        return $this->hasOne(Trouble::class, ['id' => 'trouble_id']);
     }
 
     /**

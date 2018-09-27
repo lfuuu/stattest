@@ -27,13 +27,13 @@ $filter = [
         'attribute' => 'date',
         'name' => 'date',
         'label' => 'Период',
-        'class' => DateRangePickerColumn::className(),
+        'class' => DateRangePickerColumn::class,
         'value' => $filterModel->date,
     ],
     [
         'attribute' => 'number',
         'label' => 'Номер',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'value' => $filterModel->number,
         'options' => [
             'name' => 'number',

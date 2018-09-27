@@ -30,7 +30,7 @@ class LogUsageHistory extends ActiveRecord
      */
     public function getFields()
     {
-        return $this->hasMany(LogUsageHistoryFields::className(), ['log_usage_history_id' => 'id']);
+        return $this->hasMany(LogUsageHistoryFields::class, ['log_usage_history_id' => 'id']);
     }
 
 }

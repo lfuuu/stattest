@@ -13,7 +13,7 @@ use yii\helpers\Url;
 /** @var ContragentEditForm $model */
 /** @var BaseView $this */
 
-$this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::class]]);
 
 $language = Language::getLanguageByCountryId($model->country_id ?: \app\models\Country::RUSSIA);
 $model->formLang = $language;

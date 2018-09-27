@@ -36,7 +36,7 @@ class PublicSite extends ActiveRecord
         return [
             [['title', 'domain',], 'string'],
             [['title', 'domain',], 'required'],
-            ['data', ArrayValidator::className()],
+            ['data', ArrayValidator::class],
         ];
     }
 
@@ -57,7 +57,7 @@ class PublicSite extends ActiveRecord
      */
     public function getPublicSiteCountries()
     {
-        return $this->hasMany(PublicSiteCountry::className(), ['site_id' => 'id'])
+        return $this->hasMany(PublicSiteCountry::class, ['site_id' => 'id'])
             ->orderBy(['order' => SORT_DESC]);
     }
 

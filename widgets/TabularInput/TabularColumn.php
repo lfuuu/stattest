@@ -29,7 +29,7 @@ class TabularColumn extends \unclead\multipleinput\TabularColumn
 
             // Создать новую модель, а не клонировать старую.
             // Ибо чистка атрибутов не помогает избавиться от прочего мусора.
-            $className = $currentModel::className();
+            $className = get_class($currentModel);
             /** @var ActiveRecord $model */
             $model = new $className;
 

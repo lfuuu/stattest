@@ -65,7 +65,7 @@ class StripeController extends ApiController
             Yii::$app->request->bodyParams,
             [
                 [['account_id', 'token_data', 'currency', 'amount'], 'required'],
-                ['account_id', AccountIdValidator::className()],
+                ['account_id', AccountIdValidator::class],
                 [['token_data', 'currency', 'description'], 'string'],
                 ['amount', 'number', 'min' => 10, 'max' => 999999],
             ]

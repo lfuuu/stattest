@@ -29,7 +29,7 @@ $pricelists = Pricelist::find()->indexBy('id')->all();
 
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{show}{calculate}{update}{delete}',
         'buttons' => [
             'show' => function ($url, PricelistReport $model) use ($baseView) {
@@ -78,7 +78,7 @@ $columns = [
     ],
     [
         'attribute' => 'instance_id',
-        'class' => RegionColumn::className(),
+        'class' => RegionColumn::class,
         'isWithEmptyText' => 'Все регионы',
         'width' => '20%',
     ],

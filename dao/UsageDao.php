@@ -33,8 +33,8 @@ class UsageDao extends Singleton
     public function init()
     {
         $this->_mapUsageClassToServiceTypeId = [
-            UsageTrunk::className() => ServiceType::ID_TRUNK,
-            UsageVoip::className() => ServiceType::ID_VOIP
+            UsageTrunk::class => ServiceType::ID_TRUNK,
+            UsageVoip::class => ServiceType::ID_VOIP
         ];
     }
 

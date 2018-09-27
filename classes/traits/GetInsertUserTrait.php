@@ -40,6 +40,6 @@ trait GetInsertUserTrait
      */
     public function getInsertUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'insert_user_id']);
+        return $this->hasOne(User::class, ['id' => 'insert_user_id']);
     }
 }

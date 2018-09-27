@@ -39,6 +39,6 @@ class AccountTariffHeap extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'account_tariff_id']);
     }
 }

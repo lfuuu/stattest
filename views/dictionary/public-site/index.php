@@ -23,7 +23,7 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'class' => ActionColumn::className(),
+            'class' => ActionColumn::class,
             'template' => '{update} {delete}',
             'buttons' => [
                 'update' => function ($url, PublicSite $model) use ($baseView) {

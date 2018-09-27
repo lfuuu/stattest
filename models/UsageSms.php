@@ -25,8 +25,8 @@ class UsageSms extends ActiveRecord implements UsageInterface
     public function behaviors()
     {
         return [
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::class,
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::class,
         ];
     }
 
@@ -69,7 +69,7 @@ class UsageSms extends ActiveRecord implements UsageInterface
      */
     public function getTariff()
     {
-        return $this->hasOne(TariffSms::className(), ['id' => 'tarif_id']);
+        return $this->hasOne(TariffSms::class, ['id' => 'tarif_id']);
     }
 
     /**
@@ -85,7 +85,7 @@ class UsageSms extends ActiveRecord implements UsageInterface
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**
@@ -93,7 +93,7 @@ class UsageSms extends ActiveRecord implements UsageInterface
      */
     public function getRegionName()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::class, ['id' => 'region']);
     }
 
     /**
@@ -109,7 +109,7 @@ class UsageSms extends ActiveRecord implements UsageInterface
      */
     public static function getMissingTariffs()
     {
-        return UsagesLostTariffs::intoTariffTable(self::className(), TariffSms::tableName());
+        return UsagesLostTariffs::intoTariffTable(self::class, TariffSms::tableName());
     }
 
 }

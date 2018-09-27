@@ -24,7 +24,7 @@ class NetworkConfigController extends BaseController
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'rules' => [
                     [
                         'allow' => true,
@@ -172,7 +172,7 @@ class NetworkConfigController extends BaseController
         Assert::isFalse($file->active);
 
         $settings = [
-            'loader' => UniversalNetworkLoader::className(),
+            'loader' => UniversalNetworkLoader::class,
             'prefix' => '',
             'skip_rows' => 1,
             'compress' => 0,
@@ -231,8 +231,8 @@ class NetworkConfigController extends BaseController
         }
 
         $loaders = [
-            UniversalNetworkLoader::className() => UniversalNetworkLoader::getName(),
-            //MgtsNetworkLoader::className() => MgtsNetworkLoader::getName(),
+            UniversalNetworkLoader::class => UniversalNetworkLoader::getName(),
+            //MgtsNetworkLoader::class => MgtsNetworkLoader::getName(),
         ];
 
         return $this->render("file_parse", [

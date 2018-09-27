@@ -131,7 +131,7 @@ echo Breadcrumbs::widget([
             'rocket_nick' => ['type' => Form::INPUT_TEXT],
             'photo' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => FileInput::className(),
+                'widgetClass' => FileInput::class,
                 'options' => [
                     'options' => [
                         'multiple' => false,

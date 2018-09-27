@@ -116,7 +116,7 @@ class Package extends ActiveRecord
      */
     public function getTariff()
     {
-        return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'tariff_id']);
     }
 
     /**
@@ -124,7 +124,7 @@ class Package extends ActiveRecord
      */
     public function getPackageMinutes()
     {
-        return $this->hasMany(PackageMinute::className(), ['tariff_id' => 'tariff_id'])
+        return $this->hasMany(PackageMinute::class, ['tariff_id' => 'tariff_id'])
             ->indexBy('id');
     }
 
@@ -133,7 +133,7 @@ class Package extends ActiveRecord
      */
     public function getPackagePrices()
     {
-        return $this->hasMany(PackagePrice::className(), ['tariff_id' => 'tariff_id'])
+        return $this->hasMany(PackagePrice::class, ['tariff_id' => 'tariff_id'])
             ->orderBy(['weight' => SORT_DESC])
             ->indexBy('id');
     }
@@ -143,7 +143,7 @@ class Package extends ActiveRecord
      */
     public function getPackagePricelists()
     {
-        return $this->hasMany(PackagePricelist::className(), ['tariff_id' => 'tariff_id'])
+        return $this->hasMany(PackagePricelist::class, ['tariff_id' => 'tariff_id'])
             ->indexBy('id');
     }
 

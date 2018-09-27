@@ -167,7 +167,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getGroupRights()
     {
-        return $this->hasMany(UserGrantGroups::className(), ['name' => 'usergroup']);
+        return $this->hasMany(UserGrantGroups::class, ['name' => 'usergroup']);
     }
 
     /**
@@ -175,7 +175,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getUserRights()
     {
-        return $this->hasMany(UserGrantUsers::className(), ['name' => 'user']);
+        return $this->hasMany(UserGrantUsers::class, ['name' => 'user']);
     }
 
     /**
@@ -183,7 +183,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getGroup()
     {
-        return $this->hasOne(UserGroups::className(), ['usergroup' => 'usergroup']);
+        return $this->hasOne(UserGroups::class, ['usergroup' => 'usergroup']);
     }
 
     /**
@@ -191,7 +191,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getDepartment()
     {
-        return $this->hasOne(UserDeparts::className(), ['id' => 'depart_id']);
+        return $this->hasOne(UserDeparts::class, ['id' => 'depart_id']);
     }
 
     /**

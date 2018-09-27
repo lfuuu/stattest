@@ -33,7 +33,7 @@ class Datacenter extends ActiveRecord
      */
     public function getDatacenterRegion()
     {
-        return $this->hasOne(Region::className(), ["id" => "region"]);
+        return $this->hasOne(Region::class, ["id" => "region"]);
     }
 
     /**

@@ -55,7 +55,7 @@ class ServiceTrunk extends ActiveRecord
      */
     public function getTrunk()
     {
-        return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
+        return $this->hasOne(Trunk::class, ['id' => 'trunk_id']);
     }
 
     /**

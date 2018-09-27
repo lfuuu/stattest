@@ -66,7 +66,7 @@ if (!$serviceType) {
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, Tariff $model, $key) use ($baseView) {
@@ -86,7 +86,7 @@ $columns = [
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'label' => Yii::t('common', 'Price'),
@@ -98,13 +98,13 @@ $columns = [
     ],
     [
         'attribute' => 'currency_id',
-        'class' => CurrencyColumn::className(),
+        'class' => CurrencyColumn::class,
     ],
     [
         'label' => Html::encode(Yii::t('models/' . TariffCountry::tableName(), 'country_id')),
         'attribute' => 'country_id',
         'format' => 'html',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'isAddLink' => false,
         'contentOptions' => [
             'class' => 'nowrap',
@@ -130,7 +130,7 @@ $columns = [
     [
         'attribute' => 'tariff_status_id',
         'serviceTypeId' => $serviceType->id,
-        'class' => TariffStatusColumn::className(),
+        'class' => TariffStatusColumn::class,
         'value' => function (Tariff $tariff) {
             return $tariff->status->name;
         },
@@ -141,7 +141,7 @@ $columns = [
     ],
     [
         'attribute' => 'tariff_person_id',
-        'class' => TariffPersonColumn::className(),
+        'class' => TariffPersonColumn::class,
         'isWithEmpty' => false,
         'filterInputOptions' => [
             'multiple' => true,
@@ -149,24 +149,24 @@ $columns = [
     ],
     [
         'attribute' => 'tag_id',
-        'class' => TariffTagColumn::className(),
+        'class' => TariffTagColumn::class,
     ],
     [
         'label' => 'Продл.',
         'attribute' => 'is_autoprolongation',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'is_charge_after_blocking',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'is_include_vat',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'is_default',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
 ];
 
@@ -174,7 +174,7 @@ $columns = [
 if (!array_key_exists($serviceType->id, ServiceType::$packages)) {
     $columns[] = [
         'attribute' => 'is_postpaid',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ];
 }
 
@@ -182,7 +182,7 @@ $columns[] = [
     'label' => Html::encode(Yii::t('models/' . TariffOrganization::tableName(), 'organization_id')),
     'attribute' => 'organization_id',
     'format' => 'html',
-    'class' => OrganizationColumn::className(),
+    'class' => OrganizationColumn::class,
     'isAddLink' => false,
     'contentOptions' => [
         'class' => 'nowrap',
@@ -196,7 +196,7 @@ $cityColumn = [
     'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
     'attribute' => 'voip_city_id',
     'format' => 'html',
-    'class' => CityColumn::className(),
+    'class' => CityColumn::class,
     'isAddLink' => false,
     'contentOptions' => [
         'class' => 'nowrap',
@@ -224,7 +224,7 @@ $ndcTypeColumn = [
     'label' => Html::encode(Yii::t('models/' . TariffVoipNdcType::tableName(), 'ndc_type_id')),
     'attribute' => 'voip_ndc_type_id',
     'format' => 'html',
-    'class' => NdcTypeColumn::className(),
+    'class' => NdcTypeColumn::class,
     'isAddLink' => false,
     'contentOptions' => [
         'class' => 'nowrap',
@@ -266,7 +266,7 @@ switch ($serviceType->id) {
         $columns[] = [
             'label' => Html::encode(Yii::t('models/' . Tariff::tableName(), 'voip_group_id')),
             'attribute' => 'voip_group_id',
-            'class' => TariffVoipGroupColumn::className(),
+            'class' => TariffVoipGroupColumn::class,
             'value' => function (Tariff $tariff) {
                 return $tariff->voip_group_id;
             },

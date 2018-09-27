@@ -18,12 +18,12 @@ use yii\widgets\Breadcrumbs;
 /** @var \app\models\Organization $history */
 /** @var string $mode */
 
-$this->registerCssFile('@web/css/behaviors/autocomplete-loading.css', ['depends' => [AppAsset::className()]]);
-$this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/autocomplete-loading.css', ['depends' => [AppAsset::class]]);
+$this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::class]]);
 
-$this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/organization.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/image-preview-select.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/organization.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/image-preview-select.js', ['depends' => [AppAsset::class]]);
 
 if (!empty($title)) {
     echo Html::formLabel($title);

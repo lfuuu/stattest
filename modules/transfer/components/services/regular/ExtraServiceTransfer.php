@@ -18,7 +18,7 @@ class ExtraServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageExtra::className();
+        return UsageExtra::class;
     }
 
     /**

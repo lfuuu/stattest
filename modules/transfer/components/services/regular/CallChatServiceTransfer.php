@@ -19,7 +19,7 @@ class CallChatServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageCallChat::className();
+        return UsageCallChat::class;
     }
 
     /**

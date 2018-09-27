@@ -32,7 +32,7 @@ $filter = require '_indexFilters.php';
 if ($isCache) {
     $filter[] = [
         'attribute' => 'calls_with_duration',
-        'class' => CheckboxColumn::className(),
+        'class' => CheckboxColumn::class,
     ];
 }
 
@@ -78,7 +78,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             }
 
             if ($attr == 'src_ndc_type_id' || $attr == 'dst_ndc_type_id') {
-                $column['class'] = NdcTypeColumn::className();
+                $column['class'] = NdcTypeColumn::class;
             }
 
             $columns[] = $column;

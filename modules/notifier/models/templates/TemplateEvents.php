@@ -25,7 +25,7 @@ class TemplateEvents extends ActiveRecord
      */
     public function getEvent()
     {
-        return $this->hasOne(ImportantEventsNames::className(), ['code' => 'event_code']);
+        return $this->hasOne(ImportantEventsNames::class, ['code' => 'event_code']);
     }
 
 }

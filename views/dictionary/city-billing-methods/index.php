@@ -16,7 +16,7 @@ echo Breadcrumbs::widget([
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, CityBillingMethod $model, $key) use ($baseView) {

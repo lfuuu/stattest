@@ -24,7 +24,7 @@ return [
     [
         'label' => 'Код завершения',
         'attribute' => 'disconnect_cause',
-        'class' => DisconnectCauseColumn::className(),
+        'class' => DisconnectCauseColumn::class,
     ],
     [
         'label' => 'Оператор А',

@@ -47,20 +47,20 @@ $accountTariffTableName = AccountTariff::tableName();
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'date_from',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'date_to',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'tariff_period_id',
         'format' => 'html',
-        'class' => TariffPeriodColumn::className(),
+        'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $filterModel->service_type_id,
         'value' => function (AccountLogResource $accountLogResource) {
             $accountTariff = $accountLogResource->accountTariff;
@@ -72,7 +72,7 @@ $columns = [
     ],
     [
         'attribute' => 'tariff_resource_id',
-        'class' => ResourceColumn::className(),
+        'class' => ResourceColumn::class,
         'serviceTypeId' => $filterModel->service_type_id,
         'value' => function (AccountLogResource $accountLogResource) {
             return $accountLogResource->tariffResource->resource->name;
@@ -81,7 +81,7 @@ $columns = [
     [
         'label' => Yii::t('models/' . $accountTariffTableName, 'client_account_id'),
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (AccountLogResource $accountLogResource) {
             return $accountLogResource->accountTariff->clientAccount->getLink();
@@ -89,7 +89,7 @@ $columns = [
     ],
     [
         'attribute' => 'amount_use',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'account_tariff_resource_log_id',
@@ -104,31 +104,31 @@ $columns = [
     ],
     [
         'attribute' => 'amount_free',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'amount_overhead',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'price_per_unit',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'coefficient',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'price',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'cost_price',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
     [
         'attribute' => 'account_entry_id',
-        'class' => IsNullAndNotNullColumn::className(),
+        'class' => IsNullAndNotNullColumn::class,
         'format' => 'html',
         'value' => function (AccountLogResource $accountLogResource) {
             $accountEntry = $accountLogResource->accountEntry;
@@ -145,7 +145,7 @@ $columns = [
 $filterColumns = [
     [
         'attribute' => 'service_type_id',
-        'class' => ServiceTypeColumn::className(),
+        'class' => ServiceTypeColumn::class,
     ],
 ];
 

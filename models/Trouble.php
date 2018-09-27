@@ -132,7 +132,7 @@ class Trouble extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\Troubles::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\Troubles::class,
         ];
     }
 
@@ -165,12 +165,12 @@ class Trouble extends ActiveRecord
 
     public function getStage()
     {
-        return $this->hasOne(TroubleStage::className(), ['stage_id' => 'cur_stage_id']);
+        return $this->hasOne(TroubleStage::class, ['stage_id' => 'cur_stage_id']);
     }
 
     public function getAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**
@@ -178,7 +178,7 @@ class Trouble extends ActiveRecord
      */
     public function getLead()
     {
-        return $this->hasOne(Lead::className(), ['trouble_id' => 'id']);
+        return $this->hasOne(Lead::class, ['trouble_id' => 'id']);
     }
 
     public function getLastNotEmptyComment()

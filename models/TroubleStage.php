@@ -36,7 +36,7 @@ class TroubleStage extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\TroubleStages::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\TroubleStages::class,
         ];
     }
 
@@ -64,7 +64,7 @@ class TroubleStage extends ActiveRecord
      */
     public function getState()
     {
-        return $this->hasOne(TroubleState::className(), ['id' => 'state_id']);
+        return $this->hasOne(TroubleState::class, ['id' => 'state_id']);
     }
 
     /**
@@ -72,7 +72,7 @@ class TroubleStage extends ActiveRecord
      */
     public function getTrouble()
     {
-        return $this->hasOne(Trouble::className(), ['id' => 'trouble_id']);
+        return $this->hasOne(Trouble::class, ['id' => 'trouble_id']);
     }
 
     /**
@@ -80,7 +80,7 @@ class TroubleStage extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['user' => 'user_main']);
+        return $this->hasOne(User::class, ['user' => 'user_main']);
     }
 
     /**

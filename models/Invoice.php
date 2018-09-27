@@ -51,7 +51,7 @@ class Invoice extends ActiveRecord
     public function behaviors()
     {
         return [
-            'InvoiceNextIdx' => InvoiceNextIdx::className(),
+            'InvoiceNextIdx' => InvoiceNextIdx::class,
         ];
     }
 
@@ -61,7 +61,7 @@ class Invoice extends ActiveRecord
      */
     public function getBill()
     {
-        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
     }
 
     public function getDateImmutable()

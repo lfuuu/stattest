@@ -120,8 +120,8 @@ class Payment extends ActiveRecord
     public function behaviors()
     {
         return [
-            'RecalcRealtimeBalance' => RecalcRealtimeBalance::className(), // Пересчитать realtime баланс при поступлении платежа
-            'SendToOnlineCashRegister' => SendToOnlineCashRegister::className(), // В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
+            'RecalcRealtimeBalance' => RecalcRealtimeBalance::class, // Пересчитать realtime баланс при поступлении платежа
+            'SendToOnlineCashRegister' => SendToOnlineCashRegister::class, // В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
         ];
     }
 
@@ -159,7 +159,7 @@ class Payment extends ActiveRecord
      */
     public function getBill()
     {
-        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
     }
 
     /**
@@ -169,7 +169,7 @@ class Payment extends ActiveRecord
      */
     public function getClient()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_id']);
     }
 
     /**
@@ -179,7 +179,7 @@ class Payment extends ActiveRecord
      */
     public function getAddUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'add_user']);
+        return $this->hasOne(User::class, ['id' => 'add_user']);
     }
 
     /**
@@ -187,7 +187,7 @@ class Payment extends ActiveRecord
      */
     public function getPaymentAtol()
     {
-        return $this->hasOne(PaymentAtol::className(), ['id' => 'id']);
+        return $this->hasOne(PaymentAtol::class, ['id' => 'id']);
     }
 
     /**

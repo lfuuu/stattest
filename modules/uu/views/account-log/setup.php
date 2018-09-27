@@ -46,16 +46,16 @@ $accountTariffTableName = AccountTariff::tableName();
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'date',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'label' => 'Тип услуги',
         'attribute' => 'service_type_id',
-        'class' => ServiceTypeColumn::className(),
+        'class' => ServiceTypeColumn::class,
         'value' => function (AccountLogSetup $accountLogSetup) {
             return $accountLogSetup->accountTariff->serviceType->name;
         }
@@ -64,7 +64,7 @@ $columns = [
         'label' => Yii::t('models/' . $accountLogPeriodTableName, 'account_tariff_id'),
         'attribute' => 'tariff_period_id',
         'format' => 'html',
-        'class' => TariffPeriodColumn::className(),
+        'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $filterModel->service_type_id,
         'value' => function (AccountLogSetup $accountLogSetup) {
             $accountTariff = $accountLogSetup->accountTariff;
@@ -77,7 +77,7 @@ $columns = [
     [
         'label' => Yii::t('models/' . $accountTariffTableName, 'client_account_id'),
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (AccountLogSetup $accountLogSetup) {
             return $accountLogSetup->accountTariff->clientAccount->getLink();
@@ -85,19 +85,19 @@ $columns = [
     ],
     [
         'attribute' => 'price_setup',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'price_number',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'price',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'account_entry_id',
-        'class' => IsNullAndNotNullColumn::className(),
+        'class' => IsNullAndNotNullColumn::class,
         'format' => 'html',
         'value' => function (AccountLogSetup $accountLogSetup) {
             $accountEntry = $accountLogSetup->accountEntry;

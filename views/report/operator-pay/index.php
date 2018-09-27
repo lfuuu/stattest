@@ -32,13 +32,13 @@ $baseView = $this;
 $filterColumns = [
     [
         'attribute' => 'organization_id',
-        'class' => \app\classes\grid\column\universal\OrganizationColumn::className(),
+        'class' => \app\classes\grid\column\universal\OrganizationColumn::class,
     ],
     [
         'attribute' => 'bill_type',
         'filterType' => GridView::FILTER_SELECT2,
         'filter' => $filterModel->getBillTypeList(),
-        'class' => \app\classes\grid\column\DataColumn::className()
+        'class' => \app\classes\grid\column\DataColumn::class
     ],
     [
         'attribute' => 'checking_bill_state',
@@ -48,7 +48,7 @@ $filterColumns = [
             OperatorPayFilter::STATE_BILL_PAID => 'Оплачен',
             OperatorPayFilter::STATE_BILL_UNPAID => 'Не оплачен',
         ],
-        'class' => \app\classes\grid\column\DataColumn::className()
+        'class' => \app\classes\grid\column\DataColumn::class
     ],
     [
         'attribute' => 'payment_verified',
@@ -58,7 +58,7 @@ $filterColumns = [
             OperatorPayFilter::STATE_PAYMENT_VERIFIED => 'Проверена',
             OperatorPayFilter::STATE_PAYMENT_UNVERIFIED => 'Не проверена',
         ],
-        'class' => \app\classes\grid\column\DataColumn::className()
+        'class' => \app\classes\grid\column\DataColumn::class
     ],
 ];
 
@@ -66,7 +66,7 @@ $columns = [
     [
         'attribute' => 'client_id',
         'label' => $filterModel->getAttributeLabel('client_id'),
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'raw',
         'value' => function ($bill) {
             return Html::a(
@@ -82,7 +82,7 @@ $columns = [
         'attribute' => 'bill_no',
         'label' => $filterModel->getAttributeLabel('bill_no'),
         'format' => 'raw',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'value' => function ($bill) {
             return Html::a(
                 $bill['bill_no'],
@@ -94,58 +94,58 @@ $columns = [
     [
         'attribute' => 'bill_date',
         'label' => $filterModel->getAttributeLabel('bill_date'),
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'sum',
         'label' => $filterModel->getAttributeLabel('sum'),
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'currency',
         'label' => $filterModel->getAttributeLabel('currency'),
-        'class' => CurrencyColumn::className(),
+        'class' => CurrencyColumn::class,
     ],
     [
         'attribute' => 'payment_date',
         'label' => $filterModel->getAttributeLabel('payment_date'),
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'pay_bill_until',
         'label' => $filterModel->getAttributeLabel('pay_bill_until'),
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'label' => 'Подразделение',
         'attribute' => 'business_id',
-        'class' => BusinessColumn::className(),
+        'class' => BusinessColumn::class,
     ],
     [
         'label' => 'Бизнес-процесс',
         'attribute' => 'business_process_id',
-        'class' => BusinessProcessColumn::className(),
+        'class' => BusinessProcessColumn::class,
     ],
     [
         'label' => 'Статус бизнес-процесса',
         'attribute' => 'business_process_status_id',
-        'class' => BusinessProcessStatusColumn::className(),
+        'class' => BusinessProcessStatusColumn::class,
     ],
     [
         'label' => 'Менеджер',
         'attribute' => 'manager',
-        'class' => UserColumn::className(),
+        'class' => UserColumn::class,
     ],
     [
         'label' => 'Ак. менеджер',
         'attribute' => 'account_manager',
-        'class' => UserColumn::className(),
+        'class' => UserColumn::class,
     ],
     [
         'attribute' => 'comment',
         'label' => $filterModel->getAttributeLabel('comment'),
         'format' => 'raw',
-        'class' => StringWithLinkColumn::className(),
+        'class' => StringWithLinkColumn::class,
     ],
 ];
 

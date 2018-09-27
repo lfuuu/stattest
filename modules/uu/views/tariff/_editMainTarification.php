@@ -39,7 +39,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
 
     <div class="col-sm-3">
         <?= $form->field($package, 'tarification_type')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => [Package::TARIFICATION_TYPE_CEIL => 'В большую сторону (ceil)', Package::TARIFICATION_TYPE_ROUND => 'Математическое округление (round)'],
                 'options' => $options,
             ])

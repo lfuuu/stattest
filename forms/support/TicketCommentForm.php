@@ -18,7 +18,7 @@ class TicketCommentForm extends Form
     {
         return [
             [['id'], 'integer'],
-            [['ticket_id'], TicketIdValidator::className(), 'ticket' => 'ticket'],
+            [['ticket_id'], TicketIdValidator::class, 'ticket' => 'ticket'],
             [['user_id'], 'integer'],
             [['text'], 'string'],
         ];

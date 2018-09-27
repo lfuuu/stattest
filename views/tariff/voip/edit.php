@@ -14,8 +14,8 @@ use kartik\builder\Form;
 use kartik\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
-$this->registerJsFile('@web/js/behaviors/pricelist-voip-filter.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/connection-point-voip-filter.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/pricelist-voip-filter.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/connection-point-voip-filter.js', ['depends' => [AppAsset::class]]);
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 

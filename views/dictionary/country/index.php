@@ -31,7 +31,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}',
         'buttons' => [
             'update' => function ($url, Country $model, $key) use ($baseView) {
@@ -45,23 +45,23 @@ $columns = [
     ],
     [
         'attribute' => 'code',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'alpha_3',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'name_rus',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'site',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'format' => 'html',
         'value' => function (Country $country) {
             return $country->site ?
@@ -71,23 +71,23 @@ $columns = [
     ],
     [
         'attribute' => 'in_use',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'is_show_in_lk',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'lang',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'currency_id',
-        'class' => CurrencyColumn::className(),
+        'class' => CurrencyColumn::class,
     ],
     [
         'attribute' => 'prefix',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
 ];
 

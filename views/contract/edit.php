@@ -20,11 +20,11 @@ use kartik\widgets\DatePicker;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
-$this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::class]]);
 
 /** @var ClientContragent[] $contragents */
 $contragents = ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();

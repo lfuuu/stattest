@@ -50,7 +50,7 @@ class NnpLog extends ActiveRecord
             [
                 [
                     // Установить "когда создал"
-                    'class' => TimestampBehavior::className(),
+                    'class' => TimestampBehavior::class,
                     'createdAtAttribute' => 'insert_time',
                     'updatedAtAttribute' => null,
                     'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
@@ -64,6 +64,6 @@ class NnpLog extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'account_tariff_id']);
     }
 }

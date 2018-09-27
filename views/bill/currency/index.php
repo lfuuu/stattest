@@ -27,15 +27,15 @@ use yii\widgets\Breadcrumbs;
 $columns = [
     [
         'attribute' => 'date',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'rate',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'currency',
-        'class' => CurrencyColumn::className(),
+        'class' => CurrencyColumn::class,
     ],
 ];
 

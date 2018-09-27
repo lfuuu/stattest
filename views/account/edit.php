@@ -21,10 +21,10 @@ use yii\helpers\Json;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
-$this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::class]]);
 
 $language = Language::getLanguageByCountryId($model->getModel()->contragent->country_id);
 $id = $model->clientM->id;

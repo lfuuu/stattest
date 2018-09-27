@@ -36,7 +36,7 @@ use yii\widgets\Breadcrumbs;
         <?php // Терминационный транк ?>
         <div class="col-sm-3">
             <?= $form->field($imsiPartner, 'term_trunk_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => $trankList = Trunk::dao()->getList($params = [], $isWithEmpty = true),
                 ]) ?>
         </div>
@@ -44,7 +44,7 @@ use yii\widgets\Breadcrumbs;
         <?php // Оригинационный транк ?>
         <div class="col-sm-3">
             <?= $form->field($imsiPartner, 'orig_trunk_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => $trankList,
                 ]) ?>
         </div>

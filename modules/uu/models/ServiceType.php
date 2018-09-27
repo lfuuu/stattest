@@ -118,7 +118,7 @@ class ServiceType extends ActiveRecord
      */
     public function getParent()
     {
-        return $this->hasOne(self::className(), ['id' => 'parent_id']);
+        return $this->hasOne(self::class, ['id' => 'parent_id']);
     }
 
     /**
@@ -126,7 +126,7 @@ class ServiceType extends ActiveRecord
      */
     public function getResources()
     {
-        return $this->hasMany(Resource::className(), ['service_type_id' => 'id']);
+        return $this->hasMany(Resource::class, ['service_type_id' => 'id']);
     }
 
     /**

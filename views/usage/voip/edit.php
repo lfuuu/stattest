@@ -168,7 +168,7 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'connecting_date' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => CustomDateControl::className(),
+                'widgetClass' => CustomDateControl::class,
                 'options' => [
                     'autoWidgetSettings' => [
                         DateControl::FORMAT_DATE => [
@@ -184,7 +184,7 @@ echo Breadcrumbs::widget([
             ],
             'disconnecting_date' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => CustomDateControl::className(),
+                'widgetClass' => CustomDateControl::class,
                 'options' => [
                     'autoWidgetSettings' => [
                         DateControl::FORMAT_DATE => [
@@ -337,7 +337,7 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 4,
         'attributes' => [
-            'tariff_change_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
+            'tariff_change_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::class],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
             ['type' => Form::INPUT_RAW],
@@ -640,7 +640,7 @@ echo Form::widget([
         ],
         'actual_from' => [
             'type' => Form::INPUT_WIDGET,
-            'widgetClass' => \app\widgets\DateControl::className(),
+            'widgetClass' => \app\widgets\DateControl::class,
             'options' => [
                 'autoWidgetSettings' => [
                     DateControl::FORMAT_DATE => [

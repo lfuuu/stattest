@@ -25,7 +25,7 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'class' => ActionColumn::className(),
+            'class' => ActionColumn::class,
             'template' => '{delete}',
             'buttons' => [
                 'delete' => function ($url, ImportantEventsGroups $model, $key) use ($baseView) {

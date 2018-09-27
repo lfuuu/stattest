@@ -61,7 +61,7 @@ if (!$didGroup->isNewRecord) {
         <?php // Страна ?>
         <div class="col-sm-<?= (NdcType::isCityDependent($didGroup->ndc_type_id) && !$didGroup->is_service ? 3 : 6) ?>">
             <?= $form->field($didGroup, 'country_code')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => Country::getList($isWithEmpty = false),
                     'options' => [
                         'class' => 'formReload'
@@ -73,7 +73,7 @@ if (!$didGroup->isNewRecord) {
             <?php // Город ?>
             <div class="col-sm-3">
                 <?= $form->field($didGroup, 'city_id')
-                    ->widget(Select2::className(), [
+                    ->widget(Select2::class, [
                         'data' => City::getList($isWithEmpty = true, $didGroup->country_code),
                     ]) ?>
             </div>
@@ -82,7 +82,7 @@ if (!$didGroup->isNewRecord) {
         <?php // Красивость ?>
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'beauty_level')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => DidGroup::dao()->getBeautyLevelList($didGroup->isNewRecord),
                 ]) ?>
         </div>
@@ -90,7 +90,7 @@ if (!$didGroup->isNewRecord) {
         <?php // Тип номера ?>
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'ndc_type_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => NdcType::getList($isWithEmpty = true),
                     'options' => [
                         'class' => 'formReload'

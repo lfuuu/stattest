@@ -30,7 +30,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
     <div class="row">
         <div class="col-sm-4">
             <?= $form->field($tariff, 'vm_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => TariffVm::getList(true),
                     'options' => $options,
                 ]) ?>

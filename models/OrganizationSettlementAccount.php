@@ -66,7 +66,7 @@ class OrganizationSettlementAccount extends ActiveRecord
     public function getProperties()
     {
         return
-            $this->hasMany(OrganizationSettlementAccountProperties::className(), [
+            $this->hasMany(OrganizationSettlementAccountProperties::class, [
                 'organization_record_id' => 'organization_record_id',
                 'settlement_account_type_id' => 'settlement_account_type_id',
             ])

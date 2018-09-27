@@ -18,9 +18,9 @@ use yii\widgets\Breadcrumbs;
 
 TinymceAsset::register(Yii::$app->view);
 
-$this->registerJsFile('@web/js/jquery.multifile.min.js', ['depends' => [AppAsset::className()]]);
-$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::className()]]);
-$this->registerCssFile('@web/css/behaviors/message-templates.css', ['depends' => [\kartik\tabs\TabsXAsset::className()]]);
+$this->registerJsFile('@web/js/jquery.multifile.min.js', ['depends' => [AppAsset::class]]);
+$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::class]]);
+$this->registerCssFile('@web/css/behaviors/message-templates.css', ['depends' => [\kartik\tabs\TabsXAsset::class]]);
 
 echo Html::formLabel($model->name ? 'Редактирование шаблона' : 'Новый шаблон');
 echo Breadcrumbs::widget([

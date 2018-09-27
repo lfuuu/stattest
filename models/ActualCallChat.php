@@ -19,7 +19,7 @@ class ActualCallChat extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\ActualCallChat::className()
+            'ImportantEvents' => \app\classes\behaviors\important_events\ActualCallChat::class
         ];
     }
 

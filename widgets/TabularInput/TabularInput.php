@@ -17,7 +17,7 @@ class TabularInput extends \unclead\multipleinput\TabularInput
      */
     public function init()
     {
-        $this->columnClass = TabularColumn::className();
+        $this->columnClass = TabularColumn::class;
 
         parent::init();
     }

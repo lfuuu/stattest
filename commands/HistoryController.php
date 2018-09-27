@@ -26,13 +26,13 @@ class HistoryController extends Controller
     public function actionSetParentModelId()
     {
         $classToParentModelIds = [
-            AccountTariffLog::className() => 'account_tariff_id',
-            TariffOrganization::className() => 'tariff_id',
-            TariffVoipCity::className() => 'tariff_id',
-            TariffVoipNdcType::className() => 'tariff_id',
-            TariffPeriod::className() => 'tariff_id',
-            ClientContact::className() => 'client_id',
-            // BillLine::className() => 'bill_no', // не число
+            AccountTariffLog::class => 'account_tariff_id',
+            TariffOrganization::class => 'tariff_id',
+            TariffVoipCity::class => 'tariff_id',
+            TariffVoipNdcType::class => 'tariff_id',
+            TariffPeriod::class => 'tariff_id',
+            ClientContact::class => 'client_id',
+            // BillLine::class => 'bill_no', // не число
         ];
 
         foreach ($classToParentModelIds as $class => $field) {

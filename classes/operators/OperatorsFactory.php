@@ -11,9 +11,9 @@ class OperatorsFactory extends Singleton
     private static function getOperatorsList()
     {
         return [
-            'onlime' => OperatorOnlime::className(),
-            'id36001' => OperatorOnlimeDevices::className(),
-            'id36259' => OperatorOnlimeStb::className(),
+            'onlime' => OperatorOnlime::class,
+            'id36001' => OperatorOnlimeDevices::class,
+            'id36259' => OperatorOnlimeStb::class,
         ];
     }
 

@@ -162,14 +162,14 @@ class ClientContract extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'ContractContragent' => ContractContragent::className(),
-            'LkWizardClean' => LkWizardClean::className(),
-            'SetOldStatus' => SetOldStatus::className(),
-            'ClientContractComments' => ClientContractComments::className(),
-            'EffectiveVATRate' => EffectiveVATRate::className(),
-            'SetTaxVoip' => SetTaxVoip::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'ContractContragent' => ContractContragent::class,
+            'LkWizardClean' => LkWizardClean::class,
+            'SetOldStatus' => SetOldStatus::class,
+            'ClientContractComments' => ClientContractComments::class,
+            'EffectiveVATRate' => EffectiveVATRate::class,
+            'SetTaxVoip' => SetTaxVoip::class,
+            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::class,
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
 
@@ -294,7 +294,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getBusiness()
     {
-        return $this->hasOne(Business::className(), ['id' => 'business_id']);
+        return $this->hasOne(Business::class, ['id' => 'business_id']);
     }
 
     /**
@@ -302,7 +302,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getBusinessProcess()
     {
-        return $this->hasOne(BusinessProcess::className(), ['id' => 'business_process_id']);
+        return $this->hasOne(BusinessProcess::class, ['id' => 'business_process_id']);
     }
 
     /**
@@ -310,7 +310,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getBusinessProcessStatus()
     {
-        return $this->hasOne(BusinessProcessStatus::className(), ['id' => 'business_process_status_id']);
+        return $this->hasOne(BusinessProcessStatus::class, ['id' => 'business_process_status_id']);
     }
 
     /**
@@ -330,7 +330,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getComments()
     {
-        return $this->hasMany(ClientContractComment::className(), ['contract_id' => 'id']);
+        return $this->hasMany(ClientContractComment::class, ['contract_id' => 'id']);
     }
 
     /**
@@ -338,7 +338,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getSuper()
     {
-        return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+        return $this->hasOne(ClientSuper::class, ['id' => 'super_id']);
     }
 
     /**
@@ -346,7 +346,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getLkWizardState()
     {
-        return $this->hasOne(LkWizardState::className(), ['contract_id' => 'id']);
+        return $this->hasOne(LkWizardState::class, ['contract_id' => 'id']);
     }
 
     /**
@@ -354,7 +354,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getPartnerContract()
     {
-        return $this->hasOne(ClientContact::className(), ['id' => 'partner_contract_id']);
+        return $this->hasOne(ClientContact::class, ['id' => 'partner_contract_id']);
     }
 
     /**
@@ -366,7 +366,7 @@ class ClientContract extends HistoryActiveRecord
             return null;
         }
 
-        return $this->hasOne(ContractType::className(), ['id' => 'contract_type_id']);
+        return $this->hasOne(ContractType::class, ['id' => 'contract_type_id']);
     }
 
     /**
@@ -375,7 +375,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getContragent($date = '')
     {
-        return $this->getCachedHistoryModel(ClientContragent::className(), $this->contragent_id, $date, $this);
+        return $this->getCachedHistoryModel(ClientContragent::class, $this->contragent_id, $date, $this);
     }
 
     /**
@@ -385,7 +385,7 @@ class ClientContract extends HistoryActiveRecord
     public function getAccounts($isFromHistory = true)
     {
         return $this->getCachedHistoryModels(
-            ClientAccount::className(),
+            ClientAccount::class,
             'contract_id',
             $this->id,
             ($isFromHistory ? $this->getHistoryVersionRequestedDate() : null),
@@ -432,7 +432,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getRewards($usageType = null)
     {
-        $link = $this->hasMany(ClientContractReward::className(), ['contract_id' => 'id']);
+        $link = $this->hasMany(ClientContractReward::class, ['contract_id' => 'id']);
 
         if (!is_null($usageType)) {
             $link->andWhere(['usage_type' => $usageType]);

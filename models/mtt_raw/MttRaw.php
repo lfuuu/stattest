@@ -80,7 +80,7 @@ class MttRaw extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'account_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'account_id']);
     }
 
     /**
@@ -88,7 +88,7 @@ class MttRaw extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'account_id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'account_id']);
     }
 
     /**

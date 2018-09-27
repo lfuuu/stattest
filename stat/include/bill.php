@@ -299,7 +299,7 @@ class Bill {
             $bill->setAttributes($bSave, false);
             $bill->detachBehavior('BillChangeLog');
             $bill->save();
-            $bill->attachBehavior('BillChangeLog', \app\classes\behaviors\BillChangeLog::className());
+            $bill->attachBehavior('BillChangeLog', \app\classes\behaviors\BillChangeLog::class);
             $bill->dao()->recalcBill($bill);
             $this->bill_ts = unix_timestamp($this->Get('bill_date'));
             BillDocument::dao()->updateByBillNo($this->bill_no);

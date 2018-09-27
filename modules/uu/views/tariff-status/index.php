@@ -26,7 +26,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, TariffStatus $model, $key) use ($baseView) {
@@ -46,11 +46,11 @@ $columns = [
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'service_type_id',
-        'class' => ServiceTypeColumn::className(),
+        'class' => ServiceTypeColumn::class,
     ],
 ];
 

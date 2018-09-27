@@ -32,7 +32,7 @@ use yii\widgets\ActiveForm;
     </div>
 
     <div class="col-sm-3">
-        <?= $form->field($card, 'status_id')->widget(Select2::className(), [
+        <?= $form->field($card, 'status_id')->widget(Select2::class, [
             'data' => CardStatus::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
         ]) ?>
     </div>

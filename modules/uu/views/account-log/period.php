@@ -50,19 +50,19 @@ $accountTariffTableName = AccountTariff::tableName();
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'date_from',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'date_to',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'account_entry_id',
-        'class' => IsNullAndNotNullColumn::className(),
+        'class' => IsNullAndNotNullColumn::class,
         'format' => 'html',
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             $accountEntry = $accountLogPeriod->accountEntry;
@@ -76,7 +76,7 @@ $columns = [
     [
         'label' => 'Тип услуги',
         'attribute' => 'service_type_id',
-        'class' => ServiceTypeColumn::className(),
+        'class' => ServiceTypeColumn::class,
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->serviceType->name;
         },
@@ -85,7 +85,7 @@ $columns = [
         'label' => Yii::t('models/' . $accountLogPeriodTableName, 'account_tariff_id'),
         'attribute' => 'tariff_period_id',
         'format' => 'html',
-        'class' => TariffPeriodColumn::className(),
+        'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $filterModel->service_type_id,
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             $accountTariff = $accountLogPeriod->accountTariff;
@@ -98,7 +98,7 @@ $columns = [
     [
         'label' => Yii::t('models/' . $accountTariffTableName, 'client_account_id'),
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->clientAccount->getLink();
@@ -106,15 +106,15 @@ $columns = [
     ],
     [
         'attribute' => 'period_price',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'coefficient',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'price',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
 ];
 
@@ -140,7 +140,7 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'price'),
         'attribute' => 'account_tariff_price',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->price;
         },
@@ -150,7 +150,7 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'infrastructure_project'),
         'attribute' => 'account_tariff_infrastructure_project',
-        'class' => InfrastructureProjectColumn::className(),
+        'class' => InfrastructureProjectColumn::class,
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->infrastructure_project;
         },
@@ -160,7 +160,7 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'infrastructure_level'),
         'attribute' => 'account_tariff_infrastructure_level',
-        'class' => InfrastructureLevelColumn::className(),
+        'class' => InfrastructureLevelColumn::class,
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->infrastructure_level;
         },
@@ -170,7 +170,7 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'datacenter_id'),
         'attribute' => 'account_tariff_datacenter_id',
-        'class' => DatacenterColumn::className(),
+        'class' => DatacenterColumn::class,
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->datacenter_id;
         },
@@ -180,7 +180,7 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'city_id'),
         'attribute' => 'account_tariff_city_id',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->city_id;
         },

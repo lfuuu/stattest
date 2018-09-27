@@ -31,7 +31,7 @@ class PricelistController extends BaseController
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'rules' => [
                     [
                         'allow' => true,
@@ -211,7 +211,7 @@ class PricelistController extends BaseController
         Assert::isFalse($file->active);
 
         $settings = [
-            'loader' => UniversalPricelistLoader::className(),
+            'loader' => UniversalPricelistLoader::class,
             'prefix' => '',
             'skip_rows' => 1,
             'full' => false,
@@ -283,8 +283,8 @@ class PricelistController extends BaseController
         $parser->load($file);
         $data = $parser->readRaw(50);
         $loaders = [
-            UniversalPricelistLoader::className() => UniversalPricelistLoader::getName(),
-            MegafonPricelistLoader::className() => MegafonPricelistLoader::getName(),
+            UniversalPricelistLoader::class => UniversalPricelistLoader::getName(),
+            MegafonPricelistLoader::class => MegafonPricelistLoader::getName(),
         ];
 
         return $this->render('file_parse', [

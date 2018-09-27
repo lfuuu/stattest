@@ -236,7 +236,7 @@ class SearchController extends BaseController
     {
         $form = DynamicModel::validateData(Yii::$app->request->queryParams,[
             ['troubleComment', 'required'],
-            ['troubleComment', FormFieldValidator::className()],
+            ['troubleComment', FormFieldValidator::class],
             ['troubleComment', 'string', 'min' => 5]
         ]);
 

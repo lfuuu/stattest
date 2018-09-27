@@ -9,9 +9,9 @@ use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
 use app\forms\templates\uu\InvoiceForm;
 
-$this->registerJsFile('@web/js/jquery.multifile.min.js', ['depends' => [AppAsset::className()]]);
-$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::className()]]);
-$this->registerCssFile('@web/css/behaviors/message-templates.css', ['depends' => [\kartik\tabs\TabsXAsset::className()]]);
+$this->registerJsFile('@web/js/jquery.multifile.min.js', ['depends' => [AppAsset::class]]);
+$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::class]]);
+$this->registerCssFile('@web/css/behaviors/message-templates.css', ['depends' => [\kartik\tabs\TabsXAsset::class]]);
 
 echo Html::formLabel('Универсальные счета-фактуры');
 echo Breadcrumbs::widget([

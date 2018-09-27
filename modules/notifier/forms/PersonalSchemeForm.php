@@ -39,7 +39,7 @@ class PersonalSchemeForm extends Form
     public function rules()
     {
         return [
-            ['events', ArrayValidator::className()],
+            ['events', ArrayValidator::class],
             ['language', 'in', 'range' => array_keys(Language::getList())],
             ['language', 'default', 'value' => Language::LANGUAGE_DEFAULT],
         ];

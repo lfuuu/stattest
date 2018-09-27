@@ -34,7 +34,7 @@ class MultipleInput extends BaseMultipleInput
             'limit' => $this->limit,
             'attributeOptions' => $this->attributeOptions,
             'data' => $this->data,
-            'columnClass' => $this->columnClass !== null ? $this->columnClass : MultipleInputColumn::className(),
+            'columnClass' => $this->columnClass !== null ? $this->columnClass : MultipleInputColumn::class,
             'allowEmptyList' => $this->allowEmptyList,
             'min' => $this->min,
             'addButtonPosition' => $this->addButtonPosition,

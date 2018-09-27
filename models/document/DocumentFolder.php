@@ -70,7 +70,7 @@ class DocumentFolder extends ActiveRecord
      */
     public function getDocuments()
     {
-        return $this->hasMany(DocumentTemplate::className(), ['folder_id' => 'id'])->orderBy([
+        return $this->hasMany(DocumentTemplate::class, ['folder_id' => 'id'])->orderBy([
             'sort' => SORT_DESC,
             'name' => SORT_ASC,
         ]);

@@ -150,7 +150,7 @@ class ClientDocument extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**
@@ -194,7 +194,7 @@ class ClientDocument extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'account_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'account_id']);
     }
 
     /**

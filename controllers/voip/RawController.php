@@ -33,7 +33,7 @@ class RawController extends BaseController
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'rules' => [
                     [
                         'allow' => true,
@@ -181,7 +181,7 @@ class RawController extends BaseController
         $values = [
             'name' => $post['name'],
             'data' => json_encode(array_diff($post['CallsRawFilter'], ['filter_id', 'connect_time_from', 'connect_time_to']), JSON_UNESCAPED_UNICODE),
-            'model_name' => CallsRawFilter::className()
+            'model_name' => CallsRawFilter::class
         ];
 
         $savedFilter = new FilterQuery();
@@ -206,7 +206,7 @@ class RawController extends BaseController
                 $indexBy = 'id',
                 $select = 'name',
                 $orderBy = ['name' => SORT_ASC],
-                $where = ['model_name' => CallsRawFilter::className()]
+                $where = ['model_name' => CallsRawFilter::class]
             ),
             'options'
         );

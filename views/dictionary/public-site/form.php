@@ -49,7 +49,7 @@ if (!$model->isNewRecord) {
 
     <div class="row">
         <div class="col-sm-12">
-            <?= $form->field($model, 'data')->widget(MultipleInput::className(), [
+            <?= $form->field($model, 'data')->widget(MultipleInput::class, [
                     'allowEmptyList' => false,
                     'enableGuessTitle' => true,
                     'addButtonPosition' => MultipleInput::POS_HEADER,

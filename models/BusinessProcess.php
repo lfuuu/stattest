@@ -123,7 +123,7 @@ class BusinessProcess extends ActiveRecord
      */
     public function getBusiness()
     {
-        return $this->hasOne(Business::className(), ['id' => 'business_id']);
+        return $this->hasOne(Business::class, ['id' => 'business_id']);
     }
 
     /**
@@ -133,7 +133,7 @@ class BusinessProcess extends ActiveRecord
      */
     public function getBusinessProcessStatuses()
     {
-        return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id'])
+        return $this->hasMany(BusinessProcessStatus::class, ['business_process_id' => 'id'])
             ->orderBy('sort');
     }
 }

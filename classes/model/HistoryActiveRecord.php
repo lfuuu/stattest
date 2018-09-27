@@ -324,7 +324,7 @@ class HistoryActiveRecord extends ActiveRecord
             self::$_cache[$className][$date][$field][$id] = $models;
 
             if ($relatedHolderObject) {
-                self::$_cacheHolder[$relatedHolderObject::className()][$relatedHolderObject->id][$className][$date][$field] = $id;
+                self::$_cacheHolder[get_class($relatedHolderObject)][$relatedHolderObject->id][$className][$date][$field] = $id;
             }
         }
 
@@ -339,7 +339,7 @@ class HistoryActiveRecord extends ActiveRecord
     public function refresh()
     {
         if (!$this->_historyVersionStoredDate) {
-            $this->_resetCachedModel(self::className(), $this->id, $this->_historyVersionRequestedDate);
+            $this->_resetCachedModel(self::class, $this->id, $this->_historyVersionRequestedDate);
             return parent::refresh();
         }
 

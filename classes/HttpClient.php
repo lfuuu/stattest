@@ -22,7 +22,7 @@ class HttpClient extends Client
 
         parent::__construct($config);
 
-        $this->requestConfig['class'] = HttpRequest::className();
+        $this->requestConfig['class'] = HttpRequest::class;
         $this->setTransport(\yii\httpclient\CurlTransport::class);
     }
 

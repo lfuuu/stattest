@@ -17,6 +17,6 @@ class ServerPbx extends ActiveRecord
 
     public function getDatacenter()
     {
-        return $this->hasOne(Datacenter::className(), ["id" => "datacenter_id"]);
+        return $this->hasOne(Datacenter::class, ["id" => "datacenter_id"]);
     }
 }

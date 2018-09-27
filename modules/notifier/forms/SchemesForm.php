@@ -29,7 +29,7 @@ class SchemesForm extends Form
     public function rules()
     {
         return [
-            ['formData', ArrayValidator::className()],
+            ['formData', ArrayValidator::class],
         ];
     }
 

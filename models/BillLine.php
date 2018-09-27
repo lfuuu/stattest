@@ -72,7 +72,7 @@ class BillLine extends ActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
 
@@ -81,7 +81,7 @@ class BillLine extends ActiveRecord
      */
     public function getBill()
     {
-        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
     }
 
     /**
@@ -89,7 +89,7 @@ class BillLine extends ActiveRecord
      */
     public function getAccountEntry()
     {
-        return $this->hasOne(AccountEntry::className(), ['id' => 'uu_account_entry_id']);
+        return $this->hasOne(AccountEntry::class, ['id' => 'uu_account_entry_id']);
     }
 
     /**
@@ -97,7 +97,7 @@ class BillLine extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'id_service']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'id_service']);
     }
 
     /**
@@ -106,7 +106,7 @@ class BillLine extends ActiveRecord
     public function getType()
     {
         return
-            $this->hasOne(Transaction::className(), ['bill_line_id' => 'pk'])
+            $this->hasOne(Transaction::class, ['bill_line_id' => 'pk'])
                 ->select('transaction_type')
                 ->scalar();
     }

@@ -25,7 +25,7 @@ $dataProvider = new ArrayDataProvider([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'class' => ActionColumn::className(),
+            'class' => ActionColumn::class,
             'template' => '{edit} {print} {send} {is_disable} {link}',
             'buttons' => [
                 'edit' => function ($url, $model) {

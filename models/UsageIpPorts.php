@@ -30,8 +30,8 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
     public function behaviors()
     {
         return [
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::class,
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::class,
         ];
     }
 
@@ -101,7 +101,7 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**
@@ -109,7 +109,7 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
      */
     public function getRegionName()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::class, ['id' => 'region']);
     }
 
     /**
@@ -117,7 +117,7 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
      */
     public function getPort()
     {
-        return $this->hasOne(TechPort::className(), ['id' => 'port_id']);
+        return $this->hasOne(TechPort::class, ['id' => 'port_id']);
     }
 
     /**
@@ -154,7 +154,7 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
      */
     public static function getMissingTariffs()
     {
-        return UsagesLostTariffs::intoLogTariff(self::className());
+        return UsagesLostTariffs::intoLogTariff(self::class);
     }
 
 }

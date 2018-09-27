@@ -54,10 +54,10 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     public function behaviors()
     {
         return [
-            'UsageTrunkId' => \app\classes\behaviors\UsageTrunkId::className(),
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'UsageTrunkId' => \app\classes\behaviors\UsageTrunkId::class,
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::class,
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::class,
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
 
@@ -164,7 +164,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_account_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_account_id']);
     }
 
     /**
@@ -172,7 +172,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
      */
     public function getConnectionPoint()
     {
-        return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
+        return $this->hasOne(Region::class, ['id' => 'connection_point_id']);
     }
 
     /**
@@ -180,7 +180,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
      */
     public function getTrunk()
     {
-        return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
+        return $this->hasOne(Trunk::class, ['id' => 'trunk_id']);
     }
 
     /**
@@ -188,7 +188,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'id']);
     }
 
     /**
@@ -196,7 +196,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
      */
     public function getSettings()
     {
-        return $this->hasMany(UsageTrunkSettings::className(), ['usage_id' => 'id']);
+        return $this->hasMany(UsageTrunkSettings::class, ['usage_id' => 'id']);
     }
 
     /**

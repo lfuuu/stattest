@@ -30,7 +30,7 @@ class ClientInn extends ActiveRecord
             [['client_id', 'inn'], 'required'],
             [['client_id', 'user_id', 'is_active'], 'integer'],
             [['inn', 'comment'], 'string'],
-            ['inn', InnValidator::className()],
+            ['inn', InnValidator::class],
 
             ['user_id', 'default', 'value' => \Yii::$app->user->id],
             ['ts', 'default', 'value' => date(DateTimeZoneHelper::DATETIME_FORMAT)],
@@ -56,6 +56,6 @@ class ClientInn extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 }

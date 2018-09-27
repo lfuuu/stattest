@@ -197,7 +197,7 @@ $resourceTableName = Resource::tableName();
 
             <div class="col-sm-2">
                 <?= $form->field($accountTariffResourceLog, 'actual_from')
-                    ->widget(DatePicker::className(), [
+                    ->widget(DatePicker::class, [
                         'removeButton' => false,
                         'pluginOptions' => [
                             'autoclose' => true,

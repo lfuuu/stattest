@@ -46,7 +46,7 @@ class BillLineCorrection extends ActiveRecord
      */
     public function getBill()
     {
-        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
     }
 
     /**
@@ -54,7 +54,7 @@ class BillLineCorrection extends ActiveRecord
      */
     public function getBillCorrection()
     {
-        return $this->hasOne(BillCorrection::className(), ['id' => 'bill_correction_id']);
+        return $this->hasOne(BillCorrection::class, ['id' => 'bill_correction_id']);
     }
 
     /**

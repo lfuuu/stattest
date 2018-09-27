@@ -88,28 +88,28 @@ if (!$country->isNewRecord) {
 
         <?php // язык ?>
         <div class="col-sm-2">
-            <?= $form->field($country, 'lang')->widget(Select2::className(), [
+            <?= $form->field($country, 'lang')->widget(Select2::class, [
                 'data' => Language::getList(),
             ]) ?>
         </div>
 
         <?php // валюта ?>
         <div class="col-sm-2">
-            <?= $form->field($country, 'currency_id')->widget(Select2::className(), [
+            <?= $form->field($country, 'currency_id')->widget(Select2::class, [
                 'data' => Currency::getList($isWithEmpty = $country->isNewRecord),
             ]) ?>
         </div>
 
         <?php // вкл ?>
         <div class="col-sm-2">
-            <?= $form->field($country, 'in_use')->widget(Select2::className(), [
+            <?= $form->field($country, 'in_use')->widget(Select2::class, [
                 'data' => YesNoTraits::getYesNoList($isWithEmpty = false),
             ]) ?>
         </div>
 
         <?php // вкл ?>
         <div class="col-sm-2">
-            <?= $form->field($country, 'is_show_in_lk')->widget(Select2::className(), [
+            <?= $form->field($country, 'is_show_in_lk')->widget(Select2::class, [
                 'data' => YesNoTraits::getYesNoList($isWithEmpty = false),
             ]) ?>
         </div>
@@ -125,7 +125,7 @@ if (!$country->isNewRecord) {
 
         <?php // точка подключения по-умолчанию ?>
         <div class="col-sm-6">
-            <?= $form->field($country, 'default_connection_point_id')->widget(Select2::className(), [
+            <?= $form->field($country, 'default_connection_point_id')->widget(Select2::class, [
                 'data' => Region::getList($isWithEmpty = $country->isNewRecord),
             ]) ?>
         </div>

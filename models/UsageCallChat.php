@@ -25,9 +25,9 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
     public function behaviors()
     {
         return [
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
-            'ActualCallChatUsage' => \app\classes\behaviors\ActaulizeCallChat::className()
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::class,
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::class,
+            'ActualCallChatUsage' => \app\classes\behaviors\ActaulizeCallChat::class
         ];
     }
 
@@ -86,7 +86,7 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
      */
     public function getTariff()
     {
-        return $this->hasOne(TariffCallChat::className(), ['id' => 'tarif_id']);
+        return $this->hasOne(TariffCallChat::class, ['id' => 'tarif_id']);
     }
 
     /**
@@ -102,7 +102,7 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**
@@ -118,7 +118,7 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
      */
     public static function getMissingTariffs()
     {
-        return UsagesLostTariffs::intoTariffTable(self::className(), TariffCallChat::tableName());
+        return UsagesLostTariffs::intoTariffTable(self::class, TariffCallChat::tableName());
     }
 
 }

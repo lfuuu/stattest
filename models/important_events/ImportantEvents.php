@@ -55,7 +55,7 @@ class ImportantEvents extends ActiveRecord
             [['event', 'source_id',], 'required', 'on' => 'create'],
             [['event',], 'trim', 'on' => 'create'],
             ['source_id', 'integer', 'on' => 'create'],
-            [['event', 'source_id', 'tags_filter'], ArrayValidator::className(), 'on' => 'default'],
+            [['event', 'source_id', 'tags_filter'], ArrayValidator::class, 'on' => 'default'],
             ['client_id', 'integer', 'integerOnly' => true],
             [['comment', 'context',], 'string'],
         ];
@@ -148,7 +148,7 @@ class ImportantEvents extends ActiveRecord
      */
     public function getName()
     {
-        return $this->hasOne(ImportantEventsNames::className(), ['code' => 'event']);
+        return $this->hasOne(ImportantEventsNames::class, ['code' => 'event']);
     }
 
     /**
@@ -177,7 +177,7 @@ class ImportantEvents extends ActiveRecord
      */
     public function getSource()
     {
-        return $this->hasOne(ImportantEventsSources::className(), ['id' => 'source_id']);
+        return $this->hasOne(ImportantEventsSources::class, ['id' => 'source_id']);
     }
 
     /**
@@ -185,7 +185,7 @@ class ImportantEvents extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_id']);
     }
 
     /**

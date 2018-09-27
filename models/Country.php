@@ -103,7 +103,7 @@ class Country extends ActiveRecord
      */
     public function getCurrency()
     {
-        return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
+        return $this->hasOne(Currency::class, ['id' => 'currency_id']);
     }
 
     /**
@@ -111,7 +111,7 @@ class Country extends ActiveRecord
      */
     public function getPublicSiteCountries()
     {
-        return $this->hasOne(PublicSiteCountry::className(), ['country_code' => 'code']);
+        return $this->hasOne(PublicSiteCountry::class, ['country_code' => 'code']);
     }
 
     /**

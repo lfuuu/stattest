@@ -63,7 +63,7 @@ if (!$city->isNewRecord) {
         <?php // Страна ?>
         <div class="col-sm-3">
             <?= $form->field($city, 'country_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => Country::getList($isWithEmpty = $city->isNewRecord),
                 ]) ?>
         </div>
@@ -71,7 +71,7 @@ if (!$city->isNewRecord) {
         <?php // Точка подключения ?>
         <div class="col-sm-3">
             <?= $form->field($city, 'connection_point_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => Region::getList($isWithEmpty = $city->isNewRecord),
                 ]) ?>
         </div>
@@ -87,7 +87,7 @@ if (!$city->isNewRecord) {
         <?php // Метод биллингования ?>
         <div class="col-sm-2">
             <?= $form->field($city, 'billing_method_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => CityBillingMethod::getList($isWithEmpty = true),
                 ]) ?>
         </div>

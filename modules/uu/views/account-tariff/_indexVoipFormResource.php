@@ -169,7 +169,7 @@ $dateTimeNow = $accountTariffFirst->clientAccount->getDatetimeWithTimezone(); //
 
             <div class="col-sm-4">
                 <?= $form->field($accountTariffResourceLog, 'actual_from')
-                    ->widget(DatePicker::className(), [
+                    ->widget(DatePicker::class, [
                         'removeButton' => false,
                         'pluginOptions' => [
                             'autoclose' => true,

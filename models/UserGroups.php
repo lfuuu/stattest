@@ -35,7 +35,7 @@ class UserGroups extends ActiveRecord
      */
     public function getRights()
     {
-        return $this->hasMany(UserGrantGroups::className(), ['name' => 'usergroup']);
+        return $this->hasMany(UserGrantGroups::class, ['name' => 'usergroup']);
     }
 
     /**
@@ -51,7 +51,7 @@ class UserGroups extends ActiveRecord
      */
     public function getUsers()
     {
-        return $this->hasMany(User::className(), ['usergroup' => 'usergroup']);
+        return $this->hasMany(User::class, ['usergroup' => 'usergroup']);
     }
 
     /**

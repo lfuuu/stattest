@@ -19,17 +19,17 @@ class DocumentReportFactory extends Singleton
     private static function getDocTypes()
     {
         return [
-            BillDocRepRuRUB::className(),
-            BillDocRepHuHUF::className(),
-            BillDocRepEnUSD::className(),
-            BillDocRepEnEUR::className(),
-            DocNoticeMCMTelekom::className(),
-            DocSoglMCMTelekom::className(),
-            DocSoglMCNTelekom::className(),
-            ProformaDocument::className(),
-            CreditNoteDocument::className(),
-            InvoiceDocument::className(),
-            BillOperator::className(),
+            BillDocRepRuRUB::class,
+            BillDocRepHuHUF::class,
+            BillDocRepEnUSD::class,
+            BillDocRepEnEUR::class,
+            DocNoticeMCMTelekom::class,
+            DocSoglMCMTelekom::class,
+            DocSoglMCNTelekom::class,
+            ProformaDocument::class,
+            CreditNoteDocument::class,
+            InvoiceDocument::class,
+            BillOperator::class,
         ];
     }
 

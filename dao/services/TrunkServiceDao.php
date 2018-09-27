@@ -19,7 +19,7 @@ class TrunkServiceDao extends UsageDao
      */
     public function init()
     {
-        $this->usageClass = UsageTrunk::className();
+        $this->usageClass = UsageTrunk::class;
         parent::init();
     }
     /**

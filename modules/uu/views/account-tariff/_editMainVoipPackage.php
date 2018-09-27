@@ -25,7 +25,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?php // город ?>
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'city_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => City::getList($isWithEmpty = true, $number ? $number->country_code : null),
                 'disabled' => true,
             ])

@@ -32,15 +32,15 @@ $baseView = $this;
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'insert_time',
-        'class' => DateTimeRangeDoubleColumn::className(),
+        'class' => DateTimeRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'next_start',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'value' => function (EventQueue $eventQueue) {
             return ($eventQueue->next_start === '0000-00-00 00:00:00') ? '' : $eventQueue->next_start;
         }
@@ -69,11 +69,11 @@ $columns = [
     ],
     [
         'attribute' => 'iteration',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'account_tariff_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (EventQueue $eventQueue) {
             $accountTariff = $eventQueue->accountTariff;
@@ -83,7 +83,7 @@ $columns = [
     [
         'attribute' => 'log_error',
         'format' => 'raw',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'contentOptions' => [
             'class' => 'popover-width-auto',
         ],
@@ -109,7 +109,7 @@ $columns = [
     [
         'attribute' => 'param',
         'format' => 'raw',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'contentOptions' => [
             'class' => 'popover-width-auto',
         ],

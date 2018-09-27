@@ -49,7 +49,7 @@ class Tags extends ActiveRecord
     public function getResourceNames()
     {
         return $this
-            ->hasMany(TagsResource::className(), ['tag_id' => 'id'])
+            ->hasMany(TagsResource::class, ['tag_id' => 'id'])
             ->select(new Expression('IF(feature IS NULL, resource, CONCAT(resource, ", ", feature))'))
             ->groupBy(['resource', 'feature'])
             ->column();

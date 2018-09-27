@@ -36,7 +36,7 @@ use yii\widgets\Breadcrumbs;
 $columns = [
     [
         'attribute' => 'account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (MttRaw $mttRaw) {
             $clientAccount = $mttRaw->clientAccount;
@@ -45,11 +45,11 @@ $columns = [
     ],
     [
         'attribute' => 'number_service_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'serviceid',
-        'class' => ServiceColumn::className(),
+        'class' => ServiceColumn::class,
         'isWithEmpty' => false,
         'filterInputOptions' => [
             'multiple' => true,
@@ -57,34 +57,34 @@ $columns = [
     ],
     [
         'attribute' => 'connect_time',
-        'class' => DateTimeRangeDoubleColumn::className(),
+        'class' => DateTimeRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'src_number',
-        'class' => SrcNumberColumn::className(),
+        'class' => SrcNumberColumn::class,
         'accountId' => $filterModel->account_id,
     ],
     [
         'attribute' => 'dst_number',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'chargedqty',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'value' => function(MttRaw $mttRaw) {
             return $mttRaw->getBeautyChargedQty();
         },
     ],
     [
         'attribute' => 'usedqty',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'value' => function(MttRaw $mttRaw) {
             return $mttRaw->getBeautyUsedQty();
         },
     ],
     [
         'attribute' => 'chargedamount',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
     ],
 ];
 
@@ -100,7 +100,7 @@ echo GridView::widget([
             [
                 'label' => 'Временная группировка',
                 'attribute' => 'group_time',
-                'class' => DropdownColumn::className(),
+                'class' => DropdownColumn::class,
                 'filter' => ['' => '----'] + $filterModel->getGroupTimeList(),
             ],
         ],

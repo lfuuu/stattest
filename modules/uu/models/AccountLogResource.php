@@ -68,7 +68,7 @@ class AccountLogResource extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'account_tariff_id']);
     }
 
     /**
@@ -76,7 +76,7 @@ class AccountLogResource extends ActiveRecord
      */
     public function getTariffPeriod()
     {
-        return $this->hasOne(TariffPeriod::className(), ['id' => 'tariff_period_id']);
+        return $this->hasOne(TariffPeriod::class, ['id' => 'tariff_period_id']);
     }
 
     /**
@@ -84,7 +84,7 @@ class AccountLogResource extends ActiveRecord
      */
     public function getTariffResource()
     {
-        return $this->hasOne(TariffResource::className(), ['id' => 'tariff_resource_id']);
+        return $this->hasOne(TariffResource::class, ['id' => 'tariff_resource_id']);
     }
 
     /**
@@ -92,7 +92,7 @@ class AccountLogResource extends ActiveRecord
      */
     public function getAccountEntry()
     {
-        return $this->hasOne(AccountEntry::className(), ['id' => 'account_entry_id']);
+        return $this->hasOne(AccountEntry::class, ['id' => 'account_entry_id']);
     }
 
     /**
@@ -100,7 +100,7 @@ class AccountLogResource extends ActiveRecord
      */
     public function getAccountTariffResourceLog()
     {
-        return $this->hasOne(AccountTariffResourceLog::className(), ['id' => 'account_tariff_resource_log_id']);
+        return $this->hasOne(AccountTariffResourceLog::class, ['id' => 'account_tariff_resource_log_id']);
     }
 
     /**

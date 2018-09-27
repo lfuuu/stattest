@@ -39,7 +39,7 @@ class TagsResource extends ActiveRecord
             ['resource', 'string'],
             ['resource_id', 'integer'],
             ['feature', 'string'],
-            ['tags', ArrayValidator::className()],
+            ['tags', ArrayValidator::class],
             [['resource', 'resource_id',], 'required'],
             ['feature', 'default', 'value' => null],
         ];
@@ -50,7 +50,7 @@ class TagsResource extends ActiveRecord
      */
     public function getTag()
     {
-        return $this->hasOne(Tags::className(), ['id' => 'tag_id']);
+        return $this->hasOne(Tags::class, ['id' => 'tag_id']);
     }
 
     /**

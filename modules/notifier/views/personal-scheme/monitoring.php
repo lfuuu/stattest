@@ -38,7 +38,7 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'class' => ActionCheckboxColumn::className(),
+            'class' => ActionCheckboxColumn::class,
             'name' => 'clientAccountIds',
             'headerOptions' => [
                 'class' => 'kartik-sheet-style'

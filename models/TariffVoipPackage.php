@@ -35,27 +35,27 @@ class TariffVoipPackage extends ActiveRecord
 
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     public function getConnectionPoint()
     {
-        return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
+        return $this->hasOne(Region::class, ['id' => 'connection_point_id']);
     }
 
     public function getCurrency()
     {
-        return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
+        return $this->hasOne(Currency::class, ['id' => 'currency_id']);
     }
 
     public function getDestination()
     {
-        return $this->hasOne(Destination::className(), ['id' => 'destination_id']);
+        return $this->hasOne(Destination::class, ['id' => 'destination_id']);
     }
 
     public function getPricelist()
     {
-        return $this->hasOne(Pricelist::className(), ['id' => 'pricelist_id']);
+        return $this->hasOne(Pricelist::class, ['id' => 'pricelist_id']);
     }
 
 }

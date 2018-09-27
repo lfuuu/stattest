@@ -21,7 +21,7 @@ class EmailServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageEmails::className();
+        return UsageEmails::class;
     }
 
     /**

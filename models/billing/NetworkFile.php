@@ -71,6 +71,6 @@ class NetworkFile extends ActiveRecord
      */
     public function getConfig()
     {
-        return $this->hasOne(NetworkConfig::className(), ['id' => 'network_config_id']);
+        return $this->hasOne(NetworkConfig::class, ['id' => 'network_config_id']);
     }
 }

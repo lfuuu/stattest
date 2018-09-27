@@ -40,7 +40,7 @@ class LkNoticeSetting extends ActiveRecord
     {
         return [
             'EventQueueAddEvent' => [
-                'class' => EventQueueAddEvent::className(),
+                'class' => EventQueueAddEvent::class,
                 'insertEvent' => EventQueue::LK_SETTINGS_TO_MAILER,
                 'updateEvent' => EventQueue::LK_SETTINGS_TO_MAILER,
                 'idField' => 'client_id',
@@ -69,6 +69,6 @@ class LkNoticeSetting extends ActiveRecord
      */
     public function getContact()
     {
-        return $this->hasOne(ClientContact::className(), ['id' => 'client_contact_id']);
+        return $this->hasOne(ClientContact::class, ['id' => 'client_contact_id']);
     }
 }

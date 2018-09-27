@@ -39,6 +39,6 @@ trait GetUpdateUserTrait
      */
     public function getUpdateUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'update_user_id']);
+        return $this->hasOne(User::class, ['id' => 'update_user_id']);
     }
 }

@@ -186,7 +186,7 @@ class CallsRaw extends ActiveRecord
      */
     public function getOperator()
     {
-        return $this->hasOne(Operator::className(), ['id' => 'nnp_operator_id']);
+        return $this->hasOne(Operator::class, ['id' => 'nnp_operator_id']);
     }
 
     /**
@@ -194,7 +194,7 @@ class CallsRaw extends ActiveRecord
      */
     public function getRegion()
     {
-        return $this->hasOne(Region::className(), ['id' => 'nnp_region_id']);
+        return $this->hasOne(Region::class, ['id' => 'nnp_region_id']);
     }
 
     /**
@@ -202,7 +202,7 @@ class CallsRaw extends ActiveRecord
      */
     public function getCity()
     {
-        return $this->hasOne(City::className(), ['id' => 'nnp_city_id']);
+        return $this->hasOne(City::class, ['id' => 'nnp_city_id']);
     }
 
     /**

@@ -31,7 +31,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, BusinessProcessStatus $model, $key) use ($baseView) {
@@ -51,20 +51,20 @@ $columns = [
     ],
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'business_process_id',
-        'class' => DropdownColumn::className(),
+        'class' => DropdownColumn::class,
         'filter' => BusinessProcess::getListWithBusinessName($isWithEmpty = true),
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'is_bill_send',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
 ];
 

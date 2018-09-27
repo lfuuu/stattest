@@ -94,7 +94,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'account_tariff_id']);
     }
 
     /**
@@ -102,7 +102,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getTariffPeriod()
     {
-        return $this->hasOne(TariffPeriod::className(), ['id' => 'tariff_period_id']);
+        return $this->hasOne(TariffPeriod::class, ['id' => 'tariff_period_id']);
     }
 
     /**
@@ -110,7 +110,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getBill()
     {
-        return $this->hasOne(Bill::className(), ['id' => 'bill_id']);
+        return $this->hasOne(Bill::class, ['id' => 'bill_id']);
     }
 
     /**
@@ -118,7 +118,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getBillLine()
     {
-        return $this->hasOne(BillLine::className(), ['uu_account_entry_id' => 'id']);
+        return $this->hasOne(BillLine::class, ['uu_account_entry_id' => 'id']);
     }
 
     /**
@@ -126,7 +126,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getTariffResource()
     {
-        return $this->hasOne(TariffResource::className(), ['id' => 'type_id']);
+        return $this->hasOne(TariffResource::class, ['id' => 'type_id']);
     }
 
     /**
@@ -134,7 +134,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getAccountLogSetups()
     {
-        return $this->hasMany(AccountLogSetup::className(), ['account_entry_id' => 'id']);
+        return $this->hasMany(AccountLogSetup::class, ['account_entry_id' => 'id']);
     }
 
     /**
@@ -142,7 +142,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getAccountLogPeriods()
     {
-        return $this->hasMany(AccountLogPeriod::className(), ['account_entry_id' => 'id']);
+        return $this->hasMany(AccountLogPeriod::class, ['account_entry_id' => 'id']);
     }
 
     /**
@@ -150,7 +150,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getAccountLogResources()
     {
-        return $this->hasMany(AccountLogResource::className(), ['account_entry_id' => 'id']);
+        return $this->hasMany(AccountLogResource::class, ['account_entry_id' => 'id']);
     }
 
     /**
@@ -158,7 +158,7 @@ class AccountEntry extends ActiveRecord
      */
     public function getAccountLogMins()
     {
-        return $this->hasMany(AccountLogMin::className(), ['account_entry_id' => 'id']);
+        return $this->hasMany(AccountLogMin::class, ['account_entry_id' => 'id']);
     }
 
     /**

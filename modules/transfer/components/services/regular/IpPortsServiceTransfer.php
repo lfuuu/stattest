@@ -25,7 +25,7 @@ class IpPortsServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageIpPorts::className();
+        return UsageIpPorts::class;
     }
 
     /**

@@ -50,14 +50,14 @@ class FilterQuery extends ActiveRecord
         return [
             [
                 // Установить "когда обновил"
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => false,
                 'updatedAtAttribute' => 'update_time',
                 'value' => new Expression("NOW() AT TIME ZONE 'utc'"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
             [
                 // Установить "кто обновил"
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => 'update_user_id',
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',

@@ -22,7 +22,7 @@ class UserDeparts extends ActiveRecord
      */
     public function getUsers()
     {
-        return $this->hasMany(User::className(), ['depart_id' => 'id']);
+        return $this->hasMany(User::class, ['depart_id' => 'id']);
     }
 
     /**

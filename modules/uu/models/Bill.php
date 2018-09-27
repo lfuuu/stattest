@@ -59,7 +59,7 @@ class Bill extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_account_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_account_id']);
     }
 
     /**
@@ -67,7 +67,7 @@ class Bill extends ActiveRecord
      */
     public function getAccountEntries()
     {
-        return $this->hasMany(AccountEntry::className(), ['bill_id' => 'id'])
+        return $this->hasMany(AccountEntry::class, ['bill_id' => 'id'])
             ->indexBy('id');
     }
 

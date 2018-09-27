@@ -97,7 +97,7 @@ class ClientContact extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
 
     }
@@ -182,7 +182,7 @@ class ClientContact extends HistoryActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**
@@ -190,7 +190,7 @@ class ClientContact extends HistoryActiveRecord
      */
     public function getClient()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_id']);
     }
 
     /**

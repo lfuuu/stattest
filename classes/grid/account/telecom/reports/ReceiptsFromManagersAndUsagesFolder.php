@@ -163,14 +163,14 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
         return array_merge(parent::getDefaultColumns(), [
             'service_type' => [
                 'attribute' => 'service_type',
-                'class' => ServiceTypeColumn::className(),
+                'class' => ServiceTypeColumn::class,
                 'filterInputOptions' => [
                     'name' => 'service_type'
                 ],
             ],
             'is_payed' => [
                 'attribute' => 'is_payed',
-                'class' => PayedColumn::className(),
+                'class' => PayedColumn::class,
                 'filterInputOptions' => [
                     'name' => 'is_payed'
                 ],

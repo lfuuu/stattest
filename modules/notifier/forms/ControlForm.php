@@ -35,7 +35,7 @@ class ControlForm extends Form
     {
         return [
             ['countryCode', 'string'],
-            ['whitelist', ArrayValidator::className()],
+            ['whitelist', ArrayValidator::class],
         ];
     }
 

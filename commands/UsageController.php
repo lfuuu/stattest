@@ -288,7 +288,7 @@ class UsageController extends Controller
 
                 // нужен только расчет нужного поля
                 $contract->detachBehaviors();
-                $contract->attachBehavior('SetTaxVoip', SetTaxVoip::className());
+                $contract->attachBehavior('SetTaxVoip', SetTaxVoip::class);
                 $contract->isHistoryVersioning = false;
 
                 $contract->trigger(ClientContract::TRIGGER_RESET_TAX_VOIP);

@@ -32,13 +32,13 @@ $baseView = $this;
 $columns = [
     [
         'attribute' => 'client_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
 
     [
         'attribute' => 'client_name',
         'label' => $filterModel->getAttributeLabel('client_name'),
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'format' => 'raw',
         'value' => function (Payment $payment) {
             return Html::tag('small',
@@ -55,7 +55,7 @@ $columns = [
     [
         'attribute' => 'organization_id',
         'label' => $filterModel->getAttributeLabel('organization_id'),
-        'class' => OrganizationColumn::className(),
+        'class' => OrganizationColumn::class,
         'format' => 'raw',
         'value' => function (Payment $payment) {
             return $payment->client->contract->organization_id;
@@ -66,7 +66,7 @@ $columns = [
     [
         'attribute' => 'bill_no',
         'format' => 'raw',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'value' => function (Payment $payment) {
             return $payment->bill_no ? Html::a(
                 $payment->bill_no,
@@ -80,34 +80,34 @@ $columns = [
     [
         'attribute' => 'bill_date',
         'label' => $filterModel->getAttributeLabel('bill_date'),
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'value' => function(Payment $payment) {return $payment->bill ? $payment->bill->bill_date : '';},
     ],
 
     [
         'attribute' => 'sum',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'headerOptions' => ['style' => 'width: 100px'],
     ],
 
     [
         'attribute' => 'currency',
-        'class' => CurrencyColumn::className(),
+        'class' => CurrencyColumn::class,
     ],
 
     [
         'attribute' => 'payment_date',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
 
     [
         'attribute' => 'add_date',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
 
     [
         'attribute' => 'type',
-        'class' => DropdownColumn::className(),
+        'class' => DropdownColumn::class,
         'filter' => $filterModel->getTypeList(),
         'value' => function (Payment $payment) {
             return $payment->type == Payment::TYPE_ECASH ? Payment::TYPE_ECASH . '_' . $payment->ecash_operator : $payment->type;
@@ -118,7 +118,7 @@ $columns = [
     [
         'attribute' => 'payment_no',
         'format' => 'raw',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'value' => function (Payment $payment) {
             return $payment->payment_no ?
                 Html::tag('small', $payment->payment_no) :
@@ -129,7 +129,7 @@ $columns = [
     [
         'attribute' => 'comment',
         'format' => 'raw',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'value' => function (Payment $payment) {
             return Html::tag('small', $payment->comment);
         },
@@ -139,7 +139,7 @@ $columns = [
         [
             'attribute' => 'add_user',
             'format' => 'raw',
-            'class' => UserColumn::className(),
+            'class' => UserColumn::class,
             'indexBy' => 'id',
             'value' => function (Payment $payment) {
                 return $payment->add_user && $payment->addUser ?
@@ -152,7 +152,7 @@ $columns = [
     [
         'attribute' => 'uuid_status',
         'label' => $filterModel->getAttributeLabel('uuid_status'),
-        'class' => DropdownColumn::className(),
+        'class' => DropdownColumn::class,
         'filter' => $filterModel->getUuidStatusList(),
         'headerOptions' => ['style' => 'min-width: 100px'],
         'format' => 'raw',
@@ -209,7 +209,7 @@ $columns = [
         'attribute' => 'uuid_log',
         'label' => $filterModel->getAttributeLabel('uuid_log'),
         'format' => 'raw',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'contentOptions' => [
             'class' => 'popover-width-auto',
         ],

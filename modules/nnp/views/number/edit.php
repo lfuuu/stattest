@@ -65,21 +65,21 @@ use yii\widgets\Breadcrumbs;
 
         <?php // Регион ?>
         <div class="col-sm-3">
-            <?= $form->field($number, 'region_id')->widget(Select2::className(), [
+            <?= $form->field($number, 'region_id')->widget(Select2::class, [
                 'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $number->country_code),
             ]) ?>
         </div>
 
         <?php // Город ?>
         <div class="col-sm-3">
-            <?= $form->field($number, 'city_id')->widget(Select2::className(), [
+            <?= $form->field($number, 'city_id')->widget(Select2::class, [
                 'data' => City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $number->country_code),
             ]) ?>
         </div>
 
         <?php // Оператор ?>
         <div class="col-sm-3">
-            <?= $form->field($number, 'operator_id')->widget(Select2::className(), [
+            <?= $form->field($number, 'operator_id')->widget(Select2::class, [
                 'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $number->country_code),
             ]) ?>
         </div>

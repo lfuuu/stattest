@@ -103,7 +103,7 @@ class Number extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
     /**
@@ -111,7 +111,7 @@ class Number extends ActiveRecord
      */
     public function getOperator()
     {
-        return $this->hasOne(Operator::className(), ['id' => 'operator_id']);
+        return $this->hasOne(Operator::class, ['id' => 'operator_id']);
     }
 
     /**
@@ -119,7 +119,7 @@ class Number extends ActiveRecord
      */
     public function getRegion()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region_id']);
+        return $this->hasOne(Region::class, ['id' => 'region_id']);
     }
 
     /**
@@ -127,6 +127,6 @@ class Number extends ActiveRecord
      */
     public function getCity()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 }

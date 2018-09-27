@@ -93,20 +93,20 @@ class AccountTariffResourceLog extends ActiveRecord
             [
                 [
                     // Установить "когда создал"
-                    'class' => TimestampBehavior::className(),
+                    'class' => TimestampBehavior::class,
                     'createdAtAttribute' => 'insert_time',
                     'updatedAtAttribute' => false,
                     'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
                 ],
                 [
                     // Установить "кто создал"
-                    'class' => AttributeBehavior::className(),
+                    'class' => AttributeBehavior::class,
                     'attributes' => [
                         ActiveRecord::EVENT_BEFORE_INSERT => 'insert_user_id',
                     ],
                     'value' => Yii::$app->user->getId(),
                 ],
-                AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
+                AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
             ]
         );
     }
@@ -131,7 +131,7 @@ class AccountTariffResourceLog extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'account_tariff_id']);
     }
 
     /**
@@ -139,7 +139,7 @@ class AccountTariffResourceLog extends ActiveRecord
      */
     public function getResource()
     {
-        return $this->hasOne(Resource::className(), ['id' => 'resource_id']);
+        return $this->hasOne(Resource::class, ['id' => 'resource_id']);
     }
 
     /**

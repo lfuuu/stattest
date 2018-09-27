@@ -37,10 +37,10 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
     public function behaviors()
     {
         return [
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::class,
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::class,
             'UpdateTask' => [
-                'class' => \app\classes\behaviors\UpdateTask::className(),
+                'class' => \app\classes\behaviors\UpdateTask::class,
                 'model' => self::tableName(),
             ]
         ];
@@ -107,7 +107,7 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**
@@ -115,7 +115,7 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
      */
     public function getRegionName()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::class, ['id' => 'region']);
     }
 
     /**
@@ -131,7 +131,7 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
      */
     public static function getMissingTariffs()
     {
-        return UsagesLostTariffs::intoLogTariff(self::className());
+        return UsagesLostTariffs::intoLogTariff(self::class);
     }
 
     /**

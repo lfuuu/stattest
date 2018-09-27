@@ -30,7 +30,7 @@ class PublicSiteCountry extends ActiveRecord
      */
     public function getPublicSiteCities()
     {
-        return $this->hasMany(PublicSiteCity::className(), ['public_site_country_id' => 'id']);
+        return $this->hasMany(PublicSiteCity::class, ['public_site_country_id' => 'id']);
     }
 
     /**
@@ -38,7 +38,7 @@ class PublicSiteCountry extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
 }

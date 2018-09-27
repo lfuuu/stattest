@@ -30,7 +30,7 @@ echo GridView::widget([
         ],
         [
             'class' => 'app\classes\grid\column\EnumColumn',
-            'enum' => TariffStatusEnum::className(),
+            'enum' => TariffStatusEnum::class,
             'label' => 'Статус тарифа',
             'attribute' => 'status'
         ],

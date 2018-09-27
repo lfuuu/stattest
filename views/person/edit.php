@@ -14,8 +14,8 @@ use app\models\Language;
 /** @var PersonForm $model */
 /** @var \app\models\Person $person */
 
-$this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/image-preview-select.js', ['depends' => [AppAsset::className()]]);
+$this->registerCssFile('@web/css/behaviors/image-preview-select.css', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/image-preview-select.js', ['depends' => [AppAsset::class]]);
 
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,

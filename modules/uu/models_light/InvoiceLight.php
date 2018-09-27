@@ -217,10 +217,10 @@ class InvoiceLight extends Component
     public static function getHelp()
     {
         return [
-            InvoiceSellerLight::className(),
-            InvoiceBuyerLight::className(),
-            InvoiceBillLight::className(),
-            InvoiceItemsLight::className(),
+            InvoiceSellerLight::class,
+            InvoiceBuyerLight::class,
+            InvoiceBillLight::class,
+            InvoiceItemsLight::class,
         ];
     }
 

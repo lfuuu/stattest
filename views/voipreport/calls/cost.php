@@ -40,12 +40,12 @@ use yii\widgets\Breadcrumbs;
 $columns = [
     [
         'attribute' => 'prefix',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'headerOptions' => ['colspan' => 2],
     ],
     [
         'attribute' => 'prefix_name', // любое имя во избежание дубля с предыдущим
-        'class' => PrefixColumn::className(), // используется только для замены
+        'class' => PrefixColumn::class, // используется только для замены
         'headerOptions' => ['class' => 'hidden'], // потому что colspan в первом столбце
         'value' => function (CallsRaw $calls) {
             return $calls->prefix;
@@ -53,54 +53,54 @@ $columns = [
     ],
     [
         'attribute' => 'calls_count', // псевдо-поле
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'billed_time_sum', // псевдо-поле
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
     [
         'attribute' => 'acd', // псевдо-поле Средняя длительность
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
 
     [
         'attribute' => 'rate',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
 //    [
 //        'attribute' => 'interconnect_rate',
-//        'class' => FloatRangeColumn::className(),
+//        'class' => FloatRangeColumn::class,
 //        'format' => ['decimal', 2],
 //    ],
     [
         'attribute' => 'rate_with_interconnect', // псевдо-поле
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
 
     [
         'attribute' => 'cost_sum', // псевдо-поле
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
 //    [
 //        'attribute' => 'interconnect_cost_sum', // псевдо-поле
-//        'class' => FloatRangeColumn::className(),
+//        'class' => FloatRangeColumn::class,
 //        'format' => ['decimal', 2],
 //    ],
     [
         'attribute' => 'cost_with_interconnect_sum',
-        'class' => FloatRangeColumn::className(), // псевдо-поле
+        'class' => FloatRangeColumn::class, // псевдо-поле
         'format' => ['decimal', 4],
     ],
 
     [
         'attribute' => 'asr', // псевдо-поле Отношение звонков с длительностью ко всем звонкам
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'format' => ['decimal', 4],
     ],
 ];
@@ -159,7 +159,7 @@ $summaryColumns = [
 $filterColumns = [
     [
         'attribute' => 'server_id',
-        'class' => ServerColumn::className(),
+        'class' => ServerColumn::class,
 //        'filterInputOptions' => [
 //            'onChange' => 'var e = $.Event("keydown"); e.keyCode = 13; $(this).trigger(e);' // чтобы обновить фильтр по транкам и направлениям
 //        ],
@@ -167,7 +167,7 @@ $filterColumns = [
     [
         'attribute' => 'trunk_ids', // псевдо-поле
         'label' => 'Оператор (суперклиент)',
-        'class' => TrunkSuperClientColumn::className(),
+        'class' => TrunkSuperClientColumn::class,
         'enableSorting' => false,
         'value' => function (CallsRaw $call) {
             return $call->trunk_id;
@@ -175,7 +175,7 @@ $filterColumns = [
     ],
     [
         'attribute' => 'trunk_id',
-        'class' => TrunkColumn::className(),
+        'class' => TrunkColumn::class,
         'filterByIds' => $filterModel->trunkIdsIndexed,
         'filterByServerIds' => $filterModel->server_id,
         'filterOptions' => [
@@ -185,7 +185,7 @@ $filterColumns = [
     ],
     [
         'attribute' => 'trunk_service_id',
-        'class' => UsageTrunkColumn::className(),
+        'class' => UsageTrunkColumn::class,
         'trunkId' => $filterModel->trunk_id,
         'filterOptions' => [
             'title' => 'Фильтр зависит от Транка',
@@ -193,7 +193,7 @@ $filterColumns = [
     ],
     [
         'attribute' => 'destination_id',
-        'class' => DestinationColumn::className(),
+        'class' => DestinationColumn::class,
         'filterByServerId' => $filterModel->server_id,
         'filterOptions' => [
             'title' => 'Фильтр зависит от Точки присоединения',
@@ -201,32 +201,32 @@ $filterColumns = [
     ],
     [
         'attribute' => 'orig',
-        'class' => OrigColumn::className(),
+        'class' => OrigColumn::class,
     ],
     [
         'attribute' => 'mob',
-        'class' => MobColumn::className(),
+        'class' => MobColumn::class,
     ],
     // все закомментированные поля работают, но в целях уменьшения информации не выводятся
 //    [
 //        'attribute' => 'account_id',
-//        'class' => StringColumn::className(),
+//        'class' => StringColumn::class,
 //    ],
 //    [
 //        'attribute' => 'cost',
-//        'class' => FloatRangeColumn::className(),
+//        'class' => FloatRangeColumn::class,
 //        'format' => ['decimal', 2],
 //        'pageSummary' => true,
 //    ],
 //    [
 //        'attribute' => 'interconnect_cost',
-//        'class' => FloatRangeColumn::className(),
+//        'class' => FloatRangeColumn::class,
 //        'format' => ['decimal', 2],
 //        'pageSummary' => true,
 //    ],
     [
         'attribute' => 'connect_time',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'filterOptions' => [
             'class' => $filterModel->connect_time_from ? 'alert-success' : 'alert-danger',
             'title' => 'У первой даты время считается 00:00, у второй 23:59',

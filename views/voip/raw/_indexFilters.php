@@ -33,19 +33,19 @@ return [
     [
         'attribute' => 'connect_time',
         'class' => $isSupport && $isCache ?
-            DateRangeDoubleColumn::className() : DateTimeRangeDoubleColumn::className(),
+            DateRangeDoubleColumn::class : DateTimeRangeDoubleColumn::class,
         'filterOptions' => [
             'class' => 'alert-danger'
         ],
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
+        'class' => WithEmptyFilterColumn::class,
         'filterOptions' => [
             'class' => 'no_display'
         ],
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
+        'class' => WithEmptyFilterColumn::class,
         'filterOptions' => [
             'class' => 'no_display'
         ],
@@ -53,7 +53,7 @@ return [
     [
         'attribute' => 'server_ids',
         'isWithEmpty' => false,
-        'class' => ServerColumn::className(),
+        'class' => ServerColumn::class,
         'value' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
@@ -61,21 +61,21 @@ return [
     ],
     [
         'attribute' => 'src_number',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)'
         ],
     ],
     [
         'attribute' => 'dst_number',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)'
         ],
     ],
     [
         'attribute' => 'src_trunk_group_ids',
-        'class' => TrunkGroupColumn::className(),
+        'class' => TrunkGroupColumn::class,
         'filterByServerIds' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
@@ -84,7 +84,7 @@ return [
     ],
     [
         'attribute' => 'dst_trunk_group_ids',
-        'class' => TrunkGroupColumn::className(),
+        'class' => TrunkGroupColumn::class,
         'filterByServerIds' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
@@ -93,7 +93,7 @@ return [
     ],
     [
         'attribute' => 'src_physical_trunks_ids',
-        'class' => TrunkColumn::className(),
+        'class' => TrunkColumn::class,
         'filterByServerIds' => $filterModel->server_ids,
         'filterByTrunkGroupIds' => $filterModel->src_trunk_group_ids,
         'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
@@ -106,7 +106,7 @@ return [
     ],
     [
         'attribute' => 'dst_physical_trunks_ids',
-        'class' => TrunkColumn::className(),
+        'class' => TrunkColumn::class,
         'filterByServerIds' => $filterModel->server_ids,
         'filterByTrunkGroupIds' => $filterModel->dst_trunk_group_ids,
         'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
@@ -119,7 +119,7 @@ return [
     ],
     [
         'attribute' => 'src_operator_ids',
-        'class' => OperatorColumn::className(),
+        'class' => OperatorColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -128,7 +128,7 @@ return [
     ],
     [
         'attribute' => 'dst_operator_ids',
-        'class' => OperatorColumn::className(),
+        'class' => OperatorColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -137,7 +137,7 @@ return [
     ],
     [
         'attribute' => 'src_logical_trunks_ids',
-        'class' => ServiceTrunkColumn::className(),
+        'class' => ServiceTrunkColumn::class,
         'filterByServerIds' => $filterModel->server_ids,
         'filterByContractIds' => $filterModel->src_contracts_ids,
         'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
@@ -147,7 +147,7 @@ return [
     ],
     [
         'attribute' => 'dst_logical_trunks_ids',
-        'class' => ServiceTrunkColumn::className(),
+        'class' => ServiceTrunkColumn::class,
         'filterByContractIds' => $filterModel->dst_contracts_ids,
         'filterByServerIds' => $filterModel->server_ids,
         'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
@@ -157,7 +157,7 @@ return [
     ],
     [
         'attribute' => 'src_countries_ids',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -166,7 +166,7 @@ return [
     ],
     [
         'attribute' => 'dst_countries_ids',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -175,7 +175,7 @@ return [
     ],
     [
         'attribute' => 'src_contracts_ids',
-        'class' => ContractColumn::className(),
+        'class' => ContractColumn::class,
         'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
         'filterByServerIds' => $filterModel->server_ids,
         'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
@@ -185,7 +185,7 @@ return [
     ],
     [
         'attribute' => 'dst_contracts_ids',
-        'class' => ContractColumn::className(),
+        'class' => ContractColumn::class,
         'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
         'filterByServerIds' => $filterModel->server_ids,
         'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
@@ -195,7 +195,7 @@ return [
     ],
     [
         'attribute' => 'src_regions_ids',
-        'class' => RegionColumn::className(),
+        'class' => RegionColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -205,7 +205,7 @@ return [
     ],
     [
         'attribute' => 'dst_regions_ids',
-        'class' => RegionColumn::className(),
+        'class' => RegionColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -215,7 +215,7 @@ return [
     ],
     [
         'attribute' => 'src_cities_ids',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -226,7 +226,7 @@ return [
     ],
     [
         'attribute' => 'dst_cities_ids',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -237,7 +237,7 @@ return [
     ],
     [
         'attribute' => 'src_destinations_ids',
-        'class' => DestinationColumn::className(),
+        'class' => DestinationColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -245,7 +245,7 @@ return [
     ],
     [
         'attribute' => 'dst_destinations_ids',
-        'class' => DestinationColumn::className(),
+        'class' => DestinationColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -253,7 +253,7 @@ return [
     ],
     [
         'attribute' => 'src_number_type_ids',
-        'class' => NdcTypeColumn::className(),
+        'class' => NdcTypeColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -262,7 +262,7 @@ return [
     ],
     [
         'attribute' => 'dst_number_type_ids',
-        'class' => NdcTypeColumn::className(),
+        'class' => NdcTypeColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -271,26 +271,26 @@ return [
     ],
     [
         'attribute' => 'is_exclude_internal_trunk_term',
-        'class' => CheckboxColumn::className(),
+        'class' => CheckboxColumn::class,
     ],
     [
         'attribute' => 'is_exclude_internal_trunk_orig',
-        'class' => CheckboxColumn::className(),
+        'class' => CheckboxColumn::class,
     ],
     [
         'attribute' => 'session_time',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'options' => [
             'min' => 0,
         ],
     ],
     [
         'attribute' => 'is_success_calls',
-        'class' => CheckboxColumn::className(),
+        'class' => CheckboxColumn::class,
     ],
     [
         'attribute' => 'disconnect_causes',
-        'class' => DisconnectCauseColumn::className(),
+        'class' => DisconnectCauseColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -298,12 +298,12 @@ return [
     ],
     [
         'attribute' => 'currency',
-        'class' => CurrencyColumn::className(),
+        'class' => CurrencyColumn::class,
         'isWithEmpty' => false,
     ],
     [
         'attribute' => 'group_period',
-        'class' => ConstructColumn::className(),
+        'class' => ConstructColumn::class,
         'filterOptions' => [
             'class' => ' col-sm-4'
         ],
@@ -317,7 +317,7 @@ return [
     ],
     [
         'attribute' => 'group',
-        'class' => ConstructColumn::className(),
+        'class' => ConstructColumn::class,
         'filterOptions' => [
             'class' => ' col-sm-4'
         ],
@@ -329,7 +329,7 @@ return [
     ],
     [
         'attribute' => 'aggr',
-        'class' => ConstructColumn::className(),
+        'class' => ConstructColumn::class,
         'filterOptions' => [
             'class' => ' col-sm-4'
         ],

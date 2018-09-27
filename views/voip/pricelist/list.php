@@ -60,7 +60,7 @@ $columns = [
         'width' => '7%',
     ],
     [
-        'class' => \app\classes\grid\column\RegionColumn::className(),
+        'class' => \app\classes\grid\column\RegionColumn::class,
         'attribute' => 'connection_point_id',
         'label' => 'Точка присоединения',
         'typeId' => [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE],

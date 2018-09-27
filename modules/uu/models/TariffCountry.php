@@ -32,7 +32,7 @@ class TariffCountry extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
             ]
         );
     }
@@ -61,7 +61,7 @@ class TariffCountry extends ActiveRecord
      */
     public function getTariff()
     {
-        return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'tariff_id']);
     }
 
     /**
@@ -69,7 +69,7 @@ class TariffCountry extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**

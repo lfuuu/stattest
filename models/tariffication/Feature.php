@@ -23,6 +23,6 @@ class Feature extends ActiveRecord
 
     public function getServiceType()
     {
-        return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+        return $this->hasOne(ServiceType::class, ['id' => 'service_type_id']);
     }
 }

@@ -64,7 +64,7 @@ class CardStatus extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
             ]
         );
     }
@@ -74,7 +74,7 @@ class CardStatus extends ActiveRecord
      */
     public function getCards()
     {
-        return $this->hasMany(Card::className(), ['status_id' => 'id'])
+        return $this->hasMany(Card::class, ['status_id' => 'id'])
             ->indexBy('id');
     }
 

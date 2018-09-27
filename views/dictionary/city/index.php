@@ -33,7 +33,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, City $model, $key) use ($baseView) {
@@ -53,35 +53,35 @@ $columns = [
     ],
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'country_id',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
     ],
     [
         'attribute' => 'connection_point_id',
-        'class' => ConnectionPointColumn::className(),
+        'class' => ConnectionPointColumn::class,
     ],
     [
         'attribute' => 'voip_number_format',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'billing_method_id',
-        'class' => CityBillingMethodColumn::className(),
+        'class' => CityBillingMethodColumn::class,
     ],
     [
         'attribute' => 'in_use',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'is_show_in_lk',
-        'class' => IsShowInLkColumn::className(),
+        'class' => IsShowInLkColumn::class,
     ],
     [
         'attribute' => 'order',

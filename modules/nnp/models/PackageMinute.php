@@ -71,7 +71,7 @@ class PackageMinute extends ActiveRecord
      */
     public function getTariff()
     {
-        return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'tariff_id']);
     }
 
     /**
@@ -79,7 +79,7 @@ class PackageMinute extends ActiveRecord
      */
     public function getPackage()
     {
-        return $this->hasOne(Package::className(), ['tariff_id' => 'tariff_id']);
+        return $this->hasOne(Package::class, ['tariff_id' => 'tariff_id']);
     }
 
     /**
@@ -87,6 +87,6 @@ class PackageMinute extends ActiveRecord
      */
     public function getDestination()
     {
-        return $this->hasOne(Destination::className(), ['id' => 'destination_id']);
+        return $this->hasOne(Destination::class, ['id' => 'destination_id']);
     }
 }

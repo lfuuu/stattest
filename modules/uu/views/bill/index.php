@@ -41,15 +41,15 @@ use yii\widgets\Breadcrumbs;
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'is_converted',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'date',
-        'class' => MonthColumn::className(),
+        'class' => MonthColumn::class,
         'value' => function (Bill $bill) {
             return datefmt_format_object(
                 new DateTime($bill->date),
@@ -60,7 +60,7 @@ $columns = [
     ],
     [
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (Bill $bill) {
             return $bill->clientAccount->getLink();
@@ -68,7 +68,7 @@ $columns = [
     ],
     [
         'attribute' => 'price',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'label' => 'Проводки, ¤',

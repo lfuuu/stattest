@@ -82,7 +82,7 @@ echo Html::formLabel('Профайл пользователя');
         'attributes' => [
             'photo' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => FileInput::className(),
+                'widgetClass' => FileInput::class,
                 'options' => [
                     'options' => [
                         'multiple' => false,

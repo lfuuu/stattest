@@ -168,7 +168,7 @@ class Number extends ActiveRecord
      */
     public function getCity()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**
@@ -176,7 +176,7 @@ class Number extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
     /**
@@ -198,7 +198,7 @@ class Number extends ActiveRecord
      */
     public function getDidGroup()
     {
-        return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);
+        return $this->hasOne(DidGroup::class, ['id' => 'did_group_id']);
     }
 
     /**
@@ -206,7 +206,7 @@ class Number extends ActiveRecord
      */
     public function getUsage()
     {
-        return $this->hasOne(UsageVoip::className(), ['id' => 'usage_id']);
+        return $this->hasOne(UsageVoip::class, ['id' => 'usage_id']);
     }
 
     /**
@@ -214,7 +214,7 @@ class Number extends ActiveRecord
      */
     public function getNdcType()
     {
-        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
+        return $this->hasOne(NdcType::class, ['id' => 'ndc_type_id']);
     }
 
     /**
@@ -222,7 +222,7 @@ class Number extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_id']);
     }
 
     /**
@@ -230,7 +230,7 @@ class Number extends ActiveRecord
      */
     public function getRegionModel()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::class, ['id' => 'region']);
     }
 
     /**

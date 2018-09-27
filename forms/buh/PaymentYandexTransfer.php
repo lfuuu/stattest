@@ -23,7 +23,7 @@ class PaymentYandexTransfer extends Form
     {
         return [
             [['from_client_id', 'to_client_id', 'payment_id'], 'integer'],
-            [['from_client_id', 'to_client_id'], AccountIdValidator::className()],
+            [['from_client_id', 'to_client_id'], AccountIdValidator::class],
             ['payment_id', 'in', 'range' => array_keys($this->getPayments())]
         ];
     }

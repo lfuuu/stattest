@@ -74,12 +74,12 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     public function behaviors()
     {
         return [
-            'UsageVoipAddress' => UsageVoipAddress::className(),
-            'ActualizeNumberByStatus' => ActualizeNumberByStatus::className(),
-            'ActualizeVoipNumber' => ActualizeVoipNumber::className(),
-            'ActiveDateTime' => UsageDateTime::className(),
-            'UsageVoipActualToDependPackage' => UsageVoipActualToDependencyPackage::className(),
-            'ImportantEvents' => UsageAction::className(),
+            'UsageVoipAddress' => UsageVoipAddress::class,
+            'ActualizeNumberByStatus' => ActualizeNumberByStatus::class,
+            'ActualizeVoipNumber' => ActualizeVoipNumber::class,
+            'ActiveDateTime' => UsageDateTime::class,
+            'UsageVoipActualToDependPackage' => UsageVoipActualToDependencyPackage::class,
+            'ImportantEvents' => UsageAction::class,
         ];
     }
 
@@ -144,7 +144,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**
@@ -152,7 +152,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getConnectionPoint()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::class, ['id' => 'region']);
     }
 
     /**
@@ -176,7 +176,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getVoipNumber()
     {
-        return $this->hasOne(Number::className(), ['number' => 'E164']);
+        return $this->hasOne(Number::class, ['number' => 'E164']);
     }
 
     /**
@@ -184,7 +184,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getDatacenter()
     {
-        return $this->hasOne(Datacenter::className(), ['region' => 'region']);
+        return $this->hasOne(Datacenter::class, ['region' => 'region']);
     }
 
     /**
@@ -192,7 +192,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getRegionName()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region']);
+        return $this->hasOne(Region::class, ['id' => 'region']);
     }
 
     /**
@@ -200,7 +200,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getLine7800()
     {
-        return $this->hasOne(self::className(), ['id' => 'line7800_id']);
+        return $this->hasOne(self::class, ['id' => 'line7800_id']);
     }
 
     /**
@@ -208,7 +208,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getPackages()
     {
-        return $this->hasMany(UsageVoipPackage::className(), ['usage_voip_id' => 'id']);
+        return $this->hasMany(UsageVoipPackage::class, ['usage_voip_id' => 'id']);
     }
 
     /**
@@ -224,7 +224,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public static function getMissingTariffs()
     {
-        return UsagesLostTariffs::intoLogTariff(self::className());
+        return UsagesLostTariffs::intoLogTariff(self::class);
     }
 
     /**

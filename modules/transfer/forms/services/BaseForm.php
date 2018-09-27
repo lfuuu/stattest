@@ -71,7 +71,7 @@ abstract class BaseForm extends Form
         return [
             [['clientAccountId', 'targetClientAccountId',], 'integer'],
             ['processedFromDate', 'string'],
-            [['services', 'tariffIds', 'fromDate'], ArrayValidator::className()],
+            [['services', 'tariffIds', 'fromDate'], ArrayValidator::class],
             [
                 [
                     'clientAccountId', 'targetClientAccountId', 'processedFromDate', 'services',
@@ -156,7 +156,7 @@ abstract class BaseForm extends Form
 
                     $this->processLog[] = [
                         'type' => 'error',
-                        'message' => $model::className() . ' (' . $e->getLine() . '): ' . $e->getMessage(),
+                        'message' => get_class($model) . ' (' . $e->getLine() . '): ' . $e->getMessage(),
                         'object' => $preProcessor,
                     ];
                 } catch (\Exception $e) {

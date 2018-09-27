@@ -34,7 +34,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, DidGroup $model, $key) use ($baseView) {
@@ -54,39 +54,39 @@ $columns = [
     ],
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'country_code',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
     ],
     [
         'attribute' => 'city_id',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
         'country_id' => $filterModel->country_code,
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'beauty_level',
-        'class' => BeautyLevelColumn::className(),
+        'class' => BeautyLevelColumn::class,
     ],
     [
         'attribute' => 'ndc_type_id',
-        'class' => NdcTypeColumn::className()
+        'class' => NdcTypeColumn::class
     ],
     [
         'attribute' => 'is_service',
-        'class' => YesNoColumn::className()
+        'class' => YesNoColumn::class
     ],
 ];
 
 for ($i = 1; $i <= 9; $i++) {
     $columns[] = [
         'attribute' => 'price' . $i,
-        'class' => IntegerRangeColumn::className()
+        'class' => IntegerRangeColumn::class
     ];
 }
 

@@ -73,7 +73,7 @@ echo Breadcrumbs::widget([
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'actual_from')
-                    ->widget(DateControl::className())
+                    ->widget(DateControl::class)
                 ?>
             </div>
             <div class="col-sm-4">

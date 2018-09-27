@@ -80,7 +80,7 @@ class Region extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
     /**
@@ -88,7 +88,7 @@ class Region extends ActiveRecord
      */
     public function getParent()
     {
-        return $this->hasOne(self::className(), ['id' => 'parent_id']);
+        return $this->hasOne(self::class, ['id' => 'parent_id']);
     }
 
     /**

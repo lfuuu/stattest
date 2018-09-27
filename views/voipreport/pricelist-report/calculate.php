@@ -153,7 +153,7 @@ $this->registerJsVariable('pricelistReportId', $pricelistReport->id);
                         [
                             'name' => 'range',
                             'title' => 'Диапазон цен',
-                            'type' => MultipleInputRange::className(),
+                            'type' => MultipleInputRange::class,
                             'options' => [
                                 'step' => 0.5,
                             ],
@@ -161,7 +161,7 @@ $this->registerJsVariable('pricelistReportId', $pricelistReport->id);
                         [
                             'name' => 'profit',
                             'title' => 'Добавить маржу',
-                            'type' => MultipleInputProfit::className(),
+                            'type' => MultipleInputProfit::class,
                             'options' => [
                                 'variants' => [
                                     'money' => 'денег',

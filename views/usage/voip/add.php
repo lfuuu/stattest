@@ -161,7 +161,7 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'connecting_date' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => CustomDateControl::className(),
+                'widgetClass' => CustomDateControl::class,
                 'options' => [
                     'autoWidgetSettings' => [
                         DateControl::FORMAT_DATE => [

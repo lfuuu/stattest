@@ -30,7 +30,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
             $this->isAttributeTypecastBehavior ?
                 [
                     'typecast' => [
-                        'class' => AttributeTypecastBehavior::className(),
+                        'class' => AttributeTypecastBehavior::class,
                         'typecastAfterValidate' => false,
                         'typecastAfterFind' => true,
                     ],

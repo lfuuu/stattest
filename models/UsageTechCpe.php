@@ -20,7 +20,7 @@ class UsageTechCpe extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::class,
         ];
     }
 
@@ -45,7 +45,7 @@ class UsageTechCpe extends ActiveRecord
      */
     public function getModel()
     {
-        return $this->hasOne(TechCpeModel::className(), ['id' => 'id_model']);
+        return $this->hasOne(TechCpeModel::class, ['id' => 'id_model']);
     }
 
     /**
@@ -61,7 +61,7 @@ class UsageTechCpe extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**

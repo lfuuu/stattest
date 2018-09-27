@@ -52,21 +52,21 @@ if (!$destination->isNewRecord) {
 
         <?php // Территория ?>
         <div class="col-sm-3">
-            <?= $form->field($destination, 'land_id')->widget(Select2::className(), [
+            <?= $form->field($destination, 'land_id')->widget(Select2::class, [
                 'data' => Land::getList($isWithEmpty = true),
             ]) ?>
         </div>
 
         <?php // Страна ?>
         <div class="col-sm-3">
-            <?= $form->field($destination, 'country_id')->widget(Select2::className(), [
+            <?= $form->field($destination, 'country_id')->widget(Select2::class, [
                 'data' => \app\modules\nnp\models\Country::getList($isWithEmpty = true)
             ]) ?>
         </div>
 
         <?php // Статус ?>
         <div class="col-sm-3">
-            <?= $form->field($destination, 'status_id')->widget(Select2::className(), [
+            <?= $form->field($destination, 'status_id')->widget(Select2::class, [
                 'data' => Status::getList($isWithEmpty = true),
             ]) ?>
         </div>

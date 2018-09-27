@@ -34,7 +34,7 @@ unset($countries[Country::RUSSIA]);
     <div class="row">
         <div class="col-sm-4">
             <?= $form->field($country, 'code')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => $countries,
                 ])
                 ->label(false) ?>

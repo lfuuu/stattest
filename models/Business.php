@@ -77,7 +77,7 @@ class Business extends ActiveRecord
      */
     public function getBusinessProcesses()
     {
-        return $this->hasMany(BusinessProcess::className(), ['business_id' => 'id']);
+        return $this->hasMany(BusinessProcess::class, ['business_id' => 'id']);
     }
 
     /**

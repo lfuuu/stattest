@@ -19,7 +19,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
 
     <div class="col-sm-2">
         <?= $form->field($package, 'location_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => Package::getListLocation(),
                 'options' => $options,
             ])

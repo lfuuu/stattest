@@ -160,7 +160,7 @@ if (!$numberRange->isNewRecord) {
 
         <?php // Регион ?>
         <div class="col-sm-3">
-            <?= $form->field($numberRange, 'region_id')->widget(Select2::className(), [
+            <?= $form->field($numberRange, 'region_id')->widget(Select2::class, [
                 'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
             <div>
@@ -172,7 +172,7 @@ if (!$numberRange->isNewRecord) {
 
         <?php // Город ?>
         <div class="col-sm-3">
-            <?= $form->field($numberRange, 'city_id')->widget(Select2::className(), [
+            <?= $form->field($numberRange, 'city_id')->widget(Select2::class, [
                 'data' => City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
             <div>
@@ -184,7 +184,7 @@ if (!$numberRange->isNewRecord) {
 
         <?php // Оператор ?>
         <div class="col-sm-3">
-            <?= $form->field($numberRange, 'operator_id')->widget(Select2::className(), [
+            <?= $form->field($numberRange, 'operator_id')->widget(Select2::class, [
                 'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
             <div>
@@ -196,7 +196,7 @@ if (!$numberRange->isNewRecord) {
 
         <?php // Тип NDC ?>
         <div class="col-sm-3">
-            <?= $form->field($numberRange, 'ndc_type_id')->widget(Select2::className(), [
+            <?= $form->field($numberRange, 'ndc_type_id')->widget(Select2::class, [
                 'data' => NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
             <div>

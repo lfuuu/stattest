@@ -36,7 +36,7 @@ class EventQueueIndicator extends ActiveRecord
     public function behaviors()
     {
         return [
-            CreatedAt::className()
+            CreatedAt::class
         ];
     }
 
@@ -45,6 +45,6 @@ class EventQueueIndicator extends ActiveRecord
      */
     public function getEvent()
     {
-        return $this->hasOne(EventQueue::className(), ['id' => 'event_queue_id']);
+        return $this->hasOne(EventQueue::class, ['id' => 'event_queue_id']);
     }
 }

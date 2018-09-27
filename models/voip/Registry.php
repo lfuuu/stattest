@@ -51,8 +51,8 @@ class Registry extends ActiveRecord
     public function behaviors()
     {
         return [
-            'CreatedAt' => CreatedAt::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'CreatedAt' => CreatedAt::class,
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
 
     }
@@ -99,7 +99,7 @@ class Registry extends ActiveRecord
      */
     public function getCity()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**
@@ -107,7 +107,7 @@ class Registry extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**
@@ -115,7 +115,7 @@ class Registry extends ActiveRecord
      */
     public function getNdcType()
     {
-        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
+        return $this->hasOne(NdcType::class, ['id' => 'ndc_type_id']);
     }
 
     /**

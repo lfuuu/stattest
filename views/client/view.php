@@ -19,7 +19,7 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
-$this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [AppAsset::class]]);
 ?>
 
 <?= Breadcrumbs::widget([

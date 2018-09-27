@@ -18,19 +18,19 @@ echo GridView::widget([
         [
             'attribute' => 'country_id',
             'label' => 'Страна',
-            'class' => CountryColumn::className(),
+            'class' => CountryColumn::class,
             'vAlign' => 'top',
         ],
         [
-            'class' => ConnectionPointColumn::className(),
+            'class' => ConnectionPointColumn::class,
             'vAlign' => 'top',
         ],
         [
-            'class' => CurrencyColumn::className(),
+            'class' => CurrencyColumn::class,
             'vAlign' => 'top',
         ],
         [
-            'class' => NameColumn::className(),
+            'class' => NameColumn::class,
             'attribute' => 'name',
             'label' => 'Тариф',
             'vAlign' => 'top',
@@ -52,14 +52,14 @@ echo GridView::widget([
             'vAlign' => 'top',
         ],
         [
-            'class' => BooleanColumn::className(),
+            'class' => BooleanColumn::class,
             'values' => [0 => 'Без НДС', 1 => 'Вкл. НДС'],
             'attribute' => 'price_include_vat',
             'label' => 'НДС',
             'vAlign' => 'top',
         ],
         [
-            'class' => DestinationVoipColumn::className(),
+            'class' => DestinationVoipColumn::class,
             'attribute' => 'destination_id',
             'vAlign' => 'top',
         ],

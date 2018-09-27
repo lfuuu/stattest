@@ -12,8 +12,8 @@ use app\models\billing\Geo;
 use app\models\billing\GeoCountry;
 use app\models\billing\GeoOperator;
 
-$this->registerJsFile('@web/js/jquery.chained.js', ['depends' => [AppAsset::className()]]);
-$this->registerJsFile('@web/js/behaviors/prefixlist.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/jquery.chained.js', ['depends' => [AppAsset::class]]);
+$this->registerJsFile('@web/js/behaviors/prefixlist.js', ['depends' => [AppAsset::class]]);
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 

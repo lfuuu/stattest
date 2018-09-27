@@ -35,7 +35,7 @@ class TariffResource extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
             ]
         );
 
@@ -67,7 +67,7 @@ class TariffResource extends ActiveRecord
      */
     public function getResource()
     {
-        return $this->hasOne(Resource::className(), ['id' => 'resource_id']);
+        return $this->hasOne(Resource::class, ['id' => 'resource_id']);
     }
 
     /**
@@ -75,7 +75,7 @@ class TariffResource extends ActiveRecord
      */
     public function getTariff()
     {
-        return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'tariff_id']);
     }
 
     /**

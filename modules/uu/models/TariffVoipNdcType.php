@@ -32,7 +32,7 @@ class TariffVoipNdcType extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
             ]
         );
     }
@@ -61,7 +61,7 @@ class TariffVoipNdcType extends ActiveRecord
      */
     public function getTariff()
     {
-        return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'tariff_id']);
     }
 
     /**
@@ -69,7 +69,7 @@ class TariffVoipNdcType extends ActiveRecord
      */
     public function getNdcType()
     {
-        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
+        return $this->hasOne(NdcType::class, ['id' => 'ndc_type_id']);
     }
 
     /**

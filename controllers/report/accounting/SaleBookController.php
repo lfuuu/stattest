@@ -15,7 +15,7 @@ class SaleBookController extends BaseController
     {
         return array_merge(parent::behaviors(), [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'rules' => [
                     [
                         'allow' => true,

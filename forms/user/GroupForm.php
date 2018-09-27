@@ -31,7 +31,7 @@ class GroupForm extends Form
                 'required'
             ],
             ['usergroup', 'validateExistsGroup'],
-            ['rights', ArrayValidator::className()],
+            ['rights', ArrayValidator::class],
         ];
     }
 

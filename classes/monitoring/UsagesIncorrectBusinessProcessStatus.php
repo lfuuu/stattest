@@ -83,12 +83,12 @@ class UsagesIncorrectBusinessProcessStatus extends Component implements Monitori
         ];
 
         $usages = [
-            UsageVoip::className(),
-            UsageVirtpbx::className(),
-            UsageIpPorts::className(),
-            UsageSms::className(),
-            UsageExtra::className(),
-            UsageWelltime::className(),
+            UsageVoip::class,
+            UsageVirtpbx::class,
+            UsageIpPorts::class,
+            UsageSms::class,
+            UsageExtra::class,
+            UsageWelltime::class,
         ];
 
         $result = [];

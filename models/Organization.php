@@ -151,7 +151,7 @@ class Organization extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**
@@ -159,7 +159,7 @@ class Organization extends ActiveRecord
      */
     public function getDirector()
     {
-        return $this->hasOne(Person::className(), ['id' => 'director_id']);
+        return $this->hasOne(Person::class, ['id' => 'director_id']);
     }
 
     /**
@@ -167,7 +167,7 @@ class Organization extends ActiveRecord
      */
     public function getAccountant()
     {
-        return $this->hasOne(Person::className(), ['id' => 'accountant_id']);
+        return $this->hasOne(Person::class, ['id' => 'accountant_id']);
     }
 
     /**
@@ -185,7 +185,7 @@ class Organization extends ActiveRecord
     public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
     {
         return
-            $this->hasMany(OrganizationI18N::className(), ['organization_record_id' => 'id'])
+            $this->hasMany(OrganizationI18N::class, ['organization_record_id' => 'id'])
                 ->andWhere(['lang_code' => $langCode])
                 ->indexBy('field')
                 ->all();
@@ -239,7 +239,7 @@ class Organization extends ActiveRecord
         $organizationI18NModel = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
-                [self::$_virtualPropertiesI18N, ArrayValidator::className()],
+                [self::$_virtualPropertiesI18N, ArrayValidator::class],
             ]
         );
 
@@ -279,7 +279,7 @@ class Organization extends ActiveRecord
             [
                 [
                     ['bank_name', 'bank_bik', 'bank_correspondent_account', 'bank_address', 'bank_swift'],
-                    ArrayValidator::className()
+                    ArrayValidator::class
                 ],
             ]
         );

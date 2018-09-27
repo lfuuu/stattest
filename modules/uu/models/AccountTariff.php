@@ -140,20 +140,20 @@ class AccountTariff extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
-                AccountTariffImportantEvents::className(),
-                AccountTariffVoipNumber::className(),
-                AccountTariffAddDefaultPackage::className(),
+                \app\classes\behaviors\HistoryChanges::class,
+                AccountTariffImportantEvents::class,
+                AccountTariffVoipNumber::class,
+                AccountTariffAddDefaultPackage::class,
                 [
                     // Установить "когда создал" и "когда обновил"
-                    'class' => TimestampBehavior::className(),
+                    'class' => TimestampBehavior::class,
                     'createdAtAttribute' => 'insert_time',
                     'updatedAtAttribute' => 'update_time',
                     'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
                 ],
                 [
                     // Установить "кто создал" и "кто обновил"
-                    'class' => AttributeBehavior::className(),
+                    'class' => AttributeBehavior::class,
                     'attributes' => [
                         ActiveRecord::EVENT_BEFORE_INSERT => ['insert_user_id', 'update_user_id'],
                         ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
@@ -192,7 +192,7 @@ class AccountTariff extends ActiveRecord
                 'integer'
             ],
             [['comment', 'device_address', 'calltracking_params'], 'string'],
-            [['comment', 'device_address'], FormFieldValidator::className(), 'skipOnError' => true],
+            [['comment', 'device_address'], FormFieldValidator::class, 'skipOnError' => true],
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],
             ['client_account_id', 'validatorTrunk', 'skipOnEmpty' => false],

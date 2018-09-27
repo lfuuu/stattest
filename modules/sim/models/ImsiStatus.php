@@ -64,7 +64,7 @@ class ImsiStatus extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
             ]
         );
     }
@@ -74,7 +74,7 @@ class ImsiStatus extends ActiveRecord
      */
     public function getImsies()
     {
-        return $this->hasMany(Imsi::className(), ['status_id' => 'id'])
+        return $this->hasMany(Imsi::class, ['status_id' => 'id'])
             ->indexBy('id');
     }
 

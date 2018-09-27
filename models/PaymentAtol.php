@@ -40,7 +40,7 @@ class PaymentAtol extends ActiveRecord
      */
     public function getPayment()
     {
-        return $this->hasOne(Payment::className(), ['id' => 'id']);
+        return $this->hasOne(Payment::class, ['id' => 'id']);
     }
 
     /**

@@ -38,7 +38,7 @@ class UsageTrunkSettings extends ActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
 
@@ -69,7 +69,7 @@ class UsageTrunkSettings extends ActiveRecord
      */
     public function getUsage()
     {
-        return $this->hasOne(UsageTrunk::className(), ['id' => 'usage_id']);
+        return $this->hasOne(UsageTrunk::class, ['id' => 'usage_id']);
     }
 
     /**
@@ -77,7 +77,7 @@ class UsageTrunkSettings extends ActiveRecord
      */
     public function getPackage()
     {
-        return $this->hasOne(Tariff::className(), ['id' => 'package_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'package_id']);
     }
 
     /**

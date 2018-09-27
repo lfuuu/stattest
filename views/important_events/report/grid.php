@@ -23,7 +23,7 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         [
-            'class' => ExpandRowColumn::className(),
+            'class' => ExpandRowColumn::class,
             'width' => '50px',
             'value' => function () {
                 return GridView::ROW_COLLAPSED;

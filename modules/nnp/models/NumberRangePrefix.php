@@ -43,14 +43,14 @@ class NumberRangePrefix extends ActiveRecord
         return [
             [
                 // Установить "когда создал"
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'insert_time',
                 'updatedAtAttribute' => false,
                 'value' => new Expression("NOW() AT TIME ZONE 'utc'"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
             [
                 // Установить "кто создал"
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => 'insert_user_id',
                 ],
@@ -84,7 +84,7 @@ class NumberRangePrefix extends ActiveRecord
      */
     public function getNumberRange()
     {
-        return $this->hasOne(NumberRange::className(), ['id' => 'number_range_id']);
+        return $this->hasOne(NumberRange::class, ['id' => 'number_range_id']);
     }
 
     /**
@@ -92,6 +92,6 @@ class NumberRangePrefix extends ActiveRecord
      */
     public function getPrefix()
     {
-        return $this->hasOne(Prefix::className(), ['id' => 'prefix_id']);
+        return $this->hasOne(Prefix::class, ['id' => 'prefix_id']);
     }
 }

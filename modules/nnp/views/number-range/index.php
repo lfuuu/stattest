@@ -40,7 +40,7 @@ $baseView = $this;
 $filterColumns = [
     [
         'attribute' => 'country_code',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'indexBy' => 'code',
         'isWithEmpty' => false,
         'filterInputOptions' => [
@@ -49,40 +49,40 @@ $filterColumns = [
     ],
     [
         'attribute' => 'operator_source',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'region_source',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'city_source',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'ndc',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'label' => 'Полный номер начала диапазона (маска)&nbsp;' . $this->render('//layouts/_helpMysqlLike'),
         'attribute' => 'full_number_mask',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'label' => 'Кол-во номеров от',
         'attribute' => 'numbers_count_from',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'label' => 'Кол-во номеров до',
         'attribute' => 'numbers_count_to',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
 ];
 
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}',
         'buttons' => [
             'update' => function ($url, NumberRange $model, $key) use ($baseView) {
@@ -97,7 +97,7 @@ $columns = [
     [
         'label' => 'Номер',
         'attribute' => 'full_number_from',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (NumberRange $numberRange) {
             return $numberRange->full_number_from . '<br>' .
@@ -109,7 +109,7 @@ $columns = [
     ],
     [
         'attribute' => 'operator_id',
-        'class' => OperatorColumn::className(),
+        'class' => OperatorColumn::class,
         'countryCode' => $filterModel->country_code,
         // 'isWithNullAndNotNull' => false,
         'isWithEmpty' => false,
@@ -119,7 +119,7 @@ $columns = [
     ],
     [
         'attribute' => 'region_id',
-        'class' => RegionColumn::className(),
+        'class' => RegionColumn::class,
         // 'isWithNullAndNotNull' => true,
         'countryCodes' => $filterModel->country_code,
         'isWithEmpty' => false,
@@ -129,7 +129,7 @@ $columns = [
     ],
     [
         'attribute' => 'city_id',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
         // 'isWithNullAndNotNull' => true,
         'countryCodes' => $filterModel->country_code,
         'regionIds' => $filterModel->region_id,
@@ -140,7 +140,7 @@ $columns = [
     ],
     [
         'attribute' => 'ndc_type_id',
-        'class' => NdcTypeColumn::className(),
+        'class' => NdcTypeColumn::class,
         'isWithEmpty' => false,
         'filterInputOptions' => [
             'multiple' => true,
@@ -148,12 +148,12 @@ $columns = [
     ],
     [
         'attribute' => 'is_active',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'label' => 'Префиксы',
         'attribute' => 'prefix_id',
-        'class' => PrefixColumn::className(),
+        'class' => PrefixColumn::class,
         'format' => 'html',
         'value' => function (NumberRange $numberRange) {
             $htmlArray = [];
@@ -167,7 +167,7 @@ $columns = [
     ],
     [
         'attribute' => 'date_resolution',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'value' => function (NumberRange $numberRange) {
             return $numberRange->date_resolution ?
                 Yii::$app->formatter->asDate($numberRange->date_resolution, 'medium') :
@@ -177,7 +177,7 @@ $columns = [
     [
         'label' => 'Создано / редактировано / выключено',
         'attribute' => 'insert_time',
-        'class' => MonthColumn::className(),
+        'class' => MonthColumn::class,
         'format' => 'html',
         'value' => function (NumberRange $numberRange) {
             $htmlArray = [];

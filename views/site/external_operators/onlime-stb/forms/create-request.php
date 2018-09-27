@@ -27,7 +27,7 @@ use yii\widgets\MaskedInput;
             'address' => ['type' => Form::INPUT_TEXT],
             'phone' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => MaskedInput::className(),
+                'widgetClass' => MaskedInput::class,
                 'options' => [
                     'mask' => '8 (999) 999-99-99',
                 ],

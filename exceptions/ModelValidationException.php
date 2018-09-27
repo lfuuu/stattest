@@ -22,7 +22,7 @@ class ModelValidationException extends HttpException
     {
         $this->_model = $model;
         $this->_errors = $model->getErrors();
-        parent::__construct($statusCode, 'Error. ' . $model::className() . ' ' . print_r($model->getPrimaryKey(), true) . ': ' . implode(' ', $model->getFirstErrors()), $errorCode);
+        parent::__construct($statusCode, 'Error. ' . get_class($model) . ' ' . print_r($model->getPrimaryKey(), true) . ': ' . implode(' ', $model->getFirstErrors()), $errorCode);
     }
 
     /**

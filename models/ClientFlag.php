@@ -33,7 +33,7 @@ class ClientFlag extends ActiveRecord
     public function behaviors()
     {
         return [
-            'NotifiedFlagToImportantEvent' => NotifiedFlagToImportantEvent::className()
+            'NotifiedFlagToImportantEvent' => NotifiedFlagToImportantEvent::class
 
         ];
     }

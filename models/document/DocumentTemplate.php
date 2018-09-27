@@ -80,7 +80,7 @@ class DocumentTemplate extends ActiveRecord
      */
     public function getFolder()
     {
-        return $this->hasOne(DocumentFolder::className(), ['id' => 'folder_id']);
+        return $this->hasOne(DocumentFolder::class, ['id' => 'folder_id']);
     }
 
     /**

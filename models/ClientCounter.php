@@ -61,7 +61,7 @@ class ClientCounter extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_id']);
     }
 
     /**

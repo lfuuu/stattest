@@ -137,7 +137,7 @@ class ImportantEventsNames extends ActiveRecord
      */
     public function getGroup()
     {
-        return $this->hasOne(ImportantEventsGroups::className(), ['id' => 'group_id']);
+        return $this->hasOne(ImportantEventsGroups::class, ['id' => 'group_id']);
     }
 
     /**

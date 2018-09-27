@@ -43,14 +43,14 @@ class MchsMessage extends ActiveRecord
         return [
             [
                 // Установить "когда создал"
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'date',
                 'updatedAtAttribute' => null,
                 'value' => new Expression("NOW()"),
             ],
             [
                 // Установить "кто создал"
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['user_id'],
                 ],
@@ -75,7 +75,7 @@ class MchsMessage extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**

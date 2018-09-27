@@ -93,23 +93,23 @@ class AccountTariffLog extends ActiveRecord
             [
                 [
                     // Установить "когда создал"
-                    'class' => TimestampBehavior::className(),
+                    'class' => TimestampBehavior::class,
                     'createdAtAttribute' => 'insert_time',
                     'updatedAtAttribute' => false,
                     'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
                 ],
                 [
                     // Установить "кто создал"
-                    'class' => AttributeBehavior::className(),
+                    'class' => AttributeBehavior::class,
                     'attributes' => [
                         ActiveRecord::EVENT_BEFORE_INSERT => 'insert_user_id',
                     ],
                     'value' => Yii::$app->user->getId(),
                 ],
-                \app\classes\behaviors\HistoryChanges::className(),
-                AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
-                FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
-                AccountTariffLogTimeHistory::className(), // Обновление время продажи и допродажи в модели AccountTariff
+                \app\classes\behaviors\HistoryChanges::class,
+                AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
+                FillAccountTariffResourceLog::class, // Создать лог ресурсов при создании услуги. Удалить при удалении
+                AccountTariffLogTimeHistory::class, // Обновление время продажи и допродажи в модели AccountTariff
             ]
         );
     }
@@ -134,7 +134,7 @@ class AccountTariffLog extends ActiveRecord
      */
     public function getTariffPeriod()
     {
-        return $this->hasOne(TariffPeriod::className(), ['id' => 'tariff_period_id']);
+        return $this->hasOne(TariffPeriod::class, ['id' => 'tariff_period_id']);
     }
 
     /**
@@ -142,7 +142,7 @@ class AccountTariffLog extends ActiveRecord
      */
     public function getAccountTariff()
     {
-        return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+        return $this->hasOne(AccountTariff::class, ['id' => 'account_tariff_id']);
     }
 
     /**

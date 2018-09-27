@@ -44,15 +44,15 @@ abstract class Monitor extends Component
     public static function getAvailableLightMonitors()
     {
         return [
-            MonitorZSyncPostgres::className(),
-            MonitorQueue::className(),
-            MonitorQueueSwitchedOff::className(),
-            MonitorSuperClientStruct::className(),
-            BacklogSlaveServer::className(),
-            MonitorNnpPrefix::className(),
-            MonitorSormClientsReg88::className(),
-            MonitorBrokenRegionInVoip::className(),
-            Monitor1cTroubles::className(),
+            MonitorZSyncPostgres::class,
+            MonitorQueue::class,
+            MonitorQueueSwitchedOff::class,
+            MonitorSuperClientStruct::class,
+            BacklogSlaveServer::class,
+            MonitorNnpPrefix::class,
+            MonitorSormClientsReg88::class,
+            MonitorBrokenRegionInVoip::class,
+            Monitor1cTroubles::class,
         ];
     }
 
@@ -62,11 +62,11 @@ abstract class Monitor extends Component
     public static function getAvailableHeavyMonitors()
     {
         return [
-            MonitorUuBill::className(),
-            MonitorUuShiftTariff::className(),
-            // MonitorUuAccountEntry::className(), // обычно работает долю секунды, но иногда лочится надолго
-            MonitorUuTestTariff::className(),
-            // MonitorSormClientsReg97::className(), // до введения СОРМа в Краснодаре, отключим монитор. Что бы Борис не расстраивался.
+            MonitorUuBill::class,
+            MonitorUuShiftTariff::class,
+            // MonitorUuAccountEntry::class, // обычно работает долю секунды, но иногда лочится надолго
+            MonitorUuTestTariff::class,
+            // MonitorSormClientsReg97::class, // до введения СОРМа в Краснодаре, отключим монитор. Что бы Борис не расстраивался.
         ];
     }
 }

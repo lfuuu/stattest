@@ -99,7 +99,7 @@ class City extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+        return $this->hasOne(Country::class, ['code' => 'country_id']);
     }
 
     /**
@@ -107,7 +107,7 @@ class City extends ActiveRecord
      */
     public function getRegion()
     {
-        return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
+        return $this->hasOne(Region::class, ['id' => 'connection_point_id']);
     }
 
     /**
@@ -115,7 +115,7 @@ class City extends ActiveRecord
      */
     public function getBillingMethod()
     {
-        return $this->hasOne(CityBillingMethod::className(), ['id' => 'billing_method_id']);
+        return $this->hasOne(CityBillingMethod::class, ['id' => 'billing_method_id']);
     }
 
     /**

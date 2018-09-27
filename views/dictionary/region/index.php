@@ -30,7 +30,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}', // {delete}
         'buttons' => [
             'update' => function ($url, Region $model, $key) use ($baseView) {
@@ -50,35 +50,35 @@ $columns = [
     ],
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'short_name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'code',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'timezone_name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'country_id',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
     ],
     [
         'attribute' => 'is_active',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
     [
         'attribute' => 'type_id',
-        'class' => ConstructColumn::className(),
+        'class' => ConstructColumn::class,
         'filter' => Region::$typeNames,
     ],
 ];

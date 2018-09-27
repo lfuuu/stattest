@@ -67,7 +67,7 @@ class MessageController extends ApiController
         $form = DynamicModel::validateData(
             Yii::$app->request->bodyParams,
             [
-                ['client_account_id', AccountIdValidator::className()],
+                ['client_account_id', AccountIdValidator::class],
                 ['order', 'in', 'range' => ['desc', 'asc']],
             ]
         );
@@ -137,7 +137,7 @@ class MessageController extends ApiController
         $form = DynamicModel::validateData(
             Yii::$app->request->bodyParams,
             [
-                ['client_account_id', AccountIdValidator::className()],
+                ['client_account_id', AccountIdValidator::class],
                 ['id', 'integer'],
                 [['id'], 'required'],
             ]
@@ -197,7 +197,7 @@ class MessageController extends ApiController
         $form = DynamicModel::validateData(
             Yii::$app->request->bodyParams,
             [
-                ['client_account_id', AccountIdValidator::className()],
+                ['client_account_id', AccountIdValidator::class],
                 ['id', 'integer'],
                 [['id'], 'required'],
             ]

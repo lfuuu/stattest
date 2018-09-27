@@ -44,7 +44,7 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'actual_from' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => CustomDateControl::className(),
+                'widgetClass' => CustomDateControl::class,
                 'options' => [
                     'autoWidgetSettings' => [
                         DateControl::FORMAT_DATE => [
@@ -59,7 +59,7 @@ echo Breadcrumbs::widget([
             ],
             'actual_to' => [
                 'type' => Form::INPUT_WIDGET,
-                'widgetClass' => CustomDateControl::className(),
+                'widgetClass' => CustomDateControl::class,
                 'options' => [
                     'autoWidgetSettings' => [
                         DateControl::FORMAT_DATE => [

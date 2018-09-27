@@ -50,7 +50,7 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
      */
     public function getServiceClass()
     {
-        return UsageVoip::className();
+        return UsageVoip::class;
     }
 
     /**

@@ -69,7 +69,7 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
             ],
             'is_payed' => [
                 'attribute' => 'is_payed',
-                'class' => PayedColumn::className(),
+                'class' => PayedColumn::class,
                 'filterInputOptions' => [
                     'name' => 'is_payed'
                 ],

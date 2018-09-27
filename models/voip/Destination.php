@@ -22,7 +22,7 @@ class Destination extends ActiveRecord
      */
     public function getDestinationPrefixes()
     {
-        return $this->hasMany(DestinationPrefixes::className(), ['destination_id' => 'id']);
+        return $this->hasMany(DestinationPrefixes::class, ['destination_id' => 'id']);
     }
 
     /**
@@ -30,7 +30,7 @@ class Destination extends ActiveRecord
      */
     public function getPrefixes()
     {
-        return $this->hasMany(Prefixlist::className(), ['id' => 'prefixlist_id'])->via('destinationPrefixes');
+        return $this->hasMany(Prefixlist::class, ['id' => 'prefixlist_id'])->via('destinationPrefixes');
     }
 
 }

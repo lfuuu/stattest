@@ -27,7 +27,7 @@ $dataProvider = new ArrayDataProvider([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'class' => ActionColumn::className(),
+            'class' => ActionColumn::class,
             'template' => '{data}',
             'buttons' => [
                 'data' => function ($url, $data) use ($contract) {

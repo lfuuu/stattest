@@ -45,7 +45,7 @@ class BillCorrection extends ActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
 
@@ -107,7 +107,7 @@ class BillCorrection extends ActiveRecord
      */
     public function getBill()
     {
-        return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+        return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
     }
 
     /**
@@ -115,7 +115,7 @@ class BillCorrection extends ActiveRecord
      */
     public function getLines()
     {
-        return $this->hasMany(BillLineCorrection::className(), ['bill_correction_id' => 'id']);
+        return $this->hasMany(BillLineCorrection::class, ['bill_correction_id' => 'id']);
     }
 
     /**

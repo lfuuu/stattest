@@ -55,7 +55,7 @@ class TariffPeriod extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
+                \app\classes\behaviors\HistoryChanges::class,
             ]
         );
 
@@ -122,7 +122,7 @@ class TariffPeriod extends ActiveRecord
      */
     public function getChargePeriod()
     {
-        return $this->hasOne(Period::className(), ['id' => 'charge_period_id']);
+        return $this->hasOne(Period::class, ['id' => 'charge_period_id']);
     }
 
     /**
@@ -130,7 +130,7 @@ class TariffPeriod extends ActiveRecord
      */
     public function getTariff()
     {
-        return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'tariff_id']);
     }
 
     /**
@@ -138,7 +138,7 @@ class TariffPeriod extends ActiveRecord
      */
     public function getAccountTariffs()
     {
-        return $this->hasMany(AccountTariff::className(), ['tariff_period_id' => 'id'])
+        return $this->hasMany(AccountTariff::class, ['tariff_period_id' => 'id'])
             ->indexBy('id');
     }
 
@@ -147,7 +147,7 @@ class TariffPeriod extends ActiveRecord
      */
     public function getAccountTariffLogs()
     {
-        return $this->hasMany(AccountTariffLog::className(), ['tariff_period_id' => 'id'])
+        return $this->hasMany(AccountTariffLog::class, ['tariff_period_id' => 'id'])
             ->indexBy('id');
     }
 

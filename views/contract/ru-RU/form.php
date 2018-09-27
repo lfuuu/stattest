@@ -32,7 +32,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 
     <div class="col-sm-4">
         <?= $f->field($model, 'business_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => Business::getList(),
                 'options' => [
                     'disabled' => !$model->getIsNewRecord()
@@ -47,7 +47,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
         <?php
         if ($model->business_id === Business::PARTNER) {
             echo $f->field($model, 'is_lk_access')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => ClientContract::$lkAccess,
                 ]);
         }
@@ -66,7 +66,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 <div class="row">
     <div class="col-sm-4">
         <?= $f->field($model, 'business_process_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => BusinessProcess::getList(),
                 'options' => [
                     'disabled' => !$model->getIsNewRecord()
@@ -79,7 +79,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
     </div>
     <div class="col-sm-4">
         <?= $f->field($model, 'manager')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => ['' => '----'],
                 'options' => [
                     'data-current-value' => $model->manager ?: 0,
@@ -103,7 +103,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 <div class="row">
     <div class="col-sm-4">
         <?= $f->field($model, 'business_process_status_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => BusinessProcessStatus::getList(),
                 'options' => [
                     'disabled' => !Yii::$app->user->can('clients.restatus'),
@@ -113,7 +113,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
     </div>
     <div class="col-sm-4">
         <?= $f->field($model, 'account_manager')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => ['' => '----'],
                 'options' => [
                     'data-current-value' => $model->account_manager ?: 0,
@@ -123,7 +123,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
     </div>
     <div class="col-sm-4">
         <?= $f->field($model, 'organization_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => $model->getOrganizationsList(),
             ])
         ?>
@@ -135,7 +135,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
         <?php
         if (isset($contragents, $contragentsOptions)) {
             echo $f->field($model, 'contragent_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => $contragents,
                     'options' => $contragentsOptions,
                 ]);
@@ -145,7 +145,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 
     <div class="col-sm-4">
         <?= $f->field($model, 'partner_contract_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),
             ])
             ->label(
@@ -159,7 +159,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 <div class="row">
     <div class="col-sm-4">
         <?= $f->field($model, 'state')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => $model->model->statusesForChange(),
             ])
         ?>
@@ -171,7 +171,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                 ?>
                 <div class="col-sm-4">
                     <?= $f->field($model, 'contract_type_id')
-                        ->widget(Select2::className(), [
+                        ->widget(Select2::class, [
                             'data' => ContractType::getList($model->business_process_id, $isWithEmpty = true),
                         ])
                     ?>
@@ -179,7 +179,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 
                 <div class="col-sm-4">
                     <?= $f->field($model, 'financial_type')
-                        ->widget(Select2::className(), [
+                        ->widget(Select2::class, [
                             'data' => ClientContract::$financialTypes,
                             'options' => [
                                 'disabled' =>
@@ -213,7 +213,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                 ?>
                 <div class="col-sm-4">
                     <?= $f->field($model, 'contract_type_id')
-                        ->widget(Select2::className(), [
+                        ->widget(Select2::class, [
                             'data' => ContractType::getList($model->business_process_id, $isWithEmpty = true),
                         ])
                     ?>

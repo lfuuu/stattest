@@ -113,7 +113,7 @@ class EventQueueAddEvent extends Behavior
     {
         /** @var Model $owner */
         $owner = $this->owner;
-        $model = $owner::className();
+        $model = get_class($owner);
         return $model::tableName();
     }
 }

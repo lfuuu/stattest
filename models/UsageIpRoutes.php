@@ -26,7 +26,7 @@ class UsageIpRoutes extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::class,
         ];
     }
 

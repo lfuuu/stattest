@@ -22,7 +22,7 @@ $form = ActiveForm::begin();
     <div class="well">
         <div class="row">
             <div class="col-sm-2">
-                <?= $form->field($billCorrection, 'date')->widget(\kartik\widgets\DatePicker::className(),
+                <?= $form->field($billCorrection, 'date')->widget(\kartik\widgets\DatePicker::class,
                     [
                         'removeButton' => false,
                         'pluginOptions' => [

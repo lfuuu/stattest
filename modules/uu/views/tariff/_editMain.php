@@ -90,7 +90,7 @@ $viewParams = [
 
         <div class="col-sm-2">
             <?= $form->field($tariff, 'currency_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => Currency::getList($tariff->isNewRecord),
                     'options' => $options,
                 ])
@@ -136,21 +136,21 @@ $viewParams = [
 
     <div class="row">
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_status_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => TariffStatus::getList(false, $tariff->service_type_id),
                 ])
                 ->label($tariff->getAttributeLabel('tariff_status_id') . $helpConfluence)
             ?>
         </div>
 
-        <div class="col-sm-2"><?= $form->field($tariff, 'tag_id')->widget(Select2::className(), [
+        <div class="col-sm-2"><?= $form->field($tariff, 'tag_id')->widget(Select2::class, [
                 'data' => TariffTag::getList(true),
             ])
                 ->label($tariff->getAttributeLabel('tag_id') . $helpConfluence)
             ?>
         </div>
 
-        <div class="col-sm-2"><?= $form->field($tariff, 'tariff_person_id')->widget(Select2::className(), [
+        <div class="col-sm-2"><?= $form->field($tariff, 'tariff_person_id')->widget(Select2::class, [
                 'data' => TariffPerson::getList(false),
                 'options' => $options,
             ])

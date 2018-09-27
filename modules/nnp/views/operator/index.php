@@ -32,7 +32,7 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, Operator $model, $key) use ($baseView) {
@@ -52,11 +52,11 @@ $columns = [
     ],
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'country_code',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'indexBy' => 'code',
     ],
     [
@@ -65,15 +65,15 @@ $columns = [
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'name_translit',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'cnt',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'format' => 'html',
         'value' => function (Operator $operator) {
             return

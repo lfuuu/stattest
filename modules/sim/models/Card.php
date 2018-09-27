@@ -65,7 +65,7 @@ class Card extends ActiveRecord
         return [
             [['iccid'], 'required'],
             [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id'], 'integer'],
-            ['client_account_id', 'exist', 'skipOnError' => true, 'targetClass' => ClientAccount::className(), 'targetAttribute' => ['client_account_id' => 'id'], 'filter' => ['account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]],
+            ['client_account_id', 'exist', 'skipOnError' => true, 'targetClass' => ClientAccount::class, 'targetAttribute' => ['client_account_id' => 'id'], 'filter' => ['account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]],
         ];
     }
 
@@ -77,8 +77,8 @@ class Card extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                \app\classes\behaviors\HistoryChanges::className(),
-                \app\modules\sim\behaviors\CardBehavior::className(),
+                \app\classes\behaviors\HistoryChanges::class,
+                \app\modules\sim\behaviors\CardBehavior::class,
             ]
         );
     }
@@ -88,7 +88,7 @@ class Card extends ActiveRecord
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_account_id']);
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_account_id']);
     }
 
     /**
@@ -96,7 +96,7 @@ class Card extends ActiveRecord
      */
     public function getImsies()
     {
-        return $this->hasMany(Imsi::className(), ['iccid' => 'iccid'])
+        return $this->hasMany(Imsi::class, ['iccid' => 'iccid'])
             ->indexBy('imsi');
     }
 
@@ -105,7 +105,7 @@ class Card extends ActiveRecord
      */
     public function getStatus()
     {
-        return $this->hasOne(CardStatus::className(), ['id' => 'status_id']);
+        return $this->hasOne(CardStatus::class, ['id' => 'status_id']);
     }
 
     /**

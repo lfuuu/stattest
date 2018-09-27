@@ -31,7 +31,7 @@ class QiwiController extends BaseController
     {
         return [
             'basicAuth' => [
-                'class' => HttpBasicAuth::className(),
+                'class' => HttpBasicAuth::class,
                 'auth' => function ($user, $password) {
 
                     $params = $this->_moduleConfig->params['QiwiBasicAuth'];

@@ -49,8 +49,8 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     public function behaviors()
     {
         return [
-            'ImportantEvents' => UsageAction::className(),
-            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
+            'ImportantEvents' => UsageAction::class,
+            'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::class,
         ];
     }
 
@@ -75,7 +75,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
      */
     public function getTariff()
     {
-        return $this->hasOne(TariffVoipPackage::className(), ['id' => 'tariff_id']);
+        return $this->hasOne(TariffVoipPackage::class, ['id' => 'tariff_id']);
     }
 
     /**
@@ -83,7 +83,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
      */
     public function getUsageVoip()
     {
-        return $this->hasOne(UsageVoip::className(), ['id' => 'usage_voip_id']);
+        return $this->hasOne(UsageVoip::class, ['id' => 'usage_voip_id']);
     }
 
     /**
@@ -106,7 +106,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         $cacheKey = $dateRangeFrom . '#' . $dateRangeTo;
 
         if (!array_key_exists($cacheKey, $this->billingStat)) {
-            $link = $this->hasMany(BillingStatPackage::className(), ['package_id' => 'id']);
+            $link = $this->hasMany(BillingStatPackage::class, ['package_id' => 'id']);
 
             if ($dateRangeFrom) {
                 $dateRangeFromStr = (new DateTimeWithUserTimezone($dateRangeFrom,
@@ -142,7 +142,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
      */
     public function getCallsStat($dateRangeFrom = '', $dateRangeTo = '')
     {
-        $link = $this->hasMany(CallsStatPackage::className(), [
+        $link = $this->hasMany(CallsStatPackage::class, [
             'service_package_id' => 'id',
             'number_service_id' => 'usage_voip_id',
         ]);
@@ -187,7 +187,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+        return $this->hasOne(ClientAccount::class, ['client' => 'client']);
     }
 
     /**
@@ -195,7 +195,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
      */
     public static function getMissingTariffs()
     {
-        return UsagesLostTariffs::intoTariffTable(self::className(), TariffVoipPackage::tableName(), 'tariff_id');
+        return UsagesLostTariffs::intoTariffTable(self::class, TariffVoipPackage::tableName(), 'tariff_id');
     }
 
     /**

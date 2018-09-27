@@ -42,7 +42,7 @@ $clientAccount = $accountTariff->clientAccount;
         ?>
         <div class="col-sm-6">
             <?= $form->field($accountTariffLog, 'tariff_period_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => $tariffPeriods,
                     'options' => [
                         'id' => 'accountTariffTariffPeriod' . $id,
@@ -59,7 +59,7 @@ $clientAccount = $accountTariff->clientAccount;
 
     <div class="col-sm-6">
         <?= $form->field($accountTariffLog, 'actual_from')
-            ->widget(DatePicker::className(), [
+            ->widget(DatePicker::class, [
                 'removeButton' => false,
                 'pluginOptions' => [
                     'autoclose' => true,

@@ -50,7 +50,7 @@ $columns = [
     [
         'label' => 'Тип услуги',
         'attribute' => 'service_type_id',
-        'class' => ServiceTypeColumn::className(),
+        'class' => ServiceTypeColumn::class,
         'value' => function (AccountTariff $accountTariff) {
             return $accountTariff->serviceType->name;
         }
@@ -59,7 +59,7 @@ $columns = [
         'label' => Yii::t('models/' . $accountLogPeriodTableName, 'account_tariff_id'),
         'attribute' => 'tariff_period_id',
         'format' => 'html',
-        'class' => TariffPeriodColumn::className(),
+        'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $filterModel->service_type_id,
         'value' => function (AccountTariff $accountTariff) {
             return Html::a(
@@ -70,7 +70,7 @@ $columns = [
     ],
     [
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             return $accountTariff->clientAccount->getLink();
@@ -86,7 +86,7 @@ if ($monthDateTime) {
         $column = [
             'label' => $day,
             'attribute' => $day,
-            'class' => WithoutFilterColumn::className(),
+            'class' => WithoutFilterColumn::class,
             'format' => 'html',
             'value' => function (AccountTariff $accountTariff) use ($monthDateTime, $day, $resourcesGroupedByServiceType) {
 
@@ -188,7 +188,7 @@ if ($monthDateTime) {
 
         if ($day == 1) {
             $column['attribute'] = 'month';
-            $column['class'] = MonthColumn::className();
+            $column['class'] = MonthColumn::class;
             $column['filterOptions'] = ['colspan' => $days];
         }
 
@@ -199,7 +199,7 @@ if ($monthDateTime) {
     $columns[] = [
         'label' => Yii::t('tariff', 'Select a month'),
         'attribute' => 'month',
-        'class' => MonthColumn::className(),
+        'class' => MonthColumn::class,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             return '';

@@ -18,7 +18,7 @@ class WelltimeServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageWelltime::className();
+        return UsageWelltime::class;
     }
 
     /**

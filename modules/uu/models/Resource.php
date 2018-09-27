@@ -106,7 +106,7 @@ class Resource extends ActiveRecord
      */
     public function getServiceType()
     {
-        return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+        return $this->hasOne(ServiceType::class, ['id' => 'service_type_id']);
     }
 
     /**
@@ -149,28 +149,28 @@ class Resource extends ActiveRecord
     {
         return [
             // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
-            self::ID_VPBX_DISK => VpbxDiskResourceReader::className(),
+            self::ID_VPBX_DISK => VpbxDiskResourceReader::class,
 
             // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
-            self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::className(),
+            self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::class,
 
             // Смс по пакетам телефонии. Берется из mtt_raw
-            self::ID_VOIP_PACKAGE_SMS => SmsResourceReader::className(),
+            self::ID_VOIP_PACKAGE_SMS => SmsResourceReader::class,
 
             // Интернет-трафик по пакетам телефонии (Мб, float). Не важно, сколько потрачено
-            self::ID_VOIP_PACKAGE_INTERNET => ZeroResourceReader::className(),
+            self::ID_VOIP_PACKAGE_INTERNET => ZeroResourceReader::class,
 
             // Звонки по ориг-пакета транка (у.е, float). Берется из calls_raw
-            self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::className(),
+            self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::class,
 
             // Разовая услуга. Менеджер сам определяет стоимость
-            self::ID_ONE_TIME => ZeroResourceReader::className(),
+            self::ID_ONE_TIME => ZeroResourceReader::class,
 
             // ННП. Кол-во номеров
-            self::ID_NNP_NUMBERS => NnpNumberResourceReader::className(),
+            self::ID_NNP_NUMBERS => NnpNumberResourceReader::class,
 
             // Calltracking
-            self::ID_CALLTRACKING => CalltrackingResourceReader::className(),
+            self::ID_CALLTRACKING => CalltrackingResourceReader::class,
         ];
     }
 

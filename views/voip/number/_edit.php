@@ -21,7 +21,7 @@ use yii\widgets\ActiveForm;
 
         <?php // Красивость ?>
         <div class="col-sm-2">
-            <?= $form->field($number, 'beauty_level')->widget(Select2::className(), [
+            <?= $form->field($number, 'beauty_level')->widget(Select2::class, [
                 'data' => DidGroup::$beautyLevelNames,
             ]) ?>
         </div>

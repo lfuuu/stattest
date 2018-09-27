@@ -68,7 +68,7 @@ class _UsageVirtpbx extends \app\models\UsageVirtpbx
 
     public function getLogTariffDirect()
     {
-        return $this->hasOne(LogTarif::className(), ['id_service' => 'id'])
+        return $this->hasOne(LogTarif::class, ['id_service' => 'id'])
             ->andWhere(['service' => parent::tableName()])
             ->orderBy(['id' => SORT_DESC]);
     }

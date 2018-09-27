@@ -40,7 +40,7 @@ $serviceType = $filterModel->getServiceType();
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}',
         'buttons' => [
             'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
@@ -55,7 +55,7 @@ $columns = [
     [
         'label' => Yii::t('tariff', 'Universal services'),
         'attribute' => 'tariff_period_id',
-        'class' => TariffPeriodColumn::className(),
+        'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $serviceType->id,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
@@ -84,7 +84,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
         $dateTestTariffColumn = [
             'label' => 'Дата включения на тестовый тариф, utc',
             'attribute' => 'test_connect_date',
-            'class' => DateRangeDoubleColumn::className(),
+            'class' => DateRangeDoubleColumn::class,
             'value' => function (AccountTariff $accountTariff) {
                 /** @var AccountTariffHeap $accountTariffHeap*/
                 $accountTariffHeap = $accountTariff->getAccountTariffHeap()
@@ -98,7 +98,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
     $accountManagerColumn = [
         'label' => 'Ак. менеджер',
         'attribute' => 'account_manager_name',
-        'class' => UserColumn::className(),
+        'class' => UserColumn::class,
         'value' => function (AccountTariff $accountTariff) {
             return $accountTariff->clientAccount->contract->getAccountManagerName();
         },
@@ -107,7 +107,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
     $dateSaleColumn = [
         'label' => 'Дата продажи, utc',
         'attribute' => 'date_sale',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'value' => function(AccountTariff $accountTariff) {
             /** @var AccountTariffHeap $accountTariffHeap*/
             $accountTariffHeap = $accountTariff->getAccountTariffHeap()
@@ -120,7 +120,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
     $dateBeforeSaleColumn = [
         'label' => 'Дата допродажи, utc',
         'attribute' => 'date_before_sale',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'value' => function(AccountTariff $accountTariff) {
             /** @var AccountTariffHeap $accountTariffHeap*/
             $accountTariffHeap = $accountTariff->getAccountTariffHeap()
@@ -133,7 +133,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
     $dateDisconnectTariffColumn = [
         'label' => 'Дата отключения, utc',
         'attribute' => 'disconnect_date',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'value' => function(AccountTariff $accountTariff) {
             /** @var AccountTariffHeap $accountTariffHeap*/
             $accountTariffHeap = $accountTariff->getAccountTariffHeap()
@@ -148,7 +148,7 @@ if ($serviceTypeId = $serviceType->isPackage()) {
     $columns[] = [
         'label' => 'Тариф основной услуги',
         'attribute' => 'prev_account_tariff_tariff_id',
-        'class' => TariffPeriodColumn::className(),
+        'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $serviceTypeId,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
@@ -163,7 +163,7 @@ $columns = array_merge($columns, [
     [
         'label' => 'Включая НДС',
         'attribute' => 'tariff_is_include_vat',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
         'value' => function (AccountTariff $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
@@ -174,7 +174,7 @@ $columns = array_merge($columns, [
     [
         'label' => 'Постоплата',
         'attribute' => 'tariff_is_postpaid',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
         'value' => function (AccountTariff $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
@@ -186,7 +186,7 @@ $columns = array_merge($columns, [
         'label' => 'Страна',
         'attribute' => 'tariff_country_id',
         'format' => 'html',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'isAddLink' => false,
         'contentOptions' => [
             'class' => 'nowrap',
@@ -217,7 +217,7 @@ $columns = array_merge($columns, [
     ],
     [
         'attribute' => 'tariff_currency_id',
-        'class' => CurrencyColumn::className(),
+        'class' => CurrencyColumn::class,
         'value' => function (AccountTariff $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
@@ -229,7 +229,7 @@ $columns = array_merge($columns, [
         'label' => 'Организации',
         'attribute' => 'tariff_organization_id',
         'format' => 'html',
-        'class' => OrganizationColumn::className(),
+        'class' => OrganizationColumn::class,
         'contentOptions' => [
             'class' => 'nowrap',
         ],
@@ -243,7 +243,7 @@ $columns = array_merge($columns, [
     [
         'label' => 'По умолчанию',
         'attribute' => 'tariff_is_default',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
         'value' => function (AccountTariff $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
@@ -254,7 +254,7 @@ $columns = array_merge($columns, [
     [
         'label' => 'Статус тарифа',
         'attribute' => 'tariff_status_id',
-        'class' => TariffStatusColumn::className(),
+        'class' => TariffStatusColumn::class,
         'serviceTypeId' => $serviceType->id,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
@@ -266,7 +266,7 @@ $columns = array_merge($columns, [
     ],
     [
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             return $accountTariff->clientAccount->getLink();
@@ -274,7 +274,7 @@ $columns = array_merge($columns, [
     ],
     [
         'attribute' => 'region_id',
-        'class' => RegionColumn::className(),
+        'class' => RegionColumn::class,
     ],
     [
         'attribute' => 'comment',
@@ -285,11 +285,11 @@ $columns = array_merge($columns, [
     ],
     [
         'attribute' => 'tariff_period_utc',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'account_log_period_utc',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
     ],
 ]);
 
@@ -300,7 +300,7 @@ if ($serviceType) {
         case ServiceType::ID_VPBX:
             $columns[] = [
                 'attribute' => 'is_unzipped',
-                'class' => YesNoColumn::className(),
+                'class' => YesNoColumn::class,
             ];
             $columns[] = $dateSaleColumn;
             $columns[] = $dateBeforeSaleColumn;
@@ -311,11 +311,11 @@ if ($serviceType) {
         case ServiceType::ID_VOIP:
             $columns[] = [
                 'attribute' => 'city_id',
-                'class' => CityColumn::className(),
+                'class' => CityColumn::class,
             ];
             $columns[] = [
                 'attribute' => 'voip_number',
-                'class' => StringColumn::className(),
+                'class' => StringColumn::class,
                 'filterOptions' => [
                     'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
                 ],
@@ -323,7 +323,7 @@ if ($serviceType) {
             $columns[] = [
                 'label' => 'Красивость',
                 'attribute' => 'beauty_level',
-                'class' => BeautyLevelColumn::className(),
+                'class' => BeautyLevelColumn::class,
                 'value' => function (AccountTariff $accountTariff) {
                     return $accountTariff->number->beauty_level;
                 },
@@ -331,7 +331,7 @@ if ($serviceType) {
             $columns[] = [
                 'label' => 'Тип NDC',
                 'attribute' => 'number_ndc_type_id',
-                'class' => NdcTypeColumn::className(),
+                'class' => NdcTypeColumn::class,
                 'value' => function (AccountTariff $accountTariff) {
                     return $accountTariff->number->ndc_type_id;
                 },
@@ -353,30 +353,30 @@ if ($serviceType) {
         case ServiceType::ID_VOIP_PACKAGE_CALLS:
             $columns[] = [
                 'attribute' => 'city_id',
-                'class' => CityColumn::className(),
+                'class' => CityColumn::class,
             ];
             break;
 
         case ServiceType::ID_INFRASTRUCTURE:
             $columns[] = [
                 'attribute' => 'infrastructure_project',
-                'class' => InfrastructureProjectColumn::className(),
+                'class' => InfrastructureProjectColumn::class,
             ];
             $columns[] = [
                 'attribute' => 'infrastructure_level',
-                'class' => InfrastructureLevelColumn::className(),
+                'class' => InfrastructureLevelColumn::class,
             ];
             $columns[] = [
                 'attribute' => 'datacenter_id',
-                'class' => DatacenterColumn::className(),
+                'class' => DatacenterColumn::class,
             ];
             $columns[] = [
                 'attribute' => 'city_id',
-                'class' => CityColumn::className(),
+                'class' => CityColumn::class,
             ];
             $columns[] = [
                 'attribute' => 'price',
-                'class' => IntegerRangeColumn::className(),
+                'class' => IntegerRangeColumn::class,
             ];
             break;
     }

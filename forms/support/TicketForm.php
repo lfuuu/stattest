@@ -21,13 +21,13 @@ class TicketForm extends Form
     public function rules()
     {
         return [
-            [['id'], TicketIdValidator::className()],
-            [['client_account_id'], AccountIdValidator::className()],
+            [['id'], TicketIdValidator::class],
+            [['client_account_id'], AccountIdValidator::class],
             [['user_id'], 'integer'],
-            [['department'], EnumValidator::className(), 'enum' => DepartmentEnum::className()],
+            [['department'], EnumValidator::class, 'enum' => DepartmentEnum::class],
             [['subject'], 'string', 'max' => 1000],
             [['description'], 'string'],
-            [['status'], EnumValidator::className(), 'enum' => TicketStatusEnum::className()],
+            [['status'], EnumValidator::class, 'enum' => TicketStatusEnum::class],
         ];
     }
 

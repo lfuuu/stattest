@@ -23,7 +23,7 @@ class VirtpbxServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageVirtpbx::className();
+        return UsageVirtpbx::class;
     }
 
     /**

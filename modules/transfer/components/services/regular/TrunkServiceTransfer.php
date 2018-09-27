@@ -27,7 +27,7 @@ class TrunkServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageTrunk::className();
+        return UsageTrunk::class;
     }
 
     /**

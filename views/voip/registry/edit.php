@@ -122,7 +122,7 @@ $readonlyOptions = [
         // строка 2
         $maskedInputWidgetConfig = [
             'type' => Form::INPUT_WIDGET,
-            'widgetClass' => \app\classes\MaskedInput::className(),
+            'widgetClass' => \app\classes\MaskedInput::class,
             'options' => [
                 'mask' => $model->city_number_format,
                 'options' => [

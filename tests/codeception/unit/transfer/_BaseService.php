@@ -494,7 +494,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
             $transferResult = $processor->run($preProcessor);
         } catch (ModelValidationException $e) {
             $model = $e->getModel();
-            $this->fail($model::className() . ' (' . $e->getLine() . '): ' . $e->getMessage());
+            $this->fail(get_class($model) . ' (' . $e->getLine() . '): ' . $e->getMessage());
         } catch (\Exception $e) {
             $this->fail($e->getFile() . '(' . $e->getLine() . '): ' . $e->getMessage());
         }

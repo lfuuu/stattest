@@ -46,16 +46,16 @@ use app\modules\nnp\column\RegionColumn;
 $columns = [
     [
         'attribute' => 'id',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'server_id',
-        'class' => ServerColumn::className(),
+        'class' => ServerColumn::class,
     ],
     [
         'attribute' => 'trunk_ids', // фейковое поле
         'label' => 'Оператор (суперклиент)',
-        'class' => TrunkSuperClientColumn::className(),
+        'class' => TrunkSuperClientColumn::class,
         'enableSorting' => false,
         'value' => function (CallsRaw $call) {
             return $call->trunk_id;
@@ -63,7 +63,7 @@ $columns = [
     ],
     [
         'attribute' => 'trunk_id',
-        'class' => TrunkColumn::className(),
+        'class' => TrunkColumn::class,
         'filterByIds' => $filterModel->trunkIdsIndexed,
         'filterByServerIds' => $filterModel->server_id,
         'filterOptions' => [
@@ -73,7 +73,7 @@ $columns = [
     ],
     [
         'attribute' => 'trunk_service_id',
-        'class' => UsageTrunkColumn::className(),
+        'class' => UsageTrunkColumn::class,
         'trunkId' => $filterModel->trunk_id,
         'filterOptions' => [
             'title' => 'Фильтр зависит от Транка',
@@ -81,7 +81,7 @@ $columns = [
     ],
     [
         'attribute' => 'connect_time',
-        'class' => DateRangeDoubleColumn::className(),
+        'class' => DateRangeDoubleColumn::class,
         'filterOptions' => [
             'class' => $filterModel->connect_time_from ? 'alert-success' : 'alert-danger',
             'title' => 'У первой даты время считается 00:00, у второй 23:59',
@@ -90,7 +90,7 @@ $columns = [
     [
         'attribute' => 'src_number',
         'label' => 'Номер А',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
         ],
@@ -98,27 +98,27 @@ $columns = [
     [
         'attribute' => 'dst_number',
         'label' => 'Номер Б',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
         ],
     ],
     [
         'attribute' => 'prefix',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'billed_time',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
     ],
     [
         'attribute' => 'rate',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
     [
         'attribute' => 'interconnect_rate',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
     [
@@ -130,12 +130,12 @@ $columns = [
     ],
     [
         'attribute' => 'cost',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
     [
         'attribute' => 'interconnect_cost',
-        'class' => FloatRangeColumn::className(),
+        'class' => FloatRangeColumn::class,
         'format' => ['decimal', 4],
     ],
     [
@@ -147,7 +147,7 @@ $columns = [
     ],
     [
         'attribute' => 'destination_id',
-        'class' => DestinationColumn::className(),
+        'class' => DestinationColumn::class,
         'filterByServerId' => $filterModel->server_id,
         'filterOptions' => [
             'title' => 'Фильтр зависит от Точки присоединения',
@@ -155,53 +155,53 @@ $columns = [
     ],
     [
         'attribute' => 'geo_id',
-        'class' => GeoColumn::className(),
+        'class' => GeoColumn::class,
     ],
     [
         'attribute' => 'orig',
-        'class' => OrigColumn::className(),
+        'class' => OrigColumn::class,
     ],
     [
         'attribute' => 'mob',
-        'class' => MobColumn::className(),
+        'class' => MobColumn::class,
     ],
     [
         'attribute' => 'account_id',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'disconnect_cause',
-        'class' => DisconnectCauseColumn::className(),
+        'class' => DisconnectCauseColumn::class,
     ],
     [
         'attribute' => 'nnp_country_prefix',
-        'class' => CountryColumn::className(),
+        'class' => CountryColumn::class,
         'indexBy' => 'prefix',
     ],
     [
         'attribute' => 'nnp_ndc',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'account_version',
-        'class' => AccountVersionColumn::className(),
+        'class' => AccountVersionColumn::class,
     ],
     [
         'attribute' => 'nnp_operator_id',
-        'class' => OperatorColumn::className(),
+        'class' => OperatorColumn::class,
     ],
     [
         'attribute' => 'nnp_region_id',
-        'class' => RegionColumn::className(),
+        'class' => RegionColumn::class,
     ],
     [
         'attribute' => 'nnp_city_id',
-        'class' => CityColumn::className(),
+        'class' => CityColumn::class,
     ],
     [
         'attribute' => 'stats_nnp_package_minute_id',
         'format' => 'html',
-        'class' => IntegerRangeColumn::className(),
+        'class' => IntegerRangeColumn::class,
         'value' => function (CallsRaw $calls) {
             return $calls->stats_nnp_package_minute_id . '<br/>' .
             ($calls->nnp_package_minute_id ? 'минуты' : '') .

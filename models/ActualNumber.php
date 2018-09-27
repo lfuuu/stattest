@@ -25,7 +25,7 @@ class ActualNumber extends ActiveRecord
     public function behaviors()
     {
         return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\ActualNumber::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\ActualNumber::class,
         ];
     }
 

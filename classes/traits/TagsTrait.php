@@ -53,11 +53,11 @@ trait TagsTrait
     public function setTagsFilter(ActiveQuery $query, $resourceClassName = null)
     {
         $tableName = self::tableName();
-        $className = self::className();
+        $className = self::class;
 
         if (!is_null($resourceClassName)) {
             $tableName = $resourceClassName::tableName();
-            $className = $resourceClassName::className();
+            $className = get_class($resourceClassName);
         }
 
         if (is_array($this->tags_filter) && count($this->tags_filter)) {

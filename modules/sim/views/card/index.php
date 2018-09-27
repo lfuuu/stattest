@@ -34,7 +34,7 @@ use yii\helpers\Url;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
+        'class' => ActionColumn::class,
         'template' => '{update}',
         'buttons' => [
             'update' => function ($url, Card $model, $key) use ($baseView) {
@@ -49,18 +49,18 @@ $columns = [
 
     [
         'attribute' => 'iccid',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 
     [
         'attribute' => 'imei',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 
     [
         'label' => 'IMSI',
         'attribute' => 'imsi',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'format' => 'raw',
         'value' => function (Card $card) {
             $ids = [];
@@ -80,7 +80,7 @@ $columns = [
     [
         'label' => 'MSISDN',
         'attribute' => 'msisdn',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'format' => 'raw',
         'value' => function (Card $card) {
             $msisdns = [];
@@ -98,7 +98,7 @@ $columns = [
     [
         'label' => 'DID',
         'attribute' => 'did',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
         'format' => 'raw',
         'value' => function (Card $card) {
             $dids = [];
@@ -114,7 +114,7 @@ $columns = [
     [
         'label' => 'Красивость',
         'attribute' => 'beauty_level',
-        'class' => BeautyLevelColumn::className(),
+        'class' => BeautyLevelColumn::class,
         'value' => function (Card $card) {
             $imsies = $card->imsies;
             foreach ($imsies as $imsi) {
@@ -127,7 +127,7 @@ $columns = [
     [
         'label' => 'Статус номера',
         'attribute' => 'number_status',
-        'class' => NumberStatusColumn::className(),
+        'class' => NumberStatusColumn::class,
         'value' => function (Card $card) {
             $imsies = $card->imsies;
             foreach ($imsies as $imsi) {
@@ -140,7 +140,7 @@ $columns = [
     [
         'label' => 'MVNO-партнер',
         'attribute' => 'imsi_partner',
-        'class' => ImsiPartnerColumn::className(),
+        'class' => ImsiPartnerColumn::class,
         'format' => 'raw',
         'value' => function (Card $card) {
             $ids = [];
@@ -163,7 +163,7 @@ $columns = [
 
     [
         'attribute' => 'client_account_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function (Card $card) {
             return $card->client_account_id ?
@@ -174,12 +174,12 @@ $columns = [
 
     [
         'attribute' => 'is_active',
-        'class' => YesNoColumn::className(),
+        'class' => YesNoColumn::class,
     ],
 
     [
         'attribute' => 'status_id',
-        'class' => CardStatusColumn::className(),
+        'class' => CardStatusColumn::class,
     ],
 ];
 

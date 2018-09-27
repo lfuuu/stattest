@@ -116,14 +116,14 @@ class NumberRange extends ActiveRecord
         return [
             [
                 // Установить "когда создал" и "когда обновил"
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'insert_time',
                 'updatedAtAttribute' => 'update_time',
                 'value' => new Expression("NOW() AT TIME ZONE 'utc'"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
             [
                 // Установить "кто создал" и "кто обновил"
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['insert_user_id', 'update_user_id'],
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
@@ -185,7 +185,7 @@ class NumberRange extends ActiveRecord
      */
     public function getOperator()
     {
-        return $this->hasOne(Operator::className(), ['id' => 'operator_id']);
+        return $this->hasOne(Operator::class, ['id' => 'operator_id']);
     }
 
     /**
@@ -193,7 +193,7 @@ class NumberRange extends ActiveRecord
      */
     public function getRegion()
     {
-        return $this->hasOne(Region::className(), ['id' => 'region_id']);
+        return $this->hasOne(Region::class, ['id' => 'region_id']);
     }
 
     /**
@@ -201,7 +201,7 @@ class NumberRange extends ActiveRecord
      */
     public function getCity()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**
@@ -209,7 +209,7 @@ class NumberRange extends ActiveRecord
      */
     public function getNdcType()
     {
-        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
+        return $this->hasOne(NdcType::class, ['id' => 'ndc_type_id']);
     }
 
     /**
@@ -217,7 +217,7 @@ class NumberRange extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
     /**
@@ -225,7 +225,7 @@ class NumberRange extends ActiveRecord
      */
     public function getNumberRangePrefixes()
     {
-        return $this->hasMany(NumberRangePrefix::className(), ['number_range_id' => 'id']);
+        return $this->hasMany(NumberRangePrefix::class, ['number_range_id' => 'id']);
     }
 
     /**

@@ -44,7 +44,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
 
             <div class="col-sm-3">
                 <?= $form->field($tariff, 'voip_group_id')
-                    ->widget(Select2::className(), [
+                    ->widget(Select2::class, [
                         'data' => TariffVoipGroup::getList(true),
                     ])
                     ->label($tariff->getAttributeLabel('voip_group_id') . $helpConfluence)

@@ -21,7 +21,7 @@ class PackageServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceModelName()
     {
-        return UsageVoipPackage::className();
+        return UsageVoipPackage::class;
     }
 
     /**

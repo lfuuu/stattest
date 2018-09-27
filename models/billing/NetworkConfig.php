@@ -40,6 +40,6 @@ class NetworkConfig extends ActiveRecord
      */
     public function getPricelist()
     {
-        return $this->hasOne(Pricelist::className(), ['id' => 'pricelist_id']);
+        return $this->hasOne(Pricelist::class, ['id' => 'pricelist_id']);
     }
 }

@@ -29,13 +29,13 @@ class ApiController extends Controller
     {
         return [
             'contentNegotiator' => [
-                'class' => ContentNegotiator::className(),
+                'class' => ContentNegotiator::class,
                 'formats' => [
                     'application/json' => Response::FORMAT_JSON,
                 ],
             ],
             'authenticator' => [
-                'class' => HttpBearerAuth::className(),
+                'class' => HttpBearerAuth::class,
             ],
         ];
     }

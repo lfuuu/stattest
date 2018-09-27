@@ -148,7 +148,7 @@ class SubAccountController extends ApiInternalController
         $model = DynamicModel::validateData(
             $data,
             [
-                ['account_id', AccountIdValidator::className()],
+                ['account_id', AccountIdValidator::class],
                 ['stat_product_id', 'integer', 'min' => 0],
                 ['sub_accounts', 'required']
             ]
@@ -177,7 +177,7 @@ class SubAccountController extends ApiInternalController
                     [['id', 'sub_account', 'is_sub_account_enable', 'number'], 'required'],
                     [['id', 'sub_account'], 'integer', 'min' => 1],
                     ['is_sub_account_enable', 'boolean'],
-                    ['name', FormFieldValidator::className()],
+                    ['name', FormFieldValidator::class],
                     [
                         [
                             'number',

@@ -32,19 +32,19 @@ $columns = [
     ],
     [
         'attribute' => 'name',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'name_rus',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'name_eng',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'alpha_3',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'label' => '',

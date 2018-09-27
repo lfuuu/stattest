@@ -89,7 +89,7 @@ class Prefix extends ActiveRecord
      */
     public function getNumberRangePrefixes()
     {
-        return $this->hasMany(NumberRangePrefix::className(), ['prefix_id' => 'id']);
+        return $this->hasMany(NumberRangePrefix::class, ['prefix_id' => 'id']);
     }
 
     /**
@@ -97,7 +97,7 @@ class Prefix extends ActiveRecord
      */
     public function getPrefixDestinations()
     {
-        return $this->hasMany(PrefixDestination::className(), ['prefix_id' => 'id']);
+        return $this->hasMany(PrefixDestination::class, ['prefix_id' => 'id']);
     }
 
     /**

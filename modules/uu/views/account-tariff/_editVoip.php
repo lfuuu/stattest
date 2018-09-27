@@ -25,7 +25,7 @@ use yii\helpers\Url;
 $clientAccount = $formModel->accountTariff->clientAccount;
 $accountTariffVoip = $formModel->accountTariffVoip;
 
-$this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset::class]]);
 ?>
 
 <?php $form = ActiveForm::begin([
@@ -43,7 +43,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <div class="col-sm-2">
             <?php // страна ?>
             <?= $form->field($accountTariffVoip, 'voip_country_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => Country::getList(false),
                     'options' => [
                         'id' => 'voipCountryId',
@@ -55,7 +55,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <div class="col-sm-2">
             <?php // город ?>
             <?= $form->field($accountTariffVoip, 'city_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => City::getList($isWithEmpty = true, $accountTariffVoip->voip_country_id), // страна выбрана от клиента
                     'options' => [
                             'id' => 'voipRegions',
@@ -70,7 +70,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <div class="col-sm-2">
             <?php // тип номера ?>
             <?= $form->field($accountTariffVoip, 'voip_ndc_type_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false, (bool)$accountTariffVoip->city_id),
                     'options' => [
                         'id' => 'voipNdcType',
@@ -81,7 +81,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <div class="col-sm-2">
             <?php // тип красивости ?>
             <?= $form->field($accountTariffVoip, 'voip_did_group')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => DidGroup::getList(true, $accountTariffVoip->voip_country_id, $accountTariffVoip->city_id ?: -1, $accountTariffVoip->voip_ndc_type_id),
                     'options' => [
                             'id' => 'voipDidGroup',
@@ -110,7 +110,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             );
             ?>
             <?= $form->field($accountTariffVoip, 'operator_account_id')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => $operatorAccounts,
                     'options' => [
                             'id' => 'voipOperatorAccount',
@@ -130,7 +130,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <div class="col-sm-2">
             <?php // кол-во столбцов ?>
             <?= $form->field($accountTariffVoip, 'voip_numbers_list_class')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => [ // класс bootstrap, соотвествующий кол-ву столбцов
                         12 => 1,
                         6 => 2,
@@ -149,7 +149,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             <?php // сортировка (поле) ?>
             <?php $number = new Number(); ?>
             <?= $form->field($accountTariffVoip, 'voip_numbers_list_order_by_field')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => [
                         'number' => $number->getAttributeLabel('number'),
                         'beauty_level' => $number->getAttributeLabel('beauty_level'),
@@ -163,7 +163,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <div class="col-sm-2">
             <?php // сортировка (тип) ?>
             <?= $form->field($accountTariffVoip, 'voip_numbers_list_order_by_type')
-                ->widget(Select2::className(), [
+                ->widget(Select2::class, [
                     'data' => [
                         SORT_ASC => Yii::t('common', 'Ascending'),
                         SORT_DESC => Yii::t('common', 'Descending'),
@@ -197,7 +197,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                 // Добавление статуса "Отсутствует на складе".
                 $statuses[Number::STATUS_WAREHOUSE_NO_RELATION] = 'Не привязан к сим-карте (вне склада)';
                 echo $form->field($accountTariffVoip, 'voip_numbers_warehouse_status')
-                    ->widget(Select2::className(), [
+                    ->widget(Select2::class, [
                         'data' => $statuses,
                         'options' => [
                             'id' => 'voipNumbersWarehouseStatus',

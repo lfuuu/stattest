@@ -45,7 +45,7 @@ if (!$operator->isNewRecord) {
 
         <?php // Страна ?>
         <div class="col-sm-2">
-            <?= $form->field($operator, 'country_code')->widget(Select2::className(), [
+            <?= $form->field($operator, 'country_code')->widget(Select2::class, [
                 'data' => Country::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $indexBy = 'code'),
             ]) ?>
             <div>

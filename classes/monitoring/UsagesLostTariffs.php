@@ -70,13 +70,13 @@ class UsagesLostTariffs extends Component implements MonitoringInterface
     public function getResult()
     {
         $usages = [
-            UsageVoip::className(),
-            UsageVirtpbx::className(),
-            UsageIpPorts::className(),
-            UsageSms::className(),
-            UsageVoipPackage::className(),
-            UsageExtra::className(),
-            UsageWelltime::className(),
+            UsageVoip::class,
+            UsageVirtpbx::class,
+            UsageIpPorts::class,
+            UsageSms::class,
+            UsageVoipPackage::class,
+            UsageExtra::class,
+            UsageWelltime::class,
         ];
 
         $result = [];

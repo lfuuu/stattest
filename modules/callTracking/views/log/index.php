@@ -37,11 +37,11 @@ $this->title = 'CallTracking. Статистика';
 $columns = [
     [
         'attribute' => 'id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'account_tariff_id',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
         'format' => 'html',
         'value' => function(Log $log) {
             return Html::a($log->account_tariff_id, '/uu/account-tariff/edit?id=' . $log->account_tariff_id);
@@ -49,35 +49,35 @@ $columns = [
     ],
     [
         'attribute' => 'voip_number',
-        'class' => IntegerColumn::className(),
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'start_dt',
-        'class' => DateTimeRangeDoubleColumn::className(),
+        'class' => DateTimeRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'disconnect_dt',
-        'class' => DateTimeRangeDoubleColumn::className(),
+        'class' => DateTimeRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'stop_dt',
-        'class' => DateTimeRangeDoubleColumn::className(),
+        'class' => DateTimeRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'user_agent',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'ip',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'url',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
     [
         'attribute' => 'referrer',
-        'class' => StringColumn::className(),
+        'class' => StringColumn::class,
     ],
 ];
 

@@ -29,7 +29,7 @@ class ClientContactPersonal extends ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'create_time',
                 'updatedAtAttribute' => 'create_time',
                 'value' => new Expression('NOW()'),
@@ -49,6 +49,6 @@ class ClientContactPersonal extends ActiveRecord
 
     public function getType()
     {
-        return $this->hasOne(ClientContactType::className(), ['id' => 'type_id']);
+        return $this->hasOne(ClientContactType::class, ['id' => 'type_id']);
     }
 }

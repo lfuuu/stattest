@@ -27,7 +27,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?php // мега/мульти транк ?>
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'trunk_type_id')
-            ->widget(Select2::className(), [
+            ->widget(Select2::class, [
                 'data' => AccountTariff::getTrunkTypeList(true),
                 'disabled' => !$accountTariff->isNewRecord,
             ])

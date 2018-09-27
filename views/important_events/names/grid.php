@@ -29,7 +29,7 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => [
         [
-            'class' => ActionColumn::className(),
+            'class' => ActionColumn::class,
             'template' => '{delete}',
             'buttons' => [
                 'delete' => function ($url, ImportantEventsNames $model, $key) use ($baseView) {
@@ -43,7 +43,7 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'code',
-            'class' => WithEmptyFilterColumn::className(),
+            'class' => WithEmptyFilterColumn::class,
             'label' => 'Код',
             'format' => 'raw',
             'value' => function ($data) {
@@ -68,11 +68,11 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'tags',
-            'class' => TagsColumn::className(),
+            'class' => TagsColumn::class,
         ],
         [
             'attribute' => 'group_id',
-            'class' => GroupColumn::className(),
+            'class' => GroupColumn::class,
             'label' => 'Группа',
             'width' => '20%',
         ],

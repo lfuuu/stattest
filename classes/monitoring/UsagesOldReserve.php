@@ -76,7 +76,7 @@ class UsagesOldReserve extends Component implements MonitoringInterface
         ];
 
         $usages = [
-            UsageVoip::className(),
+            UsageVoip::class,
         ];
 
         $result = [];

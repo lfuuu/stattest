@@ -36,7 +36,7 @@ class PaymentSberOnline extends ActiveRecord
     public function behaviors()
     {
         return [
-            'createdAt' => CreatedAt::className(),
+            'createdAt' => CreatedAt::class,
         ];
     }
 

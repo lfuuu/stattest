@@ -93,7 +93,7 @@ $form = ActiveForm::begin([
 
             <br/>
             <?php
-            echo $form->field($model, 'targetClientAccount')->widget(Select2::className(), [
+            echo $form->field($model, 'targetClientAccount')->widget(Select2::class, [
                 'options' => [
                     'placeholder' => 'Выберите супер клиента',
                 ],
