@@ -380,18 +380,22 @@ abstract class AccountTariffForm extends Form
         &$defaultTariffPeriodId,
         $isWithEmpty = false,
         $isWithNullAndNotNull = false
-    )
-    {
+    ) {
         $accountTariff = $this->accountTariff;
         $accountTariffVoip = $this->accountTariffVoip;
         $clientAccount = $accountTariff->clientAccount;
         $serviceTypeId = $accountTariff->service_type_id ?: $this->serviceTypeId;
 
+        $superClient = $clientAccount->superClient;
+        $countryId = $superClient->entry_point_id ?
+            $superClient->entryPoint->country_id : // страна из точки входа суперклиента
+            null; // $clientAccount->country_id // если точки входа нет, то любая страна
+
         return TariffPeriod::getList(
             $defaultTariffPeriodId,
             $serviceTypeId,
             $clientAccount->currency,
-            null, // $clientAccount->country_id,
+            $countryId,
             $accountTariff->city_id,
             $isWithEmpty,
             $isWithNullAndNotNull,

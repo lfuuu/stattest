@@ -42,6 +42,14 @@ if ($tariff->service_type_id != ServiceType::ID_VOIP_PACKAGE_CALLS
     $errors[] = 'организация не совпадает';
 }
 
+$superClient = $clientAccount->superClient;
+$countryId = $superClient->entry_point_id ?
+    $superClient->entryPoint->country_id : // страна из точки входа суперклиента
+    null; // $clientAccount->country_id // если точки входа нет, то любая страна
+if ($countryId && !array_key_exists($countryId, $tariff->tariffCountries)) {
+    $errors[] = 'страна точки входа не совпадает';
+}
+
 if ($errors) {
     echo Html::tag('div', 'Этот тариф не может быть подключен текущему ЛС, потому что ' . implode(', ', $errors), ['class' => 'alert alert-danger']);
 } else {

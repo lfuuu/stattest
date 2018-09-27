@@ -516,6 +516,11 @@ class UuController extends ApiInternalController
                 TariffPerson::ID_NATURAL_PERSON :
                 TariffPerson::ID_LEGAL_PERSON;
 
+            $superClient = $clientAccount->superClient;
+            $country_id = $superClient->entry_point_id ?
+                $superClient->entryPoint->country_id : // страна из точки входа суперклиента
+                null; // $clientAccount->country_id // если точки входа нет, то любая страна
+
             switch ($service_type_id) {
 
                 case ServiceType::ID_VOIP:
@@ -1330,7 +1335,7 @@ class UuController extends ApiInternalController
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
 
-        $key = 'actionGetAccountTariffsWithPackages-'.$id.'.'.$client_account_id.'.'.$service_type_id.'.'.$voip_number.'.'.$limit.'.'.$offset;
+        $key = 'actionGetAccountTariffsWithPackages-' . $id . '.' . $client_account_id . '.' . $service_type_id . '.' . $voip_number . '.' . $limit . '.' . $offset;
         if ($client_account_id != 47197) {
             $key = false;
         }
