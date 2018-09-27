@@ -30,7 +30,7 @@ class ReportsController extends BaseController
         }
 
         $operator = OperatorsFactory::me()->getOperator(OperatorOnlime::OPERATOR_CLIENT);
-        $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, $filter['mode'], $filter['promo']);
+        $report = $operator->getReport()->getReportResult($dateFrom, $dateTo, isset($filter['mode']) ? $filter['mode'] : '', isset($filter['promo']) ? $filter['promo'] : '');
 
         if ($asFile == 1) {
             $operator->generateExcel($report);

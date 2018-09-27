@@ -32,15 +32,13 @@ class SearchController extends BaseController
         switch ($searchType) {
 
             case 'clients':
-
                 if (isset(Yii::$app->request->queryParams['term'])) {
                     $search = Yii::$app->request->queryParams['term'];
                     $params['is_term'] = true;
                 }
 
                 // Дополнительный поиск по счетам
-                $bill = Bill::findOne(['bill_no' => trim($search)]);
-                if ($bill) {
+                if ($bill = Bill::findOne(['bill_no' => trim($search)])) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [
@@ -50,13 +48,11 @@ class SearchController extends BaseController
                                 'type' => 'bill',
                             ]
                         ];
-                    } else {
-                        return $this->redirect($bill->getUrl());
                     }
+                    return $this->redirect($bill->getUrl());
                 }
 
-                $invoice = Invoice::findOne(['number' => trim($search)]);
-                if ($invoice) {
+                if ($invoice = Invoice::findOne(['number' => trim($search)])) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [
@@ -69,20 +65,19 @@ class SearchController extends BaseController
                                 'type' => 'invoice',
                             ]
                         ];
-                    } else {
-                        return $this->redirect($invoice->bill->getUrl());
                     }
+                    return $this->redirect($invoice->bill->getUrl());
                 }
 
-                if (trim($search) == intval($search)) {
-                    $params['id'] = intval($search);
+                if (is_numeric($search)) {
+                    $params['id'] = (int)$search;
                 }
 
                 $params['companyName'] = $search;
                 break;
 
             case 'inn':
-                $params['inn'] = intval($search);
+                $params['inn'] = (int)$search;
                 break;
 
             case 'voip':
@@ -99,9 +94,7 @@ class SearchController extends BaseController
 
             case 'bills':
 
-                $bill = Bill::findOne(['bill_no' => trim($search)]);
-
-                if ($bill) {
+                if ($bill = Bill::findOne(['bill_no' => trim($search)])) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [
@@ -111,23 +104,21 @@ class SearchController extends BaseController
                                 'type' => 'bill',
                             ]
                         ];
-                    } else {
-                        return $this->redirect($bill->getUrl());
                     }
+
+                    return $this->redirect($bill->getUrl());
                 }
 
                 return $this->render('result', ['message' => 'Счет № ' . $search . ' не найден']);
 
             case 'troubles':
-                $trouble = Trouble::findOne($search);
 
-                if ($trouble) {
+                if ($trouble = Trouble::findOne($search)) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [['url' => $trouble->getUrl(), 'value' => $trouble->id]];
-                    } else {
-                        return $this->redirect($trouble->getUrl());
                     }
+                    return $this->redirect($trouble->getUrl());
                 }
 
                 $goodsIncomeOrder = GoodsIncomeOrder::find()
@@ -145,9 +136,8 @@ class SearchController extends BaseController
                                 'value' => $goodsIncomeOrder->id,
                             ]
                         ];
-                    } else {
-                        return $this->redirect($goodsIncomeOrder->getUrl());
                     }
+                    return $this->redirect($goodsIncomeOrder->getUrl());
                 }
 
                 return $this->render('result', ['message' => 'Заявка № ' . $search . ' не найдена']);
@@ -203,12 +193,12 @@ class SearchController extends BaseController
         if (Yii::$app->request->isAjax) {
             Yii::$app->request->setQueryParams($params);
             return Yii::$app->runAction($controller . '/' . $action);
-        } else {
-            return $this->redirect(Url::toRoute([$controller . '/' . $action] + $params + [
-                'search' => $search,
-                'searchType' => $searchType
-            ]));
         }
+        return $this->redirect(Url::toRoute(
+            [$controller . '/' . $action] +
+            $params +
+            ['search' => $search, 'searchType' => $searchType]
+        ));
     }
 
     /**
@@ -217,9 +207,10 @@ class SearchController extends BaseController
      */
     public function actionBank($search)
     {
-        $models = Bank::find()->andWhere(['like', 'CAST(bik as CHAR)', $search])->all();
         $res = [];
-        foreach ($models as $model) {
+        $models = Bank::find()
+            ->andWhere(['like', 'CAST(bik as CHAR)', $search]);
+        foreach ($models->each() as $model) {
             $res[] = [
                 'value' => $model->bik,
                 'bank_name' => $model->bank_name,
@@ -227,7 +218,6 @@ class SearchController extends BaseController
                 'corr_acc' => $model->corr_acc,
             ];
         }
-
         Yii::$app->response->format = Response::FORMAT_JSON;
         return $res;
     }
@@ -248,7 +238,7 @@ class SearchController extends BaseController
             ->where(['LIKE', 'comment', $form->troubleComment])
             ->limit(TroubleStage::SEARCH_ITEMS);
 
-        if ($troubleQuery->count() == 1) {
+        if ((int)$troubleQuery->count() === 1) {
             return $this->redirect($troubleQuery->one()->trouble->getUrl());
         }
 
@@ -261,10 +251,6 @@ class SearchController extends BaseController
             ]
         ]);
 
-        return $this->render('troubles',
-            [
-                'dataProvider' => $dataProvider,
-            ]
-        );
+        return $this->render('troubles', ['dataProvider' => $dataProvider,]);
     }
 }

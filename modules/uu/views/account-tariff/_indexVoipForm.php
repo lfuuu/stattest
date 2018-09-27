@@ -22,7 +22,7 @@ $form = ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
 $isEditable = $accountTariffFirst->isLogEditable();
 $isCancelable = $accountTariffFirst->isLogCancelable();
 $isShowAddPackage = $isEditable || $isCancelable;
-
+$packageServiceTypeIdsCount = count($packageServiceTypeIds);
 $params = [
     'accountTariffFirst' => $accountTariffFirst,
     'packageServiceTypeIds' => $packageServiceTypeIds,
@@ -72,7 +72,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                 </div>
 
                 <?php // тариф и базовый пакет ?>
-                <div class="col-sm-<?= count($packageServiceTypeIds) ? 5 : 10 ?>">
+                <div class="col-sm-<?= $packageServiceTypeIdsCount ? 5 : 10 ?>">
 
                     <?= $this->render('_indexVoipFormTariffs', $params) ?>
 
@@ -98,7 +98,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                 </div>
 
                 <?php // пакеты ?>
-                <?php if (count($packageServiceTypeIds)) : ?>
+                <?php if ($packageServiceTypeIdsCount) : ?>
                     <div class="col-sm-5">
                         <?= $this->render('_indexVoipFormPackages', $params) ?>
                     </div>

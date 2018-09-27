@@ -140,7 +140,7 @@ $dataProvider = new ArrayDataProvider([
     'panel' => [
         'footer' => false,
         'before' => $this->render('add', [
-            'firstAgreementNo' => reset($docs)->contract_no,
+            'firstAgreementNo' => $docs ? reset($docs)->contract_no : null,
             'contract' => $contract,
         ]),
     ],
