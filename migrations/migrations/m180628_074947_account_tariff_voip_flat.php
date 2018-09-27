@@ -23,7 +23,7 @@ class m180628_074947_account_tariff_voip_flat extends \app\classes\Migration
             'tariff_is_default' => $this->boolean()->comment('По умолчанию'),
             'tariff_status' => $this->string()->comment('Статус тарифа'),
             'client_account' => $this->string()->comment('УЛС'),
-            'region' => $this->string()->comment('Точка присоединения'),
+            'region' => $this->string()->comment('Регион (точка подключения)'),
             'comment' => $this->string()->comment('Комментарий'),
             'tariff_period_utc' => $this->dateTime()->comment('Дата последней смены тарифа'),
             'account_log_period_utc' => $this->dateTime()->comment('Абонентка списана до'),

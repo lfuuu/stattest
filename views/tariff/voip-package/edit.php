@@ -28,7 +28,7 @@ foreach ($connectionPoints as $connectionPoint) {
         'data-country-id' => $connectionPoint->country_id
     ];
 }
-$connectionPoints = ['' => '-- Точка подключения --'] + ArrayHelper::map($connectionPoints, 'id', 'name');
+$connectionPoints = ['' => '-- Регион (точка подключения) --'] + ArrayHelper::map($connectionPoints, 'id', 'name');
 
 $destinations = Destination::getList($isWithEmpty = true);
 $currencies = Currency::getList($isWithEmpty = true);

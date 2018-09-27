@@ -29,7 +29,7 @@ echo GridView::widget([
             'width' => '7%',
         ],
         [
-            'label' => 'Точка присоединения',
+            'label' => 'Регион (точка подключения)',
             'format' => 'raw',
             'value' => function ($data) use ($connectionPoints) {
                 return $connectionPoints[$data->instance_id];

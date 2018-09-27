@@ -57,7 +57,7 @@ class UsageTrunkFilter extends UsageTrunk
     public function attributeLabels()
     {
         return [
-            'connection_point_id' => 'Точка подключения',
+            'connection_point_id' => 'Регион (точка подключения)',
             'trunk_ids' => 'Супер-клиент',
             'contragent_id' => 'Контрагент',
             'contract_number' => '№ договора',

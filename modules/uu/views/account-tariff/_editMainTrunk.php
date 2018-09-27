@@ -15,7 +15,7 @@ use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
-// при смене точки подключение обновить список транков
+// при смене региона (точки подключения) обновить список транков
 $this->registerJsVariable('format', ReturnFormatted::FORMAT_OPTIONS);
 
 $accountTariff = $formModel->accountTariff;

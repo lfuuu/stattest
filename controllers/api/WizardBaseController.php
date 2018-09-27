@@ -281,7 +281,7 @@ abstract class WizardBaseController extends ApiController
         if ($manager && $manager->email) {
             mail($manager->email, $subj, $text);
         } else {
-            // менеджер по-умолчанию
+            // менеджер по умолчанию
             $manager = User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
             if ($manager && $manager->email) {
                 mail($manager->email, $subj, $text);

@@ -36,7 +36,7 @@ class PricelistForm extends Form
     public function attributeLabels()
     {
         return [
-            'connection_point_id' => 'Точка присоединения',
+            'connection_point_id' => 'Регион (точка подключения)',
             'local_network_config_id' => 'Местные префиксы',
             'name' => 'Название',
             'currency_id' => 'Валюта',

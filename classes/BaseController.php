@@ -195,7 +195,7 @@ class BaseController extends Controller
     }
 
     /**
-     * Формирует результат в формате PDF, по-умолчанию отдает на отображение в браузер
+     * Формирует результат в формате PDF, по умолчанию отдает на отображение в браузер
      *
      * @param string $view
      * @param array $params

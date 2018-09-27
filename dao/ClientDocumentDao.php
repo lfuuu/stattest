@@ -30,7 +30,7 @@ class ClientDocumentDao extends Singleton
 {
 
     /**
-     * Получение раздела по-умолчанию от бизнес-процесса
+     * Получение раздела по умолчанию от бизнес-процесса
      *
      * @param int $businessId
      * @return DocumentFolder

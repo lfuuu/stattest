@@ -130,7 +130,7 @@ class UsageVoipForm extends Form
         return [
             'city_id' => 'Город',
             'country_id' => 'Страна',
-            'connection_point_id' => 'Точка присоединения',
+            'connection_point_id' => 'Регион (точка подключения)',
             'did_group_id' => 'DID-группа',
             'connecting_date' => 'Дата подключения',
             'disconnecting_date' => 'Дата отключения',

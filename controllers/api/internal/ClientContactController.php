@@ -22,8 +22,8 @@ class ClientContactController extends ApiInternalController
      *   operationId="Получение списка контактов лицевого счета",
      *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true,default=""),
      *   @SWG\Parameter(name="eventType",type="integer",description="Тип контакта (email / phone / fax / sms / email_invoice / email_rate / email_support etc))",in="query",default=""),
-     *   @SWG\Parameter(name="isOfficial",type="integer",description="Официальный контакт (вкл. = 1 / выкл. = 0), по-умолчанию - все",in="query",default=""),
-     *   @SWG\Parameter(name="limit",type="integer",description="Кол-во контактов, по-умолчанию - все",in="query",default=""),
+     *   @SWG\Parameter(name="isOfficial",type="integer",description="Официальный контакт (вкл. = 1 / выкл. = 0), по умолчанию - все",in="query",default=""),
+     *   @SWG\Parameter(name="limit",type="integer",description="Кол-во контактов, по умолчанию - все",in="query",default=""),
      *   @SWG\Response(
      *     response=200,
      *     description="результат работы метода",
@@ -111,7 +111,7 @@ class ClientContactController extends ApiInternalController
      *   operationId="Получение списка персональных контактов лицевого счета",
      *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true,default=""),
      *   @SWG\Parameter(name="eventType",type="integer",description="Тип контакта (email / phone / fax / sms / email_invoice / email_rate / email_support etc))",in="query",default=""),
-     *   @SWG\Parameter(name="limit",type="integer",description="Кол-во контактов, по-умолчанию - все",in="query",default=""),
+     *   @SWG\Parameter(name="limit",type="integer",description="Кол-во контактов, по умолчанию - все",in="query",default=""),
      *   @SWG\Response(
      *     response=200,
      *     description="результат работы метода",

@@ -123,7 +123,7 @@ if (!$country->isNewRecord) {
 
     <div class="row">
 
-        <?php // точка подключения по-умолчанию ?>
+        <?php // Регион (точка подключения) по умолчанию ?>
         <div class="col-sm-6">
             <?= $form->field($country, 'default_connection_point_id')->widget(Select2::class, [
                 'data' => Region::getList($isWithEmpty = $country->isNewRecord),

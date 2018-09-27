@@ -1,6 +1,6 @@
 <?php
 /**
- * свойства тарифа для телефонии. Подраздел Точки подключения
+ * свойства тарифа для телефонии. Подраздел Регион (точки подключения)
  *
  * @var \app\classes\BaseView $this
  * @var \app\modules\uu\forms\TariffForm $formModel

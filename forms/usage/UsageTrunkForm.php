@@ -42,7 +42,7 @@ class UsageTrunkForm extends Form
     public function attributeLabels()
     {
         return [
-            'connection_point_id' => 'Точка присоединения',
+            'connection_point_id' => 'Регион (точка подключения)',
             'connecting_date' => 'Дата подключения',
             'tariff_change_date' => 'Дата изменения тарифа',
             'trunk_id' => 'Транк',

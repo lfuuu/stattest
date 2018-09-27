@@ -411,7 +411,7 @@ if ($has) :
                             <tr bgcolor="#FFFFD8">
                                 <th width="5%">id</th>
                                 <th width="15%">Дата подключения</th>
-                                <th width="15%">Точка присоединения</th>
+                                <th width="15%">Регион (точка подключения)</th>
                                 <th width="20%">Транк</th>
                                 <th width="20%">Свойства</th>
                                 <th width="15%">Минимальный платеж</th>

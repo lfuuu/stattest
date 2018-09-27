@@ -54,7 +54,7 @@ class NumberRangeController extends BaseController
 
         $get = Yii::$app->request->get();
         if (!isset($get['NumberRangeFilter'])) {
-            $get['NumberRangeFilter']['is_active'] = 1; // по-умолчанию только "вкл."
+            $get['NumberRangeFilter']['is_active'] = 1; // по умолчанию только "вкл."
         }
 
         $filterModel->load($get);

@@ -4,7 +4,7 @@
 	<input type="hidden" name="module" value="voipreports" class="hptodel" />
 	<input type="hidden" name="action" value="calls_report" class="hptodel" />
     <select class="select2" name="f_server_id" style="width: 180px">
-        <option value="0" {if $f_server_id eq 0} selected{/if}>-- Точка присоединения --</option>
+        <option value="0" {if $f_server_id eq 0} selected{/if}>-- Регион (точка подключения) --</option>
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $r->id eq $f_server_id} selected{/if}>{$r->name} ({$r->id})</option>
         {/foreach}
@@ -91,7 +91,7 @@
     <td class=header>Длительность</td>
     <td class=header>Стоимость</td>
     <td class=header>Направление</td>
-    <td class=header>Точка присоединения</td>
+    <td class=header>Регион (точка подключения)</td>
     <td class=header>Транк</td>
     <td class=header>Услуга транк</td>
 </tr>

@@ -44,7 +44,7 @@ class DocumentFolder extends ActiveRecord
         return [
             'name' => 'Название',
             'parent_id' => 'Раздел',
-            'default_for_business_id' => 'Бизнес-процесс по-умолчанию',
+            'default_for_business_id' => 'Бизнес-процесс по умолчанию',
             'sort' => 'Приоритет',
         ];
     }

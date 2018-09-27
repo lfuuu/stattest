@@ -173,7 +173,7 @@ class VoipReserveNumber
     }
 
     /**
-     * Возвращает тариф по-умолчанию в регионе подключения
+     * Возвращает тариф по умолчанию в регионе подключения
      *
      * @param int $regionId
      * @param string $currency

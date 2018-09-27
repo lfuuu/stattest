@@ -149,7 +149,7 @@ foreach ($clients as $clientId => $data) {
     }
     $currencyRate = $currencyRateStore[$data['currency']];
 
-    // Курс валюты найден - пересчить, иначе взять по-умолчанию
+    // Курс валюты найден - пересчить, иначе взять по умолчанию
     $defaultVoipCreditLimitDay =
         !is_null($currencyRate)
             ? ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY / $currencyRate->rate
@@ -160,7 +160,7 @@ foreach ($clients as $clientId => $data) {
             ? $clients[$clientId]['new_day_limit']
             : $defaultVoipCreditLimitDay;
 
-    // Курс валюты найден - пересчить, иначе взять по-умолчанию
+    // Курс валюты найден - пересчить, иначе взять по умолчанию
     $defaultVoipMNLimitDay =
         !is_null($currencyRate)
             ? ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY / $currencyRate->rate

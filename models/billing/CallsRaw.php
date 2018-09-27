@@ -84,7 +84,7 @@ class CallsRaw extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'server_id' => 'Точка присоединения',
+            'server_id' => 'Регион (точка подключения)',
             // public.server или billing.instance_settings
             'id' => 'ID',
             'orig' => 'Оригинация',

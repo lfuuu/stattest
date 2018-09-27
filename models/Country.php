@@ -65,7 +65,7 @@ class Country extends ActiveRecord
             'currency_id' => 'Валюта',
             'prefix' => 'Префикс',
             'site' => 'URL сайта',
-            'default_connection_point_id' => 'Точка подключения freephone',
+            'default_connection_point_id' => 'Регион (точка подключения) freephone',
             'is_show_in_lk' => 'Показывать в ЛК',
         ];
     }

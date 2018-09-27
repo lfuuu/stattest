@@ -62,7 +62,7 @@ class ClientEditForm extends Form
     }
 
     /**
-     * Имя точки подключения
+     * Имя точки входа
      *
      * @return string
      */

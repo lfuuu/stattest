@@ -62,7 +62,7 @@ $columns = [
     [
         'class' => \app\classes\grid\column\RegionColumn::class,
         'attribute' => 'connection_point_id',
-        'label' => 'Точка присоединения',
+        'label' => 'Регион (точка подключения)',
         'typeId' => [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE],
         'value' => function ($data) use ($connectionPoints) {
             return $connectionPoints[$data->region];

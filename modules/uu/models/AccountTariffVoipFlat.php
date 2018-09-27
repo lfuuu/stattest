@@ -51,7 +51,7 @@ class AccountTariffVoipFlat extends ActiveRecord
             'tariff_is_default' => 'По умолчанию',
             'tariff_status' => 'Статус тарифа',
             'client_account' => 'УЛС',
-            'region' => 'Точка присоединения',
+            'region' => 'Регион (точка подключения)',
             'comment' => 'Комментарий',
             'tariff_period_utc' => 'Дата последней смены тарифа',
             'account_log_period_utc' => 'Абонентка списана до',

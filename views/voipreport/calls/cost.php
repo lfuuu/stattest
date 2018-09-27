@@ -180,7 +180,7 @@ $filterColumns = [
         'filterByServerIds' => $filterModel->server_id,
         'filterOptions' => [
             'class' => $filterModel->trunk_id ? 'alert-success' : 'alert-danger',
-            'title' => 'Фильтр зависит от Точки присоединения и Оператора (суперклиента)',
+            'title' => 'Фильтр зависит от Региона (точка подключения) и Оператора (суперклиента)',
         ],
     ],
     [
@@ -196,7 +196,7 @@ $filterColumns = [
         'class' => DestinationColumn::class,
         'filterByServerId' => $filterModel->server_id,
         'filterOptions' => [
-            'title' => 'Фильтр зависит от Точки присоединения',
+            'title' => 'Фильтр зависит от Региона (точка подключения)',
         ],
     ],
     [

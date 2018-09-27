@@ -68,7 +68,7 @@ if (!$city->isNewRecord) {
                 ]) ?>
         </div>
 
-        <?php // Точка подключения ?>
+        <?php // Регион (точка подключения) ?>
         <div class="col-sm-3">
             <?= $form->field($city, 'connection_point_id')
                 ->widget(Select2::class, [

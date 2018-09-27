@@ -57,7 +57,7 @@ class ClientAccountOptions extends ActiveRecord
     }
 
     /**
-     * Значение по-умолчанию для опции
+     * Значение по умолчанию для опции
      *
      * @param string $value
      * @return mixed|null

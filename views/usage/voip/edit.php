@@ -90,7 +90,7 @@ echo Breadcrumbs::widget([
             '],
             ['type' => Form::INPUT_RAW, 'value' => '
                 <div class="form-group">
-                    <label class="control-label">Точка подключения</label>
+                    <label class="control-label">Регион (точка подключения)</label>
                     <input type="text" class="form-control" value="' . $usage->connectionPoint->name . '" readonly="readonly" />
                 </div>
             '],

@@ -28,7 +28,7 @@ trait I18NGetTrait
                 return $i18n[$name];
             }
 
-            // Поиск свойства в словаре свойств по-умолчанию (ru-RU)
+            // Поиск свойства в словаре свойств по умолчанию (ru-RU)
             $i18n = $this->getI18N();
             if (array_key_exists($name, $i18n)) {
                 return $i18n[$name];

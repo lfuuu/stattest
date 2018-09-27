@@ -131,7 +131,7 @@ class EntryPoint extends ActiveRecord
     {
         return [
             'code' => 'ID (code)',
-            'name' => 'Название точки входа',
+            'name' => 'Название',
             'name_prefix' => 'Префикс к названию (супер)клиента и контрагента',
             'country_id' => 'Страна',
             'organization_id' => 'Организация',
@@ -145,15 +145,15 @@ class EntryPoint extends ActiveRecord
             'credit' => 'Кредит',
             'voip_credit_limit_day' => 'Лимит телефонии',
             'voip_limit_mn_day' => 'Лимит телефонии МН',
-            'is_default' => 'По-умолчанию',
-            'region_id' => 'Точка подключения',
+            'is_default' => 'По умолчанию',
+            'region_id' => 'Регион (точка подключения)',
             'connect_trouble_user_id' => 'Пользовтель, для создания траблы на подключение',
             'wizard_type' => "Тип Wizard'а",
         ];
     }
 
     /**
-     * Только одна точка входа должна быть по-умолчанию
+     * Только одна точка входа должна быть по умолчанию
      *
      * @param bool $insert
      * @return bool
@@ -184,7 +184,7 @@ class EntryPoint extends ActiveRecord
     }
 
     /**
-     * Вовращает точку входа по коду, или по-умолчанию, если такая не найдена
+     * Вовращает точку входа по коду, или по умолчанию, если такая не найдена
      *
      * @param string $code
      * @return EntryPoint

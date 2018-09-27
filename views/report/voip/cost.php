@@ -23,13 +23,13 @@ use app\classes\Html;
             ) ?>
         </div>
 
-        <!-- Точка присоединения -->
+        <!-- Регион (точка подключения) -->
         <div class="col-md-3">
-            <label for="server">Точка присоединения</label>
+            <label for="server">Регион (точка подключения)</label>
             <?php echo Html::dropDownList(
                 'server',
                 \Yii::$app->request->get('server', 0),
-                ['-- Точка присоединения --'] +
+                ['-- Регион (точка подключения) --'] +
                     \yii\helpers\ArrayHelper::map($server, 'id', 'name'),
                 [
                     'class' => 'select2 fit-container',

@@ -39,7 +39,7 @@ class ClientSuper extends ActiveRecord
         return [
             'name' => 'Название',
             'financial_manager_id' => 'Финансовый менеджер',
-            'entry_point_id' => 'Точка подключения',
+            'entry_point_id' => 'Точка входа',
         ];
     }
 

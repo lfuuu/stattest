@@ -27,7 +27,7 @@ class Destination extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'server_id' => 'Точка присоединения',
+            'server_id' => 'Регион (точка подключения)',
             'name' => 'Название',
             'prefixlist_ids' => 'Префиксы',
         ];

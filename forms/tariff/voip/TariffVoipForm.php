@@ -69,7 +69,7 @@ class TariffVoipForm extends Form
     {
         return [
             'country_id' => 'Страна',
-            'connection_point_id' => 'Точка подключения',
+            'connection_point_id' => 'Регион (точка подключения)',
             'currency_id' => 'Валюта',
             'dest' => 'Направление',
             'status' => 'Состояние',
@@ -88,7 +88,7 @@ class TariffVoipForm extends Form
             'tariffication_full_first_minute' => 'тарификация: первая минута оплачивается полностью',
             'tariffication_free_first_seconds' => 'тарификация: первые 3 секунды бесплатно',
             'is_virtual' => 'тариф для виртуальных номеров',
-            'is_default' => 'тариф по-умолчанию',
+            'is_default' => 'тариф по умолчанию',
             'price_include_vat' => 'включить в цену ставку налога',
             'ndc_type_id' => 'Тип номера',
         ];

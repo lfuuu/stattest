@@ -55,7 +55,7 @@ class City extends ActiveRecord
             'id' => 'ID',
             'name' => 'Название',
             'country_id' => 'Страна',
-            'connection_point_id' => 'Точка подключения',
+            'connection_point_id' => 'Регион (точка подключения)',
             'voip_number_format' => 'Формат номеров',
             'in_use' => 'Есть номера',
             'is_show_in_lk' => 'Показывать в',

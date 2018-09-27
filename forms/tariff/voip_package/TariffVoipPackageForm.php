@@ -46,7 +46,7 @@ class TariffVoipPackageForm extends Form
     {
         return [
             'country_id' => 'Страна',
-            'connection_point_id' => 'Точка подключения',
+            'connection_point_id' => 'Регион (точка подключения)',
             'currency_id' => 'Валюта',
             'destination_id' => 'Направление',
             'pricelist_id' => 'Прайс-лист',

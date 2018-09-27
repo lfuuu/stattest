@@ -49,7 +49,7 @@ class CountryController extends BaseController
 
         $get = Yii::$app->request->get();
         if (!isset($get['CountryFilter'])) {
-            $get['CountryFilter']['in_use'] = 1; // по-умолчанию только "вкл."
+            $get['CountryFilter']['in_use'] = 1; // по умолчанию только "вкл."
         }
 
         $filterModel->load($get);

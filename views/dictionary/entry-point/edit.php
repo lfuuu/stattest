@@ -27,7 +27,7 @@ $regions = Region::find()
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => $this->title = 'Точки подключения', 'url' => $cancelUrl = '/dictionary/entry-point'],
+        ['label' => $this->title = 'Точки входа', 'url' => $cancelUrl = '/dictionary/entry-point'],
         ($model->id ? 'Редактирование' : 'Добавление')
     ],
 ]);

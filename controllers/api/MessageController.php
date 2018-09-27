@@ -229,7 +229,7 @@ class MessageController extends ApiController
      *   operationId="Получение содержания шаблона почтового сообщения",
      *   @SWG\Parameter(name="eventCode",type="string",description="Идентификатор события",in="query",required=true),
      *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true),
-     *   @SWG\Parameter(name="type",type="string",description="Тип шаблона (по-умолчанию: email)",in="query"),
+     *   @SWG\Parameter(name="type",type="string",description="Тип шаблона (по умолчанию: email)",in="query"),
      *   @SWG\Parameter(name="eventId",type="integer",description="ID значимового события",in="query"),
      *   @SWG\Response(
      *     response=200,

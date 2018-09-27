@@ -333,7 +333,7 @@ class CallsRawFilter extends CallsRaw
                 'dst_number_type_ids' => 'Тип номера В',
                 'group_period' => 'Период группировки',
                 'group' => 'Группировки',
-                'server_ids' => 'Точка присоединения',
+                'server_ids' => 'Регион (точка подключения)',
                 'currency' => 'Валюта расчетов',
                 'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
                 'is_exclude_internal_trunk_orig' => 'Исключить внутренние транки Оригинационные',

@@ -19,7 +19,7 @@
                 </select>
             {/if}
         </td></tr>
-    <tr><td>Точка подключения:</td><td>
+    <tr><td>Регион (точка подключения):</td><td>
     {if $data.id > 0}
         <input type="hidden" name="region" value="{$data.region}" />
         {$regions[$data.region].name}

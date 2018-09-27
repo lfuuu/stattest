@@ -63,7 +63,7 @@ class CallsAggr extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'server_id' => 'Точка присоединения', // public.server или billing.instance_settings
+            'server_id' => 'Регион (точка подключения)', // public.server или billing.instance_settings
             'aggr_time' => 'День расчета (UTC)',
             'orig' => 'Оригинация', // оригинация - вход, терминация - выход
             'trunk_id' => 'Транк',

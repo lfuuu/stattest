@@ -72,7 +72,7 @@
 <table class="table table-condensed table-striped table-hover">
     <tr>
         <th rowspan="2">Страна</th>
-        <th rowspan="2">Точка подключения</th>
+        <th rowspan="2">Регион (точка подключения)</th>
         <th rowspan="2">Валюта</th>
         <th rowspan="2">Тариф</th>
         <th rowspan="2">Статус</th>
