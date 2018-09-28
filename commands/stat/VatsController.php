@@ -12,6 +12,7 @@ use yii\helpers\Console;
 
 class VatsController extends Controller
 {
+    const DATE1 = '2018-09-01';
 
     private $_startPeriods = [
         'today' => ['now', 'now'],
@@ -115,7 +116,15 @@ class VatsController extends Controller
      */
     private function _setDayStatistic($list, $date)
     {
-        $day = $date->format(DateTimeZoneHelper::DATE_FORMAT);
+        if ($date->format(DateTimeZoneHelper::DATE_FORMAT) > self::DATE1) {
+            $localDate = clone $date;
+            $localDate->modify('-1 day');
+        } else {
+            $localDate = $date;
+        }
+
+        $day = $localDate->format(DateTimeZoneHelper::DATE_FORMAT);
+
         $insert = [];
 
         foreach ($list as $record) {
