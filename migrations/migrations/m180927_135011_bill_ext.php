@@ -22,7 +22,7 @@ class m180927_135011_bill_ext extends \app\classes\Migration
             'ext_invoice_no' => $this->string(),
             'ext_akt_no' => $this->string(),
             'ext_akt_date' => $this->string(),
-        ]);
+        ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
 
         $this->addPrimaryKey('pk-'.$table.'-bill_no', $table, 'bill_no');
 
@@ -45,5 +45,9 @@ class m180927_135011_bill_ext extends \app\classes\Migration
     public function safeDown()
     {
         $this->dropTable(BillExternal::tableName());
+
+        $this->addColumn(Bill::tableName(), 'bill_no_ext', $this->string());
+        $this->addColumn(Bill::tableName(), 'bill_no_ext_date', $this->string());
+        $this->addColumn(Bill::tableName(), 'invoice_no_ext', $this->string());
     }
 }
