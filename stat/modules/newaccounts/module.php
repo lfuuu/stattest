@@ -2786,17 +2786,12 @@ class m_newaccounts extends IModule
             }
         }
 
-
-
         //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
 
         $cpe = array();
         $bdata["sum"] = 0;
         $bdata['sum_without_tax'] = 0;
         $bdata['sum_tax'] = 0;
-
-
-        $account = $bill->Client();
 
         foreach ($billLines as &$li) {
 
@@ -2877,8 +2872,7 @@ class m_newaccounts extends IModule
             }
             $design->assign('total_amount', $total_amount);
 
-            $clientAccount = ClientAccount::findOne($account['id'])
-                ->loadVersionOnDate($bill->Get('bill_date'));
+            $clientAccount = $bill->Client();
 
             $date = $bill->Get('bill_date');
 
