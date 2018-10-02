@@ -1,7 +1,10 @@
 <?php
+
 namespace app\dao;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ActualNumber;
 use app\models\Param;
 use app\models\PaymentSberOnline;
 use Yii;
@@ -14,6 +17,9 @@ use DateTimeZone;
  */
 class PaymentSberOnlineDao extends Singleton
 {
+    CONST TYPE_TEL = 'TEL';
+    CONST TYPE_LS = 'LS';
+
     /**
      * Обнаружение архива с платежами Сбербанк Online
      *
@@ -69,7 +75,7 @@ class PaymentSberOnlineDao extends Singleton
                 for ($i = 0; $i < $zip->numFiles; $i++) {
                     $fileContent = str_replace("\r", "", $zip->getFromIndex($i));
 
-                    foreach(str_getcsv($fileContent, "\n") as $rowStr) {
+                    foreach (str_getcsv($fileContent, "\n") as $rowStr) {
                         $row = str_getcsv($rowStr, ';');
                         $sum = self::savePaymentRow($row);
                         if ($sum) {
@@ -100,18 +106,37 @@ class PaymentSberOnlineDao extends Singleton
         return preg_match("/^[0123][0-9]-[0-9]{2}-20[0-9]{2};[0-9]{2}-[0-9]{2}-[0-9]{2};[0-9]+/", $header);
     }
 
+    public function detectPaymentListType($fileInfo)
+    {
+        if (!preg_match('/^(LS|TEL)_[0-9]{10}_[0-9]{20}_[0-9}{3}.y[0-9]{2,}/', $fileInfo['name'], $m)) {
+            return false;
+        }
+
+        switch ($m[1]) {
+            case self::TYPE_TEL:
+                return self::TYPE_TEL;
+                break;
+            case self::TYPE_LS:
+                return self::TYPE_LS;
+                break;
+            default:
+                throw new \LogicException('Неизвестный тип документа');
+        }
+
+    }
+
     /**
      * Загружаем платежи из файла
      *
      * @param string $fileName
-     * @throws \Exception
+     * @param string $type
      */
-    public function loadPaymentListFromFile($fileName)
+    public function loadPaymentListFromFile($fileName, $type = null)
     {
         $fileResource = fopen($fileName, "rb");
-        Yii::$app->db->transaction(function ($db) use ($fileResource) {
+        Yii::$app->db->transaction(function ($db) use ($fileResource, $type) {
             while ($row = fgetcsv($fileResource, null, ';')) {
-                self::savePaymentRow($row);
+                self::savePaymentRow($row, $type);
             }
         });
         fclose($fileResource);
@@ -121,13 +146,22 @@ class PaymentSberOnlineDao extends Singleton
      * Сохраняем платеж в базу
      *
      * @param array $row
-     * @return bool|null|int
+     * @param null $type
+     * @return bool|int|null
      * @throws \Exception
      */
-    private static function savePaymentRow($row)
+    private static function savePaymentRow($row, $type = null)
     {
         if ($row[0][0] == '=') { //total flag
             return null;
+        }
+
+        if ($type == self::TYPE_TEL) {
+            return self::_saveTelPaymentRow($row);
+        } elseif ($type == self::TYPE_LS) {
+            return self::_saveLsPaymentRow($row);
+        } elseif ($type) {
+            throw new \LogicException('Ошибка сохранения');
         }
 
         $paymentSentDate = DateTime::createFromFormat('d-m-Y', $row[0]);
@@ -169,6 +203,90 @@ class PaymentSberOnlineDao extends Singleton
         }
         return false;
     }
+
+    public static function _saveTelPaymentRow($row)
+    {
+        $now = new DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
+
+        $paymentSentDate = DateTime::createFromFormat('d-m-Y', $row[0]);
+        $paymentSentDate->setTime(0, 0, 0);
+        if (!$paymentSentDate) {
+            throw new \Exception('Ошибка распознавания даты отправки платежа');
+        }
+
+        $payment = new PaymentSberOnline;
+
+        $payment->payment_sent_date = $payment->payment_received_date = $paymentSentDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        $payment->code1 = trim($row[1]);
+        $payment->code2 = trim($row[2]);
+        $payment->code3 = trim($row[3]);
+        $payment->code4 = trim($row[4]);
+
+        $payment->sum_paid = str_replace(',', '.', $row[12]);
+        $payment->sum_received = str_replace(',', '.', $row[13]);
+        $payment->sum_fee = str_replace(',', '.', $row[14]);
+
+        $payment->day = $now->format('d');
+        $payment->month = $now->format('m');
+        $payment->year = $now->format('Y');
+
+        $numberStr = '7' . $row[5];
+        $payment->description = 'Оплата по номеру телефона: ' . $numberStr;
+
+        if ($number = ActualNumber::findOne(['number' => $numberStr])) {
+            $payment->description .= ', ЛС: ' . $number->client_id;
+        }
+
+        if (!$payment->isSaved()) {
+            if (!$payment->save()) {
+                throw new ModelValidationException($payment);
+            }
+
+            return $payment->sum_paid;
+        }
+        return false;
+    }
+
+    public static function _saveLsPaymentRow($row)
+    {
+        $now = new DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
+
+        $paymentSentDate = DateTime::createFromFormat('d.m.Y', $row[0]);
+        $paymentSentDate->setTime(0, 0, 0);
+        if (!$paymentSentDate) {
+            throw new \Exception('Ошибка распознавания даты отправки платежа');
+        }
+
+        $payment = new PaymentSberOnline;
+
+        $payment->payment_sent_date = $payment->payment_received_date = $paymentSentDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        $payment->code1 = trim($row[1]);
+        $payment->code2 = trim($row[2]);
+        $payment->code3 = trim($row[3]);
+        $payment->code4 = trim($row[4]);
+
+        $payment->sum_paid = str_replace(',', '.', $row[10]);
+        $payment->sum_received = str_replace(',', '.', $row[11]);
+        $payment->sum_fee = str_replace(',', '.', $row[12]);
+
+        $payment->day = $now->format('d');
+        $payment->month = $now->format('m');
+        $payment->year = $now->format('Y');
+
+        $payment->description = 'Оплата по ЛС: ' . $row[5];
+
+        if (!$payment->isSaved()) {
+            if (!$payment->save()) {
+                throw new ModelValidationException($payment);
+            }
+
+            return $payment->sum_paid;
+        }
+        return false;
+    }
+
 
     /**
      * Сохранение суммароной информации для последующего отображения

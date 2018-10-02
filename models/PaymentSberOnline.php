@@ -16,13 +16,16 @@ use app\dao\PaymentSberOnlineDao;
  * @property string $code2
  * @property string $code3
  * @property string $code4
+ * @property string $code5
  * @property string $payer
  * @property string $description
  * @property float $sum_paid
  * @property float $sum_received
  * @property float $sum_fee
- * @property string $code5
- * @property string $createdAt
+ * @property int $day
+ * @property int $month
+ * @property int $year
+ * @property string $created_at
  *
  * @package app\models
  */

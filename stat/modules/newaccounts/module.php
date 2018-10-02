@@ -3056,7 +3056,9 @@ class m_newaccounts extends IModule
         if (PaymentSberOnline::dao()->detectPaymentArchive($_FILES['file']['tmp_name'])) {
             PaymentSberOnline::dao()->loadPaymentsFromArchive($_FILES['file']['tmp_name']);
         } else {
-            if (PaymentSberOnline::dao()->detectPaymentList($fHeader)) {
+            if ($type = PaymentSberOnline::dao()->detectPaymentListType($_FILES['file'])) {
+                PaymentSberOnline::dao()->loadPaymentListFromFile($_FILES['file']['tmp_name'], $type);
+            } elseif (PaymentSberOnline::dao()->detectPaymentList($fHeader)) {
                 PaymentSberOnline::dao()->loadPaymentListFromFile($_FILES['file']['tmp_name']);
             } else {
                 include INCLUDE_PATH . "mt940.php";
@@ -3324,7 +3326,7 @@ where cg.inn = '" . $inn . "'";
             //if(abs($pay["sum"]) != 7080   ) continue;
             //if($pay["noref"] != 427) continue;
 
-            $clientId = false;
+            $clientId = [];
             $billNo = $this->GetBillNoFromComment(@$pay["description"]);
 
             if ($billNo) {
@@ -3340,47 +3342,13 @@ where cg.inn = '" . $inn . "'";
                 $clientId5 = $this->getCompanyByInn(@$pay["inn"], $organizations, true);
             }
 
+            $clientIdLs = $this->getClientIdByDescription($pay['description']);
+
             if ($clientId && !$clientId2 && !$clientId3 && !$clientId4 && !$clientId5) {
                 $pay["to_check_bill_only"] = 1;
             }
 
-            $clientIdSum = array();
-            if ($clientId) {
-                foreach ($clientId as $cId) {
-                    if ($cId) {
-                        $clientIdSum[$cId] = 1;
-                    }
-                }
-            }
-            if ($clientId2) {
-                foreach ($clientId2 as $cId) {
-                    if ($cId) {
-                        $clientIdSum[$cId] = 1;
-                    }
-                }
-            }
-            if ($clientId3) {
-                foreach ($clientId3 as $cId) {
-                    if ($cId) {
-                        $clientIdSum[$cId] = 1;
-                    }
-                }
-            }
-            if ($clientId4) {
-                foreach ($clientId4 as $cId) {
-                    if ($cId) {
-                        $clientIdSum[$cId] = 1;
-                    }
-                }
-            }
-            if ($clientId5) {
-                foreach ($clientId5 as $cId) {
-                    if ($cId) {
-                        $clientIdSum[$cId] = 1;
-                    }
-                }
-            }
-            $clientIdSum = array_keys($clientIdSum);
+            $clientIdSum = $clientIdLs ? [$clientIdLs] : array_unique(array_merge($clientId, $clientId2, $clientId3, $clientId4, $clientId5));
 
 
             // если счет и клиент различаются
@@ -3679,7 +3647,7 @@ where c.pay_acc = '" . $acc . "'";
         $r = $db->GetRow("select client_id from newbills b, clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
 where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_id in ('" . implode("','", $organizations) . "')");
-        return $r ? array($r["client_id"]) : false;
+        return $r ? [$r["client_id"]] : [];
 
     }
 
@@ -3703,6 +3671,21 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             ->exists()
         ) {
             return $billNo;
+        }
+
+        return false;
+    }
+
+    /**
+     * Поиск по явно указанному ЛС
+     *
+     * @param $comment
+     * @return bool
+     */
+    public function getClientIdByDescription($comment)
+    {
+        if (preg_match('/ЛС: (\d{4,})/', $comment, $m)) {
+            return $m[1];
         }
 
         return false;
