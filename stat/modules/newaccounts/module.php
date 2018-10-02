@@ -397,7 +397,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q = '
                 select * from (
             select
-                "bill" as type, bill_no, "" as bill_id, bill_no_ext, bill_date, payment_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,is_pay_overdue,
+                "bill" as type, bill_no, "" as bill_id, ext_bill_no as bill_no_ext, bill_date, payment_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,is_pay_overdue,
                 ' . (
             $sum[$fixclient_data['currency']]['ts']
                 ? 'IF(bill_date >= "' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)'
@@ -405,6 +405,7 @@ class m_newaccounts extends IModule
             ) . ' as in_sum, sum_correction
             from
                 newbills P
+                left join newbills_external using (bill_no)
                 left join tt_troubles t using (bill_no)
                 left join tt_stages ts on  (ts.stage_id = t. cur_stage_id)
             where
@@ -781,6 +782,7 @@ class m_newaccounts extends IModule
 
 
         $design->assign('bill', $bill->GetBill());
+        $design->assign('bill_ext', $bill->GetExt());
         $design->assign('bill_extends_info', $newbill->extendsInfo);
         $design->assign('bill_manager', getUserName(Bill::dao()->getManager($bill->GetNo())));
         $design->assign('bill_comment', $bill->GetStaticComment());
@@ -1024,6 +1026,7 @@ class m_newaccounts extends IModule
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('clientAccountVersion', $fixclient_data['account_version']);
         $design->assign('bill', $bill->GetBill());
+        $design->assign('bill_ext', $bill->GetExt());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
@@ -1110,11 +1113,15 @@ class m_newaccounts extends IModule
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
         $invoice_no_ext = get_param_raw("invoice_no_ext");
-        $date_from_active = get_param_raw("date_from_active", 'N');
-        $price_include_vat = get_param_raw("price_include_vat", 'N');
-        $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
+
+        $akt_no_ext = get_param_raw("akt_no_ext");
+        $akt_date_ext = get_param_raw("akt_date_ext");
+        $date_akt_active = get_param_raw("date_from_active", 'N');
+
+        $date_from_active = get_param_raw('date_from_active', 'N');
+        $price_include_vat = get_param_raw('price_include_vat', 'N');
+        $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
-        $bill_no_ext_date = $dateFrom->getSqlDay();
 
         $bill = new \Bill($bill_no);
         if (!$bill->CheckForAdmin()) {
@@ -1141,15 +1148,10 @@ class m_newaccounts extends IModule
         $bill->SetExtNo($bill_no_ext);
         $bill->SetInvoiceNoExt($invoice_no_ext);
         $bill->SetIsToUuInvoice($isToUuInvoice);
+        $bill->SetAktNoExt($akt_no_ext);
 
-        if ($date_from_active == 'Y') {
-            $bill->SetExtNoDate($bill_no_ext_date);
-        } else {
-            $bill_data = $bill->GetBill();
-            if ($bill_data['bill_no_ext_date'] > 0) {
-                $bill->SetExtNoDate();
-            }
-        }
+        $bill->SetExtDate($date_from_active == 'Y' ? $bill_no_ext_date : null);
+        $bill->SetAktDateExt($date_akt_active == 'Y' ? $akt_date_ext : null);
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
 
@@ -3574,13 +3576,22 @@ where cg.inn = '" . $inn . "'";
             }
 
             foreach ($db->AllRecords($q = '
-                        (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills n2
+                        (select bill_no, is_payed,sum,ext_bill_no as bill_no_ext,UNIX_TIMESTAMP(ext_bill_date) as bill_no_ext_date, client_id from newbills n2
+                        left join newbills_external e using (bill_no)
                          where n2.client_id="' . $clientId . '" and n2.is_payed=1
                          /* and (select if(sum(if(is_payed = 1,1,0)) = count(1),1,0) as all_payed from newbills where client_id = "' . $clientId . '")
                          */
                          order by n2.bill_date desc limit 1)
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id=' . $clientId . ' and bill_no = "' . $billNo . '")
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id=' . $clientId . ' and is_payed!="1")
+                        union (select bill_no, is_payed,sum,ext_bill_no as bill_no_ext,UNIX_TIMESTAMP(ext_bill_date) as bill_no_ext_date, client_id 
+                        from newbills 
+                        left join newbills_external e using (bill_no)
+                        where client_id=' . $clientId . ' and bill_no = "' . $billNo . '")
+                        
+                        union (select bill_no, is_payed,sum,ext_bill_no as bill_no_ext,UNIX_TIMESTAMP(ext_bill_date) as bill_no_ext_date, client_id 
+                        from newbills 
+                        left join newbills_external e using (bill_no)
+                        
+                        where client_id=' . $clientId . ' and is_payed!="1")
                         '
             ) as $b) {
                 $v[] = $b;
@@ -3599,11 +3610,15 @@ where cg.inn = '" . $inn . "'";
 
         // все неоплаченные, и последний оплаченный
         foreach ($db->AllRecords("
-        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
-            from newbills b where " . $where . " having is_payed1 = 0)
+        (select b.bill_no, b.sum, ext_bill_no as bill_no_ext, UNIX_TIMESTAMP(ext_bill_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
+            from newbills b 
+            left join newbills_external e using (bill_no)
+            where " . $where . " having is_payed1 = 0)
         union
-        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
-            from newbills b where " . $where . " having is_payed1 = 1 order by bill_no desc limit 1)
+        (select b.bill_no, b.sum, ext_bill_no as bill_no_ext, UNIX_TIMESTAMP(ext_bill_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1, client_id
+            from newbills b 
+            left join newbills_external e using (bill_no)
+            where " . $where . " having is_payed1 = 1 order by bill_no desc limit 1)
         ") as $p) {
             $p["is_payed"] = $p["is_payed1"] ? -1 : 0;
             $v[] = $p;
@@ -4288,8 +4303,21 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                      INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                     WHERE bill_no LIKE "' . $search . '%" OR bill_no_ext LIKE "' . $search . '%" ORDER BY client,bill_no LIMIT 1000');
 
-            if (!$R) {
-                $R = $db->AllRecords(
+            !$R && $R = $db->AllRecords(
+                $q = 'select b.*,c.nal,c.client,cg.name AS company
+                        FROM newbills b, newbills_external e, clients c
+                         INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+                         INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+                        WHERE c.id=b.client_id 
+                        AND b.bill_no=e.bill_no
+                        AND (
+                             e.ext_bill_no = "' . $search . '"
+                          OR e.ext_akt_no = "' . $search . '"
+                          OR e.ext_invoice_no = "' . $search . '"
+                        )
+                        ORDER BY c.client, b.bill_no LIMIT 1000');
+
+            !$R && $R = $db->AllRecords(
                     $q = 'select b.*,c.nal,c.client,cg.name AS company
                         FROM newbills b, newbills_add_info i, clients c
                          INNER JOIN `client_contract` cr ON cr.id=c.contract_id
@@ -4297,7 +4325,6 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                         WHERE c.id=b.client_id
                         and b.bill_no = i.bill_no and i.req_no = "' . $search . '"
                         ORDER BY c.client, b.bill_no LIMIT 1000');
-            }
 
             if (count($R) == 1000) {
                 trigger_error2('Ограничьте условия поиска. Показаны первые 1000 вариантов');
@@ -4506,14 +4533,15 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'newbills.bill_date<="' . $date_to . '"+INTERVAL 1 MONTH';
         }
         $P = $db->AllRecords($q = '
-                select newbills.*,
+                select newbills.*,ext.*,
                     ifnull((select if(state_id = 21 , 1, 0)
                         from tt_troubles t, tt_stages s
                         where t.bill_no = newbills.bill_no and s.stage_id = t.cur_stage_id limit 1), 0) as is_rejected
                 from newbills
+                left join newbills_external ext USING (bill_no)
                 where ' . MySQLDatabase::Generate($W) . '
                 having is_rejected = 0
-                order by bill_no
+                order by newbills.bill_no
         ');
 
         $zalog = array();
@@ -4538,29 +4566,54 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         &&
                         (!$date_to || $k <= $date_to)
                     ) {
-                        $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['sum'];
-                        $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['sum'] : 0;
+                        $isNegativeSum = false;
+                        if ($A['bill']['sum'] < 0) {
+                            $isNegativeSum = true;
+                            $A['bill']['sum'] = -$A['bill']['sum'];
+                        }
+                        $sum_in = $A["bill"]["is_rollback"] || $isNegativeSum ? 0 : $A['bill']['sum'];
+                        $sum_out = $A["bill"]["is_rollback"] || $isNegativeSum ? $A['bill']['sum'] : 0;
 
                         $invoice = null;
 
-                        if ($bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
+                        $invNo = $A['inv_no'];
+                        $invDate = $A['inv_date'];
+
+                        if ($p['ext_akt_no']) {
+                            $invNo = $p['ext_akt_no'];
+
+                            if ($p['ext_akt_date']) {
+                                $invDateObj = new DateTime($p['ext_akt_date']);
+                                $invDate = $invDateObj->getTimestamp();
+                            }
+
+                        } elseif ($bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
                             $invoice = \app\models\Invoice::findOne([
                                 'bill_no' => $A['bill']['bill_no'],
                                 'type_id' => $I,
                                 'is_reversal' => 0
                             ]);
+
+                            $invNo = ($invoice ? $invoice->number : "***" . $A['inv_no'] . "***");
+                            // $invoice && $invDate = $invoice->date;
                         }
+
+
 
                         $R[$A['inv_date'] + ($Rc++)] = array(
                             'type' => 'inv',
-                            'date' => /* $invoice ? $invoice->date : */ $A['inv_date'],
+                            'date' =>  $invDate,
                             'sum_income' => $sum_in,
                             'sum_outcome' => $sum_out,
-                            'inv_no' => $invoice === null ? $A['inv_no'] : ($invoice ? $invoice->number : "***" . $A['inv_no'] . "***"),
+                            'inv_no' => $invNo,
                             'bill_no' => $A['bill']['bill_no'],
                             'inv_num' => $I,
                         );
-                        $S_b += $sum_in - $sum_out;
+                        if ($isNegativeSum) {
+                            $S_p += $sum_out;
+                        } else {
+                            $S_b += $sum_in;
+                        }
                     }
                 }
             }
@@ -4672,7 +4725,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             //$design->ProcessEx('newaccounts/balance_check.tpl');
             //$design->ProcessEx('pop_footer.tpl');
         } else {
-            $design->AddMain('newaccounts/balance_check.tpl');
+            $design->AddMain('newaccounts/balance_check'.($clientData->contragent->lang_code == Language::LANGUAGE_RUSSIAN ? '' : '_en').'.tpl');
         }
     }
 

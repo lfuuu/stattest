@@ -2,6 +2,7 @@
 
 use app\dao\BillDao;
 use app\exceptions\ModelValidationException;
+use app\models\BillExternal;
 use app\models\TaxType;
 use app\models\BillLine;
 use app\models\ClientAccount;
@@ -106,8 +107,7 @@ class Bill {
 			select
 				*,
 				UNIX_TIMESTAMP(bill_date) as ts,
-				UNIX_TIMESTAMP(doc_date) as doc_ts,
-				UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date 
+				UNIX_TIMESTAMP(doc_date) as doc_ts
 			from
 				newbills
 			where
@@ -205,24 +205,32 @@ class Bill {
             $this->Set("nal", $nal);
         }
     }
+
     public function SetExtNo($bill_no_ext)
     {
-        if ($this->bill["bill_no_ext"] != $bill_no_ext) {
-            $this->Set("bill_no_ext", $bill_no_ext);
-        }
+        BillExternal::saveValue($this->bill_no, 'ext_bill_no', $bill_no_ext);
     }
+
     public function SetInvoiceNoExt($no)
     {
-        if ($this->bill["invoice_no_ext"] != $no) {
-            $this->Set("invoice_no_ext", $no);
-        }
+        BillExternal::saveValue($this->bill_no, 'ext_invoice_no', $no);
     }
-    public function SetExtNoDate($bill_no_ext_date = '0000-00-00')
+
+    public function SetExtDate($bill_no_ext_date='')
     {
-        if ($this->bill["bill_no_ext_date"] != $bill_no_ext_date) {
-            $this->Set("bill_no_ext_date", $bill_no_ext_date . ' 00:00:00');
-        }
+        BillExternal::saveValue($this->bill_no, 'ext_bill_date', $bill_no_ext_date);
     }
+
+    public function SetAktNoExt($no)
+    {
+        BillExternal::saveValue($this->bill_no, 'ext_akt_no', $no);
+    }
+
+    public function SetAktDateExt($no)
+    {
+        BillExternal::saveValue($this->bill_no, 'ext_akt_date', $no);
+    }
+
     public function SetPriceIncludeVat($price_include_vat)
     {
         if ($this->bill["price_include_vat"] != $price_include_vat) {
@@ -291,9 +299,6 @@ class Bill {
         if ($hasLines || !$remove_empty) {
             $bSave = $this->bill;
             unset($bSave["doc_ts"]);
-            if (!$bSave["bill_no_ext_date"]) {
-                unset($bSave["bill_no_ext_date"]);
-            }
 
             $bill = \app\models\Bill::findOne(['bill_no' => $this->bill_no]);
             $bill->setAttributes($bSave, false);
@@ -336,6 +341,11 @@ class Bill {
 	}
 	public function GetBill() {
 		return $this->bill;
+	}
+
+    public function GetExt()
+    {
+        return BillExternal::find()->where(['bill_no' => $this->bill_no])->asArray()->one() ?: (new BillExternal())->getAttributes();
 	}
 
     public function isClosed()

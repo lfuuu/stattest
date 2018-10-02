@@ -61,23 +61,30 @@
             </div>
 
             {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-                <div class="col-sm-4">
+                <div class="col-sm-2">
                     <div class="form-group">
                         <label>Внешний счет: </label>
-                        <input class="form-control input-sm" type=text name=bill_no_ext value="{$bill.bill_no_ext}">
+                        <input class="form-control input-sm" type=text name=bill_no_ext value="{$bill_ext.ext_bill_no}">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Дата внешнего счета: <input type="checkbox" value="Y"
+                                                           name="date_from_active" {if $bill_ext.ext_bill_date} checked{/if}
+                                                           onchange="activateDatePicker(this, 'date_from');"> </label>
+                        <div class="form-group ">
+                            <input class="form-control input-sm" {if !$bill_ext.ext_bill_date} disabled="disabled"{/if}
+                                   id=date_from type=text name=bill_no_ext_date
+                                   value="{$bill_ext.ext_bill_date}">
+
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <label>Дата внешнего счета: <input type="checkbox" value="Y"
-                                                           name="date_from_active" {if $bill.bill_no_ext_date} checked{/if}
-                                                           onchange="activateDatePicker(this);"> </label>
-                        <div class="form-group ">
-                            <input class="form-control input-sm" {if !$bill.bill_no_ext_date} disabled="disabled"{/if}
-                                   id=date_from type=text name=bill_no_ext_date
-                                   value="{if $bill.bill_no_ext_date}{"d-m-Y"|date:$bill.bill_no_ext_date}{/if}">
-
-                        </div>
+                        <label>Номер внешней с/ф</label>
+                        <input type="text" class="form-control input-sm" name="invoice_no_ext"
+                               value="{$bill_ext.ext_invoice_no}">
                     </div>
                 </div>
             {else}
@@ -92,21 +99,39 @@
                     {html_options name='courier' options=$l_couriers selected=$bill.courier_id}
                 </div>
             </div>
-            <div class="col-sm-4">
-                <div class="form-group">
-                    {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-                        <label>Номер внешней с/ф</label>
-                        <input type="text" class="form-control input-sm" name="invoice_no_ext" value="{$bill.invoice_no_ext}">
-                    {/if}
-                    {if !$bill.uu_bill_id && $clientAccountVersion == 5}
-                    <label>Включить в У-с/ф:</label>
-                    <input type="checkbox" value="Y"
-                           name="is_to_uu_invoice" {if $bill.is_to_uu_invoice} checked{/if}>
-                        {else}
-                        &nbsp;
-                    {/if}
+
+            {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Номер внешнего акта</label>
+                        <input type="text" class="form-control input-sm" name="akt_no_ext"
+                               value="{$bill_ext.ext_akt_no}">
+                    </div>
                 </div>
-            </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Дата внешнего акта: <input type="checkbox" value="Y"
+                                                          name="date_akt" {if $bill_ext.ext_akt_date} checked{/if}
+                                                          onchange="activateDatePicker(this, 'akt_date_ext');">
+                        </label>
+                        <input type="text" class="form-control input-sm" name="akt_date_ext" id="akt_date_ext"
+                                {if !$bill_ext.ext_akt_date} disabled="disabled"{/if}
+                               value="{$bill_ext.ext_akt_date}">
+                    </div>
+                </div>
+            {/if}
+
+            {if !$bill.uu_bill_id && $clientAccountVersion == 5}
+                <div class="col-sm-4">
+                    <div class="form-group">
+
+                        <label>Включить в У-с/ф:</label>
+                        <input type="checkbox" value="Y"
+                               name="is_to_uu_invoice" {if $bill.is_to_uu_invoice} checked{/if}>
+                    </div>
+                </div>
+            {/if}
+
             <div class="col-sm-4">
                 <div class="form-group">
                     <label>
@@ -199,9 +224,17 @@
       }
     });
 
+    $('#date_from').datepicker({
+      dateFormat: 'dd-mm-yy',
+    });
 
-    function activateDatePicker(elm) {
-      $('#date_from').attr('disabled', !elm.checked);
+    $('#akt_date_ext').datepicker({
+      dateFormat: 'dd-mm-yy',
+    });
+
+
+    function activateDatePicker(elm, elemId) {
+      $('#' + elemId).attr('disabled', !elm.checked);
     }
 
     function mark_del() {

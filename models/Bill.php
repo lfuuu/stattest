@@ -181,8 +181,6 @@ class Bill extends ActiveRecord
             'courier_id' => 'Курьер',
             'state_1c' => 'Статус заказа',
             'doc_date' => 'Дата документа',
-            'bill_no_ext_date' => 'Дата внешнего счета',
-            'bill_no_ext' => 'Внешний номер',
             'comment' => 'Комментарий',
             'nal' => 'Предпологаемый тип платежа',
             'is_pay' => 'Счет оплачен',
@@ -190,7 +188,6 @@ class Bill extends ActiveRecord
             'is_pay_overdue' => 'Просрочена оплата счета',
             'payment_date' => 'Дата оплаты счета',
             'is_to_uu_invoice' => 'Включить в У-с/ф',
-            'invoice_no_ext' => 'Номер внешней с/ф'
         ];
     }
 

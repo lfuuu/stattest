@@ -14,7 +14,7 @@
 
             {if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}
             {if $bill.is_rollback}-<b><u>возврат</u></b>{/if}
-            <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill.bill_no_ext)} ({$bill.bill_no_ext}){/if}</b>
+            <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill_ext.ext_bill_no)} ({$bill_ext.ext_bill_no}){/if}</b>
 
             {if !isset($1c_bill_flag)}
                 {assign var="1c_bill_flag" value=0}
@@ -72,6 +72,13 @@
         <td>&nbsp;</td>
         <td width="33%">
             {if !$bill.is_approved}Cчет не проведен{else}Счет проведен{/if}
+
+            {if $bill_ext.ext_bill_no}<br>Номер внешнего счета: {$bill_ext.ext_bill_no}{/if}
+            {if $bill_ext.ext_bill_date}<br>Дата внешнего счета: {$bill_ext.ext_bill_date}{/if}
+            {if $bill_ext.ext_akt_no}<br>Номер внешнего акта: {$bill_ext.ext_akt_no}{/if}
+            {if $bill_ext.ext_akt_date}<br>Дата внешнего акта: {$bill_ext.ext_akt_date}{/if}
+            {if $bill_ext.ext_invoice_no}<br>Номер внешнего с/ф: {$bill_ext.ext_invoice_no}{/if}
+
             {if false && access('newaccounts_bills','edit') && !$isClosed}
                 <form action="?" method="post">
                     <input type="hidden" name="module" value="newaccounts"/>
