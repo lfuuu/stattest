@@ -1113,6 +1113,7 @@ class m_newaccounts extends IModule
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
         $invoice_no_ext = get_param_raw("invoice_no_ext");
+        $invoice_date_ext = get_param_raw("invoice_date_ext");
 
         $akt_no_ext = get_param_raw("akt_no_ext");
         $akt_date_ext = get_param_raw("akt_date_ext");
@@ -1147,6 +1148,7 @@ class m_newaccounts extends IModule
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
         $bill->SetInvoiceNoExt($invoice_no_ext);
+        $bill->SetInvoiceDateExt($invoice_date_ext);
         $bill->SetIsToUuInvoice($isToUuInvoice);
         $bill->SetAktNoExt($akt_no_ext);
 

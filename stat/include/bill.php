@@ -216,6 +216,11 @@ class Bill {
         BillExternal::saveValue($this->bill_no, 'ext_invoice_no', $no);
     }
 
+    public function SetInvoiceDateExt($date)
+    {
+        BillExternal::saveValue($this->bill_no, 'ext_invoice_date', $date);
+    }
+
     public function SetExtDate($bill_no_ext_date='')
     {
         BillExternal::saveValue($this->bill_no, 'ext_bill_date', $bill_no_ext_date);

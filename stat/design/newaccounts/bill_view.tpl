@@ -77,7 +77,8 @@
             {if $bill_ext.ext_bill_date}<br>Дата внешнего счета: {$bill_ext.ext_bill_date}{/if}
             {if $bill_ext.ext_akt_no}<br>Номер внешнего акта: {$bill_ext.ext_akt_no}{/if}
             {if $bill_ext.ext_akt_date}<br>Дата внешнего акта: {$bill_ext.ext_akt_date}{/if}
-            {if $bill_ext.ext_invoice_no}<br>Номер внешнего с/ф: {$bill_ext.ext_invoice_no}{/if}
+            {if $bill_ext.ext_invoice_no}<br>Номер внешней с/ф: {$bill_ext.ext_invoice_no}{/if}
+            {if $bill_ext.ext_invoice_date}<br>Дата внешней с/ф: {$bill_ext.ext_invoice_date}{/if}
 
             {if false && access('newaccounts_bills','edit') && !$isClosed}
                 <form action="?" method="post">
