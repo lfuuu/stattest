@@ -112,7 +112,8 @@ class m_newaccounts extends IModule
         $design->ProcessEx('errors.tpl');
 
         $clientAccounts = ClientAccount::find()
-            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]]);
+            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]])
+            ->orWhere(['is_active' => 1]);
 
         if (($organizationId = get_param_integer('organizationId'))) {
             $clientAccounts->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
@@ -4529,7 +4530,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'newbills.bill_date<="' . $date_to . '"+INTERVAL 1 MONTH';
         }
         $P = $db->AllRecords($q = '
-                select newbills.*,ext.*,
+                select newbills.*,ext.ext_akt_no, ext.ext_akt_date,
                     ifnull((select if(state_id = 21 , 1, 0)
                         from tt_troubles t, tt_stages s
                         where t.bill_no = newbills.bill_no and s.stage_id = t.cur_stage_id limit 1), 0) as is_rejected
