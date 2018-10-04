@@ -86,11 +86,11 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
             'attribute' => 'test_connect_date',
             'class' => DateRangeDoubleColumn::class,
             'value' => function (AccountTariff $accountTariff) {
-                /** @var AccountTariffHeap $accountTariffHeap*/
+                /** @var AccountTariffHeap $accountTariffHeap */
                 $accountTariffHeap = $accountTariff->getAccountTariffHeap()
                     ->one();
                 return ($accountTariffHeap && $accountTariffHeap->test_connect_date) ?
-                    $accountTariffHeap->test_connect_date: '';
+                    $accountTariffHeap->test_connect_date : '';
             },
         ];
     }
@@ -108,8 +108,8 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
         'label' => 'Дата продажи, utc',
         'attribute' => 'date_sale',
         'class' => DateRangeDoubleColumn::class,
-        'value' => function(AccountTariff $accountTariff) {
-            /** @var AccountTariffHeap $accountTariffHeap*/
+        'value' => function (AccountTariff $accountTariff) {
+            /** @var AccountTariffHeap $accountTariffHeap */
             $accountTariffHeap = $accountTariff->getAccountTariffHeap()
                 ->one();
             return ($accountTariffHeap && $accountTariffHeap->date_sale) ?
@@ -121,8 +121,8 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
         'label' => 'Дата допродажи, utc',
         'attribute' => 'date_before_sale',
         'class' => DateRangeDoubleColumn::class,
-        'value' => function(AccountTariff $accountTariff) {
-            /** @var AccountTariffHeap $accountTariffHeap*/
+        'value' => function (AccountTariff $accountTariff) {
+            /** @var AccountTariffHeap $accountTariffHeap */
             $accountTariffHeap = $accountTariff->getAccountTariffHeap()
                 ->one();
             return ($accountTariffHeap && $accountTariffHeap->date_before_sale) ?
@@ -134,8 +134,8 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
         'label' => 'Дата отключения, utc',
         'attribute' => 'disconnect_date',
         'class' => DateRangeDoubleColumn::class,
-        'value' => function(AccountTariff $accountTariff) {
-            /** @var AccountTariffHeap $accountTariffHeap*/
+        'value' => function (AccountTariff $accountTariff) {
+            /** @var AccountTariffHeap $accountTariffHeap */
             $accountTariffHeap = $accountTariff->getAccountTariffHeap()
                 ->one();
             return ($accountTariffHeap && $accountTariffHeap->disconnect_date) ?
@@ -388,7 +388,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
         'label' => 'Заявка ЛИД',
         'attribute' => 'trouble_id',
         'format' => 'raw',
-        'value' => function(AccountTariff $accountTariff) {
+        'value' => function (AccountTariff $accountTariff) {
             $value = '';
             $accountTroubles = AccountTrouble::find()
                 ->where(['account_tariff_id' => $accountTariff->id]);
@@ -403,6 +403,17 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
 
 $dataProvider = $filterModel->search();
 
+// показываем сумму, если есть поле с ценой
+$headerColumns = [];
+if (array_search('price', array_column($columns, 'attribute'))) {
+    /** @var Query $query */
+    $query = clone $dataProvider->query;
+    $sum = $query->sum('price');
+    $headerColumns[] = ['options' => ['colspan' => count($columns) - 2]];
+    $headerColumns[] = ['content' => Yii::t('common', 'Summary') . ':'];
+    $headerColumns[] = ['content' => $sum];
+}
+
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
@@ -410,6 +421,13 @@ echo GridView::widget([
         '' :
         $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]),
     'columns' => $columns,
+    'afterHeader' => [
+        [
+            'options' => ['class' => \kartik\grid\GridView::TYPE_WARNING],
+            'columns' => $headerColumns,
+        ]
+    ],
+
     'exportWidget' => GridViewExport::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,

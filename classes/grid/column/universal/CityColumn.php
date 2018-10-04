@@ -35,7 +35,7 @@ class CityColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $this->filter = $this->filterData = City::getList($isWithEmpty = true, $this->country_id, $this->isWithNullAndNotNull);
+        $this->filter = $this->filterData = City::getList($isWithEmpty = true, $this->country_id, $this->isWithNullAndNotNull, $isUsedOnly = false);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' city-column';
 
