@@ -39,5 +39,4 @@ class ClientContragentPerson extends HistoryActiveRecord
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
-
 }

@@ -4,8 +4,15 @@ namespace app\classes\model;
 
 use app\classes\grid\column\DataColumn;
 use app\exceptions\ModelValidationException;
-use app\models\ClientAccount;
+use app\models\Business;
+use app\models\BusinessProcess;
+use app\models\BusinessProcessStatus;
+use app\models\ClientContract;
+use app\models\ClientContragent;
+use app\models\Country;
+use app\models\Organization;
 use app\modules\nnp\models\FilterQuery;
+use app\modules\uu\models\Tariff;
 use ReflectionClass;
 use ReflectionProperty;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -331,13 +338,55 @@ class ActiveRecord extends \yii\db\ActiveRecord
     }
 
     /**
-     * Модификация данных по набору полей в дочерних методах
-     *
      * @param array $data
      * @return array
      */
-    public static function getClarifyFieldValue($data)
+    public static function humanizedHistory($data)
     {
+        foreach ($data as $key => $value) {
+            switch ($key) {
+                case 'package_id':
+                    if ($tariff = Tariff::findOne(['id' => $value])) {
+                        $data[$key] = $tariff->name;
+                    }
+                    break;
+                case 'organization_id':
+                    if ($organization = Organization::findOne(['organization_id' => $value])) {
+                        $data[$key] = $organization->name->value;
+                    }
+                    break;
+                case 'federal_district':
+                    if (isset(ClientContract::$districts[$value])) {
+                        $data[$key] = ClientContract::$districts[$value];
+                    }
+                    break;
+                case 'business_id':
+                    if ($business = Business::findOne(['id' => $value])) {
+                        $data[$key] = $business->name;
+                    }
+                    break;
+                case 'business_process_id':
+                    if ($businessProcess = BusinessProcess::findOne(['id' => $value])) {
+                        $data[$key] = $businessProcess->name;
+                    }
+                    break;
+                case 'business_process_status_id':
+                    if ($businessProcessStatus = BusinessProcessStatus::findOne(['id' => $value])) {
+                        $data[$key] = $businessProcessStatus->name;
+                    }
+                    break;
+                case 'country_id':
+                    if ($country = Country::findOne(['code' => $value])) {
+                        $data[$key] = $country->name;
+                    }
+                    break;
+                case 'contragent_id':
+                    if ($contragent = ClientContragent::findOne(['id' => $value])) {
+                        $data[$key] = $contragent->name;
+                    }
+                    break;
+            }
+        }
         return $data;
     }
 }

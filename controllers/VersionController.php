@@ -69,6 +69,23 @@ class VersionController extends BaseController
 
         $versions = $versionsQuery->all();
         HistoryVersion::generateDifferencesFor($versions);
+        // Переупаковка данных
+        $odata = []; $ndata = [];
+        foreach ($versions as $version) {
+            /* @param HistoryVersion $version */
+            foreach ($version->diffs as $key => $value) {
+                if (count($value) !== 2) {
+                    continue;
+                }
+                $odata[$key] = $value[0];
+                $ndata[$key] = $value[1];
+                $odata = HistoryVersion::humanizedHistory($odata);
+                $ndata = HistoryVersion::humanizedHistory($ndata);
+                $version->diffs[$key][0] = $odata[$key];
+                $version->diffs[$key][1] = $ndata[$key];
+            }
+        }
+        unset($odata, $ndata, $key, $value, $version);
 
         $this->layout = 'minimal';
 

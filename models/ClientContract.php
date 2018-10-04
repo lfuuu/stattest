@@ -518,5 +518,4 @@ class ClientContract extends HistoryActiveRecord
     {
         self::dao()->resetTaxVoip($this, $contragent);
     }
-
 }

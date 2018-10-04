@@ -32,8 +32,8 @@ $links = [
 
     <?php $last = count($versions) - 1; ?>
     <?php foreach ($versions as $k => $version) : ?>
-        <?php $firstRow = true; ?>
-        <?php foreach ($version['diffs'] as $field => $values) : ?>
+        <?php $firstRow = true;
+        foreach ($version['diffs'] as $field => $values) : ?>
             <tr>
 
                 <?php if ($firstRow) : ?>

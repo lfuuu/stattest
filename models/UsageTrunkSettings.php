@@ -79,23 +79,4 @@ class UsageTrunkSettings extends ActiveRecord
     {
         return $this->hasOne(Tariff::class, ['id' => 'package_id']);
     }
-
-    /**
-     * @param array $data
-     * @return array
-     */
-    public static function getClarifyFieldValue($data)
-    {
-        foreach ($data as $k => $v) {
-            switch ($k) {
-                case 'package_id':
-                    $tariff = Tariff::findOne(['id' => $data[$k]]);
-                    if ($tariff) {
-                        $data[$k] .= " $tariff->name";
-                    }
-                    break;
-            }
-        }
-        return $data;
-    }
 }

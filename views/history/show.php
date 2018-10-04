@@ -1,9 +1,10 @@
 <?php
 
 use app\classes\model\ActiveRecord;
+use app\models\HistoryChanges;
 
 /**
- * @var \app\models\HistoryChanges[] $changes
+ * @var HistoryChanges[] $changes
  * @var ActiveRecord[] $models
  */
 ?>
@@ -36,15 +37,8 @@ foreach ($changes as $k => $change):
 
     $prevModelId = $change->model_id;
 
-    $newData = json_decode($change->data_json, true);
-    $oldData = json_decode($change->prev_data_json, true);
-
-    // Для модели app\models\HistoryChanges изменить отображение package_id
-    if ($change instanceof app\models\HistoryChanges && class_exists($change->model)) {
-        $function = "{$change->model}::getClarifyFieldValue";
-        $newData = call_user_func($function, $newData);
-        $oldData = call_user_func($function, $oldData);
-    }
+    $newData = HistoryChanges::humanizedHistory(json_decode($change->data_json, true));
+    $oldData = HistoryChanges::humanizedHistory(json_decode($change->prev_data_json, true));
 
     /** @var array $data */
     if ($newData) {
