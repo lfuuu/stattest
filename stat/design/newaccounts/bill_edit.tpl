@@ -48,11 +48,9 @@
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
-                    <label>Дата внешнего счета: <input type="checkbox" value="Y"
-                                                       name="date_from_active" {if $bill_ext.ext_bill_date} checked{/if}
-                                                       onchange="activateDatePicker(this, 'date_from');"> </label>
+                    <label>Дата внешнего счета:</label>
                     <div class="form-group ">
-                        <input class="form-control input-sm" {if !$bill_ext.ext_bill_date} disabled="disabled"{/if}
+                        <input class="form-control input-sm"
                                id=date_from type=text name=bill_no_ext_date
                                value="{$bill_ext.ext_bill_date}">
 
@@ -94,12 +92,8 @@
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <label>Дата внешнего акта: <input type="checkbox" value="Y"
-                                                          name="date_akt" {if $bill_ext.ext_akt_date} checked{/if}
-                                                          onchange="activateDatePicker(this, 'akt_date_ext');">
-                        </label>
+                        <label>Дата внешнего акта: </label>
                         <input type="text" class="form-control input-sm" name="akt_date_ext" id="akt_date_ext"
-                                {if !$bill_ext.ext_akt_date} disabled="disabled"{/if}
                                value="{$bill_ext.ext_akt_date}">
                     </div>
                 </div>
@@ -147,11 +141,9 @@
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
-                    <label>Дата внешней с/ф: <input type="checkbox" value="Y"
-                                                    name="invoice_date_active" {if $bill_ext.ext_invoice_date} checked{/if}
-                                                    onchange="activateDatePicker(this, 'invoice_ext_date');"> </label>
+                    <label>Дата внешней с/ф:</label>
                     <div class="form-group">
-                        <input class="form-control input-sm" {if !$bill_ext.ext_invoice_date} disabled="disabled"{/if}
+                        <input class="form-control input-sm"
                                id=invoice_ext_date type=text name=invoice_date_ext
                                value="{$bill_ext.ext_invoice_date}">
 
@@ -256,11 +248,6 @@
     $('#invoice_ext_date').datepicker({
       dateFormat: 'dd-mm-yy',
     });
-
-
-    function activateDatePicker(elm, elemId) {
-      $('#' + elemId).attr('disabled', !elm.checked);
-    }
 
     function mark_del() {
       if (document.getElementById('mark_del').checked)

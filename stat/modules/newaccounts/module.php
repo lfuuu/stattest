@@ -1118,9 +1118,7 @@ class m_newaccounts extends IModule
 
         $akt_no_ext = get_param_raw("akt_no_ext");
         $akt_date_ext = get_param_raw("akt_date_ext");
-        $date_akt_active = get_param_raw("date_from_active", 'N');
 
-        $date_from_active = get_param_raw('date_from_active', 'N');
         $price_include_vat = get_param_raw('price_include_vat', 'N');
         $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
@@ -1152,9 +1150,8 @@ class m_newaccounts extends IModule
         $bill->SetInvoiceDateExt($invoice_date_ext);
         $bill->SetIsToUuInvoice($isToUuInvoice);
         $bill->SetAktNoExt($akt_no_ext);
-
-        $bill->SetExtDate($date_from_active == 'Y' ? $bill_no_ext_date : null);
-        $bill->SetAktDateExt($date_akt_active == 'Y' ? $akt_date_ext : null);
+        $bill->SetExtDate($bill_no_ext_date);
+        $bill->SetAktDateExt($akt_date_ext);
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
 
