@@ -14,15 +14,22 @@
         });
 
         $('#registryform-number_from, #registryform-number_to').on('blur', function () {
-            var $operator = $('#registryform-operator');
-            $operator.val('');
+            let $operator = $('#registryform-operator');
+            let $nnp_operator_id = $('#registryform-nnp_operator_id');
+
+            $nnp_operator_id.val("");
+            $operator.val("");
+
             $.get('/uu/voip/get-number-range', {
                 number: $(this).val()
             }, function(json) {
-                    var operatorName = '(не указан)';
-                    if (json && json.operator && json.operator.name) {
-                        operatorName = json.operator.name;
+                let operatorName = '(не указан)';
+                if (json && json.operator && json.operator.name) {
+                    operatorName = json.operator.name;
+                    if ($("#registryform-source").val() === "portability_not_for_sale") {
+                        $nnp_operator_id.val(json.operator.id);
                     }
+                }
                 $operator.val(operatorName);
             });
         });

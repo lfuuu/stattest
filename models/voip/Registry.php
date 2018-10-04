@@ -32,6 +32,7 @@ use app\modules\nnp\models\NdcType;
  * @property-read Country $country
  * @property-read NdcType $ndcType
  * @property string $status
+ * @property int $nnp_operator_id
  */
 class Registry extends ActiveRecord
 {
@@ -75,6 +76,7 @@ class Registry extends ActiveRecord
             'ndc' => 'NDC',
             'fmc_trunk_id' => 'FMC транк',
             'mvno_trunk_id' => 'MVNO транк',
+            'nnp_operator_id' => 'ННП оператор',
         ];
     }
 

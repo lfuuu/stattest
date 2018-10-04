@@ -83,7 +83,7 @@ class RegistryController extends BaseController
 
         $isSave = $model->getScenario() === 'save';
 
-        if ($isLoad && $model->initForm($isSave) && $isSave && $model->validate() && $model->save()) {
+        if ($isSave && $isLoad && $model->initForm($isSave) && $model->validate() && $model->save()) {
             Yii::$app->session->addFlash('success', ($id ? 'Запись обновлена' : 'Запись создана'));
             return $this->redirect(['edit', 'id' => $model->id]);
         }

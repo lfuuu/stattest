@@ -45,6 +45,8 @@ use yii\helpers\Url;
  * @property integer $mvno_trunk_id
  * @property integer $imsi
  * @property integer $warehouse_status_id
+ * @property integer $nnp_operator_id
+ * @property integer $usr_operator_id
  *
  * @property-read City $city
  * @property-read Country $country
@@ -139,6 +141,8 @@ class Number extends ActiveRecord
             'number_tech' => 'Технический номер',
             'imsi' => 'Привязка к сим-карте',
             'warehouse_status_id' => 'Статус скалада сим-карты',
+            'nnp_operator_id' => 'ННП-оператор',
+            'usr_operator_id' => 'ННП-оператор пользователя',
         ];
     }
 
@@ -151,6 +155,7 @@ class Number extends ActiveRecord
             [['status', 'number_tech'], 'string'],
             [['beauty_level'], 'integer'],
             [['imsi', 'warehouse_status_id'], 'integer'],
+            [['nnp_operator_id', 'usr_operator_id',], 'integer'],
             [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }

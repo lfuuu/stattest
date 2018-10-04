@@ -112,6 +112,11 @@ $readonlyOptions = [
                 ] + ($isEditable ? [] : $readonlyOptions),
         ];
 
+        // Добавление скрытого поля - ННП-оператор
+        echo $form->field($model, 'nnp_operator_id')
+            ->hiddenInput()
+            ->label(false);
+
         echo Form::widget([
             'model' => $model,
             'form' => $form,
@@ -167,6 +172,8 @@ $readonlyOptions = [
             'type' => Form::INPUT_TEXT,
             'options' => $isEditable ? [] : $readonlyOptions,
         ];
+
+        //
 
         $line3Attributes['operator'] = [
             'type' => Form::INPUT_TEXT,

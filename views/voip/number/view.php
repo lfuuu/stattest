@@ -46,6 +46,10 @@ echo \yii\widgets\Breadcrumbs::widget([
                     <td>Статус</td>
                     <th><?= Number::$statusList[$number->status] ?></th>
                 </tr>
+                <tr>
+                    <td>ННП-оператор</td>
+                    <th><?= $number->nnp_operator_id ?></th>
+                </tr>
                 <?php if ($number->imsi && $imsi = Imsi::findOne(['imsi' => $number->imsi])) : ?>
                     <tr>
                         <td>Привязка к сим-карте</td>

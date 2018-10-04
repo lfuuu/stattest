@@ -32,7 +32,8 @@ class RegistryForm extends Form
         $ndcList = [],
         $operator = '',
         $fmc_trunk_id = null,
-        $mvno_trunk_id = null;
+        $mvno_trunk_id = null,
+        $nnp_operator_id = null;
 
 
     /** @var Registry */
@@ -45,7 +46,7 @@ class RegistryForm extends Form
     {
         return [
             [
-                ['country_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'ndc'],
+                ['country_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'ndc',],
                 'required',
                 'on' => 'save'
             ],
@@ -69,7 +70,8 @@ class RegistryForm extends Form
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
             ['number_from', 'validateNumbersRange'],
-            [['ndc', 'mvno_trunk_id', 'fmc_trunk_id'], 'safe']
+            [['ndc', 'mvno_trunk_id', 'fmc_trunk_id'], 'safe'],
+            [['nnp_operator_id'], 'integer'],
         ];
     }
 
@@ -235,6 +237,7 @@ class RegistryForm extends Form
                      'comment',
                      'ndc',
                      'fmc_trunk_id',
+                     'nnp_operator_id',
                      'mvno_trunk_id',
                  ] as $field) {
             $this->registry->{$field} = $this->{$field};

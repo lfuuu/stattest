@@ -201,6 +201,7 @@ class VoipRegistryDao extends Singleton
         $number->is_service = (int)$registry->isService();
         $registry->fmc_trunk_id && $number->fmc_trunk_id = $registry->fmc_trunk_id;
         $registry->mvno_trunk_id && $number->mvno_trunk_id = $registry->mvno_trunk_id;
+        $registry->nnp_operator_id && $number->nnp_operator_id = $registry->nnp_operator_id;
 
         $didGroupId = DidGroup::dao()->getIdByNumber($number);
 
