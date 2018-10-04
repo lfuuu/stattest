@@ -4,6 +4,7 @@ namespace tests\codeception\unit\models;
 
 use app\classes\HandlerLogger;
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -12,6 +13,7 @@ use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Bill;
 use app\modules\uu\models\Resource;
+use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AutoCloseAccountTariffTarificator;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
@@ -25,6 +27,7 @@ use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use DateTimeImmutable;
+use DateTimeZone;
 use tests\codeception\unit\_TestCase;
 
 /**
@@ -34,6 +37,7 @@ class UbillerTest extends _TestCase
 {
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     protected function setUp()
     {
@@ -44,6 +48,7 @@ class UbillerTest extends _TestCase
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     protected function load()
     {
@@ -76,6 +81,7 @@ class UbillerTest extends _TestCase
         AccountLogMin::deleteAll();
         AccountEntry::deleteAll();
         Bill::deleteAll();
+        EventQueue::deleteAll();
 
         (new AccountTariffResourceLogFixture)->unload();
         (new AccountTariffLogFixture)->unload();
@@ -92,6 +98,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, как смена тарифов конвертируется в "большие" диапазоны (по смене тарифов)
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     * @throws \Exception
      */
     public function testAccountLogHugeFromToTariffs1()
     {
@@ -140,6 +147,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, как смена тарифов конвертируется в "большие" диапазоны (по смене тарифов)
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     * @throws \Exception
      */
     public function testAccountLogHugeFromToTariffs2()
     {
@@ -206,6 +214,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, как смена тарифов конвертируется в "маленькие" диапазоны (с выравниванием по месяцам)
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     * @throws \Exception
      */
     public function testAccountLogFromToTariffs1()
     {
@@ -289,6 +298,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, как смена тарифов конвертируется в "маленькие" диапазоны (с выравниванием по месяцам)
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     * @throws \Exception
      */
     public function testAccountLogFromToTariffs2()
     {
@@ -411,6 +421,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, что закрывается тариф без автопродления
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     * @throws \Exception
      */
     public function testAccountLogWithoutAutoprolongation1()
     {
@@ -454,6 +465,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, что закрывается тариф с одним автопродлением
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     * @throws \Exception
      */
     public function testAccountLogWithoutAutoprolongation2()
     {
@@ -497,6 +509,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, что при пересечении диапазонов ресурсы-трафик не дублируются
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     * @throws \Exception
      */
     public function testAccountLogTrafficResource()
     {
@@ -573,6 +586,7 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, правильность разбиения ресурсов-опций
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_resource_log.php
+     * @throws \Exception
      */
     public function testAccountLogOptionResource()
     {
@@ -698,4 +712,57 @@ class UbillerTest extends _TestCase
         }
     }
 
+    /**
+     * Проверить разовый пакет интернета, сгорающий через 2 месяца
+     * @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=25887484
+     * @throws \Exception
+     */
+    public function testBurnInternet()
+    {
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 6])->one();
+        $this->assertNotEmpty($accountTariff);
+
+        $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
+        $this->assertEquals(2, count($accountLogFromToTariffs));
+
+        $startDatiTime = (new DateTimeImmutable('now', $accountTariff->clientAccount->getTimezone()))
+            ->modify('first day of previous month')
+            ->modify('+14 day')
+            ->setTime(0, 0, 0);
+
+        $accountLogPeriod = (new AccountLogPeriodTarificator())
+            ->getAccountLogPeriod($accountTariff, reset($accountLogFromToTariffs));
+
+        $this->assertEquals(
+            $startDatiTime->format(DateTimeZoneHelper::DATE_FORMAT),
+            $accountLogPeriod->date_from
+        );
+
+        // С точки зрения бухгалтерии транзакция-проводка-счет идет только за первый месяц с коэффициентом 1, а во все последующие месяцы нет никаких транзакций-проводок.
+        // Потому что непонятно, как делить стоимость и трафик между месяцами. Да и по логике он не делится и не дается по месяцам, а предоставляется весь и сразу.
+        // А уж за какой период пользователь его потратит - это уже совсем другое, бухгалтерию это не касается.
+        $this->assertEquals(514, $accountLogPeriod->price);
+        $this->assertEquals(1, $accountLogPeriod->coefficient);
+
+        $this->assertTrue($accountLogPeriod->save());
+
+        /** @var EventQueue[] $eventQueues */
+        $eventQueues = EventQueue::find()
+            ->where([
+                'account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                'event' => \app\modules\mtt\Module::EVENT_CLEAR_INTERNET,
+            ])
+            ->all();
+
+        $this->assertEquals(1, count($eventQueues));
+        $this->assertEquals(
+            $startDatiTime
+                ->modify('+1 day')
+                ->modify('+2 month')
+                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            reset($eventQueues)->next_start
+        );
+    }
 }

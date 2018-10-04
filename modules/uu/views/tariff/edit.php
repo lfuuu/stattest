@@ -90,6 +90,10 @@ if (!$serviceType) {
             echo $this->render('_editMainVoipSms', $viewParams);
             break;
 
+        case ServiceType::ID_VOIP_PACKAGE_INTERNET:
+            echo $this->render('_editMainVoipInternet', $viewParams);
+            break;
+
         case ServiceType::ID_TRUNK_PACKAGE_ORIG:
         case ServiceType::ID_TRUNK_PACKAGE_TERM:
             echo $this->render('_editMainTrunkPackage', $viewParams);

@@ -24,6 +24,7 @@ class AccountLogPeriodTarificator extends Tarificator
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param bool $isWithTransaction
      * @throws \Exception
+     * @throws \Throwable
      */
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
@@ -75,6 +76,7 @@ class AccountLogPeriodTarificator extends Tarificator
      * @throws \LogicException
      * @throws \app\exceptions\ModelValidationException
      * @throws \Exception
+     * @throws \Throwable
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
@@ -116,6 +118,7 @@ class AccountLogPeriodTarificator extends Tarificator
     public function getAccountLogPeriod(AccountTariff $accountTariff, AccountLogFromToTariff $accountLogFromToTariff)
     {
         $tariffPeriod = $accountLogFromToTariff->tariffPeriod;
+        $tariff = $tariffPeriod->tariff;
 
         $accountLogPeriod = new AccountLogPeriod();
         $accountLogPeriod->date_from = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
@@ -133,13 +136,21 @@ class AccountLogPeriodTarificator extends Tarificator
                 ->diff($accountLogFromToTariff->dateFrom)
                 ->days; // кол-во потраченных дней
 
-        if ($totalDays > 31) {
+        if ($tariff->count_of_carry_period) {
+
+            // Если "Пакет интернета сгорает через N месяцев", то списывается полностью. И трафик дается тоже полностью
+            $accountLogPeriod->coefficient = 1;
+
+        } elseif ($totalDays > 31) {
+
             // больше месяца (при оплате за квартал, полгода, год)
             // этот метод вызывается из
             // ... основного биллинга. Все периоды уже и так разбиты по месяцам, поэтому сюда не попадем
             // ... из валидации при создании "хватит ли денег". Тут большая точность не обязательно, ибо фактического списания не происходит. Достаточно "средней температуры по больнице"
             $accountLogPeriod->coefficient = round($totalDays / self::DAYS_IN_MONTH);
+
         } else {
+
             // месяц или меньше - разделить на кол-во дней в месяце
             $daysInMonth = $accountLogFromToTariff->dateFrom
                 ->modify('+1 month')
@@ -148,11 +159,11 @@ class AccountLogPeriodTarificator extends Tarificator
             $accountLogPeriod->coefficient = $totalDays / $daysInMonth;
         }
 
-        if ($tariffPeriod->tariff->service_type_id === ServiceType::ID_INFRASTRUCTURE) {
+        if ($tariff->service_type_id === ServiceType::ID_INFRASTRUCTURE) {
             // инфраструктура - цена берется из услуги!
             $accountLogPeriod->price = $accountTariff->price * $accountLogPeriod->coefficient;
 
-        } elseif ($tariffPeriod->tariff->getIsTest()) {
+        } elseif ($tariff->getIsTest()) {
             // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
             $accountLogPeriod->price = 0;
 

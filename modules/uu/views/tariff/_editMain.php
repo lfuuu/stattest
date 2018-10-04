@@ -171,6 +171,7 @@ $viewParams = [
                     ['label' => $tariff->getAttributeLabel('is_charge_after_blocking') . $helpConfluence])
             ?>
         </div>
+
     </div>
 
     <?php if (!$tariff->isNewRecord) : ?>

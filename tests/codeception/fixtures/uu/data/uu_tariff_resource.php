@@ -210,6 +210,15 @@ $allTariffResources = [
         'resource_id' => Resource::ID_VOIP_PACKAGE_SMS,
         'tariff_id' => Tariff::DELTA + 10,
     ],
+
+    // Тариф 14
+    [
+        'amount' => 1024,
+        'price_per_unit' => 0,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VOIP_PACKAGE_INTERNET,
+        'tariff_id' => Tariff::DELTA + 14,
+    ],
 ];
 
 $vpbxBaseResources = [

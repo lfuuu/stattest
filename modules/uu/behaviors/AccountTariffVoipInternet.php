@@ -63,11 +63,35 @@ class AccountTariffVoipInternet extends Behavior
             'account_tariff_id' => $accountTariff->prev_account_tariff_id,
         ];
         $isForceAdd = false;
-        $nextStart = (new \DateTime($accountLogPeriod->date_to, $accountTariff->clientAccount->getTimezone()))
-            ->modify('+1 day')
+
+        if ($tariff->count_of_carry_period) {
+            // Если "Пакет интернета сгорает через N месяцев", то от даты начала, независимо от календарного месяца
+            $nextStartDateTime = (new \DateTime($accountLogPeriod->date_from, $accountTariff->clientAccount->getTimezone()))
+                ->modify('+1 day')
+                ->modify("+{$tariff->count_of_carry_period} month");
+
+            // отменить сжигание предыдущих пакетов по этой базовой услуге
+            EventQueue::updateAll(
+                [
+                    'status' => EventQueue::STATUS_OK,
+                ],
+                [
+                    'account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                    'event' => [\app\modules\mtt\Module::EVENT_CLEAR_BALANCE, \app\modules\mtt\Module::EVENT_CLEAR_INTERNET],
+                    'status' => EventQueue::STATUS_PLAN,
+                ]
+            );
+        } else {
+            // Сгорает в конце месяца
+            $nextStartDateTime = (new \DateTime($accountLogPeriod->date_to, $accountTariff->clientAccount->getTimezone()))
+                ->modify('+1 day');
+        }
+
+        $nextStartDateTime
             ->setTime(0, 0, 0)
-            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
-            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+        $nextStart = $nextStartDateTime->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
         EventQueue::go(\app\modules\mtt\Module::EVENT_CLEAR_BALANCE, $params, $isForceAdd, $nextStart);
         EventQueue::go(\app\modules\mtt\Module::EVENT_CLEAR_INTERNET, $params, $isForceAdd, $nextStart);
     }

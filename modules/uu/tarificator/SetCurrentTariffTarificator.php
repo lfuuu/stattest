@@ -25,6 +25,7 @@ class SetCurrentTariffTarificator extends Tarificator
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param bool $isWithTransaction
      * @throws \Exception
+     * @throws \Throwable
      */
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
@@ -319,6 +320,7 @@ SQL;
      * @throws \yii\db\Exception
      * @throws \Exception
      * @throws \LogicException
+     * @throws \Throwable
      */
     protected function checkBalance(AccountTariff $accountTariff)
     {

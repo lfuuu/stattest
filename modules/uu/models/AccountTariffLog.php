@@ -672,27 +672,58 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        if ($accountTariff->service_type_id === ServiceType::ID_VOIP_PACKAGE_CALLS) {
-            // только для пакетов звонков
-            /** @var AccountTariff[] $accountTariffSiblings */
-            $accountTariffSiblings = AccountTariff::find()
-                ->where(
-                    [
-                        'service_type_id' => $accountTariff->service_type_id,
-                        'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
-                        'tariff_period_id' => $this->tariff_period_id,
-                    ]
-                )
-                ->andWhere(['!=', 'id', (int)$this->account_tariff_id])// кроме себя же
-                ->all();
-            foreach ($accountTariffSiblings as $accountTariffSibling) {
-                if (!$accountTariffSibling->tariffPeriod->tariff->getPackageMinutes()->count()) {
-                    // пакет с минутами подключать повторно можно (минуты суммируются), а все остальное нельзя (не имеет смысла, ибо дешевый прайслист и так действует)
-                    $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
-                    $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
-                    return;
+        switch ($accountTariff->service_type_id) {
+            case ServiceType::ID_VOIP_PACKAGE_CALLS:
+                // только для пакетов звонков
+                /** @var AccountTariff[] $accountTariffSiblings */
+                $accountTariffSiblings = AccountTariff::find()
+                    ->where(
+                        [
+                            'service_type_id' => $accountTariff->service_type_id,
+                            'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                            'tariff_period_id' => $this->tariff_period_id,
+                        ]
+                    )
+                    ->andWhere(['!=', 'id', (int)$this->account_tariff_id])// кроме себя же
+                    ->all();
+                foreach ($accountTariffSiblings as $accountTariffSibling) {
+                    if (!$accountTariffSibling->tariffPeriod->tariff->getPackageMinutes()->count()) {
+                        // пакет с минутами подключать повторно можно (минуты суммируются), а все остальное нельзя (не имеет смысла, ибо дешевый прайслист и так действует)
+                        $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
+                        $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
+                        return;
+                    }
                 }
-            }
+                break;
+
+            case ServiceType::ID_VOIP_PACKAGE_INTERNET:
+                // только для пакетов интернета
+
+                $countOfCarryPeriod = $accountTariff->tariffPeriod->tariff->count_of_carry_period;
+
+                /** @var AccountTariff[] $accountTariffSiblings */
+                $accountTariffSiblings = AccountTariff::find()
+                    ->where(
+                        [
+                            'service_type_id' => $accountTariff->service_type_id,
+                            'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                        ]
+                    )
+                    ->andWhere(['NOT', ['tariff_period_id' => null]])// включенные
+                    ->andWhere(['!=', 'id', (int)$this->account_tariff_id])// кроме себя же
+                    ->all();
+                foreach ($accountTariffSiblings as $accountTariffSibling) {
+                    $countOfCarryPeriodSibling = $accountTariffSibling->tariffPeriod->tariff->count_of_carry_period;
+                    if (
+                        ($countOfCarryPeriodSibling && !$countOfCarryPeriod) ||
+                        (!$countOfCarryPeriodSibling && $countOfCarryPeriod)
+                    ) {
+                        $this->addError($attribute, 'Сгораемые и несгораемые пакеты интернета несовместимы');
+                        $this->errorCode = AccountTariff::ERROR_CODE_USAGE_BURN_INTERGER;
+                        return;
+                    }
+                }
+                break;
         }
 
         // Любой менеджер или аккаунт-менеджер имеет право добавлять неограниченное количество пакетов в день

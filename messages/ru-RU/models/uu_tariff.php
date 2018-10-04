@@ -1,4 +1,5 @@
 <?php
+
 return [
     'id' => 'ID',
     'name' => 'Название',
@@ -8,6 +9,7 @@ return [
     'is_include_vat' => 'Включая НДС',
     'is_default' => 'По умолчанию',
     'is_postpaid' => 'Постоплата',
+    'count_of_carry_period' => 'Пакет интернета сгорает через N месяцев',
     'count_of_validity_period' => 'Кол-во продлений',
     'tariff_status_id' => 'Статус',
     'currency_id' => 'Валюта',
@@ -15,7 +17,6 @@ return [
     'voip_group_id' => 'Группа телефонии',
     'vm_id' => 'Тариф VPS',
     'tag_id' => 'Тэг',
-
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',
     'update_time' => 'Когда редактировал',

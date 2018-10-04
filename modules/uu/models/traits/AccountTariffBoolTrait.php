@@ -10,7 +10,7 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\Tariff;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use DateTimeZone;
 use Yii;
@@ -115,18 +115,21 @@ trait AccountTariffBoolTrait
     public function isPackageAddable()
     {
         if (!$this->isEditable()) {
-            // нередактируемый в принципе
             return false;
         }
 
-        /** @var TariffPeriod $tariffPeriod */
-        $tariffPeriod = $this->tariffPeriod;
-        if ($tariffPeriod->tariff->service_type_id != ServiceType::ID_VOIP) {
-            // не телефония
+        /** @var Tariff $tariff */
+        $tariff = $this->tariffPeriod->tariff;
+
+        if ($tariff->service_type_id != ServiceType::ID_VOIP) {
             return false;
         }
 
-        // таки можно
+        // Если задано "Кол-во продлений" и "Кол-во продлений при переносе ресурса"
+        if ($tariff->count_of_validity_period && $tariff->count_of_carry_period) {
+            return false;
+        }
+
         return true;
     }
 

@@ -178,6 +178,7 @@ trait AccountTariffBillerTrait
      * @param bool $isSplitByMonth делить ли по календарным месяцам (для бухгалтерии) или нет
      * @return AccountLogFromToTariff[]
      * @throws \LogicException
+     * @throws \Exception
      */
     public function getAccountLogFromToTariffs($chargePeriodMain = null, $isWithCurrent = true, $isSplitByMonth = true)
     {

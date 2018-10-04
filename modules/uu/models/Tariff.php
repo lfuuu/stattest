@@ -34,6 +34,7 @@ use yii\helpers\Url;
  * @property integer $is_default
  * @property integer $is_postpaid
  * @property integer $tag_id
+ * @property integer $count_of_carry_period
  *
  * @property-read Currency $currency
  * @property-read TariffResource[] $tariffResources
@@ -139,18 +140,21 @@ class Tariff extends ActiveRecord
                     'is_charge_after_blocking',
                     'is_default',
                     'is_postpaid',
+                    'count_of_carry_period',
                     'vm_id',
                     'tag_id',
                 ],
                 'integer'
             ],
+            ['count_of_carry_period', 'default', 'value' => 1],
             [['voip_group_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['currency_id'], 'string', 'max' => 3],
             [['name'], 'required'],
             ['vm_id', 'validatorVm', 'skipOnEmpty' => false],
-            [['count_of_validity_period'], 'integer', 'max' => 30],
+            [['count_of_validity_period', 'count_of_carry_period'], 'integer', 'min'=>0, 'max' => 30],
             ['count_of_validity_period', 'validatorTest', 'skipOnEmpty' => false],
+            ['count_of_carry_period', 'validatorBurnInternet'],
         ];
     }
 
@@ -458,6 +462,20 @@ class Tariff extends ActiveRecord
     {
         if ($this->getIsTest() && ($this->is_autoprolongation || !$this->count_of_validity_period)) {
             $this->addError($attribute, 'У тестового тарифа должно быть явно указано количество дней и не должно быть автопролонгации.');
+            return;
+        }
+    }
+
+    /**
+     * Несгорающий пакет интернета должен быть одноразовым
+     *
+     * @param string $attribute
+     * @param array $params
+     */
+    public function validatorBurnInternet($attribute, $params)
+    {
+        if ($this->count_of_carry_period && ($this->is_autoprolongation || $this->count_of_validity_period)) {
+            $this->addError($attribute, 'Несгорающий пакет интернета должен быть одноразовым (Автопролонгация = нет, Кол-во продлений = 0)');
             return;
         }
     }

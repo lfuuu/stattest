@@ -121,6 +121,14 @@ return [
         'charge_period_id' => Period::ID_MONTH,
     ],
     [
+        'id' => 15,
+        'price_per_period' => 514,
+        'price_setup' => 0,
+        'price_min' => 0,
+        'tariff_id' => Tariff::DELTA + 14,
+        'charge_period_id' => Period::ID_MONTH,
+    ],
+    [
         'id' => TariffPeriod::TEST_VOIP_ID,
         'price_per_period' => 0,
         'price_setup' => 0,

@@ -16,6 +16,7 @@ $tariffIds = [
     Tariff::DELTA + 10,
     Tariff::DELTA + 11,
     Tariff::DELTA + 12,
+    Tariff::DELTA + 14,
     Tariff::TEST_VOIP_ID,
     Tariff::TEST_VPBX_ID,
     Tariff::START_VPBX_ID,

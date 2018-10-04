@@ -1,7 +1,7 @@
 <?php
 
-use app\modules\uu\models\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\uu\models\AccountTariff;
 
 $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())
     ->modify('first day of previous month')
@@ -98,6 +98,15 @@ return [
         'account_tariff_id' => AccountTariff::DELTA + 5,
         'tariff_period_id' => null,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+2 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+
+    // Разовый пакет интернета 1 Гб, сгорающий через 2 месяца
+    [
+        // с 15 числа прошлого месяца
+        'account_tariff_id' => AccountTariff::DELTA + 6,
+        'tariff_period_id' => 15,
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+14 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
 ];

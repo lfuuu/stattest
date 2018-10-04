@@ -16,6 +16,7 @@ trait AccountTariffBillerPeriodTrait
      * @throws \Exception
      * @throws \LogicException
      * @throws ModelValidationException
+     * @throws \Throwable
      */
     public function getUntarificatedPeriodPeriods()
     {
