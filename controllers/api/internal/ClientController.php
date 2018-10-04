@@ -457,6 +457,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="account_version", type="integer", description="Версия биллера", in="formData", default="4"),
      *   @SWG\Parameter(name="entry_point_id", type="string", description="ID (code) точки входа", in="formData", default="RU1"),
      *   @SWG\Parameter(name="utm_parameters", type="string", description="UTM-метки", in="formData", default=""),
+     *   @SWG\Parameter(name="roistat_visit", type="integer", description="Roistat visit", in="formData", default=""),
      *
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},

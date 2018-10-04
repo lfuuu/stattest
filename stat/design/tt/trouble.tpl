@@ -156,6 +156,38 @@
             </td>
         </tr>
     {/if}
+    {if $tt_trouble.trouble_type == 'connect'}
+        <tr>
+            <td align="right">Roistat visit:</td>
+            <td>
+                <div class="row">
+                    <div class="col-sm-6">
+                        {$tt_trouble.roistat_visit}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="right">Roistat price:</td>
+            <td>
+                <div class="row">
+                    <div class="col-sm-6">
+                        {$tt_trouble.roistat_price}
+                    </div>
+                </div>
+            </td>
+        </tr>
+    {/if}
+    <tr>
+        <td align="right">Время последнего изменения:</td>
+        <td>
+            <div class="row">
+                <div class="col-sm-6">
+                    {$tt_trouble.updated_at}
+                </div>
+            </div>
+        </td>
+    </tr>
     <tr>
         <td align="right">Проблема</td>
         <td style="border:1px solid black;background:white;">

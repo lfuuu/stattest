@@ -123,6 +123,10 @@ class m_tt extends IModule{
     function tt_time($fixclient) {
         global $db,$design,$user;
         $id = get_param_integer('id',0);
+        // При обновлении поля "Дата активации", обновлять время updated_at
+        if ($troubleModel = YiiTrouble::findOne(['id' => $id])) {
+            $troubleModel->setIsChanged();
+        }
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
         if (!count($R)) {trigger_error2('Такой заявки у клиента '.$fixclient.' не существует'); return;}
         $trouble = $R[0];
@@ -546,8 +550,15 @@ class m_tt extends IModule{
                 throw new LogicException("Невалидный параметр $key");
             }
         }
-        $this->saveClientContacts((int)$_POST['client_id'], $_POST['contact_phone'], $_POST['contact_comment']);
-        header('Location: ?module=tt&action=view&id=' .(int)$_POST['trouble_id']);
+        $troubleId = (int)$_POST['trouble_id'];
+        // Сохранение контакта клиента
+        $isClientContactSaved = $this->saveClientContacts((int)$_POST['client_id'], $_POST['contact_phone'], $_POST['contact_comment']);
+        if ($isClientContactSaved && $trouble = YiiTrouble::findOne(['id' => $troubleId])) {
+            // Если сохранение прошло успешно, то необходимо обновить дату последнего обновления модели Trouble
+            $trouble->setIsChanged();
+        }
+
+        header("Location: ?module=tt&action=view&id={$troubleId}");
     }
 
     //всякие функции
@@ -813,13 +824,14 @@ where c.client="'.$trouble['client_orig'].'"')
      * @param int $clientId
      * @param string $contactPhone
      * @param string $contactComment
+     * @return boolean
      */
     function saveClientContacts($clientId, $contactPhone, $contactComment)
     {
         $client = ClientAccount::findOne(['id' => $clientId]);
         if (!$client) {
             Yii::$app->session->setFlash('error', "Клиент {$clientId} не найден");
-            return;
+            return false;
         }
         try {
             // Создание контакта и комментария с типом "Телефон"
@@ -832,9 +844,10 @@ where c.client="'.$trouble['client_orig'].'"')
             if (!$contact->save()) {
                 throw new ModelValidationException($contact);
             }
+            return true;
         } catch (ModelValidationException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
-            return;
+            return false;
         }
     }
 
@@ -2990,6 +3003,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             if (!$trouble) {
                 throw new InvalidParamException('Заявка не найдена');
             }
+
+            // При обновлении поля "Откуда вы о нас узнали", обновлять время updated_at
+            $trouble->setIsChanged();
 
             if (!($lead = $trouble->lead)) {
                 throw new InvalidParamException('У заявки ' . $trouble->id . ' лид не найден');

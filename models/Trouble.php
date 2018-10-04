@@ -5,7 +5,10 @@ namespace app\models;
 use app\classes\media\TroubleMedia;
 use app\classes\model\ActiveRecord;
 use app\dao\TroubleDao;
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use yii\base\InvalidParamException;
+use yii\behaviors\TimestampBehavior;
 use yii\helpers\Url;
 
 /**
@@ -29,7 +32,9 @@ use yii\helpers\Url;
  * @property string $trouble_subtype
  * @property string $date_close
  * @property int $support_ticket_id
+ * @property string $updated_at
  *
+ * @property-read TroubleRoistat $troubleRoistat
  * @property-read TroubleStage $currentStage
  * @property-read Lead $lead
  * @property-read \app\classes\media\TroubleMedia mediaManager
@@ -125,7 +130,7 @@ class Trouble extends ActiveRecord
                 ],
                 'integer'
             ],
-            [['date_creation', 'date_close'], 'string'],
+            [['date_creation', 'date_close', 'updated_at'], 'string'],
         ];
     }
 
@@ -133,6 +138,14 @@ class Trouble extends ActiveRecord
     {
         return [
             'ImportantEvents' => \app\classes\behaviors\important_events\Troubles::class,
+            [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+                'value' => date(DateTimeZoneHelper::DATETIME_FORMAT),
+            ],
         ];
     }
 
@@ -213,7 +226,13 @@ class Trouble extends ActiveRecord
         return new TroubleMedia($this);
     }
 
-
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTroubleRoistat()
+    {
+        return $this->hasOne(TroubleRoistat::class, ['trouble_id' => 'id']);
+    }
 
     /**
      * Можем ли мы перевести заявку на новый этап
@@ -254,4 +273,14 @@ class Trouble extends ActiveRecord
         ]);
     }
 
+    /**
+     * @throws ModelValidationException
+     */
+    public function setIsChanged()
+    {
+        $this->updated_at = date(DateTimeZoneHelper::DATETIME_FORMAT);
+        if (!$this->save()) {
+            throw new ModelValidationException($this);
+        }
+    }
 }

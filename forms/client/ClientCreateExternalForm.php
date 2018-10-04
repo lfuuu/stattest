@@ -27,6 +27,7 @@ use app\models\Organization;
 use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\Trouble;
+use app\models\TroubleRoistat;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
@@ -81,7 +82,10 @@ class ClientCreateExternalForm extends Form
 
         $utm_parameters = [],
 
-        $troubleId = null;
+        $troubleId = null,
+
+        $roistat_visit = null;
+
     /** @var EntryPoint */
     public $entryPoint = null;
 
@@ -160,6 +164,7 @@ class ClientCreateExternalForm extends Form
             ['connect_region', 'default', 'value' => Region::MOSCOW],
             ['account_version', 'default', 'value' => ClientAccount::DEFAULT_ACCOUNT_VERSION],
             [['ip', 'utm_parameters'], 'safe'],
+            [['roistat_visit',], 'integer'],
         ];
         return $rules;
     }
@@ -183,6 +188,7 @@ class ClientCreateExternalForm extends Form
             'country_id' => 'Код страны',
             'site_name' => 'Сайт',
             'account_version' => 'Версия биллера',
+            'roistat_visit' => 'Roistat visit',
         ];
     }
 
@@ -473,15 +479,28 @@ class ClientCreateExternalForm extends Form
         $R = [
             'trouble_type' => 'connect',
             'trouble_subtype' => 'connect',
-            'client' => "id" . $this->account_id,
+            'client' => 'id' . $this->account_id,
             'date_start' => date(DateTimeZoneHelper::DATETIME_FORMAT),
             'date_finish_desired' => date(DateTimeZoneHelper::DATETIME_FORMAT),
-            'problem' => "Входящие клиент с сайта" . ($this->site_name ? ' ' . $this->site_name : '') . ": " . $this->company,
-            'user_author' => "system",
-            'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : '')
+            'problem' => 'Входящие клиент с сайта' . ($this->site_name ? ' ' . $this->site_name : '') . ": " . $this->company,
+            'user_author' => 'system',
+            'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : ''),
         ];
 
         $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);
+
+        // Создание TroubleRoistat, если существуют данные в roistat_visit
+        if ($this->roistat_visit) {
+            $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $this->troubleId]);
+            if (!$troubleRoistat) {
+                $troubleRoistat = new TroubleRoistat;
+                $troubleRoistat->trouble_id = $this->troubleId;
+            }
+            $troubleRoistat->roistat_visit = $this->roistat_visit;
+            if (!$troubleRoistat->save()) {
+                throw new ModelValidationException($troubleRoistat);
+            }
+        }
 
         LkWizardState::create(
             $this->contract_id,
