@@ -31,6 +31,8 @@ class ImsiPartner extends ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
+    const ROAMABILITY = 4;
+
     /**
      * @return string
      */
