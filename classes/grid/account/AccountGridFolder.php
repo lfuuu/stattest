@@ -2,10 +2,14 @@
 namespace app\classes\grid\account;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\BusinessProcess;
 use app\models\Currency;
+use app\models\Good;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\SaleChannelOld;
+use app\models\TariffExtra;
+use app\models\usages\UsageFactory;
 use app\models\User;
 use kartik\daterange\DateRangePicker;
 use kartik\grid\GridView;
@@ -25,6 +29,9 @@ use app\models\Organization;
 
 abstract class AccountGridFolder extends Model
 {
+    const SERVICE_FILTER_EXTRA = 'extra';
+    const SERVICE_FILTER_GOODS = 'goods';
+
     /** @var AccountGrid */
     public $grid;
 
@@ -236,7 +243,23 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['cr.manager' => $this->manager]);
         $query->andFilterWhere(['cr.number' => $this->contractNo]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
-        $query->andFilterWhere(['l.service' => $this->service]);
+        // Для отчета "Выручка Welltime" добавить товары из 1С
+        if ($this->grid->isCurrentReport(BusinessProcess::TELECOM_REPORTS)) {
+            if ($this->hasServiceSignature(self::SERVICE_FILTER_GOODS)) {
+                $item = explode('_', $this->service);
+                $query->andFilterWhere([
+                    'l.item_id' => $item ? array_pop($item) : null
+                ]);
+            } elseif ($this->hasServiceSignature(self::SERVICE_FILTER_EXTRA)) {
+                $item = explode('_', $this->service);
+                $query->andFilterWhere([
+                    'l.id_service' => $item ? array_pop($item) : null,
+                    'l.service' => UsageFactory::USAGE_EXTRA,
+                ]);
+            }
+        } else {
+            $query->andFilterWhere(['l.service' => $this->service]);
+        }
 
         $query->andFilterWhere(['cr.financial_type' => $this->financial_type]);
         if ($this->federal_district) {
@@ -463,20 +486,45 @@ abstract class AccountGridFolder extends Model
                     return $data['service'];
                 },
                 'filter' => function () {
+                    $items = [
+                        'emails' => 'Email',
+                        'usage_tech_cpe' => 'Tech CPE',
+                        'usage_extra' => 'Extra',
+                        'usage_ip_ports' => 'IP Ports',
+                        'usage_sms' => 'SMS',
+                        'usage_virtpbx' => 'ВАТС',
+                        'usage_voip' => 'Телефония',
+                        'usage_welltime' => 'Welltime',
+                    ];
+                    // Добавление к услугам дополнительных параметров
+                    if ($this->grid->isCurrentReport(BusinessProcess::TELECOM_REPORTS)) {
+                        foreach (['FromCustomers', 'FromManagersAndUsages', 'Different'] as $name) {
+                            if (md5('app\classes\grid\account\telecom\reports\Income' . $name . 'Folder') === md5(static::class)) {
+                                // Для отчета "Выручка Welltime" добавить товары из 1С
+                                $goods = Good::find()
+                                    ->where(['num_id' => [Good::GOOD_HASP_HL_PRO_USB, Good::GOOD_WELLTIME_IP_ATC]])
+                                    ->asArray();
+                                foreach ($goods->each() as $good) {
+                                    $items += ['goods_' . $good['id'] => $good['name']];
+                                }
+
+                                // Для отчета "Выручка Welltime" добавить услуги с кодом "welltime", публичный статус, период - одноразовый
+                                $tarifsExtra = TariffExtra::find()
+                                    ->select(['id', 'description'])
+                                    ->where(['code' => 'welltime', 'status' => 'public', 'period' => 'once'])
+                                    ->asArray();
+                                foreach ($tarifsExtra->each() as $tarifExtra) {
+                                    $items += ['extra_' . $tarifExtra['id'] => $tarifExtra['description']];
+                                }
+                                break;
+                            }
+                        }
+                    }
                     return Html::dropDownList(
                         'service',
                         Yii::$app->request->get('service'),
-                        [
-                            'emails' => 'Email',
-                            'usage_tech_cpe' => 'Tech CPE',
-                            'usage_extra' => 'Extra',
-                            'usage_ip_ports' => 'IP Ports',
-                            'usage_sms' => 'SMS',
-                            'usage_virtpbx' => 'ВАТС',
-                            'usage_voip' => 'Телефония',
-                            'usage_welltime' => 'Welltime',
-                        ],
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;',]
+                        $items,
+                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:150px;',]
                     );
                 },
             ],
@@ -715,16 +763,15 @@ abstract class AccountGridFolder extends Model
                 'attribute' => 'legal_entity',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return
-                        isset($this->_organizationList[$data['organization_id']]) ?
-                            $this->_organizationList[$data['organization_id']] :
-                            '';
+                    return isset($this->_organizationList[$data['organization_id']]) ?
+                        $this->_organizationList[$data['organization_id']] : '';
                 },
                 'filter' => function () {
+                    $items = ['' => '- Все -'] + Organization::$ourLegalEntities;
                     return Html::dropDownList(
                         'legal_entity',
                         Yii::$app->request->get('legal_entity'),
-                        ['' => '- Все -'] + Organization::$ourLegalEntities,
+                        $items,
                         ['class' => 'form-control', 'style' => 'min-width:80px;']
                     );
                 },
@@ -763,5 +810,16 @@ abstract class AccountGridFolder extends Model
     public function getColspan()
     {
         return 0;
+    }
+
+    /**
+     * Определение сигнатуры услуги
+     *
+     * @param string $signature
+     * @return bool
+     */
+    public function hasServiceSignature($signature)
+    {
+        return strpos($this->service, $signature) === 0;
     }
 }

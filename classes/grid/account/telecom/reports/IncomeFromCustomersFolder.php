@@ -3,8 +3,8 @@ namespace app\classes\grid\account\telecom\reports;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\classes\grid\account\AccountGridFolderSummaryTrait;
+use app\models\BillLine;
 use app\models\ClientAccount;
-use Yii;
 use yii\db\Query;
 
 
@@ -70,8 +70,11 @@ class IncomeFromCustomersFolder extends AccountGridFolder
         $query->join('INNER JOIN', 'newbill_lines l', 'l.bill_no=b.bill_no');
 
         $query->andWhere('b.is_payed = 1');
-        $query->andWhere('l.type = "service"');
-        $query->andWhere(['not in', 'l.service', ['1C', 'bill_monthlyadd', '', 'all4net']]);
+
+        if (!$this->hasServiceSignature(static::SERVICE_FILTER_GOODS) && !$this->hasServiceSignature(static::SERVICE_FILTER_EXTRA)) {
+            $query->andWhere('l.type = "' . BillLine::LINE_TYPE_SERVICE . '"');
+            $query->andWhere(['not', ['l.service' => ['1C', 'bill_monthlyadd', '', 'all4net']]]);
+        }
 
         list($dateFrom, $dateTo) = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
         if (!$dateFrom) {

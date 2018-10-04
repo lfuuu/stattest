@@ -58,6 +58,7 @@ class Organization extends ActiveRecord
     const MCN_TELECOM_KFT_SK = 19; // MCNtelecom Kft. Словакия
     const TEL2TEL_GMBH = 20;
     const AB_SERVICE_MARCOMNET = 14;
+    const WELLSTART = 8;
 
     public static $ourLegalEntities = [
         self::MCN_TELECOM => 'МСН Телеком',
@@ -65,6 +66,7 @@ class Organization extends ActiveRecord
         self::TEL2TEL_GMBH => 'MCNTelecom GmbH',
         self::TEL2TEL_KFT => 'MCNTelecom Kft.',
         self::TEL2TEL_LTD => 'MCNTelecom Ltd.',
+        self::WELLSTART => 'ООО «Веллстарт»',
     ];
 
     private $langCode = Language::LANGUAGE_DEFAULT;

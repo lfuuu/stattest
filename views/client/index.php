@@ -1,7 +1,5 @@
 <?php
 
-use app\classes\grid\account\telecom\reports\IncomeFromCustomersFolder;
-use app\classes\grid\account\telecom\reports\IncomeFromManagersAndUsagesFolder;
 use yii\widgets\Breadcrumbs;
 use app\classes\Html;
 use app\classes\grid\GridView;
@@ -25,30 +23,22 @@ echo Breadcrumbs::widget([
     <div class="col-sm-12">
         <ul class="nav nav-pills">
             <?php foreach ($activeFolder->grid->getFolders() as $folder): ?>
-                <?php
-                $params =
-                    array_merge(
-                        array_intersect_key($urlParams, get_class_vars(get_class($folder))),
-                        ['client/grid', 'folderId' => $folder->getId(), 'businessProcessId' => $urlParams['businessProcessId']]
-                    );
-                $isActive = $activeFolder->getId() == $folder->getId();
-                ?>
+                <?php $isActive = $activeFolder->getId() === $folder->getId(); ?>
                 <li class="<?= $isActive ? 'active' : '' ?>">
-                    <a href="<?= \yii\helpers\Url::toRoute($params) ?>">
+                    <a href="<?= \yii\helpers\Url::toRoute([
+                            'client/grid', 'folderId' => $folder->getId(), 'businessProcessId' => $urlParams['businessProcessId']
+                    ]) ?>">
                         <?php
                             echo $folder->getName();
-
                             if ($isActive) {
                                 $count = $folder->getCount();
                                 Yii::$app->cache->set('grid.folder.' . $activeFolder->getId() . '.count', $count);
                             } else {
                                 $count = Yii::$app->cache->get('grid.folder.' . $folder->getId() . '.count');
                             }
-
                             if (is_numeric($count)) {
                                 echo " ($count)";
                             }
-
                         ?>
                     </a>
                 </li>

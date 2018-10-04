@@ -80,8 +80,10 @@ class IncomeDifferentFolder extends AccountGridFolder
         $query->join('INNER JOIN', 'newbills b', 'c.id=b.client_id and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE);
         $query->join('INNER JOIN', 'newbill_lines l', 'l.bill_no=b.bill_no');
 
-        $query->andWhere('l.type = "service"');
-        $query->andWhere(['not in', 'l.service', ['1C', 'bill_monthlyadd', '', 'all4net']]);
+        if (!$this->hasServiceSignature(static::SERVICE_FILTER_GOODS) && !$this->hasServiceSignature(static::SERVICE_FILTER_EXTRA)) {
+            $query->andWhere('l.type = "service"');
+            $query->andWhere(['not in', 'l.service', ['1C', 'bill_monthlyadd', '', 'all4net']]);
+        }
 
         $query->andWhere('b.bill_date BETWEEN DATE_ADD( :date_from, INTERVAL -1 MONTH) AND  :date_to', [
             'date_from' => $dateFrom,

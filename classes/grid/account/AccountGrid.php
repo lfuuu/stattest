@@ -83,4 +83,13 @@ abstract class AccountGrid implements AccountGridInterface
 
         Assert::isUnreachable('Acount grid folder not found');
     }
+
+    /**
+     * @param int $businessProcessId
+     * @return bool
+     */
+    public function isCurrentReport($businessProcessId)
+    {
+        return $this->getBusinessProcessId() === $businessProcessId;
+    }
 }
