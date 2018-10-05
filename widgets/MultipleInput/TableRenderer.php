@@ -2,7 +2,7 @@
 
 namespace app\widgets\MultipleInput;
 
-use unclead\widgets\renderers\TableRenderer as BaseTableRenderer;
+use unclead\multipleinput\renderers\TableRenderer as BaseTableRenderer;
 use app\classes\Html;
 
 class TableRenderer extends BaseTableRenderer

@@ -2,8 +2,8 @@
 
 namespace app\widgets\MultipleInput;
 
-use unclead\widgets\MultipleInput as BaseMultipleInput;
-use unclead\widgets\MultipleInputColumn;
+use unclead\multipleinput\MultipleInput as BaseMultipleInput;
+use unclead\multipleinput\MultipleInputColumn;
 
 class MultipleInput extends BaseMultipleInput
 {
@@ -31,7 +31,6 @@ class MultipleInput extends BaseMultipleInput
             'id' => $this->options['id'],
             'colgroup' => $this->colgroup,
             'columns' => $this->columns,
-            'limit' => $this->limit,
             'attributeOptions' => $this->attributeOptions,
             'data' => $this->data,
             'columnClass' => $this->columnClass !== null ? $this->columnClass : MultipleInputColumn::class,
