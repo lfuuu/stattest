@@ -78,15 +78,15 @@ class UsageDao extends Singleton
      */
     private function _isPossibleAddService($serviceTypeId)
     {
-        if (
-            $this->_account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL
-            && $serviceTypeId == ServiceType::ID_TRUNK
-        ) {
-            return $this->_returnValue(
-                !$this->_hasService(ServiceType::ID_TRUNK),
-                'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.'
-            );
-        }
+//        if (
+//            $this->_account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL
+//            && $serviceTypeId == ServiceType::ID_TRUNK
+//        ) {
+//            return $this->_returnValue(
+//                !$this->_hasService(ServiceType::ID_TRUNK),
+//                'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.'
+//            );
+//        }
 
         switch ($this->_account->contract->business_id) {
             case Business::OPERATOR:
@@ -142,11 +142,13 @@ class UsageDao extends Singleton
      */
     private function _hasUniversalService($serviceTypeId)
     {
-        return (bool)AccountTariff::find()
+        $query = AccountTariff::find()
             ->where([
                 'client_account_id' => $this->_account->id,
                 'service_type_id' => $serviceTypeId,
-            ])->count();
+            ]);
+
+        return (bool)$query->count();
     }
 
     /**

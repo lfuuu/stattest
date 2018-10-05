@@ -59,23 +59,33 @@ trait AccountTariffValidatorTrait
      */
     public function validatorTrunk($attribute, $params)
     {
-        if ($this->service_type_id != ServiceType::ID_TRUNK || !$this->trunk_type_id) {
-            // не транк или обычный транк
+        if ($this->service_type_id != ServiceType::ID_TRUNK) {
+            // не транк
             return;
         }
 
         // мега/мульти транк
-        if (
-            $this->isNewRecord
-            && AccountTariff::find()
-                ->where([
-                    'client_account_id' => $this->client_account_id,
-                    'service_type_id' => $this->service_type_id,
-                    'trunk_type_id' => [AccountTariff::TRUNK_TYPE_MEGATRUNK, AccountTariff::TRUNK_TYPE_MULTITRUNK],
-                ])
-                ->count()
+        if (!$this->isNewRecord) {
+            return;
+        }
+
+        $condition = [];
+        // BIL-4612
+        // Для добавления транка не должно быть мегатранков.
+        // Для добавления мегатранка, не должно быть транков.
+        if ($this->trunk_type_id != AccountTariff::TRUNK_TYPE_MEGATRUNK) {
+            $condition['trunk_type_id'] = AccountTariff::TRUNK_TYPE_MEGATRUNK;
+        }
+
+        if (AccountTariff::find()
+            ->where([
+                'client_account_id' => $this->client_account_id,
+                'service_type_id' => $this->service_type_id,
+            ])
+            ->andWhere($condition)
+            ->count()
         ) {
-            $this->addError($attribute, 'Для ЛС можно создать только один мега/мульти транк.');
+            $this->addError($attribute, 'Для ЛС можно создать только один мегатранк или транки других типов.');
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_TRUNK_SINGLE;
             return;
         }
