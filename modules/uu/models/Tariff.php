@@ -474,7 +474,7 @@ class Tariff extends ActiveRecord
      */
     public function validatorBurnInternet($attribute, $params)
     {
-        if ($this->count_of_carry_period && ($this->is_autoprolongation || $this->count_of_validity_period)) {
+        if ($this->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET && $this->count_of_carry_period && ($this->is_autoprolongation || $this->count_of_validity_period)) {
             $this->addError($attribute, 'Несгорающий пакет интернета должен быть одноразовым (Автопролонгация = нет, Кол-во продлений = 0)');
             return;
         }
