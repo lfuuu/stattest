@@ -15,11 +15,13 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
+use app\modules\async\classes\AsyncAdapter;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\modules\atol\Module as AtolModule;
 use app\modules\callTracking\Module as CallTrackingModule;
 use app\modules\freeNumber\classes\FreeNumberAdapter;
 use app\modules\freeNumber\Module as FreeNumberModule;
+use app\modules\async\Module as asyncModule;
 use app\modules\mtt\classes\MttAdapter;
 use app\modules\mtt\Module as MttModule;
 use app\modules\nnp\classes\CityLinker;
@@ -70,6 +72,7 @@ function doEvents($consoleParam)
     $isAtolServer = \app\modules\atol\classes\Api::me()->isAvailable();
     $isMttServer = MttAdapter::me()->isAvailable();
     $isFreeNumberServer = FreeNumberAdapter::me()->isAvailable();
+    $isAsyncServer = AsyncAdapter::me()->isAvailable();
     echo '. ';
 
     $activeQuery = EventQueue::getPlannedQuery();
@@ -653,6 +656,22 @@ function doEvents($consoleParam)
                         FreeNumberModule::addBusy($param) :
                         EventQueue::API_IS_SWITCHED_OFF;
                     break;
+
+                // --------------------------------------------
+                // async
+                // --------------------------------------------
+                case asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF:
+                    $info = $isAsyncServer ?
+                        asyncModule::addAccountTariff($param, $event->id) :
+                        EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case asyncModule::EVENT_ASYNC_PUBLISH_RESULT:
+                    $info = $isAsyncServer ?
+                        asyncModule::publishResult($param) :
+                        EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
 
                 case EventQueue::COMET_NOTIFIER_EVENT:
                     $completedEventName = EventQueue::$names[$param['completed_event']];
