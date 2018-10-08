@@ -1703,8 +1703,7 @@ class UuController extends ApiInternalController
 
         if (isset($post['is_async']) && $post['is_async']) {
             $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
-            return ['request_id' => $event->id]
-                + (isset($post['webhook_url']) && $post['webhook_url'] ? ['webhook_url' => $post['webhook_url']] : []);
+            return ['request_id' => $event->id];
         }
 
 

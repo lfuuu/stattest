@@ -53,7 +53,11 @@ class Module extends \yii\base\Module
             $result = ['status' => 'ERROR', 'code' => $e->getCode(), 'result' => $e->getMessage()];
         }
 
-        EventQueue::go(self::EVENT_ASYNC_PUBLISH_RESULT, ['request_id' => $requestId] + $result);
+        EventQueue::go(self::EVENT_ASYNC_PUBLISH_RESULT,
+            ['request_id' => $requestId]
+            + $result
+            + (isset($post['webhook_url']) && $post['webhook_url'] ? ['webhook_url' => $post['webhook_url']] : [])
+        );
     }
 
     /**
