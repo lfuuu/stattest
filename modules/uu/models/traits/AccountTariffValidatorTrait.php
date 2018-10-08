@@ -140,6 +140,8 @@ trait AccountTariffValidatorTrait
         if ($number->ndc_type_id == NdcType::ID_FREEPHONE && !$this->region_id) {
             $this->region_id = $number->region ?: $number->country->default_connection_point_id;
         }
+
+        $this->city_id = $number->city_id;
     }
 
     /**
