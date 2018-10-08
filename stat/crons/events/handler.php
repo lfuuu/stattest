@@ -45,7 +45,7 @@ require PATH_TO_ROOT . 'conf_yii.php';
 echo PHP_EOL . 'Start ' . date(DateTimeZoneHelper::DATETIME_FORMAT);
 
 $sleepTime = 3;
-$workTime = 120;
+$workTime = 600; // перезагрузка каждые 10 минут
 $counter = 2;
 
 do {
