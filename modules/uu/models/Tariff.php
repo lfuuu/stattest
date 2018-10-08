@@ -146,7 +146,7 @@ class Tariff extends ActiveRecord
                 ],
                 'integer'
             ],
-            ['count_of_carry_period', 'default', 'value' => 1],
+            ['count_of_carry_period', 'default', 'value' => 0],
             [['voip_group_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['currency_id'], 'string', 'max' => 3],
