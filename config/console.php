@@ -144,7 +144,6 @@ return [
         'mtt' => ['class' => 'app\modules\mtt\Module'],
         'sim' => ['class' => 'app\modules\sim\Module'],
         'freeNumber' => ['class' => 'app\modules\freeNumber\Module'],
-        'async' => ['class' => 'app\modules\async\Module'],
     ],
     'params' => $params,
 ];

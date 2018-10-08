@@ -9,7 +9,6 @@ use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
-use app\models\EventQueue;
 use app\models\Number;
 use app\models\Trouble;
 use app\modules\nnp\models\PackageMinute;
@@ -37,7 +36,6 @@ use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipGroup;
 use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\Module;
-use app\modules\async\Module as asyncModule;
 use DateTimeZone;
 use Exception;
 use Yii;
@@ -1681,8 +1679,6 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "comment", type = "string", description = "Комментарий", in = "formData", default = ""),
      *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги ЛС. Если добавляется услуга пакета телефонии, то необходимо здесь указать ID услуги телефонии", in = "formData", default = ""),
      *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "is_async", type = "integer", description = "Асинхронная схема", in = "formData", default = "0"),
-     *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
      *     @SWG\Schema(type = "integer", description = "ID")
@@ -1699,18 +1695,10 @@ class UuController extends ApiInternalController
      */
     public function actionAddAccountTariff()
     {
-        $post = Yii::$app->request->post();
-
-        if (isset($post['is_async']) && $post['is_async']) {
-            $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
-            return ['request_id' => $event->id]
-                + (isset($post['webhook_url']) && $post['webhook_url'] ? ['webhook_url' => $post['webhook_url']] : []);
-        }
-
-
         $transaction = Yii::$app->db->beginTransaction();
         $accountTariff = new AccountTariff();
         $accountTariffLog = new AccountTariffLog;
+        $post = Yii::$app->request->post();
 
         try {
 
