@@ -3693,7 +3693,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
      */
     public function getClientIdByDescription($comment)
     {
-        if (preg_match('/ЛС: (\d{4,})/', $comment, $m)) {
+        if (preg_match('/ЛС: (\d{4,})\s*$/', $comment, $m)) {
             return $m[1];
         }
 
