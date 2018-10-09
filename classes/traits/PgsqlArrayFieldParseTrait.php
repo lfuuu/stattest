@@ -18,18 +18,21 @@ trait PgsqlArrayFieldParseTrait
             return false;
         }
 
-        $items = substr($value, 1, strlen($value) - 2);
-
-        if (empty($items)) {
-            return false;
+        /** @see \yii\db\pgsql\ColumnSchema::$deserializeArrayColumnToArrayExpression */
+        if ($value instanceof \yii\db\ArrayExpression) {
+            $items = $value->getValue();
+        } else {
+            $items = substr($value, 1, -1);
+            if (empty($items)) {
+                return false;
+            }
+            $items = explode(',', $items);
         }
 
-        $items = explode(',', $items);
         $items = array_filter($items, function ($row) {
             return $row !== 'NULL';
         });
 
         return $items;
     }
-
 }
