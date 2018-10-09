@@ -93,6 +93,7 @@ class BillExternal extends ActiveRecord
             'ext_akt_no' => 'Внешний акт',
             'ext_akt_date' => 'Дата внешнего акта',
             'ext_invoice_date' => 'Дата внешней с/ф',
+            'ext_vat' => 'НДС из с/ф поставщика',
         ];
     }
 

@@ -40,23 +40,23 @@
             </div>
 
             {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-            <div class="col-sm-2">
-                <div class="form-group">
-                    <label>Внешний счет: </label>
-                    <input class="form-control input-sm" type=text name=bill_no_ext value="{$bill_ext.ext_bill_no}">
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="form-group">
-                    <label>Дата внешнего счета:</label>
-                    <div class="form-group ">
-                        <input class="form-control input-sm"
-                               id=date_from type=text name=bill_no_ext_date
-                               value="{$bill_ext.ext_bill_date}">
-
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Внешний счет: </label>
+                        <input class="form-control input-sm" type=text name=bill_no_ext value="{$bill_ext.ext_bill_no}">
                     </div>
                 </div>
-            </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Дата внешнего счета:</label>
+                        <div class="form-group ">
+                            <input class="form-control input-sm"
+                                   id=date_from type=text name=bill_no_ext_date
+                                   value="{$bill_ext.ext_bill_date}">
+
+                        </div>
+                    </div>
+                </div>
             {else}
                 <div class="col-sm-4">&nbsp;</div>
             {/if}
@@ -121,7 +121,7 @@
                 </div>
             {/if}
 
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <div class="form-group">
                     <label>
                         Цена включает НДС
@@ -131,28 +131,35 @@
                 </div>
             </div>
 
-        {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-            <div class="col-sm-2">
-                <div class="form-group">
-                    <label>Номер внешней с/ф</label>
-                    <input type="text" class="form-control input-sm" name="invoice_no_ext"
-                           value="{$bill_ext.ext_invoice_no}">
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="form-group">
-                    <label>Дата внешней с/ф:</label>
+            {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
+                <div class="col-sm-2">
                     <div class="form-group">
-                        <input class="form-control input-sm"
-                               id=invoice_ext_date type=text name=invoice_date_ext
-                               value="{$bill_ext.ext_invoice_date}">
-
+                        <label>НДС из с/ф поставщика</label>
+                        <input type="text" class="form-control input-sm" name="ext_vat"
+                               value="{$bill_ext.ext_vat}">
                     </div>
                 </div>
-            </div>
-        {else}
-            <div class="col-sm-4">&nbsp;</div>
-        {/if}
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Номер внешней с/ф</label>
+                        <input type="text" class="form-control input-sm" name="invoice_no_ext"
+                               value="{$bill_ext.ext_invoice_no}">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Дата внешней с/ф:</label>
+                        <div class="form-group">
+                            <input class="form-control input-sm"
+                                   id=invoice_ext_date type=text name=invoice_date_ext
+                                   value="{$bill_ext.ext_invoice_date}">
+
+                        </div>
+                    </div>
+                </div>
+            {else}
+                <div class="col-sm-4">&nbsp;</div>
+            {/if}
         </div>
 
         <div class="row">

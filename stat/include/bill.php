@@ -236,6 +236,13 @@ class Bill {
         BillExternal::saveValue($this->bill_no, 'ext_akt_date', $no);
     }
 
+    public function SetVatExt($vat)
+    {
+        $vat = str_replace(',', '.', $vat);
+        $vat = floatval($vat);
+        BillExternal::saveValue($this->bill_no, 'ext_vat', !$vat ? null : $vat);
+    }
+
     public function SetPriceIncludeVat($price_include_vat)
     {
         if ($this->bill["price_include_vat"] != $price_include_vat) {
