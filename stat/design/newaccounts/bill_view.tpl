@@ -504,6 +504,11 @@
                     <label for="wm112">Договор переуступки c МСН Телеком на МСМ Телеком</label>
                     <br/>
                 {/if}
+                {if isset($partnerContractId) && $partnerContractId}
+                    <input type="checkbox" value="1" name="partner_reward"/><label>Отчет агента
+                    </label>
+                    <br/>
+                {/if}
 
                 {if $bill_is_credit_note}
                     <input type="checkbox" value="1" name="credit_note" id="label_credit_note"/>

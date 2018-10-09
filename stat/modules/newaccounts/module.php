@@ -19,6 +19,7 @@ use app\models\ClientContragent;
 use app\models\Courier;
 use app\models\Currency;
 use app\models\CurrencyRate;
+use app\models\filter\PartnerRewardsFilter;
 use app\models\GoodPriceType;
 use app\models\Language;
 use app\models\Organization;
@@ -927,6 +928,11 @@ class m_newaccounts extends IModule
 
         $design->assign('bill_correction_info', $newbill->getCorrectionInfo());
 
+        // Определение, является ли клиент счета - партнером и имеется ли в строчках счета партнерское вознаграждение
+        $partnerContractId = isset($BusinessId) && $BusinessId === Business::PARTNER && $this->isAgentCommisionInLines($L) ?
+            $bill->client_id : false;
+        $design->assign('partnerContractId', $partnerContractId);
+
         $design->AddMain('newaccounts/bill_view.tpl');
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='" . $bill_no . "'");
@@ -936,6 +942,42 @@ class m_newaccounts extends IModule
             StatModule::tt()->tt_view($fixclient);
             StatModule::tt()->dont_again = true;
         }
+    }
+
+    /**
+     * @param array $L
+     * @return bool
+     */
+    public function isAgentCommisionInLines($L)
+    {
+        $isAgent = false;
+        foreach ($L as $line) {
+            preg_match('/агентское/ui', $line['item'], $agentMatch);
+            if (isset($agentMatch[0])) {
+                $isAgent = true;
+                break;
+            }
+        }
+        return $isAgent;
+    }
+
+    /**
+     * Получение партнера из объекта класса ClientAccount
+     *
+     * @param @param ClientAccount $clientAccount
+     * @return int|null
+     */
+    function getPartnerContractId($clientAccount)
+    {
+        $partnerContractId = null;
+        $contract = $clientAccount->contract;
+        if ($contract->partner_contract_id) {
+            $partnerContractId = $contract->partner_contract_id;
+        } else {
+            $contragent = $contract->contragent;
+            $partnerContractId = $contragent->partner_contract_id;
+        }
+        return $partnerContractId;
     }
 
     function get_bill_docs(\Bill &$bill, $L = null)
@@ -1702,6 +1744,7 @@ class m_newaccounts extends IModule
         ]);
         $L = array_merge($L, ['akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3']);
         $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'credit_note']);
+        $L = array_merge($L, ['partner_reward']);
 
         if ($isFromImport2) {
             return $this->importOnDocType($bills, $is_pdf);
@@ -2089,6 +2132,29 @@ class m_newaccounts extends IModule
                 }
                 break;
             }
+            case 'partner_reward':
+                // Дата за прошлый месяц для генерации отчета
+                $filterDate = (new \DateTime('now'))
+                    ->sub(new DateInterval('P1M'))
+                    ->format('Y-m');
+                // Создание фильтра и получение результата
+                $filterModel = (new PartnerRewardsFilter(true, true))->load();
+                // Вызов данного события обусловлен пройденной проверкой, в которой клиент счета имеет партнерское вознаграждение
+                $filterModel->partner_contract_id = $billModel->client_id;
+                $filterModel->payment_date_before = $filterDate;
+                $filterModel->payment_date_after = $filterDate;
+                // Генерация контента по шаблону и создание PDF-файла
+                $html = Yii::$app->view->render('//stats/partner-rewards/template/partner_rewards_report', [
+                    'filterModel' => $filterModel,
+                ]);
+                include 'mpdf.php';
+                $mpdf = new mPDF('', 'A4-L', 9);
+                $mpdf->PDFA = true;
+                $mpdf->PDFAauto = true;
+                $mpdf->WriteHTML($html);
+                header('Content-Type: application/pdf');
+                echo $mpdf->Output();
+                exit;
         }
 
         $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");

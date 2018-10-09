@@ -7,11 +7,32 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\EventQueue;
 use app\models\PartnerRewards;
+use app\models\PartnerRewardsPermanent;
 use DateTime;
 use yii\console\Controller;
 
 class PartnerRewardController extends Controller
 {
+    /**
+     * Перманентное перекачивание данных за прошедшие сутки
+     */
+    public function actionCreatePermanent()
+    {
+        try {
+            $db = PartnerRewards::getDb();
+            $partnerRewardsPermanentTableName = PartnerRewardsPermanent::tableName();
+            $partnerRewardsTableName = PartnerRewards::tableName();
+            $columns = implode(',', ['bill_id', 'line_pk', 'created_at', 'once', 'percentage_once', 'percentage_of_fee', 'percentage_of_over', 'percentage_of_margin']);
+            // Перманентное перекачивание данных
+            $sql = "INSERT INTO {$partnerRewardsPermanentTableName} ({$columns}) (SELECT {$columns} FROM {$partnerRewardsTableName} pr WHERE pr.created_at BETWEEN DATE_FORMAT(now() - INTERVAL 1 DAY,'%Y-%m-%d 00:00:00') AND DATE_FORMAT(now() - INTERVAL 1 DAY,'%Y-%m-%d 23:59:59'));";
+            if (!$db->createCommand($sql)->execute()) {
+                \Yii::error(sprintf('Ошибка перманентного перекачивания данных: %s', date(DateTimeZoneHelper::DATETIME_FORMAT)));
+            }
+        } catch (\Exception $e) {
+            \Yii::error($e->getMessage());
+        }
+    }
+
     /**
      * Расчет партнерских вознаграждений по оплаченным счетам за последние сутки
      */

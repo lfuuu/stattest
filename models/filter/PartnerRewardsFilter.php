@@ -11,6 +11,7 @@ use app\models\ClientContract;
 use app\models\ClientContractReward;
 use app\models\ClientContragent;
 use app\models\PartnerRewards;
+use app\models\PartnerRewardsPermanent;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
@@ -32,6 +33,8 @@ class PartnerRewardsFilter extends DynamicModel
         $summary = [],
         $possibleSummary = [];
 
+    private $_isPermanentResource;
+
     /**
      * @return array
      */
@@ -44,13 +47,14 @@ class PartnerRewardsFilter extends DynamicModel
     }
 
     /**
-     * @param bool|false $isExtendsMode
+     * @param bool $isExtendsMode
+     * @param bool $isPermanentResource
      */
-    public function __construct($isExtendsMode = false)
+    public function __construct($isExtendsMode = false, $isPermanentResource = false)
     {
         parent::__construct();
-
         $this->isExtendsMode = $isExtendsMode;
+        $this->_isPermanentResource = $isPermanentResource;
     }
 
     /**
@@ -123,8 +127,12 @@ SQL;
             'actual_from' => $actual_from,
         ]);
 
+        // Определение источника генерации партнерского вознаграждения
+        $partnerRewardsTableName = $this->_isPermanentResource ?
+            PartnerRewardsPermanent::tableName() : PartnerRewards::tableName();
+
         $query
-            ->from(['rewards' => PartnerRewards::tableName()])
+            ->from(['rewards' => $partnerRewardsTableName])
             ->innerJoin(['bills' => Bill::tableName()], 'bills.id = rewards.bill_id')
             ->innerJoin(['client' => ClientAccount::tableName()], 'client.id = bills.client_id')
             ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
@@ -297,4 +305,35 @@ SQL;
         return $query->all();
     }
 
+    /**
+     * Функция расчета итоговых значений по вознаграждениям
+     *
+     * @param PartnerRewardsFilter $filterModel
+     * @param string $type
+     * @return string
+     */
+    public static function getTotalSummary($filterModel, $type = '')
+    {
+        $total = 0;
+        $attribute = $type === '' ? 'summary' : 'possibleSummary';
+        foreach ([
+            'once', 'percentage_once', 'percentage_of_fee', 'percentage_of_over' , 'percentage_of_margin'
+        ] as $key) {
+            # Диалектика языка по подсчету итогового значения корректно работает на PHPv5
+            # http://php.net/manual/en/migration70.incompatible.php#migration70.incompatible.variable-handling.indirect
+            $total += $filterModel->{$attribute}[$key];
+        }
+        return number_format($total, 2, ',', ' ');
+    }
+
+    /**
+     * Функция форматирования цены, требуемая в том числе и при экспорте отчета
+     *
+     * @param $price
+     * @return string
+     */
+    public static function getNumberFormat($price)
+    {
+        return number_format($price, 2, ',', ' ');
+    }
 }
