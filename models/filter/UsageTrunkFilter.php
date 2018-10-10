@@ -24,7 +24,15 @@ class UsageTrunkFilter extends UsageTrunk
         $what_is_enabled,
         $description,
         $actual_from_from,
-        $actual_from_to;
+        $actual_from_to,
+        $comment,
+        $federal_district,
+        $group_term_trunk,
+        $group_orig_trunk,
+        $number_a_orig,
+        $number_b_orig,
+        $number_a_term,
+        $number_b_term;
 
     private $trunkIDs = [];
 
@@ -44,7 +52,7 @@ class UsageTrunkFilter extends UsageTrunk
                 ],
                 'integer'
             ],
-            [['what_is_enabled', 'trunk_ids', 'contract_number', 'description'], 'string'],
+            [['what_is_enabled', 'trunk_ids', 'contract_number', 'description', 'comment', 'federal_district'], 'string'],
             [['actual_from_from', 'actual_from_to'], 'string'],
         ];
     }
@@ -57,15 +65,23 @@ class UsageTrunkFilter extends UsageTrunk
     public function attributeLabels()
     {
         return [
-            'connection_point_id' => 'Регион (точка подключения)',
+            'connection_point_id' => 'Точка подключения',
             'trunk_ids' => 'Супер-клиент',
             'contragent_id' => 'Контрагент',
             'contract_number' => '№ договора',
             'contract_type_id' => 'Тип договора',
             'business_process_id' => 'Бизнес-процесс',
             'trunk_id' => 'Транк',
-            'description' => 'Комментарий',
+            'description' => 'Описание',
             'actual_from' => 'Дата подключения',
+            'comment' => 'Комментарии',
+            'federal_district' => 'Федеральный округ',
+            'group_orig_trunk' => 'Группа оригинации',
+            'group_term_trunk' => 'Группа терминации',
+            'number_a_orig' => 'Номер А (ориг.)',
+            'number_b_orig' => 'Номер В (ориг.)',
+            'number_a_term' => 'Номер А (терм.)',
+            'number_b_term' => 'Номер В (терм.)',
         ];
     }
 
@@ -98,6 +114,7 @@ class UsageTrunkFilter extends UsageTrunk
             'contract_number' => 'contract.number',
             'business_process_id' => 'contract.business_process_id',
             'contract_type_id' => 'contract.contract_type_id',
+            'federal_district' => 'contract.federal_district',
         ]);
 
         $query
@@ -137,6 +154,8 @@ class UsageTrunkFilter extends UsageTrunk
         !empty($this->business_process_id) && $query->andWhere(['contract.business_process_id' => $this->business_process_id]);
         !empty($this->trunk_id) && $query->andWhere(['trunk.trunk_id' => $this->trunk_id]);
         !empty($this->description) && $query->andWhere(['LIKE', 'trunk.description', $this->description]);
+        !empty($this->comment) && $query->andWhere(['LIKE', 'trunk.comment', $this->comment]);
+        !empty($this->federal_district) && $query->andWhere(['LIKE', 'contract.federal_district', $this->federal_district]);
 
         !empty($this->actual_from_from) && $query->andWhere(['>=', 'trunk.actual_from', $this->actual_from_from]);
         !empty($this->actual_from_to) && $query->andWhere(['<=', 'trunk.actual_from', $this->actual_from_to]);

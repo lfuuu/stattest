@@ -20,7 +20,8 @@ class UsageTrunkForm extends Form
         $term_min_payment,
         $description,
         $ip,
-        $transit_price = 0.0;
+        $transit_price = 0.0,
+        $comment;
 
     /**
      * @return array
@@ -29,7 +30,7 @@ class UsageTrunkForm extends Form
     {
         return [
             [['id', 'client_account_id', 'connection_point_id', 'trunk_id',], 'integer'],
-            [['actual_from', 'actual_to', 'description'], 'string'],
+            [['actual_from', 'actual_to', 'description', 'comment'], 'string'],
             ['ip', 'ip'],
             [['orig_enabled', 'term_enabled', 'orig_min_payment', 'term_min_payment'], 'integer'],
             ['transit_price', 'number'],
@@ -55,6 +56,7 @@ class UsageTrunkForm extends Form
             'description' => 'Описание',
             'ip' => 'IP-адрес',
             'transit_price' => 'Цена транзита',
+            'comment' => 'Комментарий',
         ];
     }
 

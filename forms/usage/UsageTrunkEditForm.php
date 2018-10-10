@@ -109,6 +109,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->description = $this->description;
         $usage->ip = $this->ip;
         $usage->actual_to = $actualTo->format(DateTimeZoneHelper::DATE_FORMAT);
+        $usage->comment = $this->comment;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

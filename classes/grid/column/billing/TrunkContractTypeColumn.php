@@ -24,7 +24,8 @@ class TrunkContractTypeColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $this->contractTypes = ContractType::getList();
+        // Необходимо получать весь список ContractType
+        $this->contractTypes = ArrayHelper::map(ContractType::find()->all(), 'id', 'name');
 
         if ((int)$this->filterByBusinessProcessId) {
             $this->filter += ContractType::getList($this->filterByBusinessProcessId);

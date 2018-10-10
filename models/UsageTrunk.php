@@ -30,6 +30,7 @@ use yii\db\ActiveQuery;
  * @property string $description
  * @property string $ip
  * @property float $transit_price
+ * @property string $comment
  *
  * @property-read ClientAccount $clientAccount
  * @property-read Region $connectionPoint
@@ -99,7 +100,8 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
                     'expire_dt',
                     'status',
                     'description',
-                    'ip'
+                    'ip',
+                    'comment',
                 ],
                 'string'
             ],
