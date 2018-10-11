@@ -19,6 +19,8 @@ use yii\helpers\Url;
  * @property string $data_json
  * @property integer $state_id
  * @property integer $sale_channel_id
+ * @property string $did
+ * @property string $did_mcn
  *
  * @property-read ClientAccount $account
  * @property-read Trouble $trouble

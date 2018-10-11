@@ -298,6 +298,11 @@ class ApiController extends Controller
             }
 
             $lid->data_json = $this->_content;
+            // Отдельное сохранение did, did_mcn
+            if ($this->_content) {
+                $data = $lid->getData();
+                list($lid->did, $lid->did_mcn) = [$data['did'], $data['did_mcn']];
+            }
             $lid->state_id = TroubleState::CONNECT__INCOME;
             $lid->account_id = $this->_clientAccount ? $this->_clientAccount->id : Lead::DEFAULT_ACCOUNT_ID;
             $lid->trouble_id = $this->_makeLeadTrouble($lid->account_id, $user)->id;
