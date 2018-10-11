@@ -9,7 +9,6 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Number;
 use app\models\billing\Pricelist;
 use app\models\billing\Trunk;
-use app\modules\auth\models\Trunk as AuthTrunk;
 use app\models\UsageTrunkSettings;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -244,7 +243,7 @@ echo Breadcrumbs::widget([
     </div>
     <?php
         // Получение и перестройка необходимых данных с учетом связей транков, правил транков и префикс-листов
-        $relations = AuthTrunk::getRulesAndPrefixlistRelations([$trunk->id]);
+        $relations = Trunk::getRulesAndPrefixlistRelations([$trunk->id]);
     ?>
     <?php if ($usage->orig_enabled) : ?>
         <div class="row">
@@ -268,11 +267,11 @@ echo Breadcrumbs::widget([
         <div class="row">
             <div class="col-sm-6">
                 <div><b>Номер A</b></div>
-                <?= AuthTrunk::graphicDistributionOfRules($relations, true, false) ?>
+                <?= Trunk::graphicDistributionOfRules($relations, true, false) ?>
             </div>
             <div class="col-sm-6">
                 <div><b>Номер B</b></div>
-                <?= AuthTrunk::graphicDistributionOfRules($relations, true, true) ?>
+                <?= Trunk::graphicDistributionOfRules($relations, true, true) ?>
             </div>
         </div>
 
@@ -371,11 +370,11 @@ echo Breadcrumbs::widget([
         <div class="row">
             <div class="col-sm-6">
                 <div><b>Номер A</b></div>
-                <?= AuthTrunk::graphicDistributionOfRules($relations, false, false) ?>
+                <?= Trunk::graphicDistributionOfRules($relations, false, false) ?>
             </div>
             <div class="col-sm-6">
                 <div><b>Номер B</b></div>
-                <?= AuthTrunk::graphicDistributionOfRules($relations, false, true) ?>
+                <?= Trunk::graphicDistributionOfRules($relations, false, true) ?>
             </div>
         </div>
 

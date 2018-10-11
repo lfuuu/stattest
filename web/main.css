@@ -429,6 +429,14 @@ div.indicator-danger {
 	background-color: #d9534f;
 }
 
+div.allowed {
+	color: #5cb85c;
+}
+
+div.disallowed {
+	color: #d9534f;
+}
+
 .in_progress{
 	color: lightgrey;
 }

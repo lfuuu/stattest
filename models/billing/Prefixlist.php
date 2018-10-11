@@ -1,13 +1,11 @@
 <?php
 
-namespace app\modules\auth\models;
+namespace app\models\billing;
 
 use app\classes\model\ActiveRecord;
 use Yii;
 
 /**
- * @package app\modules\auth\models
- *
  * @property int $id
  * @property int $server_id
  * @property string $name
