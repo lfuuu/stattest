@@ -754,6 +754,7 @@ where c.client="'.$trouble['client_orig'].'"')
         if ($trouble) {
             $mediaManager = $trouble->mediaManager;
             $design->assign('tt_media', $mediaManager->getFiles());
+            $design->assign('tt_trouble_roistat', $trouble->troubleRoistat);
         }
 
         /** @var \app\models\Lead $lead */

@@ -156,27 +156,31 @@
             </td>
         </tr>
     {/if}
-    {if $tt_trouble.trouble_type == 'connect'}
-        <tr>
-            <td align="right">Roistat visit:</td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-6">
-                        {$tt_trouble.roistat_visit}
+    {if $tt_trouble.trouble_type == 'connect' && $tt_trouble_roistat}
+        {if $tt_trouble_roistat.roistat_visit}
+            <tr>
+                <td align="right">Roistat visit:</td>
+                <td>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            {$tt_trouble_roistat.roistat_visit}
+                        </div>
                     </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td align="right">Roistat price:</td>
-            <td>
-                <div class="row">
-                    <div class="col-sm-6">
-                        {$tt_trouble.roistat_price}
+                </td>
+            </tr>
+        {/if}
+        {if $tt_trouble_roistat.roistat_price}
+            <tr>
+                <td align="right">Roistat price:</td>
+                <td>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            {$tt_trouble_roistat.roistat_price}
+                        </div>
                     </div>
-                </div>
-            </td>
-        </tr>
+                </td>
+            </tr>
+        {/if}
     {/if}
     <tr>
         <td align="right">Время последнего изменения:</td>
