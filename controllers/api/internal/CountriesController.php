@@ -44,6 +44,7 @@ class CountriesController extends ApiInternalController
      *   @SWG\Parameter(name = "with_numbers", type = "integer", description = "Признак возврата кол-ва свободных номеров: 0/1", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "with_ndcs", type = "integer", description = "Признак возврата NDC: 0/1", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "with_ndc_type_ids", type = "integer", description = "Признак возврата типов NDC: 0/1", in = "formData", default = "0"),
+     *   @SWG\Parameter(name = "is_api", type = "integer", description = "Признак, что запрос приходит с API 0/1", in = "formData", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "список городов в запрашиваемой стране", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/cityRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
@@ -59,18 +60,22 @@ class CountriesController extends ApiInternalController
         $withNumbers = isset($requestData['with_numbers']) ? (int)$requestData['with_numbers'] : 0;
         $withNdcs = isset($requestData['with_ndcs']) ? (int)$requestData['with_ndcs'] : 0;
         $withNdcTypeIds = isset($requestData['with_ndc_type_ids']) ? (int)$requestData['with_ndc_type_ids'] : 0;
+        $isApi = isset($requestData['is_api']) ? (int)$requestData['is_api'] : 0;
 
         if (!$countryId || !($country = Country::findOne($countryId))) {
             throw new BadRequestHttpException;
         }
+
+        $showLevelWhere = ['is_show_in_lk' => City::IS_SHOW_IN_LK_FULL];
+        $isApi && $showLevelWhere = ['>=', 'is_show_in_lk', City::IS_SHOW_IN_LK_API_ONLY];
 
         $result = [];
         /** @var City[] $cities */
         $cities = City::find()
             ->where([
                 'in_use' => 1,
-                'is_show_in_lk' => City::IS_SHOW_IN_LK_FULL,
             ])
+            ->andWhere($showLevelWhere)
             ->andWhere($countryId ? ['country_id' => $countryId] : [])
             ->orderBy([
                 'order' => SORT_ASC,
