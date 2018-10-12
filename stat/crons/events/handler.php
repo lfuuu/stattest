@@ -726,14 +726,21 @@ function doEvents($consoleParam)
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $message . ' in ' . $e->getFile() . ' +' . $e->getLine();
 
+            if (
+                ($event->event == AtolModule::EVENT_SEND && strpos($message, 'Не указаны контакты клиента') !== false)
+                || ($event->event == EventQueue::CORE_CREATE_OWNER && $e->getCode() == 503 /* Пользователь с таким email существует */)
+            ) {
+                $event->setOk('[-] ' . $e->getCode() . ': ' . $message);
+            } else {
+                $event->setError($e);
+            }
+
             /*
                 $isContinue = $e instanceof yii\base\InvalidCallException // ошибка вызова внешней системы
                     || $e instanceof InvalidParamException // Syntax error. В ответ пришел не JSON
                     || strpos($message, 'Operation timed out') !== false // Curl error: #28 - Operation timed out after 30000 milliseconds with 0 bytes received
                     || $e->getCode() == 40001; // Deadlock found when trying to get lock
             */
-
-            $event->setError($e);
         }
     }
 }
