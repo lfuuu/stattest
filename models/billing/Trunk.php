@@ -133,14 +133,13 @@ class Trunk extends ActiveRecord
      */
     public static function graphicDistributionOfRules($items, $orig, $outgoing)
     {
-        $string = '';
-        foreach ($items as $item) {
+        return array_reduce($items, function($carry, $item) use ($orig, $outgoing) {
             if ($item['orig'] === $orig && $item['outgoing'] === $outgoing) {
                 $class = $item['allow'] ? 'allowed' : 'disallowed';
-                $string .= "<div class='{$class}'><b>{$item['name']}</b></div><br>";
+                $carry .= "<div class='{$class}'><b>{$item['name']}</b></div><br>";
             }
-        }
-        return $string;
+            return $carry;
+        }, '');
     }
 
     /**
@@ -171,10 +170,9 @@ class Trunk extends ActiveRecord
      */
     public static function restructRulesAndPrefixlistRelations($items)
     {
-        $struct = [];
-        foreach ($items as $item) {
-            $struct[$item['id']][] = $item;
-        }
-        return $struct;
+        return array_reduce($items, function($carry, $item) {
+            $carry[$item['id']][] = $item;
+            return $carry;
+        }, []);
     }
 }

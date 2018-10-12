@@ -119,6 +119,7 @@ $columns = [
     ],
     [
         'attribute' => 'group_orig_trunk',
+        'enableSorting' => false,
         'value' => function ($data) use ($db) {
             $groups = (new Query())
                 ->select(['name' => "string_agg(tg.name, ', ')"])
@@ -136,6 +137,7 @@ $columns = [
     ],
     [
         'attribute' => 'group_term_trunk',
+        'enableSorting' => false,
         'value' => function ($data) use ($db) {
             $groups = (new Query())
                 ->select(['name' => "string_agg(tg.name, ', ')"])
