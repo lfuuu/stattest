@@ -15,6 +15,44 @@ use yii\console\Controller;
 class CardController extends Controller
 {
     /**
+     * Привязка IMSI к MSISDN
+     *
+     * @param string $filepath
+     */
+    public function actionCreateRelaionMsisdnToImsi($filepath)
+    {
+        // Получение дескриптора файла
+        $filepath = Yii::getAlias("@app/$filepath");
+        if (($handle = fopen($filepath, 'rb')) === false) {
+            echo sprintf('File "%s" not found', $filepath);
+            return;
+        }
+        $i = 0;
+        while (($data = fgetcsv($handle, 0, ';')) !== false) {
+            if ($i++ === 0) {
+                continue;
+            }
+            foreach ($data as $k => $v) {
+                if (!in_array($k, [2, 6])) {
+                    continue;
+                }
+                if (!$imsi = Imsi::findOne(['imsi' => $data[$k]])) {
+                    echo "Imsi '{$data[$k]}' not found!" . PHP_EOL;
+                    continue;
+                }
+                $imsi->msisdn = $data[$k + 1];
+                try {
+                    if (!$imsi->validate() || !$imsi->save()) {
+                        throw new ModelValidationException($imsi);
+                    }
+                } catch (ModelValidationException $e) {
+                    echo $e->getMessage() . PHP_EOL;
+                }
+            }
+        }
+    }
+
+    /**
      * Дополнение IMSIes по партнеру Roamability
      *
      * @param string $filepath
