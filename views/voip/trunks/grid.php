@@ -43,6 +43,7 @@ unset($query, $relations, $trunkIds);
 $columns = [
     [
         'attribute' => 'number_a_orig',
+        'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($data) use ($cache) {
             $trunkId = $data['trunk_id'];
@@ -52,6 +53,7 @@ $columns = [
     ],
     [
         'attribute' => 'number_b_orig',
+        'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($data) use ($cache) {
             $trunkId = $data['trunk_id'];
@@ -61,6 +63,7 @@ $columns = [
     ],
     [
         'attribute' => 'number_a_term',
+        'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($data) use ($cache) {
             $trunkId = $data['trunk_id'];
@@ -70,6 +73,7 @@ $columns = [
     ],
     [
         'attribute' => 'number_b_term',
+        'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($data) use ($cache) {
             $trunkId = $data['trunk_id'];
