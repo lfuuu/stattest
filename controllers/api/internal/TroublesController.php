@@ -9,11 +9,11 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Lead;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
+use app\models\TroubleState;
 use app\models\TroubleType;
 use DateTime;
 use DateTimeZone;
 use InvalidArgumentException;
-use yii\base\InvalidParamException;
 
 class TroublesController extends ApiInternalController
 {
@@ -33,31 +33,49 @@ class TroublesController extends ApiInternalController
      */
     public function actionGetChangedTroublesListForRoistat($minutes_range)
     {
-        $data = [];
+        $response = [];
+        // Получение типа подключения для заявки - лида
         $troubleTypeConnect = TroubleType::findOne(['pk' => TroubleType::CONNECT]);
         if (!$troubleTypeConnect) {
-            throw new InvalidParamException('Тип заявки ' . TroubleType::CONNECT . ' не найден');
+            throw new RecordNotFound(sprintf('Couldn\'t find %s with pk=%d', TroubleType::class, TroubleType::CONNECT));
         }
-        // Формирование запроса на получение заявок, которые были обновлены в течении заданного времени
+        // Получение статусов заявки
+        $response['statuses'] = array_reduce(TroubleState::find()
+            ->where([
+                '&', 'pk', TroubleType::find()
+                    ->select('states')
+                    ->where(['code' => Trouble::TYPE_CONNECT])
+                    ->scalar()
+            ])
+            ->all(), function($sum, $item) {
+            /** @var TroubleState $item */
+            $sum[] = [$item->id => $item->name];
+            return $sum;
+        }, []);
+        // Получение заявок, которые были обновлены в течении заданного времени
         $time = new DateTime("{$minutes_range} minutes ago", new DateTimeZone('UTC'));
-        $troublesQuery = Trouble::find()
+        $troubleQuery = Trouble::find()
             ->alias('t')
             ->joinWith('troubleRoistat')
             ->where(['t.trouble_type' => $troubleTypeConnect->code])
             ->andWhere(['>', 't.updated_at', $time->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
-        // Формирование массива данных, состоящего из данных моделей Trouble и Lead
-        foreach ($troublesQuery->each() as $trouble) {
+        foreach($troubleQuery->each() as $trouble) {
             /** @var Trouble $trouble */
-            $cur = $trouble->getAttributes();
-            if ($troubleRoistat = $trouble->troubleRoistat) {
-                $cur['relations'] = [
-                    'trouble_roistat' => $troubleRoistat->getAttributes(),
-                ];
+            $build = [
+                'id' => $trouble->id,
+                'date_create' => $trouble->date_creation,
+            ];
+            // Получение последнего актуального статуса текущей заявки
+            if ($currentStage = $trouble->currentStage) {
+                $build['status'] = $currentStage->state_id;
             }
-            $data[] = $cur;
+            // Получение переменной roistat
+            if ($troubleRoistat = $trouble->troubleRoistat) {
+                $build['roistat'] = $troubleRoistat->roistat_visit;
+            }
+            $response['fields'][] = $build;
         }
-
-        return $data;
+        return $response;
     }
 
     /**
