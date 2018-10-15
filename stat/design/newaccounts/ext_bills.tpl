@@ -56,6 +56,7 @@
                 <td>Дата счета</td>
                 <td>ЛС</td>
                 <td>Внешний &#8470; счета</td>
+                <td>Номер договора</td>
                 <td>Контрагент</td>
                 <td>ИНН</td>
                 <td>КПП</td>
@@ -78,6 +79,7 @@
                     <td>{$item.kpp}</td>
                     <td>{$item.address_jur}</td>
                     <td class="text-right">{$item.sum|replace:".":","}</td>
+                    <td >{$item.currency}</td>
                     <td>{$item.orgznization_name}</td>
                 </tr>
             {/foreach}
