@@ -4653,7 +4653,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         } elseif ($bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
                             $invoice = \app\models\Invoice::findOne([
                                 'bill_no' => $A['bill']['bill_no'],
-                                'type_id' => $I,
+                                'type_id' => $I == 4 ? 3 : $I,
                                 'is_reversal' => 0
                             ]);
 
