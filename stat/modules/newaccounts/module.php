@@ -4792,7 +4792,48 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         }
     }
 
-    function newaccounts_balance_sell($fixclient)
+    function newaccounts_ext_bills($fixclient)
+    {
+        global $design, $db, $user, $fixclient_data;
+
+        $dateFrom = new DatePickerValues('date_from', 'first');
+        $dateTo = new DatePickerValues('date_to', 'last');
+        $date_from = $dateFrom->getDay();
+        $date_to = $dateTo->getDay();
+
+        $sql = "SELECT
+  b.bill_no,
+  b.bill_date,
+  c.id,
+  cc.number,
+  ext_bill_no,
+  cg.name_full,
+  cg.inn,
+  cg.kpp,
+  cg.address_jur,
+  b.sum,
+  b.currency,
+  (SELECT value
+   FROM organization_i18n n
+   WHERE n.organization_record_id = (SELECT max(id) max_id
+                                     FROM `organization` o
+                                     WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
+         field = 'name') as orgznization_name
+FROM newbills b, newbills_external ex, clients c, client_contract cc, client_contragent cg
+WHERE b.bill_date BETWEEN '" .$dateFrom->getSqlDay(). "' AND '" .$dateTo->getSqlDay(). "'
+      AND b.bill_no = ex.bill_no
+      AND ex.ext_bill_no
+      AND b.organization_id = 1
+      AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
+ORDER BY bill_date, sum desc";
+
+        $design->assign('data', $db->AllRecords($sql));
+        $design->assign('date_from', $date_from);
+        $design->assign('date_to', $date_to);
+        $design->AddMain('newaccounts/ext_bills.tpl');
+    }
+
+        function newaccounts_balance_sell($fixclient)
     {
         global $design, $db, $user;
         $dateFrom = new DatePickerValues('date_from', 'first');
