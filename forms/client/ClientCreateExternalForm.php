@@ -156,13 +156,12 @@ class ClientCreateExternalForm extends Form
                 FormFieldValidator::class
             ],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
-            [['partner_id', 'account_version'], 'integer'],
+            [['partner_id'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
             ['timezone', 'in', 'range' => (Region::getTimezoneList() + [""])],
             ['country_id', 'default', 'value' => Country::RUSSIA],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
-            ['account_version', 'default', 'value' => ClientAccount::DEFAULT_ACCOUNT_VERSION],
             [['ip', 'utm_parameters'], 'safe'],
             [['roistat_visit',], 'integer'],
         ];
@@ -187,7 +186,6 @@ class ClientCreateExternalForm extends Form
             'timezone' => 'Временная зона',
             'country_id' => 'Код страны',
             'site_name' => 'Сайт',
-            'account_version' => 'Версия биллера',
             'roistat_visit' => 'Roistat visit',
         ];
     }

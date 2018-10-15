@@ -111,7 +111,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 <?= $form
                     ->field($model, 'account_version')->dropDownList(
                             ClientAccount::$versions,
-                            ['options' => [ClientAccount::DEFAULT_ACCOUNT_VERSION => ['selected' => true]],]
+                            ['disabled' => 'disabled', 'options' => [ClientAccount::DEFAULT_ACCOUNT_VERSION => ['selected' => true]],]
                     )
                 ?>
             </div>

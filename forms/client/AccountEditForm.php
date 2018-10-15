@@ -211,7 +211,7 @@ class AccountEditForm extends Form
                 'value' => [ClientAccountOptions::OPTION_MAIL_DELIVERY => ClientAccountOptions::OPTION_MAIL_DELIVERY_DEFAULT_VALUE]
             ],
             [['options',], ArrayValidator::class],
-            ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
+            ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_UNIVERSAL],
             ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED],
             ['pay_bill_until_days', 'integer', 'min' => 20, 'max' => 1000],
             ['settings_advance_invoice', 'default', 'value' => ClientAccountOptions::SETTINGS_ADVANCE_NOT_SET],
