@@ -120,14 +120,14 @@ fclose($handle);
 $content = ob_get_clean();
 
 if ($isFileOK) {
-    if (!NumberRange::isTriggerEnabled()) {
+//    if (!NumberRange::isTriggerEnabled()) {
         echo $this->render('//layouts/_buttonLink', [
             'url' => Url::to(['/nnp/import/step4', 'countryCode' => $country->code, 'fileId' => $countryFile->id]),
             'text' => 'Импортировать файл',
             'glyphicon' => 'glyphicon-fast-forward',
             'class' => 'btn-success',
         ]);
-    }
+//    }
 } else {
     echo Html::tag('div', 'Импорт невозможен, потому что файл содержит ошибки. Исправьте ошибки в файле и загрузите его заново.', ['class' => 'alert alert-danger']);
 }

@@ -74,9 +74,9 @@ class RegionLinker extends Singleton
      */
     public function run()
     {
-        if (NumberRange::isTriggerEnabled()) {
-            throw new \LogicException('Линковка невозможна, потому что триггер включен');
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            throw new \LogicException('Линковка невозможна, потому что триггер включен');
+//        }
 
         $log = '';
         $object = new NumberRange();

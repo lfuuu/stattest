@@ -60,9 +60,9 @@ abstract class ImportService extends Model
             throw new \InvalidArgumentException('Неправильная страна');
         }
 
-        if (NumberRange::isTriggerEnabled()) {
-            throw new \LogicException('Импорт невозможен, потому что триггер включен');
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            throw new \LogicException('Импорт невозможен, потому что триггер включен');
+//        }
 
         $this->ndcTypeList = NdcType::getList();
     }

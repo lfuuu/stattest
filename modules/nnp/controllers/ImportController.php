@@ -56,9 +56,9 @@ class ImportController extends BaseController
             return $this->redirect(Url::to(['/nnp/import/step2', 'countryCode' => $country->code]));
         }
 
-        if (NumberRange::isTriggerEnabled()) {
-            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
+//        }
 
         return $this->render('index', ['country' => $country]);
     }
@@ -92,9 +92,9 @@ class ImportController extends BaseController
             return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id]));
         }
 
-        if (NumberRange::isTriggerEnabled()) {
-            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
+//        }
 
         return $this->render('step2', ['country' => $country]);
     }
@@ -136,9 +136,9 @@ class ImportController extends BaseController
      */
     public function actionStep3($countryCode, $fileId, $offset = 0, $limit = 10)
     {
-        if (NumberRange::isTriggerEnabled()) {
-            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
+//        }
 
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
         return $this->render('step3', [
@@ -212,10 +212,10 @@ class ImportController extends BaseController
     {
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
 
-        if (NumberRange::isTriggerEnabled()) {
-            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
-            return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryFile->country->code, 'fileId' => $countryFile->id]));
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
+//            return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryFile->country->code, 'fileId' => $countryFile->id]));
+//        }
 
         $country = $countryFile->country;
         $mediaManager = $country->getMediaManager();

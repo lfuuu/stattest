@@ -32,9 +32,9 @@ class RefreshPrefix extends Singleton
      */
     public function filterToPrefix()
     {
-        if (NumberRange::isTriggerEnabled()) {
-            throw new \LogicException('Обновление префиксов невозможно, потому что триггер включен');
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            throw new \LogicException('Обновление префиксов невозможно, потому что триггер включен');
+//        }
 
         $logs = [];
 

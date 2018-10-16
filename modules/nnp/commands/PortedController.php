@@ -40,9 +40,9 @@ abstract class PortedController extends Controller
      */
     public function actionImport()
     {
-        if (NumberRange::isTriggerEnabled()) {
-            throw new \LogicException('Импорт невозможен, потому что триггер включен');
-        }
+//        if (NumberRange::isTriggerEnabled()) {
+//            throw new \LogicException('Импорт невозможен, потому что триггер включен');
+//        }
 
         if (!$this->fileName) {
             throw new \LogicException('Не указан fileName');
