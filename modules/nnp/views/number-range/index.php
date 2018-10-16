@@ -203,6 +203,8 @@ $columns = [
 
 $dataProvider = $filterModel->search();
 
+echo $this->render('_indexTriggerSyncNnpAll');
+
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
@@ -217,10 +219,9 @@ echo GridView::widget([
     ]),
 ]);
 
-if (NumberRange::isTriggerEnabled()) {
-    echo $this->render('_indexTriggerEnabled');
-} else {
+//if (NumberRange::isTriggerEnabled()) {
+//    echo $this->render('_indexTriggerEnabled');
+//} else {
     // echo $this->render('_indexReset');
     echo $this->render('_indexFilterToPrefix');
-    echo $this->render('_indexTriggerDisabled');
-}
+//}

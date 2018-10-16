@@ -260,12 +260,25 @@ class NumberRange extends ActiveRecord
         }
 
         // синхронизировать данные по региональным серверам
-        $sql = 'select from event.notify_nnp_all(:p_server_id)';
+        $sql = 'SELECT FROM event.notify_nnp_all(:p_server_id)';
         $activeQuery = InstanceSettings::find()
             ->where(['active' => true]);
         foreach ($activeQuery->each() as $instanceSettings) {
             $db->createCommand($sql, [':p_server_id' => $instanceSettings->id])->execute();
         }
+    }
+
+    /**
+     * Запуск синхронизации ННП
+     *
+     * * @throws \yii\db\Exception
+     */
+    public static function syncNnpAll()
+    {
+        /** @var Connection $db */
+        $db = Yii::$app->dbPgNnp;
+
+        $db->createCommand('SELECT event.event.notify_nnp_all()')->execute();
     }
 
     /**

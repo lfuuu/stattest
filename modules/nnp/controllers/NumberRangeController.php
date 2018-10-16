@@ -67,12 +67,17 @@ class NumberRangeController extends BaseController
             }
         */
 
-        if (isset($post['disableTriggerButton'])) {
+/*        if (isset($post['disableTriggerButton'])) {
             NumberRange::disableTrigger();
         }
 
         if (isset($post['enableTriggerButton'])) {
             NumberRange::enableTrigger();
+        }
+*/
+
+        if (isset($post['syncNnpAll'])) {
+            NumberRange::syncNnpAll();
         }
 
         if (isset($post['filterToPrefixButton'])) {
