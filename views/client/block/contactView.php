@@ -36,7 +36,7 @@ use app\models\ClientContact;
                     ?>
                 </div>
                 <div class="contacts-view-comment">
-                    <?= $contact->comment ?>
+                    <?= \yii\helpers\HtmlPurifier::process($contact->comment); ?>
                 </div>
             </div>
         <?php endforeach ?>
