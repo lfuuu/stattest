@@ -53,6 +53,8 @@ class Module extends \yii\base\Module
             $result = ['status' => 'ERROR', 'code' => $e->getCode(), 'result' => $e->getMessage()];
         }
 
+        $requestId = isset($post['request_id']) && $post['request_id'] ? $post['request_id'] : $requestId;
+
         EventQueue::go(self::EVENT_ASYNC_PUBLISH_RESULT,
             ['request_id' => $requestId]
             + $result

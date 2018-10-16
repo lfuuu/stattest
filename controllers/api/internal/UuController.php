@@ -1683,6 +1683,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_async", type = "integer", description = "Асинхронная схема", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор запроса для асинхронного ответа", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
      *     @SWG\Schema(type = "integer", description = "ID")
@@ -1703,7 +1704,9 @@ class UuController extends ApiInternalController
 
         if (isset($post['is_async']) && $post['is_async']) {
             $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
-            return ['request_id' => $event->id];
+            $requestId = isset($post['request_id']) && $post['request_id'] ? $post['request_id'] : $event->id;
+
+            return ['request_id' => $requestId];
         }
 
 
