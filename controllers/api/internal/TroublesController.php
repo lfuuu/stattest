@@ -73,7 +73,7 @@ class TroublesController extends ApiInternalController
             if ($troubleRoistat = $trouble->troubleRoistat) {
                 $build['roistat'] = $troubleRoistat->roistat_visit;
             }
-            $response['fields'][] = $build;
+            $response['orders'][] = $build;
         }
         return $response;
     }
