@@ -37,6 +37,7 @@ use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\classes\SyncVps;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\Module as UuModule;
+use yii\console\ExitCode;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -44,23 +45,69 @@ require PATH_TO_ROOT . 'conf_yii.php';
 
 echo PHP_EOL . 'Start ' . date(DateTimeZoneHelper::DATETIME_FORMAT);
 
-$sleepTime = 3;
-$workTime = 600; // перезагрузка каждые 10 минут
-$counter = 2;
+$sleepTime = 2;
+$workTime = 300; // перезагрузка каждые 5-8 минут
+$maxCountShift = 3;
 
+// настраиваем запрос выборки событий
+$nnp = ['event' => [NnpModule::EVENT_FILTER_TO_PREFIX, NnpModule::EVENT_LINKER, NnpModule::EVENT_IMPORT]];
+$map = [
+    'with_account_tariff' => [['IS NOT', 'account_tariff_id', null]],
+    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnp]],
+    'nnp' => [$nnp],
+    'no_nnp' => [['NOT', $nnp]],
+];
+
+$consoleParam = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null;
+
+if (!$consoleParam || !isset($map[$consoleParam])) {
+    echo PHP_EOL . 'Не задан параметр очереди: ['.implode(', ', array_keys($map)).']';
+    echo PHP_EOL;
+    return ExitCode::UNSPECIFIED_ERROR;
+}
+
+$activeQuery = EventQueue::getPlannedQuery();
+foreach ($map[$consoleParam] as $where) {
+    $activeQuery->andWhere($where);
+}
+
+// Контроль времени работы. выключаем с 55 до 00 секунд.
+$time = (new DateTimeImmutable());
+$stopTimeFrom = $time->modify('+' . $workTime . ' second');
+$stopTimeFrom = $stopTimeFrom->modify('-' . ((int)$stopTimeFrom->format('s') + 5) . 'second');
+$stopTimeTo = $stopTimeFrom->modify('+5 second');
+
+$countShift = 0;
 do {
-    doEvents(isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null);
+    doEvents($activeQuery);
     sleep($sleepTime);
-} while ($counter++ < round($workTime / $sleepTime));
+
+    $time = (new DateTimeImmutable());
+
+    $isExit = $stopTimeFrom < $time && $time < $stopTimeTo;
+
+    if (!$isExit && $time > $stopTimeTo) {
+        if ($countShift++ >= $maxCountShift) {
+            echo 'exit' . $countShift . ' ';
+            $isExit = true;
+        } else {
+            echo ' SHIFT ';
+            $stopTimeFrom = $time->modify('+1 minute');
+            $stopTimeFrom = $stopTimeFrom->modify('-' . ((int)$stopTimeFrom->format('s') + 5) . 'second');
+            $stopTimeTo = $stopTimeFrom->modify('+5 second');
+        }
+    }
+
+} while (!$isExit);
 
 echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
 
 /**
  * Выполнить запланированное
  *
- * @param string $consoleParam
+ * @param \yii\db\ActiveQuery $eventQueueQuery
  */
-function doEvents($consoleParam)
+function doEvents($eventQueueQuery)
 {
     $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
     $isVpbxServer = ApiVpbx::me()->isAvailable();
@@ -75,15 +122,9 @@ function doEvents($consoleParam)
     $isAsyncServer = AsyncAdapter::me()->isAvailable();
     echo '. ';
 
-    $activeQuery = EventQueue::getPlannedQuery();
-    if ($consoleParam === 'with_account_tariff') {
-        $activeQuery->andWhere(['IS NOT', 'account_tariff_id', null]);
-    } elseif ($consoleParam === 'without_account_tariff') {
-        $activeQuery->andWhere(['account_tariff_id' => null]);
-    }
 
     /** @var EventQueue $event */
-    foreach ($activeQuery->each() as $event) {
+    foreach ($eventQueueQuery->each() as $event) {
         HandlerLogger::me()->clear();
 
         $info = '';
