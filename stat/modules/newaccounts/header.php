@@ -80,6 +80,7 @@ class m_newaccounts_head extends IModuleHead{
             array('Акт сверки',			function() {
                 global $fixclient_data;
                 if (Yii::$app->user->can('newaccounts_balance.read') && $fixclient_data) {
+                    return 'module=' . $this->module_name . '&action=balance_check';
                 }
             }),
             array('Внести платёж',		function() {
