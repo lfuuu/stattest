@@ -278,7 +278,7 @@ class NumberRange extends ActiveRecord
         /** @var Connection $db */
         $db = Yii::$app->dbPgNnp;
 
-        $db->createCommand('SELECT event.event.notify_nnp_all()')->execute();
+        $db->createCommand('SELECT event.notify_nnp_all()')->execute();
     }
 
     /**
