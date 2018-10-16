@@ -4,6 +4,7 @@ use app\models\User;
 use app\models\Bill;
 use app\models\Trouble;
 use app\helpers\DateTimeZoneHelper;
+use \yii\helpers\HtmlPurifier;
 
 $troublesIsset = false;
 $serversTroubles = [];
@@ -56,7 +57,7 @@ if ($troublesIsset):
                         <td><?= DateTimeZoneHelper::getDateTime($trouble->date_creation) ?></td>
                         <td><?= $trouble->stage->state->name; ?></td>
                         <td><?= $trouble->stage->user_main; ?></td>
-                        <td><?= $trouble->problem; ?></td>
+                        <td><?= HtmlPurifier::process($trouble->problem); ?></td>
                     </tr>
                     <tr style=" background: <?= ($trouble->is_important ? '#F4C0C0' : ($i % 2 == 0 ? '#F9F9F9' : '#FFFFFF')); ?>;">
                         <td><?= Trouble::$subTypes[$trouble->trouble_subtype]; ?></td>
@@ -71,7 +72,7 @@ if ($troublesIsset):
                             <a href="/?module=newaccounts&action=bill_view&bill=<?= $trouble->usage; ?>"><?= $trouble->usage; ?></td>
                         <?php endif; ?>
                         </td>
-                        <td><?= $trouble->lastNotEmptyComment; ?></td>
+                        <td><?= HtmlPurifier::process($trouble->lastNotEmptyComment) ?></td>
                     </tr>
                     <?php $i++; ?>
                 <?php endforeach; ?>
