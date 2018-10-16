@@ -51,11 +51,13 @@ $maxCountShift = 3;
 
 // настраиваем запрос выборки событий
 $nnp = ['event' => [NnpModule::EVENT_FILTER_TO_PREFIX, NnpModule::EVENT_LINKER, NnpModule::EVENT_IMPORT]];
+$ats3Sync = ['event' => EventQueue::ATS3__SYNC];
 $map = [
-    'with_account_tariff' => [['IS NOT', 'account_tariff_id', null]],
-    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnp]],
+    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]]],
+    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnp], ['NOT', $ats3Sync]],
+    'ats3_sync' => [$ats3Sync],
     'nnp' => [$nnp],
-    'no_nnp' => [['NOT', $nnp]],
+    'no_nnp' => [['NOT', $nnp]], //для служебного пользования
 ];
 
 $consoleParam = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null;
@@ -66,10 +68,6 @@ if (!$consoleParam || !isset($map[$consoleParam])) {
     return ExitCode::UNSPECIFIED_ERROR;
 }
 
-$activeQuery = EventQueue::getPlannedQuery();
-foreach ($map[$consoleParam] as $where) {
-    $activeQuery->andWhere($where);
-}
 
 // Контроль времени работы. выключаем с 55 до 00 секунд.
 $time = (new DateTimeImmutable());
@@ -79,6 +77,11 @@ $stopTimeTo = $stopTimeFrom->modify('+5 second');
 
 $countShift = 0;
 do {
+    $activeQuery = EventQueue::getPlannedQuery();
+    foreach ($map[$consoleParam] as $where) {
+        $activeQuery->andWhere($where);
+    }
+
     doEvents($activeQuery);
     sleep($sleepTime);
 
