@@ -31,6 +31,7 @@ class PackagePricelist extends ActiveRecord
         return [
             'tariff_id' => 'Тариф',
             'pricelist_id' => 'Прайслист',
+            'nnp_pricelist_id' => 'Прайслист v.2',
         ];
     }
 

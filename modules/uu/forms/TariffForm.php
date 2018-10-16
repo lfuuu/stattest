@@ -7,6 +7,7 @@ use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
+use app\modules\nnp\models\PackagePricelistNnp;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
@@ -240,9 +241,16 @@ abstract class TariffForm extends \app\classes\Form
                         $packagePrice->tariff_id = $this->id;
                         $this->crudMultiple($this->tariff->packagePrices, $post, $packagePrice);
 
-                        $packagePricelist = new PackagePricelist();
-                        $packagePricelist->tariff_id = $this->id;
-                        $this->crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
+                        $packagePricelistNnp = new PackagePricelistNnp();
+                        $packagePricelistNnp->tariff_id = $this->id;
+                        $this->crudMultiple($this->tariff->packagePricelistsNnp, $post, $packagePricelistNnp);
+
+                        // или обычный прайс-лист или v2
+                        if (!isset($post['PackagePricelistNnp'])) {
+                            $packagePricelist = new PackagePricelist();
+                            $packagePricelist->tariff_id = $this->id;
+                            $this->crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
+                        }
 
                         if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
                             $tariffVoipCity = new TariffVoipCity();
@@ -304,6 +312,7 @@ abstract class TariffForm extends \app\classes\Form
         $this->_cloneTariffPackage($tariffCloned);
         $this->_cloneTariffPackagePrice($tariffCloned);
         $this->_cloneTariffPackagePricelist($tariffCloned);
+        $this->_cloneTariffPackagePricelistNnp($tariffCloned);
         $this->_cloneTariffPackageMinute($tariffCloned);
         return $tariffCloned;
     }
@@ -586,6 +595,32 @@ abstract class TariffForm extends \app\classes\Form
         ];
         foreach ($packagePricelists as $packagePricelist) {
             $packagePricelistCloned = new PackagePricelist();
+            $packagePricelistCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $packagePricelistCloned->$fieldName = $packagePricelist->$fieldName;
+            }
+
+            if (!$packagePricelistCloned->save()) {
+                $this->validateErrors += $packagePricelistCloned->getFirstErrors();
+                throw new ModelValidationException($packagePricelistCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. PackagePricelistNnp
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffPackagePricelistNnp(Tariff $tariffCloned)
+    {
+        $packagePricelists = $this->tariff->packagePricelistsNnp;
+        $fieldNames = [
+            'nnp_pricelist_id',
+        ];
+        foreach ($packagePricelists as $packagePricelist) {
+            $packagePricelistCloned = new PackagePricelistNnp();
             $packagePricelistCloned->tariff_id = $tariffCloned->id;
             foreach ($fieldNames as $fieldName) {
                 $packagePricelistCloned->$fieldName = $packagePricelist->$fieldName;

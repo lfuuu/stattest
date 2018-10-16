@@ -36,7 +36,12 @@ trait CrudMultipleTrait
 
                 /** @var ActiveRecord $model */
                 $primaryKeyValue = isset($dataParam[$primaryKeyName]) ? (int)$dataParam[$primaryKeyName] : 0;
-                if ($primaryKeyValue && isset($models[$primaryKeyValue]) && ($model = $models[$primaryKeyValue]) && $model->getPrimaryKey() == $primaryKeyValue) {
+                if (
+                    $primaryKeyValue
+                    && isset($models[$primaryKeyValue])
+                    && ($model = $models[$primaryKeyValue])
+                    && $model->getPrimaryKey() == $primaryKeyValue
+                ) {
                     // update
                     unset($models[$primaryKeyValue]);
                 } else {
@@ -118,5 +123,32 @@ trait CrudMultipleTrait
         }
 
         return $returnModels;
+    }
+
+    /**
+     * Удаляем пустые модели
+     *
+     * @param $post
+     * @param $modelName
+     */
+    public function clearEmpty(&$post, $modelName)
+    {
+        if (isset($post[$modelName])) {
+            $post[$modelName] = array_filter(
+                $post[$modelName],
+                function ($v) {
+                    foreach ($v as $k => $v) {
+                        if ($v) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+        }
+
+
+        if (empty($post[$modelName])) {
+            unset($post[$modelName]);
+        };
     }
 }

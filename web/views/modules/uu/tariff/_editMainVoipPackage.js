@@ -1,4 +1,4 @@
-+function ($, isRemovePackageMinutes, isRemovePackagePrices, isRemovePackagePricelists) {
++function ($, isRemovePackageMinutes, isRemovePackagePrices, isRemovePackagePricelistsV1, isRemovePackagePricelistsV2) {
     'use strict';
 
     $(function () {
@@ -12,8 +12,12 @@
             selectorArray.push('.package-price .multiple-input');
         }
 
-        if (isRemovePackagePricelists) {
-            selectorArray.push('.package-pricelist .multiple-input');
+        if (isRemovePackagePricelistsV1) {
+            selectorArray.push('.package-pricelist #pricelist_v1 .multiple-input');
+        }
+
+        if (isRemovePackagePricelistsV2) {
+            selectorArray.push('.package-pricelist #pricelist_v2 .multiple-input');
         }
 
         if (selectorArray.length) {
@@ -28,5 +32,6 @@
 }(jQuery,
     window.frontendVariables.modulesUuTariffEditMainVoipPackageMinute && window.frontendVariables.modulesUuTariffEditMainVoipPackageMinute.isRemovePackageMinutes,
     window.frontendVariables.modulesUuTariffEditMainVoipPackagePrice && window.frontendVariables.modulesUuTariffEditMainVoipPackagePrice.isRemovePackagePrices,
-    window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist && window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist.isRemovePackagePricelists
+    window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist && window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist.isRemovePackagePricelistsV1,
+    window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist && window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist.isRemovePackagePricelistsV2
 );

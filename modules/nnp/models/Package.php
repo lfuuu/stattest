@@ -28,6 +28,7 @@ use yii\helpers\Url;
  * @property-read PackageMinute[] $packageMinutes
  * @property-read PackagePrice[] $packagePrices
  * @property-read PackagePricelist[] $packagePricelists
+ * @property-read PackagePricelist[] $packagePricelistsNnp
  */
 class Package extends ActiveRecord
 {
@@ -144,6 +145,17 @@ class Package extends ActiveRecord
     public function getPackagePricelists()
     {
         return $this->hasMany(PackagePricelist::class, ['tariff_id' => 'tariff_id'])
+            ->andWhere(['nnp_pricelist_id' => null])
+            ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackagePricelistsNnp()
+    {
+        return $this->hasMany(PackagePricelistNnp::class, ['tariff_id' => 'tariff_id'])
+            ->andWhere(['pricelist_id' => null])
             ->indexBy('id');
     }
 
