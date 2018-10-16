@@ -92,7 +92,7 @@ class ClientCounter extends ActiveRecord
                 Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный' : '') . ' УЛС# ' . $this->clientAccount->id . ' '
                     . ($this->clientAccount->balance + $this->getDaySummary()) . ' = ' . $this->clientAccount->balance . ' + ' . $this->getDaySummary() . ' / ' . $this->amount_sum);
 
-                return $this->clientAccount->balance + $this->getDaySummary();
+                return $this->clientAccount->balance + $this->amount_sum;
 
             default:
                 throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);
