@@ -49,7 +49,7 @@ class TroublesController extends ApiInternalController
             ])
             ->all(), function($sum, $item) {
             /** @var TroubleState $item */
-            $sum[] = [$item->id => $item->name];
+            $sum[] = ['id' => $item->id, 'name' => $item->name,];
             return $sum;
         }, []);
         // Получение заявок, которые были обновлены в течении заданного времени
