@@ -112,6 +112,11 @@ use app\helpers\DateTimeZoneHelper;
             <?php /** @var \app\models\filter\SaleBookFilter $invoice */
 
             try {
+
+                if (!$invoice->bill || ! $invoice->bill->clientAccount) {
+                    Yii::$app->session->addFlash('error', 'С/ф без счета: ' . $invoice->number);
+                    continue;
+                }
                 $account = $invoice->bill->clientAccount;
                 $contract = $account->contract;
                 $contragent = $contract->contragent;
@@ -128,7 +133,6 @@ use app\helpers\DateTimeZoneHelper;
 
                 # AND cr.`contract_type_id` != 6 ## internal office
                 # AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
-
 
 
                 $taxRate = $account->getTaxRate();
