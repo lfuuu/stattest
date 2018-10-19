@@ -1,4 +1,4 @@
-+function ($) {
++function ($, isRemovePackageMinutes) {
     'use strict';
 
     $(function () {
@@ -26,6 +26,16 @@
             });
         // при инициализации прайслиста вывести ссылку на его просмотр
         $('.package-minute select').trigger('change');
+
+        // нет моделей, но виджет для рендеринга их обязательно требует
+        // поэтому рендерим дефолтную модель и сразу ж ее удаляем
+        if (isRemovePackageMinutes) {
+          $('.package-minute .multiple-input').on('afterInit', function () {
+            $(this).multipleInput('remove');
+          });
+        }
     })
 
-}(jQuery);
+}(jQuery,
+  window.frontendVariables.modulesUuTariffEditMainVoipPackageMinute && window.frontendVariables.modulesUuTariffEditMainVoipPackageMinute.isRemovePackageMinutes
+);

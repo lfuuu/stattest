@@ -1,4 +1,4 @@
-+function ($) {
++function ($, isRemovePackagePrices) {
     'use strict';
 
     $(function () {
@@ -49,6 +49,17 @@
 
                 }, 400); // потому что select2 рендерится чуть позже
             });
+
+      // нет моделей, но виджет для рендеринга их обязательно требует
+      // поэтому рендерим дефолтную модель и сразу ж ее удаляем
+      if (isRemovePackagePrices) {
+        $('.package-price .multiple-input').on('afterInit', function () {
+          $(this).multipleInput('remove');
+        });
+      }
+
     })
 
-}(jQuery);
+}(jQuery,
+  window.frontendVariables.modulesUuTariffEditMainVoipPackagePrice && window.frontendVariables.modulesUuTariffEditMainVoipPackagePrice.isRemovePackagePrices
+  );
