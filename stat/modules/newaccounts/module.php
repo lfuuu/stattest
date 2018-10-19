@@ -4746,10 +4746,12 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $design->assign('is_pdf', $is_pdf);
         $design->assign('sign', $sign);
 
+        $contragentLangCode = $clientData->contragent->lang_code === Language::LANGUAGE_RUSSIAN ? '' : '_en';
+
         if ($is_pdf == 1) {
             /*wkhtmltopdf*/
             $options = ' --quiet -L 10 -R 10 -T ' . get_param_protected('pdf_top_padding', 10) . ' -B 10';
-            $content = $design->fetch('newaccounts/print_balance_check.tpl');
+            $content = $design->fetch("newaccounts/print_balance_check{$contragentLangCode}.tpl");
             $file_name = '/tmp/' . time() . $user->_Data['id'];
             $file_html = $file_name . '.html';
             $file_pdf = $file_name . '.pdf';
@@ -4782,13 +4784,13 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         }
 
         if ($fullscreen == 1) {
-            $design->ProcessEx('newaccounts/print_balance_check.tpl');
+            $design->ProcessEx("newaccounts/print_balance_check{$contragentLangCode}.tpl");
             //$design->ProcessEx('pop_header.tpl');
             //$design->ProcessEx('errors.tpl');
             //$design->ProcessEx('newaccounts/balance_check.tpl');
             //$design->ProcessEx('pop_footer.tpl');
         } else {
-            $design->AddMain('newaccounts/balance_check'.($clientData->contragent->lang_code == Language::LANGUAGE_RUSSIAN ? '' : '_en').'.tpl');
+            $design->AddMain("newaccounts/balance_check{$contragentLangCode}.tpl");
         }
     }
 
