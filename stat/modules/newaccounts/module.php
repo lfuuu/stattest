@@ -4803,12 +4803,35 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $date_from = $dateFrom->getDay();
         $date_to = $dateTo->getDay();
 
+        $design->assign('organizations', Organization::dao()->getList());
+        $design->assign('organization_id', $organizationId = get_param_protected('organization_id', Organization::MCN_TELECOM));
+
+        $design->assign('currencies', Currency::getList($isWithEmpty = true));
+        $design->assign('currency', $currency = get_param_protected('currency', ''));
+
+        $design->assign('is_ext_invoice_only', $isExtInvoiceOnly = (bool)get_param_raw('is_ext_invoice_only', false));
+
+
+        $where = "";
+        $whereParam = [];
+        if ($currency) {
+            $where .= ' AND b.currency = :currency';
+            $whereParam = [':currency' => $currency];
+        }
+
+        $isExtInvoiceOnly && $where .= ' AND ex.ext_invoice_no IS NOT NULL AND ex.ext_invoice_no != ""';
+
         $sql = "SELECT
   b.bill_no,
   b.bill_date,
   c.id,
   cc.number,
   ext_bill_no,
+  ext_bill_date,
+  ext_invoice_no,
+  ext_invoice_date,
+  ext_akt_no,
+  ext_akt_date,
   cg.name_full,
   cg.inn,
   cg.kpp,
@@ -4822,14 +4845,21 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                      WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
          field = 'name') as orgznization_name
 FROM newbills b, newbills_external ex, clients c, client_contract cc, client_contragent cg
-WHERE b.bill_date BETWEEN '" .$dateFrom->getSqlDay(). "' AND '" .$dateTo->getSqlDay(). "'
+WHERE b.bill_date BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
       AND ex.ext_bill_no
-      AND b.organization_id = 1
+      AND b.organization_id = :organization_id
       AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
+      " . $where . "
 ORDER BY bill_date, sum desc";
 
-        $design->assign('data', $db->AllRecords($sql));
+        $query = \Yii::$app->db->createCommand($sql, [
+            ':date_from' => $dateFrom->getSqlDay(),
+            ':date_to' =>$dateTo->getSqlDay(),
+            ':organization_id' => $organizationId
+        ] + $whereParam);
+
+        $design->assign('data', $query->queryAll());
         $design->assign('date_from', $date_from);
         $design->assign('date_to', $date_to);
         $design->AddMain('newaccounts/ext_bills.tpl');
@@ -5012,6 +5042,11 @@ ORDER BY bill_date, sum desc";
             $this->bb_cache__init();
 
             foreach ($AA as $p) {
+
+                if ($p['client_id'] != 8958) {
+                    continue;
+                }
+
                 //while(($p = mysql_fetch_assoc($res))!==false){
 
                 try {
