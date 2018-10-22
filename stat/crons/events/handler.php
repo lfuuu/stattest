@@ -222,7 +222,7 @@ function doEvents($eventQueueQuery)
 
                 // проверка необходимости включить или выключить услугу UsageVoip
                 case EventQueue::CHECK__VOIP_OLD_NUMBERS:
-                    voipNumbers::check();
+//                    voipNumbers::check();
                     break;
 
                 // проверка необходимости включить или выключить услугу UsageVirtPbx

@@ -42,7 +42,7 @@ class SetCurrentTariffTarificator extends Tarificator
                     SELECT
                         account_tariff_log.tariff_period_id
                     FROM
-                        {$accountTariffLogTableName} account_tariff_log
+                        {$accountTariffLogTableName} account_tariff_log use index (`fk-uu_account_tariff_log-account_tariff_id`)
                     WHERE
                         account_tariff.id = account_tariff_log.account_tariff_id
                         AND account_tariff_log.actual_from_utc <= :now
@@ -78,6 +78,7 @@ SQL;
 
             if (
                 $accountTariff->prev_account_tariff_id
+//                && !$accountTariff->tariff_period_id
                 && ($mainAccountTariff = AccountTariff::findOne(['id' => $accountTariff->prev_account_tariff_id]))
                 && !$mainAccountTariff->tariff_period_id
             ) {
