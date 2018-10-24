@@ -1,12 +1,15 @@
 <?php
 use app\helpers\DateTimeZoneHelper;
+use app\models\filter\SaleBookFilter;
 
 /** @var SaleBookFilter $filter */
+/** @var array $skipping_bps */
 ?>
 <form style="display:inline" action="/report/accounting/sale-book">
     От: <input id="date_from" type="text" name="SaleBookFilter[date_from]" value="01-08-2018" class="text"/>
     До: <input id="date_to" type="text" name="SaleBookFilter[date_to]" value="31-08-2018" class="text"/><br/>
-    Компания: <?= \app\classes\Html::dropDownList('SaleBookFilter[organization_id]', $filter->organization_id, \app\models\Organization::dao()->getList()) ?>    <br>
+    Компания: <?= \app\classes\Html::dropDownList('SaleBookFilter[organization_id]', $filter->organization_id, \app\models\Organization::dao()->getList()) ?>
+    в Excel: <input type="checkbox" name="is_excel" value="1"/><br/>
     Фильтр: <?= \app\classes\Html::dropDownList('SaleBookFilter[filter]', $filter->filter, \app\models\filter\SaleBookFilter::$filters) ?>
 
     <!-- Полный экран: <input type="checkbox" name="fullscreen" value="1"/>&nbsp;
@@ -123,11 +126,11 @@ use app\helpers\DateTimeZoneHelper;
 
                 # AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
 
-                if ($contract->contract_type_id == 6) {
+                if ($contract->contract_type_id === 6) {
                     continue;
                 }
 
-                if (in_array($contract->business_process_status_id, [22, 28, 99])) {
+                if (in_array($contract->business_process_status_id, $skipping_bps)) {
                     continue;
                 }
 
