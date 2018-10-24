@@ -4867,6 +4867,9 @@ ORDER BY bill_date, sum desc";
 
         function newaccounts_balance_sell($fixclient)
     {
+
+        ini_set('memory_limit', '4G');
+        
         global $design, $db, $user;
         $dateFrom = new DatePickerValues('date_from', 'first');
         $dateTo = new DatePickerValues('date_to', 'last');
