@@ -4266,6 +4266,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                 from
                     (
                         select
+                            `newbills`.`id` newbills_id,
                             `bill_no`,
                             `bill_date`,
                             `newbills`.`client_id`,
@@ -4296,6 +4297,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                     ) a
                 LEFT JOIN log_newbills_static ls USING (bill_no)
                 LEFT JOIN user_users u ON u.id = ls.user_id
+                ORDER BY a.newbills_id
             ';
 
             $R = $db->AllRecords($q);
