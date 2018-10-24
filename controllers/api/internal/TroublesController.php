@@ -6,22 +6,70 @@ use ActiveRecord\RecordNotFound;
 use app\classes\ApiInternalController;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\Lead;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\models\TroubleState;
 use app\models\TroubleType;
+use app\models\User;
 use DateTime;
 use DateTimeZone;
 use InvalidArgumentException;
 
 class TroublesController extends ApiInternalController
 {
-    const TYPE_NO_UPDATE_REQUIRED = 0;
-    const TYPE_SUCCESS = 1;
+    /**
+     * @SWG\Get(tags = {"Troubles"}, path = "/internal/troubles/get-changed-clients-for-roistat", summary = "Список созданных клиентов", operationId = "GetChangedClientsForRoistat",
+     *   @SWG\Parameter(name = "unixtime", type = "integer", description = "За какой интервал получить актуальные данные", in = "query", default = "", required = true),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param int $unixtime
+     * @return array
+     */
+    public function actionGetChangedClientsForRoistat($unixtime)
+    {
+        $data = [];
+        $clients = ClientAccount::find()
+            ->innerJoin([
+                'subquery' => Trouble::find()
+                    ->select('client')
+                    ->where(['>', 'date_creation', date('Y-m-d H:i:s', $unixtime)])
+                    ->groupBy('client')
+            ], 'clients.client = subquery.client');
+        foreach ($clients->each() as $client) {
+            /** @var ClientAccount $client */
+            $contacts = [
+                ClientContact::TYPE_EMAIL => [],
+                ClientContact::TYPE_PHONE => [],
+            ];
+            foreach ($client->contacts as $contact) {
+                switch ($contact->type) {
+                    case ClientContact::TYPE_EMAIL:
+                        $contacts[ClientContact::TYPE_EMAIL][] = $contact->data;
+                        break;
+                    case ClientContact::TYPE_PHONE:
+                        $contacts[ClientContact::TYPE_PHONE][] = $contact->data;
+                        break;
+                }
+            }
+            $data[] = [
+                'id' => $client->id,
+                'name' => '',
+                'phone' => implode(', ', $contacts[ClientContact::TYPE_PHONE]),
+                'email' => implode(', ', $contacts[ClientContact::TYPE_EMAIL]),
+
+            ];
+        }
+        return ['clients' => $data];
+    }
 
     /**
-     * @SWG\Get(tags = {"Troubles"}, path = "/internal/troubles/get-changed-troubles-list-for-roistat", summary = "Список измененных заявок", operationId = "GetCalltrackingLogs",
+     * @SWG\Get(tags = {"Troubles"}, path = "/internal/troubles/get-changed-troubles-list-for-roistat", summary = "Список измененных заявок", operationId = "GetChangedTroublesListForRoistat",
      *   @SWG\Parameter(name = "minutes_range", type = "integer", description = "За какой интервал получить актуальные данные", in = "query", default = "30"),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")
@@ -63,16 +111,23 @@ class TroublesController extends ApiInternalController
             /** @var Trouble $trouble */
             $build = [
                 'id' => $trouble->id,
-                'date_create' => $trouble->date_creation,
+                'date_create' => strtotime($trouble->date_creation),
             ];
-            // Получение последнего актуального статуса текущей заявки
-            if ($currentStage = $trouble->currentStage) {
-                $build['status'] = $currentStage->state_id;
-            }
             // Получение переменной roistat
             if ($troubleRoistat = $trouble->troubleRoistat) {
                 $build['roistat'] = $troubleRoistat->roistat_visit;
             }
+            // Получение клиента
+            if ($client = ClientAccount::findOne(['client' => $trouble->client])) {
+                $build['client_id'] = $client->id;
+            }
+            // Получение последнего актуального статуса текущей заявки
+            if ($currentStage = $trouble->currentStage) {
+                $build['status'] = $currentStage->state_id;
+                $manager = User::findOne(['user' => $currentStage->user_main]);
+                $build['fields'] = ['Менеджер' => $manager ? $manager->name : $currentStage->user_main];
+            }
+            // Добавляем в массив
             $response['orders'][] = $build;
         }
         return $response;
