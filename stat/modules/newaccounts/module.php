@@ -1694,7 +1694,7 @@ class m_newaccounts extends IModule
         if ($is_invoice || $is_upd) {
             $options .= ' --orientation Landscape ';
         }
-        passthru("/usr/bin/wkhtmltopdf $options " . implode(' ', $fnames) . " $fbasename.pdf");
+        passthru("/usr/local/bin/wkhtmltopdf $options " . implode(' ', $fnames) . " $fbasename.pdf");
         $pdf = file_get_contents($fbasename . '.pdf');
         foreach ($fnames as $f) {
             unlink($f);
@@ -2372,7 +2372,7 @@ class m_newaccounts extends IModule
 
                     file_put_contents($file_name . '.html', $content);
 
-                    passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
+                    passthru("/usr/local/bin/wkhtmltopdf $options $file_html $file_pdf");
                     $pdf = file_get_contents($file_pdf);
                     unlink($file_html);
                     unlink($file_pdf);
@@ -4758,7 +4758,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
             file_put_contents($file_name . '.html', $content);
 
-            exec("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
+            exec("/usr/local/bin/wkhtmltopdf $options $file_html $file_pdf");
             $pdf = file_get_contents($file_pdf);
 
             //Create file
@@ -5042,10 +5042,6 @@ ORDER BY bill_date, sum desc";
             $this->bb_cache__init();
 
             foreach ($AA as $p) {
-
-                if ($p['client_id'] != 8958) {
-                    continue;
-                }
 
                 //while(($p = mysql_fetch_assoc($res))!==false){
 

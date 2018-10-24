@@ -24,7 +24,7 @@ class Html2Pdf extends BaseObject
     /** @var string */
     private $pdf = '';
 
-    private $execTool = '/usr/bin/wkhtmltopdf';
+    private $execTool = '/usr/local/bin/wkhtmltopdf';
 
     /**
      * @param array $config
