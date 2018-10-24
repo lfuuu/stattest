@@ -33,6 +33,11 @@ class TroublesController extends ApiInternalController
      */
     public function actionGetChangedClientsForRoistat($unixtime)
     {
+        $allowTime = 6000;
+        $unixtime = (int)$unixtime;
+
+        $unixtime = $unixtime < time() - $allowTime ? time() - $allowTime : $unixtime;
+
         $data = [];
         $clients = ClientAccount::find()
             ->innerJoin([
