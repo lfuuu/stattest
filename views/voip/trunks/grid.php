@@ -14,6 +14,8 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\billing\Trunk;
 use app\models\billing\TrunkGroup;
+use app\models\billing\TrunkGroupItem;
+use app\models\billing\TrunkTrunkRule;
 use yii\db\Query;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -124,8 +126,8 @@ $columns = [
             $groups = (new Query())
                 ->select(['name' => "string_agg(tg.name, ', ')"])
                 ->from([
-                    'tti' => 'auth.trunk_group_item',
-                    'tg' => 'auth.trunk_group',
+                    'tti' => TrunkGroupItem::tableName(),
+                    'tg' => TrunkGroup::tableName(),
                 ])
                 ->where([
                     'tti.trunk_id' => $data['trunk_id'],
@@ -142,8 +144,8 @@ $columns = [
             $groups = (new Query())
                 ->select(['name' => "string_agg(tg.name, ', ')"])
                 ->from([
-                    'ttr' => 'auth.trunk_trunk_rule',
-                    'tg' => 'auth.trunk_group',
+                    'ttr' => TrunkTrunkRule::tableName(),
+                    'tg' => TrunkGroup::tableName(),
                 ])
                 ->where([
                     'ttr.trunk_id' => $data['trunk_id'],

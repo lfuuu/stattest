@@ -10,6 +10,8 @@ use app\forms\usage\UsageTrunkEditForm;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
 use app\models\billing\TrunkGroup;
+use app\models\billing\TrunkGroupItem;
+use app\models\billing\TrunkTrunkRule;
 use app\models\ClientAccount;
 use app\models\UsageTrunk;
 use app\models\UsageTrunkSettings;
@@ -189,8 +191,8 @@ class TrunkController extends BaseController
         $origGroups = (new Query())
             ->select(['name' => "string_agg(tg.name, ', ')"])
             ->from([
-                'tti' => 'auth.trunk_group_item',
-                'tg' => 'auth.trunk_group',
+                'tti' => TrunkGroupItem::tableName(),
+                'tg' => TrunkGroup::tableName(),
             ])
             ->where([
                 'tti.trunk_id' => $trunkId,
@@ -201,8 +203,8 @@ class TrunkController extends BaseController
         $termGroups = (new Query())
             ->select(['name' => "string_agg(tg.name, ', ')"])
             ->from([
-                'ttr' => 'auth.trunk_trunk_rule',
-                'tg' => 'auth.trunk_group',
+                'ttr' => TrunkTrunkRule::tableName(),
+                'tg' => TrunkGroup::tableName(),
             ])
             ->where([
                 'ttr.trunk_id' => $trunkId,

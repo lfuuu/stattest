@@ -1,7 +1,5 @@
 <?php
 
-use app\modules\uu\models\AccountTariffVoipFlat;
-
 /**
  * Class m180628_074947_uu_account_tariff_voip_flat
  */
@@ -12,7 +10,7 @@ class m180628_074947_account_tariff_voip_flat extends \app\classes\Migration
      */
     public function safeUp()
     {
-        $this->createTable(AccountTariffVoipFlat::tableName(), [
+        $this->createTable('uu_account_tariff_voip_flat', [
             'account_tariff_id' => $this->integer()->comment('ID услуги'),
             'tariff_period' => $this->string()->comment('У-услуга'),
             'tariff_is_include_vat' => $this->boolean()->comment('Включая НДС'),
@@ -44,6 +42,6 @@ class m180628_074947_account_tariff_voip_flat extends \app\classes\Migration
      */
     public function safeDown()
     {
-        $this->dropTable(AccountTariffVoipFlat::tableName());
+        $this->dropTable('uu_account_tariff_voip_flat');
     }
 }

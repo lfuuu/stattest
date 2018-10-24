@@ -30,8 +30,12 @@ use app\classes\model\ActiveRecord;
  * @property string date_before_sale
  * @property string disconnect_date
  * @property string account_manager_name
+ * @property bool $is_unzipped
+ * @property int $service_type
+ * @property string $prev_account_tariff_tariff
+ * @property string $lead
  */
-class AccountTariffVoipFlat extends ActiveRecord
+class AccountTariffFlat extends ActiveRecord
 {
     /**
      * Вернуть имена полей
@@ -40,7 +44,7 @@ class AccountTariffVoipFlat extends ActiveRecord
      */
     public function attributeLabels()
     {
-        return ([
+        return [
             'account_tariff_id' => 'ID услуги',
             'tariff_period' => 'У-услуги',
             'tariff_is_include_vat' => 'Включая НДС',
@@ -64,7 +68,7 @@ class AccountTariffVoipFlat extends ActiveRecord
             'date_before_sale' => 'Дата допродажи',
             'disconnect_date' => 'Дата отключения',
             'account_manager_name' => 'Ак. менеджер',
-        ]);
+        ];
     }
 
     /**
@@ -72,6 +76,6 @@ class AccountTariffVoipFlat extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'uu_account_tariff_voip_flat';
+        return 'uu_account_tariff_flat';
     }
 }
