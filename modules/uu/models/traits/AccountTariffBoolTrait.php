@@ -414,6 +414,7 @@ trait AccountTariffBoolTrait
                 'client_account_id' => $clientAccountId,
                 'service_type_id' => $serviceTypeId,
             ])
+            ->andWhere($serviceTypeId == ServiceType::ID_TRUNK ? ['NOT', ['trunk_type_id' => AccountTariff::TRUNK_TYPE_MULTITRUNK]] : [])
             ->andWhere(['IS NOT', 'tariff_period_id', null])
             ->exists();
     }
