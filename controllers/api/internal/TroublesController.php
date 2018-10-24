@@ -163,15 +163,14 @@ class TroublesController extends ApiInternalController
                   FROM
                     lead
                   WHERE
-                    created_at BETWEEN DATE_SUB(NOW(), INTERVAL 1 HOUR) AND NOW()
-                    AND did = '{$data['caller']}' AND did_mcn = '{$data['callee']}'
+                    created_at BETWEEN DATE_SUB(UTC_TIMESTAMP, INTERVAL 1 HOUR) AND UTC_TIMESTAMP AND did = '{$data['caller']}'
                 );
             ")
             ->queryScalar();
         // Попытка найти Trouble, что бы проверить ее существование и вызвать связанную модель TroubleRoistat
         $trouble = Trouble::findOne(['id' => $troubleId]);
         if (!$trouble) {
-            throw new RecordNotFound("Couldn't find Trouble with ID={$troubleId}");
+            throw new \LogicException("Couldn't find Trouble with caller:{$data['caller']} and callee:{$data['callee']} in the last hour");
         }
         // Получаем TroubleRoistat
         $troubleRoistat = $trouble->troubleRoistat;
