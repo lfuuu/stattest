@@ -1,4 +1,5 @@
 <?php
+
 namespace app\classes\grid\account;
 
 use app\helpers\DateTimeZoneHelper;
@@ -256,6 +257,8 @@ abstract class AccountGridFolder extends Model
                     'l.id_service' => $item ? array_pop($item) : null,
                     'l.service' => UsageFactory::USAGE_EXTRA,
                 ]);
+            } else {
+                $query->andFilterWhere(['l.service' => $this->service]);
             }
         } else {
             $query->andFilterWhere(['l.service' => $this->service]);
