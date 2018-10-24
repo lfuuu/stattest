@@ -21,6 +21,7 @@ use app\models\Country;
 use app\models\DidGroup;
 use app\models\EntryPoint;
 use app\models\filter\FreeNumberFilter;
+use app\models\Lead;
 use app\models\LkWizardState;
 use app\models\LogTarif;
 use app\models\Organization;
@@ -340,7 +341,10 @@ class ClientCreateExternalForm extends Form
         $this->contragent_id = $contragent->id;
         Yii::info($contragent);
 
-        $contract = new ContractEditForm(['contragent_id' => $contragent->id]);
+        $contract = new ContractEditForm([
+            'contragent_id' => $contragent->id,
+            'partner_contract_id' => $partnerContractId,
+        ]);
 
         if ($this->entryPoint) {
             $contract->business_id = $this->entryPoint->client_contract_business_id;
@@ -474,29 +478,39 @@ class ClientCreateExternalForm extends Form
      */
     private function _createTroubleAndWizard()
     {
-        $R = [
-            'trouble_type' => 'connect',
-            'trouble_subtype' => 'connect',
-            'client' => 'id' . $this->account_id,
-            'date_start' => date(DateTimeZoneHelper::DATETIME_FORMAT),
-            'date_finish_desired' => date(DateTimeZoneHelper::DATETIME_FORMAT),
-            'problem' => 'Входящие клиент с сайта' . ($this->site_name ? ' ' . $this->site_name : '') . ": " . $this->company,
-            'user_author' => 'system',
-            'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : ''),
-        ];
+        // Если у клиента есть созданный запись в таблице lead с trouble_id, то не нужно создавать Заявку от лица системы
+        $this->troubleId = Lead::find()
+            ->select('trouble_id')
+            ->where(['account_id' => $this->account_id])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->limit(1)
+            ->scalar();
 
-        $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);
+        if (!$this->troubleId) {
+            $R = [
+                'trouble_type' => 'connect',
+                'trouble_subtype' => 'connect',
+                'client' => 'id' . $this->account_id,
+                'date_start' => date(DateTimeZoneHelper::DATETIME_FORMAT),
+                'date_finish_desired' => date(DateTimeZoneHelper::DATETIME_FORMAT),
+                'problem' => 'Входящие клиент с сайта' . ($this->site_name ? ' ' . $this->site_name : '') . ': ' . $this->company,
+                'user_author' => 'system',
+                'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : ''),
+            ];
 
-        // Создание TroubleRoistat, если существуют данные в roistat_visit
-        if ($this->roistat_visit) {
-            $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $this->troubleId]);
-            if (!$troubleRoistat) {
-                $troubleRoistat = new TroubleRoistat;
-                $troubleRoistat->trouble_id = $this->troubleId;
-            }
-            $troubleRoistat->roistat_visit = $this->roistat_visit;
-            if (!$troubleRoistat->save()) {
-                throw new ModelValidationException($troubleRoistat);
+            $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);
+
+            // Создание TroubleRoistat, если существуют данные в roistat_visit
+            if ($this->roistat_visit) {
+                $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $this->troubleId]);
+                if (!$troubleRoistat) {
+                    $troubleRoistat = new TroubleRoistat;
+                    $troubleRoistat->trouble_id = $this->troubleId;
+                }
+                $troubleRoistat->roistat_visit = $this->roistat_visit;
+                if (!$troubleRoistat->save()) {
+                    throw new ModelValidationException($troubleRoistat);
+                }
             }
         }
 

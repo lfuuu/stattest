@@ -179,6 +179,8 @@ class ContractEditForm extends Form
             $this->contract = new ClientContract();
         }
 
+        $this->contract->partner_contract_id = $this->partner_contract_id;
+
         foreach (ClientContractReward::$usages as $usage => $name) {
             $reward = null;
             if ($this->contract->id) {
