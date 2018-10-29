@@ -7,6 +7,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
 use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Card;
+use app\modules\sim\models\Imsi;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use Yii;
@@ -231,9 +232,23 @@ class ClientDocumentDao extends Singleton
      */
     private function _makeSimCardsTable(ClientDocument $document, &$design)
     {
-        $simCards = Card::find()
+        // Получение карт и перепаковка данных под нужную структуру
+        $cards = array_map(function($item) {
+            if (isset($item['imsies'])) {
+                foreach ($item['imsies'] as $key => $value) {
+                    // Только для партнера MTT
+                    if ($value['partner_id'] === Imsi::PARTNER_MTT) {
+                        $item['msisdn'] = $value['msisdn'];
+                        break;
+                    }
+                }
+            } else {
+                $item['msisdn'] = '';
+            }
+            return $item;
+        }, Card::find()
             ->alias('c')
-            ->select(['c.iccid', 'msisdn'])
+            ->select(['c.iccid'])
             ->joinWith('imsies')
             ->where([
                 'c.client_account_id' => ClientAccount::find()
@@ -242,9 +257,10 @@ class ClientDocumentDao extends Singleton
                     ->column()
             ])
             ->asArray()
-            ->all();
+            ->all()
+        );
 
-        $design->assign('sims', $simCards);
+        $design->assign('sims', $cards);
 
         return $design->fetch('tarifs/simcards.tpl');
     }

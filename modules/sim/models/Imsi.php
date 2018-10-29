@@ -36,6 +36,8 @@ class Imsi extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    const PARTNER_MTT = 1;
+
     /**
      * @return string
      */
