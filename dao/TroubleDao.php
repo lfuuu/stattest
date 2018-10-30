@@ -9,6 +9,7 @@ use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\Param;
 use app\models\support\Ticket;
 use app\models\Trouble;
 use app\models\TroubleStage;
@@ -442,8 +443,13 @@ SQL;
      */
     public function getTaskFoldersCount($isReset = false)
     {
+        if ($isReset) {
+            Param::setParam(Param::IS_NEED_RECALC_TT_COUNT, 1, true);
+            return;
+        }
+
         $key = 'tt-folder-task-count';
-        if (\Yii::$app->cache->exists($key) && !$isReset) {
+        if (\Yii::$app->cache->exists($key)) {
             return \Yii::$app->cache->get($key);
         }
         $sql = <<<SQL
