@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.24, for Linux (x86_64)
 --
 -- Host: localhost    Database: nispd_test
 -- ------------------------------------------------------
--- Server version	5.7.21-0ubuntu0.16.04.1
+-- Server version	5.7.24-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -381,7 +381,7 @@ CREATE TABLE `city` (
 
 LOCK TABLES `city` WRITE;
 /*!40000 ALTER TABLE `city` DISABLE KEYS */;
-INSERT INTO `city` VALUES (49,'Германия',276,82,'49 0000 000-000-000',0,NULL,0,0,8),(361,'Budapest',348,81,'36 1 000-0000',0,NULL,0,0,7),(3621,'LIECS numbers',348,81,'36 21 000-000',0,NULL,0,0,7),(3646,'Miskolc',348,81,'36 46 000-000',0,NULL,0,0,6),(3652,'Debrecen',348,81,'36 52 000-000',0,NULL,0,0,6),(3662,'Szeged',348,81,'36 62 000-000',0,NULL,0,0,6),(3672,'Pécs',348,81,'36 72 000-000',0,NULL,0,0,6),(3696,'Győr',348,81,'36 96 000-000',0,NULL,0,0,6),(7342,'Пермь',643,92,'7 342 000-00-00',0,NULL,0,0,7),(7343,'Екатеринбург',643,95,'7 343 000-00-00',0,NULL,0,0,7),(7347,'Уфа',643,84,'7 347 000-00-00',0,NULL,0,0,7),(7351,'Челябинск',643,90,'7 351 000-00-00',0,NULL,0,0,7),(7383,'Новосибирск',643,94,'7 383 000-00-00',0,NULL,0,0,7),(7473,'Воронеж',643,86,'7 473 000-00-00',0,NULL,0,0,7),(7495,'Москва',643,99,'7 495 000-00-00',1,NULL,0,1,7),(7812,'Санкт-Петербург',643,98,'7 812 000-00-00',0,NULL,0,1,7),(7831,'Нижний Новгород',643,88,'7 831 000-00-00',0,NULL,0,0,7),(7843,'Казань',643,93,'7 843 000-00-00',0,NULL,0,0,7),(7846,'Самара',643,96,'7 846 000-00-00',0,NULL,0,0,7),(7861,'Краснодар',643,97,'7 861 000-00-00',0,NULL,0,0,7),(7863,'Ростов-на-Дону',643,87,'7 863 000-00-00',0,NULL,0,0,7),(74212,'Хабаровск',643,83,'7 4212 00-00-00',0,NULL,0,0,6),(74232,'Владивосток',643,89,'7 4232 00-00-00',0,NULL,0,0,6),(74832,'Брянск',643,85,'7 4832 00-00-00',0,NULL,0,0,6),(78442,'Волгоград',643,91,'7 8442 00-00-00',0,NULL,0,0,6),(100594,'Frankfurt am Main',276,82,'49 69 0000-0000',1,NULL,0,0,8);
+INSERT INTO `city` VALUES (49,'Германия',276,82,'49 0000 000-000-000',0,NULL,0,0,8),(361,'Budapest',348,81,'36 1 000-0000',0,NULL,0,0,7),(3621,'LIECS numbers',348,81,'36 21 000-000',0,NULL,0,0,7),(3646,'Miskolc',348,81,'36 46 000-000',0,NULL,0,0,6),(3652,'Debrecen',348,81,'36 52 000-000',0,NULL,0,0,6),(3662,'Szeged',348,81,'36 62 000-000',0,NULL,0,0,6),(3672,'Pécs',348,81,'36 72 000-000',0,NULL,0,0,6),(3696,'Győr',348,81,'36 96 000-000',0,NULL,0,0,6),(7342,'Пермь',643,92,'7 342 000-00-00',0,NULL,0,0,7),(7343,'Екатеринбург',643,95,'7 343 000-00-00',0,NULL,0,0,7),(7347,'Уфа',643,84,'7 347 000-00-00',0,NULL,0,0,7),(7351,'Челябинск',643,90,'7 351 000-00-00',0,NULL,0,0,7),(7383,'Новосибирск',643,94,'7 383 000-00-00',0,NULL,0,0,7),(7473,'Воронеж',643,86,'7 473 000-00-00',0,NULL,0,0,7),(7495,'Москва',643,99,'7 495 000-00-00',1,NULL,0,2,7),(7812,'Санкт-Петербург',643,98,'7 812 000-00-00',0,NULL,0,2,7),(7831,'Нижний Новгород',643,88,'7 831 000-00-00',0,NULL,0,0,7),(7843,'Казань',643,93,'7 843 000-00-00',0,NULL,0,0,7),(7846,'Самара',643,96,'7 846 000-00-00',0,NULL,0,0,7),(7861,'Краснодар',643,97,'7 861 000-00-00',0,NULL,0,0,7),(7863,'Ростов-на-Дону',643,87,'7 863 000-00-00',0,NULL,0,0,7),(74212,'Хабаровск',643,83,'7 4212 00-00-00',0,NULL,0,0,6),(74232,'Владивосток',643,89,'7 4232 00-00-00',0,NULL,0,0,6),(74832,'Брянск',643,85,'7 4832 00-00-00',0,NULL,0,0,6),(78442,'Волгоград',643,91,'7 8442 00-00-00',0,NULL,0,0,6),(100594,'Frankfurt am Main',276,82,'49 69 0000-0000',1,NULL,0,0,8);
 /*!40000 ALTER TABLE `city` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -661,6 +661,7 @@ CREATE TABLE `client_contract_business_process_status` (
   `sort` tinyint(4) NOT NULL DEFAULT '0',
   `oldstatus` varchar(20) NOT NULL DEFAULT '',
   `color` varchar(20) NOT NULL DEFAULT '',
+  `is_bill_send` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=152 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -671,7 +672,7 @@ CREATE TABLE `client_contract_business_process_status` (
 
 LOCK TABLES `client_contract_business_process_status` WRITE;
 /*!40000 ALTER TABLE `client_contract_business_process_status` DISABLE KEYS */;
-INSERT INTO `client_contract_business_process_status` VALUES (8,1,'Подключаемые',1,'connecting','#F49AC1'),(9,1,'Включенные',2,'work',''),(10,1,'Отключенные',3,'closed','#FFFFCC'),(15,6,'Действующий',3,'distr','yellow'),(16,4,'Действующий',0,'once','silver'),(19,1,'Заказ услуг',0,'negotiations','#C4DF9B'),(22,1,'Мусор',4,'trash','#a5e934'),(27,1,'Техотказ',5,'tech_deny','#996666'),(28,1,'Отказ',6,'deny','#A0A0A0'),(29,1,'Дубликат',7,'double','#60a0e0'),(30,9,'Заказ магазина',0,'income','#CCFFFF'),(33,3,'Заказ магазина',0,'once','silver'),(34,10,'Внутренний офис',0,'',''),(35,8,'Действующий',1,'',''),(37,11,'Входящий',0,'income','#CCFFFF'),(38,11,'Переговоры',1,'negotiations','#C4DF9B'),(39,11,'Тестирование',2,'testing','#6DCFF6'),(40,11,'Действующий',3,'work',''),(41,11,'Приостановлен',5,'suspended','#C4a3C0'),(42,11,'Расторгнут',6,'closed','#FFFFCC'),(43,11,'Фрод блокировка',7,'blocked','silver'),(44,11,'Отказ',8,'tech_deny','#996666'),(47,12,'Входящий',0,'income','#CCFFFF'),(48,12,'Переговоры',1,'negotiations','#C4DF9B'),(49,12,'Тестирование',2,'testing','#6DCFF6'),(50,12,'Действующий',3,'work',''),(51,12,'Приостановлен',5,'suspended','#C4a3C0'),(52,12,'Расторгнут',6,'closed','#FFFFCC'),(53,12,'Фрод блокировка',7,'blocked','silver'),(54,12,'Отказ',8,'tech_deny','#996666'),(56,12,'JiraSoft',4,'work',''),(62,13,'Входящий',0,'income','#CCFFFF'),(63,13,'Переговоры',1,'negotiations','#C4DF9B'),(64,13,'Тестирование',2,'testing','#6DCFF6'),(65,13,'Действующий',3,'work',''),(66,13,'Приостановлен',5,'suspended','#C4a3C0'),(67,13,'Расторгнут',6,'closed','#FFFFCC'),(68,13,'Фрод блокировка',7,'blocked','silver'),(69,13,'Отказ',8,'tech_deny','#996666'),(77,14,'Входящий',0,'income','#CCFFFF'),(78,14,'Переговоры',1,'negotiations','#C4DF9B'),(79,14,'Тестирование',2,'testing','#6DCFF6'),(80,14,'Действующий',3,'work',''),(81,14,'Приостановлен',4,'suspended','#C4a3C0'),(82,14,'Расторгнут',5,'closed','#FFFFCC'),(83,14,'Фрод блокировка',6,'blocked','silver'),(84,14,'Отказ',7,'tech_deny','#996666'),(92,6,'Закрытый',4,'closed',''),(93,6,'Самозакупки',5,'distr',''),(94,6,'Разовый',6,'distr',''),(95,15,'Пуско-наладка',0,'connecting',''),(96,15,'Техобслуживание',1,'work',''),(97,15,'Без Техобслуживания',2,'work',''),(98,15,'Приостановленные',3,'suspended',''),(99,15,'Отказ',4,'deny',''),(100,15,'Мусор',5,'trash',''),(107,11,'Ручной счет',4,'','#CCFFFF'),(108,6,'Shop MCNTele.com',0,'distr',''),(109,6,'ВОЛС',1,'distr',''),(110,6,'Сервисный',2,'distr',''),(111,10,'Закрытые',1,'',''),(121,11,'Мусор',9,'trash','#996666'),(122,12,'Мусор',9,'trash','#996666'),(123,13,'Мусор',9,'trash','#996666'),(124,14,'Мусор',8,'trash','#996666'),(125,11,'Формальные',4,'',''),(126,8,'Переговоры',0,'',''),(127,8,'Ручной счет',2,'',''),(128,8,'Приостановлен',3,'',''),(129,8,'Расторгнут',4,'',''),(130,8,'Отказ',5,'',''),(131,8,'Мусор',6,'',''),(132,17,'Входящие',0,'income',''),(133,17,'В стадии переговоров',1,'negotiations',''),(134,17,'Проверка документов',2,'connecting',''),(135,17,'Подключаемые',3,'connecting',''),(136,17,'На обслуживании',4,'work',''),(137,17,'Приостановленные',5,'suspended',''),(138,17,'Отказ',6,'tech_deny',''),(139,17,'Мусор',7,'trash',''),(140,13,'Формальные',4,'',''),(141,18,'Заказ услуг',0,'negotiations','#C4DF9B'),(142,18,'Подключаемые',1,'connecting','#F49AC1'),(143,18,'Включенные',2,'work',''),(144,18,'Отключенные',3,'closed','#FFFFCC'),(146,18,'Мусор',4,'trash','#a5e934'),(147,18,'Техотказ',5,'tech_deny','#996666'),(148,18,'Отказ',6,'deny','#A0A0A0'),(149,18,'Дубликат',7,'double','#60a0e0'),(150,13,'Ручной счет',10,'',''),(151,13,'Разовый',11,'','');
+INSERT INTO `client_contract_business_process_status` VALUES (8,1,'Подключаемые',1,'connecting','#F49AC1',0),(9,1,'Включенные',2,'work','',0),(10,1,'Отключенные',3,'closed','#FFFFCC',0),(15,6,'Действующий',3,'distr','yellow',0),(16,4,'Действующий',0,'once','silver',0),(19,1,'Заказ услуг',0,'negotiations','#C4DF9B',0),(22,1,'Мусор',4,'trash','#a5e934',0),(27,1,'Техотказ',5,'tech_deny','#996666',0),(28,1,'Отказ',6,'deny','#A0A0A0',0),(29,1,'Дубликат',7,'double','#60a0e0',0),(30,9,'Заказ магазина',0,'income','#CCFFFF',0),(33,3,'Заказ магазина',0,'once','silver',0),(34,10,'Внутренний офис',0,'','',0),(35,8,'Действующий',1,'','',0),(37,11,'Входящий',0,'income','#CCFFFF',0),(38,11,'Переговоры',1,'negotiations','#C4DF9B',0),(39,11,'Тестирование',2,'testing','#6DCFF6',0),(40,11,'Действующий',3,'work','',0),(41,11,'Приостановлен',5,'suspended','#C4a3C0',0),(42,11,'Расторгнут',6,'closed','#FFFFCC',0),(43,11,'Фрод блокировка',7,'blocked','silver',0),(44,11,'Отказ',8,'tech_deny','#996666',0),(47,12,'Входящий',0,'income','#CCFFFF',0),(48,12,'Переговоры',1,'negotiations','#C4DF9B',0),(49,12,'Тестирование',2,'testing','#6DCFF6',0),(50,12,'Действующий',3,'work','',0),(51,12,'Приостановлен',5,'suspended','#C4a3C0',0),(52,12,'Расторгнут',6,'closed','#FFFFCC',0),(53,12,'Фрод блокировка',7,'blocked','silver',0),(54,12,'Отказ',8,'tech_deny','#996666',0),(56,12,'JiraSoft',4,'work','',0),(62,13,'Входящий',0,'income','#CCFFFF',0),(63,13,'Переговоры',1,'negotiations','#C4DF9B',0),(64,13,'Тестирование',2,'testing','#6DCFF6',0),(65,13,'Действующий',3,'work','',0),(66,13,'Приостановлен',5,'suspended','#C4a3C0',0),(67,13,'Расторгнут',6,'closed','#FFFFCC',0),(68,13,'Фрод блокировка',7,'blocked','silver',0),(69,13,'Отказ',8,'tech_deny','#996666',0),(77,14,'Входящий',0,'income','#CCFFFF',0),(78,14,'Переговоры',1,'negotiations','#C4DF9B',0),(79,14,'Тестирование',2,'testing','#6DCFF6',0),(80,14,'Действующий',3,'work','',0),(81,14,'Приостановлен',4,'suspended','#C4a3C0',0),(82,14,'Расторгнут',5,'closed','#FFFFCC',0),(83,14,'Фрод блокировка',6,'blocked','silver',0),(84,14,'Отказ',7,'tech_deny','#996666',0),(92,6,'Закрытый',4,'closed','',0),(93,6,'Самозакупки',5,'distr','',0),(94,6,'Разовый',6,'distr','',0),(95,15,'Пуско-наладка',0,'connecting','',0),(96,15,'Техобслуживание',1,'work','',0),(97,15,'Без Техобслуживания',2,'work','',0),(98,15,'Приостановленные',3,'suspended','',0),(99,15,'Отказ',4,'deny','',0),(100,15,'Мусор',5,'trash','',0),(107,11,'Ручной счет',4,'','#CCFFFF',0),(108,6,'Shop MCNTele.com',0,'distr','',0),(109,6,'ВОЛС',1,'distr','',0),(110,6,'Сервисный',2,'distr','',0),(111,10,'Закрытые',1,'','',0),(121,11,'Мусор',9,'trash','#996666',0),(122,12,'Мусор',9,'trash','#996666',0),(123,13,'Мусор',9,'trash','#996666',0),(124,14,'Мусор',8,'trash','#996666',0),(125,11,'Формальные',4,'','',0),(126,8,'Переговоры',0,'','',0),(127,8,'Ручной счет',2,'','',0),(128,8,'Приостановлен',3,'','',0),(129,8,'Расторгнут',4,'','',0),(130,8,'Отказ',5,'','',0),(131,8,'Мусор',6,'','',0),(132,17,'Входящие',0,'income','',0),(133,17,'В стадии переговоров',1,'negotiations','',0),(134,17,'Проверка документов',2,'connecting','',0),(135,17,'Подключаемые',3,'connecting','',0),(136,17,'На обслуживании',4,'work','',0),(137,17,'Приостановленные',5,'suspended','',0),(138,17,'Отказ',6,'tech_deny','',0),(139,17,'Мусор',7,'trash','',0),(140,13,'Формальные',4,'','',0),(141,18,'Заказ услуг',0,'negotiations','#C4DF9B',0),(142,18,'Подключаемые',1,'connecting','#F49AC1',0),(143,18,'Включенные',2,'work','',0),(144,18,'Отключенные',3,'closed','#FFFFCC',0),(146,18,'Мусор',4,'trash','#a5e934',0),(147,18,'Техотказ',5,'tech_deny','#996666',0),(148,18,'Отказ',6,'deny','#A0A0A0',0),(149,18,'Дубликат',7,'double','#60a0e0',0),(150,13,'Ручной счет',10,'','',0),(151,13,'Разовый',11,'','',0);
 /*!40000 ALTER TABLE `client_contract_business_process_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -795,6 +796,8 @@ CREATE TABLE `client_contragent` (
   `sale_channel_id` int(11) DEFAULT NULL,
   `partner_contract_id` int(11) DEFAULT NULL,
   `lang_code` varchar(5) DEFAULT 'ru-RU',
+  `created_at` datetime DEFAULT NULL,
+  `tax_registration_reason` varchar(1024) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `super_client_id` (`super_id`),
   KEY `fk-client_contragent-partner_contract_id` (`partner_contract_id`),
@@ -1098,7 +1101,11 @@ CREATE TABLE `client_super` (
   `name` varchar(255) NOT NULL,
   `financial_manager_id` int(11) NOT NULL DEFAULT '0',
   `is_lk_exists` int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `entry_point_id` int(11) DEFAULT NULL,
+  `utm` text,
+  PRIMARY KEY (`id`),
+  KEY `fk-client_super-entry_point_id-entry_point-id` (`entry_point_id`),
+  CONSTRAINT `fk-client_super-entry_point_id-entry_point-id` FOREIGN KEY (`entry_point_id`) REFERENCES `entry_point` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=79276 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1206,7 +1213,6 @@ CREATE TABLE `clients` (
   `is_bill_pay_overdue` int(11) DEFAULT '0',
   `is_voip_with_tax` int(11) NOT NULL DEFAULT '0',
   `price_level` int(11) NOT NULL DEFAULT '1',
-  `credit_mgp` int(11) NOT NULL DEFAULT '0',
   `uu_tariff_status_id` int(11) DEFAULT NULL,
   `show_in_lk` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -1903,6 +1909,7 @@ CREATE TABLE `entry_point` (
   `voip_limit_mn_day` int(11) NOT NULL,
   `is_default` int(11) NOT NULL DEFAULT '0',
   `connect_trouble_user_id` int(11) DEFAULT NULL,
+  `wizard_type` varchar(255) DEFAULT 'mcn',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq-code` (`code`),
   KEY `fk-country-code` (`country_id`),
@@ -1928,7 +1935,7 @@ CREATE TABLE `entry_point` (
 
 LOCK TABLES `entry_point` WRITE;
 /*!40000 ALTER TABLE `entry_point` DISABLE KEYS */;
-INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,4,100500,2000,1000,1,10),(2,'RU5','Точка входа для создания ЛС с универсальным биллингом','uClient #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,5,100500,2000,1000,0,10),(3,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,100500,2000,1000,0,10);
+INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,4,100500,2000,1000,1,10,'mcn'),(2,'RU5','Точка входа для создания ЛС с универсальным биллингом','uClient #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,5,100500,2000,1000,0,10,'mcn'),(3,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,100500,2000,1000,0,10,'mcn');
 /*!40000 ALTER TABLE `entry_point` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2833,6 +2840,41 @@ INSERT INTO `important_events_sources` VALUES (1,'stat','MCN Stat'),(2,'billing'
 UNLOCK TABLES;
 
 --
+-- Table structure for table `invoice`
+--
+
+DROP TABLE IF EXISTS `invoice`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `invoice` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `number` varchar(32) DEFAULT NULL,
+  `organization_id` int(11) NOT NULL,
+  `idx` int(11) NOT NULL DEFAULT '1',
+  `type_id` int(11) NOT NULL DEFAULT '1',
+  `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `date` date NOT NULL,
+  `sum` decimal(12,4) NOT NULL DEFAULT '0.0000',
+  `is_reversal` tinyint(1) NOT NULL DEFAULT '0',
+  `add_date` datetime NOT NULL,
+  `reversal_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx-number` (`number`),
+  KEY `fk-invoice-bill_no-newbills-bill_no` (`bill_no`),
+  CONSTRAINT `fk-invoice-bill_no-newbills-bill_no` FOREIGN KEY (`bill_no`) REFERENCES `newbills` (`bill_no`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `invoice`
+--
+
+LOCK TABLES `invoice` WRITE;
+/*!40000 ALTER TABLE `invoice` DISABLE KEYS */;
+/*!40000 ALTER TABLE `invoice` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `invoice_settings`
 --
 
@@ -2925,12 +2967,15 @@ CREATE TABLE `lead` (
   `created_at` datetime NOT NULL,
   `data_json` text,
   `state_id` int(11) unsigned DEFAULT NULL,
+  `sale_channel_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_message_id` (`message_id`),
   KEY `fk-lead-account_id-clients-id` (`account_id`),
   KEY `fk-lead-trouble_id-tt_troubles-id` (`trouble_id`),
   KEY `fk-lead-state_id-tt_states-id` (`state_id`),
+  KEY `fk-lead-sale_channel_id-sale_channel-id` (`sale_channel_id`),
   CONSTRAINT `fk-lead-account_id-clients-id` FOREIGN KEY (`account_id`) REFERENCES `clients` (`id`),
+  CONSTRAINT `fk-lead-sale_channel_id-sale_channel-id` FOREIGN KEY (`sale_channel_id`) REFERENCES `sale_channel` (`id`),
   CONSTRAINT `fk-lead-state_id-tt_states-id` FOREIGN KEY (`state_id`) REFERENCES `tt_states` (`id`),
   CONSTRAINT `fk-lead-trouble_id-tt_troubles-id` FOREIGN KEY (`trouble_id`) REFERENCES `tt_troubles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -3081,7 +3126,7 @@ CREATE TABLE `lk_wizard_state` (
   `step` tinyint(4) NOT NULL DEFAULT '0',
   `state` enum('rejected','review','approve','process') NOT NULL DEFAULT 'process',
   `trouble_id` int(11) NOT NULL DEFAULT '0',
-  `type` enum('euro','mcn','slovak') NOT NULL DEFAULT 'mcn',
+  `type` enum('euro','mcn','slovak','austria') NOT NULL DEFAULT 'mcn',
   `is_bonus_added` tinyint(4) NOT NULL DEFAULT '0',
   `is_on` tinyint(4) NOT NULL DEFAULT '1',
   `is_rules_accept_legal` int(1) NOT NULL DEFAULT '0',
@@ -4102,6 +4147,7 @@ CREATE TABLE `newbill_lines` (
   `sum_without_tax` decimal(11,2) DEFAULT NULL,
   `sum_tax` decimal(11,2) DEFAULT NULL,
   `uu_account_entry_id` int(11) DEFAULT NULL,
+  `cost_price` decimal(13,4) NOT NULL DEFAULT '0.0000',
   PRIMARY KEY (`pk`),
   UNIQUE KEY `bill_sort` (`bill_no`,`sort`),
   KEY `service` (`service`,`id_service`),
@@ -4118,6 +4164,44 @@ CREATE TABLE `newbill_lines` (
 LOCK TABLES `newbill_lines` WRITE;
 /*!40000 ALTER TABLE `newbill_lines` DISABLE KEYS */;
 /*!40000 ALTER TABLE `newbill_lines` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `newbill_lines_correction`
+--
+
+DROP TABLE IF EXISTS `newbill_lines_correction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `newbill_lines_correction` (
+  `bill_correction_id` int(11) NOT NULL,
+  `pk` int(11) NOT NULL AUTO_INCREMENT,
+  `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `sort` int(11) NOT NULL DEFAULT '0',
+  `item` varchar(200) NOT NULL DEFAULT '',
+  `amount` decimal(13,6) NOT NULL DEFAULT '0.000000',
+  `price` decimal(13,4) NOT NULL DEFAULT '0.0000',
+  `sum` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `date_from` date NOT NULL DEFAULT '0000-00-00',
+  `date_to` date NOT NULL DEFAULT '0000-00-00',
+  `type` enum('service','zalog','zadatok','good','all4net') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'service',
+  `tax_rate` int(11) NOT NULL DEFAULT '0',
+  `sum_without_tax` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `sum_tax` decimal(11,2) NOT NULL DEFAULT '0.00',
+  PRIMARY KEY (`pk`),
+  KEY `bill_sort` (`bill_no`,`sort`),
+  KEY `fk-newbill_lines_correction-bill_correction_id` (`bill_correction_id`),
+  CONSTRAINT `fk-newbill_lines_correction-bill_correction_id` FOREIGN KEY (`bill_correction_id`) REFERENCES `newbills_correction` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `newbill_lines_correction`
+--
+
+LOCK TABLES `newbill_lines_correction` WRITE;
+/*!40000 ALTER TABLE `newbill_lines_correction` DISABLE KEYS */;
+/*!40000 ALTER TABLE `newbill_lines_correction` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4252,13 +4336,14 @@ CREATE TABLE `newbills` (
   `is_show_in_lk` tinyint(4) NOT NULL DEFAULT '1',
   `doc_date` date NOT NULL DEFAULT '1970-01-02',
   `is_user_prepay` tinyint(4) NOT NULL DEFAULT '0',
-  `bill_no_ext` varchar(32) NOT NULL DEFAULT '',
-  `bill_no_ext_date` date NOT NULL,
   `biller_version` int(1) unsigned DEFAULT '4',
   `uu_bill_id` int(11) DEFAULT NULL,
   `organization_id` int(11) DEFAULT NULL,
   `pay_bill_until` date DEFAULT NULL,
   `is_pay_overdue` int(11) DEFAULT '0',
+  `payment_date` date DEFAULT NULL,
+  `sum_correction` decimal(11,2) DEFAULT NULL,
+  `is_to_uu_invoice` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `bill_no` (`bill_no`) USING BTREE,
   KEY `client_id` (`client_id`),
@@ -4336,6 +4421,32 @@ LOCK TABLES `newbills_add_info` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `newbills_correction`
+--
+
+DROP TABLE IF EXISTS `newbills_correction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `newbills_correction` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `type_id` int(11) NOT NULL DEFAULT '1',
+  `number` int(11) NOT NULL DEFAULT '1',
+  `date` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `newbills_correction`
+--
+
+LOCK TABLES `newbills_correction` WRITE;
+/*!40000 ALTER TABLE `newbills_correction` DISABLE KEYS */;
+/*!40000 ALTER TABLE `newbills_correction` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `newbills_documents`
 --
 
@@ -4371,6 +4482,39 @@ LOCK TABLES `newbills_documents` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `newbills_external`
+--
+
+DROP TABLE IF EXISTS `newbills_external`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `newbills_external` (
+  `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `ext_bill_no` varchar(255) DEFAULT NULL,
+  `ext_bill_date` varchar(255) DEFAULT NULL,
+  `ext_invoice_no` varchar(255) DEFAULT NULL,
+  `ext_akt_no` varchar(255) DEFAULT NULL,
+  `ext_akt_date` varchar(255) DEFAULT NULL,
+  `ext_invoice_date` varchar(255) DEFAULT NULL,
+  `ext_vat` decimal(12,2) DEFAULT NULL,
+  PRIMARY KEY (`bill_no`),
+  KEY `idx-newbills_external-ext_bill_no` (`ext_bill_no`),
+  KEY `idx-newbills_external-ext_akt_no` (`ext_akt_no`),
+  KEY `idx-newbills_external-ext_invoice_no` (`ext_invoice_no`),
+  CONSTRAINT `fk-newbills_external-newbills-bill_no` FOREIGN KEY (`bill_no`) REFERENCES `newbills` (`bill_no`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `newbills_external`
+--
+
+LOCK TABLES `newbills_external` WRITE;
+/*!40000 ALTER TABLE `newbills_external` DISABLE KEYS */;
+/*!40000 ALTER TABLE `newbills_external` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `newpayments`
 --
 
@@ -4395,7 +4539,7 @@ CREATE TABLE `newpayments` (
   `comment` varchar(255) NOT NULL,
   `add_date` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `add_user` int(11) NOT NULL DEFAULT '0',
-  `bank` enum('citi','mos','ural','sber','raiffeisen','promsviazbank') NOT NULL DEFAULT 'mos',
+  `bank` varchar(64) NOT NULL DEFAULT 'mos',
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`,`payment_no`),
   KEY `bill_no_2` (`bill_no`,`bill_vis_no`),
@@ -4423,7 +4567,7 @@ DROP TABLE IF EXISTS `newpayments_orders`;
 CREATE TABLE `newpayments_orders` (
   `client_id` int(11) NOT NULL,
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `payment_id` varchar(32) NOT NULL,
+  `payment_id` int(11) NOT NULL,
   `sum` decimal(11,2) NOT NULL,
   PRIMARY KEY (`client_id`,`bill_no`,`payment_id`),
   KEY `payment_id` (`payment_id`)
@@ -4829,6 +4973,41 @@ CREATE TABLE `partner_rewards` (
 LOCK TABLES `partner_rewards` WRITE;
 /*!40000 ALTER TABLE `partner_rewards` DISABLE KEYS */;
 /*!40000 ALTER TABLE `partner_rewards` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `partner_rewards_permanent`
+--
+
+DROP TABLE IF EXISTS `partner_rewards_permanent`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `partner_rewards_permanent` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bill_id` int(10) unsigned NOT NULL,
+  `line_pk` int(10) unsigned NOT NULL,
+  `created_at` datetime NOT NULL,
+  `once` float DEFAULT NULL,
+  `percentage_once` float DEFAULT NULL,
+  `percentage_of_fee` float DEFAULT NULL,
+  `percentage_of_over` float DEFAULT NULL,
+  `percentage_of_margin` float DEFAULT NULL,
+  `partner_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `bill_id-line_pk` (`bill_id`,`line_pk`),
+  KEY `fk-partner_rewards_permanent-line_pk` (`line_pk`),
+  CONSTRAINT `fk-partner_rewards_permanent-bill_id` FOREIGN KEY (`bill_id`) REFERENCES `newbills` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk-partner_rewards_permanent-line_pk` FOREIGN KEY (`line_pk`) REFERENCES `newbill_lines` (`pk`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `partner_rewards_permanent`
+--
+
+LOCK TABLES `partner_rewards_permanent` WRITE;
+/*!40000 ALTER TABLE `partner_rewards_permanent` DISABLE KEYS */;
+/*!40000 ALTER TABLE `partner_rewards_permanent` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -5747,118 +5926,6 @@ CREATE TABLE `server_pbx` (
 LOCK TABLES `server_pbx` WRITE;
 /*!40000 ALTER TABLE `server_pbx` DISABLE KEYS */;
 /*!40000 ALTER TABLE `server_pbx` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sim_card`
---
-
-DROP TABLE IF EXISTS `sim_card`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sim_card` (
-  `iccid` bigint(20) NOT NULL,
-  `imei` bigint(20) DEFAULT NULL,
-  `client_account_id` int(11) DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `status_id` int(11) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`iccid`),
-  KEY `fk-sim_card-status_id` (`status_id`),
-  CONSTRAINT `fk-sim_card-status_id` FOREIGN KEY (`status_id`) REFERENCES `sim_card_status` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sim_card`
---
-
-LOCK TABLES `sim_card` WRITE;
-/*!40000 ALTER TABLE `sim_card` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sim_card` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sim_card_status`
---
-
-DROP TABLE IF EXISTS `sim_card_status`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sim_card_status` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sim_card_status`
---
-
-LOCK TABLES `sim_card_status` WRITE;
-/*!40000 ALTER TABLE `sim_card_status` DISABLE KEYS */;
-INSERT INTO `sim_card_status` VALUES (1,'По умолчанию');
-/*!40000 ALTER TABLE `sim_card_status` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sim_imsi`
---
-
-DROP TABLE IF EXISTS `sim_imsi`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sim_imsi` (
-  `imsi` bigint(20) NOT NULL,
-  `iccid` bigint(20) NOT NULL,
-  `msisdn` bigint(20) DEFAULT NULL,
-  `did` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `is_anti_cli` int(11) NOT NULL DEFAULT '0',
-  `is_roaming` int(11) NOT NULL DEFAULT '0',
-  `actual_from` date DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `status_id` int(11) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`imsi`),
-  KEY `fk-sim_imsi-iccid` (`iccid`),
-  KEY `fk-sim_imsi-status_id` (`status_id`),
-  KEY `fk-sim_imsi-did` (`did`),
-  CONSTRAINT `fk-sim_imsi-did` FOREIGN KEY (`did`) REFERENCES `voip_numbers` (`number`),
-  CONSTRAINT `fk-sim_imsi-iccid` FOREIGN KEY (`iccid`) REFERENCES `sim_card` (`iccid`) ON DELETE CASCADE,
-  CONSTRAINT `fk-sim_imsi-status_id` FOREIGN KEY (`status_id`) REFERENCES `sim_imsi_status` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sim_imsi`
---
-
-LOCK TABLES `sim_imsi` WRITE;
-/*!40000 ALTER TABLE `sim_imsi` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sim_imsi` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sim_imsi_status`
---
-
-DROP TABLE IF EXISTS `sim_imsi_status`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sim_imsi_status` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sim_imsi_status`
---
-
-LOCK TABLES `sim_imsi_status` WRITE;
-/*!40000 ALTER TABLE `sim_imsi_status` DISABLE KEYS */;
-INSERT INTO `sim_imsi_status` VALUES (1,'По умолчанию');
-/*!40000 ALTER TABLE `sim_imsi_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -6817,6 +6884,7 @@ CREATE TABLE `transaction` (
   `bill_id` int(10) unsigned DEFAULT NULL,
   `bill_line_id` int(10) unsigned DEFAULT NULL,
   `deleted` tinyint(4) DEFAULT '0',
+  `cost_price` decimal(13,4) NOT NULL DEFAULT '0.0000',
   PRIMARY KEY (`id`),
   KEY `idx_source_payment_id` (`source`,`payment_id`),
   KEY `idx_client_account_id_source_billing_period` (`client_account_id`,`source`,`billing_period`),
@@ -7173,6 +7241,7 @@ CREATE TABLE `tt_troubles` (
   `date_close` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `support_ticket_id` int(11) DEFAULT NULL,
   `server_id` int(4) NOT NULL DEFAULT '0',
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `client` (`client`),
   KEY `service_id` (`service_id`),
@@ -7192,6 +7261,32 @@ CREATE TABLE `tt_troubles` (
 LOCK TABLES `tt_troubles` WRITE;
 /*!40000 ALTER TABLE `tt_troubles` DISABLE KEYS */;
 /*!40000 ALTER TABLE `tt_troubles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tt_troubles_roistat`
+--
+
+DROP TABLE IF EXISTS `tt_troubles_roistat`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tt_troubles_roistat` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `trouble_id` int(11) NOT NULL,
+  `roistat_visit` int(11) DEFAULT NULL,
+  `roistat_price` float DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `trouble_id_idx` (`trouble_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tt_troubles_roistat`
+--
+
+LOCK TABLES `tt_troubles_roistat` WRITE;
+/*!40000 ALTER TABLE `tt_troubles_roistat` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tt_troubles_roistat` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -7572,6 +7667,7 @@ CREATE TABLE `usage_trunk` (
   `next_usage_id` int(11) DEFAULT '0',
   `ip` varchar(16) DEFAULT NULL,
   `transit_price` decimal(13,4) NOT NULL DEFAULT '0.0000',
+  `comment` text,
   PRIMARY KEY (`id`),
   KEY `usage_trunk__connection_point_id_trunk_name` (`connection_point_id`) USING BTREE,
   KEY `usage_trunk__client_account_id` (`client_account_id`) USING BTREE,
@@ -7681,7 +7777,7 @@ CREATE TABLE `usage_voip` (
   `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `activation_dt` datetime NOT NULL,
   `expire_dt` datetime NOT NULL,
-  `E164` varchar(40) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+  `E164` bigint(20) NOT NULL DEFAULT '0',
   `no_of_lines` int(11) NOT NULL DEFAULT '1',
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `address` text NOT NULL,
@@ -7696,13 +7792,13 @@ CREATE TABLE `usage_voip` (
   `next_usage_id` int(11) DEFAULT '0',
   `ndc_type_id` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
-  KEY `E164` (`E164`),
   KEY `client` (`client`),
   KEY `fk_usage_voip__address_from_datacenter_id` (`address_from_datacenter_id`),
   KEY `line7800_id` (`line7800_id`),
   KEY `idx-activation_dt` (`activation_dt`),
   KEY `idx-expire_dt` (`expire_dt`),
   KEY `idx-prev_usage_id` (`prev_usage_id`),
+  KEY `E164` (`E164`),
   CONSTRAINT `fk_usage_voip__address_from_datacenter_id` FOREIGN KEY (`address_from_datacenter_id`) REFERENCES `datacenter` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=14344 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -7832,7 +7928,7 @@ CREATE TABLE `user_grant_groups` (
 
 LOCK TABLES `user_grant_groups` WRITE;
 /*!40000 ALTER TABLE `user_grant_groups` DISABLE KEYS */;
-INSERT INTO `user_grant_groups` VALUES ('account_managers','clients','read,read_filter,read_all,new,edit,restatus,file,all4net,client_type_change'),('account_managers','data','access'),('account_managers','logs','read'),('account_managers','mail','r,w'),('account_managers','monitoring','view,edit'),('account_managers','newaccounts_balance','read'),('account_managers','newaccounts_bills','read,edit,delete'),('account_managers','newaccounts_mass','access'),('account_managers','newaccounts_payments','read,edit,delete'),('account_managers','newaccounts_usd','access'),('account_managers','nnp','read,write'),('account_managers','routers_devices','r,edit,add,delete'),('account_managers','routers_models','r'),('account_managers','routers_nets','r'),('account_managers','routers_routers','r'),('account_managers','services_additional','r,edit,addnew,activate,close'),('account_managers','services_collocation','r,edit,addnew,activate,close'),('account_managers','services_domains','r,edit,addnew,close'),('account_managers','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('account_managers','services_mail','r,edit,addnew,activate,chpass'),('account_managers','services_ppp','r,edit,addnew,full,activate,chpass,close'),('account_managers','services_voip','r,edit,addnew,activate,close,send_settings,e164,del4000,package'),('account_managers','services_welltime','full,docs'),('account_managers','sim','read,write'),('account_managers','stats','r,report,vip_report,voip_recognition,onlime_read,onlime_create,onlime_full'),('account_managers','tarifs','read,edit'),('account_managers','tt','view,view_cl,use,time,admin,doers_edit,shop_orders'),('account_managers','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('account_managers','users','r'),('account_managers','voip','access,catalog'),('accounts_department','clients','read,read_filter,read_all,new,edit,file,all4net'),('accounts_department','data','access'),('accounts_department','newaccounts_balance','read'),('accounts_department','newaccounts_bills','read,edit'),('accounts_department','newaccounts_mass','access'),('accounts_department','newaccounts_payments','read,edit'),('accounts_department','newaccounts_usd','access'),('accounts_department','routers_devices','r,edit,add,delete'),('accounts_department','routers_models','r'),('accounts_department','routers_nets','r'),('accounts_department','services_additional','r'),('accounts_department','services_collocation','r'),('accounts_department','services_internet','r'),('accounts_department','services_mail','r'),('accounts_department','services_voip','r'),('accounts_department','stats','r'),('accounts_department','tarifs','read'),('accounts_department','tt','view,view_cl,use,time'),('accounts_department','usercontrol','edit_pass'),('admin','ats','access'),('admin','clients','read,read_filter,read_all,new,edit,restatus,sale_channels,file,inn_double,all4net,client_type_change,changeback_contract_state'),('admin','data','access'),('admin','dictionary','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags'),('admin','dictionary-important-event','important-events-groups,important-events-names,important-events-sources'),('admin','employeers','r'),('admin','incomegoods','access,admin'),('admin','logs','read'),('admin','mail','r,w'),('admin','monitoring','view,edit'),('admin','newaccounts_balance','read'),('admin','newaccounts_bills','read,edit,delete,del_docs,edit_ext'),('admin','newaccounts_mass','access'),('admin','newaccounts_payments','read,edit,delete'),('admin','newaccounts_usd','access'),('admin','nnp','read,write'),('admin','organization','read,edit'),('admin','person','read,edit,delete'),('admin','routers_devices','r,edit,add,delete'),('admin','routers_models','r,w'),('admin','routers_nets','r'),('admin','routers_routers','r,edit,add,delete'),('admin','send','r'),('admin','services_additional','r,edit,addnew,full,activate,close'),('admin','services_collocation','r,edit,addnew,activate,close'),('admin','services_domains','r,edit,addnew,close'),('admin','services_internet','r,edit,addnew,activate,close,full,edit_off,tarif'),('admin','services_itpark','full'),('admin','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('admin','services_ppp','r,edit,addnew,full,activate,chpass'),('admin','services_voip','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000'),('admin','services_wellsystem','full'),('admin','services_welltime','full,docs'),('admin','sim','read,write'),('admin','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('admin','tarifs','read,edit'),('admin','tt','view,use,admin,states,report,rating,limit'),('admin','usercontrol','edit_pass,edit_full,edit_panels,edit_flags,dealer'),('admin','users','r,change,grant'),('admin','voip','access,admin,catalog'),('admin','voipreports','access,admin'),('client','mail','r'),('client','services_additional','r'),('client','services_mail','whitelist,r,addnew,activate,chpass'),('client','services_ppp','r,chpass'),('client','stats','r'),('client','usercontrol','r,edit_pass'),('developer','data','access'),('manager','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('manager','data','access'),('manager','mail','w'),('manager','monitoring','view,edit'),('manager','newaccounts_balance','read'),('manager','newaccounts_bills','read,edit'),('manager','newaccounts_payments','read'),('manager','newaccounts_usd','access'),('manager','nnp','read,write'),('manager','routers_devices','r,edit,add,delete'),('manager','routers_models','r'),('manager','routers_routers','r'),('manager','services_additional','r,edit,addnew,activate,close'),('manager','services_collocation','r,edit,addnew,activate,close'),('manager','services_domains','r'),('manager','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('manager','services_mail','r,edit,addnew,activate,chpass'),('manager','services_ppp','r,edit,addnew,full,activate,chpass,close'),('manager','services_voip','r,edit,addnew,activate,close,e164'),('manager','sim','read,write'),('manager','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('manager','tarifs','read'),('manager','tt','view,view_cl,use,time,doers_edit,shop_orders'),('manager','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('manager','users','r'),('manager1','clients','read,read_all'),('manager1','employeers','r'),('manager1','monitoring','view'),('manager1','usercontrol','edit_panels,edit_flags'),('marketing','clients','read,read_filter,all4net'),('marketing','data','access'),('marketing','newaccounts_bills','read'),('marketing','tt','view,view_cl,use'),('operator','clients','read,read_all,new,all4net'),('operator','data','access'),('operator','newaccounts_balance','read'),('operator','newaccounts_bills','read'),('operator','tt','view,view_cl,use'),('sklad','data','access'),('sklad','newaccounts_bills','read'),('sklad','tt','view,use,report,comment'),('sklad','usercontrol','read,edit_pass'),('support','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('support','data','access'),('support','monitoring','view,top,edit'),('support','newaccounts_balance','read'),('support','newaccounts_bills','read'),('support','routers_devices','r,edit,add,delete'),('support','routers_models','r,w'),('support','routers_nets','r'),('support','routers_routers','r,edit,add,delete'),('support','services_additional','r,edit,addnew,full,activate,close'),('support','services_collocation','r,edit,addnew,activate,close'),('support','services_domains','r,edit,addnew,close'),('support','services_internet','r,edit,addnew,activate,close,full,edit_off'),('support','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('support','services_ppp','r,edit,addnew,full,activate,chpass'),('support','services_voip','r,view_reg,send_settings'),('support','stats','r,report,onlime_read,onlime_create,onlime_full'),('support','tarifs','read'),('support','tt','view,use,states,comment,rating'),('support','usercontrol','edit_pass,edit_full,edit_flags'),('telemarket','clients','read,read_filter,read_all,new,edit,restatus,edit_tele'),('telemarketing','clients','read,read_filter,read_all,edit,restatus,edit_tele,file'),('telemarketing','data','access'),('telemarketing','monitoring','view'),('telemarketing','newaccounts_balance','read'),('telemarketing','newaccounts_bills','read'),('telemarketing','stats','r'),('telemarketing','tarifs','read'),('telemarketing','tt','view,view_cl,use,time'),('telemarketing','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('user','data','access'),('user','tt','view,use,time,states,report'),('virtual','data','access'),('zakupshiki','data','access');
+INSERT INTO `user_grant_groups` VALUES ('account_managers','clients','read,read_filter,read_all,new,edit,restatus,file,all4net,client_type_change'),('account_managers','data','access'),('account_managers','dictionary-statuses','read,write'),('account_managers','logs','read'),('account_managers','mail','r,w'),('account_managers','monitoring','view,edit'),('account_managers','newaccounts_balance','read'),('account_managers','newaccounts_bills','read,edit,delete'),('account_managers','newaccounts_mass','access'),('account_managers','newaccounts_payments','read,edit,delete'),('account_managers','newaccounts_usd','access'),('account_managers','nnp','read,write'),('account_managers','routers_devices','r,edit,add,delete'),('account_managers','routers_models','r'),('account_managers','routers_nets','r'),('account_managers','routers_routers','r'),('account_managers','services_additional','r,edit,addnew,activate,close'),('account_managers','services_collocation','r,edit,addnew,activate,close'),('account_managers','services_domains','r,edit,addnew,close'),('account_managers','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('account_managers','services_mail','r,edit,addnew,activate,chpass'),('account_managers','services_ppp','r,edit,addnew,full,activate,chpass,close'),('account_managers','services_voip','r,edit,addnew,activate,close,send_settings,e164,del4000,package'),('account_managers','services_welltime','full,docs'),('account_managers','sim','read,write'),('account_managers','stats','r,report,vip_report,voip_recognition,onlime_read,onlime_create,onlime_full'),('account_managers','tarifs','read,edit'),('account_managers','tt','view,view_cl,use,time,admin,doers_edit,shop_orders'),('account_managers','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('account_managers','users','r'),('account_managers','voip','access,catalog'),('accounts_department','clients','read,read_filter,read_all,new,edit,file,all4net'),('accounts_department','data','access'),('accounts_department','newaccounts_balance','read'),('accounts_department','newaccounts_bills','read,edit'),('accounts_department','newaccounts_mass','access'),('accounts_department','newaccounts_payments','read,edit'),('accounts_department','newaccounts_usd','access'),('accounts_department','routers_devices','r,edit,add,delete'),('accounts_department','routers_models','r'),('accounts_department','routers_nets','r'),('accounts_department','services_additional','r'),('accounts_department','services_collocation','r'),('accounts_department','services_internet','r'),('accounts_department','services_mail','r'),('accounts_department','services_voip','r'),('accounts_department','stats','r'),('accounts_department','tarifs','read'),('accounts_department','tt','view,view_cl,use,time'),('accounts_department','usercontrol','edit_pass'),('admin','ats','access'),('admin','clients','read,read_filter,read_all,new,edit,restatus,sale_channels,file,inn_double,all4net,client_type_change,changeback_contract_state'),('admin','data','access'),('admin','dictionary','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags'),('admin','dictionary-important-event','important-events-groups,important-events-names,important-events-sources'),('admin','dictionary-statuses','read,write'),('admin','employeers','r'),('admin','incomegoods','access,admin'),('admin','logs','read'),('admin','mail','r,w'),('admin','monitoring','view,edit'),('admin','newaccounts_balance','read'),('admin','newaccounts_bills','read,edit,delete,del_docs,edit_ext'),('admin','newaccounts_mass','access'),('admin','newaccounts_payments','read,edit,delete'),('admin','newaccounts_usd','access'),('admin','nnp','read,write'),('admin','organization','read,edit'),('admin','person','read,edit,delete'),('admin','routers_devices','r,edit,add,delete'),('admin','routers_models','r,w'),('admin','routers_nets','r'),('admin','routers_routers','r,edit,add,delete'),('admin','send','r'),('admin','services_additional','r,edit,addnew,full,activate,close'),('admin','services_collocation','r,edit,addnew,activate,close'),('admin','services_domains','r,edit,addnew,close'),('admin','services_internet','r,edit,addnew,activate,close,full,edit_off,tarif'),('admin','services_itpark','full'),('admin','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('admin','services_ppp','r,edit,addnew,full,activate,chpass'),('admin','services_voip','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000'),('admin','services_wellsystem','full'),('admin','services_welltime','full,docs'),('admin','sim','read,write'),('admin','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('admin','tarifs','read,edit'),('admin','tt','view,use,admin,states,report,rating,limit'),('admin','usercontrol','edit_pass,edit_full,edit_panels,edit_flags,dealer'),('admin','users','r,change,grant'),('admin','voip','access,admin,catalog'),('admin','voipreports','access,admin'),('client','mail','r'),('client','services_additional','r'),('client','services_mail','whitelist,r,addnew,activate,chpass'),('client','services_ppp','r,chpass'),('client','stats','r'),('client','usercontrol','r,edit_pass'),('developer','data','access'),('manager','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('manager','data','access'),('manager','dictionary-statuses','read,write'),('manager','mail','w'),('manager','monitoring','view,edit'),('manager','newaccounts_balance','read'),('manager','newaccounts_bills','read,edit'),('manager','newaccounts_payments','read'),('manager','newaccounts_usd','access'),('manager','nnp','read,write'),('manager','routers_devices','r,edit,add,delete'),('manager','routers_models','r'),('manager','routers_routers','r'),('manager','services_additional','r,edit,addnew,activate,close'),('manager','services_collocation','r,edit,addnew,activate,close'),('manager','services_domains','r'),('manager','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('manager','services_mail','r,edit,addnew,activate,chpass'),('manager','services_ppp','r,edit,addnew,full,activate,chpass,close'),('manager','services_voip','r,edit,addnew,activate,close,e164'),('manager','sim','read,write'),('manager','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('manager','tarifs','read'),('manager','tt','view,view_cl,use,time,doers_edit,shop_orders'),('manager','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('manager','users','r'),('manager1','clients','read,read_all'),('manager1','employeers','r'),('manager1','monitoring','view'),('manager1','usercontrol','edit_panels,edit_flags'),('marketing','clients','read,read_filter,all4net'),('marketing','data','access'),('marketing','newaccounts_bills','read'),('marketing','tt','view,view_cl,use'),('operator','clients','read,read_all,new,all4net'),('operator','data','access'),('operator','newaccounts_balance','read'),('operator','newaccounts_bills','read'),('operator','tt','view,view_cl,use'),('sklad','data','access'),('sklad','newaccounts_bills','read'),('sklad','tt','view,use,report,comment'),('sklad','usercontrol','read,edit_pass'),('support','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('support','data','access'),('support','monitoring','view,top,edit'),('support','newaccounts_balance','read'),('support','newaccounts_bills','read'),('support','routers_devices','r,edit,add,delete'),('support','routers_models','r,w'),('support','routers_nets','r'),('support','routers_routers','r,edit,add,delete'),('support','services_additional','r,edit,addnew,full,activate,close'),('support','services_collocation','r,edit,addnew,activate,close'),('support','services_domains','r,edit,addnew,close'),('support','services_internet','r,edit,addnew,activate,close,full,edit_off'),('support','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('support','services_ppp','r,edit,addnew,full,activate,chpass'),('support','services_voip','r,view_reg,send_settings'),('support','stats','r,report,onlime_read,onlime_create,onlime_full'),('support','tarifs','read'),('support','tt','view,use,states,comment,rating'),('support','usercontrol','edit_pass,edit_full,edit_flags'),('telemarket','clients','read,read_filter,read_all,new,edit,restatus,edit_tele'),('telemarketing','clients','read,read_filter,read_all,edit,restatus,edit_tele,file'),('telemarketing','data','access'),('telemarketing','monitoring','view'),('telemarketing','newaccounts_balance','read'),('telemarketing','newaccounts_bills','read'),('telemarketing','stats','r'),('telemarketing','tarifs','read'),('telemarketing','tt','view,view_cl,use,time'),('telemarketing','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('user','data','access'),('user','tt','view,use,time,states,report'),('virtual','data','access'),('zakupshiki','data','access');
 /*!40000 ALTER TABLE `user_grant_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7909,7 +8005,7 @@ CREATE TABLE `user_rights` (
 
 LOCK TABLES `user_rights` WRITE;
 /*!40000 ALTER TABLE `user_rights` DISABLE KEYS */;
-INSERT INTO `user_rights` VALUES ('ats','Управление ATC','access,support','доступ,ограниченный доступ',0),('clients','Работа с клиентами','read,read_filter,read_all,new,edit,restatus,edit_tele,sale_channels,file,inn_double,all4net,history_edit,client_type_change,changeback_contract_state','просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории,Изменение тип договора,Изменение статуса проверки документов на \"не проверено\"',0),('data','Данные справочников','access','доступ',0),('dictionary','Справочники','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags','Чтение справочников (всех),Редактирование: Методы билингования,Редактирование: Города,Редактирование: Страны,Редактирование: Точки входа,Редактирование: Настройки платежных документов,Редактирование: Публичные сайты,Редактирование: Регионы,Редактирование: Метки',0),('dictionary-important-event','Справочники важных событий','important-events-groups,important-events-names,important-events-sources','Редактирование: Группы событий,Редактирование: Названия событий,Редактирование: Источники событий',0),('employeers','Сотрудники','r','чтение',0),('incomegoods','Закупки','access,admin','доступ,администрирование',0),('logs','Логи','read,history_version,history_changes','Просмотр,Просмотри истории версий,Просмотр истории изменений',0),('mail','Письма клиентам','r,w','просмотр PM,работа с рассылкой',0),('mchs','Сообщения от МЧС','read,send','чтение,отправка',0),('monitoring','Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики',0),('newaccounts_balance','Баланс','read','просмотр',0),('newaccounts_bills','Счета','read,edit,delete,admin,del_docs,edit_ext','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов,Редактирование номера внешнего счета',0),('newaccounts_mass','Массовые операции','access','доступ',0),('newaccounts_payments','Платежи','read,edit,delete','просмотр,изменение,удаление',0),('newaccounts_usd','Курс доллара','access','доступ',0),('nnp','ННП','read,write','чтение,редактирование',0),('organization','Организации','read,edit','чтение,изменение',0),('person','Ответственные лица','read,edit,delete','чтение,изменение,удаление',0),('routers_devices','Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('routers_models','Модели клиентских устройств','r,w','чтение,редактирование',0),('routers_nets','Сети','r','доступ',0),('routers_routers','Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('send','Массовая отправка счетов','r,send','просмотр состояния,отправка',0),('services_additional','Дополнительные услуги','r,edit,addnew,full,activate,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение',0),('services_collocation','Collocation','r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение',0),('services_domains','Доменные имена','r,edit,addnew,close','просмотр,редактирование,добавление,отключение',0),('services_internet','Интернет','r,edit,addnew,activate,close,full,edit_off,tarif','просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)',0),('services_itpark','Услуги IT Park\'а','full','полный доступ',0),('services_mail','E-mail','r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список',0),('services_ppp','PPP-логины','r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение',0),('services_voip','IP Телефония','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера',0),('services_wellsystem','WellSystem','full','полный доступ',0),('services_welltime','WellTime','full,docs','полный доступ,документы',0),('sim','SIM-карты','read,write','чтение,редактирование',0),('stats','Статистика','r,report,vip_report,voip_recognition,sale_channel_report,onlime_read,onlime_create,onlime_full','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители,onlime просмотр отчета,onlime создание заявок,onlime полный доступ',0),('tarifs','Работа с тарифами','read,edit','чтение,изменение',0),('tt','Работа с заявками','view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit','просмотр,показывать \"Запросы клиентов\",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков',0),('usercontrol','О пользователе','read,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля,изменение всех данных,настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список',0),('users','Работа с пользователями','r,change,grant','чтение,изменение,раздача прав',0),('voip','Телефония','access,admin,catalog','доступ,администрирование,справочники',0),('voipreports','Телефония Отчеты','access,admin','доступ,администрирование',0);
+INSERT INTO `user_rights` VALUES ('ats','Управление ATC','access,support','доступ,ограниченный доступ',0),('clients','Работа с клиентами','read,read_filter,read_all,new,edit,restatus,edit_tele,sale_channels,file,inn_double,all4net,history_edit,client_type_change,changeback_contract_state','просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории,Изменение тип договора,Изменение статуса проверки документов на \"не проверено\"',0),('data','Данные справочников','access','доступ',0),('dictionary','Справочники','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags','Чтение справочников (всех),Редактирование: Методы билингования,Редактирование: Города,Редактирование: Страны,Редактирование: Точки входа,Редактирование: Настройки платежных документов,Редактирование: Публичные сайты,Редактирование: Регионы,Редактирование: Метки',0),('dictionary-important-event','Справочники важных событий','important-events-groups,important-events-names,important-events-sources','Редактирование: Группы событий,Редактирование: Названия событий,Редактирование: Источники событий',0),('dictionary-statuses','Справочник: статусы бизнес процессов','read,write','чтение,редактирование',0),('employeers','Сотрудники','r','чтение',0),('incomegoods','Закупки','access,admin','доступ,администрирование',0),('logs','Логи','read,history_version,history_changes','Просмотр,Просмотри истории версий,Просмотр истории изменений',0),('mail','Письма клиентам','r,w','просмотр PM,работа с рассылкой',0),('mchs','Сообщения от МЧС','read,send','чтение,отправка',0),('monitoring','Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики',0),('newaccounts_balance','Баланс','read','просмотр',0),('newaccounts_bills','Счета','read,edit,delete,admin,del_docs,edit_ext','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов,Редактирование номера внешнего счета',0),('newaccounts_import_payments','Импорт платежей','read,write','чтение,редактирование',0),('newaccounts_mass','Массовые операции','access','доступ',0),('newaccounts_payments','Платежи','read,edit,delete','просмотр,изменение,удаление',0),('newaccounts_usd','Курс доллара','access','доступ',0),('nnp','ННП','read,write','чтение,редактирование',0),('organization','Организации','read,edit','чтение,изменение',0),('person','Ответственные лица','read,edit,delete','чтение,изменение,удаление',0),('routers_devices','Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('routers_models','Модели клиентских устройств','r,w','чтение,редактирование',0),('routers_nets','Сети','r','доступ',0),('routers_routers','Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('send','Массовая отправка счетов','r,send','просмотр состояния,отправка',0),('services_additional','Дополнительные услуги','r,edit,addnew,full,activate,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение',0),('services_collocation','Collocation','r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение',0),('services_domains','Доменные имена','r,edit,addnew,close','просмотр,редактирование,добавление,отключение',0),('services_internet','Интернет','r,edit,addnew,activate,close,full,edit_off,tarif','просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)',0),('services_itpark','Услуги IT Park\'а','full','полный доступ',0),('services_mail','E-mail','r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список',0),('services_ppp','PPP-логины','r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение',0),('services_voip','IP Телефония','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера',0),('services_wellsystem','WellSystem','full','полный доступ',0),('services_welltime','WellTime','full,docs','полный доступ,документы',0),('sim','SIM-карты','read,write','чтение,редактирование',0),('stats','Статистика','r,report,vip_report,voip_recognition,sale_channel_report,onlime_read,onlime_create,onlime_full','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители,onlime просмотр отчета,onlime создание заявок,onlime полный доступ',0),('tarifs','Работа с тарифами','read,edit','чтение,изменение',0),('tt','Работа с заявками','view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit','просмотр,показывать \"Запросы клиентов\",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков',0),('usercontrol','О пользователе','read,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля,изменение всех данных,настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список',0),('users','Работа с пользователями','r,change,grant','чтение,изменение,раздача прав',0),('voip','Телефония','access,admin,catalog','доступ,администрирование,справочники',0),('voipreports','Телефония Отчеты','access,admin','доступ,администрирование',0);
 /*!40000 ALTER TABLE `user_rights` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7929,7 +8025,7 @@ CREATE TABLE `user_users` (
   `color` varchar(7) NOT NULL DEFAULT '',
   `trouble_redirect` varchar(50) DEFAULT NULL,
   `email` varchar(64) DEFAULT NULL,
-  `icq` varchar(20) DEFAULT NULL,
+  `rocket_nick` varchar(20) DEFAULT NULL,
   `photo` varchar(4) DEFAULT NULL,
   `data_panel` text,
   `phone_work` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
@@ -7960,7 +8056,7 @@ CREATE TABLE `user_users` (
 
 LOCK TABLES `user_users` WRITE;
 /*!40000 ALTER TABLE `user_users` DISABLE KEYS */;
-INSERT INTO `user_users` VALUES (1,'admin','698d51a19d8a121ce581499d7b701668','admin','Администратор стата','','','','',NULL,'a:24:{s:11:\"newaccounts\";i:1;s:7:\"modules\";i:0;s:10:\"monitoring\";i:1;s:7:\"routers\";i:1;s:5:\"users\";i:1;s:7:\"clients\";i:1;s:8:\"services\";i:1;s:2:\"tt\";i:1;s:10:\"employeers\";i:0;s:5:\"stats\";i:1;s:4:\"mail\";i:1;s:6:\"tarifs\";i:1;s:5:\"phone\";i:0;s:3:\"pay\";i:0;s:4:\"voip\";i:0;s:11:\"usercontrol\";i:0;s:14:\"clientaccounts\";i:0;s:3:\"ats\";i:1;s:11:\"incomegoods\";i:1;s:7:\"voipnew\";i:0;s:11:\"voipreports\";i:0;s:6:\"yandex\";i:0;s:4:\"ats2\";i:1;s:4:\"logs\";i:1;}','','','a:12:{s:8:\"tt_tasks\";i:2;s:9:\"statusbox\";i:1;s:21:\"tt_shop_orders_folder\";i:2;s:17:\"tt_trouble_folder\";i:512;s:26:\"tt_support_welltime_folder\";i:1;s:14:\"balance_simple\";s:1:\"0\";s:25:\"tt_mounting_orders_folder\";i:1;s:14:\"tt_task_folder\";i:256;s:19:\"tt_orders_kp_folder\";i:2;s:24:\"tt_order_welltime_folder\";i:2;s:21:\"tt_incomegoods_folder\";i:34359738368;s:17:\"tt_connect_folder\";i:35184372088832;}',27,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,''),(70,'kim','1882a5efe473e3d2c889aa311d8c0b03','manager','Default manager','',NULL,NULL,NULL,NULL,'',NULL,NULL,'',NULL,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,''),(60,'system','1882a5efe473e3d2c889aa311d8c0b03','virtual','Системный пользователь','',NULL,NULL,NULL,NULL,'',NULL,NULL,'',NULL,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,''),(177,'lk','1882a5efe473e3d2c889aa311d8c0b03','virtual','LK user','',NULL,NULL,NULL,NULL,'',NULL,NULL,'',NULL,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,'');
+INSERT INTO `user_users` VALUES (1,'admin','698d51a19d8a121ce581499d7b701668','admin','Администратор стата','','','','',NULL,'a:24:{s:11:\"newaccounts\";i:1;s:7:\"modules\";i:0;s:10:\"monitoring\";i:1;s:7:\"routers\";i:1;s:5:\"users\";i:1;s:7:\"clients\";i:1;s:8:\"services\";i:1;s:2:\"tt\";i:1;s:10:\"employeers\";i:0;s:5:\"stats\";i:1;s:4:\"mail\";i:1;s:6:\"tarifs\";i:1;s:5:\"phone\";i:0;s:3:\"pay\";i:0;s:4:\"voip\";i:0;s:11:\"usercontrol\";i:0;s:14:\"clientaccounts\";i:0;s:3:\"ats\";i:1;s:11:\"incomegoods\";i:1;s:7:\"voipnew\";i:0;s:11:\"voipreports\";i:0;s:6:\"yandex\";i:0;s:4:\"ats2\";i:1;s:4:\"logs\";i:1;}','','','a:12:{s:8:\"tt_tasks\";i:2;s:9:\"statusbox\";i:1;s:21:\"tt_shop_orders_folder\";i:2;s:17:\"tt_trouble_folder\";i:512;s:26:\"tt_support_welltime_folder\";i:1;s:14:\"balance_simple\";s:1:\"0\";s:25:\"tt_mounting_orders_folder\";i:1;s:14:\"tt_task_folder\";i:256;s:19:\"tt_orders_kp_folder\";i:2;s:24:\"tt_order_welltime_folder\";i:2;s:21:\"tt_incomegoods_folder\";i:34359738368;s:17:\"tt_connect_folder\";i:35184372088832;}',27,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,''),(60,'system','1882a5efe473e3d2c889aa311d8c0b03','virtual','Системный пользователь','',NULL,NULL,'',NULL,'',NULL,NULL,'',NULL,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,''),(70,'kim','1882a5efe473e3d2c889aa311d8c0b03','manager','Default manager','',NULL,NULL,'',NULL,'',NULL,NULL,'',NULL,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,''),(177,'lk','1882a5efe473e3d2c889aa311d8c0b03','virtual','LK user','',NULL,NULL,'',NULL,'',NULL,NULL,'',NULL,'yes',0,0,NULL,'Europe/Moscow','ru-RU',NULL,'');
 /*!40000 ALTER TABLE `user_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8023,8 +8119,6 @@ CREATE TABLE `uu_account_log_min` (
   `account_entry_id` int(11) DEFAULT NULL,
   `period_price` decimal(13,4) DEFAULT NULL,
   `coefficient` decimal(13,6) DEFAULT NULL,
-  `price_with_coefficient` decimal(13,4) DEFAULT NULL,
-  `price_resource` decimal(13,4) DEFAULT NULL,
   `price` decimal(13,4) DEFAULT NULL,
   `insert_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -8200,6 +8294,8 @@ CREATE TABLE `uu_account_tariff` (
   `device_address` varchar(1024) NOT NULL DEFAULT '',
   `tariff_period_utc` datetime DEFAULT NULL,
   `account_log_period_utc` datetime DEFAULT NULL,
+  `account_log_resource_utc` datetime DEFAULT NULL,
+  `calltracking_params` text,
   PRIMARY KEY (`id`),
   KEY `fk-uu_account_tariff-client_account_id` (`client_account_id`),
   KEY `fk-uu_account_tariff-service_type_id` (`service_type_id`),
@@ -8231,6 +8327,35 @@ CREATE TABLE `uu_account_tariff` (
 LOCK TABLES `uu_account_tariff` WRITE;
 /*!40000 ALTER TABLE `uu_account_tariff` DISABLE KEYS */;
 /*!40000 ALTER TABLE `uu_account_tariff` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uu_account_tariff_heap`
+--
+
+DROP TABLE IF EXISTS `uu_account_tariff_heap`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `uu_account_tariff_heap` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_tariff_id` int(11) NOT NULL,
+  `test_connect_date` datetime DEFAULT NULL COMMENT 'Дата включения на тестовый тариф',
+  `date_sale` datetime DEFAULT NULL COMMENT 'Дата продажи',
+  `date_before_sale` datetime DEFAULT NULL COMMENT 'Дата допродажи',
+  `disconnect_date` datetime DEFAULT NULL COMMENT 'Дата отключения',
+  PRIMARY KEY (`id`),
+  KEY `account_tariff_id_idx` (`account_tariff_id`),
+  CONSTRAINT `account_tariff_id_fk` FOREIGN KEY (`account_tariff_id`) REFERENCES `uu_account_tariff` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uu_account_tariff_heap`
+--
+
+LOCK TABLES `uu_account_tariff_heap` WRITE;
+/*!40000 ALTER TABLE `uu_account_tariff_heap` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uu_account_tariff_heap` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -8299,6 +8424,74 @@ CREATE TABLE `uu_account_tariff_resource_log` (
 LOCK TABLES `uu_account_tariff_resource_log` WRITE;
 /*!40000 ALTER TABLE `uu_account_tariff_resource_log` DISABLE KEYS */;
 /*!40000 ALTER TABLE `uu_account_tariff_resource_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uu_account_tariff_voip_flat`
+--
+
+DROP TABLE IF EXISTS `uu_account_tariff_voip_flat`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `uu_account_tariff_voip_flat` (
+  `account_tariff_id` int(11) DEFAULT NULL COMMENT 'ID услуги',
+  `tariff_period` varchar(255) DEFAULT NULL COMMENT 'У-услуга',
+  `tariff_is_include_vat` tinyint(1) DEFAULT NULL COMMENT 'Включая НДС',
+  `tariff_is_postpaid` tinyint(1) DEFAULT NULL COMMENT 'Постоплата',
+  `tariff_country` varchar(255) DEFAULT NULL COMMENT 'Страна',
+  `tariff_currency` varchar(255) DEFAULT NULL COMMENT 'Валюта',
+  `tariff_organization` varchar(255) DEFAULT NULL COMMENT 'Организации',
+  `tariff_is_default` tinyint(1) DEFAULT NULL COMMENT 'По умолчанию',
+  `tariff_status` varchar(255) DEFAULT NULL COMMENT 'Статус тарифа',
+  `client_account` varchar(255) DEFAULT NULL COMMENT 'УЛС',
+  `region` varchar(255) DEFAULT NULL COMMENT 'Регион (точка подключения)',
+  `comment` varchar(255) DEFAULT NULL COMMENT 'Комментарий',
+  `tariff_period_utc` datetime DEFAULT NULL COMMENT 'Дата последней смены тарифа',
+  `account_log_period_utc` datetime DEFAULT NULL COMMENT 'Абонентка списана до',
+  `city` varchar(255) DEFAULT NULL COMMENT 'Город',
+  `voip_number` bigint(20) DEFAULT NULL COMMENT 'Номер',
+  `beauty_level` varchar(255) DEFAULT NULL COMMENT 'Красивость',
+  `ndc_type` varchar(255) DEFAULT NULL COMMENT 'Тип NDC',
+  `test_connect_date` datetime DEFAULT NULL COMMENT 'Дата включения на тестовый тариф',
+  `date_sale` datetime DEFAULT NULL COMMENT 'Дата продажи',
+  `date_before_sale` datetime DEFAULT NULL COMMENT 'Дата допродажи',
+  `disconnect_date` datetime DEFAULT NULL COMMENT 'Дата отключения',
+  `account_manager_name` varchar(255) DEFAULT NULL COMMENT 'Ак. менеджер'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uu_account_tariff_voip_flat`
+--
+
+LOCK TABLES `uu_account_tariff_voip_flat` WRITE;
+/*!40000 ALTER TABLE `uu_account_tariff_voip_flat` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uu_account_tariff_voip_flat` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uu_account_troubles`
+--
+
+DROP TABLE IF EXISTS `uu_account_troubles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `uu_account_troubles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_tariff_id` int(11) NOT NULL,
+  `trouble_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `account_tariff_id_idx` (`account_tariff_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uu_account_troubles`
+--
+
+LOCK TABLES `uu_account_troubles` WRITE;
+/*!40000 ALTER TABLE `uu_account_troubles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uu_account_troubles` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -8401,7 +8594,7 @@ CREATE TABLE `uu_resource` (
   PRIMARY KEY (`id`),
   KEY `fk-uu_resource-service_type_id` (`service_type_id`),
   CONSTRAINT `fk-uu_resource-service_type_id` FOREIGN KEY (`service_type_id`) REFERENCES `uu_service_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8410,7 +8603,7 @@ CREATE TABLE `uu_resource` (
 
 LOCK TABLES `uu_resource` WRITE;
 /*!40000 ALTER TABLE `uu_resource` DISABLE KEYS */;
-INSERT INTO `uu_resource` VALUES (1,'Дисковое пространство','Gb',0.000000,NULL,1),(2,'Абоненты','Unit',0.000000,NULL,1),(3,'Подключение номера другого оператора','Unit',0.000000,NULL,1),(4,'Запись звонков','',0.000000,1.000000,1),(6,'Факс','',0.000000,1.000000,1),(7,'Линии','Unit',1.000000,NULL,2),(9,'Трафик','Mb',0.000000,NULL,4),(10,'Трафик','Mb',0.000000,NULL,5),(13,'Трафик','Mb',0.000000,NULL,6),(14,'СМС','Unit',0.000000,NULL,17),(15,'Процессор','Hz',0.000000,NULL,20),(16,'Дисковое пространство','Mb',0.000000,NULL,20),(17,'Оперативная память','Mb',0.000000,NULL,20),(18,'Стоимость','¤',0.000000,NULL,21),(19,'Маршрутизация по минимальной цене','',0.000000,1.000000,1),(20,'Маршрутизация по географии','',0.000000,1.000000,1),(38,'FMC','',0.000000,1.000000,2),(39,'Лимиты по субсчетам','',0.000000,1.000000,1),(40,'Звонки','¤',0.000000,NULL,3),(41,'Звонки','¤',0.000000,NULL,23),(42,'Трафик','Mb',0.000000,NULL,25),(43,'Исх. моб. связь','',0.000000,1.000000,2),(44,'Номера','Unit',0.000000,NULL,27);
+INSERT INTO `uu_resource` VALUES (1,'Дисковое пространство','Gb',0.000000,NULL,1),(2,'Абоненты','Unit',0.000000,NULL,1),(3,'Подключение номера другого оператора','Unit',0.000000,NULL,1),(4,'Запись звонков','',0.000000,1.000000,1),(6,'Факс','',0.000000,1.000000,1),(7,'Линии','Unit',1.000000,NULL,2),(9,'Трафик','Mb',0.000000,NULL,4),(10,'Трафик','Mb',0.000000,NULL,5),(13,'Трафик','Mb',0.000000,NULL,6),(14,'СМС','Unit',0.000000,NULL,17),(15,'Процессор','Hz',0.000000,NULL,20),(16,'Дисковое пространство','Mb',0.000000,NULL,20),(17,'Оперативная память','Mb',0.000000,NULL,20),(18,'Стоимость','¤',0.000000,NULL,21),(19,'Маршрутизация по минимальной цене','',0.000000,1.000000,1),(20,'Маршрутизация по географии','',0.000000,1.000000,1),(38,'FMC','',0.000000,1.000000,2),(39,'Лимиты по субсчетам','',0.000000,1.000000,1),(40,'Звонки','¤',0.000000,NULL,3),(41,'Звонки','¤',0.000000,NULL,23),(42,'Трафик','Mb',0.000000,NULL,25),(43,'Исх. моб. связь','',0.000000,1.000000,2),(44,'Номера','Unit',0.000000,NULL,27),(45,'Aрендовано минут','min',0.005000,NULL,29);
 /*!40000 ALTER TABLE `uu_resource` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8429,7 +8622,7 @@ CREATE TABLE `uu_service_type` (
   PRIMARY KEY (`id`),
   KEY `fk-uu_service_type-parent_id` (`parent_id`),
   CONSTRAINT `fk-uu_service_type-parent_id` FOREIGN KEY (`parent_id`) REFERENCES `uu_service_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8438,7 +8631,7 @@ CREATE TABLE `uu_service_type` (
 
 LOCK TABLES `uu_service_type` WRITE;
 /*!40000 ALTER TABLE `uu_service_type` DISABLE KEYS */;
-INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL,60),(2,'Телефония',NULL,60),(3,'Телефония. Пакет звонков',2,60),(4,'Интернет',NULL,60),(5,'Collocation',NULL,60),(6,'VPN',NULL,60),(7,'IT Park',NULL,60),(8,'Регистрация доменов',NULL,60),(9,'Виртуальный почтовый сервер',NULL,60),(10,'Старый ВАТС',NULL,60),(11,'Сайт',NULL,60),(12,'Провайдер',NULL,60),(13,'Wellsystem',NULL,60),(14,'Welltime как продукт',NULL,60),(15,'Дополнительные услуги',NULL,60),(16,'SMS Gate',NULL,60),(17,'Телефония. Пакет СМС',2,60),(18,'Welltime как сервис',NULL,60),(19,'Звонок-чат',NULL,60),(20,'VM collocation',NULL,60),(21,'Разовая услуга',NULL,60),(22,'Транк',NULL,60),(23,'Транк. Пакет оригинации',22,60),(24,'Транк. Пакет терминации',22,60),(25,'Телефония. Пакет интернета',2,60),(26,'Инфраструктура',NULL,60),(27,'ННП',NULL,60);
+INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL,60),(2,'Телефония',NULL,60),(3,'Телефония. Пакет звонков',2,60),(4,'Интернет',NULL,60),(5,'Collocation',NULL,60),(6,'VPN',NULL,60),(7,'IT Park',NULL,60),(8,'Регистрация доменов',NULL,60),(9,'Виртуальный почтовый сервер',NULL,60),(10,'Старый ВАТС',NULL,60),(11,'Сайт',NULL,60),(12,'Провайдер',NULL,60),(13,'Wellsystem',NULL,60),(14,'Welltime как продукт',NULL,60),(15,'Дополнительные услуги',NULL,60),(16,'SMS Gate',NULL,60),(17,'Телефония. Пакет СМС',2,60),(18,'Welltime как сервис',NULL,60),(19,'Звонок-чат',NULL,60),(20,'VPS',NULL,60),(21,'Разовая услуга',NULL,60),(22,'Транк',NULL,60),(23,'Транк. Пакет оригинации',22,60),(24,'Транк. Пакет терминации',22,60),(25,'Телефония. Пакет интернета',2,60),(26,'Инфраструктура',NULL,60),(27,'ННП',NULL,60),(29,'CallTracking',NULL,60);
 /*!40000 ALTER TABLE `uu_service_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8460,7 +8653,6 @@ CREATE TABLE `uu_tariff` (
   `currency_id` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
   `service_type_id` int(11) NOT NULL,
   `tariff_status_id` int(11) NOT NULL,
-  `country_id` int(11) NOT NULL,
   `tariff_person_id` int(11) NOT NULL,
   `insert_time` datetime DEFAULT NULL,
   `insert_user_id` int(11) DEFAULT NULL,
@@ -8471,18 +8663,17 @@ CREATE TABLE `uu_tariff` (
   `vm_id` int(11) DEFAULT NULL,
   `is_postpaid` int(11) NOT NULL DEFAULT '0',
   `tag_id` int(11) DEFAULT NULL,
+  `count_of_carry_period` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `fk-uu_tariff-currency_id` (`currency_id`),
   KEY `fk-uu_tariff-service_type_id` (`service_type_id`),
   KEY `fk-uu_tariff-tariff_status_id` (`tariff_status_id`),
-  KEY `fk-uu_tariff-country_id` (`country_id`),
   KEY `fk-uu_tariff-tariff_person_id` (`tariff_person_id`),
   KEY `fk-uu_tariff-insert_user_id` (`insert_user_id`),
   KEY `fk-uu_tariff-update_user_id` (`update_user_id`),
   KEY `fk-uu_tariff-voip_group_id` (`voip_group_id`),
   KEY `fk-uu_tariff-vm_id` (`vm_id`),
   KEY `tag_id` (`tag_id`),
-  CONSTRAINT `fk-uu_tariff-country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`),
   CONSTRAINT `fk-uu_tariff-currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`),
   CONSTRAINT `fk-uu_tariff-insert_user_id` FOREIGN KEY (`insert_user_id`) REFERENCES `user_users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk-uu_tariff-service_type_id` FOREIGN KEY (`service_type_id`) REFERENCES `uu_service_type` (`id`),
@@ -8501,8 +8692,37 @@ CREATE TABLE `uu_tariff` (
 
 LOCK TABLES `uu_tariff` WRITE;
 /*!40000 ALTER TABLE `uu_tariff` DISABLE KEYS */;
-INSERT INTO `uu_tariff` VALUES (10000,'Разовая услуга',0,0,0,1,1,'RUB',21,2,643,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL,0,NULL),(10001,'Single-Service',0,0,0,1,1,'EUR',21,2,276,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL,0,NULL),(10002,'Jedno-time ponuka',0,0,0,1,1,'EUR',21,2,703,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL,0,NULL),(10003,'Egyszeri ajánlat',0,0,0,1,1,'HUF',21,2,348,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL,0,NULL);
+INSERT INTO `uu_tariff` VALUES (10000,'Разовая услуга',0,0,0,1,1,'RUB',21,2,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL,0,NULL,0),(10001,'Single-Service',0,0,0,1,1,'EUR',21,2,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL,0,NULL,0),(10002,'Jedno-time ponuka',0,0,0,1,1,'EUR',21,2,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL,0,NULL,0),(10003,'Egyszeri ajánlat',0,0,0,1,1,'HUF',21,2,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL,0,NULL,0);
 /*!40000 ALTER TABLE `uu_tariff` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uu_tariff_country`
+--
+
+DROP TABLE IF EXISTS `uu_tariff_country`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `uu_tariff_country` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tariff_id` int(11) NOT NULL,
+  `country_id` int(4) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `country_id_fk` (`country_id`),
+  KEY `tariff_id_fk` (`tariff_id`),
+  CONSTRAINT `country_id_fk` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`),
+  CONSTRAINT `tariff_id_fk` FOREIGN KEY (`tariff_id`) REFERENCES `uu_tariff` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uu_tariff_country`
+--
+
+LOCK TABLES `uu_tariff_country` WRITE;
+/*!40000 ALTER TABLE `uu_tariff_country` DISABLE KEYS */;
+INSERT INTO `uu_tariff_country` VALUES (1,10001,276),(2,10003,348),(3,10000,643),(4,10002,703);
+/*!40000 ALTER TABLE `uu_tariff_country` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -8543,7 +8763,7 @@ CREATE TABLE `uu_tariff_period` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `price_per_period` decimal(13,4) DEFAULT NULL,
   `price_setup` decimal(13,4) DEFAULT NULL,
-  `price_min` decimal(13,4) DEFAULT NULL,
+  `price_min` int(11) DEFAULT NULL,
   `tariff_id` int(11) NOT NULL,
   `charge_period_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -8560,7 +8780,7 @@ CREATE TABLE `uu_tariff_period` (
 
 LOCK TABLES `uu_tariff_period` WRITE;
 /*!40000 ALTER TABLE `uu_tariff_period` DISABLE KEYS */;
-INSERT INTO `uu_tariff_period` VALUES (1,0.0000,0.0000,0.0000,10000,1),(2,0.0000,0.0000,0.0000,10001,1),(3,0.0000,0.0000,0.0000,10002,1),(4,0.0000,0.0000,0.0000,10003,1);
+INSERT INTO `uu_tariff_period` VALUES (1,0.0000,0.0000,0,10000,1),(2,0.0000,0.0000,0,10001,1),(3,0.0000,0.0000,0,10002,1),(4,0.0000,0.0000,0,10003,1);
 /*!40000 ALTER TABLE `uu_tariff_period` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8892,6 +9112,10 @@ CREATE TABLE `voip_numbers` (
   `is_service` int(11) NOT NULL DEFAULT '0',
   `fmc_trunk_id` int(11) DEFAULT NULL,
   `mvno_trunk_id` int(11) DEFAULT NULL,
+  `imsi` bigint(20) DEFAULT NULL,
+  `warehouse_status_id` int(11) DEFAULT NULL,
+  `nnp_operator_id` int(11) DEFAULT NULL,
+  `usr_operator_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`number`),
   UNIQUE KEY `voip_numbers__number_tech` (`number_tech`),
   KEY `region` (`region`),
@@ -8911,7 +9135,7 @@ CREATE TABLE `voip_numbers` (
 
 LOCK TABLES `voip_numbers` WRITE;
 /*!40000 ALTER TABLE `voip_numbers` DISABLE KEYS */;
-INSERT INTO `voip_numbers` VALUES ('36192130018','instock',NULL,NULL,NULL,NULL,4,81,NULL,NULL,NULL,NULL,NULL,NULL,361,224,NULL,NULL,348,192,NULL,NULL,NULL,'18',NULL,NULL,NULL,0,1,0,NULL,NULL),('36192130019','instock',NULL,NULL,NULL,NULL,0,81,NULL,NULL,NULL,NULL,NULL,NULL,361,223,NULL,NULL,348,192,NULL,NULL,NULL,'19',NULL,NULL,NULL,0,1,0,NULL,NULL),('36192130020','instock',NULL,NULL,NULL,NULL,0,81,NULL,NULL,NULL,NULL,NULL,NULL,361,223,NULL,NULL,348,192,NULL,NULL,NULL,'20',NULL,NULL,NULL,0,1,0,NULL,NULL),('74952130002','instock',NULL,NULL,NULL,NULL,4,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,6,NULL,NULL,643,495,NULL,NULL,NULL,'02',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992100001','instock',NULL,NULL,NULL,NULL,1,99,35827,14352,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,499,NULL,NULL,NULL,'06',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992100002','instock',NULL,NULL,NULL,NULL,1,99,35834,14356,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,499,NULL,NULL,NULL,'07',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992100003','instock',NULL,NULL,NULL,NULL,1,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,499,NULL,NULL,NULL,'10',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130001','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'01',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130003','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'03',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130004','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'04',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130005','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'05',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130006','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'06',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130007','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'07',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130008','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'08',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130009','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'09',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130010','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'10',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130011','instock',NULL,NULL,NULL,NULL,0,99,35828,14353,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'11',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130012','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'12',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130013','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'13',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130014','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'14',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130015','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'15',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130016','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'16',NULL,NULL,NULL,0,1,0,NULL,NULL),('74992130017','instock',NULL,NULL,NULL,NULL,0,99,35832,14355,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'17',NULL,NULL,NULL,0,1,0,NULL,NULL),('78002003001','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,800,NULL,NULL,NULL,'01',NULL,NULL,NULL,0,4,0,NULL,NULL),('78002003002','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,800,NULL,NULL,NULL,'02',NULL,NULL,NULL,0,4,0,NULL,NULL),('78002003012','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410544',38319,643,800,'2003012','2016-11-08 12:11:46',NULL,'12',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503001','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410586',38319,643,800,'3503001','2016-11-08 12:11:46',NULL,'01',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503004','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410587',38319,643,800,'3503004','2016-11-08 12:11:46',NULL,'04',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503006','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410588',38319,643,800,'3503006','2016-11-08 12:11:46',NULL,'06',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503007','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410589',38319,643,800,'3503007','2016-11-08 12:11:46',NULL,'07',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503008','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410590',38319,643,800,'3503008','2016-11-08 12:11:46',NULL,'08',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503009','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410591',38319,643,800,'3503009','2016-11-08 12:11:46',NULL,'09',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503012','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410592',38319,643,800,'3503012','2016-11-08 12:11:46',NULL,'12',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503013','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410593',38319,643,800,'3503013','2016-11-08 12:11:46',NULL,'13',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503014','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410594',38319,643,800,'3503014','2016-11-08 12:11:46',NULL,'14',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503015','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410595',38319,643,800,'3503015','2016-11-08 12:11:46',NULL,'15',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503016','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410596',38319,643,800,'3503016','2016-11-08 12:11:46',NULL,'16',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503017','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410597',38319,643,800,'3503017','2016-11-08 12:11:46',NULL,'17',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503021','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410598',38319,643,800,'3503021','2016-11-08 12:11:46',NULL,'21',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503023','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410599',38319,643,800,'3503023','2016-11-08 12:11:46',NULL,'23',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503024','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410600',38319,643,800,'3503024','2016-11-08 12:11:46',NULL,'24',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503025','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410601',38319,643,800,'3503025','2016-11-08 12:11:46',NULL,'25',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503026','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410602',38319,643,800,'3503026','2016-11-08 12:11:46',NULL,'26',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503027','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410603',38319,643,800,'3503027','2016-11-08 12:11:46',NULL,'27',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503031','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410604',38319,643,800,'3503031','2016-11-08 12:11:46',NULL,'31',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503032','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410605',38319,643,800,'3503032','2016-11-08 12:11:46',NULL,'32',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503034','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410606',38319,643,800,'3503034','2016-11-08 12:11:46',NULL,'34',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503036','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410607',38319,643,800,'3503036','2016-11-08 12:11:46',NULL,'36',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503037','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410608',38319,643,800,'3503037','2016-11-08 12:11:46',NULL,'37',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503038','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410609',38319,643,800,'3503038','2016-11-08 12:11:46',NULL,'38',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503041','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410610',38319,643,800,'3503041','2016-11-08 12:11:46',NULL,'41',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503042','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410611',38319,643,800,'3503042','2016-11-08 12:11:46',NULL,'42',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503043','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410612',38319,643,800,'3503043','2016-11-08 12:11:46',NULL,'43',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503045','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410613',38319,643,800,'3503045','2016-11-08 12:11:46',NULL,'45',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503046','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410614',38319,643,800,'3503046','2016-11-08 12:11:46',NULL,'46',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503047','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410615',38319,643,800,'3503047','2016-11-08 12:11:46',NULL,'47',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503051','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410616',38319,643,800,'3503051','2016-11-08 12:11:46',NULL,'51',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503052','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410617',38319,643,800,'3503052','2016-11-08 12:11:46',NULL,'52',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503054','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410618',38319,643,800,'3503054','2016-11-08 12:11:46',NULL,'54',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503056','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410619',38319,643,800,'3503056','2016-11-08 12:11:46',NULL,'56',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503057','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410620',38319,643,800,'3503057','2016-11-08 12:11:46',NULL,'57',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503058','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410621',38319,643,800,'3503058','2016-11-08 12:11:46',NULL,'58',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503061','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410622',38319,643,800,'3503061','2016-11-08 12:11:46',NULL,'61',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503062','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410623',38319,643,800,'3503062','2016-11-08 12:11:46',NULL,'62',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503063','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410624',38319,643,800,'3503063','2016-11-08 12:11:46',NULL,'63',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503064','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410625',38319,643,800,'3503064','2016-11-08 12:11:46',NULL,'64',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503065','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410626',38319,643,800,'3503065','2016-11-08 12:11:46',NULL,'65',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503067','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410627',38319,643,800,'3503067','2016-11-08 12:11:46',NULL,'67',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503071','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410628',38319,643,800,'3503071','2016-11-08 12:11:46',NULL,'71',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503072','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410629',38319,643,800,'3503072','2016-11-08 12:11:46',NULL,'72',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503073','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410630',38319,643,800,'3503073','2016-11-08 12:11:46',NULL,'73',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503074','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410631',38319,643,800,'3503074','2016-11-08 12:11:46',NULL,'74',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503075','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410632',38319,643,800,'3503075','2016-11-08 12:11:46',NULL,'75',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503076','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410633',38319,643,800,'3503076','2016-11-08 12:11:46',NULL,'76',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503081','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410634',38319,643,800,'3503081','2016-11-08 12:11:46',NULL,'81',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503082','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410635',38319,643,800,'3503082','2016-11-08 12:11:46',NULL,'82',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503083','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410636',38319,643,800,'3503083','2016-11-08 12:11:46',NULL,'83',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503084','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410637',38319,643,800,'3503084','2016-11-08 12:11:46',NULL,'84',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503085','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410638',38319,643,800,'3503085','2016-11-08 12:11:46',NULL,'85',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503086','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410639',38319,643,800,'3503086','2016-11-08 12:11:46',NULL,'86',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503091','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410640',38319,643,800,'3503091','2016-11-08 12:11:46',NULL,'91',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503092','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410641',38319,643,800,'3503092','2016-11-08 12:11:46',NULL,'92',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503093','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410642',38319,643,800,'3503093','2016-11-08 12:11:46',NULL,'93',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503094','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410643',38319,643,800,'3503094','2016-11-08 12:11:46',NULL,'94',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503095','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410644',38319,643,800,'3503095','2016-11-08 12:11:46',NULL,'95',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503096','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410645',38319,643,800,'3503096','2016-11-08 12:11:46',NULL,'96',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503101','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410546',38319,643,800,'3503101','2016-11-08 12:11:46',NULL,'01',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503102','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410547',38319,643,800,'3503102','2016-11-08 12:11:46',NULL,'02',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503103','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410548',38319,643,800,'3503103','2016-11-08 12:11:46',NULL,'03',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503104','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410549',38319,643,800,'3503104','2016-11-08 12:11:46',NULL,'04',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503105','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410550',38319,643,800,'3503105','2016-11-08 12:11:46',NULL,'05',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503106','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410551',38319,643,800,'3503106','2016-11-08 12:11:46',NULL,'06',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503107','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410552',38319,643,800,'3503107','2016-11-08 12:11:46',NULL,'07',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503108','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410553',38319,643,800,'3503108','2016-11-08 12:11:46',NULL,'08',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503109','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410554',38319,643,800,'3503109','2016-11-08 12:11:46',NULL,'09',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503110','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410555',38319,643,800,'3503110','2016-11-08 12:11:46',NULL,'10',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503112','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410556',38319,643,800,'3503112','2016-11-08 12:11:46',NULL,'12',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503114','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410557',38319,643,800,'3503114','2016-11-08 12:11:46',NULL,'14',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503115','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410558',38319,643,800,'3503115','2016-11-08 12:11:46',NULL,'15',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503116','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410559',38319,643,800,'3503116','2016-11-08 12:11:46',NULL,'16',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503117','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410560',38319,643,800,'3503117','2016-11-08 12:11:46',NULL,'17',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503118','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410561',38319,643,800,'3503118','2016-11-08 12:11:46',NULL,'18',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503119','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410562',38319,643,800,'3503119','2016-11-08 12:11:46',NULL,'19',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503120','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410563',38319,643,800,'3503120','2016-11-08 12:11:46',NULL,'20',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503121','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410564',38319,643,800,'3503121','2016-11-08 12:11:46',NULL,'21',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503123','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410565',38319,643,800,'3503123','2016-11-08 12:11:46',NULL,'23',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503124','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410566',38319,643,800,'3503124','2016-11-08 12:11:46',NULL,'24',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503125','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410567',38319,643,800,'3503125','2016-11-08 12:11:46',NULL,'25',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503126','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410568',38319,643,800,'3503126','2016-11-08 12:11:46',NULL,'26',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503127','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410569',38319,643,800,'3503127','2016-11-08 12:11:46',NULL,'27',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503128','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410570',38319,643,800,'3503128','2016-11-08 12:11:46',NULL,'28',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503129','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410571',38319,643,800,'3503129','2016-11-08 12:11:46',NULL,'29',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503130','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410572',38319,643,800,'3503130','2016-11-08 12:11:46',NULL,'30',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503132','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410573',38319,643,800,'3503132','2016-11-08 12:11:46',NULL,'32',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503134','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410574',38319,643,800,'3503134','2016-11-08 12:11:46',NULL,'34',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503136','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410575',38319,643,800,'3503136','2016-11-08 12:11:46',NULL,'36',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503137','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410576',38319,643,800,'3503137','2016-11-08 12:11:46',NULL,'37',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503138','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410577',38319,643,800,'3503138','2016-11-08 12:11:46',NULL,'38',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503139','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410578',38319,643,800,'3503139','2016-11-08 12:11:46',NULL,'39',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503140','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410579',38319,643,800,'3503140','2016-11-08 12:11:46',NULL,'40',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503141','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410580',38319,643,800,'3503141','2016-11-08 12:11:46',NULL,'41',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503151','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410581',38319,643,800,'3503151','2016-11-08 12:11:46',NULL,'51',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503152','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410582',38319,643,800,'3503152','2016-11-08 12:11:46',NULL,'52',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503160','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410583',38319,643,800,'3503160','2016-11-08 12:11:46',NULL,'60',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503170','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410584',38319,643,800,'3503170','2016-11-08 12:11:46',NULL,'70',NULL,NULL,NULL,0,4,0,NULL,NULL),('78003503190','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410585',38319,643,800,'3503190','2016-11-08 12:11:46',NULL,'90',NULL,NULL,NULL,0,4,0,NULL,NULL);
+INSERT INTO `voip_numbers` VALUES ('36192130018','instock',NULL,NULL,NULL,NULL,4,81,NULL,NULL,NULL,NULL,NULL,NULL,361,224,NULL,NULL,348,192,NULL,NULL,NULL,'18',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('36192130019','instock',NULL,NULL,NULL,NULL,0,81,NULL,NULL,NULL,NULL,NULL,NULL,361,223,NULL,NULL,348,192,NULL,NULL,NULL,'19',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('36192130020','instock',NULL,NULL,NULL,NULL,0,81,NULL,NULL,NULL,NULL,NULL,NULL,361,223,NULL,NULL,348,192,NULL,NULL,NULL,'20',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74952130002','instock',NULL,NULL,NULL,NULL,4,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,6,NULL,NULL,643,495,NULL,NULL,NULL,'02',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992100001','instock',NULL,NULL,NULL,NULL,1,99,35827,14352,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,499,NULL,NULL,NULL,'06',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992100002','instock',NULL,NULL,NULL,NULL,1,99,35834,14356,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,499,NULL,NULL,NULL,'07',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992100003','instock',NULL,NULL,NULL,NULL,1,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,499,NULL,NULL,NULL,'10',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130001','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'01',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130003','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'03',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130004','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'04',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130005','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'05',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130006','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'06',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130007','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'07',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130008','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'08',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130009','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'09',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130010','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'10',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130011','instock',NULL,NULL,NULL,NULL,0,99,35828,14353,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'11',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130012','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'12',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130013','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'13',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130014','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'14',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130015','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'15',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130016','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'16',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('74992130017','instock',NULL,NULL,NULL,NULL,0,99,35832,14355,NULL,NULL,NULL,NULL,7495,2,NULL,NULL,643,499,NULL,NULL,NULL,'17',NULL,NULL,NULL,0,1,0,NULL,NULL,NULL,NULL,NULL,NULL),('78002003001','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,800,NULL,NULL,NULL,'01',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78002003002','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,7495,NULL,NULL,NULL,643,800,NULL,NULL,NULL,'02',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78002003012','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410544',38319,643,800,'2003012','2016-11-08 12:11:46',NULL,'12',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503001','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410586',38319,643,800,'3503001','2016-11-08 12:11:46',NULL,'01',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503004','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410587',38319,643,800,'3503004','2016-11-08 12:11:46',NULL,'04',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503006','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410588',38319,643,800,'3503006','2016-11-08 12:11:46',NULL,'06',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503007','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410589',38319,643,800,'3503007','2016-11-08 12:11:46',NULL,'07',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503008','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410590',38319,643,800,'3503008','2016-11-08 12:11:46',NULL,'08',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503009','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410591',38319,643,800,'3503009','2016-11-08 12:11:46',NULL,'09',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503012','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410592',38319,643,800,'3503012','2016-11-08 12:11:46',NULL,'12',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503013','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410593',38319,643,800,'3503013','2016-11-08 12:11:46',NULL,'13',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503014','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410594',38319,643,800,'3503014','2016-11-08 12:11:46',NULL,'14',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503015','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410595',38319,643,800,'3503015','2016-11-08 12:11:46',NULL,'15',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503016','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410596',38319,643,800,'3503016','2016-11-08 12:11:46',NULL,'16',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503017','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410597',38319,643,800,'3503017','2016-11-08 12:11:46',NULL,'17',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503021','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410598',38319,643,800,'3503021','2016-11-08 12:11:46',NULL,'21',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503023','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410599',38319,643,800,'3503023','2016-11-08 12:11:46',NULL,'23',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503024','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410600',38319,643,800,'3503024','2016-11-08 12:11:46',NULL,'24',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503025','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410601',38319,643,800,'3503025','2016-11-08 12:11:46',NULL,'25',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503026','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410602',38319,643,800,'3503026','2016-11-08 12:11:46',NULL,'26',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503027','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410603',38319,643,800,'3503027','2016-11-08 12:11:46',NULL,'27',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503031','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410604',38319,643,800,'3503031','2016-11-08 12:11:46',NULL,'31',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503032','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410605',38319,643,800,'3503032','2016-11-08 12:11:46',NULL,'32',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503034','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410606',38319,643,800,'3503034','2016-11-08 12:11:46',NULL,'34',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503036','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410607',38319,643,800,'3503036','2016-11-08 12:11:46',NULL,'36',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503037','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410608',38319,643,800,'3503037','2016-11-08 12:11:46',NULL,'37',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503038','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410609',38319,643,800,'3503038','2016-11-08 12:11:46',NULL,'38',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503041','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410610',38319,643,800,'3503041','2016-11-08 12:11:46',NULL,'41',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503042','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410611',38319,643,800,'3503042','2016-11-08 12:11:46',NULL,'42',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503043','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410612',38319,643,800,'3503043','2016-11-08 12:11:46',NULL,'43',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503045','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410613',38319,643,800,'3503045','2016-11-08 12:11:46',NULL,'45',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503046','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410614',38319,643,800,'3503046','2016-11-08 12:11:46',NULL,'46',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503047','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410615',38319,643,800,'3503047','2016-11-08 12:11:46',NULL,'47',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503051','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410616',38319,643,800,'3503051','2016-11-08 12:11:46',NULL,'51',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503052','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410617',38319,643,800,'3503052','2016-11-08 12:11:46',NULL,'52',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503054','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410618',38319,643,800,'3503054','2016-11-08 12:11:46',NULL,'54',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503056','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410619',38319,643,800,'3503056','2016-11-08 12:11:46',NULL,'56',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503057','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410620',38319,643,800,'3503057','2016-11-08 12:11:46',NULL,'57',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503058','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410621',38319,643,800,'3503058','2016-11-08 12:11:46',NULL,'58',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503061','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410622',38319,643,800,'3503061','2016-11-08 12:11:46',NULL,'61',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503062','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410623',38319,643,800,'3503062','2016-11-08 12:11:46',NULL,'62',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503063','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410624',38319,643,800,'3503063','2016-11-08 12:11:46',NULL,'63',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503064','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410625',38319,643,800,'3503064','2016-11-08 12:11:46',NULL,'64',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503065','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410626',38319,643,800,'3503065','2016-11-08 12:11:46',NULL,'65',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503067','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410627',38319,643,800,'3503067','2016-11-08 12:11:46',NULL,'67',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503071','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410628',38319,643,800,'3503071','2016-11-08 12:11:46',NULL,'71',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503072','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410629',38319,643,800,'3503072','2016-11-08 12:11:46',NULL,'72',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503073','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410630',38319,643,800,'3503073','2016-11-08 12:11:46',NULL,'73',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503074','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410631',38319,643,800,'3503074','2016-11-08 12:11:46',NULL,'74',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503075','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410632',38319,643,800,'3503075','2016-11-08 12:11:46',NULL,'75',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503076','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410633',38319,643,800,'3503076','2016-11-08 12:11:46',NULL,'76',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503081','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410634',38319,643,800,'3503081','2016-11-08 12:11:46',NULL,'81',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503082','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410635',38319,643,800,'3503082','2016-11-08 12:11:46',NULL,'82',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503083','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410636',38319,643,800,'3503083','2016-11-08 12:11:46',NULL,'83',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503084','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410637',38319,643,800,'3503084','2016-11-08 12:11:46',NULL,'84',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503085','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410638',38319,643,800,'3503085','2016-11-08 12:11:46',NULL,'85',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503086','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410639',38319,643,800,'3503086','2016-11-08 12:11:46',NULL,'86',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503091','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410640',38319,643,800,'3503091','2016-11-08 12:11:46',NULL,'91',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503092','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410641',38319,643,800,'3503092','2016-11-08 12:11:46',NULL,'92',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503093','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410642',38319,643,800,'3503093','2016-11-08 12:11:46',NULL,'93',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503094','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410643',38319,643,800,'3503094','2016-11-08 12:11:46',NULL,'94',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503095','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410644',38319,643,800,'3503095','2016-11-08 12:11:46',NULL,'95',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503096','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410645',38319,643,800,'3503096','2016-11-08 12:11:46',NULL,'96',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503101','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410546',38319,643,800,'3503101','2016-11-08 12:11:46',NULL,'01',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503102','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410547',38319,643,800,'3503102','2016-11-08 12:11:46',NULL,'02',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503103','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410548',38319,643,800,'3503103','2016-11-08 12:11:46',NULL,'03',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503104','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410549',38319,643,800,'3503104','2016-11-08 12:11:46',NULL,'04',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503105','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410550',38319,643,800,'3503105','2016-11-08 12:11:46',NULL,'05',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503106','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410551',38319,643,800,'3503106','2016-11-08 12:11:46',NULL,'06',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503107','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410552',38319,643,800,'3503107','2016-11-08 12:11:46',NULL,'07',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503108','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410553',38319,643,800,'3503108','2016-11-08 12:11:46',NULL,'08',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503109','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410554',38319,643,800,'3503109','2016-11-08 12:11:46',NULL,'09',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503110','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410555',38319,643,800,'3503110','2016-11-08 12:11:46',NULL,'10',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503112','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410556',38319,643,800,'3503112','2016-11-08 12:11:46',NULL,'12',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503114','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410557',38319,643,800,'3503114','2016-11-08 12:11:46',NULL,'14',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503115','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410558',38319,643,800,'3503115','2016-11-08 12:11:46',NULL,'15',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503116','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410559',38319,643,800,'3503116','2016-11-08 12:11:46',NULL,'16',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503117','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410560',38319,643,800,'3503117','2016-11-08 12:11:46',NULL,'17',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503118','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410561',38319,643,800,'3503118','2016-11-08 12:11:46',NULL,'18',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503119','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410562',38319,643,800,'3503119','2016-11-08 12:11:46',NULL,'19',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503120','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410563',38319,643,800,'3503120','2016-11-08 12:11:46',NULL,'20',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503121','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410564',38319,643,800,'3503121','2016-11-08 12:11:46',NULL,'21',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503123','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410565',38319,643,800,'3503123','2016-11-08 12:11:46',NULL,'23',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503124','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410566',38319,643,800,'3503124','2016-11-08 12:11:46',NULL,'24',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503125','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410567',38319,643,800,'3503125','2016-11-08 12:11:46',NULL,'25',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503126','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410568',38319,643,800,'3503126','2016-11-08 12:11:46',NULL,'26',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503127','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410569',38319,643,800,'3503127','2016-11-08 12:11:46',NULL,'27',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503128','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410570',38319,643,800,'3503128','2016-11-08 12:11:46',NULL,'28',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503129','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410571',38319,643,800,'3503129','2016-11-08 12:11:46',NULL,'29',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503130','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410572',38319,643,800,'3503130','2016-11-08 12:11:46',NULL,'30',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503132','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410573',38319,643,800,'3503132','2016-11-08 12:11:46',NULL,'32',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503134','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410574',38319,643,800,'3503134','2016-11-08 12:11:46',NULL,'34',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503136','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410575',38319,643,800,'3503136','2016-11-08 12:11:46',NULL,'36',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503137','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410576',38319,643,800,'3503137','2016-11-08 12:11:46',NULL,'37',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503138','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410577',38319,643,800,'3503138','2016-11-08 12:11:46',NULL,'38',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503139','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410578',38319,643,800,'3503139','2016-11-08 12:11:46',NULL,'39',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503140','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410579',38319,643,800,'3503140','2016-11-08 12:11:46',NULL,'40',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503141','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410580',38319,643,800,'3503141','2016-11-08 12:11:46',NULL,'41',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503151','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410581',38319,643,800,'3503151','2016-11-08 12:11:46',NULL,'51',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503152','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410582',38319,643,800,'3503152','2016-11-08 12:11:46',NULL,'52',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503160','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410583',38319,643,800,'3503160','2016-11-08 12:11:46',NULL,'60',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503170','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410584',38319,643,800,'3503170','2016-11-08 12:11:46',NULL,'70',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL),('78003503190','instock',NULL,NULL,NULL,NULL,0,99,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5555410585',38319,643,800,'3503190','2016-11-08 12:11:46',NULL,'90',NULL,NULL,NULL,0,4,0,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `voip_numbers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8995,6 +9219,7 @@ CREATE TABLE `voip_registry` (
   `ndc_type_id` int(11) DEFAULT NULL,
   `fmc_trunk_id` int(11) DEFAULT NULL,
   `mvno_trunk_id` int(11) DEFAULT NULL,
+  `nnp_operator_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk-voip_registry-country_id` (`country_id`),
   KEY `fk-voip_registry-city_id` (`city_id`),
@@ -9186,4 +9411,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-16 18:03:29
+-- Dump completed on 2018-10-28 16:27:04
