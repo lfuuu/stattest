@@ -9,6 +9,21 @@ use yii\console\Controller;
 
 class BillsController extends Controller
 {
+    public function actionCleanCommentContacts()
+    {
+        $time0 = microtime(true);;
+        $query = \app\models\ClientContact::find()->where(['!=', 'comment', ''])->createCommand();
+        foreach($query->query() as $contact) {
+            $comment = $contact['comment'];
+            $newComment = \yii\helpers\HtmlPurifier::process($comment);
+
+            if ($newComment != $comment) {
+                echo PHP_EOL . $comment.' /// ' . $newComment;
+                \app\models\ClientContact::updateAll(['comment' => $comment], ['id' => $contact['id']]);
+            }
+        }
+        echo PHP_EOL . 'work length: ' . round(time() - $time0, 2).' sec';
+    }
     /**
      * Сборка данных для колонки `payment_date` модели Bill
      */

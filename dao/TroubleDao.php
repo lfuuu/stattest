@@ -4,6 +4,7 @@ namespace app\dao;
 
 use app\classes\Assert;
 use app\classes\enum\DepartmentEnum;
+use app\classes\helpers\ArrayHelper;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -27,16 +28,17 @@ class TroubleDao extends Singleton
     /**
      * Получить количество заявок залогиненного пользователя
      *
+     * @param string $user
      * @return int
      */
-    public function getMyTroublesCount()
+    public function getMyTroublesCount($user = null)
     {
         return
             Trouble::find()
                 ->from(['t' => 'tt_troubles'])
                 ->innerJoin(['s' => 'tt_stages'], 's.stage_id = t.cur_stage_id and s.trouble_id = t.id')
-                ->where(['s.user_main' => \Yii::$app->user->getIdentity()->user])
-                ->andWhere(['<=', 's.date_start', new Expression('now()')])
+                ->where(['s.user_main' => $user ?: \Yii::$app->user->getIdentity()->user])
+                ->andWhere(['<=', 's.date_start', new Expression('NOW()')])
                 ->andWhere(['not in', 's.state_id', $this->getClosedStatesId()])
                 ->count();
     }
@@ -53,7 +55,6 @@ class TroubleDao extends Singleton
             Trouble::find()
                 ->select('tt.id')
                 ->from(['tt' => 'tt_troubles'])
-                ->innerJoin(['ts' => 'tt_stages'], 'ts.stage_id = tt.cur_stage_id AND ts.trouble_id = tt.id')
                 ->innerJoin(['pbx' => 'server_pbx'], 'pbx.id = tt.server_id')
                 ->innerJoin(['dc' => 'datacenter'], 'dc.id = pbx.datacenter_id')
                 ->innerJoin(['c' => 'clients'], 'dc.region = c.region')
@@ -61,8 +62,9 @@ class TroubleDao extends Singleton
                     [
                         'and',
                         ['>', 'tt.`server_id`', 0],
-                        ['not in', 'ts.`state_id`', $this->getClosedStatesId()],
-                        ['=', 'c.`client`', $client->client]
+                        ['=', 'tt.is_closed', 0],
+                        ['=', 'c.`client`', $client->client],
+                        ['=', 'tt.`client`', $client->client],
                     ]
                 )->createCommand()->queryAll();
     }
@@ -266,9 +268,12 @@ class TroubleDao extends Singleton
 
             $trouble->cur_stage_id = $stage->stage_id;
             $trouble->folder = $newState->folder;
+            $trouble->is_closed = $newState->is_final;
+
             if (!$trouble->save()) {
                 throw new ModelValidationException($trouble);
             }
+            $this->setChanged($trouble->id);
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -406,5 +411,68 @@ class TroubleDao extends Singleton
         }
 
         return $cache;
+    }
+
+    /**
+     * Установить все закрыты траблы явно
+     *
+     * @return int
+     */
+    public function setTroublesClosed()
+    {
+        $sql = <<<SQL
+UPDATE tt_troubles t
+  INNER JOIN `tt_stages` `s` ON s.stage_id = t.cur_stage_id AND s.trouble_id = t.id
+  INNER JOIN `tt_states` `st` ON `s`.`state_id` = `st`.id
+SET is_closed = 1
+WHERE
+  st.is_final = 1
+SQL;
+
+        return Trouble::getDb()->createCommand($sql)->execute();
+    }
+
+    /**
+     * Пересчитать счететчики для первой страницы с траблами
+     *
+     * @param bool $isReset
+     * @return array|mixed
+     */
+    public function getTaskFoldersCount($isReset = false)
+    {
+        $key = 'tt-folder-task-count';
+        if (\Yii::$app->cache->exists($key) && !$isReset) {
+            return \Yii::$app->cache->get($key);
+        }
+        $sql = <<<SQL
+SELECT SQL_NO_CACHE
+  tf.pk,
+  tf.name,
+  COUNT(DISTINCT (T.id)) AS cnt
+FROM
+  tt_troubles AS T
+  LEFT JOIN
+  tt_folders AS tf ON T.folder & tf.pk
+WHERE
+  ((T.server_id = 0) AND (T.trouble_type = 'task') AND (tf.pk & 524033))
+GROUP BY tf.pk
+ORDER BY `tf`.`order`
+
+SQL;
+        $result = ArrayHelper::index(Trouble::getDb()->createCommand($sql)->queryAll(), 'pk');
+        \Yii::$app->cache->set($key, $result);
+
+        return $result;
+    }
+
+    /**
+     * Утсанавливаем, что трабла изменилась
+     *
+     * @param int $troubleId
+     */
+    public function setChanged($troubleId)
+    {
+        $this->updateSupportTicketByTrouble($troubleId);
+        $this->getTaskFoldersCount($isReset = true);
     }
 }

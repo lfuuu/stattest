@@ -87,8 +87,11 @@ class ClientController extends BaseController
         $contractForm = new ContractEditForm(['id' => $account->contract_id]);
 
         $troubles = Trouble::find()
-            ->andWhere(['client' => $account->client])
-            ->andWhere(['server_id' => 0])
+            ->andWhere([
+                'client' => $account->client,
+                'server_id' => 0,
+                'is_closed' => 0
+            ])
             ->orderBy('`date_creation` DESC')
             ->all();
 

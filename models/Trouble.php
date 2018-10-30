@@ -33,6 +33,7 @@ use yii\helpers\Url;
  * @property string $date_close
  * @property int $support_ticket_id
  * @property string $updated_at
+ * @property int $is_closed
  *
  * @property-read TroubleRoistat $troubleRoistat
  * @property-read TroubleStage $currentStage

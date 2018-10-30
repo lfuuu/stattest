@@ -6,6 +6,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContactDao;
 use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveQuery;
+use yii\helpers\HtmlPurifier;
 
 /**
  * Class ClientContact
@@ -113,6 +114,7 @@ class ClientContact extends HistoryActiveRecord
             ['is_validate', 'default', 'value' => 1],
             ['data', 'required'],
             ['data', 'trim'],
+            ['comment', 'clean'],
             [
                 'data',
                 'email',
@@ -133,6 +135,11 @@ class ClientContact extends HistoryActiveRecord
             ['user_id', 'default', 'value' => \Yii::$app->user->id],
             [['client_id', 'user_id', 'is_official', 'is_validate'], 'integer', 'integerOnly' => true]
         ];
+    }
+
+    public function clean()
+    {
+        $this->comment && $this->comment = HtmlPurifier::process($this->comment);
     }
 
     /**

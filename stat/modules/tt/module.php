@@ -1353,7 +1353,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
                 $R[$k]['last_comment'] = $R[$k]['stages'] && isset($R[$k]['stages'][count($R[$k]['stages'])-2]) ? $R[$k]['stages'][count($R[$k]['stages'])-2]["comment"] : "";
                 $R[$k]['add_info'] = $db->GetRow("select * from newbills_add_info where bill_no = '".$r["bill_no"]."'");
-                $R[$k]['sms'] = $db->GetRow("select * from newbill_sms where bill_no = '".$r["bill_no"]."' limit 1");
+//                $R[$k]['sms'] = $db->GetRow("select * from newbill_sms where bill_no = '".$r["bill_no"]."' limit 1");
 
                 // humanreadable metro && logistic
                 if($R[$k]['add_info'])
@@ -1467,23 +1467,28 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                  $W_folders[] = 'S.stage_id = T.cur_stage_id';
             }
 
-            $folders = $db->AllRecords($q="
+            if (!$use_stages && !$clientNick) {
+                $folders = \app\models\Trouble::dao()->getTaskFoldersCount();
+            } else {
+
+                $folders = $db->AllRecords($q = "
                 SELECT  
-                    tf.pk, tf.name, COUNT(DISTINCT(T.id)) as cnt
+                    tf.pk, tf.name, COUNT(DISTINCT(T.id)) AS cnt
                 FROM
-                    tt_troubles as T
+                    tt_troubles AS T
                 LEFT JOIN 
-                    tt_folders as tf ON T.folder & tf.pk 
-                     ".$folders_join."
+                    tt_folders AS tf ON T.folder & tf.pk 
+                     " . $folders_join . "
                 WHERE 
-                    ".MySQLDatabase::Generate($W_folders)."
+                    " . MySQLDatabase::Generate($W_folders) . "
                 GROUP BY 
                     tf.pk 
                 ORDER BY
                     `tf`.`order`",
-                'pk',
-                MYSQL_ASSOC
-            );
+                    'pk',
+                    MYSQL_ASSOC
+                );
+            }
             $all_folders = $db->AllRecords("
                 select 
                     pk, name 
@@ -1760,6 +1765,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         $trouble->cur_stage_id = $id;
         $trouble->folder = $state->folder;
+        $trouble->is_closed = $state->is_final;
 
 
         if (TroubleState::isClose($data_to_open['state_id'])) {
@@ -1773,9 +1779,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $this->doers_action('fix_doers', $trouble_id, $id);
 
 
-        TroubleDao::me()->updateSupportTicketByTrouble($trouble_id);
+        TroubleDao::me()->setChanged($trouble_id);
 
-        $this->checkTroubleToSendToAll4geo($trouble_id);
+        //$this->checkTroubleToSendToAll4geo($trouble_id);
         $this->checkTroubleToSend($trouble_id);
 
         return $id;

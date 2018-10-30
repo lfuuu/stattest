@@ -2,6 +2,7 @@
 namespace app\commands;
 
 use app\classes\behaviors\SetTaxVoip;
+use app\models\Trouble;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use app\exceptions\ModelValidationException;
@@ -52,6 +53,8 @@ class UsageController extends Controller
 
                 $count = count($clientAccounts);
             }
+
+            Trouble::dao()->setTroublesClosed();
 
         } catch (\Exception $e) {
             Yii::error($e);
