@@ -43,7 +43,6 @@ class TroubleDao extends Singleton
                 ])
                 ->andWhere(['<=', 's.date_start', new Expression('NOW()')])
                 ->count();
-        //$this->getClosedStatesId()
     }
 
     /**

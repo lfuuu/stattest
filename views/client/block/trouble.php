@@ -9,8 +9,12 @@ use \yii\helpers\HtmlPurifier;
 $troublesIsset = false;
 $serversTroubles = [];
 
+/**
+ * @var  $k
+ * @var Trouble $trouble
+ */
 foreach ($troubles as $k => $trouble) {
-    if (!in_array($trouble->stage->state_id, Trouble::dao()->getClosedStatesId())) {
+    if (!$trouble->is_closed) {
         $troublesIsset = true;
     }
     else {
