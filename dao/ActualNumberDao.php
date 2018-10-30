@@ -6,6 +6,7 @@ use app\classes\Singleton;
 use app\models\ActualNumber;
 use app\models\ClientAccount;
 use app\modules\uu\models\Resource;
+use app\modules\uu\models\ServiceType;
 
 /**
  * @method static ActualNumberDao me($args = null)
@@ -121,15 +122,33 @@ class ActualNumberDao extends Singleton
                 AND c.account_version = " . ClientAccount::VERSION_BILLER_UNIVERSAL . "
             ";
 
+
+        $where = "";
+        if ($number || $clientId) {
+            $where = ' AND account_tariff_id IN (SELECT id FROM uu_account_tariff WHERE ';
+
+            if ($clientId) {
+                $where .= 'client_account_id = :client_id';
+            } elseif ($number) {
+                $where .= 'voip_number = :number';
+            } else {
+                throw new \Exception('Unknown error');
+            }
+
+            $where .= ' AND service_type_id = ' . ServiceType::ID_VOIP . ')';
+        }
+
+
         $db = ActualNumber::getDb();
         $db->createCommand('DROP TEMPORARY TABLE IF EXISTS `uu_account_tariff_resource_call_count`')->execute();
         $db->createCommand("CREATE TEMPORARY TABLE `uu_account_tariff_resource_call_count` (INDEX(account_tariff_id)) AS
             SELECT log.account_tariff_id, ROUND(amount) as call_count FROM (
               SELECT MAX(id) as max_id, account_tariff_id as account_tariff_id_g 
               FROM `uu_account_tariff_resource_log`
-              WHERE resource_id = 7 AND actual_from_utc <= UTC_TIMESTAMP() 
+              WHERE resource_id = 7 AND actual_from_utc <= UTC_TIMESTAMP()
+              {$where} 
               GROUP BY account_tariff_id) a, uu_account_tariff_resource_log log 
-              WHERE log.id = a.max_id")->execute();
+              WHERE log.id = a.max_id", $params)->execute();
 
         $data = $db->createCommand($numbersSQL . ' UNION ' . $uuNumbersSQL, $params)->queryAll();
 
