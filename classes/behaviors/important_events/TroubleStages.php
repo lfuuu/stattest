@@ -88,7 +88,7 @@ class TroubleStages extends Behavior
         }
 
         // Создание связи между услугой и заявкой, когда состояние стало"Выполнен"
-        if ($troubleStage->isStateIncluded()) {
+        if ($troubleStage->isStateEnabled()) {
             $accountTariffIds = AccountTariff::find()
                 ->select('uat.id')
                 ->alias('uat')

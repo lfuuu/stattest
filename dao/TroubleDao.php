@@ -35,12 +35,15 @@ class TroubleDao extends Singleton
     {
         return
             Trouble::find()
-                ->from(['t' => 'tt_troubles'])
+                ->alias('t')
                 ->innerJoin(['s' => 'tt_stages'], 's.stage_id = t.cur_stage_id and s.trouble_id = t.id')
-                ->where(['s.user_main' => $user ?: \Yii::$app->user->getIdentity()->user])
+                ->where([
+                    's.user_main' => $user ?: \Yii::$app->user->getIdentity()->user,
+                    't.is_closed' => 0,
+                ])
                 ->andWhere(['<=', 's.date_start', new Expression('NOW()')])
-                ->andWhere(['not in', 's.state_id', $this->getClosedStatesId()])
                 ->count();
+        //$this->getClosedStatesId()
     }
 
     /**

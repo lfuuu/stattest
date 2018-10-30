@@ -38,6 +38,7 @@ use yii\helpers\Url;
  * @property-read TroubleRoistat $troubleRoistat
  * @property-read TroubleStage $currentStage
  * @property-read Lead $lead
+ * @property-read ClientAccount $account
  * @property-read \app\classes\media\TroubleMedia mediaManager
  */
 class Trouble extends ActiveRecord

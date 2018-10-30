@@ -84,7 +84,7 @@ class TroublesController extends ApiInternalController
      * @param int $minutes_range
      * @return array
      */
-    public function actionGetChangedTroublesListForRoistat($minutes_range)
+    public function actionGetChangedTroublesListForRoistat($minutes_range = 60)
     {
         $response = [];
         // Получение типа подключения для заявки - лида
@@ -93,7 +93,8 @@ class TroublesController extends ApiInternalController
             throw new RecordNotFound(sprintf('Couldn\'t find %s with pk=%d', TroubleType::class, TroubleType::CONNECT));
         }
         // Получение статусов заявки
-        $response['statuses'] = array_reduce(TroubleState::find()
+        $response['statuses'] = array_reduce(
+            TroubleState::find()
             ->where([
                 '&', 'pk', TroubleType::find()
                     ->select('states')
@@ -105,33 +106,43 @@ class TroublesController extends ApiInternalController
             $sum[] = ['id' => $item->id, 'name' => $item->name,];
             return $sum;
         }, []);
+
         // Получение заявок, которые были обновлены в течении заданного времени
+        $minutes_range = (int)$minutes_range;
+        $minutes_range = $minutes_range > 1440 ? 1440 : $minutes_range;
+        $minutes_range = $minutes_range < 0 ? 0 : $minutes_range;
+
         $time = new DateTime("{$minutes_range} minutes ago", new DateTimeZone('UTC'));
         $troubleQuery = Trouble::find()
             ->alias('t')
-            ->joinWith('troubleRoistat')
+            ->joinWith('troubleRoistat', true, 'INNER JOIN')
             ->where(['t.trouble_type' => $troubleTypeConnect->code])
             ->andWhere(['>', 't.updated_at', $time->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+
         foreach($troubleQuery->each() as $trouble) {
             /** @var Trouble $trouble */
             $build = [
                 'id' => $trouble->id,
                 'date_create' => strtotime($trouble->date_creation),
             ];
+
             // Получение переменной roistat
             if ($troubleRoistat = $trouble->troubleRoistat) {
                 $build['roistat'] = $troubleRoistat->roistat_visit;
             }
+
             // Получение клиента
-            if ($client = ClientAccount::findOne(['client' => $trouble->client])) {
+            if ($client = $trouble->account) {
                 $build['client_id'] = $client->id;
             }
+
             // Получение последнего актуального статуса текущей заявки
             if ($currentStage = $trouble->currentStage) {
                 $build['status'] = $currentStage->state_id;
-                $manager = User::findOne(['user' => $currentStage->user_main]);
+                $manager = $currentStage->user;
                 $build['fields'] = ['Менеджер' => $manager ? $manager->name : $currentStage->user_main];
             }
+
             // Добавляем в массив
             $response['orders'][] = $build;
         }

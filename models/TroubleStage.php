@@ -26,7 +26,7 @@ class TroubleStage extends ActiveRecord
 {
 
     const SEARCH_ITEMS = 100;
-    const STATE_INCLUDED = 48;
+    const STATE_ENABLED = 48;
 
     public $dif_time = '00:00';
 
@@ -97,7 +97,7 @@ class TroubleStage extends ActiveRecord
     /**
      * @return bool
      */
-    public function isStateIncluded() {
-        return $this->state_id === self::STATE_INCLUDED;
+    public function isStateEnabled() {
+        return $this->state_id === self::STATE_ENABLED;
     }
 }
