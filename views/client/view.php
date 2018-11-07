@@ -48,7 +48,7 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
 
     <?php if ($uuFilterModel) : ?>
         <h2><a href="<?= Url::to(['/uu/account-tariff', 'AccountTariffFilter[client_account_id]' => $account->id]) ?>">Универсальные услуги</a></h2>
-        <?= $this->render('/../modules/uu/views/account-tariff/_indexVoipLight', ['filterModel' => $uuFilterModel,]) ?>
+        <?= $this->render('/../modules/uu/views/account-tariff/_indexVoipLight', ['filterModel' => $uuFilterModel]) ?>
     <?php endif ?>
 
     <?= $this->render('/../modules/sim/views/card/_listByClient', ['client_account_id' => $account->id]); ?>

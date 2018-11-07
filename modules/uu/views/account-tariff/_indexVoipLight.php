@@ -30,7 +30,7 @@ echo \Yii::$app->cache->getOrSet($key,
     function () use ($query) {
         // сгруппировать одинаковые город-тариф-пакеты по строчкам
 
-        $content = ';';
+        $content = '';
         $rows = AccountTariff::getGroupedObjectsLight($query);
 
         foreach ($rows as $hash => $row) {
