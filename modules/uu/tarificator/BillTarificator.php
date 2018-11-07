@@ -21,21 +21,62 @@ class BillTarificator extends Tarificator
      */
     public function tarificate($accountTariffId = null)
     {
-        $db = Yii::$app->db;
+        $clientAccountId = null;
+        if ($accountTariffId) {
+            $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+            $clientAccountId = $accountTariff ? $accountTariff->client_account_id : null;
+            unset($accountTariff);
+        }
+
+        // --------------------------------------------
+        // Создать пустые счета, если их еще нет
+        // --------------------------------------------
+        $this->out('. ');
+        $this->_createEmptyBills($accountTariffId);
+
+        // --------------------------------------------
+        // Привязать проводки к счетам
+        // --------------------------------------------
+        $this->out('. ');
+        $this->_linkEntryToBill($accountTariffId);
+
+        // --------------------------------------------
+        // Подготовить данные для обновления счетов
+        // --------------------------------------------
+        $this->out('. ');
+        $this->_createTmpTable($clientAccountId, $tmpTableName = 'uu_entry_tmp');
+
+        // --------------------------------------------
+        // Обновить стоимость счетов
+        // --------------------------------------------
+        $this->out('. ');
+        $this->_updateBill($clientAccountId, $tmpTableName);
+
+        // --------------------------------------------
+        // Удалить временную таблицу
+        // --------------------------------------------
+        $this->out('. ');
+        $this->_dropTmpTable($tmpTableName);
+    }
+
+    /**
+     * Создать пустые счета, если их еще нет
+     *
+     * @param int $accountTariffId
+     * @throws \yii\db\Exception
+     */
+    private function _createEmptyBills($accountTariffId)
+    {
         $billTableName = Bill::tableName();
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $clientAccountTableName = ClientAccount::tableName();
 
-        $sqlAndWhere = '';
+        $sqlWhere = $accountTariffId ?
+            ' AND account_entry.account_tariff_id = ' . $accountTariffId :
+            '';
 
-        if ($accountTariffId) {
-            $sqlAndWhere = ' AND account_entry.account_tariff_id = ' . $accountTariffId;
-        }
-
-        // создать пустые счета
-        $this->out('. ');
-        $insertSQL = <<<SQL
+        $sqlInsert = <<<SQL
             INSERT INTO {$billTableName}
             (date, client_account_id, price)
                 SELECT DISTINCT
@@ -53,17 +94,34 @@ class BillTarificator extends Tarificator
                     account_entry.bill_id IS NULL
                     AND account_entry.account_tariff_id = account_tariff.id
                     AND account_tariff.client_account_id = client_account.id
-                    {$sqlAndWhere}
+                    {$sqlWhere}
                 ORDER BY
                     account_entry.is_next_month ASC
             ON DUPLICATE KEY UPDATE price = 0
 SQL;
-        $db->createCommand($insertSQL)
+        Yii::$app->db
+            ->createCommand($sqlInsert)
             ->execute();
+    }
 
-        // привязать проводки к счетам
-        $this->out('. ');
-        $updateSql = <<<SQL
+    /**
+     * Привязать проводки к счетам
+     *
+     * @param int $accountTariffId
+     * @throws \yii\db\Exception
+     */
+    private function _linkEntryToBill($accountTariffId)
+    {
+        $billTableName = Bill::tableName();
+        $accountEntryTableName = AccountEntry::tableName();
+        $accountTariffTableName = AccountTariff::tableName();
+        $clientAccountTableName = ClientAccount::tableName();
+
+        $sqlWhere = $accountTariffId ?
+            ' AND account_entry.account_tariff_id = ' . $accountTariffId :
+            '';
+
+        $sqlUpdate = <<<SQL
             UPDATE
                 {$billTableName} bill,
                 {$accountEntryTableName} account_entry,
@@ -80,46 +138,59 @@ SQL;
                 ) = bill.date
                 AND account_tariff.client_account_id = bill.client_account_id
                 AND account_tariff.client_account_id = client_account.id
-                {$sqlAndWhere}
+                {$sqlWhere}
 SQL;
-        $db->createCommand($updateSql)
+        Yii::$app->db
+            ->createCommand($sqlUpdate)
             ->execute();
-        unset($updateSql);
+    }
 
+    /**
+     * Подготовить данные для обновления счетов
+     *
+     * @param int $clientAccountId
+     * @param string $tmpTableName
+     * @throws \yii\db\Exception
+     */
+    private function _createTmpTable($clientAccountId, $tmpTableName)
+    {
+        $accountEntryTableName = AccountEntry::tableName();
 
-        // при пересчете услуги - обновление счетов в рамках ЛС
-        $whereAccountEntry = $whereBill = "";
-        if ($accountTariffId) {
-            $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
-            if ($accountTariff) {
-                $whereAccountEntry = ', ' . AccountTariff::tableName() . ' as account_tariff 
-                WHERE 
-                    account_tariff.id=account_entry.account_tariff_id 
-                    AND account_tariff.client_account_id = ' . $accountTariff->client_account_id;
+        $sqlJoin = $clientAccountId ?
+            ' INNER JOIN ' . AccountTariff::tableName() . ' as account_tariff 
+              ON account_tariff.id = account_entry.account_tariff_id 
+                 AND account_tariff.client_account_id = ' . $clientAccountId :
+            '';
 
-                $whereBill = 'AND bill.client_account_id = ' . $accountTariff->client_account_id;
-            }
-        }
-
-        $queryAccountEntry = <<<SQL
+        $sqlSelect = <<<SQL
                     SELECT
                       account_entry.bill_id,
                       SUM(account_entry.price_with_vat) AS price
                     FROM
                       {$accountEntryTableName} account_entry
-                      {$whereAccountEntry}
+                      {$sqlJoin}
                     GROUP BY
-                      bill_id
+                      account_entry.bill_id
 SQL;
 
-        $tmpTableName = 'uu_entry_tmp';
-        $tmpCreateTable = "CREATE TEMPORARY TABLE {$tmpTableName} (INDEX(bill_id)) " . $queryAccountEntry;
-        $db->createCommand($tmpCreateTable)->execute();
+        $sqlCreate = "CREATE TEMPORARY TABLE {$tmpTableName} (INDEX(bill_id)) " . $sqlSelect;
+        Yii::$app->db
+            ->createCommand($sqlCreate)
+            ->execute();
+    }
 
+    /**
+     * Обновить стоимость счетов
+     *
+     * @param int $clientAccountId
+     * @param string $tmpTableName
+     * @throws \yii\db\Exception
+     */
+    private function _updateBill($clientAccountId, $tmpTableName)
+    {
+        $billTableName = Bill::tableName();
 
-        // пересчитать стоимость счетов
-        $this->out('. ');
-        $updateSql = <<<SQL
+        $sqlUpdate = <<<SQL
             UPDATE
                 {$billTableName} bill
             INNER JOIN {$tmpTableName} t
@@ -129,12 +200,25 @@ SQL;
                 bill.is_converted = 0
             WHERE
                 (t.price IS NULL OR bill.price != ROUND(t.price, 4))
-                {$whereBill}
 SQL;
-        $db->createCommand($updateSql)
+        if ($clientAccountId) {
+            $sqlUpdate .= 'AND bill.client_account_id = ' . $clientAccountId;
+        }
+        Yii::$app->db
+            ->createCommand($sqlUpdate)
             ->execute();
-        unset($updateSql);
+    }
 
-        $db->createCommand("DROP TEMPORARY TABLE IF EXISTS {$tmpTableName}")->execute();
+    /**
+     * Удалить временную таблицу
+     *
+     * @param string $tmpTableName
+     * @throws \yii\db\Exception
+     */
+    private function _dropTmpTable($tmpTableName)
+    {
+        Yii::$app->db
+            ->createCommand("DROP TEMPORARY TABLE IF EXISTS {$tmpTableName}")
+            ->execute();
     }
 }
