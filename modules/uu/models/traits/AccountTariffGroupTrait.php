@@ -42,6 +42,36 @@ trait AccountTariffGroupTrait
      */
     public function getHash()
     {
+        // не так красиво, но быстро
+        $sql = <<<SQL
+SELECT md5(concat(group_concat(coalesce(a.city_id, 'c')), group_concat(a1), group_concat(a2), group_concat(a3))) AS hash
+FROM (
+       SELECT
+         coalesce((SELECT group_concat(concat(coalesce(tariff_period_id, ''), '-', actual_from_utc))
+                   FROM uu_account_tariff_log
+                   WHERE account_tariff_id = a.id AND actual_from_utc > now()
+                   ORDER BY id DESC), 'n')                                                         a1,
+         (SELECT group_concat(concat(coalesce(tariff_period_id, ''), '-', actual_from_utc))
+          FROM uu_account_tariff_log
+          WHERE account_tariff_id = a.id AND actual_from_utc <= now()
+          ORDER BY id DESC
+          LIMIT 1)                                                                                 a2,
+         (SELECT group_concat(concat(resource_id, '-', amount, '-', actual_from_utc))
+          FROM uu_account_tariff_resource_log l
+          WHERE l.account_tariff_id = a.id AND resource_id NOT IN (1, 14, 18, 41, 40, 42, 44, 45)) a3,
+         if(prev_account_tariff_id IS NULL, id,
+            prev_account_tariff_id)                                                                account_tariff_group_id,
+         a.city_id
+       FROM `uu_account_tariff` a
+       WHERE a.id = :account_tariff_id OR a.prev_account_tariff_id = :account_tariff_id
+     ) a
+GROUP BY account_tariff_group_id
+
+SQL;
+
+
+        return self::getDb()->createCommand($sql, [':account_tariff_id' => $this->id])->queryScalar();
+
         $dateTimeUtc = DateTimeZoneHelper::getUtcDateTime()
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $hashes = [];

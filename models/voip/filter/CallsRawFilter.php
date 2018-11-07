@@ -5,6 +5,7 @@
 
 namespace app\models\voip\filter;
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\traits\GetListTrait;
 use app\classes\WebApplication;
 use app\classes\yii\CTEQuery;
@@ -13,6 +14,7 @@ use app\models\billing\CallsRaw;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use Yii;
+use yii\caching\TagDependency;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
 use yii\db\Expression;
@@ -680,13 +682,10 @@ class CallsRawFilter extends CallsRaw
                 ->queryAll();
         } else {
             $queryCacheKey = CallsRaw::getCacheKey($query);
-            if (Yii::$app->cache->exists($queryCacheKey)) {
-                $result = Yii::$app->cache->get($queryCacheKey);
-            } else {
+            if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
                 $result = $query->createCommand(Yii::$app->dbPg)->queryAll();
                 if ($result) {
-                    Yii::$app->cache->set($queryCacheKey, $result);
-                    CallsRaw::addReportCacheKey($queryCacheKey);
+                    Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
                 }
             }
         }

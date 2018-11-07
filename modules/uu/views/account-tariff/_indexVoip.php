@@ -8,9 +8,11 @@
  * @var AccountTariffFilter $filterModel
  */
 
+use app\classes\helpers\DependecyHelper;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use yii\caching\TagDependency;
 use yii\db\ActiveQuery;
 
 $serviceType = $filterModel->getServiceType();
@@ -30,7 +32,14 @@ $rows = AccountTariff::getGroupedObjects($query);
     </p>
 
 <?php
-foreach ($rows as $row) {
+foreach ($rows as $hash => $row) {
+
+    $cacheKey = DependecyHelper::me()->getKey(DependecyHelper::TAG_UU_SERVICE_LIST, $hash);
+    if (($value = \Yii::$app->cache->get($cacheKey)) !== false) {
+        echo $value;
+        continue;
+    }
+
     /** @var AccountTariff $accountTariffFirst */
     $accountTariffFirst = reset($row);
     if (array_key_exists($accountTariffFirst->service_type_id, ServiceType::$packages)) {
@@ -60,12 +69,19 @@ foreach ($rows as $row) {
     }
 
     // форма
-    echo $this->render('_indexVoipForm', [
+    $value = $this->render('_indexVoipForm', [
         'accountTariffFirst' => $accountTariffFirst,
         'packageServiceTypeIds' => $packageServiceTypeIds,
         'row' => $row,
         'serviceType' => $serviceType,
         'packagesList' => $packagesList,
     ]);
+
+    \Yii::$app->cache->set(
+            $cacheKey,
+            $value,
+            DependecyHelper::DEFAULT_TIMELIFE,
+            (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST, DependecyHelper::TAG_USAGE]])));
+    echo $value;
 
 }

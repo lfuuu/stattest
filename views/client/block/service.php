@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\Html;
 use app\models\Number;
 use app\models\TariffInternet;
@@ -253,7 +254,7 @@ if ($has) :
                     <?php if (!empty($services['voip'])): ?>
 
                         <?php
-                        $keyCache = 'usage_voip_' . $account->id;
+                        $keyCache = DependecyHelper::me()->getKey(DependecyHelper::TAG_USAGE_VOIP, $account->id);
 
                         $usageVoipContent = false;
                         if (\Yii::$app->cache->exists($keyCache)) {
@@ -417,40 +418,12 @@ if ($has) :
                             <?php
 
                             $content = ob_get_clean();
-                            $sql = "SELECT sum(a + replace(a_date, '-', '') + b + replace(b_date, '-', '') + id + replace(actual_from, '-', '') +
-           replace(actual_to, '-', '')) as sum
-FROM (
-       SELECT
-         (SELECT id_tarif
-          FROM log_tarif
-          WHERE service = 'usage_voip' AND id_service = u.id AND date_activation <= cast(NOW() AS DATE)
-          ORDER BY date_activation DESC, id DESC
-          LIMIT 1)                a,
-         (SELECT date_activation
-          FROM log_tarif
-          WHERE service = 'usage_voip' AND id_service = u.id AND date_activation <= cast(NOW() AS DATE)
-          ORDER BY date_activation DESC, id DESC
-          LIMIT 1)                a_date,
-         coalesce((SELECT id_tarif
-                   FROM log_tarif
-                   WHERE service = 'usage_voip' AND id_service = u.id AND date_activation > cast(NOW() AS DATE)
-                   ORDER BY date_activation, id
-                   LIMIT 1), 0)   b,
-         coalesce((SELECT date_activation
-                   FROM log_tarif
-                   WHERE service = 'usage_voip' AND id_service = u.id AND date_activation > cast(NOW() AS DATE)
-                   ORDER BY date_activation, id
-                   LIMIT 1), '.') b_date,
-         u.id,
-         actual_from,
-         actual_to
-       FROM usage_voip u
-       WHERE client = '" .$account->client. "'
-     ) a";
 
-                            $dbDep = new \yii\caching\DbDependency(['sql' => $sql]);
-
-                            \Yii::$app->cache->set($keyCache, $content, 3600 * 24 * 30, $dbDep);
+                            \Yii::$app->cache->set(
+                                    $keyCache,
+                                    $content,
+                                    3600 * 24 * 30,
+                                    DependecyHelper::me()->getLsUsagesDependency($account->client));
 
                             echo $content;
                         }

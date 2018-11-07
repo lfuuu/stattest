@@ -5,6 +5,7 @@ namespace app\dao;
 use app\classes\Assert;
 use app\classes\enum\DepartmentEnum;
 use app\classes\helpers\ArrayHelper;
+use app\classes\helpers\DependecyHelper;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -17,6 +18,7 @@ use app\models\TroubleState;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
+use yii\caching\TagDependency;
 use yii\db\Expression;
 
 /**
@@ -468,7 +470,7 @@ ORDER BY `tf`.`order`
 
 SQL;
         $result = ArrayHelper::index(Trouble::getDb()->createCommand($sql)->queryAll(), 'pk');
-        \Yii::$app->cache->set($key, $result);
+        \Yii::$app->cache->set($key, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_TROUBLE_COUNT])));
 
         return $result;
     }

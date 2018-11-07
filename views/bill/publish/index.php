@@ -144,3 +144,26 @@ use app\models\Region;
         <a class="btn btn-info" href="/monitoring/recalculation-balance-when-bill-edit-on" role="button">Включить пересчет при редактировании счета</a>
     <?php endif; ?>
 </div>
+
+<hr>
+<div class="well" style="width: 500px;">
+    <fieldset>
+        <label>Кеш</label>
+        <form action="/bill/publish/cache" method="post">
+            <div class="col-sm-12">
+                <div class="col-sm-8">
+                    <?php
+                    echo Html::checkboxList(
+                        'tags',
+                        null,
+                        \app\classes\helpers\DependecyHelper::LIST_TAGS
+                    );
+                    ?>
+                </div>
+                <div class="col-sm-4">
+                    <input type="submit" value="Сбросить кеш" class="btn btn-primary" />
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</div>

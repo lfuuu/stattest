@@ -71,6 +71,8 @@ class AccountTariffController extends BaseController
      */
     public function actionIndex($serviceTypeId = null)
     {
+        ini_set('memory_limit', '4G');
+
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->_addClientAccountFilter($filterModel);
 

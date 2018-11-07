@@ -2,6 +2,7 @@
 
 namespace app\controllers\bill;
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\Utils;
 use app\dao\BillDao;
 use app\exceptions\ModelValidationException;
@@ -15,6 +16,7 @@ use app\models\Param;
 use app\models\Region;
 use Yii;
 use yii\base\InvalidArgumentException;
+use yii\caching\TagDependency;
 use yii\db\Query;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
@@ -299,5 +301,16 @@ class PublishController extends BaseController
         Bill::dao()->invoiceReversal($bill, true);
 
         return $this->redirect($bill->getUrl());
+    }
+
+    public function actionCache()
+    {
+        $tags = \Yii::$app->request->post('tags');
+        if (in_array(DependecyHelper::ALL, $tags)) {
+            \Yii::$app->cache->flush();
+        } else {
+            TagDependency::invalidate(Yii::$app->cache, $tags);
+        }
+        return $this->redirect(['/bill/publish/index']);
     }
 }

@@ -4,6 +4,7 @@ include_once 'prices_parser.php';
 include_once 'network.php';
 include_once 'trunks.php';
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\Utils;
 use app\classes\voip\DefInfo;
 use app\helpers\DateTimeZoneHelper;
@@ -11,6 +12,7 @@ use app\models\billing\CallsRaw;
 use app\models\billing\PricelistFile;
 use app\models\billing\NetworkFile;
 use app\models\Param;
+use yii\caching\TagDependency;
 
 class m_voipnew extends IModule
 {
@@ -799,7 +801,7 @@ class m_voipnew extends IModule
             $running_task = $pg_db->GetValue("select id from billing.tasks where task in ('recalc_current_month','recalc_last_month') and region_id={$region_id}");
             if (!$running_task && $task != '') {
                 $pg_db->Query("insert into billing.tasks(region_id, task)values('{$region_id}','{$task}')");
-                CallsRaw::clearReportCache();
+                TagDependency::invalidate(\Yii::$app->cache, DependecyHelper::TAG_CALLS_RAW);
             }
 
             header('Location: ?module=voipnew&action=calls_recalc');
