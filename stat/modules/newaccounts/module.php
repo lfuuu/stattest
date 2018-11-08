@@ -2943,7 +2943,7 @@ class m_newaccounts extends IModule
 
             $clientAccount = $bill->Client();
 
-            $date = $bill->Get('bill_date');
+            $date = $inv_date ?: $bill->Get('bill_date');
 
             if ($correctionInfo) {
                 $date = $correctionInfo['date']->format(DateTimeZoneHelper::DATE_FORMAT);
