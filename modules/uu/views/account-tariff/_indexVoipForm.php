@@ -17,8 +17,6 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use yii\widgets\ActiveForm;
 
-$form = ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
-
 $isEditable = $accountTariffFirst->isLogEditable();
 $isCancelable = $accountTariffFirst->isLogCancelable();
 $isShowAddPackage = $isEditable || $isCancelable;
@@ -108,5 +106,3 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 
         </div>
     </div>
-
-<?php ActiveForm::end(); ?>

@@ -14,6 +14,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use yii\caching\TagDependency;
 use yii\db\ActiveQuery;
+use yii\widgets\ActiveForm;
 
 $serviceType = $filterModel->getServiceType();
 
@@ -36,7 +37,9 @@ foreach ($rows as $hash => $row) {
 
     $cacheKey = DependecyHelper::me()->getKey(DependecyHelper::TAG_UU_SERVICE_LIST, $hash);
     if (($value = \Yii::$app->cache->get($cacheKey)) !== false) {
+        ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
         echo $value;
+        ActiveForm::end();
         continue;
     }
 
@@ -69,12 +72,15 @@ foreach ($rows as $hash => $row) {
     }
 
     // форма
+    $form = ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
+
     $value = $this->render('_indexVoipForm', [
         'accountTariffFirst' => $accountTariffFirst,
         'packageServiceTypeIds' => $packageServiceTypeIds,
         'row' => $row,
         'serviceType' => $serviceType,
         'packagesList' => $packagesList,
+        'form' => $form,
     ]);
 
     \Yii::$app->cache->set(
@@ -82,6 +88,8 @@ foreach ($rows as $hash => $row) {
             $value,
             DependecyHelper::DEFAULT_TIMELIFE,
             (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST, DependecyHelper::TAG_USAGE]])));
+
     echo $value;
 
+    ActiveForm::end();
 }
