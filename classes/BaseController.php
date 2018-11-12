@@ -204,7 +204,7 @@ class BaseController extends Controller
      */
     public function renderAsPDF($view, $params = [], $pdfParams = [])
     {
-        $content = parent::render($view, $params + ['isPdf' => 1]);
+        $content = $this->renderPartial($view, $params + ['isPdf' => 1]);
         /*
         $this->layout = 'empty';
         $content = parent::render($view, $params + ['isPdf' => 1]);
@@ -274,7 +274,7 @@ class BaseController extends Controller
             })
             ->getFile();
 
-        Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
+        Yii::$app->response->sendContentAsFile($result, isset($params['fileName']) ? $params['fileName'] : time() . Yii::$app->user->id . '.doc');
         Yii::$app->end();
 
         return false;

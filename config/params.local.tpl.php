@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'SITE_URL' => '',
     'API_SECURE_KEY' => '',
     'CORE_SERVER' => 'vpbxphoneapi.mcn.loc',
     'PHONE_SERVER' => 'vpbxphoneapi.mcn.loc',

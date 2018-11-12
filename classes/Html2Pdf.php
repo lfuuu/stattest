@@ -86,6 +86,8 @@ class Html2Pdf extends BaseObject
         /** wkhtmltopdf */
         $options = ' --quiet -L 15 -R 15 -T 15 -B 15';
 
+        $this->html = str_replace("<head>", "<head><base href='" . \Yii::$app->params['SITE_URL'] . "' />", $this->html);
+
         file_put_contents($filenameOfHtml, $this->html);
 
         exec($this->execTool . ' ' . $options . ' ' . $filenameOfHtml . ' ' . $filenameOfPdf);

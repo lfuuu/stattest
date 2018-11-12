@@ -3,6 +3,7 @@
 $rights = require(__DIR__ . '/rights.php');
 
 return [
+    'SITE_URL' => 'https://stat.mcn.ru/',
     'rights' => $rights,
     'adminEmail' => 'admin@example.com',
     'STORE_PATH' => realpath(\Yii::getAlias('@app') . '/../store') . '/',

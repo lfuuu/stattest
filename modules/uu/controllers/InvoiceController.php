@@ -13,6 +13,7 @@ use app\modules\uu\models_light\InvoiceLight;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
+use yii\web\Response;
 
 class InvoiceController extends BaseController
 {
@@ -89,7 +90,7 @@ class InvoiceController extends BaseController
      * @return string
      * @throws InvalidParamException
      */
-    public function actionGet($billId, $renderMode = null, $langCode = null)
+    public function actionGet($billId, $renderMode = null, $langCode = null, $isShow = false)
     {
         /** @var Bill $bill */
         if (!($bill = Bill::findOne(['id' => $billId]))) {
@@ -105,22 +106,34 @@ class InvoiceController extends BaseController
             $invoice->setLanguage($langCode);
         }
 
+        $bilDate = new \DateTime($bill->date);
+
         switch ($renderMode) {
             case 'pdf': {
-                return $this->renderAsPDF(
+                $pdfContent = $this->renderAsPDF(
                     'print',
                     ['invoiceContent' => $invoice->render(),],
                     [
                         'cssFile' => '@web/css/invoice/invoice.css',
                     ]
                 );
+
+                if (!$isShow) {
+                    \Yii::$app->response->sendContentAsFile($pdfContent, $clientAccount->id . '-' . $bilDate->format('Ym') . '-' . $bill->id . '.pdf');
+                } else {
+                    Yii::$app->response->headers->setDefault('Content-Type', 'application/pdf');
+                    Yii::$app->response->format = Response::FORMAT_RAW;
+                    Yii::$app->response->content = $pdfContent;
+
+                }
+                \Yii::$app->end();
             }
 
             case 'mhtml': {
-                return $this->renderAsMHTML(
-                    'print',
-                    ['invoiceContent' => $invoice->render(),]
-                );
+                return $this->renderAsMHTML('print', [
+                    'invoiceContent' => $invoice->render(),
+                    'fileName' => $clientAccount->id . '-' . $bilDate->format('Ym') . '-' . $bill->id . '.doc'
+                    ]);
             }
         }
 

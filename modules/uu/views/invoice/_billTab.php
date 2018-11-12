@@ -29,6 +29,16 @@ $frameName = $billId . '.' . $langCode;
         ]) ?>
 
         <?= $this->render('//layouts/_link', [
+            'text' => 'Посмотерть в PDF',
+            'url' => Url::toRoute(['renderMode' => 'pdf', 'isShow' => 1] + $urlData),
+            'glyphicon' => 'glyphicon glyphicon-download-alt',
+            'params' => [
+                'target' => '_blank',
+                'class' => 'btn btn-success',
+            ],
+        ]) ?>
+
+        <?= $this->render('//layouts/_link', [
             'text' => 'Скачать в PDF',
             'url' => Url::toRoute(['renderMode' => 'pdf'] + $urlData),
             'glyphicon' => 'glyphicon glyphicon-download-alt',
