@@ -11,8 +11,18 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
 use app\modules\uu\models\Resource;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
+use app\modules\uu\models\TariffOrganization;
+use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffResource;
+use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
+use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AutoCloseAccountTariffTarificator;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
@@ -25,6 +35,7 @@ use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
+use app\tests\codeception\fixtures\uu\TariffVoipCountryFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -42,23 +53,25 @@ class UbillerTest extends _TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->unload();
-        $this->load();
+
+        self::unloadUu();
+        self::loadUu();
     }
 
     /**
      * @throws \Exception
      * @throws \Throwable
      */
-    protected function load()
+    public static function loadUu()
     {
         (new TariffFixture)->load();
-        (new TariffCountryFixture)->load();
         (new TariffOrganizationFixture)->load();
         (new TariffVoipCityFixture)->load();
         (new TariffVoipNdcTypeFixture)->load();
         (new TariffPeriodFixture)->load();
         (new TariffResourceFixture)->load();
+        (new TariffCountryFixture)->load();
+        (new TariffVoipCountryFixture)->load();
         (new AccountTariffFixture)->load();
         (new AccountTariffLogFixture)->load();
         (new AccountTariffResourceLogFixture)->load();
@@ -67,13 +80,10 @@ class UbillerTest extends _TestCase
         (new SetCurrentTariffTarificator)->tarificate(null, false);
         (new AutoCloseAccountTariffTarificator)->tarificate(null, false);
 
-        $logs = HandlerLogger::me()->get();
-        $textLogs = $logs ? print_r($logs, true) : '';
-        $this->assertEquals('', $textLogs);
         HandlerLogger::me()->clear();
     }
 
-    protected function unload()
+    public static function unloadUu()
     {
         AccountLogSetup::deleteAll();
         AccountLogPeriod::deleteAll();
@@ -81,18 +91,18 @@ class UbillerTest extends _TestCase
         AccountLogMin::deleteAll();
         AccountEntry::deleteAll();
         Bill::deleteAll();
+        AccountTariffResourceLog::deleteAll();
+        AccountTariffLog::deleteAll();
+        AccountTariff::deleteAll();
+        TariffResource::deleteAll();
+        TariffPeriod::deleteAll();
+        TariffVoipCity::deleteAll();
+        TariffOrganization::deleteAll();
+        TariffVoipNdcType::deleteAll();
+        TariffCountry::deleteAll();
+        TariffVoipCountry::deleteAll();
+        Tariff::deleteAll();
         EventQueue::deleteAll();
-
-        (new AccountTariffResourceLogFixture)->unload();
-        (new AccountTariffLogFixture)->unload();
-        (new AccountTariffFixture)->unload();
-        (new TariffResourceFixture)->unload();
-        (new TariffPeriodFixture)->unload();
-        (new TariffOrganizationFixture)->unload();
-        (new TariffVoipCityFixture)->unload();
-        (new TariffVoipNdcTypeFixture)->unload();
-        (new TariffCountryFixture)->unload();
-        (new TariffFixture)->unload();
     }
 
     /**

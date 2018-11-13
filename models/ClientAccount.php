@@ -1552,4 +1552,21 @@ class ClientAccount extends HistoryActiveRecord
     {
         return $showLevel == self::SHOW_IN_LK_ACTIVE_ONLY ? (bool)$isActive : $showLevel == self::SHOW_IN_LK_ALWAYS;
     }
+
+    /**
+     * Вернуть страну для выбора тарифа УУ
+     * @return int
+     */
+    public function getUuCountryId()
+    {
+        $superClient = $this->superClient;
+        if ($superClient->entry_point_id) {
+            // страна из точки входа суперклиента
+            return $superClient->entryPoint->country_id;
+        }
+
+        // страна организации клиента
+        $organization = $this->organization;
+        return $organization ? $organization->country_id : null;
+    }
 }

@@ -219,10 +219,7 @@ class Dao extends Singleton
                 TariffPerson::ID_NATURAL_PERSON :
                 TariffPerson::ID_LEGAL_PERSON;
 
-            $superClient = $clientAccount->superClient;
-            $country_id = $superClient->entry_point_id ?
-                $superClient->entryPoint->country_id : // страна из точки входа суперклиента
-                null; // $clientAccount->country_id // если точки входа нет, то любая страна
+            $country_id = $clientAccount->getUuCountryId();
 
             switch ($service_type_id) {
 

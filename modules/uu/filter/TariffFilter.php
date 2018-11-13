@@ -7,6 +7,7 @@ use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
 use yii\data\ActiveDataProvider;
 
@@ -23,6 +24,7 @@ class TariffFilter extends Tariff
     public $country_id = '';
 
     public $voip_group_id = '';
+    public $voip_country_id = '';
     public $voip_city_id = '';
     public $voip_ndc_type_id = '';
     public $organization_id = '';
@@ -42,7 +44,7 @@ class TariffFilter extends Tariff
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
+        $rules[] = [['country_id', 'voip_country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
         return $rules;
     }
 
@@ -71,9 +73,10 @@ class TariffFilter extends Tariff
     public function search()
     {
         $query = Tariff::find()
-            ->joinWith('tariffCountries')
             ->joinWith('status')
             ->with('tariffPeriods')
+            ->with('tariffCountries')
+            ->with('tariffVoipCountries')
             ->with('voipCities');
 
         $dataProvider = new ActiveDataProvider([
@@ -81,7 +84,6 @@ class TariffFilter extends Tariff
         ]);
 
         $tariffTableName = Tariff::tableName();
-        $tariffCountryTableName = TariffCountry::tableName();
 
         $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
         $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
@@ -96,7 +98,15 @@ class TariffFilter extends Tariff
         $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
 
-        $this->country_id !== '' && $query->andWhere([$tariffCountryTableName . '.country_id' => $this->country_id]);
+        if ($this->country_id !== '') {
+            $query->joinWith('tariffCountries');
+            $query->andWhere([TariffCountry::tableName() . '.country_id' => $this->country_id]);
+        }
+
+        if ($this->voip_country_id !== '') {
+            $query->joinWith('tariffVoipCountries');
+            $query->andWhere([TariffVoipCountry::tableName() . '.country_id' => $this->voip_country_id]);
+        }
 
         if ($this->voip_city_id !== '') {
             $query->joinWith('voipCities');

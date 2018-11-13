@@ -42,12 +42,9 @@ if ($tariff->service_type_id != ServiceType::ID_VOIP_PACKAGE_CALLS
     $errors[] = 'организация не совпадает';
 }
 
-$superClient = $clientAccount->superClient;
-$countryId = $superClient->entry_point_id ?
-    $superClient->entryPoint->country_id : // страна из точки входа суперклиента
-    null; // $clientAccount->country_id // если точки входа нет, то любая страна
+$countryId = $clientAccount->getUuCountryId();
 if ($countryId && !array_key_exists($countryId, $tariff->tariffCountries)) {
-    $errors[] = 'страна точки входа не совпадает';
+    $errors[] = 'страна тарифа не совпадает';
 }
 
 if ($errors) {

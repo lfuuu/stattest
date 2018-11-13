@@ -16,6 +16,7 @@ use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
 use InvalidArgumentException;
 
@@ -36,6 +37,9 @@ abstract class TariffForm extends \app\classes\Form
 
     /** @var TariffCountry[] */
     public $tariffCountries;
+
+    /** @var TariffCountry[] */
+    public $tariffVoipCountries;
 
     /** @var TariffVoipNdcType[] */
     public $tariffNdcTypes;
@@ -72,6 +76,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return TariffCountry[]
      */
     abstract public function getTariffCountries();
+
+    /**
+     * @return TariffVoipCountry[]
+     */
+    abstract public function getTariffVoipCountries();
 
     /**
      * @return Tariff
@@ -144,6 +153,7 @@ abstract class TariffForm extends \app\classes\Form
             case ServiceType::ID_VOIP:
             case ServiceType::ID_VOIP_PACKAGE_CALLS:
                 // только для телефонии
+                $this->tariffVoipCountries = $this->getTariffVoipCountries();
                 $this->tariffVoipCities = $this->getTariffVoipCities();
                 $this->tariffNdcTypes = $this->getTariffVoipNdcTypes();
                 break;
@@ -265,6 +275,10 @@ abstract class TariffForm extends \app\classes\Form
 
                     case ServiceType::ID_VOIP:
                         // только для телефонии
+                        $tariffVoipCountries = new TariffVoipCountry();
+                        $tariffVoipCountries->tariff_id = $this->id;
+                        $this->tariffVoipCountries = $this->crudMultipleSelect2($this->tariffVoipCountries, $post, $tariffVoipCountries, 'country_id');
+
                         $tariffVoipCity = new TariffVoipCity();
                         $tariffVoipCity->tariff_id = $this->id;
                         $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, (count($this->tariffCountries) == 1) ? $post : [], $tariffVoipCity, 'city_id');

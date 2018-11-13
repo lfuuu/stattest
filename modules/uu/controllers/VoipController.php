@@ -195,11 +195,14 @@ class VoipController extends BaseController
      */
     public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $ndcTypeId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $isIncludeVat = null, $organizationId = null)
     {
+        $clientAccount = $this->_getCurrentClientAccount();
+
         $tariffPeriods = TariffPeriod::getList(
             $defaultTariffPeriodId,
             $serviceTypeId,
             $currency,
-            $countryId,
+            $clientAccount ? $clientAccount->getUuCountryId() : null,
+            $countryId, // @todo переименовать в voipCountryId
             $cityId,
             (int)$isWithEmpty,
             $isWithNullAndNotNull = false,

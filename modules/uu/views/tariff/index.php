@@ -30,6 +30,7 @@ use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
@@ -220,6 +221,35 @@ $cityColumn = [
     },
 ];
 
+$voipCountryColumn = [
+    'label' => Html::encode(Yii::t('models/' . TariffVoipCountry::tableName(), 'country_id')),
+    'attribute' => 'voip_country_id',
+    'format' => 'html',
+    'class' => CountryColumn::class,
+    'isAddLink' => false,
+    'contentOptions' => [
+        'class' => 'nowrap',
+    ],
+    'value' => function (Tariff $tariff) {
+        $maxCount = 2;
+        $tariffVoipCountries = $tariff->tariffVoipCountries;
+        $count = count($tariffVoipCountries);
+        if ($count <= $maxCount) {
+            return implode('<br/>', $tariffVoipCountries);
+        }
+
+        $maxCount--;
+
+        return sprintf(
+            '%s<br/><abbr title="%s">… %d…</abbr>',
+            implode('<br/>', array_slice($tariffVoipCountries, 0, $maxCount)),
+            implode(PHP_EOL, array_slice($tariffVoipCountries, $maxCount)),
+            $count - $maxCount
+        );
+    },
+];
+
+
 $ndcTypeColumn = [
     'label' => Html::encode(Yii::t('models/' . TariffVoipNdcType::tableName(), 'ndc_type_id')),
     'attribute' => 'voip_ndc_type_id',
@@ -255,6 +285,7 @@ switch ($serviceType->id) {
         break;
 
     case ServiceType::ID_VOIP:
+        $columns[] = $voipCountryColumn;
         $columns[] = $cityColumn;
         $columns[] = $ndcTypeColumn;
         break;

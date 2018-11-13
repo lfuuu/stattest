@@ -22,6 +22,7 @@ use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
@@ -32,11 +33,13 @@ use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
+use app\tests\codeception\fixtures\uu\TariffVoipCountryFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use tests\codeception\unit\_TestCase;
 use tests\codeception\unit\models\_AccountTariff;
 use tests\codeception\unit\models\_ClientAccount;
 use tests\codeception\unit\models\_UsageVoip;
+use tests\codeception\unit\models\UbillerTest;
 
 class Voip extends _TestCase
 {
@@ -45,39 +48,17 @@ class Voip extends _TestCase
 
     private $_transaction = null;
 
+    /**
+     * @throws \Throwable
+     */
     public function setUp()
     {
         parent::setUp();
 
         $this->_transaction = \Yii::$app->db->beginTransaction();
 
-        AccountLogSetup::deleteAll();
-        AccountLogPeriod::deleteAll();
-        AccountLogResource::deleteAll();
-        AccountLogMin::deleteAll();
-        AccountEntry::deleteAll();
-        Bill::deleteAll();
-        AccountTariffResourceLog::deleteAll();
-        AccountTariffLog::deleteAll();
-        AccountTariff::deleteAll();
-        TariffResource::deleteAll();
-        TariffPeriod::deleteAll();
-        TariffVoipCity::deleteAll();
-        TariffOrganization::deleteAll();
-        TariffVoipNdcType::deleteAll();
-        TariffCountry::deleteAll();
-        Tariff::deleteAll();
-
-        (new TariffFixture)->load();
-        (new TariffCountryFixture)->load();
-        (new TariffOrganizationFixture)->load();
-        (new TariffVoipCityFixture)->load();
-        (new TariffVoipNdcTypeFixture)->load();
-        (new TariffPeriodFixture)->load();
-        (new TariffResourceFixture)->load();
-        (new AccountTariffFixture)->load();
-        (new AccountTariffLogFixture)->load();
-        (new AccountTariffResourceLogFixture)->load();
+        UbillerTest::unloadUu();
+        UbillerTest::loadUu();
 
         $this->_accountUsage = _ClientAccount::createOne(EntryPoint::RU1);
         $this->_accountUniversal = _ClientAccount::createOne(EntryPoint::RU5);

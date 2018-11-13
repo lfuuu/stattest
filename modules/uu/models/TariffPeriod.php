@@ -156,6 +156,7 @@ class TariffPeriod extends ActiveRecord
      * @param int $serviceTypeId
      * @param int $currency
      * @param int $countryId
+     * @param int $voipCountryId
      * @param int $cityId
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
@@ -171,6 +172,7 @@ class TariffPeriod extends ActiveRecord
         $serviceTypeId,
         $currency = null,
         $countryId = null,
+        $voipCountryId = null,
         $cityId = null,
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
@@ -192,11 +194,6 @@ class TariffPeriod extends ActiveRecord
 
             // телефония и ее пакеты - по стране
             $organizationId = null;
-
-        } else {
-
-            // все остальное - по организации
-            $countryId = null;
         }
 
         $activeQuery = self::find()
@@ -229,6 +226,12 @@ class TariffPeriod extends ActiveRecord
             $activeQuery
                 ->innerJoin(TariffCountry::tableName() . ' as tariff_country', 'tariff.id = tariff_country.tariff_id')
                 ->andWhere(['tariff_country.country_id' => $countryId]);
+        }
+
+        if ($voipCountryId) {
+            $activeQuery
+                ->innerJoin(TariffVoipCountry::tableName() . ' as tariff_voip_country', 'tariff.id = tariff_voip_country.tariff_id')
+                ->andWhere(['tariff_voip_country.country_id' => $voipCountryId]);
         }
 
         if ($cityId && in_array($serviceTypeId, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {

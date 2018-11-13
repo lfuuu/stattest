@@ -11,6 +11,7 @@ use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
 
 class TariffAddForm extends TariffForm
@@ -100,5 +101,13 @@ class TariffAddForm extends TariffForm
     public function getTariffCountries()
     {
         return [new TariffCountry()];
+    }
+
+    /**
+     * @return TariffVoipCountry[]
+     */
+    public function getTariffVoipCountries()
+    {
+        return [new TariffVoipCountry()];
     }
 }

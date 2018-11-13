@@ -34,6 +34,7 @@ use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffTag;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipGroup;
 use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\Module;
@@ -387,7 +388,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "is_default", type = "integer", description = "По умолчанию (0 / 1)", in = "query", default = ""),
      *   @SWG\Parameter(name = "is_postpaid", type = "integer", description = "0 - предоплата, 1 - постоплата", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны", in = "query", default = ""),
+     *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны телефонии. Поле правильнее переименовать в voip_country_id", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
@@ -472,7 +473,11 @@ class UuController extends ApiInternalController
 
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
-        $country_id = (int)$country_id;
+
+        // "сначала намечались торжества. Потом аресты. Потом решили совместить" (С) К/ф "Тот самый Мюнхгаузен"
+        $voip_country_id = (int)$country_id; // страна телефонного номера. Выбирается явно. Путаница с именами для обратной совместимости c API.
+        $country_id = null; // страна клиента. Это зависит от точки входа (или организации) клиента, а не выбирается явно
+
         $client_account_id = (int)$client_account_id;
         $tariff_status_id = (int)$tariff_status_id;
         $tariff_person_id = (int)$tariff_person_id;
@@ -496,7 +501,7 @@ class UuController extends ApiInternalController
                 $accountTariff->voip_number;
             $voip_city_id = $accountTariff->city_id;
             if ($accountTariff->city_id) {
-                $country_id = $accountTariff->city->country_id;
+                $voip_country_id = $accountTariff->city->country_id;
             }
         }
 
@@ -518,10 +523,7 @@ class UuController extends ApiInternalController
                 TariffPerson::ID_NATURAL_PERSON :
                 TariffPerson::ID_LEGAL_PERSON;
 
-            $superClient = $clientAccount->superClient;
-            $country_id = $superClient->entry_point_id ?
-                $superClient->entryPoint->country_id : // страна из точки входа суперклиента
-                null; // $clientAccount->country_id // если точки входа нет, то любая страна
+            $country_id = $clientAccount->getUuCountryId();
 
             switch ($service_type_id) {
 
@@ -571,9 +573,9 @@ class UuController extends ApiInternalController
         $id && $tariffQuery->andWhere([$tariffTableName . '.id' => $id]);
         $service_type_id && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$service_type_id]);
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
-        !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
-        !is_null($is_postpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
-        !is_null($is_include_vat) && $tariffQuery->andWhere([$tariffTableName . '.is_include_vat' => (int)$is_include_vat]);
+        null !== $is_default && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
+        null !== $is_postpaid && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
+        null !== $is_include_vat && $tariffQuery->andWhere([$tariffTableName . '.is_include_vat' => (int)$is_include_vat]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariff_person_id]]);
         $tariff_tag_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_tag_id' => $tariff_tag_id]);
@@ -583,6 +585,12 @@ class UuController extends ApiInternalController
             $tariffQuery
                 ->joinWith('tariffCountries')
                 ->andWhere([TariffCountry::tableName() . '.country_id' => $country_id]);
+        }
+
+        if ($voip_country_id) {
+            $tariffQuery
+                ->joinWith('tariffVoipCountries')
+                ->andWhere([TariffVoipCountry::tableName() . '.country_id' => $voip_country_id]);
         }
 
         if ($voip_city_id) {
@@ -615,7 +623,7 @@ class UuController extends ApiInternalController
                 $defaultPackageRecords = $this->actionGetTariffs(
                     $id_tmp = null,
                     ServiceType::ID_VOIP_PACKAGE_CALLS,
-                    $country_id, // пакеты телефонии - по стране, все остальное - по организации
+                    $voip_country_id,
                     $client_account_id,
                     $currency_id,
                     $is_default_tmp = 1,
@@ -655,8 +663,8 @@ class UuController extends ApiInternalController
         }
 
         $package = $tariff->package;
-        $tariffCountries = $tariff->tariffCountries;
-        $tariffCountry = reset($tariffCountries);
+        $tariffVoipCountries = $tariff->tariffVoipCountries;
+        $tariffVoipCountry = reset($tariffVoipCountries);
         return [
             'id' => $tariff->id,
             'name' => $tariff->name,
@@ -668,7 +676,7 @@ class UuController extends ApiInternalController
             'is_postpaid' => $tariff->is_postpaid,
             'currency' => $tariff->currency_id,
             'service_type' => $this->_getIdNameRecord($tariff->serviceType),
-            'country' => $this->_getIdNameRecord($tariffCountry ? $tariffCountry->country : null, 'code'), // @todo multi
+            'country' => $this->_getIdNameRecord($tariffVoipCountry ? $tariffVoipCountry->country : null, 'code'), // @todo multi и переименовать в voip_countries
             'tariff_status' => $this->_getIdNameRecord($tariff->status),
             'tariff_person' => $this->_getIdNameRecord($tariff->person),
             'tariff_tag' => $this->_getIdNameRecord($tariff->tag),

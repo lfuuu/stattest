@@ -77,7 +77,11 @@ class TariffController extends BaseController
     public function actionNew($serviceTypeId, $countryId = null)
     {
         /** @var TariffAddForm $formModel */
-        $formModel = new TariffAddForm(['serviceTypeId' => $serviceTypeId, 'tariffCountries' => [$countryId => true]]);
+        $formModel = new TariffAddForm([
+            'serviceTypeId' => $serviceTypeId,
+            'tariffCountries' => [$countryId => true],
+            'tariffVoipCountries' => [$countryId => true],
+        ]);
 
         // сообщение об ошибке
         if ($formModel->validateErrors) {
@@ -108,7 +112,10 @@ class TariffController extends BaseController
                 'id' => (isset($query['id']) ? (int)$query['id'] : null),
                 'tariffCountries' => [
                     (isset($query['countryId']) ? $query['countryId'] : null) => true
-                ]
+                ],
+                'tariffVoipCountries' => [
+                    (isset($query['countryId']) ? $query['countryId'] : null) => true
+                ],
             ]);
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());

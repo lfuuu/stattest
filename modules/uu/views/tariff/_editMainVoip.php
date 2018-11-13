@@ -22,6 +22,7 @@ $viewParams = [
 
 <div class="well">
     <h2>Телефония <?= $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP)) ?></h2>
+    <?= $this->render('_editMainVoipCountry', $viewParams) ?>
     <?= $this->render('_editMainVoipCity', $viewParams) ?>
     <?= $this->render('_editMainVoipNdcType', $viewParams) ?>
 </div>

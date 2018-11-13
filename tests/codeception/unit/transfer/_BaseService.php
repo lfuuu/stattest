@@ -6,6 +6,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\DidGroup;
+use app\models\EventQueue;
 use app\models\LogTarif;
 use app\models\TariffVoipPackage;
 use app\models\usages\UsageInterface;
@@ -25,7 +26,13 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffCountry;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffResource;
+use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
 use app\tests\codeception\fixtures\DestinationFixture;
 use app\tests\codeception\fixtures\EntryPointFixture;
@@ -37,10 +44,12 @@ use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
+use app\tests\codeception\fixtures\uu\TariffVoipCountryFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use DateTime;
 use DateTimeZone;
 use tests\codeception\unit\models\_ClientAccount;
+use tests\codeception\unit\models\UbillerTest;
 use Yii;
 use yii\base\InvalidCallException;
 use yii\base\InvalidParamException;
@@ -111,6 +120,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
      *
      * @throws ModelValidationException
      * @throws \Exception
+     * @throws \Throwable
      */
     protected function load()
     {
@@ -121,13 +131,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
         (new TariffVoipPackageFixture)->load();
 
         // Loading fixtures universal fixtures
-        (new TariffFixture)->load();
-        (new TariffCountryFixture)->load();
-        (new TariffOrganizationFixture)->load();
-        (new TariffVoipCityFixture)->load();
-        (new TariffVoipNdcTypeFixture)->load();
-        (new TariffPeriodFixture)->load();
-        (new TariffResourceFixture)->load();
+        UbillerTest::loadUu();
 
         // Create regular client accounts
         $this->regularClientAccountFirst = $this->createClientAccount();
@@ -151,28 +155,11 @@ abstract class _BaseService extends \yii\codeception\TestCase
         TariffVoipPackage::deleteAll();
 
         // Unload universal data
-        AccountLogSetup::deleteAll();
-        AccountLogPeriod::deleteAll();
-        AccountLogResource::deleteAll();
-        AccountLogMin::deleteAll();
-        AccountEntry::deleteAll();
-        Bill::deleteAll();
-        AccountTariffResourceLog::deleteAll();
-        AccountTariffLog::deleteAll();
-        AccountTariff::deleteAll();
-        TariffPeriod::deleteAll();
-        TariffVoipNdcType::deleteAll();
+        UbillerTest::unloadUu();
 
         (new EntryPointFixture)->unload();
         (new NumberFixture)->unload();
-        (new TariffVoipPackageFixture)->unload();
         (new DestinationFixture)->unload();
-        (new TariffVoipCityFixture)->unload();
-        (new TariffPeriodFixture)->unload();
-        (new TariffResourceFixture)->unload();
-        (new TariffOrganizationFixture)->unload();
-        (new TariffCountryFixture)->unload();
-        (new TariffFixture)->unload();
     }
 
     /**
@@ -346,6 +333,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
             $serviceTypeId,
             $universalClientAccountFirst->currency,
             $universalClientAccountFirst->country_id,
+            $voipCountryIdTmp = null,
             $cityId,
             $isWithEmpty = false,
             $isWithNullAndNotNull = false,

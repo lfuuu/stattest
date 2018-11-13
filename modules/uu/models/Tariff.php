@@ -61,6 +61,7 @@ use yii\helpers\Url;
  * @property-read TariffVm $vm
  *
  * @property-read TariffCountry[] $tariffCountries
+ * @property-read TariffVoipCountry[] $tariffVoipCountries
  * @property-read TariffVoipGroup $voipGroup
  * @property-read TariffVoipCity[] $voipCities
  * @property-read TariffOrganization[] $organizations
@@ -354,6 +355,15 @@ class Tariff extends ActiveRecord
     public function getTariffCountries()
     {
         return $this->hasMany(TariffCountry::class, ['tariff_id' => 'id'])
+            ->indexBy('country_id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTariffVoipCountries()
+    {
+        return $this->hasMany(TariffVoipCountry::class, ['tariff_id' => 'id'])
             ->indexBy('country_id');
     }
 
