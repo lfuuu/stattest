@@ -94,7 +94,16 @@ class BillCorrection extends ActiveRecord
 
         foreach ($this->_getOriginalBillLinesByTypeId($this->type_id) as $line) {
             $newLine = new BillLineCorrection();
-            $newLine->setAttributes($line->getAttributes(null, ['pk']), false);
+
+            if ($line instanceof BillLine) {
+                $data = $line->getAttributes(null, ['pk']);
+            } else {
+                // array
+                $data = $line;
+                unset($data['pk']);
+            }
+
+            $newLine->setAttributes($data, false);
             $newLine->bill_correction_id = $this->id;
             if (!$newLine->save()) {
                 throw new ModelValidationException($newLine);
