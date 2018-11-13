@@ -1094,4 +1094,18 @@ SQL;
             $invoice->setReversal();
         }
     }
+
+    /**
+     * В счете есть партнерские вознаграждения
+     *
+     * @param Bill $bill
+     * @return bool
+     */
+    public function isHavePartnerRewards(Bill $bill)
+    {
+        return
+            $bill->clientAccount->contract->isPartner()
+            && BillLine::isAgentCommisionInLines($bill->lines);
+    }
+
 }

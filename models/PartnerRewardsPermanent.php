@@ -14,6 +14,8 @@ use app\classes\model\ActiveRecord;
  * @property float $percentage_of_over
  * @property float $percentage_of_margin
  * @property int $partner_id
+ *
+ * @property-readonly Bill $bill
  */
 class PartnerRewardsPermanent extends ActiveRecord
 {
@@ -23,5 +25,10 @@ class PartnerRewardsPermanent extends ActiveRecord
     public static function tableName()
     {
         return 'partner_rewards_permanent';
+    }
+
+    public function getBill()
+    {
+        return $this->hasOne(Bill::class, ['id' => 'bill_id']);
     }
 }

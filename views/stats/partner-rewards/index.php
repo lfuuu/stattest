@@ -7,6 +7,7 @@
  */
 
 use app\classes\Html;
+use app\models\ClientContract;
 use app\models\filter\PartnerRewardsFilter;
 use app\widgets\MonthPicker;
 use kartik\widgets\Select2;
@@ -34,7 +35,7 @@ echo Breadcrumbs::widget([
         <div class="col-sm-3">
             <?= Select2::widget([
                 'name' => 'filter[partner_contract_id]',
-                'data' => $filterModel->partnersList,
+                'data' => ClientContract::dao()->getPartnerList(),
                 'value' => $filterModel->partner_contract_id,
                 'options' => [
                     'placeholder' => '-- Выбрать партнера --',

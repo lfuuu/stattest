@@ -694,6 +694,7 @@ class m_newaccounts extends IModule
             //set doers
             if (isset($_POST['select_doer'])) {
                 $d = (int)$_POST['doer'];
+                /** @var Bill $bill */
                 $bill = Bill::findOne(['bill_no' => $_POST['bill_no']]);
                 if ($bill) {
                     $bill->courier_id = $d;
@@ -753,6 +754,7 @@ class m_newaccounts extends IModule
             return;
         }
         $bill = new \Bill($bill_no);
+        /** @var Bill $newbill */
         $newbill = Bill::findOne(['bill_no' => $bill_no]);
         if (get_param_raw('err') == 1) {
             trigger_error2('Невозможно добавить строки из-за несовпадния валют');
@@ -928,10 +930,7 @@ class m_newaccounts extends IModule
 
         $design->assign('bill_correction_info', $newbill->getCorrectionInfo());
 
-        // Определение, является ли клиент счета - партнером и имеется ли в строчках счета партнерское вознаграждение
-        $partnerContractId = isset($BusinessId) && $BusinessId === Business::PARTNER && $this->isAgentCommisionInLines($L) ?
-            $bill->client_id : false;
-        $design->assign('partnerContractId', $partnerContractId);
+        $design->assign('isPartnerRewards', $newbill->isHavePartnerRewards());
 
         $design->AddMain('newaccounts/bill_view.tpl');
 
@@ -942,23 +941,6 @@ class m_newaccounts extends IModule
             StatModule::tt()->tt_view($fixclient);
             StatModule::tt()->dont_again = true;
         }
-    }
-
-    /**
-     * @param array $L
-     * @return bool
-     */
-    public function isAgentCommisionInLines($L)
-    {
-        $isAgent = false;
-        foreach ($L as $line) {
-            preg_match('/агентское/ui', $line['item'], $agentMatch);
-            if (isset($agentMatch[0])) {
-                $isAgent = true;
-                break;
-            }
-        }
-        return $isAgent;
     }
 
     /**
@@ -2134,13 +2116,13 @@ class m_newaccounts extends IModule
             }
             case 'partner_reward':
                 // Дата за прошлый месяц для генерации отчета
-                $filterDate = (new \DateTime('now'))
-                    ->sub(new DateInterval('P1M'))
+                $filterDate = (new \DateTimeImmutable($billModel->bill_date))
+                    ->modify('first day of previous month')
                     ->format('Y-m');
                 // Создание фильтра и получение результата
                 $filterModel = (new PartnerRewardsFilter(true, true))->load();
                 // Вызов данного события обусловлен пройденной проверкой, в которой клиент счета имеет партнерское вознаграждение
-                $filterModel->partner_contract_id = $billModel->client_id;
+                $filterModel->partner_contract_id = $billModel->clientAccount->contract_id;
                 $filterModel->payment_date_before = $filterDate;
                 $filterModel->payment_date_after = $filterDate;
                 // Генерация контента по шаблону и создание PDF-файла

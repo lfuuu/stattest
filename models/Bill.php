@@ -256,6 +256,16 @@ class Bill extends ActiveRecord
     }
 
     /**
+     * Счет содержит партнерские вознаграждения
+     *
+     * @return mixed
+     */
+    public function isHavePartnerRewards()
+    {
+        return self::dao()->isHavePartnerRewards($this);
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getExtendsInfo()

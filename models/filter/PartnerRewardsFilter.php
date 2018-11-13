@@ -29,7 +29,6 @@ class PartnerRewardsFilter extends DynamicModel
     public
         $contractsWithoutRewardSettings = [],
         $contractsWithIncorrectBusinessProcess = [],
-        $partnersList = [],
         $summary = [],
         $possibleSummary = [];
 
@@ -66,7 +65,6 @@ class PartnerRewardsFilter extends DynamicModel
 
         $this->contractsWithoutRewardSettings = $this->_getContractsWithoutRewardSettings();
         $this->contractsWithIncorrectBusinessProcess = $this->_getContractsWithIncorrectBusinessProcess();
-        $this->partnersList = ClientContract::dao()->getPartnerList();
 
         return $this;
     }

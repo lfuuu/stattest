@@ -8,11 +8,17 @@ use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
+use app\models\Currency;
 use app\models\EventQueue;
+use app\models\filter\PartnerRewardsFilter;
 use app\models\PartnerRewards;
 use app\models\PartnerRewardsPermanent;
+use app\modules\uu\forms\AccountTariffAddForm;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
 use DateTime;
 use yii\console\Controller;
+use yii\db\Expression;
 
 class PartnerRewardController extends Controller
 {
@@ -32,7 +38,7 @@ class PartnerRewardController extends Controller
             // Перманентное перекачивание данных с учетом режима работы
             $sql = '
                 INSERT INTO
-                  '.PartnerRewardsPermanent::tableName().' 
+                  ' . PartnerRewardsPermanent::tableName() . ' 
                   (bill_id, line_pk, created_at, once, percentage_once, percentage_of_fee, percentage_of_over, percentage_of_margin, partner_id)
                   (
                     SELECT
@@ -45,12 +51,12 @@ class PartnerRewardController extends Controller
                       rewards.percentage_of_over,
                       rewards.percentage_of_margin,
                       COALESCE(contract.partner_contract_id, contragent.partner_contract_id) partner_id
-                    FROM '.PartnerRewards::tableName().' rewards
-                      LEFT JOIN '.Bill::tableName().' bill ON rewards.bill_id = bill.id
-                      LEFT JOIN '.ClientAccount::tableName().' client ON client.id = bill.client_id
-                      LEFT JOIN '.ClientContract::tableName().' contract ON client.contract_id = contract.id
-                      LEFT JOIN '.ClientContragent::tableName().' contragent ON contract.contragent_id = contragent.id
-                      '.($type === 'full' ? '' : 'WHERE rewards.created_at BETWEEN DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 00:00:00\') AND DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 23:59:59\')').'
+                    FROM ' . PartnerRewards::tableName() . ' rewards
+                      LEFT JOIN ' . Bill::tableName() . ' bill ON rewards.bill_id = bill.id
+                      LEFT JOIN ' . ClientAccount::tableName() . ' client ON client.id = bill.client_id
+                      LEFT JOIN ' . ClientContract::tableName() . ' contract ON client.contract_id = contract.id
+                      LEFT JOIN ' . ClientContragent::tableName() . ' contragent ON contract.contragent_id = contragent.id
+                      ' . ($type === 'full' ? '' : 'WHERE rewards.created_at BETWEEN DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 00:00:00\') AND DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 23:59:59\')') . '
                   )
                 ;
             ';
@@ -118,5 +124,86 @@ class PartnerRewardController extends Controller
                 echo sprintf("Bill %s: %s ", $bill->id, $e->getMessage());
             }
         }
+    }
+
+    /**
+     * Перенос вознаграждений в счета
+     */
+    public function actionRewardsToBill()
+    {
+        $dateFrom = (new \DateTimeImmutable('now'))->setTime(0, 0, 0)->modify('first day of previous month');
+        $dateTo = $dateFrom->modify('last day of this month');
+
+        $exp = new Expression('round(coalesce(sum(once), 0), 2) +
+            round(coalesce(sum(percentage_once), 0),2) +
+            round(coalesce(sum(percentage_of_fee), 0), 2) +
+            round(coalesce(sum(percentage_of_over), 0), 2) +
+            round(coalesce(sum(percentage_of_margin), 0), 2)');
+
+        $data = PartnerRewardsPermanent::find()
+            ->alias('p')
+            ->joinWith(['bill b'], true, 'INNER JOIN')
+            ->select(['sum' => $exp])
+            ->where(['between', 'b.bill_date', $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT), $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)])
+            ->groupBy('partner_id')
+            ->indexBy('partner_id')
+            ->column();
+
+
+        foreach ($data as $contractId => $sum) {
+            $contract = ClientContract::findOne(['id' => $contractId]);
+
+            if (!$contract || !$contract->isPartner()) {
+                continue;
+            }
+
+            foreach ($contract->accounts as $account) {
+
+                if ($account->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
+                    continue;
+                }
+
+                new AccountTariffAddForm([
+                    'serviceTypeId' => ServiceType::ID_ONE_TIME,
+                    'clientAccountId' => $account->id,
+                    'postData' => [
+                        'AccountTariffLog' => [
+                            'tariff_period_id' => $this->_getTariffPeriodId($account),
+                            'actual_from' => date(DateTimeZoneHelper::DATE_FORMAT),
+                        ],
+                        'AccountTariff' => [
+                            'comment' => 'Агентское вознаграждение'
+                        ],
+                        'resourceOneTimeCost' => $sum
+                    ]
+                ]);
+
+                echo PHP_EOL . date("r") . ": " . $account->id . ': ' . $sum;
+
+                break;
+            }
+        }
+    }
+
+    /**
+     * Получение tariffPeriod для разовой услуги по ЛС
+     *
+     * @param ClientAccount $account
+     * @return int
+     */
+    private function _getTariffPeriodId(ClientAccount $account)
+    {
+        $tariff = Tariff::findOne([
+            'currency_id' => Currency::RUB,
+            'service_type_id' => ServiceType::ID_ONE_TIME,
+            'is_default' => 1,
+            'is_include_vat' => $account->is_voip_with_tax
+        ]);
+
+        $periods = $tariff->tariffPeriods;
+
+        $period = reset($periods);
+
+        return $period->id;
     }
 }

@@ -40,6 +40,8 @@ abstract class AccountTariffForm extends Form
     /** @var int */
     public $ndcTypeId = null;
 
+    public $postData = null;
+
     /**
      * @return AccountTariff
      */
@@ -86,7 +88,7 @@ abstract class AccountTariffForm extends Form
     public function loadFromInput()
     {
         /** @var array $post */
-        $post = Yii::$app->request->post();
+        $post = $this->postData ?: Yii::$app->request->post();
         if (!$post) {
             return;
         }

@@ -1,6 +1,7 @@
 <?php
 /** @var PartnerRewardsFilter $filterModel*/
 
+use app\models\ClientContract;
 use app\models\filter\PartnerRewardsFilter;
 
 $keys = [
@@ -9,14 +10,18 @@ $keys = [
 ];
 $dataProvider = $filterModel->search();
 $summary = $filterModel->summary;
+
+$partnerName = "#".$filterModel->partner_contract_id;
+if ($contract = ClientContract::findOne(['id' => $filterModel->partner_contract_id])) {
+    $partnerName = $contract->contragent->name;
+}
+
 ?>
 
 <b>Отчет по партнерскому вознаграждению</b>
 <br>
 <span>Агент:
-    <?php if (isset($filterModel->partnersList[$filterModel->partner_contract_id])) : ?>
-        <b><?= $filterModel->partnersList[$filterModel->partner_contract_id]; ?></b>
-    <?php endif; ?>
+    <b><?= $partnerName ?></b>
 </span>
 <br>
 <span>Расчетный период за <?= $filterModel->payment_date_before ?> - <?= $filterModel->payment_date_after ?> г.</span>

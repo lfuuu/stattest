@@ -451,4 +451,23 @@ class BillLine extends ActiveRecord
 
         return $ret_x['sum'] > 0 ? [$ret_x] : false;
     }
+
+
+    /**
+     * Есть ли комиссия в строках счета
+     *
+     * @param array $L
+     * @return bool
+     */
+    public static function isAgentCommisionInLines($L)
+    {
+        foreach ($L as $line) {
+            preg_match('/агентское вознагражден/ui', $line['item'], $agentMatch);
+            if (isset($agentMatch[0])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
