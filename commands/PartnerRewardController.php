@@ -151,6 +151,8 @@ class PartnerRewardController extends Controller
 
 
         foreach ($data as $contractId => $sum) {
+            $sum = -$sum;
+            
             $contract = ClientContract::findOne(['id' => $contractId]);
 
             if (!$contract || !$contract->isPartner()) {
