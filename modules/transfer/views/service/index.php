@@ -111,7 +111,9 @@ $actionButton = $this->render('//layouts/_submitButton', [
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($form->servicesPossibleToTransfer as $serviceKey => $servicesData): ?>
+        <?php
+        $idx = 0;
+        foreach ($form->servicesPossibleToTransfer as $serviceKey => $servicesData): ?>
             <tr class="active">
                 <td colspan="5" class="text-center">
                     <b><?= $servicesData['title'] ?></b>
@@ -122,7 +124,7 @@ $actionButton = $this->render('//layouts/_submitButton', [
             foreach ($servicesData['services'] as $service): ?>
                 <tr>
                     <td class="text-center">
-                        <?= Html::checkbox('data[services][' . $serviceKey . '][]', $checked = false, [
+                        <?= Html::checkbox('data[services][' . $serviceKey . '][' . $idx . ']', $checked = false, [
                             'class' => 'service-checkbox',
                             'value' => $service->id,
                         ])
@@ -134,12 +136,12 @@ $actionButton = $this->render('//layouts/_submitButton', [
                         <div class="label label-info"></div>
                     </td>
                     <td class="processed-from-date">
-                        <?= $datePicker('data[fromDate][' . $serviceKey . '][]') ?>
+                        <?= $datePicker('data[fromDate][' . $serviceKey . '][' . $idx . ']') ?>
                     </td>
                     <td class="processed-tariff">
                         <div class="collapse" data-tariff-choose="true">
                             <?= Select2::widget([
-                                'name' => 'data[tariffIds][' . $serviceKey . '][]',
+                                'name' => 'data[tariffIds][' . $serviceKey . '][' . $idx . ']',
                                 'data' => [],
                                 'options' => [
                                     'class' => 'choose-tariff',
@@ -156,7 +158,7 @@ $actionButton = $this->render('//layouts/_submitButton', [
                         </div>
                     </td>
                 </tr>
-            <?php endforeach; ?>
+            <?php $idx++; endforeach; ?>
         <?php endforeach; ?>
     </tbody>
 </table>

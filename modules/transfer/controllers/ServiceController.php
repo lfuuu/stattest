@@ -174,6 +174,7 @@ class ServiceController extends BaseController
                 $serviceTypeProcessor->getServiceTypeId(),
                 $clientAccount->currency,
                 $clientAccount->country->code,
+                $voipCountryId = null,
                 $cityId,
                 $isWithEmpty = false,
                 $isWithNullAndNotNull = false,
