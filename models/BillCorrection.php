@@ -92,7 +92,7 @@ class BillCorrection extends ActiveRecord
             return;
         }
 
-        foreach ($this->_getOriginalBillLinesByTypeId($this->type_id) as $line) {
+        foreach ($this->_getOriginalBillLinesByTypeId($this->type_id, $isInsert) as $line) {
             $newLine = new BillLineCorrection();
 
             if ($line instanceof BillLine) {
@@ -233,9 +233,9 @@ class BillCorrection extends ActiveRecord
      * @param integer $typeId
      * @return array
      */
-    private function _getOriginalBillLinesByTypeId($typeId)
+    private function _getOriginalBillLinesByTypeId($typeId, $isInsert = null)
     {
-        return $this->bill->getLinesByTypeId($typeId);
+        return $this->bill->getLinesByTypeId($typeId, $isInsert);
     }
 
     /**

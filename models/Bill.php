@@ -528,9 +528,9 @@ class Bill extends ActiveRecord
      * @param $typeId
      * @return array
      */
-    public function getLinesByTypeId($typeId)
+    public function getLinesByTypeId($typeId, $isInsert = null)
     {
-        return self::dao()->getLinesByTypeId($this, $typeId);
+        return self::dao()->getLinesByTypeId($this, $typeId, $isInsert);
     }
 
     /**

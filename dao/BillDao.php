@@ -918,7 +918,7 @@ SQL;
         }
     }
 
-    public static function getLinesByTypeId($bill, $typeId)
+    public static function getLinesByTypeId($bill, $typeId, $isInsert = null)
     {
         $lines = [];
 
@@ -940,7 +940,7 @@ SQL;
 
         // скорректированные с/ф только если они есть и не в книге продаж.
         $correctionInfo = null;
-        if ($bill->sum_correction) {
+        if (!$isInsert/*$bill->sum_correction*/) {
 
             $billCorrection = BillCorrection::findOne([
                 'bill_no' => $bill->bill_no,
