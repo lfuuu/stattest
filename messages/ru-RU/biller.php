@@ -43,6 +43,7 @@ return [
     'USD' => '$',
 
     'incomming_payment' => 'Авансовый платеж за услуги связи',
+    'partner_reward' => 'Агентское вознаграждение {date_range_month}',
 
     'Communications services contract #{contract_number}' => 'Услуги связи по договору №{contract_number}',
     'Month' => 'Месяц',

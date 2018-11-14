@@ -10,10 +10,8 @@ use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\EventQueue;
-use app\models\filter\PartnerRewardsFilter;
 use app\models\PartnerRewards;
 use app\models\PartnerRewardsPermanent;
-use app\modules\uu\forms\AccountTariffAddForm;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use DateTime;
@@ -161,51 +159,28 @@ class PartnerRewardController extends Controller
 
             foreach ($contract->accounts as $account) {
 
-                if ($account->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
-                    continue;
-                }
+                $lang = $account->contragent->lang_code;
 
-                new AccountTariffAddForm([
-                    'serviceTypeId' => ServiceType::ID_ONE_TIME,
-                    'clientAccountId' => $account->id,
-                    'postData' => [
-                        'AccountTariffLog' => [
-                            'tariff_period_id' => $this->_getTariffPeriodId($account),
-                            'actual_from' => date(DateTimeZoneHelper::DATE_FORMAT),
-                        ],
-                        'AccountTariff' => [
-                            'comment' => 'Агентское вознаграждение'
-                        ],
-                        'resourceOneTimeCost' => $sum
-                    ]
-                ]);
+                $bill = Bill::dao()->createBill($account);
+                $bill->addLine(
+                    \Yii::t(
+                        'biller',
+                        'partner_reward', [
+                        'date_range_month' => \Yii::t(
+                            'biller',
+                            'date_range_month',
+                            [$dateFrom->getTimestamp(), $dateTo->getTimestamp()],
+                            $lang)],
+                        $lang),
+                1,
+                $sum);
+                Bill::dao()->recalcBill($bill);
+                ClientAccount::dao()->updateBalance($bill->client_id);
 
                 echo PHP_EOL . date("r") . ": " . $account->id . ': ' . $sum;
 
                 break;
             }
         }
-    }
-
-    /**
-     * Получение tariffPeriod для разовой услуги по ЛС
-     *
-     * @param ClientAccount $account
-     * @return int
-     */
-    private function _getTariffPeriodId(ClientAccount $account)
-    {
-        $tariff = Tariff::findOne([
-            'currency_id' => Currency::RUB,
-            'service_type_id' => ServiceType::ID_ONE_TIME,
-            'is_default' => 1,
-            'is_include_vat' => $account->is_voip_with_tax
-        ]);
-
-        $periods = $tariff->tariffPeriods;
-
-        $period = reset($periods);
-
-        return $period->id;
     }
 }
