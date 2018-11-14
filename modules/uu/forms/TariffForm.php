@@ -318,6 +318,7 @@ abstract class TariffForm extends \app\classes\Form
     {
         $tariffCloned = $this->_cloneTariffTariff();
         $this->_cloneTariffCountry($tariffCloned);
+        $this->_cloneTariffVoipCountry($tariffCloned);
         $this->_cloneTariffVoipCity($tariffCloned);
         $this->_cloneTariffVoipNdcType($tariffCloned);
         $this->_cloneTariffOrganization($tariffCloned);
@@ -415,6 +416,32 @@ abstract class TariffForm extends \app\classes\Form
             if (!$tariffCountryCloned->save()) {
                 $this->validateErrors += $tariffCountryCloned->getFirstErrors();
                 throw new ModelValidationException($tariffCountryCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. TariffVoipCountry
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffVoipCountry(Tariff $tariffCloned)
+    {
+        $tariffVoipCountries = $this->tariff->tariffVoipCountries;
+        $fieldNames = [
+            'country_id',
+        ];
+        foreach ($tariffVoipCountries as $tariffVoipCountry) {
+            $tariffVoipCountryCloned = new TariffVoipCountry();
+            $tariffVoipCountryCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $tariffVoipCountryCloned->$fieldName = $tariffVoipCountry->$fieldName;
+            }
+
+            if (!$tariffVoipCountryCloned->save()) {
+                $this->validateErrors += $tariffVoipCountryCloned->getFirstErrors();
+                throw new ModelValidationException($tariffVoipCountryCloned);
             }
         }
     }
