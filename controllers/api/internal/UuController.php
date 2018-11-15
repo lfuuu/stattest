@@ -4,6 +4,7 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
+use app\classes\helpers\DependecyHelper;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
@@ -43,6 +44,7 @@ use DateTimeZone;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\caching\TagDependency;
 use yii\web\HttpException;
 
 class UuController extends ApiInternalController
@@ -786,6 +788,7 @@ class UuController extends ApiInternalController
         }
 
         return [
+            '_id' => $packageMinutes->id,
             'destination' => (string)$packageMinutes->destination,
             'minute' => $packageMinutes->minute,
             'spent_seconds' => $minuteStatistic,
@@ -1434,47 +1437,66 @@ class UuController extends ApiInternalController
      */
     private function _getAccountTariffWithPackagesRecord($accountTariff)
     {
-        $number = $accountTariff->number;
+        $key = DependecyHelper::me()->getKey(
+            DependecyHelper::TAG_UU_API,
+            'get-account-tariffs',
+            $accountTariff->getHash()
+        );
 
-        if ($number) {
-            $isFmcEditable = $number->isMobileOutboundEditable();
-            $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC));
-
-            $isMobileOutboundEditable = $number->isMobileOutboundEditable();
-            $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_MOBILE_OUTBOUND));
-        } else {
-            $isFmcEditable = $isFmcActive = null;
-            $isMobileOutboundEditable = $isMobileOutboundActive = null;
-        }
-
+        $minutesStatistic = [];
         if ($accountTariff->service_type_id === ServiceType::ID_VOIP_PACKAGE_CALLS) {
             $minutesStatistic = $accountTariff->getMinuteStatistic();
-        } else {
-            $minutesStatistic = [];
         }
 
-        $record = [
-            'id' => $accountTariff->id,
-            'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
-            'region' => $this->_getIdNameRecord($accountTariff->region),
-            'voip_number' => $accountTariff->voip_number,
-            'voip_city' => $this->_getIdNameRecord($accountTariff->city),
-            'beauty_level' => $number ? $number->beauty_level : null,
-            'ndc' => $number ? $number->ndc : null,
-            'ndc_type_id' => $number ? $number->ndc_type_id : null,
-            'is_active' => $accountTariff->isActive(), // Действует ли?
-            'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
-            'is_cancelable' => $accountTariff->isLogCancelable(), // Можно ли отменить смену тарифа?
-            'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
-            'is_fmc_editable' => $isFmcEditable,
-            'is_fmc_active' => $isFmcActive,
-            'is_mobile_outbound_editable' => $isMobileOutboundEditable,
-            'is_mobile_outbound_active' => $isMobileOutboundActive,
-            'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic),
-            'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
-            'default_actual_from' => $accountTariff->getDefaultActualFrom(),
-            'packages' => [],
-        ];
+        if ($record = \Yii::$app->cache->get($key)) {
+            $minutesStatistic && $this->_setMinutesStatistic($record, $minutesStatistic);
+        } else {
+
+            $number = $accountTariff->number;
+
+            if ($number) {
+                $isFmcEditable = $number->isMobileOutboundEditable();
+                $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC));
+
+                $isMobileOutboundEditable = $number->isMobileOutboundEditable();
+                $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_MOBILE_OUTBOUND));
+            } else {
+                $isFmcEditable = $isFmcActive = null;
+                $isMobileOutboundEditable = $isMobileOutboundActive = null;
+            }
+
+            $record = [
+                'id' => $accountTariff->id,
+                'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
+                'region' => $this->_getIdNameRecord($accountTariff->region),
+                'voip_number' => $accountTariff->voip_number,
+                'voip_city' => $this->_getIdNameRecord($accountTariff->city),
+                'beauty_level' => $number ? $number->beauty_level : null,
+                'ndc' => $number ? $number->ndc : null,
+                'ndc_type_id' => $number ? $number->ndc_type_id : null,
+                'is_active' => $accountTariff->isActive(), // Действует ли?
+                'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
+                'is_cancelable' => $accountTariff->isLogCancelable(), // Можно ли отменить смену тарифа?
+                'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
+                'is_fmc_editable' => $isFmcEditable,
+                'is_fmc_active' => $isFmcActive,
+                'is_mobile_outbound_editable' => $isMobileOutboundEditable,
+                'is_mobile_outbound_active' => $isMobileOutboundActive,
+                'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic),
+                'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
+                'default_actual_from' => $accountTariff->getDefaultActualFrom(),
+                'packages' => [],
+            ];
+
+            \Yii::$app->cache->set(
+                $key,
+                $record,
+                0,
+                (new TagDependency(['tags' => [DependecyHelper::TAG_API, DependecyHelper::TAG_UU_API]]))
+            );
+        }
+
+        $this->_clearPrivateIds($record);
 
         $packages = $accountTariff->nextAccountTariffs;
         if ($packages) {
@@ -2204,4 +2226,44 @@ class UuController extends ApiInternalController
 
         throw new HttpException(ModelValidationException::STATUS_CODE, 'Тариф недоступен этому ЛС', AccountTariff::ERROR_CODE_TARIFF_WRONG);
     }
+
+    private function _clearPrivateIds(&$record)
+    {
+        if (!$record || !isset($record['log'])) {
+            return;
+        }
+
+        foreach ($record['log'] as $idx0 => $tariff) {
+            if (!isset($tariff['tariff']['voip_package_minute']) || !$tariff['tariff']['voip_package_minute']) {
+                continue;
+            }
+            foreach ($tariff['tariff']['voip_package_minute'] as $idx1 => $package) {
+                unset($record['log'][$idx0]['tariff']['voip_package_minute'][$idx1]['_id']);
+            }
+        }
+
+    }
+
+    private function _setMinutesStatistic(&$record, $minutesStatistic)
+    {
+        foreach ($record['log'] as $idx0 => $tariff) {
+            if (!isset($tariff['tariff']['voip_package_minute']) || !$tariff['tariff']['voip_package_minute']) {
+                continue;
+            }
+            foreach ($tariff['tariff']['voip_package_minute'] as $idx1 => $packageMinutes) {
+
+                $minuteStatistic = null;
+                foreach ($minutesStatistic as $minuteStatisticTmp) {
+                    if ($minuteStatisticTmp['i_nnp_package_minute_id'] == $packageMinutes->id) {
+                        $minuteStatistic = $minuteStatisticTmp['i_used_seconds'];
+                        break;
+                    }
+                }
+
+                $record['log'][$idx0]['tariff']['voip_package_minute'][$idx1]['spent_seconds'] = $minuteStatistic;
+            }
+        }
+
+    }
+
 }
