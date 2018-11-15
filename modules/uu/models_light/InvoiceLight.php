@@ -134,6 +134,7 @@ class InvoiceLight extends Component
                     ->alias('bl')
                     ->joinWith('bill b')
                     ->where([
+                        'b.client_id' => $sBill->client_id,
                         'b.bill_date' => $sBill->bill_date,
                         'b.is_to_uu_invoice' => 1,
                     ])
