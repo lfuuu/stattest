@@ -56,7 +56,7 @@ $columns = [
         'label' => Yii::t('tariff', 'Universal services'),
         'attribute' => 'tariff_period_id',
         'class' => TariffPeriodColumn::class,
-        'serviceTypeId' => $serviceType->id,
+        'serviceTypeId' => $serviceType ? $serviceType->id : '',
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             return Html::encode($accountTariff->getName(false));
@@ -79,7 +79,7 @@ $dateBeforeSaleColumn = null;
 // Колонка "Дата отключения"
 $dateDisconnectTariffColumn = null;
 
-if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT])) {
+if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT])) {
     if ($serviceType->id == ServiceType::ID_VOIP) {
         $dateTestTariffColumn = [
             'label' => 'Дата включения на тестовый тариф, utc',
@@ -144,7 +144,7 @@ if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, Serv
     ];
 }
 
-if ($serviceTypeId = $serviceType->isPackage()) {
+if ($serviceType && $serviceTypeId = $serviceType->isPackage()) {
     $columns[] = [
         'label' => 'Тариф основной услуги',
         'attribute' => 'prev_account_tariff_tariff_id',
@@ -255,7 +255,7 @@ $columns = array_merge($columns, [
         'label' => 'Статус тарифа',
         'attribute' => 'tariff_status_id',
         'class' => TariffStatusColumn::class,
-        'serviceTypeId' => $serviceType->id,
+        'serviceTypeId' => $serviceType ? $serviceType->id : '',
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
@@ -383,7 +383,7 @@ if ($serviceType) {
 }
 
 // Добавление колонки "Заявка ЛИД" для услуг с типами: ВАТС, Телефония, Звонок-чат
-if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT], true)) {
+if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT], true)) {
     $columns[] = [
         'label' => 'Заявка ЛИД',
         'attribute' => 'trouble_id',
@@ -417,9 +417,9 @@ if (array_search('price', array_column($columns, 'attribute'))) {
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
-    'extraButtons' => $serviceType->id == ServiceType::ID_VOIP_PACKAGE_CALLS ?
+    'extraButtons' => $serviceType && $serviceType->id == ServiceType::ID_VOIP_PACKAGE_CALLS ?
         '' :
-        $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]),
+        $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType ? $serviceType->id : '')]),
     'columns' => $columns,
     'afterHeader' => [
         [

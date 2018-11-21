@@ -28,7 +28,7 @@ $serviceType = $filterModel->getServiceType();
             'url' => Url::to(['/uu/account-tariff', 'serviceTypeId' => $serviceType ? $serviceType->id : null])
         ],
         [
-            'label' => $this->render('//layouts/_helpConfluence', $serviceType->getHelpConfluence()),
+            'label' => $serviceType ? $this->render('//layouts/_helpConfluence', $serviceType->getHelpConfluence()) : '',
             'encode' => false,
         ],
     ],
