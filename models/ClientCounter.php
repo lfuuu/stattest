@@ -76,8 +76,8 @@ class ClientCounter extends ActiveRecord
             case ClientAccount::VERSION_BILLER_USAGE:
                 // старый (текущий) биллинг
 
-                Yii::info('Баланс '.($this->isMass ? 'массовый' : 'нормальный').' ' .($this->isLocal ? 'неверный' : ''). ' ЛС# ' . $this->clientAccount->id . ' '
-                    . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
+//                Yii::info('Баланс '.($this->isMass ? 'массовый' : 'нормальный').' ' .($this->isLocal ? 'неверный' : ''). ' ЛС# ' . $this->clientAccount->id . ' '
+//                    . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
 
                 return
                     $this->clientAccount->credit > -1 ?
@@ -89,8 +89,8 @@ class ClientCounter extends ActiveRecord
                 // новый (универсальный) биллинг
                 // пересчитывается в RealtimeBalanceTarificator
 
-                Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный' : '') . ' УЛС# ' . $this->clientAccount->id . ' '
-                    . ($this->clientAccount->balance + $this->getDaySummary()) . ' = ' . $this->clientAccount->balance . ' + ' . $this->getDaySummary() . ' / ' . $this->amount_sum);
+//                Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный' : '') . ' УЛС# ' . $this->clientAccount->id . ' '
+//                    . ($this->clientAccount->balance + $this->getDaySummary()) . ' = ' . $this->clientAccount->balance . ' + ' . $this->getDaySummary() . ' / ' . $this->amount_sum);
 
                 return $this->clientAccount->balance + $this->amount_sum;
 
