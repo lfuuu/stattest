@@ -3,6 +3,7 @@
 namespace app\controllers\api\internal;
 
 use app\classes\api\ApiPhone;
+use app\classes\HttpClient;
 use app\exceptions\ModelValidationException;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
@@ -16,6 +17,7 @@ use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\UsageVoipValidator;
 use app\models\billing\CallsRaw;
+use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 
 class VoipController extends ApiInternalController
@@ -48,12 +50,14 @@ class VoipController extends ApiInternalController
      *   path="/internal/voip/calls/",
      *   summary="Получение списка звонков",
      *   operationId="Получение списка звонков",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
-     *   @SWG\Parameter(name="number",type="string",description="номер телефона",in="formData"),
-     *   @SWG\Parameter(name="year",type="integer",description="год, за который выбирать звонки",in="formData"),
-     *   @SWG\Parameter(name="month",type="integer",description="месяц, за который выбирать звонки",in="formData"),
-     *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData"),
-     *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000"),
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",default=""),
+     *   @SWG\Parameter(name="number",type="string",description="номер телефона",in="formData",default=""),
+     *   @SWG\Parameter(name="year",type="integer",description="год, за который выбирать звонки",in="formData",default=""),
+     *   @SWG\Parameter(name="month",type="integer",description="месяц, за который выбирать звонки",in="formData",default=""),
+     *   @SWG\Parameter(name="day",type="integer",description="день, за который выбирать звонки",in="formData",default=""),
+     *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
+     *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000",default="100"),
+     *   @SWG\Parameter(name="is_with_nnp_info",type="integer",description="с NNP информацией",in="formData",default="0"),
      *   @SWG\Response(
      *     response=200,
      *     description="данные о клиентах партнёра",
@@ -81,7 +85,7 @@ class VoipController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'year', 'month'], 'integer'],
+                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info'], 'integer'],
                 ['number', 'trim'],
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
@@ -103,16 +107,65 @@ class VoipController extends ApiInternalController
                 $model->number,
                 $model->year,
                 $model->month,
+                $model->day,
                 $model->offset,
                 $model->limit
             ) as $call
         ) {
             $call['cost'] = (double)$call['cost'];
             $call['rate'] = (double)$call['rate'];
+
+            if ($model->is_with_nnp_info) {
+                $call['nnp']['src'] = $this->_getNnpInfo($call['src_number']);
+                $call['nnp']['dst'] = $this->_getNnpInfo($call['dst_number']);
+            }
+
             $result[] = $call;
         }
 
         return $result;
+    }
+
+    private function _getNnpInfo($number)
+    {
+        if (!$number) {
+            return null;
+        }
+
+        $redis = \Yii::$app->redis;
+
+        if ($numberInfo = $redis->get('numberInfo:'.$number)) {
+            return unserialize($numberInfo);
+        }
+
+        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
+
+        if (!$url) {
+            throw new InvalidConfigException();
+        }
+
+
+        $numberInfo = (new HttpClient())
+            ->get($url, [
+                'cmd'=>'getNumberRangeByNum',
+                'num'=>  $number])
+            ->getResponseDataWithCheck();
+
+        $redis = \Yii::$app->redis;
+
+        $countryId = $redis->get('cityIdToCountryId:' . $numberInfo['nnp_city_id']);
+
+        $data = [
+            'country_name' => $countryId ? ($redis->get('country:' . $countryId) ?: 'unknown') : 'unknown',
+            'city_name' => $redis->get('city:' . $numberInfo['nnp_city_id']) ?: 'unknown',
+            'region_name' => $redis->get('region:' . $numberInfo['nnp_region_id']) ?: 'unknown',
+            'operator_name' => $redis->get('operator:' . $numberInfo['nnp_operator_id']) ?: 'unknown',
+            'ndc_type_name' => $redis->get('ndcType:' . $numberInfo['ndc_type_id']) ?: 'unknown',
+        ];
+
+        $redis->set('numberInfo:' . $number, serialize($data));
+
+        return $data;
     }
 
     /**

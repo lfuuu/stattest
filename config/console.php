@@ -84,11 +84,18 @@ return [
     'language' => 'ru-RU',
     'timeZone' => 'UTC',
     'components' => [
+        /*
+    'cache' => [
+        'class' => 'yii\caching\FileCache',
+        'dirMode' => 0777,
+        'fileMode' => 0666,
+    ],*/
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+        ],
         'cache' => [
-            'class' => 'yii\caching\FileCache',
-            'dirMode' => 0777,
-            'fileMode' => 0666,
-
+            'class' => 'yii\redis\Cache',
+            'keyPrefix' => 'stat:',
         ],
         'user' => [
             'class' => 'yii\web\User',

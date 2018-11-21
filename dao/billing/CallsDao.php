@@ -77,14 +77,14 @@ class CallsDao extends Singleton
      * @param int $limit
      * @return array
      */
-    public function getCalls($accountId, $number, $year, $month, $offset = 0, $limit = 1000)
+    public function getCalls($accountId, $number, $year, $month, $day, $offset = 0, $limit = 1000)
     {
         $firstDayOfDate = new DateTime;
-        $firstDayOfDate = $firstDayOfDate->setDate($year, $month, 1);
+        $firstDayOfDate = $firstDayOfDate->setDate($year, $month, $day ?: 1);
         $firstDayOfDate = $firstDayOfDate->setTime(0, 0, 0);
 
         $lastDayOfDate = clone $firstDayOfDate;
-        $lastDayOfDate = $lastDayOfDate->modify('last day of this month');
+        !$day && $lastDayOfDate = $lastDayOfDate->modify('last day of this month');
         $lastDayOfDate = $lastDayOfDate->setTime(23, 59, 59);
 
         $query = new Query;

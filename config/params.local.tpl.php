@@ -41,4 +41,6 @@ return [
         ]
     ],
 
+    'nnpInfoServiceURL' => '', // http://reg10.mcntelecom.ru:8032/test/nnpcalc
+
 ];
