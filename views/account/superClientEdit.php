@@ -1,14 +1,8 @@
 <?php
 
 use app\classes\Html;
-use app\models\Region;
-use app\models\Metro;
-use app\models\Bank;
-use app\models\GoodPriceType;
 use kartik\widgets\ActiveForm;
-use kartik\widgets\Select2;
 use kartik\builder\Form;
-use kartik\widgets\DatePicker;
 
 ?>
 <div class="row">
@@ -38,11 +32,8 @@ use kartik\widgets\DatePicker;
                         'items' => \app\models\User::getUserListByDepart(28, $isEnabled = true)
                     ],
                     'entry_point_id' => [
-                        'type' => Form::INPUT_TEXT,
-                        'options' => [
-                            'value' => $model->entryPointName,
-                            'readonly' => true
-                        ],
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'items' => \app\models\EntryPoint::getList($isWithEmpty = true),
                         'columnOptions' => [
                             'colspan' => 2,
                         ]

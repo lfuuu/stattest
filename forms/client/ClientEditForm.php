@@ -18,7 +18,7 @@ class ClientEditForm extends Form
     {
         $rules = [
             [['name'], 'string'],
-            [['financial_manager_id'], 'integer'],
+            [['financial_manager_id', 'entry_point_id'], 'integer'],
         ];
         return $rules;
     }

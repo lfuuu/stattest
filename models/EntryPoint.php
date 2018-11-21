@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetListTrait;
 use app\helpers\DateTimeZoneHelper;
 
 /**
@@ -31,6 +32,8 @@ use app\helpers\DateTimeZoneHelper;
  */
 class EntryPoint extends ActiveRecord
 {
+    use GetListTrait;
+
     const RU1 = 'RU1';
     const RU5 = 'RU5';
 
@@ -203,5 +206,4 @@ class EntryPoint extends ActiveRecord
 
         return $entryPoint;
     }
-
 }
