@@ -19,6 +19,7 @@
     "smarty/smarty": "@stable",
     "yiisoft/yii2-swiftmailer": "@stable",
     "unclead/yii2-multiple-input": "@stable",
+    "yiisoft/yii2-redis": "~2.0.0",
     "bower-asset/bootstrap-multiselect": "@stable",
     "zircote/swagger-php": "^2.0",
     "bower/swagger-ui": "dev-master",
