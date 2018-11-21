@@ -33,12 +33,21 @@ $rows = AccountTariff::getGroupedObjects($query);
     </p>
 
 <?php
+$prevValue = null;
 foreach ($rows as $hash => $row) {
 
     $cacheKey = DependecyHelper::me()->getKey(DependecyHelper::TAG_UU_SERVICE_LIST, $hash);
     if (($value = \Yii::$app->cache->get($cacheKey)) !== false) {
         ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
         echo $value;
+
+        if ($value == $prevValue) {
+            /** @var AccountTariff $accountTariffFirst */
+            $accountTariffFirst = reset($row);
+            \Yii::error('CACHEDOUBLE A ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
+        }
+        $prevValue = $value;
+
         ActiveForm::end();
         continue;
     }
@@ -83,11 +92,19 @@ foreach ($rows as $hash => $row) {
         'form' => $form,
     ]);
 
+    if ($value == $prevValue) {
+        /** @var AccountTariff $accountTariffFirst */
+        $accountTariffFirst = reset($row);
+        \Yii::error('CACHEDOUBLE B ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
+    }
+    $prevValue = $value;
+
     \Yii::$app->cache->set(
-            $cacheKey,
-            $value,
-            DependecyHelper::DEFAULT_TIMELIFE,
-            (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST, DependecyHelper::TAG_USAGE]])));
+        $cacheKey,
+        $value,
+        DependecyHelper::DEFAULT_TIMELIFE,
+        (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST, DependecyHelper::TAG_USAGE]]))
+    );
 
     echo $value;
 
