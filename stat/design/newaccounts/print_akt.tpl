@@ -81,7 +81,7 @@
                             {*if $line.okvd_code}{$line.okvd}{else}{if $line.type == "service"}-{else}шт.{/if}{/if*}
                         </td>
                         <td align="center">{$line.amount|round:4}</td>
-                        <td align="center">{$line.outprice|round:4}</td>
+                        <td align="center">{if isset($line.outprice)}{$line.outprice|round:4}{else}{$line.price|round:4}{/if}</td>
                         <td align="center">{$line.sum_without_tax}</td>
                     </tr>
                 {/foreach}
