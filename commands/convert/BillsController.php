@@ -105,7 +105,7 @@ class BillsController extends Controller
 
     }
 
-    public function actionInvoiceGenerateAll()
+    public function actionInvoiceFullSums()
     {
         $time = time();
         $query = Invoice::find()->where(['is_reversal' => 0])->with('bill');
