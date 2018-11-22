@@ -51,6 +51,10 @@ switch($indicator->event->status) {
 
     case EventQueue::STATUS_OK:
         $colorClass = "success";
+        if ($indicator->event->log_error && strpos($indicator->event->log_error, '[-] 503:') === 0) {
+            $colorClass = "danger";
+            $titleInfo = ': ' . htmlspecialchars($indicator->event->log_error);
+        }
         break;
 
     case EventQueue::STATUS_STOP:

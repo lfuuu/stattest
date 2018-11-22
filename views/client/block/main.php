@@ -33,7 +33,15 @@ $priceLevels = ClientAccount::getPriceLevels();
                         Переход в ЛК
                     </a>
                 <?php elseif ($indicator = EventQueueIndicator::findOne(['object' => ClientSuper::tableName(), 'object_id' => $account->super_id])) : ?>
-                    <?= $this->render('//layouts/_eventIndicator', ['indicator' => $indicator]) ?>
+                    <?php
+
+                    echo $this->render('//layouts/_eventIndicator', ['indicator' => $indicator]);
+
+                    if ($indicator->event && $indicator->event->log_error && strpos($indicator->event->log_error, '[-] 503:') === 0) {
+                        echo $this->render('add_admin_email', ['emails' => $client->getAdminEmails(), 'account' => $account]);
+                    }
+
+                    ?>
                 <?php elseif ($adminEmails = $client->getAdminEmails()) : ?>
                     <?= $this->render('add_admin_email', ['emails' => $adminEmails, 'account' => $account]) ?>
                 <?php endif; ?>
