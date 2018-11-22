@@ -2,19 +2,73 @@
 
 namespace app\classes\excel;
 
+use app\helpers\DateTimeZoneHelper;
+use app\models\filter\SaleBookFilter;
 use DateTime;
 use app\models\Organization;
 
+/** @var SaleBookFilter $filter */
 class BalanceSellToExcel extends Excel
 {
 
     private
         $insertPosition = 12;
+
     public
         /** @var \app\models\Organization $organization */
         $organization,
         $dateFrom,
-        $dateTo;
+        $dateTo,
+        $filter,
+        $skipping_bps;
+
+
+    public function init()
+    {
+        $this->openFile(\Yii::getAlias('@app/templates/balance_sell.xls'));
+
+        $this->organization = Organization::findOne(['id' => $this->filter->organization_id]);
+        $this->dateFrom = $this->filter->date_from;
+        $this->dateTo = $this->filter->date_to;
+
+        $data = $this->_dataConversionToStandard();
+
+        $this->prepare($data);
+    }
+
+
+    /**
+     * @return array
+     */
+    private function _dataConversionToStandard()
+    {
+        $data = [];
+        foreach ($this->filter->search()->each() as $invoice) {
+
+            if (!$this->filter->check($invoice)) {
+                continue;
+            }
+
+            /** @var \app\models\filter\SaleBookFilter $invoice */
+            $account = $invoice->bill->clientAccount;
+            $contract = $account->contract;
+
+            $contragent = $contract->contragent;
+
+            $data[] = [
+                'sum' => $invoice->sum,
+                'sum_without_tax' => $invoice->sum_without_tax,
+                'sum_tax' => $invoice->sum_tax,
+                'company_full' => $contragent->name_full,
+                'inn' => $contragent->inn,
+                'kpp' => $contragent->kpp,
+                'inv_no' => $invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
+                'type' => $contragent->legal_type,
+            ];
+        }
+        return $data;
+    }
+
 
     public function prepare(array $data)
     {
@@ -36,10 +90,10 @@ class BalanceSellToExcel extends Excel
 
             $worksheet->setCellValueByColumnAndRow(0, $line, ($i + 1));
             $worksheet->setCellValueByColumnAndRow(1, $line, '01');
-            $worksheet->setCellValueByColumnAndRow(2, $line, $row['inv_no'] . ';' . date('d.m.Y', $row['inv_date']));
+            $worksheet->setCellValueByColumnAndRow(2, $line, $row['inv_no']);
             $worksheet->setCellValueByColumnAndRow(6, $line, $companyName);
             $worksheet->setCellValueByColumnAndRow(7, $line,
-                $row['inn'] . ($row['type'] == 'org' ? '/' . ($row['kpp'] ?: '') : ''));
+                $row['inn'] . ($row['type'] == 'legal' ? '/' . ($row['kpp'] ?: '') : ''));
             $worksheet->setCellValueByColumnAndRow(13, $line, sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(14, $line, sprintf('%0.2f', round($row['sum_without_tax'], 2)));
             $worksheet->setCellValueByColumnAndRow(17, $line, sprintf('%0.2f', round($row['sum_tax'], 2)));

@@ -5,8 +5,11 @@ namespace app\models\filter;
 
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\BusinessProcessStatus;
 use app\models\Invoice;
 use app\models\Organization;
+use yii\base\NotSupportedException;
+use yii\db\ActiveQuery;
 
 class SaleBookFilter extends Invoice
 {
@@ -21,6 +24,13 @@ class SaleBookFilter extends Invoice
         self::FILTER_REVERSAL => 'Сторнированные',
         self::FILTER_ADDITION => '?Доп.лист',
     ];
+
+    public static $skipping_bps = [
+        BusinessProcessStatus::TELEKOM_MAINTENANCE_TRASH,
+        BusinessProcessStatus::TELEKOM_MAINTENANCE_FAILURE,
+        BusinessProcessStatus::WELLTIME_MAINTENANCE_FAILURE
+    ];
+
 
     public
         $date_from = null,
@@ -64,6 +74,10 @@ class SaleBookFilter extends Invoice
     }
 
 
+    /**
+     * @return ActiveQuery
+     * @throws NotSupportedException
+     */
     public function search()
     {
         if (!$this->dateFrom || !$this->dateTo) {
@@ -83,6 +97,8 @@ class SaleBookFilter extends Invoice
                 'id' => SORT_ASC,
             ]);
 
+        $query->with('bill');
+
         switch ($this->filter) {
             case self::FILTER_ALL:
                 // nothing
@@ -97,7 +113,7 @@ class SaleBookFilter extends Invoice
                 break;
 
             default:
-                throw new NotImplementedHttpException('Не готово');
+                throw new NotSupportedException('Не готово');
 
         }
 
@@ -116,6 +132,24 @@ class SaleBookFilter extends Invoice
         }
 
         return $str;
+    }
+
+    /**
+     * Нужная счет-фактура или нет
+     *
+     * @param Invoice $invoice
+     * @return bool
+     */
+    public function check(Invoice $invoice)
+    {
+        $contract = $invoice->bill->clientAccount->contract;
+
+        # AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
+
+        # AND cr.`contract_type_id` != 6 ## internal office
+        # AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
+
+        return !($contract->contract_type_id === 6 || in_array($contract->business_process_status_id, self::$skipping_bps));
     }
 
 }

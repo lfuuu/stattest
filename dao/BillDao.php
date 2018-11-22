@@ -1044,7 +1044,9 @@ SQL;
                 }
 
                 if ($lines) {
-                    $sum = BillLine::getSumLines($lines);
+                    $sumData = BillLine::getSumsLines($lines);
+
+                    $sum = $sumData['sum'];
 
                     // не вносим отрицательные суммы
                     if ($sum <= 0) {
@@ -1056,7 +1058,7 @@ SQL;
                         $invoice = new Invoice();
                         $invoice->bill_no = $bill->bill_no;
                         $invoice->type_id = $typeId;
-                        $invoice->sum = 0;
+                        $invoice->sum = $invoice->sum_tax = $invoice->sum_without_tax = 0;
                     }
 
                     $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
@@ -1064,6 +1066,8 @@ SQL;
 
                     if (abs((float)$invoice->sum - $sum) > 0.001) {
                         $invoice->sum = $sum;
+                        $invoice->sum_tax = $sumData['sum_tax'];
+                        $invoice->sum_without_tax = $sumData['sum_without_tax'];
                     }
 
                     if (!$invoice->save()) {

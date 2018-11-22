@@ -89,7 +89,8 @@ use yii\helpers\Url;
  * @property-read LkNoticeSetting $lkNoticeSetting
  * @property-read ClientFlag $flag
  * @property-read ClientContact[] $contacts
- * @property-read ClientContract $contract
+ * @property-read ClientContract $contract  из версии
+ * @property-read ClientContract $clientContractModel - напрямую
  * @property-read ClientContragent $contragent
  * @property-read Organization $organization
  * @property-read User $userAccountManager
@@ -706,6 +707,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getContract($date = '')
     {
         return $this->getCachedHistoryModel(ClientContract::class, $this->contract_id, $date, $this);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getClientContractModel()
+    {
+        return $this->hasOne(ClientContract::class, ['id' => 'contract_id']);
     }
 
     /**

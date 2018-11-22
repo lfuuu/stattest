@@ -258,13 +258,16 @@ class BillLine extends ActiveRecord
      * @param array $lines
      * @return float
      */
-    public static function getSumLines($lines)
+    public static function getSumsLines($lines)
     {
         return array_reduce($lines,
-            function ($sum, $line) {
-                $sum += is_array($line) ? $line['sum'] : $line->sum;
-                return $sum;
-            }, 0);
+            function ($data, $line) {
+                /** @var BillLine $line */
+                $data['sum'] += is_array($line) ? $line['sum'] : $line->sum;
+                $data['sum_tax'] += is_array($line) ? $line['sum_tax'] : $line->sum_tax;
+                $data['sum_without_tax'] += is_array($line) ? $line['sum_without_tax'] : $line->sum_without_tax;
+                return $data;
+            }, ['sum' => 0, 'sum_tax' => 0, 'sum_without_tax' => 0]);
     }
 
     /**

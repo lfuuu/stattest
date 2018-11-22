@@ -16,6 +16,8 @@ use app\helpers\DateTimeZoneHelper;
  * @property int $type_id
  * @property string $date
  * @property float $sum
+ * @property float $sum_tax
+ * @property float $sum_without_tax
  * @property bool $is_reversal
  * @property string $add_date
  * @property string $reversal_date

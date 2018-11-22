@@ -57,7 +57,8 @@ use yii\helpers\Url;
  * @property bool $is_to_uu_invoice
  * @property string $invoice_no_ext
  *
- * @property-read ClientAccount $clientAccount   ??
+ * @property-read ClientAccount $clientAccount   из версий
+ * @property-read ClientAccount $clientAccountModel   прямая модель
  * @property-read BillLine[] $lines   ??
  * @property-read Transaction[] $transactions   ??
  * @property-read Currency $currencyModel
@@ -243,6 +244,14 @@ class Bill extends ActiveRecord
         $account->loadVersionOnDate($this->bill_date);
 
         return $account;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClientAccountModel()
+    {
+        return $this->hasOne(ClientAccount::class, ['id' => 'client_id']);
     }
 
     /**

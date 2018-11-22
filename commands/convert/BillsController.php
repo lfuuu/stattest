@@ -2,7 +2,10 @@
 
 namespace app\commands\convert;
 
+use app\exceptions\ModelValidationException;
 use app\models\Bill;
+use app\models\BillLine;
+use app\models\Invoice;
 use app\models\Payment;
 use app\models\PaymentOrder;
 use yii\console\Controller;
@@ -100,5 +103,49 @@ class BillsController extends Controller
             echo $e->getMessage() . PHP_EOL;
         }
 
+    }
+
+    public function actionInvoiceGenerateAll()
+    {
+        $time = time();
+        $query = Invoice::find()->where(['is_reversal' => 0])->with('bill');
+
+        /** @var Invoice $invoice */
+        foreach ($query->each() as $invoice) {
+            echo " .";
+            try {
+                /** @var BIll $bill */
+                $bill = $invoice->bill;
+
+                if (!$bill) {
+                    echo PHP_EOL . '??' . $invoice->bill_no;
+                    continue;
+                }
+
+                $lines = $bill->getLinesByTypeId($invoice->type_id);
+
+                if ($invoice->type_id == Invoice::TYPE_PREPAID) {
+                    $lines = BillLine::refactLinesWithFourOrderFacture($bill, $lines);
+                }
+
+                if (!$lines) {
+                    continue;
+                }
+
+                $sumData = BillLine::getSumsLines($lines);
+
+                $invoice->sum = $sumData['sum'];
+                $invoice->sum_tax = $sumData['sum_tax'];
+                $invoice->sum_without_tax = $sumData['sum_without_tax'];
+
+                if (!$invoice->save()) {
+                    throw new ModelValidationException($invoice);
+                }
+            }catch (\Exception $e) {
+                echo PHP_EOL. '!!' . $e->getMessage();
+            }
+        }
+
+        echo PHP_EOL . (time() - $time);
     }
 }

@@ -1,13 +1,17 @@
 <?php
+
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContragent;
 use app\models\filter\SaleBookFilter;
 
 /** @var SaleBookFilter $filter */
 /** @var array $skipping_bps */
 ?>
 <form style="display:inline" action="/report/accounting/sale-book">
-    От: <input id="date_from" type="text" name="SaleBookFilter[date_from]" value="01-08-2018" class="text"/>
-    До: <input id="date_to" type="text" name="SaleBookFilter[date_to]" value="31-08-2018" class="text"/><br/>
+    От: <input id="date_from" type="text" name="SaleBookFilter[date_from]" value="<?= $filter->date_from ?>"
+               class="text"/>
+    До: <input id="date_to" type="text" name="SaleBookFilter[date_to]" value="<?= $filter->date_to ?>"
+               class="text"/><br/>
     Компания: <?= \app\classes\Html::dropDownList('SaleBookFilter[organization_id]', $filter->organization_id, \app\models\Organization::dao()->getList()) ?>
     в Excel: <input type="checkbox" name="is_excel" value="1"/><br/>
     Фильтр: <?= \app\classes\Html::dropDownList('SaleBookFilter[filter]', $filter->filter, \app\models\filter\SaleBookFilter::$filters) ?>
@@ -104,7 +108,7 @@ use app\models\filter\SaleBookFilter;
 
     $idx = 1;
 
-    $printSum = function($sum) {
+    $printSum = function ($sum) {
         return str_replace(".", ",", sprintf("%0.2f", $sum));
     };
 
@@ -114,57 +118,54 @@ use app\models\filter\SaleBookFilter;
         foreach ($query->each() as $invoice) : ?>
             <?php /** @var \app\models\filter\SaleBookFilter $invoice */
 
-            try {
+            if (!$filter->check($invoice)) {
+                continue;
+            }
 
-                if (!$invoice->bill || ! $invoice->bill->clientAccount) {
-                    Yii::$app->session->addFlash('error', 'С/ф без счета: ' . $invoice->number);
-                    continue;
-                }
+            if (!$invoice->bill || !$invoice->bill->clientAccount) {
+                Yii::$app->session->addFlash('error', 'С/ф без счета: ' . $invoice->number);
+                continue;
+            }
+            try {
                 $account = $invoice->bill->clientAccount;
                 $contract = $account->contract;
                 $contragent = $contract->contragent;
 
-                # AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
-
-                if ($contract->contract_type_id === 6) {
-                    continue;
-                }
-
-                if (in_array($contract->business_process_status_id, $skipping_bps)) {
-                    continue;
-                }
-
-                # AND cr.`contract_type_id` != 6 ## internal office
-                # AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
-
-
                 $taxRate = $account->getTaxRate();
 
-                list($sum, $sum_without_tax, $sum_tax) = $account->convertSum($invoice->sum, $taxRate);
+                $sum = $invoice->sum;
+                $sum_without_tax = $invoice->sum_without_tax;
+                $sum_tax = $invoice->sum_tax;
 
-                $total['sumAll'] += $sum;
-                $total['sum' . $taxRate] += $sum_without_tax;
-                $total['tax' . $taxRate] += $sum_tax;
+            } catch (Exception $e) {
+                Yii::$app->session->addFlash('error', $e->getMessage());
+                continue;
+            }
 
-                ?>
-            <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even')?>">
+            $total['sumAll'] += $sum;
+            $total['sum' . $taxRate] += $sum_without_tax;
+            $total['tax' . $taxRate] += $sum_tax;
+
+            ?>
+            <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
                 <td><?= ($idx++) ?> </td>
-                <td><?= ($invoice->type_id == \app\models\Invoice::TYPE_PREPAID ? '02' : '01')?></td>
+                <td><?= ($invoice->type_id == \app\models\Invoice::TYPE_PREPAID ? '02' : '01') ?></td>
                 <td><?= ($invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED)) ?></td>
                 <td>---</td>
                 <td>---</td>
                 <td>---</td>
-                <td><?= $contragent->name_full?></td>
-                <td><?=$contragent->inn?></td>
+                <td><?= $contragent->name_full ?></td>
+                <td><?= $contragent->inn ?>
+                    <?= ($contragent->legal_type == ClientContragent::LEGAL_TYPE ? '/' . ($contragent->kpp ?: '') : '') ?></td>
                 <td>---</td>
                 <td>---</td>
-                <td><?=$contragent->legal_type?></td>
-                <td><?=$account->contract->business->name?></td>
-                <td><?=$contract->businessProcessStatus->name?></td>
+                <td><?= $contragent->legal_type ?></td>
+                <td><?= $account->contract->business->name ?></td>
+                <td><?= $contract->businessProcessStatus->name ?></td>
                 <td><?= $invoice->getPaymentsStr() ?: '&nbsp;' ?></td>
-                <td><?= $account->currencyModel->name?> <?=$account->currencyModel->code?></td>
-                <td><?= $printSum($sum)?></td>
-                <td><?= $printSum($sum)?></td>
+                <td><?= $account->currencyModel->name ?> <?= $account->currencyModel->code ?></td>
+                <td><?= $printSum($sum) ?></td>
+                <td><?= $printSum($sum) ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 0 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
@@ -172,22 +173,21 @@ use app\models\filter\SaleBookFilter;
                 <td><?= $taxRate == 10 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td>&nbsp;</td>
                 <td><?= (new DateTime($invoice->add_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) ?></td>
-                <td><?= $invoice->is_reversal && $invoice->reversal_date ? (new DateTime($invoice->reversal_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '&nbsp;'?></td>
+                <td><?= $invoice->is_reversal && $invoice->reversal_date ? (new DateTime($invoice->reversal_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '&nbsp;' ?></td>
                 <td></td>
             </tr>
             <?php
-        } catch(\Exception $e) {}
         endforeach;
     ?>
     <tr class="even">
         <td colspan="15" align="right">Всего:</td>
-        <td><?= $printSum($total['sumAll'])?></td>
-        <td><?= $printSum($total['sumAll'])?></td>
-        <td><?= $printSum($total['sum18'])?></td>
-        <td><?= $printSum($total['sum10'])?></td>
-        <td><?= $printSum($total['sum0'])?></td>
-        <td><?= $printSum($total['tax18'])?></td>
-        <td><?= $printSum($total['tax10'])?></td>
+        <td><?= $printSum($total['sumAll']) ?></td>
+        <td><?= $printSum($total['sumAll']) ?></td>
+        <td><?= $printSum($total['sum18']) ?></td>
+        <td><?= $printSum($total['sum10']) ?></td>
+        <td><?= $printSum($total['sum0']) ?></td>
+        <td><?= $printSum($total['tax18']) ?></td>
+        <td><?= $printSum($total['tax10']) ?></td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
