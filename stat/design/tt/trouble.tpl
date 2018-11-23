@@ -156,8 +156,8 @@
             </td>
         </tr>
     {/if}
-    {if $tt_trouble.trouble_type == 'connect' && $tt_trouble_roistat}
-        {if $tt_trouble_roistat.roistat_visit}
+    {if $tt_trouble.trouble_type == 'connect'}
+        {if $tt_trouble_roistat && $tt_trouble_roistat.roistat_visit}
             <tr>
                 <td align="right">Roistat visit:</td>
                 <td>
@@ -169,13 +169,50 @@
                 </td>
             </tr>
         {/if}
-        {if $tt_trouble_roistat.roistat_price}
+        {if $tt_trouble_roistat && $tt_trouble_roistat.roistat_price}
             <tr>
                 <td align="right">Roistat price:</td>
                 <td>
                     <div class="row">
                         <div class="col-sm-6">
                             {$tt_trouble_roistat.roistat_price}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {/if}
+
+        {if !$tt_trouble_roistat || !$tt_trouble_roistat.roistat_visit}
+            {if $tt_trouble_roistat}
+                {assign var="roistat_channel" value=$tt_trouble_roistat.roistat_visit}
+            {else}
+                {assign var="roistat_channel" value=""}
+            {/if}
+            <tr>
+                <td align="right">Roistat visit:</td>
+                <td>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <form action="./?module=tt&action=set_roistat_channel" method="post" id="form_roistat_channel_id">
+                                <input type="hidden" name="id" value="{$tt_trouble.id}">
+                                <div class="input-group col-sm-8">
+                                    <select id="roistat_channel_id" name="roistat_channel" class="form-control">
+                                        {html_options values=$roistatChannels output=$roistatChannels selected=$roistat_channel}
+                                    </select>
+                                    <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+                                    <span class="input-group-btn" title="Сохранить">
+                                <button id="submit_roistat_channel_id" type="button" class="btn btn-default"><i
+                                            class="glyphicon glyphicon-save"></i></button>
+                                </span>
+                                    <script>
+                                        {literal}
+                                        $('#submit_roistat_channel_id').on('click', function(){
+                                          $('#form_roistat_channel_id').submit();
+                                        });
+                                        {/literal}
+                                    </script>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </td>

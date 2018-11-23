@@ -10,6 +10,7 @@ use app\exceptions\web\BadRequestHttpException;
 use app\models\ClientAccount;
 use app\models\Lead;
 use app\models\Trouble;
+use app\models\TroubleRoistat;
 use app\models\TroubleState;
 use app\models\User;
 use app\modules\socket\classes\Socket;
@@ -305,10 +306,20 @@ class ApiController extends Controller
             }
             $lid->state_id = TroubleState::CONNECT__INCOME;
             $lid->account_id = $this->_clientAccount ? $this->_clientAccount->id : Lead::DEFAULT_ACCOUNT_ID;
-            $lid->trouble_id = $this->_makeLeadTrouble($lid->account_id, $user)->id;
+            $trouble = $this->_makeLeadTrouble($lid->account_id, $user);
+            $lid->trouble_id = $trouble->id;
 
             if (!$lid->save()) {
                 throw new ModelValidationException($lid);
+            }
+
+            if ($lid->did_mcn) {
+                $roistat = new TroubleRoistat();
+                $roistat->trouble_id = $trouble->id;
+                $roistat->roistat_visit = TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_PHONE, $lid->did_mcn);
+                if (!$roistat->save()) {
+                    throw new ModelValidationException($roistat);
+                }
             }
 
             $transaction->commit();

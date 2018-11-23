@@ -752,9 +752,9 @@ where c.client="'.$trouble['client_orig'].'"')
 
         $trouble = YiiTrouble::findOne($trouble['id']);
         if ($trouble) {
-            $mediaManager = $trouble->mediaManager;
-            $design->assign('tt_media', $mediaManager->getFiles());
+            $design->assign('tt_media', $trouble->mediaManager->getFiles());
             $design->assign('tt_trouble_roistat', $trouble->troubleRoistat);
+            $design->assign('roistatChannels', \app\models\TroubleRoistat::CHANNELS);
         }
 
         /** @var \app\models\Lead $lead */
@@ -2942,6 +2942,36 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         include 'StoreLimitReport.php';
         StoreLimitReport::saveData();
     }
+
+    public function tt_set_roistat_channel()
+    {
+        $troubleId = get_param_raw('id');
+        $channel = get_param_raw('roistat_channel');
+
+
+        \app\classes\Assert::isArray(\app\models\TroubleRoistat::CHANNELS, $channel);
+
+        $trouble = \app\models\Trouble::findOne(['id' => $troubleId]);
+        \app\classes\Assert::isObject($trouble);
+
+
+        $troubleRoistat = $trouble->troubleRoistat;
+
+        if (!$troubleRoistat) {
+            $troubleRoistat = new \app\models\TroubleRoistat();
+            $troubleRoistat->trouble_id = $trouble->id;
+        }
+
+        $troubleRoistat->roistat_visit = $channel;
+
+        if (!$troubleRoistat->save()) {
+            throw new ModelValidationException($troubleRoistat);
+        }
+
+        header('Location: '.$trouble->getUrl());
+        exit;
+    }
+
 
     /**
      * Перенос заявки на другой ЛС

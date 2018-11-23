@@ -2144,7 +2144,6 @@ class m_newaccounts extends IModule
 
 
         $bill = new \Bill($bill_no);
-        $bb = $bill->GetBill();
 
         $design->assign('without_date_date', $bill->getShipmentDate());
         $design->assign("stamp", $this->get_import1_name($bill, get_param_raw("stamp", "false")));

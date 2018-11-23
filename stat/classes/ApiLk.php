@@ -30,6 +30,7 @@ use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\Trouble;
+use app\models\TroubleRoistat;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
@@ -2490,7 +2491,17 @@ class ApiLk
         include_once PATH_TO_ROOT . "modules/tt/module.php";
         $tt = new m_tt();
 
-        return $tt->createTrouble($R, $user->user);
+        $troubleId = $tt->createTrouble($R, $user->user);
+
+        $roistat = new TroubleRoistat();
+        $roistat->trouble_id = $troubleId;
+        $roistat->roistat_visit = TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK);
+
+        if (!$roistat->save()) {
+            throw new ModelValidationException($roistat);
+        }
+
+        return $troubleId;
     }
 
     /**

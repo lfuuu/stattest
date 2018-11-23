@@ -195,7 +195,7 @@ class TroublesController extends ApiInternalController
             }
         }
         $troubleRoistat->roistat_visit = $data['visit_id'];
-        if (!$troubleRoistat->validate() || !$troubleRoistat->save()) {
+        if (!$troubleRoistat->save()) {
             throw new ModelValidationException($troubleRoistat);
         }
         return null;
