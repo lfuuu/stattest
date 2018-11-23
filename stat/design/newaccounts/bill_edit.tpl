@@ -132,7 +132,14 @@
             </div>
 
             {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-                <div class="col-sm-2">
+                <div class="col-sm-1">
+                    <div class="form-group">
+                        <label>Сумма без НДС из с/ф постав.</label>
+                        <input type="text" class="form-control input-sm" name="ext_sum_without_vat"
+                               value="{$bill_ext.ext_sum_without_vat}">
+                    </div>
+                </div>
+                <div class="col-sm-1">
                     <div class="form-group">
                         <label>НДС из с/ф поставщика</label>
                         <input type="text" class="form-control input-sm" name="ext_vat"

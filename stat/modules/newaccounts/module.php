@@ -1141,6 +1141,7 @@ class m_newaccounts extends IModule
         $invoice_date_ext = get_param_raw("invoice_date_ext");
 
         $vat_ext = get_param_raw("ext_vat", "");
+        $ext_sum_without_vat = get_param_raw("ext_sum_without_vat", "");
 
         $akt_no_ext = get_param_raw("akt_no_ext");
         $akt_date_ext = get_param_raw("akt_date_ext");
@@ -1179,6 +1180,7 @@ class m_newaccounts extends IModule
         $bill->SetExtDate($bill_no_ext_date);
         $bill->SetAktDateExt($akt_date_ext);
         $bill->SetVatExt($vat_ext);
+        $bill->SetSumWithoutVatExt($ext_sum_without_vat);
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
 

@@ -15,6 +15,8 @@ use app\exceptions\ModelValidationException;
  * @property string $ext_invoice_date
  * @property string $ext_akt_no
  * @property string $ext_akt_date
+ * @property float $ext_vat
+ * @property float $ext_sum_without_vat
  * @property-read Bill $bill
  */
 class BillExternal extends ActiveRecord
@@ -93,6 +95,7 @@ class BillExternal extends ActiveRecord
             'ext_akt_no' => 'Внешний акт',
             'ext_akt_date' => 'Дата внешнего акта',
             'ext_invoice_date' => 'Дата внешней с/ф',
+            'ext_sum_without_vat' => 'Сумма без НДС из с/ф поставщика',
             'ext_vat' => 'НДС из с/ф поставщика',
         ];
     }
