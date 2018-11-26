@@ -4,6 +4,7 @@ namespace app\modules\uu\tarificator;
 
 use app\classes\Connection;
 use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -234,7 +235,19 @@ SQL;
 
     /**
      * Посчитать НДС
-     * Проще через ClientAccount->getOrganization()->vat_rate, но это слишком долго. Поэтому хардкор
+     *
+     * Алгоритм расчета ставки НДС:
+     *  Только для проводок, где НДС еще не посчитан.
+     *  Взять дату НАЧАЛА проводки с точностью до суток.
+     *  Найти контракт клиента, действующий на эту дату.
+     *  Найти НДС с помощью ClientContract::dao()->getEffectiveVATRate($contract)
+     *
+     * Выводы:
+     *  Месячная абонентка будет по НДС на 1е число, ресурсы и суточная абонентка по НДС на конкретную дату.
+     *  Дата запуска скрипта не имеет значения.
+     *  Пред/постоплата, физик/юрик, с/без НДС не имеет значения.
+     *  Смена организации или НДС организации возможна в любое время, но рекомендуется это делать с 1 числа месяца.
+     *  Смена организации или НДС задним числом не имеет смысла и не будет учтена.
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @throws \yii\db\Exception
@@ -254,23 +267,51 @@ SQL;
         // посчитать ставку НДС для юр.лиц
         $this->out('. ');
         $accountTariffTableName = AccountTariff::tableName();
-        $clientAccountTableName = ClientAccount::tableName();
-        $updateSql = <<<SQL
-        UPDATE
+        $selectSql = <<<SQL
+        SELECT
+            account_entry.id as account_entry_id, 
+            account_entry.date_from as date, 
+            account_tariff.client_account_id
+        FROM
             {$accountEntryTableName} account_entry,
-            {$accountTariffTableName} account_tariff,
-            {$clientAccountTableName} client_account
-        SET
-            account_entry.vat_rate = client_account.effective_vat_rate
+            {$accountTariffTableName} account_tariff
         WHERE
             account_entry.account_tariff_id = account_tariff.id
-            AND account_tariff.client_account_id = client_account.id
+            AND account_entry.vat_rate IS NULL
             {$sqlAndWhere}
 SQL;
-        $db->createCommand($updateSql)
-            ->execute();
-        unset($updateSql);
+        $query = $db->createCommand($selectSql)->query();
+        $clientCache = []; // [client_account_id => ClientAccount]
+        $clientDateVatCache = []; // [{client_account_id}_{date} => VAT]
+        foreach ($query as $row) {
 
+            $clientKey = $row['client_account_id'];
+            $clientDateVatKey = $row['client_account_id'] . '_' . $row['date'];
+            if (!array_key_exists($clientDateVatKey, $clientDateVatCache)) { // isset() быстрее, но нам надо учитывать значение null
+                // Посчитать НДС и записать в кэш
+
+                $clientAccount = isset($clientCache[$clientKey]) ?
+                    $clientCache[$clientKey] :
+                    ClientAccount::findOne(['id' => $row['client_account_id']]);
+
+                $contract = $clientAccount->getContract($row['date']);
+                $clientDateVatCache[$clientDateVatKey] = ClientContract::dao()->getEffectiveVATRate($contract);
+            }
+            $vatRate = $clientDateVatCache[$clientDateVatKey];
+
+            $updateSql = <<<SQL
+        UPDATE {$accountEntryTableName}
+        SET vat_rate = :vat_rate
+        WHERE id = :id
+SQL;
+            $db->createCommand($updateSql, [
+                ':id' => $row['account_entry_id'],
+                ':vat_rate' => $vatRate,
+            ])
+                ->execute();
+            unset($updateSql);
+        }
+        unset($selectSql, $updateSql, $clientCache, $clientDateVatCache);
 
         // посчитать цену без НДС
         $tariffPeriodTableName = TariffPeriod::tableName();
