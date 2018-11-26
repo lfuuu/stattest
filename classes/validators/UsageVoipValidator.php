@@ -1,6 +1,8 @@
 <?php
+
 namespace app\classes\validators;
 
+use app\modules\uu\models\AccountTariff;
 use yii\validators\NumberValidator;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
@@ -19,18 +21,29 @@ class UsageVoipValidator extends NumberValidator
             $this->addError($model, $attribute, 'UsageVoipID required');
         }
 
-        if (!$model->hasErrors()) {
-            $usage = UsageVoip::find()->where(['E164' => $model->$attribute]);
-
-            if (!is_null($this->account_id_field)) {
-                $clientAccount = ClientAccount::findOne($model->{$this->account_id_field});
-                $usage->andWhere(['client' => $clientAccount->client]);
-            }
-
-            if ($usage->one() === null) {
-                $this->addError($model, $attribute, 'UsageVoip with ID#' . $model->$attribute . ' not found');
-            }
+        if ($model->hasErrors()) {
+            return;
         }
+
+        $usage = UsageVoip::find()->where(['E164' => $model->$attribute]);
+
+        $clientAccount = ClientAccount::findOne($model->{$this->account_id_field});
+        $usage->andWhere(['client' => $clientAccount->client]);
+
+        if ($usage->exists()) {
+            return null;
+        }
+
+        $isAccountTariff = AccountTariff::find()->where([
+            'voip_number' => $model->$attribute,
+            'client_account_id' => $model->{$this->account_id_field}
+        ])->exists();
+
+        if ($isAccountTariff) {
+            return;
+        }
+
+        $this->addError($model, $attribute, 'UsageVoip with ID#' . $model->$attribute . ' not found');
     }
 
 }

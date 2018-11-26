@@ -3,6 +3,7 @@ namespace app\dao\billing;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsAggr;
+use app\modules\uu\models\AccountTariff;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
@@ -119,23 +120,21 @@ class CallsDao extends Singleton
         }
 
         $usage = UsageVoip::find()->where(['E164' => $number])->client($clientAccount->client)->one();
-        Assert::isObject($usage, 'Number "' . $number . '"');
 
-        $usages = ArrayHelper::getColumn(
-            UsageVoip::find()
-                ->select('id')
-                ->where(['E164' => $number])
-                ->client($clientAccount->client)
-                ->distinct()
-                ->all(),
-            'id'
-        );
-
-        if (!count($usages)) {
-            return [];
+        $accountTariff = null;
+        if (!$usage) {
+            $accountTariff = AccountTariff::findOne([
+                'voip_number' => $number,
+                'client_account_id' => $clientAccount->id,
+            ]);
         }
 
-        $query->andWhere(['in', 'number_service_id', $usages]);
+        Assert::isTrue($usage || $accountTariff, 'Number "' . $number . '" not found');
+
+        $usageId = $usage ? $usage->id : $accountTariff->id;
+
+
+        $query->andWhere(['number_service_id' => $usageId]);
 
         if ($offset) {
             $query->offset($offset);
