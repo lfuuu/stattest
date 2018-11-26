@@ -281,6 +281,7 @@ class BillDao extends Singleton
      * @param uuBill $uuBill
      * @return bool
      * @throws \Exception
+     * @throws \Throwable
      */
     public function transferUniversalBillsToBills(uuBill $uuBill)
     {
@@ -475,11 +476,6 @@ class BillDao extends Singleton
 
         if ($toRecalculateBillSum) {
             Bill::dao()->recalcBill($bill);
-        }
-
-        $uuBill->is_converted = 1;
-        if (!$uuBill->save()) {
-            throw new ModelValidationException($uuBill);
         }
     }
 

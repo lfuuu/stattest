@@ -23,6 +23,7 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function tarificate($accountTariffId = null)
     {
@@ -36,7 +37,7 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
         // найти ЛС, у которых сейчас фин.блокировка
         // если менее 2х дней назад - не учитывать
         // если более 2х дней назад - только для посуточных тарифов
-        // если более 2х календарных месяцев назад - для помесячных тарифов
+        // если уже прошел целый календарный месяц - для помесячных тарифов
         // для тарифов по годам можно не проверять - менеджер такое раньше сам заблокирует/отключит
         $sql = <<<SQL
             CREATE TEMPORARY TABLE set_zero_tmp
@@ -80,10 +81,12 @@ SQL;
             ':min_day_date' => (new DateTimeImmutable())
                 ->modify('-2 days')// 2, чтобы гарантировать для любой таймзоны
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+
             ':min_month_date' => (new DateTimeImmutable())
                 ->modify('first day of previous month')
-                ->modify('+1 day')// чтобы гарантировать для любой таймзоны
+                ->modify('+2 days')// чтобы гарантировать для любой таймзоны и потому что блокировка чаще всего происходит не в полночь, а чуть позже, после выставления счета
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+
             ':setZeroBalance' => ImportantEventsNames::ZERO_BALANCE,
             ':unsetZeroBalance' => ImportantEventsNames::UNSET_ZERO_BALANCE,
         ])

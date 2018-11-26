@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\Bill;
 
@@ -18,7 +19,6 @@ class BillConverterTarificator extends Tarificator
     {
         $activeQuery = Bill::find()
             ->where(['is_converted' => 0])// которые не сконвертированы или изменились после конвертирования
-            ->andWhere(['<>', 'price', 0])// и цена больше нуля
             ->andWhere([ // и за прошлый месяц
                 '<=',
                 'date',
@@ -36,6 +36,11 @@ class BillConverterTarificator extends Tarificator
         foreach ($activeQuery->each() as $bill) {
             \app\models\Bill::dao()->transferUniversalBillsToBills($bill);
             $this->out('. ');
+
+            $bill->is_converted = 1;
+            if (!$bill->save()) {
+                throw new ModelValidationException($bill);
+            }
         }
 
     }
