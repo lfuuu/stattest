@@ -8,6 +8,7 @@ localedef  -i ru_RU -f UTF-8 ru_RU.UTF-8
 #echo "[client]" >> /etc/my.cnf
 #echo "default-character-set=utf8" >> /etc/my.cnf
 
+systemctl start redis.service
 systemctl restart mysql
 
 sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" data/postgresql.conf

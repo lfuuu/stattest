@@ -26,6 +26,14 @@ build()
 		exit 1
 	fi
 
+	perm=$(stat --format '%a' ~/.pgpass)
+
+        if [ ! $perm -eq 600 ]; then
+                echo "wrong permitions for .pgpass, use chmod 600 .pgpass"
+                exit 1
+        fi
+
+
 	if [ $(cat ~/.pgpass | grep "85.94.32.228:\*:\*:pgsqltest" | wc -l) -ne 1 ]; then
                 echo "no pgsqltest creadential for iberus in .pgpass"
 		exit 1
@@ -82,6 +90,7 @@ build()
 	docker exec -u postgres --privileged -d $CONTAINER systemctl start mysql
 	docker exec -u root --privileged  $CONTAINER ./start_db.sh
 	docker exec -u root --privileged  $CONTAINER ./restore_db.sh
+	docker exec -u root -w /opt/stat_rep/stat $CONTAINER ./yii migrate --interactive=0
 	echo "build finish"
 	echo "stat is working at address - $(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER):80"
 	echo "login - admin/111"
@@ -100,6 +109,7 @@ rm()
 		        exit 0
 		fi
 	fi
+	
 	volume=$(docker inspect -f '{{range .Mounts}}{{.Name}}{{end}}' $CONTAINER)
 	docker rm -f $CONTAINER
 	docker rmi -f $IMAGE

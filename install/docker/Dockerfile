@@ -15,11 +15,11 @@ yum install -y https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7-x
 wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm;\
 rpm -ivh mysql-community-release-el7-5.noarch.rpm
 RUN yum -y update
-RUN yum install -y mysql-server postgresql94 postgresql94-server nginx cronie;\
+RUN yum install -y mysql-server postgresql94 postgresql94-server nginx cronie redis;\
 rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm;\
 rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm;\
 yum -y update && yum -y upgrade;\
-yum install -y php56w php56w-fpm php56w-cli php56w-curl php56w-gd php56w-json php56w-mcrypt php56w-mysqlnd php56w-pgsql php56w-readline php56w-xdebug php56w-xmlrpc php56w-intl php56w-mbstring php56w-bcmath php56w-xmlwriter php56w-process
+yum install -y php56w php56w-fpm php56w-cli php56w-curl php56w-gd php56w-json php56w-mcrypt php56w-mysqlnd php56w-pgsql php56w-readline php56w-xdebug php56w-xmlrpc php56w-intl php56w-mbstring php56w-bcmath php56w-xmlwriter php56w-process php-redis
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY nginx.default.conf /etc/nginx/conf.d/default.conf
