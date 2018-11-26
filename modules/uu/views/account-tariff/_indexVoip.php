@@ -33,27 +33,29 @@ $rows = AccountTariff::getGroupedObjects($query);
     </p>
 
 <?php
-$prevValue = null;
 foreach ($rows as $hash => $row) {
 
+    /** @var AccountTariff $accountTariffFirst */
+    $accountTariffFirst = reset($row);
+
     $cacheKey = DependecyHelper::me()->getKey(DependecyHelper::TAG_UU_SERVICE_LIST, $hash);
-    if (($value = \Yii::$app->cache->get($cacheKey)) !== false) {
+    $value = \Yii::$app->cache->get($cacheKey);
+
+    if ($value !== false) {
+        if (strpos($value, $accountTariffFirst->id . '"') === false) {
+            \Yii::error('CACHEDOUBLE C ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
+            $value = false;
+        }
+    }
+
+    if ($value !== false) {
         ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
         echo $value;
-
-        if ($value == $prevValue) {
-            /** @var AccountTariff $accountTariffFirst */
-            $accountTariffFirst = reset($row);
-            \Yii::error('CACHEDOUBLE A ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
-        }
-        $prevValue = $value;
 
         ActiveForm::end();
         continue;
     }
 
-    /** @var AccountTariff $accountTariffFirst */
-    $accountTariffFirst = reset($row);
     if (array_key_exists($accountTariffFirst->service_type_id, ServiceType::$packages)) {
         // пакеты отдельно не выводим. Только в комплекте с базовой услугой
         continue;
@@ -91,13 +93,6 @@ foreach ($rows as $hash => $row) {
         'packagesList' => $packagesList,
         'form' => $form,
     ]);
-
-    if ($value == $prevValue) {
-        /** @var AccountTariff $accountTariffFirst */
-        $accountTariffFirst = reset($row);
-        \Yii::error('CACHEDOUBLE B ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
-    }
-    $prevValue = $value;
 
     \Yii::$app->cache->set(
         $cacheKey,
