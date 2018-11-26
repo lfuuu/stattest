@@ -10,6 +10,9 @@
 use app\classes\Html;
 use app\models\ClientAccount;
 use app\models\ClientContact;
+
+$userAbon = \Yii::$app->user->identity->phone_work;
+
 ?>
 
 <div id="contacts-view" class="well">
@@ -30,6 +33,9 @@ use app\models\ClientContact;
                             Html::a($contact->data, 'http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to=' . $contact->data),
                             Html::a('@', 'mailto:' . $contact->data)
                         );
+                    } elseif ($contact->isPhone()) {
+                        echo $contact->data .
+                            ($userAbon ? ' (' . Html::a('', \yii\helpers\Url::to(['/account/call', 'id' => $account->id, 'contact_id' => $contact->id]), ['class' => 'glyphicon glyphicon-phone-alt']) . ')' : '');
                     } else {
                         echo $contact->data;
                     }

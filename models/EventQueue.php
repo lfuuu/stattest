@@ -103,6 +103,7 @@ class EventQueue extends ActiveRecord
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
     const COMET_NOTIFIER_EVENT = 'comet_notifier_event';
     const TROUBLE_NOTIFIER_EVENT = 'trouble_notifier_event';
+    const MAKE_CALL = 'make_call';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
@@ -157,6 +158,7 @@ class EventQueue extends ActiveRecord
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
         self::COMET_NOTIFIER_EVENT => 'Comet-уведомление',
+        self::MAKE_CALL => 'Сделать звонок',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',

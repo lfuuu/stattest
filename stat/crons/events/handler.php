@@ -37,6 +37,7 @@ use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\classes\SyncVps;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\Module as UuModule;
+use app\modules\webhook\classes\ApiWebCall;
 use yii\console\ExitCode;
 
 define('NO_WEB', 1);
@@ -51,7 +52,7 @@ $maxCountShift = 3;
 
 // настраиваем запрос выборки событий
 $nnp = ['event' => [NnpModule::EVENT_FILTER_TO_PREFIX, NnpModule::EVENT_LINKER, NnpModule::EVENT_IMPORT]];
-$ats3Sync = ['event' => EventQueue::ATS3__SYNC];
+$ats3Sync = ['event' => [EventQueue::ATS3__SYNC, EventQueue::MAKE_CALL]];
 $map = [
     'with_account_tariff' => [['NOT', ['account_tariff_id' => null]]],
     'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnp], ['NOT', $ats3Sync]],
@@ -409,6 +410,10 @@ function doEvents($eventQueueQuery)
 
                 case EventQueue::TROUBLE_NOTIFIER_EVENT:
                     RocketChat::me()->sendTroubleNotifier($param);
+                    break;
+
+                case EventQueue::MAKE_CALL:
+                    ApiWebCall::me()->makeCall($param['abon'], $param['calling_number']);
                     break;
 
 

@@ -8,11 +8,14 @@ use app\exceptions\ModelValidationException;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
 use app\models\ClientSuper;
 use app\models\Country;
+use app\models\EventQueue;
 use app\models\LkWizardState;
+use app\modules\webhook\models\Call;
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidParamException;
@@ -369,5 +372,46 @@ class AccountController extends BaseController
         $model->delete();
 
         return $this->redirect(['account/edit', 'id' => $model->client_id]);
+    }
+
+    public function actionCall($id, $contact_id)
+    {
+        $account = ClientAccount::findOne(['id' => $id]);
+        Assert::isObject($account);
+
+        $contact = ClientContact::findOne(['id' => $contact_id]);
+        Assert::isObject($contact);
+        Assert::isTrue($contact->isPhone());
+
+        $userAbon = \Yii::$app->user->identity->phone_work;
+        Assert::isNotEmpty($userAbon);
+
+        $phone = preg_replace('/[^\d]/', '', $contact->data);
+
+        Call::clean();
+
+        $call = Call::findOne(['abon' => $userAbon, 'calling_number' => $phone]);
+
+        if (!$call) {
+            $call = new Call;
+            $call->abon = $userAbon;
+            $call->calling_number = $phone;
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            if (!$call->save()) {
+                throw new ModelValidationException($call);
+            }
+
+            EventQueue::go(EventQueue::MAKE_CALL, ['abon' => $userAbon, 'calling_number' => $phone]);
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+
+        return $this->redirect($account->getUrl());
     }
 }
