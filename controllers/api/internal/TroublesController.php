@@ -20,6 +20,9 @@ use InvalidArgumentException;
 
 class TroublesController extends ApiInternalController
 {
+
+    const allowTimeSec = 2678400;// 3600*24*31;
+    const allowTimeMin = 44640;// 60*24*31;
     /**
      * @SWG\Get(tags = {"Troubles"}, path = "/internal/troubles/get-changed-clients-for-roistat", summary = "Список созданных клиентов", operationId = "GetChangedClientsForRoistat",
      *   @SWG\Parameter(name = "unixtime", type = "integer", description = "За какой интервал получить актуальные данные", in = "query", default = "", required = true),
@@ -33,10 +36,9 @@ class TroublesController extends ApiInternalController
      */
     public function actionGetChangedClientsForRoistat($unixtime)
     {
-        $allowTime = 6000;
         $unixtime = (int)$unixtime;
 
-        $unixtime = $unixtime < time() - $allowTime ? time() - $allowTime : $unixtime;
+        $unixtime = $unixtime < time() - self::allowTimeSec ? time() - self::allowTimeSec : $unixtime;
 
         $data = [];
         $clients = ClientAccount::find()
@@ -109,12 +111,13 @@ class TroublesController extends ApiInternalController
 
         // Получение заявок, которые были обновлены в течении заданного времени
         $minutes_range = (int)$minutes_range;
-        $minutes_range = $minutes_range > 1440 ? 1440 : $minutes_range;
+        $minutes_range = $minutes_range > self::allowTimeMin ? self::allowTimeMin : $minutes_range;
         $minutes_range = $minutes_range < 0 ? 0 : $minutes_range;
 
         $time = new DateTime("{$minutes_range} minutes ago", new DateTimeZone('UTC'));
         $troubleQuery = Trouble::find()
             ->alias('t')
+            ->with('account', 'stage')
             ->joinWith('troubleRoistat', true, 'INNER JOIN')
             ->where(['t.trouble_type' => $troubleTypeConnect->code])
             ->andWhere(['>', 't.updated_at', $time->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
@@ -137,7 +140,7 @@ class TroublesController extends ApiInternalController
             }
 
             // Получение последнего актуального статуса текущей заявки
-            if ($currentStage = $trouble->currentStage) {
+            if ($currentStage = $trouble->stage) {
                 $build['status'] = $currentStage->state_id;
                 $manager = $currentStage->user;
                 $build['fields'] = ['Менеджер' => $manager ? $manager->name : $currentStage->user_main];

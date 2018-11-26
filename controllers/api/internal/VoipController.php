@@ -145,15 +145,27 @@ class VoipController extends ApiInternalController
         }
 
 
-        $numberInfo = (new HttpClient())
-            ->get($url, [
-                'cmd'=>'getNumberRangeByNum',
-                'num'=>  $number])
-            ->getResponseDataWithCheck();
+        $numberInfo = [
+            'nnp_city_id' => 0,
+            'nnp_region_id' => 0,
+            'nnp_operator_id' => 0,
+            'ndc_type_id' => 0,
+        ];
+
+        try {
+            $numberInfo = (new HttpClient())
+                ->get($url, [
+                    'cmd' => 'getNumberRangeByNum',
+                    'num' => $number])
+                ->getResponseDataWithCheck();
+        } catch (\Exception $e) {
+            Yii::error($e);
+        }
 
         $redis = \Yii::$app->redis;
 
-        $countryId = $redis->get('cityIdToCountryId:' . $numberInfo['nnp_city_id']);
+        $countryId = null;
+        $numberInfo && $countryId = $redis->get('cityIdToCountryId:' . $numberInfo['nnp_city_id']);
 
         $data = [
             'country_name' => $countryId ? ($redis->get('country:' . $countryId) ?: 'unknown') : 'unknown',
