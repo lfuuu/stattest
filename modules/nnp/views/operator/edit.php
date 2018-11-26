@@ -104,9 +104,13 @@ if (!$operator->isNewRecord) {
                 <?= $this->render('//layouts/_submitButtonDrop') ?> &nbsp;, заменив на
             </div>
             <div class="col-sm-4">
+				<?php
+                $operatorsList = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code, 0);
+                unset($operatorsList[$operator->id]); // убрать себя
+				?>
                 <?= Select2::widget([
                     'name' => 'newOperatorId',
-                    'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code),
+                    'data' => $operatorsList,
                 ]) ?>
             </div>
         </div>

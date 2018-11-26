@@ -106,9 +106,13 @@ if (!$region->isNewRecord) {
                 <?= $this->render('//layouts/_submitButtonDrop') ?> &nbsp;, заменив на
             </div>
             <div class="col-sm-4">
+                <?php
+                $regionsList = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code, 0);
+                unset($regionsList[$region->id]); // убрать себя
+                ?>
                 <?= Select2::widget([
                     'name' => 'newRegionId',
-                    'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code),
+                    'data' => $regionsList,
                 ]) ?>
             </div>
         </div>
