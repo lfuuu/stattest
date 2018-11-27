@@ -48,34 +48,38 @@ class DependecyHelper extends Singleton
 
     public function getLsUsagesDependency($client)
     {
-        $sql = "SELECT sum(a + replace(a_date, '-', '') + b + replace(b_date, '-', '') + id + replace(actual_from, '-', '') +
-           replace(actual_to, '-', '') + is_actual*1000 + no_of_lines+ if (status = 'working', 1000,9999)) as sum
+        $sql = "SELECT sum(a + id +
+           CAST(REPLACE(COALESCE(actual_from, '2020'), '-', '') AS INTEGER) +
+           CAST(REPLACE(COALESCE(actual_to, '3030'), '-', '') AS INTEGER) +
+           is_actual * 1000 + no_of_lines +
+           IF(status = 'working', 1000, 9999) + current_tariff_id) AS sum
 FROM (
        SELECT
-         (SELECT id_tarif
-          FROM log_tarif
-          WHERE service = 'usage_voip' AND id_service = u.id AND date_activation <= cast(NOW() AS DATE)
-          ORDER BY date_activation DESC, id DESC
-          LIMIT 1)                a,
-         (SELECT date_activation
-          FROM log_tarif
-          WHERE service = 'usage_voip' AND id_service = u.id AND date_activation <= cast(NOW() AS DATE)
-          ORDER BY date_activation DESC, id DESC
-          LIMIT 1)                a_date,
-         coalesce((SELECT id_tarif
+         #логи тарифов
+         COALESCE((SELECT sum(COALESCE(id, -100) + COALESCE(id_tarif, -200) + COALESCE(id_tarif_local_mob, -300) +
+                              COALESCE(id_tarif_russia, -400) + COALESCE(id_tarif_intern, -500) +
+                              CAST(REPLACE(COALESCE(date_activation, '1000'), '-', '') AS INTEGER))
                    FROM log_tarif
-                   WHERE service = 'usage_voip' AND id_service = u.id AND date_activation > cast(NOW() AS DATE)
-                   ORDER BY date_activation, id
-                   LIMIT 1), 0)   b,
-         coalesce((SELECT date_activation
+                   WHERE id_service = u.id AND service = 'usage_voip'
+                   GROUP BY id_service), 100)                               AS a,
+         #пакеты
+         COALESCE((SELECT sum(id + COALESCE(tariff_id, -200) + COALESCE(usage_trunk_id, -100) +
+                              CAST(REPLACE(COALESCE(actual_from, '3020'), '-', '') AS INTEGER) +
+                              CAST(REPLACE(COALESCE(actual_to, '3010'), '-', '') AS INTEGER) +
+                              IF(status = 'working', 1000, 9999))
+                   FROM `usage_voip_package`
+                   WHERE usage_voip_id = u.id AND client = u.client), -111) AS b,
+         #текущий тариф
+         COALESCE((SELECT id_tarif
                    FROM log_tarif
-                   WHERE service = 'usage_voip' AND id_service = u.id AND date_activation > cast(NOW() AS DATE)
-                   ORDER BY date_activation, id
-                   LIMIT 1), '.') b_date,
+                   WHERE service = 'usage_voip' AND id_service = u.id AND date_activation <= CAST(NOW() AS DATE)
+                   ORDER BY date_activation DESC, id DESC
+                   LIMIT 1), -300)                                             current_tariff_id,
+
          u.id,
          actual_from,
          actual_to,
-         if (cast(now() as date) between actual_from and actual_to, id, 0) as is_actual,
+         IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to, id, 0)   AS is_actual,
          u.no_of_lines,
          u.status
        FROM usage_voip u

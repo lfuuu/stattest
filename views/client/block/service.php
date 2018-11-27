@@ -64,6 +64,35 @@ foreach ($services as $service) {
         break;
     }
 }
+
+function set_number_status(&$content)
+{
+    if (!preg_match_all('/{{number:(\d+)}}/', $content, $matches)) {
+        return;
+    }
+
+    $numbers =  array_unique($matches[1]);
+
+    if (!$numbers) {
+        return;
+    }
+
+    $numbersData = Number::find()
+        ->where(['number' => $numbers])
+        ->select('status')
+        ->indexBy('number')
+        ->asArray()
+        ->column();
+
+    foreach ($numbers as $number) {
+        $status = isset($numbersData[$number]) ? $numbersData[$number] : null;
+
+        $statusStr = $status ? isset(Number::$statusList[$status]) ? Number::$statusList[$status] : $status : '';
+
+        $content = str_replace('{{number:'.$number.'}}', str_replace('.', '<br>', $statusStr) , $content);
+    }
+}
+
 if ($has) :
     ?>
     <div class="service">
@@ -262,6 +291,7 @@ if ($has) :
                         }
 
                         if ($usageVoipContent !== false) {
+                            set_number_status($usageVoipContent);
                             echo $usageVoipContent;
                         } else {
                             ob_start();
@@ -407,9 +437,7 @@ if ($has) :
                                                 <?php endforeach; ?>
                                             </div>
                                         </td>
-                                        <td>
-                                            <?php $voipNumberStatus = $service->voipNumber ? $service->voipNumber->status : '' ?>
-                                            <?= (isset(Number::$statusList[$voipNumberStatus]) ? Number::$statusList[$voipNumberStatus] : $voipNumberStatus) ?>
+                                        <td>{{number:<?= $service->E164 ?>}}
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -424,6 +452,8 @@ if ($has) :
                                     $content,
                                     3600 * 24 * 30,
                                     DependecyHelper::me()->getLsUsagesDependency($account->client));
+
+                            set_number_status($content);
 
                             echo $content;
                         }

@@ -56,17 +56,13 @@ FROM (
        SELECT
          COALESCE((SELECT GROUP_CONCAT(CONCAT(COALESCE(tariff_period_id, ''), '-', actual_from_utc) ORDER BY id DESC)
                    FROM uu_account_tariff_log
-                   WHERE account_tariff_id = a.id AND actual_from_utc > now()
+                   WHERE account_tariff_id = a.id
                   ), 'n')                                                                          a1,
-         (SELECT CONCAT(COALESCE(tariff_period_id, ''), '-', actual_from_utc)
-          FROM uu_account_tariff_log
-          WHERE account_tariff_id = a.id AND actual_from_utc <= now()
-          ORDER BY id DESC
-          LIMIT 1)                                                                                 a2,
          (SELECT GROUP_CONCAT(CONCAT(resource_id, '-', amount, '-', actual_from_utc) ORDER BY l.id)
           FROM uu_account_tariff_resource_log l
-          WHERE l.account_tariff_id = a.id AND resource_id NOT IN (1, 14, 18, 41, 40, 42, 44, 45)) a3,
-         if(prev_account_tariff_id IS NULL, id,
+          WHERE l.account_tariff_id = a.id AND resource_id NOT IN (1, 14, 18, 41, 40, 42, 44, 45)) a2,
+         IF(a.tariff_period_id IS NULL, -1000, a.tariff_period_id) AS                              a3,
+         IF(prev_account_tariff_id IS NULL, id,
             prev_account_tariff_id)                                                                account_tariff_group_id,
          a.city_id,
          a.client_account_id,
