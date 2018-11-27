@@ -66,7 +66,8 @@ FROM (
          COALESCE((SELECT sum(id + COALESCE(tariff_id, -200) + COALESCE(usage_trunk_id, -100) +
                               CAST(REPLACE(COALESCE(actual_from, '3020'), '-', '') AS INTEGER) +
                               CAST(REPLACE(COALESCE(actual_to, '3010'), '-', '') AS INTEGER) +
-                              IF(status = 'working', 1000, 9999))
+                              IF(status = 'working', 1000, 9999) +
+                              IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to, id, 0) * 555)
                    FROM `usage_voip_package`
                    WHERE usage_voip_id = u.id AND client = u.client), -111) AS b,
          #текущий тариф
