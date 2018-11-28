@@ -107,8 +107,7 @@ class ClientSearch extends ClientAccount
         $query
             ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
             ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
-            ->innerJoin(['super_client' => ClientSuper::tableName()], 'super_client.id = contragent.super_id')
-            ->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
+            ->innerJoin(['super_client' => ClientSuper::tableName()], 'super_client.id = contragent.super_id');
 
         $query
             ->orFilterWhere(['client.id' => $this->id])
@@ -117,9 +116,13 @@ class ClientSearch extends ClientAccount
             ->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
             ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
             ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName])
-            ->orFilterWhere(['LIKE', 'contact.data', $this->contactPhone])
             ->orFilterWhere(['LIKE', 'inn', $this->inn])
             ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
+
+        if ($this->contactPhone) {
+            $query->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
+            $query->andFilterWhere(['LIKE', 'contact.data', $this->contactPhone]);
+        }
 
         if ($this->contractNo) {
             $query->orFilterWhere(['contract.number' => $this->contractNo]);
@@ -143,6 +146,8 @@ class ClientSearch extends ClientAccount
                 ['LIKE', 'base_voip.e164', $this->voip],
                 ['LIKE', 'uu_voip.voip_number', $this->voip]
             ]);
+
+            $query->orderBy(new Expression('coalesce(base_voip.actual_from, uu_voip.insert_time) desc'));
         }
 
         if ($this->ip) {
