@@ -3394,7 +3394,9 @@ where cg.inn = '" . $inn . "'";
 
             $clientIdLs = $this->getClientIdByDescription($pay['description']);
 
-            $clientIdExtBills = $this->getClientIdInExtBills($pay['description']);
+            $clientIdExtBills = [];
+            // только внешние счета
+            $pay['sum'] < 0 && $clientIdExtBills = $this->getClientIdInExtBills($pay['description']);
 
             if ($clientId && !$clientId2 && !$clientId3 && !$clientId4 && !$clientId5) {
                 $pay["to_check_bill_only"] = 1;
