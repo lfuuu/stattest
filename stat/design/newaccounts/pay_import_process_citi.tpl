@@ -23,7 +23,7 @@
                             <a href="./?module=newaccounts&action=bill_list&clients_client={$client.id}">
                                 {$client.id} <small>({$client.client})</small> <font style="color:green;"> ({$client.currency})</font>
                             </a> - <span style="font-size:85%">{$client.full_name} ({$client.manager})
-                                <small>{if $client.organization_name}{$client.organization_name}{/if}</small></span>
+                                <small>{if $client.organization_name}{$client.organization_name}{if $client.inn} - ИНН{$client.inn}{/if}{/if}</small></span>
                         </div>
                     {/foreach}
                 {/if}
@@ -45,7 +45,7 @@
                     {if !isset($pay.to_check_bill_only) || !$pay.to_check_bill_only}<br /><br />{/if}
                     <span style="color: gray;">р/с: {$pay.from.account} <br />бик: {$pay.from.bik}</span>
                 {/if}
-                <br /><br /><span style="font-size:7pt;" title="{$pay.company|escape}">{$pay.company|truncate:35}</span>
+                <br /><span style="font-size:7pt;" title="{$pay.company|escape}">{$pay.company}</span>
                 <input type="hidden" name="pay[{$pay.no}][pay]" value="{$pay.noref}" />
                 <input type="hidden" name="pay[{$pay.no}][date]" value="{$pay.date}" />
                 <input type="hidden" name="pay[{$pay.no}][oper_date]" value="{$pay.oper_date}" />

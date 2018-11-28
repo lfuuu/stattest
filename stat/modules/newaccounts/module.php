@@ -11,6 +11,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillCorrection;
 use app\models\BillDocument;
+use app\models\BillExternal;
 use app\models\Business;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
@@ -29,6 +30,7 @@ use app\models\PaymentSberOnline;
 use app\models\Store;
 use app\models\Transaction;
 use app\models\User;
+use yii\db\Expression;
 
 class m_newaccounts extends IModule
 {
@@ -3026,7 +3028,7 @@ class m_newaccounts extends IModule
             }
         }
 
-        foreach ($paymentQuery->select(['day_timestamp' => new \yii\db\Expression('UNIX_TIMESTAMP(cast(created_at as date))')])->distinct()->createCommand()->queryAll() as $paymentDay) {
+        foreach ($paymentQuery->select(['day_timestamp' => new Expression('UNIX_TIMESTAMP(cast(created_at as date))')])->distinct()->createCommand()->queryAll() as $paymentDay) {
             if (!isset($data[$paymentDay['day_timestamp']])) {
                 $data[$paymentDay['day_timestamp']] = [];
             }
@@ -3392,11 +3394,18 @@ where cg.inn = '" . $inn . "'";
 
             $clientIdLs = $this->getClientIdByDescription($pay['description']);
 
+            $clientIdExtBills = $this->getClientIdInExtBills($pay['description']);
+
             if ($clientId && !$clientId2 && !$clientId3 && !$clientId4 && !$clientId5) {
                 $pay["to_check_bill_only"] = 1;
             }
 
-            $clientIdSum = $clientIdLs ? [$clientIdLs] : array_unique(array_merge($clientId, $clientId2, $clientId3, $clientId4, $clientId5));
+            $clientIdSum =
+                $clientIdLs ?
+                [$clientIdLs] :
+                    $clientIdExtBills ?
+                        $clientIdExtBills :
+                        array_unique(array_merge($clientId, $clientId2, $clientId3, $clientId4, $clientId5));
 
 
             // если счет и клиент различаются
@@ -3585,7 +3594,7 @@ where cg.inn = '" . $inn . "'";
         }
 
         $clients = (new \yii\db\Query())
-            ->select(['c.id','c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id'])
+            ->select(['c.id','c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id', 'cg.inn'])
             ->from(['c' => ClientAccount::tableName()])
             ->innerJoin(['cr' => ClientContract::tableName()], 'cr.id=c.contract_id')
             ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id=cr.contragent_id')
@@ -3750,6 +3759,43 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         }
 
         return false;
+    }
+
+    /**
+     * Поиск клиента по внешнему счету
+     *
+     * @param $comment
+     * @return array
+     */
+    public function getClientIdInExtBills($comment)
+    {
+        static $bills = [];
+
+        if (!$bills) {
+            $monthThis = new DateTimeImmutable('now');
+            $monthPrev = $monthThis->modify('first day of previous month');
+            $bills = BillExternal::find()
+                ->alias('e')
+                ->joinWith('bill b', true, 'INNER JOIN')
+                ->where(['>=', new Expression('LENGTH(e.ext_bill_no)'), 5])
+                ->andWhere(['OR',
+                    ['like', 'e.bill_no', $monthThis->format('Ym').'-%', false],
+                    ['like', 'e.bill_no', $monthPrev->format('Ym').'-%', false],
+                ])
+                ->andWhere(['<', 'b.sum', 0])
+                ->select(['b.client_id'])
+                ->indexBy('ext_bill_no')
+                ->column();
+        }
+
+        $ids = [];
+        foreach ($bills as $extBillNo =>  $clientId) {
+            if (strpos($comment, (string)$extBillNo) !== false) {
+                $ids[] = $clientId;
+            }
+        }
+
+        return array_unique($ids);
     }
 
     function getPaymentRate($date)
