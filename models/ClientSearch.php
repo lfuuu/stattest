@@ -90,7 +90,8 @@ class ClientSearch extends ClientAccount
     public function search($params)
     {
         $query = parent::find();
-        $query->alias('client');
+        $query->alias('client')
+        ->distinct();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -134,15 +135,14 @@ class ClientSearch extends ClientAccount
         }
 
         if ($this->voip) {
-            $uuQuery = clone $query;
 
             $query->leftJoin(['base_voip' => UsageVoip::tableName()], 'base_voip.client = client.client');
-            $query->andFilterWhere(['LIKE', 'base_voip.e164', $this->voip]);
+            $query->leftJoin(['uu_voip' => AccountTariff::tableName()], 'uu_voip.client_account_id = client.id');
 
-            $uuQuery->leftJoin(['uu_voip' => AccountTariff::tableName()], 'uu_voip.client_account_id = client.id');
-            $uuQuery->andFilterWhere(['LIKE', 'uu_voip.voip_number', $this->voip]);
-
-            $query->union($uuQuery);
+            $query->andFilterWhere(['OR',
+                ['LIKE', 'base_voip.e164', $this->voip],
+                ['LIKE', 'uu_voip.voip_number', $this->voip]
+            ]);
         }
 
         if ($this->ip) {
