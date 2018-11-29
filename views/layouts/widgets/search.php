@@ -1,4 +1,5 @@
 <?php
+
 use kartik\typeahead\TypeaheadAsset;
 use yii\helpers\Url;
 
@@ -9,7 +10,8 @@ $request = Yii::$app->request->get();
 <div>
     <form action="<?= Url::toRoute(['/search/index', 'search' => isset($request['search']) ? $request['search'] : '']) ?>"
           id="search-form">
-        <input type="hidden" name="searchType" value="<?= (isset($request['searchType'])) ? $request['searchType'] : '' ?>"
+        <input type="hidden" name="searchType"
+               value="<?= (isset($request['searchType'])) ? $request['searchType'] : '' ?>"
                id="search-type">
 
         <div class="col-sm-4">
@@ -28,7 +30,7 @@ $request = Yii::$app->request->get();
                         data-placeholder="№ ЛС или Названию">Клиентам
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="contractNo"
-                        data-placeholder="Номеру договора">Договору
+                        data-placeholder="Номеру договора">Договор
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="inn"
                         data-placeholder="ИНН">ИНН
@@ -37,22 +39,22 @@ $request = Yii::$app->request->get();
                         data-placeholder="номеру">Voip
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="email"
-                        data-placeholder="email">Email
+                        data-placeholder="email" title="Контакты email / телефон / факс">Email/тел.
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubles"
-                        data-placeholder="№ заявки">Заявкам
+                        data-placeholder="№ заявки">Заявка
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="bills"
-                        data-placeholder="№ счёта">Счетам
+                        data-placeholder="№ счёта">Счет
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="ip"
                         data-placeholder="IP адресу">IP
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="address"
-                        data-placeholder="адресу">Адресу
+                        data-placeholder="адресу">Адрес
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="domain"
-                        data-placeholder="домену">Домену
+                        data-placeholder="домену">Домен
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="adsl"
                         data-placeholder="ADSL">ADSL
@@ -61,10 +63,7 @@ $request = Yii::$app->request->get();
                         data-placeholder="Текст заявки">Текст заявки
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubleComment"
-                        data-placeholder="Комментарий к заявке">Комментарий к заявке
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="contactPhone"
-                        data-placeholder="Телефон">Контактный номер
+                        data-placeholder="Комментарий к заявке" title="Комментарий к заявке">Коммент. к заявке
                 </button>
             </div>
         </div>

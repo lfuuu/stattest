@@ -49,8 +49,8 @@ class DependecyHelper extends Singleton
     public function getLsUsagesDependency($client)
     {
         $sql = "SELECT sum(a + id +
-           CAST(REPLACE(COALESCE(actual_from, '2020'), '-', '') AS INTEGER) +
-           CAST(REPLACE(COALESCE(actual_to, '3030'), '-', '') AS INTEGER) +
+           CAST(REPLACE(COALESCE(actual_from, '2020'), '-', '') AS UNSIGNED) +
+           CAST(REPLACE(COALESCE(actual_to, '3030'), '-', '') AS UNSIGNED) +
            is_actual * 1000 + no_of_lines +
            IF(status = 'working', 1000, 9999) + current_tariff_id) AS sum
 FROM (
@@ -58,14 +58,14 @@ FROM (
          #логи тарифов
          COALESCE((SELECT sum(COALESCE(id, -100) + COALESCE(id_tarif, -200) + COALESCE(id_tarif_local_mob, -300) +
                               COALESCE(id_tarif_russia, -400) + COALESCE(id_tarif_intern, -500) +
-                              CAST(REPLACE(COALESCE(date_activation, '1000'), '-', '') AS INTEGER))
+                              CAST(REPLACE(COALESCE(date_activation, '1000'), '-', '') AS UNSIGNED))
                    FROM log_tarif
                    WHERE id_service = u.id AND service = 'usage_voip'
                    GROUP BY id_service), 100)                               AS a,
          #пакеты
          COALESCE((SELECT sum(id + COALESCE(tariff_id, -200) + COALESCE(usage_trunk_id, -100) +
-                              CAST(REPLACE(COALESCE(actual_from, '3020'), '-', '') AS INTEGER) +
-                              CAST(REPLACE(COALESCE(actual_to, '3010'), '-', '') AS INTEGER) +
+                              CAST(REPLACE(COALESCE(actual_from, '3020'), '-', '') AS UNSIGNED) +
+                              CAST(REPLACE(COALESCE(actual_to, '3010'), '-', '') AS UNSIGNED) +
                               IF(status = 'working', 1000, 9999) +
                               IF(CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to, id, 0) * 555)
                    FROM `usage_voip_package`

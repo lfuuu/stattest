@@ -124,17 +124,9 @@ class ClientSearch extends ClientAccount
             $query->andFilterWhere(['LIKE', 'contact.data', $this->contactPhone]);
         }
 
-        if ($this->contractNo) {
-            $query->orFilterWhere(['contract.number' => $this->contractNo]);
-            if (!$dataProvider->getTotalCount()) {
-                $query->orFilterWhere(['LIKE', 'contract.number', $this->contractNo]);
-            }
-        }
-
         if ($this->email) {
-            $query
-                ->andFilterWhere(['LIKE', 'contact.data', $this->email])
-                ->andFilterWhere(['contact.type' => 'email']);
+            $query->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
+            $query->andFilterWhere(['LIKE', 'contact.data', $this->email]);
         }
 
         if ($this->voip) {
