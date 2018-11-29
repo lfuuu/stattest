@@ -2493,14 +2493,6 @@ class ApiLk
 
         $troubleId = $tt->createTrouble($R, $user->user);
 
-        $roistat = new TroubleRoistat();
-        $roistat->trouble_id = $troubleId;
-        $roistat->roistat_visit = TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK);
-
-        if (!$roistat->save()) {
-            throw new ModelValidationException($roistat);
-        }
-
         return $troubleId;
     }
 
