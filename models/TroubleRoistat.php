@@ -6,7 +6,7 @@ use app\classes\model\ActiveRecord;
 use yii\base\InvalidParamException;
 
 /**
- * Class Trouble
+ * Class TroubleRoistat
  *
  * @property int $id
  * @property int $trouble_id

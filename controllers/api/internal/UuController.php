@@ -13,6 +13,7 @@ use app\models\ClientContragent;
 use app\models\EventQueue;
 use app\models\Number;
 use app\models\Trouble;
+use app\models\TroubleRoistat;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -449,7 +450,8 @@ class UuController extends ApiInternalController
         $voip_number = null,
         $account_tariff_id = null,
         $is_include_vat = null
-    ) {
+    )
+    {
         \Yii::info(
             print_r([
                 'actionGetTariffs',
@@ -883,7 +885,8 @@ class UuController extends ApiInternalController
     public function actionGetAccountTariffsForExcel(
         $client_account_id,
         $service_type_id
-    ) {
+    )
+    {
         $client_account_id = (int)$client_account_id;
         $service_type_id = (int)$service_type_id;
 
@@ -1038,7 +1041,8 @@ class UuController extends ApiInternalController
         $prev_account_tariff_id = null,
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
-    ) {
+    )
+    {
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
         $client_account_id = (int)$client_account_id;
@@ -1329,7 +1333,8 @@ class UuController extends ApiInternalController
         $voip_number = null,
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
-    ) {
+    )
+    {
 
         \Yii::info(
             print_r([
@@ -1728,17 +1733,60 @@ class UuController extends ApiInternalController
      * @throws \yii\db\Exception
      * @throws Exception
      */
+
     public function actionAddAccountTariff()
     {
         $post = Yii::$app->request->post();
 
+        return $this->_addAccountTariff($post);
+    }
+
+    /**
+     * @SWG\Put(tags = {"UniversalTariffs"}, path = "/internal/uu/add-account-tariff__for-lk-mcn-ru", summary = "Добавить услугу ЛС (для lk.mcn.ru)", operationId = "AddAccountTariff_forLkMcnRu",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф будет действовать. ГГГГ-ММ-ДД. Если не указан, то с сегодня", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "comment", type = "string", description = "Комментарий", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги ЛС. Если добавляется услуга пакета телефонии, то необходимо здесь указать ID услуги телефонии", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "is_async", type = "integer", description = "Асинхронная схема", in = "formData", default = "0"),
+     *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор запроса для асинхронного ответа", in = "formData", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
+     *     @SWG\Schema(type = "integer", description = "ID")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return int
+     * @throws \yii\db\Exception
+     * @throws Exception
+     */
+
+    public function actionAddAccountTariff__forLkMcnRu()
+    {
+        $post = Yii::$app->request->post();
+
+        $post[Trouble::OPTION_IS_FROM_LK_MCN_RU] = true;
+        return $this->_addAccountTariff($post);
+    }
+
+    public function _addAccountTariff($post)
+    {
         if (isset($post['is_async']) && $post['is_async']) {
             $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
             $requestId = isset($post['request_id']) && $post['request_id'] ? $post['request_id'] : $event->id;
 
             return ['request_id' => $requestId];
         }
-
 
         $transaction = Yii::$app->db->beginTransaction();
         $accountTariff = new AccountTariff();
@@ -1766,7 +1814,15 @@ class UuController extends ApiInternalController
 
             $this->_checkTariff($accountTariff, $accountTariffLog);
 
-            Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
+            Trouble::dao()->notificateCreateAccountTariff(
+                $accountTariff,
+                $accountTariffLog,
+                [],
+                (isset($post[Trouble::OPTION_IS_FROM_LK_MCN_RU]) ?
+                    ['roistat_visit' => TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK)] :
+                    [Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT => true]
+                )
+            );
 
             $transaction->commit();
             return $accountTariff->id;

@@ -13,11 +13,14 @@ use app\models\ClientAccount;
 use app\models\Param;
 use app\models\support\Ticket;
 use app\models\Trouble;
+use app\models\TroubleRoistat;
+use app\models\TroubleRoistatStore;
 use app\models\TroubleStage;
 use app\models\TroubleState;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\ServiceType;
 use yii\caching\TagDependency;
 use yii\db\Expression;
 
@@ -92,7 +95,8 @@ class TroubleDao extends Singleton
         $description,
         $supportTicketId,
         $author = false
-    ) {
+    )
+    {
         $clientAccount = ClientAccount::findOne($clientAccountId);
         Assert::isObject($clientAccount);
 
@@ -297,6 +301,7 @@ class TroubleDao extends Singleton
      * @param string $troubleText
      * @param string $author
      * @param string $user
+     * @param array $options
      * @return Trouble
      * @throws \Exception
      * @internal param string $department
@@ -311,8 +316,10 @@ class TroubleDao extends Singleton
         $subtype,
         $troubleText,
         $author = null,
-        $user = null
-    ) {
+        $user = null,
+        $options = []
+    )
+    {
         $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
         Assert::isObject($clientAccount);
 
@@ -345,6 +352,22 @@ class TroubleDao extends Singleton
                 throw new ModelValidationException($trouble);
             }
 
+            if (isset($options[Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT])) {
+                if ($roistatVisit = TroubleRoistatStore::getRoistatIdByAccountId($clientAccount->id)) {
+                    $options['roistat_visit'] = $roistatVisit;
+                }
+            }
+
+            if (isset($options['roistat_visit'])) {
+                $troubleRoistat = new TroubleRoistat();
+                $troubleRoistat->trouble_id = $trouble->id;
+                $troubleRoistat->roistat_visit = $options['roistat_visit'];
+
+                if (!$troubleRoistat->save()) {
+                    throw new ModelValidationException($troubleRoistat);
+                }
+            }
+
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -362,7 +385,7 @@ class TroubleDao extends Singleton
      * @param array $post
      * @throws \Exception
      */
-    public function notificateCreateAccountTariff(AccountTariff $accountTariff, AccountTariffLog $accountTariffLog, $post = [])
+    public function notificateCreateAccountTariff(AccountTariff $accountTariff, AccountTariffLog $accountTariffLog, $post = [], $options = [])
     {
         $user = User::findOne(['user' => Trouble::DEFAULT_SUPPORT_SALES]);
 
@@ -375,7 +398,7 @@ class TroubleDao extends Singleton
         $troubleTexts[] = 'Тип ' . $accountTariff->serviceType->name;
         $troubleTexts[] = 'Тариф ' . $accountTariffLog->getName();
 
-        if ($accountTariff->service_type_id == \app\modules\uu\models\ServiceType::ID_VOIP) {
+        if ($accountTariff->service_type_id == ServiceType::ID_VOIP) {
             $troubleTexts[] = 'Номер ' . $accountTariff->voip_number;
         }
 
@@ -385,7 +408,7 @@ class TroubleDao extends Singleton
 
         $troubleText = implode('.<br/>', $troubleTexts);
 
-        $this->createTrouble($accountTariff->client_account_id, Trouble::TYPE_CONNECT, Trouble::SUBTYPE_CONNECT, $troubleText, null, ($user ? $user->user : null));
+        $this->createTrouble($accountTariff->client_account_id, Trouble::TYPE_CONNECT, Trouble::SUBTYPE_CONNECT, $troubleText, null, ($user ? $user->user : null), $options);
 
         if ($user && $user->email && $accountTariffLog->tariff_period_id) {
             // отправить письмо только при создании, но не при закрытии

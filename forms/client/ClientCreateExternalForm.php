@@ -29,6 +29,7 @@ use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
+use app\models\TroubleRoistatStore;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
@@ -475,6 +476,7 @@ class ClientCreateExternalForm extends Form
      * Создание заявки и визарда
      *
      * @return bool
+     * @throws ModelValidationException
      */
     private function _createTroubleAndWizard()
     {
@@ -500,16 +502,13 @@ class ClientCreateExternalForm extends Form
 
             $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);
 
-            // Создание TroubleRoistat, если существуют данные в roistat_visit
             if ($this->roistat_visit) {
-                $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $this->troubleId]);
-                if (!$troubleRoistat) {
-                    $troubleRoistat = new TroubleRoistat;
-                    $troubleRoistat->trouble_id = $this->troubleId;
-                }
-                $troubleRoistat->roistat_visit = $this->roistat_visit;
-                if (!$troubleRoistat->save()) {
-                    throw new ModelValidationException($troubleRoistat);
+                $store = new TroubleRoistatStore();
+                $store->account_id = $this->account_id;
+                $store->roistat_visit = $this->roistat_visit;
+
+                if (!$store->save()) {
+                    throw new ModelValidationException($store);
                 }
             }
         }

@@ -76,6 +76,9 @@ class Trouble extends ActiveRecord
     const SUBTYPE_TASK = 'task';
     const SUBTYPE_CONSULTATION = 'consultation';
 
+    const OPTION_IS_FROM_LK_MCN_RU = 'is_from_lk.mcn.ru';
+    const OPTION_IS_CHECK_SAVED_ROISTAT_VISIT = 'is_check_saved_roistat_visit';
+
     public $client_name = '';
 
     public static $types = [
