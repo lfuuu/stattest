@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\HttpClient;
 use app\modules\uu\models\AccountTariff;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
@@ -9,7 +10,7 @@ use yii\db\Expression;
 class ClientSearch extends ClientAccount
 {
 
-    public $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl, $contactPhone;
+    public $manager, $account_manager, $email, $voip, $ip, $domain, $address, $adsl, $sip;
 
     protected $companyName, $inn, $contractNo;
 
@@ -30,7 +31,7 @@ class ClientSearch extends ClientAccount
                     'adsl',
                     'account_manager',
                     'manager',
-                    'contactPhone',
+                    'sip',
                 ],
                 'string'
             ],
@@ -91,7 +92,7 @@ class ClientSearch extends ClientAccount
     {
         $query = parent::find();
         $query->alias('client')
-        ->distinct();
+            ->distinct();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -109,6 +110,18 @@ class ClientSearch extends ClientAccount
             ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
             ->innerJoin(['super_client' => ClientSuper::tableName()], 'super_client.id = contragent.super_id');
 
+
+        if ($this->sip) {
+            $result = (new HttpClient())
+                ->createJsonRequest()
+                ->setMethod('get')
+                ->setUrl('https://vpbx.mcn.ru/phone/api/get_account_id_by_sip_name/')
+                ->setData(['sip_name' => $this->sip])
+                ->getResponseDataWithCheck();
+
+            $this->id = $result && isset($result['result']) && $result['result'] ? $result['result'] : 0;
+        }
+
         $query
             ->orFilterWhere(['client.id' => $this->id])
             ->orFilterWhere(['contract.manager' => $this->manager])
@@ -118,11 +131,6 @@ class ClientSearch extends ClientAccount
             ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName])
             ->orFilterWhere(['LIKE', 'inn', $this->inn])
             ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
-
-        if ($this->contactPhone) {
-            $query->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
-            $query->andFilterWhere(['LIKE', 'contact.data', $this->contactPhone]);
-        }
 
         if ($this->email) {
             $query->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');

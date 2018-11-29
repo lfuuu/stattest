@@ -60,10 +60,13 @@ $request = Yii::$app->request->get();
                         data-placeholder="ADSL">ADSL
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubleText"
-                        data-placeholder="Текст заявки">Текст заявки
+                        data-placeholder="Текст заявки" title="Текст заявки">Текст з.
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubleComment"
-                        data-placeholder="Комментарий к заявке" title="Комментарий к заявке">Коммент. к заявке
+                        data-placeholder="Комментарий к заявке" title="Комментарий к заявке">Коммент. к з.
+                </button>
+                <button type="submit" class="btn btn-default btn-xs" data-search="sip"
+                        data-placeholder="Поиск по номеру SIP-учетки" title="Поиск по номеру SIP-учетки">SIP
                 </button>
             </div>
         </div>

@@ -186,6 +186,10 @@ class SearchController extends BaseController
 		        $params['contactPhone'] = trim($search);
 		        break;
 
+	        case 'sip':
+		        $params['sip'] = trim($search);
+		        break;
+
             default:
                 return $this->render('result', ['message' => 'Ничего не найдено']);
         }
