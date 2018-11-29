@@ -3405,9 +3405,9 @@ where cg.inn = '" . $inn . "'";
             $clientIdSum =
                 $clientIdLs ?
                 [$clientIdLs] :
-                    $clientIdExtBills ?
+                    ($clientIdExtBills ?
                         $clientIdExtBills :
-                        array_unique(array_merge($clientId, $clientId2, $clientId3, $clientId4, $clientId5));
+                        array_unique(array_merge($clientId, $clientId2, $clientId3, $clientId4, $clientId5)));
 
 
             // если счет и клиент различаются
