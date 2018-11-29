@@ -48,7 +48,7 @@ class DependecyHelper extends Singleton
 
     public function getLsUsagesDependency($client)
     {
-        $sql = "SELECT sum(a + id +
+        $sql = "SELECT sum(a + b + id +
            CAST(REPLACE(COALESCE(actual_from, '2020'), '-', '') AS UNSIGNED) +
            CAST(REPLACE(COALESCE(actual_to, '3030'), '-', '') AS UNSIGNED) +
            is_actual * 1000 + no_of_lines +
