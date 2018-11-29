@@ -1707,6 +1707,9 @@ class m_newaccounts extends IModule
             $bills = array($bills);
         }
 
+        $isBulkPrint = get_param_raw("isBulkPrint", 0);
+        $isLandscape = get_param_raw("isLandscape", 0);
+        $isPortrait = get_param_raw("isPortrait", 0);
         $is_pdf = get_param_raw("is_pdf", 0);
         $one_pdf = get_param_raw("one_pdf", 0);
         $R = array();
@@ -1732,6 +1735,8 @@ class m_newaccounts extends IModule
         $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'credit_note']);
         $L = array_merge($L, ['partner_reward']);
 
+        $landscapeActions = ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4', 'upd-1', 'upd-2', 'upd-3'];
+
         if ($isFromImport2) {
             return $this->importOnDocType($bills, $is_pdf);
         }
@@ -1742,6 +1747,9 @@ class m_newaccounts extends IModule
         $idxs = array();
 
         foreach ($bills as $bill_no) {
+            if ($isBulkPrint) {
+                $docs = BillDocument::dao()->getByBillNo($bill_no);
+            }
             $bill = new \Bill($bill_no);
 
             $bb = $bill->GetBill();
@@ -1824,7 +1832,14 @@ class m_newaccounts extends IModule
                     $isDeny = true;
                 }
 
-                if ((get_param_protected($r) || $reCode) && !$isDeny) {
+                if ((($currentAction = get_param_protected($r)) || $reCode) && !$isDeny) {
+                    if ($currentAction && (
+                            ($isBulkPrint && !$this->isActionEnabled($r, $docs)) ||
+                            ($isPortrait && in_array($r, $landscapeActions)) ||
+                            ($isLandscape && !in_array($r, $landscapeActions))
+                        )) {
+                        continue;
+                    }
 
                     if ($reCode) {
                         $r = $reCode;
@@ -1869,7 +1884,7 @@ class m_newaccounts extends IModule
                 }
             }
 
-            if (sizeof($documentReports)) {
+            if (sizeof($documentReports) && !($isBulkPrint && $isLandscape)) {
                 $idxs[$bill_no . '==bill'] = count($R);
                 foreach ($documentReports as $documentReport) {
                     $R[] = [
@@ -1914,6 +1929,31 @@ class m_newaccounts extends IModule
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
         #$design->ProcessEx('errors.tpl');
     }
+
+    function isActionEnabled($r, $enabledActions)
+    {
+        switch ($r) {
+            case 'akt-1':
+                return $enabledActions['a1'];
+            case 'akt-2':
+                return $enabledActions['a2'];
+            case 'akt-3':
+                return $enabledActions['a3'];
+            case 'invoice-1':
+                return $enabledActions['i1'];
+            case 'invoice-2':
+                return $enabledActions['i2'];
+            case 'invoice-3':
+                return $enabledActions['i3'];
+            case 'upd-1':
+                return $enabledActions['ia1'];
+            case 'upd-2':
+                return $enabledActions['ia2'];
+            default:
+                return false;
+        }
+    }
+
 
     /**
      * Новый, экспериментальный, импорт для документов

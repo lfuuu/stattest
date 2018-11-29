@@ -107,30 +107,46 @@
 
 {include file='newaccounts/bill_list_part_transactions.tpl'}
 
-<table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
-    <tr>
-        <td class="header" valign="bottom" colspan="3"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
-        <td class="header" valign="bottom">&nbsp;</td>
-        <td class="header" valign="bottom" colspan="4"><b>Платёж</b></td>
-    </tr>
-    <tr>
-        <td class="header" valign="bottom">Дата</td>
-        <td class="header" valign="bottom">Номер</td>
-        <td class="header" valign="bottom">Дата оплаты счета</td>
-        <td class="header" valign="bottom">Сумма</td>
-        <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
-        <td class="header" valign="bottom">Сумма</td>
-        <td class="header" valign="bottom">Дата</td>
-        <td class="header" valign="bottom">Курс</td>
-        <td class="header" valign="bottom">Кто</td>
-    </tr>
-    {foreach from=$billops item=op key=key name=outer}
-        {count_comments v=$op}
-        {if (isset($op.bill) && $op.bill && $op.bill.currency!=$fixclient_data.currency) || ((!isset($op.bill) || !$op.bill) && (count($op.pays)==1) && !$op.pays.0.in_sum)}
-            {assign var=class value=other}
-        {else}
-            {cycle values="even,odd" assign=class}
-        {/if}
+<form action="?" method="get" target="_blank" name="formsend" id="formsend">
+    <input type="hidden" name="module" value="newaccounts"/>
+    <input type="hidden" name="action" value="bill_mprint"/>
+    <input type="hidden" name="document_reports[]" value="bill"/>
+    <input type="hidden" name="akt-1" value="1"/>
+    <input type="hidden" name="akt-2" value="1"/>
+    <input type="hidden" name="akt-3" value="1"/>
+    <input type="hidden" name="invoice-1" value="1"/>
+    <input type="hidden" name="invoice-2" value="1"/>
+    <input type="hidden" name="invoice-3" value="1"/>
+    <input type="hidden" name="isBulkPrint" value="1"/>
+    <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
+        <tr>
+            <td class="header" valign="bottom" colspan="3"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
+            <td class="header" valign="bottom">&nbsp;</td>
+            <td class="header" valign="bottom" colspan="4"><b>Платёж</b></td>
+        </tr>
+        <tr>
+            <td class="header" valign="bottom">Дата</td>
+            <td class="header" valign="bottom">Номер</td>
+            <td class="header" valign="bottom">Дата оплаты счета</td>
+            <td class="header" valign="bottom">Сумма</td>
+            <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
+            <td class="header" valign="bottom">Сумма</td>
+            <td class="header" valign="bottom">Дата</td>
+            <td class="header" valign="bottom">Курс</td>
+            <td class="header" valign="bottom">Кто</td>
+            <td valign="bottom">
+                <input type="checkbox" onclick="selectAllCheckboxes($(this).prop('checked'))">&nbsp&nbsp
+                <button type="submit" class="button" name="isLandscape" value="1">Печать в альбомной ориентации</button>
+                <button type="submit" class="button" name="isPortrait" value="1">Печать в книжной ориентации</button>
+            </td>
+        </tr>
+        {foreach from=$billops item=op key=key name=outer}
+            {count_comments v=$op}
+            {if (isset($op.bill) && $op.bill && $op.bill.currency!=$fixclient_data.currency) || ((!isset($op.bill) || !$op.bill) && (count($op.pays)==1) && !$op.pays.0.in_sum)}
+                {assign var=class value=other}
+            {else}
+                {cycle values="even,odd" assign=class}
+            {/if}
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
                 <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}{if $op.bill.is_pay_overdue}color: #c40000;{/if}">{$op.bill.bill_date}</td>
@@ -170,36 +186,41 @@
                     {if $pay.comment}
                         </tr>
                         <tr class="{$class}">
-                            <td colspan="4" class="comment">{$pay.comment|escape:"html"}</td>
+                        <td colspan="4" class="comment">{$pay.comment|escape:"html"}</td>
                     {/if}
                 {/foreach}
                 {if $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
-                        <td colspan="4">&nbsp;</td>
+                    <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
+                    <td colspan="4">&nbsp;</td>
                 {/if}
             {else}
                 {if isset($op.bill.comment) && $op.bill.comment}
-                        <td colspan="4" rowspan="2">&nbsp;</td>
+                    <td colspan="4" rowspan="2">&nbsp;</td>
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
+                    <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
                 {else}
                     <td colspan="4">&nbsp;</td>
                 {/if}
             {/if}
-        </tr>
-        {if isset($op.organization_switched) && $op.organization_switched}
-            <tr>
-                <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.organization_switched.name}</td>
+            <td><input type="checkbox" class="checkBoxClass" value={$op.bill.bill_no} name="bill[]"></td>
             </tr>
-        {/if}
-    {/foreach}
-</table>
+            {if isset($op.organization_switched) && $op.organization_switched}
+                <tr>
+                    <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.organization_switched.name}</td>
+                </tr>
+            {/if}
+        {/foreach}
+    </table>
+</form>
 
 <script type="text/javascript">
     {literal}
         $( '#date').datepicker({dateFormat: 'yy-mm-dd'});
+        function selectAllCheckboxes(checked) {
+            $(".checkBoxClass").prop('checked', checked);
+        }
     {/literal}
 </script>
