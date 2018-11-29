@@ -4908,7 +4908,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
   cg.inn,
   cg.kpp,
   cg.address_jur,
-  b.sum,
+  b.sum as bill_sum,
+  (ex.ext_vat+ex.ext_sum_without_vat) as sum,
+  ex.ext_vat as vat,
+  ex.ext_sum_without_vat as sum_without_vat,
   b.currency,
   (SELECT value
    FROM organization_i18n n
@@ -4916,14 +4919,14 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                      FROM `organization` o
                                      WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
          field = 'name') as orgznization_name
-FROM newbills b, newbills_external ex, clients c, client_contract cc, client_contragent cg
-WHERE b.bill_date BETWEEN :date_from AND :date_to
+FROM newbills_external ex, newbills b, clients c, client_contract cc, client_contragent cg
+WHERE STR_TO_DATE(ext_invoice_date, '%d-%m-%Y') BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
       AND ex.ext_bill_no
       AND b.organization_id = :organization_id
       AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
       " . $where . "
-ORDER BY bill_date, sum desc";
+ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
 
         $query = \Yii::$app->db->createCommand($sql, [
             ':date_from' => $dateFrom->getSqlDay(),
@@ -4931,7 +4934,31 @@ ORDER BY bill_date, sum desc";
             ':organization_id' => $organizationId
         ] + $whereParam);
 
-        $design->assign('data', $query->queryAll());
+        $data = $query->queryAll();
+
+        $total = [];
+        foreach ($data as $row) {
+
+            if (!isset($total[$row['currency']])) {
+                $total[$row['currency']] = [
+                    'sum' => 0,
+                    'vat' => 0,
+                    'sum_without_vat' => 0,
+                    'bill_sum' => 0,
+                    'count' => 0
+                ];
+            }
+
+            $total[$row['currency']]['sum'] += $row['sum'];
+            $total[$row['currency']]['vat'] += $row['vat'];
+            $total[$row['currency']]['sum_without_vat'] += $row['sum_without_vat'];
+            $total[$row['currency']]['bill_sum'] += $row['bill_sum'];
+
+            $total[$row['currency']]['count']++;
+        }
+
+        $design->assign('data', $data);
+        $design->assign('totals', $total);
         $design->assign('date_from', $date_from);
         $design->assign('date_to', $date_to);
         $design->AddMain('newaccounts/ext_bills.tpl');

@@ -89,6 +89,7 @@
 <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
     <thead>
     <tr>
+        <td>п/п</td>
         <td>&#8470; счета</td>
         <td>Дата счета</td>
         <td>ЛС</td>
@@ -103,13 +104,17 @@
         <td>ИНН</td>
         <td>КПП</td>
         <td>Юр. адресс</td>
-        <td>Сумма</td>
+        <td>Сумма счета</td>
+        <td>Сумма без НДС</td>
+        <td>НДС</td>
+        <td>Сумма с НДС</td>
         <td>Валюта</td>
     </tr>
     </thead>
     <tbody>
     {foreach from=$data item=item name=outer}
         <tr>
+            <td>{$smarty.foreach.outer.iteration}</td>
             <td>{$item.bill_no}</td>
             <td>{$item.bill_date}</td>
             <td>{$item.id}</td>
@@ -124,8 +129,21 @@
             <td>{$item.inn}</td>
             <td>{$item.kpp}</td>
             <td>{$item.address_jur}</td>
+            <td class="text-right">{$item.bill_sum|replace:".":","}</td>
+            <td class="text-right">{$item.sum_without_vat|replace:".":","}</td>
+            <td class="text-right">{$item.vat|replace:".":","}</td>
             <td class="text-right">{$item.sum|replace:".":","}</td>
             <td>{$item.currency}</td>
+        </tr>
+    {/foreach}
+    {foreach from=$totals key=currency item=total}
+        <tr>
+            <td colspan="15" style="text-align: right">Итого:</td>
+            <td>{$total.bill_sum}</td>
+            <td>{$total.sum_without_vat}</td>
+            <td>{$total.vat}</td>
+            <td>{$total.sum}</td>
+            <td>{$currency} ({$total.count})</td>
         </tr>
     {/foreach}
     </tbody>

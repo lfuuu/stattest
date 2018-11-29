@@ -110,6 +110,51 @@
                 </div>
             </div>
 
+            {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Номер<br/> внешней с/ф</label>
+                        <input type="text" class="form-control input-sm" name="invoice_no_ext"
+                               value="{$bill_ext.ext_invoice_no}">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Дата<br/> внешней с/ф:</label>
+                        <div class="form-group">
+                            <input class="form-control input-sm"
+                                   id=invoice_ext_date type=text name=invoice_date_ext
+                                   value="{$bill_ext.ext_invoice_date}">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Сумма без НДС<br/> из с/ф постав.</label>
+                        <input type="text" class="form-control input-sm" name="ext_sum_without_vat"
+                               value="{$bill_ext.ext_sum_without_vat}">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>НДС из с/ф <br>поставщика</label>
+                        <input type="text" class="form-control input-sm" name="ext_vat"
+                               value="{$bill_ext.ext_vat}">
+                    </div>
+                </div>
+            {else}
+                <div class="col-sm-4">&nbsp;</div>
+            {/if}
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>
+                        Цена включает НДС
+                        <input type="checkbox" value="Y"
+                               name="price_include_vat" {if $bill.price_include_vat > 0} checked{/if}>
+                    </label>
+                </div>
+            </div>
             {if !$bill.uu_bill_id && $clientAccountVersion == 5}
                 <div class="col-sm-4">
                     <div class="form-group">
@@ -121,52 +166,7 @@
                 </div>
             {/if}
 
-            <div class="col-sm-2">
-                <div class="form-group">
-                    <label>
-                        Цена включает НДС
-                        <input type="checkbox" value="Y"
-                               name="price_include_vat" {if $bill.price_include_vat > 0} checked{/if}>
-                    </label>
-                </div>
-            </div>
 
-            {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-                <div class="col-sm-1">
-                    <div class="form-group">
-                        <label>Сумма без НДС из с/ф постав.</label>
-                        <input type="text" class="form-control input-sm" name="ext_sum_without_vat"
-                               value="{$bill_ext.ext_sum_without_vat}">
-                    </div>
-                </div>
-                <div class="col-sm-1">
-                    <div class="form-group">
-                        <label>НДС из с/ф поставщика</label>
-                        <input type="text" class="form-control input-sm" name="ext_vat"
-                               value="{$bill_ext.ext_vat}">
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <label>Номер внешней с/ф</label>
-                        <input type="text" class="form-control input-sm" name="invoice_no_ext"
-                               value="{$bill_ext.ext_invoice_no}">
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <label>Дата внешней с/ф:</label>
-                        <div class="form-group">
-                            <input class="form-control input-sm"
-                                   id=invoice_ext_date type=text name=invoice_date_ext
-                                   value="{$bill_ext.ext_invoice_date}">
-
-                        </div>
-                    </div>
-                </div>
-            {else}
-                <div class="col-sm-4">&nbsp;</div>
-            {/if}
         </div>
 
         <div class="row">
