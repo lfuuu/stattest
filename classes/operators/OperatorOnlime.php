@@ -13,6 +13,7 @@ class OperatorOnlime extends Operators
     const OPERATOR_CLIENT = 'onlime';
 
     public static $requestProducts = [
+        /*
         'count_3' => [
             'id' => 15804,
             'name' => 'Tele CARD',
@@ -71,6 +72,7 @@ class OperatorOnlime extends Operators
             'nameFull' => 'Gigaset C530A IP IP-телефон, радио телефон Siemens Gigaset (IP, черный)',
             'id_1c' => '4454e4d5-a79e-11e4-a330-00155d881200',
         ],
+        */
         'count_28' => [
             'id' => 17609,
             'name' => 'Приставка SML-482 HD',
@@ -80,24 +82,24 @@ class OperatorOnlime extends Operators
                 '3a0a1bfe-c8c2-11e5-af87-00155d881200',
             ],
         ],
-        'count_41' => [
-            'id' => 18696,
-            'name' => 'Пульт универс. дистанц. управле- ния',
-            'nameFull' => 'Пульт универсальный дистанционного управления',
-            'id_1c' => '8d4c0c88-145b-11e7-9abf-00155d881200',
-        ],
+//        'count_41' => [
+//            'id' => 18696,
+//            'name' => 'Пульт универс. дистанц. управле- ния',
+//            'nameFull' => 'Пульт универсальный дистанционного управления',
+//            'id_1c' => '8d4c0c88-145b-11e7-9abf-00155d881200',
+//        ],
         'count_44' => [
             'id' => 18711,
             'name' => 'Видео- камера Hikvision DS-2CD-VC1W',
             'nameFull' => 'Видеокамера Hikvision DS-2CD-VC1W',
             'id_1c' => 'bc938b25-2991-11e7-b423-00155d881200',
         ],
-        'count_45' => [
-            'id' => 18716,
-            'name' => 'Пульт RM-E12',
-            'nameFull' => '(Onlime) Пульт, дистанционного управления RM-E12',
-            'id_1c' => '230bbc32-36fc-11e7-9b8f-00155d881200',
-        ],
+//        'count_45' => [
+//            'id' => 18716,
+//            'name' => 'Пульт RM-E12',
+//            'nameFull' => '(Onlime) Пульт, дистанционного управления RM-E12',
+//            'id_1c' => '230bbc32-36fc-11e7-9b8f-00155d881200',
+//        ],
         'count_46' => [
             'id' => 18790,
             'name' => 'Система Твой умный дом',
@@ -148,7 +150,13 @@ class OperatorOnlime extends Operators
             'id' => 18796,
             'name' => 'Твой умный дом  "Безопасность" с датч. протеч.',
             'nameFull' => '(Onlime) Система мониторинга Твой умный дом баз.компл "Безопасность" с датчиком протечки',
-            'id_1c' => 'adf1e5ff-2790-11e8-8b72-00155d881200',
+            'id_1c' => '8980394e-d8ec-11e7-bd24-00155d881200',
+        ],
+        'count_54' => [ //3ed65929-ec98-11e8-8263-00155d881200	18964	(Onlime) Видеокамера IP CS-C2SHW low
+            'id' => 18964,
+            'name' => 'Видеокамера IP CS-C2SHW low',
+            'nameFull' => '(Onlime) Видеокамера IP CS-C2SHW low',
+            'id_1c' => '3ed65929-ec98-11e8-8263-00155d881200',
         ],
     ];
 
