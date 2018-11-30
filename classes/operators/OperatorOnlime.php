@@ -144,6 +144,12 @@ class OperatorOnlime extends Operators
             'nameFull' => '(Onlime) Инжектор питания PoE ST-4801 0,5А',
             'id_1c' => 'adf1e5ff-2790-11e8-8b72-00155d881200',
         ],
+        'count_53' => [
+            'id' => 18796,
+            'name' => 'Твой умный дом  "Безопасность" с датч. протеч.',
+            'nameFull' => '(Onlime) Система мониторинга Твой умный дом баз.компл "Безопасность" с датчиком протечки',
+            'id_1c' => 'adf1e5ff-2790-11e8-8b72-00155d881200',
+        ],
     ];
 
     public static $requestModes = [
