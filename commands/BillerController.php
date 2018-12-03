@@ -425,7 +425,7 @@ class BillerController extends Controller
     }
 
     /**
-     * Занести инвойсы в книгу продаж.
+     * Занести инвойсы в книгу продаж за прошлый месяц.
      */
     public function actionMakeInvoices()
     {
@@ -447,6 +447,102 @@ class BillerController extends Controller
         /** @var Bill $bill */
         foreach ($query->each() as $bill) {
             $bill->generateInvoices();
+        }
+    }
+
+    /**
+     * Сгенерировать отчет по счетам
+     */
+    public function actionGetBillReport()
+    {
+        $from = (new \DateTimeImmutable('now'))->modify('-3 month')->modify('first day of this month');
+        $to = (new \DateTimeImmutable('now'))->modify('last day of this month');
+
+        $q = \Yii::$app->db->createCommand('SELECT
+  sum,
+  currency,
+  month,
+  mn,
+  firm_name,
+  bs_name
+FROM (
+       SELECT
+         sum(sum) AS                  sum,
+         b.currency,
+         b.organization_id,
+         date_format(bill_date, \'%M\') month,
+         date_format(bill_date, \'%m\') mn,
+         bs.name                      bs_name
+       FROM `newbills` b, clients c, client_contract cc, client_contract_business bs
+       WHERE bill_date BETWEEN :date_from AND :date_to
+             AND sum > 0 AND c.id = b.client_id AND c.contract_id = cc.id AND bs.id = cc.business_id
+       GROUP BY organization_id, currency, date_format(bill_date, \'%Y%m\'), bs_name
+     ) a,
+  (
+    SELECT
+      o.organization_id                                                                AS id,
+      (SELECT value
+       FROM organization_i18n
+       WHERE organization_record_id = o.id AND lang_code = \'ru-RU\' AND field = \'name\') AS firm_name
+    FROM (
+           SELECT
+             organization_id     o_id,
+             max(actual_from) AS max_from
+           FROM `organization`
+           GROUP BY organization_id
+         ) a, `organization` o
+    WHERE o.organization_id = a.o_id AND actual_from = max_from
+  ) o
+WHERE a.organization_id = o.id
+ORDER BY mn, firm_name, bs_name, currency
+', [
+            ':date_from' => $from->format(DateTimeZoneHelper::DATE_FORMAT),
+            ':date_to' => $to->format(DateTimeZoneHelper::DATE_FORMAT)
+        ])->queryAll();
+
+
+        $data = [];
+        $months = [];
+        $total = [];
+        foreach ($q as $l) {
+            $months[$l['mn']] = $l['month'];
+            $data[$l['firm_name']][$l['bs_name']][$l['currency']][$l['mn']] = $l['sum'];
+
+            if (!isset($total[$l['currency']][$l['mn']])) {
+                $total[$l['currency']][$l['mn']] = 0;
+            }
+            $total[$l['currency']][$l['mn']] += $l['sum'];
+        }
+
+        ksort($months);
+        ksort($total);
+
+        echo PHP_EOL . "Компания\tПодразделение\tвалюта";
+        foreach ($months as $k => $month) {
+            echo "\t" . $month;
+        }
+
+        foreach ($data as $firm => $firmData) {
+            foreach ($firmData as $bp => $bpData) {
+                foreach ($bpData as $currency => $curData) {
+
+                    echo PHP_EOL . $firm . "\t" . $bp . "\t" . $currency;
+
+                    foreach ($months as $k => $month) {
+                        $sum = isset($curData[$k]) ? $curData[$k] : '';
+                        echo "\t" . str_replace(".", ",", $sum);
+                    }
+                }
+            }
+        }
+
+        foreach ($total as $currency => $curData) {
+            echo PHP_EOL . "\t\t" . $currency;
+            foreach ($months as $k => $month) {
+
+                $sum = isset($curData[$k]) ? $curData[$k] : '';
+                echo "\t" . str_replace(".", ",", $sum);
+            }
         }
     }
 }
