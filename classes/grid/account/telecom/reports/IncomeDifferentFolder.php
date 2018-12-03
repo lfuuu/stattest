@@ -100,7 +100,7 @@ class IncomeDifferentFolder extends AccountGridFolder
             'overdiff' => 'SUM(' . $columns['over1'] . ' - ' . $columns['over'] . ')',
         ]);
 
-        $query->join('INNER JOIN', 'newbills b', 'c.id=b.client_id and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE);
+        $query->join('INNER JOIN', 'newbills b', 'c.id=b.client_id');
         $query->join('INNER JOIN', 'newbill_lines l', 'l.bill_no=b.bill_no');
 
         if (!$this->hasServiceSignature(static::SERVICE_FILTER_GOODS) && !$this->hasServiceSignature(static::SERVICE_FILTER_EXTRA)) {
