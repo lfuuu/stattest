@@ -31,16 +31,11 @@ trait AccountTariffBillerTrait
      */
     public static function getMinLogDatetime()
     {
-        $datetime = DateTimeZoneHelper::getUtcDateTime()
-            ->setTime(0, 0, 0);
-
-        if (self::$_isFullTarification || $datetime->format('d') < 3) {
-            // Начало месяца. Этот и предыдущий
-            return $datetime->modify('first day of previous month');
-        }
-
-        // Конец месяца. Только этот месяц
-        return $datetime->modify('first day of this month');
+        // за этот и предыдущий месяц
+        // за предыдущий вообще-то не нужны, но пусть будут, чтобы можно было аргументированно отвечать на претензии клиентов
+        return DateTimeZoneHelper::getUtcDateTime()
+            ->setTime(0, 0, 0)
+            ->modify('first day of previous month');
     }
 
     /**
