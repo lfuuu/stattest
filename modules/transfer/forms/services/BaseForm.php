@@ -120,11 +120,14 @@ abstract class BaseForm extends Form
      * @throws \yii\db\Exception
      * @throws \Exception
      */
-    public function process()
+    public function process($post = [])
     {
+        if (!$post) {
+            $post = \Yii::$app->request->post('data');
+        }
         try {
             if (!(
-                $this->load(\Yii::$app->request->post(), 'data')
+                $this->load($post, '')
                 && $this->validate()
             )) {
                 throw new ModelValidationException($this);
