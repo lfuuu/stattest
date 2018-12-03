@@ -423,4 +423,30 @@ class BillerController extends Controller
             echo implode(PHP_EOL, $logs) . PHP_EOL;
         }
     }
+
+    /**
+     * Занести инвойсы в книгу продаж.
+     */
+    public function actionMakeInvoices()
+    {
+        $query = Bill::find()
+            ->alias('b');
+
+        $from = (new \DateTimeImmutable())
+            ->setTime(0, 0, 0)
+            ->modify('first day of previous month');
+        $to = $from->modify('last day of this month');
+
+        $query->andWhere([
+            'between',
+            'b.bill_date',
+            $from->format(DateTimeZoneHelper::DATE_FORMAT),
+            $to->format(DateTimeZoneHelper::DATE_FORMAT)
+        ]);
+
+        /** @var Bill $bill */
+        foreach ($query->each() as $bill) {
+            $bill->generateInvoices();
+        }
+    }
 }
