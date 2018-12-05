@@ -154,6 +154,13 @@ $columns = [
         'attribute' => 'number_tech',
         'class' => StringColumn::class,
     ],
+    [
+        'attribute' => 'iccid',
+        'format' => 'raw',
+        'value' => function (\app\models\Number $number) {
+            return $number->imsi && $number->imsiModel ? $number->imsiModel->getLink() : '';
+        },
+    ],
 ];
 
 echo GridView::widget([

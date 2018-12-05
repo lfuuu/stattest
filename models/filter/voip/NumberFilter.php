@@ -34,6 +34,7 @@ class NumberFilter extends Number
     public $calls_per_month_0_to = '';
 
     public $number_tech = '';
+    public $iccid = '';
 
     /**
      * @return array

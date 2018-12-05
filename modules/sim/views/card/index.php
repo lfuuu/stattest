@@ -13,6 +13,8 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\models\DidGroup;
+use app\models\Number;
 use app\modules\sim\columns\CardStatusColumn;
 use app\modules\sim\columns\ImsiPartnerColumn;
 use app\modules\sim\filters\CardFilter;
@@ -87,7 +89,7 @@ $columns = [
             $imsies = $card->imsies;
             foreach ($imsies as $imsi) {
                 $msisdns[] = $imsi->msisdn ?
-                    Html::a($imsi->msisdn, \app\models\Number::getUrlById($imsi->msisdn)) :
+                    Html::a($imsi->msisdn, Number::getUrlById($imsi->msisdn)) :
                     Yii::t('common', '(not set)');
             }
 
@@ -117,10 +119,11 @@ $columns = [
         'class' => BeautyLevelColumn::class,
         'value' => function (Card $card) {
             $imsies = $card->imsies;
+            $levels = [];
             foreach ($imsies as $imsi) {
-                return $imsi->number->beauty_level;
+                $levels[] = $imsi->number ? DidGroup::$beautyLevelNames[$imsi->number->beauty_level] : '';
             }
-            return '';
+            return implode(' <br>', $levels);
         },
     ],
 
@@ -130,10 +133,11 @@ $columns = [
         'class' => NumberStatusColumn::class,
         'value' => function (Card $card) {
             $imsies = $card->imsies;
+            $statuses = [];
             foreach ($imsies as $imsi) {
-                return $imsi->number->status;
+                $statuses[] = $imsi->number ?  Number::$statusList[$imsi->number->status] : '';
             }
-            return '';
+            return implode(' <br>', $statuses);
         },
     ],
 

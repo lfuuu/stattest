@@ -2,10 +2,12 @@
 
 namespace app\modules\sim\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\models\Number;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\helpers\Url;
 
 /**
  * Профиль абонента на SIM-карте
@@ -163,5 +165,20 @@ class Imsi extends ActiveRecord
         }
 
         return $value;
+    }
+
+    /**
+     * Ссылка на услугу
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a($this->imsi, $this->getUrl());
+    }
+
+    public function getUrl()
+    {
+        return Url::to(['/sim/card/edit', 'originIccid' => $this->iccid]);
     }
 }

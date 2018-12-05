@@ -7,6 +7,7 @@ use app\classes\model\ActiveRecord;
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
 use app\modules\nnp\models\NdcType;
+use app\modules\sim\models\Imsi;
 use yii\helpers\Url;
 
 /**
@@ -56,6 +57,7 @@ use yii\helpers\Url;
  * @property-read NdcType $ndcType
  * @property-read Region $regionModel
  * @property-read City $cityByName
+ * @property-read Imsi $imsiModel
  *
  * @property-read float $originPrice
  * @property-read float $price
@@ -236,6 +238,14 @@ class Number extends ActiveRecord
     public function getRegionModel()
     {
         return $this->hasOne(Region::class, ['id' => 'region']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getImsiModel()
+    {
+        return $this->hasOne(Imsi::class, ['imsi' => 'imsi']);
     }
 
     /**
