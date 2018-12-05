@@ -174,7 +174,7 @@ class Imsi extends ActiveRecord
      */
     public function getLink()
     {
-        return Html::a($this->imsi, $this->getUrl());
+        return Html::a($this->iccid, $this->getUrl());
     }
 
     public function getUrl()

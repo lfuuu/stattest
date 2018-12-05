@@ -141,7 +141,7 @@ class Number extends ActiveRecord
             'status' => 'Статус',
             'ndc_type_id' => 'Тип номера',
             'number_tech' => 'Технический номер',
-            'imsi' => 'Привязка к сим-карте',
+            'imsi' => 'Привязка к сим-карте (IMSI)',
             'warehouse_status_id' => 'Статус скалада сим-карты',
             'nnp_operator_id' => 'ННП-оператор',
             'usr_operator_id' => 'ННП-оператор пользователя',
