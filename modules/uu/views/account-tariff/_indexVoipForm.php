@@ -65,7 +65,8 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                 <div class="col-sm-2 account-tariff-voip-numbers">
 
                     <?php // номера ?>
-                    <?= $this->render('_indexVoipFormNumber', $params) ?>
+                    <?php /*= $this->render('_indexVoipFormNumber', $params)*/ ?>
+                    {::_indexVoipFormNumber::}
 
                 </div>
 

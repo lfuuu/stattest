@@ -50,6 +50,12 @@ foreach ($rows as $hash => $row) {
 
     if ($value !== false) {
         ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
+        $params = [
+            'accountTariffFirst' => $accountTariffFirst,
+            'row' => $row,
+            'tagName' => 'div',
+        ];
+        $value = str_replace("{::_indexVoipFormNumber::}", $this->render('_indexVoipFormNumber', $params), $value);
         echo $value;
 
         ActiveForm::end();
@@ -100,6 +106,14 @@ foreach ($rows as $hash => $row) {
         DependecyHelper::DEFAULT_TIMELIFE,
         (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST, DependecyHelper::TAG_USAGE]]))
     );
+
+    $params = [
+        'accountTariffFirst' => $accountTariffFirst,
+        'row' => $row,
+        'tagName' => 'div',
+    ];
+
+    $value = str_replace("{::_indexVoipFormNumber::}", $this->render('_indexVoipFormNumber', $params), $value);
 
     echo $value;
 
