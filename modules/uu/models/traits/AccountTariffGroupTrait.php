@@ -50,8 +50,7 @@ SELECT MD5(CONCAT(
                GROUP_CONCAT(DISTINCT COALESCE(a.city_id, 'c') ORDER BY a.id),
                GROUP_CONCAT(COALESCE(a1, 'm') ORDER BY a.id),
                GROUP_CONCAT(COALESCE(a2, 'b') ORDER BY a.id),
-               GROUP_CONCAT(COALESCE(a3, 'v') ORDER BY a.id), '-ids:',
-               GROUP_CONCAT(a.id ORDER BY a.id)
+               GROUP_CONCAT(COALESCE(a3, 'v') ORDER BY a.id)
            )) AS hash
 FROM (
        SELECT

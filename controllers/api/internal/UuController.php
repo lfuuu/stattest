@@ -1445,7 +1445,7 @@ class UuController extends ApiInternalController
         $key = DependecyHelper::me()->getKey(
             DependecyHelper::TAG_UU_API,
             'get-account-tariffs',
-            $accountTariff->getHash()
+            $accountTariff->getHash() . '-id' . $accountTariff->id
         );
 
         $minutesStatistic = [];
