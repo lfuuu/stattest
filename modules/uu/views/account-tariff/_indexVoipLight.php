@@ -22,7 +22,11 @@ $query->orderBy(new \yii\db\Expression('IF(tariff_period_id, 1, 0) DESC, uu_acco
 $key = 'uu_service_' . $filterModel->client_account_id . '-' . md5($query->createCommand()->rawSql);
 
 $queryDep = clone $query;
-$queryDep->select(['sum' => new \yii\db\Expression('count(*)+sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -100))')]);
+$queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CONCAT(COALESCE(tariff_period_id, -1010)+ CAST(REPLACE(COALESCE(actual_from_utc, \'3020\'), \'-\', \'\') AS UNSIGNED)))
+                   FROM uu_account_tariff_log
+                   WHERE account_tariff_id = uu_account_tariff.id
+                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -100))')]);
+
 $sqlDep = $queryDep->createCommand()->rawSql;
 $dbDep = new \yii\caching\DbDependency(['sql' => $sqlDep]);
 
