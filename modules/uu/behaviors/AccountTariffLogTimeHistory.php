@@ -44,6 +44,7 @@ class AccountTariffLogTimeHistory extends Behavior
             if (!$accountTariffHeap) {
                 $accountTariffHeap = new AccountTariffHeap;
                 $accountTariffHeap->account_tariff_id = $accountTariff->id;
+                $accountTariffHeap->start_date = new Expression('NOW()');
             }
             // Установка временных значений
             if (!$tariffPeriod) {

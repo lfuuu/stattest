@@ -12,6 +12,8 @@
 use app\exceptions\ModelValidationException;
 use app\models\ClientContactType;
 use app\models\EventQueue;
+use app\models\TroubleRoistat;
+use app\models\TroubleStage;
 use app\models\TroubleState;
 use yii\base\InvalidParamException;
 use app\dao\TroubleDao;
@@ -644,6 +646,11 @@ where c.client="'.$trouble['client_orig'].'"')
                 $allow_state = 16384 | 8388608;
         }
 
+        $roistatId = TroubleRoistat::find()
+            ->where(['trouble_id' => $trouble['id']])
+            ->select('roistat_visit')
+            ->scalar();
+
         $isRollback = (isset($bill) && $bill && $bill["is_rollback"]);
         $R = $db->AllRecords($q='
             select
@@ -661,6 +668,7 @@ where c.client="'.$trouble['client_orig'].'"')
                 )'.($this->checkTroubleAccess($trouble)?'':' and id!=2')."
             and
                 not (pk & (select deny & ~".$allow_state." from tt_states where id=".$stage['state_id']."))
+                ".($roistatId ? '' : ' and id != ' . TroubleStage::STATE_ENABLED)."
             order by
                 ".(($trouble['trouble_type']=='shop_orders')?'`oso`':($trouble['trouble_type']=='mounting_orders'?'`omo`':'`order`'))
         );
@@ -754,7 +762,7 @@ where c.client="'.$trouble['client_orig'].'"')
         if ($trouble) {
             $design->assign('tt_media', $trouble->mediaManager->getFiles());
             $design->assign('tt_trouble_roistat', $trouble->troubleRoistat);
-            $design->assign('roistatChannels', \app\models\TroubleRoistat::CHANNELS);
+            $design->assign('roistatChannels', TroubleRoistat::CHANNELS);
         }
 
         /** @var \app\models\Lead $lead */
@@ -2949,7 +2957,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $channel = get_param_raw('roistat_channel');
 
 
-        \app\classes\Assert::isArray(\app\models\TroubleRoistat::CHANNELS, $channel);
+        \app\classes\Assert::isArray(TroubleRoistat::CHANNELS, $channel);
 
         $trouble = \app\models\Trouble::findOne(['id' => $troubleId]);
         \app\classes\Assert::isObject($trouble);
@@ -2958,7 +2966,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $troubleRoistat = $trouble->troubleRoistat;
 
         if (!$troubleRoistat) {
-            $troubleRoistat = new \app\models\TroubleRoistat();
+            $troubleRoistat = new TroubleRoistat();
             $troubleRoistat->trouble_id = $trouble->id;
         }
 

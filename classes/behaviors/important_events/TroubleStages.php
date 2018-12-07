@@ -105,7 +105,9 @@ class TroubleStages extends Behavior
                     ],
                 ])
                 ->andWhere(['between',
-                    'uath.date_sale', $trouble->date_creation, new Expression('NOW()')
+                    'uath.start_date',
+                    new Expression(':tt_date_creation - interval 1 minute' , [':tt_date_creation' => $trouble->date_creation]),
+                    new Expression('NOW()')
                 ])
                 ->andWhere(['AND',
                     ['NOT', ['uat.tariff_period_id' => null]],

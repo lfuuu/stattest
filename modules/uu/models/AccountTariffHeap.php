@@ -12,6 +12,7 @@ use app\classes\model\ActiveRecord;
  * @property string $disconnect_date
  * @property string $date_sale
  * @property string $date_before_sale
+ * @property string $start_date
  */
 class AccountTariffHeap extends ActiveRecord
 {
