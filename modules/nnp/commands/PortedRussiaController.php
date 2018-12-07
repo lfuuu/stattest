@@ -2,7 +2,9 @@
 
 namespace app\modules\nnp\commands;
 
+use app\modules\nnp\classes\FtpSsh2Downloader;
 use app\modules\nnp\models\Country;
+use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -78,5 +80,33 @@ class PortedRussiaController extends PortedController
         if ($insertValues) {
             $this->insertValues(Country::RUSSIA, $insertValues);
         }
+    }
+
+    /**
+     * Скачать последний файл с портированными номерами
+     *
+     * @throws InvalidConfigException
+     */
+    public function actionDownloadFileData()
+    {
+        $ftpSsh2Downloader = new FtpSsh2Downloader();
+
+        if (!$ftpSsh2Downloader->connect()) {
+            throw new InvalidConfigException('ftpSsh2Downloader::connect failed');
+        }
+
+        $files = $ftpSsh2Downloader->getFiles();
+
+        if (!$files) {
+            throw new \LogicException('Список файлов пуст');
+        }
+
+        rsort($files);
+
+        $file = reset($files);
+
+        $ftpSsh2Downloader->downloadFile($file);
+
+        echo PHP_EOL . 'Файл успешно скачан: ' . $file;
     }
 }
