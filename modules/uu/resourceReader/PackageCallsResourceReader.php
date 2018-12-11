@@ -50,6 +50,7 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
             self::$_packages[$tariffId] = [
                 'packagePriceIds' => $tariff->getPackagePrices()->select(['id'])->column(),
                 'packagePricelistIds' => $tariff->getPackagePricelists()->select(['id'])->column(),
+                'packagePricelistNnpIds' => $tariff->getPackagePricelistsNnp()->select(['id'])->column(),
             ];
         }
 
@@ -65,6 +66,14 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
 
         // Прайслист с МГП
         foreach ($package['packagePricelistIds'] as $packagePricelistId) {
+            if (isset($this->_callsByPricelist[$date][$packagePricelistId])) {
+                $price += $this->_callsByPricelist[$date][$packagePricelistId][0];
+                $costPrice += $this->_callsByPricelist[$date][$packagePricelistId][1];
+            }
+        }
+
+        // Прайслист v2
+        foreach ($package['packagePricelistNnpIds'] as $packagePricelistId) {
             if (isset($this->_callsByPricelist[$date][$packagePricelistId])) {
                 $price += $this->_callsByPricelist[$date][$packagePricelistId][0];
                 $costPrice += $this->_callsByPricelist[$date][$packagePricelistId][1];
