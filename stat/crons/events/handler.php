@@ -66,7 +66,7 @@ $uuSyncEvents = [
 $ats3Sync['event'] = array_merge($ats3Sync['event'], $uuSyncEvents);
 
 $map = [
-    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', 'event' => $uuSyncEvents]],
+    'with_account_tariff' => [['NOT', ['account_tariff_id' => null, 'event' => $uuSyncEvents]]],
     'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnp], ['NOT', $ats3Sync]],
     'ats3_sync' => [$ats3Sync],
     'nnp' => [$nnp],
