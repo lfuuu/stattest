@@ -69,6 +69,10 @@ class Resource extends ActiveRecord
 
     const ID_CALLTRACKING = 45;
 
+    // SIP-Trunk
+    const ID_CALLLIMIT = 46;
+    const ID_ALLOW_DIVERSION = 47;
+
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
 

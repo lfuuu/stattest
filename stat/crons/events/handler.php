@@ -5,6 +5,7 @@ use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
+use app\classes\api\ApiSipTrunk;
 use app\classes\api\ApiVpbx;
 use app\classes\api\ApiVps;
 use app\classes\HandlerLogger;
@@ -52,14 +53,27 @@ $maxCountShift = 3;
 
 // настраиваем запрос выборки событий
 $nnp = ['event' => [NnpModule::EVENT_FILTER_TO_PREFIX, NnpModule::EVENT_LINKER, NnpModule::EVENT_IMPORT]];
-$ats3Sync = ['event' => [EventQueue::ATS3__SYNC, EventQueue::MAKE_CALL]];
+$ats3Sync = ['event' => [
+    EventQueue::ATS3__SYNC,
+    EventQueue::MAKE_CALL,
+]];
+
+$uuSyncEvents = [
+    UuModule::EVENT_ADD_LIGHT,
+    UuModule::EVENT_SIPTRUNK_SYNC,
+];
+
+$ats3Sync['event'] = array_merge($ats3Sync['event'], $uuSyncEvents);
+
 $map = [
-    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]]],
+    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', 'event' => $uuSyncEvents]],
     'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnp], ['NOT', $ats3Sync]],
     'ats3_sync' => [$ats3Sync],
     'nnp' => [$nnp],
     'no_nnp' => [['NOT', $nnp]], //для служебного пользования
 ];
+
+// @TODO ordering? UuModule::EVENT_ADD_LIGHT in first
 
 $consoleParam = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null;
 
@@ -83,7 +97,7 @@ do {
         $activeQuery->andWhere($where);
     }
 
-    doEvents($activeQuery);
+    doEvents($activeQuery, $uuSyncEvents);
     sleep($sleepTime);
 
     $time = (new DateTimeImmutable());
@@ -110,20 +124,39 @@ echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
  * Выполнить запланированное
  *
  * @param \yii\db\ActiveQuery $eventQueueQuery
+ * @param array $uuSyncEvents
  */
-function doEvents($eventQueueQuery)
+function doEvents($eventQueueQuery, $uuSyncEvents)
 {
-    $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
-    $isVpbxServer = ApiVpbx::me()->isAvailable();
-    $isVmServer = ApiVps::me()->isAvailable();
-    $isFeedbackServer = ApiFeedback::isAvailable();
-    $isAccountTariffLightServer = SyncAccountTariffLight::isAvailable();
-    $isNnpServer = NnpModule::isAvailable();
-    $isCallTrackingServer = CallTrackingModule::isAvailable();
-    $isAtolServer = \app\modules\atol\classes\Api::me()->isAvailable();
-    $isMttServer = MttAdapter::me()->isAvailable();
-    $isFreeNumberServer = FreeNumberAdapter::me()->isAvailable();
-    $isAsyncServer = AsyncAdapter::me()->isAvailable();
+    static $flags = [];
+
+    if (!$flags) {
+        $flags['isCoreServer'] = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
+        $flags['isVpbxServer'] = ApiVpbx::me()->isAvailable();
+        $flags['isVmServer'] = ApiVps::me()->isAvailable();
+        $flags['isFeedbackServer'] = ApiFeedback::isAvailable();
+        $flags['isAccountTariffLightServer'] = SyncAccountTariffLight::isAvailable();
+        $flags['isNnpServer'] = NnpModule::isAvailable();
+        $flags['isCallTrackingServer'] = CallTrackingModule::isAvailable();
+        $flags['isAtolServer'] = \app\modules\atol\classes\Api::me()->isAvailable();
+        $flags['isMttServer'] = MttAdapter::me()->isAvailable();
+        $flags['isFreeNumberServer'] = FreeNumberAdapter::me()->isAvailable();
+        $flags['isAsyncServer'] = AsyncAdapter::me()->isAvailable();
+        $flags['isSipTrunkServer'] = ApiSipTrunk::me()->isAvailable();
+    }
+
+    $isCoreServer = $flags['isCoreServer'];
+    $isVpbxServer = $flags['isVpbxServer'];
+    $isVmServer = $flags['isVmServer'];
+    $isFeedbackServer = $flags['isFeedbackServer'];
+    $isAccountTariffLightServer = $flags['isAccountTariffLightServer'];
+    $isNnpServer = $flags['isNnpServer'];
+    $isCallTrackingServer = $flags['isCallTrackingServer'];
+    $isAtolServer = $flags['isAtolServer'];
+    $isMttServer = $flags['isMttServer'];
+    $isFreeNumberServer = $flags['isFreeNumberServer'];
+    $isAsyncServer = $flags['isAsyncServer'];
+    $isSipTrunkServer = $flags['isSipTrunkServer'];
     echo '. ';
 
 
@@ -159,7 +192,7 @@ function doEvents($eventQueueQuery)
                 json_encode($param, (JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))
             );
 
-            if ($event->account_tariff_id) {
+            if ($event->account_tariff_id && !in_array($event->event, $uuSyncEvents)) {
                 // все запросы по одной услуге надо выполнять строго последовательно
                 if ($event->hasPrevEvent()) {
                     throw new LogicException('Еще не выполнен предыдущий запрос по этой услуге');
@@ -590,6 +623,14 @@ function doEvents($eventQueueQuery)
                 case UuModule::EVENT_UU_SWITCHED_ON:
                     // УУ-услуга включена
                     ClientAccount::dao()->updateIsActive($param['client_account_id']);
+                    break;
+
+                case UuModule::EVENT_SIPTRUNK_SYNC:
+                    if ($isSipTrunkServer) {
+                        ApiSipTrunk::me()->sync($param);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
                     break;
 
                 // --------------------------------------------

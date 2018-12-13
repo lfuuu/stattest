@@ -106,7 +106,7 @@ class VoipServiceTransfer extends BasicServiceTransfer
         return [
             'service_type_id' => $this->getServiceTypeId(),
             'voip_number' => $this->getService()->helper->value,
-            'city_id' => $this->getService()->voipNumber->getCityByNumber()->id,
+            'city_id' => $this->getService()->voipNumber ? $this->getService()->voipNumber->getCityByNumber()->id : null,
         ];
     }
 

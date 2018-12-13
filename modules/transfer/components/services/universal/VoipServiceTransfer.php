@@ -61,7 +61,7 @@ class VoipServiceTransfer extends BasicServiceTransfer
     private function _packagesProcess(PreProcessor $preProcessor)
     {
         $packages = AccountTariff::find()
-            ->where(['prev_account_tariff_id' => $this->getService()->prev_usage_id])
+            ->where(['prev_account_tariff_id' => /*$preProcessor->targetServiceHandler->getService()->id*/$this->getService()->prev_usage_id])
             // Active packages only
             ->andWhere(['IS NOT', 'tariff_period_id', null]);
 

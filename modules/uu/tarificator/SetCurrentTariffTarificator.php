@@ -14,6 +14,7 @@ use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\Module;
 use Yii;
 
 /**
@@ -238,6 +239,33 @@ SQL;
                             'account_tariff_id' => $accountTariff->id,
                             'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON),
                             'calltracking_params' => $accountTariff->calltracking_params,
+                        ]);
+                        break;
+
+                    case ServiceType::ID_SIPTRUNK:
+                        $event = null;
+                        $isCreate = false;
+                        $isDelete = false;
+
+                        switch ($eventType) {
+                            case ImportantEventsNames::UU_SWITCHED_ON:
+                                $isCreate = true;
+                                break;
+                            case ImportantEventsNames::UU_UPDATED:
+                                /*nothing*/
+                                break;
+                            case ImportantEventsNames::UU_SWITCHED_OFF:
+                                $isDelete = true;
+                                break;
+                            default:
+                                throw new \LogicException('Что то не то с SIP-транком');
+                        }
+
+                        EventQueue::go(Module::EVENT_SIPTRUNK_SYNC, [
+                            'account_tariff_id' => $accountTariff->id,
+                            'account_client_id' => $accountTariff->client_account_id,
+                            'is_create' => $isCreate,
+                            'is_delete' => $isDelete,
                         ]);
                         break;
                 }

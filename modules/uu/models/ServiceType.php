@@ -59,7 +59,8 @@ class ServiceType extends ActiveRecord
 
     const ID_NNP = 27; // ННП
 
-    const ID_CALLTRACKING = 29;
+    const ID_CALLTRACKING = 29; //CallTracking
+    const ID_SIPTRUNK = 30; //SIP-Trunk
 
     const CLOSE_AFTER_DAYS = 60;
 
