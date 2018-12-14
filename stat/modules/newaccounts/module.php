@@ -4921,7 +4921,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 FROM newbills_external ex, newbills b, clients c, client_contract cc, client_contragent cg
 WHERE STR_TO_DATE(ext_invoice_date, '%d-%m-%Y') BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
-      AND ex.ext_bill_no
       AND b.organization_id = :organization_id
       AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
       " . $where . "
