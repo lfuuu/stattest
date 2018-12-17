@@ -44,8 +44,11 @@ class SyncAccountTariffLight extends Behavior
         /** @var AccountLogPeriod $accountLogPeriod */
         $accountLogPeriod = $event->sender;
         $accountTariff = $accountLogPeriod->accountTariff;
-        if (!array_key_exists($accountTariff->service_type_id, ServiceType::$packages) || $accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET) {
-            // только для пакетов телефонии, кроме интернета
+        if (
+            !array_key_exists($accountTariff->service_type_id, ServiceType::$packages)
+            || $accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET
+        ) {
+            // только для пакетов телефонии, кроме интернета, но не Roamobility
             return;
         }
 

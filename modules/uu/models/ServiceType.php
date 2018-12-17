@@ -68,6 +68,7 @@ class ServiceType extends ActiveRecord
     public static $packages = [
         self::ID_VOIP_PACKAGE_CALLS => self::ID_VOIP,
         self::ID_VOIP_PACKAGE_INTERNET => self::ID_VOIP,
+        self::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => self::ID_VOIP,
         self::ID_VOIP_PACKAGE_SMS => self::ID_VOIP,
         self::ID_TRUNK_PACKAGE_ORIG => self::ID_TRUNK,
         self::ID_TRUNK_PACKAGE_TERM => self::ID_TRUNK,
