@@ -12,6 +12,7 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\nnp\models\PackagePricelistNnp;
+use app\modules\nnp\models\PackagePricelistNnpInternet;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -54,7 +55,8 @@ use yii\helpers\Url;
  * @property-read PackageMinute[] $packageMinutes
  * @property-read PackagePrice[] $packagePrices
  * @property-read PackagePricelist[] $packagePricelists
- * @property-read PackagePricelist[] $packagePricelistsNnp
+ * @property-read PackagePricelistNnp[] $packagePricelistsNnp
+ * @property-read PackagePricelistNnpInternet[] $packagePricelistsNnpInternet
  *
  * VPS only!
  * @property integer $vm_id
@@ -252,6 +254,15 @@ class Tariff extends ActiveRecord
     {
         return $this->hasMany(PackagePricelistNnp::class, ['tariff_id' => 'id'])
             ->andWhere(['pricelist_id' => null])
+            ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackagePricelistsNnpInternet()
+    {
+        return $this->hasMany(PackagePricelistNnpInternet::class, ['tariff_id' => 'id'])
             ->indexBy('id');
     }
 

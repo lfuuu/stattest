@@ -52,6 +52,7 @@ class Resource extends ActiveRecord
     const ID_VOIP_PACKAGE_CALLS = 40; // Пакеты телефонии. Звонки
     const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
     const ID_VOIP_PACKAGE_SMS = 14; // Пакеты телефонии. СМС
+    const ID_VOIP_PACKAGE_INTERNET_ROAMABILITY = 48; //Пакеты телефонии. Интернет. Roamability
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 

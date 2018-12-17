@@ -8,6 +8,7 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\nnp\models\PackagePricelistNnp;
+use app\modules\nnp\models\PackagePricelistNnpInternet;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
@@ -220,6 +221,7 @@ abstract class TariffForm extends \app\classes\Form
                     case ServiceType::ID_VOIP_PACKAGE_SMS:
                     case ServiceType::ID_TRUNK_PACKAGE_ORIG:
                     case ServiceType::ID_TRUNK_PACKAGE_TERM:
+                    case ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY:
 
                         if (!$this->id) {
                             break;
@@ -270,6 +272,12 @@ abstract class TariffForm extends \app\classes\Form
                             $tariffVoipNdcType = new TariffVoipNdcType();
                             $tariffVoipNdcType->tariff_id = $this->id;
                             $this->tariffNdcTypes = $this->crudMultipleSelect2($this->tariffNdcTypes, $post, $tariffVoipNdcType, 'ndc_type_id');
+                        }
+
+                        if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
+                            $packageInternet = new PackagePricelistNnpInternet();
+                            $packageInternet->tariff_id = $this->id;
+                            $this->crudMultiple($this->tariff->packagePricelistsNnpInternet, $post, $packageInternet);
                         }
                         break;
 

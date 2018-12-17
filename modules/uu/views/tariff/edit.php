@@ -94,6 +94,10 @@ if (!$serviceType) {
             echo $this->render('_editMainVoipInternet', $viewParams);
             break;
 
+        case ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY:
+            echo $this->render('_editMainVoipPackagePricelistNnpOnly', $viewParams);
+            break;
+
         case ServiceType::ID_TRUNK_PACKAGE_ORIG:
         case ServiceType::ID_TRUNK_PACKAGE_TERM:
             echo $this->render('_editMainTrunkPackage', $viewParams);

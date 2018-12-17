@@ -27,6 +27,7 @@ class ServiceType extends ActiveRecord
     const ID_VOIP_PACKAGE_CALLS = 3; // Телефония. Пакет звонков
     const ID_VOIP_PACKAGE_INTERNET = 25; // Телефония. Пакет интернета
     const ID_VOIP_PACKAGE_SMS = 17; // Телефония. Пакет смс
+    const ID_VOIP_PACKAGE_INTERNET_ROAMABILITY = 31; // Телефония. Пакет интернета. Roamability.
 
     const ID_INTERNET = 4; // Интернет
     const ID_VPN = 6; // VPN
