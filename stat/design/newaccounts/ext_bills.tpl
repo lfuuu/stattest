@@ -75,7 +75,8 @@
             <td colspan="2">&nbsp;Валюта:{html_options options=$currencies selected=$currency name="currency"}</td>
         </tr>
         <tr>
-            <td colspan="2">&nbsp;Только с внешней с/ф:<input type="checkbox" name='is_ext_invoice_only' value='1'{if $is_ext_invoice_only} checked{/if}></td>
+            <td>&nbsp;Только с внешней с/ф:<input type="checkbox" name='is_ext_invoice_only' value='1'{if $is_ext_invoice_only} checked{/if}> </td>
+            <td> в Excel: <input type=checkbox name='is_to_excel' value="1" class=button> </td>
         </tr>
         <tr>
             <td colspan="2"><input type=submit value='Поехали' class=button></td>

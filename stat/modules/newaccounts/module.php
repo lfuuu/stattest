@@ -4958,6 +4958,18 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
             $total[$row['currency']]['count']++;
         }
 
+        if (get_param_raw('is_to_excel', 0) == 1) {
+            $excel = new \app\classes\excel\PurchaseBookToExcel;
+            $excel->data = $data;
+            $excel->total = $total;
+            $excel->organizationId = $organizationId;
+            $excel->dateFrom = $date_from;
+            $excel->dateTo = $date_to;
+            $excel->openFile(Yii::getAlias('@app/templates/purchase_book.xls'));
+            $excel->prepare();
+            $excel->download('Книга продаж');
+        }
+
         $design->assign('data', $data);
         $design->assign('totals', $total);
         $design->assign('date_from', $date_from);
