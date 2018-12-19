@@ -4,9 +4,11 @@ use app\dao\OrganizationDao;
 use app\models\BusinessProcessStatus;
 use app\models\Country;
 use app\models\Currency;
+use app\models\dictionary\PublicSite;
 use app\models\LkWizardState;
 use app\models\Region;
 use kartik\widgets\ActiveForm;
+use yii\helpers\ArrayHelper;
 use yii\widgets\Breadcrumbs;
 use app\models\ClientAccount;
 
@@ -84,10 +86,16 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 ?>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'country_id')
                     ->dropDownList(Country::getList())
+                ?>
+            </div>
+            <div class="col-sm-2">
+                <?= $form
+                    ->field($model, 'site_id')
+                    ->dropDownList(PublicSite::getList())
                 ?>
             </div>
 

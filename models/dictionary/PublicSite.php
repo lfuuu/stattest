@@ -17,6 +17,10 @@ use yii\helpers\Url;
  */
 class PublicSite extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     public $data = [];
 
@@ -147,4 +151,23 @@ class PublicSite extends ActiveRecord
         return Url::to(['/dictionary/public-site/delete', 'id' => $this->id]);
     }
 
+    /**
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param string $indexBy
+     * @return string[]
+     */
+    public static function getList(
+        $isWithEmpty = false,
+        $indexBy = 'id'
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy,
+            $select = 'title',
+            $orderBy = ['title' => SORT_ASC]
+        );
+    }
 }

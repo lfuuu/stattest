@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetListTrait;
 use app\helpers\DateTimeZoneHelper;
+use app\models\dictionary\PublicSite;
 
 /**
  * @property int $id
@@ -25,6 +26,7 @@ use app\helpers\DateTimeZoneHelper;
  * @property int $voip_limit_mn_day
  * @property int $is_default
  * @property int $region_id
+ * @property int $site_id
  * @property int $connect_trouble_user_id
  * @property string $wizard_type
  * @property Country country
@@ -101,12 +103,14 @@ class EntryPoint extends ActiveRecord
                     'client_contract_business_process_status_id',
                     'region_id',
                     'connect_trouble_user_id',
-                    'wizard_type'
+                    'wizard_type',
+                    'site_id'
                 ],
                 'required'
             ],
 
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
+            ['site_id', 'in', 'range' => array_keys(PublicSite::getList())],
             ['region_id', 'in', 'range' => array_keys(Region::getList())],
             ['organization_id', 'in', 'range' => array_keys(Organization::dao()->getList())],
             ['currency_id', 'in', 'range' => array_keys(Currency::getList())],
@@ -152,6 +156,7 @@ class EntryPoint extends ActiveRecord
             'region_id' => 'Регион (точка подключения)',
             'connect_trouble_user_id' => 'Пользовтель, для создания траблы на подключение',
             'wizard_type' => "Тип Wizard'а",
+            'site_id' => "Сайт для обслуживания",
         ];
     }
 

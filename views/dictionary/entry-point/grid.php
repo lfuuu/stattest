@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\grid\column\universal\AccountVersionColumn;
+use app\classes\grid\column\universal\SiteColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
@@ -71,6 +72,10 @@ echo GridView::widget([
 
         [
             'attribute' => 'name_prefix',
+        ],
+        [
+            'attribute' => 'site_id',
+            'class' => SiteColumn::class
         ],
         [
             'attribute' => 'account_version',
