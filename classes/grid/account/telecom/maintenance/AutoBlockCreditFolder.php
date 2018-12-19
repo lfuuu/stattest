@@ -30,7 +30,7 @@ class AutoBlockCreditFolder extends AccountGridFolder
             'company',
             'currency',
             'block_date',
-            'manager',
+            'account_manager',
             'region',
             'legal_entity',
         ];
