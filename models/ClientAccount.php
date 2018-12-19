@@ -1267,7 +1267,7 @@ class ClientAccount extends HistoryActiveRecord
     public function getLink()
     {
         return Html::a(
-            Html::encode($this->client),
+            Html::encode($this->getAccountTypeAndId()),
             $this->getUrl()
         );
     }

@@ -4,6 +4,7 @@ namespace app\classes\monitoring;
 
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\health\MonitorUuTestTariff;
 
 /**
  * @method static MonitorFactory me($args = null)
@@ -27,6 +28,8 @@ class MonitorFactory extends Singleton
             $this->getSyncErrorsUsageVoip(),
             $this->getSyncErrorsUsageVpbx(),
             $this->getClientsOfSlovakia(),
+            $this->getTestTariff(),
+            $this->getShiftTariff(),
         ];
     }
 
@@ -165,4 +168,19 @@ class MonitorFactory extends Singleton
         return new ClientsOfSlovakia();
     }
 
+    /**
+     * @return TestTariff
+     */
+    public function getTestTariff()
+    {
+        return new TestTariff();
+    }
+
+    /**
+     * @return ShiftTariff
+     */
+    public function getShiftTariff()
+    {
+        return new ShiftTariff();
+    }
 }
