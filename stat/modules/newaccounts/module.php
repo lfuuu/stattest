@@ -1108,7 +1108,9 @@ class m_newaccounts extends IModule
             $bill = Bill::findOne(['bill_no' => $bill_no]);
             if ($bill) {
                 $bill->postreg = $option ? '' : date('Y-m-d');
-                $bill->save();
+                if (!$bill->save()) {
+                    throw new ModelValidationException($bill);
+                }
             }
         }
         if ($design->ProcessEx('errors.tpl')) {
@@ -1193,6 +1195,7 @@ class m_newaccounts extends IModule
         $del = get_param_raw("del", []);
 
         if (!$item || !$amount || !$price || !$type) { // Сохранение только "шапки" счета
+
             $bill->Save();
             header("Location: ?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();

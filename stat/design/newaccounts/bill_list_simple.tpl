@@ -107,9 +107,9 @@
 
 {include file='newaccounts/bill_list_part_transactions.tpl'}
 
-<form action="?" method="get" target="_blank" name="formsend" id="formsend">
+<form action="?" method="get" name="formsend" id="formsend">
     <input type="hidden" name="module" value="newaccounts"/>
-    <input type="hidden" name="action" value="bill_mprint"/>
+    <input type="hidden" name="action" id="action" value=""/>
     <input type="hidden" name="document_reports[]" value="bill"/>
     <input type="hidden" name="akt-1" value="1"/>
     <input type="hidden" name="akt-2" value="1"/>
@@ -136,8 +136,9 @@
             <td class="header" valign="bottom">Кто</td>
             <td valign="bottom">
                 <input type="checkbox" onclick="selectAllCheckboxes($(this).prop('checked'))">&nbsp&nbsp
-                <button type="submit" class="button" name="isLandscape" value="1">Печать в альбомной ориентации</button>
-                <button type="submit" class="button" name="isPortrait" value="1">Печать в книжной ориентации</button>
+                <button type="submit" class="button" name="isLandscape" value="1" onclick="setAction('bill_mprint')">В альбомной</button>
+                <button type="submit" class="button" name="isPortrait" value="1" onclick="setAction('bill_mprint')">В книжной</button>
+                <button type="submit" class="button" onclick="setAction('bill_postreg')">Зарег-ть</button>
             </td>
         </tr>
         {foreach from=$billops item=op key=key name=outer}
@@ -221,6 +222,31 @@
         $( '#date').datepicker({dateFormat: 'yy-mm-dd'});
         function selectAllCheckboxes(checked) {
             $(".checkBoxClass").prop('checked', checked);
+        }
+        function setAction(value) {
+            $('#action').val(value);
+            form = $('#formsend');
+            url = form.attr('action');
+            if (value == 'bill_mprint') {
+                form.prop("target", "_blank");
+            } else if (value == 'bill_postreg') {
+                form[0].addEventListener('submit', function(event) {
+                    event.preventDefault();
+                });
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    data: form.serialize(),
+                    complete: function(data) {
+                        if (data.status == 0) {
+                            alert('Выбранные элементы были успешно зарегистрированы');
+                        } else {
+                            alert('Произошла ошибка');
+                        }
+                        location.reload();
+                    }
+                });
+            }
         }
     {/literal}
 </script>
