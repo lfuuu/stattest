@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use Yii;
 use yii\helpers\Url;
@@ -25,6 +26,19 @@ class City extends ActiveRecord
     }
 
     const MIN_CNT = 1000;
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return array_merge(
+            parent::behaviors(),
+            [
+                \app\classes\behaviors\HistoryChanges::class,
+            ]
+        );
+    }
 
     /**
      * Имена полей
@@ -63,6 +77,36 @@ class City extends ActiveRecord
             [['country_code', 'region_id'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'id':
+                return Html::a($value, self::getUrlById($value));
+
+            case 'country_code':
+                if ($country = Country::findOne(['code' => $value])) {
+                    return $country->getLink();
+                }
+                break;
+
+            case 'region_id':
+                if ($region = Region::findOne(['id' => $value])) {
+                    return $region->getLink();
+                }
+                break;
+        }
+
+        return $value;
     }
 
     /**

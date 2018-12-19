@@ -56,6 +56,12 @@ abstract class Form extends \app\classes\Form
 
                 if (isset($post['newCityId']) && $post['newCityId']) {
                     // перемапить на новый
+                    $newCity = City::findOne(['id' => $post['newCityId']]);
+                    if (!$newCity) {
+                        throw new InvalidArgumentException('Не найден город с ID = ' . $post['newCityId']);
+                    }
+                    $this->city->newHistoryData = $newCity->toArray();
+
                     NumberRange::updateAll(['city_id' => $post['newCityId']], ['city_id' => $this->city->id]);
                     Number::updateAll(['city_id' => $post['newCityId']], ['city_id' => $this->city->id]);
                 }

@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use Yii;
 use yii\helpers\Url;
@@ -53,6 +54,19 @@ class Operator extends ActiveRecord
     ];
 
     /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return array_merge(
+            parent::behaviors(),
+            [
+                \app\classes\behaviors\HistoryChanges::class,
+            ]
+        );
+    }
+
+    /**
      * Имена полей
      *
      * @return array [полеВТаблице => Перевод]
@@ -89,6 +103,30 @@ class Operator extends ActiveRecord
             [['country_code', 'group'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'id':
+                return Html::a($value, self::getUrlById($value));
+
+            case 'country_code':
+                if ($country = Country::findOne(['code' => $value])) {
+                    return $country->getLink();
+                }
+                break;
+        }
+
+        return $value;
     }
 
     /**

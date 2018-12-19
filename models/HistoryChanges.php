@@ -36,6 +36,26 @@ class HistoryChanges extends ActiveRecord
     ];
 
     /**
+     * Вернуть имена полей
+     *
+     * @return array [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'model' => 'Модель',
+            'model_id' => 'ID модели',
+            'parent_model_id' => 'ID модели родителя',
+            'user_id' => 'Юзер',
+            'created_at' => 'Дата',
+            'action' => 'Действие',
+            'prev_data_json' => 'Было',
+            'data_json' => 'Стало',
+        ];
+    }
+
+    /**
      * @return string
      */
     public static function tableName()

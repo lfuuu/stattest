@@ -28,6 +28,9 @@ class ActiveRecord extends \yii\db\ActiveRecord
 
     private static $lastPgTimeout = 0;
 
+    /** @var array Данные для записи в лог при удалении. Например, на кого перемапили */
+    public $newHistoryData;
+
     /**
      * @return array
      */

@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use Yii;
 use yii\helpers\Url;
@@ -25,6 +26,19 @@ class Region extends ActiveRecord
     }
 
     const MIN_CNT = 1000;
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return array_merge(
+            parent::behaviors(),
+            [
+                \app\classes\behaviors\HistoryChanges::class,
+            ]
+        );
+    }
 
     /**
      * Имена полей
@@ -63,6 +77,30 @@ class Region extends ActiveRecord
             [['country_code', 'parent_id'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'id':
+                return Html::a($value, self::getUrlById($value));
+
+            case 'country_code':
+                if ($country = Country::findOne(['code' => $value])) {
+                    return $country->getLink();
+                }
+                break;
+        }
+
+        return $value;
     }
 
     /**
@@ -116,6 +154,16 @@ class Region extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/nnp/region/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 
     /**

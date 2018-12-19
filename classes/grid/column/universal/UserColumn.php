@@ -20,5 +20,6 @@ class UserColumn extends DropdownColumn
     {
         parent::__construct($config);
         $this->filter = User::getList(true, false, $this->indexBy);
+        $this->filterOptions['class'] .= ' user-column';
     }
 }

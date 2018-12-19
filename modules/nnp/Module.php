@@ -7,7 +7,10 @@ use app\classes\helpers\ArrayHelper;
 use app\classes\Navigation;
 use app\classes\NavigationBlock;
 use app\models\Country;
+use app\modules\nnp\models\City;
 use app\modules\nnp\models\NumberRange;
+use app\modules\nnp\models\Operator;
+use app\modules\nnp\models\Region;
 use BadMethodCallException;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -134,9 +137,12 @@ class Module extends \yii\base\Module
                 ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => Country::RUSSIA, 'NumberRangeFilter[is_active]' => 1], ['nnp.read'])
                 ->addItem('Портированные номера', ['/nnp/number/', 'NumberFilter[country_code]' => Country::RUSSIA], ['nnp.read'])
                 ->addItem('Операторы', ['/nnp/operator/'], ['nnp.read'])
+                ->addItem('Операторы. Лог', ['/history/', 'HistoryChangesFilter[model]' => Operator::class], ['nnp.read'])
                 ->addItem('Страны', ['/nnp/country/'], ['nnp.read'])
                 ->addItem('Регионы', ['/nnp/region/'], ['nnp.read'])
+                ->addItem('Регионы. Лог', ['/history/', 'HistoryChangesFilter[model]' => Region::class], ['nnp.read'])
                 ->addItem('Города', ['/nnp/city/'], ['nnp.read'])
+                ->addItem('Города. Лог', ['/history/', 'HistoryChangesFilter[model]' => City::class], ['nnp.read'])
                 ->addItem('Префиксы', ['/nnp/prefix/'], ['nnp.read'])
                 ->addItem('Типы NDC', ['/nnp/ndc-type/'], ['nnp.read'])
                 ->addItem('Направления', ['/nnp/destination/'], ['nnp.read'])

@@ -58,6 +58,12 @@ abstract class Form extends \app\classes\Form
                 // удалить
                 if (isset($post['newRegionId']) && $post['newRegionId']) {
                     // перемапить на новый
+                    $newRegion = Region::findOne(['id' => $post['newRegionId']]);
+                    if (!$newRegion) {
+                        throw new InvalidArgumentException('Не найден регион с ID = ' . $post['newRegionId']);
+                    }
+                    $this->region->newHistoryData = $newRegion->toArray();
+
                     NumberRange::updateAll(['region_id' => $post['newRegionId']], ['region_id' => $this->region->id]);
                     Number::updateAll(['region_id' => $post['newRegionId']], ['region_id' => $this->region->id]);
                     City::updateAll(['region_id' => $post['newRegionId']], ['region_id' => $this->region->id]);

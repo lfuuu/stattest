@@ -57,6 +57,12 @@ abstract class Form extends \app\classes\Form
                 // удалить
                 if (isset($post['newOperatorId']) && $post['newOperatorId']) {
                     // перемапить на новый
+                    $newOperator = Operator::findOne(['id' => $post['newOperatorId']]);
+                    if (!$newOperator) {
+                        throw new InvalidArgumentException('Не найден оператор с ID = ' . $post['newOperatorId']);
+                    }
+                    $this->operator->newHistoryData = $newOperator->toArray();
+
                     NumberRange::updateAll(['operator_id' => $post['newOperatorId']], ['operator_id' => $this->operator->id]);
                     Number::updateAll(['operator_id' => $post['newOperatorId']], ['operator_id' => $this->operator->id]);
                 }

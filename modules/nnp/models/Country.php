@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\modules\nnp\media\CountryMedia;
 use Yii;
@@ -117,6 +118,16 @@ class Country extends ActiveRecord
     public static function getUrlById($code)
     {
         return Url::to(['/nnp/country/', 'CountryFilter[code]' => $code]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 
     /**

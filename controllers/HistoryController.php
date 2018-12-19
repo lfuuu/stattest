@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\classes\BaseController;
 use app\models\ClientContragent;
+use app\models\filter\HistoryChangesFilter;
 use Yii;
 
 class HistoryController extends BaseController
@@ -17,7 +18,7 @@ class HistoryController extends BaseController
         $behaviors['access']['rules'] = [
             [
                 'allow' => true,
-                'actions' => ['show'],
+                'actions' => ['show', 'index'],
                 'roles' => ['clients.read'],
             ],
         ];
@@ -87,4 +88,19 @@ class HistoryController extends BaseController
             $this->render('show', ['changes' => $changes, 'models' => $models]);
     }
 
+    /**
+     * Список
+     *
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionIndex()
+    {
+        $filterModel = new HistoryChangesFilter();
+        $filterModel->load(Yii::$app->request->get());
+
+        return $this->render('index', [
+            'filterModel' => $filterModel,
+        ]);
+    }
 }

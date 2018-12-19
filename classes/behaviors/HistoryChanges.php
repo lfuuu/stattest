@@ -53,7 +53,7 @@ class HistoryChanges extends Behavior
      */
     public function afterDelete()
     {
-        $this->_logChanges(\app\models\HistoryChanges::ACTION_DELETE, null, $this->owner->toArray());
+        $this->_logChanges(\app\models\HistoryChanges::ACTION_DELETE, $this->owner->newHistoryData, $this->owner->toArray());
     }
 
     /**

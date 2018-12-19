@@ -94,7 +94,7 @@ class TariffVoipCountry extends ActiveRecord
         switch ($field) {
 
             case 'country_id':
-                if ($country = Country::findOne(['id' => $value])) {
+                if ($country = Country::findOne(['code' => $value])) {
                     return $country->getLink();
                 }
                 break;
