@@ -118,6 +118,11 @@
     <input type="hidden" name="invoice-2" value="1"/>
     <input type="hidden" name="invoice-3" value="1"/>
     <input type="hidden" name="isBulkPrint" value="1"/>
+    <div class="pull-right">
+        <button type="submit" class="button" name="isLandscape" value="1">Печать в альбомной ориентации</button>
+        <button type="submit" class="button" name="isPortrait" value="1">Печать в книжной ориентации</button>
+        <button type="submit" class="button" onclick="setAction('bill_postreg')">Зарег-ть</button>
+    </div>
     <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
         <tr>
             <td class="header" valign="bottom" colspan="3"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
@@ -136,9 +141,6 @@
             <td class="header" valign="bottom">Кто</td>
             <td valign="bottom">
                 <input type="checkbox" onclick="selectAllCheckboxes($(this).prop('checked'))">&nbsp&nbsp
-                <button type="submit" class="button" name="isLandscape" value="1" onclick="setAction('bill_mprint')">В альбомной</button>
-                <button type="submit" class="button" name="isPortrait" value="1" onclick="setAction('bill_mprint')">В книжной</button>
-                <button type="submit" class="button" onclick="setAction('bill_postreg')">Зарег-ть</button>
             </td>
         </tr>
         {foreach from=$billops item=op key=key name=outer}
@@ -200,8 +202,8 @@
                 {if isset($op.bill.comment) && $op.bill.comment}
                     <td colspan="4" rowspan="2">&nbsp;</td>
                     </tr>
-                    <tr class="{$class}">
-                    <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
+                    <tr>
+                    <td colspan="9" class="comment">{$op.bill.comment|strip_tags}</td>
                 {else}
                     <td colspan="4">&nbsp;</td>
                 {/if}
