@@ -390,19 +390,27 @@
                 <input type=checkbox value="1" name="invoice-1" id=cb5>
                 <label for="cb5" class="{if !$bill_invoices[1]}notactive {/if}{if $bill_invoices[1] == -1}invalid{/if}">
                     Счёт-фактура (1 абонентка)
-                </label><br>
+                </label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-1&to_print=true&is_word=true">MS
+                    Word</a><br/>
                 <input type=checkbox value="1" name="invoice-2" id=cb6>
                 <label for="cb6" class="{if !$bill_invoices[2]}notactive {/if}{if $bill_invoices[2] == -1}invalid{/if}">
                     Счёт-фактура (2 превышение)
-                </label><br>
+                </label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-2&to_print=true&is_word=true">MS
+                    Word</a><br/>
                 <input type=checkbox value="1" name="invoice-3" id=cb7>
                 <label for="cb7" class="{if !$bill_invoices[3]}notactive {/if}{if $bill_invoices[3] == -1}invalid{/if}">
                     Счёт-фактура (3 оборудование)
-                </label><br>
+                </label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-3&to_print=true&is_word=true">MS
+                    Word</a><br/>
                 <input type=checkbox value="1" name="invoice-4" id=cbc>
                 <label for="cbc"{if $bill_invoices[5] eq 0} style="color:#C0C0C0"{elseif $bill_invoices[5] eq -1} style="background-color:#ffc0c0;font-style: italic;"{/if}>
                     Счёт-фактура (4 аванс)
-                </label><br>
+                </label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-4&to_print=true&is_word=true">MS
+                    Word</a><br/>
 
                 <input type=checkbox value="1" name="upd-1" id="upd1">
                 <label for="upd1" class="{if !$bill_upd[1]}notactive {/if}{if $bill_upd[1] == -1}invalid{/if}">
