@@ -3,6 +3,7 @@
 namespace app\classes\grid\account;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientBlockedComment;
 use app\models\BusinessProcess;
 use app\models\Currency;
 use app\models\Good;
@@ -778,6 +779,16 @@ abstract class AccountGridFolder extends Model
                         ['class' => 'form-control', 'style' => 'min-width:80px;']
                     );
                 },
+            ],
+            'comment' => [
+                'attribute' => 'comment',
+                'format' => 'raw',
+                'value' => function ($data) {
+                    return
+                        '<span>' . $data['comment'] . '</span>' .
+                        '<img src="/images/icons/edit.gif" role="button" data-id=' . $data["id"] . ' class="edit pull-right" alt="Редактировать" />';
+                },
+                'width' => '20%',
             ],
         ];
     }

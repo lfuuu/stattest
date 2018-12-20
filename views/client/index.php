@@ -10,6 +10,8 @@ use app\classes\grid\account\AccountGridFolder;
 
 $urlParams = Yii::$app->request->get();
 
+$this->registerJsFile('js/client_commentary.js',  ['position' => yii\web\View::POS_END]);
+
 echo Html::formLabel($activeFolder->grid->getBusinessTitle());
 echo Breadcrumbs::widget([
     'links' => [

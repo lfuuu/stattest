@@ -4,6 +4,7 @@ namespace app\classes\grid\account\telecom\maintenance;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\models\billing\Locks;
+use app\models\ClientBlockedComment;
 use app\models\BusinessProcessStatus;
 use app\models\Number;
 use app\models\UsageVoip;
@@ -39,6 +40,7 @@ class AutoBlock800Folder extends AccountGridFolder
             'manager',
             'region',
             'legal_entity',
+            'comment',
         ];
     }
 
@@ -59,9 +61,10 @@ class AutoBlock800Folder extends AccountGridFolder
             ])
             ->andWhere(['IS NOT', 'uu.tariff_period_id', null]);
 
-        $query->addSelect(['block_date' => $this->getBlockDateQuery()])
+        $query->addSelect(['block_date' => $this->getBlockDateQuery(), 'cbc.comment'])
             ->leftJoin(['uv' => UsageVoip::tableName()], 'uv.client = c.client AND CAST(NOW() AS DATE) BETWEEN uv.actual_from AND uv.actual_to AND uv.line7800_id')
             ->leftJoin(['uu' => $uuSubQuery], 'uu.client_account_id = c.id')
+            ->leftJoin(['cbc' => ClientBlockedComment::tableName()], 'cbc.account_id = c.id')
             ->andWhere([
                 'cr.business_id' => $this->grid->getBusiness(),
                 'cr.business_process_status_id' => $this->getBusinessProcessStatus(),

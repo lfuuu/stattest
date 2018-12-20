@@ -2,6 +2,7 @@
 
 namespace app\models\important_events;
 
+use app\classes\behaviors\ClientBlockedCommentBehavior;
 use app\classes\IpUtils;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\AddClientAccountFilterTraits;
@@ -10,6 +11,7 @@ use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\ClientBlockedComment;
 use app\models\TagsResource;
 use DateTime;
 use DateTimeZone;
@@ -45,6 +47,19 @@ class ImportantEvents extends ActiveRecord
     const ROWS_PER_PAGE = 50;
 
     public $propertiesCollection = [];
+
+    /**
+     * @inheritdoc
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => ClientBlockedCommentBehavior::class
+            ]
+        ];
+    }
 
     /**
      * @return array

@@ -2,16 +2,19 @@
 
 namespace app\controllers;
 
+use ActiveRecord\ModelException;
 use app\classes\Assert;
 use app\classes\BaseController;
 use app\classes\grid\account\telecom\reports\IncomeFromCustomersFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromManagersAndUsagesFolder;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
+use app\exceptions\ModelValidationException;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
 use app\models\ClientAccount;
+use app\models\ClientBlockedComment;
 use app\models\ClientContact;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
@@ -35,7 +38,9 @@ use yii\base\Exception;
 use yii\base\Model;
 use yii\db\Query;
 use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\helpers\Url;
+use yii\web\HttpException;
 use yii\web\Response;
 
 class ClientController extends BaseController
@@ -60,6 +65,12 @@ class ClientController extends BaseController
                         'actions' => ['create'],
                         'roles' => ['clients.new'],
                     ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'save-comment' => ['POST'],
                 ],
             ],
         ];
@@ -397,6 +408,37 @@ class ClientController extends BaseController
             $account->super_id);
 
         return $this->redirect(Url::to(['/client/view', 'id' => $account->id]));
+    }
+
+    /**
+     * Сохраняет комментарий о заблокированном клиенте
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     * @throws \yii\web\HttpException
+     */
+    public function actionSaveComment()
+    {
+        $accountId = Yii::$app->request->post('account_id');
+        $comment = Yii::$app->request->post('comment');
+        if (!$accountId) {
+            throw new HttpException(400, 'Invalid parameters exception');
+        }
+        $clientBlockedComment = ClientBlockedComment::findOne(['account_id' => $accountId]);
+        if (!$comment && $clientBlockedComment) {
+            if (!$clientBlockedComment->delete()) {
+                throw new ModelException('Ошибка при удалении комментария о заблокированном пользователе');
+            }
+            return;
+        }
+        if (!$clientBlockedComment) {
+            $clientBlockedComment = new ClientBlockedComment();
+            $clientBlockedComment->account_id = $accountId;
+        }
+        $clientBlockedComment->comment = $comment;
+        if (!$clientBlockedComment->save()) {
+            throw new ModelValidationException($clientBlockedComment);
+        }
     }
 
 }
