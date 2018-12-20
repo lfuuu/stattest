@@ -232,6 +232,12 @@ VAT Number: <?= $contragent->inn_euro ?>
     </tr>
 </table>
 
+<?php if ($contragent->tax_registration_reason): ?>
+    <div align="right">
+        <?= $contragent->tax_registration_reason ?>
+    </div>
+<?php endif?>
+
 <?php if ($document->sendEmail && MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
     $image_options = [
         'width' => 200,
