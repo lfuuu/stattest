@@ -12,6 +12,7 @@ use app\classes\Html;
 use app\modules\nnp\filters\CountryFilter;
 use app\modules\nnp\models\Country;
 use app\widgets\GridViewExport\GridViewExport;
+use kartik\grid\ActionColumn;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -27,6 +28,20 @@ use yii\widgets\Breadcrumbs;
 <?php
 $baseView = $this;
 $columns = [
+    [
+        'class' => ActionColumn::class,
+        'template' => '{update}',
+        'buttons' => [
+            'update' => function ($url, Country $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => Url::to(['/nnp/country/edit', 'id' => $model->code]),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
+
     [
         'attribute' => 'code',
     ],

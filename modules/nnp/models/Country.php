@@ -54,6 +54,10 @@ class Country extends ActiveRecord
             'name_eng' => 'Английское название',
             'prefixes' => 'Префиксы',
             'alpha_3' => '3х-буквенный код',
+            'is_open_numbering_plan' => 'Открытый номерной план?',
+            'use_weak_matching' => 'Использовать слабое соответствие?',
+            'default_operator' => 'Оператор по-умолчания',
+            'default_type_ndc' => 'NDC тип по-умолчанию',
         ];
     }
 
@@ -76,6 +80,19 @@ class Country extends ActiveRecord
     {
         return Yii::$app->dbPgNnp;
     }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['is_open_numbering_plan', 'use_weak_matching'], 'boolean'],
+            [['default_operator', 'default_type_ndc'], 'integer'],
+            [['is_open_numbering_plan', 'use_weak_matching'], 'required'],
+        ];
+    }
+
 
     /**
      * Вернуть список всех доступных значений
