@@ -46,6 +46,7 @@ use Exception;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\caching\TagDependency;
+use yii\db\Expression;
 use yii\web\HttpException;
 
 class UuController extends ApiInternalController
@@ -1373,7 +1374,11 @@ class UuController extends ApiInternalController
         $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
         $accountTariffQuery->limit($limit);
         $offset && $accountTariffQuery->offset($offset);
-        $accountTariffQuery->orderBy([$accountTariffTableName . '.id' => SORT_DESC]);
+        $accountTariffQuery->orderBy(new Expression('IF ('.$accountTariffTableName.'.tariff_period_id IS NULL, 1, 0)'));
+        $accountTariffQuery->addOrderBy([
+            $accountTariffTableName . '.id' => SORT_DESC
+        ]);
+
 
         $result = [];
         foreach ($accountTariffQuery->each() as $accountTariff) {
