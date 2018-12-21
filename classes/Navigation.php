@@ -90,6 +90,7 @@ class Navigation
                 ->addItem('Перемещаемые услуги', ['/monitoring/transfered-usages'], [])
                 ->addItem('Ключевые события', ['/monitoring'], [])
                 ->addItem('Очередь событий', ['/monitoring/event-queue'], [])
+                ->addItem('Монитор "здоровья"', 'http://eridanus.mcn.ru/health/health.html', [])
         );
 
         $this->addBlock(
