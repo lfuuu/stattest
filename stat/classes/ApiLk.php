@@ -1117,7 +1117,7 @@ class ApiLk
             $message .= 'Тарифный план: ' . $mainTariff->name;
 
 
-            if (!self::createTT($message, $clientAccount->client, self::_getUserForTrouble($clientAccount->manager),
+            if (!self::createTT($message, $clientAccount->client, self::_getUserForTrouble($clientAccount->contract->account_manager),
                 'usage_voip', $usageId)
             ) {
                 throw new LogicException('Creating trouble error in order voip');
@@ -1203,7 +1203,7 @@ class ApiLk
             $logTariff->save();
 
             if (!self::createTT($message, $account->client,
-                    self::_getUserForTrouble($account->contract->manager)) > 0
+                    self::_getUserForTrouble($account->contract->account_manager)) > 0
             ) {
                 throw new LogicException('Ошибка создания заявки на создание ВАТС');
             }
@@ -1237,7 +1237,7 @@ class ApiLk
         $message .= 'Регион: ' . $region->namename . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1289,7 +1289,7 @@ class ApiLk
         $message .= 'Адрес: ' . $address . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1310,7 +1310,7 @@ class ApiLk
         $message .= 'Адрес: ' . $address . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1335,7 +1335,7 @@ class ApiLk
             $db->QueryUpdate("log_tarif", ["id_service", "service"], ["service" => "usage_voip", "id_service" => $service_id, "id_tarif" => $tarif_id]);
             $message .= "\n\nтариф сменен, т.к. подключения не было";
         }
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1374,7 +1374,7 @@ class ApiLk
 
             $message .= "\n\nтариф изменен из личного кабинета";
 
-            if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+            if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
                 return ['status' => 'ok', 'message' => 'order_ok'];
             }
         }
@@ -1396,7 +1396,7 @@ class ApiLk
         $message .= 'Домен: ' . $domain . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1472,7 +1472,7 @@ class ApiLk
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1491,7 +1491,7 @@ class ApiLk
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1516,7 +1516,7 @@ class ApiLk
             $message .= "\n\nномер удален, т.к. подключения не было";
         }
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
@@ -1543,7 +1543,7 @@ class ApiLk
                 $message .= "\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было";
             }
 
-            if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+            if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
                 return ['status' => 'ok', 'message' => 'order_ok'];
             }
         }
@@ -1562,7 +1562,7 @@ class ApiLk
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Домен: ' . $domain;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0) {
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->account_manager)) > 0) {
             return ['status' => 'ok', 'message' => 'order_ok'];
         } else {
             return ['status' => 'error', 'message' => 'order_error'];
