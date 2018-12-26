@@ -18,15 +18,20 @@ class SberbankApi
     private $_password = '';
     private $_lkHost = '';
 
+//    private $_host = "3dsec.sberbank.ru";
     private $_host = "securepayments.sberbank.ru";
 
     /**
      * SberbankApi constructor.
      */
-    public function __construct()
+    public function __construct($organizationId)
     {
         if (!isset(\Yii::$app->params['SberbankApi'])) {
             throw new \Exception('SberbankApi not configured');
+        }
+
+        if (!$organizationId || !isset(\Yii::$app->params['SberbankApi'][$organizationId])) {
+            throw new \Exception("SberbankApi: not allowed for company id: {$organizationId}");
         }
 
         if (!isset(\Yii::$app->params['LK_PATH']) || !\Yii::$app->params['LK_PATH']) {
@@ -35,7 +40,7 @@ class SberbankApi
 
         $this->_lkHost = \Yii::$app->params['LK_PATH'];
 
-        $config = \Yii::$app->params['SberbankApi'];
+        $config = \Yii::$app->params['SberbankApi'][$organizationId];
 
         $this->_user = isset($config['user']) ? $config['user'] : '';
         $this->_password = isset($config['password']) ? $config['password'] : '';
@@ -49,27 +54,28 @@ class SberbankApi
      *      "formUrl": "https://server/application_context/merchants/test/payment_ru.html?mdOrder=70906e55-7114-41d6-8332-4609dc6590f4"
      * }
      *
-     * @param int $clientId
+     * @param ClientAccount $account
      * @param string $orderNumber
      * @param float $sum
-     * @param string $currency
      * @param bool $isPayPage
      * @return array
+     * @internal param int $clientId
+     * @internal param string $currency
      * @internal param array $options
      */
-    public function register($clientId, $orderNumber, $sum, $currency, $isPayPage = false)
+    public function register(ClientAccount $account, $orderNumber, $sum, $isPayPage = false)
     {
         $options = [
             'orderNumber' => $orderNumber,
             'amount' => $sum * 100, // in cents
-            'currency' => Currency::getCodeById($currency),
+            'currency' => Currency::getCodeById($account->currency),
             'returnUrl' => $isPayPage ? $this->_lkHost . 'pay/sbcard' : $this->_lkHost . 'app?#accounts/add_pay/sbcard',
             'failUrl' => $isPayPage ? $this->_lkHost . 'pay/failed' : $this->_lkHost . 'app?#accounts/add_pay/failed',
             'description' => 'Prepayment order No #' . $orderNumber,
             'pageView' => 'DESKTOP',
-            'clientId' => $clientId,
+            'clientId' => $account->id,
             'expirationDate' => (new \DateTime())->modify("+1 month")->format(DATE_ATOM),
-            'language' => $this->_getLanguageFromAccount($clientId)
+            'language' => $this->_getLanguageFromAccount($account->id),
         ];
 
         return $this->_exec('register', $options);

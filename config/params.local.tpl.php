@@ -24,8 +24,10 @@ return [
     'monitoring_email' => null,
 
     'SberbankApi' => [
-        'user' => '',
-        'password' => ''
+        \app\models\Organization::MCN_TELECOM_RETAIL => [
+            'user' => '',
+            'password' => ''
+        ]
     ],
 
     'yandex' => [

@@ -332,6 +332,10 @@ class BillerController extends Controller
      */
     public function actionSberbankOrdersFinishing()
     {
+        if (!isset(\Yii::$app->params['SberbankApi'])) {
+            throw new \Exception('SberbankApi not configured');
+        }
+
         $now = new \DateTimeImmutable('now');
 
         if ($now->format('i') == 0) { // в 00 минут каждого часа.
@@ -342,24 +346,26 @@ class BillerController extends Controller
             $date = $now->modify('-10 minute');
         }
 
-        $sberbankApi = new SberbankApi();
+        foreach (\Yii::$app->params['SberbankApi'] as $organizationId => $noNeedThisData) {
+            $sberbankApi = new SberbankApi($organizationId);
 
-        $orderQuery = SberbankOrder::find()
-            ->where([
-                'status' => SberbankOrder::STATUS_REGISTERED
-            ])
-            ->andWhere(['>', 'created_at', $date->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+            $orderQuery = SberbankOrder::find()
+                ->where([
+                    'status' => SberbankOrder::STATUS_REGISTERED
+                ])
+                ->andWhere(['>', 'created_at', $date->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
 
-        /** @var SberbankOrder $order */
-        foreach ($orderQuery->each() as $order) {
-            $info = $sberbankApi->getOrderStatusExtended($order->order_id);
+            /** @var SberbankOrder $order */
+            foreach ($orderQuery->each() as $order) {
+                $info = $sberbankApi->getOrderStatusExtended($order->order_id);
 
-            if ($info['orderStatus'] == SberbankOrder::STATUS_PAYED) {
-                $order->makePayment($info);
+                if ($info['orderStatus'] == SberbankOrder::STATUS_PAYED) {
+                    $order->makePayment($info);
 
-                ClientAccount::dao()->updateBalance($order->bill->client_id);
+                    ClientAccount::dao()->updateBalance($order->bill->client_id);
 
-                echo PHP_EOL . date("r") . ': ' . $order->bill_no . ' - payed';
+                    echo PHP_EOL . date("r") . ': ' . $order->bill_no . ' - payed';
+                }
             }
         }
     }

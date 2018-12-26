@@ -293,14 +293,13 @@ class LkController extends ApiController
             $sbOrder->refresh();
         }
 
-        $sberbankApi = new SberbankApi();
+        $sberbankApi = new SberbankApi($bill->clientAccount->contract->organization_id);
 
         if ($sbOrder->status == SberbankOrder::STATUS_NOT_REGISTERED) {
             $reg = $sberbankApi->register(
-                $form->account_id,
+                $bill->clientAccount,
                 $bill->bill_no,
                 $form->sum,
-                $bill->clientAccount->currency,
                 $form->is_pay_page
             );
 
@@ -340,7 +339,7 @@ class LkController extends ApiController
 
         $sbOrder = SberbankOrder::findOne(['order_id' => $form->order_id]);
 
-        if (!$sbOrder || $sbOrder->status == SberbankOrder::STATUS_NOT_REGISTERED) {
+        if (!$sbOrder || $sbOrder->status == SberbankOrder::STATUS_NOT_REGISTERED || !$sbOrder->bill || !$sbOrder->bill->clientAccount) {
             throw new \Exception('Status Sberbank order status error');
         }
 
@@ -350,7 +349,7 @@ class LkController extends ApiController
             ];
         }
 
-        $sbApi = new SberbankApi;
+        $sbApi = new SberbankApi($sbOrder->bill->clientAccount->contract->organization_id);
         $info = $sbApi->getOrderStatusExtended($sbOrder->order_id);
 
         if ($info['orderStatus'] != SberbankApi::ERROR_PAYED) {
