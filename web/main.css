@@ -461,6 +461,10 @@ label.notactive {
 	color: lightgrey;
 }
 
+a.notactive {
+	color: lightgrey;
+}
+
 label.invalid {
 	text-decoration: line-through;
 	color: grey;
