@@ -28,6 +28,15 @@ return [
         'password' => ''
     ],
 
+    'yandex' => [
+        'kassa' => [
+            \app\models\Organization::MCN_TELECOM_RETAIL => [
+                'shop_id' => 101321,
+                'password' => '',
+            ],
+        ]
+    ],
+
     'PayPal' => [
         'default' => [ // TEL2TEL_KFT || TEL2TEL_LTD
             'user' => '',

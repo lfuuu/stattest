@@ -29,6 +29,7 @@ use yii\base\InvalidParamException;
 class LkController extends ApiController
 {
     const MAX_UPLOAD_FILES = 10;
+
     /**
      * @SWG\Post(
      *   tags={"Работа с лицевыми счетами"},
@@ -73,6 +74,14 @@ class LkController extends ApiController
         $account = ClientAccount::findOne(["id" => $form->account_id]);
         Assert::isObject($account);
 
+        $shopId = null;
+        if (
+            isset(\Yii::$app->params['yandex'])
+            && isset(\Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['shop_id'])
+        ) {
+            $shopId = \Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['shop_id'];
+        }
+
         return [
             'id' => $account->id,
             'country_id' => $account->country_id,
@@ -80,6 +89,7 @@ class LkController extends ApiController
             'currency' => $account->currency,
             'country_lang' => $account->country->lang,
             'version' => $account->account_version,
+            'yandex_shop_id' => $shopId,
         ];
     }
 
@@ -108,7 +118,7 @@ class LkController extends ApiController
      *       )
      *     )
      *   ),
-     *   @SWG\Response(
+     * @SWG\Response(
      *     response="default",
      *     description="Ошибки",
      *     @SWG\Schema(

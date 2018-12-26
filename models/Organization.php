@@ -52,6 +52,7 @@ class Organization extends ActiveRecord
 
     const MCN_TELECOM = 1;
     const MCN_TELECOM_RETAIL = 11; // ex "MCM Telecom"
+    const MCN_TELECOM_SERVICE = 21; // МСН Телеком Сервис
     const TEL2TEL_KFT = 10; // Для некоторых стран это переводится как "TEL2TEL_LTD", но не надо это путать с id=16
     const TEL2TEL_LTD = 16;
     const INTERNAL_OFFICE = 18; // Взаиморасчеты MCN - Внутренний офис

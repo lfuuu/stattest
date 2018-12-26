@@ -8,9 +8,20 @@ use app\models\EventQueue;
 class YandexProcessor
 {
     // МСМ Телеком
-    private $shopPassword = "DnI1N7mjQ19GMOPy1k6X";
-    private $shopId = "101321";
+    private $shopPassword = null;
+    private $shopId = null;
     //private $scId = 34952;
+
+    public static $config = [
+        \app\models\Organization::MCN_TELECOM_RETAIL => [
+            'shopId' => 101321,
+            'password' => 'DnI1N7mjQ19GMOPy1k6X',
+        ],
+        \app\models\Organization::MCN_TELECOM_SERVICE => [
+            'shopId' => 548618,
+            'password' => 'live_mjFR8SGYtNm46atWBAEejRNf_idT5Oui6SNVfGrVKS8',
+        ],
+    ];
 
     /*
     // МСН Телеком
@@ -69,7 +80,7 @@ class YandexProcessor
 
         try {
             $this->loadData();
-
+            $this->loadConfig();
             $this->checkData();
             $this->checkSign();
             $this->checkOrder();
@@ -96,6 +107,23 @@ class YandexProcessor
                 $this->data[$field] = $_POST[$field];
             }
         }
+    }
+
+    private function loadConfig()
+    {
+        if (!isset($this->data['shopId'])) {
+            throw new InvalidArgumentException('ShopId not found');
+        }
+
+        foreach (self::$config as $organizationId => $data) {
+            if (isset($data['shopId']) && $data['shopId'] == $this->data['shopId']) {
+                $this->shopId = $data['shopId'];
+                $this->shopPassword = $data['password'];
+                return;
+            }
+        }
+
+        throw new InvalidArgumentException('Config not found for shopId:'.$this->data['shop_id']);
     }
 
     private function checkData()

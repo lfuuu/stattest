@@ -13,7 +13,8 @@ class Banks
         "40702810800540001507" => array("ural_cmc", "ural"),
         "40702810700320000882" => array("mos_mcn", "mos"),
         "40702810038110015462" => array("sber_telekom", "sber"),
-        "40702810038000034045" => array("sber_mcm", "sber")
+        "40702810038000034045" => array("sber_mcm", "sber"),
+        '40702810338000213883' => ['sber_mcnservice', 'sber'],
     );
 
     /**

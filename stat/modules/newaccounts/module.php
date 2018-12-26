@@ -3105,6 +3105,11 @@ class m_newaccounts extends IModule
                     "title" => "МСН Телеком Ритейл",
                     "colspan" => 1
                 ],
+                "mcnservice" => [
+                    "title" => "МСН Телеком Сервис",
+                    "colspan" => 1
+                ],
+
                 "sber_online" => [
                     "title" => "Сбербанк Online",
                     "colspan" => 1
@@ -3126,6 +3131,9 @@ class m_newaccounts extends IModule
                     "acc" => ["sber"]
                 ],
                 "mcm" => [
+                    "acc" => ["sber"]
+                ],
+                "mcnservice" => [
                     "acc" => ["sber"]
                 ],
                 "sber_online" => [
