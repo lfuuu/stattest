@@ -1920,10 +1920,7 @@ class UuController extends ApiInternalController
                 $this->_checkTariff($accountTariff, $accountTariffLog);
             }
 
-            if (!$tariff_period_id) {
-                // Только при закрытии. А при редактировании - не надо
-                Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
-            }
+            Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
 
             $transaction->commit();
 

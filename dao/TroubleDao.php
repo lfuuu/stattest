@@ -391,9 +391,17 @@ class TroubleDao extends Singleton
 
         $troubleTexts = [];
 
-        $troubleTexts[] = $accountTariffLog->tariff_period_id ?
-            ($post ? 'Ошибка создания УУ' : 'УУ создана') : // создание. А редактирование сюда вообще не попадает
-            'УУ закрыта'; // закрытие
+        if ($accountTariffLog->tariff_period_id) {
+            if (count($accountTariff->accountTariffLogs) >= 2) {
+                $text = 'УУ смена тарифа';
+            } else {
+                $text = 'УУ создана';
+            }
+        } else {
+            $text = 'УУ закрыта';
+        }
+
+        $troubleTexts[] = $post ? 'Ошибка содания УУ' : $text;
         $troubleTexts[] = 'ЛС ' . $accountTariff->client_account_id;
         $troubleTexts[] = 'Тип ' . $accountTariff->serviceType->name;
         $troubleTexts[] = 'Тариф ' . $accountTariffLog->getName();
