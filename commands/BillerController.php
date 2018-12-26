@@ -289,7 +289,6 @@ class BillerController extends Controller
     {
         $data = AccountEntry::find()
             ->alias('entry')
-
             // если абонентка не за весь месяц
             ->select(new Expression('SUM(
                 IF(
@@ -312,7 +311,7 @@ class BillerController extends Controller
                 'utp.charge_period_id' => Period::ID_MONTH
             ])
             ->andWhere(['<>', 'entry.price_with_vat', 0])
-            ->andWhere(['<>', 'entry.type_id', AccountEntry::TYPE_ID_SETUP]) // без платы за подключение
+            ->andWhere(['<>', 'entry.type_id', AccountEntry::TYPE_ID_SETUP])// без платы за подключение
             ->groupBy('entry.type_id')
             ->indexBy('type_id')
             ->column();
@@ -357,6 +356,11 @@ class BillerController extends Controller
 
             /** @var SberbankOrder $order */
             foreach ($orderQuery->each() as $order) {
+
+                if ($order->bill->clientAccount->contract->organization_id != $organizationId) {
+                    continue;
+                }
+
                 $info = $sberbankApi->getOrderStatusExtended($order->order_id);
 
                 if ($info['orderStatus'] == SberbankOrder::STATUS_PAYED) {
