@@ -119,8 +119,8 @@
     <input type="hidden" name="invoice-3" value="1"/>
     <input type="hidden" name="isBulkPrint" value="1"/>
     <div class="pull-right">
-        <button type="submit" class="button" name="isLandscape" value="1">Печать в альбомной ориентации</button>
-        <button type="submit" class="button" name="isPortrait" value="1">Печать в книжной ориентации</button>
+        <button type="submit" class="button" onclick="setAction('bill_mprint')" name="isLandscape" value="1">Печать в альбомной ориентации</button>
+        <button type="submit" class="button" onclick="setAction('bill_mprint')" name="isPortrait" value="1">Печать в книжной ориентации</button>
         <button type="submit" class="button" onclick="setAction('bill_postreg')">Зарег-ть</button>
     </div>
     <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
@@ -240,7 +240,7 @@
                     url: url,
                     data: form.serialize(),
                     complete: function(data) {
-                        if (data.status == 0) {
+                        if (data.status == 0 || data.status == 200) {
                             alert('Выбранные элементы были успешно зарегистрированы');
                         } else {
                             alert('Произошла ошибка');
