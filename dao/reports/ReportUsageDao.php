@@ -2,6 +2,7 @@
 
 namespace app\dao\reports;
 
+use app\models\Currency;
 use app\models\UsageTrunk;
 use app\models\UsageVoip;
 use app\modules\nnp\models\City;
@@ -269,8 +270,9 @@ class ReportUsageDao extends Singleton
 
 
         $rt = ['price' => 0, 'ts2' => 0, 'cnt' => 0, 'is_total' => true];
+        $decimals = in_array($this->_account->currency, [Currency::USD, Currency::EUR]) ? 6 : 2;
 
-        $callBackProcessRecord = function ($record) use ($isWithPackageDetail, &$result, &$rt) {
+        $callBackProcessRecord = function ($record) use ($isWithPackageDetail, $decimals, &$result, &$rt) {
             $record['geo'] = $record['geo_name'] . ($record['ndc_type_id'] != NdcType::ID_GEOGRAPHIC && $record['ndc_type_name'] ? ' (' . $record['ndc_type_name'] . ')' : '');
             unset($record['geo_name'], $record['ndc_type_name'], $record['ndc_type_id']);
 
@@ -286,17 +288,19 @@ class ReportUsageDao extends Singleton
                 $d = 0;
             }
 
+            // добавление в тотал перед форматирование
+            $rt['price'] += $record['price'];
+            $rt['cnt'] += $record['cnt'];
+            $rt['ts2'] += $record['ts2'];
+
             $record['tsf2'] = ($d ? $d . 'd ' : '') . gmdate('H:i:s', $record['ts2']);
-            $record['price'] = number_format($record['price'], 2, '.', '');
+            $record['price'] = number_format($record['price'], $decimals, '.', '');
 
             if ($isWithPackageDetail) {
                 $this->_admixedPackageDetails($record);
             }
 
             $result[] = $record;
-            $rt['price'] += $record['price'];
-            $rt['cnt'] += $record['cnt'];
-            $rt['ts2'] += $record['ts2'];
         };
 
         $this->_processRecords($query, $from, $to, $callBackProcessRecord, $detality);

@@ -6,6 +6,7 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\widgets\GridViewExport\drivers\CsvDriver;
 use app\widgets\GridViewExport\drivers\ExportDriver;
 use Yii;
@@ -272,7 +273,16 @@ class GridViewExport extends GridView
             }
         }
 
-        if (($key = $driver->createHeader(base_convert(implode('', $headerColumns) . time(), 32, 8), $headerColumns)) === false) {
+
+        $dateFrom = (new \DateTime($this->filterModel->connect_time_to))->modify('-1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
+        $keyData = [$this->filterModel->connect_time_from, $dateFrom];
+        foreach ($this->filterModel as $property => $value) {
+            if ($value) {
+                $keyData[] = substr($property, 0, 1) . (is_array($value) ? implode('_', $value) : $value);
+            }
+        }
+
+        if (($key = $driver->createHeader('trunk_calls_' . implode('_', $keyData) . '_' . time(), $headerColumns)) === false) {
             throw new BadRequestHttpException('Cannot create export file');
         }
 
