@@ -34,6 +34,7 @@ return [
         'kassa' => [
             \app\models\Organization::MCN_TELECOM_RETAIL => [
                 'shop_id' => 101321,
+                'sc_id' => 34952,
                 'password' => '',
             ],
         ]

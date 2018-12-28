@@ -75,11 +75,13 @@ class LkController extends ApiController
         Assert::isObject($account);
 
         $shopId = null;
+        $scId = null;
         if (
             isset(\Yii::$app->params['yandex'])
             && isset(\Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['shop_id'])
         ) {
             $shopId = \Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['shop_id'];
+            $scId = \Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['sc_id'];
         }
 
         return [
@@ -90,6 +92,7 @@ class LkController extends ApiController
             'country_lang' => $account->country->lang,
             'version' => $account->account_version,
             'yandex_shop_id' => $shopId,
+            'yandex_sc_id' => $scId,
         ];
     }
 
