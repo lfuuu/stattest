@@ -40,8 +40,10 @@ class Api extends Singleton
     const TAX_VAT0 = 'vat0'; // НДС по ставке 0%
     const TAX_VAT10 = 'vat10'; // НДС чека по ставке 10%
     const TAX_VAT18 = 'vat18'; // НДС чека по ставке 18%
+    const TAX_VAT20 = 'vat20'; // НДС чека по ставке 20%
     const TAX_VAT110 = 'vat110'; // НДС чека по расчетной ставке 10/110
     const TAX_VAT118 = 'vat118'; // НДС чека по расчетной ставке 18/118
+    const TAX_VAT120 = 'vat120'; // НДС чека по расчетной ставке 18/120
 
     const RESPONSE_STATUS_WAIT = 'wait';
     const RESPONSE_STATUS_FAIL = 'fail';
@@ -65,9 +67,11 @@ class Api extends Singleton
         $apiVersion = $this->_module->params['apiVersion'];
         $params = $this->_module->params['buyOrSell'];
 
+        $access = reset($this->_module->params['access']);
+
         $url = $params['url'];
-        $groupCode = $params['groupCode'];
-        $inn = $params['inn'];
+        $groupCode = $access['groupCode'];
+        $inn = $access['inn'];
         $paymentAddress = $params['paymentAddress'];
         $itemName = $params['itemName'];
         $tax = $params['tax'];
@@ -82,16 +86,14 @@ class Api extends Singleton
      * @param string $email
      * @param string $phone
      * @param float $itemPrice
+     * @param $organizationId
      * @return string[] [$uuid, $log]
      *
+     * @throws InvalidConfigException
      * @throws \HttpRequestException
-     * @throws \LogicException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @link https://online.atol.ru/
      */
-    public function sendSell($externalId, $email, $phone, $itemPrice)
+    public function sendSell($externalId, $email, $phone, $itemPrice, $organizationId)
     {
         $phone = str_replace('+7', '', $phone);
         if (!$email && $phone && !preg_match('/\d{10}/', $phone)) {
@@ -102,23 +104,29 @@ class Api extends Singleton
             throw new \LogicException('Не указаны контакты клиента');
         }
 
+        if (!isset($this->_module->params['access']['organization_' . $organizationId])) {
+            throw new InvalidConfigException('Не настроен организации ' . $organizationId . ' в конфиге Атол');
+        }
+
+        $access = $this->_module->params['access']['organization_' . $organizationId];
+
         $apiVersion = $this->_module->params['apiVersion'];
         $callbackUrl = $this->_module->params['callbackUrl']; // можно пустое
         $params = $this->_module->params['buyOrSell'];
 
         $url = $params['url'];
-        $groupCode = $params['groupCode'];
-        $inn = $params['inn'];
+        $groupCode = $access['groupCode'];
+        $inn = $access['inn'];
         $paymentAddress = $params['paymentAddress'];
         $sno = $params['sno']; // можно пустое
         $itemName = $params['itemName'];
-        $tax = $params['tax'];
+        $taxType = $params['tax'];
 
         if (!$this->isAvailable()) {
             throw new InvalidConfigException('Не настроен конфиг Атол');
         }
 
-        switch ($tax) {
+        switch ($taxType) {
 
             case self::TAX_NONE:
             case self::TAX_VAT0:
@@ -135,17 +143,21 @@ class Api extends Singleton
                 $itemTaxSum = $itemPrice * 18 / 118;
                 break;
 
+            case self::TAX_VAT20:
+            case self::TAX_VAT120:
+                $itemTaxSum = $itemPrice * 20 / 120;
+                break;
+
             default:
                 throw new InvalidConfigException('Не настроен конфиг Атол');
         }
 
-        $token = $this->_getToken();
+        $token = $this->_getToken($access);
 
         $url = strtr($url, [
             '<api_version>' => $apiVersion,
             '<group_code>' => $groupCode,
             '<operation>' => self::OPERATION_SELL,
-            '<token>' => $token,
         ]);
 
         $timestamp = date(self::TIMESTAMP_FORMAT);
@@ -163,7 +175,7 @@ class Api extends Singleton
 
             'receipt' => [
 
-                'attributes' => [
+                'client' => [
 
                     // Электронная почта покупателя.
                     // Максимальная длина строки – 64 символа.
@@ -173,6 +185,10 @@ class Api extends Singleton
                     // Телефон покупателя.
                     // Передается без префикса «+7». Максимальная длина строки – 64 символа.
                     'phone' => (string)$phone,
+
+                ],
+                'company' => [
+                    'email' => '',
 
                     // Система налогообложения.
                     // «osn» – общая СН;
@@ -184,6 +200,20 @@ class Api extends Singleton
                     // Поле необязательно, если у организации один тип налогообложения.
                     // Например, 'osn'
                     'sno' => (string)$sno,
+
+
+                    // ИНН организации.
+                    // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим ИНН (сравнивается со значением в ФН).
+                    // Допустимое количество символов 10 или 12.
+                    // Например, '331122667723'
+                    'inn' => (string)$inn,
+
+
+                    // Адрес места расчетов.
+                    // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим адресом места расчёта (сравнивается со значением в ФН).
+                    // Максимальная длина строки – 256 символов.
+                    // Например, 'magazin.ru'
+                    'payment_address' => (string)$paymentAddress,
                 ],
 
                 // Ограничение по количеству от 1 до 100.
@@ -214,21 +244,12 @@ class Api extends Singleton
                         // Например, 5000.0
                         'sum' => (float)$itemSum,
 
-                        // Устанавливает номер налога в ККТ.
-                        // «none» – без НДС;
-                        // «vat0» – НДС по ставке 0%;
-                        // «vat10» – НДС чека по ставке 10%;
-                        // «vat18» – НДС чека по ставке 18%;
-                        // «vat110» – НДС чека по расчетной ставке 10/110;
-                        // «vat118» – НДС чека по расчетной ставке 18/118.
-                        // Например, 'vat10'
-                        'tax' => (string)$tax,
-
-                        // Сумма налога позиции в рублях:
-                        // целая часть не более 8 знаков;
-                        // дробная часть не более 2 знаков.
-                        // Например, 454.55
-                        'tax_sum' => (float)$itemTaxSum,
+//                        "measurement_unit" => "кг",
+                        "payment_method" => "full_payment",
+                        "payment_object" => "commodity",
+                        "vat" => [
+                            "type" => (string)$taxType
+                        ]
                     ],
                 ],
 
@@ -248,6 +269,27 @@ class Api extends Singleton
                         'type' => (int)$paymentType,
                     ],
                 ],
+                'vats' => [
+                    [
+                        // Устанавливает номер налога в ККТ.
+                        // «none» – без НДС;
+                        // «vat0» – НДС по ставке 0%;
+                        // «vat10» – НДС чека по ставке 10%;
+                        // «vat18» – НДС чека по ставке 18%;
+                        // «vat110» – НДС чека по расчетной ставке 10/110;
+                        // «vat118» – НДС чека по расчетной ставке 18/118.
+                        // «vat120» – НДС чека по расчетной ставке 20/120.
+                        // Например, 'vat10'
+                        'type' => (string)$taxType,
+
+
+                        // Сумма налога позиции в рублях:
+                        // целая часть не более 8 знаков;
+                        // дробная часть не более 2 знаков.
+                        // Например, 454.55
+                        'sum' => (float)$itemTaxSum
+                    ]
+                ],
 
                 // Итоговая сумма чека в рублях с заданным в CMS округлением:
                 // целая часть не более 8 знаков;
@@ -261,18 +303,6 @@ class Api extends Singleton
                 // Если поле заполнено, то после обработки документа (успешной или не успешной фискализации в ККТ), ответ будет отправлен POST запросом по URL указанному в данном поле.
                 // Максимальная длина строки – 256 символов.
                 'callback_url' => $callbackUrl,
-
-                // ИНН организации.
-                // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим ИНН (сравнивается со значением в ФН).
-                // Допустимое количество символов 10 или 12.
-                // Например, '331122667723'
-                'inn' => (string)$inn,
-
-                // Адрес места расчетов.
-                // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим адресом места расчёта (сравнивается со значением в ФН).
-                // Максимальная длина строки – 256 символов.
-                // Например, 'magazin.ru'
-                'payment_address' => (string)$paymentAddress,
             ],
 
             // Дата и время документа внешней системы в формате: «dd.mm.yyyy HH:MM:SS»
@@ -286,13 +316,23 @@ class Api extends Singleton
             'timestamp' => (string)$timestamp,
         ];
 
-        $response = (new HttpClient)
+        if (!$email) {
+            unset($data['receipt']['client']['email']);
+        }
+
+        if (!$phone) {
+            unset($data['receipt']['client']['phone']);
+        }
+
+        $query = (new HttpClient)
             ->createJsonRequest()
             ->setUrl($url)
             ->setMethod('post')
             ->setData($data)
-            ->setIsCheckOk(false)// если первый запрос обработался, но упал, то повторный отвечает ошибкой, но с нужными данными
-            ->send(\app\modules\atol\Module::LOG_CATEGORY);
+            ->addHeaders(['Token' => $token])
+            ->setIsCheckOk(false);// если первый запрос обработался, но упал, то повторный отвечает ошибкой, но с нужными данными
+
+        $response = $query->send(\app\modules\atol\Module::LOG_CATEGORY);
 
         $responseData = $response->data;
         if (is_array($responseData)
@@ -328,28 +368,35 @@ class Api extends Singleton
      * @throws \yii\base\InvalidConfigException
      * @link https://online.atol.ru/
      */
-    public function getStatus($uuid)
+    public function getStatus($uuid, $organizationId)
     {
         if (!$uuid) {
             throw new \InvalidArgumentException();
         }
 
         $apiVersion = $this->_module->params['apiVersion'];
-        $groupCode = $this->_module->params['buyOrSell']['groupCode'];
         $params = $this->_module->params['report'];
+        $accesses = $this->_module->params['access'];
+
+        if (!isset($accesses['organization_'.$organizationId])) {
+            throw new InvalidConfigException('Не настроен организации ' . $organizationId . ' в конфиге Атол');
+        }
+
+        $access = $accesses['organization_'.$organizationId];
+        $groupCode = $access['groupCode'];
+
         $url = $params['url'];
 
         if (!$apiVersion || !$url || !$groupCode) {
             throw new InvalidConfigException('Не настроен конфиг Атол');
         }
 
-        $token = $this->_getToken();
+        $token = $this->_getToken($access);
 
         $url = strtr($url, [
             '<api_version>' => $apiVersion,
             '<group_code>' => $groupCode,
             '<uuid>' => $uuid,
-            '<token>' => $token,
         ]);
 
         $response = (new HttpClient)
@@ -357,6 +404,7 @@ class Api extends Singleton
             ->createRequest()
             ->setUrl($url)
             ->setMethod('get')
+            ->addHeaders(['Token' => $token])
             ->send(\app\modules\atol\Module::LOG_CATEGORY);
 
         $responseData = $response->data;
@@ -386,7 +434,7 @@ class Api extends Singleton
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    private function _getToken()
+    private function _getToken($access)
     {
         if ($this->_token) {
             return $this->_token;
@@ -396,8 +444,9 @@ class Api extends Singleton
         $params = $this->_module->params['getToken'];
         $url = $params['url'];
         $method = $params['method'];
-        $login = $params['login'];
-        $password = $params['password'];
+
+        $login = $access['login'];
+        $password = $access['password'];
 
         if (!$apiVersion || !$url || !$method || !$login || !$password) {
             throw new InvalidConfigException('Не настроен конфиг Атол');
@@ -422,11 +471,11 @@ class Api extends Singleton
         $responseData = $response->data;
         $debugInfoResponse = sprintf('Response = %s', Json::encode($response->data)) . PHP_EOL;
 
-        if (!is_array($responseData) || !isset($responseData['code'])) {
+        if (!is_array($responseData) || !isset($responseData['token'])) {
             throw new BadRequestHttpException('Ошибка получения токена.' . PHP_EOL . PHP_EOL . $debugInfoResponse);
         }
 
-        if ($responseData['code'] >= self::RESPONSE_TOKEN_CODE_ERROR || !$responseData['token']) {
+        if ((isset($responseData['error']) && $responseData['error']) || !$responseData['token']) {
             throw new BadRequestHttpException('Ошибка получения токена. ' . $responseData['text'] . PHP_EOL . PHP_EOL . $debugInfoResponse);
         }
 

@@ -3,11 +3,20 @@
 return [
     'params' => [
         // Номер версии API. Подставляется в URL
-        'apiVersion' => 'v3',
+        'apiVersion' => 'v4',
 
         // URL, на который Атол пришлет результат обработки чека. Если не указывать - не пришлет. Протокол + хост + '/atol/api/'
         // Например, 'https://stat.mcn.ru/atol/api/'
         'callbackUrl' => '', // @todo надо указать в params.local.php
+
+        'access' => [
+            'organization_' . \app\models\Organization::MCN_TELECOM_RETAIL => [
+                'password' => '',
+                'login' => '',
+                'groupCode' => '',
+                'inn' => '',
+            ],
+        ],
 
         // Получение токена
         'getToken' => [
@@ -18,31 +27,13 @@ return [
             // Метод. Брать из документации ecr_balancer.pdf (п. 5.1)
             // Например, 'post' или 'get'
             'method' => 'post',
-
-            // Логин. Брать из ЛК https://online.atol.ru/lk/Account/Login
-            // Например, 'netletest'
-            'login' => '', // @todo надо указать в params.local.php
-
-            // Пароль. Брать из ЛК https://online.atol.ru/lk/Account/Login
-            // Например, 'v2AfscRjr'
-            'password' => '', // @todo надо указать в params.local.php
         ],
 
         // Регистрация документа (прихода, расхода, возврата, коррекции) в ККТ
         'buyOrSell' => [
             // URL. Брать из документации ecr_balancer.pdf (п. 5.2)
             // "<api_version>", "<group_code>", "<operation>", "<token>" так и надо оставить
-            'url' => 'https://online.atol.ru/possystem/<api_version>/<group_code>/<operation>?tokenid=<token>',
-
-            // Идентификатор группы ККТ. Брать из ЛК https://online.atol.ru/lk/Account/Login
-            // Например, 'MyCompany_MyShop'
-            'groupCode' => '', // @todo надо указать в params.local.php
-
-            // ИНН организации. Брать из ЛК https://online.atol.ru/lk/Account/Login
-            // Например, '331122667723'
-            // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим ИНН (сравнивается со значением в ФН).
-            // Допустимое количество символов 10 или 12.
-            'inn' => '', // @todo надо указать в params.local.php
+            'url' => 'https://online.atol.ru/possystem/<api_version>/<group_code>/<operation>',
 
             // Адрес места расчетов. Брать из ЛК https://online.atol.ru/lk/Account/Login
             // Например, 'magazin.ru'
@@ -78,7 +69,7 @@ return [
         'report' => [
             // URL. Брать из документации ecr_balancer.pdf (п. 5.3)
             // "<api_version>", "<group_code>", "<uuid>", "<token>" так и надо оставить
-            'url' => 'https://online.atol.ru/possystem/<api_version>/<group_code>/report/<uuid>?tokenid=<token>',
+            'url' => 'https://online.atol.ru/possystem/<api_version>/<group_code>/report/<uuid>',
         ],
     ],
 ];

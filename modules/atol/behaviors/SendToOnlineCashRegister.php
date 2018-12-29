@@ -133,7 +133,9 @@ class SendToOnlineCashRegister extends Behavior
             throw new \LogicException('Платеж не был отправлен в онлайн-кассу ' . $paymentId);
         }
 
-        list($status, $log) = Api::me()->getStatus($paymentAtol->uuid);
+        $organizationId = $paymentAtol->payment->client->contract->organization_id;
+
+        list($status, $log) = Api::me()->getStatus($paymentAtol->uuid, $organizationId);
 
         switch ($status) {
             case Api::RESPONSE_STATUS_WAIT:
