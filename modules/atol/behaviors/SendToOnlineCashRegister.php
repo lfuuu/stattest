@@ -83,11 +83,13 @@ class SendToOnlineCashRegister extends Behavior
         $client = $payment->client;
         $contacts = $client->getOfficialContact();
 
+        $organizationId = $payment->client->contract->organization_id;
+
         list($uuid, $log) = Api::me()->sendSell(
             $payment->id,
             reset($contacts[ClientContact::TYPE_EMAIL]),
             reset($contacts[ClientContact::TYPE_PHONE]),
-            $payment->sum);
+            $payment->sum, $organizationId);
 
         $paymentAtol = new PaymentAtol;
         $paymentAtol->id = $payment->id;
