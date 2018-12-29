@@ -47,6 +47,7 @@ return [
     'Resource #42' => 'Mobiles internet',
     'Resource #43' => 'Ausgehender Verkehr über mobile Rufnummern',
     'Resource #44' => 'Anzahl der Rufnummern aus Abfragen',
+    'Resource #48' => 'Quotenverkehr',
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];

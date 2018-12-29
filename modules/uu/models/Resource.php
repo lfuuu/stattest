@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
 use app\modules\uu\resourceReader\CalltrackingResourceReader;
+use app\modules\uu\resourceReader\InternetResourceReader;
 use app\modules\uu\resourceReader\NnpNumberResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\SmsResourceReader;
@@ -176,6 +177,9 @@ class Resource extends ActiveRecord
 
             // Calltracking
             self::ID_CALLTRACKING => CalltrackingResourceReader::class,
+
+            // Интернет. Roamobility
+            self::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => InternetResourceReader::class,
         ];
     }
 

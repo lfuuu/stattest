@@ -33,4 +33,5 @@ return [
     'Type #26' => '', // Infraštruktúra
     'Type #27' => 'Prístup k NNP',
     'Type #28' => 'Licence',
+    'Type #31' => 'Mobilný internet',
 ];

@@ -40,6 +40,7 @@ return [
     'Resource #42' => 'Mobil internet',
     'Resource #43' => 'Kimenő forgalom mobil számokról opció',
     'Resource #44' => 'Számok mennyisége lekérésekből',
+    'Resource #48' => 'Kvóta forgalom',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

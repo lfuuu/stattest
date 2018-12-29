@@ -47,6 +47,7 @@ return [
     'Resource #42' => 'Mobilný internet',
     'Resource #43' => 'Odchádzajúca prevádzka z mobilných telefónnych čísiel',
     'Resource #44' => 'Počet čísiel podľa dotazov',
+    'Resource #48' => 'Prevádzka kvót',
 
     'Gb' => 'Gb',
     'Unit' => 'jednotka',
