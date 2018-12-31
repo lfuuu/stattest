@@ -295,7 +295,7 @@ SQL;
                     ClientAccount::findOne(['id' => $row['client_account_id']]);
 
                 $contract = $clientAccount->getContract($row['date']);
-                $clientDateVatCache[$clientDateVatKey] = ClientContract::dao()->getEffectiveVATRate($contract);
+                $clientDateVatCache[$clientDateVatKey] = ClientContract::dao()->getEffectiveVATRate($contract, $row['date']);
             }
             $vatRate = $clientDateVatCache[$clientDateVatKey];
 

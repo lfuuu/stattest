@@ -263,9 +263,29 @@ class ClientContractDao extends Singleton
      * Рассчитывает эффективную ставку НДС для данного договора
      *
      * @param ClientContract $contract
+     * @param null $date
      * @return int
      */
-    public function getEffectiveVATRate(ClientContract $contract)
+    public function getEffectiveVATRate(ClientContract $contract, $date = null)
+    {
+        $rate = $this->_getEffectiveVATRate($contract);
+
+        // @todo переделать на версионность настроек платежных документов
+        // Ставка 18 только в России.
+        if ($rate != 18) {
+            return $rate;
+        }
+
+        !$date && $data = date(DateTimeZoneHelper::DATE_FORMAT);
+
+        if ($date >= '2019-01-01') {
+            return 20;
+        }
+
+        return $rate;
+    }
+
+    private function _getEffectiveVATRate(ClientContract $contract)
     {
         static $cash = [];
 
