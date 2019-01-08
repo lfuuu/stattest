@@ -89,4 +89,12 @@ class PackagePricelist extends ActiveRecord
     {
         return $this->hasOne(Pricelist::class, ['id' => 'pricelist_id']);
     }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPricelistNnp()
+    {
+        return $this->hasOne(\app\modules\uu\models\billing_uu\Pricelist::class, ['id' => 'nnp_pricelist_id']);
+    }
 }

@@ -159,8 +159,8 @@ class WizardContragentMcnForm extends Form
 
                 $contragent->refresh();
 
-                if ($contract->organization_id != Organization::MCN_TELECOM_RETAIL) {
-                    $contract->organization_id = Organization::MCN_TELECOM_RETAIL;
+                if ($contract->organization_id != Organization::MCN_TELECOM_SERVICE) {
+                    $contract->organization_id = Organization::MCN_TELECOM_SERVICE;
                     if (!$contract->save()) {
                         throw new ModelValidationException($contract);
                     }
@@ -168,7 +168,7 @@ class WizardContragentMcnForm extends Form
             } else { // legal
                 $organizationId = $this->tax_regime == ClientContragent::TAX_REGTIME_OCH_VAT18 ?
                     Organization::MCN_TELECOM :
-                    Organization::MCN_TELECOM_RETAIL;
+                    Organization::MCN_TELECOM_SERVICE;
 
                 if ($contract->organization_id != $organizationId) {
                     $contract->organization_id = $organizationId;

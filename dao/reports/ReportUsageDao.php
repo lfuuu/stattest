@@ -262,6 +262,7 @@ class ReportUsageDao extends Singleton
                 'nnp_package_pricelist_id',
                 'package_time',
                 'billed_time',
+                'rate',
             ]);
         }
 
@@ -726,11 +727,20 @@ class ReportUsageDao extends Singleton
             ]) : null;
 
         if ($packagePriceList) {
-            $record['package_pricelist'] = [
-                'name' => $packagePriceList->tariff->name,
-                'pricelist' => $packagePriceList->pricelist->name,
-                'taken' => 'none',
-            ];
+            if ($packagePriceList->pricelist_id) {
+                $record['package_pricelist'] = [
+                    'name' => $packagePriceList->tariff->name,
+                    'pricelist' => $packagePriceList->pricelist->name,
+                    'taken' => 'none',
+                ];
+            } else {
+                $record['package_pricelist_nnp'] = [
+                    'name' => $packagePriceList->tariff->name,
+                    'pricelist' => $packagePriceList->pricelistNnp->name,
+                    'rate' => $record['rate'],
+                    'taken' => 'none',
+                ];
+            }
         }
 
         if ($record['billed_time']) {
@@ -760,7 +770,8 @@ class ReportUsageDao extends Singleton
             $record['package_time'],
             $record['real_price'],
             $record['real_cost'],
-            $record['billed_time']
+            $record['billed_time'],
+            $record['rate']
         );
     }
 

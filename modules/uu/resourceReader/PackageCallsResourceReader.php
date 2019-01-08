@@ -132,6 +132,7 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
             ->andWhere(['>=', 'calls_price.connect_time', $connectTime])
             ->andWhere(['<', 'calls_price.cost', 0])
             ->groupBy(['aggr_date', 'calls_price.nnp_package_price_id', 'calls_price.nnp_package_pricelist_id'])
+            ->orderBy(['aggr_date' => SORT_ASC])
             ->asArray();
 
         $this->andWhere($query, $accountTariff);
