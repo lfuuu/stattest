@@ -15,6 +15,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
+use app\classes\grid\column\universal\SourceColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -129,6 +130,10 @@ $columns = [
     [
         'attribute' => 'status',
         'class' => NumberStatusColumn::class,
+    ],
+    [
+        'attribute' => 'source',
+        'class' => SourceColumn::class,
     ],
     [
         'attribute' => 'imsi',

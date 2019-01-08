@@ -34,6 +34,13 @@ use yii\widgets\ActiveForm;
             ]) ?>
         </div>
 
+        <?php // источник номера ?>
+        <div class="col-sm-2">
+            <?= $form->field($number, 'source')->widget(Select2::className(), [
+                'data' =>\app\classes\enum\VoipRegistrySourceEnum::$names,
+            ]) ?>
+        </div>
+
         <?php // кнопки ?>
         <div class="col-sm-2">
             <label></label>

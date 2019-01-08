@@ -759,6 +759,8 @@ class ReportUsageDao extends Singleton
                     $record['package_price']['taken'] = 'all';
                 } elseif ($record['package_pricelist']) {
                     $record['package_pricelist']['taken'] = 'all';
+                } elseif ($record['package_pricelist_nnp']) {
+                    $record['package_pricelist_nnp']['taken'] = 'all';
                 }
             }
         }

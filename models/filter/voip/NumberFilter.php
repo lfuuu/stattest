@@ -16,6 +16,7 @@ class NumberFilter extends Number
     public $number = '';
     public $city_id = '';
     public $status = '';
+    public $source = '';
     public $did_group_id = '';
     public $beauty_level = '';
     public $usage_id = '';
@@ -42,7 +43,7 @@ class NumberFilter extends Number
     public function rules()
     {
         return [
-            [['number', 'status', 'number_tech'], 'string'],
+            [['number', 'status', 'number_tech', 'source'], 'string'],
             [['imsi'], 'integer'],
             [['city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
@@ -103,6 +104,7 @@ class NumberFilter extends Number
         $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_to]);
 
         $this->country_id !== '' && $query->andWhere([$numberTableName . '.country_code' => $this->country_id]);
+        $query->andFilterWhere([$numberTableName.'.source' => $this->source]);
 
         switch ($this->imsi) {
             case GetListTrait::$isNull:

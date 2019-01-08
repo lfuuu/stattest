@@ -199,6 +199,7 @@ class VoipRegistryDao extends Singleton
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $number->is_ported = (int)$registry->isSourcePotability();
         $number->is_service = (int)$registry->isService();
+        $number->source = $registry->source;
         $registry->fmc_trunk_id && $number->fmc_trunk_id = $registry->fmc_trunk_id;
         $registry->mvno_trunk_id && $number->mvno_trunk_id = $registry->mvno_trunk_id;
         $registry->nnp_operator_id && $number->nnp_operator_id = $registry->nnp_operator_id;

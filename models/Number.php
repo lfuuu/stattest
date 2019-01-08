@@ -48,6 +48,7 @@ use yii\helpers\Url;
  * @property integer $warehouse_status_id
  * @property integer $nnp_operator_id
  * @property integer $usr_operator_id
+ * @property string $source
  *
  * @property-read City $city
  * @property-read Country $country
@@ -145,6 +146,7 @@ class Number extends ActiveRecord
             'warehouse_status_id' => 'Статус скалада сим-карты',
             'nnp_operator_id' => 'ННП-оператор',
             'usr_operator_id' => 'ННП-оператор пользователя',
+            'source' => 'Источник',
         ];
     }
 
@@ -154,7 +156,7 @@ class Number extends ActiveRecord
     public function rules()
     {
         return [
-            [['status', 'number_tech'], 'string'],
+            [['status', 'number_tech', 'source'], 'string'],
             [['beauty_level'], 'integer'],
             [['imsi', 'warehouse_status_id'], 'integer'],
             [['nnp_operator_id', 'usr_operator_id',], 'integer'],
@@ -491,7 +493,6 @@ class Number extends ActiveRecord
     public static function isMcnLine($number)
     {
         $numberLenth = strlen($number);
-        
         return $numberLenth >= 4 && $numberLenth <= 5;
     }
 }
