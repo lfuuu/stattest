@@ -2,6 +2,7 @@
 namespace app\classes\bill;
 
 use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\Transaction;
 use app\models\usages\UsageInterface;
 use Yii;
@@ -121,7 +122,7 @@ abstract class BillerPackage
 
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
     {
-        $transaction->tax_rate = $this->clientAccount->getTaxRate();
+        $transaction->tax_rate = ClientContract::dao()->getEffectiveVATRate($this->clientAccount->contract, $periodFrom);
 
         list($transaction->sum, $transaction->sum_without_tax, $transaction->sum_tax) =
             $this->clientAccount->convertSum($transaction->price * $transaction->amount, $transaction->tax_rate);
