@@ -1517,6 +1517,7 @@ class m_newaccounts extends IModule
             'Уведомление о передачи прав: ' => array('notice_mcm_telekom'),
             'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
             'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => array('sogl_mcn_telekom'),
+            'Соглашение о передачи прав (МСН Ретайл=>МСН Сервис): ' => array('sogl_mcn_service'),
             'Кредит-нота: ' => array('credit_note'),
         );
 
@@ -1524,7 +1525,7 @@ class m_newaccounts extends IModule
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
-                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom' || $r === 'sogl_mcn_telekom') {
+                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom' || $r === 'sogl_mcn_telekom' || $r === 'sogl_mcn_service') {
                         $is_pdf = 1;
                     }
 
@@ -1735,7 +1736,7 @@ class m_newaccounts extends IModule
             'upd-1', 'upd-2', 'upd-3'
         ]);
         $L = array_merge($L, ['akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3']);
-        $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'credit_note']);
+        $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'credit_note']);
         $L = array_merge($L, ['partner_reward']);
 
         $landscapeActions = ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4', 'upd-1', 'upd-2', 'upd-3'];
@@ -2153,7 +2154,8 @@ class m_newaccounts extends IModule
             case 'credit_note':
             case 'notice_mcm_telekom':
             case 'sogl_mcm_telekom':
-            case 'sogl_mcn_telekom': {
+            case 'sogl_mcn_telekom':
+            case 'sogl_mcn_service': {
                 if ($billModel) {
                     $report = DocumentReportFactory::me()->getReport($billModel, $obj, get_param_raw('emailed', false));
                     echo $is_pdf ? $report->renderAsPDF() : $report->render();

@@ -26,6 +26,7 @@ class DocumentReportFactory extends Singleton
             DocNoticeMCMTelekom::class,
             DocSoglMCMTelekom::class,
             DocSoglMCNTelekom::class,
+            DocSoglMCNService::class,
             ProformaDocument::class,
             CreditNoteDocument::class,
             InvoiceDocument::class,

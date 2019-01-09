@@ -16,6 +16,7 @@ use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
+use app\models\Country;
 use app\models\Currency;
 use app\models\Invoice;
 use app\models\LogBill;
@@ -514,7 +515,7 @@ class BillDao extends Singleton
                    FROM history_version h1, clients c
                    WHERE h1.model = 'app\\\\models\\\\ClientContract' AND h1.date = :billDate AND c.id = :accountId AND h1.model_id = c.contract_id
                  ) a
-            HAVING new_org_id = 11 AND old_org_id = 1
+            HAVING new_org_id = 21 AND old_org_id = 11
 ESQL;
 
         return (bool)\Yii::$app->db->createCommand($sql, [

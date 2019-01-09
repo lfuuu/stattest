@@ -500,11 +500,11 @@
                     <br/>
                 {/if}
                 {if $bill_is_new_company}
-                    <input type="checkbox" value="1" name="notice_mcm_telekom" id="wm10">
+                    <!-- input type="checkbox" value="1" name="notice_mcm_telekom" id="wm10">
                     <label for="wm10"> Уведомление (МСН Телеком -> Ретайл)</label>
-                    <br/>
-                    <input type="checkbox" value="1" name="sogl_mcn_telekom" id="wm113"/>
-                    <label for="wm113">Соглашение (МСН Телеком -> Ретайл)</label>
+                    <br/ -->
+                    <input type="checkbox" value="1" name="sogl_mcn_service" id="wm113"/>
+                    <label for="wm113">Соглашение (Ритейл -> Сервис)</label>
                     <br/>
                 {/if}
                 {if $bill_client.firma == 'mcn_telekom'}

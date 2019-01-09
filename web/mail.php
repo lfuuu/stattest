@@ -24,6 +24,7 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
         "upd",
         "notice_mcm_telekom",
         "sogl_mcm_telekom",
+        "sogl_mcn_service",
         "sogl_mcn_telekom"
     ))
 ) {
@@ -51,7 +52,7 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
 
         echo  $report->render();
     } else {
-        if (in_array($R['obj'], ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'])) {
+        if (in_array($R['obj'], ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service'])) {
             $bill = Bill::find()->where(['client_id' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
             echo $report->renderAsPDF();

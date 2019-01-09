@@ -14,7 +14,6 @@ use app\models\InvoiceSettings;
 use app\models\Organization;
 use app\models\OrganizationSettlementAccount;
 use app\models\TaxVoipSettings;
-use app\modules\uu\models_light\InvoiceLight;
 use Yii;
 use yii\db\Query;
 
@@ -274,6 +273,10 @@ class ClientContractDao extends Singleton
         // Ставка 18 только в России.
         if ($rate != 18) {
             return $rate;
+        }
+
+        if ($date && ($date instanceof \DateTime || $date instanceof \DateTimeImmutable)) {
+            $date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         !$date && $data = date(DateTimeZoneHelper::DATE_FORMAT);
