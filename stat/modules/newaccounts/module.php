@@ -3420,7 +3420,16 @@ where cg.inn = '" . $inn . "'";
         $firms = $this->getFirmByPayAccs($payAccs);
         $date_formats = array('d.m.Y', 'd.m.y', 'd-m-Y', 'd-m-y');
 
-        $organizations = Organization::find()->andWhere(['organization.firma' => $firms])->actual()->select('organization.organization_id')->column();
+        // @TODO: на переходный период разрешить платить на Ритейл с Сервиса
+        if (in_array('mcm_telekom',$firms)) {
+            $firms[] = 'mcn_telekom_service';
+        }
+
+        $organizations = Organization::find()
+            ->andWhere(['organization.firma' => $firms])
+            ->actual()
+            ->select('organization.organization_id')
+            ->column();
 
         foreach ($pays as $pay) {
             //if(abs($pay["sum"]) != 7080   ) continue;
