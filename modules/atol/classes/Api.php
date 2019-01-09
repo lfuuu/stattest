@@ -90,7 +90,7 @@ class Api extends Singleton
      * @return string[] [$uuid, $log]
      *
      * @throws InvalidConfigException
-     * @throws \HttpRequestException
+     * @throws \Exception
      * @link https://online.atol.ru/
      */
     public function sendSell($externalId, $email, $phone, $itemPrice, $organizationId)
@@ -348,24 +348,21 @@ class Api extends Singleton
             && isset($responseData['error'], $responseData['error']['text'])
             && $responseData['error']['text']
         ) {
-            throw new \HttpRequestException($responseData['error']['text']);
+            throw new \Exception($responseData['error']['text']);
         }
 
-        throw new \HttpRequestException('Неизвестный ответ сервера. ' . Json::encode($responseData));
+        throw new \Exception('Неизвестный ответ сервера. ' . Json::encode($responseData));
     }
 
     /**
      * Запросить статус
      *
      * @param int $uuid
+     * @param string $organizationId
      * @return string[] [$status, $log]
      *
-     * @throws \InvalidArgumentException
-     * @throws \HttpRequestException
-     * @throws \LogicException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws \Exception
      * @link https://online.atol.ru/
      */
     public function getStatus($uuid, $organizationId)
@@ -420,10 +417,10 @@ class Api extends Singleton
             && isset($responseData['error'], $responseData['error']['text'])
             && $responseData['error']['text']
         ) {
-            throw new \HttpRequestException($responseData['error']['text'] . '. ' . Json::encode($responseData));
+            throw new \Exception($responseData['error']['text'] . '. ' . Json::encode($responseData));
         }
 
-        throw new \HttpRequestException('Неизвестный ответ сервера. ' . Json::encode($responseData));
+        throw new \Exception('Неизвестный ответ сервера. ' . Json::encode($responseData));
     }
 
     /**
