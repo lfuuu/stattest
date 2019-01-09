@@ -3766,6 +3766,25 @@ where c.pay_acc = '" . $acc . "'";
     {
         global $db;
 
+        $bill = Bill::findOne(['bill_no' => $billNo]);
+
+        if (!$bill) {
+            return [];
+        }
+
+        /** @var $contract ClientContract */
+        $contract = $bill->clientAccount->contract->loadVersionOnDate($bill->bill_date);
+
+        if (!$contract) {
+            return [];
+        }
+
+        if (in_array($contract->organization_id, $organizations)) {
+            return [$bill->client_id];
+        }
+
+        return [];
+
         $r = $db->GetRow("select client_id from newbills b, clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
 where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_id in ('" . implode("','", $organizations) . "')");
