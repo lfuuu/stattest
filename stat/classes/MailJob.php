@@ -152,7 +152,7 @@ class MailJob {
                     $this->get_object_link('sogl_mcn_telekom', $this->client['id']);
             }
 
-            case 'SOGL_MCN_SERVIE': {
+            case 'SOGL_MCN_SERVICE': {
                 return
                     'Соглашение о передаче прав и обязанностей по договору №' .
                     BillContract::getString($this->client['contract_id'], time()) . ': ' .
@@ -325,6 +325,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(NOTICE_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCN)_TELEKOM%/',array($this,'_get_assignments'),$text);
+        $text = preg_replace_callback('/%(SOGL_MCN)_SERVICE%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}

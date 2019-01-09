@@ -3,6 +3,7 @@
 namespace app\classes;
 
 use app\classes\DateFunction;
+use app\models\ClientContract;
 use app\models\ClientDocument;
 
 class BillContract
@@ -35,17 +36,23 @@ class BillContract
             $dateTs = time();
         }
 
-        return ClientDocument::getDb()->createCommand("
-            select 
+        $data = ClientDocument::getDb()->createCommand("
+            SELECT 
                 contract_no as no, 
-                unix_timestamp(contract_date) as date 
-            from 
+                UNIX_TIMESTAMP(contract_date) as date 
+            FROM 
                 client_document
-            where 
+            WHERE 
                     contract_id = :contract_id
                 and contract_date <= FROM_UNIXTIME(:date_ts)
                 and type = 'contract'
-            order by is_active desc, contract_date desc, id desc 
+            ORDER BY is_active DESC, contract_date DESC, id DESC 
             limit 1", [":contract_id" => $contractId, ":date_ts" => $dateTs])->queryOne();
+
+        if (ClientContract::find()->where(['id' => $contractId])->select('state')->scalar() == ClientContract::STATE_OFFER) {
+            $data['no'] = 'б/н';
+        }
+
+        return $data;
     }
 }
