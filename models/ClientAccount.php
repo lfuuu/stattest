@@ -990,6 +990,16 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * Поучаем ставку на дату
+     *
+     * @return int
+     */
+    public function getTaxRateOnDate($date)
+    {
+        return ClientContract::dao()->getEffectiveVATRate($this->contract, $date);
+    }
+
+    /**
      * @param string $date
      * @return Organization
      */

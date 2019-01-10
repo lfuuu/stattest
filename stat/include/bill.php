@@ -181,7 +181,7 @@ class Bill {
         $line->id_service = $id_service;
         $line->date_from = $date_from;
         $line->date_to = $date_to;
-        $line->tax_rate = $clientAccount->getTaxRate();
+        $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
         $line->price = $price;
         $line->cost_price = $costPrice;
         $line->calculateSum($this->bill['price_include_vat']);
@@ -289,7 +289,7 @@ class Bill {
             $line->amount = $amount;
             $line->price = $price;
             $line->type = $type;
-            $line->tax_rate = $clientAccount->getTaxRate();
+            $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
             $line->calculateSum($this->bill['price_include_vat']);
             $line->save();
         }

@@ -5751,7 +5751,17 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 ])->one()) {
                     $line->date_from = $date_from;
                     $line->date_to = $date_to;
-                    $line->save();
+                    $line->tax_rate = $line->bill->clientAccount->getTaxRateOnDate($date_from);
+                    $line->calculateSum($line->bill->price_include_vat);
+
+                    if (!$line->save()) {
+                        throw new ModelValidationException($line);
+                    }
+
+                    if ($line->bill->invoices) {
+                        $line->bill->generateInvoices();
+                    }
+
                 }
 
                 //Обновление списка документов
