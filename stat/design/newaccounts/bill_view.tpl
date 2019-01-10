@@ -499,12 +499,20 @@
                     <label for="wm11">NetByNet: заказ</label>
                     <br/>
                 {/if}
-                {if $bill_is_new_company}
+                {if $bill_is_new_company.retail_to_service}
                     <!-- input type="checkbox" value="1" name="notice_mcm_telekom" id="wm10">
                     <label for="wm10"> Уведомление (МСН Телеком -> Ретайл)</label>
                     <br/ -->
                     <input type="checkbox" value="1" name="sogl_mcn_service" id="wm113"/>
                     <label for="wm113">Соглашение (Ритейл -> Сервис)</label>
+                    <br/>
+                {/if}
+                {if $bill_is_new_company.telekom_to_service}
+                    <!-- input type="checkbox" value="1" name="notice_mcm_telekom" id="wm10">
+                    <label for="wm10"> Уведомление (МСН Телеком -> Ретайл)</label>
+                    <br/ -->
+                    <input type="checkbox" value="1" name="sogl_mcn_telekom_to_service" id="wm114"/>
+                    <label for="wm114">Соглашение (Телеком -> Сервис)</label>
                     <br/>
                 {/if}
                 {if $bill_client.firma == 'mcn_telekom'}

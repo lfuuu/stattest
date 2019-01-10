@@ -489,7 +489,7 @@ class BillDao extends Singleton
      * @return bool
      * @throws \yii\db\Exception
      */
-    public function isBillNewCompany(Bill $bill)
+    public function isBillNewCompany(Bill $bill, $oldCompanyId, $newCompanyId)
     {
         $sql = <<<ESQL
             SELECT
@@ -515,12 +515,14 @@ class BillDao extends Singleton
                    FROM history_version h1, clients c
                    WHERE h1.model = 'app\\\\models\\\\ClientContract' AND h1.date = :billDate AND c.id = :accountId AND h1.model_id = c.contract_id
                  ) a
-            HAVING new_org_id = 21 AND old_org_id = 11
+            HAVING new_org_id = :newCompanyId AND old_org_id = :oldCompanyId
 ESQL;
 
         return (bool)\Yii::$app->db->createCommand($sql, [
             ':billDate' => $bill->bill_date,
-            ':accountId' => $bill->client_id
+            ':accountId' => $bill->client_id,
+            ':oldCompanyId' => $oldCompanyId,
+            ':newCompanyId' => $newCompanyId,
         ])->queryOne();
     }
 
