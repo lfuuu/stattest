@@ -50,6 +50,8 @@ class NumberRangeController extends BaseController
      */
     public function actionIndex()
     {
+        ini_set('memory_limit', '5G');
+
         $filterModel = new NumberRangeFilter();
 
         $get = Yii::$app->request->get();

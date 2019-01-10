@@ -24,7 +24,8 @@ $organizationService = Organization::find()->byId(Organization::MCN_TELECOM_SERV
 
 $director_retail = $organizationRetail->director;
 $director_service = $organizationService->director;
-$dateStr = \app\classes\DateFunction::mdate(strtotime(Bill::dao()->getNewCompanyDate($document->bill->client_id) ?: $document->bill->bill_date), '\&\l\a\q\u\o\;d\&\r\a\q\u\o\; месяца Y г.');
+//$dateStr = \app\classes\DateFunction::mdate(strtotime(Bill::dao()->getNewCompanyDate($document->bill->client_id) ?: $document->bill->bill_date), '\&\l\a\q\u\o\;d\&\r\a\q\u\o\; месяца Y г.');
+$dateStr = '&laquo;1&raquo; января 2019 г.';
 
 $fsStyle = "";
 if (isset($isPdf) && $isPdf) {
