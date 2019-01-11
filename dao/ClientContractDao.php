@@ -279,7 +279,7 @@ class ClientContractDao extends Singleton
             $date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
-        !$date && $data = date(DateTimeZoneHelper::DATE_FORMAT);
+        !$date && $date = date(DateTimeZoneHelper::DATE_FORMAT);
 
         if ($date >= '2019-01-01') {
             return 20;
