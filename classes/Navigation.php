@@ -76,6 +76,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Статистика')
                 ->addStatModuleItems('stats')
+                ->addItem('Мобильный интернет', ['/voip/data-raw'], ['stats.report'])
                 ->addItem('Отчёт по файлам', ['/file/report'], ['stats.report'])
                 ->addItem('Отчет по OnLime', ['/reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['/reports/onlime-devices-report'], ['stats.report'])
