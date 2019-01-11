@@ -313,4 +313,25 @@ class PublishController extends BaseController
         }
         return $this->redirect(['/bill/publish/index']);
     }
+
+    /**
+     * Публикация счета
+     *
+     * @param string $bill_no
+     * @return \yii\web\Response
+     */
+    public function actionBill($bill_no)
+    {
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+
+        if (!$bill) {
+            throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
+        }
+        $bill->is_show_in_lk = 1;
+        if (!$bill->save()) {
+            throw new ModelValidationException($bill);
+        }
+
+        return $this->redirect($bill->getUrl());
+    }
 }

@@ -72,6 +72,7 @@
         <td>&nbsp;</td>
         <td width="33%">
             {if !$bill.is_approved}Cчет не проведен{else}Счет проведен{/if}
+            {if $bill.is_show_in_lk}<br>Счет опубликован{else}<br><a href="/bill/publish/bill?bill_no={$bill.bill_no}"> Опубликовать счет </a>{/if}
 
             {if $bill_ext.ext_bill_no}<br>Номер внешнего счета: {$bill_ext.ext_bill_no}{/if}
             {if $bill_ext.ext_bill_date}<br>Дата внешнего счета: {$bill_ext.ext_bill_date}{/if}
