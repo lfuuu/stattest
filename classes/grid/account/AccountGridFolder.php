@@ -771,7 +771,7 @@ abstract class AccountGridFolder extends Model
                         $this->_organizationList[$data['organization_id']] : '';
                 },
                 'filter' => function () {
-                    $items = ['' => '- Все -'] + Organization::$ourLegalEntities;
+                    $items = ['' => '- Все -'] + Organization::dao()->getList($isWithEmpty = false);
                     return Html::dropDownList(
                         'legal_entity',
                         Yii::$app->request->get('legal_entity'),
