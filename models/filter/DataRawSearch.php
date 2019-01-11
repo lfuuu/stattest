@@ -126,6 +126,9 @@ class DataRawSearch extends ActiveRecord
             list($mnc, $mcc) = explode(':', $this->network);
             $query->andWhere(['data_raw.mnc' => $mnc, 'data_raw.mcc' => $mcc]);
         }
+        if (empty($params)) {
+            $query->where('0=1');
+        }
 
         $queryClone = clone $query;
         $arr = $queryClone->select(['sum(cost) as all_cost', 'sum(quantity) as all_quantity'])->asArray()->one();
