@@ -508,13 +508,13 @@ class billMaker{
         );
 
         $ret["list"] = $db->AllRecords("
-                    SELECT concat(item_id,':',descr_id) as id, code_1c, item as name,
+                    SELECT concat(item_id,':',descr_id) AS id, code_1c, item AS name,
                     CAST(amount AS SIGNED) AS quantity,
-                    round(price*1.18,4) as price,
+                    round(price*(1 + (tax_rate/100)),4) AS price,
                     discount_set, discount_auto,
                     `sum` AS `sum`
                     FROM newbill_lines
-                    WHERE bill_no = '".$db->escape($bill_no)."'");
+                    WHERE bill_no = '" . $db->escape($bill_no) . "'");
 
         /*
         foreach($bLines as $p){
@@ -808,6 +808,9 @@ class SoapHandler{
               */
 
         foreach($l as $p){
+
+            $taxRate = round($p->{tr('СуммаНДС')} / ($p->{tr('СуммаБезНДС')} / 100));
+
             $list[] = array(
                 'item_id'=>trr($p->{tr('КодНоменклатура1С')}),
                 'descr_id'=>trr($p->{tr('КодХарактеристика1С')}),
@@ -823,7 +826,7 @@ class SoapHandler{
                 "serial" => (isset($p->{tr('СерийныеНомера')}) ? $p->{tr('СерийныеНомера')}: false),
                 "gtd" => trr($p->{tr('НомерГТД')}),
                 "country_id" => trr($p->{tr('СтранаПроизводитель')}),
-                'tax_rate' => $p->{tr('СуммаНДС')} > 0 ? 18 : 0,
+                'tax_rate' => $taxRate,
                 'sum_without_tax' => $p->{tr('СуммаБезНДС')},
                 'sum_tax' => $p->{tr('СуммаНДС')},
             );
