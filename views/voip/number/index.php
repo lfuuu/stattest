@@ -113,6 +113,13 @@ $columns = [
         },
     ],
     [
+        'attribute' => 'registry_id',
+        'format' => 'html',
+        'value' => function ($data) {
+            return Html::a($data->registry_id, ["voip/registry/edit", 'id' => $data->registry_id]);
+        }
+    ],
+    [
         'label' => 'Страна',
         'attribute' => 'country_id',
         'format' => 'html',

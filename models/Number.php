@@ -22,6 +22,7 @@ use yii\helpers\Url;
  * @property int $beauty_level
  * @property int $region
  * @property int $client_id
+ * @property int $registry_id
  * @property int $usage_id
  * @property int $uu_account_tariff_id
  * @property string $reserved_free_date
@@ -140,6 +141,7 @@ class Number extends ActiveRecord
             'did_group_id' => 'DID-группа',
             'beauty_level' => 'Степень красивости',
             'status' => 'Статус',
+            'registry_id' => 'Реестр',
             'ndc_type_id' => 'Тип номера',
             'number_tech' => 'Технический номер',
             'imsi' => 'Привязка к сим-карте (IMSI)',
@@ -159,7 +161,7 @@ class Number extends ActiveRecord
             [['status', 'number_tech', 'source'], 'string'],
             [['beauty_level'], 'integer'],
             [['imsi', 'warehouse_status_id'], 'integer'],
-            [['nnp_operator_id', 'usr_operator_id',], 'integer'],
+            [['nnp_operator_id', 'usr_operator_id', 'registry_id'], 'integer'],
             [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }
