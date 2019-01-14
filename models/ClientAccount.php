@@ -996,7 +996,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getTaxRateOnDate($date)
     {
-        return ClientContract::dao()->getEffectiveVATRate($this->contract, $date);
+        return ClientContract::dao()->getEffectiveVATRate($this->contract->loadVersionOnDate($date), $date);
     }
 
     /**
