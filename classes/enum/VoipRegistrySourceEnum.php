@@ -7,6 +7,8 @@ class VoipRegistrySourceEnum extends Enum
 {
     const OPERATOR = 'operator';
     const REGULATOR = 'regulator';
+    const INNONET = 'innonet';
+    const BOXBONE = 'boxbone';
     const PORTABILITY_NOT_FOR_SALE = 'portability_not_for_sale';
     const OPERATOR_NOT_FOR_SALE = 'operator_not_for_sale';
 
@@ -14,6 +16,8 @@ class VoipRegistrySourceEnum extends Enum
     public static $names = [
         self::OPERATOR => 'Operator',
         self::REGULATOR => 'Regulator',
+        self::INNONET => 'Innonet',
+        self::BOXBONE => 'Boxbone',
         self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
         self::OPERATOR_NOT_FOR_SALE => 'Operator (Not for sale)'
     ];
