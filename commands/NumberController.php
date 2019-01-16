@@ -399,7 +399,6 @@ class NumberController extends Controller
         $this->_redisGetAndSet(City::find()->asArray(), 'city');
         $this->_redisGetAndSet(nnpRegion::find()->asArray(), 'region');
         $this->_redisGetAndSet(NdcType::find()->asArray(), 'ndcType');
-        $this->_redisGetAndSet(City::find()->asArray(), 'cityIdToCountryId', 'id', 'country_code');
     }
 
     private function _redisGetAndSet(ActiveQuery $query, $prefix, $id = 'id', $name = 'name')

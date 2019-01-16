@@ -164,11 +164,8 @@ class VoipController extends ApiInternalController
 
         $redis = \Yii::$app->redis;
 
-        $countryId = null;
-        $numberInfo && $countryId = $redis->get('cityIdToCountryId:' . $numberInfo['nnp_city_id']);
-
         $data = [
-            'country_name' => $countryId ? ($redis->get('country:' . $countryId) ?: 'unknown') : 'unknown',
+            'country_name' => $redis->get('country:' . $numberInfo['country_code']) ?: 'unknown',
             'city_name' => $redis->get('city:' . $numberInfo['nnp_city_id']) ?: 'unknown',
             'region_name' => $redis->get('region:' . $numberInfo['nnp_region_id']) ?: 'unknown',
             'operator_name' => $redis->get('operator:' . $numberInfo['nnp_operator_id']) ?: 'unknown',
