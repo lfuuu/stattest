@@ -31,7 +31,7 @@ class SberbankApi
         }
 
         if (!$organizationId || !isset(\Yii::$app->params['SberbankApi'][$organizationId])) {
-            throw new \Exception("SberbankApi: not allowed for company id: {$organizationId}");
+            throw new \Exception("Внесение платежа на ЛС невозможно. (с{$organizationId})");
         }
 
         if (!isset(\Yii::$app->params['LK_PATH']) || !\Yii::$app->params['LK_PATH']) {
