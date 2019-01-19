@@ -35,7 +35,7 @@ use yii\db\Expression;
 class m_newaccounts extends IModule
 {
     private static $object;
-    private static $bb_c = array();
+    private static $bb_c = [];
 
     function do_include()
     {
@@ -61,7 +61,7 @@ class m_newaccounts extends IModule
         if ($act !== '' && !access($act[0], $act[1])) {
             return;
         }
-        call_user_func(array($this, 'newaccounts_' . $action), $fixclient);
+        call_user_func([$this, 'newaccounts_' . $action], $fixclient);
     }
 
     function newaccounts_default($fixclient)
@@ -73,8 +73,8 @@ class m_newaccounts extends IModule
         global $design, $db, $user, $fixclient_data;
         $saldo = get_param_protected('saldo');
         $date = get_param_protected('date');
-        $db->Query('update newsaldo set is_history=1 where client_id=' . $fixclient_data['id']);
-        $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values (' . $fixclient_data['id'] . ',"' . $saldo . '","' . $fixclient_data['currency'] . '","' . $date . '",0,"' . $user->Get('id') . '",NOW())');
+        $db->Query('UPDATE newsaldo SET is_history=1 WHERE client_id=' . $fixclient_data['id']);
+        $db->Query('INSERT INTO newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) VALUES (' . $fixclient_data['id'] . ',"' . $saldo . '","' . $fixclient_data['currency'] . '","' . $date . '",0,"' . $user->Get('id') . '",NOW())');
         ClientAccount::dao()->updateBalance($fixclient_data['id']);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");
@@ -119,7 +119,7 @@ class m_newaccounts extends IModule
             ->orWhere(['is_active' => 1]);
 
         if (($organizationId = get_param_integer('organizationId'))) {
-            $clientAccounts->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
+            $clientAccounts->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = ' . ClientAccount::tableName() . '.contract_id');
             $clientAccounts->andWhere(['cc.organization_id' => $organizationId]);
         }
 
@@ -159,26 +159,26 @@ class m_newaccounts extends IModule
             $user->SetFlag('balance_simple', $t);
         }
 
-        $sum_l = array(
-            "service" => array("USD" => 0, "RUB" => 0),
-            "zalog" => array("USD" => 0, "RUB" => 0),
-            "zadatok" => array("USD" => 0, "RUB" => 0),
-            "good" => array("USD" => 0, "RUB" => 0)
+        $sum_l = [
+            "service" => ["USD" => 0, "RUB" => 0],
+            "zalog" => ["USD" => 0, "RUB" => 0],
+            "zadatok" => ["USD" => 0, "RUB" => 0],
+            "good" => ["USD" => 0, "RUB" => 0]
 
-        );
+        ];
 
         foreach ($db->AllRecords(
-            "select sum(l.sum) as sum, l.type, b.currency
-            from newbills b, newbill_lines l
-            where
+            "SELECT sum(l.sum) AS sum, l.type, b.currency
+            FROM newbills b, newbill_lines l
+            WHERE
                     client_id = '" . $fixclient_data["id"] . "'
-                and b.bill_no = l.bill_no
-                and state_1c != 'Отказ'
-            group by l.type, b.currency") as $s) {
+                AND b.bill_no = l.bill_no
+                AND state_1c != 'Отказ'
+            GROUP BY l.type, b.currency") as $s) {
             $sum_l[$s["type"]][$s["currency"]] = $s["sum"];
         }
 
-        $sum_l["payments"] = $db->GetValue("select sum(p.sum) from newpayments p where p.client_id ='" . $fixclient_data["id"] . "'");
+        $sum_l["payments"] = $db->GetValue("SELECT sum(p.sum) FROM newpayments p WHERE p.client_id ='" . $fixclient_data["id"] . "'");
 
         $design->assign("sum_l", $sum_l);
 
@@ -214,10 +214,10 @@ class m_newaccounts extends IModule
 
         foreach (
             \app\models\HistoryVersion::find()
-                 ->andWhere(['regexp', 'data_json', '"organization_id":"?[0-9]+"?,'])
-                 ->andWhere(['model' => 'app\\models\\ClientContract', 'model_id' => $contractId])
-                 ->orderBy(['date' => SORT_ASC])
-                 ->all() as $record
+                ->andWhere(['regexp', 'data_json', '"organization_id":"?[0-9]+"?,'])
+                ->andWhere(['model' => 'app\\models\\ClientContract', 'model_id' => $contractId])
+                ->orderBy(['date' => SORT_ASC])
+                ->all() as $record
         ) {
             $historyData = json_decode($record->data_json, true);
             if ($lastOrganizationId != $historyData['organization_id']) {
@@ -250,13 +250,13 @@ class m_newaccounts extends IModule
 
         $design->assign("view_canceled", $isViewCanceled);
 
-        $params = array(
+        $params = [
             "client_id" => $fixclient_data["id"],
             "client_currency" => $fixclient_data["currency"],
             "is_multy" => $isMulty,
             "is_view_canceled" => $isViewCanceled,
             "get_sum" => $get_sum
-        );
+        ];
 
         $R = BalanceSimple::get($params);
 
@@ -296,18 +296,18 @@ class m_newaccounts extends IModule
         $design->assign(
             'saldo_history',
             $db->AllRecords('
-                select
+                SELECT
                     newsaldo.*,
-                    user_users.name as user_name
-                from
+                    user_users.name AS user_name
+                FROM
                     newsaldo
                 LEFT JOIN
                     user_users
                 ON
                     user_users.id = newsaldo.edit_user
-                where
+                WHERE
                     client_id=' . $fixclient_data['id'] . '
-                order by
+                ORDER BY
                     id DESC
             ')
         );
@@ -346,73 +346,73 @@ class m_newaccounts extends IModule
 
         $design->assign("view_canceled", $isViewCanceled);
 
-        $sum = array(
-            'USD' => array(
+        $sum = [
+            'USD' => [
                 'delta' => 0,
                 'bill' => 0,
                 'ts' => ''
-            ),
-            'RUB' => array(
+            ],
+            'RUB' => [
                 'delta' => 0,
                 'bill' => 0,
                 'ts' => ''
-            )
-        );
+            ]
+        ];
 
         $r = $db->GetRow('
-            select
+            SELECT
                 *
-            from
+            FROM
                 newsaldo
-            where
+            WHERE
                 client_id=' . $fixclient_data['id'] . '
-            and
+            AND
                 currency="' . $fixclient_data['currency'] . '"
-            and
+            AND
                 is_history=0
-            order by
-                id desc
-            limit 1
+            ORDER BY
+                id DESC
+            LIMIT 1
         ');
         if ($r) {
             $sum[$fixclient_data['currency']]
                 =
-                array(
+                [
                     'delta' => 0,
                     'bill' => $r['saldo'],
                     'ts' => $r['ts'],
                     'saldo' => $r['saldo'],
                     'last_saldo' => $r['saldo'],
                     'last_saldo_ts' => $r['ts'],
-                );
+                ];
         } else {
             $sum[$fixclient_data['currency']]
                 =
-                array(
+                [
                     'delta' => 0,
                     'bill' => 0,
                     'ts' => ''
-                );
+                ];
         }
 
         $get_income_goods_on_bill_list = get_param_integer('get_income_goods_on_bill_list', false);
         $design->assign('get_income_goods_on_bill_list', $get_income_goods_on_bill_list);
 
         $R1 = $db->AllRecords($q = '
-                select * from (
-            select
-                "bill" as type, bill_no, "" as bill_id, ext_bill_no as bill_no_ext, bill_date, payment_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,is_pay_overdue,
+                SELECT * FROM (
+            SELECT
+                "bill" AS type, bill_no, "" AS bill_id, ext_bill_no AS bill_no_ext, bill_date, payment_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id IS NULL OR (state_id IS NOT NULL AND state_id !=21), 0,1) AS is_canceled,is_pay_overdue,
                 ' . (
             $sum[$fixclient_data['currency']]['ts']
                 ? 'IF(bill_date >= "' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)'
                 : '1'
-            ) . ' as in_sum, sum_correction
-            from
+            ) . ' AS in_sum, sum_correction
+            FROM
                 newbills P
-                left join newbills_external using (bill_no)
-                left join tt_troubles t using (bill_no)
-                left join tt_stages ts on  (ts.stage_id = t. cur_stage_id)
-            where
+                LEFT JOIN newbills_external USING (bill_no)
+                LEFT JOIN tt_troubles t USING (bill_no)
+                LEFT JOIN tt_stages ts ON  (ts.stage_id = t. cur_stage_id)
+            WHERE
                 client_id=' . $fixclient_data['id'] . '
                 ' . ($isMulty && !$isViewCanceled ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
                 ) bills  ' .
@@ -443,16 +443,15 @@ class m_newaccounts extends IModule
                         LEFT JOIN tt_stages ts ON  (ts.stage_id = t.cur_stage_id)
                     where client_card_id = "' . $fixclient_data['id'] . '" and state_id != 40 and deleted=0
                 )' : ' ') .
-            'order by
-                bill_date desc,
-                bill_no desc
-            limit 1000
+            'order BY
+                bill_date DESC,
+                bill_no DESC
+            LIMIT 1000
         ', '', MYSQL_ASSOC);
 
 
         if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0) {
-            array_unshift($R1, Array
-            (
+            array_unshift($R1, [
                 'bill_no' => 'saldo',
                 'bill_date' => $sum[$fixclient_data['currency']]['ts'],
                 'client_id' => $fixclient_data['id'],
@@ -463,7 +462,7 @@ class m_newaccounts extends IModule
                 'postreg' => $sum[$fixclient_data['currency']]['ts'],
                 'nal' => 'prov',
                 'in_sum' => 1
-            ));
+            ]);
             $sum[$fixclient_data['currency']]['saldo'] = 0;
         }
 
@@ -500,9 +499,9 @@ class m_newaccounts extends IModule
             limit 1000
                 ',
             '', MYSQL_ASSOC);
-        $R = array();
+        $R = [];
 
-        $bill_total_add = array('p' => 0, 'n' => 0);
+        $bill_total_add = ['p' => 0, 'n' => 0];
         foreach ($R1 as $k => $r) {
             if ($r['sum'] > 0) {
                 $bill_total_add['p'] += $r['sum'];
@@ -510,14 +509,14 @@ class m_newaccounts extends IModule
             if ($r['sum'] < 0) {
                 $bill_total_add['n'] += $r['sum'];
             }
-            $v = array(
+            $v = [
                 'bill' => $r,
                 'date' => $r['bill_date'],
-                'pays' => array(),
+                'pays' => [],
                 'delta' => -$r['sum'],
                 'delta2' => -$r['sum'],
                 'isCanceled' => $r['is_canceled']
-            );
+            ];
 
             foreach ($R2 as $k2 => $r2) {
 
@@ -566,12 +565,12 @@ class m_newaccounts extends IModule
             if ($r2['sum_pay'] == '' || $r2['sum_pay'] == 0) {
                 continue;
             }
-            $v = array(
+            $v = [
                 'date' => $r2['payment_date'],
-                'pays' => array($r2),
+                'pays' => [$r2],
                 'delta' => $r2['sum_pay'],
                 'delta2' => $r2['sum_pay']
-            );
+            ];
             if ($r2['in_sum']) {
                 $sum[$fixclient_data['currency']]['delta'] -= $v['delta2'];
             }
@@ -581,16 +580,16 @@ class m_newaccounts extends IModule
             return $sum;
         }
         ## sorting
-        $sk = array();
+        $sk = [];
         foreach ($R as $bn => $b) {
             if (!isset($sk[$b['date']])) {
-                $sk[$b['date']] = array();
+                $sk[$b['date']] = [];
             }
             $sk[$b['date']][$bn] = 1;
         }
 
-        $sw = array();
-        $buf = array();
+        $sw = [];
+        $buf = [];
         krsort($sk);
 
         foreach ($sk as $bn) {
@@ -629,9 +628,9 @@ class m_newaccounts extends IModule
             }
         }
 
-        $qrs = array();
-        $qrsDate = array();
-        foreach ($db->QuerySelectAll("qr_code", array("client_id" => $fixclient_data["id"])) as $q) {
+        $qrs = [];
+        $qrsDate = [];
+        foreach ($db->QuerySelectAll("qr_code", ["client_id" => $fixclient_data["id"]]) as $q) {
             $qrs[$q["bill_no"]][$q["doc_type"]] = $q["id"];
             $qrsDate[$q["bill_no"]][$q["doc_type"]] = $q["date"];
         }
@@ -648,18 +647,18 @@ class m_newaccounts extends IModule
         $design->assign(
             'saldo_history',
             $db->AllRecords('
-                select
+                SELECT
                     newsaldo.*,
-                    user_users.name as user_name
-                from
+                    user_users.name AS user_name
+                FROM
                     newsaldo
                 LEFT JOIN
                     user_users
                 ON
                     user_users.id = newsaldo.edit_user
-                where
+                WHERE
                     client_id=' . $fixclient_data['id'] . '
-                order by
+                ORDER BY
                     id DESC
             ')
         );
@@ -722,11 +721,11 @@ class m_newaccounts extends IModule
         ) { // incoming orders
 
             //find last order
-            $order = GoodsIncomeOrder::first(array(
+            $order = GoodsIncomeOrder::first([
                     "conditions" => (isset($_GET["income_order_id"]) ? ["id" => $_GET["income_order_id"]] : ["number" => $_GET["bill"]]),
                     "order" => "date desc",
                     "limit" => 1
-                )
+                ]
             );
 
             if (!$order) {
@@ -824,7 +823,6 @@ class m_newaccounts extends IModule
             ])
                 ->distinct()
                 ->select('type_id')
-
                 ->asArray()
                 ->column();
         }
@@ -873,7 +871,7 @@ class m_newaccounts extends IModule
             }
 
             if ($BusinessId == Business::INTERNET_SHOP && isset($_GET["bill"])) {
-                $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
+                $ai = $db->GetRow("SELECT fio FROM newbills_add_info WHERE bill_no = '" . $_GET["bill"] . "'");
                 if ($ai) {
                     $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";
                 }
@@ -905,7 +903,7 @@ class m_newaccounts extends IModule
             $bill->is1CBill() || $bill->isOneTimeService()); //дату документа можно установить в 1Сных счетах и счетах, с разовыми услугами
 
         $design->assign("store",
-            $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '" . $bill_no . "'"));
+            $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s WHERE s.id = n.store_id AND n.bill_no = '" . $bill_no . "'"));
 
         $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill, 'bill');
         $documents = [];
@@ -919,7 +917,7 @@ class m_newaccounts extends IModule
 
         if ($r->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
             $listOfInvoices = [];
-            foreach(Language::getList() as $languageCode => $languageTitle) {
+            foreach (Language::getList() as $languageCode => $languageTitle) {
                 $listOfInvoices[] = [
                     'langCode' => $languageCode,
                     'langTitle' => $languageTitle,
@@ -974,7 +972,7 @@ class m_newaccounts extends IModule
 
     static function get_bill_docs_static($billNo, $L = null)
     {
-        $bill_akts = $bill_invoices = $bill_upd = array();
+        $bill_akts = $bill_invoices = $bill_upd = [];
 
         if (($doctypes = BillDocument::dao()->getByBillNo($billNo)) == false) {
             $doctypes = BillDocument::dao()->updateByBillNo($billNo, $L, true);
@@ -992,7 +990,7 @@ class m_newaccounts extends IModule
             }
         }
 
-        return array($bill_akts, $bill_invoices, $bill_upd);
+        return [$bill_akts, $bill_invoices, $bill_upd];
     }
 
     function newaccounts_bill_courier_comment()
@@ -1004,7 +1002,7 @@ class m_newaccounts extends IModule
         var_export($billNo);
         if ($comment && $billNo) {
             global $db;
-            $db->Query("update tt_troubles set doer_comment = '" . $comment . "' where bill_no = '" . $billNo . "'");
+            $db->Query("UPDATE tt_troubles SET doer_comment = '" . $comment . "' WHERE bill_no = '" . $billNo . "'");
             all4geo::getId($billNo, $doerId, $comment);
         }
 
@@ -1053,7 +1051,7 @@ class m_newaccounts extends IModule
             return;
         }
 
-        $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
+        $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], ['distr', 'operator']));
         $design->assign('clientAccountVersion', $fixclient_data['account_version']);
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_ext', $bill->GetExt());
@@ -1061,9 +1059,9 @@ class m_newaccounts extends IModule
         $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
         $lines = $bill->GetLines();
-        $lines[$bill->GetMaxSort() + 1] = array();
-        $lines[$bill->GetMaxSort() + 2] = array();
-        $lines[$bill->GetMaxSort() + 3] = array();
+        $lines[$bill->GetMaxSort() + 1] = [];
+        $lines[$bill->GetMaxSort() + 2] = [];
+        $lines[$bill->GetMaxSort() + 3] = [];
         $design->assign('bill_lines', $lines);
         $design->AddMain('newaccounts/bill_edit.tpl');
     }
@@ -1096,13 +1094,13 @@ class m_newaccounts extends IModule
     {
         global $design, $db, $user, $fixclient_data;
 
-        $bills = get_param_raw("bill", array());
+        $bills = get_param_raw("bill", []);
         if (!$bills) {
             return;
         }
 
         if (!is_array($bills)) {
-            $bills = array($bills);
+            $bills = [$bills];
         }
         $option = get_param_protected('option');
         $isImport = get_param_raw("from", "") == "import";
@@ -1138,7 +1136,6 @@ class m_newaccounts extends IModule
         if (!$billModel) {
             return;
         }
-
 
 
         $bill_nal = get_param_raw("nal");
@@ -1257,25 +1254,25 @@ class m_newaccounts extends IModule
         if (!$bill->CheckForAdmin()) {
             return;
         }
-        $L = array(
-            'USD' => array(
-                'avans' => array("Аванс за подключение интернет-канала", 1, 500 / 27, 'zadatok'),
-                'deposit' => array("Задаток за подключение интернет-канала", 1, SUM_ADVANCE, 'zadatok'),
-                'deposit_back' => array("Возврат задатка за подключение интернет-канала", 1, -SUM_ADVANCE, 'zadatok'),
-                'deposit_sub' => array("За вычетом ранее оплаченного задатка", 1, -SUM_ADVANCE, 'zadatok'),
-            ),
-            'RUB' => array(
-                'avans' => array("Аванс за подключение интернет-канала", 1, 500, 'zadatok'),
-                'deposit' => array("Задаток за подключение интернет-канала", 1, SUM_ADVANCE * 27, 'zadatok'),
-                'deposit_back' => array(
+        $L = [
+            'USD' => [
+                'avans' => ["Аванс за подключение интернет-канала", 1, 500 / 27, 'zadatok'],
+                'deposit' => ["Задаток за подключение интернет-канала", 1, SUM_ADVANCE, 'zadatok'],
+                'deposit_back' => ["Возврат задатка за подключение интернет-канала", 1, -SUM_ADVANCE, 'zadatok'],
+                'deposit_sub' => ["За вычетом ранее оплаченного задатка", 1, -SUM_ADVANCE, 'zadatok'],
+            ],
+            'RUB' => [
+                'avans' => ["Аванс за подключение интернет-канала", 1, 500, 'zadatok'],
+                'deposit' => ["Задаток за подключение интернет-канала", 1, SUM_ADVANCE * 27, 'zadatok'],
+                'deposit_back' => [
                     "Возврат задатка за подключение интернет-канала",
                     1,
                     -SUM_ADVANCE * 27,
                     'zadatok'
-                ),
-                'deposit_sub' => array("За вычетом ранее оплаченного задатка", 1, -SUM_ADVANCE * 27, 'zadatok'),
-            )
-        );
+                ],
+                'deposit_sub' => ["За вычетом ранее оплаченного задатка", 1, -SUM_ADVANCE * 27, 'zadatok'],
+            ]
+        ];
         $err = 0;
         if ($obj == 'connecting' || $obj == 'connecting_ab') {
             $clientAccount = ClientAccount::findOne($fixclient_data['id']);
@@ -1370,13 +1367,13 @@ class m_newaccounts extends IModule
 
         } elseif ($obj == 'template') {
             $tbill = get_param_protected("tbill");
-            foreach ($db->AllRecords('select * from newbill_lines where bill_no="' . $tbill . '" order by sort') as $r) {
+            foreach ($db->AllRecords('SELECT * FROM newbill_lines WHERE bill_no="' . $tbill . '" ORDER BY sort') as $r) {
                 $bill->AddLine($r['item'], $r['amount'], $r['price'], $r['type']);
             }
         } elseif (isset($L[$bill->Get('currency')][$obj])) {
             $D = $L[$bill->Get('currency')][$obj];
             if (!is_array($D[0])) {
-                $D = array($D);
+                $D = [$D];
             }
             foreach ($D as $d) {
                 $bill->AddLine($d[0], $d[1], $d[2], $d[3]);
@@ -1507,46 +1504,46 @@ class m_newaccounts extends IModule
         $is_pdf = get_param_raw('is_pdf', 0);
 
         $template = 'Уважаемые господа!<br>Отправляем Вам следующие документы:<br>';
-        $template = array($template, $template);
-        $D = array(
-            'Конверт: ' => array('envelope'),
-            'Счет: ' => array('bill-1-RUB', 'bill-2-RUB'),
-            'Счет-фактура: ' => array('invoice-1', 'invoice-2', 'invoice-3', 'invoice-4'),
-            'Акт: ' => array('akt-1', 'akt-2', 'akt-3'),
-            'Накладная: ' => array('lading'),
-            'Приказ о назначении: ' => array("order"),
-            'Уведомление о назначении: ' => array("notice"),
-            'УПД: ' => array('upd-1', 'upd-2', 'upd-3'),
-            'Уведомление о передачи прав: ' => array('notice_mcm_telekom'),
-            'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
-            'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => array('sogl_mcn_telekom'),
-            'Соглашение о передачи прав (ООО МСН Телеком Ритейл => ООО МСН Телеком Сервис): ' => array('sogl_mcn_service'),
-            'Соглашение о передачи прав (ООО МСН Телеком => ООО МСН Телеком Сервис): ' => array('sogl_mcn_telekom_to_service'),
-            'Кредит-нота: ' => array('credit_note'),
-        );
+        $template = [$template, $template];
+        $D = [
+            'Конверт: ' => ['envelope'],
+            'Счет: ' => ['bill-1-RUB', 'bill-2-RUB'],
+            'Счет-фактура: ' => ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4'],
+            'Акт: ' => ['akt-1', 'akt-2', 'akt-3'],
+            'Накладная: ' => ['lading'],
+            'Приказ о назначении: ' => ["order"],
+            'Уведомление о назначении: ' => ["notice"],
+            'УПД: ' => ['upd-1', 'upd-2', 'upd-3'],
+            'Уведомление о передачи прав: ' => ['notice_mcm_telekom'],
+            'Соглашение о передачи прав: ' => ['sogl_mcm_telekom'],
+            'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => ['sogl_mcn_telekom'],
+            'Соглашение о передачи прав (ООО МСН Телеком Ритейл => ООО МСН Телеком Сервис): ' => ['sogl_mcn_service'],
+            'Соглашение о передачи прав (ООО МСН Телеком => ООО МСН Телеком Сервис): ' => ['sogl_mcn_telekom_to_service'],
+            'Кредит-нота: ' => ['credit_note'],
+        ];
 
         foreach ($D as $k => $rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
                     if (
-                        in_array($r, ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service'])
+                    in_array($r, ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service'])
                     ) {
                         $is_pdf = 1;
                     }
 
-                    $R = array(
+                    $R = [
                         'bill' => $bill_no,
                         'object' => $r,
                         'client' => $bill->Get('client_id'),
                         'is_pdf' => $is_pdf
-                    );
+                    ];
                     if (isset($_REQUEST['without_date'])) {
                         $R['without_date'] = 1;
                         $R['without_date_date'] = $_REQUEST['without_date_date'];
                     }
-                    $link = array();
-                    if (in_array($r, array("notice", "order"))) {
+                    $link = [];
+                    if (in_array($r, ["notice", "order"])) {
                         $link[] = "https://stat.mcn.ru/client/pdf/" . $r . ".pdf";
                         $link[] = "https://stat.mcn.ru/client/pdf/" . $r . ".pdf";
                     }
@@ -1606,9 +1603,9 @@ class m_newaccounts extends IModule
         global $design, $user;
 
         // Исключения для пользователей, у которые отправляет почту из стата не с ящика по умолчанию
-        $_SPECIAL_USERS = array(
+        $_SPECIAL_USERS = [
             "istomina" => 191 /* help@mcn.ru */
-        );
+        ];
         $_DEFAULT_MAIL_TRUNK_ID = 5; /* info@mcn.ru */
 
 
@@ -1637,7 +1634,7 @@ class m_newaccounts extends IModule
     }
 
 
-    function create_pdf_from_docs($fixclient, $bills = array())
+    function create_pdf_from_docs($fixclient, $bills = [])
     {
         global $user, $db, $design;
 
@@ -1645,7 +1642,7 @@ class m_newaccounts extends IModule
             return;
         }
 
-        $fnames = array();
+        $fnames = [];
         $fbasename = '/tmp/' . mktime() . $user->_Data['id'];
         $i = 0;
         $is_invoice = false;
@@ -1654,7 +1651,7 @@ class m_newaccounts extends IModule
         foreach ($bills as $b) {
             $fname = $fbasename . (++$i) . '.html';
             if ($b['obj'] == 'envelope') {
-                if (($r = $db->GetRow('select * from clients where (id="' . $b['bill_client'] . '") limit 1'))) {
+                if (($r = $db->GetRow('SELECT * FROM clients WHERE (id="' . $b['bill_client'] . '") LIMIT 1'))) {
                     ClientCS::Fetch($r, null);
                     $content = $design->fetch('../store/acts/envelope.tpl');
                 }
@@ -1672,13 +1669,13 @@ class m_newaccounts extends IModule
                 if (strpos($obj, 'upd') !== false) {
                     $is_upd = true;
                 }
-                $content = $this->newaccounts_bill_print($fixclient, array(
+                $content = $this->newaccounts_bill_print($fixclient, [
                     'object' => $obj,
                     'bill' => $b['bill_no'],
                     'only_html' => '1',
                     'to_client' => $to_client,
                     'is_pdf' => 1
-                ));
+                ]);
             }
             if (strlen($content)) {
                 file_put_contents($fname, $content);
@@ -1708,21 +1705,31 @@ class m_newaccounts extends IModule
     function newaccounts_bill_mprint($fixclient)
     {
         global $design, $db, $user;
-        $this->do_include();
-        $bills = get_param_raw("bill", array());
-        if (!$bills) {
-            return;
-        }
-        if (!is_array($bills)) {
-            $bills = array($bills);
-        }
 
         $isBulkPrint = get_param_raw("isBulkPrint", 0);
         $isLandscape = get_param_raw("isLandscape", 0);
         $isPortrait = get_param_raw("isPortrait", 0);
         $is_pdf = get_param_raw("is_pdf", 0);
         $one_pdf = get_param_raw("one_pdf", 0);
-        $R = array();
+
+
+        $this->do_include();
+        $bills = get_param_raw("bill", []);
+        if (!$bills) {
+            return;
+        }
+        if (!is_array($bills)) {
+
+            $billModel = Bill::findOne(['bill_no' => (string)$bills]);
+
+            if ($billModel && $billModel->currency != Currency::RUB && $billModel->bill_date >= \app\models\Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
+                return $this->_portingPrintNoRub($billModel, $is_pdf);
+            }
+
+            $bills = [$bills];
+        }
+
+        $R = [];
         $P = '';
 
         $isFromImport = get_param_raw("from", "") == "import";
@@ -1731,9 +1738,7 @@ class m_newaccounts extends IModule
         $stamp = get_param_raw("stamp", "");
 
 
-
-
-        $documentReports = get_param_raw('document_reports', array());
+        $documentReports = get_param_raw('document_reports', []);
 
         $L = ['envelope', 'bill-1-RUB', 'bill-2-RUB', 'lading', 'lading', 'gds', 'gds-2', 'gds-serial'];
         $L = array_merge($L, [
@@ -1754,7 +1759,7 @@ class m_newaccounts extends IModule
 
         //$bills = array("201204-0465");
 
-        $idxs = array();
+        $idxs = [];
 
         foreach ($bills as $bill_no) {
             if ($isBulkPrint) {
@@ -1812,7 +1817,7 @@ class m_newaccounts extends IModule
             }
             //$design->assign('bill',$bb);
 
-            $h = array();
+            $h = [];
             foreach ($L as $r) {
 
                 $reCode = false;
@@ -1880,14 +1885,14 @@ class m_newaccounts extends IModule
                         $r .= "&to_print=true";
                     }
 
-                    $ll = array(
+                    $ll = [
                         "bill_no" => $bill_no,
                         "isBill" => strpos($r, 'bill') === 0,
                         "obj" => $r,
                         "bill_client" => $bill->Get("client_id"),
                         "g" => get_param_protected($r),
                         "r" => $reCode
-                    );
+                    ];
 
                     $R[] = $ll;
                     $P .= ($P ? ',' : '') . '1';
@@ -1912,9 +1917,9 @@ class m_newaccounts extends IModule
 
 
         $_R = $R;
-        $R = array();
+        $R = [];
 
-        $set = array();
+        $set = [];
         foreach ($idxs as $key => $idx) {
             if (isset($set[$key])) {
                 continue;
@@ -1932,6 +1937,12 @@ class m_newaccounts extends IModule
         if ($one_pdf == '1') {
             $this->create_pdf_from_docs($fixclient, $R);
         }
+
+        printdbg($P, 'P rows');
+        printdbg($R, 'R objects');
+
+        exit();
+
 
         $design->assign('is_pdf', $is_pdf);
         $design->assign('rows', $P);
@@ -2012,15 +2023,15 @@ class m_newaccounts extends IModule
             $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = []);
             $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = ['to_client' => "true"]);
 
-            foreach($printObjects as $idx => $obj) {
+            foreach ($printObjects as $idx => $obj) {
 
                 $R[] = [
                     "bill_no" => $billNo,
                     "isBill" => strpos($obj, 'bill') === 0,
                     "obj" => $obj . "&" . http_build_query([
-                            "to_print" => "true",
-                        ] + $printParams[$idx]
-                    ),
+                                "to_print" => "true",
+                            ] + $printParams[$idx]
+                        ),
                     "bill_client" => $bill->client_id,
                 ];
 
@@ -2032,6 +2043,69 @@ class m_newaccounts extends IModule
         $design->assign('rows', $P);
         $design->assign('objects', $R);
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
+
+    }
+
+    private function _portingPrintNoRub(Bill $bill, $isPdf)
+    {
+        global $design;
+
+        $allowedDocs = [
+            'akt-1' => 1,
+            'akt-2' => 2
+        ];
+
+        $objects = [];
+        foreach ($allowedDocs as $doc => $docId) {
+            if (get_param_raw($doc)) {
+                $objects[] = [
+                    'isLink' => true,
+                    'link' => \yii\helpers\Url::to(['/uu/invoice/get',
+                        'billNo' => $bill->bill_no,
+                        'typeId' => $docId,
+                        'langCode' => $bill->clientAccount->contragent->lang_code,
+                        'isPdf' => (int)(bool)$isPdf
+                    ])
+                ];
+            }
+        }
+
+        /*
+         * [bill_no] => 201901-012025
+         * [isBill] =>
+         * [obj] => akt-2&to_client=true&to_print=true
+         * [bill_client] => 51486
+         * [g] =>
+         * [r] =>
+         */
+/*
+        $objects[] = [
+            'bill_no' => '201901-012025',
+            'isBill' => '',
+            'obj' => 'akt-2&to_client=true&to_print=true',
+            'bill_client' => 51486,
+            'g' => '',
+            'r' => ''
+        ];
+
+        $objects[] = [
+            'bill_no' => '201901-012025',
+            'isBill' => '',
+            'obj' => 'akt-2&to_client=true',
+            'bill_client' => 51486,
+            'g' => '',
+            'r' => ''
+        ];
+*/
+
+//        $invoice = (new InvoiceLight($bill->clientAccount))
+//            ->setBill($bill);
+
+        $design->assign('is_pdf', $isPdf);
+        $design->assign('rows', implode(',', array_fill(0, count($objects), '1')));
+        $design->assign('objects', $objects);
+        $design->ProcessEx('newaccounts/print_bill_frames.tpl');
+
 
     }
 
@@ -2116,7 +2190,7 @@ class m_newaccounts extends IModule
     }
 
     //эта функция готовит счёт к печати. ФОРМИРОВАНИЕ СЧЁТА
-    function newaccounts_bill_print($fixclient, $params = array())
+    function newaccounts_bill_print($fixclient, $params = [])
     {
         global $design, $db, $user;
         $this->do_include();
@@ -2210,15 +2284,15 @@ class m_newaccounts extends IModule
         }
 
 
-        if (in_array($obj, array('nbn_deliv', 'nbn_modem', 'nbn_gds'))) {
+        if (in_array($obj, ['nbn_deliv', 'nbn_modem', 'nbn_gds'])) {
             $this->do_print_prepare($bill, 'bill', 1, 'RUB');
             $design->assign('cli',
-                $cli = $db->GetRow("select * from newbills_add_info where bill_no='" . $bill_no . "'"));
+                $cli = $db->GetRow("SELECT * FROM newbills_add_info WHERE bill_no='" . $bill_no . "'"));
             if (preg_match("/([0-9]{2})\.([0-9]{2})\.([0-9]{4})/i", $cli["passp_birthday"], $out)) {
                 $cli["passp_birthday"] = $out[1] . "-" . $out[2] . "-" . $out[3];
             }
 
-            $lastDoer = $db->GetValue("select name from tt_doers d , courier c where stage_id in (select stage_id from tt_stages where trouble_id = (SELECT id FROM `tt_troubles` where bill_no ='" . $cli["bill_no"] . "')) and d.doer_id = c.id order by d.id desc");
+            $lastDoer = $db->GetValue("SELECT name FROM tt_doers d , courier c WHERE stage_id IN (SELECT stage_id FROM tt_stages WHERE trouble_id = (SELECT id FROM `tt_troubles` WHERE bill_no ='" . $cli["bill_no"] . "')) AND d.doer_id = c.id ORDER BY d.id DESC");
 
             list($f, $i, $o) = explode(" ", $lastDoer . "   ");
             if (strlen($i) > 2) {
@@ -2246,7 +2320,7 @@ class m_newaccounts extends IModule
         }
 
         if (!in_array($obj,
-            array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'))
+            ['invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
         ) {
             $obj = 'bill';
         }
@@ -2255,7 +2329,7 @@ class m_newaccounts extends IModule
             $curr = 'RUB';
         }
 
-        if (in_array($obj, array("order", "notice"))) {
+        if (in_array($obj, ["order", "notice"])) {
             $t = ($obj == "order" ?
                 "Приказ (Телеком) (Пыцкая)" :
                 ($obj == "notice" ?
@@ -2264,12 +2338,12 @@ class m_newaccounts extends IModule
             if ($user->Get('id')) {
                 $db->QueryInsert(
                     "log_newbills",
-                    array(
+                    [
                         'bill_no' => $bill_no,
-                        'ts' => array('NOW()'),
+                        'ts' => ['NOW()'],
                         'user_id' => $user->Get('id'),
                         'comment' => 'Печать ' . $t
-                    )
+                    ]
                 );
             }
 
@@ -2285,7 +2359,7 @@ class m_newaccounts extends IModule
             exit();
         }
 
-        if ($this->do_print_prepare($bill, $obj, $source, $curr) || in_array($obj, array("order", "notice"))) {
+        if ($this->do_print_prepare($bill, $obj, $source, $curr) || in_array($obj, ["order", "notice"])) {
 
             $design->assign("bill_no_qr",
                 ($bill->GetTs() >= strtotime("2013-05-01") ? BillQRCode::getNo($bill->GetNo()) : false));
@@ -2296,19 +2370,19 @@ class m_newaccounts extends IModule
                     $design->ProcessEx('newaccounts/print_akt_num3.tpl');
                 }
             } else {
-                if (in_array($obj, array('invoice', 'upd'))) {
+                if (in_array($obj, ['invoice', 'upd'])) {
 
                     $design->assign("client_contract",
                         BillContract::getString($billModel->clientAccount->contract_id, $bill->getTs()));
 
                     $id = $db->QueryInsert(
                         "log_newbills",
-                        array(
+                        [
                             'bill_no' => $bill_no,
-                            'ts' => array('NOW()'),
+                            'ts' => ['NOW()'],
                             'user_id' => $user->Get('id'),
                             'comment' => 'Печать с/ф &#8470;' . $source
-                        )
+                        ]
                     );
 
                     if ($obj == "upd") {
@@ -2317,14 +2391,14 @@ class m_newaccounts extends IModule
 
                 } elseif ($obj == 'gds') {
 
-                    $serials = array();
+                    $serials = [];
                     $onlimeOrder = false;
-                    foreach (Serial::find('all', array(
-                            'conditions' => array(
+                    foreach (Serial::find('all', [
+                            'conditions' => [
                                 'bill_no' => $bill->GetNo()
-                            ),
+                            ],
                             'order' => 'code_1c'
-                        )
+                        ]
                     ) as $s) {
                         $serials[$s->code_1c][] = $s->serial;
                     }
@@ -2347,7 +2421,7 @@ class m_newaccounts extends IModule
                     $f = null;
                     $b = $bm->getOrder($bill_no, $fault);
 
-                    $_1c_lines = array();
+                    $_1c_lines = [];
                     if ($b) {
                         foreach ($b['list'] as $item) {
                             $_1c_lines[$item['strCode']] = $item;
@@ -2508,8 +2582,8 @@ class m_newaccounts extends IModule
     function do_print_serials($billNo)
     {
         global $db;
-        $s = array("decoder" => array(), "w300" => array(), "other" => array(), "cii" => array(), "fonera" => array());
-        foreach ($db->AllRecords("SELECT num_id, item, serial FROM newbill_lines l, g_serials s, g_goods g  where l.bill_no = '" . $billNo . "' and l.bill_no = s.bill_no and l.code_1c = s.code_1c and g.id = l.item_id") as $l) {
+        $s = ["decoder" => [], "w300" => [], "other" => [], "cii" => [], "fonera" => []];
+        foreach ($db->AllRecords("SELECT num_id, item, serial FROM newbill_lines l, g_serials s, g_goods g  WHERE l.bill_no = '" . $billNo . "' AND l.bill_no = s.bill_no AND l.code_1c = s.code_1c AND g.id = l.item_id") as $l) {
             $idx = "other";
 
             if (preg_match("/w300/i", $l["item"])) {
@@ -2544,22 +2618,23 @@ class m_newaccounts extends IModule
         $inv3Full = true,
         $isViewOnly = false,
         $origObj = false
-    ) {
-        $M = array();
+    )
+    {
+        $M = [];
 
         if ($origObj === false) {
             $origObj = $obj;
         }
 
         if ($obj == BillDocument::TYPE_GDS) {
-            $M = array(
+            $M = [
                 'all4net' => 0,
                 'service' => 0,
                 'zalog' => 0,
                 'zadatok' => 0,
                 'good' => 1,
                 '_' => 0
-            );
+            ];
         } else {
             if ($obj == BillDocument::TYPE_BILL) {
                 $M['all4net'] = 1;
@@ -2577,23 +2652,23 @@ class m_newaccounts extends IModule
                 $M['_'] = 0;
             } elseif ($obj == BillDocument::TYPE_AKT) {
                 if ($source == BillDocument::ID_GOODS) {
-                    $M = array(
+                    $M = [
                         'all4net' => 0,
                         'service' => 0,
                         'zalog' => 1,
                         'zadatok' => 0,
                         'good' => 0,
                         '_' => 0
-                    );
+                    ];
                 } elseif (in_array($source, [BillDocument::ID_PERIOD, BillDocument::ID_RESOURCE])) {
-                    $M = array(
+                    $M = [
                         'all4net' => 1,
                         'service' => 1,
                         'zalog' => 0,
                         'zadatok' => 0,
                         'good' => 0,
                         '_' => $source
-                    );
+                    ];
                 }
             } else { //invoice
                 if (in_array($source, [BillDocument::ID_PERIOD, BillDocument::ID_RESOURCE])) {
@@ -2612,7 +2687,7 @@ class m_newaccounts extends IModule
                     $M['_'] = 0;
                 } elseif ($source == 4) {
                     if (!count($billLines)) {
-                        return array();
+                        return [];
                     }
                     foreach ($billLines as $val) {
                         $bill = $val;
@@ -2632,7 +2707,7 @@ class m_newaccounts extends IModule
 
                     $ret = $db->NextRecord(MYSQL_ASSOC);
 
-                    if (in_array($ret['nal'], array('nal', 'prov'))) {
+                    if (in_array($ret['nal'], ['nal', 'prov'])) {
                         $db->Query($q = "
                         SELECT
                             *
@@ -2693,7 +2768,7 @@ class m_newaccounts extends IModule
                         return 0;
                     }
 
-                    $R = array();
+                    $R = [];
                     foreach ($billLines as $item) {
                         if (preg_match("/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС|^\s*Перенос|^\s*Выезд|^\s*Сервисное\s+обслуживание|^\s*Хостинг|^\s*Подключение|^\s*Внутренняя\s+линия|^\s*Абонентское\s+обслуживание|^\s*Услуга\s+доставки|^\s*Виртуальный\s+почтовый|^\s*Размещение\s+сервера|^\s*Настройка[0-9a-zA-Zа-яА-Я]+АТС|^Дополнительный\sIP[\s\-]адрес|^Поддержка\sпервичного\sDNS|^Поддержка\sвторичного\sDNS|^Аванс\sза\sподключение\sинтернет-канала|^Администрирование\sсервер|^Обслуживание\sрабочей\sстанции|^Оптимизация\sсайта/",
                             $item['item'])) {
@@ -2712,7 +2787,7 @@ class m_newaccounts extends IModule
         $is1Cbill = $Lkeys && isset($billLines[$Lkeys[0]]) && isset($billLines[$Lkeys[0]]["bill_no"]) && preg_match("/^\d{6}\/\d{4}$/i",
                 $billLines[$Lkeys[0]]["bill_no"]);
 
-        $R = array();
+        $R = [];
         foreach ($billLines as &$li) {
             if ($M[$li['type']] == 1) {
                 if (
@@ -2803,7 +2878,7 @@ class m_newaccounts extends IModule
 
 
         if ($is_four_order) {
-            $row = $db->QuerySelectRow('newpayments', array('bill_no' => $bill->GetNo()));
+            $row = $db->QuerySelectRow('newpayments', ['bill_no' => $bill->GetNo()]);
             if ($row && $row['payment_date']) {
                 $da = explode('-', $row['payment_date']);
                 $inv_date = mktime(0, 0, 0, $da[1], $da[2], $da[0]);
@@ -2894,7 +2969,7 @@ class m_newaccounts extends IModule
 
         //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
 
-        $cpe = array();
+        $cpe = [];
         $bdata["sum"] = 0;
         $bdata['sum_without_tax'] = 0;
         $bdata['sum_tax'] = 0;
@@ -2910,24 +2985,24 @@ class m_newaccounts extends IModule
                 if ($li['service'] == 'usage_tech_cpe') {
                     $id = $li['id_service'];
                 } elseif ($li['service'] == 'usage_ip_ports') {
-                    $account = $db->GetRow('select id_service from usage_tech_cpe where id_service=' . $li['id_service'] . ' AND actual_from<"' . $inv_date . '" AND actual_to>"' . $inv_date . '" order by id desc limit 1');
+                    $account = $db->GetRow('SELECT id_service FROM usage_tech_cpe WHERE id_service=' . $li['id_service'] . ' AND actual_from<"' . $inv_date . '" AND actual_to>"' . $inv_date . '" ORDER BY id DESC LIMIT 1');
                     if ($account) {
                         $id = $account['id_service'];
                     }
                 }
                 if ($id) {
-                    $account = $db->GetRow('select usage_tech_cpe.*,model,vendor,type from usage_tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=usage_tech_cpe.id_model WHERE usage_tech_cpe.id=' . $id);
+                    $account = $db->GetRow('SELECT usage_tech_cpe.*,model,vendor,type FROM usage_tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=usage_tech_cpe.id_model WHERE usage_tech_cpe.id=' . $id);
                     $account['amount'] = floatval($li['amount']);
                     $cpe[] = $account;
                 } else {
-                    $cpe[] = array(
+                    $cpe[] = [
                         'type' => '',
                         'vendor' => '',
                         'model' => $li['item'],
                         'serial' => '',
                         'amount' => floatval($li['amount']),
                         "actual_from" => $li["date_from"]
-                    );
+                    ];
                 }
             }
         }
@@ -3003,14 +3078,14 @@ class m_newaccounts extends IModule
             return true;
         } else {
             if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
-                return array(
+                return [
                     'bill' => $bdata,
                     'bill_lines' => $billLines,
                     'inv_no' => $bdata['bill_no'] . '-' . $source,
                     'inv_date' => $inv_date
-                );
+                ];
             } else {
-                return array('bill' => $bdata, 'bill_lines' => $billLines);
+                return ['bill' => $bdata, 'bill_lines' => $billLines];
             }
         }
     }
@@ -3027,8 +3102,8 @@ class m_newaccounts extends IModule
         }
 
 
-        $filter = get_param_raw('filter', array('d' => '', 'm' => date('m'), 'y' => date('Y')));
-        $R = array();
+        $filter = get_param_raw('filter', ['d' => '', 'm' => date('m'), 'y' => date('Y')]);
+        $R = [];
         $d = dir(PAYMENTS_FILES_PATH);
 
         $paymentQuery = PaymentSberOnline::find();
@@ -3060,7 +3135,7 @@ class m_newaccounts extends IModule
             $pattern .= '\.txt$/';
         }
 
-        $data = array();
+        $data = [];
         while ($e = $d->read()) {
             if ($e != '.' && $e != '..') {
                 if (!$pattern || preg_match($pattern, $e)) {
@@ -3307,7 +3382,7 @@ class m_newaccounts extends IModule
 
     function importPL_citibank_apply()
     {
-        $pays = get_param_raw("pays", array());
+        $pays = get_param_raw("pays", []);
 
         print_r($pays);
     }
@@ -3316,8 +3391,8 @@ class m_newaccounts extends IModule
     {
         global $db;
 
-        $firms = array();
-        foreach ($db->AllRecords("select firma from firma_pay_account where pay_acc in ('" . implode("', '",
+        $firms = [];
+        foreach ($db->AllRecords("SELECT firma FROM firma_pay_account WHERE pay_acc IN ('" . implode("', '",
                 $pas) . "')") as $f) {
             $firms[] = $f["firma"];
         }
@@ -3328,19 +3403,19 @@ class m_newaccounts extends IModule
     {
         global $db;
 
-        $v = array();
+        $v = [];
 
         if ($inn) {
             $q = $fromAdd ?
-                "select client_id as id from client_inn p, clients c
+                "SELECT client_id AS id FROM client_inn p, clients c
 INNER JOIN `client_contract` cr ON cr.id=c.contract_id
 INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-where p.inn = '" . $inn . "' and p.client_id = c.id and p.is_active"
+WHERE p.inn = '" . $inn . "' AND p.client_id = c.id AND p.is_active"
                 :
-                "select c.id from clients c
+                "SELECT c.id FROM clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-where cg.inn = '" . $inn . "'";
+WHERE cg.inn = '" . $inn . "'";
 
             foreach ($db->AllRecords($qq = $q . " and cr.organization_id in ('" . implode("','",
                     $organizations) . "')") as $c) {
@@ -3357,12 +3432,12 @@ where cg.inn = '" . $inn . "'";
         $payments = [];
 
         if (preg_match('/sber_online_([0-9]{2})-([0-9]{2})-([0-9]{4})/', $file, $match)) {
-            foreach(PaymentSberOnline::find()
-                ->andWhere([
-                    'day' => $match[1],
-                    'month' => $match[2],
-                    'year' => $match[3]
-                ])->all() as $payment) {
+            foreach (PaymentSberOnline::find()
+                         ->andWhere([
+                             'day' => $match[1],
+                             'month' => $match[2],
+                             'year' => $match[3]
+                         ])->all() as $payment) {
 
                 /** @var $payment PaymentSberOnline */
                 $payments[] = [
@@ -3389,12 +3464,12 @@ where cg.inn = '" . $inn . "'";
         return $this->importPL_citibank($file, ['40702810038110015462' => '40702810038110015462'], $payments);
     }
 
-    function importPL_citibank($file, $_payAccs = false, $_pays = array())
+    function importPL_citibank($file, $_payAccs = false, $_pays = [])
     {
         global $design, $db;
 
-        $d = array();
-        $sum = array("plus" => 0, "minus" => 0, "imported" => 0, "all" => 0);
+        $d = [];
+        $sum = ["plus" => 0, "minus" => 0, "imported" => 0, "all" => 0];
 
 
         include_once INCLUDE_PATH . "mt940.php";
@@ -3404,7 +3479,7 @@ where cg.inn = '" . $inn . "'";
             $m = new MT940($c);
 
             $pays = $m->getPays();
-            $payAccs = array($m->getPayAcc());
+            $payAccs = [$m->getPayAcc()];
 
             $f = explode("/", $file);
             $f = $f[count($f) - 1];
@@ -3423,14 +3498,14 @@ where cg.inn = '" . $inn . "'";
             $payAccs = $_payAccs;
             $pays = $_pays;
             //$pays=array($pays[0]);
-            usort($pays, array("MT940", "sortBySum"));
+            usort($pays, ["MT940", "sortBySum"]);
         }
 
         $firms = $this->getFirmByPayAccs($payAccs);
-        $date_formats = array('d.m.Y', 'd.m.y', 'd-m-Y', 'd-m-y');
+        $date_formats = ['d.m.Y', 'd.m.y', 'd-m-Y', 'd-m-y'];
 
         // @TODO: на переходный период разрешить платить на Ритейл с Сервиса
-        if (in_array('mcm_telekom',$firms)) {
+        if (in_array('mcm_telekom', $firms)) {
             $firms[] = 'mcn_telekom_service';
         }
 
@@ -3454,7 +3529,7 @@ where cg.inn = '" . $inn . "'";
             $clientId2 = $this->getCompanyByPayAcc(@$pay["from"]["account"], $organizations);
             $clientId3 = $this->getCompanyByPayAcc(@$pay["from"]["account"], $organizations, true);
 
-            $clientId4 = $clientId5 = array();
+            $clientId4 = $clientId5 = [];
             if (isset($pay["inn"])) {
                 $clientId4 = $this->getCompanyByInn(@$pay["inn"], $organizations);
                 $clientId5 = $this->getCompanyByInn(@$pay["inn"], $organizations, true);
@@ -3472,7 +3547,7 @@ where cg.inn = '" . $inn . "'";
 
             $clientIdSum =
                 $clientIdLs ?
-                [$clientIdLs] :
+                    [$clientIdLs] :
                     ($clientIdExtBills ?
                         $clientIdExtBills :
                         array_unique(array_merge($clientId, $clientId2, $clientId3, $clientId4, $clientId5)));
@@ -3505,7 +3580,7 @@ where cg.inn = '" . $inn . "'";
             if ($clientIdSum) {
                 $pay["clients_bills"] = $this->getClientBills($clientIdSum, $billNo);
                 if ($pay["sum"] < 0) {
-                    $pay["clients_bills"][] = array("bill_no" => "--Минус счета--", "is_payed" => -1, "is_group" => 1);
+                    $pay["clients_bills"][] = ["bill_no" => "--Минус счета--", "is_payed" => -1, "is_group" => 1];
 
                     foreach ($this->getClientMinusBills($clientIdSum, $billNo) as $p) {
                         if ($this->notInBillList($pay["clients_bills"], $p)) {
@@ -3514,7 +3589,7 @@ where cg.inn = '" . $inn . "'";
                     }
                 }
 
-                $extBills = array();
+                $extBills = [];
                 foreach ($pay["clients_bills"] as &$b) {
                     $b['is_selected'] = false;
                     if (!isset($b["bill_no_ext"]) || !$b["bill_no_ext"]) {
@@ -3553,7 +3628,7 @@ where cg.inn = '" . $inn . "'";
             }
 
             if (isset($pay['usd_rate']) && $pay['usd_rate'] && $pay['bill_no']) {
-                $r = $db->GetRow('select sum as S from newbills where bill_no="' . $pay['bill_no'] . '"');
+                $r = $db->GetRow('SELECT sum AS S FROM newbills WHERE bill_no="' . $pay['bill_no'] . '"');
                 if ($r && $r['S'] != 0) {
                     $rate_bill = round($pay['sum'] / $r['S'], 4);
                     if (abs($rate_bill - $pay['usd_rate']) / $pay['usd_rate'] <= 0.03) {
@@ -3598,7 +3673,7 @@ where cg.inn = '" . $inn . "'";
             $d[] = $pay;
         }
 
-        $bills = array();
+        $bills = [];
 
         foreach ($d as $p) {
             if (isset($p["imported"]) && $p["imported"] && $p["bill_no"] && substr($p["bill_no"], 6, 1) == "-") {
@@ -3641,10 +3716,10 @@ where cg.inn = '" . $inn . "'";
         global $db;
 
         if (!$clientIds) {
-            $clientIds = array(-1);
+            $clientIds = [-1];
         }
-        if ($pm = $db->GetRow('select comment,bill_no from newpayments where client_id in ("' . implode('","',
-                $clientIds) . '") and sum = "' . $pay['sum'] . '" and payment_date = "' . $pay['date'] . '" and type="bank" and payment_no = "' . $pay["noref"] . '"')
+        if ($pm = $db->GetRow('SELECT comment,bill_no FROM newpayments WHERE client_id IN ("' . implode('","',
+                $clientIds) . '") AND sum = "' . $pay['sum'] . '" AND payment_date = "' . $pay['date'] . '" AND type="bank" AND payment_no = "' . $pay["noref"] . '"')
         ) {
             $pay['imported'] = 1;
             $pay["comment"] = $pm["comment"];
@@ -3660,11 +3735,11 @@ where cg.inn = '" . $inn . "'";
             return false;
         }
         if (!is_array($clientIds)) {
-            $clientIds = array($clientIds);
+            $clientIds = [$clientIds];
         }
 
         $clients = (new \yii\db\Query())
-            ->select(['c.id','c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id', 'cg.inn'])
+            ->select(['c.id', 'c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id', 'cg.inn'])
             ->from(['c' => ClientAccount::tableName()])
             ->innerJoin(['cr' => ClientContract::tableName()], 'cr.id=c.contract_id')
             ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id=cr.contragent_id')
@@ -3688,16 +3763,16 @@ where cg.inn = '" . $inn . "'";
     {
         global $db;
 
-        $v = array();
+        $v = [];
         foreach ($clientIds as $clientId) {
             if (count($clientIds) > 1) {
                 $c = $this->getClient($clientId);
-                $v[] = array(
+                $v[] = [
                     "bill_no" => "--" . $c[0]["client"] . "--",
                     "is_payed" => -1,
                     "is_group" => true,
                     "bill_no_ext" => false
-                );
+                ];
             }
 
             foreach ($db->AllRecords($q = '
@@ -3731,7 +3806,7 @@ where cg.inn = '" . $inn . "'";
 
         $where = "sum < 0 and client_id in ('" . implode("','", $clientsIds) . "')";
 
-        $v = array();
+        $v = [];
 
         // все неоплаченные, и последний оплаченный
         foreach ($db->AllRecords("
@@ -3755,20 +3830,20 @@ where cg.inn = '" . $inn . "'";
     {
         global $db;
 
-        $v = array();
+        $v = [];
 
         if ($acc) {
 
             $q = $fromAdd ?
-                "select client_id as id from client_pay_acc p, clients c
+                "SELECT client_id AS id FROM client_pay_acc p, clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-where p.pay_acc = '" . $acc . "' and p.client_id = c.id"
+WHERE p.pay_acc = '" . $acc . "' AND p.client_id = c.id"
                 :
-                "select c.id from clients c
+                "SELECT c.id FROM clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-where c.pay_acc = '" . $acc . "'";
+WHERE c.pay_acc = '" . $acc . "'";
 
             foreach ($db->AllRecords($qq = $q . " and cr.organization_id in ('" . implode("','",
                     $organizations) . "')") as $c) {
@@ -3803,9 +3878,9 @@ where c.pay_acc = '" . $acc . "'";
 
         return [];
 
-        $r = $db->GetRow("select client_id from newbills b, clients c
+        $r = $db->GetRow("SELECT client_id FROM newbills b, clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_id in ('" . implode("','", $organizations) . "')");
+WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_id IN ('" . implode("','", $organizations) . "')");
         return $r ? [$r["client_id"]] : [];
 
     }
@@ -3825,7 +3900,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         $billNo = str_replace(" ", "", $m[0]);
 
         if (
-            Bill::find()
+        Bill::find()
             ->where(['bill_no' => $billNo])
             ->exists()
         ) {
@@ -3868,8 +3943,8 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                 ->joinWith('bill b', true, 'INNER JOIN')
                 ->where(['>=', new Expression('LENGTH(e.ext_bill_no)'), 5])
                 ->andWhere(['OR',
-                    ['like', 'e.bill_no', $monthThis->format('Ym').'-%', false],
-                    ['like', 'e.bill_no', $monthPrev->format('Ym').'-%', false],
+                    ['like', 'e.bill_no', $monthThis->format('Ym') . '-%', false],
+                    ['like', 'e.bill_no', $monthPrev->format('Ym') . '-%', false],
                 ])
                 ->andWhere(['<', 'b.sum', 0])
                 ->select(['b.client_id'])
@@ -3878,7 +3953,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         }
 
         $ids = [];
-        foreach ($bills as $extBillNo =>  $clientId) {
+        foreach ($bills as $extBillNo => $clientId) {
             if (strpos($comment, (string)$extBillNo) !== false) {
                 $ids[] = $clientId;
             }
@@ -3889,12 +3964,12 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
     function getPaymentRate($date)
     {
-        static $d = array();
+        static $d = [];
 
         if (!isset($d[$date])) {
             global $db;
             $tableName = CurrencyRate::tableName();
-            $r = $db->GetRow('select * from ' . $tableName . ' where date="' . addslashes($date) . '" and currency="USD"');
+            $r = $db->GetRow('SELECT * FROM ' . $tableName . ' WHERE date="' . addslashes($date) . '" AND currency="USD"');
             $d[$date] = $r['rate'];
         }
         return $d[$date];
@@ -3902,7 +3977,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
     function restructPayments($payAccs, $pp)
     {
-        $r = array();
+        $r = [];
 
         foreach ($pp as $k => $p) {
 
@@ -3920,7 +3995,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             $od1 = explode(".", $p["date_dot"]);
             $od = explode(".", $p["oper_date"]);
 
-            $r[] = array(
+            $r[] = [
                 "no" => $k + 1,
                 "date_exch" => $od1[2] . "-" . $od1[1] . "-" . $od1[0],
                 "date" => $od1[2] . "-" . $od1[1] . "-" . $od1[0],
@@ -3929,13 +4004,13 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                 "noref" => $p["pp"],
                 "inn" => $p["inn"],
                 "description" => $p["comment"],
-                "from" => array(
+                "from" => [
                     "bik" => $p["bik"],
                     "account" => $p["account"],
                     "a2" => $p["a2"]
-                ),
+                ],
                 "company" => $p["payer"]
-            );
+            ];
         }
         return $r;
     }
@@ -3948,7 +4023,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         $design->assign('dbg', isset($_REQUEST['dbg']));
         $file = get_param_protected('file');
 
-        $file = str_replace(array('/', "\\"), array('', ''), $file);
+        $file = str_replace(['/', "\\"], ['', ''], $file);
 
         if (substr($file, 0, 11) == "sber_online") {
             return $this->importSberOnline($file);
@@ -3985,16 +4060,16 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         }
 
         $pay = get_param_raw('pay');
-        $CL = array();
+        $CL = [];
 
         //include_once INCLUDE_PATH.'1c_integration.php';
         //$cs = new \_1c\clientSyncer($db);
         $b = 0;
         foreach ($pay as $P) {
             if (isset($P['client']) && $P['client'] != '' && $P['bill_no']) {
-                if ($client = $db->QuerySelectRow('clients', array('client' => $P['client']))) {
+                if ($client = $db->QuerySelectRow('clients', ['client' => $P['client']])) {
 
-                    $bill = $db->QuerySelectRow("newbills", array("bill_no" => $P["bill_no"]));
+                    $bill = $db->QuerySelectRow("newbills", ["bill_no" => $P["bill_no"]]);
 
                     if ($bill["client_id"] != $client["id"]) {
                         trigger_error2("Платеж #" . $P["pay"] . ", на сумму:" . $P["sum"] . " не внесен, проверте, что бы счет принадлежал этой компании");
@@ -4004,7 +4079,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                     $CL[$client['id']] = $client['currency'];
 
                     $b = 1;
-                    $r2 = $db->GetRow('select currency from newbills where bill_no="' . $P['bill_no'] . '"');
+                    $r2 = $db->GetRow('SELECT currency FROM newbills WHERE bill_no="' . $P['bill_no'] . '"');
                     if (isset($r2['currency']) && $r2['currency'] != 'RUB') {
                         $b = 0;
                     }
@@ -4067,16 +4142,16 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         $date_from = $dateFrom->getDay();
         $date_to = $dateTo->getDay();
 
-        $design->assign("l_status", $lStatus = array(
+        $design->assign("l_status", $lStatus = [
             "work" => "Включенные",
             "income" => "Входящие",
             "once" => "Разовые",
             "closed" => "Отключенные"
-        ));
+        ]);
 
-        $design->assign('cl_status', $cl_status = get_param_protected('cl_status', array()));
+        $design->assign('cl_status', $cl_status = get_param_protected('cl_status', []));
 
-        $managerInfo = $db->QuerySelectRow("user_users", array("user" => $manager));
+        $managerInfo = $db->QuerySelectRow("user_users", ["user" => $manager]);
 
         if ($managerInfo["usergroup"] == "account_managers") {
             $managerInfo["usergroup"] = "manager";
@@ -4086,7 +4161,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
         if ($manager && ($b_pay0 || $b_pay1 || $nedopay)) {
 
-            $W1 = array("and", "~~where_owner~~");
+            $W1 = ["and", "~~where_owner~~"];
 
             $W1[] = 'newbills.sum > 0';
 
@@ -4123,15 +4198,15 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
 
             $sql = '
-            select
+            SELECT
             newbills.*,
             c.nal,
             c.client,
             cg.name AS company,
             cr.organization_id AS firma,
-            if(c.currency = newbills.currency, 1,0) as f_currency,
-                    cr.manager as client_manager,
-                    (select user from user_users where id=nbo.owner_id) as bill_manager' . ($b_show_bonus ? ',
+            if(c.currency = newbills.currency, 1,0) AS f_currency,
+                    cr.manager AS client_manager,
+                    (SELECT user FROM user_users WHERE id=nbo.owner_id) AS bill_manager' . ($b_show_bonus ? ',
 
                     (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", bl.sum, " => ", round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)))) ORDER BY bl.`code_1c` separator "|\n")  FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "' . $managerInfo["usergroup"] . '"
@@ -4139,7 +4214,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                     (SELECT sum(round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)) FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "' . $managerInfo["usergroup"] . '"
                      where bl.bill_no=newbills.bill_no) bonus' : '') . '
-                        from
+                        FROM
                         newbills ' .
 
                 ($reportBy == "bill_closed" ? '
@@ -4147,15 +4222,15 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                         inner join tt_stages trouble_stage on (trouble.cur_stage_id = trouble_stage.stage_id)
                         ' : '') . '
 
-                        left join newbill_owner nbo on (nbo.bill_no = newbills.bill_no)
+                        LEFT JOIN newbill_owner nbo ON (nbo.bill_no = newbills.bill_no)
                         ' . $newpayments_join . '
                         LEFT JOIN clients c ON c.id = newbills.client_id
                          LEFT JOIN `client_contract` cr ON cr.id=c.contract_id
                          LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                         LEFT JOIN newsaldo ON newsaldo.client_id = c.id
-                        and newsaldo.is_history = 0
-                        and newsaldo.currency = c.currency
-                        where ' . MySQLDatabase::Generate($W1) . '
+                        AND newsaldo.is_history = 0
+                        AND newsaldo.currency = c.currency
+                        WHERE ' . MySQLDatabase::Generate($W1) . '
 
                         ';
 
@@ -4181,7 +4256,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             $organizations = Organization::find()->actual()->all();
             $organizations = \yii\helpers\ArrayHelper::map($organizations, 'organization_id', 'firma');
 
-            $clients = array();
+            $clients = [];
             foreach ($R as &$r) {
                 $r['firma'] = $organizations[$r['firma']];
 
@@ -4217,7 +4292,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
     function GetDebt($clientId)
     {
 
-        static $mdb = array();
+        static $mdb = [];
 
         if (isset($mdb[$clientId])) {
             return $mdb[$clientId];
@@ -4228,20 +4303,20 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         $fixclient_data = ClientAccount::findOne($clientId);
 
         // saldo
-        $sum = array(
-            'USD' => array('delta' => 0, 'bill' => 0, 'ts' => ''),
-            'RUB' => array('delta' => 0, 'bill' => 0, 'ts' => '')
-        );
-        $r = $db->GetRow('select * from newsaldo where client_id=' . $fixclient_data['id'] . ' and currency="' . $fixclient_data['currency'] . '" and is_history=0 order by id desc limit 1');
+        $sum = [
+            'USD' => ['delta' => 0, 'bill' => 0, 'ts' => ''],
+            'RUB' => ['delta' => 0, 'bill' => 0, 'ts' => '']
+        ];
+        $r = $db->GetRow('SELECT * FROM newsaldo WHERE client_id=' . $fixclient_data['id'] . ' AND currency="' . $fixclient_data['currency'] . '" AND is_history=0 ORDER BY id DESC LIMIT 1');
         if ($r) {
-            $sum[$fixclient_data['currency']] = array(
+            $sum[$fixclient_data['currency']] = [
                 'delta' => 0,
                 'bill' => $r['saldo'],
                 'ts' => $r['ts'],
                 'saldo' => $r['saldo']
-            );
+            ];
         } else {
-            $sum[$fixclient_data['currency']] = array('delta' => 0, 'bill' => 0, 'ts' => '');
+            $sum[$fixclient_data['currency']] = ['delta' => 0, 'bill' => 0, 'ts' => ''];
         }
         $R1 = $db->AllRecords('select *,' . ($sum[$fixclient_data['currency']]['ts'] ? 'IF(bill_date>="' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)' : '1') . ' as in_sum from newbills where client_id=' . $fixclient_data['id'] . ' order by bill_no desc');
         $R2 = $db->AllRecords('select P.*,U.user as user_name,' . ($sum[$fixclient_data['currency']]['ts'] ? 'IF(P.payment_date>="' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)' : '1') . ' as in_sum from newpayments as P LEFT JOIN user_users as U on U.id=P.add_user where P.client_id=' . $fixclient_data['id'] . ' order by P.payment_date desc');
@@ -4264,10 +4339,10 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                 $sum[$fixclient_data['currency']]['delta'] -= $r2['sum'];
             }
         }
-        $mdb[$clientId] = array(
+        $mdb[$clientId] = [
             "sum" => $sum[$fixclient_data["currency"]]["delta"],
             "currency" => $fixclient_data["currency"]
-        );
+        ];
         return $mdb[$clientId];
     }
 
@@ -4276,8 +4351,8 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         global $design, $db;
 
         $design->assign("l_couriers",
-            array("all" => "--- Все ---", "checked" => "--- Установленные --") + Courier::getList($isWithEmpty = false));
-        $design->assign("l_metro", array("all" => "--- Все ---") + \app\models\Metro::getList());
+            ["all" => "--- Все ---", "checked" => "--- Установленные --"] + Courier::getList($isWithEmpty = false));
+        $design->assign("l_metro", ["all" => "--- Все ---"] + \app\models\Metro::getList());
         $design->assign('courier', $courier = get_param_protected('courier', "all"));
         $design->assign('metro', $metro = get_param_protected('metro', "all"));
         $design->assign('manager', $manager = get_param_protected('manager'));
@@ -4301,19 +4376,19 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             if ($s_obj && ($s_value || $s_value == 0) && $s_billNo) {
                 $oBill = Bill::findOne(['bill_no' => $s_billNo]);
                 if ($oBill) {
-                    if ($s_obj == "nal" && in_array($s_value, array("nal", "beznal", "prov"))) {
+                    if ($s_obj == "nal" && in_array($s_value, ["nal", "beznal", "prov"])) {
                         $oBill->nal = $s_value;
 
                     } elseif ($s_obj == "courier") {
                         $oBill->courier_id = $s_value;
                     } elseif ($s_obj == "comment") {
-                        $v = array(
+                        $v = [
                             "bill_no" => $s_billNo,
-                            "ts" => array('NOW()'),
+                            "ts" => ['NOW()'],
                             "user_id" => $this->GetUserId(),
                             "comment" => $s_value
-                        );
-                        $R = $db->AllRecords("select id from log_newbills_static where bill_no = '" . $s_billNo . "'");
+                        ];
+                        $R = $db->AllRecords("SELECT id FROM log_newbills_static WHERE bill_no = '" . $s_billNo . "'");
                         if ($R) {
                             $db->QueryUpdate("log_newbills_static", 'bill_no', $v);
                         } else {
@@ -4324,8 +4399,8 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                 }
             }
         }
-        $nal = array();
-        foreach (get_param_protected("nal", array()) as $n) {
+        $nal = [];
+        foreach (get_param_protected("nal", []) as $n) {
             $nal[$n] = 1;
         }
         $design->assign("nal", $nal);
@@ -4345,7 +4420,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
             $design->assign("get_url", $getURL);
 
-            $W1 = array("and");
+            $W1 = ["and"];
             if ($manager != "all") {
                 $W1[] = 'cr.manager="' . $manager . '"';
             }
@@ -4376,14 +4451,14 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             }
 
             $q = '
-                select
+                SELECT
                     a.*,
-                    ls.ts as date,
+                    ls.ts AS date,
                     u.user,
                     ls.comment
-                from
+                FROM
                     (
-                        select
+                        SELECT
                             `bill_no`,
                             `bill_date`,
                             `newbills`.`client_id`,
@@ -4394,12 +4469,12 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                             `courier_id`,
                             c.nal,
                             c.metro_id,
-                            c.address_post as address,
-                            newbills.nal as bill_nal,
+                            c.address_post AS address,
+                            newbills.nal AS bill_nal,
                             c.client,
                             cg.name AS company,
                             cr.manager
-                        from newbills
+                        FROM newbills
                         LEFT JOIN clients c ON c.id=newbills.client_id
                          LEFT JOIN `client_contract` cr ON cr.id=c.contract_id
                          LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
@@ -4407,7 +4482,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                             AND newsaldo.is_history=0 AND newsaldo.currency=c.currency
                         WHERE
                             ' . MySQLDatabase::Generate($W1) . '
-                            and c.status not in ("tech_deny","deny")
+                            AND c.status NOT IN ("tech_deny","deny")
                         ORDER BY
                             ' . ($isPrint ? "cg.name, " : "") . 'client,
                             bill_no
@@ -4446,7 +4521,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             $design->assign('totalSaldo', $totalSaldo);
         }
         $m = User::dao()->getListByDepartments('manager');
-        $R = array("all" => array("name" => "Все", "user" => "all"));
+        $R = ["all" => ["name" => "Все", "user" => "all"]];
         foreach ($m as $user => $userData) {
             $R[$user] = $userData;
         }
@@ -4478,7 +4553,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         if ($search) {
 
             $R = $db->AllRecords(
-                'select newbills.*,clients.nal,clients.client,cg.name AS company
+                'SELECT newbills.*,clients.nal,clients.client,cg.name AS company
                     FROM newbills
                     INNER JOIN clients c ON (clients.id=newbills.client_id)
                      INNER JOIN `client_contract` cr ON cr.id=c.contract_id
@@ -4486,7 +4561,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                     WHERE bill_no LIKE "' . $search . '%" OR bill_no_ext LIKE "' . $search . '%" ORDER BY client,bill_no LIMIT 1000');
 
             !$R && $R = $db->AllRecords(
-                $q = 'select b.*,c.nal,c.client,cg.name AS company
+                $q = 'SELECT b.*,c.nal,c.client,cg.name AS company
                         FROM newbills b, newbills_external e, clients c
                          INNER JOIN `client_contract` cr ON cr.id=c.contract_id
                          INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
@@ -4500,12 +4575,12 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                         ORDER BY c.client, b.bill_no LIMIT 1000');
 
             !$R && $R = $db->AllRecords(
-                    $q = 'select b.*,c.nal,c.client,cg.name AS company
+                $q = 'SELECT b.*,c.nal,c.client,cg.name AS company
                         FROM newbills b, newbills_add_info i, clients c
                          INNER JOIN `client_contract` cr ON cr.id=c.contract_id
                          INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                         WHERE c.id=b.client_id
-                        and b.bill_no = i.bill_no and i.req_no = "' . $search . '"
+                        AND b.bill_no = i.bill_no AND i.req_no = "' . $search . '"
                         ORDER BY c.client, b.bill_no LIMIT 1000');
 
             if (count($R) == 1000) {
@@ -4530,7 +4605,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         $design->assign('sort', $sort = get_param_protected('sort'));
 
         if ($manager) {
-            $W0 = array('AND');
+            $W0 = ['AND'];
             if (!$cl_off) {
                 $W0[] = 'clients.status="work"';
             }
@@ -4538,35 +4613,35 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                 $W0[] = 'cr.manager="' . $manager . '"';
             }
 
-            $W1 = array('AND', 'newbills.client_id=clients.id');
-            $W1[] = array(
+            $W1 = ['AND', 'newbills.client_id=clients.id'];
+            $W1[] = [
                 'AND',
                 'newbills.currency=clients.currency',
                 'saldo_ts IS NULL OR newbills.bill_date>=saldo_ts'
-            );
+            ];
 
-            $W2 = array('AND', 'P.client_id=clients.id');
-            $W2[] = array(
+            $W2 = ['AND', 'P.client_id=clients.id'];
+            $W2[] = [
                 'OR',
-                array(
+                [
                     'AND',
                     'newbills.bill_no IS NULL',
-                    array(
+                    [
                         'OR',
                         'saldo_ts IS NULL',
                         'P.payment_date>=saldo_ts',
-                    )
-                ),
-                array(
+                    ]
+                ],
+                [
                     'AND',
                     'newbills.currency=clients.currency',
-                    array(
+                    [
                         'OR',
                         'saldo_ts IS NULL',
                         'newbills.bill_date>=saldo_ts',
-                    )
-                ),
-            );
+                    ]
+                ],
+            ];
             /*
             $W2 = array('AND','P.client_id=clients.id', array('OR',
                             'saldo_ts IS NULL',
@@ -4574,7 +4649,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                         ));
                         */
 
-            $S = array('client', 'client', 'sum_payments');
+            $S = ['client', 'client', 'sum_payments'];
             if (!isset($S[$sort])) {
                 $sort = 0;
             }
@@ -4644,19 +4719,19 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
         //** Todo:  */
 
-        $saldo = $db->GetRow('select * from newsaldo where client_id="' . $fixclient_data['id'] . '" and newsaldo.is_history=0 order by id');
+        $saldo = $db->GetRow('SELECT * FROM newsaldo WHERE client_id="' . $fixclient_data['id'] . '" AND newsaldo.is_history=0 ORDER BY id');
         $design->assign('saldo', $startsaldo = floatval(get_param_protected('saldo', 0)));
         $design->assign('date_from_val', $date_from_val = strtotime($date_from));
         $design->assign('date_to_val', $date_to_val = strtotime($date_to));
-        $R = array();
+        $R = [];
         $Rc = 0;
         $S_p = 0;
         $S_b = 0;
 
-        $R[0] = array('type' => 'saldo', 'date' => $date_from_val, 'sum_outcome' => $startsaldo);
-        $B = array();
+        $R[0] = ['type' => 'saldo', 'date' => $date_from_val, 'sum_outcome' => $startsaldo];
+        $B = [];
 
-        $W = array('AND', 'P.client_id="' . $fixclient_data['id'] . '"', 'P.currency="' . $clientData->currency . '"');
+        $W = ['AND', 'P.client_id="' . $fixclient_data['id'] . '"', 'P.currency="' . $clientData->currency . '"'];
         if ($saldo) {
             $W[] = 'P.payment_date>="' . $saldo['ts'] . '"';
         }
@@ -4668,11 +4743,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         }
 
         $P = $db->AllRecords($sql = '
-                select P.*,
-                    UNIX_TIMESTAMP(P.payment_date) as payment_date
-                from newpayments as P
-                where ' . MySQLDatabase::Generate($W) . '
-                order by P.id');
+                SELECT P.*,
+                    UNIX_TIMESTAMP(P.payment_date) AS payment_date
+                FROM newpayments AS P
+                WHERE ' . MySQLDatabase::Generate($W) . '
+                ORDER BY P.id');
 
 
         foreach ($P as &$A) {
@@ -4688,23 +4763,23 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             }
 
             $R[$A['payment_date'] + ($Rc++)] =
-                array(
+                [
                     'type' => $A['type'] == Payment::TYPE_CREDITNOTE ? $A['type'] : 'pay',
                     'date' => $A['payment_date'],
                     'sum_outcome' => $sum_outcome,
                     'sum_income' => $sum_income,
                     'pay_no' => $A['payment_no'],
                     'bill_no' => $A['bill_no'],
-                );
+                ];
             $B[$A['bill_no']] = 1;
         }
         unset($A);
 
-        $W = array(
+        $W = [
             'AND',
             'newbills.client_id="' . $fixclient_data['id'] . '"',
             'newbills.currency="' . $fixclient_data['currency'] . '"'
-        );
+        ];
         if ($saldo) {
             $W[] = 'newbills.bill_date>="' . $saldo['ts'] . '"';
         }
@@ -4715,18 +4790,18 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'newbills.bill_date<="' . $date_to . '"+INTERVAL 1 MONTH';
         }
         $P = $db->AllRecords($q = '
-                select newbills.*,ext.ext_akt_no, ext.ext_akt_date,
-                    ifnull((select if(state_id = 21 , 1, 0)
-                        from tt_troubles t, tt_stages s
-                        where t.bill_no = newbills.bill_no and s.stage_id = t.cur_stage_id limit 1), 0) as is_rejected
-                from newbills
-                left join newbills_external ext USING (bill_no)
-                where ' . MySQLDatabase::Generate($W) . '
-                having is_rejected = 0
-                order by newbills.bill_no
+                SELECT newbills.*,ext.ext_akt_no, ext.ext_akt_date,
+                    ifnull((SELECT if(state_id = 21 , 1, 0)
+                        FROM tt_troubles t, tt_stages s
+                        WHERE t.bill_no = newbills.bill_no AND s.stage_id = t.cur_stage_id LIMIT 1), 0) AS is_rejected
+                FROM newbills
+                LEFT JOIN newbills_external ext USING (bill_no)
+                WHERE ' . MySQLDatabase::Generate($W) . '
+                HAVING is_rejected = 0
+                ORDER BY newbills.bill_no
         ');
 
-        $zalog = array();
+        $zalog = [];
         $S_zalog = 0;
 
         foreach ($P as &$p) {
@@ -4781,16 +4856,15 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         }
 
 
-
-                        $R[$A['inv_date'] + ($Rc++)] = array(
+                        $R[$A['inv_date'] + ($Rc++)] = [
                             'type' => 'inv',
-                            'date' =>  $invDate,
+                            'date' => $invDate,
                             'sum_income' => $sum_in,
                             'sum_outcome' => $sum_out,
                             'inv_no' => $invNo,
                             'bill_no' => $A['bill']['bill_no'],
                             'inv_num' => $I,
-                        );
+                        ];
                         if ($isNegativeSum) {
                             $S_p += $sum_out;
                         } else {
@@ -4803,17 +4877,17 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         }
 
         foreach ($db->AllRecords(
-            "select 'inv' as type, 3 as inv_num,
-                b.bill_no, concat(b.bill_no,'-3') as inv_no,
-                unix_timestamp(bill_date) as date,
-                l.sum as sum_income, item as items, b.currency, b.sum as b_sum
-            from
+            "SELECT 'inv' AS type, 3 AS inv_num,
+                b.bill_no, concat(b.bill_no,'-3') AS inv_no,
+                unix_timestamp(bill_date) AS date,
+                l.sum AS sum_income, item AS items, b.currency, b.sum AS b_sum
+            FROM
                 newbills b, newbill_lines l
-            where
+            WHERE
                     b.bill_no = l.bill_no
-                and client_id = '" . $fixclient_data['id'] . "'
-                and type='zalog'
-                and b.bill_date<='" . $date_to . "'") as $z) {
+                AND client_id = '" . $fixclient_data['id'] . "'
+                AND type='zalog'
+                AND b.bill_date<='" . $date_to . "'") as $z) {
             $zalog[$z["date"] . "-" . count($zalog)] = $z;
             $S_zalog += $z["sum_income"];
         }
@@ -4823,13 +4897,13 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $R[0]['sum_income'] = $startsaldo < 0 ? -$startsaldo : 0;
         $R[0]['sum_outcome'] = $startsaldo > 0 ? $startsaldo : 0;
         $S = $startsaldo + $S_p - $S_b;
-        $R[] = array('type' => 'total', 'sum_outcome' => $S_p, 'sum_income' => $S_b);
-        $R[] = $ressaldo = array(
+        $R[] = ['type' => 'total', 'sum_outcome' => $S_p, 'sum_income' => $S_b];
+        $R[] = $ressaldo = [
             'type' => 'saldo',
             'date' => $date_to_val,
             'sum_income' => $S > 0 ? 0 : -$S,
             'sum_outcome' => $S > 0 ? $S : 0
-        );
+        ];
 
         $S -= $S_zalog;
         $formula = sprintf("%.2f", -$S) . "=" . sprintf("%.2f", $ressaldo["sum_income"]);
@@ -4837,12 +4911,12 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $formula .= ($z["sum_income"] > 0 ? "+" : "") . sprintf("%.2f", $z["sum_income"]);
         }
 
-        $ressaldo = array(
+        $ressaldo = [
             'type' => 'saldo',
             'date' => $date_to_val,
             'sum_income' => $S > 0 ? 0 : -$S,
             'sum_outcome' => $S > 0 ? $S : 0
-        );
+        ];
 
 
         $design->assign("company_full", $clientData->company_full);
@@ -4881,14 +4955,14 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $pdf = file_get_contents($file_pdf);
 
             //Create file
-            $V = array(
-                'name' => str_replace(array('"'), "",
+            $V = [
+                'name' => str_replace(['"'], "",
                         $clientData["company_full"]) . ' Акт сверки (на ' . $date_to . ').pdf',
-                'ts' => array('NOW()'),
+                'ts' => ['NOW()'],
                 'contract_id' => $fixclient_data['contract_id'],
                 'comment' => $clientData["company_full"] . ' Акт сверки (на ' . $date_to . ')',
                 'user_id' => $user->Get('id')
-            );
+            ];
             $id = $db->QueryInsert('client_files', $V);
             copy($file_pdf, STORE_PATH . 'files/' . $id);
 
@@ -4955,30 +5029,30 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
   cg.inn,
   cg.kpp,
   cg.address_jur,
-  b.sum as bill_sum,
-  (ex.ext_vat+ex.ext_sum_without_vat) as sum,
-  ex.ext_vat as vat,
-  ex.ext_sum_without_vat as sum_without_vat,
+  b.sum AS bill_sum,
+  (ex.ext_vat+ex.ext_sum_without_vat) AS sum,
+  ex.ext_vat AS vat,
+  ex.ext_sum_without_vat AS sum_without_vat,
   b.currency,
   (SELECT value
    FROM organization_i18n n
    WHERE n.organization_record_id = (SELECT max(id) max_id
                                      FROM `organization` o
                                      WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
-         field = 'name') as orgznization_name
+         field = 'name') AS orgznization_name
 FROM newbills_external ex, newbills b, clients c, client_contract cc, client_contragent cg
 WHERE STR_TO_DATE(ext_invoice_date, '%d-%m-%Y') BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
       AND b.organization_id = :organization_id
       AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
       " . $where . "
-ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
+ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
 
         $query = \Yii::$app->db->createCommand($sql, [
-            ':date_from' => $dateFrom->getSqlDay(),
-            ':date_to' =>$dateTo->getSqlDay(),
-            ':organization_id' => $organizationId
-        ] + $whereParam);
+                ':date_from' => $dateFrom->getSqlDay(),
+                ':date_to' => $dateTo->getSqlDay(),
+                ':organization_id' => $organizationId
+            ] + $whereParam);
 
         $data = $query->queryAll();
 
@@ -5022,11 +5096,11 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
         $design->AddMain('newaccounts/ext_bills.tpl');
     }
 
-        function newaccounts_balance_sell($fixclient)
+    function newaccounts_balance_sell($fixclient)
     {
 
         ini_set('memory_limit', '4G');
-        
+
         global $design, $db, $user;
         $dateFrom = new DatePickerValues('date_from', 'first');
         $dateTo = new DatePickerValues('date_to', 'last');
@@ -5048,17 +5122,17 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
 
         Bill::dao()->checkSetBillsOrganization($dtFrom, $dtTo);
 
-        $R = array();
+        $R = [];
         $Rc = 0;
-        $S = array(
+        $S = [
             'sum_without_tax' => 0,
             'sum' => 0,
             'sum_tax' => 0
-        );
+        ];
 
         if (get_param_raw("do", "")) {
 
-            $W = array('AND');//,'C.status="work"');
+            $W = ['AND'];//,'C.status="work"');
             $W[] = 'B.sum!=0';
             $W[] = 'P.currency="RUB" OR P.currency IS NULL';
 
@@ -5104,7 +5178,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
                            B.`bill_no` RLIKE '^20[0-9]{4}-[0-9]{4}([0-9]{2})?$' /*stat old && new format bill */ 
                         OR B.`bill_no` RLIKE '^[0-9]{10}$' /* uu format*/
                         )
-                    AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
+                    AND IF(B.`sum` < 0, cr.`contract_type_id` =2, TRUE) ### only telekom clients with negative sum
                     AND cr.`contract_type_id` != 6 ## internal office
                     AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
                 GROUP BY
@@ -5145,7 +5219,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
                             AND nl.`bill_no` = B.`bill_no`
                             AND `item_id` = g.`id`
                     ) AS min_nds,
-                    (select GROUP_CONCAT(distinct gtd) from `newbill_lines` nl where nl.`bill_no` = B.`bill_no` AND gtd > '') as gtd
+                    (SELECT GROUP_CONCAT(DISTINCT gtd) FROM `newbill_lines` nl WHERE nl.`bill_no` = B.`bill_no` AND gtd > '') AS gtd
                 FROM
                     (
                         SELECT DISTINCT `bill_no`
@@ -5165,7 +5239,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
                     ) t,
                     `newbills` B
                         LEFT JOIN `newpayments` P ON (P.`bill_no` = B.`bill_no` AND P.`client_id` = B.`client_id`)
-                            INNER JOIN `clients` as C ON (C.`id` = B.`client_id`)
+                            INNER JOIN `clients` AS C ON (C.`id` = B.`client_id`)
                                 INNER JOIN `client_contract` cr ON cr.`id` = C.`contract_id`
                                     INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
                 WHERE
@@ -5183,7 +5257,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
                 AND shipment_date BETWEEN '" . $date_from . "' AND '" . $date_to . "'";
 
 
-            $AA = array();
+            $AA = [];
 
             foreach (Yii::$app->getDb()->createCommand($q_service)/*->cache(24 * 60 * 60)*/
             ->queryAll() as $l) {
@@ -5207,7 +5281,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
 
                 try {
                     $bill = new \Bill($p['bill_no']);
-                }catch (\Exception $e) {
+                } catch (\Exception $e) {
                     continue;
                 }
 
@@ -5277,7 +5351,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
                             $A['bill']['inv_no'] = $invoice ? $invoice->number : $A['inv_no'];
 
                             if ($p['is_rollback']) {
-                                foreach (array('ts', 'sum_tax', 'sum_without_tax', 'sum') as $f) {
+                                foreach (['ts', 'sum_tax', 'sum_without_tax', 'sum'] as $f) {
                                     $A['bill'][$f] = -abs($A['bill'][$f]);
                                 }
                             }
@@ -5333,7 +5407,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
 
     function bb_cache__init()
     {
-        self::$bb_c = array();
+        self::$bb_c = [];
 
     }
 
@@ -5342,7 +5416,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
         $nFile = "/tmp/stat_cache/" . $year . "-" . $month . ".dat";
 
         if (!isset(self::$bb_c[$year][$month])) {
-            self::$bb_c[$year][$month] = array("data" => array(), "is_modify" => false);
+            self::$bb_c[$year][$month] = ["data" => [], "is_modify" => false];
         }
 
         if (file_exists($nFile)) {
@@ -5432,9 +5506,9 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
         $pay = get_param_integer('pay');
         $bill = get_param_protected('bill');
         if ($bill) {
-            $db->Query('update newpayments set bill_vis_no="' . $bill . '" where id=' . $pay);
+            $db->Query('UPDATE newpayments SET bill_vis_no="' . $bill . '" WHERE id=' . $pay);
         } else {
-            $db->Query('update newpayments set bill_vis_no=bill_no where id=' . $pay);
+            $db->Query('UPDATE newpayments SET bill_vis_no=bill_no WHERE id=' . $pay);
         }
 
         header('Location: ?module=newaccounts');
@@ -5456,7 +5530,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
 
         if (get_param_raw('process', 'stop') != 'stop') {
 
-            $usersData = array();
+            $usersData = [];
 
             $query = $db->AllRecords('SELECT user, name FROM user_users');
             foreach ($query as $row) {
@@ -5475,21 +5549,21 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
                          INNER JOIN `client_contract` cr ON cr.id=c.contract_id
                          INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                     WHERE
-                        payment_date between '" . $from . "' and '" . $to . "'
-                        and c.id=newpayments.client_id
+                        payment_date BETWEEN '" . $from . "' AND '" . $to . "'
+                        AND c.id=newpayments.client_id
                     ORDER BY
                         client,payment_date
                     ");
-            $uniqData = array();
+            $uniqData = [];
             foreach ($query1 as $row) {
                 if (!isset($uniqData[$row['client']])) {
                     $uniqData[$row['client']] = $row;
                 }
             }
 
-            $sortedArray = array();
+            $sortedArray = [];
             foreach ($uniqData as $client => $row) {
-                $query2 = $db->AllRecords("SELECT count(*) as count FROM newpayments WHERE payment_date < '" . $from . "' and client_id='" . $row['client_id'] . "' ORDER BY payment_date LIMIT 1");
+                $query2 = $db->AllRecords("SELECT count(*) AS count FROM newpayments WHERE payment_date < '" . $from . "' AND client_id='" . $row['client_id'] . "' ORDER BY payment_date LIMIT 1");
                 if ($query2[0]['count'] == 0) {
                     $row['telemark'] = "Телемаркетинг";
                     $row['channel'] = "Канал #1";
@@ -5504,14 +5578,14 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum desc";
 SELECT cr.manager, cr.account_manager FROM clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
- where client='" . $client . "'");
+ WHERE client='" . $client . "'");
 
                 $sortedArray[$client]['manager'] = isset($usersData[$clientData[0]['manager']]) ? $usersData[$clientData[0]['manager']] : $clientData[0]['manager'];
                 $sortedArray[$client]['account_manager'] = isset($usersData[$clientData[0]['account_manager']]) ? $usersData[$clientData[0]['account_manager']] : $clientData[0]['account_manager'];
                 $sortedArray[$client]['voip'] = $db->AllRecords("
                         SELECT
-                        tarifs_voip.name as tarif,
-                        (tarifs_voip.month_line*(usage_voip.no_of_lines-1) + tarifs_voip.month_number) as cost,
+                        tarifs_voip.name AS tarif,
+                        (tarifs_voip.month_line*(usage_voip.no_of_lines-1) + tarifs_voip.month_number) AS cost,
                         usage_voip.actual_from,
                         usage_voip.actual_to,
                         log_tarif.date_activation
@@ -5521,13 +5595,13 @@ SELECT cr.manager, cr.account_manager FROM clients c
                         `tarifs_voip`
                         WHERE
                         usage_voip.client='" . $client . "'
-                        and usage_voip.id = log_tarif.id_service
-                        and log_tarif.id_tarif=tarifs_voip.id
-                        and service='usage_voip'");
+                        AND usage_voip.id = log_tarif.id_service
+                        AND log_tarif.id_tarif=tarifs_voip.id
+                        AND service='usage_voip'");
                 $sortedArray[$client]['ip_ports'] = $db->AllRecords("
                         SELECT
-                        tarifs_internet.name as tarif,
-                        tarifs_internet.pay_month as cost,
+                        tarifs_internet.name AS tarif,
+                        tarifs_internet.pay_month AS cost,
                         usage_ip_ports.actual_from,
                         usage_ip_ports.actual_to,
                         log_tarif.date_activation
@@ -5537,9 +5611,9 @@ SELECT cr.manager, cr.account_manager FROM clients c
                         `tarifs_internet`
                         WHERE
                         usage_ip_ports.client='" . $client . "'
-                        and usage_ip_ports.id = log_tarif.id_service
-                        and log_tarif.id_tarif=tarifs_internet.id
-                        and service='usage_ip_ports'
+                        AND usage_ip_ports.id = log_tarif.id_service
+                        AND log_tarif.id_tarif=tarifs_internet.id
+                        AND service='usage_ip_ports'
                         ");
             }
             usort($sortedArray, create_function('$a,$b', 'return strcmp($a["' . $sort . '"], $b["' . $sort . '"]);'));
@@ -5553,13 +5627,13 @@ SELECT cr.manager, cr.account_manager FROM clients c
     {
         global $design, $db;
         $tableName = CurrencyRate::tableName();
-        $design->assign('rates', $db->AllRecords('select * from ' . $tableName . ' order by date desc limit 30'));
+        $design->assign('rates', $db->AllRecords('SELECT * FROM ' . $tableName . ' ORDER BY date DESC LIMIT 30'));
         if (($date = get_param_protected('date')) && ($rate = get_param_protected('rate'))) {
-            if ($db->QuerySelectRow($tableName, array('date' => $date, 'currency' => 'USD'))) {
+            if ($db->QuerySelectRow($tableName, ['date' => $date, 'currency' => 'USD'])) {
                 trigger_error2('Курс на эту дату уже введён');
             } else {
                 trigger_error2('Курс занесён');
-                $db->QueryInsert($tableName, array('date' => $date, 'currency' => 'USD', 'rate' => $rate));
+                $db->QueryInsert($tableName, ['date' => $date, 'currency' => 'USD', 'rate' => $rate]);
             }
         }
         $design->assign('cur_date', date('Y-m-d'));
@@ -5604,11 +5678,11 @@ SELECT cr.manager, cr.account_manager FROM clients c
         }
         $design->assign('type', $type);
 
-        $bdefault = array("mos" => true, "citi" => true, "ural" => true, "sber" => true);
+        $bdefault = ["mos" => true, "citi" => true, "ural" => true, "sber" => true];
         $banks = get_param_raw("banks", $bdefault);
         $design->assign("banks", $banks);
 
-        $edefault = array("cyberplat" => true, "yandex" => true, "paypal" => true);
+        $edefault = ["cyberplat" => true, "yandex" => true, "paypal" => true];
         $ecashs = get_param_raw("ecashs", $edefault);
         $design->assign("ecashs", $ecashs);
 
@@ -5616,7 +5690,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $design->assign("order_by", $order_by);
 
         $types = '';
-        foreach (array('bank', 'prov', 'neprov', 'ecash') as $k) {
+        foreach (['bank', 'prov', 'neprov', 'ecash'] as $k) {
             if ($v = get_param_raw($k)) {
                 $types .= ($types ? ',' : '') . '"' . $k . '"';
             }
@@ -5632,19 +5706,19 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $filter .= " and (" . $filterBank . ($filterEcash ? " OR " . $filterEcash : "") . ")";
 
         if (!$types) {
-            $R = array();
+            $R = [];
         } else {
-            $R = $db->AllRecords($q = 'select P.*,cr.manager,C.client,cg.name AS company,B.bill_date,U.user from newpayments as P
-                         INNER JOIN clients as C ON C.id=P.client_id
+            $R = $db->AllRecords($q = 'SELECT P.*,cr.manager,C.client,cg.name AS company,B.bill_date,U.user FROM newpayments AS P
+                         INNER JOIN clients AS C ON C.id=P.client_id
                          INNER JOIN `client_contract` cr ON cr.id=C.contract_id
                          INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-                         LEFT JOIN user_users as U ON U.id=P.add_user
-                         LEFT JOIN newbills as B ON (B.bill_no=P.bill_no)
+                         LEFT JOIN user_users AS U ON U.id=P.add_user
+                         LEFT JOIN newbills AS B ON (B.bill_no=P.bill_no)
                          WHERE P.' . $type . '>=FROM_UNIXTIME(' . $from . ') AND P.' . $type . '<FROM_UNIXTIME(' . $to . ')
                          AND P.type IN (' . $types . ')' . $filter . ' ORDER BY ' . $order_by . ' LIMIT 5000');
         }
 
-        $S = array(
+        $S = [
             'bRUB' => 0,
             'pRUB' => 0,
             'nRUB' => 0,
@@ -5654,7 +5728,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
             'nUSD' => 0,
             'RUB' => 0,
             'USD' => 0
-        );
+        ];
 
         foreach ($R as &$r) {
             $r['type'] = substr($r['type'], 0, 1);
@@ -5664,7 +5738,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         unset($r);
         $design->assign('user', $user);
         $design->assign('users',
-            $db->AllRecords("select id,user,name from user_users where usergroup in ('admin','manager','account_managers','accounts_department') and enabled = 'yes' order by name",
+            $db->AllRecords("SELECT id,user,name FROM user_users WHERE usergroup IN ('admin','manager','account_managers','accounts_department') AND enabled = 'yes' ORDER BY name",
                 null, MYSQL_ASSOC));
         $design->assign('payments', $R);
         $design->assign('totals', $S);
@@ -5692,18 +5766,18 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $from = $dateFrom->getTimestamp();
         $ord = 0;
         $R = $db->AllRecords('
-          select B.*,cg.name AS company,C.address_post_real 
-          from newbills as B 
-          inner join clients as C ON C.id=B.client_id
+          SELECT B.*,cg.name AS company,C.address_post_real 
+          FROM newbills AS B 
+          INNER JOIN clients AS C ON C.id=B.client_id
           INNER JOIN `client_contract` cr ON cr.id=C.contract_id
           INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-          where 
+          WHERE 
                   postreg = "' . date('Y-m-d', $from) . '"
-          group by C.id order by B.bill_no');
+          GROUP BY C.id ORDER BY B.bill_no');
         foreach ($R as &$r) {
             $r['ord'] = ++$ord;
             if (!preg_match('|^([^,]+),([^,]+),(.+)$|', $r['address_post_real'], $m)) {
-                $m = array('', '', 'Москва', $r['address_post_real']);
+                $m = ['', '', 'Москва', $r['address_post_real']];
             }
             $r['_zip'] = $m[1];
             $r['_city'] = $m[2];
@@ -5726,14 +5800,14 @@ SELECT cr.manager, cr.account_manager FROM clients c
         switch ($_REQUEST['subaction']) {
             case 'getItemDates': {
                 $query = "
-                    select
+                    SELECT
                         date_from,
                         date_to
-                    from
+                    FROM
                         newbill_lines
-                    where
+                    WHERE
                         bill_no='" . addcslashes($_REQUEST['bill_no'], "\\\\'") . "'
-                    and
+                    AND
                         sort = " . ((int)$_REQUEST['sort_number']) . "
                 ";
                 $db->Query($query);
@@ -5823,18 +5897,18 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
         // инициализация
         $lMetro = \app\models\Metro::getList();
-        $lLogistic = array(
+        $lLogistic = [
             "none" => "--- Не установленно ---",
             "selfdeliv" => "Самовывоз",
             "courier" => "Доставка курьером",
             "auto" => "Доставка авто",
             "tk" => "Доставка ТК",
-        );
+        ];
         $design->assign("l_metro", $lMetro);
         $design->assign("l_logistic", $lLogistic);
 
-        $storeList = array();
-        foreach ($db->AllRecords("select * from g_store where is_show='yes' order by name") as $l) {
+        $storeList = [];
+        foreach ($db->AllRecords("SELECT * FROM g_store WHERE is_show='yes' ORDER BY name") as $l) {
             $storeList[$l["id"]] = $l["name"];
         }
         $design->assign("store_list", $storeList);
@@ -5848,14 +5922,14 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
         $pt = $account->price_type;
 
-        $positions = array(
+        $positions = [
             'bill_no' => $bill_no,
             'client_id' => $account->id,
-            'list' => array(),
+            'list' => [],
             'sum' => 0,
             'number' => '',
             'comment' => ''
-        );
+        ];
 
         $isToRecalc = false;
 
@@ -5882,7 +5956,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 exit();
             }
         } elseif (isset($_GET["from_order"])) {
-            $_POST = $db->GetRow("select * from newbills_add_info where bill_no = '" . $_GET["from_order"] . "'");
+            $_POST = $db->GetRow("SELECT * FROM newbills_add_info WHERE bill_no = '" . $_GET["from_order"] . "'");
         }
 
         // добавление новой позиции
@@ -5897,7 +5971,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
             $_POST['new']['price'] = Good::GetPrice($_POST['new']['id'], $pt);
 
             $positions['list'][] = $_POST['new'];
-            $buf = array();
+            $buf = [];
             foreach ($positions['list'] as $k => $p) {
                 if (isset($buf[$p['id']])) {
                     $buf[$p['id']]['quantity'] += $p['quantity'];
@@ -5906,7 +5980,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 }
             }
             if (count($buf) != count($positions['list'])) {
-                $nl = array();
+                $nl = [];
                 foreach ($buf as $p) {
                     $nl[] = $p;
                 }
@@ -5931,7 +6005,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         // данные заказа (add_info)
 
         //список полей
-        $adds = array(
+        $adds = [
             'ФИО' => 'fio',
             'Адрес' => 'address',
             'НомерЗаявки' => 'req_no',
@@ -5955,14 +6029,14 @@ SELECT cr.manager, cr.account_manager FROM clients c
             'ПроисхождениеЗаказа' => 'order_given',
             'КонтактныйТелефон' => 'phone'
 
-        ,
+            ,
             'Метро' => 'metro_id',
             'Логистика' => 'logistic',
             "ВладелецЛинии" => 'line_owner'
-        );
+        ];
 
         // инициализация из _POST
-        $add = array();
+        $add = [];
         $addcnt = 0;
         foreach ($adds as $add_key) {
             if (isset($_POST[$add_key])) {
@@ -5977,7 +6051,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         // инициализация из базы
         if (isset($_GET['bill_no'])) {
             if (!$addcnt) {
-                $adds_data = $db->GetRow($q = "select * from newbills_add_info where bill_no='" . addcslashes($_GET['bill_no'],
+                $adds_data = $db->GetRow($q = "SELECT * FROM newbills_add_info WHERE bill_no='" . addcslashes($_GET['bill_no'],
                         "\\'") . "'");
                 $storeId = $adds_data["store_id"];
                 if (count($adds_data)) {
@@ -6022,7 +6096,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         // оформить заказ
         if (isset($_POST['make'])) {
             // сохранение в 1с
-            $add_info = array();
+            $add_info = [];
             foreach ($adds as $add_rkey => $add_ekey) {
                 if (isset($_POST[$add_ekey])) {
                     $add_info[$add_rkey] = $_POST[$add_ekey];
@@ -6035,14 +6109,14 @@ SELECT cr.manager, cr.account_manager FROM clients c
             }
 
             #$ret = $bm->saveOrder($client_tid,$positions['number'],$positions['list'],$positions['comment'],$positions['is_rollback'],$fault);
-            $saveIds = array("metro_id" => $add_info["Метро"], "logistic" => $add_info["Логистика"]);
+            $saveIds = ["metro_id" => $add_info["Метро"], "logistic" => $add_info["Логистика"]];
 
             $add_info["Метро"] = ($add_info["Метро"] == 0 ? "" : $lMetro[$add_info["Метро"]]);
             $add_info["Логистика"] = ($add_info["Логистика"] == "none" ? "" : $lLogistic[$add_info["Логистика"]]);
 
             $this->compareForChanges($positions, $bm->getStatOrder($positions['bill_no']));
 
-            $a = array(
+            $a = [
                 'client_tid' => $account->client,
                 'order_number' => $positions['bill_no'],
                 'items_list' => (isset($positions['list']) ? $positions['list'] : false),
@@ -6051,7 +6125,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 'is_rollback' => $positions['is_rollback'],
                 'add_info' => $add_info,
                 "store_id" => $storeId
-            );
+            ];
 
             $ret = $bm->saveOrder($a, $fault);
 
@@ -6074,7 +6148,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 $sh->statSaveOrder($cl, $bill_no, $error, $saveIds);
 
                 $positions = $bm->getStatOrder($bill_no);
-                if ($ttt = $db->GetRow("select * from tt_troubles where bill_no='" . $bill_no . "'")) {
+                if ($ttt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='" . $bill_no . "'")) {
                     if ($ttt['state_id'] == 15 && $bill) {
                         global $user;
                         Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
@@ -6090,20 +6164,20 @@ SELECT cr.manager, cr.account_manager FROM clients c
                     }
                     if (trim($comment)) {
                         $db->QueryUpdate("tt_troubles", "bill_no",
-                            array("problem" => $comment, "bill_no" => $ttt['bill_no']));
+                            ["problem" => $comment, "bill_no" => $ttt['bill_no']]);
                     }
 
                 } elseif (isset($_GET['tty']) && in_array($_GET['tty'],
-                        array('shop_orders', 'mounting_orders', 'orders_kp'))
+                        ['shop_orders', 'mounting_orders', 'orders_kp'])
                 ) {
-                    StatModule::tt()->createTrouble(array(
+                    StatModule::tt()->createTrouble([
                         'trouble_type' => $_GET['tty'],
                         'trouble_subtype' => 'shop',
                         'client' => $client_id,
                         'problem' => @$positions['comment'],
                         'bill_no' => $bill_no,
                         'time' => date('Y-m-d')
-                    ));
+                    ]);
                 }
 
                 if (!$ttt && $bill) {
@@ -6120,7 +6194,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
 
         $R = User::dao()->getListByDepartments(['manager', 'marketing']);
-        $userSelect = array(0 => "--- Не установлен ---");
+        $userSelect = [0 => "--- Не установлен ---"];
         foreach ($R as $u) {
             $userSelect[$u["id"]] = $u["name"] . " (" . $u["user"] . ")";
         }
@@ -6131,7 +6205,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
         $design->assign('show_adds',
             (in_array($account->client,
-                    array('all4net', 'wellconnect')) || $account->contract->contragent->legal_type != 'legal'));
+                    ['all4net', 'wellconnect']) || $account->contract->contragent->legal_type != 'legal'));
         $design->assign('order_type', isset($_GET['tty']) ? $_GET['tty'] : false);
         $design->assign('is_rollback', isset($_GET['is_rollback']) ? true : false);
         $positions["client_id"] = $client_id;
@@ -6152,7 +6226,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
             $isEqual = true;
             foreach ($lSave as $idx => $s) {
                 $d = $lDB[$idx];
-                foreach (array("id", "quantity", "price", "discount_set", "discount_auto") as $f) {
+                foreach (["id", "quantity", "price", "discount_set", "discount_auto"] as $f) {
                     if ($f == "id") {
                         list($id, $descrId) = explode(":", $s[$f]);
                         if ($descrId == "") {
@@ -6185,7 +6259,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
             list($gId, $dId) = explode(":", $p["id"] . "::");
             $p["art"] = "";
             if ($gId) {
-                $g = $db->GetRow("select art from g_goods where id = '" . $gId . "'");
+                $g = $db->GetRow("SELECT art FROM g_goods WHERE id = '" . $gId . "'");
                 $p["art"] = $g["art"];
             }
         }
@@ -6216,50 +6290,50 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
             foreach ($db->AllRecords($q =
                 "
-                        select * from (
+                        SELECT * FROM (
                         (
-                        SELECT if(d.name is null, concat(g.id,':'), concat(g.id,':',p.descr_id)) as id,
-                        g.id as good_id,
-                        g.name as name,
-                        if(d.name is not null,d.name ,'') as description,
-                        g.group_id, p.descr_id as descr_id,  p.price, d.name as descr_name, qty_free, qty_store, qty_wait, is_service,
-                        art, num_id as code, dv.name as division, store
+                        SELECT if(d.name IS NULL, concat(g.id,':'), concat(g.id,':',p.descr_id)) AS id,
+                        g.id AS good_id,
+                        g.name AS name,
+                        if(d.name IS NOT NULL,d.name ,'') AS description,
+                        g.group_id, p.descr_id AS descr_id,  p.price, d.name AS descr_name, qty_free, qty_store, qty_wait, is_service,
+                        art, num_id AS code, dv.name AS division, store
                         FROM (
-                            select * from g_goods g1 where g1.art = '" . $prod . "'
-                            union select * from g_goods g1 where g1.num_id = '" . $prod . "'
-                            union select * from g_goods g2 where g2.name like '%" . $prod . "%'
+                            SELECT * FROM g_goods g1 WHERE g1.art = '" . $prod . "'
+                            UNION SELECT * FROM g_goods g1 WHERE g1.num_id = '" . $prod . "'
+                            UNION SELECT * FROM g_goods g2 WHERE g2.name LIKE '%" . $prod . "%'
                             ) g
-                        left join g_good_price p on (p.good_id = g.id AND p.currency = '" . $currency . "')
-                        left join g_good_description d on (g.id = d.good_id and d.id = p.descr_id)
-                        left join g_good_store s on (s.good_id = g.id and s.descr_id = p.descr_id and s.store_id = '" . $storeId . "')
-                        left join g_division dv on (g.division_id = dv.id)
+                        LEFT JOIN g_good_price p ON (p.good_id = g.id AND p.currency = '" . $currency . "')
+                        LEFT JOIN g_good_description d ON (g.id = d.good_id AND d.id = p.descr_id)
+                        LEFT JOIN g_good_store s ON (s.good_id = g.id AND s.descr_id = p.descr_id AND s.store_id = '" . $storeId . "')
+                        LEFT JOIN g_division dv ON (g.division_id = dv.id)
 
-                        where price_type_id = '" . $priceType . "'
+                        WHERE price_type_id = '" . $priceType . "'
 
-                        order by length(g.name)
-                        limit 50 )
-                        union
+                        ORDER BY length(g.name)
+                        LIMIT 50 )
+                        UNION
                         (
-                         SELECT  if(d.name is null, concat(g.id,':'), concat(g.id,':',s.descr_id)) as id,
-                         g.id as good_id,
-                        g.name as name,
-                        if(d.name is not null,d.name ,'') as description,
-                         g.group_id, '' as descr_id,   '--- ' as price, null as descr_name, qty_free, qty_store, qty_wait, is_service,
-                         art, num_id as code, dv.name as division,store
+                         SELECT  if(d.name IS NULL, concat(g.id,':'), concat(g.id,':',s.descr_id)) AS id,
+                         g.id AS good_id,
+                        g.name AS name,
+                        if(d.name IS NOT NULL,d.name ,'') AS description,
+                         g.group_id, '' AS descr_id,   '--- ' AS price, NULL AS descr_name, qty_free, qty_store, qty_wait, is_service,
+                         art, num_id AS code, dv.name AS division,store
                          FROM (
-                             select * from g_goods g1 where g1.art = '" . $prod . "'
-                             union select * from g_goods g1 where g1.num_id = '" . $prod . "'
-                             union select * from g_goods g2 where g2.name like '%" . $prod . "%'
+                             SELECT * FROM g_goods g1 WHERE g1.art = '" . $prod . "'
+                             UNION SELECT * FROM g_goods g1 WHERE g1.num_id = '" . $prod . "'
+                             UNION SELECT * FROM g_goods g2 WHERE g2.name LIKE '%" . $prod . "%'
                              ) g
-                         left join g_good_store s on (s.good_id = g.id and s.store_id = '" . $storeId . "')
-                         left join g_good_description d on (g.id = d.good_id and d.id = s.descr_id)
-                         left join g_division dv on (g.division_id = dv.id)
+                         LEFT JOIN g_good_store s ON (s.good_id = g.id AND s.store_id = '" . $storeId . "')
+                         LEFT JOIN g_good_description d ON (g.id = d.good_id AND d.id = s.descr_id)
+                         LEFT JOIN g_division dv ON (g.division_id = dv.id)
 
-                         where  g.is_allowpricezero
-                         order by length(g.name)
-                         limit 50
+                         WHERE  g.is_allowpricezero
+                         ORDER BY length(g.name)
+                         LIMIT 50
                         )
-                        ) a group by a.id
+                        ) a GROUP BY a.id
 
                         ") as $good) {
                 if (strpos($good["name"], "(Архив)") !== false) {
@@ -6275,7 +6349,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 $ret .= "{" .
                     "id:'" . addcslashes($good['id'], "\\'") . "'," .
                     "good_id:'" . addcslashes($good['good_id'], "\\'") . "'," .
-                    "name:'" . str_replace(array("\r", "\n"), "", addcslashes($good['name'], "\\'")) . "'," .
+                    "name:'" . str_replace(["\r", "\n"], "", addcslashes($good['name'], "\\'")) . "'," .
                     "description:'" . addcslashes($good['description'], "\\'") . "'," .
                     "division:'" . addcslashes($good['division'], "\\'") . "'," .
                     "price:'" . addcslashes($good['price'], "\\'") . "'," .
@@ -6305,7 +6379,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
     {
         global $db, $design;
 
-        $R = array();
+        $R = [];
 
         $dateFrom = new DatePickerValues('date_from', 'today');
         $dateTo = new DatePickerValues('date_to', 'today');
@@ -6324,8 +6398,8 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 $to = date("Y-m-d");
                 // nothing
             } else {
-                $R = $db->Allrecords("select * from qr_code where date between '" . date("Y-m-d H:i:s",
-                        $from) . "' and '" . date("Y-m-d H:i:s", $to) . "' order by file, date");
+                $R = $db->Allrecords("SELECT * FROM qr_code WHERE date BETWEEN '" . date("Y-m-d H:i:s",
+                        $from) . "' AND '" . date("Y-m-d H:i:s", $to) . "' ORDER BY file, date");
                 $from = date("Y-m-d", $from);
                 $to = date("Y-m-d", $to);
             }
@@ -6388,7 +6462,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
         $c = 0;
 
-        $docs = array();
+        $docs = [];
         while ($e = $d->read()) {
             if ($e == ".." || $e == ".") {
                 continue;
@@ -6411,13 +6485,13 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 $clientId = Bill::find()->where(['bill_no' => $billNo])->select('client_id')->scalar();
                 $type = $qr["type"]["code"];
 
-                $id = $db->QueryInsert("qr_code", array(
+                $id = $db->QueryInsert("qr_code", [
                     "file" => $e,
                     "code" => $qrcode,
                     "bill_no" => $billNo,
                     "client_id" => $clientId,
                     "doc_type" => $type
-                ));
+                ]);
 
                 exec("mv " . $dir . $e . " " . STORE_PATH . "documents/" . $id . ".pdf");
             } else {
@@ -6456,7 +6530,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $d = dir($dirPath);
 
         $c = 0;
-        $R = array();
+        $R = [];
         while ($e = $d->read()) {
             if ($e == ".." || $e == ".") {
                 continue;
@@ -6469,7 +6543,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         }
         $d->close();
 
-        $docType = array();
+        $docType = [];
         foreach (BillQRCode::$codes as $code => $c) {
             $docType[$code] = $c["name"];
         }
@@ -6532,13 +6606,13 @@ SELECT cr.manager, cr.account_manager FROM clients c
             $type = $qr["type"]["code"];
         }
 
-        $id = $db->QueryInsert("qr_code", array(
+        $id = $db->QueryInsert("qr_code", [
             "file" => $file,
             "code" => $qrcode,
             "bill_no" => $billNo,
             "client_id" => $clientId,
             "doc_type" => $type
-        ));
+        ]);
 
 
         exec("mv " . $dirUnrec . $file . " " . $dirDoc . $id . ".pdf");
@@ -6556,7 +6630,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         } elseif (($id = get_param_integer("id", 0)) !== 0) {
             global $db;
 
-            $r = $db->GetValue("select file from qr_code where id = '" . $id . "'");
+            $r = $db->GetValue("SELECT file FROM qr_code WHERE id = '" . $id . "'");
 
             if ($r) {
                 $this->docs_echoFile($dirPath . $id . ".pdf", $r);
@@ -6586,7 +6660,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         if (($id = get_param_integer("id", 0)) !== 0) {
             global $db;
 
-            if ($db->Query("delete from qr_code where id = '" . $id . "'")) {
+            if ($db->Query("DELETE FROM qr_code WHERE id = '" . $id . "'")) {
                 if (file_exists($dirPath . $id . ".pdf")) {
                     unlink($dirPath . $id . ".pdf");
                 }
@@ -6607,12 +6681,12 @@ SELECT cr.manager, cr.account_manager FROM clients c
     {
         global $db;
 
-        $r = array();
+        $r = [];
         $q = $db->AllRecords("
-                SELECT code_1c as code, round(if(b.type = '%', bl.sum*0.01*`value`, `value`*amount),2) as bonus
+                SELECT code_1c AS code, round(if(b.type = '%', bl.sum*0.01*`value`, `value`*amount),2) AS bonus
                 FROM newbill_lines bl
-                inner join g_bonus b on b.good_id = bl.item_id
-                    and `group` = (select if(usergroup='account_managers', 'manager', usergroup) from newbill_owner nbo, user_users u where nbo.bill_no = bl.bill_no and u.id=nbo.owner_id) where bl.bill_no='" . $billNo . "'");
+                INNER JOIN g_bonus b ON b.good_id = bl.item_id
+                    AND `group` = (SELECT if(usergroup='account_managers', 'manager', usergroup) FROM newbill_owner nbo, user_users u WHERE nbo.bill_no = bl.bill_no AND u.id=nbo.owner_id) WHERE bl.bill_no='" . $billNo . "'");
         if ($q) {
             foreach ($q as $l) {
                 $r[$l["code"]] = $l["bonus"];

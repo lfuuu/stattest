@@ -2,7 +2,9 @@
 
 namespace app\modules\uu\models_light;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\Invoice;
 use app\models\Payment;
 use app\modules\uu\models\Bill as uuBill;
 use yii\base\Component;
@@ -24,14 +26,14 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
     /**
      * @param Bill|uuBill $bill
+     * @param Invoice $invoice
      * @param string $language
      */
-    public function __construct($bill, $language)
+    public function __construct($bill, $invoice, $language)
     {
         parent::__construct();
 
-        $this->id = $bill instanceof Bill ? $bill->bill_no : $bill->id;
-        $this->date = $bill->date;
+        $this->id = $invoice ? $invoice->number : ($bill instanceof Bill ? $bill->bill_no : $bill->id);
         $this->_language = $language;
 
         $statBill = $this->_getStatBill($bill);

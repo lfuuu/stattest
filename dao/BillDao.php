@@ -1004,9 +1004,9 @@ SQL;
 
         $clientAccount = $bill->clientAccount;
 
-        // только рублевые ЛС и ЛС с выгрузкой
+        // только рублевые ЛС и ЛС с выгрузкой, или не рублевые, но после 1 янв 2019
         if (
-            $clientAccount->currency != Currency::RUB
+            ($clientAccount->currency != Currency::RUB && $bill->bill_date < Invoice::DATE_NO_RUSSIAN_ACCOUNTING)
             || !$clientAccount->getOptionValue(ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK)
         ) {
 

@@ -2,6 +2,8 @@
 {foreach from=$objects item=obj}
     {if $obj.doc_type!="" || $obj.isBill}
         <frame src="/bill/print?&billNo={$obj.bill_no}{if $obj.doc_type}&docType={$obj.doc_type}{/if}&isPdf={$is_pdf}" name="" marginwidth="10" marginheight="10" />
+	{elseif isset($obj.isLink) && $obj.isLink}
+		<frame src="{$obj.link}" name="" marginwidth="10" marginheight="10" />
 	{elseif $obj.obj!='envelope'}
 		<frame src="?module=newaccounts&action=bill_print&bill={$obj.bill_no}&object={$obj.obj}&is_pdf={$is_pdf}" name="" marginwidth="10" marginheight="10">
 	{else}

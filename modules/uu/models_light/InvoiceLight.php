@@ -9,6 +9,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
+use app\models\Invoice;
 use app\models\Language;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
@@ -28,6 +29,7 @@ class InvoiceLight extends Component
         $_buyer,
         $_items,
         $_bill,
+        $_invoice,
 
         $_clientAccount,
         $_language = Language::LANGUAGE_DEFAULT,
@@ -47,12 +49,23 @@ class InvoiceLight extends Component
     }
 
     /**
-     * @param Bill $bill
+     * @param Bill|\app\modules\uu\models\Bill $bill
      * @return $this
      */
     public function setBill($bill)
     {
         $this->_bill = $bill;
+        return $this;
+    }
+
+    /**
+     * @param Invoice $invoice
+     * @return $this
+     * @internal param Bill $bill
+     */
+    public function setInvoice(Invoice $invoice)
+    {
+        $this->_invoice = $invoice;
         return $this;
     }
 
@@ -144,13 +157,17 @@ class InvoiceLight extends Component
                 $additionItems && $items = array_merge($items, $additionItems);
             }
 
+        } elseif ($this->_invoice) {
+            $this->_bill = $this->_invoice->bill;
+            $items = $this->_bill->getLinesByTypeId($this->_invoice->type_id);
         } elseif ($this->_bill instanceof Bill) {
             $items = $this->_bill->lines;
+
         }
 
         if (count($items)) {
             // Данные о счете
-            $this->_bill = new InvoiceBillLight($this->_bill, $dataLanguage);
+            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage);
             // Данные проводках
             $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $dataLanguage))->getAll();
         }

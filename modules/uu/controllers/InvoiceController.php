@@ -7,7 +7,9 @@ namespace app\modules\uu\controllers;
 
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
+use app\models\Bill as sBill;
 use app\models\ClientAccount;
+use app\models\Invoice;
 use app\modules\uu\models\Bill;
 use app\modules\uu\models_light\InvoiceLight;
 use Yii;
@@ -90,20 +92,49 @@ class InvoiceController extends BaseController
      * @return string
      * @throws InvalidParamException
      */
-    public function actionGet($billId, $renderMode = null, $langCode = null, $isShow = false)
+    public function actionGet($billId = null, $billNo = null, $typeId = 1, $renderMode = null, $langCode = null, $isShow = false)
     {
+        $invoice = $clientAccountId = null;
+
         /** @var Bill $bill */
-        if (!($bill = Bill::findOne(['id' => $billId]))) {
+        if ($billId) {
+            if ($bill = Bill::findOne(['id' => $billId])) {
+                $clientAccountId = $bill->client_account_id;
+            } else {
+                throw new InvalidParamException;
+            }
+        }
+
+        if (!$bill && $billNo) {
+            /** @var sBill $bill */
+            if (!($bill = sBill::findOne(['bill_no' => $billNo]))) {
+                throw new InvalidParamException;
+            }
+
+            $invoice = Invoice::findOne(['bill_no' => $bill->bill_no, 'type_id' => $typeId]);
+
+            if (!$invoice) {
+                throw new InvalidParamException;
+            }
+
+            $clientAccountId = $bill->client_id;
+        }
+
+        if (!$bill || !$clientAccountId) {
             throw new InvalidParamException;
         }
 
-        $clientAccount = $this->_checkClientAccount($bill->client_account_id);
+        $clientAccount = $this->_checkClientAccount($clientAccountId);
 
-        $invoice = (new InvoiceLight($clientAccount))
+        $invoiceDocument = (new InvoiceLight($clientAccount))
             ->setBill($bill);
 
+        if ($invoice) {
+            $invoiceDocument->setInvoice($invoice);
+        }
+
         if (!is_null($langCode)) {
-            $invoice->setLanguage($langCode);
+            $invoiceDocument->setLanguage($langCode);
         }
 
         $bilDate = new \DateTime($bill->date);
@@ -112,7 +143,7 @@ class InvoiceController extends BaseController
             case 'pdf': {
                 $pdfContent = $this->renderAsPDF(
                     'print',
-                    ['invoiceContent' => $invoice->render(),],
+                    ['invoiceContent' => $invoiceDocument->render(),],
                     [
                         'cssFile' => '@web/css/invoice/invoice.css',
                     ]
@@ -131,16 +162,16 @@ class InvoiceController extends BaseController
 
             case 'mhtml': {
                 return $this->renderAsMHTML('print', [
-                    'invoiceContent' => $invoice->render(),
+                    'invoiceContent' => $invoiceDocument->render(),
                     'fileName' => $clientAccount->id . '-' . $bilDate->format('Ym') . '-' . $bill->id . '.doc'
-                    ]);
+                ]);
             }
         }
 
         $this->layout = 'empty';
         return $this->render(
             'print',
-            ['invoiceContent' => $invoice->render(),]
+            ['invoiceContent' => $invoiceDocument->render(),]
         );
     }
 

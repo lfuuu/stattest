@@ -3,6 +3,8 @@
 namespace app\classes\behaviors;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\Country;
+use app\models\Currency;
 use app\models\Invoice;
 use yii\base\Behavior;
 use yii\base\ModelEvent;
@@ -30,13 +32,27 @@ class InvoiceNextIdx extends Behavior
             throw new \BadFunctionCallException('Не заданы обязательные параметры для генерации номера с/ф');
         }
 
+        $startDate = (new \DateTimeImmutable($invoice->date))->modify('first day of this month');
+        $endDate = (new \DateTimeImmutable($invoice->date))->modify('last day of this month');
+
+        // с 1 января, для всех не Россиских компаний номерация с/ф сквозная в течении года
+        if (
+            $invoice->date >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING
+            && $invoice->bill->clientAccount->currency != Currency::RUB
+        ) {
+            $startDate = (new \DateTimeImmutable($invoice->date))
+                ->setDate($startDate->format('Y'), 1, 1);
+
+            $endDate = $startDate->setDate($startDate->format('Y'), 12, 31);
+        }
+
         $maxIdx = Invoice::find()->where([
             'organization_id' => $invoice->bill->organization_id,
         ])->andWhere([
             'between',
             'date',
-            (new \DateTimeImmutable($invoice->date))->modify('first day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
-            (new \DateTimeImmutable($invoice->date))->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT)
+            $startDate->format(DateTimeZoneHelper::DATE_FORMAT),
+            $endDate->format(DateTimeZoneHelper::DATE_FORMAT)
         ])->max('idx');
 
         if (!$maxIdx) {

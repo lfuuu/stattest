@@ -22,7 +22,8 @@ use app\helpers\DateTimeZoneHelper;
  * @property string $add_date
  * @property string $reversal_date
  *
- * @property-read Bill bill
+ * @property-read Bill $bill
+ * @property-read Organization $organization
  */
 class Invoice extends ActiveRecord
 {
@@ -32,6 +33,7 @@ class Invoice extends ActiveRecord
     const TYPE_PREPAID = 4;
 
     const DATE_ACCOUNTING = '2018-08-01';
+    const DATE_NO_RUSSIAN_ACCOUNTING = '2019-01-01';
 
     public static $types = [self::TYPE_1, self::TYPE_2, self::TYPE_GOOD];
 
@@ -64,6 +66,14 @@ class Invoice extends ActiveRecord
     public function getBill()
     {
         return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrganization()
+    {
+        return $this->hasOne(Organization::class, ['organization_id' => 'id']);
     }
 
     public function getDateImmutable()
