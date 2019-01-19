@@ -5,6 +5,8 @@ use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BillDocument;
 use app\models\ClientAccount;
+use app\models\Country;
+use app\models\Organization;
 
 /**
  * Class BillDocumentDao
@@ -90,17 +92,32 @@ class BillDocumentDao extends Singleton
             'i1' => 0, 'i2' => 0, 'i3' => 0, 'i4' => 0, 'i5' => 0, 'i6' => 0, 'i7' => 0,
             'ia1' => 0, 'ia2' => 0
         ];
-        for ($i = 1; $i <= 3; $i++) {
-            $doctypes['a' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_AKT, $bill_akts[$i]);
-        }
 
-        for ($i = 1; $i <= 7; $i++) {
-            $doctypes['i' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_INVOICE, $bill_invoices[$i], $i);
-        }
+        $organizationCountryId = Organization::find()
+            ->where(['organization_id' => $bill->Get('organization_id')])
+            ->orderBy(['actual_from' => SORT_DESC])
+            ->select('country_id')
+            ->scalar();
 
-        for ($i = 1; $i <= 2; $i++) {
-            $v = $this->_isSF($accountId, $billTs, BillDocument::TYPE_UPD, $bill_invoice_akts[$i]);
-            $doctypes['ia' . $i] = $v === null ? 0 : (int)!$v;
+        // для не русских организаций только с/ф (invoice)
+        if ($organizationCountryId && $organizationCountryId != Country::RUSSIA) {
+            $doctypes['i1'] = count($p1);
+            $doctypes['i2'] = count($p2);
+            $doctypes['i3'] = count($p3);
+        } else {
+
+            for ($i = 1; $i <= 3; $i++) {
+                $doctypes['a' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_AKT, $bill_akts[$i]);
+            }
+
+            for ($i = 1; $i <= 7; $i++) {
+                $doctypes['i' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_INVOICE, $bill_invoices[$i], $i);
+            }
+
+            for ($i = 1; $i <= 2; $i++) {
+                $v = $this->_isSF($accountId, $billTs, BillDocument::TYPE_UPD, $bill_invoice_akts[$i]);
+                $doctypes['ia' . $i] = $v === null ? 0 : (int)!$v;
+            }
         }
 
         $docs = BillDocument::findOne($billNo);

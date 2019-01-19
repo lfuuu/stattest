@@ -16,4 +16,7 @@ return ArrayHelper::merge(include(realpath(__DIR__ . '/../' . Language::LANGUAGE
     'Communications services contract #{contract_number}' => 'Telekommunikationsdienstleistungen №{contract_number}',
 
     'Month' => 'Monat',
+
+    'nal' => 'bargeld',
+    'beznal' => 'überweisung',
 ]);

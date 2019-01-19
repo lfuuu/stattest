@@ -20,7 +20,9 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $pay_bill_until,
         $summary_without_vat = 0,
         $summary_vat = 0,
-        $summary_with_vat = 0;
+        $summary_with_vat = 0,
+        $payment_type = ''
+    ;
 
     private $_language;
 
@@ -38,6 +40,8 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
         $statBill = $this->_getStatBill($bill);
 
+        $this->date = $statBill->date;
+
         if (!$statBill) {
             return;
         }
@@ -45,6 +49,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $this->pay_bill_until = $statBill->pay_bill_until;
 
         $this->_setPaymentDate($statBill);
+        $this->_setPaymentType($statBill);
     }
 
     /**
@@ -156,6 +161,11 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
             ])
             ->select('payment_date')
             ->scalar();
+    }
+
+    private function _setPaymentType(Bill $bill)
+    {
+        $this->payment_type = \Yii::t('biller', $bill->nal, [], $this->_language);
     }
 
 }

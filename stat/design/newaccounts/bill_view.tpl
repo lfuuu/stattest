@@ -27,9 +27,9 @@
                         <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
                         /
                         {if !$is_new_invoice}
-                        <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>
-                        /
-                            {/if}
+                            <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>
+                            /
+                        {/if}
                     {/if}
                 {/if}
             {elseif $1c_bill_flag}
@@ -72,7 +72,11 @@
         <td>&nbsp;</td>
         <td width="33%">
             {if !$bill.is_approved}Cчет не проведен{else}Счет проведен{/if}
-            {if $bill.is_show_in_lk}<br>Счет опубликован{else}<br><a href="/bill/publish/bill?bill_no={$bill.bill_no}"> Опубликовать счет </a>{/if}
+            {if $bill.is_show_in_lk}
+                <br>
+                Счет опубликован{else}
+                <br>
+            <a href="/bill/publish/bill?bill_no={$bill.bill_no}">Опубликовать счет </a>{/if}
 
             {if $bill_ext.ext_bill_no}<br>Номер внешнего счета: {$bill_ext.ext_bill_no}{/if}
             {if $bill_ext.ext_bill_date}<br>Дата внешнего счета: {$bill_ext.ext_bill_date}{/if}
@@ -235,7 +239,15 @@
 
 
 
+
+
+
+
 {elseif $item.store == "no"}
+
+
+
+
 
 
 
@@ -245,7 +257,15 @@
 
 
 
+
+
+
+
 {elseif $item.store == "remote"}
+
+
+
+
 
 
 
@@ -392,25 +412,29 @@
                 <label for="cb5" class="{if !$bill_invoices[1]}notactive {/if}{if $bill_invoices[1] == -1}invalid{/if}">
                     Счёт-фактура (1 абонентка)
                 </label>
-                <a class="{if !$bill_invoices[1]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-1&to_print=true&is_word=true">MS
+                <a class="{if !$bill_invoices[1]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-1&to_print=true&is_word=true">MS
                     Word</a><br/>
                 <input type=checkbox value="1" name="invoice-2" id=cb6>
                 <label for="cb6" class="{if !$bill_invoices[2]}notactive {/if}{if $bill_invoices[2] == -1}invalid{/if}">
                     Счёт-фактура (2 превышение)
                 </label>
-                <a class="{if !$bill_invoices[2]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-2&to_print=true&is_word=true">MS
+                <a class="{if !$bill_invoices[2]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-2&to_print=true&is_word=true">MS
                     Word</a><br/>
                 <input type=checkbox value="1" name="invoice-3" id=cb7>
                 <label for="cb7" class="{if !$bill_invoices[3]}notactive {/if}{if $bill_invoices[3] == -1}invalid{/if}">
                     Счёт-фактура (3 оборудование)
                 </label>
-                <a class="{if !$bill_invoices[3]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-3&to_print=true&is_word=true">MS
+                <a class="{if !$bill_invoices[3]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-3&to_print=true&is_word=true">MS
                     Word</a><br/>
                 <input type=checkbox value="1" name="invoice-4" id=cbc>
                 <label for="cbc"{if $bill_invoices[5] eq 0} style="color:#C0C0C0"{elseif $bill_invoices[5] eq -1} style="background-color:#ffc0c0;font-style: italic;"{/if}>
                     Счёт-фактура (4 аванс)
                 </label>
-                <a class="{if $bill_invoices[5] eq 0}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-4&to_print=true&is_word=true">MS
+                <a class="{if $bill_invoices[5] eq 0}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-4&to_print=true&is_word=true">MS
                     Word</a><br/>
 
                 <input type=checkbox value="1" name="upd-1" id="upd1">
@@ -418,21 +442,24 @@
                     УПД (1 абонентка)
                 </label>
 
-                <a class="{if !$bill_upd[1]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-1&to_print=true&is_word=true">MS
+                <a class="{if !$bill_upd[1]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-1&to_print=true&is_word=true">MS
                     Word</a><br/>
 
                 <input type=checkbox value="1" name="upd-2" id="upd2">
                 <label for="upd2" class="{if !$bill_upd[2]}notactive {/if}{if $bill_upd[2] == -1}invalid{/if}">
                     УПД (2 превышение)
                 </label>
-                <a class="{if !$bill_upd[2]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-2&to_print=true&is_word=true">MS
+                <a class="{if !$bill_upd[2]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-2&to_print=true&is_word=true">MS
                     Word</a><br/>
 
                 <input type=checkbox value="1" name="upd-3" id="updt">
                 <label for="updt" class="{if !$bill_invoice[3]}notactive {/if}{if $bill_invoice[3] == -1}invalid{/if}">
                     УПД (Т оборудование)
                 </label>
-                <a class="{if !$bill_invoice[3]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-3&to_print=true&is_word=true">MS
+                <a class="{if !$bill_invoice[3]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-3&to_print=true&is_word=true">MS
                     Word</a><br/>
 
                 Действие:
@@ -448,14 +475,16 @@
                 <label for="cb8" class="{if !$bill_akts[1]}notactive {/if}{if $bill_akts[1] == -1}invalid{/if}">
                     Акт (1 абонентка)
                 </label>
-                <a class="{if !$bill_akts[1]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-1&to_print=true&is_word=true">MS
+                <a class="{if !$bill_akts[1]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-1&to_print=true&is_word=true">MS
                     Word</a><br/>
 
                 <input type=checkbox value="1" name="akt-2" id="cb9">
                 <label for="cb9" class="{if !$bill_akts[2]}notactive {/if}{if $bill_akts[2] == -1}invalid{/if}">
                     Акт (2 превышение)
                 </label>
-                <a class="{if !$bill_akts[2]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-2&to_print=true&is_word=true">MS
+                <a class="{if !$bill_akts[2]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-2&to_print=true&is_word=true">MS
                     Word</a><br/>
 
                 <input type=checkbox value="1" name="akt-3" id="cba">
@@ -465,7 +494,8 @@
 
                 <input type=checkbox value="1" name="lading" id="cbb"><label
                         for="cbb"{if !$bill_invoices[4]} style="color:#C0C0C0"{/if}>Накладная</label>
-                <a class="{if !$bill_invoices[4]}notactive {/if}" href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=lading&to_print=true&is_word=true">MS
+                <a class="{if !$bill_invoices[4]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=lading&to_print=true&is_word=true">MS
                     Word</a><br/>
 
                 <input type="checkbox" value="1" name="gds" id="gds"/><label
@@ -522,7 +552,8 @@
                     <br/>
                 {/if}
                 {if isset($isPartnerRewards) && $isPartnerRewards}
-                    <input type="checkbox" value="1" name="partner_reward"/><label>Отчет агента
+                    <input type="checkbox" value="1" name="partner_reward"/>
+                    <label>Отчет агента
                     </label>
                     <br/>
                 {/if}
@@ -552,13 +583,25 @@
                     {if $invoice_info}
                         {if (isset($invoice_info.1)) || isset($invoice_info.2) || isset($invoice_info.3)}{/if}
 
-                        {if isset($invoice_info.1) && !$invoice_info.1.is_reversal}с/ф 1: {$invoice_info.1.sum|round:2}
+                        {if isset($invoice_info.1) && !$invoice_info.1.is_reversal}с/ф 1
+                            (
+                            <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice-1=1&action=bill_mprint"
+                               target="_blank">{$invoice_info.1.number}</a>
+                            ): {$invoice_info.1.sum|round:2}
                             <br>
                         {/if}
-                        {if isset($invoice_info.2) && !$invoice_info.2.is_reversal}с/ф 2: {$invoice_info.2.sum|round:2}
+                        {if isset($invoice_info.2) && !$invoice_info.2.is_reversal}с/ф 2
+                            (
+                            <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice-2=1&action=bill_mprint"
+                               target="_blank">{$invoice_info.2.number}</a>
+                            ): {$invoice_info.2.sum|round:2}
                             <br>
                         {/if}
-                        {if isset($invoice_info.3) && !$invoice_info.3.is_reversal}с/ф 3: {$invoice_info.3.sum|round:2}
+                        {if isset($invoice_info.3) && !$invoice_info.3.is_reversal}с/ф 3
+                            (
+                            <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice-3=1&action=bill_mprint"
+                               target="_blank">{$invoice_info.3.number}</a>
+                            ): {$invoice_info.3.sum|round:2}
                             <br>
                         {/if}
 

@@ -47,4 +47,7 @@ return [
 
     'Communications services contract #{contract_number}' => 'Услуги связи по договору №{contract_number}',
     'Month' => 'Месяц',
+
+    'nal' => 'наличные',
+    'beznal' => 'банковский перевод',
 ];

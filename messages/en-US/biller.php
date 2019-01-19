@@ -42,4 +42,7 @@ return [
     'incomming_payment' => 'Advance payment for communication services',
 
     'Communications services contract #{contract_number}' => 'Communication services under contract No.{contract_number}',
+
+    'nal' => 'cash',
+    'beznal' => 'transfer',
 ];

@@ -776,7 +776,7 @@ class m_newaccounts extends IModule
 
         $design->assign('is_new_invoice', $bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING);
         $design->assign('invoice_info', \app\models\Invoice::find()
-            ->select(['sum', 'is_reversal', 'type_id'])
+            ->select(['sum', 'is_reversal', 'type_id', 'number'])
             ->where([
                 'bill_no' => $bill->GetNo()
             ])

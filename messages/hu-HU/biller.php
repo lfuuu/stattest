@@ -40,4 +40,7 @@ return [
     'USD' => '$',
 
     'incomming_payment' => 'Egyenleg feltöltés távközlési szolgáltatásokra',
+
+    'nal' => 'készpénz',
+    'beznal' => 'átutalás',
 ];
