@@ -160,7 +160,6 @@ class PublishController extends BaseController
             ->innerJoin(['cc' => ClientContract::tableName()], 'cc.id = c.contract_id')
             ->where([
                 'cc.organization_id' => $organizationId,
-                'b.is_show_in_lk' => 0
             ]);
 
         $this->_filterQueryByThisMonth($query);

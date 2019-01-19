@@ -1938,17 +1938,11 @@ class m_newaccounts extends IModule
             $this->create_pdf_from_docs($fixclient, $R);
         }
 
-        printdbg($P, 'P rows');
-        printdbg($R, 'R objects');
-
-        exit();
-
 
         $design->assign('is_pdf', $is_pdf);
         $design->assign('rows', $P);
         $design->assign('objects', $R);
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
-        #$design->ProcessEx('errors.tpl');
     }
 
     function isActionEnabled($r, $enabledActions)
@@ -2051,8 +2045,9 @@ class m_newaccounts extends IModule
         global $design;
 
         $allowedDocs = [
-            'akt-1' => 1,
-            'akt-2' => 2
+            'invoice-1' => 1,
+            'invoice-2' => 2,
+            'invoice-3' => 3,
         ];
 
         $objects = [];
