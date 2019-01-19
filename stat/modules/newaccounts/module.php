@@ -2059,8 +2059,7 @@ class m_newaccounts extends IModule
                         'billNo' => $bill->bill_no,
                         'typeId' => $docId,
                         'langCode' => $bill->clientAccount->contragent->lang_code,
-                        'isPdf' => (int)(bool)$isPdf
-                    ])
+                    ] + ($isPdf ? ['renderMode' => 'pdf', 'isShow' => true] : []))
                 ];
             }
         }

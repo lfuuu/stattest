@@ -114,7 +114,7 @@ class InvoiceController extends BaseController
             $invoice = Invoice::findOne(['bill_no' => $bill->bill_no, 'type_id' => $typeId]);
 
             if (!$invoice) {
-                throw new InvalidParamException;
+                return $this->renderPartial("//wrapper_html", ['content' => 'Документ не найден']);
             }
 
             $clientAccountId = $bill->client_id;
@@ -149,12 +149,15 @@ class InvoiceController extends BaseController
                     ]
                 );
 
+                $attachmentName = $clientAccount->id . '-' . $bilDate->format('Ym') . '-' . $bill->id . '.pdf';
+
                 if (!$isShow) {
-                    \Yii::$app->response->sendContentAsFile($pdfContent, $clientAccount->id . '-' . $bilDate->format('Ym') . '-' . $bill->id . '.pdf');
+                    \Yii::$app->response->sendContentAsFile($pdfContent, $attachmentName);
                 } else {
-                    Yii::$app->response->headers->setDefault('Content-Type', 'application/pdf');
+//                    Yii::$app->response->headers->setDefault('Content-Type', 'application/pdf');
                     Yii::$app->response->format = Response::FORMAT_RAW;
                     Yii::$app->response->content = $pdfContent;
+                    Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
 
                 }
                 \Yii::$app->end();
