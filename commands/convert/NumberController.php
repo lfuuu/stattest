@@ -18,17 +18,17 @@ class NumberController extends Controller
         foreach ($numbersQuery->each() as $numberModel) {
             /** @var $numberModel Number */
 
-            $registryId = Registry::find()
-                ->select('id')
-                ->where(['<=', 'number_from', $numberModel->number])
-                ->andWhere(['>=', 'number_to', $numberModel->number])
-                ->asArray()
-                ->scalar();
-            if (!$registryId) {
+            $registry = Registry::find()
+                ->where(['<=', 'number_full_from', $numberModel->number])
+                ->andWhere(['>=', 'number_full_to', $numberModel->number])
+                ->one();
+
+            if (!$registry) {
                 continue;
             }
 
-            $numberModel->registry_id = $registryId;
+            $numberModel->registry_id = $registry->id;
+            $numberModel->source = $registry->source;
             try {
                 if (!$numberModel->save()) {
                     throw new ModelValidationException($numberModel);
