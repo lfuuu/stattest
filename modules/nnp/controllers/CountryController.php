@@ -5,7 +5,6 @@ namespace app\modules\nnp\controllers;
 use app\classes\BaseController;
 use app\modules\nnp\filters\CountryFilter;
 use app\modules\nnp\forms\country\FormEdit;
-use app\modules\nnp\forms\country\FormNew;
 use Yii;
 use yii\filters\AccessControl;
 
@@ -68,31 +67,6 @@ class CountryController extends BaseController
         $formModel = new FormEdit([
             'id' => $id
         ]);
-
-        // сообщение об ошибке
-        if ($formModel->validateErrors) {
-            Yii::$app->session->setFlash('error', $formModel->validateErrors);
-        }
-
-        if ($formModel->isSaved) {
-            return $this->redirect(['index', 'CountryFilter[code]' => $formModel->country->code]);
-        }
-
-        return $this->render('edit', [
-            'formModel' => $formModel,
-        ]);
-    }
-
-    /**
-     * Создать
-     *
-     * @return string
-     * @throws \yii\base\InvalidParamException
-     */
-    public function actionNew()
-    {
-        /** @var FormNew $formModel */
-        $formModel = new FormNew();
 
         // сообщение об ошибке
         if ($formModel->validateErrors) {
