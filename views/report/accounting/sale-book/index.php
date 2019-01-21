@@ -154,9 +154,9 @@ use app\models\filter\SaleBookFilter;
                 <td>---</td>
                 <td>---</td>
                 <td>---</td>
-                <td><?= $contragent->name_full ?></td>
-                <td><?= $contragent->inn ?>
-                    <?= ($contragent->legal_type == ClientContragent::LEGAL_TYPE ? '/' . ($contragent->kpp ?: '') : '') ?></td>
+                <td><?= trim($contragent->name_full) ?></td>
+                <td><?= trim($contragent->inn) ?>
+                    <?= ($contragent->legal_type == ClientContragent::LEGAL_TYPE ? '/' . (trim($contragent->kpp) ?: '') : '') ?></td>
                 <td>---</td>
                 <td>---</td>
                 <td><?= $contragent->legal_type ?></td>

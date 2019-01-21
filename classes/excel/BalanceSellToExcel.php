@@ -59,9 +59,9 @@ class BalanceSellToExcel extends Excel
                 'sum' => $invoice->sum,
                 'sum_without_tax' => $invoice->sum_without_tax,
                 'sum_tax' => $invoice->sum_tax,
-                'company_full' => $contragent->name_full,
-                'inn' => $contragent->inn,
-                'kpp' => $contragent->kpp,
+                'company_full' => trim($contragent->name_full),
+                'inn' => trim($contragent->inn),
+                'kpp' => trim($contragent->kpp),
                 'inv_no' => $invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'type' => $contragent->legal_type,
             ];
