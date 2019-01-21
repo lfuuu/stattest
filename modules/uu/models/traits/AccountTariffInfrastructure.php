@@ -9,6 +9,7 @@ trait AccountTariffInfrastructure
     public static $infrastructureProjectMgmn = 1; // МГМН
     public static $infrastructureProjectMus = 2; // МУС (местный узел связи)
     public static $infrastructureProjectBi = 3; // БИ
+    public static $infrastructureProjectMvno = 4; // MVNO
 
     public static $infrastructureLevelLocal = 1; // Местный
     public static $infrastructureLevelZone = 2; // Зоновый
@@ -28,6 +29,7 @@ trait AccountTariffInfrastructure
             self::$infrastructureProjectMgmn => 'МГМН',
             self::$infrastructureProjectMus => 'МУС',
             self::$infrastructureProjectBi => 'БИ',
+            self::$infrastructureProjectMvno => 'MVNO',
         ];
 
         return GetListTrait::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
