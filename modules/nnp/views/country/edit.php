@@ -89,7 +89,7 @@ if (!$country->isNewRecord) {
 
         <?php // Префикы ?>
         <div class="col-sm-3">
-            <?= $form->field($country, 'prefixes')->textInput(['disabled' => true, 'value' => implode (', ', $country->prefixes->getValue())]) ?>
+            <?= $form->field($country, 'prefixes')->textInput(['disabled' => true, 'value' => ($country->prefixes) ? implode (', ', $country->prefixes->getValue()) : null]) ?>
         </div>
 
         <?php // Открытый номерной план? ?>

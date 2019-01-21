@@ -82,6 +82,7 @@ $dataProvider = $filterModel->search();
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/nnp/country/new/']),
     'columns' => $columns,
     'exportWidget' => GridViewExport::widget([
         'dataProvider' => $dataProvider,
