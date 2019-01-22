@@ -376,6 +376,7 @@ class ApiLk
             // у контрагентов вне России другая форма "счета"
             if ($clientCountryId != Country::RUSSIA) {
                 $billData['doc_type'] = 'proforma';
+                $billData['is_pdf'] = 1;
             }
 
             $data['bill'] = API__print_bill_url . Encrypt::encodeArray($billData);
@@ -396,6 +397,7 @@ class ApiLk
                     'doc_type' => 'uu_invoice',
                     'bill' => $bill->bill_no,
                     'client' => $bill->client_id,
+                    'is_pdf' => 1,
                 ]);
         }
 
