@@ -3,6 +3,7 @@
 namespace app\forms\usage;
 
 use app\classes\Form;
+use app\classes\validators\FormFieldValidator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Number;
 use app\models\TariffVoip;
@@ -34,6 +35,7 @@ class UsageVoipForm extends Form
     public $line7800_id;
     public $address_from_datacenter_id;
     public $ndc_type_id = NdcType::ID_GEOGRAPHIC;
+    public $usage_comment = '';
 
     /** @var UsageVoip */
     public $usage;
@@ -118,7 +120,8 @@ class UsageVoipForm extends Form
                 'validateChangeTariff',
                 'on' => ['add', 'change-tariff']
 
-            ]
+            ],
+            ['usage_comment', FormFieldValidator::class],
         ];
     }
 
@@ -155,6 +158,7 @@ class UsageVoipForm extends Form
             'tariff_group_intern_price' => 'Гарантированный платеж',
             'tariff_group_price' => 'Гарантированный платеж (Набор)',
             'ndc_type_id' => 'Тип NDC',
+            'usage_comment' => 'Комментарий',
         ];
     }
 

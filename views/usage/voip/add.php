@@ -184,9 +184,12 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 1,
+        'columns' => 2,
         'attributes' => [
             'address' => [
+                'type' => Form::INPUT_TEXT,
+            ],
+            'usage_comment' => [
                 'type' => Form::INPUT_TEXT,
             ],
         ],

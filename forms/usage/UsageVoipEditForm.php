@@ -352,6 +352,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 $usage->no_of_lines = (int)$this->no_of_lines;
                 $usage->status = $this->status;
                 $usage->address = $this->address;
+                $usage->usage_comment = $this->usage_comment;
                 $usage->edit_user_id = Yii::$app->user->getId();
                 $usage->line7800_id = $this->ndc_type_id == NdcType::ID_FREEPHONE ? $this->line7800_id : 0;
                 $usage->is_trunk = /*$this->type_id === 'operator' ? 1 : */ 0;
@@ -451,6 +452,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->usage->activation_dt = $activationDt;
         $this->usage->status = $this->status;
         $this->usage->address = $this->address;
+        $this->usage->usage_comment = $this->usage_comment;
         $this->usage->no_of_lines = (int)$this->no_of_lines;
 
         if (empty($this->disconnecting_date) && $this->usage->actual_to != UsageInterface::MAX_POSSIBLE_DATE) {
