@@ -394,11 +394,13 @@ class BillDao extends Singleton
                 abs((float)$line->sum_without_tax - (float)$accountEntry->price_without_vat) > self::ADMISSIBLE_COMPUTATION_ERROR_SUM
                 || abs((float)$line->amount - (float)$accountEntry->getAmount()) > self::ADMISSIBLE_COMPUTATION_ERROR_AMOUNT
                 || $line->item != $accountEntry->fullName
+                || $line->tax_rate != $accountEntry->vat_rate
             ) {
                 // ... но изменилась. Обновить
                 $line->sum = $sum;
                 $line->sum_without_tax = $sumWithoutTax;
                 $line->sum_tax = round($accountEntry->vat, self::PRICE_PRECISION);
+                $line->tax_rate = $accountEntry->vat_rate;
 
                 $line->amount = $accountEntry->getAmount();
                 if ($line->amount > 0 && $line->amount != 1) {
