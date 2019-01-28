@@ -354,7 +354,12 @@ class ActiveRecord extends \yii\db\ActiveRecord
                     }
                     break;
                 case 'organization_id':
-                    if ($organization = Organization::findOne(['organization_id' => $value])) {
+                    if (
+                    $organization = Organization::find()
+                        ->where([Organization::tableName() . '.organization_id' => $value])
+                        ->actual()
+                        ->one()
+                    ) {
                         $data[$key] = $organization->name->value;
                     }
                     break;
