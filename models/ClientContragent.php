@@ -71,7 +71,7 @@ class ClientContragent extends HistoryActiveRecord
 
     public static $defaultOrganization = [
         self::LEGAL_TYPE => Organization::MCN_TELECOM,
-        self::PERSON_TYPE => Organization::MCN_TELECOM_RETAIL,
+        self::PERSON_TYPE => Organization::MCN_TELECOM_SERVICE,
         self::IP_TYPE => Organization::MCN_TELECOM,
     ];
 

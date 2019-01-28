@@ -61,7 +61,7 @@ class OperatorPayFilter extends Bill
     public $business_process_id = '';
     public $business_process_status_id = '';
 
-    public $organization_id = Organization::MCN_TELECOM_RETAIL;
+    public $organization_id = Organization::MCN_TELECOM_SERVICE;
     public $bill_type = self::BILL_TYPE_ALL;
     public $checking_bill_state = '';
     public $payment_verified = '';
