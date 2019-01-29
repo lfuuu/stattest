@@ -3500,7 +3500,7 @@ WHERE cg.inn = '" . $inn . "'";
 
         // @TODO: на переходный период разрешить платить на Ритейл с Сервиса
         if (in_array('mcm_telekom', $firms)) {
-            $firms[] = 'mcn_telekom_service';
+            $firms[] = 'mcn_telekom_ser';
         }
 
         $organizations = Organization::find()
