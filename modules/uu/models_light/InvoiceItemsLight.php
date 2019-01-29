@@ -41,24 +41,29 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
         $this->_isDetailed = (bool)$clientAccount->type_of_bill;
 
         foreach ($items as $item) {
+
+            $vat = is_array($item) ? $item['sum_tax'] : $item->vat;
+            $priceWithoutTax = is_array($item) ? $item['sum_without_tax'] : $item->price_without_vat;
+            $priceWithTax = is_array($item) ? $item['sum'] : $item->price_with_vat;
+
             // Подсчет суммы счета
             $bill
-                ->setSummaryVat($item->vat)
-                ->setSummaryWithoutVat($item->price_without_vat)
-                ->setSummaryWithVat($item->price_with_vat);
+                ->setSummaryVat($vat)
+                ->setSummaryWithoutVat($priceWithoutTax)
+                ->setSummaryWithVat($priceWithTax);
 
-            $itemAmount = $item->getAmount();
+            $itemAmount = is_array($item) ? $item['amount'] : $item->getAmount();
 
             $this->items[] = [
-                'title' => $item->getFullName($billLanguage),
+                'title' => is_array($item) ? $item['item'] : $item->getFullName($billLanguage),
                 'amount' => $itemAmount,
                 'unit_code' => '-',
-                'unit' => $item->getTypeUnitName($billLanguage),
-                'price_per_unit' => ($itemAmount > 0 ? round((float)$item->price_without_vat / $itemAmount, 2) : ''),
-                'price_without_vat' => $item->price_without_vat,
-                'price_with_vat' => $item->price_with_vat,
-                'vat_rate' => $item->vat_rate,
-                'vat' => $item->vat,
+                'unit' => is_array($item) ? '' : $item->getTypeUnitName($billLanguage),
+                'price_per_unit' => ($itemAmount > 0 ? round((float)$priceWithoutTax / $itemAmount, 2) : ''),
+                'price_without_vat' => $priceWithoutTax,
+                'price_with_vat' => $priceWithTax,
+                'vat_rate' => is_array($item) ? $item['tax_rate'] : $item->vat_rate,
+                'vat' =>  $vat,
             ];
         }
     }
