@@ -17,6 +17,7 @@ use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\TimeZoneColumn;
 use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
 use app\models\billing\CallsRaw;
@@ -232,6 +233,13 @@ $filterColumns = [
             'title' => 'У первой даты время считается 00:00, у второй 23:59',
         ],
     ],
+    [
+        'attribute' => 'timezone',
+        'class' => TimeZoneColumn::class,
+        'format' => ['decimal', 2],
+        'pageSummary' => true,
+    ],
+
 ];
 ?>
 

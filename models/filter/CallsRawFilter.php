@@ -2,6 +2,7 @@
 
 namespace app\models\filter;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsRaw;
 use app\models\UsageTrunk;
 use yii\data\ActiveDataProvider;
@@ -103,6 +104,8 @@ class CallsRawFilter extends CallsRaw
 
     public $disconnect_cause;
 
+    public $timezone = DateTimeZoneHelper::TIMEZONE_UTC;
+
     /**
      * @return array
      */
@@ -149,7 +152,15 @@ class CallsRawFilter extends CallsRaw
             [['billed_time_sum_from', 'billed_time_sum_to'], 'double'],
 
             [['disconnect_cause'], 'integer'],
+            [['timezone'], 'string'],
         ];
+    }
+
+    public function attributeLabels()
+    {
+        return parent::attributeLabels() + [
+                'timezone' => 'Таймзона'
+            ];
     }
 
     /**
@@ -204,12 +215,17 @@ class CallsRawFilter extends CallsRaw
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
 
-        $this->connect_time_from !== '' && $query->andWhere([
-            '>=',
-            'connect_time',
-            $this->connect_time_from . ' 00:00:00'
-        ]);
-        $this->connect_time_to !== '' && $query->andWhere(['<=', 'connect_time', $this->connect_time_to . ' 23:59:59']);
+        $connectTimeFrom = (new \DateTime($this->connect_time_from, (new \DateTimeZone($this->timezone))))
+            ->setTime(0,0,0)
+            ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+
+        $connectTimeTo = (new \DateTime($this->connect_time_to, (new \DateTimeZone($this->timezone))))
+            ->setTime(0,0,0)
+            ->modify("+1 day")
+            ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+
+        $this->connect_time_from !== '' && $query->andWhere(['>=', 'connect_time', $connectTimeFrom->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+        $this->connect_time_to !== '' && $query->andWhere(['<', 'connect_time', $connectTimeTo->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
 
         $this->billed_time_from !== '' && $query->andWhere(['>=', 'billed_time', $this->billed_time_from]);
         $this->billed_time_to !== '' && $query->andWhere(['<=', 'billed_time', $this->billed_time_to]);

@@ -27,7 +27,7 @@
 {if $detality=='call'}
     <TD style="color:gray">{if isset($item.id)}{$item.id}{/if}</TD>
     <TD>
-        {if !is_null($item.ts1) && $key != 'total'}
+        {if $key !== 'total'} {*!is_null($item.ts1) && *}
             {$item.tsf1|datetime_with_timezone:$timezone}
         {else}
             {$item.tsf1}
