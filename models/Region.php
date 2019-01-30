@@ -93,6 +93,7 @@ class Region extends ActiveRecord
      */
     public static function getTimezoneList()
     {
+        // select tz_name, TIMESTAMPDIFF(HOUR, convert_tz(UTC_TIMESTAMP(), tz_name, "UTC"), UTC_TIMESTAMP()) as tz_offset from (SELECT distinct timezone_name tz_name FROM `regions` union select 'UTC')a order by tz_offset
         return self::getListTrait(
             $isWithEmpty = false,
             $isWithNullAndNotNull = false,
@@ -100,7 +101,7 @@ class Region extends ActiveRecord
             $select = new \yii\db\Expression('DISTINCT timezone_name'),
             $orderBy = [],
             $where = []
-        );
+        ) + [DateTimeZoneHelper::TIMEZONE_UTC => DateTimeZoneHelper::TIMEZONE_UTC];
     }
 
     /**
