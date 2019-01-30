@@ -21,11 +21,13 @@ class NumberRangeImport extends NumberRange
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false)
             && ($prefixes = $country->getPrefixes())
-            && ($prefix = reset($prefixes))
-            && strpos($prefix, (string) $value) === 0
         ) {
-            $this->country_prefix = $value;
-            return true;
+            foreach ($prefixes as $prefix) {
+                if (strpos($prefix, (string)$value) === 0) {
+                    $this->country_prefix = $value;
+                    return true;
+                }
+            }
         }
 
         $this->addError('country_prefix');
