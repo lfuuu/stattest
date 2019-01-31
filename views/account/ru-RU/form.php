@@ -59,9 +59,17 @@ use kartik\widgets\ActiveForm;
             <?= $f->field($model, 'lk_balance_view_mode')->dropDownList(ClientAccount::$balanceViewMode) ?>
         </div>
         <div class="col-sm-3">
+            <?php
+            $accountVersionList = ClientAccount::$versions;
+            $accountVersionOptions = [];
+            if ($model->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+                unset($accountVersionList[ClientAccount::VERSION_BILLER_USAGE]);
+                $accountVersionOptions = ['disabled' => 'disabled'];
+            }
+            ?>
             <?= $f->field($model, 'account_version')->dropDownList(
-                ClientAccount::$versions,
-                    ['disabled' => 'disabled', 'options' => [ClientAccount::DEFAULT_ACCOUNT_VERSION => ['selected' => true]],]
+                $accountVersionList,
+                $accountVersionOptions
             ) ?>
         </div>
     </div>
