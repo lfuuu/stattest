@@ -219,7 +219,10 @@ class m_stats extends IModule{
                 $usageIds,
                 $paidonly,
                 $destination,
-                $direction
+                $direction,
+                $isFull = false,
+                $packages = [],
+                $timezone
             ))
             ) {
                 return;

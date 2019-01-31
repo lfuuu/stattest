@@ -69,8 +69,8 @@ class ReportUsageDao extends Singleton
      * @param string $direction
      * @param bool|false $isFull
      * @param array $packages
+     * @param string $timeZone
      * @return array
-     * @throws \Exception
      */
     public function getUsageVoipStatistic(
         $region,
@@ -83,19 +83,24 @@ class ReportUsageDao extends Singleton
         $destination = 'all',
         $direction = 'both',
         $isFull = false,
-        $packages = []
+        $packages = [],
+        $timeZone = null
     )
     {
-        $from = (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-            ->setTimestamp($from)
-            ->setTime(0, 0, 0);
-
-        $to = (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-            ->setTimestamp($to)
-            ->setTime(23, 59, 59);
-
         $this->_account = ClientAccount::findOne(['id' => $accountId]);
         $this->_isFull = $isFull;
+
+        !$timeZone && $timeZone = $this->_account->timezone_name;
+
+        $from = (new DateTime('now', new DateTimeZone($timeZone)))
+            ->setTimestamp($from)
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+
+        $to = (new DateTime('now', new DateTimeZone($timeZone)))
+            ->setTimestamp($to)
+            ->setTime(23, 59, 59)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
 
         $query = CallsRaw::find()
             ->alias('cr')
