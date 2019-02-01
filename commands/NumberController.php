@@ -401,7 +401,7 @@ class NumberController extends Controller
         $this->_redisGetAndSet(NdcType::find()->asArray(), 'ndcType');
 
         $this->_redisGetAndSet(Operator::find()->asArray(), 'operatorEn','id', 'name_translit');
-        $this->_redisGetAnd:xSet(Country::find()->asArray(), 'countryEn', 'code', 'name_eng');
+        $this->_redisGetAndSet(Country::find()->asArray(), 'countryEn', 'code', 'name_eng');
         $this->_redisGetAndSet(City::find()->asArray(), 'cityEn', 'id', 'name_translit');
     }
 
