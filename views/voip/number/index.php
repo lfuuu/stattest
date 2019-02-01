@@ -15,6 +15,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
+use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\column\universal\SourceColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
@@ -133,6 +134,10 @@ $columns = [
     [
         'attribute' => 'city_id',
         'class' => CityColumn::class,
+    ],
+    [
+        'attribute' => 'region',
+        'class' => RegionColumn::class,
     ],
     [
         'attribute' => 'status',

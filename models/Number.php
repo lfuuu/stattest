@@ -141,6 +141,7 @@ class Number extends ActiveRecord
             'did_group_id' => 'DID-группа',
             'beauty_level' => 'Степень красивости',
             'status' => 'Статус',
+            'region' => 'Регион',
             'registry_id' => 'Реестр',
             'ndc_type_id' => 'Тип номера',
             'number_tech' => 'Технический номер',
@@ -161,7 +162,7 @@ class Number extends ActiveRecord
             [['status', 'number_tech', 'source'], 'string'],
             [['beauty_level'], 'integer'],
             [['imsi', 'warehouse_status_id'], 'integer'],
-            [['nnp_operator_id', 'usr_operator_id', 'registry_id'], 'integer'],
+            [['nnp_operator_id', 'usr_operator_id', 'registry_id', 'region'], 'integer'],
             [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }

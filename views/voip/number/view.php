@@ -13,6 +13,7 @@ use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\Card;
 use kartik\widgets\ActiveForm;
+use app\models\Region;
 
 echo app\classes\Html::formLabel($this->title = 'Номер ' . $number->number);
 
@@ -63,6 +64,17 @@ echo \yii\widgets\Breadcrumbs::widget([
                             <?php
                             $clientAccount = ClientAccount::findOne($number->client_id);
                             echo Html::a($clientAccount->id . ' ' . $clientAccount->company, '/client/view?id=' . $clientAccount->id);
+                            ?>
+                        </th>
+                    </tr>
+                <?php endif; ?>
+                <?php if ($number->region) : ?>
+                    <tr>
+                        <td>Регион</td>
+                        <th>
+                            <?php
+                                $region = Region::findOne($number->region);
+                                echo ($region) ? Html::a($region->name, $region->getUrl()) : '';
                             ?>
                         </th>
                     </tr>

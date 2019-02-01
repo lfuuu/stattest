@@ -15,6 +15,7 @@ class NumberFilter extends Number
 
     public $number = '';
     public $city_id = '';
+    public $region = '';
     public $status = '';
     public $source = '';
     public $did_group_id = '';
@@ -45,7 +46,7 @@ class NumberFilter extends Number
         return [
             [['number', 'status', 'number_tech', 'source'], 'string'],
             [['imsi'], 'integer'],
-            [['city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
+            [['city_id', 'region', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
@@ -85,6 +86,23 @@ class NumberFilter extends Number
 
             default:
                 $query->andWhere([$numberTableName . '.city_id' => $this->city_id]);
+                break;
+        }
+
+        switch ($this->region) {
+            case '':
+                break;
+
+            case GetListTrait::$isNull:
+                $query->andWhere(['region' => null]);
+                break;
+
+            case GetListTrait::$isNotNull:
+                $query->andWhere(['IS NOT', 'region', null]);
+                break;
+
+            default:
+                $query->andWhere([$numberTableName . '.region' => $this->region]);
                 break;
         }
 

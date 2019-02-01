@@ -10,6 +10,7 @@ use app\modules\nnp\models\Operator;
 use app\models\DidGroup;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
+use app\models\Region;
 
 ?>
 
@@ -38,6 +39,13 @@ use yii\widgets\ActiveForm;
         <div class="col-sm-2">
             <?= $form->field($number, 'source')->widget(Select2::className(), [
                 'data' =>\app\classes\enum\VoipRegistrySourceEnum::$names,
+            ]) ?>
+        </div>
+
+        <?php // регион ?>
+        <div class="col-sm-2">
+            <?= $form->field($number, 'region')->widget(Select2::className(), [
+                'data' => Region::getList(true)
             ]) ?>
         </div>
 
