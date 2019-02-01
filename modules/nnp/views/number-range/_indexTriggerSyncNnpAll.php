@@ -7,6 +7,7 @@
 
 use kartik\form\ActiveForm;
 
+$isTimeCorrect = intval(date('H')) >= 19;
 ?>
 
 
@@ -19,10 +20,11 @@ use kartik\form\ActiveForm;
     <?php
     $form = ActiveForm::begin();
     echo $this->render('//layouts/_submitButton', [
-        'text' => 'Синхронизировать NNP данные',
+        'text' => ($isTimeCorrect) ? 'Синхронизировать NNP данные' : 'Доступно с 19:00 до 00:00',
         'glyphicon' => 'glyphicon-off',
         'params' => [
             'name' => 'syncNnpAll',
+            'disabled' => !$isTimeCorrect,
             'value' => 1,
             'class' => 'btn btn-success',
             'aria-hidden' => 'true',
