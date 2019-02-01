@@ -5,6 +5,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\DataRaw;
+use app\modules\uu\models\AccountTariff;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 
@@ -20,8 +21,11 @@ class DataRawSearch extends ActiveRecord
     const DAY = 'day';
     const MONTH = 'month';
     const YEAR = 'year';
+    const NUMBER = 'number';
     const DAY_IN_SECONDS = 86400;
 
+    public $account_id;
+    public $number_service_id;
     public $mcc;
     public $network;
     public $fromDate;
@@ -31,7 +35,7 @@ class DataRawSearch extends ActiveRecord
     public function rules()
     {
         return [
-            [['fromDate', 'mcc', 'network', 'groupBy', 'toDate'], 'safe'],
+            [['fromDate', 'mcc', 'number_service_id', 'network', 'groupBy', 'toDate'], 'safe'],
         ];
     }
 
@@ -81,8 +85,8 @@ class DataRawSearch extends ActiveRecord
      */
     public function search($params)
     {
-        $accountId = $this->_getCurrentClientAccountId();
-        $query = DataRaw::find()->where(['account_id' => $accountId]);
+        $this->account_id = $this->_getCurrentClientAccountId();
+        $query = DataRaw::find()->where(['account_id' => $this->account_id]);
 
         $this->setAttributes($params);
 
@@ -94,6 +98,10 @@ class DataRawSearch extends ActiveRecord
             case static::MCC:
                 $query->addSelect('data_raw.mcc, sum(cost) as cost, sum(quantity) as quantity');
                 $query->groupBy('data_raw.mcc');
+                break;
+            case static::NUMBER:
+                $query->addSelect('data_raw.number_service_id, sum(cost) as cost, sum(quantity) as quantity');
+                $query->groupBy('data_raw.number_service_id');
                 break;
             case static::HOUR:
                 $this->addSelect($query, 'yyyy-mm-dd hh');
@@ -119,6 +127,15 @@ class DataRawSearch extends ActiveRecord
         $query->joinWith('mccModel');
         $query->joinWith('mncModel');
 
+        if ($this->number_service_id && ($accountTariff = AccountTariff::findOne($this->number_service_id))) {
+            $ids = AccountTariff::find()
+                ->where(['voip_number' => $accountTariff->voip_number])
+                ->andWhere(['client_account_id' => $this->account_id])
+                ->select('id')
+                ->asArray()
+                ->column();
+            $query->andWhere(['in', 'data_raw.number_service_id', $ids]);
+        }
         if (!empty($this->mcc)) {
             $query->andWhere(['data_raw.mcc' => $this->mcc]);
         }
@@ -126,7 +143,7 @@ class DataRawSearch extends ActiveRecord
             list($mnc, $mcc) = explode(':', $this->network);
             $query->andWhere(['data_raw.mnc' => $mnc, 'data_raw.mcc' => $mcc]);
         }
-        if (empty($params)) {
+        if (empty($params) || !($this->fromDate || $this->toDate)) {
             $query->where('0=1');
         }
 

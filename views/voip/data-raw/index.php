@@ -76,6 +76,7 @@ function getMncForSelect2()
                 'data' => [
                     'mcc' => 'Стране',
                     'mnc' => 'Стране и Оператору',
+                    'number' => 'Номеру',
                     'year' => 'Году',
                     'month' => 'Месяцу',
                     'day' => 'Дню',
@@ -116,7 +117,26 @@ echo GridView::widget([
             'value' => function($data) {
                 $accountTariff = AccountTariff::findOne($data->number_service_id);
                 return $accountTariff ? Html::a($accountTariff->getNameLight(), $accountTariff->getUrl()) : null;
-            }
+            },
+            'filter' => Select2::widget([
+                'name' => 'number_service_id',
+                'value' => $searchModel->number_service_id,
+                'data' => AccountTariff::find()
+                    ->where(['client_account_id' => $searchModel->account_id])
+                    ->andWhere(['<>', 'voip_number', ''])
+                    ->select('voip_number')
+                    ->indexBy('id')
+                    ->groupBy('voip_number')
+                    ->column(),
+                'options' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Выберите значение'
+                ],
+                'pluginOptions' => [
+                    'allowClear' => true,
+                    'selectOnClose' => true,
+                ]
+            ]),
         ],
         'rate',
         'cost',
