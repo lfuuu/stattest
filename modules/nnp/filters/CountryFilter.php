@@ -12,6 +12,11 @@ class CountryFilter extends Country
 {
     public $code = '';
     public $name = '';
+    public $prefix = '';
+    public $is_open_numbering_plan = '';
+    public $use_weak_matching = '';
+    public $default_operator = '';
+    public $default_type_ndc = '';
     public $name_rus = '';
     public $name_eng = '';
     public $alpha_3 = '';
@@ -22,8 +27,8 @@ class CountryFilter extends Country
     public function rules()
     {
         return [
-            [['code'], 'integer'],
-            [['name', 'name_rus', 'name_eng', 'alpha_3'], 'string'],
+            [['code', 'is_open_numbering_plan', 'use_weak_matching', 'default_operator', 'default_type_ndc'], 'integer'],
+            [['name', 'name_rus', 'name_eng', 'alpha_3', 'prefix'], 'string'],
         ];
     }
 
@@ -41,6 +46,11 @@ class CountryFilter extends Country
         ]);
 
         $this->code && $query->andWhere([$cityTableName . '.code' => $this->code]);
+        $this->prefix && $query->andWhere([$cityTableName . '.prefix' => $this->prefix]);
+        $this->default_operator && $query->andWhere([$cityTableName . '.default_operator' => $this->default_operator]);
+        $this->default_type_ndc && $query->andWhere([$cityTableName . '.default_type_ndc' => $this->default_type_ndc]);
+        $this->is_open_numbering_plan && $query->andWhere([$cityTableName . '.is_open_numbering_plan' => $this->is_open_numbering_plan]);
+        $this->use_weak_matching && $query->andWhere([$cityTableName . '.use_weak_matching' => $this->use_weak_matching]);
         $this->name && $query->andWhere(['LIKE', $cityTableName . '.name', $this->name]);
         $this->name_rus && $query->andWhere(['LIKE', $cityTableName . '.name_rus', $this->name_rus]);
         $this->name_eng && $query->andWhere(['LIKE', $cityTableName . '.name_eng', $this->name_eng]);

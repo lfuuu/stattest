@@ -6,6 +6,7 @@ use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\modules\nnp\media\CountryMedia;
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ArrayExpression;
 use yii\helpers\Url;
 
@@ -52,6 +53,7 @@ class Country extends ActiveRecord
             'name' => 'Эндоним',
             'name_rus' => 'Русское название',
             'name_eng' => 'Английское название',
+            'prefix' => 'Префикс',
             'prefixes' => 'Префиксы',
             'alpha_3' => '3х-буквенный код',
             'is_open_numbering_plan' => 'Открытый номерной план?',
@@ -88,8 +90,11 @@ class Country extends ActiveRecord
     {
         return [
             [['is_open_numbering_plan', 'use_weak_matching'], 'boolean'],
-            [['default_operator', 'default_type_ndc'], 'integer'],
-            [['is_open_numbering_plan', 'use_weak_matching'], 'required'],
+            [['default_operator', 'default_type_ndc', 'code', 'prefix'], 'integer'],
+            [['name', 'name_rus', 'name_eng'], 'string'],
+            [['is_open_numbering_plan', 'use_weak_matching', 'alpha_3', 'name', 'name_eng', 'name_rus', 'prefix', 'prefixes'], 'required'],
+            ['alpha_3', 'string', 'min' => 3, 'max' => 3],
+            ['prefixes', 'each', 'rule' => ['integer']]
         ];
     }
 
@@ -174,5 +179,13 @@ class Country extends ActiveRecord
 
         $prefixes = str_replace(['{', '}'], '', $prefixes);
         return $this->_prefixes = explode(',', $prefixes);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(Operator::class, ['id' => 'default_operator']);
     }
 }

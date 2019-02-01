@@ -7,12 +7,16 @@
  */
 
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\nnp\column\NdcTypeColumn;
+use app\modules\nnp\column\OperatorColumn;
 use app\modules\nnp\filters\CountryFilter;
 use app\modules\nnp\models\Country;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
+use yii\db\ArrayExpression;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -62,6 +66,37 @@ $columns = [
         'class' => StringColumn::class,
     ],
     [
+        'attribute' => 'prefix',
+        'class' => StringColumn::class,
+    ],
+    [
+        'attribute' => 'prefixes',
+        'value' => function ($data) {
+            if ($data->prefixes instanceof ArrayExpression) {
+                return implode(', ', $data->prefixes->getValue());
+            }
+            return '';
+        },
+        'width' => '10%'
+    ],
+    [
+        'attribute' => 'is_open_numbering_plan',
+        'class' => YesNoColumn::class
+    ],
+    [
+        'attribute' => 'use_weak_matching',
+        'class' => YesNoColumn::class
+    ],
+    [
+        'attribute' => 'default_operator',
+        'class' => OperatorColumn::class
+    ],
+    [
+        'attribute' => 'default_type_ndc',
+        'label' => 'NDC тип по-умолчанию',
+        'class' => NdcTypeColumn::class
+    ],
+    [
         'label' => '',
         'format' => 'html',
         'value' => function (Country $country) {
@@ -82,6 +117,7 @@ $dataProvider = $filterModel->search();
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/nnp/country/new/']),
     'columns' => $columns,
     'exportWidget' => GridViewExport::widget([
         'dataProvider' => $dataProvider,

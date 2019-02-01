@@ -12,6 +12,7 @@ use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Operator;
 use kartik\select2\Select2;
+use yii\db\ArrayExpression;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -23,6 +24,9 @@ if (!$country->isNewRecord) {
 } else {
     $this->title = Yii::t('common', 'Create');
 }
+$prefixes = ($country->prefixes instanceof ArrayExpression)
+    ? implode (', ', $country->prefixes->getValue())
+    : (is_array($country->prefixes) ? implode (', ', $country->prefixes) : $country->prefixes);
 ?>
 
 <?= Breadcrumbs::widget([
@@ -69,27 +73,27 @@ if (!$country->isNewRecord) {
 
         <?php } // Название ?>
         <div class="col-sm-3">
-            <?= $form->field($country, 'name')->textInput(['disabled' => true]) ?>
+            <?= $form->field($country, 'name')->textInput(['disabled' => !$country->isNewRecord]) ?>
         </div>
 
         <?php // Название на русском ?>
         <div class="col-sm-3">
-            <?= $form->field($country, 'name_rus')->textInput(['disabled' => true]) ?>
+            <?= $form->field($country, 'name_rus')->textInput(['disabled' => !$country->isNewRecord]) ?>
         </div>
 
         <?php // Название на английском ?>
         <div class="col-sm-2">
-            <?= $form->field($country, 'name_eng')->textInput(['disabled' => true]) ?>
+            <?= $form->field($country, 'name_eng')->textInput(['disabled' => !$country->isNewRecord]) ?>
         </div>
 
         <?php // Префикс ?>
         <div class="col-sm-1">
-            <?= $form->field($country, 'prefix')->textInput(['disabled' => true]) ?>
+            <?= $form->field($country, 'prefix')->textInput() ?>
         </div>
 
         <?php // Префикы ?>
         <div class="col-sm-3">
-            <?= $form->field($country, 'prefixes')->textInput(['disabled' => true, 'value' => implode (', ', $country->prefixes->getValue())]) ?>
+            <?= $form->field($country, 'prefixes')->textInput(['value' => $prefixes]) ?>
         </div>
 
         <?php // Открытый номерной план? ?>
@@ -112,7 +116,17 @@ if (!$country->isNewRecord) {
             <?= $form->field($country, 'default_type_ndc')->dropDownList(NdcType::getList(true)) ?>
         </div>
 
+        <?php if($country->isNewRecord) { ?>
+            <?php // Код ?>
+            <div class="col-sm-3">
+                <?= $form->field($country,'code')->textInput() ?>
+            </div>
 
+            <?php // 3х-буквенный код ?>
+            <div class="col-sm-3">
+                <?= $form->field($country,'alpha_3')->textInput() ?>
+            </div>
+        <?php } ?>
     </div>
 
     <?php // кнопки ?>

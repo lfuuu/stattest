@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\forms\country;
 
+use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\Country;
 use InvalidArgumentException;
 use yii;
@@ -50,6 +51,16 @@ abstract class Form extends \app\classes\Form
             $post = Yii::$app->request->post();
 
             if ($this->country->load($post)) {
+                $prefixes = is_string($this->country->prefixes) ? rtrim(trim($this->country->prefixes), ',') : null;
+                if ($prefixes) {
+                    $arr = explode(',', preg_replace('/\s+/', '', $prefixes));
+                    $this->country->prefixes = array_filter(($arr) ? $arr : [$prefixes], function ($value) {
+                        return $value !== '';
+                    });
+                }
+                if (!$this->country->code) {
+                    $this->country->code = Country::find()->select('max(code)')->asArray()->scalar() + 1;
+                }
 
                 // создать/редактировать
                 if ($this->country->validate() && $this->country->save()) {
