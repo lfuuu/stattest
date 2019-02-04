@@ -53,8 +53,7 @@ class ActiveDataProvider extends \yii\data\ActiveDataProvider
         $query = clone $this->query;
         $query->limit(-1)->offset(-1)->orderBy([]);
 
-        $mainCommand = $query->createCommand($this->db);
-        $sql = $mainCommand->getSql();
+        $sql = $query->createCommand($this->db)->rawSql;
 
         $key = $this->_getSqlKey($sql);
 
