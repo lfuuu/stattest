@@ -22,6 +22,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\UsageTrunkColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\models\billing\CallsRaw;
 use app\models\filter\CallsRawFilter;
@@ -323,6 +324,55 @@ if (!\Yii::$app->request->get('action')) {
         ]
     ];
 }
+
+$filterColumns = [
+    [
+        'attribute' => 'is_full_report',
+        'class' => YesNoColumn::class,
+    ],
+];
+
+if (!$filterModel->is_full_report) {
+    $columns = array_filter($columns, function($row) {
+        return isset($row['attribute'])
+            && in_array($row['attribute'],
+                ['id', 'trunk_id', 'orig', 'connect_time', 'src_number', 'dst_number', 'disconnect_cause']
+            );
+    });
+
+    $summaryColumns = [
+        [
+            'content' => Yii::t('common', 'Summary'),
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->billed_time_sum),
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->cost_sum),
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->interconnect_cost_sum),
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->cost_with_interconnect_sum),
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+    ];
+    $afterHeader = [ // итого
+        [
+            'options' => ['class' => \kartik\grid\GridView::TYPE_WARNING], // желтый фон
+            'columns' => $summaryColumns,
+        ]
+    ];
+}
+
+
+
 ?>
 
 <?php
@@ -340,5 +390,8 @@ echo GridView::widget([
         'filterModel' => $filterModel,
         'columns' => $columns,
     ]),
+    'beforeHeader' => [ // фильтры вне грида
+        'columns' => $filterColumns,
+    ],
 ]);
 

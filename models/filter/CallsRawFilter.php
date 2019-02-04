@@ -106,6 +106,8 @@ class CallsRawFilter extends CallsRaw
 
     public $timezone = DateTimeZoneHelper::TIMEZONE_UTC;
 
+    public $is_full_report = 1;
+
     /**
      * @return array
      */
@@ -151,7 +153,7 @@ class CallsRawFilter extends CallsRaw
 
             [['billed_time_sum_from', 'billed_time_sum_to'], 'double'],
 
-            [['disconnect_cause'], 'integer'],
+            [['disconnect_cause', 'is_full_report'], 'integer'],
             [['timezone'], 'string'],
         ];
     }
@@ -159,7 +161,8 @@ class CallsRawFilter extends CallsRaw
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-                'timezone' => 'Таймзона'
+                'timezone' => 'Таймзона',
+                'is_full_report' => 'Полный отчет'
             ];
     }
 
