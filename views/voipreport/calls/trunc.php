@@ -336,7 +336,7 @@ if (!$filterModel->is_full_report) {
     $columns = array_filter($columns, function($row) {
         return isset($row['attribute'])
             && in_array($row['attribute'],
-                ['id', 'trunk_id', 'orig', 'connect_time', 'src_number', 'dst_number', 'billed_time', 'disconnect_cause']
+                ['id', 'trunk_id', 'orig', 'connect_time', 'src_number', 'dst_number', 'billed_time', 'cost', 'rate', 'interconnect_cost', 'disconnect_cause']
             );
     });
 
