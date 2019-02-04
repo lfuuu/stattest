@@ -206,7 +206,8 @@ class CallsRawFilter extends CallsRaw
     public function search($pageSize = self::PAGE_SIZE)
     {
         $query = CallsRaw::find();
-        $dataProvider = new ActiveDataProvider([
+        $dataProvider = new \app\classes\grid\ActiveDataProvider([
+            'db' => CallsRaw::getDb(),
             'query' => $query,
             'pagination' => [
                 'pageSize' => $pageSize,

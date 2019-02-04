@@ -5,6 +5,8 @@
         var that = this,
             gridUrl = window.location.href;
 
+        this.total = 0;
+
         this.options = $.extend({
             batchSize: 5000
         }, options);
@@ -43,7 +45,7 @@
                     if (nextIteration < iterations) {
                         var subTotal = data.iteration * that.options.batchSize;
                         $dialog.find('span.dialog-export-total').text(
-                            (subTotal > data.total ? data.total : subTotal) + ' \/ ' + data.total
+                            (subTotal > that.total ? that.total : subTotal) + ' \/ ' + that.total
                         );
                         that.actionIteration(driver, columns, $dialog, iterations, key, data.iteration++);
                     } else {
@@ -75,6 +77,9 @@
                 },
                 success: function (data) {
                     if (data.total) {
+
+                        that.total = data.total;
+
                         $dialog.find('span.dialog-export-total').text('0 \/ ' + data.total);
                         $dialog.find('.dialog-step:visible').hide().next().show();
                         $dialog.find('.dialog-export-progress-bar div').css('width', 0);

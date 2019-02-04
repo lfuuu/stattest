@@ -213,102 +213,116 @@ $columns = [
 ?>
 
 <?php
+
+$afterHeader = [];
+
+// при скачивании не считать total
+if (!\Yii::$app->request->get('action')) {
+
 // отображаемые колонки Итого в гриде
-$dataProviderSummary = $filterModel->searchCostSummary();
-/** @var ActiveQuery $query */
-$query = $dataProviderSummary->query;
-/** @var CallsRaw $summary */
-$summary = $query->one();
-$summaryColumns = [
-    [
-        'content' => Yii::t('common', 'Summary'),
-        'options' => ['colspan' => 9],
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
-    ],
-    [
-        'content' => sprintf('%.2f', $summary->billed_time_sum),
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => sprintf('%.2f', $summary->cost_sum),
-    ],
-    [
-        'content' => sprintf('%.2f', $summary->interconnect_cost_sum),
-    ],
-    [
-        'content' => sprintf('%.2f', $summary->cost_with_interconnect_sum),
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-    [
-        'content' => '',
-    ],
-];
+    $dataProviderSummary = $filterModel->searchCostSummary();
+    /** @var ActiveQuery $query */
+    $query = $dataProviderSummary->query;
+    /** @var CallsRaw $summary */
+    $summary = $query->one();
+    $summaryColumns = [
+        [
+            'content' => Yii::t('common', 'Summary'),
+            'options' => ['colspan' => 9],
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'options' => ['class' => 'hidden'], // потому что colspan в первом столбце
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->billed_time_sum),
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->cost_sum),
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->interconnect_cost_sum),
+        ],
+        [
+            'content' => sprintf('%.2f', $summary->cost_with_interconnect_sum),
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+        [
+            'content' => '',
+        ],
+    ];
+
+    $afterHeader = [ // итого
+        [
+            'options' => ['class' => \kartik\grid\GridView::TYPE_WARNING], // желтый фон
+            'columns' => $summaryColumns,
+        ]
+    ];
+}
 ?>
 
 <?php
@@ -320,12 +334,7 @@ echo GridView::widget([
     'columns' => $columns,
     'resizableColumns' => false, // все равно не влезает на экран
     'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
-    'afterHeader' => [ // итого
-        [
-            'options' => ['class' => \kartik\grid\GridView::TYPE_WARNING], // желтый фон
-            'columns' => $summaryColumns,
-        ]
-    ],
+    'afterHeader' => $afterHeader,
     'exportWidget' => GridViewExport::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,

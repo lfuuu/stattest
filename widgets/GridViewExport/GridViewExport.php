@@ -36,7 +36,7 @@ class GridViewExport extends GridView
         $dataProvider,
         $filterModel,
         $columns = [],
-        $batchSize = 1000,
+        $batchSize = 10000,
 
         $timeout = 0,
         $columnSelectorEnabled = true;
@@ -344,7 +344,7 @@ class GridViewExport extends GridView
 
         \Yii::$app->response->content = Json::encode([
             'success' => true,
-            'total' => $this->provider->getTotalCount(),
+//            'total' => $this->provider->getTotalCount(),
             'iteration' => $input->offset,
         ]);
     }
