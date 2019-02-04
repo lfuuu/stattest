@@ -26,7 +26,7 @@ jQuery(document).ready(function() {
     var
         $defaultOrganization = {
             'legal': 1, // ООО "МСН Телеком"
-            'default': 11 // ООО "МСМ Телеком"
+            'default': 21 // ООО "МСН Телеком Сервис"
         },
         $legalTypes = $('#type-select button'),
         $organizations = $('select[name*="organization_id"]'),
