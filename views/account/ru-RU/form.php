@@ -230,7 +230,7 @@ use kartik\widgets\ActiveForm;
         </div>
         <div class="col-sm-3"></div>
         <div class="col-sm-3"></div>
-        <div class="col-sm-3"></div>
+        <div class="col-sm-3"><?= $f->field($model, 'transfer_params_from')->dropDownList($model->getNearAccounts())?></div>
     </div>
 
     <div class="row">

@@ -3,8 +3,10 @@
 namespace app\forms\client;
 
 use app\classes\api\ApiCore;
+use app\classes\Assert;
 use app\classes\Form;
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetListTrait;
 use app\classes\validators\ArrayValidator;
 use app\classes\validators\BikValidator;
 use app\exceptions\ModelValidationException;
@@ -89,8 +91,8 @@ class AccountEditForm extends Form
         $uu_tariff_status_id,
         $settings_advance_invoice,
         $upload_to_sales_book,
-        $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS
-    ;
+        $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS,
+        $transfer_params_from = 0;
 
     /**
      * Правила
@@ -172,6 +174,7 @@ class AccountEditForm extends Form
                     'settings_advance_invoice',
                     'upload_to_sales_book',
                     'show_in_lk',
+                    'transfer_params_from'
                 ],
                 'integer'
             ],
@@ -231,7 +234,8 @@ class AccountEditForm extends Form
         return ArrayHelper::merge(
             (new ClientAccount())->attributeLabels(),
             [
-                'admin_email' => 'Email администратора'
+                'admin_email' => 'Email администратора',
+                'transfer_params_from' => 'Перенести Реквизиты и Контакты с ЛС',
             ]
         );
     }
@@ -355,112 +359,10 @@ class AccountEditForm extends Form
 
         try {
 
-            $client = $this->clientM;
-
-            if ($this->getIsNewRecord()) {
-                $this->is_active = 0;
-            }
-
-            if ($this->credit < 0) {
-                $this->credit = 0;
-            }
-
-            if ($this->site_name) {
-                $client->site_name = $this->site_name;
-            }
-
-            $this->is_agent = $this->is_agent ? 'Y' : 'N';
-
-            $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
-            if ($client && $this->historyVersionStoredDate) {
-                $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
-            }
-
-            $contract = ClientContract::findOne($client->contract_id);
-            $contragent = ClientContragent::findOne($contract->contragent_id);
-            $client->country_id = $contragent->country_id;
-
-            if (!$this->custom_properties) {
-                if (
-                    !empty($this->bik) &&
-                    (empty($client->corr_acc) || empty($client->bank_name) || empty($client->bank_city))
-                ) {
-                    $bik = Bik::findOne(['bik' => $this->bik]);
-
-                    if ($bik) {
-                        $client->bik = $bik->bik;
-                        $client->corr_acc = $bik->corr_acc;
-                        $client->bank_name = $bik->bank_name;
-                        $client->bank_city = $bik->bank_city;
-
-                        $client->bank_properties = 'р/с ' . ($client->pay_acc ?: '') . "\n" .
-                            $client->bank_name . ' ' . $client->bank_city .
-                            ($client->corr_acc ? "\nк/с " . $client->corr_acc : '');
-                    }
-                }
-            }
-
-            if (!$client->save()) {
-                throw new ModelValidationException($client);
-            }
-
-            if (!$client->client) {
-                $client->client = 'id' . $client->id;
-                if (!$client->save()) {
-                    throw new ModelValidationException($client);
-                }
-
-            }
-
-            if ($this->admin_email) {
-                $contact = new ClientContact(["client_id" => $client->id]);
-                $contact->addEmail($this->admin_email);
-                $contact->is_official = 1;
-
-                if (!$contact->save()) {
-                    throw new ModelValidationException($contact);
-                }
-
-                $client->admin_contact_id = $contact->id;
-                if (!$client->save()) {
-                    throw new ModelValidationException($client);
-                }
-            }
-
-            $this->setAttributes($client->getAttributes(), false);
-
-            if (is_array($this->options)) {
-
-                $this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK] = (string)(int)$this->{ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK};
-
-                ClientAccountOptions::deleteAll(
-                    [
-                        'and',
-                        'client_account_id = :clientAccountId',
-                        ['in', 'option', array_keys($this->options)]
-                    ],
-                    [
-                        ':clientAccountId' => $client->id,
-                    ]);
-
-                foreach ($this->options as $option => $values) {
-
-                    if (!is_array($values)) {
-                        $values = [$values];
-                    }
-
-                    foreach ($values as $value) {
-                        if ($value === '') {
-                            continue;
-                        }
-
-                        (new ClientAccountOptionsForm)
-                            ->setClientAccountId($client->id)
-                            ->setOption($option)
-                            ->setValue($value)
-                            ->save($deleteExisting = false);
-                    }
-                }
+            if ($this->transfer_params_from) {
+                $this->_saveFromAccount();
+            } else {
+                $this->_saveFromPost();
             }
 
             $transaction->commit();
@@ -485,6 +387,194 @@ class AccountEditForm extends Form
     public function getCurrencyTypes()
     {
         return Currency::map();
+    }
+
+    /**
+     * Показываем рядом стоящие аккаунты
+     *
+     * @return string[]
+     */
+    public function getNearAccounts()
+    {
+        $query = ClientAccount::find()
+            ->select(['id'])
+            ->where(['contract_id' => $this->contract_id])
+            ->indexBy('id')
+            ->orderBy(['id' => SORT_ASC]);
+
+        $this->id && $query->andWhere(['NOT', ['id' => $this->id]]);
+
+        return GetListTrait::getEmptyList(true) + $query->column();
+    }
+
+    private function _saveFromPost()
+    {
+
+        $client = $this->clientM;
+
+        if ($this->getIsNewRecord()) {
+            $this->is_active = 0;
+        }
+
+        if ($this->credit < 0) {
+            $this->credit = 0;
+        }
+
+        if ($this->site_name) {
+            $client->site_name = $this->site_name;
+        }
+
+        $this->is_agent = $this->is_agent ? 'Y' : 'N';
+
+        $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
+        if ($client && $this->historyVersionStoredDate) {
+            $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
+        }
+
+        $contract = ClientContract::findOne($client->contract_id);
+        $contragent = ClientContragent::findOne($contract->contragent_id);
+        $client->country_id = $contragent->country_id;
+
+        if (!$this->custom_properties) {
+            if (
+                !empty($this->bik) &&
+                (empty($client->corr_acc) || empty($client->bank_name) || empty($client->bank_city))
+            ) {
+                $bik = Bik::findOne(['bik' => $this->bik]);
+
+                if ($bik) {
+                    $client->bik = $bik->bik;
+                    $client->corr_acc = $bik->corr_acc;
+                    $client->bank_name = $bik->bank_name;
+                    $client->bank_city = $bik->bank_city;
+
+                    $client->bank_properties = 'р/с ' . ($client->pay_acc ?: '') . "\n" .
+                        $client->bank_name . ' ' . $client->bank_city .
+                        ($client->corr_acc ? "\nк/с " . $client->corr_acc : '');
+                }
+            }
+        }
+
+        if (!$client->save()) {
+            throw new ModelValidationException($client);
+        }
+
+        if (!$client->client) {
+            $client->client = 'id' . $client->id;
+            if (!$client->save()) {
+                throw new ModelValidationException($client);
+            }
+
+        }
+
+        if ($this->admin_email) {
+            $contact = new ClientContact(["client_id" => $client->id]);
+            $contact->addEmail($this->admin_email);
+            $contact->is_official = 1;
+
+            if (!$contact->save()) {
+                throw new ModelValidationException($contact);
+            }
+
+            $client->admin_contact_id = $contact->id;
+            if (!$client->save()) {
+                throw new ModelValidationException($client);
+            }
+        }
+
+        $this->setAttributes($client->getAttributes(), false);
+
+        if (is_array($this->options)) {
+
+            $this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK] = (string)(int)$this->{ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK};
+
+            ClientAccountOptions::deleteAll(
+                [
+                    'and',
+                    'client_account_id = :clientAccountId',
+                    ['in', 'option', array_keys($this->options)]
+                ],
+                [
+                    ':clientAccountId' => $client->id,
+                ]);
+
+            foreach ($this->options as $option => $values) {
+
+                if (!is_array($values)) {
+                    $values = [$values];
+                }
+
+                foreach ($values as $value) {
+                    if ($value === '') {
+                        continue;
+                    }
+
+                    (new ClientAccountOptionsForm)
+                        ->setClientAccountId($client->id)
+                        ->setOption($option)
+                        ->setValue($value)
+                        ->save($deleteExisting = false);
+                }
+            }
+        }
+    }
+
+    private function _saveFromAccount()
+    {
+        $client = $this->clientM;
+
+        $fromAccount = ClientAccount::findOne(['id' => $this->transfer_params_from]);
+
+        Assert::isObject($fromAccount);
+
+        $client->setAttributes($fromAccount->getAttributes(null, ['id', 'client', 'created', 'is_active', 'account_version']));
+
+        if ($this->getIsNewRecord()) {
+            $client->is_active = 0;
+        }
+
+
+        if (!$client->save()) {
+            throw new ModelValidationException($client);
+        }
+
+        if (!$client->client) {
+            $client->client = 'id' . $client->id;
+            if (!$client->save()) {
+                throw new ModelValidationException($client);
+            }
+        }
+
+        $this->setAttributes($client->getAttributes(), false);
+
+        ClientAccountOptions::deleteAll(['client_account_id' => $client->id]);
+
+        /** @var ClientAccountOptions $option */
+        foreach ($fromAccount->options as $option)
+        {
+            if (in_array($option->option, ClientAccountOptions::$infoOptions)) {
+                continue;
+            }
+
+            (new ClientAccountOptionsForm)
+                ->setClientAccountId($client->id)
+                ->setOption($option->option)
+                ->setValue($option->value)
+                ->save($deleteExisting = false);
+        }
+
+        ClientContact::deleteAll(['client_id' => $client->id]);
+
+        foreach ($fromAccount->contacts as $contact) {
+            $newContact = new ClientContact();
+            $newContact->setAttributes($contact->getAttributes(null, ['client_id', 'ts', 'user_id']));
+            $newContact->client_id = $client->id;
+
+            if (!$newContact->save()) {
+                throw new ModelValidationException($newContact);
+            }
+        }
+
     }
 
 }

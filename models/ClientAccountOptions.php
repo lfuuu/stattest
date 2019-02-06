@@ -41,6 +41,13 @@ class ClientAccountOptions extends ActiveRecord
         self::OPTION_UPLOAD_TO_SALES_BOOK => "1" // там только строки
     ];
 
+    public static $infoOptions = [
+        self::OPTION_VOIP_CREDIT_LIMIT_DAY_WHEN,
+        self::OPTION_VOIP_CREDIT_LIMIT_DAY_VALUE,
+        self::OPTION_VOIP_CREDIT_LIMIT_DAY_MN_WHEN,
+        self::OPTION_VOIP_CREDIT_LIMIT_DAY_MN_VALUE,
+    ];
+
 
     public static function tableName()
     {

@@ -116,6 +116,7 @@ use yii\helpers\Url;
  * @property-read ClientAccountComment[] $comments
  * @property-read ClientAccountComment $lastAccountComment
  * @property-read integer $is_show_in_lk
+ * @property-read ClientAccountOptions $options
  *
  * @method static ClientAccount findOne($condition)
  * @method static ClientAccount[] findAll($condition)
