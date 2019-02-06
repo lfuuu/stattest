@@ -527,7 +527,7 @@ class AccountEditForm extends Form
 
         Assert::isObject($fromAccount);
 
-        $client->setAttributes($fromAccount->getAttributes(null, ['id', 'client', 'created', 'is_active', 'account_version']));
+        $client->setAttributes($fromAccount->getAttributes(null, ['id', 'client', 'created', 'is_active', 'account_version']), false);
 
         if ($this->getIsNewRecord()) {
             $client->is_active = 0;
