@@ -20,7 +20,7 @@ $isTimeCorrect = intval(date('H')) >= 19;
     <?php
     $form = ActiveForm::begin();
     echo $this->render('//layouts/_submitButton', [
-        'text' => ($isTimeCorrect) ? 'Синхронизировать NNP данные' : 'Доступно с 19:00 до 00:00',
+        'text' => ($isTimeCorrect) ? 'Синхронизировать NNP данные' : 'Синхронизировать NNP данные<br>(Доступно с 19:00 до 00:00)',
         'glyphicon' => 'glyphicon-off',
         'params' => [
             'name' => 'syncNnpAll',
