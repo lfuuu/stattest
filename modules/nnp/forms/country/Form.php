@@ -51,10 +51,9 @@ abstract class Form extends \app\classes\Form
             $post = Yii::$app->request->post();
 
             if ($this->country->load($post)) {
-                $prefixes = is_string($this->country->prefixes) ? rtrim(trim($this->country->prefixes), ',') : null;
-                if ($prefixes) {
-                    $arr = explode(',', preg_replace('/\s+/', '', $prefixes));
-                    $this->country->prefixes = array_filter(($arr) ? $arr : [$prefixes], function ($value) {
+                if (is_string($this->country->prefixes)) {
+                    $arr = array_map('trim', explode(',', $this->country->prefixes));
+                    $this->country->prefixes = array_filter($arr, function ($value) {
                         return $value !== '';
                     });
                 }

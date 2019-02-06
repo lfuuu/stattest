@@ -24,9 +24,6 @@ if (!$country->isNewRecord) {
 } else {
     $this->title = Yii::t('common', 'Create');
 }
-$prefixes = ($country->prefixes instanceof ArrayExpression)
-    ? implode (', ', $country->prefixes->getValue())
-    : (is_array($country->prefixes) ? implode (', ', $country->prefixes) : $country->prefixes);
 ?>
 
 <?= Breadcrumbs::widget([
@@ -93,7 +90,9 @@ $prefixes = ($country->prefixes instanceof ArrayExpression)
 
         <?php // Префикы ?>
         <div class="col-sm-3">
-            <?= $form->field($country, 'prefixes')->textInput(['value' => $prefixes]) ?>
+            <?= $form->field($country, 'prefixes')->textInput(['value' => ($country->prefixes instanceof ArrayExpression)
+                ? implode (', ', $country->prefixes->getValue())
+                : (is_array($country->prefixes) ? implode (', ', $country->prefixes) : $country->prefixes)]) ?>
         </div>
 
         <?php // Открытый номерной план? ?>
