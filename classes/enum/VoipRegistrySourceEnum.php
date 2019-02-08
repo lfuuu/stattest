@@ -9,6 +9,7 @@ class VoipRegistrySourceEnum extends Enum
     const REGULATOR = 'regulator';
     const INNONET = 'innonet';
     const VOXBONE = 'voxbone';
+    const DETACHED = 'detached';
     const PORTABILITY_NOT_FOR_SALE = 'portability_not_for_sale';
     const OPERATOR_NOT_FOR_SALE = 'operator_not_for_sale';
 
@@ -18,6 +19,7 @@ class VoipRegistrySourceEnum extends Enum
         self::REGULATOR => 'Regulator',
         self::INNONET => 'Innonet',
         self::VOXBONE => 'Voxbone',
+        self::DETACHED => 'Detached',
         self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
         self::OPERATOR_NOT_FOR_SALE => 'Operator (Not for sale)'
     ];
