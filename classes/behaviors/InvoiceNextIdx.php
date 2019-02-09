@@ -20,6 +20,7 @@ class InvoiceNextIdx extends Behavior
     {
         return [
             ActiveRecord::EVENT_BEFORE_INSERT => "setNextIdx",
+            ActiveRecord::EVENT_BEFORE_UPDATE => "setNextIdx",
         ];
     }
 
@@ -46,25 +47,28 @@ class InvoiceNextIdx extends Behavior
             $endDate = $startDate->setDate($startDate->format('Y'), 12, 31);
         }
 
-        $maxIdx = Invoice::find()->where([
-            'organization_id' => $invoice->bill->organization_id,
-        ])->andWhere([
-            'between',
-            'date',
-            $startDate->format(DateTimeZoneHelper::DATE_FORMAT),
-            $endDate->format(DateTimeZoneHelper::DATE_FORMAT)
-        ])->max('idx');
+        if (!$invoice->isSetDraft && !$invoice->idx) {
+            $maxIdx = Invoice::find()->where([
+                'organization_id' => $invoice->bill->organization_id,
+            ])->andWhere([
+                'between',
+                'date',
+                $startDate->format(DateTimeZoneHelper::DATE_FORMAT),
+                $endDate->format(DateTimeZoneHelper::DATE_FORMAT)
+            ])->max('idx');
 
-        if (!$maxIdx) {
-            $maxIdx = 0;
+            if (!$maxIdx) {
+                $maxIdx = 0;
+            }
+
+            $invoice->idx = $maxIdx + 1;
+            $invoice->number = $invoice->type_id .
+                (new \DateTimeImmutable($invoice->date))->format('ym') .
+                sprintf("%02d", $invoice->organization_id) . '-' .
+                sprintf("%04d", $invoice->idx);
         }
 
-        $invoice->idx = $maxIdx + 1;
-        $invoice->organization_id = $invoice->bill->organization_id;
-        $invoice->number = $invoice->type_id .
-            (new \DateTimeImmutable($invoice->date))->format('ym') .
-            sprintf("%02d", $invoice->organization_id) . '-' .
-            sprintf("%04d", $invoice->idx);
-        $invoice->add_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        !$invoice->organization_id && $invoice->organization_id = $invoice->bill->organization_id;
+        !$invoice->add_date && $invoice->add_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 }

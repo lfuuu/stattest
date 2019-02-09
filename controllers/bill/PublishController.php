@@ -8,8 +8,10 @@ use app\dao\BillDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\Country;
 use app\models\Invoice;
 use app\models\Organization;
 use app\models\Param;
@@ -20,6 +22,7 @@ use yii\caching\TagDependency;
 use yii\db\Query;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
+use yii\web\NotFoundHttpException;
 
 class PublishController extends BaseController
 {
@@ -330,6 +333,145 @@ class PublishController extends BaseController
         if (!$bill->save()) {
             throw new ModelValidationException($bill);
         }
+
+        return $this->redirect($bill->getUrl());
+    }
+
+    public function actionInvoiceDraft($bill_no, $type_id)
+    {
+        $typeId = $type_id;
+
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+
+        if (!$bill) {
+            throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
+        }
+
+        //@TODO
+        // можно ли создать draft
+
+        $lines = $bill->getLinesByTypeId($typeId);
+
+        if (!$lines) {
+            // не данных по этому типу документов
+            return $this->redirect($bill->getUrl());
+        }
+
+        $sumData = BillLine::getSumsLines($lines);
+        $invoiceDate = Invoice::getDate($bill, $typeId);
+
+
+        $invoice = new Invoice();
+        $invoice->isSetDraft = true;
+
+        $invoice->bill_no = $bill->bill_no;
+        $invoice->type_id = $typeId;
+
+        $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
+        $invoice->is_reversal = 0;
+
+        $invoice->sum = $sumData['sum'];
+        $invoice->sum_tax = $sumData['sum_tax'];
+        $invoice->sum_without_tax = $sumData['sum_without_tax'];
+
+        if (!$invoice->save()) {
+            throw new ModelValidationException($invoice);
+        }
+
+        return $this->redirect($bill->getUrl());
+    }
+
+    public function actionInvoiceDelete($bill_no, $type_id)
+    {
+        $typeId = $type_id;
+
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+
+        if (!$bill) {
+            throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
+        }
+
+        //@TODO
+        // можно ли удалить draft
+
+        $invoice = Invoice::findOne([
+            'bill_no' => $bill->bill_no,
+            'idx' => null,
+            'type_id' => $typeId
+        ]);
+
+        if (!$invoice) {
+            throw new NotFoundHttpException('Invoice not found');
+        }
+
+        if (!$invoice->delete()) {
+            throw new ModelValidationException($invoice);
+        }
+
+        return $this->redirect($bill->getUrl());
+    }
+
+    public function actionInvoiceRegister($bill_no, $type_id)
+    {
+        $typeId = $type_id;
+
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+
+        if (!$bill) {
+            throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
+        }
+
+        //@TODO
+        // можно ли удалить draft
+
+        $invoice = Invoice::findOne([
+            'bill_no' => $bill->bill_no,
+            'idx' => null,
+            'type_id' => $typeId
+        ]);
+
+        if (!$invoice) {
+            throw new NotFoundHttpException('Invoice not found');
+        }
+
+        $invoice->isSetDraft = false; // already set false
+
+        if (!$invoice->save()) {
+            throw new ModelValidationException($invoice);
+        }
+
+        return $this->redirect($bill->getUrl());
+    }
+
+    public function actionInvoiceStorno($bill_no, $type_id, $id)
+    {
+        $typeId = $type_id;
+
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+
+        if (!$bill) {
+            throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
+        }
+
+        $invoice = Invoice::findOne([
+            'bill_no' => $bill->bill_no,
+            'id' => $id,
+            'type_id' => $typeId,
+            'is_reversal' => 0,
+        ]);
+
+        if (!$invoice) {
+            throw new NotFoundHttpException('Invoice not found');
+        }
+
+        $isSetNumber = $bill->clientAccount->country_id != Country::RUSSIA;
+
+        $revertInvoice = new Invoice();
+        $revertInvoice->setAttributes($invoice->getAttributes(null, ['id', 'add_date', 'number', 'idx', 'reversal_date']), false);
+
+        !$isSetNumber && $revertInvoice->isSetDraft = true;
+
+        $revertInvoice->setReversal(true);
 
         return $this->redirect($bill->getUrl());
     }

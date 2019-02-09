@@ -785,6 +785,8 @@ class m_newaccounts extends IModule
             ->all()
         );
 
+        $design->assign('invoice2_info', \app\models\Invoice::getInfo($bill->GetNo()));
+
 
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_ext', $bill->GetExt());

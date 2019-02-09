@@ -6,6 +6,7 @@ use app\classes\behaviors\InvoiceNextIdx;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use yii\web\NotFoundHttpException;
 
 /**
  * @property int $id
@@ -36,6 +37,9 @@ class Invoice extends ActiveRecord
     const DATE_NO_RUSSIAN_ACCOUNTING = '2019-01-01';
 
     public static $types = [self::TYPE_1, self::TYPE_2, self::TYPE_GOOD];
+
+    // Создается draft
+    public $isSetDraft = false;
 
     /**
      * Название таблицы
@@ -185,9 +189,10 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * @param bool $isRevertSum
      * @throws ModelValidationException
      */
-    public function setReversal()
+    public function setReversal($isRevertSum = false)
     {
         if ($this->is_reversal) {
             return;
@@ -196,9 +201,71 @@ class Invoice extends ActiveRecord
         $this->is_reversal = 1;
         $this->reversal_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
+        if ($isRevertSum) {
+            $this->sum = -$this->sum;
+            $this->sum_without_tax = -$this->sum_without_tax;
+            $this->sum_tax = -$this->sum_tax;
+        }
+
         if (!$this->save()) {
             throw new ModelValidationException($this);
         }
+    }
+
+    public static function getInfo($billNo)
+    {
+        $bill = Bill::findOne(['bill_no' => $billNo]);
+
+        if (!$bill) {
+            throw new NotFoundHttpException('Bill not found');
+        }
+
+        $info = [];
+        foreach (array_merge(self::$types, [self::TYPE_PREPAID]) as $typeId) {
+            if ($typeInfo = self::_getInfoByType($bill, $typeId)) {
+                $info[$typeId] = $typeInfo;
+            }
+        }
+
+        return $info;
+    }
+
+    public function _getInfoByType(Bill $bill, $typeId)
+    {
+        $lines = $bill->getLinesByTypeId($typeId);
+
+        // @TODO
+        // проверка - можно ли по этому счету выписать авансовую с/ф
+
+        // нет проводок - нет документа. Кроме авансовой с/ф
+        if ($typeId != self::TYPE_PREPAID && !$lines) {
+            return false;
+        }
+
+        $info = [
+            'status' => 'empty',
+            'invoices' => [],
+        ];
+
+        /** @var Invoice $invoice */
+        foreach (Invoice::find()
+                     ->where(['bill_no' => $bill->bill_no, 'type_id' => $typeId])
+                     ->orderBy(['id' => SORT_ASC])
+                     ->all()
+                 as $invoice) {
+            $info['invoices'][] = $invoice;
+
+            if ($invoice->is_reversal) {
+                $info['status'] = 'reversal';
+            } elseif (!$invoice->idx) {
+                $info['status'] = 'draft';
+            } else {
+                $info['status'] = 'invoice';
+                $info['stornoId'] = $invoice->id;
+            }
+        }
+
+        return $info;
     }
 
 

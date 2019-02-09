@@ -246,6 +246,23 @@ class UbillerController extends Controller
     }
 
     /**
+     * Запустить пересчет проводок и конвертировать счета
+     */
+    public function actionFixBills()
+    {
+        // проводки
+        $this->actionEntry();
+
+        // Не списывать абонентку и минималку (обнулять транзакции) за ВТОРОЙ и последующие периоды при финансовой блокировке
+        // Должно идти после actionEntry (чтобы проводки уже были), но до actionBill (чтобы проводки правильно учлись в счете)
+        $this->actionFreePeriodInFinanceBlock();
+
+        // счета
+        $this->actionBill();
+
+    }
+
+    /**
      * @return array
      */
     public static function getHelpConfluence()

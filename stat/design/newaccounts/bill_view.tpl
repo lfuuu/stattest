@@ -672,6 +672,70 @@
                 <a href="/bill/print?&billNo={$bill.bill_no}&docType=bill_operator&emailed=1&isPdf=0" target="_blank">
                     <div class="flag flag-us"></div>
                     Счет операторский #{$bill.bill_no}</a>
+
+
+            </td>
+            <td valign="top" style="width: 600px;">
+                Счета-фактур в.2
+                <table>
+                    <tr>
+                        {foreach from=$invoice2_info key=typeId item=item}
+                            <td>
+                                <b>{if $typeId == 4}Авансовая с/ф{else}С/ф №{$typeId}{/if}</b>
+                            </td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        {/foreach}
+
+                    </tr>
+                    <tr>
+                        {foreach from=$invoice2_info key=typeId item=item}
+                            <td valign="top">
+                                {foreach from=$item.invoices item=invoice}
+                                    {if $invoice.idx}
+                                        <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice-{$typeId}=1&action=bill_mprint"
+                                           target="_blank">{$invoice.number}</a>: {$invoice.sum|round:2}
+                                        <br>
+                                    {/if}
+                                {/foreach}
+
+                                {if $item.status == 'draft'}
+                                    <br>
+                                    <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice-{$typeId}=1&action=bill_mprint"
+                                       target="_blank">*{$invoice.bill_no}*</a>: {$invoice.sum|round:2}
+                                {/if}
+                            </td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        {/foreach}
+                    </tr>
+                    <tr>
+                        {foreach from=$invoice2_info key=typeId item=item}
+                            <td valign="top">
+                                {if $item.status == 'empty' || $item.status == 'reversal'}
+                                    <a href="/bill/publish/invoice-draft?bill_no={$bill.bill_no}&type_id={$typeId}">
+                                        Создать драфт
+                                    </a>
+                                {elseif $item.status == 'draft'}
+                                    <a href="/bill/publish/invoice-edit?bill_no={$bill.bill_no}&type_id={$typeId}">Редактирование</a>
+                                    |
+                                    <a href="/bill/publish/invoice-delete?bill_no={$bill.bill_no}&type_id={$typeId}">Удалить</a>
+                                    |
+                                    <a href="/bill/publish/invoice-register?bill_no={$bill.bill_no}&type_id={$typeId}">Регистрировать</a>
+                                {elseif $item.status == 'invoice'}
+                                    <a href="/bill/publish/invoice-storno?bill_no={$bill.bill_no}&type_id={$typeId}&id={$item.stornoId}">Сторно</a>
+                                {/if}
+                            </td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        {/foreach}
+                    </tr>
+                    <tr>
+                        {foreach from=$invoice2_info key=typeId item=item}
+                            <td>
+                            </td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        {/foreach}
+                    </tr>
+                </table>
+
             </td>
         </tr>
     </table>
