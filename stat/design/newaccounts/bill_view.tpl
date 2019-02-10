@@ -41,7 +41,8 @@
                 {/if}
             {/if}
             <br>
-            {if !$1c_bill_flag}
+            {* //@TODO выпилить *}
+            {if false && !$1c_bill_flag}
                 {if $bill_invoices[1]}
                     <a href="/bill/correction-invoice?bill_no={$bill.bill_no}&type_id=1">
                         {if $bill_correction_info.1}
@@ -692,7 +693,7 @@
                             <td valign="top">
                                 {foreach from=$item.invoices item=invoice}
                                     {if $invoice.idx}
-                                        <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice-{$typeId}=1&action=bill_mprint"
+                                        <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
                                            target="_blank">{$invoice.number}</a>: {$invoice.sum|round:2}
                                         <br>
                                     {/if}
@@ -700,7 +701,7 @@
 
                                 {if $item.status == 'draft'}
                                     <br>
-                                    <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice-{$typeId}=1&action=bill_mprint"
+                                    <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
                                        target="_blank">*{$invoice.bill_no}*</a>: {$invoice.sum|round:2}
                                 {/if}
                             </td>
@@ -715,7 +716,7 @@
                                         Создать драфт
                                     </a>
                                 {elseif $item.status == 'draft'}
-                                    <a href="/bill/publish/invoice-edit?bill_no={$bill.bill_no}&type_id={$typeId}">Редактирование</a>
+                                    <a href="/bill/publish/invoice-edit?invoice_id={$item.lastId}">Редактирование</a>
                                     |
                                     <a href="/bill/publish/invoice-delete?bill_no={$bill.bill_no}&type_id={$typeId}">Удалить</a>
                                     |

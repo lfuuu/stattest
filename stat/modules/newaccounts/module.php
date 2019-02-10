@@ -1713,6 +1713,7 @@ class m_newaccounts extends IModule
         $isPortrait = get_param_raw("isPortrait", 0);
         $is_pdf = get_param_raw("is_pdf", 0);
         $one_pdf = get_param_raw("one_pdf", 0);
+        $invoiceId = get_param_raw("invoice_id", 0);
 
 
         $this->do_include();
@@ -1725,7 +1726,7 @@ class m_newaccounts extends IModule
             $billModel = Bill::findOne(['bill_no' => (string)$bills]);
 
             if ($billModel && $billModel->currency != Currency::RUB && $billModel->bill_date >= \app\models\Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
-                return $this->_portingPrintNoRub($billModel, $is_pdf);
+                return $this->_portingPrintNoRub($billModel, $is_pdf, $invoiceId);
             }
 
             $bills = [$bills];
@@ -1750,7 +1751,7 @@ class m_newaccounts extends IModule
         ]);
         $L = array_merge($L, ['akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3']);
         $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'credit_note']);
-        $L = array_merge($L, ['partner_reward', 'sogl_mcn_telekom_to_service']);
+        $L = array_merge($L, ['partner_reward', 'sogl_mcn_telekom_to_service', 'invoice2']);
 
         $landscapeActions = ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4', 'upd-1', 'upd-2', 'upd-3'];
 
@@ -2042,7 +2043,7 @@ class m_newaccounts extends IModule
 
     }
 
-    private function _portingPrintNoRub(Bill $bill, $isPdf)
+    private function _portingPrintNoRub(Bill $bill, $isPdf, $invoiceId)
     {
         global $design;
 
@@ -2051,6 +2052,17 @@ class m_newaccounts extends IModule
             'invoice-2' => 2,
             'invoice-3' => 3,
         ];
+
+        $invoice = null;
+        if ($invoiceId) {
+            $invoice = \app\models\Invoice::findOne(['id' => $invoiceId]);
+
+            \app\classes\Assert::isObject($invoice);
+
+            $allowedDocs = [
+                'invoice2' => $invoice->type_id,
+            ];
+        }
 
         $objects = [];
         foreach ($allowedDocs as $doc => $docId) {
@@ -2061,7 +2073,10 @@ class m_newaccounts extends IModule
                         'billNo' => $bill->bill_no,
                         'typeId' => $docId,
                         'langCode' => $bill->clientAccount->contragent->lang_code,
-                    ] + ($isPdf ? ['renderMode' => 'pdf', 'isShow' => true] : []))
+                    ]
+                        + ($isPdf || $invoice ? ['renderMode' => 'pdf', 'isShow' => true] : [])
+                        + ($invoice ? ['invoiceId' => $invoiceId] : [])
+                    )
                 ];
             }
         }

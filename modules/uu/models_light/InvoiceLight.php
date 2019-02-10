@@ -159,7 +159,7 @@ class InvoiceLight extends Component
 
         } elseif ($this->_invoice) {
             $this->_bill = $this->_invoice->bill;
-            $items = $this->_bill->getLinesByTypeId($this->_invoice->type_id);
+            $items = $this->_invoice->lines ?: $this->_bill->getLinesByTypeId($this->_invoice->type_id);
         } elseif ($this->_bill instanceof Bill) {
             $items = $this->_bill->lines;
 

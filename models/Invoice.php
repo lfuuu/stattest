@@ -6,6 +6,7 @@ use app\classes\behaviors\InvoiceNextIdx;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use yii\db\Expression;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -24,6 +25,7 @@ use yii\web\NotFoundHttpException;
  * @property string $reversal_date
  *
  * @property-read Bill $bill
+ * @property-read InvoiceLine $lines
  * @property-read Organization $organization
  */
 class Invoice extends ActiveRecord
@@ -39,7 +41,7 @@ class Invoice extends ActiveRecord
     public static $types = [self::TYPE_1, self::TYPE_2, self::TYPE_GOOD];
 
     // Создается draft
-    public $isSetDraft = false;
+    public $isSetDraft = null;
 
     /**
      * Название таблицы
@@ -70,6 +72,14 @@ class Invoice extends ActiveRecord
     public function getBill()
     {
         return $this->hasOne(Bill::class, ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLines()
+    {
+        return $this->hasMany(InvoiceLine::class, ['invoice_id' => 'id'])->orderBy(['sort' => SORT_ASC]);
     }
 
     /**
@@ -263,10 +273,67 @@ class Invoice extends ActiveRecord
                 $info['status'] = 'invoice';
                 $info['stornoId'] = $invoice->id;
             }
+            $info['lastId'] = $invoice->id;
         }
 
         return $info;
     }
 
+    public function afterSave($isInsert, $changedAttributes)
+    {
+        if (
+            !$isInsert
+            || $this->bill->clientAccount->country_id == Country::RUSSIA
+            || $this->bill->bill_date < '2019-02-01'
+        ) {
+            return;
+        }
 
+        foreach ($this->bill->getLinesByTypeId($this->type_id, $isInsert) as $line) {
+            $newLine = new InvoiceLine();
+
+            if ($line instanceof BillLine) {
+                $data = $line->getAttributes(null, ['pk']);
+            } else {
+                // array
+                $data = $line;
+                unset($data['pk']);
+            }
+
+            $newLine->setAttributes($data, false);
+            $newLine->invoice_id = $this->id;
+
+            if ($this->is_reversal) {
+                $newLine->price = -$newLine->price;
+                $newLine->sum = -$newLine->sum;
+                $newLine->sum_tax = -$newLine->sum_tax;
+                $newLine->sum_without_tax = -$newLine->sum_without_tax;
+            }
+
+            if (!$newLine->save()) {
+                throw new ModelValidationException($newLine);
+            }
+        }
+    }
+
+    public function recalcSumCorrection()
+    {
+        $sums = InvoiceLine::find()
+            ->where(['invoice_id' => $this->id])
+            ->select([
+                'sum' => (new Expression('SUM(sum)')),
+                'sum_tax' => (new Expression('SUM(sum_tax)')),
+                'sum_without_tax' => (new Expression('SUM(sum_without_tax)')),
+            ])
+            ->asArray()
+            ->one();
+
+        $this->sum = $sums['sum'];
+        $this->sum_tax = $sums['sum_tax'];
+        $this->sum_without_tax = $sums['sum_without_tax'];
+
+        if (!$this->save()) {
+            throw new ModelValidationException($this);
+        }
+    }
 }

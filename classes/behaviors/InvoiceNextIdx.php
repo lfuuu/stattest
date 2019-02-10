@@ -47,7 +47,11 @@ class InvoiceNextIdx extends Behavior
             $endDate = $startDate->setDate($startDate->format('Y'), 12, 31);
         }
 
-        if (!$invoice->isSetDraft && !$invoice->idx) {
+        $isSetId = $event->name == ActiveRecord::EVENT_BEFORE_INSERT && $invoice->isSetDraft !== true
+                || $event->name == ActiveRecord::EVENT_BEFORE_UPDATE && $invoice->isSetDraft === false;
+
+
+        if ($isSetId && !$invoice->idx) {
             $maxIdx = Invoice::find()->where([
                 'organization_id' => $invoice->bill->organization_id,
             ])->andWhere([

@@ -87,12 +87,15 @@ class InvoiceController extends BaseController
 
     /**
      * @param int $billId
+     * @param null $billNo
+     * @param int $typeId
      * @param null|string $renderMode
      * @param null|string $langCode
+     * @param bool $isShow
+     * @param integer $invoiceId
      * @return string
-     * @throws InvalidParamException
      */
-    public function actionGet($billId = null, $billNo = null, $typeId = 1, $renderMode = null, $langCode = null, $isShow = false)
+    public function actionGet($billId = null, $billNo = null, $typeId = 1, $renderMode = null, $langCode = null, $isShow = false, $invoiceId = null)
     {
         $invoice = $clientAccountId = null;
 
@@ -111,7 +114,9 @@ class InvoiceController extends BaseController
                 throw new InvalidParamException;
             }
 
-            $invoice = Invoice::findOne(['bill_no' => $bill->bill_no, 'type_id' => $typeId]);
+            $invoice = Invoice::findOne(
+                $invoiceId ? ['id' => $invoiceId] : ['bill_no' => $bill->bill_no, 'type_id' => $typeId]
+            );
 
             if (!$invoice) {
                 return $this->renderPartial("//wrapper_html", ['content' => 'Документ не найден']);
