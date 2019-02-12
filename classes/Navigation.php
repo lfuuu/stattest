@@ -169,6 +169,7 @@ class Navigation
                 ->addItem('Публичные сайты', ['/dictionary/public-site'], ['dictionary.read'])
                 ->addItem('Метки', ['/dictionary/tags'], ['dictionary.read'])
                 ->addItem('Статусы бизнес процессов', ['/dictionary/business-process-status'], ['dictionary-statuses.read'])
+                ->addItem('Общие настройки', ['/settings/'], ['dictionary.read'])
         );
 
         $this->addBlock(

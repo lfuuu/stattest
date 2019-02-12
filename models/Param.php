@@ -19,6 +19,7 @@ class Param extends ActiveRecord
     const NOTIFICATIONS_PERIOD_OFF_MODIFY = '+3 hours'; // через какое время произойдет автоматическое включение оповещений
     const NOTIFICATIONS_LOCK_FILEPATH = '/tmp/yii-check-notification'; // путь к файлу-блокировке работы системы оповещения
     const IS_NEED_RECALC_TT_COUNT = 'is_need_recalc_tt_count';
+    const IS_LOG_AAA = 'is_log_aaa';
 
     // отключение пересчета баланса при редактировании счета
     const DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL = 'disabling_recalculation_balance_when_edit_bill';
@@ -56,5 +57,23 @@ class Param extends ActiveRecord
         }
 
         return $param;
+    }
+
+    /**
+     * Получение занчения параметра
+     *
+     * @param string $key
+     * @param mixed $defaultValue
+     * @return mixed
+     */
+    public static function getParam($key, $defaultValue = null)
+    {
+        $param = self::findOne(['param' => $key]);
+
+        if (!$param) {
+            return $defaultValue;
+        }
+
+        return $param->value;
     }
 }

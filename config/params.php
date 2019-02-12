@@ -40,4 +40,5 @@ return [
     ],
     'rocket_chat_token' => '',
     'sormRegions' => [],
+    'isLogAAA' => false,
 ];

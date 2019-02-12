@@ -77,6 +77,11 @@ if (file_exists($file = __DIR__ . '/params.local.php')) {
     $params = ArrayHelper::merge($params, require($file));
 }
 
+$logAAAPath = Yii::getAlias('@app/runtime/log_aaa.config.php');
+if (file_exists($logAAAPath)) {
+    $params['isLogAAA'] = include $logAAAPath;
+}
+
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
