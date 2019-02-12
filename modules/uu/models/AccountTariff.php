@@ -8,6 +8,7 @@ use app\classes\traits\GetUpdateUserTrait;
 use app\classes\validators\FormFieldValidator;
 use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
+use app\modules\uu\behaviors\AccountTariffTransferClean;
 use app\modules\uu\behaviors\AccountTariffVoipNumber;
 use app\modules\uu\models\traits\AccountTariffBillerPeriodTrait;
 use app\modules\uu\models\traits\AccountTariffBillerResourceTrait;
@@ -145,6 +146,7 @@ class AccountTariff extends ActiveRecord
                 AccountTariffImportantEvents::class,
                 AccountTariffVoipNumber::class,
                 AccountTariffAddDefaultPackage::class,
+                AccountTariffTransferClean::class,
                 [
                     // Установить "когда создал" и "когда обновил"
                     'class' => TimestampBehavior::class,
