@@ -7,20 +7,47 @@ use app\models\filter\SaleBookFilter;
 /** @var SaleBookFilter $filter */
 /** @var array $skipping_bps */
 ?>
-<form style="display:inline" action="/report/accounting/sale-book">
-    От: <input id="date_from" type="text" name="SaleBookFilter[date_from]" value="<?= $filter->date_from ?>"
-               class="text"/>
-    До: <input id="date_to" type="text" name="SaleBookFilter[date_to]" value="<?= $filter->date_to ?>"
-               class="text"/><br/>
-    Компания: <?= \app\classes\Html::dropDownList('SaleBookFilter[organization_id]', $filter->organization_id, \app\models\Organization::dao()->getList()) ?>
-    в Excel: <input type="checkbox" name="is_excel" value="1"/><br/>
-    Фильтр: <?= \app\classes\Html::dropDownList('SaleBookFilter[filter]', $filter->filter, \app\models\filter\SaleBookFilter::$filters) ?>
+<form style="display:inline" action="/report/accounting/sale-book" class="form-vertical">
+    <div class="row">
+        <div class="col-sm-1">
+            <label class="control-label">От:</label>
+            <input id="date_from" type="text" name="SaleBookFilter[date_from]" value="<?= $filter->date_from ?>"
+                   class="form-control"/>
+        </div>
+        <div class="col-sm-1">
+            <label class="control-label">До:</label>
+            <input id="date_to" type="text" name="SaleBookFilter[date_to]" value="<?= $filter->date_to ?>"
+                   class="form-control"/>
+        </div>
+    </div>
+    </div>
 
-    <!-- Полный экран: <input type="checkbox" name="fullscreen" value="1"/>&nbsp;
-    в Excel: <input type="checkbox" name="excel" value="1"/>
-    -->
-    <br/>
-    <input type="submit" value="Показать" class="button" name="do"/>
+    <div class="row">
+        <div class="col-sm-3"><label
+                    class="control-label">Компания:</label><?= \app\classes\Html::dropDownList('SaleBookFilter[organization_id]', $filter->organization_id, \app\models\Organization::dao()->getList(), ['class' => 'select2']) ?>
+        </div>
+        <div class="col-sm-3">
+            <label class="control-label">Валюта:</label>
+            <?= \app\classes\Html::dropDownList('SaleBookFilter[currency]', $filter->currency, \app\models\Currency::getList(), ['class' => 'select2']) ?>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-3"><label class="control-label">в Excel:</label> <input type="checkbox" name="is_excel"
+                                                                                   value="1"/>
+            <div>
+            </div>
+
+            <div class="row">
+            </div>
+
+            Фильтр: <?= \app\classes\Html::dropDownList('SaleBookFilter[filter]', $filter->filter, \app\models\filter\SaleBookFilter::$filters) ?>
+
+            <!-- Полный экран: <input type="checkbox" name="fullscreen" value="1"/>&nbsp;
+            в Excel: <input type="checkbox" name="excel" value="1"/>
+            -->
+            <br/>
+            <input type="submit" value="Показать" class="button" name="do"/>
 </form>
 <h2>Книга продаж</h2>
 <table class="price" cellspacing="4" cellpadding="2" border="1"

@@ -6,6 +6,7 @@ namespace app\models\filter;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
+use app\models\Currency;
 use app\models\Invoice;
 use app\models\Organization;
 use yii\base\NotSupportedException;
@@ -40,7 +41,8 @@ class SaleBookFilter extends Invoice
         $dateFrom = null,
         /** \DateTimeImmutable */
         $dateTo = null,
-        $filter = self::FILTER_NORMAL;
+        $filter = self::FILTER_NORMAL,
+        $currency = Currency::RUB;
 
 
     public function __construct()
@@ -55,7 +57,7 @@ class SaleBookFilter extends Invoice
     public function rules()
     {
         return [
-            [['date_from', 'date_to', 'organization_id','filter'], 'required'],
+            [['date_from', 'date_to', 'organization_id','filter', 'currency'], 'required'],
             [['date_from', 'date_to'], 'date'],
             [['organization_id'], 'in', 'range' => array_keys(Organization::dao()->getList())],
             ['filter', 'in', 'range' => array_keys(self::$filters)],
@@ -85,18 +87,23 @@ class SaleBookFilter extends Invoice
         }
 
         $query = self::find()
-            ->where(['organization_id' => $this->organization_id])
+            ->alias('inv')
+            ->where([
+                'inv.organization_id' => $this->organization_id,
+                'bill.currency' => $this->currency,
+            ])
             ->andWhere([
                 'between',
-                'date',
+                'inv.date',
                 $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                 $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
             ])
             ->orderBy([
-                'date' => SORT_ASC,
-                'id' => SORT_ASC,
+                'inv.date' => SORT_ASC,
+                'inv.id' => SORT_ASC,
             ]);
 
+        $query->joinWith('bill bill', true, 'INNER JOIN');
         $query->with('bill');
 
         switch ($this->filter) {

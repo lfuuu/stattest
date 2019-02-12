@@ -260,6 +260,11 @@ class UbillerController extends Controller
         // счета
         $this->actionBill();
 
+        // Конвертировать счета в старую бухгалтерию
+        $this->actionBillConverter();
+
+        // пересчитать realtimeBalance
+        $this->actionRealtimeBalance();
     }
 
     /**
