@@ -23,8 +23,10 @@ use yii\grid\Column;
 use yii\grid\DataColumn;
 use yii\grid\SerialColumn;
 use yii\helpers\ArrayHelper;
+use yii\helpers\BaseInflector;
 use yii\helpers\Inflector;
 use yii\helpers\Json;
+use yii\helpers\StringHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\JsExpression;
@@ -274,15 +276,19 @@ class GridViewExport extends GridView
         }
 
 
-        $dateFrom = (new \DateTime($this->filterModel->connect_time_to))->modify('-1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
-        $keyData = [$this->filterModel->connect_time_from, $dateFrom];
+        if ($this->filterModel->hasProperty('connect_time_from') && $this->filterModel->hasProperty('connect_time_to')) {
+            $keyData = [$this->filterModel->connect_time_from, $this->filterModel->connect_time_to];
+        }
         foreach ($this->filterModel as $property => $value) {
             if ($value) {
                 $keyData[] = substr($property, 0, 1) . (is_array($value) ? implode('_', $value) : $value);
             }
         }
+        $name = StringHelper::basename(get_class($this->filterModel));
+        $name = (($substr = strstr($name, 'Filter', true)) !== false) ? $substr : $name;
+        $name = BaseInflector::underscore($name);
 
-        if (($key = $driver->createHeader('trunk_calls_' . implode('_', $keyData) . '_' . time(), $headerColumns)) === false) {
+        if (($key = $driver->createHeader( $name  . '_' . implode('_', $keyData) . '_' . time(), $headerColumns)) === false) {
             throw new BadRequestHttpException('Cannot create export file');
         }
 
