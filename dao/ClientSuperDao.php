@@ -117,7 +117,7 @@ class ClientSuperDao extends Singleton
                             'number' => $contract['number'],
                             'state' => $contract['state'],
                             'can_login_as_clients' => $contract['is_lk_access'],
-                            'partner_id' => $contract['partner_contract_id'] ?: $contragent['partner_contract_id'],
+                            'partner_id' => $contract['partner_contract_id'],
                             'is_partner' => $contract['business_id'] == Business::PARTNER,
                             'partner_login_allow' => $contract['is_partner_login_allow'],
                             'business_id' => $contract['business_id'],

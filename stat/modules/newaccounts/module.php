@@ -956,15 +956,7 @@ class m_newaccounts extends IModule
      */
     function getPartnerContractId($clientAccount)
     {
-        $partnerContractId = null;
-        $contract = $clientAccount->contract;
-        if ($contract->partner_contract_id) {
-            $partnerContractId = $contract->partner_contract_id;
-        } else {
-            $contragent = $contract->contragent;
-            $partnerContractId = $contragent->partner_contract_id;
-        }
-        return $partnerContractId;
+        return $clientAccount->contract->partner_contract_id;
     }
 
     function get_bill_docs(\Bill &$bill, $L = null)

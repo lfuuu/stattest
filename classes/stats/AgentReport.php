@@ -161,7 +161,7 @@ class AgentReport
 
         $query->select([
             'client_id' => 'client.id',
-            'partner_contract_id' => 'contragent.partner_contract_id',
+            'partner_contract_id' => 'contract.partner_contract_id',
             'contragent_name' => 'contragent.name',
             'client_created' => 'DATE(client.created)',
             'usage_type' => new Expression('"usage_voip"'),
@@ -195,7 +195,7 @@ class AgentReport
 
         $query
             ->where([
-                'contragent.partner_contract_id' => $partnerId,
+                'contract.partner_contract_id' => $partnerId,
                 'transaction.deleted' => 0,
             ])
             ->andWhere(['BETWEEN', 'bills.bill_date', $dateFrom, $dateTo])
@@ -225,7 +225,7 @@ class AgentReport
 
         $query->select([
             'client_id' => 'client.id',
-            'partner_contract_id' => 'contragent.partner_contract_id',
+            'partner_contract_id' => 'contract.partner_contract_id',
             'contragent_name' => 'contragent.name',
             'client_created' => 'DATE(client.created)',
             'usage_type' => new Expression('"usage_virtpbx"'),
@@ -259,7 +259,7 @@ class AgentReport
 
         $query
             ->where([
-                'contragent.partner_contract_id' => $partnerId,
+                'contract.partner_contract_id' => $partnerId,
                 'transaction.deleted' => 0,
             ])
             ->andWhere(['BETWEEN', 'bills.bill_date', $dateFrom, $dateTo])
@@ -292,7 +292,7 @@ class AgentReport
             ->from([
                 'p' => new Expression('(
                     SELECT DISTINCT `partner_contract_id`
-                    FROM `client_contragent`
+                    FROM `client_contract`
                     WHERE `partner_contract_id` > 0
                 )'),
                 'cg' => ClientContragent::tableName(),
@@ -328,7 +328,7 @@ class AgentReport
             ->from([
                 'p' => new Expression('(
                     SELECT DISTINCT `partner_contract_id`
-                    FROM `client_contragent`
+                    FROM `client_contract`
                     WHERE `partner_contract_id` > 0
                 )'),
                 'cg' => ClientContragent::tableName(),

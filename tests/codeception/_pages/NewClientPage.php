@@ -36,7 +36,6 @@ class NewClientPage extends BasePage
             'price_type',
             'form_type',
             'sale_channel_id',
-            'partner_contract_id',
         ];
         $boolFieldNames = [
             'mail_print',

@@ -138,11 +138,7 @@ SQL;
             ->innerJoin(['line' => BillLine::tableName()], 'line.pk = rewards.line_pk');
 
         $query
-            ->andWhere([
-                'OR',
-                ['contract.partner_contract_id' => $this->partner_contract_id],
-                ['contragent.partner_contract_id' => $this->partner_contract_id]
-            ])
+            ->andWhere(['contract.partner_contract_id' => $this->partner_contract_id])
             ->andWhere(['>=', 'line.sum', 0]);
 
         if (!$this->isExtendsMode) {
@@ -246,7 +242,7 @@ SQL;
             ->from([
                 'partner' => new Expression('(
                     SELECT DISTINCT `partner_contract_id`
-                    FROM `client_contragent`
+                    FROM `client_contract`
                     WHERE `partner_contract_id` > 0
                 )'),
                 'contragent' => ClientContragent::tableName(),
@@ -282,7 +278,7 @@ SQL;
             ->from([
                 'partner' => new Expression('(
                     SELECT DISTINCT `partner_contract_id`
-                    FROM `client_contragent`
+                    FROM `client_contract`
                     WHERE `partner_contract_id` > 0
                 )'),
                 'contragent' => ClientContragent::tableName(),

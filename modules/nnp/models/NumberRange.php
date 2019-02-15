@@ -384,6 +384,7 @@ class NumberRange extends ActiveRecord
             'ndc' => (int)$numberModel->ndc,
             'ndc_type' => (int)$numberModel->ndc_type_id,
             'country_name' => $countryName,
+            'country_prefix' => $nnpCountry ? $nnpCountry->prefix : null,
             'region_name' => $nnpRegion ? $nnpRegion->name : ($regionModel ? $regionModel->name : null),
             'city_name' => $nnpCity ? $nnpCity->name : ($city ? $city->name : null),
             'operator_name' => $nnpOperator ? $nnpOperator->name : null,

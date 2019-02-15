@@ -269,16 +269,6 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
                 ->textarea(['style' => 'height: 100px;']) ?>
         </div>
 
-        <div class="col-sm-3 bottom-indent">
-            <?= $f->field($model, 'partner_contract_id')
-                ->widget(Select2::class, ['data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),])
-                ->label(
-                        $model->getAttributeLabel('partner_contract_id') .
-                        $this->render('//layouts/_helpConfluence', PartnerDao::getHelpConfluence())
-                )
-            ?>
-        </div>
-
         <div class="col-sm-3 bottom-indent right-indent">
             <?=
             $f->field($model, 'sale_channel_id')

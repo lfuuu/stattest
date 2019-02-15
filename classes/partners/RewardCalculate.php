@@ -50,7 +50,7 @@ abstract class RewardCalculate
         Assert::isObject($bill);
         // Получение partner_contract_id для дальнейшего поиска партнерской настройки
         $contract = $clientAccount->contract;
-        $partnerContractId = $contract->partner_contract_id ?: $contract->contragent->partner_contract_id;
+        $partnerContractId = $contract->partner_contract_id;
         if (!$partnerContractId) {
             HandlerLogger::me()->add(sprintf('pci_%s ', $contract->id));
             return;

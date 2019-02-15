@@ -37,7 +37,7 @@ use yii\db\Expression;
  * @property string $ogrn
  * @property string $comment
  * @property int $sale_channel_id
- * @property int $partner_contract_id
+ * @property int $partner_contract_id___DEPRICATED
  * @property string $created_at
  *
  * @property-read ClientAccount[] $accounts
@@ -292,14 +292,6 @@ class ClientContragent extends HistoryActiveRecord
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::class, ['id' => 'super_id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getPartnerContract()
-    {
-        return $this->hasOne(ClientContact::class, ['id' => 'partner_contract_id']);
     }
 
     /**

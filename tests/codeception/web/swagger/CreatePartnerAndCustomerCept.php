@@ -86,7 +86,7 @@ $I->assertNotNull($accountPartner->contract);
 $I->assertNotNull($accountPartner->contract->id);
 $I->assertGreaterThan(0, $accountPartner->contract->id);
 
-$I->assertGreaterThanOrEqual(0, $account->contragent->partner_contract_id);
-$I->assertEquals($account->contragent->partner_contract_id, $accountPartner->contract->id);
+$I->assertGreaterThanOrEqual(0, $account->contract->partner_contract_id);
+$I->assertEquals($account->contract->partner_contract_id, $accountPartner->contract->id);
 
 

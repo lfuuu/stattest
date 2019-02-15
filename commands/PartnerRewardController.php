@@ -48,12 +48,11 @@ class PartnerRewardController extends Controller
                       rewards.percentage_of_fee,
                       rewards.percentage_of_over,
                       rewards.percentage_of_margin,
-                      COALESCE(contract.partner_contract_id, contragent.partner_contract_id) partner_id
+                      contract.partner_contract_id partner_id
                     FROM ' . PartnerRewards::tableName() . ' rewards
                       LEFT JOIN ' . Bill::tableName() . ' bill ON rewards.bill_id = bill.id
                       LEFT JOIN ' . ClientAccount::tableName() . ' client ON client.id = bill.client_id
                       LEFT JOIN ' . ClientContract::tableName() . ' contract ON client.contract_id = contract.id
-                      LEFT JOIN ' . ClientContragent::tableName() . ' contragent ON contract.contragent_id = contragent.id
                       ' . ($type === 'full' ? '' : 'WHERE rewards.created_at BETWEEN DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 00:00:00\') AND DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 23:59:59\')') . '
                   )
                 ;

@@ -13,21 +13,10 @@ class PartnerDao extends Singleton
     {
         $data = [];
         $contractTableName = ClientContract::tableName();
-        $contragentTableName = ClientContragent::tableName();
 
         $contragents = ClientContragent::find()
             ->joinWith('contractsActiveQuery')
-            ->where([
-                'OR',
-                [
-                    // Из contragent, если партнера нет в contract
-                    'AND',
-                    [$contragentTableName . '.partner_contract_id' => $account->contract_id],
-                    [$contractTableName . '.partner_contract_id' => null],
-                ],
-                // Из contract
-                [$contractTableName . '.partner_contract_id' => $account->contract_id],
-            ])
+            ->where([$contractTableName . '.partner_contract_id' => $account->contract_id])
             ->indexBy('id')
             ->all();
 

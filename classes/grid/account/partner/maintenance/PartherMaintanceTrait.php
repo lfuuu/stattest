@@ -19,7 +19,7 @@ trait PartherMaintanceTrait
             new Expression('
                 (
                     SELECT
-                        cg.`partner_contract_id`,
+                        cr.`partner_contract_id`,
                         SUM(
                             IF(
                                 ccc.account_version = ' . ClientAccount::VERSION_BILLER_USAGE . ', 
@@ -36,9 +36,8 @@ trait PartherMaintanceTrait
                         ) AS usage_virtpbx
                     FROM `clients` ccc
                     INNER JOIN `client_contract` `cr` ON ccc.`contract_id` = cr.`id`
-                    INNER JOIN `client_contragent` `cg` ON cr.`contragent_id` = cg.`id`
-                    WHERE cg.`partner_contract_id`
-                    GROUP BY cg.`partner_contract_id`
+                    WHERE cr.`partner_contract_id`
+                    GROUP BY cr.`partner_contract_id`
                    ' . ($this->partner_clients_service ? 'HAVING ' . $this->partner_clients_service . ' > 0' : '') . '
                 )
             '),

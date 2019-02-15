@@ -32,7 +32,6 @@ $data = [
         'fio' => '',
         'comment' => 'тест',
         'sale_channel_id' => '2',
-        'partner_contract_id' => ''
     ],
 
     'ContractEditForm' => [

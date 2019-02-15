@@ -311,25 +311,6 @@ class ClientCreateExternalForm extends Form
         $contragent->legal_type = 'legal';
         $contragent->country_id = $this->country_id;
 
-        // Установка партнера
-        $partnerContractId = null;
-        if ($this->partner_contract_id) {
-            $partnerContractId = $this->partner_contract_id;
-        } elseif (isset($this->utm_parameters['utm_referral_id'])) {
-            $partnerAccount = ClientAccount::findOne(['id' => $this->utm_parameters['utm_referral_id']]);
-            if ($partnerContract = $partnerAccount->contract) {
-                $partnerContractId = $partnerContract->id;
-            }
-        }
-
-        if (
-            $partnerContractId
-            && ($partnerContract = ClientContract::findOne(['id' => $partnerContractId]))
-            && $partnerContract->isPartner()
-        ) {
-            $contragent->partner_contract_id = $partnerContract->id;
-        }
-
         if ($this->entryPoint) {
             $contragent->country_id = $this->entryPoint->country_id;
             $contragent->lang_code = $this->entryPoint->country->lang;
@@ -341,6 +322,18 @@ class ClientCreateExternalForm extends Form
 
         $this->contragent_id = $contragent->id;
         Yii::info($contragent);
+
+
+        // Установка партнера
+        $partnerContractId = null;
+        if ($this->partner_contract_id) {
+            $partnerContractId = $this->partner_contract_id;
+        } elseif (isset($this->utm_parameters['utm_referral_id'])) {
+            $partnerAccount = ClientAccount::findOne(['id' => $this->utm_parameters['utm_referral_id']]);
+            if (($partnerContract = $partnerAccount->contract) && $partnerContract->isPartner()) {
+                $partnerContractId = $partnerContract->id;
+            }
+        }
 
         $contract = new ContractEditForm([
             'contragent_id' => $contragent->id,

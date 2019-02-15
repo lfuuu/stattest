@@ -491,7 +491,7 @@ class ClientController extends ApiInternalController
                 }
 
                 if ($account->contract->isPartnerAgent()) {
-                    $contract = ClientContract::findOne(['id' => $account->contragent->partner_contract_id]);
+                    $contract = ClientContract::findOne(['id' => $account->contract->partner_contract_id]);
                     $data += [
                         'is_partner_agent' => true,
                         'partner_id' => $contract->accounts[0]->id

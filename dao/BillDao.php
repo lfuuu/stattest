@@ -994,6 +994,11 @@ SQL;
             $lines[] = $line;
         }
 
+        if ($typeId == Invoice::TYPE_PREPAID) {
+            $lines = BillLine::refactLinesWithFourOrderFacture($bill, $lines);
+        }
+
+
         return $lines;
 
     }

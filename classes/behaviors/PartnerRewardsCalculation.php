@@ -45,7 +45,7 @@ class PartnerRewardsCalculation extends Behavior
         }
 
         $contract = $clientAccount->contract;
-        $partnerContractId = $contract->partner_contract_id ?: $contract->contragent->partner_contract_id; // COALESCE(контракт.партнер, контрагент.партнер)
+        $partnerContractId = $contract->partner_contract_id;
         if (!$partnerContractId) {
             return false;
         }

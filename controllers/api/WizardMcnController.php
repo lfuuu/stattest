@@ -369,11 +369,11 @@ class WizardMcnController extends WizardBaseController
             return;
         }
 
-        $contragent = $this->account->contragent;
-        $contragent->partner_contract_id = $partnerAccount->contract_id;
+        $contract = $this->account->contract;
+        $contract->partner_contract_id = $partnerAccount->contract_id;
 
-        if (!$contragent->save()) {
-            throw new ModelValidationException($contragent);
+        if (!$contract->save()) {
+            throw new ModelValidationException($contract);
         }
     }
 

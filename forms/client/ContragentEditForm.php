@@ -24,8 +24,12 @@ class ContragentEditForm extends Form
 
     public $id;
     public $super_id;
-    public $person = null,
-        $contragent = null;
+
+    /** @var ClientContragentPerson */
+    public $person = null;
+
+    /** @var ClientContragent */
+    public $contragent = null;
 
     public $historyVersionRequestedDate = null;
     public $historyVersionStoredDate = null;
@@ -49,7 +53,6 @@ class ContragentEditForm extends Form
         $lang_code = Language::LANGUAGE_DEFAULT,
         $signer_passport,
         $comment,
-        $partner_contract_id,
         $sale_channel_id,
 
         $contragent_id,
@@ -179,7 +182,7 @@ class ContragentEditForm extends Form
                 'in',
                 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]
             ],
-            [['super_id', 'country_id', 'opf_id', 'partner_contract_id', 'sale_channel_id'], 'integer'],
+            [['super_id', 'country_id', 'opf_id', 'sale_channel_id'], 'integer'],
             ['lang_code', 'string'],
         ];
 
@@ -342,6 +345,7 @@ class ContragentEditForm extends Form
      */
     private function _fillContragent()
     {
+        /** @var ClientContragent $contragent */
         $contragent = &$this->contragent;
         $contragent->super_id = $this->super_id;
         $contragent->legal_type = $this->legal_type;
@@ -369,7 +373,6 @@ class ContragentEditForm extends Form
         $contragent->country_id = $this->country_id;
         $contragent->lang_code = $this->lang_code;
         $contragent->sale_channel_id = $this->sale_channel_id;
-        $contragent->partner_contract_id = $this->partner_contract_id;
     }
 
     /**
@@ -377,6 +380,7 @@ class ContragentEditForm extends Form
      */
     private function _fillPerson()
     {
+        /** @var ClientContragentPerson $person */
         $person = &$this->person;
         $person->first_name = $this->first_name;
         $person->last_name = $this->last_name;
