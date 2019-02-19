@@ -68,17 +68,6 @@ $payerCompany = $document->getPayer();
                         <td>Клиент</td>
                         <td><?= $document->bill->clientAccount->client; ?></td>
                     </tr>
-                    <?php
-                    $color = '';
-                    if ($document->bill->clientAccount->manager == 'bnv')
-                        $color = '#EEDCA9';
-                    if ($document->bill->clientAccount->manager == 'pma')
-                        $color = '#BEFFFE';
-                    ?>
-                    <tr valign=top<?= ($color ? ' bgcolor="' . $color . '"' : ''); ?>>
-                        <td>Менеджер</td>
-                        <td width="50"><?= str_replace(' ', '&nbsp;', $document->bill->clientAccount->userManager->name); ?></td>
-                    </tr>
                     <tr>
                         <td colspan="2" align="center">
                             <?php
