@@ -55,6 +55,7 @@ class Country extends ActiveRecord
             'name_eng' => 'Английское название',
             'prefix' => 'Префикс',
             'prefixes' => 'Префиксы',
+            'alpha_2' => '2х-буквенный код',
             'alpha_3' => '3х-буквенный код',
             'is_open_numbering_plan' => 'Открытый номерной план?',
             'use_weak_matching' => 'Использовать слабое соответствие?',
@@ -92,7 +93,8 @@ class Country extends ActiveRecord
             [['is_open_numbering_plan', 'use_weak_matching'], 'boolean'],
             [['default_operator', 'default_type_ndc', 'code', 'prefix'], 'integer'],
             [['name', 'name_rus', 'name_eng'], 'string'],
-            [['is_open_numbering_plan', 'use_weak_matching', 'alpha_3', 'name', 'name_eng', 'name_rus', 'prefix', 'prefixes'], 'required'],
+            [['is_open_numbering_plan', 'use_weak_matching', 'alpha_2', 'alpha_3', 'name', 'name_eng', 'name_rus', 'prefix', 'prefixes'], 'required'],
+            ['alpha_2', 'string', 'min' => 2, 'max' => 2],
             ['alpha_3', 'string', 'min' => 3, 'max' => 3],
             ['prefixes', 'each', 'rule' => ['integer']]
         ];

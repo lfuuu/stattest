@@ -19,6 +19,7 @@ class CountryFilter extends Country
     public $default_type_ndc = '';
     public $name_rus = '';
     public $name_eng = '';
+    public $alpha_2 = '';
     public $alpha_3 = '';
 
     /**
@@ -28,7 +29,7 @@ class CountryFilter extends Country
     {
         return [
             [['code', 'is_open_numbering_plan', 'use_weak_matching', 'default_operator', 'default_type_ndc'], 'integer'],
-            [['name', 'name_rus', 'name_eng', 'alpha_3', 'prefix'], 'string'],
+            [['name', 'name_rus', 'name_eng', 'alpha_2', 'alpha_3', 'prefix'], 'string'],
         ];
     }
 
@@ -54,6 +55,7 @@ class CountryFilter extends Country
         $this->name && $query->andWhere(['LIKE', $cityTableName . '.name', $this->name]);
         $this->name_rus && $query->andWhere(['LIKE', $cityTableName . '.name_rus', $this->name_rus]);
         $this->name_eng && $query->andWhere(['LIKE', $cityTableName . '.name_eng', $this->name_eng]);
+        $this->alpha_2 && $query->andWhere([$cityTableName . '.alpha_2' => $this->alpha_2]);
         $this->alpha_3 && $query->andWhere([$cityTableName . '.alpha_3' => $this->alpha_3]);
 
         return $dataProvider;

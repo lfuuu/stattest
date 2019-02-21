@@ -115,17 +115,20 @@ if (!$country->isNewRecord) {
             <?= $form->field($country, 'default_type_ndc')->dropDownList(NdcType::getList(true)) ?>
         </div>
 
-        <?php if($country->isNewRecord) { ?>
-            <?php // Код ?>
-            <div class="col-sm-3">
-                <?= $form->field($country,'code')->textInput() ?>
-            </div>
+        <?php // Код ?>
+        <div class="col-sm-3">
+            <?= $form->field($country,'code')->textInput() ?>
+        </div>
 
-            <?php // 3х-буквенный код ?>
-            <div class="col-sm-3">
-                <?= $form->field($country,'alpha_3')->textInput() ?>
-            </div>
-        <?php } ?>
+        <?php // 2х-буквенный код ?>
+        <div class="col-sm-3">
+            <?= $form->field($country,'alpha_2')->textInput() ?>
+        </div>
+
+        <?php // 3х-буквенный код ?>
+        <div class="col-sm-3">
+            <?= $form->field($country,'alpha_3')->textInput() ?>
+        </div>
     </div>
 
     <?php // кнопки ?>
