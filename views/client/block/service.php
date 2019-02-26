@@ -272,7 +272,7 @@ if ($has) :
                             <tbody>
                             <?php foreach ($services['voip_reserve'] as $number): ?>
                                 <td>Зарезервирован</td>
-                                <td><?= Html::a($number->number, '/usage/number/view?did=' . $number->number) ?></td>
+                                <td><?= Html::a($number->number, '/voip/number/view?did=' . $number->number) ?></td>
                                 <td>C <?= $number->reserve_from ?></td>
                                 <td>По <?= $number->reserve_till ?></td>
                             <?php endforeach; ?>
