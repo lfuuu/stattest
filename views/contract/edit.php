@@ -21,7 +21,6 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 $this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depends' => [AppAsset::class]]);
-$this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::class]]);
 $this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::class]]);
 $this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::class]]);
 $this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::class]]);
