@@ -42,7 +42,8 @@ class SaleBookFilter extends Invoice
         /** \DateTimeImmutable */
         $dateTo = null,
         $filter = self::FILTER_NORMAL,
-        $currency = Currency::RUB;
+        $currency = Currency::RUB,
+        $is_euro_format = 0;
 
 
     public function __construct()
@@ -57,11 +58,19 @@ class SaleBookFilter extends Invoice
     public function rules()
     {
         return [
-            [['date_from', 'date_to', 'organization_id','filter', 'currency'], 'required'],
+            [['date_from', 'date_to', 'organization_id', 'filter', 'currency'], 'required'],
+            ['is_euro_format', 'integer'],
             [['date_from', 'date_to'], 'date'],
             [['organization_id'], 'in', 'range' => array_keys(Organization::dao()->getList())],
             ['filter', 'in', 'range' => array_keys(self::$filters)],
         ];
+    }
+
+    public function attributeLabels()
+    {
+        return parent::attributeLabels() + [
+                'is_euro_format' => 'ЕвроФормат',
+            ];
     }
 
     public function beforeValidate()
@@ -98,8 +107,9 @@ class SaleBookFilter extends Invoice
                 $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                 $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
             ])
+            ->andWhere(['IS NOT', 'number', null])
             ->orderBy([
-                'inv.date' => SORT_ASC,
+                'inv.idx' => SORT_ASC,
                 'inv.id' => SORT_ASC,
             ]);
 

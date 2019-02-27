@@ -154,7 +154,7 @@ class InvoiceController extends BaseController
                     ]
                 );
 
-                $attachmentName = $clientAccount->id . '-' . $bilDate->format('Ym') . '-' . $bill->id . '.pdf';
+                $attachmentName = $clientAccount->id . '-' . $invoice->number. '.pdf';
 
                 if (!$isShow) {
                     \Yii::$app->response->sendContentAsFile($pdfContent, $attachmentName);

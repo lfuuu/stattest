@@ -4,6 +4,7 @@ namespace app\controllers\report\accounting;
 
 use app\classes\BaseController;
 use app\classes\excel\BalanceSellToExcel;
+use app\classes\excel\BalanceSellToExcelEu;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
 use app\models\filter\SaleBookFilter;
@@ -43,11 +44,16 @@ class SaleBookController extends BaseController
         // Получение excel-файла
         if (($isExcel = $request->get('is_excel')) && (int)$isExcel === 1) {
             // Формирование документа
-            $excel = new BalanceSellToExcel([
-                'filter' => $filter,
-            ]);
-            $excel->download('Книга продаж');
+
+            if ($filter->is_euro_format) {
+                $excel = new BalanceSellToExcelEu(['filter' => $filter]);
+                $excel->download('Sale book');
+            } else {
+                $excel = new BalanceSellToExcel(['filter' => $filter]);
+                $excel->download('Книга продаж');
+            }
         }
+
         return $this->render('index', [
             'filter' => $filter,
         ]);
