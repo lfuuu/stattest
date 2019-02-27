@@ -148,10 +148,20 @@ class AccountTariffFilter extends AccountTariff
         $numberTableName = Number::tableName();
 
         $query = AccountTariff::find()
-            ->select(["{$accountTariffTableName}.*"])
             ->joinWith('clientAccount')
             ->joinWith('region')
             ->joinWith('tariffPeriod')
+
+            ->with('prevAccountTariff')
+            ->with('tariffPeriod.chargePeriod')
+            ->with('tariffPeriod.tariff.currency')
+            ->with('tariffPeriod.tariff.tariffCountries')
+            ->with('tariffPeriod.tariff.tariffCountries.country')
+            ->with('tariffPeriod.tariff.organizations.organization')
+
+            ->with('accountTariffLogs.tariffPeriod.tariff.currency')
+            ->with('accountTariffLogs.tariffPeriod.chargePeriod')
+
             ->leftJoin("{$accountTroubleTableName} at", "{$accountTariffTableName}.id = at.account_tariff_id")
             ->leftJoin("{$accountTariffHeap} uath", "uath.account_tariff_id = {$accountTariffTableName}.id")
             ->leftJoin("{$tariffTableName} tariff", 'tariff.id = ' . $tariffPeriodTableName . '.tariff_id');

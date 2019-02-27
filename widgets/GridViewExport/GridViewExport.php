@@ -6,7 +6,7 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
+use app\widgets\GridViewExport\Columns\Manager;
 use app\widgets\GridViewExport\drivers\CsvDriver;
 use app\widgets\GridViewExport\drivers\ExportDriver;
 use Yii;
@@ -16,6 +16,7 @@ use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use yii\data\DataProviderInterface;
 use yii\db\ActiveQueryInterface;
 use yii\db\ActiveRecord;
 use yii\grid\ActionColumn;
@@ -33,29 +34,31 @@ use yii\web\JsExpression;
 
 class GridViewExport extends GridView
 {
+    /** @var DataProviderInterface */
+    public $dataProvider;
+    /** @var \ActiveRecord\Model */
+    public $filterModel;
 
-    public
-        $dataProvider,
-        $filterModel,
-        $columns = [],
-        $batchSize = 30000,
+    public $columns = [];
+    public $batchSize = 20000;
+    public $timeout = 0;
+    public $columnSelectorEnabled = true;
 
-        $timeout = 0,
-        $columnSelectorEnabled = true;
+    protected $id;
+    protected $drivers = [
+        'csv' => CsvDriver::class,
+    ];
 
-    private
-        $id,
-        $drivers = [
-            'csv' => CsvDriver::class,
-        ],
-        $provider = null,
-        $visibleColumns = [];
+    /** @var DataProviderInterface */
+    protected $provider = null;
+    protected $visibleColumns = [];
 
     /**
      * @inheritdoc
      */
     public function init()
     {
+        $this->columns = Manager::me()->updateExportColumns(get_class($this->filterModel), $this->columns);
         parent::init();
 
         $this->provider = clone($this->dataProvider);
@@ -64,10 +67,8 @@ class GridViewExport extends GridView
     /**
      * @return string
      * @throws BadRequestHttpException
-     * @throws ModelValidationException
      * @throws ExitException
-     * @throws InvalidConfigException
-     * @throws InvalidParamException
+     * @throws \ReflectionException
      */
     public function run()
     {
@@ -128,9 +129,10 @@ class GridViewExport extends GridView
     }
 
     /**
-     * @param int $key
+     * @param $key
      * @param Column $column
      * @return string
+     * @throws \ReflectionException
      */
     protected function getColumnLabel($key, $column)
     {
@@ -168,7 +170,11 @@ class GridViewExport extends GridView
                 $value = $column->renderDataCell($model, $key, $index);
             } elseif ($column instanceof ActionColumn) {
                 $value = '';
-            } else {
+            } elseif ($column instanceof Column) {
+                /** @var $column Column */
+                $value = strip_tags($column->renderDataCell($model, $key, $index));
+            } elseif (($column->content === null) && $column instanceof DataColumn) {
+                /** @var $column DataColumn */
                 $format = 'raw';
                 if (isset($column->format)) {
                     if (is_array($column->format)) {
@@ -177,19 +183,11 @@ class GridViewExport extends GridView
                     $format = $column->format;
                 }
 
-                if (method_exists($column, 'renderDataCell')) {
-                    $value = strip_tags($column->renderDataCell($model, $key, $index));
-                } else {
-                    if ($column->content === null && method_exists($column, 'getDataCellValue')) {
-                        $value = $this->formatter->format($column->getDataCellValue($model, $key, $index), $format);
-                    } else {
-                        $value = call_user_func($column->content, $model, $key, $index, $column);
-                    }
-                }
-
+                $value = $this->formatter->format($column->getDataCellValue($model, $key, $index), $format);
+            } else {
+                $value = call_user_func($column->content, $model, $key, $index, $column);
             }
-
-            if (empty($value) && !empty($column->attribute) && $column->attribute !== null) {
+            if (empty($value) && !empty($column->attribute)) {
                 $value = ArrayHelper::getValue($model, $column->attribute, '');
             }
 
@@ -241,11 +239,10 @@ class GridViewExport extends GridView
     }
 
     /**
-     * @inheritdoc
-     * @throws InvalidConfigException
-     * @throws InvalidParamException
-     * @throws ModelValidationException
      * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws ModelValidationException
+     * @throws \ReflectionException
      */
     private function _actionInit()
     {

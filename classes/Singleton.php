@@ -10,7 +10,7 @@ abstract class Singleton
 
     /**
      * @param array $args
-     * @return self
+     * @return static
      * @throws \yii\base\Exception
      */
     public static function me($args = null)

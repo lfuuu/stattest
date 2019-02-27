@@ -393,6 +393,7 @@ class Tariff extends ActiveRecord
     public function getOrganizations()
     {
         return $this->hasMany(TariffOrganization::class, ['tariff_id' => 'id'])
+            ->orderBy(['id' => SORT_DESC])
             ->indexBy('organization_id');
     }
 
@@ -610,6 +611,28 @@ class Tariff extends ActiveRecord
             'update_time',
             'service_type_id',
         ];
+    }
+
+    /**
+     * Вернуть строку с организациями для текстового отображения
+     *
+     * @return string
+     */
+    public function getOrganizationsText()
+    {
+        $organizations = $this->organizations;
+        return implode(', ', $organizations);
+    }
+
+    /**
+     * Вернуть строку со странами для текстового отображения
+     *
+     * @return string
+     */
+    public function getCountriesText()
+    {
+        $countries = $this->tariffCountries;
+        return implode(', ', $countries);
     }
 
     /**
