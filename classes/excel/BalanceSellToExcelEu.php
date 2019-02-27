@@ -3,6 +3,7 @@
 namespace app\classes\excel;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContragent;
 use app\models\filter\SaleBookFilter;
 use DateTime;
 use app\models\Organization;
@@ -36,6 +37,9 @@ class BalanceSellToExcelEu extends Excel
         $this->format = [
             \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_NUMERIC,
+            \PHPExcel_Cell_DataType::TYPE_STRING,
+            \PHPExcel_Cell_DataType::TYPE_STRING,
+            \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_STRING,
@@ -78,7 +82,10 @@ class BalanceSellToExcelEu extends Excel
             $data[] = [
                 (new DateTime($bill->bill_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 $account->id,
+                $contragent->country->name,
+                $contragent->legal_type,
                 trim($contragent->name_full),
+                trim($contragent->legal_type == ClientContragent::PERSON_TYPE ? $contragent->person->registration_address : $contragent->address_jur),
                 $contract->business->name . ' / ' . $contract->businessProcessStatus->name,
                 $invoice->number,
                 (new DateTime($bill->pay_bill_until))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),

@@ -11,7 +11,10 @@
     <tr>
         <td>Дата счета</td>
         <td>Номер УЛС / ЛС</td>
+        <td>Страна</td>
+        <td>Тип</td>
         <td width="500px">Название клиента</td>
+        <td width="500px">Адрес</td>
         <td>Тип договора</td>
         <td>INVOICE number</td>
         <td>Срок оплаты счета</td>
@@ -74,7 +77,10 @@
             <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
                 <td><?= (new DateTime($bill->bill_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) ?> </td>
                 <td><?= $account->id ?></td>
+                <td><?= $contragent->country->name ?></td>
+                <td><?= $contragent->legal_type ?></td>
                 <td ><?= trim($contragent->name_full) ?></td>
+                <td ><?= trim($contragent->legal_type == \app\models\ClientContragent::PERSON_TYPE ? $contragent->person->registration_address : $contragent->address_jur) ?></td>
                 <td nowrap><?= $contract->business->name ?> / <?= $contract->businessProcessStatus->name ?></td>
                 <td nowrap><?= $invoice->number ?></td>
                 <td><?= (new DateTime($bill->pay_bill_until))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) ?></td>
