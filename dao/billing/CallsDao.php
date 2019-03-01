@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao\billing;
 
 use app\helpers\DateTimeZoneHelper;
@@ -37,27 +38,28 @@ class CallsDao extends Singleton
         DateTime $to,
         $callsTable = 'calls_raw.calls_raw',
         $timeField = 'connect_time'
-    ) {
+    )
+    {
 
         $command =
             CallsRaw::getDb()
                 ->createCommand("
-                        select
-                            case cr1.destination_id <= 0 when true then
-                                case cr1.mob when true then 5 else 4 end
-                            else cr1.destination_id end rdest,
-                            cast( - sum(cr1.cost) as NUMERIC(10,2)) as price,
-                            0 as cost_price
-                        from
-                            " . $callsTable . " as cr1
-                        where
+                        SELECT
+                            CASE cr1.destination_id <= 0 WHEN TRUE THEN
+                                CASE cr1.mob WHEN TRUE THEN 5 ELSE 4 END
+                            ELSE cr1.destination_id END rdest,
+                            cast( - sum(cr1.cost) AS NUMERIC(10,2)) AS price,
+                            0 AS cost_price
+                        FROM
+                            " . $callsTable . " AS cr1
+                        WHERE
                             cr1.number_service_id = :numberServiceId
-                            and cr1.account_id = :accountId
-                            and cr1." . $timeField . " >= :fromDate
-                            and cr1." . $timeField . " <= :toDate
-                            and abs(cr1.cost) > 0.00001
-                        group by rdest
-                        having abs(cast( - sum(cr1.cost) as NUMERIC(10,2))) > 0
+                            AND cr1.account_id = :accountId
+                            AND cr1." . $timeField . " >= :fromDate
+                            AND cr1." . $timeField . " <= :toDate
+                            AND abs(cr1.cost) > 0.00001
+                        GROUP BY rdest
+                        HAVING abs(cast( - sum(cr1.cost) AS NUMERIC(10,2))) > 0
                     "
                     , [
                         ':numberServiceId' => $usage->id,
@@ -119,22 +121,28 @@ class CallsDao extends Singleton
             $query->andWhere(['in', 'server_id', $regions]);
         }
 
-        $usage = UsageVoip::find()->where(['E164' => $number])->client($clientAccount->client)->one();
+        $usageIds = UsageVoip::find()
+            ->where([
+                'E164' => $number
+            ])
+            ->client($clientAccount->client)
+            ->select('id')
+            ->column();
 
-        $accountTariff = null;
-        if (!$usage) {
-            $accountTariff = AccountTariff::findOne([
-                'voip_number' => $number,
-                'client_account_id' => $clientAccount->id,
-            ]);
+        $accountTariffIds = null;
+        if (!$usageIds) {
+            $accountTariffIds = AccountTariff::find()
+                ->where([
+                    'voip_number' => $number,
+                    'client_account_id' => $clientAccount->id,
+                ])
+                ->select('id')
+                ->column();
         }
 
-        Assert::isTrue($usage || $accountTariff, 'Number "' . $number . '" not found');
+        Assert::isTrue($usageIds || $accountTariffIds, 'Number "' . $number . '" not found');
 
-        $usageId = $usage ? $usage->id : $accountTariff->id;
-
-
-        $query->andWhere(['number_service_id' => $usageId]);
+        $query->andWhere(['number_service_id' => $usageIds ?: $accountTariffIds]);
 
         if ($offset) {
             $query->offset($offset);
