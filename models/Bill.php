@@ -453,6 +453,12 @@ class Bill extends ActiveRecord
      */
     public function addLine($item, $amount, $price, $type = BillLine::LINE_TYPE_SERVICE, $dateFrom = null, $dateTo = null)
     {
+        // начало периода задатковой проводки должно совпадать со счетом
+        if ($type == BillLine::LINE_TYPE_ZADATOK && !$dateFrom && !$dateTo) {
+            $dateFrom = $this->bill_date;
+            $dateTo = (new \DateTimeImmutable($dateFrom))->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT);
+        }
+
         if (!$dateFrom) {
             $dateFrom = Utils::dateBeginOfPreviousMonth($this->bill_date);
         } elseif ($dateFrom instanceof \DateTimeImmutable || $dateFrom instanceof \DateTime) {
