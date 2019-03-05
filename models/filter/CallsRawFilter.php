@@ -2,12 +2,34 @@
 
 namespace app\models\filter;
 
+use app\classes\grid\column\universal\CountryColumn;
+use app\modules\nnp\column\RegionColumn;
+use app\classes\grid\column\billing\DisconnectCauseColumn;
+use app\classes\grid\column\billing\GeoColumn;
+use app\classes\grid\column\billing\MobColumn;
+use app\classes\grid\column\billing\OrigColumn;
+use app\classes\grid\column\universal\AccountVersionColumn;
+use app\classes\grid\column\universal\DateRangeDoubleColumn;
+use app\modules\nnp\column\CityColumn;
+use app\classes\grid\column\billing\ServerColumn;
+use app\classes\grid\column\billing\TrunkColumn;
+use app\classes\grid\column\billing\TrunkSuperClientColumn;
+use app\classes\grid\column\universal\FloatRangeColumn;
+use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\UsageTrunkColumn;
+use app\classes\grid\column\billing\DestinationColumn;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsRaw;
 use app\models\UsageTrunk;
+use app\modules\nnp\column\OperatorColumn;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
+use yii\helpers\BaseInflector;
+use yii\helpers\StringHelper;
 
 /**
  * Фильтрация для CallsFilter
@@ -158,12 +180,34 @@ class CallsRawFilter extends CallsRaw
         ];
     }
 
+    /**
+     * Вернуть имена полей
+     * @return array [полеВТаблице => Перевод]
+     */
     public function attributeLabels()
     {
-        return parent::attributeLabels() + [
-                'timezone' => 'Таймзона',
-                'is_full_report' => 'Полный отчет'
-            ];
+        return array_merge(parent::attributeLabels(), [
+            'connect_time_from' => 'Время начала разговора с',
+            'connect_time_to' => 'Время начала разговора по',
+            'cost_from' => 'Стоимость без интерконнекта от',
+            'trunk_ids' => 'Оператор (суперклиент)',
+            'cost_to' => 'Стоимость без интерконнекта до',
+            'billed_time_from' => 'Время начала разговора от',
+            'billed_time_to' => 'Время начала разговора до',
+            'interconnect_cost_from' => 'Стоимость интерконнекта от',
+            'interconnect_cost_to' => 'Стоимость интерконнекта до',
+            'rate_from' => 'Цена минуты без интерконнекта от',
+            'rate_to' => 'Цена минуты без интерконнекта до',
+            'interconnect_rate_from' => 'Цена минуты интерконнекта от',
+            'interconnect_rate_to' => 'Цена минуты интерконнекта до',
+            'country_prefix' => 'ННП-страна',
+            'stats_nnp_package_minute_id_from' => 'Потрачено минут пакета от',
+            'stats_nnp_package_minute_id_to' => 'Потрачено минут пакета до',
+            'timezone' => 'Таймзона',
+            'is_full_report' => 'Полный отчет',
+            'src_number' => 'Номер А',
+            'dst_number' => 'Номер Б',
+        ]);
     }
 
     /**
@@ -216,6 +260,11 @@ class CallsRawFilter extends CallsRaw
                 'pageSize' => $pageSize,
             ],
         ]);
+
+        if (!$this->trunk_id || !$this->connect_time_from || !$this->connect_time_to) {
+            $query->where('false');
+            return $dataProvider;
+        }
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
 
@@ -415,4 +464,195 @@ class CallsRawFilter extends CallsRaw
     {
         return $this->connect_time_from !== '';
     }
+
+    /**
+     * Вернуть колонки для GridView
+     *
+     * @return array
+     */
+    public function getColumns()
+    {
+        $columns = [
+            [
+                'attribute' => 'id',
+                'class' => StringColumn::class,
+            ],
+            [
+                'attribute' => 'server_id',
+                'class' => ServerColumn::class,
+            ],
+            [
+                'attribute' => 'trunk_ids', // фейковое поле
+                'label' => 'Оператор (суперклиент)',
+                'class' => TrunkSuperClientColumn::class,
+                'enableSorting' => false,
+                'value' => function (CallsRaw $call) {
+                    return $call->trunk_id;
+                },
+            ],
+            [
+                'attribute' => 'trunk_id',
+                'class' => TrunkColumn::class,
+                'filterByIds' => $this->trunkIdsIndexed,
+                'filterByServerIds' => $this->server_id,
+                'filterOptions' => [
+                    'class' => $this->trunk_id ? 'alert-success' : 'alert-danger',
+                    'title' => 'Фильтр зависит от Региона (точка подключения) и Оператора (суперклиента)',
+                ],
+            ],
+            [
+                'attribute' => 'trunk_service_id',
+                'class' => UsageTrunkColumn::class,
+                'trunkId' => $this->trunk_id,
+                'filterOptions' => [
+                    'title' => 'Фильтр зависит от Транка',
+                ],
+            ],
+            [
+                'attribute' => 'connect_time',
+                'class' => DateRangeDoubleColumn::class,
+                'filterOptions' => [
+                    'class' => $this->connect_time_from ? 'alert-success' : 'alert-danger',
+                    'title' => 'У первой даты время считается 00:00, у второй 23:59',
+                ],
+            ],
+            [
+                'attribute' => 'src_number',
+                'label' => 'Номер А',
+                'class' => StringColumn::class,
+                'filterOptions' => [
+                    'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
+                ],
+            ],
+            [
+                'attribute' => 'dst_number',
+                'label' => 'Номер Б',
+                'class' => StringColumn::class,
+                'filterOptions' => [
+                    'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
+                ],
+            ],
+            [
+                'attribute' => 'prefix',
+                'class' => IntegerColumn::class,
+            ],
+            [
+                'attribute' => 'billed_time',
+                'class' => IntegerRangeColumn::class,
+            ],
+            [
+                'attribute' => 'rate',
+                'class' => FloatRangeColumn::class,
+                'format' => ['decimal', 4],
+            ],
+            [
+                'attribute' => 'interconnect_rate',
+                'class' => FloatRangeColumn::class,
+                'format' => ['decimal', 4],
+            ],
+            [
+                'label' => 'Цена минуты с интерконнектом, ¤',
+                'format' => ['decimal', 4],
+                'value' => function (CallsRaw $calls) {
+                    return $calls->rate + $calls->interconnect_rate;
+                },
+            ],
+            [
+                'attribute' => 'cost',
+                'class' => FloatRangeColumn::class,
+                'format' => ['decimal', 4],
+            ],
+            [
+                'attribute' => 'interconnect_cost',
+                'class' => FloatRangeColumn::class,
+                'format' => ['decimal', 4],
+            ],
+            [
+                'label' => 'Стоимость с интерконнектом, ¤',
+                'format' => ['decimal', 4],
+                'value' => function (CallsRaw $calls) {
+                    return $calls->cost + $calls->interconnect_cost;
+                },
+            ],
+            [
+                'attribute' => 'destination_id',
+                'class' => DestinationColumn::class,
+                'filterByServerId' => $this->server_id,
+                'filterOptions' => [
+                    'title' => 'Фильтр зависит от Региона (точка подключения)',
+                ],
+            ],
+            [
+                'attribute' => 'geo_id',
+                'class' => GeoColumn::class,
+            ],
+            [
+                'attribute' => 'orig',
+                'class' => OrigColumn::class,
+            ],
+            [
+                'attribute' => 'mob',
+                'class' => MobColumn::class,
+            ],
+            [
+                'attribute' => 'account_id',
+                'class' => StringColumn::class,
+            ],
+            [
+                'attribute' => 'disconnect_cause',
+                'class' => DisconnectCauseColumn::class,
+            ],
+            [
+                'attribute' => 'nnp_country_prefix',
+                'class' => CountryColumn::class,
+                'indexBy' => 'prefix',
+            ],
+            [
+                'attribute' => 'nnp_ndc',
+                'class' => IntegerColumn::class,
+            ],
+            [
+                'attribute' => 'account_version',
+                'class' => AccountVersionColumn::class,
+            ],
+            [
+                'attribute' => 'nnp_operator_id',
+                'class' => OperatorColumn::class,
+            ],
+            [
+                'attribute' => 'nnp_region_id',
+                'class' => RegionColumn::class,
+            ],
+            [
+                'attribute' => 'nnp_city_id',
+                'class' => CityColumn::class,
+            ],
+            [
+                'attribute' => 'stats_nnp_package_minute_id',
+                'format' => 'html',
+                'class' => IntegerRangeColumn::class,
+                'value' => function (CallsRaw $calls) {
+                    return $calls->stats_nnp_package_minute_id . '<br/>' .
+                        ($calls->nnp_package_minute_id ? 'минуты' : '') .
+                        ($calls->nnp_package_price_id ? 'прайс' : '') .
+                        ($calls->nnp_package_pricelist_id ? 'прайслист' : '');
+                },
+            ],
+        ];
+
+        if (!$this->is_full_report) {
+            $columns = array_filter($columns, function ($row)
+            {
+                return isset($row['attribute'])
+                    && in_array($row['attribute'],
+                        ['id', 'trunk_id', 'orig', 'connect_time', 'src_number', 'dst_number', 'billed_time', 'cost',
+                            'rate', 'interconnect_cost', 'disconnect_cause']
+                    );
+            });
+        }
+
+        return $columns;
+    }
+
 }
+

@@ -41,7 +41,7 @@ class DisconnectCauseColumn extends DataColumn
         $value = $this->getDataCellValue($model, $key, $index);
 
         if (is_array($this->filter) && isset($this->filter[$value])) {
-            return Html::tag('abbr', (string)$this->filter[$value], ['title' => $this->filter[$value]->description]);
+            return Html::tag('abbr', (string)$this->filter[$value],  isset($this->filter[$value]->description) ? ['title' => $this->filter[$value]->description] : []);
         }
 
         return $value;

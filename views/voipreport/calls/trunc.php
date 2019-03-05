@@ -6,32 +6,18 @@
  * @var CallsRawFilter $filterModel
  */
 
-use app\classes\grid\column\billing\DestinationColumn;
-use app\classes\grid\column\billing\DisconnectCauseColumn;
-use app\classes\grid\column\billing\GeoColumn;
-use app\classes\grid\column\billing\MobColumn;
-use app\classes\grid\column\billing\OrigColumn;
-use app\classes\grid\column\billing\ServerColumn;
-use app\classes\grid\column\billing\TrunkColumn;
-use app\classes\grid\column\billing\TrunkSuperClientColumn;
-use app\classes\grid\column\universal\AccountVersionColumn;
-use app\classes\grid\column\universal\CountryColumn;
-use app\classes\grid\column\universal\DateRangeDoubleColumn;
-use app\classes\grid\column\universal\FloatRangeColumn;
-use app\classes\grid\column\universal\IntegerColumn;
-use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\classes\grid\column\universal\StringColumn;
-use app\classes\grid\column\universal\UsageTrunkColumn;
+use yii\data\ActiveDataProvider;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\models\billing\CallsRaw;
+use app\models\DeferredTask;
 use app\models\filter\CallsRawFilter;
-use app\modules\nnp\column\OperatorColumn;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\db\ActiveQuery;
+use yii\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
-use app\modules\nnp\column\CityColumn;
-use app\modules\nnp\column\RegionColumn;
+use yii\widgets\Pjax;
 
 ?>
 
@@ -41,177 +27,102 @@ use app\modules\nnp\column\RegionColumn;
         ['label' => 'Межоператорка (отчеты)'],
         ['label' => $this->title, 'url' => '/voipreport/calls/trunc/'],
     ],
-]) ?>
+]);
 
-<?php
-$columns = [
-    [
-        'attribute' => 'id',
-        'class' => StringColumn::class,
-    ],
-    [
-        'attribute' => 'server_id',
-        'class' => ServerColumn::class,
-    ],
-    [
-        'attribute' => 'trunk_ids', // фейковое поле
-        'label' => 'Оператор (суперклиент)',
-        'class' => TrunkSuperClientColumn::class,
-        'enableSorting' => false,
-        'value' => function (CallsRaw $call) {
-            return $call->trunk_id;
-        },
-    ],
-    [
-        'attribute' => 'trunk_id',
-        'class' => TrunkColumn::class,
-        'filterByIds' => $filterModel->trunkIdsIndexed,
-        'filterByServerIds' => $filterModel->server_id,
-        'filterOptions' => [
-            'class' => $filterModel->trunk_id ? 'alert-success' : 'alert-danger',
-            'title' => 'Фильтр зависит от Региона (точка подключения) и Оператора (суперклиента)',
-        ],
-    ],
-    [
-        'attribute' => 'trunk_service_id',
-        'class' => UsageTrunkColumn::class,
-        'trunkId' => $filterModel->trunk_id,
-        'filterOptions' => [
-            'title' => 'Фильтр зависит от Транка',
-        ],
-    ],
-    [
-        'attribute' => 'connect_time',
-        'class' => DateRangeDoubleColumn::class,
-        'filterOptions' => [
-            'class' => $filterModel->connect_time_from ? 'alert-success' : 'alert-danger',
-            'title' => 'У первой даты время считается 00:00, у второй 23:59',
-        ],
-    ],
-    [
-        'attribute' => 'src_number',
-        'label' => 'Номер А',
-        'class' => StringColumn::class,
-        'filterOptions' => [
-            'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
-        ],
-    ],
-    [
-        'attribute' => 'dst_number',
-        'label' => 'Номер Б',
-        'class' => StringColumn::class,
-        'filterOptions' => [
-            'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
-        ],
-    ],
-    [
-        'attribute' => 'prefix',
-        'class' => IntegerColumn::class,
-    ],
-    [
-        'attribute' => 'billed_time',
-        'class' => IntegerRangeColumn::class,
-    ],
-    [
-        'attribute' => 'rate',
-        'class' => FloatRangeColumn::class,
-        'format' => ['decimal', 4],
-    ],
-    [
-        'attribute' => 'interconnect_rate',
-        'class' => FloatRangeColumn::class,
-        'format' => ['decimal', 4],
-    ],
-    [
-        'label' => 'Цена минуты с интерконнектом, ¤',
-        'format' => ['decimal', 4],
-        'value' => function (CallsRaw $calls) {
-            return $calls->rate + $calls->interconnect_rate;
-        },
-    ],
-    [
-        'attribute' => 'cost',
-        'class' => FloatRangeColumn::class,
-        'format' => ['decimal', 4],
-    ],
-    [
-        'attribute' => 'interconnect_cost',
-        'class' => FloatRangeColumn::class,
-        'format' => ['decimal', 4],
-    ],
-    [
-        'label' => 'Стоимость с интерконнектом, ¤',
-        'format' => ['decimal', 4],
-        'value' => function (CallsRaw $calls) {
-            return $calls->cost + $calls->interconnect_cost;
-        },
-    ],
-    [
-        'attribute' => 'destination_id',
-        'class' => DestinationColumn::class,
-        'filterByServerId' => $filterModel->server_id,
-        'filterOptions' => [
-            'title' => 'Фильтр зависит от Региона (точка подключения)',
-        ],
-    ],
-    [
-        'attribute' => 'geo_id',
-        'class' => GeoColumn::class,
-    ],
-    [
-        'attribute' => 'orig',
-        'class' => OrigColumn::class,
-    ],
-    [
-        'attribute' => 'mob',
-        'class' => MobColumn::class,
-    ],
-    [
-        'attribute' => 'account_id',
-        'class' => StringColumn::class,
-    ],
-    [
-        'attribute' => 'disconnect_cause',
-        'class' => DisconnectCauseColumn::class,
-    ],
-    [
-        'attribute' => 'nnp_country_prefix',
-        'class' => CountryColumn::class,
-        'indexBy' => 'prefix',
-    ],
-    [
-        'attribute' => 'nnp_ndc',
-        'class' => IntegerColumn::class,
-    ],
-    [
-        'attribute' => 'account_version',
-        'class' => AccountVersionColumn::class,
-    ],
-    [
-        'attribute' => 'nnp_operator_id',
-        'class' => OperatorColumn::class,
-    ],
-    [
-        'attribute' => 'nnp_region_id',
-        'class' => RegionColumn::class,
-    ],
-    [
-        'attribute' => 'nnp_city_id',
-        'class' => CityColumn::class,
-    ],
-    [
-        'attribute' => 'stats_nnp_package_minute_id',
-        'format' => 'html',
-        'class' => IntegerRangeColumn::class,
-        'value' => function (CallsRaw $calls) {
-            return $calls->stats_nnp_package_minute_id . '<br/>' .
-            ($calls->nnp_package_minute_id ? 'минуты' : '') .
-            ($calls->nnp_package_price_id ? 'прайс' : '') .
-            ($calls->nnp_package_pricelist_id ? 'прайслист' : '');
-        },
-    ],
-];
 ?>
+
+
+<?php Pjax::begin(['id' => 'deferred-task-table', 'timeout' => false, 'enablePushState' => false]) ?>
+<?php
+echo GridView::widget([
+    'dataProvider' => new ActiveDataProvider(['query' =>
+        DeferredTask::find()
+            ->where(['!=', 'status', DeferredTask::STATUS_IN_REMOVING])
+            ->orderBy(['created_at' => SORT_ASC])
+    ]),
+    'options' => ['id' => 'deferred-task-table'],
+    'isFilterButton' => false,
+    'columns' => [
+        [
+            'attribute' => 'userModel.name',
+            'label' => 'Пользователь',
+            'width' => '20%'
+
+        ],
+        [
+            'attribute' => 'created_at',
+            'width' => '10%'
+        ],
+        [
+            'attribute' => 'params',
+            'format' => 'raw',
+            'value' => function ($data) use ($filterModel) {
+                $str = '';
+                if (!($params = json_decode($data->params, true))) {
+                    return 'Ошибка получения данных запроса';
+                }
+                $parsedParams = DeferredTask::parseBunch($params);
+
+                $firstElements = '';
+                $otherElements = '<div class="other-elements" style="display: none">';
+                $callsRawFilterInstance = CallsRawFilter::instance();
+                foreach($parsedParams as $key => $value) {
+                    $current = '';
+                    $trimmedVal = trim($value);
+                    $label = $callsRawFilterInstance->getAttributeLabel($key);
+                    if ($trimmedVal && $trimmedVal != '----') {
+                        $current .= ($label) ? $label : $key;
+                        $current .= ':' . $trimmedVal . '<br>';
+                    }
+                    if ($key == 'trunk' || $key == 'connect_time_from' ||  $key == 'connect_time_to') {
+                        $firstElements .= $current;
+                    } else {
+                        $otherElements .= $current;
+                    }
+                };
+                $str .= $firstElements;
+                $str .= Html::tag('u', ' Развернуть ', ['style' => "cursor: pointer;", 'onclick' => "$($(this).siblings('.other-elements')).toggle();"]);
+                $str .= $otherElements . '</div>';
+                return $str;
+            }
+        ],
+        [
+            'attribute' => 'status',
+            'format' => 'raw',
+            'value' => function ($data) {
+                $message = DeferredTask::getStatusLabels()[$data->status];
+                if ($data->status == DeferredTask::STATUS_IN_PROGRESS) {
+                    $message .= '<br>' . $data->getProgressString();
+                } elseif ($data->status == DeferredTask::STATUS_READY) {
+                    $message .= Html::a('', ['/voipreport/deferred-task/download', 'id' => $data->id], ['class' => 'glyphicon glyphicon-save', 'data-pjax' => 0]);
+                }
+                if ($data->status_text) {
+                    $message .= '<br>' . $data->status_text;
+                }
+                return $message;
+            },
+        ],
+        [
+            'class' => ActionColumn::class,
+            'template' => '{delete}',
+            'buttons' => [
+                'delete' => function ($url, $model, $key) {
+                    return Html::a('', ['/voipreport/deferred-task/remove', 'id' => $model->id],
+                        ['class' => 'glyphicon glyphicon-trash', 'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")']);
+                },
+            ],
+            'visibleButtons' => [
+                'delete' => function ($model) {
+                    return $model->status != DeferredTask::STATUS_IN_PROGRESS;
+                },
+            ]
+        ],
+
+    ],
+]);
+
+?>
+<?php Pjax::end() ?>
 
 <?php
 
@@ -333,13 +244,6 @@ $filterColumns = [
 ];
 
 if (!$filterModel->is_full_report) {
-    $columns = array_filter($columns, function($row) {
-        return isset($row['attribute'])
-            && in_array($row['attribute'],
-                ['id', 'trunk_id', 'orig', 'connect_time', 'src_number', 'dst_number', 'billed_time', 'cost', 'rate', 'interconnect_cost', 'disconnect_cause']
-            );
-    });
-
     $summaryColumns = [
         [
             'content' => Yii::t('common', 'Summary'),
@@ -375,12 +279,33 @@ if (!$filterModel->is_full_report) {
 
 ?>
 
+<form action="voipreport/deferred-task/new" id="calls-report-form">
 <?php
+$columns = $filterModel->getColumns();
 $dataProvider = $filterModel->search();
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
+    'extraButtons' => $this->render('//layouts/_button', [
+        'params' => [
+            'class' => 'btn btn-warning',
+            'onclick' => "$.ajax({
+                type: 'get',
+                url:  'voipreport/deferred-task/new',
+                data: $('#calls-report-form').serialize(),
+                success: function(responseData, textStatus, jqXHR) {
+                    alert('Отчет поставлен на отложенное формирование');
+                    $.pjax.reload({container:\"#deferred-task-table\"});
+                },
+                error: function(responseData, textStatus, jqXHR) {
+                    alert(responseData.responseText);
+                },
+            });"
+        ],
+        'text' => 'В отложенные задания',
+        'glyphicon' => 'glyphicon-share-alt',
+    ]),
     'columns' => $columns,
     'resizableColumns' => false, // все равно не влезает на экран
     'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
@@ -393,5 +318,8 @@ echo GridView::widget([
     'beforeHeader' => [ // фильтры вне грида
         'columns' => $filterColumns,
     ],
-]);
+
+]); ?>
+
+</form>
 

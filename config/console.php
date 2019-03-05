@@ -3,6 +3,8 @@ use yii\helpers\ArrayHelper;
 
 Yii::setAlias('@app', dirname(__DIR__));
 Yii::setAlias('@tests', dirname(__DIR__) . '/tests');
+Yii::setAlias('@webroot', Yii::getAlias('@app'));
+Yii::setAlias('@web', Yii::getAlias('@app'));
 
 $db = require(__DIR__ . '/db_stat.php');
 if (file_exists($file = __DIR__ . '/db_stat.local.php')) {

@@ -46,7 +46,7 @@ class RegionColumn extends DataColumn
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
 
-        if ($strValue && is_numeric($strValue) && $strValue == $value) {
+        if ($strValue && is_numeric($strValue) && $strValue == $value && isset($model->region)) {
             // посколько регионов очень много, в селект попадают не все. Чтобы не выводить некрасивых id несколько лишних раз поднимем связанные модели
             $strValue = $model->region->name;
         }
