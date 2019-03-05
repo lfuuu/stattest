@@ -16,18 +16,23 @@ trait AccountTariffLinkTrait
      * @param bool $isWithAccount
      * @return string
      */
-    public function getName($isWithAccount = true)
+    public function getName($isWithAccount = true, $withLink = false)
     {
         $names = [];
 
         if ($isWithAccount) {
-            $names[] = $this->clientAccount->client;
+            $names[] = $withLink
+                ? $this->clientAccount->getLink()
+                : $this->clientAccount->client;
         }
 
         if ($this->service_type_id == ServiceType::ID_VOIP && $this->voip_number) {
 
+            $number = Yii::t('uu', 'Number {number}', ['number' => $this->voip_number]);
             // телефония
-            $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->voip_number]);
+            $names[] = $withLink
+                ? Html::a($number, ['account-tariff/edit', 'id' => $this->id])
+                : $number;
 
         } elseif ($this->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
 
@@ -35,7 +40,10 @@ trait AccountTariffLinkTrait
             /** @var AccountTariff $prevAccountTariff */
             $prevAccountTariff = $this->prevAccountTariff;
             if ($prevAccountTariff->voip_number) {
-                $names[] = Yii::t('uu', 'Number {number}', ['number' => $prevAccountTariff->voip_number]);
+                $number = Yii::t('uu', 'Number {number}', ['number' => $prevAccountTariff->voip_number]);
+                $names[] = $withLink
+                    ? Html::a($number, ['account-tariff/edit', 'id' => $this->id])
+                    : $number;
             }
         }
 

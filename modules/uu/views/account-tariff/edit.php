@@ -21,11 +21,8 @@ if (!$serviceType) {
     return;
 }
 
-if (!$accountTariff->isNewRecord) {
-    $this->title = $accountTariff->getName();
-} else {
-    $this->title = Yii::t('common', 'Create');
-}
+$title = ($accountTariff->isNewRecord) ? Yii::t('common', 'Create') : $accountTariff->getName(true, true);
+$this->title = strip_tags($title);
 ?>
 
 <?= Breadcrumbs::widget([
@@ -41,7 +38,10 @@ if (!$accountTariff->isNewRecord) {
             'label' => $this->render('//layouts/_helpConfluence', $serviceType->getHelpConfluence()),
             'encode' => false,
         ],
-        $this->title
+        [
+            'label' => $title,
+            'encode' => false
+        ]
     ],
 ]) ?>
 
