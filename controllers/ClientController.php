@@ -249,6 +249,12 @@ class ClientController extends BaseController
                         $account = new AccountEditForm(['id' => $contract->newClient->id]);
                         $account->load($request) && $account->validate();
                         if ($account->load($request) && $account->validate() && $account->save()) {
+                            Trouble::dao()->createTrouble(
+                                $account->id,
+                                Trouble::TYPE_CONNECT,
+                                Trouble::SUBTYPE_CONNECT,
+                                'Заявка на подключение услуг'
+                            );
                             $commit = true;
                         }
                     }
