@@ -13,6 +13,7 @@ use yii\base\InvalidParamException;
  * @property string $roistat_visit
  * @property float $roistat_price
  * @property int $roistat_channel_id
+ * @property string $roistat_fields
  *
  * @property-read Trouble $trouble
  */
@@ -66,12 +67,12 @@ class TroubleRoistat extends ActiveRecord
      * @param string $addition
      * @return string
      */
-    public static function getChannelNameById($id, $addition = null)
+    public static function getChannelNameById($id)
     {
         if (!array_key_exists($id, self::CHANNELS)) {
             throw new \InvalidArgumentException('неизвестный канал: ' . $id);
         }
 
-        return self::CHANNELS[$id] . ($addition ? ':' . $addition : '');
+        return self::CHANNELS[$id];
     }
 }

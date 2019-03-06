@@ -143,7 +143,14 @@ class TroublesController extends ApiInternalController
             if ($currentStage = $trouble->stage) {
                 $build['status'] = $currentStage->state_id;
                 $manager = $currentStage->user;
-                $build['fields'] = ['Менеджер' => $manager ? $manager->name : $currentStage->user_main];
+                $build['fields'] = [
+                    'Менеджер' => $manager ? $manager->name : $currentStage->user_main
+                ];
+                if (($troubleRoistat && $troubleRoistat->roistat_fields)) {
+                    foreach (json_decode($troubleRoistat->roistat_fields, true) as $key => $value) {
+                        $build['fields'][$key] = $value;
+                    }
+                }
             }
 
             // Добавляем в массив

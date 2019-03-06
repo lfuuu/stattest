@@ -9,6 +9,7 @@ use app\exceptions\ModelValidationException;
 use app\exceptions\web\BadRequestHttpException;
 use app\models\ClientAccount;
 use app\models\Lead;
+use app\models\RoistatNumberFields;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\models\TroubleState;
@@ -316,7 +317,13 @@ class ApiController extends Controller
             if ($lid->did_mcn) {
                 $roistat = new TroubleRoistat();
                 $roistat->trouble_id = $trouble->id;
-                $roistat->roistat_visit = TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_PHONE, $lid->did_mcn);
+                $roistat->roistat_visit = TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_PHONE);
+
+                $roistatNumberFields = RoistatNumberFields::findOne(['number' => $lid->did_mcn]);
+                if ($roistatNumberFields) {
+                    $roistat->roistat_fields = $roistatNumberFields->fields;
+                }
+
                 if (!$roistat->save()) {
                     throw new ModelValidationException($roistat);
                 }

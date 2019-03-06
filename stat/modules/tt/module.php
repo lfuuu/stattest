@@ -1687,8 +1687,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if($typePk == 7 || $isAll)
             $a["incomegoods"] = "Заказ поставщику";
 
-        if($typePk == 8 || $isAll)
+        if($typePk == 8 || $isAll) {
             $a["connect"] = "Подключение";
+        }
 
 
         if($isAll){

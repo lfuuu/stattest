@@ -170,6 +170,7 @@ class Navigation
                 ->addItem('Метки', ['/dictionary/tags'], ['dictionary.read'])
                 ->addItem('Статусы бизнес процессов', ['/dictionary/business-process-status'], ['dictionary-statuses.read'])
                 ->addItem('Общие настройки', ['/settings/'], ['dictionary.read'])
+                ->addItem('Roistat. Настройки номеров.', ['/dictionary/roistat-number-fields'])
         );
 
         $this->addBlock(
