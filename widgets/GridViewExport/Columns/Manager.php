@@ -12,23 +12,27 @@ class Manager extends Singleton
         AccountTariffFilter::class => AccountTariffConfig::class,
     ];
 
+    protected static $settings = [];
+
     /**
-     * Updates columns if needed
-     *
      * @param string $className
      * @param array $columns
-     * @return array
+     * @return Settings
      */
-    public function updateExportColumns($className, array $columns)
+    public function getSettings($className, array $columns)
     {
-        if (isset(self::$classMap[$className])) {
-            $configClass = self::$classMap[$className];
+        if (!isset(self::$settings[$className])) {
+            $set = Settings::create($columns, []);
+            if (isset(self::$classMap[$className])) {
+                $configClass = self::$classMap[$className];
 
-            /** @var Config $config */
-            $config = $configClass::create();
-            $columns = $config->updateColumns($columns);
+                /** @var Config $config */
+                $config = $configClass::create();
+                $config->updateSettings($set);
+            }
+            self::$settings[$className] = $set;
         }
 
-        return $columns;
+        return self::$settings[$className];
     }
 }

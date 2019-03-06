@@ -29,7 +29,6 @@ use app\modules\uu\column\TariffStatusColumn;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTrouble;
-use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\ServiceType;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
@@ -86,9 +85,7 @@ if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceTyp
             'attribute' => 'test_connect_date',
             'class' => DateRangeDoubleColumn::class,
             'value' => function (AccountTariff $accountTariff) {
-                /** @var AccountTariffHeap $accountTariffHeap */
-                $accountTariffHeap = $accountTariff->getAccountTariffHeap()
-                    ->one();
+                $accountTariffHeap = $accountTariff->accountTariffHeap;
                 return ($accountTariffHeap && $accountTariffHeap->test_connect_date) ?
                     $accountTariffHeap->test_connect_date : '';
             },
@@ -100,7 +97,7 @@ if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceTyp
         'attribute' => 'account_manager_name',
         'class' => UserColumn::class,
         'value' => function (AccountTariff $accountTariff) {
-            return $accountTariff->clientAccount->contract->getAccountManagerName();
+            return $accountTariff->clientAccount->clientContractModel->getAccountManagerName();
         },
     ];
 
@@ -109,9 +106,7 @@ if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceTyp
         'attribute' => 'date_sale',
         'class' => DateRangeDoubleColumn::class,
         'value' => function (AccountTariff $accountTariff) {
-            /** @var AccountTariffHeap $accountTariffHeap */
-            $accountTariffHeap = $accountTariff->getAccountTariffHeap()
-                ->one();
+            $accountTariffHeap = $accountTariff->accountTariffHeap;
             return ($accountTariffHeap && $accountTariffHeap->date_sale) ?
                 $accountTariffHeap->date_sale : '';
         },
@@ -122,9 +117,7 @@ if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceTyp
         'attribute' => 'date_before_sale',
         'class' => DateRangeDoubleColumn::class,
         'value' => function (AccountTariff $accountTariff) {
-            /** @var AccountTariffHeap $accountTariffHeap */
-            $accountTariffHeap = $accountTariff->getAccountTariffHeap()
-                ->one();
+            $accountTariffHeap = $accountTariff->accountTariffHeap;
             return ($accountTariffHeap && $accountTariffHeap->date_before_sale) ?
                 $accountTariffHeap->date_before_sale : '';
         },
@@ -135,9 +128,7 @@ if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceTyp
         'attribute' => 'disconnect_date',
         'class' => DateRangeDoubleColumn::class,
         'value' => function (AccountTariff $accountTariff) {
-            /** @var AccountTariffHeap $accountTariffHeap */
-            $accountTariffHeap = $accountTariff->getAccountTariffHeap()
-                ->one();
+            $accountTariffHeap = $accountTariff->accountTariffHeap;
             return ($accountTariffHeap && $accountTariffHeap->disconnect_date) ?
                 $accountTariffHeap->disconnect_date : '';
         },
@@ -390,9 +381,7 @@ if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceTyp
         'format' => 'raw',
         'value' => function (AccountTariff $accountTariff) {
             $value = '';
-            $accountTroubles = AccountTrouble::find()
-                ->where(['account_tariff_id' => $accountTariff->id]);
-            foreach ($accountTroubles->each() as $accountTrouble) {
+            foreach ($accountTariff->accountTroubles as $accountTrouble) {
                 /** @var AccountTrouble $accountTrouble */
                 $value .= Html::a($accountTrouble->trouble_id, ["index.php?module=tt&action=view&id=$accountTrouble->trouble_id"]);
             }

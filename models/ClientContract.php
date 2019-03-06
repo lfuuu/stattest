@@ -44,6 +44,7 @@ use yii\db\ActiveQuery;
  * @property-read Organization $organization
  * @property-read ClientMedia $mediaManager
  * @property-read ContractType $contractType
+ * @property-read User $accountManagerUser
  * @property-read Business $business
  * @property-read BusinessProcess $businessProcess
  * @property-read BusinessProcessStatus $businessProcessStatus
@@ -267,7 +268,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getAccountManagerName()
     {
-        $m = User::findByUsername($this->account_manager);
+        $m = $this->accountManagerUser;
         return ($m) ? $m->name : $this->account_manager;
     }
 
@@ -295,6 +296,14 @@ class ClientContract extends HistoryActiveRecord
     public function getBusiness()
     {
         return $this->hasOne(Business::class, ['id' => 'business_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountManagerUser()
+    {
+        return $this->hasOne(User::class, ['user' => 'account_manager']);
     }
 
     /**

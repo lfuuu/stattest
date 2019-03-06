@@ -155,7 +155,6 @@ class AccountTariffFilter extends AccountTariff
             ->with('prevAccountTariff')
             ->with('tariffPeriod.chargePeriod')
             ->with('tariffPeriod.tariff.currency')
-            ->with('tariffPeriod.tariff.tariffCountries')
             ->with('tariffPeriod.tariff.tariffCountries.country')
             ->with('tariffPeriod.tariff.organizations.organization')
 

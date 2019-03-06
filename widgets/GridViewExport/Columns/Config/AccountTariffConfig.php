@@ -14,30 +14,63 @@ class AccountTariffConfig extends Config
     {
         return [
             'tariff_period_id' => [
-                'format' => 'text',
-                'value' => 'name',
+                Config::PARAM_NAME_KEYS => [
+                    'format' => 'text',
+                    'value' => 'name',
+                ],
+                Config::PARAM_NAME_EAGER_FIELDS => [],
             ],
             'prev_account_tariff_tariff_id' => [
-                'format' => 'text',
-                'value' => 'prevAccountTariff.tariffPeriod.name',
+                Config::PARAM_NAME_KEYS => [
+                    'format' => 'text',
+                    'value' => 'prevAccountTariff.tariffPeriod.name',
+                ],
+                Config::PARAM_NAME_EAGER_FIELDS => [],
             ],
             'tariff_country_id' => [
-                'format' => 'text',
-                'contentOptions' => null,
-                'value' => 'tariffPeriod.tariff.countriesText',
+                Config::PARAM_NAME_KEYS => [
+                    'format' => 'text',
+                    'contentOptions' => null,
+                    'value' => 'tariffPeriod.tariff.countriesText',
+                ],
+                Config::PARAM_NAME_EAGER_FIELDS => [],
             ],
             'tariff_organization_id' => [
-                'format' => 'text',
-                'contentOptions' => null,
-                'value' => 'tariffPeriod.tariff.organizationsText',
+                Config::PARAM_NAME_KEYS => [
+                    'format' => 'text',
+                    'contentOptions' => null,
+                    'value' => 'tariffPeriod.tariff.organizationsText',
+                ],
+                Config::PARAM_NAME_EAGER_FIELDS => [],
             ],
             'client_account_id' => [
-                'format' => 'text',
-                'value' => 'clientAccount.accountTypeAndId',
+                Config::PARAM_NAME_KEYS => [
+                    'format' => 'text',
+                    'value' => 'clientAccount.accountTypeAndId',
+                ],
+                Config::PARAM_NAME_EAGER_FIELDS => [],
             ],
             'comment' => [
-                'format' => 'text',
-                'value' => 'comment',
+                Config::PARAM_NAME_KEYS => [
+                    'format' => 'text',
+                    'value' => 'comment',
+                ],
+                Config::PARAM_NAME_EAGER_FIELDS => [],
+            ],
+            'account_manager_name' => [
+                Config::PARAM_NAME_KEYS => [],
+                Config::PARAM_NAME_EAGER_FIELDS => 'clientAccount.clientContractModel.accountManagerUser',
+            ],
+            'date_sale' => [
+                Config::PARAM_NAME_KEYS => [],
+                Config::PARAM_NAME_EAGER_FIELDS => 'accountTariffHeap',
+            ],
+            'trouble_id' => [
+                Config::PARAM_NAME_KEYS => [
+                    'format' => 'text',
+                    'value' => 'accountTroublesText',
+                ],
+                Config::PARAM_NAME_EAGER_FIELDS => [],
             ],
         ];
     }

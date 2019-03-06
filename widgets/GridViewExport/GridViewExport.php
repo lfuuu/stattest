@@ -15,8 +15,10 @@ use yii\base\ExitException;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\base\Model;
+use yii\base\UnknownPropertyException;
 use yii\data\ActiveDataProvider;
 use yii\data\DataProviderInterface;
+use yii\db\ActiveQuery;
 use yii\db\ActiveQueryInterface;
 use yii\db\ActiveRecord;
 use yii\grid\ActionColumn;
@@ -34,13 +36,20 @@ use yii\web\JsExpression;
 
 class GridViewExport extends GridView
 {
+    const PARAM_CASE = 'case';
+    const PARAM_PROPERTY = 'property';
+    const COLUMN_CASE_SERIAL = 1;
+    const COLUMN_CASE_ACTION = 2;
+    const COLUMN_CASE_DEFAULT = 3;
+    const COLUMN_CASE_DATA = 4;
+
     /** @var DataProviderInterface */
     public $dataProvider;
     /** @var \ActiveRecord\Model */
     public $filterModel;
 
     public $columns = [];
-    public $batchSize = 20000;
+    public $batchSize = 1000;
     public $timeout = 0;
     public $columnSelectorEnabled = true;
 
@@ -52,16 +61,22 @@ class GridViewExport extends GridView
     /** @var DataProviderInterface */
     protected $provider = null;
     protected $visibleColumns = [];
+    protected $columnRenders = [];
 
     /**
      * @inheritdoc
      */
     public function init()
     {
-        $this->columns = Manager::me()->updateExportColumns(get_class($this->filterModel), $this->columns);
+        $settings = Manager::me()->getSettings(get_class($this->filterModel), $this->columns);
+        $this->columns = $settings->columns;
+
         parent::init();
 
         $this->provider = clone($this->dataProvider);
+        if ($this->provider instanceof ActiveDataProvider && $this->provider->query instanceof ActiveQuery) {
+            $this->provider->query->with($settings->eagerFields);
+        }
     }
 
     /**
@@ -155,6 +170,30 @@ class GridViewExport extends GridView
     }
 
     /**
+     * Fills column cases
+     */
+    protected function fillRenders()
+    {
+        $this->columnRenders = [];
+        foreach ($this->visibleColumns as $columnIndex => $column) {
+            $render = [];
+            if ($column instanceof SerialColumn) {
+                $render[self::PARAM_CASE] = self::COLUMN_CASE_SERIAL;
+            } elseif ($column instanceof ActionColumn) {
+                $render[self::PARAM_CASE] = self::COLUMN_CASE_ACTION;
+                $render[self::PARAM_PROPERTY] = 0;
+            } elseif ($column instanceof Column) {
+                /** @var $column Column */
+                $render[self::PARAM_CASE] = self::COLUMN_CASE_DEFAULT;
+            } elseif (($column->content === null) && $column instanceof DataColumn) {
+                $render[self::PARAM_CASE] = self::COLUMN_CASE_DATA;
+            }
+
+            $this->columnRenders[$columnIndex] = $render;
+        }
+    }
+
+    /**
      * @param ActiveRecord $model
      * @param string $key
      * @param int $index
@@ -165,32 +204,52 @@ class GridViewExport extends GridView
     {
         $row = [];
 
-        foreach ($this->visibleColumns as $column) {
-            if ($column instanceof SerialColumn) {
-                $value = $column->renderDataCell($model, $key, $index);
-            } elseif ($column instanceof ActionColumn) {
-                $value = '';
-            } elseif ($column instanceof Column) {
-                /** @var $column Column */
-                $value = strip_tags($column->renderDataCell($model, $key, $index));
-            } elseif (($column->content === null) && $column instanceof DataColumn) {
-                /** @var $column DataColumn */
-                $format = 'raw';
-                if (isset($column->format)) {
-                    if (is_array($column->format)) {
-                        $column->format = $format;
+        foreach ($this->visibleColumns as $columnIndex => $column) {
+            $render = $this->columnRenders[$columnIndex];
+            switch ($render[self::PARAM_CASE]){
+                case self::COLUMN_CASE_SERIAL:
+                    $value = $column->renderDataCell($model, $key, $index);
+                    break;
+
+                case self::COLUMN_CASE_ACTION:
+                    $value = '';
+                    break;
+
+                case self::COLUMN_CASE_DEFAULT:
+                    /** @var $column Column */
+                    $value = strip_tags($column->renderDataCell($model, $key, $index));
+                    break;
+
+                case self::COLUMN_CASE_DATA:
+                    /** @var $column DataColumn */
+                    $format = 'raw';
+                    if (isset($column->format)) {
+                        if (is_array($column->format)) {
+                            $column->format = $format;
+                        }
+                        $format = $column->format;
                     }
-                    $format = $column->format;
-                }
 
-                $value = $this->formatter->format($column->getDataCellValue($model, $key, $index), $format);
-            } else {
-                $value = call_user_func($column->content, $model, $key, $index, $column);
+                    $value = $this->formatter->format($column->getDataCellValue($model, $key, $index), $format);
+                    break;
+
+                default:
+                    $value = call_user_func($column->content, $model, $key, $index, $column);
             }
+
             if (empty($value) && !empty($column->attribute)) {
-                $value = ArrayHelper::getValue($model, $column->attribute, '');
+                if (!array_key_exists(self::PARAM_PROPERTY, $render)) {
+                    try {
+                        $result = ArrayHelper::getValue($model, $column->attribute, '');
+                        $this->columnRenders[$columnIndex][self::PARAM_PROPERTY] = 1;
+                        $value = $result;
+                    } catch (UnknownPropertyException $e) {
+                        $this->columnRenders[$columnIndex][self::PARAM_PROPERTY] = 0;
+                    }
+                } else if ($this->columnRenders[$columnIndex][self::PARAM_PROPERTY]) {
+                    $value = ArrayHelper::getValue($model, $column->attribute, '');
+                }
             }
-
             $row[] = strip_tags($value);
         }
 
@@ -332,6 +391,7 @@ class GridViewExport extends GridView
                 $this->visibleColumns[] = $this->columns[$column];
             }
         }
+        $this->fillRenders();
 
         $this->provider->pagination->pageSize = $this->batchSize;
         $this->provider->pagination->page = $input->offset;

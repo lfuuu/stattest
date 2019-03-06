@@ -27,4 +27,12 @@ class AccountTrouble extends ActiveRecord
             [['account_tariff_id', 'trouble_id',], 'integer'],
         ];
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->trouble_id;
+    }
 }
