@@ -1018,9 +1018,9 @@ SQL;
         ) {
 
             // выключаем ошибочно включеные
-            foreach ($bill->invoices as $invoice) {
-                $invoice->setReversal();
-            }
+//            foreach ($bill->invoices as $invoice) {
+//                $invoice->setReversal();
+//            }
 
             return;
         }
@@ -1041,9 +1041,18 @@ SQL;
                     continue;
                 }
 
-                $invoice = Invoice::findOne(['bill_no' => $bill->bill_no, 'type_id' => $typeId]);
+                /** @var Invoice $invoice */
+                $invoice = Invoice::find()
+                    ->where(['bill_no' => $bill->bill_no, 'type_id' => $typeId])
+                    ->orderBy(['id' => SORT_DESC])
+                    ->one();
 
-                $lines = $bill->getLinesByTypeId($typeId);
+                // Если последний документ сторнирован - то надо создать нормальный
+                if ($invoice && $invoice->is_reversal) {
+                    $invoice = null;
+                }
+
+                $lines = $invoice && $invoice->lines ? $invoice->lines : $bill->getLinesByTypeId($typeId);
 
                 if ($typeId == Invoice::TYPE_PREPAID) {
                     $lines = BillLine::refactLinesWithFourOrderFacture($bill, $lines);
@@ -1065,6 +1074,10 @@ SQL;
                         $invoice->bill_no = $bill->bill_no;
                         $invoice->type_id = $typeId;
                         $invoice->sum = $invoice->sum_tax = $invoice->sum_without_tax = 0;
+                    }
+
+                    if ($invoice && !$invoice->number) {
+                        $invoice->isSetDraft = false; // to apply draft
                     }
 
                     $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
