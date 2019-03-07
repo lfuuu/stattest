@@ -1883,7 +1883,7 @@ class m_newaccounts extends IModule
                     $ll = [
                         "bill_no" => $bill_no,
                         "isBill" => strpos($r, 'bill') === 0,
-                        "obj" => $r,
+                        "obj" => $r . ($invoiceId ? '&invoice_id=' . $invoiceId : ''),
                         "bill_client" => $bill->Get("client_id"),
                         "g" => get_param_protected($r),
                         "r" => $reCode
@@ -1932,7 +1932,6 @@ class m_newaccounts extends IModule
         if ($one_pdf == '1') {
             $this->create_pdf_from_docs($fixclient, $R);
         }
-
 
         $design->assign('is_pdf', $is_pdf);
         $design->assign('rows', $P);
@@ -2222,6 +2221,15 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr', 'RUB');
         }
 
+        $invoiceId = false;
+        if ($obj == 'invoice2') {
+            $obj = 'invoice';
+            $invoiceId = get_param_integer('invoice_id');
+
+            $source = (int)\app\models\Invoice::find()->where(['id' => $invoiceId])->select(['type_id'])->scalar();
+        }
+
+
         $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected('bill');
         if (!$bill_no && $obj !== 'receipt') {
             return false;
@@ -2362,7 +2370,7 @@ class m_newaccounts extends IModule
             exit();
         }
 
-        if ($this->do_print_prepare($bill, $obj, $source, $curr) || in_array($obj, ["order", "notice"])) {
+        if ($this->do_print_prepare($bill, $obj, $source, $curr, true, false, $invoiceId) || in_array($obj, ["order", "notice"])) {
 
             $design->assign("bill_no_qr",
                 ($bill->GetTs() >= strtotime("2013-05-01") ? BillQRCode::getNo($bill->GetNo()) : false));
@@ -2819,7 +2827,7 @@ class m_newaccounts extends IModule
         return $R;
     }
 
-    function do_print_prepare(\Bill &$bill, $obj, $source = 1, $curr, $do_assign = 1, $isSellBook = false)
+    function do_print_prepare(\Bill &$bill, $obj, $source = 1, $curr, $do_assign = 1, $isSellBook = false, $invoiceId = false)
     {
         global $design, $db, $user;
 
@@ -2973,16 +2981,7 @@ class m_newaccounts extends IModule
         //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
 
         $cpe = [];
-        $bdata["sum"] = 0;
-        $bdata['sum_without_tax'] = 0;
-        $bdata['sum_tax'] = 0;
-
         foreach ($billLines as &$li) {
-
-            $bdata['sum'] += $li['sum'];
-            $bdata['sum_without_tax'] += $li['sum_without_tax'];
-            $bdata['sum_tax'] += $li['sum_tax'];
-
             if ($obj == BillDocument::TYPE_AKT && $source == BillDocument::ID_GOODS && $do_assign) {            //связь строчка>устройство или строчка>подключение>устройство
                 $id = null;
                 if ($li['service'] == 'usage_tech_cpe') {
@@ -3018,15 +3017,27 @@ class m_newaccounts extends IModule
 
                 $newInvoiceNumber = false;
 
-                if ($invoice = \app\models\Invoice::findOne([
+                $where = [
                     'bill_no' => $bill->Get('bill_no'),
-                    'type_id' => $is_four_order ? \app\models\Invoice::TYPE_PREPAID : $source,
-                    'is_reversal' => 0,
-                ])) {
+                    'is_reversal' => 0
+                ];
+
+                if ($invoiceId) {
+                    $where['id'] = $invoiceId;
+                } else {
+                    $where['type_id'] = $is_four_order ? \app\models\Invoice::TYPE_PREPAID : $source;
+                }
+
+
+                if ($invoice = \app\models\Invoice::findOne($where)) {
                     $newInvoiceNumber = $invoice->number;
 
                     if ($is_four_order) {
                         $inv_date = (new \DateTimeImmutable($invoice->date))->getTimestamp();
+                    }
+
+                    if ($invoice->lines) {
+                        $billLines = $invoice->lines;
                     }
                 }
 
@@ -3046,6 +3057,18 @@ class m_newaccounts extends IModule
                 $design->assign('inv_is_new6', ($inv_date >= mktime(0, 0, 0, 1, 1,
                         2013))); // 3 (объем), 5 всего, 6 сумма, 8 предъявлен покупателю, 8 всего
             }
+
+            $bdata["sum"] = 0;
+            $bdata['sum_without_tax'] = 0;
+            $bdata['sum_tax'] = 0;
+
+            foreach ($billLines as &$li) {
+                $bdata['sum'] += $li['sum'];
+                $bdata['sum_without_tax'] += $li['sum_without_tax'];
+                $bdata['sum_tax'] += $li['sum_tax'];
+            }
+
+
             $design->assign('opener', 'interface');
             $design->assign('bill', $bdata);
             $design->assign('bill_lines', $billLines);
