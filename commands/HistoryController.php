@@ -6,11 +6,13 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
 use app\models\HistoryChanges;
+use app\models\HistoryVersion;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipNdcType;
+use InvalidArgumentException;
 use yii\console\Controller;
 
 /**
@@ -118,5 +120,54 @@ class HistoryController extends Controller
             }
         }
 
+    }
+
+    /**
+     * Удалить одинаковые модели HistoryVersion
+     *
+     * @param string $mode: 'delete' - удаляет дубликаты, 'log' - просто вывод информации без удаления
+     * @throws ModelValidationException
+     */
+    public function actionCleanVersionDuplicates($mode)
+    {
+        if ($mode != 'log' && $mode != 'delete') {
+            throw new InvalidArgumentException('Параметром может быть "log" или "delete"' . PHP_EOL);
+        }
+        $allModels = HistoryVersion::find()
+            ->select('model')
+            ->groupBy('model')
+            ->asArray()
+            ->column();
+        foreach ($allModels as $model) {
+            $modelIds = HistoryVersion::find()
+                ->where(['model' => $model])
+                ->select('model_id')
+                ->groupBy('model_id')
+                ->asArray()
+                ->column();
+            foreach ($modelIds as $model_id) {
+                $historyVersionQuery = HistoryVersion::find()
+                    ->where(['model' => $model])
+                    ->andWhere(['model_id' => $model_id])
+                    ->orderBy(['date' => SORT_ASC]);
+                if ($historyVersionQuery->count() <= 1) {
+                    continue;
+                }
+
+                $prevDataJson = null;
+                foreach ($historyVersionQuery->each() as $historyVersion) {
+                    /** @var HistoryVersion $historyVersion */
+                    if ($historyVersion->data_json == null || $historyVersion->data_json != $prevDataJson) {
+                        $prevDataJson = $historyVersion->data_json;
+                        continue;
+                    }
+                    echo "model: {$historyVersion->model}, model_id: {$historyVersion->model_id}, date: {$historyVersion->date}, user_id: {$historyVersion->user_id}\n";
+                    if ($mode == 'delete' && !$historyVersion->delete()) {
+                        throw new ModelValidationException($historyVersion);
+                    }
+                    $prevDataJson = $historyVersion->data_json;
+                }
+            }
+        }
     }
 }
