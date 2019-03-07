@@ -9,6 +9,8 @@ use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Trouble;
+use app\models\TroubleRoistat;
 use app\models\UsageTrunkSettings;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\filter\AccountTariffFilter;
@@ -97,6 +99,8 @@ class AccountTariffController extends BaseController
     {
         $clientAccount = $this->_getCurrentClientAccount();
         $cityId = $clientAccount ? $clientAccount->city->id : null;
+        $channel = isset(Yii::$app->request->post()['channel']) ? Yii::$app->request->post()['channel'] : null;
+
         $formModel = new AccountTariffAddForm([
             'serviceTypeId' => $serviceTypeId,
             'clientAccountId' => $clientAccount ? $clientAccount->id : null,
@@ -109,6 +113,18 @@ class AccountTariffController extends BaseController
         }
 
         Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
+        if ($channel && array_key_exists($channel, TroubleRoistat::CHANNELS)) {
+            Trouble::dao()->createTrouble(
+                $clientAccount->id,
+                Trouble::TYPE_CONNECT,
+                Trouble::SUBTYPE_CONNECT,
+                'Заявка на доп услугу',
+                null,
+                null,
+                ['roistat_visit' => TroubleRoistat::CHANNELS[$channel]]
+            );
+        }
+
         if ($formModel->id) {
             // добавили одного - на его карточку
             return $this->redirect(['edit', 'id' => $formModel->id]);

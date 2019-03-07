@@ -9,6 +9,7 @@
 
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
+use app\models\TroubleRoistat;
 use app\modules\uu\models\ServiceType;
 use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
@@ -17,6 +18,7 @@ use yii\widgets\ActiveForm;
 $accountTariff = $formModel->accountTariff;
 $accountTariffLog = $formModel->accountTariffLog;
 $clientAccount = $accountTariff->clientAccount;
+$channels = TroubleRoistat::CHANNELS;
 ?>
 
 <div class="row">
@@ -57,7 +59,7 @@ $clientAccount = $accountTariff->clientAccount;
     <?php endif; ?>
 
 
-    <div class="col-sm-6">
+    <div class="col-sm-2">
         <?= $form->field($accountTariffLog, 'actual_from')
             ->widget(DatePicker::class, [
                 'removeButton' => false,
@@ -107,6 +109,18 @@ $clientAccount = $accountTariff->clientAccount;
                     'id' => 'closeTariffButton' . $id,
                 ]
             ) ?>
+        </div>
+
+    <?php elseif($formModel->isShowRoistatVisit()): ?>
+        <div class="col-sm-4">
+            <label>Создать заявку на подключение</label>
+            <?= Select2::widget([
+                'data' => array_slice($channels, 0, 1, true) + ['not-create' => 'Не создавать'] + array_slice($channels, 1, count($channels) - 1, true),
+                'name' => 'channel',
+                'options' => [
+                    'id' => 'trouble-roistat-channel'
+                ]
+            ]) ?>
         </div>
     <?php endif ?>
 

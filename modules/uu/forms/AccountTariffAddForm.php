@@ -3,6 +3,7 @@
 namespace app\modules\uu\forms;
 
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 
 /**
  * Class AccountTariffAddForm
@@ -35,5 +36,19 @@ class AccountTariffAddForm extends AccountTariffForm
     public function getIsNeedToSelectClient()
     {
         return !$this->clientAccountId;
+    }
+
+    /**
+     * Проверка что услуга - Телефония, ВАТС или Чатофон
+     * Используется для автоматического создания заявки
+     * BIL-4828
+     *
+     * @return bool
+     */
+    public function isShowRoistatVisit()
+    {
+        return $this->serviceTypeId == ServiceType::ID_VPBX
+            || $this->serviceTypeId == ServiceType::ID_VOIP
+            || $this->serviceTypeId == ServiceType::ID_CALL_CHAT;
     }
 }

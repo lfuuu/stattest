@@ -17,6 +17,7 @@ use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
+use app\modules\uu\forms\AccountTariffAddForm;
 use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
@@ -231,7 +232,14 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
 
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['/uu/account-tariff', 'serviceTypeId' => $formModel->serviceTypeId])]) ?>
-        <?= $this->render('//layouts/_submitButtonCreate') ?>
+        <?= $this->render('//layouts/_submitButton', [
+            'text' => Yii::t('common', 'Create'),
+            'glyphicon' => 'glyphicon-save',
+            'params' => [
+                'class' => 'btn btn-primary',
+                'id' => 'submit-button'
+            ] + (($formModel instanceof AccountTariffAddForm) && ($formModel->isShowRoistatVisit() && $formModel->accountTariff->isNewRecord) ? ['disabled' => ''] : []),
+        ]) ?>
     </div>
 
 <?php ActiveForm::end();

@@ -11,6 +11,7 @@
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\models\Region;
+use app\modules\uu\forms\AccountTariffAddForm;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use kartik\select2\Select2;
@@ -180,7 +181,14 @@ if (!$serviceType) {
 
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['/uu/account-tariff', 'serviceTypeId' => $serviceType->id])]) ?>
-        <?= $this->render('//layouts/_submitButton' . ($accountTariff->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_submitButton', [
+            'text' => Yii::t('common', ($accountTariff->isNewRecord ? 'Create' : 'Save')),
+            'glyphicon' => 'glyphicon-save',
+            'params' => [
+                    'class' => 'btn btn-primary',
+                    'id' => 'submit-button'
+            ] + ((($formModel instanceof AccountTariffAddForm) && $formModel->isShowRoistatVisit() && $accountTariff->isNewRecord) ? ['disabled' => ''] : []),
+        ]); ?>
     </div>
 
     <?php ActiveForm::end(); ?>
