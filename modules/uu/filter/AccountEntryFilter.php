@@ -5,6 +5,7 @@ namespace app\modules\uu\filter;
 use app\classes\traits\GetListTrait;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffResource;
 use yii\data\ActiveDataProvider;
 
@@ -31,6 +32,7 @@ class AccountEntryFilter extends AccountEntry
 
     public $vat_from = '';
     public $vat_to = '';
+    public $tariff_id = '';
 
     public $vat_rate_from = '';
     public $vat_rate_to = '';
@@ -47,7 +49,7 @@ class AccountEntryFilter extends AccountEntry
     public function rules()
     {
         return [
-            [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id', 'is_next_month', 'bill_id'], 'integer'],
+            [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id', 'is_next_month', 'bill_id', 'tariff_id'], 'integer'],
             [['price_from', 'price_to'], 'double'],
             [['cost_price_from', 'cost_price_to'], 'double'],
             [['price_without_vat_from', 'price_without_vat_to'], 'double'],
@@ -74,6 +76,12 @@ class AccountEntryFilter extends AccountEntry
 
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
+        $tariffTableName = Tariff::tableName();
+
+        if ($this->tariff_id) {
+            $query->joinWith('tariffPeriod.tariff');
+            $query->andWhere([$tariffTableName. '.id' => $this->tariff_id]);
+        }
 
         $this->id !== '' && $query->andWhere([$accountEntryTableName . '.id' => $this->id]);
 

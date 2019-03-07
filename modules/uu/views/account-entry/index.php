@@ -25,10 +25,25 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Tariff;
 use app\widgets\GridViewExport\GridViewExport;
+use kartik\widgets\Select2;
 use yii\widgets\Breadcrumbs;
 
 $accountTariffTableName = AccountTariff::tableName();
+
+$tariffTableName = Tariff::tableName();
+$tariffs = ($filterModel->client_account_id)
+    ? AccountTariff::find()
+        ->select([$tariffTableName . '.name', $tariffTableName . '.id'])
+        ->joinWith('tariffPeriod.tariff')
+        ->where(['client_account_id' => $filterModel->client_account_id])
+        ->andWhere(['not', ['name' => null]])
+        ->indexBy('id')
+        ->asArray()
+        ->column()
+    : [];
+
 ?>
 
 <?= Breadcrumbs::widget([
@@ -94,6 +109,24 @@ $columns = [
                 $accountTariff->getUrl()
             );
         },
+    ],
+    [
+        'label' => 'Тариф',
+        'value' => function (AccountEntry $accountEntry) {
+            return $accountEntry->accountTariff->tariffPeriod->tariff->name;
+        },
+        'filter' => Select2::widget([
+            'model' => $filterModel,
+            'attribute' => 'tariff_id',
+            'data' => $tariffs,
+            'value' => $filterModel->tariff_id,
+            'options' => [
+                'placeholder' => 'Выберите тариф'
+            ],
+            'pluginOptions' => [
+                'allowClear' => true,
+            ],
+        ])
     ],
     [
         'attribute' => 'type_id',
