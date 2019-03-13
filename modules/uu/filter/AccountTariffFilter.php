@@ -21,6 +21,7 @@ use yii\data\ActiveDataProvider;
  */
 class AccountTariffFilter extends AccountTariff
 {
+    public $id = '';
     public $client_account_id = '';
     public $prev_account_tariff_tariff_id = '';
     public $region_id = '';
@@ -175,6 +176,7 @@ class AccountTariffFilter extends AccountTariff
             'query' => $query,
         ]);
 
+        $this->id !== '' && $query->andWhere(["{$accountTariffTableName}.id" => $this->id]);
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
         $this->region_id !== '' && $query->andWhere([$accountTariffTableName . '.region_id' => $this->region_id]);
         $this->city_id !== '' && $query->andWhere([$accountTariffTableName . '.city_id' => $this->city_id]);

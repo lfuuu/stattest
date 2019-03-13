@@ -425,8 +425,8 @@ class ClientController extends BaseController
      */
     public function actionSaveComment()
     {
-        $accountId = Yii::$app->request->post('account_id');
-        $comment = Yii::$app->request->post('comment');
+        $accountId = Yii::$app->request->post('id');
+        $comment = Yii::$app->request->post('text');
         if (!$accountId) {
             throw new HttpException(400, 'Invalid parameters exception');
         }

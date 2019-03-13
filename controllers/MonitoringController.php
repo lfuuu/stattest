@@ -16,13 +16,19 @@ use app\models\ClientContact;
 use app\models\ClientContragent;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;
+use app\models\filter\UsageVoipFilter;
 use app\models\filter\SormClientFilter;
 use app\models\Param;
+use app\models\UsageVoip;
 use app\modules\transfer\components\services\regular\BasicServiceTransfer as RegularBasicServiceTransfer;
 use app\modules\transfer\components\services\regular\RegularTransfer;
 use app\modules\transfer\components\services\universal\UniversalTransfer;
+use app\modules\uu\filter\AccountTariffFilter;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\base\InvalidCallException;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidValueException;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
@@ -326,4 +332,73 @@ class MonitoringController extends BaseController
         return 'ok';
     }
 
+
+    /**
+     * СОРМ Номера
+     *
+     * @return string
+     */
+    public function actionSormNumbers()
+    {
+        $params = Yii::$app->request->get();
+
+        $filterModelSearch = new AccountTariffFilter(ServiceType::ID_VOIP);
+        $filterModelSearch->load($params);
+
+        $filterModel = new AccountTariffFilter(ServiceType::ID_VOIP);
+        $filterModelOld = new UsageVoipFilter();
+
+        $usageVoipIds = [];
+        $accountTariffIds = [];
+        if ($regionId = $filterModelSearch->region_id) {
+            $ids = SormClientFilter::getAccountTariffIds($regionId);
+
+            $usageVoipIds = array_filter($ids, function ($v) {
+                return $v < AccountTariff::DELTA;
+            });
+            $accountTariffIds = array_filter($ids, function ($v) {
+                return $v >= AccountTariff::DELTA;
+            });
+        }
+
+        $filterModelOld->id = $usageVoipIds ? : 0;
+        $filterModel->id = $accountTariffIds ? : 0;
+
+        return $this->render('sorm_numbers', [
+            'filterModelSearch' => $filterModelSearch,
+            'filterModel' => $filterModel,
+            'filterModelOld' => $filterModelOld,
+        ]);
+    }
+
+    /**
+     * Сохраняет адрес в соответствующей модели
+     *
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
+     */
+    public function actionSaveAddress()
+    {
+        $id = Yii::$app->request->post('id');
+        $address = Yii::$app->request->post('text');
+
+        Assert::isNotEmpty($id);
+        Assert::isNotEmpty($address);
+
+        if ($id >= AccountTariff::DELTA) {
+            $accountTariff = AccountTariff::findOne(['id' => $id]);
+            Assert::isObject($accountTariff);
+
+            $accountTariff->device_address = $address;
+        } else {
+            $accountTariff = UsageVoip::findOne(['id' => $id]);
+            Assert::isObject($accountTariff);
+
+            $accountTariff->address = $address;
+        }
+
+        if (!$accountTariff->save()) {
+            throw new ModelValidationException($accountTariff);
+        }
+    }
 }

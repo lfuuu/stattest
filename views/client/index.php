@@ -1,5 +1,6 @@
 <?php
 
+use yii\web\View;
 use yii\widgets\Breadcrumbs;
 use app\classes\Html;
 use app\classes\grid\GridView;
@@ -10,7 +11,9 @@ use app\classes\grid\account\AccountGridFolder;
 
 $urlParams = Yii::$app->request->get();
 
-$this->registerJsFile('js/client_commentary.js',  ['position' => yii\web\View::POS_END]);
+$this->registerJs("var gve_targetElementName = 'comment';\n", View::POS_HEAD);
+$this->registerJs("var gve_targetUrl = 'client/save-comment';\n", View::POS_HEAD);
+$this->registerJsFile('js/grid_view_edit.js',  ['position' => yii\web\View::POS_END]);
 
 echo Html::formLabel($activeFolder->grid->getBusinessTitle());
 echo Breadcrumbs::widget([

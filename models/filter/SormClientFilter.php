@@ -133,7 +133,7 @@ SQL;
      * @param int $regionId
      * @return array
      */
-    public static function getPhoneIds($regionId)
+    public static function getAccountTariffIds($regionId)
     {
         $sqlPhoneList = self::getSqlPhoneList($regionId);
         return \Yii::$app->db->createCommand("SELECT u_id FROM ({$sqlPhoneList}) a ")->queryColumn();
@@ -144,6 +144,7 @@ SQL;
      *
      * @param int $regionId
      * @return string
+     * @throws \Exception
      */
     public static function getSqlPhoneList($regionId)
     {
