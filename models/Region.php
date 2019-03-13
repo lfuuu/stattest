@@ -39,6 +39,9 @@ class Region extends ActiveRecord
     const VOLGOGRAD = 91;
     const NIZHNY_NOVGOROD = 88;
     const KRASNODAR = 97;
+    const KRASNOIARSK = 55;
+    const HABAROBSK = 83;
+    const NNOVGOROD = 88;
 
     const TYPE_HUB = 0;
     const TYPE_NODE = 1;

@@ -2,14 +2,21 @@
 
 namespace app\controllers;
 
+use app\classes\Assert;
 use app\classes\BaseController;
 use app\classes\monitoring\MonitorFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\dao\MonitoringDao;
 use app\exceptions\ModelValidationException;
+use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bik;
+use app\models\ClientAccount;
+use app\models\ClientContact;
+use app\models\ClientContragent;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;
+use app\models\filter\SormClientFilter;
 use app\models\Param;
 use app\modules\transfer\components\services\regular\BasicServiceTransfer as RegularBasicServiceTransfer;
 use app\modules\transfer\components\services\regular\RegularTransfer;
@@ -212,4 +219,111 @@ class MonitoringController extends BaseController
 
         return $this->redirect(\Yii::$app->request->referrer ?: "/");
     }
+
+
+    /**
+     * СОРМ: Клиенты
+     *
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionSormClients()
+    {
+        $filterModel = new SormClientFilter();
+        $filterModel->load(Yii::$app->request->get());
+
+        return $this->render('sormClients', [
+            'filterModel' => $filterModel,
+        ]);
+    }
+
+    public function actionSormClientsSave($accountId, $field, $value)
+    {
+        Assert::isInArray($field, ['inn', 'bik', 'bank', 'pay_acc', 'contact_fio', 'contact_phone', 'address_jur']);
+
+        $account = ClientAccount::findOne(['id' => $accountId]);
+
+        Assert::isObject($account);
+
+        $value = trim(strip_tags($value));
+        Assert::isNotEmpty($value);
+
+        switch ($field) {
+            case 'inn':
+                $contragent = $account->contragent;
+                $contragent->inn = $value;
+                if (!$contragent->save()) {
+                    throw new ModelValidationException($contragent);
+                }
+                break;
+
+            case 'bik':
+                $bikModel = Bik::findOne(['bik' => $value]);
+
+                Assert::isObject($bikModel);
+
+                $account->bik = $bikModel->bik;
+                $account->bank_name = $bikModel->bank_name;
+                $account->corr_acc = $bikModel->corr_acc;
+                $account->bank_city = $bikModel->bank_city;
+
+                if (!$account->save()) {
+                    throw new ModelValidationException($account);
+                }
+                break;
+
+            case 'bank':
+                $account->bank_name = $value;
+                if (!$account->save()) {
+                    throw new ModelValidationException($account);
+                }
+                break;
+
+            case 'pay_acc':
+                $account->pay_acc = $value;
+                if (!$account->save()) {
+                    throw new ModelValidationException($account);
+                }
+                break;
+
+            case 'contact_fio':
+            case 'contact_phone':
+                $contact = SormClientFilter::getContactByAccount($account);
+
+                if (!$contact) {
+                    $contact = new ClientContact();
+                    $contact->client_id = $account->id;
+                    $contact->type = ClientContact::TYPE_PHONE;
+                }
+
+                $contact->{$field == 'contact_fio' ? 'comment' : 'data'} = $value;
+
+                if (!$contact->save()) {
+                    throw new ModelValidationException($contact);
+                }
+                break;
+
+            case 'address_jur':
+                $contragent = $account->contragent;
+
+                if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
+                    $model = $contragent->person;
+                    $model->registration_address = $value;
+                } else {
+                    $model = $contragent;
+                    $model->address_jur = $value;
+                }
+
+                if (!$model->save()) {
+                    throw new ModelValidationException($model);
+                }
+                break;
+
+            default:
+                throw new NotImplementedHttpException();
+        }
+
+        return 'ok';
+    }
+
 }

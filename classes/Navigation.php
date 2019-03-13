@@ -92,6 +92,7 @@ class Navigation
                 ->addItem('Ключевые события', ['/monitoring'], [])
                 ->addItem('Очередь событий', ['/monitoring/event-queue'], [])
                 ->addItem('Монитор "здоровья"', 'http://eridanus.mcn.ru/health/health.html', [])
+                ->addItem('СОРМ: Клиенты', ['/monitoring/sorm-clients'], ['clients.edit'])
         );
 
         $this->addBlock(
