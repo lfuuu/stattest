@@ -3103,6 +3103,16 @@ class m_newaccounts extends IModule
             $design->assign('bill_client', $clientAccount);
             return true;
         } else {
+            $bdata["sum"] = 0;
+            $bdata['sum_without_tax'] = 0;
+            $bdata['sum_tax'] = 0;
+
+            foreach ($billLines as &$li) {
+                $bdata['sum'] += $li['sum'];
+                $bdata['sum_without_tax'] += $li['sum_without_tax'];
+                $bdata['sum_tax'] += $li['sum_tax'];
+            }
+
             if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
                 return [
                     'bill' => $bdata,
