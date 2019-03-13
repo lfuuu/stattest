@@ -35,6 +35,13 @@
 
 
     $('[class="sorm-client-cell"]').click(function (event) {
+
+      // click на уже редактируемую ячейку
+      if (document.editCell && document.editCell == event.currentTarget) {
+        event.stopPropagation();
+        return;
+      }
+
       endEditable();
 
       $(event.currentTarget)

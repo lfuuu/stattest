@@ -28,8 +28,9 @@ class SormClientFilter extends ClientAccount
                 'inn' => 'ИНН',
                 'bank' => 'Банк',
                 'contact_fio' => 'Контактное ФИО',
-                'сontact_phone' => 'Конатктный номер',
+                'contact_phone' => 'Контактный номер',
                 'address_jur' => 'Юр. адресс',
+                'contract_no' => 'Договор №',
             ];
     }
 
@@ -155,12 +156,12 @@ SELECT
          client_id,
          e164,
          region,
-         actual_from,
+         if(actual_from < '{$dateStart} 00:00:00' , '{$dateStart} 00:00:00' , actual_from) actual_from,
          actual_to,
          device_address
        FROM (
               SELECT
-                a.*,
+                a.*/*,
                 (SELECT contract_no
                  FROM client_document cd, clients c
                  WHERE
@@ -172,13 +173,14 @@ SELECT
                    cd.contract_date DESC,
                    cd.id DESC
                  LIMIT 1) AS contract_no
+                 */
 
               FROM (SELECT
                       u.id                                                                           as u_id,
                       c.id                                                                           AS client_id,
                       u.e164,
                       v.region,
-                      CONCAT(IF(actual_from < '{$dateStart}', '{$dateStart}', actual_from), ' 00:00:00') AS actual_from,
+                      CONCAT(actual_from, ' 00:00:00') AS actual_from,
                       IF(actual_to > '3000-01-01', NULL, concat(actual_to, ' 23:59:59'))             AS actual_to,
                       u.address                                                                      AS device_address
                     FROM usage_voip u, voip_numbers v, clients c
@@ -192,6 +194,7 @@ SELECT
 
                                                      SELECT *
                                                      FROM (
+                                                     select u_id, client_id, e164, region, CONCAT(IF(actual_from < '2019-03-01', '2019-03-01', actual_from), ' 00:00:00') AS actual_from, actual_to, device_address from (
               SELECT u.id as u_id,
               client_account_id AS client_id,
               voip_number AS e164,
@@ -210,8 +213,9 @@ SELECT
                                                                      FROM uu_account_tariff u, voip_numbers v
                                                                                                             WHERE v.region = {$regionId} AND u.voip_number = v.number AND service_type_id = 2
                                                           ) a
-                    WHERE actual_from >= '{$dateStart} 00:00:00') a
-              HAVING contract_no IS NOT NULL
+                                                          ) a
+                    WHERE actual_to IS NULL OR actual_to >= '{$dateStart} 00:00:00') a
+              #HAVING contract_no IS NOT NULL
             ) a
        WHERE client_id NOT IN (44725, 51147, 54112, 52552, 52921, 46247)
 SQL;

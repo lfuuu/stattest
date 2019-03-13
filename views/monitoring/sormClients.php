@@ -6,6 +6,7 @@
  * @var SormClientFilter $filterModel
  */
 
+use app\classes\BillContract;
 use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\GridView;
 use app\models\ClientAccount;
@@ -35,8 +36,35 @@ $columns = [
     ],
     [
         'label' => $filterModel->getAttributeLabel('name_full'),
+        'format' => 'raw',
         'value' => function (ClientAccount $account) {
-            return $account->contragent->name_full;
+            $returnStr = $account->contragent->name_full;
+
+            if ($account->contragent->legal_type == ClientContragent::PERSON_TYPE) {
+                $person = $account->contragent->person;
+
+                $returnStr .= '<br>' . $person->last_name . '*' . $person->first_name . '*' . $person->middle_name . '<br>' .
+                    $person->birthday . '*' . $person->passport_serial . '*' . $person->passport_number . '<br>' .
+                    $person->passport_issued . '<br>' . $person->passport_date_issued;
+            }
+
+            return $returnStr;
+        }
+    ],
+    [
+        'label' => $filterModel->getAttributeLabel('legal_type'),
+        'value' => function (ClientAccount $account) {
+            return $account->contragent->legal_type;
+        }
+    ],
+    [
+        'label' => $filterModel->getAttributeLabel('contract_no'),
+        'value' => function (ClientAccount $account) {
+            $contractInfo = BillContract::getLastContract($account->contract_id, null);
+            if ($contractInfo) {
+                return $contractInfo['no'];
+            }
+            return '';
         }
     ],
     [
@@ -60,7 +88,7 @@ $columns = [
         'value' => function (ClientAccount $account) {
             return $account->bik;
         }
-    ],    [
+    ], [
         'label' => $filterModel->getAttributeLabel('bank'),
         'value' => function (ClientAccount $account) {
             return $account->bank_name;
