@@ -30,7 +30,7 @@ class BillContract
         return "";
     }
 
-    public static function getLastContract($contractId, $dateTs)
+    public static function getLastContract($contractId, $dateTs, $isWithBN = true)
     {
         if (!$dateTs) {
             $dateTs = time();
@@ -49,7 +49,7 @@ class BillContract
             ORDER BY is_active DESC, contract_date DESC, id DESC 
             limit 1", [":contract_id" => $contractId, ":date_ts" => $dateTs])->queryOne();
 
-        if (ClientContract::find()->where(['id' => $contractId])->select('state')->scalar() == ClientContract::STATE_OFFER) {
+        if ($isWithBN && ClientContract::find()->where(['id' => $contractId])->select('state')->scalar() == ClientContract::STATE_OFFER) {
             $data['no'] = 'б/н';
         }
 

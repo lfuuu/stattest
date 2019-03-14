@@ -15,6 +15,12 @@
         accountId: $cell.parent('tr').data('key')
       };
 
+      if (data.value.length == 0) {
+        $cell.attr('contenteditable', false).css('background-color', '');
+        document.editCell = null;
+        return;
+      }
+
       $.ajax({
         url: '/monitoring/sorm-clients-save',
         method: 'get',

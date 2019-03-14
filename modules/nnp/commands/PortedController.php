@@ -3,6 +3,7 @@
 namespace app\modules\nnp\commands;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\modules\nnp\models\Number;
 use app\modules\nnp\models\NumberRange;
 use Yii;
@@ -175,5 +176,17 @@ SQL;
 SQL;
         $this->_db->createCommand($sql)->execute();
     }
+
+    public function actionNotifyEventPortedNumber()
+    {
+        \Yii::$app->dbPg->createCommand("select event.notify_event_to_all('nnp_ported_number')")->execute();
+
+        EventQueue::go(EventQueue::TROUBLE_NOTIFIER_EVENT, [
+            'user' => 'adima',
+            'trouble_id' => 1000,
+            'text' => 'Начало синхронизации портированых номеров',
+        ]);
+    }
+
 
 }

@@ -52,6 +52,13 @@ $columns = [
         }
     ],
     [
+        'label' => $filterModel->getAttributeLabel('account_manager'),
+        'value' => 'clientContractModel.accountManagerName'
+    ],
+    [
+        'attribute' => 'voip_credit_limit_day',
+    ],
+    [
         'label' => $filterModel->getAttributeLabel('legal_type'),
         'value' => function (ClientAccount $account) {
             return $account->contragent->legal_type;
@@ -60,11 +67,11 @@ $columns = [
     [
         'label' => $filterModel->getAttributeLabel('contract_no'),
         'value' => function (ClientAccount $account) {
-            $contractInfo = BillContract::getLastContract($account->contract_id, null);
-            if ($contractInfo) {
+            $contractInfo = BillContract::getLastContract($account->contract_id, null, false);
+            if ($contractInfo && isset($contractInfo['no'])) {
                 return $contractInfo['no'];
             }
-            return '';
+            return $account->contract_id;
         }
     ],
     [
@@ -84,15 +91,10 @@ $columns = [
             'class' => 'sorm-client-cell',
             'data' => ['field' => 'bik']
         ],
-
-        'value' => function (ClientAccount $account) {
-            return $account->bik;
-        }
+        'value' => 'bik',
     ], [
         'label' => $filterModel->getAttributeLabel('bank'),
-        'value' => function (ClientAccount $account) {
-            return $account->bank_name;
-        }
+        'value' => 'bank_name',
     ],
     [
         'attribute' => 'pay_acc',
@@ -100,9 +102,7 @@ $columns = [
             'class' => 'sorm-client-cell',
             'data' => ['field' => 'pay_acc']
         ],
-        'value' => function (ClientAccount $account) {
-            return $account->pay_acc;
-        }
+        'value' => 'pay_acc',
     ],
     [
         'label' => $filterModel->getAttributeLabel('contact_fio'),

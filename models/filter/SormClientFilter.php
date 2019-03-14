@@ -31,6 +31,7 @@ class SormClientFilter extends ClientAccount
                 'contact_phone' => 'Контактный номер',
                 'address_jur' => 'Юр. адресс',
                 'contract_no' => 'Договор №',
+                'legal_type' => 'Юр.тип',
             ];
     }
 
