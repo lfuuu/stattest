@@ -25,6 +25,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\widgets\Select2;
@@ -33,16 +34,19 @@ use yii\widgets\Breadcrumbs;
 $accountTariffTableName = AccountTariff::tableName();
 
 $tariffTableName = Tariff::tableName();
-$tariffs = ($filterModel->client_account_id)
-    ? AccountTariff::find()
-        ->select([$tariffTableName . '.name', $tariffTableName . '.id'])
-        ->joinWith('tariffPeriod.tariff')
-        ->where(['client_account_id' => $filterModel->client_account_id])
-        ->andWhere(['not', ['name' => null]])
-        ->indexBy('id')
-        ->asArray()
-        ->column()
-    : [];
+$serviceTypeTableName = ServiceType::tableName();
+
+$tariffs = AccountTariff::find()
+    ->select(['CONCAT(' . $serviceTypeTableName . '.name' . ',' . '". "' . ',' . $tariffTableName . '.name' . ',' . '"."' . ') as name', $tariffTableName . '.id'])
+    ->where(['client_account_id' => $filterModel->client_account_id])
+    ->andWhere(['not', [$tariffTableName . '.name' => null]])
+    ->joinWith('serviceType')
+    ->joinWith('accountTariffLogs.tariffPeriod.tariff')
+    ->indexBy('id')
+    ->orderBy(['name' => SORT_ASC])
+    ->groupBy($serviceTypeTableName . '.name')
+    ->asArray()
+    ->column();
 
 ?>
 
