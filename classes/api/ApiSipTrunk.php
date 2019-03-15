@@ -161,6 +161,7 @@ class ApiSipTrunk extends Singleton
         return [
             'account_id' => $accountTariff->client_account_id,
             'stat_product_id' => $accountTariff->id,
+            'region_id' => $accountTariff->region_id,
             'call_limit' => (int)$resources[Resource::ID_CALLLIMIT]->amount,
             'allow_diversion' => (bool)$resources[Resource::ID_ALLOW_DIVERSION]->amount,
             'name' => trim($accountTariff->comment) ?: 'SIP-Trunk #' . $accountTariff->id,
