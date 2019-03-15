@@ -32,6 +32,7 @@ class m_tt_head extends IModuleHead{
 					'save_sale_channel'    => array('tt','use'),
 					'save_client_contacts'    => array('tt','use'),
 					'set_roistat_channel'    => array('tt','use'),
+					'get_trouble_stages' => array('tt', 'use')
 				);
 	var $menu=array(
 		array('Тех поддержка MCN','view_type', '&type_pk=1'),

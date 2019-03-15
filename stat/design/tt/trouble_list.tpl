@@ -1,3 +1,5 @@
+<script type="text/javascript" src="js/trouble_list.js"></script>
+
 {if !isset($hide_tt_list) || $hide_tt_list == 0}
     {if !isset($hide_tts)}
         {if !isset($tt_wo_explain) && $tt_design=='full'}
@@ -32,11 +34,13 @@
         {/if}
     {/if}
 {/if}
-
+<form action="/trouble/add-stage">
 <table class="table table-condensed table-bordered table-striped table-hover" width="{if $tt_design=='service'}700px{else}100%{/if}">
 {if $tt_design == "full"}
     <tr style="border-top: 2px solid #555555;">
+        <th style="width: 10px"></th>
         <th>{sort_link sort=1 text='&#8470;' link=$CUR sort_cur=$sort so_cur=$so}</th>
+        <th>Лид</th>
         <th>Дата создания</th>
         <th>{sort_link sort=3 text='Этап' link=$CUR sort_cur=$sort so_cur=$so}</th>
         <th>{sort_link sort=3 text='Ответ.' link=$CUR sort_cur=$sort so_cur=$so}</th>
@@ -44,7 +48,9 @@
     </tr>
     <tr style="display: none"><th colspan="5"></th></tr>
     <tr>
+        <th style="width: 10px"></th>
         <th nowrap>Тип заявки</th>
+        <th></th>
         <th>в работе</th>
         <th>{sort_link sort=2 text='Клиент' link=$CUR sort_cur=$sort so_cur=$so}</th>
         <th>Услуга</th>
@@ -54,7 +60,9 @@
 
 {foreach from=$tt_troubles item=r name=outer}
     <tr style="border-top: 2px solid #555555; {if $r.is_important}background-color: #f4f0f0;{/if}">
+        <td colspan=1><input class="select-client-checkbox" type="checkbox" onclick="setState('{$r.trouble_type}'); disableCheckboxes(); getItemsForSelect();" name='trouble_ids[]' value='{$r.trouble_id}' data-trouble_type='{$r.trouble_type}'></td>
         <td colspan=1><a href='{$LINK_START}module=tt&action=view&id={$r.trouble_id}'><b>{$r.trouble_id}</b></a></td>
+        <td colspan=1>{if $r.roistat_visit} {$r.roistat_visit} {/if}</td>
         <td colspan=1 nowrap style="font-size:85%;">{$r.date_creation|udate_with_timezone}</td>
         <td colspan=1>{$r.state_name}</td>
         <td colspan=1>{$r.user_main}</td>
@@ -64,7 +72,9 @@
     <tr style="display: none"><td colspan="5"><td></td></tr>
 
     <tr style="{if $r.is_important}background-color: #f4c0c0;{/if}">
+        <td colspan=1></td>
         <td colspan=1>{$trouble_subtypes_list[$r.trouble_subtype]}</td>
+        <td colspan=1></td>
         <td colspan=1 style="font-size:85%;">{$r.time_pass}</td>
         <td colspan=1>{if $r.client}<a href='/client/view?id={$r.clientid}'>{$r.client}</a>{/if}</td>
         <td colspan=1 align=center style='font-size:85%;{if !$r.service && $r.bill_no && $r.is_payed == 1}background-color: #ccFFcc;{/if}'>
@@ -135,3 +145,28 @@
 
 {/if}
 {/if}
+<div class="row">
+    <div class="col-sm-4">
+        <select class="select2 tt_users_list" name="user">
+            {foreach from=$tt_users item=item}
+                {if $item.user}
+                    <option value="{$item.user}"{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name}
+                        ({$item.user})
+                    </option>
+                {else}
+                </optgroup>
+                <optgroup label="{$item.name}">
+                    {/if}
+            {/foreach}
+            </optgroup>
+        </select>
+    </div>
+
+    <div class="col-sm-4">
+        <select name="state" class="select2" id="select-state"> </select>
+    </div>
+</div>
+<br>
+<input type="submit" class="button">
+
+</form>

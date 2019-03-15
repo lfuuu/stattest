@@ -62,7 +62,8 @@ class m_tt extends IModule{
     function tt_list_cl($fixclient) { return $this->tt_list($fixclient); }
 
     function tt_list($fixclient){
-        global $db,$design,$user;
+        global $design,$user;
+        $design->assign('tt_users',$this->getUsersDividedByGroups());
         $this->curclient = $fixclient;
         $f = $user->Flag('tt_tasks');
         if($f<2 || $f>4)
@@ -83,6 +84,25 @@ class m_tt extends IModule{
         $service_id = get_param_integer('service_id',null);
         $server_id = get_param_integer('server_id',null);
         $this->showTroubleList($mode,'full',$fixclient,$service,$service_id,null,$server_id);
+    }
+    function getUsersDividedByGroups() {
+        global $db;
+        $arr = $db->AllRecords('select u.usergroup, user, name, g.comment as ugroup from user_users u, user_groups  g
+				where u.usergroup = g.usergroup and u.enabled = "yes" order by usergroup, convert(name using koi8r)');
+        $result = array();
+        foreach($arr as $item) {
+            if(!isset($usergroup) || $usergroup != $item['usergroup']) {
+                $usergroup = $item['usergroup'];
+                $result[] = array('name' => $item["ugroup"], 'user' => '');
+            }
+            if(strlen($item['user']) < 15) {
+                $item['user_pad'] = str_repeat("&nbsp;", 15 - strlen($item['user'])) . $item['user'];
+            } else {
+                $item['user_pad'] = $item['user'];
+            }
+            $result[] = $item;
+        }
+        return $result;
     }
     function tt_add($fixclient){
         global $db,$design,$user;
@@ -652,26 +672,7 @@ where c.client="'.$trouble['client_orig'].'"')
             ->scalar();
 
         $isRollback = (isset($bill) && $bill && $bill["is_rollback"]);
-        $R = $db->AllRecords($q='
-            select
-                *
-            from
-                tt_states'.($isRollback ? "_rb" : "").'
-            where
-                pk & (
-                    select
-                        states
-                    from
-                        tt_types
-                    where
-                        code="'.addcslashes($trouble['trouble_type'], "\\\"").'"
-                )'.($this->checkTroubleAccess($trouble)?'':' and id!=2')."
-            and
-                not (pk & (select deny & ~".$allow_state." from tt_states where id=".$stage['state_id']."))
-                ".($roistatId ? '' : ' and id != ' . TroubleStage::STATE_ENABLED)."
-            order by
-                ".(($trouble['trouble_type']=='shop_orders')?'`oso`':($trouble['trouble_type']=='mounting_orders'?'`omo`':'`order`'))
-        );
+        $R = $this->getStates($trouble, $stage['state_id'], $roistatId, $isRollback, $allow_state);
 
         if($trouble["bill_no"]){
             $l = $this->loadOrderLog($trouble["bill_no"]);
@@ -779,6 +780,62 @@ where c.client="'.$trouble['client_orig'].'"')
         $this->prepareTimeTable();
         $design->AddMain('tt/trouble.tpl');
 
+    }
+
+    function tt_get_trouble_stages()
+    {
+        $post = \Yii::$app->request->post();
+
+        if (!$post['trouble_ids']) {
+            throw new Exception('trouble_ids is empty');
+        }
+
+        $troublesQuery = YiiTrouble::find()->where(['id' => $post['trouble_ids']]);
+        foreach ($troublesQuery->each() as $trouble) {
+            /** @var YiiTrouble $trouble */
+            $state_id = $trouble->getCurrentStage()->state_id;
+            $roistat_visit = ($trouble->troubleRoistat) ? $trouble->troubleRoistat->roistat_visit : null;
+            $states[] = $this->getStates($trouble, $state_id, $roistat_visit);
+        }
+        foreach ($states as $state) {
+            $result[] = array_combine(array_column($state, 'id'), array_column($state, 'name'));
+        }
+        if (count($result) > 1) {
+            $result = call_user_func_array('array_intersect', $result);
+        } elseif (count($result) == 1) {
+            $result = $result[0];
+        }
+
+        header("Content-Type: application/json", true);
+        echo json_encode ($result);
+        exit;
+    }
+
+    function getStates($trouble, $stateId, $roistatVisit, $isRollback = false, $allowState = 0) {
+        global $db;
+        return $db->AllRecords('
+            select
+                *
+            from
+                tt_states' . ($isRollback ? "_rb" : "") . '
+            where
+                pk & (
+                    select
+                        states
+                    from
+                        tt_types
+                    where
+                        code="' . addcslashes($trouble['trouble_type'], "\\\"") . '"
+                )' . ($this->checkTroubleAccess($trouble) ? '' : ' and id!=2') . "
+            and
+                not (pk & (select deny & ~" . $allowState . " from tt_states where id=" . $stateId . "))
+                " . ($roistatVisit ? '' : ' and id != ' . TroubleStage::STATE_ENABLED) . "
+            order by " . (
+                ($trouble['trouble_type'] == 'shop_orders')
+                ? '`oso`'
+                : ($trouble['trouble_type'] == 'mounting_orders' ? '`omo`' : '`order`')
+            )
+        );
     }
 
     function setServerForTT($serverId)
@@ -1271,6 +1328,7 @@ where c.client="'.$trouble['client_orig'].'"')
             SELECT sql_calc_found_rows
                 T.*,
                 S.*,
+                ttr.roistat_visit,
                 T.client as client_orig,
                 cl.id as clientid,
                 (select count(1) from  newbill_sms bs where  T.bill_no = bs.bill_no) is_sms_send,
@@ -1308,6 +1366,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             LEFT JOIN clients cl  ON T.client=cl.client
             LEFT JOIN `client_contract` cr ON cr.id=cl.contract_id
             LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+            LEFT JOIN `tt_troubles_roistat` ttr ON ttr.trouble_id=T.id
             WHERE '.MySQLDatabase::Generate($W).'
             GROUP BY T.id
             ORDER BY T.id
@@ -1416,21 +1475,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 $design->assign('tt_server',$this->setServerForTT($server_id));
             }
 
-            $db->Query('select u.usergroup, user, name,g.comment as ugroup from user_users u , user_groups  g
-                    where u.usergroup = g.usergroup and u.enabled="yes" order by usergroup,convert(name using koi8r)');
-            $U=array();
-            while($r=$db->NextRecord()){
-                if(!isset($usergroup) || $usergroup!=$r['usergroup']){
-                    $usergroup=$r['usergroup'];
-                    $U[]=array('name'=>$r["ugroup"],'user'=>'');
-                }
-                if(strlen($r['user'])<15){
-                    $r['user_pad'] = str_repeat("&nbsp;",15-strlen($r['user'])).$r['user'];
-                }else
-                    $r['user_pad']=$r['user'];
-                $U[]=$r;
-            }
-            $design->assign('tt_users',$U);
+            $design->assign('tt_users',$this->getUsersDividedByGroups());
         }
 
         foreach($R as $trouble_id=>$trouble){
