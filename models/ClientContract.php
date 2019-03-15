@@ -6,6 +6,7 @@ use app\classes\behaviors\ClientContractComments;
 use app\classes\behaviors\ContractContragent;
 use app\classes\behaviors\EffectiveVATRate;
 use app\classes\behaviors\LkWizardClean;
+use app\classes\behaviors\SetClientContractOfferDate;
 use app\classes\behaviors\SetOldStatus;
 use app\classes\behaviors\SetTaxVoip;
 use app\classes\media\ClientMedia;
@@ -38,6 +39,7 @@ use yii\db\ActiveQuery;
  * @property int $is_voip_with_tax
  * @property int $is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
  * @property int $partner_contract_id
+ * @property string $offer_date
  *
  * @property-read ClientContragent $contragent
  * @property-read ClientAccount[] $accounts
@@ -169,6 +171,7 @@ class ClientContract extends HistoryActiveRecord
             'ClientContractComments' => ClientContractComments::class,
             'EffectiveVATRate' => EffectiveVATRate::class,
             'SetTaxVoip' => SetTaxVoip::class,
+            'SetClientContractOfferDate' => SetClientContractOfferDate::class,
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
