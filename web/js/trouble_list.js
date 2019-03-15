@@ -4,6 +4,14 @@ $currentType = '';
 function setState($trouble_type) {
     $previousType = $currentType;
     $currentType = $trouble_type;
+    $container = $('.trouble-change-container');
+    if (getTroubleIds().length > 0)  {
+        $container.slideDown();
+    } else {
+        $container.slideUp();
+        $('#select2-select-state-container').text('');
+        $('button:submit').prop('disabled', true);
+    }
 }
 function disableCheckboxes() {
     $checkedCount = 0;
@@ -27,21 +35,21 @@ function disableCheckboxes() {
     });
 }
 function getItemsForSelect() {
-    return $.ajax({
-        type: 'post',
-        url: './?module=tt&action=get_trouble_stages',
-        data: {
-            trouble_ids: $('.select-client-checkbox:checked').map(function(){
-                return $(this).val();
-            }).get()
-        },
-        dataType: 'json',
-        success: function(data){
-            if (data) {
-                insertOptions(data);
+    $trouble_ids = getTroubleIds();
+    if ($trouble_ids.length > 0) {
+        return $.ajax({
+            type: 'post',
+            url: './?module=tt&action=get_trouble_stages',
+            data: {
+                trouble_ids: $trouble_ids
+            },
+            success: function(data){
+                if (data) {
+                    insertOptions(data);
+                }
             }
-        }
-    });
+        });
+    }
 }
 function insertOptions($selectItems) {
     $options = $('#select-state option');
@@ -54,4 +62,9 @@ function insertOptions($selectItems) {
             text : $val
         }));
     });
+}
+function getTroubleIds() {
+    return $('.select-client-checkbox:checked').map(function(){
+        return $(this).val();
+    }).get();
 }

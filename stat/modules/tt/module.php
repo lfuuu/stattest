@@ -1601,6 +1601,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
 
         $design->assign('tt_show_filter',$tt_design == "full");
+        $design->assign('user_name',Yii::$app->user->identity->user);
 
 
         switch ($mode){

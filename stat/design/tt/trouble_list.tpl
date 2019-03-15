@@ -145,12 +145,12 @@
 
 {/if}
 {/if}
-<div class="row">
+<div class="row trouble-change-container" style="display: none">
     <div class="col-sm-4">
         <select class="select2 tt_users_list" name="user">
             {foreach from=$tt_users item=item}
                 {if $item.user}
-                    <option value="{$item.user}"{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name}
+                    <option value="{$item.user}"{if $user_name==$item.user} selected{/if}>{$item.name}
                         ({$item.user})
                     </option>
                 {else}
@@ -163,10 +163,10 @@
     </div>
 
     <div class="col-sm-4">
-        <select name="state" class="select2" id="select-state"> </select>
+        <select name="state" class="select2" id="select-state" onchange="$('button:submit').prop('disabled', false);">
+        </select>
     </div>
+    <button disabled type="submit" class="btn btn-success" style="height: 28px; line-height: 16px; margin-left: 15px">Сохранить</button>
 </div>
-<br>
-<input type="submit" class="button">
 
 </form>

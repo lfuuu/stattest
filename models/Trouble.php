@@ -295,4 +295,31 @@ class Trouble extends ActiveRecord
             throw new ModelValidationException($this);
         }
     }
+
+    /**
+     * @return int|null
+     */
+    public function getState_id()
+    {
+        return ($this->stage) ? $this->stage->state_id : null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUser_main()
+    {
+        return ($this->stage) ? $this->stage->user_main : null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIs_editableByMe()
+    {
+        return TroubleStage::find()
+            ->where(['trouble_id' => $this->id])
+            ->andWhere(['user_main' => \Yii::$app->user->identity->user])
+            ->exists();
+    }
 }
