@@ -160,6 +160,7 @@ class ClientAccount extends HistoryActiveRecord
     const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
     const DEFAULT_CREDIT = 0;
     const DEFAULT_PRICE_LEVEL = 1;
+    const PRICE_LEVEL2 = 2;
     const DEFAULT_ACCOUNT_VERSION = self::VERSION_BILLER_UNIVERSAL;
 
     const TYPE_OF_BILL_SIMPLE = false;

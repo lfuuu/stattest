@@ -296,11 +296,16 @@ class Number extends ActiveRecord
 
     /**
      * @param ClientAccount $clientAccount
+     * @param int $priceLevel
      * @return float
      */
-    public function getOriginPrice($clientAccount = null)
+    public function getOriginPrice($clientAccount = null, $priceLevel = null)
     {
-        $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
+        if (!$priceLevel) {
+            $priceLevel = max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
+        }
+
+        $priceField = 'price' . $priceLevel;
         return (float)$this->getCachedDidGroup()->{$priceField};
     }
 

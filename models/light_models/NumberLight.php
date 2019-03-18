@@ -19,6 +19,7 @@ class NumberLight extends Model
         $currency,
         $origin_price,
         $origin_currency,
+        $price2,
         $region,
         $city_id,
         $ndc_type_id,
@@ -38,7 +39,7 @@ class NumberLight extends Model
         return [
             [['beauty_level', 'region', 'city_id', 'ndc_type_id', 'country_prefix', 'ndc', 'number_subscriber', 'common_ndc', 'common_number_subscriber', 'did_group_id'], 'integer'],
             [['number', 'currency', 'origin_currency'], 'string'],
-            [['price', 'origin_price'], 'number'],
+            [['price', 'price2', 'origin_price'], 'number'],
         ];
     }
 
@@ -56,6 +57,10 @@ class NumberLight extends Model
         $this->currency = $actualPriceWithCurrency->currency;
         $this->origin_price = (float)$originPriceWithCurrency->formattedPrice;
         $this->origin_currency = $originPriceWithCurrency->currency;
+
+        if (!$clientAccount) {
+            $this->price2 = $number->getOriginPrice(null, ClientAccount::PRICE_LEVEL2);
+        }
     }
 
     /**
