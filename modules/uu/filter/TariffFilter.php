@@ -84,18 +84,20 @@ class TariffFilter extends Tariff
             'query' => $query,
         ]);
 
-        $this->name !== '' && $query->andWhere(['like', 'name', $this->name]);
-        $this->tariff_status_id !== '' && $query->andWhere(['tariff_status_id' => $this->tariff_status_id]);
-        $this->tariff_person_id !== '' && $query->andWhere(['tariff_person_id' => $this->tariff_person_id]);
-        $this->tag_id !== '' && $query->andWhere(['tag_id' => $this->tag_id]);
-        $this->currency_id !== '' && $query->andWhere(['currency_id' => $this->currency_id]);
-        $this->service_type_id !== '' && $query->andWhere(['service_type_id' => $this->service_type_id]);
-        $this->is_autoprolongation !== '' && $query->andWhere(['is_autoprolongation' => (int)$this->is_autoprolongation]);
-        $this->is_charge_after_blocking !== '' && $query->andWhere(['is_charge_after_blocking' => (int)$this->is_charge_after_blocking]);
-        $this->is_include_vat !== '' && $query->andWhere(['is_include_vat' => (int)$this->is_include_vat]);
-        $this->is_default !== '' && $query->andWhere(['is_default' => (int)$this->is_default]);
-        $this->is_postpaid !== '' && $query->andWhere(['is_postpaid' => (int)$this->is_postpaid]);
-        $this->voip_group_id !== '' && $query->andWhere(['voip_group_id' => $this->voip_group_id]);
+        $tariffTableName = Tariff::tableName();
+
+        $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
+        $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
+        $this->tariff_person_id !== '' && $query->andWhere([$tariffTableName . '.tariff_person_id' => $this->tariff_person_id]);
+        $this->tag_id !== '' && $query->andWhere([$tariffTableName . '.tag_id' => $this->tag_id]);
+        $this->currency_id !== '' && $query->andWhere([$tariffTableName . '.currency_id' => $this->currency_id]);
+        $this->service_type_id !== '' && $query->andWhere([$tariffTableName . '.service_type_id' => $this->service_type_id]);
+        $this->is_autoprolongation !== '' && $query->andWhere([$tariffTableName . '.is_autoprolongation' => (int)$this->is_autoprolongation]);
+        $this->is_charge_after_blocking !== '' && $query->andWhere([$tariffTableName . '.is_charge_after_blocking' => (int)$this->is_charge_after_blocking]);
+        $this->is_include_vat !== '' && $query->andWhere([$tariffTableName . '.is_include_vat' => (int)$this->is_include_vat]);
+        $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
+        $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
+        $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
 
         if ($this->country_id !== '') {
             $query->joinWith('tariffCountries');
