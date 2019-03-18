@@ -8,7 +8,7 @@ use app\tests\codeception\fixtures\TariffInternetFixture;
 use app\tests\codeception\fixtures\TariffSmsFixture;
 use app\tests\codeception\fixtures\TariffVirtpbxFixture;
 
-$I = new _WebTester($scenario);
+$I = new _WebTesterOld($scenario);
 $I->wantTo('Создать услуги');
 
 $loginPage = LoginPage::loginAsAdmin($I);

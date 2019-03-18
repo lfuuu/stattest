@@ -3,7 +3,7 @@
 use tests\codeception\_pages\LoginPage;
 use tests\codeception\_pages\NewClient;
 
-$I = new _WebTester($scenario);
+$I = new _WebTesterOld($scenario);
 $I->wantTo('Создать клиента');
 
 $loginPage = LoginPage::loginAsAdmin($I);

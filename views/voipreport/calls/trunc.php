@@ -283,6 +283,7 @@ if (!$filterModel->is_full_report) {
 <?php
 $columns = $filterModel->getColumns();
 $dataProvider = $filterModel->search();
+$dataProvider->setTotalCount($summary->calls_count);
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,

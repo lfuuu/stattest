@@ -615,6 +615,7 @@ class AccountTariffLog extends ActiveRecord
      * Для совместимости, ибо старое поле actual_from удалено
      *
      * @return string|null
+     * @throws \Exception
      */
     public function getActual_from()
     {

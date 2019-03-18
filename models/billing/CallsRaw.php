@@ -175,6 +175,7 @@ class CallsRaw extends ActiveRecord
 
     /**
      * @return CallsDao
+     * @throws \yii\base\Exception
      */
     public static function dao()
     {
@@ -214,5 +215,18 @@ class CallsRaw extends ActiveRecord
     public static function getCacheKey(Query $query)
     {
         return 'calls_raws_cache_' . md5($query->createCommand(CallsRaw::getDb())->rawSql);
+    }
+
+    /**
+     * Получаем потраченное минут пакета
+     *
+     * @return string
+     */
+    public function getPackageMinutesText()
+    {
+        return $this->stats_nnp_package_minute_id .
+            ($this->nnp_package_minute_id ? ', ' . 'минуты' : '') .
+            ($this->nnp_package_price_id ? ', ' . 'прайс' : '') .
+            ($this->nnp_package_pricelist_id ? ', ' . 'прайслист' : '');
     }
 }

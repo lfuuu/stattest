@@ -39,6 +39,7 @@ trait AccountTariffGroupTrait
      * Вернуть хеш услуги. Нужно для группировки похожих услуг телефонии по разным городам-тарифам-пакетам.
      *
      * @return string
+     * @throws \yii\db\Exception
      */
     public function getHash()
     {

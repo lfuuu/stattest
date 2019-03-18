@@ -24,7 +24,7 @@ use app\tests\codeception\fixtures\TariffVirtpbxFixture;
 use app\tests\codeception\fixtures\EmailsFixture;
 
 
-$I = new _WebTester($scenario);
+$I = new _WebTesterOld($scenario);
 $I->wantTo('Создать счета');
 
 $tariffVoip = new TariffVoipFixture();

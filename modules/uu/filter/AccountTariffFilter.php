@@ -15,6 +15,7 @@ use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 
 /**
  * Фильтрация для AccountTariff
@@ -301,5 +302,160 @@ class AccountTariffFilter extends AccountTariff
         }
 
         return $dataProvider;
+    }
+
+    /**
+     * Получить запрос для списка
+     *
+     * @param int $id
+     * @param int $serviceTypeId
+     * @param int $clientAccountId
+     * @param int $regionId
+     * @param int $cityId
+     * @param int $voipNumber
+     * @param int $prevAccountTariffId
+     * @param int $limit
+     * @param int $offset
+     * @return \yii\db\ActiveQuery
+     */
+    public static function getListQuery($id, $serviceTypeId, $clientAccountId, $regionId, $cityId, $voipNumber, $prevAccountTariffId, $limit, $offset)
+    {
+        $query = AccountTariff::find();
+
+        $id && $query->andWhere(['id' => (int)$id]);
+        $serviceTypeId && $query->andWhere(['service_type_id' => (int)$serviceTypeId]);
+        $clientAccountId && $query->andWhere(['client_account_id' => (int)$clientAccountId]);
+        $regionId && $query->andWhere(['region_id' => (int)$regionId]);
+        $cityId && $query->andWhere(['city_id' => (int)$cityId]);
+        $voipNumber && $query->andWhere(['voip_number' => $voipNumber]);
+        $prevAccountTariffId && $query->andWhere(['prev_account_tariff_id' => $prevAccountTariffId]);
+
+        // deprecated
+        $query->limit($limit);
+
+        $offset && $query->offset($offset);
+        $query->orderBy(['id' => SORT_DESC]);
+
+        $query
+            ->with('number')
+            ->with('serviceType.resources')
+            ->with('region')
+            ->with('city')
+            ->with('clientAccount')
+            ->with('accountTariffLogs.accountTariff.clientAccount')
+            ->with('accountLogPeriods')
+            ->with('accountTariffLogs.tariffPeriod.chargePeriod')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tariffVoipCountries.country')
+            ->with('accountTariffLogs.tariffPeriod.tariff.package')
+            ->with('accountTariffLogs.tariffPeriod.tariff.serviceType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.status')
+            ->with('accountTariffLogs.tariffPeriod.tariff.person')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tag')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tariffResources.resource.serviceType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipGroup')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipCities.city')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipNdcTypes.ndcType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.organizations.organization')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packageMinutes.destination')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packagePrices.destination')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packagePricelists.pricelist')
+            ->with('accountTariffResourceLogsAll.accountTariff.clientAccount')
+            ->with('nextAccountTariffsEager')
+            ->with('accountLogPeriodLast')
+            ->with('accountLogPeriodLast.minutesSummary')
+        ;
+
+        return $query;
+    }
+
+    /**
+     * Получить запрос для списка с пакетами
+     *
+     * @param int $id
+     * @param int $clientAccountId
+     * @param int $serviceTypeId
+     * @param int $voipNumber
+     * @param int $limit
+     * @param int $offset
+     * @return \yii\db\ActiveQuery
+     */
+    public static function getListWithPackagesQuery($id, $clientAccountId, $serviceTypeId, $voipNumber, $limit, $offset)
+    {
+        $query = AccountTariff::find();
+
+        $query
+            ->with('number')
+            ->with('serviceType.resources')
+            ->with('region')
+            ->with('city')
+            ->with('clientAccount')
+
+            ->with('tariffPeriod.tariff.tariffResourcesIndexedByResourceId')
+            ->with('accountTariffLogs.accountTariff.clientAccount')
+            ->with('accountLogPeriods')
+
+            ->with('accountTariffLogs.tariffPeriod.chargePeriod')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tariffVoipCountries.country')
+            ->with('accountTariffLogs.tariffPeriod.tariff.package')
+            ->with('accountTariffLogs.tariffPeriod.tariff.serviceType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.status')
+            ->with('accountTariffLogs.tariffPeriod.tariff.person')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tag')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tariffResources.resource.serviceType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipGroup')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipCities.city')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipNdcTypes.ndcType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.organizations.organization')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packageMinutes.destination')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packagePrices.destination')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packagePricelists.pricelist')
+
+            ->with('accountTariffResourceLogsAll.accountTariff.clientAccount')
+
+            ->with('accountLogPeriodLast')
+            ->with('accountLogPeriodLast.minutesSummary')
+
+            ->with('nextAccountTariffsEager');
+
+        $id && $query->andWhere(['id' => (int)$id]);
+        $clientAccountId && $query->andWhere(['client_account_id' => (int)$clientAccountId]);
+        $serviceTypeId && $query->andWhere(['service_type_id' => (int)$serviceTypeId]);
+        $voipNumber && $query->andWhere(['voip_number' => $voipNumber]);
+
+        $offset && $query->offset($offset);
+        $query->orderBy(new Expression('IF (tariff_period_id IS NULL, 1, 0)'));
+        $query->addOrderBy([
+            'id' => SORT_DESC
+        ]);
+
+        // deprecated
+        $query->limit($limit);
+
+        return $query;
+    }
+
+    /**
+     * Получить запрос для Excel
+     *
+     * @param int $clientAccountId
+     * @param int $serviceTypeId
+     * @return \yii\db\ActiveQuery
+     */
+    public static function getListForExcelQuery($clientAccountId, $serviceTypeId)
+    {
+        $query = AccountTariff::find()
+
+            ->with('number')
+            ->with('city')
+            ->with('accountTariffLogs.accountTariff.clientAccount')
+            ->with('accountTariffLogs.tariffPeriod.tariff')
+            ->with('nextAccountTariffs')
+
+            ->andWhere([
+                'client_account_id' => $clientAccountId,
+                'service_type_id' => $serviceTypeId,
+            ]);
+
+        return $query;
     }
 }

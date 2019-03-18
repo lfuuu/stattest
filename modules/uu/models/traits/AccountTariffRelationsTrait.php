@@ -20,6 +20,7 @@ use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * @property-read ClientAccount $clientAccount
@@ -30,10 +31,12 @@ use yii\db\ActiveQuery;
  * @property-read \app\models\Number $number
  * @property-read AccountTariff $prevAccountTariff  Основная услуга
  * @property-read AccountTariff[] $nextAccountTariffs   Пакеты
+ * @property-read AccountTariff[] $nextAccountTariffsEager   Пакеты
  * @property-read AccountTariff $prevUsage  Перенесено из
  * @property-read AccountTariff $nextUsage   Перенесено в
  * @property-read AccountTariffLog[] $accountTariffLogs
  * @property-read AccountTariffResourceLog[] $accountTariffResourceLogs
+ * @property-read AccountTariffResourceLog[] $accountTariffResourceLogsAll
  * @property-read TariffPeriod $tariffPeriod
  * @property-read Datacenter $datacenter
  * @property-read UsageTrunk $usageTrunk
@@ -42,6 +45,7 @@ use yii\db\ActiveQuery;
  *
  * @property-read AccountLogSetup[] $accountLogSetups
  * @property-read AccountLogPeriod[] $accountLogPeriods
+ * @property-read AccountLogPeriod $accountLogPeriodLast
  * @property-read AccountLogResource[] $accountLogResources
  *
  * @property-read AccountTariffHelper $helper
@@ -84,6 +88,52 @@ trait AccountTariffRelationsTrait
     public function getNextAccountTariffs()
     {
         return $this->hasMany(self::class, ['prev_account_tariff_id' => 'id'])
+            ->inverseOf('prevAccountTariff')
+            ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getNextAccountTariffsEager()
+    {
+        return $this->hasMany(self::class, ['prev_account_tariff_id' => 'id'])
+            ->with('number')
+            ->with('serviceType.resources')
+            ->with('region')
+            ->with('city')
+
+            ->with('tariffPeriod.tariff.tariffResourcesIndexedByResourceId')
+            ->with('clientAccount')
+
+            ->with('accountTariffLogs.accountTariff.clientAccount')
+            ->with('accountLogPeriods')
+
+            ->with('accountTariffLogs.tariffPeriod.chargePeriod')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tariffVoipCountries.country')
+            ->with('accountTariffLogs.tariffPeriod.tariff.package')
+            ->with('accountTariffLogs.tariffPeriod.tariff.serviceType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.status')
+            ->with('accountTariffLogs.tariffPeriod.tariff.person')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tag')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tariffResources.resource.serviceType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipGroup')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipCities.city')
+            ->with('accountTariffLogs.tariffPeriod.tariff.voipNdcTypes.ndcType')
+            ->with('accountTariffLogs.tariffPeriod.tariff.organizations.organization')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packageMinutes.destination')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packagePrices.destination')
+            ->with('accountTariffLogs.tariffPeriod.tariff.packagePricelists.pricelist')
+
+            ->with('accountTariffResourceLogsAll.accountTariff.clientAccount')
+            ->with('accountTariffResourceLogs.resource')
+
+            ->with('accountLogPeriodLast')
+            ->with('accountLogPeriodLast.minutesSummary')
+
+            ->with('nextAccountTariffsEager')
+
+            ->inverseOf('prevAccountTariff')
             ->indexBy('id');
     }
 
@@ -184,6 +234,26 @@ trait AccountTariffRelationsTrait
     /**
      * @return ActiveQuery
      */
+    public function getAccountLogPeriodLast()
+    {
+        return $this->hasOne(AccountLogPeriod::class, ['account_tariff_id' => 'id'])
+            ->from(['logs' => AccountLogPeriod::tableName()])
+            ->andWhere(
+                new Expression(
+                    'logs.id = (' .
+                    AccountLogPeriod::find()
+                        ->select(['MAX(x.id)'])
+                        ->from(['x' => AccountLogPeriod::tableName()])
+                        ->where(['x.account_tariff_id' => new Expression('logs.account_tariff_id')])
+                        ->createCommand()->rawSql .
+                    ')'
+                )
+            );
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getAccountLogResources()
     {
         return $this->hasMany(AccountLogResource::class, ['account_tariff_id' => 'id'])
@@ -214,7 +284,44 @@ trait AccountTariffRelationsTrait
                     'resource_id' => SORT_ASC,
                     'id' => SORT_DESC,
                 ])
-            ->indexBy('id');
+            ->indexBy('id')
+            ->inverseOf('accountTariff');
+    }
+
+    /**
+     * @param int $resourceId
+     * @return AccountTariffResourceLog[]
+     */
+    public function getAccountTariffResourceLogsByResourceId($resourceId = null)
+    {
+        if (is_null($resourceId)) {
+            return $this->accountTariffResourceLogsAll;
+        }
+
+        $logs = [];
+        foreach($this->accountTariffResourceLogsAll as $accountTariffResourceLog) {
+            if ($accountTariffResourceLog->resource_id == $resourceId) {
+                $logs[] = $accountTariffResourceLog;
+            }
+        }
+
+        return $logs;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariffResourceLogsAll()
+    {
+        return $this->hasMany(AccountTariffResourceLog::class, ['account_tariff_id' => 'id'])
+            ->orderBy(
+                [
+                    'resource_id' => SORT_ASC,
+                    'id' => SORT_DESC,
+                ])
+            ->indexBy('id')
+            ->inverseOf('accountTariff');
+
     }
 
     /**

@@ -2,7 +2,7 @@
 
 use tests\codeception\_pages\LoginPage;
 
-$I = new _WebTester($scenario);
+$I = new _WebTesterOld($scenario);
 $I->wantTo('проверить что работает логин');
 
 $loginPage = LoginPage::openBy($I);

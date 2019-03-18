@@ -1,13 +1,11 @@
 <?php
 
 use app\models\User;
-use tests\codeception\_pages\LoginPage;
-use tests\codeception\_pages\ClientViewPage;
 
 $I = new _WebTester($scenario);
 $I->wantTo('perform actions and see result');
 
-$email = 'test-wizard' .rand(10000, 99999) . '@mcn.ru';
+$email = 'test-wizard' . rand(10000, 99999) . '@mcn.ru';
 
 $query = http_build_query([
     'test' => 1,
@@ -133,17 +131,34 @@ $s = [
     "account_id" => $accountId
 ];
 
+function generateInn($base = 4000000000) {
+    $inn = strval($base + time());
+    $f1 = [2, 4, 10, 3, 5, 9, 4, 6, 8];
+    $n10 = 0;
 
+    foreach ($f1 as $k => $v) {
+        $n10 += $inn[$k] * $v;
+    }
+
+    $n10 %= 11;
+    $n10 %= 10;
+    $inn[9] = $n10;
+
+    return $inn;
+}
+
+$inn1 = generateInn();
 //
 //save legal
 //
-function save_step1_legal($I, $s_base, $s)
+function save_step1_legal($I, $s_base, $s, $inn)
 {
     $s_step1_legal = [
         "legal_type" => "legal",
         "name" => "OOO REP-1",
         "address_jur" => "Краснодарский край, г Краснодар, ул Вологодская, д 11, оф 18",
-        "inn" => "5020065735",
+        //"inn" => "5020065735",
+        "inn" => $inn,
         "kpp" => "231101001",
         "position" => "Генеральный директор",
         "fio" => "Докудовский Сергей Борисович",
@@ -178,7 +193,7 @@ function save_step1_legal($I, $s_base, $s)
     return $s_step1_legal;
 }
 
-save_step1_legal($I, $s_base, $s);
+save_step1_legal($I, $s_base, $s, $inn1);
 
 //
 // check next step
@@ -191,12 +206,14 @@ $I->seeResponseContainsJson(["step" => 2, "good" => 1, "wizard_type" => "mcn"]);
 //
 //save ip
 //
-function save_step1_ip($I, $s_base, $s)
+$inn2 = generateInn(2000000000);
+function save_step1_ip($I, $s_base, $s, $inn)
 {
     $s_step1_ip = [
         "name" => "ИП Иванов Иван Иванович",
         "legal_type" => "ip",
-        "inn" => "344800075077",
+        //"inn" => "344800075077",
+        "inn" => $inn,
         "ogrn" => "305346104800081",
         "address_jur" => "Россия, Воронежская область, город Воронеж, Железнодорожный район, ул. Мира, д.1, кв.2"
     ];
@@ -221,7 +238,7 @@ function save_step1_ip($I, $s_base, $s)
     return $s_step1_ip;
 }
 
-save_step1_ip($I, $s_base, $s);
+save_step1_ip($I, $s_base, $s, $inn2);
 
 //
 //save1 person
@@ -295,11 +312,11 @@ function testContractHTML($I, $accountId, $type)
 testContractHTML($I, $accountId, 'person');
 
 //contract legal
-$s_save1_legal = save_step1_legal($I, $s_base, $s);
+$s_save1_legal = save_step1_legal($I, $s_base, $s, $inn1);
 testContractHTML($I, $accountId, 'legal');
 
 //contract ip
-$s_save1_ip = save_step1_ip($I, $s_base, $s);
+$s_save1_ip = save_step1_ip($I, $s_base, $s, $inn2);
 testContractHTML($I, $accountId, "ip");
 
 readState($I, $accountId);

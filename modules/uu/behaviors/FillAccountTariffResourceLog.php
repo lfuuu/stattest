@@ -101,7 +101,7 @@ class FillAccountTariffResourceLog extends Behavior
             return;
         }
 
-        $accountTariffResourceLogs = $accountTariff->accountTariffResourceLogs;
+        $accountTariffResourceLogs = $accountTariff->accountTariffResourceLogsAll;
         foreach ($accountTariffResourceLogs as $accountTariffResourceLog) {
             if (!$accountTariffResourceLog->delete()) {
                 throw new ModelValidationException($accountTariffResourceLog);

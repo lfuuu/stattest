@@ -3,7 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
-use app\modules\nnp\models\AccountTariffLight;
+use app\models\billing\StatNnpPackageMinute;
 use app\modules\uu\behaviors\AccountTariffVoipInternet;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use yii\db\ActiveQuery;
@@ -26,6 +26,7 @@ use yii\helpers\Url;
  * @property-read AccountTariff $accountTariff
  * @property-read TariffPeriod $tariffPeriod
  * @property-read AccountEntry $accountEntry
+ * @property-read StatNnpPackageMinute[] $minutesSummary
  *
  * @method static AccountLogPeriod findOne($condition)
  * @method static AccountLogPeriod[] findAll($condition)
@@ -123,9 +124,44 @@ class AccountLogPeriod extends ActiveRecord
      */
     public function getMinuteStatistic()
     {
-        return AccountTariffLight::getDb()
+        return StatNnpPackageMinute::getDb()
             ->createCommand('SELECT i_nnp_package_minute_id, i_used_seconds FROM billing.used_package_minutes_get(' . $this->id . ')')
             ->queryAll();
+    }
+
+    /**
+     * Вернуть кол-во потраченных минут по пакету минут
+     *
+     * @return ActiveQuery
+     */
+    public function getMinutesSummary()
+    {
+        return $this->hasMany(StatNnpPackageMinute::class, ['nnp_account_tariff_light_id' => 'id'])
+            ->select([
+                'nnp_account_tariff_light_id',
+                'nnp_package_minute_id',
+                'SUM(used_seconds) used_seconds'
+            ])
+            ->groupBy(['nnp_account_tariff_light_id', 'nnp_package_minute_id']);
+    }
+
+    /**
+     * Вернуть кол-во потраченных минут по пакету минут
+     *
+     * @return array
+     */
+    public function getMinutesSummaryAsArray()
+    {
+        $result = [];
+        /** @var StatNnpPackageMinute $record */
+        foreach ($this->minutesSummary as $record) {
+            $result[] = [
+                'i_nnp_package_minute_id'   => $record->nnp_package_minute_id,
+                'i_used_seconds'            => $record->used_seconds,
+            ];
+        }
+
+        return $result;
     }
 
     /**

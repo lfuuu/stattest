@@ -47,6 +47,10 @@ build()
 	docker build --force-rm --no-cache -t $IMAGE .
 	docker run --privileged -d -v ~/stat_dev_docker:/opt/stat_rep --name $CONTAINER $IMAGE
 	docker exec -u root -w /opt/stat_rep -it $CONTAINER git clone git@github.com:welltime/stat.git
+	docker exec -u root -w /opt/stat_rep -it $CONTAINER mkdir /opt/stat_rep/store
+	docker exec -u root -w /opt/stat_rep -it $CONTAINER chmod 777 /opt/stat_rep/store/
+	docker exec -u root -w /opt/stat_rep -it $CONTAINER mkdir /opt/stat_rep/store/contracts
+	docker exec -u root -w /opt/stat_rep -it $CONTAINER chmod 777 /opt/stat_rep/store/contracts/
 	docker exec -u root -w /opt/stat_rep/stat -it $CONTAINER /usr/local/bin/composer install
 	docker exec -u root -w /opt/stat_rep/stat -it $CONTAINER /usr/local/bin/composer global require "fxp/composer-asset-plugin"
 	docker exec -u root -w /opt/stat_rep/stat -it $CONTAINER /usr/local/bin/composer global require "codeception/codeception=2.0.*"

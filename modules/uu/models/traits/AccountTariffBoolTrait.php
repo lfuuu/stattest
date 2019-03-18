@@ -93,14 +93,19 @@ trait AccountTariffBoolTrait
             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if (AccountTariffLog::find()
-                ->where(['account_tariff_id' => $this->id])
-                ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
-                ->count()
-            && count($this->accountTariffLogs) > 1 // исключим проблему при смене таймзоны клиента на тестовом тарифе (менеджеры говорят, что это нормально)
-        ) {
-            // Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.
-            return false;
+        if (count($this->accountTariffLogs) > 1) {
+            // исключили проблему при смене таймзоны клиента на тестовом тарифе
+            // (менеджеры говорят, что это нормально)
+            // @ Korobkov
+
+            /** @var AccountTariffLog $accountTariffLog */
+            foreach ($this->accountTariffLogs as $accountTariffLog) {
+                if ($accountTariffLog->actual_from_utc > $currentDateTimeUtc) {
+                    // Уже назначена смена тарифа в будущем.
+                    // Если вы хотите установить новый тариф - сначала отмените эту смену.
+                    return false;
+                }
+            }
         }
 
         // таки можно
@@ -244,11 +249,8 @@ trait AccountTariffBoolTrait
         $clientAccount = $this->clientAccount;
         $dateTimeNow = $clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
 
-        /** @var ActiveQuery $accountTariffResourceLogsQuery */
-        $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resourceId);
-
         /** @var AccountTariffResourceLog $accountTariffResourceLog */
-        foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLog) {
+        foreach ($this->getAccountTariffResourceLogsByResourceId($resourceId) as $accountTariffResourceLog) {
             if ($isCurrentOnly && $accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)) {
                 // еще не действует
                 continue;

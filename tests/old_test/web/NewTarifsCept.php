@@ -2,7 +2,7 @@
 
 use tests\codeception\_pages\LoginPage;
 
-$I = new _WebTester($scenario);
+$I = new _WebTesterOld($scenario);
 $I->wantTo('Создать тарифы');
 
 $loginPage = LoginPage::loginAsAdmin($I);

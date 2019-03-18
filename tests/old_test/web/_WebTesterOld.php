@@ -22,7 +22,7 @@ use Codeception\Module\PhpBrowser;
  *
  * @SuppressWarnings(PHPMD)
  */
-class _WebTester extends \Codeception\Actor
+class _WebTesterOld extends \Codeception\Actor
 {
 
     /**

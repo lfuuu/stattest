@@ -2,7 +2,6 @@
 
 namespace app\widgets\GridViewExport\Columns\Config;
 
-use app\modules\uu\models\AccountTariff;
 use app\widgets\GridViewExport\Columns\Config;
 
 class AccountTariffConfig extends Config

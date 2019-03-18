@@ -248,7 +248,9 @@ class CallsRawFilter extends CallsRaw
     /**
      * Фильтровать
      *
-     * @return ActiveDataProvider
+     * @param int $pageSize
+     * @return \app\classes\grid\ActiveDataProvider
+     * @throws \Exception
      */
     public function search($pageSize = self::PAGE_SIZE)
     {
@@ -260,6 +262,11 @@ class CallsRawFilter extends CallsRaw
                 'pageSize' => $pageSize,
             ],
         ]);
+
+        $query
+            ->with('region')
+            ->with('city')
+            ->with('operator');
 
         if (!$this->trunk_id || !$this->connect_time_from || !$this->connect_time_to) {
             $query->where('false');
@@ -410,7 +417,8 @@ class CallsRawFilter extends CallsRaw
     /**
      * Фильтровать для отчета по направлениям. Итого
      *
-     * @return ActiveDataProvider
+     * @return \app\classes\grid\ActiveDataProvider
+     * @throws \Exception
      */
     public function searchCostSummary()
     {
@@ -655,4 +663,3 @@ class CallsRawFilter extends CallsRaw
     }
 
 }
-

@@ -4,12 +4,13 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
-use app\classes\helpers\DependecyHelper;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
+use app\models\Country;
+use app\models\Currency;
 use app\models\EventQueue;
 use app\models\Number;
 use app\models\Trouble;
@@ -18,6 +19,9 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\uu\classes\SyncVps;
+use app\modules\uu\filter\AccountTariffFilter;
+use app\modules\uu\filter\TariffFilter;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
@@ -28,25 +32,18 @@ use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
-use app\modules\uu\models\TariffCountry;
-use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffTag;
-use app\modules\uu\models\TariffVoipCity;
-use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipGroup;
-use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\Module;
 use app\modules\async\Module as asyncModule;
 use DateTimeZone;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
-use yii\caching\TagDependency;
-use yii\db\Expression;
 use yii\web\HttpException;
 
 class UuController extends ApiInternalController
@@ -101,12 +98,12 @@ class UuController extends ApiInternalController
         $result = [];
 
         if ($account_tariff_id) {
-            /** @var \app\modules\callTracking\models\Log $logs */
             $logs = \app\modules\callTracking\models\Log::find()
                 ->where(['account_tariff_id' => $account_tariff_id])
                 ->andWhere('start_dt :: date >= :start_dt', ['start_dt' => $start_dt])
                 ->andWhere('stop_dt :: date <= :stop_dt', ['stop_dt' => $stop_dt]);
 
+            /** @var \app\modules\callTracking\models\Log $log */
             foreach ($logs->each() as $log) {
                 $result[] = $log->getAttributes();
             }
@@ -453,9 +450,10 @@ class UuController extends ApiInternalController
         $is_include_vat = null
     )
     {
+        $methodName = __FUNCTION__;
         \Yii::info(
             print_r([
-                'actionGetTariffs',
+                $methodName,
                 $id,
                 $service_type_id,
                 $country_id,
@@ -471,7 +469,8 @@ class UuController extends ApiInternalController
                 $voip_ndc_type_id,
                 $organization_id,
                 $voip_number,
-                $account_tariff_id
+                $account_tariff_id,
+                $is_include_vat
             ], true),
             \app\modules\uu\Module::LOG_CATEGORY_API
         );
@@ -529,6 +528,7 @@ class UuController extends ApiInternalController
                 TariffPerson::ID_LEGAL_PERSON;
 
             $country_id = $clientAccount->getUuCountryId();
+            $is_include_vat = $clientAccount->is_voip_with_tax;
 
             switch ($service_type_id) {
 
@@ -570,79 +570,44 @@ class UuController extends ApiInternalController
             }
         }
 
+        if (!$country_id) {
+            $country_id = Country::RUSSIA;
+        }
+        if (!$currency_id) {
+            $currency_id = Currency::RUB;
+        }
+
         // @todo надо ли только статус "публичный" для ватс?
 
-        $tariffQuery = Tariff::find();
-        $tariffTableName = Tariff::tableName();
-
-        $id && $tariffQuery->andWhere([$tariffTableName . '.id' => $id]);
-        $service_type_id && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$service_type_id]);
-        $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
-        null !== $is_default && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
-        null !== $is_postpaid && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
-        null !== $is_include_vat && $tariffQuery->andWhere([$tariffTableName . '.is_include_vat' => (int)$is_include_vat]);
-        $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
-        $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariff_person_id]]);
-        $tariff_tag_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_tag_id' => $tariff_tag_id]);
-        $voip_group_id && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int)$voip_group_id]);
-
-        if ($country_id) {
-            $tariffQuery
-                ->joinWith('tariffCountries')
-                ->andWhere([TariffCountry::tableName() . '.country_id' => $country_id]);
-        }
-
-        if ($voip_country_id) {
-            $tariffQuery
-                ->joinWith('tariffVoipCountries')
-                ->andWhere([TariffVoipCountry::tableName() . '.country_id' => $voip_country_id]);
-        }
-
-        if ($voip_city_id) {
-            $tariffQuery
-                ->joinWith('voipCities')
-                ->andWhere([
-                    'OR',
-                    [TariffVoipCity::tableName() . '.city_id' => $voip_city_id], // если в тарифе хоть один город, то надо только точное соотвествие
-                    [TariffVoipCity::tableName() . '.city_id' => null] // если в тарифе ни одного города нет, то это означает "любой город этой страны"
-                ]);
-        }
-
-        if ($voip_ndc_type_id) {
-            $tariffQuery
-                ->joinWith('voipNdcTypes')
-                ->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $voip_ndc_type_id]);
-        }
-
-        if ($organization_id) {
-            $tariffQuery
-                ->joinWith('organizations')
-                ->andWhere([TariffOrganization::tableName() . '.organization_id' => $organization_id]);
-        }
+        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
 
         $result = [];
+        $defaultPackageRecordsFetched = null;
         /** @var Tariff $tariff */
-        foreach ($tariffQuery->each() as $tariff) {
-
+        foreach ($tariffQuery->all() as $tariff) {
             if ($tariff->service_type_id == ServiceType::ID_VOIP) {
-                $defaultPackageRecords = $this->actionGetTariffs(
-                    $id_tmp = null,
-                    ServiceType::ID_VOIP_PACKAGE_CALLS,
-                    $voip_country_id,
-                    $client_account_id,
-                    $currency_id,
-                    $is_default_tmp = 1,
-                    $is_postpaid_tmp = null,
-                    $tariff_status_id,
-                    $tariff_person_id,
-                    $tariff_tag_id_tmp = null,
-                    $voip_group_id,
-                    $voip_city_id,
-                    $voip_ndc_type_id,
-                    $organization_id_tmp = null, // пакеты телефонии - по стране, все остальное - по организации
-                    $voip_number,
-                    $account_tariff_id
-                );
+                if (is_null($defaultPackageRecordsFetched)) {
+                    $defaultPackageRecordsFetched = $this->actionGetTariffs(
+                        $id_tmp = null,
+                        ServiceType::ID_VOIP_PACKAGE_CALLS,
+                        $voip_country_id,
+                        $client_account_id,
+                        $currency_id,
+                        $is_default_tmp = 1,
+                        $is_postpaid_tmp = null,
+                        $tariff_status_id,
+                        $tariff_person_id,
+                        $tariff_tag_id_tmp = null,
+                        $voip_group_id,
+                        $voip_city_id,
+                        $voip_ndc_type_id,
+                        $organization_id_tmp = null, // пакеты телефонии - по стране, все остальное - по организации
+                        $voip_number,
+                        $account_tariff_id
+                    );
+                }
+
+                $defaultPackageRecords = $defaultPackageRecordsFetched;
             } else {
                 $defaultPackageRecords = [];
             }
@@ -791,7 +756,6 @@ class UuController extends ApiInternalController
         }
 
         return [
-            '_id' => $packageMinutes->id,
             'destination' => (string)$packageMinutes->destination,
             'minute' => $packageMinutes->minute,
             'spent_seconds' => $minuteStatistic,
@@ -893,14 +857,10 @@ class UuController extends ApiInternalController
 
         !$service_type_id && $service_type_id = ServiceType::ID_VOIP;
 
-        $accountTariffQuery = AccountTariff::find()
-            ->andWhere([
-                'client_account_id' => $client_account_id,
-                'service_type_id' => $service_type_id,
-            ]);
+        $accountTariffQuery = AccountTariffFilter::getListForExcelQuery($client_account_id, $service_type_id);
 
         $result = [];
-        foreach ($accountTariffQuery->each() as $accountTariff) {
+        foreach ($accountTariffQuery->all() as $accountTariff) {
             /** @var AccountTariff $accountTariff */
             $result[] = $this->_getAccountTariffForExcelRecord($accountTariff);
         }
@@ -1051,27 +1011,15 @@ class UuController extends ApiInternalController
         $city_id = (int)$city_id;
         $prev_account_tariff_id = (int)$prev_account_tariff_id;
 
-        $accountTariffQuery = AccountTariff::find();
-        $accountTariffTableName = AccountTariff::tableName();
-        $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
-        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
-        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
-        $region_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.region_id' => (int)$region_id]);
-        $city_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$city_id]);
-        $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
-        $prev_account_tariff_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.prev_account_tariff_id' => $prev_account_tariff_id]);
-
-        $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
-        $accountTariffQuery->limit($limit);
-        $offset && $accountTariffQuery->offset($offset);
-        $accountTariffQuery->orderBy([$accountTariffTableName . '.id' => SORT_DESC]);
-
         if (!$id && !$service_type_id && !$client_account_id) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id, service_type_id или client_account_id', AccountTariff::ERROR_CODE_SERVICE_TYPE);
         }
 
+        $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
+        $accountTariffQuery = AccountTariffFilter::getListQuery($id, $service_type_id, $client_account_id, $region_id, $city_id, $voip_number, $prev_account_tariff_id, $limit, $offset);
+
         $result = [];
-        foreach ($accountTariffQuery->each() as $accountTariff) {
+        foreach ($accountTariffQuery->all() as $accountTariff) {
             /** @var AccountTariff $accountTariff */
             $result[] = $this->_getAccountTariffRecord($accountTariff);
         }
@@ -1113,7 +1061,7 @@ class UuController extends ApiInternalController
             'region' => $this->_getIdNameRecord($accountTariff->region),
             'city' => $this->_getIdNameRecord($accountTariff->city),
             'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
-            'next_account_tariffs' => $this->_getAccountTariffRecord($accountTariff->nextAccountTariffs),
+            'next_account_tariffs' => $this->_getAccountTariffRecord($accountTariff->nextAccountTariffsEager),
             'comment' => $accountTariff->comment,
             'voip_number' => $accountTariff->voip_number,
             'beauty_level' => $number ? $number->beauty_level : null,
@@ -1161,9 +1109,8 @@ class UuController extends ApiInternalController
     {
         $accountTariffResourceRecords = [];
 
-        $resources = Resource::findAll(['service_type_id' => $accountTariff->service_type_id]);
-        foreach ($resources as $resource) {
-            $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resource->id)->all();
+        foreach ($accountTariff->serviceType->resources as $resource) {
+            $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogsByResourceId($resource->id);
 
             $accountTariffResourceRecords[] = [
                 'resource' => $this->_getResourceRecord($resource),
@@ -1325,6 +1272,7 @@ class UuController extends ApiInternalController
      * @param int $offset
      * @return array
      * @throws HttpException
+     * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
     public function actionGetAccountTariffsWithPackages(
@@ -1336,10 +1284,10 @@ class UuController extends ApiInternalController
         $offset = 0
     )
     {
-
+        $methodName = __FUNCTION__;
         \Yii::info(
             print_r([
-                'actionGetAccountTariffsWithPackages',
+                $methodName,
                 $id,
                 $client_account_id,
                 $service_type_id,
@@ -1354,39 +1302,12 @@ class UuController extends ApiInternalController
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
 
-        $key = 'actionGetAccountTariffsWithPackages-' . $id . '.' . $client_account_id . '.' . $service_type_id . '.' . $voip_number . '.' . $limit . '.' . $offset;
-        if ($client_account_id != 47197) {
-            $key = false;
-        }
-
-        if ($key && \Yii::$app->cache->exists($key)) {
-            return \Yii::$app->cache->get($key);
-        }
-
-        $accountTariffTableName = AccountTariff::tableName();
-
-        $accountTariffQuery = AccountTariff::find();
-        $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
-        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
-        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
-        $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
-
-        $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
-        $accountTariffQuery->limit($limit);
-        $offset && $accountTariffQuery->offset($offset);
-        $accountTariffQuery->orderBy(new Expression('IF ('.$accountTariffTableName.'.tariff_period_id IS NULL, 1, 0)'));
-        $accountTariffQuery->addOrderBy([
-            $accountTariffTableName . '.id' => SORT_DESC
-        ]);
-
+        $limit = min($limit ? : self::DEFAULT_LIMIT, self::MAX_LIMIT);
+        $accountTariffQuery = AccountTariffFilter::getListWithPackagesQuery($id, $client_account_id, $service_type_id, $voip_number, $limit, $offset);
 
         $result = [];
-        foreach ($accountTariffQuery->each() as $accountTariff) {
+        foreach ($accountTariffQuery->all() as $accountTariff) {
             $result[] = $this->_getAccountTariffWithPackagesRecord($accountTariff);
-        }
-
-        if ($key) {
-            \Yii::$app->cache->set($key, $result, 600);
         }
 
         return $result;
@@ -1413,8 +1334,7 @@ class UuController extends ApiInternalController
      * @param int $client_account_id
      * @param int $service_type_id
      * @return array
-     * @throws InvalidParamException
-     * @throws \yii\db\Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionGetAccountTariffsCount($client_account_id, $service_type_id)
     {
@@ -1443,72 +1363,54 @@ class UuController extends ApiInternalController
      *
      * @param AccountTariff $accountTariff
      * @return array
+     * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
     private function _getAccountTariffWithPackagesRecord($accountTariff)
     {
-        $key = DependecyHelper::me()->getKey(
-            DependecyHelper::TAG_UU_API,
-            'get-account-tariffs',
-            $accountTariff->getHash() . '-id' . $accountTariff->id
-        );
-
         $minutesStatistic = [];
         if ($accountTariff->service_type_id === ServiceType::ID_VOIP_PACKAGE_CALLS) {
             $minutesStatistic = $accountTariff->getMinuteStatistic();
         }
 
-        if ($record = \Yii::$app->cache->get($key)) {
-            $minutesStatistic && $this->_setMinutesStatistic($record, $minutesStatistic);
+        $number = $accountTariff->number;
+
+        if ($number) {
+            $isFmcEditable = $number->isMobileOutboundEditable();
+            $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC));
+
+            $isMobileOutboundEditable = $number->isMobileOutboundEditable();
+            $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_MOBILE_OUTBOUND));
         } else {
-
-            $number = $accountTariff->number;
-
-            if ($number) {
-                $isFmcEditable = $number->isMobileOutboundEditable();
-                $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC));
-
-                $isMobileOutboundEditable = $number->isMobileOutboundEditable();
-                $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_MOBILE_OUTBOUND));
-            } else {
-                $isFmcEditable = $isFmcActive = null;
-                $isMobileOutboundEditable = $isMobileOutboundActive = null;
-            }
-
-            $record = [
-                'id' => $accountTariff->id,
-                'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
-                'region' => $this->_getIdNameRecord($accountTariff->region),
-                'voip_number' => $accountTariff->voip_number,
-                'voip_city' => $this->_getIdNameRecord($accountTariff->city),
-                'beauty_level' => $number ? $number->beauty_level : null,
-                'ndc' => $number ? $number->ndc : null,
-                'ndc_type_id' => $number ? $number->ndc_type_id : null,
-                'is_active' => $accountTariff->isActive(), // Действует ли?
-                'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
-                'is_cancelable' => $accountTariff->isLogCancelable(), // Можно ли отменить смену тарифа?
-                'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
-                'is_fmc_editable' => $isFmcEditable,
-                'is_fmc_active' => $isFmcActive,
-                'is_mobile_outbound_editable' => $isMobileOutboundEditable,
-                'is_mobile_outbound_active' => $isMobileOutboundActive,
-                'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic),
-                'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
-                'default_actual_from' => $accountTariff->getDefaultActualFrom(),
-                'packages' => [],
-            ];
-
-            \Yii::$app->cache->set(
-                $key,
-                $record,
-                0,
-                (new TagDependency(['tags' => [DependecyHelper::TAG_API, DependecyHelper::TAG_UU_API]]))
-            );
+            $isFmcEditable = $isFmcActive = null;
+            $isMobileOutboundEditable = $isMobileOutboundActive = null;
         }
 
-        $this->_clearPrivateIds($record);
+        $record = [
+            'id' => $accountTariff->id,
+            'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
+            'region' => $this->_getIdNameRecord($accountTariff->region),
+            'voip_number' => $accountTariff->voip_number,
+            'voip_city' => $this->_getIdNameRecord($accountTariff->city),
+            'beauty_level' => $number ? $number->beauty_level : null,
+            'ndc' => $number ? $number->ndc : null,
+            'ndc_type_id' => $number ? $number->ndc_type_id : null,
+            'is_active' => $accountTariff->isActive(), // Действует ли?
+            'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
+            'is_cancelable' => $accountTariff->isLogCancelable(), // Можно ли отменить смену тарифа?
+            'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
+            'is_fmc_editable' => $isFmcEditable,
+            'is_fmc_active' => $isFmcActive,
+            'is_mobile_outbound_editable' => $isMobileOutboundEditable,
+            'is_mobile_outbound_active' => $isMobileOutboundActive,
+            'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic),
+            'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
+            'default_actual_from' => $accountTariff->getDefaultActualFrom(),
+            'packages' => [],
+        ];
 
-        $packages = $accountTariff->nextAccountTariffs;
+
+        $packages = $accountTariff->nextAccountTariffsEager;
         if ($packages) {
             $record['packages'] = [];
             foreach ($packages as $package) {
@@ -1531,11 +1433,14 @@ class UuController extends ApiInternalController
         $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
         $tariffResourcesIndexedByResourceId = $tariff ? $tariff->tariffResourcesIndexedByResourceId : [];
 
-        $resources = Resource::findAll(['service_type_id' => $accountTariff->service_type_id]);
-        foreach ($resources as $resource) {
-
+        foreach ($accountTariff->serviceType->resources as $resource) {
             $tariffResource = isset($tariffResourcesIndexedByResourceId[$resource->id]) ? $tariffResourcesIndexedByResourceId[$resource->id] : null;
-            $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resource->id)->all();
+            $accountTariffResourceLogs = [];
+            foreach ($accountTariff->accountTariffResourceLogsAll as $accountTariffResourceLog) {
+                if ($accountTariffResourceLog->resource_id == $resource->id) {
+                    $accountTariffResourceLogs[] = $accountTariffResourceLog;
+                }
+            }
 
             $accountTariffResourceRecords[] = [
                 'resource' => $this->_getResourceRecord($resource),
@@ -1986,9 +1891,9 @@ class UuController extends ApiInternalController
     /**
      * @return int
      * @throws HttpException
+     * @throws ModelValidationException
+     * @throws \Throwable
      * @throws \yii\db\StaleObjectException
-     * @throws \Exception
-     * @throws \app\exceptions\ModelValidationException
      */
     public function actionCancelEditAccountTariff()
     {
@@ -2204,29 +2109,32 @@ class UuController extends ApiInternalController
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
-     *
+     */
+    /**
      * @param int $client_account_id
      * @return array
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionGetAccountEntries($client_account_id)
     {
         $query = Bill::getUnconvertedAccountEntries($client_account_id);
 
         $result = [];
-        foreach ($query->each() as $model) {
+        /** @var AccountEntry $accountEntry */
+        foreach ($query->each() as $accountEntry) {
             $result[] = [
-                'name' => $model->getFullName(),
-                'date' => $model->date,
-                'date_from' => $model->date_from,
-                'date_to' => $model->date_to,
-                'account_tariff_id' => $model->account_tariff_id,
-                'tariff_period_id' => $model->tariff_period_id,
-                'type_id' => $model->type_id,
-                'price' => $model->price,
-                'price_without_vat' => $model->price_without_vat,
-                'vat_rate' => $model->vat_rate,
-                'vat' => $model->vat,
-                'price_with_vat' => $model->price_with_vat,
+                'name' => $accountEntry->getFullName(),
+                'date' => $accountEntry->date,
+                'date_from' => $accountEntry->date_from,
+                'date_to' => $accountEntry->date_to,
+                'account_tariff_id' => $accountEntry->account_tariff_id,
+                'tariff_period_id' => $accountEntry->tariff_period_id,
+                'type_id' => $accountEntry->type_id,
+                'price' => $accountEntry->price,
+                'price_without_vat' => $accountEntry->price_without_vat,
+                'vat_rate' => $accountEntry->vat_rate,
+                'vat' => $accountEntry->vat,
+                'price_with_vat' => $accountEntry->price_with_vat,
             ];
         }
 
@@ -2283,45 +2191,6 @@ class UuController extends ApiInternalController
         }
 
         throw new HttpException(ModelValidationException::STATUS_CODE, 'Тариф недоступен этому ЛС', AccountTariff::ERROR_CODE_TARIFF_WRONG);
-    }
-
-    private function _clearPrivateIds(&$record)
-    {
-        if (!$record || !isset($record['log'])) {
-            return;
-        }
-
-        foreach ($record['log'] as $idx0 => $tariff) {
-            if (!isset($tariff['tariff']['voip_package_minute']) || !$tariff['tariff']['voip_package_minute']) {
-                continue;
-            }
-            foreach ($tariff['tariff']['voip_package_minute'] as $idx1 => $package) {
-                unset($record['log'][$idx0]['tariff']['voip_package_minute'][$idx1]['_id']);
-            }
-        }
-
-    }
-
-    private function _setMinutesStatistic(&$record, $minutesStatistic)
-    {
-        foreach ($record['log'] as $idx0 => $tariff) {
-            if (!isset($tariff['tariff']['voip_package_minute']) || !$tariff['tariff']['voip_package_minute']) {
-                continue;
-            }
-            foreach ($tariff['tariff']['voip_package_minute'] as $idx1 => $packageMinutes) {
-
-                $minuteStatistic = null;
-                foreach ($minutesStatistic as $minuteStatisticTmp) {
-                    if ($minuteStatisticTmp['i_nnp_package_minute_id'] == $packageMinutes->id) {
-                        $minuteStatistic = $minuteStatisticTmp['i_used_seconds'];
-                        break;
-                    }
-                }
-
-                $record['log'][$idx0]['tariff']['voip_package_minute'][$idx1]['spent_seconds'] = $minuteStatistic;
-            }
-        }
-
     }
 
 }

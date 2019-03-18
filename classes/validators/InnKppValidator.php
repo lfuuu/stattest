@@ -105,7 +105,7 @@ class InnKppValidator extends Validator
         if ($isNotUniqueContragent) {
             $errorStr = '{attrs} должен быть уникальный (контрагент #{contragentId}, {contragentName}, ЛС: {accountId})';
             if ($model->isSimpleValidation) {
-                $errorStr = 'Компания с данным ИНН и КПП уже зарегистриорована';
+                $errorStr = 'Компания с данным ИНН и КПП уже зарегистрирована';
             }
 
             foreach ($attributes as $attribute) {

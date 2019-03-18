@@ -285,10 +285,8 @@ trait AccountTariffPackageTrait
     public function getMinuteStatistic()
     {
         /** @var AccountLogPeriod $accountLogPeriod */
-        $accountLogPeriod = $this->getAccountLogPeriods()
-            ->orderBy(['id' => SORT_DESC])
-            ->one();
+        $accountLogPeriod = $this->accountLogPeriodLast;
 
-        return $accountLogPeriod ? $accountLogPeriod->getMinuteStatistic() : [];
+        return $accountLogPeriod ? $accountLogPeriod->getMinutesSummaryAsArray() : [];
     }
 }

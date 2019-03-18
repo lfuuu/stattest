@@ -129,7 +129,8 @@ class ServiceType extends ActiveRecord
      */
     public function getResources()
     {
-        return $this->hasMany(Resource::class, ['service_type_id' => 'id']);
+        return $this->hasMany(Resource::class, ['service_type_id' => 'id'])
+            ->inverseOf('serviceType');
     }
 
     /**
