@@ -34,7 +34,7 @@
         {/if}
     {/if}
 {/if}
-<form action="/trouble/add-stage">
+<form action="/trouble/add-stage" method="post">
 <table class="table table-condensed table-bordered table-striped table-hover" width="{if $tt_design=='service'}700px{else}100%{/if}">
 {if $tt_design == "full"}
     <tr style="border-top: 2px solid #555555;">
@@ -60,7 +60,12 @@
 
 {foreach from=$tt_troubles item=r name=outer}
     <tr style="border-top: 2px solid #555555; {if $r.is_important}background-color: #f4f0f0;{/if}">
-        <td colspan=1><input class="select-client-checkbox" type="checkbox" onclick="setState('{$r.trouble_type}'); disableCheckboxes(); getItemsForSelect();" name='trouble_ids[]' value='{$r.trouble_id}' data-trouble_type='{$r.trouble_type}'></td>
+        <td colspan=1>
+            <input class="select-client-checkbox" type="checkbox"
+                   {if $r.user_main != $user_name} disabled data-disabled='{$r.trouble_id}'{/if}
+                   onclick="setState('{$r.trouble_type}'); disableCheckboxes(); getItemsForSelect();"
+                   name='trouble_ids[]' value='{$r.trouble_id}' data-trouble_type='{$r.trouble_type}'>
+        </td>
         <td colspan=1><a href='{$LINK_START}module=tt&action=view&id={$r.trouble_id}'><b>{$r.trouble_id}</b></a></td>
         <td colspan=1>{if $r.roistat_visit} {$r.roistat_visit} {/if}</td>
         <td colspan=1 nowrap style="font-size:85%;">{$r.date_creation|udate_with_timezone}</td>

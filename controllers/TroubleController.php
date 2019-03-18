@@ -11,19 +11,36 @@ class TroubleController extends BaseController
 {
     public function actionAddStage()
     {
-        $get = Yii::$app->request->get();
-        if (!$get['trouble_ids'] || !$get['user'] || !$get['state']) {
+        $post = Yii::$app->request->post();
+        if (
+               !isset($post['trouble_ids']) || !$post['trouble_ids']
+            || !isset($post['user']) || !$post['user']
+            || !isset($post['state']) || !$post['state']
+        ) {
             Yii::$app->session->setFlash('error', 'Необходимо выбрать пользователя, состояние и траблы');
             return $this->redirect(Yii::$app->request->referrer);
         }
 
-        $troublesQuery = Trouble::find()->where(['id' => $get['trouble_ids']]);
-        $userId = User::find()->select('id')->where(['user' => $get['user']])->scalar();
+        $currentUser = Yii::$app->user->identity->user;
+        $troublesQuery = Trouble::find()
+            ->joinWith('stages')
+            ->where(['id' => $post['trouble_ids']])
+            ->andWhere(['user_main' => $currentUser]);
+        $userId = User::find()->select('id')->where(['user' => $post['user']])->scalar();
 
-        $state = $get['state'];
+        $state = $post['state'];
 
+        $updatedTroubleIds = [];
         foreach ($troublesQuery->each() as $trouble) {
             TroubleDao::me()->addStage($trouble, $state, '', null, $userId);
+            $updatedTroubleIds[] = $trouble->id;
+        }
+        $errorMsg = '';
+        if ($diff = array_diff($post['trouble_ids'], $updatedTroubleIds)) {
+            $errorMsg = 'Заявки: ' . implode(', ', $diff) . ' не были обновлены. Они назначены на другого пользователя.';
+        }
+        if ($errorMsg) {
+            Yii::$app->session->setFlash('error', $errorMsg);
         }
         return $this->redirect(Yii::$app->request->referrer);
     }

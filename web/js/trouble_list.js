@@ -15,7 +15,7 @@ function setState($trouble_type) {
 }
 function disableCheckboxes() {
     $checkedCount = 0;
-    $selector = $('.select-client-checkbox');
+    $selector = $('.select-client-checkbox').not('*[data-disabled]');
     $selector.each(function() {
         $hasChecked = true;
         if ($(this).data('trouble_type') != $currentType) {

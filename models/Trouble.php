@@ -38,6 +38,7 @@ use yii\helpers\Url;
  * @property-read TroubleRoistat $troubleRoistat
  * @property-read TroubleStage $currentStage
  * @property-read TroubleStage $stage
+ * @property-read TroubleStage[] $stages
  * @property-read Lead $lead
  * @property-read ClientAccount $account
  * @property-read \app\classes\media\TroubleMedia mediaManager
@@ -188,6 +189,14 @@ class Trouble extends ActiveRecord
     public function getStage()
     {
         return $this->hasOne(TroubleStage::class, ['stage_id' => 'cur_stage_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStages()
+    {
+        return $this->hasMany(TroubleStage::class, ['trouble_id' => 'id']);
     }
 
     /**
