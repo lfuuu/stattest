@@ -8,9 +8,9 @@ use app\modules\uu\filter\AccountTariffFilter;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use app\models\filter\UsageVoipFilter;
+use kartik\widgets\Select2;
 use yii\web\View;
 use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
 use app\models\Region;
 use \app\models\User;
 
@@ -24,41 +24,31 @@ $this->registerJsFile('js/grid_view_edit.js',  ['position' => yii\web\View::POS_
 
 echo Html::formLabel('СОРМ Номера');
 
-?>
-
-<div class="col-xs-4">
-<?php
-
 $form = ActiveForm::begin([
     'method' => 'get',
     'type' => ActiveForm::TYPE_VERTICAL,
 ]);
-
-echo Form::widget([
-    'model' => $filterModelSearch,
-    'form' => $form,
-    'attributes' => [
-        'region_id' => [
-            'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE]),
-        ],
-        'account_manager' => [
-            'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => User::getAccountManagerList(true),
-        ],
-    ],
-]);
-
 ?>
 
-    <div class="form-group">
-        <?= Html::submitButton('Фильтровать', ['class' => 'btn btn-info']) ?>
+    <div class="row">
+        <div class="col-md-4">
+            <?= $form->field($filterModelSearch, 'region_id')->widget(Select2::className(), [
+                'data' => Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE])
+            ]) ?>
+        </div>
+        <div class="col-md-4">
+            <?= $form->field($filterModelSearch, 'account_manager')->widget(Select2::className(), [
+                'data' => User::getAccountManagerList(true)
+            ]) ?>
+        </div>
+        <div class="col-md-4" style="margin-top: 20px">
+            <?= Html::submitButton('Фильтровать', ['class' => 'btn btn-info']) ?>
+        </div>
     </div>
 
 <?php
 ActiveForm::end();
 ?>
-</div>
 <div style="clear: both;"></div>
 
 <?php
