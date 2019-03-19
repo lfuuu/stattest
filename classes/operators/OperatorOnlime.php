@@ -133,7 +133,6 @@ class OperatorOnlime extends Operators
             'id_1c' => '535eb41f-2790-11e8-8b72-00155d881200',
 
         ],
-
         'count_51' => [
             'id' => 18850,
             'name' => 'Видео- камера HikVision DS-I120',
@@ -157,6 +156,12 @@ class OperatorOnlime extends Operators
             'name' => 'Видеокамера IP CS-C2SHW low',
             'nameFull' => '(Onlime) Видеокамера IP CS-C2SHW low',
             'id_1c' => '3ed65929-ec98-11e8-8263-00155d881200',
+        ],
+        'count_55' => [ //cb035e7c-4634-11e9-ab58-00155d881200	19001	(Onlime) Видеокамера IP HikVision Ezviz CS-C6SZW
+            'id' => 19001,
+            'name' => 'Видеокамера IP HikVision Ezviz CS-C6SZW',
+            'nameFull' => '(Onlime) Видеокамера IP HikVision Ezviz CS-C6SZW',
+            'id_1c' => 'cb035e7c-4634-11e9-ab58-00155d881200',
         ],
     ];
 
