@@ -570,8 +570,8 @@ class UuController extends ApiInternalController
             }
         }
 
-        if (!$country_id) {
-            $country_id = Country::RUSSIA;
+        if (!$voip_country_id) {
+            $voip_country_id = Country::RUSSIA;
         }
         if (!$currency_id) {
             $currency_id = Currency::RUB;
