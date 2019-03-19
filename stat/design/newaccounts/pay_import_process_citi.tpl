@@ -23,7 +23,7 @@
                             <a href="./?module=newaccounts&action=bill_list&clients_client={$client.id}">
                                 {$client.id} <small>({$client.client})</small> <font style="color:green;"> ({$client.currency})</font>
                             </a> - <span style="font-size:85%">{$client.full_name} ({$client.manager})
-                                <small>{if $client.organization_name}{$client.organization_name}{if $client.inn} - ИНН{$client.inn}{/if}{/if}</small></span>
+                                <small>{if $client.organization_name}{$client.organization_name}{if $client.inn} - ИНН{$client.inn}{/if}{/if}</small>{if !$client.pay_acc} <span style="color: #c40000;" title="Не заполнены банковские реквизиты">р/с</span>{/if}</span>
                         </div>
                     {/foreach}
                 {/if}

@@ -3775,7 +3775,7 @@ WHERE cg.inn = '" . $inn . "'";
         }
 
         $clients = (new \yii\db\Query())
-            ->select(['c.id', 'c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id', 'cg.inn'])
+            ->select(['c.id', 'c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id', 'cg.inn', 'c.pay_acc'])
             ->from(['c' => ClientAccount::tableName()])
             ->innerJoin(['cr' => ClientContract::tableName()], 'cr.id=c.contract_id')
             ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id=cr.contragent_id')
