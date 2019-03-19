@@ -4,7 +4,9 @@ namespace app\models\filter;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\Region;
+use app\models\User;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -13,6 +15,7 @@ use yii\data\ActiveDataProvider;
 class SormClientFilter extends ClientAccount
 {
     public $region_id = '';
+    public $account_manager = '';
 
     public static $regionSettings = [
         Region::KRASNOIARSK => ['date_start' => '2019-03-01'],
@@ -32,14 +35,15 @@ class SormClientFilter extends ClientAccount
                 'address_jur' => 'Юр. адресс',
                 'contract_no' => 'Договор №',
                 'legal_type' => 'Юр.тип',
+                'account_manager' => 'Ак. менеджер'
             ];
     }
 
     public function rules()
     {
         return [
-            [['region_id'], 'integer'],
-            ['name_full', 'string'],
+            ['region_id', 'integer'],
+            [['name_full', 'account_manager'], 'string'],
         ];
     }
 
@@ -52,7 +56,11 @@ class SormClientFilter extends ClientAccount
     {
         $query = ClientAccount::find();
 
-        $query->where(['id' => $this->region_id ? $this->_getClientIds($this->region_id) : false]);
+        $query->where([ClientAccount::tableName() . '.id' => $this->region_id ? $this->_getClientIds($this->region_id) : false]);
+        if ($this->account_manager) {
+            $query->joinWith('clientContractModel');
+            $query->andWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

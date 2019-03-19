@@ -13,6 +13,7 @@ use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\filter\SormClientFilter;
 use yii\widgets\Breadcrumbs;
+use app\models\User;
 
 ?>
 
@@ -160,6 +161,12 @@ $filterColumns = [
     [
         'attribute' => 'region_id',
         'class' => RegionColumn::class,
+    ],
+    [
+        'attribute' => 'account_manager',
+        'filterType' => GridView::FILTER_SELECT2,
+        'filter' => User::getAccountManagerList(true),
+        'class' => \app\classes\grid\column\DataColumn::class
     ],
 ];
 

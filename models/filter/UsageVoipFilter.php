@@ -2,12 +2,25 @@
 
 namespace app\models\filter;
 
+use app\models\ClientContract;
 use app\models\UsageVoip;
+use app\models\User;
 use yii\data\ActiveDataProvider;
 
 class UsageVoipFilter extends UsageVoip
 {
     public $id = '';
+    public $account_manager = '';
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return array_merge(parent::rules(), [
+            ['account_manager', 'string']
+        ]);
+    }
 
     /**
      * Фильтровать
@@ -27,6 +40,11 @@ class UsageVoipFilter extends UsageVoip
         ]);
 
         $this->id !== '' && $query->andWhere(["{$usageVoipTableName}.id" => $this->id]);
+
+        if ($this->account_manager) {
+            $query->joinWith('clientAccount.clientContractModel');
+            $query->andWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
+        }
 
         return $dataProvider;
     }

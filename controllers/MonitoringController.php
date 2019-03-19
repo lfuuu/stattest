@@ -361,6 +361,11 @@ class MonitoringController extends BaseController
             });
         }
 
+        if ($account_manager = $filterModelSearch->account_manager) {
+            $filterModel->account_manager = $account_manager;
+            $filterModelOld->account_manager = $account_manager;
+        }
+
         $filterModelOld->id = $usageVoipIds ? : 0;
         $filterModel->id = $accountTariffIds ? : 0;
 

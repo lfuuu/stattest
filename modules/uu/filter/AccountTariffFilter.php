@@ -58,6 +58,7 @@ class AccountTariffFilter extends AccountTariff
     public $is_unzipped = '';
 
     public $account_manager_name = '';
+    public $account_manager = '';
 
     // Проксируемые фильтруемые значения
     public $date_sale_from = '';
@@ -90,6 +91,16 @@ class AccountTariffFilter extends AccountTariff
         return $this->service_type_id ?
             ServiceType::findOne($this->service_type_id) :
             null;
+    }
+
+    /**
+     * @return array
+     */
+    public function attributeLabels()
+    {
+        return array_merge(parent::attributeLabels(), [
+            'account_manager' => 'Ак. Менеджер'
+        ]);
     }
 
     /**
@@ -129,6 +140,7 @@ class AccountTariffFilter extends AccountTariff
                 'date_sale_to',
                 'date_before_sale_from',
                 'date_before_sale_to',
+                'account_manager',
             ],
             'string'
         ];
@@ -212,7 +224,10 @@ class AccountTariffFilter extends AccountTariff
                 $query
                     ->leftJoin(User::tableName() . ' amu', $clientContractTableName . '.account_manager = amu.user')
                     ->andWhere(['amu.user' => $this->account_manager_name]);
+            } elseif ($this->account_manager) {
+                $query->andWhere([$clientContractTableName . '.account_manager' => $this->account_manager]);
             }
+
 
             if ($isSpecialServiceType) {
 

@@ -195,12 +195,13 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @param bool $isWithEmpty
      * @return array
      */
-    public static function getAccountManagerList()
+    public static function getAccountManagerList($isWithEmpty = false)
     {
         return self::getListTrait(
-            $isWithEmpty = false,
+            $isWithEmpty,
             $isWithNullAndNotNull = false,
             $indexBy = 'user',
             $select = 'name',

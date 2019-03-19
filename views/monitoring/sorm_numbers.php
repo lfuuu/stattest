@@ -9,11 +9,10 @@ use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use app\models\filter\UsageVoipFilter;
 use yii\web\View;
-
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
-
 use app\models\Region;
+use \app\models\User;
 
 /** @var $filterModelSearch AccountTariffFilter */
 /** @var $filterModel AccountTariffFilter */
@@ -42,6 +41,10 @@ echo Form::widget([
         'region_id' => [
             'type' => Form::INPUT_DROPDOWN_LIST,
             'items' => Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE]),
+        ],
+        'account_manager' => [
+            'type' => Form::INPUT_DROPDOWN_LIST,
+            'items' => User::getAccountManagerList(true),
         ],
     ],
 ]);
@@ -73,6 +76,11 @@ $columns = [
     [
         'label'     => 'Название контрагента',
         'attribute' => 'clientAccount.contragent.name',
+        'filter'    => false,
+    ],
+    [
+        'label'     => 'Ак. Менеджер',
+        'attribute' => 'clientAccount.clientContractModel.accountManagerName',
         'filter'    => false,
     ],
     [
@@ -153,6 +161,11 @@ $columns = [
     [
         'label'     => 'Название контрагента',
         'attribute' => 'clientAccount.contragent.name',
+        'filter'    => false,
+    ],
+    [
+        'label'     => 'Аккаунт менеджер',
+        'attribute' => 'clientAccount.clientContractModel.accountManagerName',
         'filter'    => false,
     ],
     [
