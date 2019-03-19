@@ -202,7 +202,7 @@
             if(optools.check_vpbx_submit()) 
                 document.getElementById('dbform').submit();"
     {else}
-        type=submit
+        type=button onclick="$('#dbform').submit();"
     {/if} value="{if $dbform_btn_new}Добавить{else}Изменить{/if}">
 </DIV>
 
