@@ -53,6 +53,8 @@ abstract class Monitor extends Component
             MonitorSormClientsReg88::class,
             MonitorBrokenRegionInVoip::class,
             Monitor1cTroubles::class,
+            MonitorSorm_Habarovsk::class,
+            MonitorSorm_Krasnoiarsk::class,
         ];
     }
 

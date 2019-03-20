@@ -147,14 +147,17 @@ class HealthController extends Controller
 
             $itemId = (new ReflectionClass($monitor))->getShortName();
             $itemId = str_replace('Monitor', '', $itemId);
+
             $itemValue = $monitor->getValue();
             $limits = $monitor->getLimits();
+            $message = method_exists($monitor, 'getMessage') ? $monitor->getMessage() : $itemValue;
+
 
             $data[$monitor->monitorGroup][] = [
                 'itemId' => $itemId,
                 'itemVal' => $itemValue,
                 'statusId' => $this->_getStatus($limits, $itemValue),
-                'statusMessage' => method_exists($monitor, 'getMessage') ? $monitor->getMessage() : $itemValue,
+                'statusMessage' => $message,
             ];
             $this->_logHealth($itemId, $itemValue);
         }
