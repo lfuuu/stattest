@@ -3,7 +3,6 @@
 namespace app\health;
 
 use app\classes\Assert;
-use app\classes\helpers\ArrayHelper;
 use app\models\filter\SormClientFilter;
 
 /**
@@ -11,6 +10,8 @@ use app\models\filter\SormClientFilter;
  */
 class MonitorSormItGrad extends Monitor
 {
+    public $monitorGroup = self::GROUP_FOR_MANAGERS;
+
     protected $region_id;
 
     private $_dataClient = [];
