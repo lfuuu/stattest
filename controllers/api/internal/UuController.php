@@ -503,6 +503,7 @@ class UuController extends ApiInternalController
             $voip_number = $accountTariff->prev_account_tariff_id ?
                 $accountTariff->prevAccountTariff->voip_number :
                 $accountTariff->voip_number;
+
             $voip_city_id = $accountTariff->city_id;
             if ($accountTariff->city_id) {
                 $voip_country_id = $accountTariff->city->country_id;
@@ -570,7 +571,7 @@ class UuController extends ApiInternalController
             }
         }
 
-        if (!$voip_country_id) {
+        if (!$voip_country_id && !$voip_city_id) {
             $voip_country_id = Country::RUSSIA;
         }
         if (!$currency_id) {
