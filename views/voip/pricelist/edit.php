@@ -77,6 +77,7 @@ echo Breadcrumbs::widget([
                     'items' => ['' => '-- Выберите --'] + NetworkConfig::getList(),
                     'options' => ['class' => 'select2']
                 ],
+                'is_global' => ['type' => Form::INPUT_CHECKBOX],
             ],
         ]);
     } else {
