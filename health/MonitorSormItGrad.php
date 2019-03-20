@@ -38,14 +38,20 @@ class MonitorSormItGrad extends Monitor
 
         $sqlPhoneList = SormClientFilter::getSqlPhoneList($this->region_id);
 
+        $mainSqlPhoneList = "SELECT a.*
+FROM ({$sqlPhoneList}) a, clients c, client_contract cc
+WHERE a.client_id = c.id AND c.contract_id = cc.id
+AND cc.business_process_status_id NOT IN (22, 28)
+";
+
         $this->_dataPhones = \Yii::$app->db
             ->createCommand("SELECT DISTINCT client_id as id, 'devadr' as flag_device_address
-FROM ({$sqlPhoneList}) a
+FROM ({$mainSqlPhoneList}) a
 WHERE device_address IS NULL OR trim(device_address) = ''")
             ->queryAll();
 
 
-        $sqlClients = 'SELECT DISTINCT client_id FROM (' . $sqlPhoneList . ') a';
+        $sqlClients = 'SELECT DISTINCT client_id FROM (' . $mainSqlPhoneList . ') a';
 
         $sql = "SELECT 
                     c.id, 
