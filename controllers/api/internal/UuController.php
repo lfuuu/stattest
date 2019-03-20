@@ -15,6 +15,7 @@ use app\models\EventQueue;
 use app\models\Number;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -38,6 +39,7 @@ use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffTag;
 use app\modules\uu\models\TariffVoipGroup;
+use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\Module;
 use app\modules\async\Module as asyncModule;
 use DateTimeZone;
@@ -571,9 +573,18 @@ class UuController extends ApiInternalController
             }
         }
 
-        if (!$voip_country_id && !$voip_city_id) {
+        if (!$tariff_status_id) {
+            $tariff_status_id = TariffStatus::ID_PUBLIC;
+        }
+
+        if(
+            in_array($service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])
+            && ($voip_ndc_type_id == NdcType::ID_GEOGRAPHIC || !$voip_ndc_type_id)
+            && !$voip_country_id
+            && !$voip_city_id) {
             $voip_country_id = Country::RUSSIA;
         }
+
         if (!$currency_id) {
             $currency_id = Currency::RUB;
         }
