@@ -4,6 +4,13 @@ namespace app\models;
 
 use app\classes\model\ActiveRecord;
 
+/**
+ * Class Language
+ *
+ * @property int $code
+ * @property string $name
+ * @property int $order
+ */
 class Language extends ActiveRecord
 {
     // Определяет getList (список для selectbox)

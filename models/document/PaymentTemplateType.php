@@ -1,0 +1,165 @@
+<?php
+
+namespace app\models\document;
+
+use app\classes\model\ActiveRecord;
+use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
+use yii\helpers\Url;
+use app\models\User;
+
+/**
+ * This is the model class for table "payment_template_type".
+ *
+ * @property integer $id
+ * @property string $name
+ * @property string $note
+ * @property integer $is_enabled
+ * @property string $created_at
+ * @property string $updated_at
+ * @property integer $updated_by
+ *
+ * @property PaymentTemplate[] $paymentTemplates
+ * @property User $updatedBy
+ */
+class PaymentTemplateType extends ActiveRecord
+{
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return 'payment_template_type';
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return array_merge(
+            parent::behaviors(),
+            [
+                [
+                    // Установить "когда создал" и "когда обновил"
+                    'class' => TimestampBehavior::class,
+                    'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+                ],
+                [
+                    // Установить "кто создал" и "кто обновил"
+                    'class' => AttributeBehavior::class,
+                    'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_by',
+                    ],
+                    'value' => Yii::$app->user->getId(),
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name', 'is_enabled', 'created_at'], 'required'],
+            [['created_at', 'updated_at', 'is_enabled'], 'safe'],
+            [['updated_by'], 'integer'],
+            [['name', 'note'], 'string', 'max' => 255],
+            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'name' => 'Название',
+            'note' => 'Заметки',
+            'is_enabled' => 'Активен',
+            'created_at' => 'Создан',
+            'updated_at' => 'Обновлён',
+            'updated_by' => 'Изменён',
+        ];
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [
+            'id',
+            'created_at',
+            'updated_at',
+            'updated_by',
+        ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPaymentTemplates()
+    {
+        return $this->hasMany(PaymentTemplate::class, ['type_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::class, ['id' => 'updated_by']);
+    }
+
+    /**
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
+     */
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['id' => SORT_ASC],
+            $where = ['is_enabled' => 1]
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return Url::to(['/dictionary/payment-template-type/edit', 'id' => $this->id]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getToggleEnableUrl()
+    {
+        return Url::to(['/dictionary/payment-template-type/toggle-enable', 'id' => $this->id]);
+    }
+}

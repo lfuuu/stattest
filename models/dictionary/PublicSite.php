@@ -5,6 +5,8 @@ namespace app\models\dictionary;
 use app\classes\model\ActiveRecord;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
+use app\models\Country;
+use app\models\EntryPoint;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -14,6 +16,8 @@ use yii\helpers\Url;
  * @property int $domain
  *
  * @property-read PublicSiteCountry[] $publicSiteCountries
+ * @property-read EntryPoint $entryPoints
+ * @property-read Country $countryFirst
  */
 class PublicSite extends ActiveRecord
 {
@@ -63,6 +67,41 @@ class PublicSite extends ActiveRecord
     {
         return $this->hasMany(PublicSiteCountry::class, ['site_id' => 'id'])
             ->orderBy(['order' => SORT_DESC]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEntryPoints()
+    {
+        return $this->hasMany(EntryPoint::class, ['site_id' => 'id'])
+            ->inverseOf('site');
+    }
+
+    /**
+     * @return Country
+     */
+    public function getCountryFirst()
+    {
+        return
+            $this->entryPoints ?
+                $this->entryPoints[0]->country :
+                Country::findOne([Country::$primaryField => Country::UNITED_KINGDOM]);
+    }
+
+    /**
+     * @return self[]
+     */
+    public static function getAllWithCountries()
+    {
+        $countryTable = Country::tableName();
+
+        return self::find()
+            ->from(PublicSite::tableName())
+            ->joinWith('entryPoints.country ' . $countryTable)
+            ->orderBy(['id' => SORT_ASC])
+            ->groupBy([$countryTable . '.code'])
+            ->all();
     }
 
     /**

@@ -15,7 +15,7 @@ use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
 if (!$model->isNewRecord) {
-    $this->title = $city->name;
+    $this->title = $model->title;
 } else {
     $this->title = Yii::t('common', 'Create');
 }
@@ -28,6 +28,17 @@ if (!$model->isNewRecord) {
         $this->title
     ],
 ]) ?>
+
+<?php if ($model->hasErrors()) : ?>
+    <?php $errors = $model->getErrors(); ?>
+    <div class="alert alert-danger text-center error-block">
+        <?php foreach ($errors as $errorGroup) : ?>
+            <?php foreach ($errorGroup as $error) : ?>
+                <?= $error; ?><br />
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
 <div class="well">
     <?php

@@ -29,8 +29,8 @@ use app\models\dictionary\PublicSite;
  * @property int $site_id
  * @property int $connect_trouble_user_id
  * @property string $wizard_type
- * @property Country country
- * @property User connectTroubleUser
+ * @property Country $country
+ * @property User $connectTroubleUser
  */
 class EntryPoint extends ActiveRecord
 {
@@ -189,6 +189,14 @@ class EntryPoint extends ActiveRecord
     public function getConnectTroubleUser()
     {
         return $this->hasOne(User::class, ['id' => 'connect_trouble_user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSite()
+    {
+        return $this->hasOne(PublicSite::class, ['id' => 'site_id']);
     }
 
     /**

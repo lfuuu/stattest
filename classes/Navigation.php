@@ -181,6 +181,8 @@ class Navigation
                 ->setTitle('Шаблоны')
                 ->addItem('Договоры', ['/templates/document/template'])
                 ->addItem('Универсальные счета-фактуры', ['/templates/uu/invoice'], ['newaccounts_balance.read'])
+                ->addItem('Типы для документов', ['/dictionary/payment-template-type'], ['dictionary.read'])
+                ->addItem('Шаблоны для документов', ['/templates/uu/payment'], ['dictionary.read'])
         );
 
         /** @var \app\modules\uu\Module $module */

@@ -27,6 +27,7 @@ use yii\helpers\Url;
  * @property int $is_show_in_lk
  *
  * @property-read Currency $currency
+ * @property-read Language $language
  * @property-read PublicSiteCountry[] $publicSiteCountries
  */
 class Country extends ActiveRecord
@@ -44,8 +45,15 @@ class Country extends ActiveRecord
     const SLOVAKIA = 703;
     const AUSTRIA = 40;
     const CZECH = 203;
+    const UNITED_KINGDOM = 826;
 
     public static $primaryField = 'code';
+
+    public static $flagsMap = [
+        self::AUSTRIA => 'at',
+        self::SLOVAKIA => 'si',
+        self::UNITED_KINGDOM => 'en',
+    ];
 
     /**
      * Вернуть имена полей
@@ -104,6 +112,14 @@ class Country extends ActiveRecord
     public function getCurrency()
     {
         return $this->hasOne(Currency::class, ['id' => 'currency_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLanguage()
+    {
+        return $this->hasOne(Language::class, ['code' => 'lang']);
     }
 
     /**
@@ -168,5 +184,17 @@ class Country extends ActiveRecord
     public function getLink()
     {
         return Html::a(Html::encode($this->name), $this->getUrl());
+    }
+
+    /**
+     * Вернуть код флага
+     *
+     * @return string
+     */
+    public function getFlagCode()
+    {
+        return !empty(self::$flagsMap[$this->code]) ?
+            self::$flagsMap[$this->code] :
+            strtolower(substr($this->alpha_3, 0, 2));
     }
 }
