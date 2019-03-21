@@ -5,7 +5,7 @@
  */
 class m190315_121260_create_payment_template_table extends \app\classes\Migration
 {
-    public $tableName = 'payment_template2';
+    public $tableName = 'payment_template';
     public $tableOptions;
 
     public $tableNameType = 'payment_template_type';
