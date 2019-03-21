@@ -573,21 +573,21 @@ class UuController extends ApiInternalController
             }
         }
 
-        if (!$tariff_status_id) {
-            $tariff_status_id = TariffStatus::ID_PUBLIC;
-        }
-
-        if(
-            in_array($service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])
-            && ($voip_ndc_type_id == NdcType::ID_GEOGRAPHIC || !$voip_ndc_type_id)
-            && !$voip_country_id
-            && !$voip_city_id) {
-            $voip_country_id = Country::RUSSIA;
-        }
-
-        if (!$currency_id) {
-            $currency_id = Currency::RUB;
-        }
+//        if (!$tariff_status_id) {
+//            $tariff_status_id = TariffStatus::ID_PUBLIC;
+//        }
+//
+//        if(
+//            in_array($service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])
+//            && ($voip_ndc_type_id == NdcType::ID_GEOGRAPHIC || !$voip_ndc_type_id)
+//            && !$voip_country_id
+//            && !$voip_city_id) {
+//            $voip_country_id = Country::RUSSIA;
+//        }
+//
+//        if (!$currency_id) {
+//            $currency_id = Currency::RUB;
+//        }
 
         // @todo надо ли только статус "публичный" для ватс?
 
