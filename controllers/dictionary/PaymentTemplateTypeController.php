@@ -74,7 +74,7 @@ class PaymentTemplateTypeController extends BaseController
                 $model->loadDefaultValues();
             } else {
                 $model = new PaymentTemplateType;
-                $model->created_at = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
+                $model->created_at = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
             }
 
             if ($model->load(Yii::$app->request->post())) {

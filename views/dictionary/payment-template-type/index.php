@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 use app\models\document\PaymentTemplateType;
 use yii\data\ActiveDataProvider;
 use yii\widgets\Breadcrumbs;
@@ -38,9 +39,15 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'created_at',
+            'value'     => function (PaymentTemplateType $model) {
+                return DateTimeZoneHelper::getDateTime($model->created_at);
+            },
         ],
         [
             'attribute' => 'updated_at',
+            'value'     => function (PaymentTemplateType $model) {
+                return DateTimeZoneHelper::getDateTime($model->updated_at);
+            },
         ],
         [
             'class' => ActionColumn::class,

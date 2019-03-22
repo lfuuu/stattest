@@ -342,7 +342,7 @@ class PaymentForm extends Form
     protected function saveNewTemplate(PaymentTemplate $newTemplate, $content)
     {
         $newTemplate->content = $content;
-        $newTemplate->created_at = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
+        $newTemplate->created_at = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
         if (!$newTemplate->save()) {
             throw new ModelValidationException($newTemplate);
         }

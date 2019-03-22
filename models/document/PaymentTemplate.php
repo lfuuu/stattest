@@ -4,6 +4,7 @@ namespace app\models\document;
 
 use app\classes\helpers\ArrayHelper;
 use app\classes\model\ActiveRecord;
+use app\helpers\DateTimeZoneHelper;
 use app\models\Country;
 use app\models\User;
 use Yii;
@@ -135,9 +136,9 @@ class PaymentTemplate extends ActiveRecord
             'id',
             function (PaymentTemplate $model) {
                 $updated = $model->updated_at ? : $model->created_at;
-                $default = $model->is_default ? ' (*)' : '';
+                $default = $model->is_default ? ' *' : '';
 
-                return sprintf('v.%d от %s%s', $model->version, $updated, $default);
+                return sprintf('v.%d от %s%s', $model->version, DateTimeZoneHelper::getDateTime($updated), $default);
             }
         );
         $versions['0'] = 'Новая версия';

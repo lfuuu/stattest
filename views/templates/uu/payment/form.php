@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 use kartik\select2\Select2;
 use yii\helpers\Url;
 
@@ -54,8 +55,8 @@ $model = $formModel->getTemplate() ? : $formModel->getTemplateDefault();
             </div>
 
             <div class="col-sm-2">
-                <?= $model->created_at ?><br />
-                <?= $model->updated_at ?><br />
+                <?= DateTimeZoneHelper::getDateTime($model->created_at) ?><br />
+                <?= DateTimeZoneHelper::getDateTime($model->updated_at) ?><br />
                 <?= $model->updatedBy->user ?>
             </div>
 
