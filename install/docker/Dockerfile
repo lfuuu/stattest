@@ -19,7 +19,7 @@ RUN yum install -y mysql-server postgresql94 postgresql94-server nginx cronie re
 rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm;\
 rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm;\
 yum -y update && yum -y upgrade;\
-yum install -y php56w php56w-fpm php56w-cli php56w-curl php56w-gd php56w-json php56w-mcrypt php56w-mysqlnd php56w-pgsql php56w-readline php56w-xdebug php56w-xmlrpc php56w-intl php56w-mbstring php56w-bcmath php56w-xmlwriter php56w-process php-redis
+yum install -y php56w php56w-fpm php56w-cli php56w-curl php56w-gd php56w-json php56w-mcrypt php56w-mysqlnd php56w-pgsql php56w-readline php56w-xdebug php56w-xmlrpc php56w-intl php56w-mbstring php56w-bcmath php56w-xmlwriter php56w-process php56w-redis
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY nginx.default.conf /etc/nginx/conf.d/default.conf
