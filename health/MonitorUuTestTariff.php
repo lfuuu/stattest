@@ -2,6 +2,7 @@
 
 namespace app\health;
 
+use app\models\ClientAccount;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
@@ -39,6 +40,7 @@ class MonitorUuTestTariff extends Monitor
         $accountTariffTableName = AccountTariff::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
+        $clientAccountTableName = ClientAccount::tableName();
         $deltaDays = self::DELTA_DAYS;
 
         $testStatuses = implode(', ', Tariff::getTestStatuses());
@@ -51,12 +53,12 @@ class MonitorUuTestTariff extends Monitor
                 COUNT(*) as cnt,
                 GROUP_CONCAT(account_tariff.id) AS message
             FROM
-                {$accountTariffTableName} account_tariff,
-                {$tariffPeriodTableName} tariff_period,
-                {$tariffTableName} tariff
+                {$accountTariffTableName} account_tariff
+                        LEFT JOIN {$clientAccountTableName} client ON client.id = account_tariff.client_account_id
+                        LEFT JOIN {$tariffPeriodTableName} tariff_period ON tariff_period.id = account_tariff.tariff_period_id
+                        LEFT JOIN {$tariffTableName} tariff ON tariff.id = tariff_period.tariff_id
             WHERE
-                account_tariff.tariff_period_id = tariff_period.id
-                AND tariff_period.tariff_id = tariff.id
+                client.voip_credit_limit_day != 0
                 AND tariff.tariff_status_id IN ({$testStatuses})
                 AND account_tariff.insert_time + INTERVAL tariff.count_of_validity_period day + INTERVAL {$deltaDays} day < NOW()
 SQL;
