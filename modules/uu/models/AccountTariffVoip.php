@@ -60,7 +60,7 @@ class AccountTariffVoip extends AccountTariff
                 ],
                 'integer'
             ],
-            [['voip_ndc_type_id', 'voip_numbers_list_order_by_field', 'voip_numbers_list_mask'], 'string'],
+            [['voip_ndc_type_id', 'voip_numbers_list_order_by_field', 'voip_numbers_list_mask', 'device_address'], 'string'],
             ['voip_numbers', 'each', 'rule' => ['match', 'pattern' => '/^\d{4,15}$/']],
             [['voip_numbers'], 'required'],
         ];

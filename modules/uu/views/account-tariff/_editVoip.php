@@ -227,6 +227,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <?= $this->render('_editLogInput', [
             'formModel' => $formModel,
             'form' => $form,
+            'accountTariffVoip' => $accountTariffVoip
         ]) ?>
     </div>
 

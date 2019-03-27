@@ -119,6 +119,10 @@ abstract class AccountTariffForm extends Form
                     throw new InvalidArgumentException('');
                 }
 
+                if ($this->accountTariffVoip->device_address) {
+                    $this->accountTariff->device_address = $this->accountTariffVoip->device_address;
+                }
+
                 // каждый выбранный номер телефона - отдельная услуга
                 foreach ($this->accountTariffVoip->voip_numbers as $voipNumber) {
 
