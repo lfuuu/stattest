@@ -33,6 +33,18 @@ use yii\db\Expression;
 use app\models\billing\DisconnectCause;
 use yii\db\Query;
 
+// add changes in make_calls_raw_cache - account_id filter
+/*
+...
+cr2.orig = false AND
+(
+(cr1.connect_time >= beginning :: timestamp AND cr1.connect_time < ending :: timestamp) AND
+(cr2.connect_time >= beginning :: timestamp AND cr2.connect_time < ending :: timestamp)
+)
+AND cr1.account_id IS NOT NULL
+AND cr2.account_id IS NOT NULL
+...
+*/
 trait CallsRawReport
 {
 
@@ -152,7 +164,11 @@ trait CallsRawReport
                 //->innerJoin(['cr2' => CallsRaw::tableName()], 'cr1.id = cr2.peer_id');
 
                 ->andWhere(['IS NOT', 'cdr.mcn_callid', null])
-                ->andWhere(['>', 'cdr.session_time', 0]);
+                ->andWhere(['>', 'cdr.session_time', 0])
+
+                ->andWhere(['IS NOT', 'cr1.account_id', null])
+                ->andWhere(['IS NOT', 'cr2.account_id', null])
+            ;
         }
 
         $query
