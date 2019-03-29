@@ -11,6 +11,7 @@ use app\classes\WebApplication;
 use app\classes\yii\CTEQuery;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsRaw;
+use app\models\billing\Hub;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use Yii;
@@ -22,6 +23,7 @@ use yii\db\Expression;
 /**
  * Class Raw
  *
+ * @property int $marketPlaceId
  * @property array $server_ids
  * @property string $connect_time_from
  * @property string $connect_time_to
@@ -129,6 +131,7 @@ class CallsRawFilter extends CallsRaw
         'margin_max',
         'margin_percent',
     ];
+    public $marketPlaceId = Hub::MARKET_PLACE_ID_RUSSIA;
     public $server_ids = [];
     public $connect_time_from = null;
     public $connect_time_to = null;
@@ -195,6 +198,7 @@ class CallsRawFilter extends CallsRaw
         return [
             [
                 [
+                    'marketPlaceId',
                     'is_success_calls',
                     'session_time_from',
                     'session_time_to',
@@ -335,6 +339,7 @@ class CallsRawFilter extends CallsRaw
                 'dst_number_type_ids' => 'Тип номера В',
                 'group_period' => 'Период группировки',
                 'group' => 'Группировки',
+                'marketPlaceId' => 'Биржа звонков',
                 'server_ids' => 'Регион (точка подключения)',
                 'currency' => 'Валюта расчетов',
                 'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
@@ -600,12 +605,12 @@ class CallsRawFilter extends CallsRaw
      * Отчет по calls_raw (/voip/raw или /voip/raw/with-cache)
      *
      * @param bool $isGetDataProvider
-     * @param bool $isSupport
-     * @param bool $isCache
+     * @param bool $isNewVersion Использовать новую версию расчёта
+     * @param bool $isPreFetched Использовать предрассчитанную таблицу
      * @return array|mixed|ArrayDataProvider
-     * @throws \yii\db\Exception
+     * @throws \Exception
      */
-    public function getReport($isGetDataProvider = true, $isSupport = false, $isCache = false)
+    public function getReport($isGetDataProvider = true, $isNewVersion = false, $isPreFetched = false)
     {
         if ($this->currency != Currency::RUB && $this->currency_rate) {
             $this->currency_rate = CurrencyRate::dao()->getRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT));
@@ -617,8 +622,8 @@ class CallsRawFilter extends CallsRaw
         }
 
         // Формирование запроса с учетом флага кеширования
-        $query = $isSupport ?
-            $this->_getReport($isCache) : $this->_getSlowReport();
+        $query = $isNewVersion ?
+            $this->getReportNew($isPreFetched) : $this->getReportSlow();
 
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
@@ -670,24 +675,27 @@ class CallsRawFilter extends CallsRaw
                 'term_rate',
             ];
             // Добавление полей, которые не поддерживает кеширование
-            if (!$isSupport || !$isCache) {
+            if (!$isNewVersion || !$isPreFetched) {
                 $sort = array_merge($sort, [
                     'src_number', 'dst_number', 'pdd'
                 ]);
             }
         }
 
-        if ($isSupport && $isCache) {
+        if ($isNewVersion && $isPreFetched) {
             $result = $query->createCommand(Yii::$app->dbPg)
                 ->queryAll();
         } else {
-            $queryCacheKey = CallsRaw::getCacheKey($query);
-            if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
-                $result = $query->createCommand(Yii::$app->dbPg)->queryAll();
-                if ($result) {
-                    Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
-                }
-            }
+            // !!! временно отключим кэширование для тестирования !!!
+
+            //$queryCacheKey = CallsRaw::getCacheKey($query);
+            //if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
+            //    $result = $query->createCommand(Yii::$app->dbPg)->queryAll();
+            //    if ($result) {
+            //        Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
+            //    }
+            //}
+            $result = $query->createCommand(Yii::$app->dbPg)->queryAll();
         }
 
         if (!$isGetDataProvider) {

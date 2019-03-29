@@ -244,6 +244,7 @@ class RawController extends BaseController
      * Метод, не поддерживающий кеширование
      *
      * @return string
+     * @throws \yii\db\Exception
      */
     public function actionIndex()
     {
@@ -276,8 +277,8 @@ class RawController extends BaseController
 
         return $this->render('index', [
             'filterModel' => $model,
-            'isSupport' => Yii::$app->controller->action->id == 'with-cache',
-            'isCache' => Yii::$app->getRequest()->get('isCache') == 1,
+            'isNewVersion' => Yii::$app->controller->action->id == 'with-cache',
+            'isPreFetched' => Yii::$app->getRequest()->get('isCache') == 1,
         ]);
     }
 }

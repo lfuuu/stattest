@@ -2,7 +2,6 @@
 
 namespace app\commands;
 
-use app\models\billing\CallsRawCache;
 use Yii;
 use yii\console\Controller;
 
@@ -19,7 +18,6 @@ class CallsRawCacheController extends Controller
         $params = $beginning && $ending ?
             ("'" . str_replace('_', ' ', $beginning) . "', '" . str_replace('_', ' ', $ending) . "'") : '';
         echo sprintf('Caching with range: %s', $params) . PHP_EOL;
-        $db = CallsRawCache::getDb();
         echo 'Status: ' .  Yii::$app->dbPg
             ->createCommand("select calls_raw_cache.make_calls_raw_cache({$params});")
             ->queryScalar() . PHP_EOL;

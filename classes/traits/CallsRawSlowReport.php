@@ -6,10 +6,13 @@
 namespace app\classes\traits;
 
 use app\classes\yii\CTEQuery;
+use app\models\billing\CallsCdr;
 use app\models\billing\CallsRaw;
 use app\models\billing\ClientContractType;
 use app\models\billing\Clients;
 use app\models\billing\CurrencyRate;
+use app\models\billing\Hub;
+use app\models\billing\Server;
 use app\models\billing\ServiceTrunk;
 use app\models\billing\Trunk;
 use app\models\billing\TrunkGroupItem;
@@ -28,16 +31,43 @@ use yii\db\Query;
 trait CallsRawSlowReport
 {
     /**
+     * Расчёт отчёта, версия 1.1
+     *
      * @return CTEQuery
      */
-    private function _getSlowReport()
+    protected function getReportSlow()
     {
         $this->dbConn = Yii::$app->dbPgSlave;
 
+        // выборка по cdr
+        $query0 = new CTEQuery();
+        // выборка по raw:orig
         $query1 = new CTEQuery();
+        // выборка по raw:term
         $query2 = new CTEQuery();
+        // выборка по незавершенным cdr
         $query3 = new CTEQuery();
+        // результирующая выборка
         $query4 = new CTEQuery();
+
+        $query0
+            ->select(
+                [
+                    //'cdr.server_id',
+                    'cdr.id',
+                    //'cdr.mcn_callid',
+                ]
+            )
+            ->from(['cdr' => CallsCdr::tableName()])
+            ->innerJoin(['s' => Server::tableName()], 's.id = cdr.server_id')
+            ->innerJoin([
+                'h' => Hub::tableName()],
+                'h.id = s.hub_id' .
+                ' AND h.market_place_id = ' . $this->marketPlaceId
+            )
+
+            ->andWhere(['IS NOT', 'cdr.mcn_callid', null])
+            ->andWhere(['>', 'cdr.session_time', 0]);
 
         $query1
             ->select(
@@ -59,9 +89,14 @@ trait CallsRawSlowReport
                     'sale' => new Expression(self::getMoneyCalculateExpression('@(cr.cost)')),
                     'orig_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
                     'cr.server_id',
+                    //'cdr_data.mcn_callid as cdr_mcn_callid',
                 ]
             )
-            ->from(['cr' => CallsRaw::tableName()])
+            ->from(['cdr_data'])
+
+            //->innerJoin(['cr' => CallsRaw::tableName()], 'cr.mcn_callid = cdr_data.cdr_mcn_callid')
+            ->innerJoin(['cr' => CallsRaw::tableName()], 'cr.cdr_id = cdr_data.id')
+
             ->leftJoin(['t' => Trunk::tableName()], 't.id = cr.trunk_id')
             ->leftJoin(['st' => ServiceTrunk::tableName()], 'st.id = cr.trunk_service_id')
             ->leftJoin(['cct' => ClientContractType::tableName()], 'cct.id = st.contract_type_id')
@@ -71,7 +106,10 @@ trait CallsRawSlowReport
             ->leftJoin(['ci' => City::tableName()], 'ci.id = cr.nnp_city_id')
             ->leftJoin(['c' => Clients::tableName()], 'c.id = cr.account_id')
             ->leftJoin(['rate' => CurrencyRate::tableName()], 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
+
+            ->andWhere(['IS NOT', 'cr.account_id', null])
             ->andWhere(['cr.orig' => true])
+
             ->orderBy(['connect_time' => SORT_ASC])
             ->limit(500);
 
@@ -89,9 +127,11 @@ trait CallsRawSlowReport
                 'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
                 'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
                 'cr.server_id',
+                //'cdr_data.mcn_callid as cdr_mcn_callid',
             ]
         )
-            ->from(['cr' => CallsRaw::tableName()])
+            ->from(['cdr_data'])
+            ->innerJoin(['cr' => CallsRaw::tableName()], 'cr.cdr_id = cdr_data.id')
             ->leftJoin(['t' => Trunk::tableName()], 't.id = cr.trunk_id')
             ->leftJoin(['st' => ServiceTrunk::tableName()], 'st.id = cr.trunk_service_id')
             ->leftJoin(['cct' => ClientContractType::tableName()], 'cct.id = st.contract_type_id')
@@ -101,7 +141,10 @@ trait CallsRawSlowReport
             ->leftJoin(['ci' => City::tableName()], 'ci.id = cr.nnp_city_id')
             ->leftJoin(['c' => Clients::tableName()], 'c.id = cr.account_id')
             ->leftJoin(['rate' => CurrencyRate::tableName()], 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
+
+            ->andWhere(['IS NOT', 'cr.account_id', null])
             ->andWhere(['cr.orig' => false])
+
             ->orderBy(['connect_time' => SORT_ASC])
             ->limit(500);
 
@@ -141,6 +184,13 @@ trait CallsRawSlowReport
             ->orderBy('connect_time')
             ->limit(500);
 
+        $query4->select(
+            [
+                '*',
+                '(@(cr1.sale)) - cr2.cost_price margin',
+            ]
+        )->from('cr1')
+            ->innerJoin('cr2', 'cr1.cdr_id = cr2.cdr_id');
 
         if ($this->server_ids) {
             $condition = ['cr.server_id' => $this->server_ids];
@@ -159,6 +209,8 @@ trait CallsRawSlowReport
                     $this->correct_connect_time_to ? $this->correct_connect_time_to : new Expression('now()'),
                 ];
             };
+
+            $query0->andWhere($condition('cdr.connect_time'));
             $query1->andWhere($condition('cr.connect_time'));
             $query2->andWhere($condition('cr.connect_time'));
             $query3 && $query3->andWhere($condition('setup_time'));
@@ -167,6 +219,8 @@ trait CallsRawSlowReport
         $query3 = null;
         $query2->limit(-1)->orderBy([]);
         $query1->limit(-1)->orderBy([]);
+        $query0->limit(-1)->orderBy([]);
+        /** @var Query $query3 */
 
         if ($this->src_trunk_group_ids) {
             $query = (new Query())
@@ -197,7 +251,6 @@ trait CallsRawSlowReport
 
             $query2->andWhere(['t.id' => $query]);
         }
-
 
         if ($this->is_exclude_internal_trunk_orig) {
             $query1->leftJoin(['bst' => ServiceTrunk::tableName()], 'cr.trunk_service_id = bst.id');
@@ -288,8 +341,6 @@ trait CallsRawSlowReport
             $query3 = null;
         }
 
-        /** @var Query $query3 */
-
         if ($this->dst_number) {
             $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
             $query1->andWhere(['LIKE', 'CAST(cr.dst_number AS varchar)', $this->dst_number, $isEscape = false]);
@@ -312,19 +363,6 @@ trait CallsRawSlowReport
             && $query3->andWhere($condition);
         }
 
-//        $query4->select(['*', '(@(cr1.sale)) - cr2.cost_price margin']
-//        )->from('cr1')
-//            ->join('JOIN', 'cr2', ['AND', 'cr1.cdr_id = cr2.cdr_id']);
-//
-//        $query4->addWith(['cr1' => $query1]);
-//        $query4->addWith(['cr2' => $query2]);
-
-        $query4
-            ->select(['*', '(@(cr1.sale)) - cr2.cost_price margin'])
-            ->from(['cr1' => $query1, 'cr2' => $query2])
-//            ->where('cr1.cdr_id = cr2.cdr_id')
-            ->andWhere('cr1.id = cr2.peer_id');
-
         // временно отключим этот фунционал
         // $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
 
@@ -334,6 +372,10 @@ trait CallsRawSlowReport
             $query3 && $query3->orderBy([])->limit(-1);
             $query4->orderBy([])->limit(-1);
         }
+
+        $query4->addWith(['cdr_data' => $query0]);
+        $query4->addWith(['cr1' => $query1]);
+        $query4->addWith(['cr2' => $query2]);
 
         return $query4;
     }

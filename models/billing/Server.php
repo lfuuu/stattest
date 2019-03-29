@@ -9,6 +9,9 @@ use yii;
  * @property int $id
  * @property string $name
  * @property string $hostname
+ * @property int $hub_id
+ *
+ * @property-read Hub $hub
  *
  * @property string $apiUrl
  */
@@ -30,6 +33,7 @@ class Server extends ActiveRecord
             'id' => 'ID',
             'name' => 'Название',
             'hostname' => 'Хост',
+            'hub_id' => 'Хаб',
         ];
     }
 
@@ -49,6 +53,14 @@ class Server extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getHub()
+    {
+        return $this->hasOne(Hub::class, ['id' => 'hub_id']);
     }
 
     /**

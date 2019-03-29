@@ -9,6 +9,7 @@
 
 use app\classes\grid\column\billing\ContractColumn;
 use app\classes\grid\column\billing\DisconnectCauseColumn;
+use app\classes\grid\column\billing\MarketPlaceColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\ServiceTrunkColumn;
 use app\classes\grid\column\billing\TrunkColumn;
@@ -45,10 +46,8 @@ return [
         ],
     ],
     [
-        'class' => WithEmptyFilterColumn::class,
-        'filterOptions' => [
-            'class' => 'no_display'
-        ],
+        'attribute' => 'marketPlaceId',
+        'class' => MarketPlaceColumn::class,
     ],
     [
         'attribute' => 'server_ids',

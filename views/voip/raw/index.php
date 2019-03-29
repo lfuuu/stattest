@@ -4,8 +4,8 @@
  *
  * @var CallsRawFilter $filterModel
  * @var \app\classes\BaseView $this
- * @var boolean $isSupport
- * @var boolean $isCache
+ * @var boolean $isNewVersion
+ * @var boolean $isPreFetched
  */
 
 use app\classes\DateTimeWithUserTimezone;
@@ -17,8 +17,8 @@ use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
 // Если вызывающий контроллер не поддерживает кеширование
-!isset($isCache) && $isCache = false;
-!isset($isSupport) && $isSupport = false;
+!isset($isPreFetched) && $isPreFetched = false;
+!isset($isNewVersion) && $isNewVersion = false;
 
 echo Breadcrumbs::widget([
     'links' => [
@@ -29,7 +29,7 @@ echo Breadcrumbs::widget([
 
 $filter = require '_indexFilters.php';
 // Если требуется поддержка кеша, то дополнитить выводимые колонки
-if ($isCache) {
+if ($isPreFetched) {
     $filter[] = [
         'attribute' => 'calls_with_duration',
         'class' => CheckboxColumn::class,
@@ -114,7 +114,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
 } else {
     $columns = require '_indexColumns.php';
     // Если поддержка кеша не требуется, то дополнитить выводимые колонки
-    if (!$isCache) {
+    if (!$isPreFetched) {
         $columns[] = [
             'label' => 'Номер А',
             'attribute' => 'src_number',
@@ -143,9 +143,9 @@ $chooseError = function () use ($filterModel) {
     return $error;
 };
 
-$dataProvider = $filterModel->getReport(true, $isSupport, $isCache);
-
 try {
+    $dataProvider = $filterModel->getReport(true, $isNewVersion, $isPreFetched);
+
     GridView::separateWidget([
         'isHideFilters' => false,
         'dataProvider' => $dataProvider,
@@ -167,7 +167,7 @@ try {
             'filterModel' => $filterModel,
             'columns' => $columns,
         ]),
-        'panelHeadingTemplate' => $isSupport ?
+        'panelHeadingTemplate' => $isNewVersion ?
             '
                 <div class="row">
                     <div class="col-md-12">
@@ -220,5 +220,10 @@ try {
         ($e->getCode() == 8) ?
             'Запрос слишком тяжелый, чтобы выполниться. Задайте, пожалуйста, другие фильтры' :
             'Ошибка выполнения запроса: ' . $e->getMessage()
+    );
+} catch (\Exception $e) {
+    Yii::$app->session->addFlash(
+        'error',
+        'Неизвестная ошибка: ' . $e->getMessage()
     );
 }

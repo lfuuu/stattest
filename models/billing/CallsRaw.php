@@ -214,7 +214,7 @@ class CallsRaw extends ActiveRecord
      */
     public static function getCacheKey(Query $query)
     {
-        return 'calls_raws_cache_' . md5($query->createCommand(CallsRaw::getDb())->rawSql);
+        return 'calls_raws_cache_' . md5($query->createCommand(self::getDb())->rawSql);
     }
 
     /**
