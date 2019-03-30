@@ -121,7 +121,7 @@ SQL;
 
                     if ($accountTariff->tariff_period_id) {
                         // Билинговать с новым тарифом при смене тарифа (но не при закрытии услуги)
-                        $this->checkBalance($accountTariff);
+                        $this->checkBalance($accountTariff, $eventType == ImportantEventsNames::UU_UPDATED);
                     }
                 } else {
                     $eventType = null;
@@ -341,17 +341,11 @@ SQL;
      * Билинговать с новым тарифом
      *
      * @param AccountTariff $accountTariff
-     *
-     * @throws \yii\db\StaleObjectException
-     * @throws \RangeException
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \app\exceptions\FinanceException
-     * @throws \yii\db\Exception
+     * @param bool $isUpdate
+     * @throws FinanceException
      * @throws \Exception
-     * @throws \LogicException
-     * @throws \Throwable
      */
-    protected function checkBalance(AccountTariff $accountTariff)
+    protected function checkBalance(AccountTariff $accountTariff, $isUpdate)
     {
         ob_start();
         try {
@@ -377,13 +371,23 @@ SQL;
         $realtimeBalanceWithCredit = $realtimeBalance + $credit;
 
         if ($realtimeBalanceWithCredit < 0) {
-            throw new FinanceException(
-                sprintf('У клиента %d нет денег на смену тарифа по услуге %d. После смены получится на счету %.2f %s и кредит %.2f %s',
-                    $accountTariff->client_account_id,
-                    $accountTariff->id,
-                    $realtimeBalance, $clientAccount->currency,
-                    $credit, $clientAccount->currency)
-            );
+
+            $errorMessage = sprintf('У клиента %d нет денег на смену тарифа по услуге %d. После смены получится на счету %.2f %s и кредит %.2f %s',
+                $accountTariff->client_account_id,
+                $accountTariff->id,
+                $realtimeBalance, $clientAccount->currency,
+                $credit, $clientAccount->currency);
+
+            // всегда менять тариф, даже если денег не хватает
+            if ($isUpdate) {
+                $accountTariff->comment .= ($accountTariff->comment ? PHP_EOL : '') . $errorMessage . ', но тариф изменен';
+                if (!$accountTariff->save()) {
+                    throw new ModelValidationException($accountTariff);
+                }
+                return;
+            }
+
+            throw new FinanceException($errorMessage);
         }
 
     }
