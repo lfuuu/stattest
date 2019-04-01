@@ -6,4 +6,6 @@ return [
 //    'Number {number}' => 'Номер {number}',
     'Tariff «{tariff}»' => '«{tariff}»',
 //    'Package «{tariff}»' => 'Пакет «{tariff}»',
+
+    'Services provided under the contract' => 'Services provided under contract №{contract_no} dated {contract_date,date,dd MMMM yyyy}. ',
 ];

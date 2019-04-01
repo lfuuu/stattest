@@ -78,6 +78,7 @@ use yii\helpers\Url;
  * @property int $price_level
  * @property int $uu_tariff_status_id
  * @property int $show_in_lk
+ * @property string $bill_rename1
  *
  * @property-read Currency $currencyModel
  * @property-read ClientSuper $superClient
@@ -183,6 +184,8 @@ class ClientAccount extends HistoryActiveRecord
 
     const PAY_BILL_UNTIL_DAYS = 30;
 
+    const UNIVERSAL_BILL_RENAME1_DATE = '2019-04-01';
+
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
         'testing' => ['name' => 'тестируемый', 'color' => '#6DCFF6'],
@@ -243,11 +246,12 @@ class ClientAccount extends HistoryActiveRecord
         'pay_acc',
         'bank_name',
         'bank_city',
+        'bill_rename1',
     ];
 
     // Свойства модели которые должны обновляться версионно
     /**
-     * /Virtual variables
+     * Virtual variables
      */
 
     private $_lastComment = false;
@@ -1589,5 +1593,14 @@ class ClientAccount extends HistoryActiveRecord
         // страна организации клиента
         $organization = $this->organization;
         return $organization ? $organization->country_id : null;
+    }
+
+    /**
+     * Включено переименование: Номенклатура: Оказанные услуги по Договору
+     * @return bool
+     */
+    public function isBillRename1()
+    {
+        return $this->bill_rename1 == 'yes';
     }
 }

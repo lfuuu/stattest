@@ -16,6 +16,7 @@ use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
+use app\models\ClientDocument;
 use app\models\Country;
 use app\models\Currency;
 use app\models\Invoice;
@@ -301,10 +302,18 @@ class BillDao extends Singleton
         }
 
         $clientAccount = $uuBill->clientAccount;
+        $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
+
+        $billRenameDate = false;
+        if ($clientAccount->isBillRename1()) {
+            $startBillRename1Start = new \DateTimeImmutable(ClientAccount::UNIVERSAL_BILL_RENAME1_DATE);
+            if ($uuBillDateTime >= $startBillRename1Start) {
+                $billRenameDate = $uuBillDateTime;
+            }
+        }
+
 
         if (!$bill) {
-            $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
-
             $bill = new Bill();
             $bill->client_id = $clientAccount->id;
             $bill->currency = $clientAccount->currency;
@@ -390,10 +399,13 @@ class BillDao extends Singleton
             $accountEntry = $accountEntries[$accountEntryId];
             $sum = round($accountEntry->price_with_vat, self::PRICE_PRECISION);
             $sumWithoutTax = round($accountEntry->price_without_vat, self::PRICE_PRECISION);
+
+            $accountEntryName = $this->_getAccountEntryName($clientAccount, $accountEntry, $billRenameDate);
+
             if (
                 abs((float)$line->sum_without_tax - (float)$accountEntry->price_without_vat) > self::ADMISSIBLE_COMPUTATION_ERROR_SUM
                 || abs((float)$line->amount - (float)$accountEntry->getAmount()) > self::ADMISSIBLE_COMPUTATION_ERROR_AMOUNT
-                || $line->item != $accountEntry->fullName
+                || $line->item != $accountEntryName
                 || $line->tax_rate != $accountEntry->vat_rate
             ) {
                 // ... но изменилась. Обновить
@@ -416,7 +428,7 @@ class BillDao extends Singleton
 
                 $line->calculateSum($bill->price_include_vat);
 
-                $line->item = $accountEntry->fullName;
+                $line->item = $accountEntryName;
                 $line->cost_price = $accountEntry->cost_price;
 
                 if (!$line->save()) {
@@ -443,7 +455,7 @@ class BillDao extends Singleton
             $line->sort = $billLinePosition;
             $line->bill_no = $bill->bill_no;
 
-            $line->item = $accountEntry->fullName;
+            $line->item = $this->_getAccountEntryName($clientAccount, $accountEntry, $billRenameDate);
             $line->date_from = $accountEntry->date_from;
             $line->date_to = $accountEntry->date_to;
             $line->type = BillLine::LINE_TYPE_SERVICE;
@@ -480,6 +492,52 @@ class BillDao extends Singleton
         if ($toRecalculateBillSum) {
             Bill::dao()->recalcBill($bill);
         }
+    }
+
+    /**
+     * Получение названия транзакции
+     *
+     * @param ClientAccount $clientAccount
+     * @param AccountEntry $accountEntry
+     * @param \DateTimeImmutable $billRenameDate
+     * @return string
+     */
+    private function _getAccountEntryName(ClientAccount $clientAccount, AccountEntry $accountEntry, $billRenameDate)
+    {
+        static $cacheDocument = [];
+        static $cacheLang = [];
+
+        $name = $accountEntry->fullName;
+
+        if (!$billRenameDate) {
+            return $name;
+        }
+
+        $dateStr = $billRenameDate->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        if (!isset($cacheDocument[$dateStr][$clientAccount->contract_id])) {
+            $_billRenameDate = new \DateTime($dateStr);
+            $cacheDocument[$dateStr][$clientAccount->contract_id] = $clientAccount->contract->getContractInfo($_billRenameDate);
+        }
+
+        if (!isset($cacheLang[$clientAccount->contract_id])) {
+            $cacheLang[$clientAccount->contract_id] = $clientAccount->contragent->lang_code;
+        }
+
+        /** @var ClientDocument $contractDocument */
+        $contractDocument = $cacheDocument[$dateStr][$clientAccount->contract_id];
+
+        $lang = $cacheLang[$clientAccount->contract_id];
+
+        if ($contractDocument) {
+            $name = Yii::t('uu', 'Services provided under the contract', [
+                'contract_no' => $contractDocument->contract_no,
+                'contract_date' => (new \DateTime($contractDocument->contract_date,
+                    new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->getTimestamp()
+            ], $lang) . $name;
+        }
+
+        return $name;
     }
 
     /**
