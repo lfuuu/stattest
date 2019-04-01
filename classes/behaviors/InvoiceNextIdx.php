@@ -50,10 +50,11 @@ class InvoiceNextIdx extends Behavior
         $isSetId = $event->name == ActiveRecord::EVENT_BEFORE_INSERT && $invoice->isSetDraft !== true
                 || $event->name == ActiveRecord::EVENT_BEFORE_UPDATE && $invoice->isSetDraft === false;
 
+        !$invoice->organization_id && $invoice->organization_id = $invoice->bill->organization_id;
 
         if ($isSetId && !$invoice->idx) {
             $maxIdx = Invoice::find()->where([
-                'organization_id' => $invoice->bill->organization_id,
+                'organization_id' => $invoice->organization_id,
             ])->andWhere([
                 'between',
                 'date',
@@ -72,7 +73,6 @@ class InvoiceNextIdx extends Behavior
                 sprintf("%04d", $invoice->idx);
         }
 
-        !$invoice->organization_id && $invoice->organization_id = $invoice->bill->organization_id;
         !$invoice->add_date && $invoice->add_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 }
