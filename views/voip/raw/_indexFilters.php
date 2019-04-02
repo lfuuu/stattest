@@ -35,9 +35,6 @@ return [
         'attribute' => 'connect_time',
         'class' => $isSupport && $isCache ?
             DateRangeDoubleColumn::class : DateTimeRangeDoubleColumn::class,
-        'filterOptions' => [
-            'class' => 'alert-danger'
-        ],
     ],
     [
         'class' => WithEmptyFilterColumn::class,

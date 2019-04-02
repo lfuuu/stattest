@@ -33,18 +33,6 @@ use yii\db\Expression;
 use app\models\billing\DisconnectCause;
 use yii\db\Query;
 
-// add changes in make_calls_raw_cache - account_id filter
-/*
-...
-cr2.orig = false AND
-(
-(cr1.connect_time >= beginning :: timestamp AND cr1.connect_time < ending :: timestamp) AND
-(cr2.connect_time >= beginning :: timestamp AND cr2.connect_time < ending :: timestamp)
-)
-AND cr1.account_id IS NOT NULL
-AND cr2.account_id IS NOT NULL
-...
-*/
 trait CallsRawReport
 {
 
@@ -405,6 +393,6 @@ trait CallsRawReport
         $cteQuery = new CTEQuery;
         return $cteQuery
             ->select(['*', '(@(sale)) - cost_price margin'])
-            ->from(['query' => $query]);
+            ->from(['cr1' => $query]);
     }
 }

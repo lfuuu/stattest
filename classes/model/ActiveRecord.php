@@ -113,11 +113,12 @@ class ActiveRecord extends \yii\db\ActiveRecord
      * Вернуть значения этого фильтра
      * getAttributes не подходит, ибо берет только поля БД, а нужно еще дополнительные из filter-модели
      *
-     * @param array $except
+     * @param array $except за исключением полей
+     * @param bool $isSkipEmpty пропускать пустые значения
      * @return array
      * @throws \ReflectionException
      */
-    public function getObjectNotEmptyValues($except = [])
+    public function getObjectNotEmptyValues($except = [], $isSkipEmpty = true)
     {
         $values = [];
         $reflection = new ReflectionClass($this);
@@ -135,7 +136,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
             }
 
             $value = $this->$attribute;
-            if ($value === null || $value === '') {
+            if ($isSkipEmpty && ($value === null || $value === '')) {
                 // дефолтное значение. Сохранять не надо
                 continue;
             }

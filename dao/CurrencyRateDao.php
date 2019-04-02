@@ -13,82 +13,73 @@ use app\models\CurrencyRate;
 class CurrencyRateDao extends Singleton
 {
 
-    private static $_rates = [];
+    protected static $fetchedRates = [];
 
     /**
      * @param string $currency
      * @param string $date
+     * @param bool $isCheckRate логировать ли нулевой курс
      * @return float
+     * @throws \yii\base\Exception
      */
-    public static function getRate($currency, $date = '')
+    public static function getRate($currency, $date = '', $isCheckRate = false)
     {
         if ($currency === Currency::RUB) {
-            return 1;
+            return 1.0;
         }
 
-        static $cache = [];
+        if ($date instanceof \DateTime) {
+            $date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
+        }
 
-        if (!isset($cache[$currency][$date])) {
+        $fetchedKey = $currency . $date;
+        if (!array_key_exists($fetchedKey, self::$fetchedRates)) {
             $currencyQuery = CurrencyRate::find()
                 ->currency($currency)
                 ->onDate($date);
 
-            $cache[$currency][$date] = $currencyQuery->one();
+            self::$fetchedRates[$fetchedKey] = $currencyQuery->one();
         }
 
-        $currencyRate = $cache[$currency][$date];
+        $currencyRate = self::$fetchedRates[$fetchedKey];
+        Assert::isObject(
+            $currencyRate,
+            sprintf('Missing rate for "%s" at date "%s"', $currency, $date)
+        );
 
+        $rate = $currencyRate->rate;
+        if ($isCheckRate && !$rate) {
+            \Yii::error(
+                sprintf('Unknown currency rate for "%s" at date "%s"', $currency, $date)
+            );
+        }
 
-        Assert::isObject($currencyRate, 'Missing rate for "' . $currency . '" at date "' . $date . '"');
-
-        return $currencyRate->rate;
+        return $rate;
     }
 
     /**
      * Получение кросс курса валюты через рубль
      *
-     * @param string $fromCurrencyId
-     * @param string $toCurrencyId
+     * @param string $currencyFromId
+     * @param string $currencyToId
      * @param string|\DateTime $date
-     * @return float
+     * @return float|null
+     * @throws \yii\base\Exception
      */
-    public static function crossRate($fromCurrencyId, $toCurrencyId, $date = null)
+    public static function crossRate($currencyFromId, $currencyToId, $date = '')
     {
-        $dateString = '';
-        if ($date instanceof \DateTime) {
-            $dateString = $date->format(DateTimeZoneHelper::DATE_FORMAT);
-        } elseif (is_string($date) && !empty($date)) {
-            $dateString = $date;
+        if ($currencyFromId == $currencyToId) {
+            return 1.0;
         }
 
-        $fromCurrencyCacheKey = $fromCurrencyId . $dateString;
-        $toCurrencyCacheKey = $toCurrencyId . $dateString;
-
-        if (!array_key_exists($fromCurrencyCacheKey, self::$_rates)) {
-            self::$_rates[$fromCurrencyCacheKey] = CurrencyRateDao::getRate($fromCurrencyId, $date);
+        if (
+            $rateFrom = self::getRate($currencyFromId, $date, true)
+            && $rateTo = self::getRate($currencyToId, $date, true)
+        ) {
+            return $rateFrom / $rateTo;
         }
 
-        if (!array_key_exists($toCurrencyCacheKey, self::$_rates)) {
-            self::$_rates[$toCurrencyCacheKey] = CurrencyRateDao::getRate($toCurrencyId, $date);
-        }
-
-        if (!self::$_rates[$fromCurrencyCacheKey]) {
-            \Yii::error(
-                'Unknown currency rate for "' . $fromCurrencyId . '"' .
-                (!is_null($date) ? 'on date "' . $dateString . '"' : '')
-            );
-            return null;
-        }
-
-        if (!self::$_rates[$toCurrencyCacheKey]) {
-            \Yii::error(
-                'Unknown currency rate for "' . $toCurrencyId . '"' .
-                (!is_null($date) ? 'on date "' . $dateString . '"' : '')
-            );
-            return null;
-        }
-
-        return self::$_rates[$fromCurrencyCacheKey] / self::$_rates[$toCurrencyCacheKey];
+        return null;
     }
 
 }

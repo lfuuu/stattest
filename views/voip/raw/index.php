@@ -27,10 +27,10 @@ echo Breadcrumbs::widget([
     ],
 ]);
 
-$filter = require '_indexFilters.php';
+$filters = require '_indexFilters.php';
 // Если требуется поддержка кеша, то дополнитить выводимые колонки
 if ($isPreFetched) {
-    $filter[] = [
+    $filters[] = [
         'attribute' => 'calls_with_duration',
         'class' => CheckboxColumn::class,
     ];
@@ -113,7 +113,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     }
 } else {
     $columns = require '_indexColumns.php';
-    // Если поддержка кеша не требуется, то дополнитить выводимые колонки
+    // Если поддержка кеша не требуется, то дополним выводимые колонки
     if (!$isPreFetched) {
         $columns[] = [
             'label' => 'Номер А',
@@ -131,17 +131,40 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
 }
 
 $chooseError = function () use ($filterModel) {
-    !$filterModel->isNnpFiltersPossible()
-    && $error = 'В одном из списков ННП выбраны противоречивые значения';
+    $errors = [];
+    foreach ($filterModel->getErrors() as $key => $error) {
+        $errorText = 'Ошибка: ' . $error[0];
+        $errors[] = $errorText;
+        Yii::$app->session->addFlash('error', $errorText);
+    }
 
-    !$filterModel->isFilteringPossible()
-    && $error = 'Выберите время начала разговора и хотя бы еще одно поле';
+    if (empty($errors)) {
+        $errors[] = Yii::t('yii', 'No results found.');
+    }
 
-    !isset($error)
-    && $error = Yii::t('yii', 'No results found.');
-
-    return $error;
+    return implode('<br />', $errors);
 };
+
+// highlight filters with error
+if ($filterModel->hasErrors()) {
+    $required =
+        $filterModel->hasRequiredFields()
+            ? $filterModel->getRequiredValues()
+            : []
+    ;
+    foreach ($filters as &$filter) {
+        if (empty($filter['attribute'])) {
+            continue;
+        }
+
+        $attribute = $filter['attribute'];
+        if ($filterModel->hasErrors($attribute)) {
+            $filter['filterOptions']['class'] = 'alert-danger';
+        } elseif (array_key_exists($attribute, $required)) {
+            $filter['filterOptions']['class'] = 'alert-warning';
+        }
+    }
+}
 
 try {
     $dataProvider = $filterModel->getReport(true, $isNewVersion, $isPreFetched);
@@ -151,7 +174,7 @@ try {
         'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,
         'beforeHeader' => [
-            'columns' => $filter
+            'columns' => $filters
         ],
         'pjaxSettings' => [
             'options' => [
@@ -179,34 +202,30 @@ try {
                     </div>
                     <script>
                         $(document).ready(function(){
-                            let $url = new URL(window.location.href);
+                            function updateReportFilters(isFromCache) {
+                                $("#isCacheCheckbox").prop("checked", isFromCache);
+                                
+                                var inputs = [
+                                    "#callsrawfilter-src_number",
+                                    "#callsrawfilter-dst_number",
+                                    "#callsrawfilter-src_destinations_ids",
+                                    "#callsrawfilter-dst_destinations_ids",
+                                    "#callsrawfilter-session_time_from",
+                                    "#callsrawfilter-session_time_to",
+                                ];
+                                for (var key in inputs) {
+                                    $(inputs[key]).prop("disabled", true);
+                                    $(inputs[key]).closest("div.alert-warning").removeClass("alert-warning");
+                                    $(inputs[key]).closest("div.alert-danger").removeClass("alert-danger");
+                                }
+                            }
+                            
+                            var $url = new URL(window.location.href);
                             if (parseInt($url.searchParams.get("isCache")) === 1) {
-                                $("#isCacheCheckbox").prop("checked", true);
-                                $("#callsrawfilter-src_number").prop("disabled", true);
-                                $("#callsrawfilter-dst_number").prop("disabled", true);
-                                $("#callsrawfilter-src_destinations_ids").prop("disabled", true);
-                                $("#callsrawfilter-dst_destinations_ids").prop("disabled", true)
-                                $("#callsrawfilter-session_time_from").prop("disabled", true);
-                                $("#callsrawfilter-session_time_to").prop("disabled", true);
+                                updateReportFilters(true);
                             }
                             $("#isCacheCheckbox").on("click", function () {
-                                if ($(this).is(":not(:checked)")) {
-                                    $url.searchParams.set("isCache", "0");
-                                    $("#callsrawfilter-src_number").prop("disabled", false);
-                                    $("#callsrawfilter-dst_number").prop("disabled", false);
-                                    $("#callsrawfilter-src_destinations_ids").prop("disabled", false);
-                                    $("#callsrawfilter-dst_destinations_ids").prop("disabled", false)
-                                    $("#callsrawfilter-session_time_from").prop("disabled", false);
-                                    $("#callsrawfilter-session_time_to").prop("disabled", false);
-                                } else {
-                                    $url.searchParams.set("isCache", "1");
-                                    $("#callsrawfilter-src_number").prop("disabled", true);
-                                    $("#callsrawfilter-dst_number").prop("disabled", true);
-                                    $("#callsrawfilter-src_destinations_ids").prop("disabled", true);
-                                    $("#callsrawfilter-dst_destinations_ids").prop("disabled", true)
-                                    $("#callsrawfilter-session_time_from").prop("disabled", true);
-                                    $("#callsrawfilter-session_time_to").prop("disabled", true);
-                                }
+                                $url.searchParams.set("isCache", $(this).is(":checked") ? "1" : "0");
                                 window.location.href = $url.href;
                             });
                         });

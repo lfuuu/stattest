@@ -91,6 +91,8 @@ class CallsRawFilter extends CallsRaw
     const UNATTAINABLE_SESSION_TIME = 2592000;
     const EXACT_COUNT_LIMIT = 5000;
 
+    protected $requiredValues;
+
     public $aggrConst = [
         'sale_sum' => 'SUM(@(sale))',
         'sale_avg' => 'AVG(@(NULLIF(sale, 0)))',
@@ -352,8 +354,9 @@ class CallsRawFilter extends CallsRaw
      * Custom data load
      *
      * @param array $get
-     * @param string $sort
+     * @param string|null $sort
      * @return bool
+     * @throws \ReflectionException
      */
     public function load(array $get, $sort = null)
     {
@@ -385,8 +388,28 @@ class CallsRawFilter extends CallsRaw
             $this->correct_connect_time_to = $dateEnd->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
+        // check filter
+        if ($this->hasRequiredFields()) {
+            $this->addError('connect_time_from', 'Выберите время начала разговора и хотя бы еще одно поле');
+        }
+        // check multiply filters
+        foreach ($this->getMultipleAttributesWithErrors() as $attribute) {
+            $this->addError(
+                $attribute,
+                sprintf('Выбраны противоречивые значения в поле "%s"', $this->getAttributeLabel($attribute))
+            );
+        }
+        // check currency rate
         if (isset($this->currency)) {
-            $this->currency_rate = CurrencyRate::dao()->getRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT));
+            try {
+                $this->currency_rate = CurrencyRate::dao()
+                    ->getRate(
+                        $this->currency,
+                        date(DateTimeZoneHelper::DATE_FORMAT)
+                    );
+            } catch (\Exception $e) {
+                $this->addError('currency', $e->getMessage());
+            }
         }
 
         if (!is_array($this->group)) {
@@ -397,7 +420,7 @@ class CallsRawFilter extends CallsRaw
             $this->aggr = [];
         }
 
-        return $this->validate();
+        return $this->validate(null, false);
     }
 
     public function getFilterGroups()
@@ -437,7 +460,7 @@ class CallsRawFilter extends CallsRaw
     public function getAggrGroups()
     {
         // Если используется кэширование, то заменить при агрегации информацию по выборке
-        if ($this->_isRequestCaching()) {
+        if ($this->isRequestPreFetched()) {
             $this->aggrConst['calls_count'] = 'SUM(number_of_calls)';
             $this->aggrConst['asr'] = str_replace('COUNT(cr1.connect_time)', 'SUM(number_of_calls)', $this->aggrConst['asr']);
             $this->aggrConst['asr_u'] = str_replace('COUNT(cr1.connect_time)', 'SUM(number_of_calls)', $this->aggrConst['asr_u']);
@@ -492,45 +515,57 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
-     * Проверка на наличие обязательных фильтров
+     * Поля для заполнения
      *
-     * @return bool
+     * @return array
+     * @throws \ReflectionException
      */
-    public function isFilteringPossible()
+    public function getRequiredValues()
     {
-        if ($this->connect_time_from) {
-            $attributes = $this->getObjectNotEmptyValues(
-                [
-                    'aggrConst',
-                    'group',
-                    'aggr',
-                    'group_period',
-                    'connect_time_to',
-                    'connect_time_from',
-                    'sort',
-                    'currency',
-                    'currency_rate',
-                    'correct_connect_time_to',
-                ]
-            );
-            foreach ($attributes as $value) {
-                if ($value) {
-                    return true;
-                }
+        if (is_null($this->requiredValues)) {
+            $this->requiredValues = [];
+            if ($this->connect_time_from) {
+                $this->requiredValues = $this->getObjectNotEmptyValues(
+                    [
+                        'marketPlaceId',
+                        'aggrConst',
+                        'group',
+                        'aggr',
+                        'group_period',
+                        'connect_time_to',
+                        'connect_time_from',
+                        'sort',
+                        'currency',
+                        'currency_rate',
+                        'correct_connect_time_to',
+                    ],
+                    false
+                );
             }
         }
 
-        return false;
+        return $this->requiredValues;
     }
 
     /**
-     * Проверка на противоречивость элементов, выбранных в фильтрах ННП
+     * Есть ли поля для заполнения
      *
      * @return bool
+     * @throws \ReflectionException
      */
-    public function isNnpFiltersPossible()
+    public function hasRequiredFields()
     {
-        $attributes = $this->getObjectNotEmptyValues(
+        return !array_filter($this->getRequiredValues());
+    }
+
+    /**
+     * Поля с противоречивостью элементов
+     *
+     * @return array
+     */
+    public function getMultipleAttributesWithErrors()
+    {
+        $all = $this->getAttributes(
             [
                 'src_operator_ids',
                 'dst_operator_ids',
@@ -542,13 +577,25 @@ class CallsRawFilter extends CallsRaw
                 'dst_countries_ids',
             ]
         );
-        foreach ($attributes as $key => $value) {
-            if ($value && is_array($value) && count(array_intersect($value, [GetListTrait::$isNull, GetListTrait::$isNotNull])) == 2) {
-                return false;
+
+        $attributes = [];
+        foreach ($all as $key => $value) {
+            if (
+                $value &&
+                    is_array($value) &&
+                    count($value) > 1 &&
+                    count(
+                        array_intersect(
+                            $value,
+                            [GetListTrait::$isNull, GetListTrait::$isNotNull]
+                        )
+                    )
+            ) {
+                $attributes[] = $key;
             }
         }
 
-        return true;
+        return $attributes;
     }
 
     /**
@@ -612,11 +659,7 @@ class CallsRawFilter extends CallsRaw
      */
     public function getReport($isGetDataProvider = true, $isNewVersion = false, $isPreFetched = false)
     {
-        if ($this->currency != Currency::RUB && $this->currency_rate) {
-            $this->currency_rate = CurrencyRate::dao()->getRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT));
-        }
-
-        if (!$this->isFilteringPossible() || !$this->isNnpFiltersPossible()) {
+        if ($this->hasErrors()) {
             return $isGetDataProvider ?
                 new ArrayDataProvider(['allModels' => [],]) : [];
         }
@@ -630,7 +673,7 @@ class CallsRawFilter extends CallsRaw
             if ($this->group_period) {
                 $query->rightJoin(
                     "generate_series ('{$this->connect_time_from}'::timestamp, " . ($this->correct_connect_time_to ? "'$this->correct_connect_time_to'" : 'now()') . "::timestamp, '1 {$this->group_period}'::interval) gs",
-                    "connect_time >= gs.gs AND connect_time <= gs.gs + interval '1 {$this->group_period}'"
+                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 {$this->group_period}'"
                 );
                 $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 {$this->group_period}'";
                 $groups[] = 'gs.gs';
@@ -733,14 +776,25 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
-     * Является ли текущий вопрос с запросом на кэширование
+     * Является ли текущий запросом к предрассчитанной таблице
      *
      * @return bool
      */
-    private function _isRequestCaching()
+    protected function isRequestPreFetched()
     {
         return
-            Yii::$app->controller->action->id == 'with-cache' &&
+            $this->getIsNewRecord() &&
             Yii::$app->getRequest()->get('isCache') == 1;
+    }
+
+    /**
+     * Является ли текущий запрос новой версии
+     *
+     * @return bool
+     */
+    protected function isRequestNew()
+    {
+        return
+            Yii::$app->controller->action->id == 'with-cache';
     }
 }

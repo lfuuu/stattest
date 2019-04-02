@@ -252,7 +252,11 @@ class RawController extends BaseController
             ->createCommand("set work_mem = '500MB'")->execute();
 
         $model = new CallsRawFilter;
-        $model->load(Yii::$app->request->get());
+        try {
+            $model->load(Yii::$app->request->get());
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
+        }
 
         return $this->render('index', [
             'filterModel' => $model,
@@ -273,7 +277,11 @@ class RawController extends BaseController
 
         // Получение фильтра
         $model = new CallsRawFilter;
-        $model->load(Yii::$app->request->get());
+        try {
+            $model->load(Yii::$app->request->get());
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
+        }
 
         return $this->render('index', [
             'filterModel' => $model,

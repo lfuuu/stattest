@@ -13,19 +13,30 @@ class CurrencyRateQuery extends ActiveQuery
      */
     public function currency($currencyId)
     {
-        return $this->andWhere(['currency' => $currencyId])->orderBy(['date' => SORT_DESC]);
+        return $this
+            ->andWhere(['currency' => $currencyId])
+            ->orderBy(['date' => SORT_DESC]);
     }
 
     /**
+     *
+     *
      * @param string|\DateTime $date
      * @return $this
+     * @throws \Exception
      */
-    public function onDate($date = null)
+    public function onDate($date = '')
     {
         if ($date instanceof \DateTime) {
-            $this->andWhere(['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
+            $this
+                ->andWhere([
+                    'date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)
+                ]);
         } elseif (is_string($date) && !empty($date)) {
-            $this->andWhere(['date' => (new \DateTime($date))->format(DateTimeZoneHelper::DATE_FORMAT)]);
+            $this
+                ->andWhere([
+                    'date' => (new \DateTime($date))->format(DateTimeZoneHelper::DATE_FORMAT)
+                ]);
         }
 
         return $this;

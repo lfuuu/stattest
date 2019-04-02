@@ -75,21 +75,21 @@ class CurrencyController extends Controller
      * @param array $currencies валюты, которые импортировать. Код валюты - в ключе
      * @param DateTime $dateTime
      * @param bool $isStrictDate
+     * @return bool
      * @throws \RuntimeException
      */
     protected function importByDate(array $currencies, DateTime $dateTime, $isStrictDate = false)
     {
         try {
             $fileName = sprintf(Yii::$app->params['currencyDownloadUrl'], $dateTime->format('d/m/Y'));
-            $simplexml = simplexml_load_file($fileName);
-            if ($simplexml === false) {
+            $simpleXml = simplexml_load_file($fileName);
+            if ($simpleXml === false) {
                 throw new \RuntimeException('loading ' . $fileName);
             }
-
-            Yii::trace('CurrencyImport: ' . print_r($simplexml, true));
+            Yii::debug('CurrencyImport: ' . print_r($simpleXml, true));
 
             // дата курса
-            $date = (string)$simplexml['Date'];
+            $date = (string)$simpleXml['Date'];
             if (!$date) {
                 throw new \RuntimeException('parsing date ' . $fileName);
             }
@@ -102,7 +102,7 @@ class CurrencyController extends Controller
             }
 
             // по всем валютам
-            foreach ($simplexml->Valute as $valute) {
+            foreach ($simpleXml->Valute as $valute) {
                 $currencyCode = (string)$valute->CharCode;
                 if (!isset($currencies[$currencyCode])) {
                     // только для указанных валют

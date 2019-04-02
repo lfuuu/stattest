@@ -27,14 +27,11 @@ class CurrencyController extends BaseController
     /**
      * @param string $from
      * @param string $to
-     * @return float
+     * @return float|null
+     * @throws \yii\base\Exception
      */
     public function actionGetRate($from, $to)
     {
-        if ($from == $to) {
-            return 1;
-        }
-
         return CurrencyRate::dao()->crossRate($from, $to);
     }
 }
