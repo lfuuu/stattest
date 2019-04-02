@@ -253,7 +253,9 @@ class RawController extends BaseController
 
         $model = new CallsRawFilter;
         try {
-            $model->load(Yii::$app->request->get());
+            if ($get = Yii::$app->request->get()) {
+                $model->load($get);
+            }
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
         }
@@ -278,7 +280,11 @@ class RawController extends BaseController
         // Получение фильтра
         $model = new CallsRawFilter;
         try {
-            $model->load(Yii::$app->request->get());
+            $get = Yii::$app->request->get();
+            unset($get['isCache']);
+            if ($get) {
+                $model->load($get);
+            }
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
         }

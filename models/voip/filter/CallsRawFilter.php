@@ -388,6 +388,26 @@ class CallsRawFilter extends CallsRaw
             $this->correct_connect_time_to = $dateEnd->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
+        $this->checkAttributes();
+
+        if (!is_array($this->group)) {
+            $this->group = [];
+        }
+
+        if (!is_array($this->aggr)) {
+            $this->aggr = [];
+        }
+
+        return $this->validate(null, false);
+    }
+
+    /**
+     * Проверка входных данных
+     *
+     * @throws \ReflectionException
+     */
+    protected function checkAttributes()
+    {
         // check filter
         if ($this->hasRequiredFields()) {
             $this->addError('connect_time_from', 'Выберите время начала разговора и хотя бы еще одно поле');
@@ -411,16 +431,6 @@ class CallsRawFilter extends CallsRaw
                 $this->addError('currency', $e->getMessage());
             }
         }
-
-        if (!is_array($this->group)) {
-            $this->group = [];
-        }
-
-        if (!is_array($this->aggr)) {
-            $this->aggr = [];
-        }
-
-        return $this->validate(null, false);
     }
 
     public function getFilterGroups()
@@ -659,7 +669,7 @@ class CallsRawFilter extends CallsRaw
      */
     public function getReport($isGetDataProvider = true, $isNewVersion = false, $isPreFetched = false)
     {
-        if ($this->hasErrors()) {
+        if ($this->hasErrors() || $this->hasRequiredFields()) {
             return $isGetDataProvider ?
                 new ArrayDataProvider(['allModels' => [],]) : [];
         }
