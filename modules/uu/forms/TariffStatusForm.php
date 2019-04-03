@@ -4,8 +4,11 @@ namespace app\modules\uu\forms;
 
 use app\classes\Form;
 use app\exceptions\ModelValidationException;
+use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffStatus;
 use InvalidArgumentException;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
 abstract class TariffStatusForm extends Form
 {
@@ -43,12 +46,23 @@ abstract class TariffStatusForm extends Form
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             if (isset($post['dropButton'])) {
-
-                // удалить
-                $this->tariffStatus->delete();
-                $this->id = null;
-                $this->isSaved = true;
-
+                $tariffIds = Tariff::find()
+                    ->select('id')
+                    ->where(['tariff_status_id' => $this->tariffStatus->id])
+                    ->limit(5)
+                    ->asArray()
+                    ->column();
+                if ($tariffIds) {
+                    $links = array_map(function ($tariffId) {
+                        return Html::a($tariffId, Url::to(['/uu/tariff/edit', 'id' => $tariffId]));
+                    }, $tariffIds);
+                    $this->validateErrors = 'Ошибка при удалении. Выбранный статус тарифа уже используется: ' . implode(', ', $links);
+                } else {
+                    // удалить
+                    $this->tariffStatus->delete();
+                    $this->id = null;
+                    $this->isSaved = true;
+                }
             } elseif ($this->tariffStatus->load($post)) {
 
                 if (!$this->tariffStatus->save()) {
