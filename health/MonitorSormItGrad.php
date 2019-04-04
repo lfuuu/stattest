@@ -42,6 +42,7 @@ class MonitorSormItGrad extends Monitor
 FROM ({$sqlPhoneList}) a, clients c, client_contract cc
 WHERE a.client_id = c.id AND c.contract_id = cc.id
 AND cc.business_process_status_id NOT IN (22, 28)
+AND c.voip_credit_limit_day > 0
 ";
 
         $this->_dataPhones = \Yii::$app->db
@@ -53,13 +54,27 @@ WHERE device_address IS NULL OR trim(device_address) = ''")
 
         $sqlClients = 'SELECT DISTINCT client_id FROM (' . $mainSqlPhoneList . ') a';
 
-        $sql = "SELECT 
-                    c.id, 
-                    if (cc.state = 'unchecked', 'unch', '') as flag_contract,
-                    if (c.voip_credit_limit_day <= 0, 'vlim', '') as flag_voip_limit 
-FROM ({$sqlClients}) a, clients c, client_contract cc
-WHERE a.client_id = c.id AND c.contract_id = cc.id
-AND (cc.state = 'unchecked' or c.voip_credit_limit_day <= 0)";
+        $sql = "SELECT *
+FROM (
+       SELECT
+         c.id,
+         IF(cc.state = 'unchecked', 'unch', '')        as flag_contract,
+         if(c.pay_acc IS NULL OR TRIM(c.pay_acc) = '' OR c.bank_name IS NULL OR TRIM(c.bank_name) = '', 'bank',
+            '')                                        as flag_bank,
+         if(ifnull((SELECT trim(data)
+                    FROM client_contacts cct
+                    WHERE cct.client_id = c.id /*AND is_active = 1 AND is_official = 1*/ AND DATA != 'test' AND
+                          type = 'phone' AND
+                          COMMENT != 'autoconvert' AND COMMENT != '' AND data != '' AND user_id != 177 AND
+                          comment IS NOT NULL AND data IS NOT NULL
+                    ORDER BY LENGTH(comment) DESC, id DESC
+                    LIMIT 1), '') = '', 'contact', '') AS flag_contact
+       FROM ({$sqlClients}) a, clients c, client_contract cc
+       WHERE
+         a.client_id = c.id
+         AND c.contract_id = cc.id
+     ) a
+WHERE a.flag_contract != '' OR a.flag_bank != ''";
 
         $this->_dataClient = \Yii::$app->db->createCommand($sql)->queryAll();
 
@@ -78,9 +93,9 @@ AND (cc.state = 'unchecked' or c.voip_credit_limit_day <= 0)";
         return implode(', ', array_map(function ($clientData) {
             $str = [];
 
-            isset($clientData['flag_contract']) && $clientData['flag_contract'] && $str[] = $clientData['flag_contract'];
-            isset($clientData['flag_voip_limit']) && $clientData['flag_voip_limit'] && $str[] = $clientData['flag_voip_limit'];
-            isset($clientData['flag_device_address']) && $clientData['flag_device_address'] && $str[] = $clientData['flag_device_address'];
+            foreach(['flag_contract', 'flag_contact', 'flag_device_address', 'flag_bank'] as $field) {
+                isset($clientData[$field]) && $clientData[$field] && $str[] = $clientData[$field];
+            }
 
             return $clientData['id'] . '(' . implode(',', $str) . ')';
 
