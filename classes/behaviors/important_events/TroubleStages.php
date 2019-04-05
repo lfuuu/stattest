@@ -5,7 +5,6 @@ namespace app\classes\behaviors\important_events;
 use app\exceptions\ModelValidationException;
 use app\models\TroubleStage;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\AccountTrouble;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
@@ -87,12 +86,11 @@ class TroubleStages extends Behavior
                 ]);
         }
 
-        // Создание связи между услугой и заявкой, когда состояние стало"Выполнен"
+        // Создание связи между услугой и заявкой, когда состояние стало"Включено"
         if ($troubleStage->isStateEnabled()) {
             $accountTariffIds = AccountTariff::find()
                 ->select('uat.id')
                 ->alias('uat')
-                ->leftJoin(['uath' => AccountTariffHeap::tableName()], 'uat.id = uath.account_tariff_id')
                 ->leftJoin(['utp' => TariffPeriod::tableName()], 'uat.tariff_period_id = utp.id')
                 ->leftJoin(['ut' => Tariff::tableName()], 'utp.tariff_id = ut.id')
                 ->where([
@@ -105,7 +103,7 @@ class TroubleStages extends Behavior
                     ],
                 ])
                 ->andWhere(['between',
-                    'uath.start_date',
+                    'uat.insert_time',
                     new Expression(':tt_date_creation - interval 1 minute' , [':tt_date_creation' => $trouble->date_creation]),
                     new Expression('NOW()')
                 ])

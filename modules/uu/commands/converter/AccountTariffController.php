@@ -2,9 +2,12 @@
 
 namespace app\modules\uu\commands\converter;
 
+use app\exceptions\ModelValidationException;
+use app\models\TroubleRoistat;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTrouble;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffStatus;
@@ -193,6 +196,34 @@ class AccountTariffController extends Controller
         } catch (\Exception $e) {
             $transaction->rollBack();
             echo $e->getMessage() . PHP_EOL;
+        }
+    }
+
+    /**
+     * Заполнение roistat price
+     *
+     * @throws ModelValidationException
+     */
+    public function actionFillRoistatPrice()
+    {
+        $arr = AccountTrouble::find()
+            ->select(['group_concat(account_tariff_id)'])
+            ->asArray()
+            ->indexBy('trouble_id')
+            ->groupBy('trouble_id')
+            ->column();
+
+        foreach ($arr as $trouble_id => $account_tariff_ids) {
+            $account_tariff_ids = explode(',', $account_tariff_ids);
+            $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $trouble_id]);
+            $newPrice = AccountTariff::find()->select('sum(price)')->where(['id' => $account_tariff_ids])->scalar();
+            if (!$troubleRoistat || !is_numeric($newPrice)) {
+                continue;
+            }
+            $troubleRoistat->roistat_price = $newPrice;
+            if (!$troubleRoistat->save()) {
+                throw new ModelValidationException($troubleRoistat);
+            }
         }
     }
 }
