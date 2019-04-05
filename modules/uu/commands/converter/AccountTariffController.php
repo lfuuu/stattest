@@ -4,6 +4,7 @@ namespace app\modules\uu\commands\converter;
 
 use app\exceptions\ModelValidationException;
 use app\models\TroubleRoistat;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\AccountTariffLog;
@@ -216,7 +217,7 @@ class AccountTariffController extends Controller
         foreach ($arr as $trouble_id => $account_tariff_ids) {
             $account_tariff_ids = explode(',', $account_tariff_ids);
             $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $trouble_id]);
-            $newPrice = AccountTariff::find()->select('sum(price)')->where(['id' => $account_tariff_ids])->scalar();
+            $newPrice = AccountEntry::find()->select('sum(price_with_vat)')->where(['account_tariff_id' => $account_tariff_ids])->scalar();
             if (!$troubleRoistat || !is_numeric($newPrice)) {
                 continue;
             }
