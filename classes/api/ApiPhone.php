@@ -2,11 +2,14 @@
 
 namespace app\classes\api;
 
+use app\classes\Assert;
 use app\classes\HttpClient;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\Region;
+use app\models\UsageTrunk;
 use app\modules\nnp\models\NumberRange;
+use app\modules\uu\models\AccountTariff;
 use Yii;
 use yii\base\InvalidConfigException;
 
@@ -132,6 +135,10 @@ class ApiPhone extends Singleton
         $number7800 = null,
         $vpbxStatProductId = null
     ) {
+        $accountClient = ClientAccount::findOne(['id' => $clientAccountId]);
+
+        Assert::isObject($accountClient);
+
         $params = [
             'client_id' => $clientAccountId,
             'did' => $number,
@@ -139,7 +146,7 @@ class ApiPhone extends Singleton
             'region' => (int)$region,
             'timezone' => Region::getTimezoneByRegionId($region),
             'type' => self::TYPE_LINE,
-            'sip_accounts' => 1,
+            'sip_accounts' => ((UsageTrunk::dao()->hasService($accountClient) || AccountTariff::hasTrunk($clientAccountId)) ? 0 : 1),
             'nonumber' => $isNonumber
         ];
 
