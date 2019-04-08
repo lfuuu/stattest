@@ -42,7 +42,7 @@ class NumberRangeImport extends NumberRange
      */
     public function setNdc($value)
     {
-        if ($this->_checkNatural($value, $isEmptyAllowed = true)) {
+        if ($this->_checkNatural($value, $isEmptyAllowed = true, $isConvertToInt = false)) {
             $this->ndc = $value;
             return true;
         }
