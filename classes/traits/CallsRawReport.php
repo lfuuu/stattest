@@ -143,11 +143,19 @@ trait CallsRawReport
                         ' AND h.market_place_id = ' . $this->marketPlaceId
                 )
 
+                ->innerJoin(['cdr2' => CallsCdr::tableName()], 'cdr2.mcn_callid = cdr.mcn_callid')
+                ->innerJoin(['s2' => Server::tableName()], 's2.id = cdr2.server_id')
+                ->innerJoin([
+                    'h2' => Hub::tableName()],
+                    'h2.id = s2.hub_id' .
+                        ' AND h2.market_place_id = ' . $this->marketPlaceId
+                )
+
                 //->innerJoin(['cr1' => CallsRaw::tableName()], 'cr1.mcn_callid = cdr.mcn_callid')
                 ->innerJoin(['cr1' => CallsRaw::tableName()], 'cr1.cdr_id = cdr.id')
 
                 //->innerJoin(['cr1' => CallsRaw::tableName()], 'cr1.mcn_callid = cdr.mcn_callid')
-                ->innerJoin(['cr2' => CallsRaw::tableName()], 'cr2.cdr_id = cdr.id')
+                ->innerJoin(['cr2' => CallsRaw::tableName()], 'cr2.cdr_id = cdr2.id')
 
                 //->innerJoin(['cr2' => CallsRaw::tableName()], 'cr1.id = cr2.peer_id');
 
@@ -203,6 +211,9 @@ trait CallsRawReport
             if (!$isPreFetched) {
                 $query->andWhere(['AND',
                     $conditionFunc($aliasResolverFunc('cdr.connect_time')),
+                ]);
+                $query->andWhere(['AND',
+                    $conditionFunc($aliasResolverFunc('cdr2.connect_time')),
                 ]);
             }
 

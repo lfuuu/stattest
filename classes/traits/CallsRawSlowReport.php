@@ -55,7 +55,7 @@ trait CallsRawSlowReport
                 [
                     //'cdr.server_id',
                     'cdr.id',
-                    //'cdr.mcn_callid',
+                    'cdr.mcn_callid',
                 ]
             )
             ->from(['cdr' => CallsCdr::tableName()])
@@ -89,7 +89,7 @@ trait CallsRawSlowReport
                     'sale' => new Expression(self::getMoneyCalculateExpression('@(cr.cost)')),
                     'orig_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
                     'cr.server_id',
-                    //'cdr_data.mcn_callid as cdr_mcn_callid',
+                    'cdr_data.mcn_callid as cdr_mcn_callid',
                 ]
             )
             ->from(['cdr_data'])
@@ -113,23 +113,24 @@ trait CallsRawSlowReport
             ->orderBy(['connect_time' => SORT_ASC])
             ->limit(500);
 
-        $query2->select(
-            [
-                'cr.peer_id',
-                'cr.cdr_id',
-                'cr.connect_time',
-                't.name dst_route',
-                'o.name src_operator_name',
-                'nc.name_rus src_country_name',
-                'r.name src_region_name',
-                'ci.name src_city_name',
-                'st.contract_number || \' (\' || cct.name || \')\' src_contract_name',
-                'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
-                'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
-                'cr.server_id',
-                //'cdr_data.mcn_callid as cdr_mcn_callid',
-            ]
-        )
+        $query2
+            ->select(
+                [
+                    'cr.peer_id',
+                    'cr.cdr_id',
+                    'cr.connect_time',
+                    't.name dst_route',
+                    'o.name src_operator_name',
+                    'nc.name_rus src_country_name',
+                    'r.name src_region_name',
+                    'ci.name src_city_name',
+                    'st.contract_number || \' (\' || cct.name || \')\' src_contract_name',
+                    'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
+                    'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
+                    'cr.server_id',
+                    'cdr_data.mcn_callid as cdr_mcn_callid',
+                ]
+            )
             ->from(['cdr_data'])
             ->innerJoin(['cr' => CallsRaw::tableName()], 'cr.cdr_id = cdr_data.id')
             ->leftJoin(['t' => Trunk::tableName()], 't.id = cr.trunk_id')
@@ -190,7 +191,8 @@ trait CallsRawSlowReport
                 '(@(cr1.sale)) - cr2.cost_price margin',
             ]
         )->from('cr1')
-            ->innerJoin('cr2', 'cr1.cdr_id = cr2.cdr_id');
+            ->innerJoin('cr2', 'cr1.cdr_mcn_callid = cr2.cdr_mcn_callid');
+            //->innerJoin('cr2', 'cr1.cdr_id = cr2.cdr_id');
 
         if ($this->server_ids) {
             $condition = ['cr.server_id' => $this->server_ids];
