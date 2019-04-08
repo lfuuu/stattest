@@ -95,7 +95,7 @@ class ApiSipTrunk extends Singleton
      */
     public function update(AccountTariff $accountTariff)
     {
-        return $this->exec('update_sip_trunk', $this->_getDataByAccountTariff($accountTariff));
+        return $this->exec('edit_sip_trunk', $this->_getDataByAccountTariff($accountTariff));
     }
 
     /**
