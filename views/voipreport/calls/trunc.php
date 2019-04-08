@@ -28,7 +28,6 @@ use yii\widgets\Pjax;
         ['label' => $this->title, 'url' => '/voipreport/calls/trunc/'],
     ],
 ]);
-$filterModelPath = CallsRawFilter::class;
 
 ?>
 
@@ -39,7 +38,6 @@ echo GridView::widget([
     'dataProvider' => new ActiveDataProvider(['query' =>
         DeferredTask::find()
             ->where(['!=', 'status', DeferredTask::STATUS_IN_REMOVING])
-            ->andWhere(['filter_model' => $filterModelPath])
             ->orderBy(['created_at' => SORT_ASC])
     ]),
     'options' => ['id' => 'deferred-task-table'],
@@ -109,23 +107,8 @@ echo GridView::widget([
             'template' => '{delete}',
             'buttons' => [
                 'delete' => function ($url, $model, $key) {
-                    return Html::tag('span', '',
-                        ['class' => 'glyphicon glyphicon-trash pointer', 'onClick' => "
-                            if (!confirm('Вы уверены, что хотите удалить запись?')) {
-                                return false;
-                            };
-                            $.ajax({
-                                type: 'get',
-                                url:  'voipreport/deferred-task/remove',
-                                data: {id: $model->id},
-                                success: function(responseData, textStatus, jqXHR) {
-                                    $.pjax.reload({container:\"#deferred-task-table\"});
-                                },
-                                error: function(responseData, textStatus, jqXHR) {
-                                    alert(responseData.responseText);
-                                }
-                            });
-                        "]);
+                    return Html::a('', ['/voipreport/deferred-task/remove', 'id' => $model->id],
+                        ['class' => 'glyphicon glyphicon-trash', 'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")']);
                 },
             ],
             'visibleButtons' => [
@@ -302,16 +285,16 @@ $columns = $filterModel->getColumns();
 $dataProvider = $filterModel->search();
 $dataProvider->setTotalCount($summary->calls_count);
 
-    echo GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $filterModel,
-        'extraButtons' => $this->render('//layouts/_button', [
-            'params' => [
-                'class' => 'btn btn-warning',
-                'onclick' => "$.ajax({
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
+    'filterModel' => $filterModel,
+    'extraButtons' => $this->render('//layouts/_button', [
+        'params' => [
+            'class' => 'btn btn-warning',
+            'onclick' => "$.ajax({
                 type: 'get',
                 url:  'voipreport/deferred-task/new',
-                data: $('#calls-report-form').serialize() + '&filter_model=' + '" . addslashes($filterModelPath) . "',
+                data: $('#calls-report-form').serialize(),
                 success: function(responseData, textStatus, jqXHR) {
                     alert('Отчет поставлен на отложенное формирование');
                     $.pjax.reload({container:\"#deferred-task-table\"});
@@ -320,24 +303,24 @@ $dataProvider->setTotalCount($summary->calls_count);
                     alert(responseData.responseText);
                 },
             });"
-            ],
-            'text' => 'В отложенные задания',
-            'glyphicon' => 'glyphicon-share-alt',
-        ]),
-        'columns' => $columns,
-        'resizableColumns' => false, // все равно не влезает на экран
-        'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
-        'afterHeader' => $afterHeader,
-        'exportWidget' => GridViewExport::widget([
-            'dataProvider' => $dataProvider,
-            'filterModel' => $filterModel,
-            'columns' => $columns,
-        ]),
-        'beforeHeader' => [ // фильтры вне грида
-            'columns' => $filterColumns,
         ],
+        'text' => 'В отложенные задания',
+        'glyphicon' => 'glyphicon-share-alt',
+    ]),
+    'columns' => $columns,
+    'resizableColumns' => false, // все равно не влезает на экран
+    'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
+    'afterHeader' => $afterHeader,
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
+    'beforeHeader' => [ // фильтры вне грида
+        'columns' => $filterColumns,
+    ],
 
-    ]); ?>
+]); ?>
 
 </form>
 

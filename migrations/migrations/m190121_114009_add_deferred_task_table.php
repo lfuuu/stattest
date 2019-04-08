@@ -29,7 +29,6 @@ class m190121_114009_add_deferred_task_table extends \app\classes\Migration
             'filename' => $this->string(),
             'params' => $this->text(),
             'tmp_files' => $this->text(),
-            'filter_model' => $this->string(),
             'status' => $this->tinyInteger()->defaultValue(0),
             'status_text' => $this->string(),
             'created_at' => $this->dateTime(),

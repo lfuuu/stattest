@@ -5,7 +5,6 @@
 
 namespace app\models\voip\filter;
 
-use app\classes\DateTimeWithUserTimezone;
 use app\classes\helpers\DependecyHelper;
 use app\classes\traits\GetListTrait;
 use app\classes\WebApplication;
@@ -15,7 +14,6 @@ use app\models\billing\CallsRaw;
 use app\models\billing\Hub;
 use app\models\Currency;
 use app\models\CurrencyRate;
-use app\modules\nnp\column\NdcTypeColumn;
 use Yii;
 use yii\caching\TagDependency;
 use yii\data\ArrayDataProvider;
@@ -349,10 +347,6 @@ class CallsRawFilter extends CallsRaw
                 'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
                 'is_exclude_internal_trunk_orig' => 'Исключить внутренние транки Оригинационные',
                 'aggr' => 'Что считать',
-                'src_contract_name' => 'Договор (исх.)',
-                'dst_contract_name' => 'Договор (вхд.)',
-                'margin' => 'Маржа',
-                'pdd' => 'ПДД',
             ];
     }
 
@@ -364,7 +358,7 @@ class CallsRawFilter extends CallsRaw
      * @return bool
      * @throws \ReflectionException
      */
-    public function load(array $get, $formName = null, $sort = null)
+    public function load(array $get, $sort = null)
     {
         if ($sort) {
             $this->sort = $sort;
@@ -372,7 +366,7 @@ class CallsRawFilter extends CallsRaw
             $this->sort = Yii::$app->request->get('sort');
         }
 
-        parent::load($get, $formName);
+        parent::load($get);
 
         /**
          * BETWEEN делать сравнение <= со вторым параметром,
@@ -386,7 +380,7 @@ class CallsRawFilter extends CallsRaw
             $dateEnd = new \DateTime($this->connect_time_to);
             $dateEnd->modify('-1 second');
             $interval = $dateEnd->diff($this->dateStart);
-            if ((Yii::$app instanceof WebApplication) && ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s)))) {
+            if ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s))) {
                 Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
                 return false;
             }
@@ -445,25 +439,25 @@ class CallsRawFilter extends CallsRaw
 
         // именнованые значения
         foreach ([
-                     'src_route',
-                     'dst_route',
-                     'src_number',
-                     'dst_number',
-                     'src_operator_name',
-                     'dst_operator_name',
-                     'src_country_name',
-                     'dst_country_name',
-                     'src_region_name',
-                     'dst_region_name',
-                     'src_city_name',
-                     'dst_city_name',
-                     'src_ndc_type_id',
-                     'dst_ndc_type_id',
-                     'sale',
-                     'cost_price',
-                     'orig_rate',
-                     'term_rate'
-                 ] as $field) {
+            'src_route',
+            'dst_route',
+            'src_number',
+            'dst_number',
+            'src_operator_name',
+            'dst_operator_name',
+            'src_country_name',
+            'dst_country_name',
+            'src_region_name',
+            'dst_region_name',
+            'src_city_name',
+            'dst_city_name',
+            'src_ndc_type_id',
+            'dst_ndc_type_id',
+            'sale',
+            'cost_price',
+            'orig_rate',
+            'term_rate'
+        ] as $field) {
             $groups[$field] = $this->getAttributeLabel($field);
         }
 
@@ -804,125 +798,13 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
-     * @return array|mixed|ArrayDataProvider
-     * @throws \yii\db\Exception
-     */
-    public function search()
-    {
-        return $this->getReport();
-    }
-
-    /**
-     * @return array
-     */
-    public function getColumns($isPreFetched = false)
-    {
-        $aggrDigitCount = [
-            'sale_sum' => 4,
-            'sale_avg' => 4,
-            'sale_min' => 4,
-            'sale_max' => 4,
-            'cost_price_sum' => 4,
-            'cost_price_avg' => 4,
-            'cost_price_min' => 4,
-            'cost_price_max' => 4,
-            'margin_sum' => 4,
-            'margin_avg' => 4,
-            'margin_min' => 4,
-            'margin_max' => 4,
-            'margin_percent' => 2,
-        ];
-        if (!($this->group || $this->group_period || $this->aggr)) {
-            $columns = require Yii::getAlias('@app/views/voip/raw/_indexColumns.php');
-            // Если поддержка кеша не требуется, то дополним выводимые колонки
-            if (!$isPreFetched) {
-                $columns[] = [
-                    'label' => 'Номер А',
-                    'attribute' => 'src_number',
-                ];
-                $columns[] = [
-                    'label' => 'Номер В',
-                    'attribute' => 'dst_number',
-                ];
-                $columns[] = [
-                    'label' => 'ПДД',
-                    'attribute' => 'pdd',
-                ];
-            }
-            return $columns;
-        }
-
-        if ($this->group_period) {
-            $columns[] = [
-                'label' => 'Интервал',
-                'attribute' => 'interval',
-            ];
-        }
-
-        if ($this->group) {
-            foreach ($this->group as $key => $value) {
-                $attr = $this->getGroupKeyParts($value)[0];
-                $column = [
-                    'label' => $this->getAttributeLabel($value),
-                    'attribute' => $attr,
-                ];
-
-                if (in_array($attr, ['sale', 'cost_price', 'orig_rate', 'term_rate'])) {
-                    $column['value'] = function ($model) use ($attr)
-                    {
-                        return $model[$attr] / $this->currency_rate;
-                    };
-                    $column['format'] = ['decimal', 4];
-                }
-
-                if ($attr == 'src_ndc_type_id' || $attr == 'dst_ndc_type_id') {
-                    $column['class'] = NdcTypeColumn::class;
-                }
-
-                $columns[] = $column;
-            }
-        }
-
-        $c = count($columns);
-        foreach ($this->aggr as $key => $value) {
-            $columns[$key + $c] = [
-                'label' => $this->getAttributeLabel($value),
-                'attribute' => $value,
-            ];
-            if (strpos($value, 'session_time') !== false || strpos($value, 'acd') !== false) {
-                $columns[$key + $c]['value'] = function ($model) use ($value)
-                {
-                    return DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($model[$value]);
-                };
-            }
-
-            if ($this->currency_rate !== 1 &&
-                (strpos($value, 'sale') !== false || strpos($value, 'cost_price') !== false ||
-                    strpos($value, 'margin') !== false)) {
-                $columns[$key + $c]['value'] = function ($model) use ($value)
-                {
-                    return $model[$value] / $this->currency_rate;
-                };
-            }
-
-            if (isset($aggrDigitCount[$value])) {
-                $columns[$key + $c]['format'] = ['decimal', $aggrDigitCount[$value]];
-            }
-
-            if (strpos($value, 'asr') !== false) {
-                $columns[$key + $c]['format'] = 'percent';
-            }
-        }
-        return $columns;
-    }
-
-    /**
      * Является ли текущий запрос новой версии
      *
      * @return bool
      */
     protected function isRequestNew()
     {
-        return Yii::$app->controller->action->id == 'with-cache';
+        return
+            Yii::$app->controller->action->id == 'with-cache';
     }
 }

@@ -8,22 +8,17 @@
  * @var boolean $isPreFetched
  */
 
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\models\voip\filter\CallsRawFilter;
 use app\classes\grid\column\universal\CheckboxColumn;
+use app\modules\nnp\column\NdcTypeColumn;
 use app\widgets\GridViewExport\GridViewExport;
-use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
-use app\classes\Html;
-use yii\data\ActiveDataProvider;
-use app\models\DeferredTask;
-use yii\grid\ActionColumn;
-use yii\widgets\Pjax;
 
 // Если вызывающий контроллер не поддерживает кеширование
 !isset($isPreFetched) && $isPreFetched = false;
 !isset($isNewVersion) && $isNewVersion = false;
-$filterModelPath = CallsRawFilter::class;
 
 echo Breadcrumbs::widget([
     'links' => [
@@ -41,7 +36,99 @@ if ($isPreFetched) {
     ];
 }
 
-$columns = $filterModel->getColumns($isCache);
+$aggrDigitCount = [
+    'sale_sum' => 4,
+    'sale_avg' => 4,
+    'sale_min' => 4,
+    'sale_max' => 4,
+    'cost_price_sum' => 4,
+    'cost_price_avg' => 4,
+    'cost_price_min' => 4,
+    'cost_price_max' => 4,
+    'margin_sum' => 4,
+    'margin_avg' => 4,
+    'margin_min' => 4,
+    'margin_max' => 4,
+    'margin_percent' => 2,
+];
+
+$columns = [];
+
+if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
+    if ($filterModel->group_period) {
+        $columns[] = [
+            'label' => 'Интервал',
+            'attribute' => 'interval',
+        ];
+    }
+
+    if ($filterModel->group) {
+        foreach ($filterModel->group as $key => $value) {
+            $attr = $filterModel->getGroupKeyParts($value)[0];
+            $column = [
+                'label' => $filterModel->getAttributeLabel($value),
+                'attribute' => $attr,
+            ];
+
+            if (in_array($attr, ['sale', 'cost_price', 'orig_rate', 'term_rate'])) {
+                $column['value'] = function ($model) use ($attr, $filterModel) {
+                    return $model[$attr] / $filterModel->currency_rate;
+                };
+                $column['format'] = ['decimal', 4];
+            }
+
+            if ($attr == 'src_ndc_type_id' || $attr == 'dst_ndc_type_id') {
+                $column['class'] = NdcTypeColumn::class;
+            }
+
+            $columns[] = $column;
+        }
+    }
+
+    $c = count($columns);
+    foreach ($filterModel->aggr as $key => $value) {
+        $columns[$key + $c] = [
+            'label' => $filterModel->getAttributeLabel($value),
+            'attribute' => $value,
+        ];
+        if (strpos($value, 'session_time') !== false || strpos($value, 'acd') !== false) {
+            $columns[$key + $c]['value'] = function ($model) use ($value) {
+                return DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($model[$value]);
+            };
+        }
+
+        if ($filterModel->currency_rate !== 1 && (strpos($value, 'sale') !== false || strpos($value, 'cost_price') !== false || strpos($value, 'margin') !== false)) {
+            $columns[$key + $c]['value'] = function ($model) use ($value, $filterModel) {
+                return $model[$value] / $filterModel->currency_rate;
+            };
+        }
+
+        if (isset($aggrDigitCount[$value])) {
+            $columns[$key + $c]['format'] = ['decimal', $aggrDigitCount[$value]];
+        }
+
+        if (strpos($value, 'asr') !== false) {
+            $columns[$key + $c]['format'] = 'percent';
+        }
+    }
+} else {
+    $columns = require '_indexColumns.php';
+    // Если поддержка кеша не требуется, то дополним выводимые колонки
+    if (!$isPreFetched) {
+        $columns[] = [
+            'label' => 'Номер А',
+            'attribute' => 'src_number',
+        ];
+        $columns[] = [
+            'label' => 'Номер В',
+            'attribute' => 'dst_number',
+        ];
+        $columns[] = [
+            'label' => 'ПДД',
+            'attribute' => 'pdd',
+        ];
+    }
+}
 
 $chooseError = function () use ($filterModel) {
     $errors = [];
@@ -80,30 +167,11 @@ if ($filterModel->hasErrors()) {
 }
 
 try {
-    echo '<form id="calls-report-form">';
     $dataProvider = $filterModel->getReport(true, $isNewVersion, $isPreFetched);
+
     GridView::separateWidget([
         'isHideFilters' => false,
         'dataProvider' => $dataProvider,
-        'extraButtons' => $this->render('//layouts/_button', [
-            'params' => [
-                'class' => 'btn btn-warning',
-                'onclick' => "$.ajax({
-                type: 'get',
-                url:  'voipreport/deferred-task/new',
-                data: $('#calls-report-form').serialize() + '&filter_model=' + '" . addslashes($filterModelPath) . "',
-                success: function(responseData, textStatus, jqXHR) {
-                    alert('Отчет поставлен на отложенное формирование');
-                    $.pjax.reload({container:\"#deferred-task-table\"});
-                },
-                error: function(responseData, textStatus, jqXHR) {
-                    alert(responseData.responseText);
-                },
-            });"
-            ],
-            'text' => 'В отложенные задания',
-            'glyphicon' => 'glyphicon-share-alt',
-        ]),
         'filterModel' => $filterModel,
         'beforeHeader' => [
             'columns' => $filters
@@ -165,7 +233,6 @@ try {
                 </div>
             ' : '',
     ]);
-    echo '</form>';
 } catch (yii\db\Exception $e) {
     Yii::$app->session->addFlash(
         'error',
@@ -179,109 +246,3 @@ try {
         'Неизвестная ошибка: ' . $e->getMessage()
     );
 }
-
-?>
-<?php Pjax::begin(['id' => 'deferred-task-table', 'timeout' => false, 'enablePushState' => false]) ?>
-<?php
-echo \yii\grid\GridView::widget([
-    'dataProvider' => new ActiveDataProvider(['query' =>
-        DeferredTask::find()
-            ->where(['!=', 'status', DeferredTask::STATUS_IN_REMOVING])
-            ->andWhere(['filter_model' => $filterModelPath])
-            ->orderBy(['created_at' => SORT_ASC])
-    ]),
-    'options' => ['id' => 'deferred-task-table'],
-    'columns' => [
-        [
-            'attribute' => 'userModel.name',
-            'label' => 'Пользователь',
-
-        ],
-        [
-            'attribute' => 'created_at',
-        ],
-        [
-            'attribute' => 'params',
-            'format' => 'raw',
-            'value' => function ($data) use ($filterModel) {
-                $str = '';
-                if (!($params = json_decode($data->params, true))) {
-                    return 'Ошибка получения данных запроса';
-                }
-                $parsedParams = DeferredTask::parseBunch($params);
-
-                $firstElements = '';
-                $otherElements = '<div class="other-elements" style="display: none">';
-                $callsRawFilterInstance = CallsRawFilter::instance();
-                foreach($parsedParams as $key => $value) {
-                    $current = '';
-                    $trimmedVal = trim($value);
-                    $label = $callsRawFilterInstance->getAttributeLabel($key);
-                    if ($trimmedVal && $trimmedVal != '----') {
-                        $current .= ($label) ? $label : $key;
-                        $current .= ':' . $trimmedVal . '<br>';
-                    }
-                    if ($key == 'trunk' || $key == 'connect_time_from' ||  $key == 'connect_time_to') {
-                        $firstElements .= $current;
-                    } else {
-                        $otherElements .= $current;
-                    }
-                };
-                $str .= $firstElements;
-                $str .= Html::tag('u', ' Развернуть ', ['style' => "cursor: pointer;", 'onclick' => "$($(this).siblings('.other-elements')).toggle();"]);
-                $str .= $otherElements . '</div>';
-                return $str;
-            }
-        ],
-        [
-            'attribute' => 'status',
-            'format' => 'raw',
-            'value' => function ($data) {
-                $message = DeferredTask::getStatusLabels()[$data->status];
-                if ($data->status == DeferredTask::STATUS_IN_PROGRESS) {
-                    $message .= '<br>' . $data->getProgressString();
-                } elseif ($data->status == DeferredTask::STATUS_READY) {
-                    $message .= Html::a('', ['/voipreport/deferred-task/download', 'id' => $data->id], ['class' => 'glyphicon glyphicon-save', 'data-pjax' => 0]);
-                }
-                if ($data->status_text) {
-                    $message .= '<br>' . $data->status_text;
-                }
-                return $message;
-            },
-        ],
-        [
-            'class' => ActionColumn::class,
-            'template' => '{delete}',
-            'buttons' => [
-                'delete' => function ($url, $model, $key) {
-                    return Html::tag('span', '',
-                        ['class' => 'glyphicon glyphicon-trash pointer', 'onClick' => "
-                            if (!confirm('Вы уверены, что хотите удалить запись?')) {
-                                return false;
-                            };
-                            $.ajax({
-                                type: 'get',
-                                url:  'voipreport/deferred-task/remove',
-                                data: {id: $model->id},
-                                success: function(responseData, textStatus, jqXHR) {
-                                    $.pjax.reload({container:\"#deferred-task-table\"});
-                                },
-                                error: function(responseData, textStatus, jqXHR) {
-                                    alert(responseData.responseText);
-                                }
-                            });
-                        "]);
-                },
-            ],
-            'visibleButtons' => [
-                'delete' => function ($model) {
-                    return $model->status != DeferredTask::STATUS_IN_PROGRESS;
-                },
-            ]
-        ],
-
-    ],
-]);
-?>
-
-<?php Pjax::end() ?>
