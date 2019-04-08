@@ -86,8 +86,8 @@ class TroubleStages extends Behavior
                 ]);
         }
 
-        // Создание связи между услугой и заявкой, когда состояние стало"Включено"
-        if ($troubleStage->isStateEnabled()) {
+        // Создание связи между услугой и заявкой, когда состояние стало "Включено" или "Допродажа"
+        if ($troubleStage->isStateEnabled() || $troubleStage->isStateCrossSell()) {
             $accountTariffIds = AccountTariff::find()
                 ->select('uat.id')
                 ->alias('uat')
