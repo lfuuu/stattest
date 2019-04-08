@@ -3,9 +3,7 @@
 namespace app\modules\nnp\commands;
 
 use app\helpers\DateTimeZoneHelper;
-use app\models\EventQueue;
 use app\modules\nnp\models\Number;
-use app\modules\nnp\models\NumberRange;
 use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
@@ -92,9 +90,9 @@ abstract class PortedController extends Controller
         $sql = <<<SQL
             CREATE TEMPORARY TABLE number_tmp
             (
-                id serial NOT NULL,
-                full_number bigint NOT NULL,
-                operator_source character varying(255)
+                id SERIAL NOT NULL,
+                full_number BIGINT NOT NULL,
+                operator_source CHARACTER VARYING(255)
             )
 SQL;
         // CONSTRAINT number_tmp_pkey PRIMARY KEY (id)
@@ -115,7 +113,7 @@ SQL;
 
         // удалить дубли
         $sql = <<<SQL
-            WITH t1 AS (SELECT MAX(id) as max_id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
+            WITH t1 AS (SELECT MAX(id) AS max_id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
             DELETE FROM number_tmp
             USING t1
             WHERE number_tmp.full_number = t1.full_number AND number_tmp.id < t1.max_id
@@ -180,13 +178,5 @@ SQL;
     public function actionNotifyEventPortedNumber()
     {
         \Yii::$app->dbPg->createCommand("select event.notify_event_to_all('nnp_ported_number')")->execute();
-
-        EventQueue::go(EventQueue::TROUBLE_NOTIFIER_EVENT, [
-            'user' => 'adima',
-            'trouble_id' => 1000,
-            'text' => 'Начало синхронизации портированых номеров',
-        ]);
     }
-
-
 }
