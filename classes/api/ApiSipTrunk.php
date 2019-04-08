@@ -111,7 +111,7 @@ class ApiSipTrunk extends Singleton
             'stat_product_id' => $accountTariff->id,
         ];
 
-        return $this->exec('remove_sip_trunk', $data);
+        return $this->exec('delete_sip_trunk', $data);
     }
 
 
