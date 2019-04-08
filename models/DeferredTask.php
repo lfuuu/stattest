@@ -26,6 +26,7 @@ use app\modules\nnp\models\City;
  * @property string $filename
  * @property string $params
  * @property integer $status
+ * @property string $filter_model
  * @property string status_text
  * @property integer $user_id
  * @property string $created_at

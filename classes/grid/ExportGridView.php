@@ -44,13 +44,17 @@ class ExportGridView extends GridView
     {
         $columns = $this->getColumns();
         foreach ($columns as $columnData) {
-            if (isset($columnData['class']) && isset($columnData['attribute'])) {
-                $class = $columnData['class'];
-                unset($columnData['class']);
-                $constructorParams = $columnData + ['grid' => ($this)];
-                $this->columns[] = new $class($constructorParams);
-            } elseif (isset($columnData['value'])) {
+            if (isset($columnData['value'])) {
                 $this->columns[] = $columnData['value'];
+            } elseif (isset($columnData['attribute'])) {
+                if (isset($columnData['class'])) {
+                    $class = $columnData['class'];
+                    unset($columnData['class']);
+                    $constructorParams = $columnData + ['grid' => ($this)];
+                    $this->columns[] = new $class($constructorParams);
+                } else {
+                    $this->columns[] = $columnData['attribute'];
+                }
             }
         }
     }
@@ -64,11 +68,13 @@ class ExportGridView extends GridView
     protected function getValuesRow($model)
     {
         $result = [];
-        foreach ($this->columns as $columnObject) {
-            if (is_object($columnObject) && method_exists($columnObject, 'renderDataCell')) {
-                $result[] = strip_tags($columnObject->renderDataCell($model, $columnObject->attribute, 0));
-            } elseif ($columnObject instanceof Closure) {
-                $result[] = strip_tags($columnObject($model));
+        foreach ($this->columns as $column) {
+            if (is_object($column) && method_exists($column, 'renderDataCell')) {
+                $result[] = strip_tags($column->renderDataCell($model, $column->attribute, 0));
+            } elseif ($column instanceof Closure) {
+                $result[] = strip_tags($column($model));
+            } else {
+                $result[] = isset($model[$column]) ? $model[$column] : '';
             }
         }
         return $result;
@@ -84,7 +90,7 @@ class ExportGridView extends GridView
         $name = StringHelper::basename(get_class($this->filterModel));
         $name = (($substr = strstr($name, 'Filter', true)) !== false) ? $substr : $name;
         $name = BaseInflector::underscore($name);
-        return $name  . '_' . time() . '.csv';
+        return $name  . '_' . time() . '_' . substr(md5(rand(1, 10000)), 0, 5) . '.csv';
     }
 
     /**
@@ -117,7 +123,6 @@ class ExportGridView extends GridView
 
                 $dateFromPlusMonth->modify('+1 month');
                 $dateFrom->modify('+1 month');
-                ++$this->downloadedPartsCount;
             }
 
             if ($dateFrom->diff($dateTo)->d >= 1) {
@@ -127,7 +132,6 @@ class ExportGridView extends GridView
                 if ($this->statusManagerObject) {
                     $this->statusManagerObject->setTmpFiles(json_encode($this->tmpFiles));
                 }
-                ++$this->downloadedPartsCount;
             }
             return $this->assembleReport();
         }
@@ -206,7 +210,11 @@ class ExportGridView extends GridView
      */
     protected function createFile()
     {
-        $query = $this->filterModel->search()->query;
+        $dataProvider = $this->filterModel->search();
+        if (!$dataProvider || !isset(class_implements($dataProvider)['yii\data\DataProviderInterface'])) {
+            throw new Exception('Неправильный DataProvider');
+        }
+        $dataProvider->pagination = false;
         $filename = $this->getFilename();
 
         $fullpath = $this->path . $filename;
@@ -219,10 +227,15 @@ class ExportGridView extends GridView
             $this->writeRow($handle, $this->getHeaders());
         }
 
-        foreach ($query->each() as $model) {
+        $models = array_values($dataProvider->getModels());
+        foreach ($models as $model) {
             $this->writeRow($handle, $this->getValuesRow($model));
         }
         fclose($handle);
+        ++$this->downloadedPartsCount;
+        if ($this->totalParts > 1) {
+            echo 'скачано: ' . $this->downloadedPartsCount . '/' . $this->totalParts . PHP_EOL;
+        }
 
         return $filename;
     }

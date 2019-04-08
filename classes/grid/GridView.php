@@ -153,8 +153,7 @@ HTML;
             $config1['columns'],
             $config1['exportWidget'],
             $config2['beforeHeader'],
-            $config2['panelHeadingTemplate'],
-            $config2['extraButtons']
+            $config2['panelHeadingTemplate']
         );
         $config1['dataProvider'] = new \yii\data\ArrayDataProvider(
             [

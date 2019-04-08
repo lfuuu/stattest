@@ -32,6 +32,7 @@ class DeferredTaskController extends BaseController
         $model->user_id = Yii::$app->user->getIdentity()->getId();
         $model->status = DeferredTask::STATUS_WAITING_FOR_DOWNLOAD;
         $model->scenario = 'insert';
+        $model->filter_model = $get['filter_model'];
 
         if (!$model->save()) {
             \Yii::$app->response->statusCode = 500;
@@ -79,10 +80,11 @@ class DeferredTaskController extends BaseController
     {
         $model = DeferredTask::findOne($id);
         if (!$model || $model->status == DeferredTask::STATUS_IN_PROGRESS) {
-            Yii::$app->session->setFlash('error', 'При удалении отчета возникла ошибка.');
-            return $this->redirect(Yii::$app->request->referrer);
+            \Yii::$app->response->statusCode = 500;
+            \Yii::$app->response->content = ((!$model) ? 'Ошибка при удалении. Запись не найдена.' : 'Нельзя удалить отчет который скачивается. Дождитесь окончания загрузки.');
+        } else {
+            $model->setStatus(DeferredTask::STATUS_IN_REMOVING);
+            \Yii::$app->response->statusCode = 200;
         }
-        $model->setStatus(DeferredTask::STATUS_IN_REMOVING);
-        return $this->redirect(Yii::$app->request->referrer);
     }
 }

@@ -7,7 +7,6 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\DeferredTask;
 use Exception;
 use yii\console\Controller;
-use app\models\filter\CallsRawFilter;
 
 class DeferredTaskController extends Controller
 {
@@ -22,7 +21,8 @@ class DeferredTaskController extends Controller
 
         $query = DeferredTask::find()
             ->where(['status' => DeferredTask::STATUS_WAITING_FOR_DOWNLOAD])
-            ->orWhere(['and', ['status' => DeferredTask::STATUS_IN_PROGRESS], ['<>', 'tmp_files', null]])
+            ->orWhere(['AND', ['status' => DeferredTask::STATUS_IN_PROGRESS], ['NOT', ['tmp_files' => null]]])
+            ->andWhere(['NOT', ['filter_model' => null]])
             ->orderBy(['created_at' => SORT_ASC]);
 
         foreach ($query->each() as $model) {
@@ -30,7 +30,7 @@ class DeferredTaskController extends Controller
             try {
                 $model->setStatus(DeferredTask::STATUS_IN_PROGRESS);
                 $params = json_decode($model->params, true);
-                $filterModel = new CallsRawFilter();
+                $filterModel = new $model->filter_model;
                 $filterModel->load($params, '');
                 $exportModel = new ExportGridView([
                     'filterModel' => $filterModel,
@@ -41,11 +41,11 @@ class DeferredTaskController extends Controller
                 if (!$model->save()) {
                     throw new ModelValidationException($model);
                 }
-                echo "результат задачи №{$model->id} сохранен в файл {$model->filename}\n";
+                echo "результат задачи №{$model->id} сохранен в файл {$model->filename}" . PHP_EOL;
             } catch (Exception $e) {
                 $model->setStatus(DeferredTask::STATUS_EXCEPTION);
                 $model->setStatusText($e->getMessage());
-                echo $e->getMessage() . PHP_EOL;
+                echo 'задача №' . $model->id . ': ' . $e->getMessage() . PHP_EOL;
             }
         }
     }
