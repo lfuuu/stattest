@@ -55,6 +55,7 @@ abstract class Monitor extends Component
             Monitor1cTroubles::class,
             MonitorSorm_Habarovsk::class,
             MonitorSorm_Krasnoiarsk::class,
+            MonitorVoipDelayOnPackages::class,
         ];
     }
 
@@ -69,6 +70,7 @@ abstract class Monitor extends Component
             // MonitorUuAccountEntry::class, // обычно работает долю секунды, но иногда лочится надолго
             MonitorUuTestTariff::class,
             // MonitorSormClientsReg97::class, // до введения СОРМа в Краснодаре, отключим монитор. Что бы Борис не расстраивался.
+            MonitorVoipDelayOnAccountTariffs::class,
         ];
     }
 }
