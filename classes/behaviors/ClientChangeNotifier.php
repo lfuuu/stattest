@@ -54,7 +54,7 @@ class ClientChangeNotifier extends Behavior
             $nowStr = (new \DateTime('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
             HandlerLogger::me()->add($nowStr . ': ' .
                 '(' . ($isInsert ? '+' : ($isUpdate ? '*' : '-')) . ') ' .
-                'account_id: ' . $clientAccount->id,
+                'account_id: ' . $clientAccount->id .
                 ', model: ' . get_class($model) .
                 ', id: ' . $model->id .
                 ($model->hasProperty('account_tariff_id') ? ', account_tariff_id: ' . $model->account_tariff_id : '')
