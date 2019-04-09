@@ -56,6 +56,7 @@ abstract class Monitor extends Component
             MonitorSorm_Habarovsk::class,
             MonitorSorm_Krasnoiarsk::class,
             MonitorVoipDelayOnPackages::class,
+            MonitorMultipleEnabledNumbers::class,
         ];
     }
 

@@ -67,7 +67,7 @@ class MonitorVoipDelayOnPackages extends Monitor
             }
         }
 
-        $this->_message = rtrim($message, ',');
+        $this->_message = rtrim($message, ', ');
 
         return $countErrors;
     }
