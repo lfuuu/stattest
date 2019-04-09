@@ -3,6 +3,7 @@
 namespace app\modules\uu\commands\converter;
 
 use app\exceptions\ModelValidationException;
+use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
@@ -224,6 +225,10 @@ class AccountTariffController extends Controller
             $troubleRoistat->roistat_price = $newPrice;
             if (!$troubleRoistat->save()) {
                 throw new ModelValidationException($troubleRoistat);
+            }
+            $trouble = $troubleRoistat->trouble;
+            if ($trouble) {
+                $trouble->setIsChanged();
             }
         }
     }
