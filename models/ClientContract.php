@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\behaviors\ClientChangeNotifier;
 use app\classes\behaviors\ClientContractComments;
 use app\classes\behaviors\ContractContragent;
 use app\classes\behaviors\EffectiveVATRate;
@@ -174,6 +175,7 @@ class ClientContract extends HistoryActiveRecord
             'SetClientContractOfferDate' => SetClientContractOfferDate::class,
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+            'ClientChangeNotifier' => ClientChangeNotifier::class,
         ];
     }
 

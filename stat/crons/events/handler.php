@@ -2,6 +2,7 @@
 
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
+use app\classes\adapters\ClientChangedAmqAdapter;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
@@ -144,6 +145,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
         $flags['isFreeNumberServer'] = FreeNumberAdapter::me()->isAvailable();
         $flags['isAsyncServer'] = AsyncAdapter::me()->isAvailable();
         $flags['isSipTrunkServer'] = ApiSipTrunk::me()->isAvailable();
+        $flags['isClientChangedServer'] = ClientChangedAmqAdapter::me()->isAvailable();
     }
 
     $isCoreServer = $flags['isCoreServer'];
@@ -158,6 +160,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     $isFreeNumberServer = $flags['isFreeNumberServer'];
     $isAsyncServer = $flags['isAsyncServer'];
     $isSipTrunkServer = $flags['isSipTrunkServer'];
+    $isClientChangedServer = $flags['isClientChangedServer'];
     echo '. ';
 
 
@@ -798,6 +801,12 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
+                    break;
+
+                case ClientChangedAmqAdapter::EVENT:
+                    $info = $isClientChangedServer
+                        ? ClientChangedAmqAdapter::me()->publishMessage($param)
+                        : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
                 // --------------------------------------------

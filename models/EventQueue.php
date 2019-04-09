@@ -308,7 +308,7 @@ class EventQueue extends ActiveRecord
 
         $logs = HandlerLogger::me()->get();
         if ($logs) {
-            $this->trace = implode(PHP_EOL . PHP_EOL, $logs);
+            $this->trace .= implode(PHP_EOL . PHP_EOL, $logs). PHP_EOL;
         }
 
         $this->status = self::STATUS_OK;
@@ -346,12 +346,10 @@ class EventQueue extends ActiveRecord
 
             $logs = HandlerLogger::me()->get();
             if ($logs) {
-                $this->trace = implode(PHP_EOL . PHP_EOL, $logs) . PHP_EOL . PHP_EOL;
-            } else {
-                $this->trace = '';
+                $this->trace .= implode(PHP_EOL . PHP_EOL, $logs) . PHP_EOL;
             }
 
-            $this->trace .= $e->getFile() . ':' . $e->getLine() . ';\n ' . $e->getTraceAsString();
+            $this->trace .= $e->getFile() . ':' . $e->getLine() . ';\n ' . $e->getTraceAsString() . PHP_EOL;
 
             Yii::error($e);
         }
@@ -478,6 +476,12 @@ class EventQueue extends ActiveRecord
         $eventQueue->iteration = 0;
         $eventQueue->status = self::STATUS_PLAN;
         $eventQueue->next_start = $nextStart ?: $eventQueue->insert_time;
+
+        $logs = HandlerLogger::me()->get();
+        if ($logs) {
+            $eventQueue->trace .= implode(PHP_EOL . PHP_EOL, $logs) . PHP_EOL;
+            HandlerLogger::me()->clear();
+        }
 
         if (!$eventQueue->save()) {
             throw new ModelValidationException($eventQueue);

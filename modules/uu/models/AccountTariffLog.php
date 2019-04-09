@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\behaviors\ClientChangeNotifier;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
@@ -110,6 +111,7 @@ class AccountTariffLog extends ActiveRecord
                 AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
                 FillAccountTariffResourceLog::class, // Создать лог ресурсов при создании услуги. Удалить при удалении
                 AccountTariffLogTimeHistory::class, // Обновление время продажи и допродажи в модели AccountTariff
+                ClientChangeNotifier::class, //оповещение о изменении ЛС
             ]
         );
     }

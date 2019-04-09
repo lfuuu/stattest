@@ -41,4 +41,12 @@ return [
     'rocket_chat_token' => '',
     'sormRegions' => [],
     'isLogAAA' => false,
+    'clientChangedAmqSettings' => [
+        'host' => '',
+        'port' => 5672,
+        'vhost' => '/',
+        'user' => '',
+        'pass' => '',
+        'queue' => 'stat_changes'
+    ],
 ];

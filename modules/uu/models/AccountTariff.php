@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\behaviors\ClientChangeNotifier;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
@@ -147,6 +148,7 @@ class AccountTariff extends ActiveRecord
                 AccountTariffVoipNumber::class,
                 AccountTariffAddDefaultPackage::class,
                 AccountTariffTransferClean::class,
+                ClientChangeNotifier::class,
                 [
                     // Установить "когда создал" и "когда обновил"
                     'class' => TimestampBehavior::class,

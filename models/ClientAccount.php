@@ -6,6 +6,7 @@ use app\classes\behaviors\AccountPriceIncludeVat;
 use app\classes\behaviors\ActualizeClientVoip;
 use app\classes\behaviors\ClientAccountComments;
 use app\classes\behaviors\ClientAccountSyncEvent;
+use app\classes\behaviors\ClientChangeNotifier;
 use app\classes\behaviors\EffectiveVATRate;
 use app\classes\behaviors\EventQueueAddEvent;
 use app\classes\behaviors\SetOldStatus;
@@ -323,6 +324,7 @@ class ClientAccount extends HistoryActiveRecord
             'EffectiveVATRate' => EffectiveVATRate::class,
             'SetTaxVoip' => SetTaxVoip::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class, // Логирование изменений всегда в конце
+            'ClientChangeNotifier' => ClientChangeNotifier::class,
         ];
     }
 
