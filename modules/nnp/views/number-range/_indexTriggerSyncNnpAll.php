@@ -5,9 +5,11 @@
  * @var app\classes\BaseView $this
  */
 
+use app\helpers\DateTimeZoneHelper;
 use kartik\form\ActiveForm;
 
-$isTimeCorrect = intval(date('H')) >= 19;
+$currentHour = (new DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format('H');
+$isTimeCorrect = $currentHour >= 19;
 ?>
 
 
