@@ -119,6 +119,7 @@
     <input type="hidden" name="invoice-3" value="1"/>
     <input type="hidden" name="isBulkPrint" value="1"/>
     <div class="pull-right">
+        <button type="submit" class="button" onclick="setAction('bill_email')">Отправить на e-mail</button>
         <button type="submit" class="button" onclick="setAction('bill_mprint')" name="isLandscape" value="1">Печать в альбомной ориентации</button>
         <button type="submit" class="button" onclick="setAction('bill_mprint')" name="isPortrait" value="1">Печать в книжной ориентации</button>
         <button type="submit" class="button" onclick="setAction('bill_postreg')">Зарег-ть</button>

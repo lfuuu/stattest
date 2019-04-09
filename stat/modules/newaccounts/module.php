@@ -1491,9 +1491,18 @@ class m_newaccounts extends IModule
         global $design, $db, $_GET;
         $this->do_include();
         $bill_no = get_param_protected("bill");
+        if (is_array($bill_no)) {
+            foreach ($bill_no as $bill_number) {
+                $_GET['bill'] = $bill_number;
+                $this->newaccounts_bill_email($fixclient);
+            }
+            return;
+        }
+
         if (!$bill_no) {
             return;
         }
+        $docs = BillDocument::dao()->getByBillNo($bill_no);
         $bill = new \Bill($bill_no);
         $is_pdf = get_param_raw('is_pdf', 0);
 
@@ -1519,6 +1528,9 @@ class m_newaccounts extends IModule
         foreach ($D as $k => $rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
+                    if (!$this->isActionEnabled($r, $docs)) {
+                        continue;
+                    }
 
                     if (
                     in_array($r, ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service'])
