@@ -580,7 +580,7 @@
                 дате первой</a>{else}по дате первой{/if}<br/>
 
             <hr>
-            {if $is_new_invoice}
+            {*if $is_new_invoice}
                 Книга продаж:
                 <br>
                 {if $invoice_info}
@@ -648,7 +648,7 @@
                     <a href="/bill/publish/make-ab-invoice?bill_no={$bill.bill_no}">+авансовая с/ф</a>
                 {/if}
 
-            {/if}
+            {/if*}
     </div>
     <div style="width:300px; float: left;">
             {if $bill_client.account_version == 5 && $bill.uu_bill_id}
