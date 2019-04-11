@@ -29,6 +29,7 @@ use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region;
 use DateTime;
+use Yii;
 use yii\db\Expression;
 use app\models\billing\DisconnectCause;
 use yii\db\Query;
@@ -45,6 +46,8 @@ trait CallsRawReport
      */
     protected function getReportNew($isPreFetched = false)
     {
+        $this->dbConn = Yii::$app->dbPgSlave;
+
         // Анонимная функция разрешения конфликта алиаса
         $aliasResolverFunc = function($alias) use ($isPreFetched) {
             if ($isPreFetched) {

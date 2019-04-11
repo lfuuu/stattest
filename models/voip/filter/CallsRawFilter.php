@@ -78,7 +78,6 @@ use yii\db\Expression;
  * @property int $is_exclude_internal_trunk_orig
  *
  * @property-read \DateTime $dateStart = null;
- * @property-read Connection $dbConn
  *
  * @property array src_trunk_group_ids
  * @property array dst_trunk_group_ids
@@ -184,11 +183,12 @@ class CallsRawFilter extends CallsRaw
     public $orig_rate = null;
     public $term_rate = null;
     public $dateStart = null;
-    public $dbConn = null;
     public $src_trunk_group_ids = null;
     public $dst_trunk_group_ids = null;
     public $is_exclude_internal_trunk_term = null;
     public $is_exclude_internal_trunk_orig = null;
+    /** @var Connection */
+    public $dbConn = null;
 
     /**
      * Rules set
@@ -748,7 +748,7 @@ class CallsRawFilter extends CallsRaw
             //        Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
             //    }
             //}
-            $result = $query->createCommand(Yii::$app->dbPg)->queryAll();
+            $result = $query->createCommand($this->dbConn)->queryAll();
         }
 
         if (!$isGetDataProvider) {
