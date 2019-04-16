@@ -45,8 +45,11 @@ class SyncAccountTariffLight extends Behavior
         $accountLogPeriod = $event->sender;
         $accountTariff = $accountLogPeriod->accountTariff;
         if (
-            !array_key_exists($accountTariff->service_type_id, ServiceType::$packages)
-            || $accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET
+            $accountTariff->service_type_id != ServiceType::ID_BILLING_API
+            && (
+                !array_key_exists($accountTariff->service_type_id, ServiceType::$packages)
+                || $accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET
+            )
         ) {
             // только для пакетов телефонии, кроме интернета, но не Roamobility
             return;
@@ -66,7 +69,10 @@ class SyncAccountTariffLight extends Behavior
             ->modify('+1 day')// в AccountLogPeriod указан последний день действия, то есть выключить надо не в этот день, а только после его окончания (на следующий день)
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if (!$accountTariff->prev_account_tariff_id) {
+        if (
+            !$accountTariff->prev_account_tariff_id
+            && $accountTariff->service_type_id != ServiceType::ID_BILLING_API
+        ) {
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
         }
 
@@ -78,7 +84,7 @@ class SyncAccountTariffLight extends Behavior
                 'activate_from' => $activateFrom,
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
-                'account_tariff_id' => $accountTariff->prevAccountTariff->id,
+                'account_tariff_id' => $accountTariff->prevAccountTariff ? $accountTariff->prevAccountTariff->id : $accountTariff->id,
                 'account_package_id' => $accountTariff->id,
                 'price' => ($accountLogPeriod->tariffPeriod->price_setup + $accountLogPeriod->tariffPeriod->price_per_period), // чтобы учесть и разовые услуги (price_setup), и обычные (price_per_period)
                 'service_type_id' => $accountTariff->service_type_id,

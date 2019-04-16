@@ -62,6 +62,7 @@ class ServiceType extends ActiveRecord
 
     const ID_CALLTRACKING = 29; //CallTracking
     const ID_SIPTRUNK = 30; //SIP-Trunk
+    const ID_BILLING_API = 32; //Билинг API
 
     const CLOSE_AFTER_DAYS = 60;
 
