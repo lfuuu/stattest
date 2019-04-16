@@ -251,14 +251,13 @@ SQL;
                             case ImportantEventsNames::UU_SWITCHED_ON:
                                 $isCreate = true;
                                 break;
-                            case ImportantEventsNames::UU_UPDATED:
-                                /*nothing*/
-                                break;
                             case ImportantEventsNames::UU_SWITCHED_OFF:
                                 $isDelete = true;
                                 break;
+                            case ImportantEventsNames::UU_UPDATED:
                             default:
-                                throw new \LogicException('Что то не то с SIP-транком');
+                                /*nothing*/
+                                break;
                         }
 
                         EventQueue::go(Module::EVENT_SIPTRUNK_SYNC, [
