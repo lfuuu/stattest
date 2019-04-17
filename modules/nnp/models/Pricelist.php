@@ -21,6 +21,8 @@ use yii\helpers\Url;
  * @property int $pricelist_version
  * @property bool $is_global
  * @property bool $is_active
+ * @property int $pricelist_group_id
+ * @property int $type_id
  */
 class Pricelist extends ActiveRecord
 {
@@ -44,6 +46,8 @@ class Pricelist extends ActiveRecord
             'pricelist_version' => 'Версия прайслиста',
             'is_global' => 'Глобальный?',
             'is_active' => 'Активный?',
+            'pricelist_group_id' => 'Группа прайслиста',
+            'type_id' => 'Тип',
         ];
     }
 

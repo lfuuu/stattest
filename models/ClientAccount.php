@@ -964,25 +964,26 @@ class ClientAccount extends HistoryActiveRecord
     /**
      * @param float $originalSum
      * @param null $taxRate
+     * @param int $decimals
      * @return array
      */
-    public function convertSum($originalSum, $taxRate = null)
+    public function convertSum($originalSum, $taxRate = null, $decimals = 2)
     {
         if ($taxRate === null) {
             $taxRate = $this->getTaxRate();
         }
 
         if ($this->price_include_vat) {
-            $sum = round($originalSum, 2);
-            $sum_tax = round($taxRate / (100.0 + $taxRate) * $sum, 2);
-            $sum_without_tax = $sum - $sum_tax;
+            $amountWithTax = round($originalSum, $decimals);
+            $tax = round($taxRate / (100.0 + $taxRate) * $amountWithTax, $decimals);
+            $amount = $amountWithTax - $tax;
         } else {
-            $sum_without_tax = round($originalSum, 2);
-            $sum_tax = round($sum_without_tax * $taxRate / 100, 2);
-            $sum = $sum_without_tax + $sum_tax;
+            $amount = round($originalSum, $decimals);
+            $tax = round($amount * $taxRate / 100, $decimals);
+            $amountWithTax = $amount + $tax;
         }
 
-        return [$sum, $sum_without_tax, $sum_tax];
+        return [$amountWithTax, $amount, $tax];
     }
 
     /**

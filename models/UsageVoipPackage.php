@@ -71,7 +71,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return TariffVoipPackage
+     * @return tariffs\TariffInterface|ActiveQuery|null
      */
     public function getTariff()
     {
@@ -79,7 +79,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return UsageVoip
+     * @return ActiveQuery
      */
     public function getUsageVoip()
     {
@@ -136,9 +136,30 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
+     * Статистика по пакетам
+     *
+     * @param $usageId
+     * @param int $packageId
+     * @return \app\queries\UsageQuery
+     */
+    public static function getStatistic($usageId, $packageId = 0)
+    {
+        $query = self::find()
+            ->actual()
+            ->andWhere(['usage_voip_id' => $usageId]);
+
+        if ((int)$packageId) {
+            $query->andWhere(['id' => $packageId]);
+        }
+
+        return $query;
+    }
+
+    /**
      * @param string $dateRangeFrom
      * @param string $dateRangeTo
-     * @return array|\app\classes\model\ActiveRecord[]
+     * @return array|\yii\db\ActiveRecord[]
+     * @throws \Exception
      */
     public function getCallsStat($dateRangeFrom = '', $dateRangeTo = '')
     {
@@ -183,7 +204,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return ClientAccountQuery
+     * @return ClientAccount|ActiveQuery
      */
     public function getClientAccount()
     {
@@ -199,7 +220,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return null|ImportantEvents
+     * @return array|\yii\db\ActiveRecord|null
      */
     public function getLastUpdateData()
     {

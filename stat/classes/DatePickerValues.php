@@ -1,4 +1,5 @@
 <?php
+
 class DatePickerValues 
 {
 	/**
@@ -10,52 +11,54 @@ class DatePickerValues
 	  */
 	public $format = 'd-m-Y';
 	/**
-	  * @var string $sql_format формат вывода переменной $day 
+	  * @var string $sqlFormat формат вывода переменной $day
 	  */
-	private $sql_format = 'Y-m-d';
-	
-	/**
-	 * Инициализация объекта
-	 *
-	 * @param string $formFieldName имя переменной в get запросе
-	 * @param string $default_day допустимые значения: "first" - первый день текущего месяца, "last" - последний день текущего месяца  или Строка даты/времени
-	 * @param bool $assign передать значение $day в Smarty сразу после инициализации или нет
-	 */
-	function __construct($formFieldName, $default_day, $assign = true)
+	protected $sqlFormat = 'Y-m-d';
+
+    /**
+     * Инициализация объекта
+     *
+     * @param string $formFieldName имя переменной в get запросе
+     * @param string $defaultValue допустимые значения: "first" - первый день текущего месяца, "last" - последний день текущего месяца  или Строка даты/времени
+     * @param bool $assign передать значение $day в Smarty сразу после инициализации или нет
+     * @throws Exception
+     */
+	public function __construct($formFieldName, $defaultValue, $assign = true)
 	{
-		$this->initDay($formFieldName, $default_day);
+		$this->init($formFieldName, $defaultValue);
 		if ($assign) {
-			$this->assignDay($formFieldName);
+			$this->assignValue($formFieldName);
 		}
 	}
-	/**
-	 * Инициализация переменной $day
-	 *
-	 * @param string $formFieldName имя переменной в get запросе
-	 * @param string $default_day допустимые значения: "first", "last"  или Строка даты/времени
-	 * 
-	 */
-	private function initDay($formFieldName, $default_day)
+
+    /**
+     * Инициализация переменной $day
+     *
+     * @param string $formFieldName имя переменной в get запросе
+     * @param string $defaultValue допустимые значения: "first", "last"  или Строка даты/времени
+     *
+     * @throws Exception
+     */
+	protected function init($formFieldName, $defaultValue)
 	{
 		$date = get_param_raw($formFieldName, '');
 		$day = null;
-		if (!empty($date))
-		{
+		if (!empty($date)) {
 			$day = DateTime::createFromFormat($this->format, $date);
 		}
-		if (!is_object($day))
-		{
+
+		if (!is_object($day)) {
 			$day = new DateTime();
-			if (!empty($default_day)) 
-			{
-				if ($default_day == 'first')
-				{
+
+			if (!empty($defaultValue)) {
+				if ($defaultValue == 'first') {
 					$timestamp = strtotime('first day of ' . date('F Y'));
-				} elseif ($default_day == 'last') {
+				} elseif ($defaultValue == 'last') {
 					$timestamp = strtotime('last day of ' . date('F Y'));
 				} else {
-					$timestamp = strtotime($default_day);
+					$timestamp = strtotime($defaultValue);
 				}
+
 				if ($timestamp !== false) {
 					$day->setTimestamp($timestamp);
 				}
@@ -64,20 +67,43 @@ class DatePickerValues
 		$day->setTime(0,0,0);
 		$this->day = $day;
 	}
+
+    /**
+     * Возвращает значение переменной
+     *
+     * @return DateTime
+     */
+    public function getValue()
+    {
+        return $this->day;
+    }
+
+    /**
+     * Возвращает отформатированное значение переменной
+     *
+     * @return string
+     */
+    public function getValueFormatted()
+    {
+        return $this->getValue()->format($this->format);
+    }
+
 	/**
-	 * Возвращает  $day, отформатированную согласно свойству $format
+	 * Возвращает $day, отформатированную согласно свойству $format
 	 */
 	public function getDay()
 	{
 		return $this->day->format($this->format);
 	}
+
 	/**
-	 * Возвращает  $day, отформатированную согласно свойству $sql_format
+	 * Возвращает $day, отформатированную согласно свойству $this->sqlFormat
 	 */
 	public function getSqlDay()
 	{
-		return $this->day->format($this->sql_format);
+		return $this->day->format($this->sqlFormat);
 	}
+
 	/**
 	 * Возвращает временную метку Unix свойсва $day
 	 */
@@ -85,13 +111,14 @@ class DatePickerValues
 	{
 		return $this->day->getTimestamp();
 	}
+
 	/**
 	 * Передает в Smarty значение $day, отформатированное согласно свойству $format
-	 * @param string $var_name имя переменной в Smarty
+	 * @param string $varName имя переменной в Smarty
 	 */
-	public function assignDay($var_name)
+	public function assignValue($varName)
 	{
 		global $design;
-		$design->assign($var_name, $this->getDay());
+        $design->assign($varName, $this->getValueFormatted());
 	}
 }

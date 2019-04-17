@@ -11,7 +11,6 @@
             <input type=hidden name=action value=voip>
             <div style="width:350px;">
             	<SELECT name=phone class="select2">
-                	{if $regions_cnt > 1}<option value='all_regions'{if $phone=='all_regions'} selected{/if}>Все регионы</option>{/if}
                 	{foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
             	</SELECT>
             </div>

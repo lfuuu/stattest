@@ -4,6 +4,7 @@ namespace app\modules\nnp\models;
 
 use app\classes\model\ActiveRecord;
 use app\models\billing\Pricelist;
+use app\modules\nnp;
 use app\modules\uu\models\Tariff;
 use Yii;
 use yii\db\ActiveQuery;
@@ -15,9 +16,10 @@ use yii\db\ActiveQuery;
  * @property int $tariff_id
  * @property int $pricelist_id
  *
- * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property-read Tariff $tariff FK нет, ибо в таблица в другой БД
  * @property-read Package $package
- * @property-read Pricelist $pricelist  FK нет, ибо в таблица в другой БД
+ * @property-read Pricelist $pricelist FK нет, ибо в таблица в другой БД
+ * @property-read nnp\models\Pricelist $pricelistNnp FK нет, ибо в таблица в другой БД
  */
 class PackagePricelist extends ActiveRecord
 {
@@ -95,6 +97,6 @@ class PackagePricelist extends ActiveRecord
      */
     public function getPricelistNnp()
     {
-        return $this->hasOne(\app\modules\uu\models\billing_uu\Pricelist::class, ['id' => 'nnp_pricelist_id']);
+        return $this->hasOne(nnp\models\Pricelist::class, ['id' => 'nnp_pricelist_id']);
     }
 }

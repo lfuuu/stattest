@@ -130,6 +130,16 @@ TABLE.price TD.header, TABLE.price TH {
 TABLE.price TD.header2 {
 	PADDING-RIGHT: 4px; PADDING-LEFT: 4px; FONT-SIZE: 11px; BACKGROUND-COLOR: #ffffff; PADDING-BOTTOM: 4px; COLOR: #999999; PADDING-TOP: 4px; TEXT-ALIGN: right
 }
+table.price td.header-center {
+	padding-right: 4px;
+	padding-left: 4px;
+	font-size: 11px;
+	background-color: #ffffff;
+	padding-bottom: 4px;
+	color: #999999;
+	padding-top: 4px;
+	text-align: center
+}
 TABLE.price TD.tarif {
 	FONT-WEIGHT: bold; FONT-SIZE: 11px; TEXT-TRANSFORM: uppercase; COLOR: #000000
 }
@@ -406,6 +416,19 @@ table.table_style tr.title{
 
 .package_taken_none {
 	color: gray;
+}
+
+.profit_package_taken_all {
+	font-weight: normal;
+}
+
+.profit_package_taken_part {
+	font-weight: normal;
+	text-decoration: underline;
+}
+
+.profit_package_taken_none {
+	color: grey;
 }
 
 div.indicator {

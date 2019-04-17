@@ -1,22 +1,15 @@
 <?php
 
+use app\dao\reports\ReportUsage;
 use app\dao\reports\ReportUsageDao;
-use app\models\UsageTrunk;
-use app\models\UsageVoip;
-use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ServiceType;
 use app\helpers\DateTimeZoneHelper;
 use app\models\flows\TraffFlow1d;
 use app\models\ClientAccount;
-use app\models\flows\TraffFlow1h;
 use app\models\Param;
 use app\models\StatVoipFreeCache;
 use app\classes\BaseView;
 use app\models\UsageIpPorts;
 use app\models\UsageIpRoutes;
-use app\models\usages\UsageInterface;
-use yii\db\Expression;
-use yii\db\Query;
 
 class m_stats extends IModule{
     private $_inheritances = array();
@@ -156,21 +149,55 @@ class m_stats extends IModule{
 		}
 	}
 
-    public function stats_voip($fixclient)
+    /**
+     * @param $fixClient
+     * @throws Exception
+     */
+    public function stats_voip_profit($fixClient)
     {
         global $design;
 
-        if (!$fixclient) {
+        session_write_close();
+
+        $report = null;
+        try {
+            $report = ReportUsage::createFromRequest($fixClient, true);
+            $report->fetchStatistic();
+        } catch (\LogicException $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка логики: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
+        }
+
+        if ($report) {
+            foreach ($report->getAttributes() as $key => $value) {
+                $design->assign($key, $value);
+            }
+        }
+
+        $design->AddMain('stats/voip_profit_form.tpl');
+        $design->AddMain('stats/voip_profit.tpl');
+    }
+
+    /**
+     * @param $fixClient
+     * @param bool $isForCompany
+     * @throws \yii\base\Exception
+     */
+    public function stats_voip($fixClient)
+    {
+        global $design;
+
+        if (!$fixClient) {
             trigger_error2('Клиент не выбран');
             return;
         }
 
         $phone = get_param_protected('phone', '');
-
         session_write_close();
 
         /** @var ClientAccount $account */
-        $account = ClientAccount::findOne($fixclient);
+        $account = ClientAccount::findOne($fixClient);
 
         $usagesData = ReportUsageDao::me()->getUsageVoipAndTrunks($account);
 
@@ -198,8 +225,8 @@ class m_stats extends IModule{
         $design->assign('phones', ReportUsageDao::me()->usagesToSelect($usagesData));
         $design->assign('destination', $destination);
         $design->assign('direction', $direction);
-        $design->assign('detality', $detality = get_param_protected('detality', 'day'));
-        $design->assign('paidonly', $paidonly = get_param_integer('paidonly', 0));
+        $design->assign('detality', $reportType = get_param_protected('detality', 'day'));
+        $design->assign('paidonly', $paidOnly = get_param_integer('paidonly', 0));
         $design->assign('timezone', $timezone = get_param_raw('timezone', $account->timezone_name));
         $design->assign('timezones', ReportUsageDao::me()->getTimezones($account, $usagesData['voip']));
 
@@ -214,10 +241,10 @@ class m_stats extends IModule{
                 $regions,
                 $from,
                 $to,
-                $detality,
+                $reportType,
                 $account->id,
                 $usageIds,
-                $paidonly,
+                $paidOnly,
                 $destination,
                 $direction,
                 $isFull = false,
@@ -231,8 +258,8 @@ class m_stats extends IModule{
 
         $design->assign('stats',$stats);
         $design->assign('price_include_vat', $account->price_include_vat);
-        $design->AddMain('stats/voip_form.tpl');
-        $design->AddMain('stats/voip.tpl');
+        $design->AddMain('stats/voip_client_form.tpl');
+        $design->AddMain('stats/voip_client.tpl');
     }
 
     function getUnUsageCalls()

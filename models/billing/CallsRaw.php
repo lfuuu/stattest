@@ -5,6 +5,9 @@ namespace app\models\billing;
 use app\classes\model\ActiveRecord;
 use app\dao\billing\CallsDao;
 use app\modules\nnp\models\Operator;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use app\modules\nnp\models\Region;
 use app\modules\nnp\models\City;
 use Yii;
@@ -58,6 +61,10 @@ use yii\db\Query;
  * @property-read Operator $operator
  * @property-read Region $region
  * @property-read City $city
+ * @property-read Pricelist $priceList
+ * @property-read PackageMinute $packageMinute
+ * @property-read PackagePrice $packagePrice
+ * @property-read PackagePricelist $packagePriceList
  */
 class CallsRaw extends ActiveRecord
 {
@@ -204,6 +211,38 @@ class CallsRaw extends ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::class, ['id' => 'nnp_city_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPriceList()
+    {
+        return $this->hasOne(Pricelist::class, ['id' => 'pricelist_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackageMinute()
+    {
+        return $this->hasOne(PackageMinute::class, ['id' => 'nnp_package_minute_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackagePrice()
+    {
+        return $this->hasOne(PackagePrice::class, ['id' => 'nnp_package_price_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackagePriceList()
+    {
+        return $this->hasOne(PackagePricelist::class, ['id' => 'nnp_package_pricelist_id']);
     }
 
     /**

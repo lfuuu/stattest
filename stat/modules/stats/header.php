@@ -6,7 +6,8 @@ class m_stats_head extends IModuleHead{
 		'default'			=> array('stats','r'),
 		'internet'			=> array('stats','r'),
 		'ppp'				=> array('stats','r'),
-		'voip'				=> array('stats','r'),
+		'voip'				=> array('stats','report'),
+		'voip_profit'       => array('stats','report'),
 		'callback'			=> array('stats','r'),
 		'send_view'			=> array('stats','report'),
 		'send_process'		=> array('stats','report'),
@@ -41,6 +42,7 @@ class m_stats_head extends IModuleHead{
     {
         $this->menu = array(
             array('Телефония',              'voip'),
+            array('Телефония (Маржа)',      'voip_profit'),
             array('Телефония Пакеты',       function() { return '/report/voip-package/use-report'; }),
             array('Интернет',		'internet'),
             array('Collocation',	'internet','&is_coll=1'),
