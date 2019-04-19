@@ -974,16 +974,16 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         if ($this->price_include_vat) {
-            $amountWithTax = round($originalSum, $decimals);
-            $tax = round($taxRate / (100.0 + $taxRate) * $amountWithTax, $decimals);
-            $amount = $amountWithTax - $tax;
+            $sumWithTax = round($originalSum, $decimals);
+            $tax = round($taxRate / (100.0 + $taxRate) * $sumWithTax, $decimals);
+            $sum = $sumWithTax - $tax;
         } else {
-            $amount = round($originalSum, $decimals);
-            $tax = round($amount * $taxRate / 100, $decimals);
-            $amountWithTax = $amount + $tax;
+            $sum = round($originalSum, $decimals);
+            $tax = round($sum * $taxRate / 100, $decimals);
+            $sumWithTax = $sum + $tax;
         }
 
-        return [$amountWithTax, $amount, $tax];
+        return [$sumWithTax, $sum, $tax];
     }
 
     /**

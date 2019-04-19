@@ -1,13 +1,13 @@
 
 
 $.timepicker.regional['ru'] = {
-               timeOnlyTitle: 'Выберите время',
-               timeText: 'Время',
-               hourText: 'Часы',
-               minuteText: 'Минуты',
-               secondText: 'Секунды',
-               millisecText: 'миллисекунды',
-               currentText: 'Теперь',
-               closeText: 'Закрыть',
-               ampm: false
+    timeOnlyTitle: 'п▓я▀п╠п╣я─п╦я┌п╣ п╡я─п╣п╪я▐',
+    timeText: 'п▓я─п╣п╪я▐',
+    hourText: 'п╖п╟я│я▀',
+    minuteText: 'п°п╦п╫я┐я┌я▀',
+    secondText: 'п║п╣п╨я┐п╫п╢я▀',
+    millisecText: 'п╪п╦п╩п╩п╦я│п╣п╨я┐п╫п╢я▀',
+    currentText: 'п║п╣п╧я┤п╟я│',
+    closeText: 'п≈п╟п╨я─я▀я┌я▄',
+    ampm: false
 };

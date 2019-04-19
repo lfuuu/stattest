@@ -56,17 +56,25 @@
     {if $phone=='all_regions'}<td>{$item.reg_id}</td>{/if}
     <td style="color: {if isset($item.orig) && $item.orig === false}blue;">&darr;&nbsp;входящий{elseif isset($item.orig) && $item.orig === true}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
 
-    <td style="border-left: 1px solid #cccccc;">{if isset($item.src_number)}{$item.src_number}{/if}</td>
-    <td>
-        <small>
-            {$item.geo}
-        </small>
-    </td>
-    <td>
-        <small>
-            {$item.operator}
-        </small>
-    </td>
+    {if ($key === 'total')}
+        <td style="border-left: 1px solid #cccccc;" colspan="3">
+            {if isset($item.src_number)}{$item.src_number}{/if}
+        </td>
+    {else}
+        <td style="border-left: 1px solid #cccccc;">
+            {if isset($item.src_number)}{$item.src_number}{/if}
+        </td>
+        <td>
+            <small>
+                {$item.geo}
+            </small>
+        </td>
+        <td>
+            <small>
+                {$item.operator}
+            </small>
+        </td>
+    {/if}
 
     <td style="border-left: 1px solid #cccccc;">{if isset($item.dst_number)}{$item.dst_number}{/if}</td>
     <td>
@@ -110,30 +118,22 @@
     {else}
         <td>
             <small>
-                {if isset($item.package_minute)}
-                    <span class="profit_package_taken_{$item.package_minute.taken}">
-                        {$item.package_minute.name} / минуты ({$item.package_minute.rate})
+                {if isset($item.left.package_minute)}
+                    <span class="profit_package_taken_{$item.left.package_minute.taken}">
+                        {$item.left.package_minute.name} / Минут: {$item.left.package_minute.minute} ({$item.rate_zero})
+                    </span><br />
+                {elseif isset($item.left.package_minute_price)}
+                    <span class="profit_package_taken_{$item.left.package_minute_price.taken}">
+                        {$item.left.package_minute_price.name} / минуты ({$item.rate_zero})
                     </span><br />
                 {/if}
-                {if isset($item.package_price)}
-                    <span class="profit_package_taken_{$item.package_price.taken}">
-                        {$item.package_price.name}
+                {if isset($item.left.package_price)}
+                    <span class="profit_package_taken_{$item.left.package_price.taken}">
+                        {$item.left.package_price.name}
                         ({$item.left.rate}{if isset($item.left.rate_with_tax)}
                          / {$item.left.rate_with_tax} с НДС{/if})
                     </span>
-                {elseif isset($item.package_pricelist)}
-                    <span class="profit_package_taken_{$item.package_pricelist.taken}">
-                        {$item.package_pricelist.pricelist}
-                        ({$item.left.rate}{if isset($item.left.rate_with_tax)}
-                         / {$item.left.rate_with_tax} с НДС{/if})
-                    </span>
-                {elseif isset($item.package_pricelist_nnp)}
-                    <span class="profit_package_taken_{$item.package_pricelist_nnp.taken}">
-                        {$item.package_pricelist_nnp.pricelist}
-                        ({$item.left.rate}{if isset($item.left.rate_with_tax)}
-                         / {$item.left.rate_with_tax} с НДС{/if})
-                    </span>
-                {elseif !isset($item.package_minute) && isset($item.left.rate)}
+                {elseif !isset($item.left.has_package_minutes) && isset($item.left.rate)}
                     <span>
                         <i>не указан</i>
                         ({$item.left.rate}{if isset($item.left.rate_with_tax)}
@@ -167,30 +167,22 @@
     {else}
         <td>
             <small>
-                {if isset($item.cr2_package_minute)}
-                    <span class="profit_package_taken_{$item.cr2_package_minute.taken}">
-                        {$item.cr2_package_minute.name} / Минут: {$item.cr2_package_minute.minute} ({$item.cr2_package_minute.rate})
-                    </span> <br/>
-                {/if}
-                {if isset($item.cr2_package_price)}
-                    <span class="profit_package_taken_{$item.cr2_package_price.taken}">
-                        {$item.cr2_package_price.name}
-                        ({$item.right.rate}{if isset($item.right.rate_with_tax)}
-                         / {$item.right.rate_with_tax} с НДС{/if})
+                {if isset($item.right.package_minute)}
+                    <span class="profit_package_taken_{$item.right.package_minute.taken}">
+                        {$item.right.package_minute.name} / Минут: {$item.right.package_minute.minute} ({$item.rate_zero})
                     </span><br />
-                {elseif isset($item.cr2_package_pricelist)}
-                    <span class="profit_package_taken_{$item.cr2_package_pricelist.taken}">
-                        {$item.cr2_package_pricelist.pricelist}
+                {elseif isset($item.right.package_minute_price)}
+                    <span class="profit_package_taken_{$item.right.package_minute_price.taken}">
+                        {$item.right.package_minute_price.name} / минуты ({$item.rate_zero})
+                    </span><br />
+                {/if}
+                {if isset($item.right.package_price)}
+                    <span class="profit_package_taken_{$item.right.package_price.taken}">
+                        {$item.right.package_price.name}
                         ({$item.right.rate}{if isset($item.right.rate_with_tax)}
                          / {$item.right.rate_with_tax} с НДС{/if})
                     </span>
-                {elseif isset($item.cr2_package_pricelist_nnp)}
-                    <span class="profit_package_taken_{$item.cr2_package_pricelist_nnp.taken}">
-                        {$item.cr2_package_pricelist_nnp.pricelist}
-                        ({$item.right.rate}{if isset($item.right.rate_with_tax)}
-                         / {$item.right.rate_with_tax} с НДС{/if})
-                    </span>
-                {elseif !isset($item.cr2_package_minute) && isset($item.right.rate)}
+                {elseif !isset($item.right.has_package_minutes) && isset($item.right.rate)}
                     <span>
                         <i>не указан</i>
                         ({$item.right.rate}{if isset($item.right.rate_with_tax)}
@@ -205,7 +197,7 @@
         </td>
     {/if}
 
-    {if $item.cr2_id}
+    {if ($key === 'total') || $item.cr2_id}
         <td class="text-center" style="border-left: 1px solid #b0b0b0;">
             {$item.profit}
         </td>

@@ -1,5 +1,3 @@
-<script src="js/jquery.js"></script>
-<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
 <script src="js/ui/jquery.ui.timepicker.addon.js"></script>
 <script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
 <script src="js/ui/i18n/jquery.ui.timepicker-ru.js"></script>
@@ -76,6 +74,8 @@
 </form>
 <script type="text/javascript">
 {literal}
+$.datepicker.setDefaults($.datepicker.regional['ru']);
+$.timepicker.setDefaults($.timepicker.regional['ru']);
     $("#date_from").datetimepicker({
         dateFormat: 'dd-mm-yy',
         timeFormat: 'hh:mm',

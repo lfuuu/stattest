@@ -5,10 +5,10 @@ class DateTimePickerValues extends DatePickerValues
     /** @var DateTime */
     public $dayTime;
 
-	/**
-	  * @var string $format формат вывода переменной $dayTime, аналогично первому параметру функции date()
-	  */
-        public $formatDateTime = 'd-m-Y H:i';
+    /**
+     * @var string $format формат вывода переменной $dayTime, аналогично первому параметру функции date()
+     */
+    public $formatDateTime = 'd-m-Y H:i';
 
     /**
      * Инициализация переменной $dayTime
@@ -18,47 +18,47 @@ class DateTimePickerValues extends DatePickerValues
      *
      * @throws Exception
      */
-	protected function init($formFieldName, $defaultValue)
-	{
-		$dateTime = get_param_raw($formFieldName, '');
-		$dayTime = null;
-		if (!empty($dateTime)) {
-			$dayTime = DateTime::createFromFormat($this->formatDateTime, $dateTime);
-		}
+    protected function init($formFieldName, $defaultValue)
+    {
+        $dateTime = get_param_raw($formFieldName, '');
+        $dayTime = null;
+        if (!empty($dateTime)) {
+            $dayTime = DateTime::createFromFormat($this->formatDateTime, $dateTime);
+        }
 
-		if (!is_object($dayTime)) {
-			$dayTime = new DateTime();
+        if (!is_object($dayTime)) {
+            $dayTime = new DateTime();
 
-			if (!empty($defaultValue)) {
-				if ($defaultValue == 'first') {
-					$timestamp = strtotime('first day of ' . date('F Y'));
-				} elseif ($defaultValue == 'next first') {
-					$timestamp = strtotime('first day of ' . date('F Y', strtotime('+1 month')));
-				} else {
-					$timestamp = strtotime($defaultValue);
-				}
+            if (!empty($defaultValue)) {
+                if ($defaultValue == 'first') {
+                    $timestamp = strtotime('first day of ' . date('F Y'));
+                } elseif ($defaultValue == 'next first') {
+                    $timestamp = strtotime('first day of ' . date('F Y', strtotime('+1 month')));
+                } else {
+                    $timestamp = strtotime($defaultValue);
+                }
 
-				if ($timestamp !== false) {
-					$dayTime->setTimestamp($timestamp);
-				}
-			}
-		}
+                if ($timestamp !== false) {
+                    $dayTime->setTimestamp($timestamp);
+                }
+            }
+        }
 
-		$this->dayTime = $dayTime;
+        $this->dayTime = $dayTime;
 
-		$day = clone $dayTime;
-		$this->day = $day->setTime(0,0,0);
-	}
+        $day = clone $dayTime;
+        $this->day = $day->setTime(0, 0, 0);
+    }
 
-	/**
+    /**
      * Возвращает значение переменной
      *
      * @return DateTime
      */
-	public function getValue()
-	{
-		return $this->dayTime;
-	}
+    public function getValue()
+    {
+        return $this->dayTime;
+    }
 
     /**
      * Возвращает отформатированное значение переменной

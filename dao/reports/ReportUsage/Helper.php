@@ -4,6 +4,7 @@ namespace app\dao\reports\ReportUsage;
 
 use Yii;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
@@ -29,12 +30,12 @@ class Helper
     /**
      * Получение даты разделения статистики по новому расчёту
      *
-     * @return DateTime
+     * @return DateTimeImmutable
      * @throws \Exception
      */
     public static function getCdrWithMcnCallIdSeparationDate()
     {
-        return new DateTime('2019-03-12 14:48:00',
+        return new DateTimeImmutable('2019-03-12 14:48:00',
             new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
         );
     }
@@ -55,9 +56,10 @@ class Helper
 
         return
             (
-            new DateTime($matches[1] . '-' . $matches[2] . '-01 00:00:00',
-                new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
-            )
+                new DateTime(
+                    $matches[1] . '-' . $matches[2] . '-01 00:00:00',
+                    new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
+                )
             )->modify("+1 month");
     }
 
@@ -73,10 +75,6 @@ class Helper
     public static function calcRow($account, array $row = [], $isWithProfit = false)
     {
         if ($isWithProfit) {
-//            list($cost, $costWithTax) = self::getTaxAmounts($account, $row['cost_price']);
-//            $row['cost_price'] = $cost;
-//            $row['cost_price_with_tax'] = $costWithTax;
-
             $row['profit'] = $row['price'] - $row['cost_price'];
         }
         else {
@@ -120,7 +118,7 @@ class Helper
      * @param float $amount
      * @return array
      */
-    public static function getTaxAmounts($account, $amount)
+    public static function getTaxAmounts(ClientAccount $account, $amount)
     {
         $amountWithTax = $amount;
 
@@ -145,7 +143,7 @@ class Helper
      * @return DateTime
      * @throws \Exception
      */
-    public static function createDateTimeWithTimeZone($dateTime, $timeZone)
+    public static function createDateTimeWithTimeZone(DateTime $dateTime, $timeZone)
     {
         return (new \DateTime('now', new DateTimeZone($timeZone)))
             ->setTimestamp($dateTime->getTimestamp())

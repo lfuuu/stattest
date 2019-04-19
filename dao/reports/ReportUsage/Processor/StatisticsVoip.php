@@ -168,8 +168,8 @@ class StatisticsVoip extends Processor
         if ($groupBy) {
             $query->groupBy([$groupBy]);
 
-            $this->config->from->setTime(0, 0, 0);
-            $this->config->to->setTime(0, 0, 0)->modify('+1 day');
+//            $this->config->from->setTime(0, 0, 0);
+//            $this->config->to->setTime(0, 0, 0)->modify('+1 day');
         }
 
         $query->orderBy('ts1 ASC');
@@ -184,7 +184,7 @@ class StatisticsVoip extends Processor
 
         $paidOnly = $this->config->paidOnly;
 
-        if ($this->isFlat) {
+        if ($this->isFlat()) {
             $query->addSelect([
                 'cr.id',
                 'cr.src_number',
@@ -208,37 +208,69 @@ class StatisticsVoip extends Processor
             }
         }
 
+        $createNumericField = function ($field, $fieldAggregated = 'SUM(%s)') {
+            if (!$this->isFlat()) {
+                if ($this->isWithProfit()) {
+                    $fieldAggregated = 'SUM(CASE WHEN cr2.id IS NOT NULL THEN %s ELSE 0 END)';
+                }
+
+                $field = sprintf($fieldAggregated, $field);
+            }
+
+            return $field;
+        };
+
         $query->addSelect([
-            'price' => ($this->isFlat ? '-' : '-SUM') . '(cr.cost)',
-            'ts2' => ($this->isFlat ? '' : 'SUM') . '(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN cr.billed_time ELSE 0 END' : 'cr.billed_time') . ')',
-            'cnt' => $this->isFlat ?
-                new Expression('1') : 'SUM(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN 1 ELSE 0 END' :
-                new Expression('1')) . ')',
+            'price' => '-' . $createNumericField('cr.cost'),
+            'ts2' => $createNumericField(
+                $paidOnly ?
+                    'CASE ABS(cr.cost) > 0.0001 WHEN true THEN cr.billed_time ELSE 0 END' :
+                    'cr.billed_time'
+            ),
+            'cnt' => $this->isFlat() ?
+                new Expression('1') :
+                'COUNT(DISTINCT ' .
+                    (
+                        $paidOnly ?
+                            '(CASE ABS(cr.cost) > 0.0001 WHEN true THEN cr.id ELSE NULL END)' :
+                            'cr.id'
+                    ) .
+                    ')',
         ]);
 
         if ($this->isWithProfit()) {
             $query->addSelect([
-                'ts22' =>
-                    (!$this->isFlat ? 'SUM' : '') .
-                    '(' . ($paidOnly ? 'CASE ABS(COALESCE(cr2.cost, 0)) > 0.0001 WHEN true THEN cr2.billed_time ELSE 0 END' : 'cr2.billed_time') . ')',
+                'ts22' => $createNumericField(
+                    $paidOnly ?
+                        'CASE ABS(COALESCE(cr2.cost, 0)) > 0.0001 WHEN true THEN cr2.billed_time ELSE 0 END' :
+                        'cr2.billed_time'
+                ),
 
-                'cost_price' =>
-                    (!$this->isFlat ? 'SUM' : '') .
-                    '(CASE WHEN cr.orig THEN COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTax2 . ' ELSE cr.cost' . $this->rateCur1  . $this->rateTax1 . ' END)',
-                'cost_price_with_tax' =>
-                    (!$this->isFlat ? 'SUM' : '') .
-                    '(CASE WHEN cr.orig THEN COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTaxWith2 . ' ELSE cr.cost' . $this->rateCur1  . $this->rateTaxWith1 . ' END)',
+                'cost_price' => $createNumericField(
+                    '(CASE WHEN cr.orig THEN COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTax2 .
+                        ' ELSE cr.cost' . $this->rateCur1  . $this->rateTax1 .
+                        ' END)'
+                ),
+                'cost_price_with_tax' => $createNumericField(
+                    '(CASE WHEN cr.orig THEN COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTaxWith2 .
+                        ' ELSE cr.cost' . $this->rateCur1  . $this->rateTaxWith1 .
+                        ' END)'
+                ),
 
-                'price' =>
-                    (!$this->isFlat ? '-SUM' : '-') .
-                    '(CASE WHEN cr.orig THEN cr.cost' . $this->rateCur1 . $this->rateTax1 . ' ELSE COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTax2 . ' END)',
-                'price_with_tax' =>
-                    (!$this->isFlat ? '-SUM' : '-') .
-                    '(CASE WHEN cr.orig THEN cr.cost' . $this->rateCur1 . $this->rateTaxWith2 . ' ELSE COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTaxWith2 . ' END)',
+                'price' => '-' . $createNumericField(
+                    '(CASE WHEN cr.orig THEN cr.cost' . $this->rateCur1 . $this->rateTax1 .
+                        ' ELSE COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTax2 .
+                        ' END)'
+                ),
+                'price_with_tax' => '-' . $createNumericField(
+                    '(CASE WHEN cr.orig THEN cr.cost' . $this->rateCur1 . $this->rateTaxWith2 .
+                        ' ELSE COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTaxWith2 .
+                        ' END)'
+                ),
             ]);
         }
 
-        if ($this->isFlat) {
+        if ($this->isFlat()) {
             $query->addSelect([
                 'cr.nnp_package_minute_id',
                 'cr.nnp_package_price_id',
@@ -275,7 +307,6 @@ class StatisticsVoip extends Processor
     protected function setTotalsDefaults()
     {
         $this->totals = ['price' => 0, 'ts2' => 0, 'cnt' => 0, 'is_total' => true];
-        $this->decimals = in_array($this->getAccount()->currency, [Currency::USD, Currency::EUR]) ? 6 : 2;
         if ($this->isWithProfit()) {
             $this->totals['cost_price'] = 0;
             $this->totals['profit'] = 0;
@@ -426,6 +457,9 @@ class StatisticsVoip extends Processor
         $record['price'] = number_format($price, $this->decimals, '.', '');
 
         if ($this->isWithProfit()) {
+            $formattedZeroRate = number_format(0, $this->decimals, '.', '');
+            $record['rate_zero'] = $formattedZeroRate;
+
             $record['cr2_geo'] = $record['cr2_geo_name'];
             $record['cr2_operator'] .= ($record['cr2_ndc_type_name'] ? ' (' . $record['cr2_ndc_type_name'] . ')' : '');
             unset($record['cr2_geo_name'], $record['cr2_ndc_type_name'], $record['cr2_ndc_type_id']);
@@ -462,9 +496,11 @@ class StatisticsVoip extends Processor
 
                 $record['tsf22'] = ($d22 ? $d22 . 'd ' : '') . gmdate('H:i:s', $record['ts22']);
             } elseif ($record['billed_time']) {
+                // несклееный
                 $record[$isOrigLeft ? 'cost_price' : 'price'] = '???';
                 $record['profit'] = '???';
             } else {
+                // незавершенный
                 $record[$isOrigLeft ? 'cost_price' : 'price'] = '';
                 $record['profit'] = '';
             }
@@ -491,8 +527,8 @@ class StatisticsVoip extends Processor
 
         $totals['ts1'] = null;
         $totals['tsf1'] = 'Итого';
-        $totals['num_to'] = '&nbsp;';
-        $totals['num_from'] = '&nbsp;';
+        $totals['src_number'] = 'Записей: ' . count($this->result);
+        $totals['dst_number'] = '&nbsp;';
 
         if ($totals['ts2'] >= 24 * 60 * 60) {
             $d = floor($totals['ts2'] / (24 * 60 * 60));
@@ -528,35 +564,30 @@ class StatisticsVoip extends Processor
             return $prefix . $field;
         };
 
-        $version = $this->getAccount()->account_version;
-        if ($prefix) {
-            if (!empty($record[$fieldName('account_version')])) {
-                $version = $record[$fieldName('account_version')];
-            } else {
-                $accountId = $record[$fieldName('account_id')];
-                if ($accountId && $account = ClientAccount::findOne(['id' => $accountId])) {
-                    $version = $account->account_version;
-                }
-            }
-        }
-
-        $isOrig = $prefix ? !$record['orig'] : $record['orig'];
-        $formattedRate = number_format($record[$fieldName('rate')], 2, '.', '');
-        $formattedRateWithTax = number_format($record[$fieldName('rate_with_tax')], 2, '.', '');
-
         $hasSide = $record[$fieldName('id')];
         if ($hasSide) {
+            $isOrig = $prefix ? !$record['orig'] : $record['orig'];
             $side = $isOrig ? 'right' : 'left';
-            $record[$side]['rate'] = $formattedRate;
-            if ($formattedRateWithTax !== $formattedRate) {
-                $record[$side]['rate_with_tax'] = $formattedRateWithTax;
-            }
-        }
 
-        if ($version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            $this->addPackagesInfoV5($record, $prefix);
-        } else {
-            $this->addPackagesInfoV4($record, $prefix);
+            $version = $this->getAccount()->account_version;
+            if ($prefix) {
+                if (!empty($record[$fieldName('account_version')])) {
+                    $version = $record[$fieldName('account_version')];
+                } else {
+                    $accountId = $record[$fieldName('account_id')];
+                    if ($accountId && $account = ClientAccount::findOne(['id' => $accountId])) {
+                        $version = $account->account_version;
+                    }
+                }
+            }
+
+            if ($version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+                $this->addPackagesInfoV5($record, $side, $prefix);
+            } else {
+                $this->addPackagesInfoV4($record, $side, $prefix);
+            }
+
+            $record = $this->addPackagesCommonInfo($record, $side, $prefix);
         }
 
         unset(
@@ -565,8 +596,8 @@ class StatisticsVoip extends Processor
             $record[$fieldName('nnp_package_pricelist_id')],
             $record[$fieldName('package_time')],
             $record[$fieldName('billed_time')],
-//            $record[$fieldName('rate')],
-//            $record[$fieldName('rate_with_tax')],
+            $record[$fieldName('rate')],
+            $record[$fieldName('rate_with_tax')],
             $record[$fieldName('pricelist_id')]
         );
 
@@ -579,18 +610,14 @@ class StatisticsVoip extends Processor
     /**
      * Добавляет детализацию для клиента версии 4
      *
-     * @param $record
-     * @param $prefix
+     * @param array $record
+     * @param string $prefix
+     * @param string $side
      */
-    protected function addPackagesInfoV4(&$record, $prefix)
+    protected function addPackagesInfoV4(&$record, $side, $prefix)
     {
         $fieldName = function ($field) use ($prefix) {
             return $prefix . $field;
-        };
-
-        $isOrig = $prefix ? !$record['orig'] : $record['orig'];
-        $fieldNameToSet = function ($field) use ($isOrig) {
-            return ($isOrig ? 'cr2_' : '') . $field;
         };
 
         /** @var CallsRaw $callsRaw */
@@ -608,61 +635,26 @@ class StatisticsVoip extends Processor
                 ]) : null;
         }
 
-        $priceListName = 'не указан';
-        $rate = $record[$fieldName('rate')];
-        $formattedRate = number_format($rate, 2, '.', '');
-        $formattedZeroRate = number_format(0, 2, '.', '');
-
         /** @var Pricelist $priceList */
         if ($priceList) {
-            $record[$fieldNameToSet('package_pricelist')] = [
-                'pricelist' => $priceList->name,
-                'rate' => $formattedRate,
+            $record[$side]['package_price'] = [
+                'name' => $priceList->name,
                 'taken' => 'none',
             ];
-            $priceListName = $priceList->name;
-        }
-
-        if ($record[$fieldName('billed_time')]) {
-            $isAllFromPackage = false;
-            if ($record[$fieldName('package_time')]) {
-                $isAllFromPackage =
-                    $record[$fieldName('billed_time')] == $record[$fieldName('package_time')];
-
-                if (!$record[$fieldNameToSet('package_minute')]) {
-                    $record[$fieldNameToSet('package_minute')] = [
-                        'name' => $priceListName,
-                        'rate' => $formattedZeroRate,
-                        'taken' => 'none',
-                    ];
-                }
-
-                $record[$fieldNameToSet('package_minute')]['taken'] = $isAllFromPackage ? 'all' : 'part';
-            }
-
-            if (!$isAllFromPackage) {
-                if ($record[$fieldNameToSet('package_pricelist')]) {
-                    $record[$fieldNameToSet('package_pricelist')]['taken'] = 'all';
-                }
-            }
         }
     }
 
     /**
      * Добавляет детализацию для клиента версии 5
      *
-     * @param $record
-     * @param $prefix
+     * @param array $record
+     * @param string $prefix
+     * @param string $side
      */
-    protected function addPackagesInfoV5(&$record, $prefix)
+    protected function addPackagesInfoV5(&$record, $side, $prefix)
     {
         $fieldName = function ($field) use ($prefix) {
             return $prefix . $field;
-        };
-
-        $isOrig = $prefix ? !$record['orig'] : $record['orig'];
-        $fieldNameToSet = function ($field) use ($isOrig) {
-            return ($isOrig ? 'cr2_' : '') . $field;
         };
 
         /** @var CallsRaw $callsRaw */
@@ -680,18 +672,12 @@ class StatisticsVoip extends Processor
                 ]) : null;
         }
 
-        $priceListName = 'не указан';
-        $rate = $record[$fieldName('rate')];
-        $formattedRate = number_format($rate, 2, '.', '');
-        $formattedZeroRate = number_format(0, 2, '.', '');
-
         /** @var PackageMinute $packageMinute */
         if ($packageMinute) {
-            $record[$fieldNameToSet('package_minute')] = [
+            $record[$side]['package_minute'] = [
                 'name' => $packageMinute->tariff->name,
                 'minute' => $packageMinute->minute,
                 'destination' => $packageMinute->destination->name,
-                'rate' => $formattedZeroRate,
                 'taken' => 'none',
             ];
         }
@@ -707,14 +693,11 @@ class StatisticsVoip extends Processor
 
         /** @var PackagePrice $packagePrice */
         if ($packagePrice) {
-            $record[$fieldNameToSet('package_price')] = [
+            $record[$side]['package_price'] = [
                 'name' => $packagePrice->tariff->name,
-                'price' => $packagePrice->price,
-                'destination' => $packagePrice->destination->name,
-                'rate' => $formattedRate,
                 'taken' => 'none',
             ];
-            $priceListName = $packagePrice->tariff->name;
+            return;
         }
 
         if ($callsRaw) {
@@ -728,22 +711,37 @@ class StatisticsVoip extends Processor
 
         if ($packagePriceList) {
             if ($packagePriceList->pricelist_id) {
-                $record[$fieldNameToSet('package_pricelist')] = [
-                    'name' => $packagePriceList->tariff->name,
-                    'pricelist' => $packagePriceList->pricelist->name,
-                    'rate' => $formattedRate,
+                $record[$side]['package_price'] = [
+                    'name' => $packagePriceList->pricelist->name,
                     'taken' => 'none',
                 ];
-                $priceListName = $packagePriceList->pricelist->name;
             } else {
-                $record[$fieldNameToSet('package_pricelist_nnp')] = [
-                    'name' => $packagePriceList->tariff->name,
-                    'pricelist' => $packagePriceList->pricelistNnp->name,
-                    'rate' => $formattedRate,
+                $record[$side]['package_price'] = [
+                    'name' => $packagePriceList->pricelistNnp->name,
                     'taken' => 'none',
                 ];
-                $priceListName = $packagePriceList->pricelistNnp->name;
             }
+        }
+    }
+
+    /**
+     * @param array $record
+     * @param string $side
+     * @param string $prefix
+     * @return mixed
+     */
+    protected function addPackagesCommonInfo(&$record, $side, $prefix)
+    {
+        $fieldName = function ($field) use ($prefix) {
+            return $prefix . $field;
+        };
+
+        $formattedRate = number_format($record[$fieldName('rate')], $this->decimals, '.', '');
+        $formattedRateWithTax = number_format($record[$fieldName('rate_with_tax')], $this->decimals, '.', '');
+
+        $record[$side]['rate'] = $formattedRate;
+        if ($formattedRateWithTax !== $formattedRate) {
+            $record[$side]['rate_with_tax'] = $formattedRateWithTax;
         }
 
         if ($record[$fieldName('billed_time')]) {
@@ -752,28 +750,25 @@ class StatisticsVoip extends Processor
                 $isAllFromPackage =
                     $record[$fieldName('billed_time')] == $record[$fieldName('package_time')];
 
-                if (!$record[$fieldNameToSet('package_minute')]) {
-                    $record[$fieldNameToSet('package_minute')] = [
-                        'name' => $priceListName,
-                        //'name' => 'Из прайслиста',
-                        'rate' => $formattedZeroRate,
-                        'taken' => 'none',
+                if ($record[$side]['package_minute']) {
+                    $record[$side]['package_minute']['taken'] = $isAllFromPackage ? 'all' : 'part';
+                } else {
+                    // используется пакет, но минутного пакета нет
+                    $record[$side]['package_minute_price'] = [
+                        'name' => $record[$side]['package_price']['name'] ?: 'не указан',
+                        'taken' => $isAllFromPackage ? 'all' : 'part',
                     ];
                 }
-
-                $record[$fieldNameToSet('package_minute')]['taken'] = $isAllFromPackage ? 'all' : 'part';
             }
 
-            if (!$isAllFromPackage) {
-                if ($record[$fieldNameToSet('package_price')]) {
-                    $record[$fieldNameToSet('package_price')]['taken'] = 'all';
-                } elseif ($record[$fieldNameToSet('package_pricelist')]) {
-                    $record[$fieldNameToSet('package_pricelist')]['taken'] = 'all';
-                } elseif ($record[$fieldNameToSet('package_pricelist_nnp')]) {
-                    $record[$fieldNameToSet('package_pricelist_nnp')]['taken'] = 'all';
-                }
+            if (!$isAllFromPackage && $record[$side]['package_price']) {
+                $record[$side]['package_price']['taken'] = 'all';
             }
         }
+
+        $record[$side]['has_package_minutes'] = !empty($record[$side]['package_minute']) || !empty($record[$side]['package_minute_price']);
+
+        return $record;
     }
 
     /**

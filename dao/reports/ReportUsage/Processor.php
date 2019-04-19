@@ -12,14 +12,12 @@ use app\models\billing\Server;
 use app\models\UsageTrunk;
 use Yii;
 use DateTime;
-use DateTimeZone;
 use yii\db\ActiveQuery;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\billing\CallsRaw;
-use app\models\billing\Geo;
-use app\models\billing\InstanceSettings;
+use yii\db\Expression;
 
 abstract class Processor implements ProcessorInterface
 {
@@ -224,7 +222,6 @@ abstract class Processor implements ProcessorInterface
                 )
                 ->innerJoin(['cr' => CallsRaw::tableName()], 'cr.cdr_id = cdr.id')
 
-                //->innerJoin(['cdr2' => CallsCdr::tableName()], 'cdr2.mcn_callid = cdr.mcn_callid')
                 ->leftJoin(['cdr2' => CallsCdr::tableName()],
                     'cdr2.mcn_callid = cdr.mcn_callid' .
                         ' AND (cdr2.mcn_callid IS NOT NULL)' .
@@ -236,7 +233,6 @@ abstract class Processor implements ProcessorInterface
                         ' AND h2.market_place_id = ' . $marketPlaceId
                 )
 
-                //->innerJoin(['cr2' => CallsRaw::tableName()], 'cr2.cdr_id = cdr2.id AND (cr2.orig = cr.orig) IS FALSE')
                 ->leftJoin(['cr2' => CallsRaw::tableName()], 'cr2.cdr_id = cdr2.id AND (cr2.orig = cr.orig) IS FALSE AND (cr2.account_id IS NOT NULL)')
             ;
 
@@ -253,13 +249,12 @@ abstract class Processor implements ProcessorInterface
                 ->leftJoin(['rate2' => CurrencyRate::tableName()], 'rate2.currency::public.currencies = c2.currency AND rate2.date = now()::date')
 
                 ->andWhere(['IS NOT', 'cdr.mcn_callid', null])
-//                ->andWhere(['>', 'cdr.session_time', 0])
-
-                //->andWhere(['IS NOT', 'cdr2.mcn_callid', null])
-                //->andWhere(['>', 'cdr2.session_time', 0])
+                //->andWhere(['>', 'cdr.session_time', 0])
 
                 ->andWhere(['cr.account_id' => $accountId])
-                //->andWhere(['IS NOT', 'cr2.account_id', null])
+
+                // или незавершенный или плечо с нужным хабом
+                ->andWhere(new Expression('((cr2.id IS NOT NULL) AND (h2.id IS NULL)) IS FALSE'))
             ;
         }
 
@@ -350,12 +345,12 @@ abstract class Processor implements ProcessorInterface
         &$inCount
     )
     {
-        $limit = $this->config->isShowMax ? Config::ITEMS_MAX_SIZE : Config::ITEMS_PART_SIZE;
-        if (($limit - $inCount) <= 0) {
+        $limitMax = $this->config->isShowMax ? Config::ITEMS_MAX_SIZE : Config::ITEMS_PART_SIZE;
+        $limit = $limitMax - $inCount;
+        if ($limit <= 0) {
             // лимит получения записей исчерпан
             return null;
         }
-        $limit -= $inCount;
 
         $query = $this->getBaseQueryByConnectionId($connectionId);
         if ($this->isWithProfit()) {
@@ -394,20 +389,22 @@ abstract class Processor implements ProcessorInterface
                 $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999998')
             ]);
 
+        $db = Helper::getDbByConnectionId($connectionId);
         if (!$query->groupBy) {
             $query->limit($limit);
-        }
 
-        $db = Helper::getDbByConnectionId($connectionId);
-        $countAll = $query->count('*', $db);
-        $inCount += $countAll >= $limit ? $limit : $countAll;
+            $countAll = $query->count('DISTINCT cr.id', $db);
+            $inCount += $countAll;
 
-        if ($inCount >= $limit) {
-            Yii::$app->session->setFlash('error',
-                'Статистика отображается не полностью.' .
-                Html::tag('br') . PHP_EOL .
-                ' Сделайте ее менее детальной или сузьте временной период'
-            );
+            if ($inCount >= $limit) {
+                Yii::$app->session->setFlash('error',
+                    sprintf('Статистика отображается лишь частично (%s из %s).', $limitMax, $inCount) .
+                    Html::tag('br') . PHP_EOL .
+                    ' Сделайте ее менее детальной или сузьте временной период'
+                );
+
+                $inCount = $limitMax;
+            }
         }
 
         return $query->createCommand($db);

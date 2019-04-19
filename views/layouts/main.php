@@ -106,7 +106,7 @@ $activeClient = isset($fixclient_data['id']) ?
                         <a href="http://www.mcn.ru/">
                             <img height="16" src="/images/logo_msn_s.gif" width="58" border="0" />
                         </a><br />
-                        <span>©2019 MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
+                        <span>©<?=date('Y')?> MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
                     </div>
                 </div>
             </div>
