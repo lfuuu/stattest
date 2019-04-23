@@ -13,6 +13,7 @@ use app\models\ClientAccount;
 use app\models\Param;
 use app\models\support\Ticket;
 use app\models\Trouble;
+use app\models\TroubleFolder;
 use app\models\TroubleRoistat;
 use app\models\TroubleRoistatStore;
 use app\models\TroubleStage;
@@ -474,7 +475,7 @@ SQL;
      * @param bool $isReset
      * @return array|mixed
      */
-    public function getTaskFoldersCount($isReset = false)
+    public function getTaskFoldersCount($isReset = false, $trouble_type = Trouble::TYPE_TASK, $pk = TroubleFolder::PK_TASK)
     {
         if ($isReset) {
             Param::setParam(Param::IS_NEED_RECALC_TT_COUNT, 1, true);
@@ -495,12 +496,12 @@ FROM
   LEFT JOIN
   tt_folders AS tf ON T.folder & tf.pk
 WHERE
-  ((T.server_id = 0) AND (T.trouble_type = 'task') AND (tf.pk & 524033))
+  ((T.server_id = :server_id) AND (T.trouble_type = :trouble_type) AND (tf.pk & :pk))
 GROUP BY tf.pk
 ORDER BY `tf`.`order`
 
 SQL;
-        $result = ArrayHelper::index(Trouble::getDb()->createCommand($sql)->queryAll(), 'pk');
+        $result = ArrayHelper::index(Trouble::getDb()->createCommand($sql, [':server_id' => 0, ':trouble_type' => $trouble_type, ':pk' => $pk])->queryAll(), 'pk');
         \Yii::$app->cache->set($key, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_TROUBLE_COUNT])));
 
         return $result;

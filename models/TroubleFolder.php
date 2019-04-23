@@ -13,6 +13,8 @@ use app\classes\model\ActiveRecord;
  */
 class TroubleFolder extends ActiveRecord
 {
+    const PK_TASK = 524033;
+
     /**
      * @return string
      */

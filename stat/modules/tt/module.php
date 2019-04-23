@@ -12,6 +12,7 @@
 use app\exceptions\ModelValidationException;
 use app\models\ClientContactType;
 use app\models\EventQueue;
+use app\models\TroubleFolder;
 use app\models\TroubleRoistat;
 use app\models\TroubleStage;
 use app\models\TroubleState;
@@ -1310,8 +1311,10 @@ where c.client="'.$trouble['client_orig'].'"')
             $select = 'IF(S2.stage_id IS NULL,0,1) AS is_editableByMe,';
         }
 
-        if($this->curtype)
-            $W[] = "T.trouble_type = '".$this->curtype['code']."'";
+        if($this->curtype) {
+            $trouble_type = $this->curtype ? $this->curtype['code'] : null;
+            $W[] = "T.trouble_type = '".$trouble_type."'";
+        }
 
         $W_folders = $W;
 
@@ -1529,8 +1532,10 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                  $W_folders[] = 'S.stage_id = T.cur_stage_id';
             }
 
+            $trouble_type = $trouble_type ?: YiiTrouble::TYPE_TASK;
+            $pk = ($this->curtype && isset($this->curtype['folders'])) ? $this->curtype['folders'] : TroubleFolder::PK_TASK;
             if (!$use_stages && !$clientNick) {
-                $folders = \app\models\Trouble::dao()->getTaskFoldersCount();
+                $folders = \app\models\Trouble::dao()->getTaskFoldersCount(false, $trouble_type, $pk);
             } else {
 
                 $folders = $db->AllRecords($q = "
