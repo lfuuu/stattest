@@ -5,10 +5,12 @@ namespace app\dao;
 use app\controllers\api\internal\SimController;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
+use app\models\Number;
 use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\Imsi;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\db\Expression;
@@ -232,6 +234,27 @@ class ClientDocumentDao extends Singleton
      */
     private function _makeSimCardsTable(ClientDocument $document, &$design)
     {
+        $accountTariffLogTableName = AccountTariffLog::tableName();
+        $accountTariffTableName = AccountTariff::tableName();
+        $clientAccountIds = ClientAccount::find()
+            ->select('id')
+            ->where(['contract_id' => $document->contract_id])
+            ->column();
+        $numbers = Number::find()
+            ->select('number')
+            ->joinWith('accountTariff')
+            ->leftJoin($accountTariffLogTableName, $accountTariffTableName.'.id=' . $accountTariffLogTableName . '.account_tariff_id')
+            ->where(['client_id' => $clientAccountIds])
+            ->andWhere(['ndc_type_id' => NdcType::ID_MOBILE])
+            ->andWhere(['OR',
+                ['NOT', [$accountTariffTableName . '.tariff_period_id' => null]],
+                ['AND',
+                    ['NOT', [$accountTariffLogTableName . '.tariff_period_id' => null]],
+                    ['>', $accountTariffLogTableName . '.actual_from_utc', new Expression('UTC_TIMESTAMP()')]
+                ]
+            ])
+            ->groupBy('number')
+            ->column();
         // Получение карт и перепаковка данных под нужную структуру
         $cards = array_map(function($item) {
             if (isset($item['imsies'])) {
@@ -251,16 +274,15 @@ class ClientDocumentDao extends Singleton
             ->select(['c.iccid'])
             ->joinWith('imsies')
             ->where([
-                'c.client_account_id' => ClientAccount::find()
-                    ->select('id')
-                    ->where(['contract_id' => $document->contract_id])
-                    ->column()
+                'c.client_account_id' => $clientAccountIds
             ])
             ->asArray()
             ->all()
         );
+        $numbers = array_diff($numbers, array_column($cards, 'msisdn'));
 
         $design->assign('sims', $cards);
+        $design->assign('numbers', $numbers);
 
         return $design->fetch('tarifs/simcards.tpl');
     }

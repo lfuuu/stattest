@@ -8,6 +8,7 @@ use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
 use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Imsi;
+use app\modules\uu\models\AccountTariff;
 use yii\helpers\Url;
 
 /**
@@ -181,6 +182,14 @@ class Number extends ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::class, ['id' => 'city_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccountTariff()
+    {
+        return $this->hasOne(AccountTariff::class, ['id' => 'uu_account_tariff_id']);
     }
 
     /**
