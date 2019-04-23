@@ -49,6 +49,7 @@ class RawController extends BaseController
                             'get-filters',
                             'get-saved-filter-data',
                             'with-cache',
+                            'old',
                         ],
                         'roles' => ['voip.access'],
                     ],
@@ -241,6 +242,17 @@ class RawController extends BaseController
     }
 
     /**
+     * Метод склеивающей по старой логике
+     *
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    public function actionOld()
+    {
+        return $this->processReport(false);
+    }
+
+    /**
      * Метод, не поддерживающий кеширование
      *
      * @return string
@@ -248,21 +260,7 @@ class RawController extends BaseController
      */
     public function actionIndex()
     {
-        CallsRaw::getDb()
-            ->createCommand("set work_mem = '500MB'")->execute();
-
-        $model = new CallsRawFilter;
-        try {
-            if ($get = Yii::$app->request->get()) {
-                $model->load($get);
-            }
-        } catch (\Exception $e) {
-            Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
-        }
-
-        return $this->render('index', [
-            'filterModel' => $model,
-        ]);
+        return $this->processReport();
     }
 
     /**
@@ -273,15 +271,33 @@ class RawController extends BaseController
      */
     public function actionWithCache()
     {
+        return $this->processReport(true);
+    }
+
+    /**
+     * Подготовка отчёта
+     *
+     * @param bool $isByCallId по новому алгоритму склейки
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    protected function processReport($isByCallId = true)
+    {
         // Задаём объём памяти для внутренних операций
         CallsRaw::getDb()
             ->createCommand("set work_mem = '500MB'")->execute();
 
         // Получение фильтра
         $model = new CallsRawFilter;
+        $model->isByMcnCallId = $isByCallId;
+
         try {
+            $isNewVersion = Yii::$app->controller->action->id == 'with-cache';
             $get = Yii::$app->request->get();
-            unset($get['isCache']);
+            if ($isNewVersion) {
+                unset($get['isCache']);
+            }
+
             if ($get) {
                 $model->load($get);
             }
@@ -291,7 +307,7 @@ class RawController extends BaseController
 
         return $this->render('index', [
             'filterModel' => $model,
-            'isNewVersion' => Yii::$app->controller->action->id == 'with-cache',
+            'isNewVersion' => $isNewVersion,
             'isPreFetched' => Yii::$app->getRequest()->get('isCache') == 1,
         ]);
     }

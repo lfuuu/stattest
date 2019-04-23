@@ -189,6 +189,8 @@ class CallsRawFilter extends CallsRaw
     public $is_exclude_internal_trunk_orig = null;
     /** @var Connection */
     public $dbConn = null;
+    // использовать новую склеку по mcn_callid
+    public $isByMcnCallId = true;
 
     /**
      * Rules set
@@ -675,8 +677,12 @@ class CallsRawFilter extends CallsRaw
         }
 
         // Формирование запроса с учетом флага кеширования
-        $query = $isNewVersion ?
-            $this->getReportNew($isPreFetched) : $this->getReportSlow();
+        if ($this->isByMcnCallId) {
+            $query = $isNewVersion ?
+                $this->getReportNew($isPreFetched) : $this->getReportSlow();
+        } else {
+            $query = $this->getReportNewByPeerId();
+        }
 
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
@@ -739,16 +745,18 @@ class CallsRawFilter extends CallsRaw
             $result = $query->createCommand(Yii::$app->dbPg)
                 ->queryAll();
         } else {
-            // !!! временно отключим кэширование для тестирования !!!
-
-            //$queryCacheKey = CallsRaw::getCacheKey($query);
-            //if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
-            //    $result = $query->createCommand(Yii::$app->dbPg)->queryAll();
-            //    if ($result) {
-            //        Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
-            //    }
-            //}
-            $result = $query->createCommand($this->dbConn)->queryAll();
+            if (!$this->isByMcnCallId) {
+                $queryCacheKey = CallsRaw::getCacheKey($query);
+                if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
+                    $result = $query->createCommand($this->dbConn)->queryAll();
+                    if ($result) {
+                        Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
+                    }
+                }
+            } else {
+                // !!! временно отключим кэширование для тестирования !!!
+                $result = $query->createCommand($this->dbConn)->queryAll();
+            }
         }
 
         if (!$isGetDataProvider) {

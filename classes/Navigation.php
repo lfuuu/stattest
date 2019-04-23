@@ -129,8 +129,8 @@ class Navigation
                 ->addItem('DID группы', ['/tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Номера', ['/voip/number'], ['stats.report'])
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
-                ->addItem('Отчет по calls_raw', ['/voip/raw'], ['voip.access'])
-                ->addItem('Отчет по calls_raw (с кэшем)', ['/voip/raw/with-cache'], ['voip.access'])
+                ->addItem('Отчет по calls_raw (старая склейка)', ['/voip/raw/old'], ['voip.access'])
+                ->addItem('Отчет по calls_raw', ['/voip/raw/with-cache'], ['voip.access'])
                 ->addItem('Статистика (4 класс + 5 класс)', ['/voip/combined-statistics'], ['voip.access'])
         );
 

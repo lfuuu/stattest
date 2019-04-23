@@ -16,7 +16,7 @@ use app\modules\nnp\column\NdcTypeColumn;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
-// Если вызывающий контроллер не поддерживает кеширование
+// Если вызывающий контроллер не поддерживает предрасчет
 !isset($isPreFetched) && $isPreFetched = false;
 !isset($isNewVersion) && $isNewVersion = false;
 
@@ -28,7 +28,7 @@ echo Breadcrumbs::widget([
 ]);
 
 $filters = require '_indexFilters.php';
-// Если требуется поддержка кеша, то дополнитить выводимые колонки
+// Если требуется предрасчет, то дополнитить выводимые колонки
 if ($isPreFetched) {
     $filters[] = [
         'attribute' => 'calls_with_duration',
@@ -113,7 +113,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     }
 } else {
     $columns = require '_indexColumns.php';
-    // Если поддержка кеша не требуется, то дополним выводимые колонки
+    // Если предрасчет не требуется, то дополним выводимые колонки
     if (!$isPreFetched) {
         $columns[] = [
             'label' => 'Номер А',
@@ -194,11 +194,11 @@ try {
             '
                 <div class="row">
                     <div class="col-md-12">
-                        <h2>В режиме кэширования будут недоступны некоторые фильтры</h2>
+                        <h2>В режиме предрасчёта будут недоступны некоторые фильтры</h2>
                     </div>
                     <div class="col-md-12">
                         <input type="checkbox" value="1" id="isCacheCheckbox">
-                        <label for="isCacheCheckbox">Использовать кэш</label>
+                        <label for="isCacheCheckbox">Использовать предрасчёт</label>
                     </div>
                     <script>
                         $(document).ready(function(){
@@ -231,7 +231,16 @@ try {
                         });
                     </script>
                 </div>
-            ' : '',
+            ' : (
+                $filterModel->isByMcnCallId ?
+                    '' :
+                    '
+<div class="row">
+    <div class="col-md-12">
+        <h2>Вы используете устаревшую логику склейки - данные могут отображатся лишь частично (около 50% от общего количества).</h2>
+    </div>
+</div>
+'),
     ]);
 } catch (yii\db\Exception $e) {
     Yii::$app->session->addFlash(
