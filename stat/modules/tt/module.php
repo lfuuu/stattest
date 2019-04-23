@@ -757,15 +757,22 @@ where c.client="'.$trouble['client_orig'].'"')
         }
 
         $design->assign('tt_trouble',$trouble);
-        $design->assign('tt_states',$R);
 
         $trouble = YiiTrouble::findOne($trouble['id']);
         if ($trouble) {
+            if ($trouble->trouble_type == YiiTrouble::TYPE_CONNECT
+                && $trouble->troubleRoistat
+                && $trouble->troubleRoistat->roistat_visit
+                && ($key = array_search(TroubleStage::STATE_CLOSED, array_column($R, 'id')))) {
+                unset($R[$key]);
+            }
+
             $design->assign('tt_media', $trouble->mediaManager->getFiles());
             $design->assign('tt_trouble_roistat', $trouble->troubleRoistat);
             $design->assign('roistatChannels', TroubleRoistat::CHANNELS);
         }
 
+        $design->assign('tt_states',$R);
         /** @var \app\models\Lead $lead */
         $lead = null;
         $trouble && $lead = $trouble->lead;

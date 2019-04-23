@@ -27,6 +27,7 @@ class TroubleStage extends ActiveRecord
 
     const SEARCH_ITEMS = 100;
     const STATE_ENABLED = 48;
+    const STATE_CLOSED = 61;
     const STATE_CROSS_SELL = 64;
 
     public $dif_time = '00:00';
