@@ -1490,118 +1490,123 @@ class m_newaccounts extends IModule
     {
         global $design, $db, $_GET;
         $this->do_include();
-        $bill_no = get_param_protected("bill");
-        if (is_array($bill_no)) {
-            foreach ($bill_no as $bill_number) {
-                $_GET['bill'] = $bill_number;
-                $this->newaccounts_bill_email($fixclient);
-            }
+        $bills = get_param_protected("bill");
+        if (!$bills) {
             return;
         }
 
-        if (!$bill_no) {
-            return;
+        if (!is_array($bills)) {
+            $bills = [$bills];
         }
-        $docs = BillDocument::dao()->getByBillNo($bill_no);
-        $bill = new \Bill($bill_no);
-        $is_pdf = get_param_raw('is_pdf', 0);
-
-        $template = 'Уважаемые господа!<br>Отправляем Вам следующие документы:<br>';
-        $template = [$template, $template];
-        $D = [
-            'Конверт: ' => ['envelope'],
-            'Счет: ' => ['bill-1-RUB', 'bill-2-RUB'],
-            'Счет-фактура: ' => ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4'],
-            'Акт: ' => ['akt-1', 'akt-2', 'akt-3'],
-            'Накладная: ' => ['lading'],
-            'Приказ о назначении: ' => ["order"],
-            'Уведомление о назначении: ' => ["notice"],
-            'УПД: ' => ['upd-1', 'upd-2', 'upd-3'],
-            'Уведомление о передачи прав: ' => ['notice_mcm_telekom'],
-            'Соглашение о передачи прав: ' => ['sogl_mcm_telekom'],
-            'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => ['sogl_mcn_telekom'],
-            'Соглашение о передачи прав (ООО МСН Телеком Ритейл => ООО МСН Телеком Сервис): ' => ['sogl_mcn_service'],
-            'Соглашение о передачи прав (ООО МСН Телеком => ООО МСН Телеком Сервис): ' => ['sogl_mcn_telekom_to_service'],
-            'Кредит-нота: ' => ['credit_note'],
-        ];
-
-        foreach ($D as $k => $rs) {
-            foreach ($rs as $r) {
-                if (get_param_protected($r)) {
-                    if (!$this->isActionEnabled($r, $docs)) {
-                        continue;
-                    }
-
-                    if (
-                    in_array($r, ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service'])
-                    ) {
-                        $is_pdf = 1;
-                    }
-
-                    $R = [
-                        'bill' => $bill_no,
-                        'object' => $r,
-                        'client' => $bill->Get('client_id'),
-                        'is_pdf' => $is_pdf
-                    ];
-                    if (isset($_REQUEST['without_date'])) {
-                        $R['without_date'] = 1;
-                        $R['without_date_date'] = $_REQUEST['without_date_date'];
-                    }
-                    $link = [];
-                    if (in_array($r, ["notice", "order"])) {
-                        $link[] = "https://stat.mcn.ru/client/pdf/" . $r . ".pdf";
-                        $link[] = "https://stat.mcn.ru/client/pdf/" . $r . ".pdf";
-                    }
-
-
-                    $R['emailed'] = '1';
-                    $link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($R);
-                    $R['emailed'] = '0';
-                    $link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($R);
-                    foreach ($template as $tk => $tv) {
-                        $template[$tk] .= $k . '<a href="' . $link[$tk] . '">' . $link[$tk] . '</a><br>';
-                    }
-                }
-            }
-        }
-
-        $documentReports = get_param_raw('document_reports', []);
+        $link = [];
         $document_link = [];
-        for ($i = 0, $s = sizeof($documentReports); $i < $s; $i++) {
-            $link_params = [
-                'bill' => $bill_no,
-                'client' => $bill->Get('client_id'),
-                'doc_type' => $documentReports[$i],
-                'is_pdf' => $is_pdf,
+        $template = ['with_stamp' => '', 'without_stamp' => ''];
+        foreach ($bills as $bill_no) {
+
+            $docs = BillDocument::dao()->getByBillNo($bill_no);
+            $bill = new \Bill($bill_no);
+            $doc_date = $bill->getBill()['doc_date'];
+
+            $is_doc_date = $doc_date !== '0000-00-00';
+
+            $is_pdf = get_param_raw('is_pdf', 0);
+
+            $D = [
+                'Конверт' => ['envelope'],
+                'Счет' => ['bill-1-RUB', 'bill-2-RUB'],
+                'Счет-фактура' => ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4'],
+                'Акт' => ['akt-1', 'akt-2', 'akt-3'],
+                'Накладная' => ['lading'],
+                'Приказ о назначении' => ["order"],
+                'Уведомление о назначении' => ["notice"],
+                'УПД' => ['upd-1', 'upd-2', 'upd-3'],
+                'Уведомление о передачи прав' => ['notice_mcm_telekom'],
+                'Соглашение о передачи прав' => ['sogl_mcm_telekom'],
+                'Соглашение о передачи прав (МСМ=>МСН Ретайл)' => ['sogl_mcn_telekom'],
+                'Соглашение о передачи прав (ООО МСН Телеком Ритейл => ООО МСН Телеком Сервис)' => ['sogl_mcn_service'],
+                'Соглашение о передачи прав (ООО МСН Телеком => ООО МСН Телеком Сервис)' => ['sogl_mcn_telekom_to_service'],
+                'Кредит-нота' => ['credit_note'],
             ];
 
-            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($link_params + ['emailed' => 1]);
-            $document_link[] = Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($link_params + ['emailed' => 0]);
+            foreach ($D as $k => $rs) {
+                $counter = 1;
+                foreach ($rs as $r) {
+                    if (get_param_protected($r)) {
+                        if (!$this->isActionEnabled($r, $docs)) {
+                            continue;
+                        }
+                        $isMultipleDocs = $counter > 1;
 
-            foreach ($template as $pos => &$item) {
-                switch ($documentReports[$i]) {
-                    case 'bill':
-                        $item .= 'Счет: ';
-                        break;
+                        if (
+                        in_array($r, ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service'])
+                        ) {
+                            $is_pdf = 1;
+                        }
+
+                        $R = [
+                            'bill' => $bill_no,
+                            'object' => $r,
+                            'client' => $bill->Get('client_id'),
+                            'is_pdf' => $is_pdf
+                        ];
+                        if (isset($_REQUEST['without_date'])) {
+                            $R['without_date'] = 1;
+                            $R['without_date_date'] = $_REQUEST['without_date_date'];
+                        }
+                        if (in_array($r, ["notice", "order"])) {
+                            $link['with_stamp'][] = "https://stat.mcn.ru/client/pdf/" . $r . ".pdf";
+                            $link['without_stamp'][] = "https://stat.mcn.ru/client/pdf/" . $r . ".pdf";
+                        }
+
+                        $link['with_stamp'][] = ['url' => Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($R + ['emailed' => 1]), 'description' => $k . ($isMultipleDocs ? ' №' . $counter : '') . ($is_doc_date ? ' от ' . $doc_date . ' ' : ' ')];
+                        $link['without_stamp'][] = ['url' => Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($R + ['emailed' => 0]), 'description' => $k . ($isMultipleDocs ? ' №' . $counter : '') . ($is_doc_date ? ' от ' . $doc_date . ' ' : ' ')];
+                    }
+                    ++$counter;
                 }
-                $item .= '<a href="' . $document_link[$pos] . '">' . $document_link[$pos] . '</a>';
+            }
+
+            $documentReports = get_param_raw('document_reports', []);
+            for ($i = 0, $s = sizeof($documentReports); $i < $s; $i++) {
+                $link_params = [
+                    'bill' => $bill_no,
+                    'client' => $bill->Get('client_id'),
+                    'doc_type' => $documentReports[$i],
+                    'is_pdf' => $is_pdf,
+                ];
+
+                $description = '';
+                if ($documentReports[$i] == 'bill') {
+                    $description .= 'Счет' . ($isMultipleDocs ? ' №' . $counter : '') . ($is_doc_date ? ' от ' . $doc_date . ' ' : ' ');
+                }
+                $document_link['with_stamp'][] = ['url' => Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($link_params + ['emailed' => 1]), 'description' => $description];
+                $document_link['without_stamp'][] = ['url' => Yii::$app->params['LK_PATH'] . 'docs/?bill=' . Encrypt::encodeArray($link_params + ['emailed' => 0]), 'description' => $description];
+
+            }
+
+            $design->ProcessEx();
+        }
+
+        foreach ($template as $tk => $tv) {
+            foreach ($link[$tk] as $item) {
+                $template[$tk] .= $item['description'] . '<a href="' . $item['url'] . '">' . $item['url'] . '</a><br>';
             }
         }
 
-        $design->ProcessEx();
-
+        foreach ($template as $tk => $tv) {
+            foreach ($document_link[$tk] as $item) {
+                $template[$tk] .= $item['description'] . '<a href="' . $item['url'] . '">' . $item['url'] . '</a><br>';
+            }
+        }
         $c = ClientAccount::findOne($bill->Client('id'));
         $contact = $c->officialContact;
         $this->_bill_email_ShowMessageForm('с печатью', $contact['email'], "Счет за телекоммуникационные услуги",
-            $template[0]);
+            $template['with_stamp']);
         $this->_bill_email_ShowMessageForm('без печати', $contact['email'], "Счет за телекоммуникационные услуги",
-            $template[1]);
-        echo "<hr><br>Шаблон с печатью <br><br>";
-        echo $template[0];
-        echo "<br><hr><br>\n\n Шаблон без печати <br><br>";
-        echo $template[1];
+            $template['without_stamp']);
+        echo 'Уважаемые господа!<br>Отправляем Вам следующие документы:<br>';
         $design->ProcessEx('errors.tpl');
+        echo $template['with_stamp'] . '<hr>';
+        echo $template['without_stamp'];
     }
 
     function _bill_email_ShowMessageForm($submit, $to, $subject, $msg)
