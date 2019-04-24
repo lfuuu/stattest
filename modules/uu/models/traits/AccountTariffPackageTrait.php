@@ -13,6 +13,7 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffStatus;
 use Yii;
 use yii\base\InvalidParamException;
 
@@ -72,8 +73,16 @@ trait AccountTariffPackageTrait
      */
     private function _addDefaultPackage()
     {
-        if ($this->_hasDefaultPackage()) {
+        $packageType = isset(ServiceType::$serviceToPackage[$this->service_type_id])
+            ? ServiceType::$serviceToPackage[$this->service_type_id]
+            : null;
+
+        if (
+            !$packageType
+            || $this->_hasDefaultPackage()
+        ) {
             // хотя бы один базовый пакет уже подключен
+            // или улуга без пекетов
             return;
         }
 
@@ -98,7 +107,8 @@ trait AccountTariffPackageTrait
             $this->city_id,
             $number ? $number->ndc_type_id : null,
             $tariffPeriod->tariff->is_include_vat,
-            $tariffStatuses
+            $tariffStatuses,
+            $packageType
         );
 
         if (!$defaultPackages) {
@@ -117,7 +127,7 @@ trait AccountTariffPackageTrait
             // подключить базовый пакет
             $accountTariffPackage = new AccountTariff();
             $accountTariffPackage->client_account_id = $this->client_account_id;
-            $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE_CALLS;
+            $accountTariffPackage->service_type_id = $packageType;
             $accountTariffPackage->region_id = $this->region_id;
             $accountTariffPackage->city_id = $this->city_id;
             $accountTariffPackage->prev_account_tariff_id = $this->id;
@@ -141,6 +151,10 @@ trait AccountTariffPackageTrait
      */
     private function _getPackageTariffStatuses()
     {
+        if ($this->service_type_id != ServiceType::ID_VOIP) {
+            return [TariffStatus::ID_PUBLIC];
+        }
+
         $tarifStatuses = [];
 
         /** @var \app\models\Number $number */

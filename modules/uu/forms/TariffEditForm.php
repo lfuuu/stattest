@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\forms;
 
+use app\modules\nnp\models\PackageApi;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
@@ -99,5 +100,13 @@ class TariffEditForm extends TariffForm
     public function getTariffVoipCountries()
     {
         return $this->tariff->tariffVoipCountries;
+    }
+
+    /**
+     * @return PackageApi
+     */
+    public function getPackageApi()
+    {
+        return $this->tariff->packageApi;
     }
 }

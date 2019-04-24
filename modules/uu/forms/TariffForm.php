@@ -4,6 +4,7 @@ namespace app\modules\uu\forms;
 
 use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -48,6 +49,9 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffOrganization[] */
     public $tariffOrganizations;
 
+    /** @var PackageApi[] */
+    public $packageApi;
+
     /**
      * @return TariffResource[]
      */
@@ -87,6 +91,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return Tariff
      */
     abstract public function getTariffModel();
+
+    /**
+     * @return PackageApi
+     */
+    abstract public function getPackageApi();
 
     /**
      * Конструктор
@@ -295,6 +304,43 @@ abstract class TariffForm extends \app\classes\Form
                         $tariffVoipNdcType->tariff_id = $this->id;
                         $this->tariffNdcTypes = $this->crudMultipleSelect2($this->tariffNdcTypes, $post, $tariffVoipNdcType, 'ndc_type_id');
                         break;
+
+                    case ServiceType::ID_BILLING_API_MAIN_PACKAGE:
+                        if (!$this->id) {
+                            break;
+                        }
+
+                        $package = $this->tariff->package;
+                        if (!$package) {
+                            $package = new Package();
+                            $package->tariff_id = $this->id;
+                        }
+
+                        $package->service_type_id = $this->tariff->service_type_id;
+                        $package->is_include_vat = (bool)$this->tariff->is_include_vat;
+                        $package->name = $this->tariff->name;
+
+                        $package->load($post);
+                        $package->currency_id = $this->tariff->currency_id;
+                        if (!$package->save()) {
+                            $this->validateErrors += $package->getFirstErrors();
+                            throw new ModelValidationException($package);
+                        }
+
+                        $packageApi = $this->getPackageApi();
+
+                        if ($packageApi->isNewRecord) {
+                            $packageApi->tariff_id = $this->tariff->id;
+                        }
+
+                        if ($packageApi->load($post)) {
+                            if(!$packageApi->save()) {
+                                $this->validateErrors += $packageApi->getFirstErrors();
+                                throw new ModelValidationException($packageApi);
+                            }
+                        }
+                        break;
+
                 }
             }
 

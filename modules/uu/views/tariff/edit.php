@@ -106,6 +106,11 @@ if (!$serviceType) {
         case ServiceType::ID_VPS:
             echo $this->render('_editMainVps', $viewParams);
             break;
+
+        case ServiceType::ID_BILLING_API_MAIN_PACKAGE:
+            echo $this->render('_editMainBillingApiPackage', $viewParams);
+            break;
+
     }
     ?>
 

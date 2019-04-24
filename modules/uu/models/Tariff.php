@@ -8,6 +8,7 @@ use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\Currency;
 use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -57,6 +58,9 @@ use yii\helpers\Url;
  * @property-read PackagePricelist[] $packagePricelists
  * @property-read PackagePricelistNnp[] $packagePricelistsNnp
  * @property-read PackagePricelistNnpInternet[] $packagePricelistsNnpInternet
+ *
+ * billing API
+ * @property-read PackageApi $packageApi
  *
  * VPS only!
  * @property integer $vm_id
@@ -264,6 +268,14 @@ class Tariff extends ActiveRecord
     {
         return $this->hasMany(PackagePricelistNnpInternet::class, ['tariff_id' => 'id'])
             ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPackageApi()
+    {
+        return $this->hasOne(PackageApi::class, ['tariff_id' => 'id']);
     }
 
     /**
@@ -523,12 +535,13 @@ class Tariff extends ActiveRecord
      * @param int $ndcTypeId
      * @param bool $isIncludeVat
      * @param int[] $tariffStatuses
+     * @param int $packageType
      * @return Tariff[]|null
      */
-    public function findDefaultPackages($countryId, $cityId, $ndcTypeId, $isIncludeVat, $tariffStatuses = [])
+    public function findDefaultPackages($countryId, $cityId, $ndcTypeId, $isIncludeVat, $tariffStatuses, $packageType)
     {
-        if ($this->service_type_id != ServiceType::ID_VOIP || !$ndcTypeId) {
-            // пакеты по умолчанию только для телефонии. Даже для пакетов транков их нет
+        if ($this->service_type_id == ServiceType::ID_VOIP && !$ndcTypeId) {
+            // пакеты по умолчанию только для телефонии и билнгации API. Даже для пакетов транков их нет
             return null;
         }
 
@@ -536,7 +549,7 @@ class Tariff extends ActiveRecord
         $query = self::find()
             ->joinWith('tariffCountries')
             ->where([
-                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
+                $tariffTableName . '.service_type_id' => $packageType,
                 TariffCountry::tableName() . '.country_id' => $countryId,
                 $tariffTableName . '.currency_id' => $this->currency_id,
                 // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
@@ -545,7 +558,7 @@ class Tariff extends ActiveRecord
                 $tariffTableName . '.is_include_vat' => $isIncludeVat,
             ]);
 
-        if ($cityId) {
+        if ($cityId && $this->service_type_id == ServiceType::ID_VOIP) {
             $query->joinWith('voipCities')
                 ->andWhere([
                     TariffVoipCity::tableName() . '.city_id' => $cityId,

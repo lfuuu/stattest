@@ -63,6 +63,7 @@ class ServiceType extends ActiveRecord
     const ID_CALLTRACKING = 29; //CallTracking
     const ID_SIPTRUNK = 30; //SIP-Trunk
     const ID_BILLING_API = 32; //Билинг API
+    const ID_BILLING_API_MAIN_PACKAGE = 33; // Билинг API. Основной пакет.
 
     const CLOSE_AFTER_DAYS = 60;
 
@@ -73,6 +74,12 @@ class ServiceType extends ActiveRecord
         self::ID_VOIP_PACKAGE_SMS => self::ID_VOIP,
         self::ID_TRUNK_PACKAGE_ORIG => self::ID_TRUNK,
         self::ID_TRUNK_PACKAGE_TERM => self::ID_TRUNK,
+        self::ID_BILLING_API_MAIN_PACKAGE => self::ID_BILLING_API,
+    ];
+
+    public static $serviceToPackage = [
+        self::ID_VOIP => self::ID_VOIP_PACKAGE_CALLS,
+        self::ID_BILLING_API => self::ID_BILLING_API_MAIN_PACKAGE,
     ];
 
     // Соответствие неуниверсальной услуги
