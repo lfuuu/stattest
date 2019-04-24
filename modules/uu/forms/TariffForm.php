@@ -49,7 +49,7 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffOrganization[] */
     public $tariffOrganizations;
 
-    /** @var PackageApi[] */
+    /** @var PackageApi */
     public $packageApi;
 
     /**
@@ -105,6 +105,7 @@ abstract class TariffForm extends \app\classes\Form
         $this->tariff = $this->getTariffModel();
         $this->tariffPeriods = $this->getTariffPeriods();
         $this->tariffResources = $this->getTariffResources();
+        $this->packageApi = $this->getPackageApi();
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -327,7 +328,7 @@ abstract class TariffForm extends \app\classes\Form
                             throw new ModelValidationException($package);
                         }
 
-                        $packageApi = $this->getPackageApi();
+                        $packageApi = $this->packageApi;
 
                         if ($packageApi->isNewRecord) {
                             $packageApi->tariff_id = $this->tariff->id;

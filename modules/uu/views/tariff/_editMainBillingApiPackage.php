@@ -12,7 +12,7 @@ use app\modules\uu\controllers\TariffController;
 use app\modules\uu\models\billing_uu\PricelistApi;
 use kartik\select2\Select2;
 
-$packageApi = $formModel->tariff->packageApi;
+$packageApi = $formModel->packageApi;
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = ['disabled' => 'disabled'];
