@@ -178,8 +178,9 @@ try {
         ],
         'pjaxSettings' => [
             'options' => [
-                'timeout' => 180000,
-                'enableReplaceState' => true,
+                'id' => 'report',
+                'timeout' => false,
+                'enablePushState' => false,
             ]
         ],
         'columns' => $columns,
@@ -206,6 +207,7 @@ try {
                                 $("#isCacheCheckbox").prop("checked", isFromCache);
                                 
                                 var inputs = [
+                                    "#callsrawfilter-traffictype",
                                     "#callsrawfilter-src_number",
                                     "#callsrawfilter-dst_number",
                                     "#callsrawfilter-src_destinations_ids",
@@ -225,6 +227,9 @@ try {
                                 updateReportFilters(true);
                             }
                             $("#isCacheCheckbox").on("click", function () {
+                                if ($.pjax.state !== undefined && $.pjax.state.url !== undefined) {
+                                    $url = new URL($.pjax.state.url);
+                                }
                                 $url.searchParams.set("isCache", $(this).is(":checked") ? "1" : "0");
                                 window.location.href = $url.href;
                             });

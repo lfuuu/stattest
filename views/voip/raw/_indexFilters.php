@@ -3,8 +3,8 @@
  * Фильтры для отчета по calls_raw
  *
  * @var CallsRawFilter $filterModel
- * @var bool $isSupport
- * @var bool $isCache
+ * @var bool $isNewVersion
+ * @var bool $isPreFetched
  */
 
 use app\classes\grid\column\billing\ContractColumn;
@@ -12,6 +12,7 @@ use app\classes\grid\column\billing\DisconnectCauseColumn;
 use app\classes\grid\column\billing\MarketPlaceColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\ServiceTrunkColumn;
+use app\classes\grid\column\billing\TrafficTypeColumn;
 use app\classes\grid\column\billing\TrunkColumn;
 use app\classes\grid\column\universal\CheckboxColumn;
 use app\classes\grid\column\universal\ConstructColumn;
@@ -33,14 +34,8 @@ use app\classes\grid\column\billing\TrunkGroupColumn;
 return [
     [
         'attribute' => 'connect_time',
-        'class' => $isSupport && $isCache ?
+        'class' => $isNewVersion && $isPreFetched ?
             DateRangeDoubleColumn::class : DateTimeRangeDoubleColumn::class,
-    ],
-    [
-        'class' => WithEmptyFilterColumn::class,
-        'filterOptions' => [
-            'class' => 'no_display'
-        ],
     ],
     [
         'attribute' => 'marketPlaceId',
@@ -54,6 +49,10 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
+    ],
+    [
+        'attribute' => 'trafficType',
+        'class' => TrafficTypeColumn::class,
     ],
     [
         'attribute' => 'src_number',

@@ -11,6 +11,7 @@ use app\classes\WebApplication;
 use app\classes\yii\CTEQuery;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsRaw;
+use app\models\billing\CallsRawUnite;
 use app\models\billing\Hub;
 use app\models\Currency;
 use app\models\CurrencyRate;
@@ -134,6 +135,7 @@ class CallsRawFilter extends CallsRaw
     ];
     public $marketPlaceId = Hub::MARKET_PLACE_ID_RUSSIA;
     public $server_ids = [];
+    public $trafficType = CallsRawUnite::TRAFFIC_TYPE_ALL;
     public $connect_time_from = null;
     public $connect_time_to = null;
     public $correct_connect_time_to = null;
@@ -203,6 +205,7 @@ class CallsRawFilter extends CallsRaw
             [
                 [
                     'marketPlaceId',
+                    'trafficType',
                     'is_success_calls',
                     'session_time_from',
                     'session_time_to',
@@ -344,6 +347,7 @@ class CallsRawFilter extends CallsRaw
                 'group_period' => 'Период группировки',
                 'group' => 'Группировки',
                 'marketPlaceId' => 'Биржа звонков',
+                'trafficType' => 'Тип траффика',
                 'server_ids' => 'Регион (точка подключения)',
                 'currency' => 'Валюта расчетов',
                 'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
@@ -359,8 +363,9 @@ class CallsRawFilter extends CallsRaw
      * @param string|null $sort
      * @return bool
      * @throws \ReflectionException
+     * @throws \Exception
      */
-    public function load(array $get, $sort = null)
+    public function loadCustom(array $get, $sort = null)
     {
         if ($sort) {
             $this->sort = $sort;

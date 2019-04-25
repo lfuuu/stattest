@@ -8,6 +8,7 @@ namespace app\classes\traits;
 use app\classes\yii\CTEQuery;
 use app\models\billing\CallsCdr;
 use app\models\billing\CallsRaw;
+use app\models\billing\CallsRawUnite;
 use app\models\billing\ClientContractType;
 use app\models\billing\Clients;
 use app\models\billing\CurrencyRate;
@@ -200,6 +201,23 @@ trait CallsRawSlowReport
             && $query2->andWhere($condition)
             && $query3
             && $query3->andWhere(['cu.server_id' => $this->server_ids]);
+        }
+        // Добавление условия для поля trafficType
+        switch ($this->trafficType) {
+            case CallsRawUnite::TRAFFIC_TYPE_CLIENT:
+                $query1->addSelect(['cr.trunk_service_id']);
+                $query2->addSelect(['cr.trunk_service_id']);
+
+                $query4->andWhere(new Expression(
+                    '((cr1.trunk_service_id IS NOT NULL) AND (cr2.trunk_service_id IS NOT NULL)) IS FALSE'
+                ));
+                break;
+
+            case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
+                // number_service_id is NULL
+                $query1->andWhere(['IS NOT', 'cr.trunk_service_id', null]);
+                $query2->andWhere(['IS NOT', 'cr.trunk_service_id', null]);
+                break;
         }
 
         if ($this->connect_time_from || $this->correct_connect_time_to) {

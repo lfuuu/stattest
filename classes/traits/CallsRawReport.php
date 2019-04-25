@@ -13,6 +13,7 @@ use app\classes\yii\CTEQuery;
 use app\models\billing\CallsCdr;
 use app\models\billing\CallsRaw;
 use app\models\billing\CallsRawCache;
+use app\models\billing\CallsRawUnite;
 use app\models\billing\ClientContractType;
 use app\models\billing\Clients;
 use app\models\billing\CurrencyRate;
@@ -198,6 +199,9 @@ trait CallsRawReport
             if ($isPreFetched) {
                 $this->connect_time_from && $this->connect_time_from = (new DateTime($this->connect_time_from))
                     ->format('Y-m-d');
+                $this->connect_time_to && $this->connect_time_to = (new DateTime($this->connect_time_to))
+                    ->format('Y-m-d');
+
                 $this->correct_connect_time_to && $this->correct_connect_time_to = (new DateTime($this->correct_connect_time_to))
                     ->format('Y-m-d');
             }
@@ -240,6 +244,24 @@ trait CallsRawReport
                 [$aliasResolverFunc('cr1.server_id') => $this->server_ids],
                 [$aliasResolverFunc('cr2.server_id') => $this->server_ids],
             ]);
+        }
+        // Добавление условия для поля trafficType
+        if (!$isPreFetched) {
+            switch ($this->trafficType) {
+                case CallsRawUnite::TRAFFIC_TYPE_CLIENT:
+                    $query->andWhere(new Expression(
+                        '((cr1.trunk_service_id IS NOT NULL) AND (cr2.trunk_service_id IS NOT NULL)) IS FALSE'
+                    ));
+                    break;
+
+                case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
+                    // number_service_id is NULL
+                    $query->andWhere(['AND',
+                        ['IS NOT', 'cr1.trunk_service_id', null],
+                        ['IS NOT', 'cr2.trunk_service_id', null],
+                    ]);
+                    break;
+            }
         }
         // Добавление условия для поля t1.id
         if ($this->src_trunk_group_ids) {
@@ -552,6 +574,9 @@ trait CallsRawReport
             if ($isPreFetched) {
                 $this->connect_time_from && $this->connect_time_from = (new DateTime($this->connect_time_from))
                     ->format('Y-m-d');
+                $this->connect_time_to && $this->connect_time_to = (new DateTime($this->connect_time_to))
+                    ->format('Y-m-d');
+
                 $this->correct_connect_time_to && $this->correct_connect_time_to = (new DateTime($this->correct_connect_time_to))
                     ->format('Y-m-d');
             }
@@ -579,6 +604,24 @@ trait CallsRawReport
                 [$aliasResolverFunc('cr1.server_id') => $this->server_ids],
                 [$aliasResolverFunc('cr2.server_id') => $this->server_ids],
             ]);
+        }
+        // Добавление условия для поля trafficType
+        if (!$isPreFetched) {
+            switch ($this->trafficType) {
+                case CallsRawUnite::TRAFFIC_TYPE_CLIENT:
+                    $query->andWhere(new Expression(
+                        '((cr1.trunk_service_id IS NOT NULL) AND (cr2.trunk_service_id IS NOT NULL)) IS FALSE'
+                    ));
+                    break;
+
+                case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
+                    // number_service_id is NULL
+                    $query->andWhere(['AND',
+                        ['IS NOT', 'cr1.trunk_service_id', null],
+                        ['IS NOT', 'cr2.trunk_service_id', null],
+                    ]);
+                    break;
+            }
         }
         // Добавление условия для поля t1.id
         if ($this->src_trunk_group_ids) {

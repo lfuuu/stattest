@@ -299,7 +299,7 @@ class RawController extends BaseController
             }
 
             if ($get) {
-                $model->load($get);
+                $model->loadCustom($get);
             }
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
