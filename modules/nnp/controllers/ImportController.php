@@ -75,7 +75,7 @@ class ImportController extends BaseController
     public function actionStep2($countryCode)
     {
         $country = Country::findOne(['code' => $countryCode]);
-        if (!$country || $countryCode == Country::RUSSIA) {
+        if (!$country) {
             throw new InvalidParamException('Неправильная страна');
         }
 
@@ -115,7 +115,7 @@ class ImportController extends BaseController
             throw new InvalidParamException('Неправильный файл');
         }
 
-        if ($countryFile->country_code != $countryCode || $countryCode == Country::RUSSIA) {
+        if ($countryFile->country_code != $countryCode) {
             throw new InvalidParamException('Неправильная страна');
         }
 
