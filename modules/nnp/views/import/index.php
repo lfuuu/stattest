@@ -13,7 +13,7 @@ use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
 $countries = CountryFilter::getList(true);
-unset($countries[Country::RUSSIA]);
+// unset($countries[Country::RUSSIA]);
 ?>
 
 <?= Breadcrumbs::widget([
