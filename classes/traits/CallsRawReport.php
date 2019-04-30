@@ -533,12 +533,6 @@ trait CallsRawReport
         }
 
         $query
-            ->innerJoin(['s' => Server::tableName()], 's.id = cr1.server_id')
-            ->innerJoin([
-                'h' => Hub::tableName()],
-                'h.id = s.hub_id' .
-                ' AND h.market_place_id = ' . $this->marketPlaceId
-            )
             // Left joins к алиасу cr1 таблицы calls_raw.calls_raw
             ->leftJoin(['t1' => Trunk::tableName()], 't1.id = ' . $aliasResolverFunc('cr1.trunk_id'))
             ->leftJoin(['st1' => ServiceTrunk::tableName()], 'st1.id = ' . $aliasResolverFunc('cr1.trunk_service_id'))
@@ -561,11 +555,7 @@ trait CallsRawReport
             ->leftJoin(['rate2' => CurrencyRate::tableName()], 'rate2.currency::public.currencies = c2.currency AND rate2.date = now()::date');
 
         if (!$isPreFetched) {
-            $query
-                ->andWhere(['cr1.orig' => true, 'cr2.orig' => false,])
-                ->andWhere(['IS NOT', 'cr1.account_id', null])
-                ->andWhere(['IS NOT', 'cr2.account_id', null])
-            ;
+            $query->andWhere(['cr1.orig' => true, 'cr2.orig' => false,]);
         }
 
         // Добавление условия для поля connect_time
