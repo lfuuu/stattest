@@ -10,6 +10,7 @@
           <td>
             <input type=hidden name="module" value="stats">
             <input type=hidden name="action" value="{$action}">
+            <input type=hidden name="client" value="{$client}">
             <div style="width:150px;">
             	<select name="marketPlace" class="select2">
                 	{foreach from=$marketPlaces key=key item=item}<option value='{$key}'{if $marketPlace==$key} selected{/if}>{$item}</option>{/foreach}

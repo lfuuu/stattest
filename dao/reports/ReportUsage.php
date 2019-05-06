@@ -29,10 +29,11 @@ class ReportUsage
     /**
      * @param $fixClient
      * @param bool $isWithProfit
+     * @param bool $isNew
      * @return static
      * @throws \Exception
      */
-    public static function createFromRequest($fixClient, $isWithProfit = false)
+    public static function createFromRequest($fixClient, $isWithProfit = false, $isNew = false)
     {
         $attributes = [];
 
@@ -45,6 +46,7 @@ class ReportUsage
         if ($config->isValid()) {
 
             $account = $config->account;
+            $attributes['client'] = $account->id;
 
             $dateFrom = new DateTimePickerValues('date_from', 'first', false);
             $dateTo = new DateTimePickerValues('date_to', 'next first', false);
@@ -85,6 +87,7 @@ class ReportUsage
             $config->to = $dateTo->getValue();
 
             $config->isWithProfit = $isWithProfit;
+            $config->isNew = $isNew;
             $config->phone = $phone;
             $config->type = $type;
             $config->paidOnly = $paidOnly;

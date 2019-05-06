@@ -240,11 +240,7 @@ class StatisticsVoip extends Processor
 
         if ($this->isWithProfit()) {
             $query->addSelect([
-                'ts22' => $createNumericField(
-                    $paidOnly ?
-                        'CASE ABS(COALESCE(cr2.cost, 0)) > 0.0001 WHEN true THEN cr2.billed_time ELSE 0 END' :
-                        'cr2.billed_time'
-                ),
+                'ts22' => $createNumericField('cr2.billed_time'),
 
                 'cost_price' => $createNumericField(
                     '(CASE WHEN cr.orig THEN COALESCE(cr2.cost, 0)' . $this->rateCur2 . $this->rateTax2 .

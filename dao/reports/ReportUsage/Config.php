@@ -90,6 +90,8 @@ class Config
     public $timeZone;
     public $packages = [];
     public $marketPlace = Hub::MARKET_PLACE_ID_RUSSIA;
+    // новая склейка - по mcncallid в CallsRaw
+    public $isNew = false;
 
     public $errors = [];
 

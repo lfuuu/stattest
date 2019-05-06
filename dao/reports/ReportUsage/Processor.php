@@ -90,6 +90,14 @@ abstract class Processor implements ProcessorInterface
     }
 
     /**
+     * @return bool
+     */
+    protected function isNew()
+    {
+        return $this->config->isNew;
+    }
+
+    /**
      * Пре-обработка
      * @throws \Exception
      */
@@ -211,30 +219,51 @@ abstract class Processor implements ProcessorInterface
             $this->rateTaxWith2 =
                 '* COALESCE((CASE WHEN c2.price_include_vat IS FALSE THEN ((100.0 + c2.effective_vat_rate)/100.0)::decimal ELSE 1 END), 1)';
 
-            $query = CallsCdr::find()
-                ->alias('cdr')
-
-                ->innerJoin(['s' => Server::tableName()], 's.id = cdr.server_id')
-                ->innerJoin([
-                    'h' => Hub::tableName()],
-                    'h.id = s.hub_id' .
-                    ' AND h.market_place_id = ' . $marketPlaceId
-                )
-                ->innerJoin(['cr' => CallsRaw::tableName()], 'cr.cdr_id = cdr.id')
-
-                ->leftJoin(['cdr2' => CallsCdr::tableName()],
-                    'cdr2.mcn_callid = cdr.mcn_callid' .
+            if ($this->isNew()) {
+                $query = CallsRaw::find()
+                    ->alias('cr')
+                    ->innerJoin([
+                        'h' => Hub::tableName()],
+                        'h.id = cr.hub_id' .
+                        ' AND h.market_place_id = ' . $marketPlaceId
+                    )
+                    ->leftJoin(
+                        ['cr2' => CallsRaw::tableName()],
+                        'cr2.mcn_callid = cr.mcn_callid'
+                            . ' AND (cr2.orig = cr.orig) IS FALSE'
+                            . ' AND (cr2.account_id IS NOT NULL)'
+                            . ' AND (cr2.session_time > 0)'
+                    )
+                    ->leftJoin(['h2' => Hub::tableName()],
+                        'h2.id = cr2.hub_id' .
+                        ' AND h2.market_place_id = ' . $marketPlaceId
+                    )
+                ;
+            } else {
+                $query = CallsCdr::find()
+                    ->alias('cdr')
+                    ->innerJoin(['s' => Server::tableName()], 's.id = cdr.server_id')
+                    ->innerJoin([
+                        'h' => Hub::tableName()],
+                        'h.id = s.hub_id' .
+                        ' AND h.market_place_id = ' . $marketPlaceId
+                    )
+                    ->innerJoin(['cr' => CallsRaw::tableName()], 'cr.cdr_id = cdr.id')
+                    ->leftJoin(['cdr2' => CallsCdr::tableName()],
+                        'cdr2.mcn_callid = cdr.mcn_callid' .
                         ' AND (cdr2.mcn_callid IS NOT NULL)' .
                         ' AND (cdr2.session_time > 0)'
-                )
-                ->leftJoin(['s2' => Server::tableName()], 's2.id = cdr2.server_id')
-                ->leftJoin(['h2' => Hub::tableName()],
-                    'h2.id = s2.hub_id' .
+                    )
+                    ->leftJoin(['s2' => Server::tableName()], 's2.id = cdr2.server_id')
+                    ->leftJoin(['h2' => Hub::tableName()],
+                        'h2.id = s2.hub_id' .
                         ' AND h2.market_place_id = ' . $marketPlaceId
-                )
+                    )
+                    ->leftJoin(['cr2' => CallsRaw::tableName()], 'cr2.cdr_id = cdr2.id AND (cr2.orig = cr.orig) IS FALSE AND (cr2.account_id IS NOT NULL)')
+                ;
 
-                ->leftJoin(['cr2' => CallsRaw::tableName()], 'cr2.cdr_id = cdr2.id AND (cr2.orig = cr.orig) IS FALSE AND (cr2.account_id IS NOT NULL)')
-            ;
+                $query->andWhere(['IS NOT', 'cdr.mcn_callid', null]);
+            }
 
             if ($this->getAccount()->currency != 'RUR') {
                 $query
@@ -246,16 +275,12 @@ abstract class Processor implements ProcessorInterface
 
             $query
                 ->leftJoin(['c2' => Clients::tableName()], 'c2.id = cr2.account_id')
-                ->leftJoin(['rate2' => CurrencyRate::tableName()], 'rate2.currency::public.currencies = c2.currency AND rate2.date = now()::date')
+                ->leftJoin(['rate2' => CurrencyRate::tableName()], 'rate2.currency::public.currencies = c2.currency AND rate2.date = now()::date');
 
-                ->andWhere(['IS NOT', 'cdr.mcn_callid', null])
-                //->andWhere(['>', 'cdr.session_time', 0])
-
+            $query
                 ->andWhere(['cr.account_id' => $accountId])
-
                 // или незавершенный или плечо с нужным хабом
-                ->andWhere(new Expression('((cr2.id IS NOT NULL) AND (h2.id IS NULL)) IS FALSE'))
-            ;
+                ->andWhere(new Expression('((cr2.id IS NOT NULL) AND (h2.id IS NULL)) IS FALSE'));
         }
 
         $direction !== Config::DIRECTION_BOTH && $query->andWhere(['cr.orig' => ($direction === Config::DIRECTION_IN ? 'false' : 'true')]);
@@ -354,21 +379,29 @@ abstract class Processor implements ProcessorInterface
 
         $query = $this->getBaseQueryByConnectionId($connectionId);
         if ($this->isWithProfit()) {
-            $query
-                ->andWhere([
-                    'BETWEEN',
-                    'cdr.connect_time',
-                    $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                    $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999998')
-                ])
-            ;
+
+            $aliases = [
+                'cr2',
+            ];
+
+            if (!$this->isNew()) {
+                $query
+                    ->andWhere([
+                        'BETWEEN',
+                        'cdr.connect_time',
+                        $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                        $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999998')
+                    ]);
+
+                $aliases = [
+                    'cdr2',
+                    'cr2',
+                ];
+            }
 
             foreach ($query->join as $key => $join) {
                 $alias = array_keys($join[1])[0];
-                if (in_array($alias, [
-                    'cdr2',
-                    'cr2',
-                ])) {
+                if (in_array($alias, $aliases)) {
                     $condition =
                         sprintf(
                             "(%s.connect_time BETWEEN '%s' AND '%s')",
@@ -441,6 +474,18 @@ abstract class Processor implements ProcessorInterface
                     'Выберите дату, начиная с ' .
                         $dateArchive
                             ->format('Y-m-d H:i:s')
+                );
+            }
+
+            if (
+                $this->isNew() &&
+                ($from < Helper::getCallsRawMcnCallIdSeparationDate())
+            ) {
+                throw new
+                \LogicException(
+                    'Выберите дату, начиная с ' .
+                    Helper::getCallsRawMcnCallIdSeparationDate()
+                        ->format('Y-m-d H:i:s')
                 );
             }
         }

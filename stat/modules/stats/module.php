@@ -181,6 +181,36 @@ class m_stats extends IModule{
 
     /**
      * @param $fixClient
+     * @throws Exception
+     */
+    public function stats_voip_profit_new($fixClient)
+    {
+        global $design;
+
+        session_write_close();
+
+        $report = null;
+        try {
+            $report = ReportUsage::createFromRequest($fixClient, true, true);
+            $report->fetchStatistic();
+        } catch (\LogicException $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка логики: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
+        }
+
+        if ($report) {
+            foreach ($report->getAttributes() as $key => $value) {
+                $design->assign($key, $value);
+            }
+        }
+
+        $design->AddMain('stats/voip_profit_form.tpl');
+        $design->AddMain('stats/voip_profit.tpl');
+    }
+
+    /**
+     * @param $fixClient
      * @param bool $isForCompany
      * @throws \yii\base\Exception
      */

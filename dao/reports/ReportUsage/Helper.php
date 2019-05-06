@@ -41,6 +41,19 @@ class Helper
     }
 
     /**
+     * Получение даты разделения статистики по новому расчёту через mcncallid в CallsRaw
+     *
+     * @return DateTimeImmutable
+     * @throws \Exception
+     */
+    public static function getCallsRawMcnCallIdSeparationDate()
+    {
+        return new DateTimeImmutable('2019-04-25 00:00:00',
+            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
+        );
+    }
+
+    /**
      * Получение архивной даты разделения статистики
      *
      * @return DateTime
