@@ -41,7 +41,11 @@ class PublishController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['make-invoice', 'make-ab-invoice', 'invoice-reversal'],
+                        'actions' => [
+                            'make-invoice', 'make-ab-invoice',
+                            'invoice-reversal', 'invoice-draft', 'invoice-delete',
+                            'invoice-register', 'invoice-storno', 'invoice-edit'
+                        ],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                     [
