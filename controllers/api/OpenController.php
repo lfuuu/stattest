@@ -9,6 +9,7 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
@@ -216,9 +217,15 @@ final class OpenController extends Controller
 
             $didGroup = $freeNumber->getCachedDidGroup();
 
-            $tariffStatusId = $clientAccount ?
-                $didGroup->{'tariff_status_main' . $priceLevel} :
-                TariffStatus::ID_TEST;
+            $tariffStatusId =
+                // для покупки номеров 7800 надо правильно найти тариф.
+                ($freeNumber->ndc_type_id == NdcType::ID_FREEPHONE
+                    ? TariffStatus::ID_VOIP_8800_TEST
+                    : ($clientAccount
+                        ? $didGroup->{'tariff_status_main' . $priceLevel}
+                        : TariffStatus::ID_TEST
+                    )
+                );
 
             $packageStatusIds = [
                 $didGroup->{'tariff_status_main' . $priceLevel}
