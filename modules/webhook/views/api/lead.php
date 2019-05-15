@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Lead;
 use app\models\SaleChannel;
 use app\models\TroubleState;
 
@@ -18,9 +19,30 @@ use app\models\TroubleState;
             <button name="make_client" value=1 class="btn btn-sm btn-info btn-block">Клиент</button>
         </div>
         <div class="col-sm-4">
-            <button name="to_trash" value=1 class="btn btn-sm btn-default btn-block" id="btn_trash">Мусор</button>
+            <span onclick="$('#trash-form').slideToggle();" class="btn btn-sm btn-default btn-block" id="btn_trash">Мусор</span>
         </div>
     </div>
+    <form class="row" id="trash-form" style="margin-top: 10px; display: none;" onsubmit="return false;">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <div class="row" style="margin-bottom: 10px;">
+                <div class="col-md-8">
+                    <select class="form-control" name="trash-type" id="trash-selector">
+                        <?php
+                        $trashTypes = Lead::getTrashTypes();
+                        foreach ($trashTypes as $trashType) {
+                            echo '<option>' . $trashType . '</option>';
+                        } ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button name="to_trash" value=1 id="submit-trash" class="btn btn-success" style="width: 100%;" >Отправить</button>
+                </div>
+            </div>
+            <textarea name="trash-comment" class="form-control" style="display: none;" id="trash-textarea"></textarea>
+        </div>
+    </form>
     <?php
     if ($clientAccount) : ?>
         <hr/>

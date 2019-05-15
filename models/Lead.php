@@ -32,6 +32,21 @@ class Lead extends ActiveRecord
     const DEFAULT_ACCOUNT_ID = 50124;
     const TRASH_ACCOUNT_ID = 50125;
 
+    const TRASH_TYPE_SPAM = 'Спам';
+    const TRASH_TYPE_HOOLIGANS = 'Хулиганы';
+    const TRASH_TYPE_NUMBER_MISTAKEN = 'Ошиблись номером';
+    const TRASH_TYPE_OTHER = 'Другое';
+
+    public static function getTrashTypes()
+    {
+        return [
+            static::TRASH_TYPE_SPAM,
+            static::TRASH_TYPE_HOOLIGANS,
+            static::TRASH_TYPE_NUMBER_MISTAKEN,
+            static::TRASH_TYPE_OTHER,
+        ];
+    }
+
     /**
      * Название таблицы
      *

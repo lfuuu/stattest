@@ -36,6 +36,8 @@ var statLeadNotifier = {
         clientAccountId: $('#message_id_' + messageId + ' tr.bg-success').data('client_account_id'),
         saleChannelId: $('#message_id_' + messageId + ' input[type=radio][name=sale_channel]:checked').val()
       };
+      $trashType = $(':selected', '#trash-selector').text();
+      $trashComment = $('#trash-textarea').val();
 
       switch (name) {
         case 'to_lead':
@@ -57,7 +59,8 @@ var statLeadNotifier = {
         case 'to_trash':
           $.get('/lead/to-trash', {
             messageId: messageId,
-            trash: 1
+            trash: 1,
+            comment: ($trashType === 'Другое' ? $trashComment : $trashType)
           }, function (data) {
             $el.parents('div.alert').find('button.close').click();
           });
@@ -65,3 +68,21 @@ var statLeadNotifier = {
     });
   }
 };
+
+$(document).ready(function() {
+    $trashTextarea = $('#trash-textarea');
+    $submitTrash = $('#submit-trash');
+    $('#trash-selector').on('change', function() {
+        $trashType = $(':selected', this).text();
+        if ($trashType === 'Другое') {
+            $trashTextarea.slideDown();
+            $submitTrash.prop('disabled', !$trashTextarea.val());
+        } else {
+            $trashTextarea.slideUp();
+            $submitTrash.prop('disabled', false);
+        }
+    });
+    $trashTextarea.on('input propertychange', function() {
+        $submitTrash.prop('disabled', !this.value);
+    });
+});

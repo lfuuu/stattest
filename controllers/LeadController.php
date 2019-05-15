@@ -76,12 +76,12 @@ class LeadController extends BaseController
      * @param integer $saleChannelId
      * @return Response
      */
-    public function actionToTrash($messageId, $saleChannelId = null)
+    public function actionToTrash($messageId, $saleChannelId = null, $comment = '')
     {
         $lead = $this->_getLeadByMessageId($messageId);
         $this->_setSaleChannel($lead, $saleChannelId);
 
-        return $this->_toTrashClient($lead);
+        return $this->_toTrashClient($lead, $comment);
     }
 
     /**
@@ -180,12 +180,12 @@ class LeadController extends BaseController
      * @return string|Response
      * @throws \Exception
      */
-    private function _toTrashClient(Lead $lead)
+    private function _toTrashClient(Lead $lead, $comment = '')
     {
         $lead->moveToClientAccount(Lead::TRASH_ACCOUNT_ID);
 
         if ($trouble = $lead->trouble) {
-            $trouble->addStage(TroubleState::CONNECT__TRASH, '');
+            $trouble->addStage(TroubleState::CONNECT__TRASH, $comment);
         }
 
         if (Yii::$app->request->isAjax) {
