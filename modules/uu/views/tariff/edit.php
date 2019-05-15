@@ -87,6 +87,7 @@ if (!$serviceType) {
             break;
 
         case ServiceType::ID_VOIP_PACKAGE_SMS:
+            echo $this->render('_editMainVoipPackagePricelistNnpOnly', $viewParams);
             echo $this->render('_editMainVoipSms', $viewParams);
             break;
 

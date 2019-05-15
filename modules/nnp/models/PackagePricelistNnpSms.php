@@ -2,13 +2,13 @@
 
 namespace app\modules\nnp\models;
 
-class PackagePricelistNnpInternet extends PackagePricelistNnp
+class PackagePricelistNnpSms extends PackagePricelistNnp
 {
     /**
      * @return string
      */
     public static function tableName()
     {
-        return 'billing_uu.package_data';
+        return 'billing_uu.package_sms';
     }
 }

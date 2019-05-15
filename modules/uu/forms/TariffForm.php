@@ -10,6 +10,7 @@ use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\nnp\models\PackagePricelistNnp;
 use app\modules\nnp\models\PackagePricelistNnpInternet;
+use app\modules\nnp\models\PackagePricelistNnpSms;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
@@ -289,6 +290,13 @@ abstract class TariffForm extends \app\classes\Form
                             $packageInternet->tariff_id = $this->id;
                             $this->crudMultiple($this->tariff->packagePricelistsNnpInternet, $post, $packageInternet);
                         }
+
+                        if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS) {
+                            $packageSms = new PackagePricelistNnpSms();
+                            $packageSms->tariff_id = $this->id;
+                            $this->crudMultiple($this->tariff->packagePricelistsNnpSms, $post, $packageSms);
+                        }
+
                         break;
 
                     case ServiceType::ID_VOIP:
@@ -335,7 +343,7 @@ abstract class TariffForm extends \app\classes\Form
                         }
 
                         if ($packageApi->load($post)) {
-                            if(!$packageApi->save()) {
+                            if (!$packageApi->save()) {
                                 $this->validateErrors += $packageApi->getFirstErrors();
                                 throw new ModelValidationException($packageApi);
                             }

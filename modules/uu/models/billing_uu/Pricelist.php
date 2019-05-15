@@ -2,29 +2,15 @@
 
 namespace app\modules\uu\models\billing_uu;
 
-use app\classes\Html;
 use app\classes\model\ActiveRecord;
-use app\classes\traits\GetInsertUserTrait;
-use app\classes\traits\GetUpdateUserTrait;
-use app\models\Currency;
-use app\modules\nnp\models\Package;
-use app\modules\nnp\models\PackageMinute;
-use app\modules\nnp\models\PackagePrice;
-use app\modules\nnp\models\PackagePricelist;
-use app\modules\nnp\models\PackagePricelistNnp;
-use app\modules\nnp\models\PackagePricelistNnpInternet;
 use Yii;
-use yii\behaviors\AttributeBehavior;
-use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveQuery;
-use yii\db\Expression;
-use yii\helpers\Url;
 
 /**
  * ННП прайслисты v.2
  */
 class Pricelist extends ActiveRecord
 {
+    const ID_SERVICE_TYPE_SMS = 2;
     const ID_SERVICE_TYPE_DATA = 3;
 
     // Перевод названий полей модели
