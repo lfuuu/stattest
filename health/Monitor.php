@@ -73,6 +73,7 @@ abstract class Monitor extends Component
             // MonitorSormClientsReg97::class, // до введения СОРМа в Краснодаре, отключим монитор. Что бы Борис не расстраивался.
             MonitorVoipDelayOnAccountTariffs::class,
             MonitorTariffsWithoutLogs::class,
+            MonitorWrongNumberRegion::class,
         ];
     }
 }
