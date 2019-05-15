@@ -36,21 +36,21 @@ class MonitorMultipleEnabledNumbers extends MonitorUu
     public function getValue()
     {
         $message = '';
-        $ids = AccountTariff::find()
-            ->select('id')
+        $numbers = AccountTariff::find()
+            ->select('GROUP_CONCAT(client_account_id)')
             ->where(['NOT', ['tariff_period_id' => null]])
             ->andWhere(['service_type_id' => ServiceType::ID_VOIP])
-            ->indexBy('client_account_id')
+            ->indexBy('voip_number')
             ->having(['>', 'count(*)', 1])
             ->groupBy('voip_number')
             ->column();
 
-        foreach ($ids as $client_account_id => $id) {
-            $message .= $client_account_id . ' (' . $id . ')' . ', ';
+        foreach ($numbers as $number => $clientAccountIds) {
+            $message .= $number . ' (' . $clientAccountIds . ')' . ' ';
         }
 
-        $this->_message = rtrim($message, ', ');
+        $this->_message = rtrim($message, ' ');
 
-        return count($ids);
+        return count($numbers);
     }
 }
