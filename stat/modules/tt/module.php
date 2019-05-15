@@ -208,6 +208,12 @@ class m_tt extends IModule{
 
 
         $comment=get_param_raw('comment','');
+        if(!$comment){
+            trigger_error2('Заполните комментарий');
+            header('Location: ?module=tt&action=view&id='.$trouble['id']);
+            exit();
+        }
+
         if(!$this->checkTroubleAccess($trouble) && access('tt','comment'))
         {
             $lastStage = $trouble["stages"][count($trouble["stages"])-1];

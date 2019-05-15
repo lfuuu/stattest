@@ -1,4 +1,5 @@
 <link href="/css/behaviors/media-manager.css" rel="stylesheet" xmlns="http://www.w3.org/1999/html"/>
+<script src="/js/trouble-validation.js"></script>
 
 <h2>
     {if !$tt_trouble.bill_no}
@@ -397,6 +398,7 @@
                 <form action="./?" method="post" id="form" name="form" enctype="multipart/form-data">
                     <input type=hidden name=action value=move>
                     <input type=hidden name=module value=tt>
+                    <span id="comment-required" style="color: red; margin-left: 50%;">Необходимо заполнить комментарий</span>
                     <input type=hidden name=id value='{$tt_trouble.id}'>
                     <table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
                         <colgroup>
@@ -404,8 +406,8 @@
                             <col width="70%"/>
                         </colgroup>
                         <tr>
-                            <td>Комментарий:</td>
-                            <td><textarea name=comment
+                            <td>Комментарий: <sup data-toggle="tooltip" style="color: red;" title="Обязательно для заполнения">*</sup></td>
+                            <td><textarea name=comment id=trouble-comment
                                           class=textarea>{if isset($stage.comment)}{$stage.comment}{/if}</textarea></td>
                         </tr>
 
@@ -523,7 +525,7 @@
                             <td colspan="2">&nbsp</td>
                         </tr>
                     </table>
-                    <div align=center><input id=submit class=button type=submit value="Добавить"></div>
+                    <div align=center><input id=form-trouble-submit class="button pointer" type=submit value="Добавить"></div>
                     {include file='tt/timetable.tpl'}
                 </form>
             {/if}
