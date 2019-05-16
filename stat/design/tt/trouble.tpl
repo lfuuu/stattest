@@ -398,7 +398,7 @@
                 <form action="./?" method="post" id="form" name="form" enctype="multipart/form-data">
                     <input type=hidden name=action value=move>
                     <input type=hidden name=module value=tt>
-                    <span id="comment-required" style="color: red; margin-left: 50%;">Необходимо заполнить комментарий</span>
+                    <span id="comment-required" style="color: red; margin-left: 50%; display: none;">Необходимо заполнить комментарий</span>
                     <input type=hidden name=id value='{$tt_trouble.id}'>
                     <table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
                         <colgroup>
@@ -525,7 +525,7 @@
                             <td colspan="2">&nbsp</td>
                         </tr>
                     </table>
-                    <div align=center><input id=form-trouble-submit class="button pointer" type=submit value="Добавить"></div>
+                    <div align=center><input id=form-trouble-submit class="button pointer" type=button value="Добавить"></div>
                     {include file='tt/timetable.tpl'}
                 </form>
             {/if}
