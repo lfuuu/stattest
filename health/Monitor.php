@@ -74,6 +74,7 @@ abstract class Monitor extends Component
             MonitorVoipDelayOnAccountTariffs::class,
             MonitorTariffsWithoutLogs::class,
             MonitorWrongNumberRegion::class,
+            MonitorTariffSync::class,
         ];
     }
 }
