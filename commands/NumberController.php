@@ -1,11 +1,16 @@
 <?php
+
 namespace app\commands;
 
+use app\classes\Assert;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\CallsRaw;
 use app\models\CounterInteropTrunk;
 use app\models\LogTarif;
 use app\models\Number;
 use app\models\Region;
+use app\models\Sorm7800;
 use app\models\UsageVoip;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\Country;
@@ -18,6 +23,7 @@ use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
 
@@ -84,9 +90,9 @@ class NumberController extends Controller
         $saved = CounterInteropTrunk::find()->indexBy('account_id')->asArray()->all();
 
         $loaded = ArrayHelper::index(\Yii::$app->dbPgSlave->createCommand("
-          select 
-            ROUND(CAST(SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) as NUMERIC), 2) as income_sum, 
-            ROUND(CAST(SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) as NUMERIC), 2) as outcome_sum, 
+          SELECT 
+            ROUND(CAST(SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) AS NUMERIC), 2) AS income_sum, 
+            ROUND(CAST(SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) AS NUMERIC), 2) AS outcome_sum, 
             account_id
           FROM \"calls_raw\".\"calls_raw_" . date("Ym") . "\" 
           WHERE 
@@ -219,8 +225,8 @@ class NumberController extends Controller
         try {
             // временная таблица для результата. Для multi-update
             $sql = 'CREATE TEMPORARY TABLE voip_numbers_tmp (
-                `number` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-                `calls_per_month` int(11) NOT NULL,
+                `number` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+                `calls_per_month` INT(11) NOT NULL,
                 PRIMARY KEY (`number`)
                 )';
             Yii::$app->db->createCommand($sql)->execute();
@@ -400,7 +406,7 @@ class NumberController extends Controller
         $this->_redisGetAndSet(nnpRegion::find()->asArray(), 'region');
         $this->_redisGetAndSet(NdcType::find()->asArray(), 'ndcType');
 
-        $this->_redisGetAndSet(Operator::find()->asArray(), 'operatorEn','id', 'name_translit');
+        $this->_redisGetAndSet(Operator::find()->asArray(), 'operatorEn', 'id', 'name_translit');
         $this->_redisGetAndSet(Country::find()->asArray(), 'countryEn', 'code', 'name_eng');
         $this->_redisGetAndSet(City::find()->asArray(), 'cityEn', 'id', 'name_translit');
     }
@@ -410,9 +416,91 @@ class NumberController extends Controller
         echo PHP_EOL . $prefix;
         $redis = \Yii::$app->redis;
 
-        foreach($query->each() as $o) {
+        foreach ($query->each() as $o) {
             $redis->set($prefix . ':' . $o[$id], $o[$name]);
         }
     }
 
+    /**
+     * Сохранение номеров 7800 для отдачи в СОРМ
+     *
+     * @param int $regionId
+     * @return int
+     * @throws ModelValidationException
+     */
+    public function actionSorm7800($regionId)
+    {
+        Assert::isNotEmpty($regionId);
+
+        $code = Region::find()->select('code')->where(['id' => $regionId])->scalar();
+
+        Assert::isNotEmpty($code);
+
+        $fromNumber = $code . str_repeat('0', 11 - strlen($code));
+        $toNumber = $code . str_repeat('9', 11 - strlen($code));
+
+        $from7800 = '78000000000';
+        $to7800 = '78009999999';
+        $dateStr = (new DateTimeImmutable('now'))->modify('-3 hours')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        // получаем номера 7800 из таблицы звонков для запрашиваеого региона
+        $query = CallsRaw::find()
+            ->where(['>', 'connect_time', $dateStr]);
+
+        $query2 = clone $query;
+
+        $query->select(['number' => 'src_number'])
+            ->andWhere(['between', 'src_number', $from7800, $to7800])
+            ->andWhere(['between', 'dst_number', $fromNumber, $toNumber]);
+
+        $query2->select(['number' => 'dst_number'])
+            ->andWhere(['between', 'dst_number', $from7800, $to7800])
+            ->andWhere(['between', 'src_number', $fromNumber, $toNumber]);
+
+        $numbers = $query->union($query2)
+            ->asArray()
+            ->column();
+
+
+        if (!$numbers) {
+            return ExitCode::OK;
+        }
+
+        // осталвляем только наши номера
+        $numbers = Number::find()
+            ->where(['number' => $numbers])
+            ->select('number')
+            ->column();
+
+
+        if (!$numbers) {
+            return ExitCode::OK;
+        }
+
+        // уже сохраненные номера
+        $alreadyNumbers = Sorm7800::find()
+            ->where([
+                'region_id' => $regionId,
+                'number' => $numbers
+            ])
+            ->select('number')
+            ->column();
+
+        $toAdd = array_diff($numbers, $alreadyNumbers);
+
+        // сохранение
+        if ($toAdd) {
+            foreach ($toAdd as $number) {
+                $record = new Sorm7800();
+                $record->region_id = $regionId;
+                $record->number = $number;
+
+                if (!$record->save()) {
+                    throw new ModelValidationException($record);
+                }
+
+                echo PHP_EOL . $number;
+            }
+        }
+    }
 }
