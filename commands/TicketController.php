@@ -12,6 +12,7 @@ use app\models\Payment;
 use app\models\support\Ticket;
 use app\models\Transaction;
 use app\models\Trouble;
+use app\models\TroubleType;
 use yii\console\Controller;
 
 class TicketController extends Controller
@@ -38,15 +39,25 @@ class TicketController extends Controller
     /**
      * Пересчет кол-во траблов для "хлебных крошек" на странице по умолчанию
      *
+     * @param $isAll 1 - пересчет всего, 0 - рассчитывает только таски
      * @throws ModelValidationException
      */
-    public function actionCheckTroubleCountRecal()
+    public function actionCheckTroubleCountRecal($isAll = 1)
     {
-
         $sleep = 5;
         $countAll = 8;
 
         $count = 0;
+
+        $troubleTypes = array_keys(Trouble::$types);
+        $arr = [];
+        foreach ($troubleTypes as $troubleType) {
+            $folder = TroubleType::find()->select('folders')->where(['code' => $troubleType])->scalar();
+            if (!$folder) {
+                continue;
+            }
+            $arr[$troubleType] = $folder;
+        }
 
         do {
             if ($count++ != 0) {
@@ -58,17 +69,29 @@ class TicketController extends Controller
             $param = Param::findOne(['param' => Param::IS_NEED_RECALC_TT_COUNT]);
 
             if ($param && $param->value) {
-
-                echo "+";
-                Trouble::dao()->getTaskFoldersCount();
-
-                $param->value = 0;
-                if (!$param->save()) {
-                    throw new ModelValidationException($param);
-                }
+                $this->_recountTroubles($isAll, $arr);
+                $param->setZeroVal();
             }
 
         } while ($count < $countAll);
     }
 
+    /**
+     * @param $isAll 1 - пересчет всего, 0 - рассчитывает только таски
+     * @param $data
+     */
+    private function _recountTroubles($isAll, $data)
+    {
+        if (!$isAll) {
+            echo PHP_EOL . date('r') . "+";
+            Trouble::dao()->getTaskFoldersCount();
+            return;
+        }
+        foreach ($data as $troubleType => $folder) {
+            echo PHP_EOL . date('r') . "+";
+            Trouble::dao()->getTaskFoldersCount(false, $troubleType, $folder);
+        }
+    }
+
 }
+

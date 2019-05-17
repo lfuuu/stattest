@@ -76,4 +76,15 @@ class Param extends ActiveRecord
 
         return $param->value;
     }
+
+    /**
+     * @throws ModelValidationException
+     */
+    public function setZeroVal()
+    {
+        $this->value = 0;
+        if (!$this->save()) {
+            throw new ModelValidationException($this);
+        }
+    }
 }
