@@ -3,6 +3,7 @@
 namespace app\health;
 
 use app\modules\uu\models\Period;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 
 class MonitorTariffSync extends Monitor
@@ -37,8 +38,14 @@ class MonitorTariffSync extends Monitor
     {
         $message = '';
         $countErrors = 0;
+        $serviceTypeIds = array_keys(ServiceType::$packages);
+        if (($key = array_search(ServiceType::ID_VOIP_PACKAGE_INTERNET, $serviceTypeIds)) !== false) {
+            unset($serviceTypeIds[$key]);
+        }
 
-        $tariffsQuery = Tariff::find()->orderBy(['id' => SORT_ASC]);
+        $tariffsQuery = Tariff::find()
+            ->where(['service_type_id' => $serviceTypeIds])
+            ->orderBy(['id' => SORT_ASC]);
 
         foreach ($tariffsQuery->each() as $tariff) {
             /** @var Tariff $tariff */
