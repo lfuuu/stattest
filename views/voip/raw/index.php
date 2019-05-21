@@ -4,8 +4,6 @@
  *
  * @var CallsRawFilter $filterModel
  * @var \app\classes\BaseView $this
- * @var boolean $isNewVersion
- * @var boolean $isPreFetched
  */
 
 use app\classes\DateTimeWithUserTimezone;
@@ -16,10 +14,6 @@ use app\modules\nnp\column\NdcTypeColumn;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
-// Если вызывающий контроллер не поддерживает предрасчет
-!isset($isPreFetched) && $isPreFetched = false;
-!isset($isNewVersion) && $isNewVersion = false;
-
 echo Breadcrumbs::widget([
     'links' => [
         ['label' => 'Телефония'],
@@ -28,8 +22,8 @@ echo Breadcrumbs::widget([
 ]);
 
 $filters = require '_indexFilters.php';
-// Если требуется предрасчет, то дополнитить выводимые колонки
-if ($isPreFetched) {
+// Если требуется предрасчет, то дополнить выводимые колонки
+if ($filterModel->isPreFetched) {
     $filters[] = [
         'attribute' => 'calls_with_duration',
         'class' => CheckboxColumn::class,
@@ -93,7 +87,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
         ];
         if (strpos($value, 'session_time') !== false || strpos($value, 'acd') !== false) {
             $columns[$key + $c]['value'] = function ($model) use ($value) {
-                return DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($model[$value]);
+                return DateTimeWithUserTimezone::formatSecondsToDetailedView($model[$value]);
             };
         }
 
@@ -114,7 +108,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
 } else {
     $columns = require '_indexColumns.php';
     // Если предрасчет не требуется, то дополним выводимые колонки
-    if (!$isPreFetched) {
+    if (!$filterModel->isPreFetched) {
         $columns[] = [
             'label' => 'Номер А',
             'attribute' => 'src_number',
@@ -145,54 +139,64 @@ $chooseError = function () use ($filterModel) {
     return implode('<br />', $errors);
 };
 
-// highlight filters with error
-if ($filterModel->hasErrors()) {
-    $required =
-        $filterModel->hasRequiredFields()
-            ? $filterModel->getRequiredValues()
-            : []
-    ;
-    foreach ($filters as &$filter) {
-        if (empty($filter['attribute'])) {
-            continue;
-        }
+/**
+ * @param CallsRawFilter $model
+ */
+$highLightErrors = function (CallsRawFilter $model) use(&$filters) {
+    if ($model->hasErrors()) {
+        $required =
+            $model->hasRequiredFields()
+                ? $model->getRequiredValues()
+                : [];
 
-        $attribute = $filter['attribute'];
-        if ($filterModel->hasErrors($attribute)) {
-            $filter['filterOptions']['class'] = 'alert-danger';
-        } elseif (array_key_exists($attribute, $required)) {
-            $filter['filterOptions']['class'] = 'alert-warning';
+        foreach ($filters as &$filter) {
+            if (empty($filter['attribute'])) {
+                continue;
+            }
+
+            $attribute = $filter['attribute'];
+            $attributes = [$attribute];
+            if ($attribute == 'connect_time') {
+                $attributes = ['connect_time_from', 'connect_time_to'];
+            }
+            foreach ($attributes as $attribute) {
+                if ($model->hasErrors($attribute)) {
+                    $filter['filterOptions']['class'] = 'alert-danger';
+                } elseif (array_key_exists($attribute, $required)) {
+                    $filter['filterOptions']['class'] = 'alert-warning';
+                }
+            }
         }
     }
-}
+};
 
-try {
-    $dataProvider = $filterModel->getReport(true, $isNewVersion, $isPreFetched);
+/**
+ * @param CallsRawFilter $model
+ * @return string
+ */
+$getHeader = function (CallsRawFilter $model) {
+    if ($model->isByPeerId) {
+        return '
+<div class="row">
+    <div class="col-md-12">
+        <h2>Вы используете устаревшую логику склейки - данные могут отображатся лишь частично (около 50% от общего количества).</h2>
+    </div>
+</div>
+';
+    }
 
-    GridView::separateWidget([
-        'isHideFilters' => false,
-        'dataProvider' => $dataProvider,
-        'filterModel' => $filterModel,
-        'beforeHeader' => [
-            'columns' => $filters
-        ],
-        'pjaxSettings' => [
-            'options' => [
-                'id' => 'report',
-                'timeout' => false,
-                'enablePushState' => false,
-            ]
-        ],
-        'columns' => $columns,
-        'filterPosition' => '',
-        'emptyText' => isset($emptyText) ? $emptyText : $chooseError(),
-        'exportWidget' => GridViewExport::widget([
-            'dataProvider' => $dataProvider,
-            'filterModel' => $filterModel,
-            'columns' => $columns,
-        ]),
-        'panelHeadingTemplate' => $isNewVersion ?
-            '
+    if ($model->isFromUnite) {
+        return '
+<div class="row">
+    <div class="col-md-12">
+        <h2>Отчет по маржинальности транзитного траффика по таблице склейки</h2>
+    </div>
+</div>
+';
+    }
+
+    if ($model->isNewVersion) {
+        return '
                 <div class="row">
                     <div class="col-md-12">
                         <h2>В режиме предрасчёта будут недоступны некоторые фильтры</h2>
@@ -236,16 +240,39 @@ try {
                         });
                     </script>
                 </div>
-            ' : (
-                $filterModel->isByMcnCallId ?
-                    '' :
-                    '
-<div class="row">
-    <div class="col-md-12">
-        <h2>Вы используете устаревшую логику склейки - данные могут отображатся лишь частично (около 50% от общего количества).</h2>
-    </div>
-</div>
-'),
+            ';
+    }
+
+    return '';
+};
+
+try {
+    $highLightErrors($filterModel);
+
+    $dataProvider = $filterModel->getReport();
+
+    GridView::separateWidget([
+        'isHideFilters' => false,
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'beforeHeader' => [
+            'columns' => $filters
+        ],
+        'pjaxSettings' => [
+            'options' => [
+                'timeout' => 180000,
+                'enableReplaceState' => true,
+            ]
+        ],
+        'columns' => $columns,
+        'filterPosition' => '',
+        'emptyText' => isset($emptyText) ? $emptyText : $chooseError(),
+        'exportWidget' => GridViewExport::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $filterModel,
+            'columns' => $columns,
+        ]),
+        'panelHeadingTemplate' => $getHeader($filterModel),
     ]);
 } catch (yii\db\Exception $e) {
     Yii::$app->session->addFlash(

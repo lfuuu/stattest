@@ -3,8 +3,6 @@
  * Фильтры для отчета по calls_raw
  *
  * @var CallsRawFilter $filterModel
- * @var bool $isNewVersion
- * @var bool $isPreFetched
  */
 
 use app\classes\grid\column\billing\ContractColumn;
@@ -31,10 +29,10 @@ use app\modules\nnp\column\OperatorColumn;
 use app\modules\nnp\column\RegionColumn;
 use app\classes\grid\column\billing\TrunkGroupColumn;
 
-return [
+$filters = [
     [
         'attribute' => 'connect_time',
-        'class' => $isNewVersion && $isPreFetched ?
+        'class' => $filterModel->isNewVersion && $filterModel->isPreFetched ?
             DateRangeDoubleColumn::class : DateTimeRangeDoubleColumn::class,
     ],
     [
@@ -335,3 +333,18 @@ return [
         'isWithEmpty' => false,
     ],
 ];
+
+if ($exceptFilters = $filterModel->getExceptFilters()) {
+    foreach ($filters as &$filter) {
+        if (in_array($filter['attribute'], $exceptFilters)) {
+            $filter = [
+                'class' => WithEmptyFilterColumn::class,
+                'filterOptions' => [
+                    'class' => 'no_display'
+                ],
+            ];
+        }
+    }
+}
+
+return $filters;

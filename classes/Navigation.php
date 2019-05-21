@@ -131,6 +131,7 @@ class Navigation
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
                 ->addItem('Отчет по calls_raw (старая склейка)', ['/voip/raw/old'], ['voip.access'])
                 ->addItem('Отчет по calls_raw', ['/voip/raw/with-cache'], ['voip.access'])
+                ->addItem('Отчет по calls_raw (транзитный)', ['/voip/raw/unite'], ['voip.access'])
                 ->addItem('Статистика (4 класс + 5 класс)', ['/voip/combined-statistics'], ['voip.access'])
         );
 

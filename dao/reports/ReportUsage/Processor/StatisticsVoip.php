@@ -172,7 +172,7 @@ class StatisticsVoip extends Processor
 //            $this->config->to->setTime(0, 0, 0)->modify('+1 day');
         }
 
-        $query->orderBy('ts1 ASC');
+        $query->orderBy('ts1 ASC, cr.mcn_callid ASC, cr.orig DESC');
     }
 
     /**

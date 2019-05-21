@@ -112,4 +112,48 @@ class DateTimeWithUserTimezone extends DateTime
         return $value !== null ? str_pad(floor($value / 60), 2, '0', STR_PAD_LEFT) . ',' . str_pad(round($value % 60 / 60 * 100), 2, '0', STR_PAD_LEFT) : null;
     }
 
+    /**
+     * Вернуть значение секунд в формате дни часы:минуты:секунды
+     *
+     * @param int $value
+     *
+     * @return string|null - важно чтобы возвращался если $value == null,
+     * потому что в гриде пустая строка и null отображаются по разному
+     */
+    public static function formatSecondsToDayAndHoursAndMinutesAndSeconds($value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        if ($value >= 24 * 60 * 60) {
+            $d = floor($value / (24 * 60 * 60));
+        } else {
+            $d = 0;
+        }
+
+        return ($d ? $d . 'd ' : '') . gmdate('H:i:s', $value - $d * 24 * 60 * 60);
+    }
+
+    /**
+     * Вернуть значение секунд в детальном формате: 7699,58 (5d 08:19:35)
+     *
+     * @param int $value
+     *
+     * @return string|null - важно чтобы возвращался если $value == null,
+     * потому что в гриде пустая строка и null отображаются по разному
+     */
+    public static function formatSecondsToDetailedView($value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        return sprintf(
+            '%s (%s)',
+            DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($value),
+            DateTimeWithUserTimezone::formatSecondsToDayAndHoursAndMinutesAndSeconds($value)
+        );
+    }
+
 }

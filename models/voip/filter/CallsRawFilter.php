@@ -24,64 +24,6 @@ use yii\db\Expression;
 /**
  * Class Raw
  *
- * @property int $marketPlaceId
- * @property array $server_ids
- * @property string $connect_time_from
- * @property string $connect_time_to
- * @property string $correct_connect_time_to
- * @property string $session_time_from
- * @property string $session_time_to
- * @property bool $is_success_calls
- * @property array $src_logical_trunks_ids
- * @property array $dst_logical_trunks_ids
- * @property array $src_physical_trunks_ids
- * @property array $dst_physical_trunks_ids
- * @property string $src_number
- * @property string $dst_number
- * @property array $src_operator_ids
- * @property array $dst_operator_ids
- * @property array $src_regions_ids
- * @property array $dst_regions_ids
- * @property array $src_cities_ids
- * @property array $dst_cities_ids
- * @property array $src_contracts_ids
- * @property array $dst_contracts_ids
- * @property array $disconnect_causes
- * @property array $src_countries_ids
- * @property array $dst_countries_ids
- * @property array $src_destinations_ids
- * @property array $dst_destinations_ids
- * @property array $src_number_type_ids
- * @property array $dst_number_type_ids
- *
- * @property string $src_operator_name
- * @property string $dst_operator_name
- * @property string $src_region_name
- * @property string $dst_region_name
- * @property string $src_country_name
- * @property string $dst_country_name
- * @property string $src_city_name
- * @property string $dst_city_name
- *
- * @property array $group
- * @property array $aggr
- * @property string $group_period
- * @property string $sort
- *
- * @property string $currency
- * @property float $currency_rate
- * @property float $sale
- * @property float $cost_price
- * @property float $margin
- * @property float $orig_rate
- * @property float $term_rate
- * @property int $is_exclude_internal_trunk_term
- * @property int $is_exclude_internal_trunk_orig
- *
- * @property-read \DateTime $dateStart = null;
- *
- * @property array src_trunk_group_ids
- * @property array dst_trunk_group_ids
  */
 class CallsRawFilter extends CallsRaw
 {
@@ -163,6 +105,7 @@ class CallsRawFilter extends CallsRaw
     public $dst_destinations_ids = [];
     public $src_number_type_ids = [];
     public $dst_number_type_ids = [];
+
     public $src_operator_name = null;
     public $dst_operator_name = null;
     public $src_region_name = null;
@@ -173,10 +116,12 @@ class CallsRawFilter extends CallsRaw
     public $dst_city_name = null;
     public $session_time = null;
     public $calls_with_duration = null;
+
     public $group = [];
     public $aggr = [];
     public $group_period = '';
     public $sort = null;
+
     public $currency = Currency::RUB;
     public $currency_rate = 1;
     public $sale = null;
@@ -189,10 +134,19 @@ class CallsRawFilter extends CallsRaw
     public $dst_trunk_group_ids = null;
     public $is_exclude_internal_trunk_term = null;
     public $is_exclude_internal_trunk_orig = null;
+
     /** @var Connection */
     public $dbConn = null;
-    // использовать новую склеку по mcn_callid
-    public $isByMcnCallId = true;
+
+    // Использовать версию расчёта, основанную на join'ах
+    public $isNewVersion = false;
+    // Использовать предрассчитанную таблицу
+    public $isPreFetched = false;
+
+    // Использовать старую склеку по peer_id
+    public $isByPeerId = false;
+    // Использовать таблицу склейки
+    public $isFromUnite = false;
 
     /**
      * Rules set
@@ -385,11 +339,21 @@ class CallsRawFilter extends CallsRaw
         if ($this->connect_time_from) {
             $this->dateStart = new \DateTime($this->connect_time_from);
             $dateEnd = new \DateTime($this->connect_time_to);
+
+            if ($dateEnd <= $this->dateStart) {
+                $this->addError(
+                    'connect_time_to',
+                    'Неверный интервал.'
+                );
+            }
+
             $dateEnd->modify('-1 second');
             $interval = $dateEnd->diff($this->dateStart);
             if ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s))) {
-                Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
-                return false;
+                $this->addError(
+                    'connect_time_to',
+                    'Временной период больше одного месяца'
+                );
             }
 
             $this->correct_connect_time_to = $dateEnd->format(DateTimeZoneHelper::DATETIME_FORMAT);
@@ -440,12 +404,14 @@ class CallsRawFilter extends CallsRaw
         }
     }
 
+    /**
+     * Список группировок
+     *
+     * @return array
+     */
     public function getFilterGroups()
     {
-        $groups = [];
-
-        // именнованые значения
-        foreach ([
+        $fields = [
             'src_route',
             'dst_route',
             'src_number',
@@ -464,11 +430,62 @@ class CallsRawFilter extends CallsRaw
             'cost_price',
             'orig_rate',
             'term_rate'
-        ] as $field) {
+        ];
+
+        if ($exceptGroupFields = $this->getExceptGroupFields()) {
+            $fields = array_diff($fields, $exceptGroupFields);
+        }
+
+        $groups = [];
+        // именнованые значения
+        foreach ($fields as $field) {
             $groups[$field] = $this->getAttributeLabel($field);
         }
 
         return $groups;
+    }
+
+    /**
+     * Список исключенных группировок
+     *
+     * @return array
+     */
+    protected function getExceptGroupFields()
+    {
+        $exceptGroupFields = [];
+        if ($this->isFromUnite) {
+            $exceptGroupFields = [
+                'src_ndc_type_id',
+                'dst_ndc_type_id',
+                'src_city_name',
+                'dst_city_name',
+            ];
+        }
+
+        return $exceptGroupFields;
+    }
+
+    /**
+     * Список исключенных фильтров
+     *
+     * @return array
+     */
+    public function getExceptFilters()
+    {
+        $exceptFilters = [];
+        if ($this->isFromUnite) {
+            $exceptFilters = [
+                'server_ids',
+                'trafficType',
+                'src_cities_ids',
+                'dst_cities_ids',
+                'src_destinations_ids',
+                'dst_destinations_ids',
+                'disconnect_causes',
+            ];
+        }
+
+        return $exceptFilters;
     }
 
     /**
@@ -572,7 +589,19 @@ class CallsRawFilter extends CallsRaw
      */
     public function hasRequiredFields()
     {
-        return !array_filter($this->getRequiredValues());
+        $required = $this->getRequiredValues();
+
+        $exclude = [];
+        if ($required['trafficType'] === CallsRawUnite::TRAFFIC_TYPE_ALL) {
+            $exclude['trafficType'] = 1;
+        }
+
+        $required = array_diff_key(
+            $required,
+            $exclude
+        );
+
+        return !array_filter($required);
     }
 
     /**
@@ -613,6 +642,122 @@ class CallsRawFilter extends CallsRaw
         }
 
         return $attributes;
+    }
+
+    /**
+     * Получаем основной запрос
+     *
+     * @return CTEQuery
+     * @throws \Exception
+     */
+    protected function getQuery()
+    {
+        if ($this->isByPeerId) {
+            return $this->getReportNewByPeerId();
+        }
+
+        // by mcn_call_id
+        if ($this->isFromUnite) {
+            $this->isNewVersion = true;
+            $this->isPreFetched = true;
+            return $this->getReportFromUnite();
+        }
+
+        return $this->isNewVersion ?
+            $this->getReportNew() : $this->getReportSlow();
+    }
+
+    /**
+     * Возвращает список полей сортировки + устанавливает параметры группировки для запроса
+     *
+     * @param CTEQuery $query
+     * @return array
+     */
+    protected function setQueryParamsAndGetSortFields(CTEQuery $query)
+    {
+        if ($this->group || $this->group_period || $this->aggr) {
+            $fields = $groups = [];
+            if ($this->group_period) {
+                $query->rightJoin(
+                    "generate_series ('{$this->connect_time_from}'::timestamp, " . ($this->correct_connect_time_to ? "'$this->correct_connect_time_to'" : 'now()') . "::timestamp, '1 {$this->group_period}'::interval) gs",
+                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 {$this->group_period}'"
+                );
+                $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 {$this->group_period}'";
+                $groups[] = 'gs.gs';
+            }
+
+            $fields = array_merge($fields, $this->group, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
+            $groups = array_merge($groups, array_map(function ($value) {
+                return $this->getGroupKeyParts($value)[0];
+            }, $this->group));
+
+            $sortFields = [];
+            foreach ($fields as $key => $value) {
+                $sortFields[] = !is_int($key) ?
+                    $key : $this->getGroupKeyParts($value)[0];
+            }
+
+            $query->select($fields)
+                ->groupBy($groups)
+                ->orderBy($sortFields[0]);
+
+        } else {
+            $sortFields = [
+                'connect_time',
+                'session_time',
+                'disconnect_cause',
+                'src_operator_name',
+                'src_country_name',
+                'src_region_name',
+                'src_city_name',
+                'dst_operator_name',
+                'dst_country_name',
+                'dst_region_name',
+                'dst_city_name',
+                'src_route',
+                'src_contract_name',
+                'dst_route',
+                'dst_contract_name',
+                'sale',
+                'cost_price',
+                'margin',
+                'orig_rate',
+                'term_rate',
+            ];
+            // Добавление полей, которые не поддерживает кеширование
+            if (!$this->isNewVersion || !$this->isPreFetched) {
+                $sortFields = array_merge($sortFields, [
+                    'src_number', 'dst_number', 'pdd'
+                ]);
+            }
+        }
+
+        return $sortFields;
+    }
+
+    /**
+     * Получаем результат
+     *
+     * @param CTEQuery $query
+     * @return array|mixed
+     * @throws \yii\db\Exception
+     */
+    protected function getResult(CTEQuery $query)
+    {
+        $dbConn = $this->dbConn;
+        if ($this->isNewVersion && $this->isPreFetched) {
+            $dbConn = Yii::$app->dbPg;
+        }
+
+        $queryCacheKey = CallsRaw::getCacheKey($query);
+        if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
+            $result = $query->createCommand($dbConn)->queryAll();
+            if ($result) {
+                Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -666,103 +811,27 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
-     * Отчет по calls_raw (/voip/raw или /voip/raw/with-cache)
+     * Отчет по calls_raw (/voip/old или /voip/raw/with-cache или /voip/raw/unite)
      *
      * @param bool $isGetDataProvider
-     * @param bool $isNewVersion Использовать новую версию расчёта
-     * @param bool $isPreFetched Использовать предрассчитанную таблицу
      * @return array|mixed|ArrayDataProvider
+     * @throws \ReflectionException
+     * @throws \yii\db\Exception
      * @throws \Exception
      */
-    public function getReport($isGetDataProvider = true, $isNewVersion = false, $isPreFetched = false)
+    public function getReport($isGetDataProvider = true)
     {
         if ($this->hasErrors() || $this->hasRequiredFields()) {
             return $isGetDataProvider ?
                 new ArrayDataProvider(['allModels' => [],]) : [];
         }
 
-        // Формирование запроса с учетом флага кеширования
-        if ($this->isByMcnCallId) {
-            $query = $isNewVersion ?
-                $this->getReportNew($isPreFetched) : $this->getReportSlow();
-        } else {
-            $query = $this->getReportNewByPeerId();
-        }
-
-        if ($this->group || $this->group_period || $this->aggr) {
-            $fields = $groups = [];
-            if ($this->group_period) {
-                $query->rightJoin(
-                    "generate_series ('{$this->connect_time_from}'::timestamp, " . ($this->correct_connect_time_to ? "'$this->correct_connect_time_to'" : 'now()') . "::timestamp, '1 {$this->group_period}'::interval) gs",
-                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 {$this->group_period}'"
-                );
-                $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 {$this->group_period}'";
-                $groups[] = 'gs.gs';
-            }
-
-            $fields = array_merge($fields, $this->group, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
-            $groups = array_merge($groups, array_map(function ($value) {
-                return $this->getGroupKeyParts($value)[0];
-            }, $this->group));
-
-            $sort = [];
-            foreach ($fields as $key => $value) {
-                $sort[] = !is_int($key) ?
-                    $key : $this->getGroupKeyParts($value)[0];
-            }
-
-            $query->select($fields)
-                ->groupBy($groups)
-                ->orderBy($sort[0]);
-
-        } else {
-            $sort = [
-                'connect_time',
-                'session_time',
-                'disconnect_cause',
-                'src_operator_name',
-                'src_country_name',
-                'src_region_name',
-                'src_city_name',
-                'dst_operator_name',
-                'dst_country_name',
-                'dst_region_name',
-                'dst_city_name',
-                'src_route',
-                'src_contract_name',
-                'dst_route',
-                'dst_contract_name',
-                'sale',
-                'cost_price',
-                'margin',
-                'orig_rate',
-                'term_rate',
-            ];
-            // Добавление полей, которые не поддерживает кеширование
-            if (!$isNewVersion || !$isPreFetched) {
-                $sort = array_merge($sort, [
-                    'src_number', 'dst_number', 'pdd'
-                ]);
-            }
-        }
-
-        if ($isNewVersion && $isPreFetched) {
-            $result = $query->createCommand(Yii::$app->dbPg)
-                ->queryAll();
-        } else {
-            if (!$this->isByMcnCallId) {
-                $queryCacheKey = CallsRaw::getCacheKey($query);
-                if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
-                    $result = $query->createCommand($this->dbConn)->queryAll();
-                    if ($result) {
-                        Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
-                    }
-                }
-            } else {
-                // !!! временно отключим кэширование для тестирования !!!
-                $result = $query->createCommand($this->dbConn)->queryAll();
-            }
-        }
+        // prepare query
+        $query = $this->getQuery();
+        // prepare grouping and sorting
+        $sortFields = $this->setQueryParamsAndGetSortFields($query);
+        // get result
+        $result = $this->getResult($query);
 
         if (!$isGetDataProvider) {
             $this->_setCurrencyRate($result);
@@ -775,8 +844,8 @@ class CallsRawFilter extends CallsRaw
                 'pagination' => [],
                 'totalCount' => count($result),
                 'sort' => [
-                    'defaultOrder' => [(isset($sort[0]) ? $sort[0] : 'connect_time') => SORT_DESC],
-                    'attributes' => $sort,
+                    'defaultOrder' => [(isset($sortFields[0]) ? $sortFields[0] : 'connect_time') => SORT_DESC],
+                    'attributes' => $sortFields,
                 ],
             ]
         );
@@ -807,17 +876,6 @@ class CallsRawFilter extends CallsRaw
     {
         return
             $this->getIsNewRecord() &&
-            Yii::$app->getRequest()->get('isCache') == 1;
-    }
-
-    /**
-     * Является ли текущий запрос новой версии
-     *
-     * @return bool
-     */
-    protected function isRequestNew()
-    {
-        return
-            Yii::$app->controller->action->id == 'with-cache';
+            $this->isPreFetched;
     }
 }

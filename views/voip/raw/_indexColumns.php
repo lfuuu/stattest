@@ -18,7 +18,7 @@ return [
         'label' => 'Длительность разговора',
         'attribute' => 'session_time',
         'value' => function ($model) {
-            return DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($model['session_time']);
+            return DateTimeWithUserTimezone::formatSecondsToDetailedView($model['session_time']);
         },
     ],
     [
