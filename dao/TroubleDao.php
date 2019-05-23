@@ -6,6 +6,7 @@ use app\classes\Assert;
 use app\classes\enum\DepartmentEnum;
 use app\classes\helpers\ArrayHelper;
 use app\classes\helpers\DependecyHelper;
+use app\classes\helpers\TTCounterHelper;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -18,10 +19,12 @@ use app\models\TroubleRoistat;
 use app\models\TroubleRoistatStore;
 use app\models\TroubleStage;
 use app\models\TroubleState;
+use app\models\TroubleType;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
+use Exception;
 use yii\caching\TagDependency;
 use yii\db\Expression;
 
@@ -32,6 +35,10 @@ use yii\db\Expression;
  */
 class TroubleDao extends Singleton
 {
+    const MODE_GET = 1;
+    const MODE_QUEUE_FOR_RECOUNT = 2;
+    const MODE_RECOUNT = 3;
+
     /**
      * Получить количество заявок залогиненного пользователя
      *
@@ -283,7 +290,7 @@ class TroubleDao extends Singleton
             if (!$trouble->save()) {
                 throw new ModelValidationException($trouble);
             }
-            $this->setChanged($trouble->id);
+            $this->setChanged($trouble);
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -470,22 +477,29 @@ SQL;
     }
 
     /**
-     * Пересчитать счететчики для первой страницы с траблами
+     * Получить счететчики траблов
      *
-     * @param bool $isReset
+     * @param integer $mode 1 - получить из кеша, 2 - поставить в очередь на пересчет, 3 - пересчитать кеш
+     * @param string $trouble_type
      * @return array|mixed
      */
-    public function getTaskFoldersCount($isReset = false, $trouble_type = Trouble::TYPE_TASK, $pk = TroubleFolder::PK_TASK)
+    public function getTaskFoldersCount($mode = self::MODE_GET, $trouble_type = Trouble::TYPE_TASK)
     {
-        if ($isReset) {
-            Param::setParam(Param::IS_NEED_RECALC_TT_COUNT, 1, true);
+        $key = 'tt-folder-' . $trouble_type . '-count';
+        if ($mode === self::MODE_GET && \Yii::$app->cache->exists($key)) {
+            return \Yii::$app->cache->get($key);
+        }
+        $arr = reset(TTCounterHelper::getTroubleTypeData(['pk', 'folders'], $trouble_type));
+        $pk = isset($arr['pk']) ? $arr['pk'] : null;
+        $folder = isset($arr['folders']) ? $arr['folders'] : null;
+        if (!$pk || !$folder) {
+            throw new Exception('Отсутствует folder или pk');
+        }
+        if ($mode === self::MODE_QUEUE_FOR_RECOUNT) {
+            TTCounterHelper::addPkTroubleTypeToRecalc($pk);
             return;
         }
 
-        $key = 'tt-folder-task-count';
-        if (\Yii::$app->cache->exists($key)) {
-            return \Yii::$app->cache->get($key);
-        }
         $sql = <<<SQL
 SELECT SQL_NO_CACHE
   tf.pk,
@@ -496,12 +510,12 @@ FROM
   LEFT JOIN
   tt_folders AS tf ON T.folder & tf.pk
 WHERE
-  ((T.server_id = :server_id) AND (T.trouble_type = :trouble_type) AND (tf.pk & :pk))
+  ((T.server_id = :server_id) AND (T.trouble_type = :trouble_type) AND (tf.pk & :folder))
 GROUP BY tf.pk
 ORDER BY `tf`.`order`
 
 SQL;
-        $result = ArrayHelper::index(Trouble::getDb()->createCommand($sql, [':server_id' => 0, ':trouble_type' => $trouble_type, ':pk' => $pk])->queryAll(), 'pk');
+        $result = ArrayHelper::index(Trouble::getDb()->createCommand($sql, [':server_id' => 0, ':trouble_type' => $trouble_type, ':folder' => $folder])->queryAll(), 'pk');
         \Yii::$app->cache->set($key, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_TROUBLE_COUNT])));
 
         return $result;
@@ -510,11 +524,16 @@ SQL;
     /**
      * Утсанавливаем, что трабла изменилась
      *
-     * @param int $troubleId
+     * @param Trouble $trouble
      */
-    public function setChanged($troubleId)
+    public function setChanged(Trouble $trouble)
     {
-        $this->updateSupportTicketByTrouble($troubleId);
-        $this->getTaskFoldersCount($isReset = true);
+        $trouble_type = $trouble->trouble_type;
+        if (!$trouble_type) {
+            $trouble_type = Trouble::TYPE_TASK;
+        }
+        $this->updateSupportTicketByTrouble($trouble->id);
+        $this->getTaskFoldersCount(self::MODE_QUEUE_FOR_RECOUNT, $trouble_type);
     }
+
 }

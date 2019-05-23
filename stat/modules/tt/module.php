@@ -16,6 +16,7 @@ use app\models\TroubleFolder;
 use app\models\TroubleRoistat;
 use app\models\TroubleStage;
 use app\models\TroubleState;
+use app\models\TroubleType;
 use yii\base\InvalidParamException;
 use app\dao\TroubleDao;
 use app\models\support\TicketComment;
@@ -1539,9 +1540,11 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             }
 
             $trouble_type = $trouble_type ?: YiiTrouble::TYPE_TASK;
-            $pk = ($this->curtype && isset($this->curtype['folders'])) ? $this->curtype['folders'] : TroubleFolder::PK_TASK;
+            $pk = ($this->curtype && isset($this->curtype['folders'])) ? $this->curtype['folders'] : TroubleType::FOLDER_TASK;
+            $W_folders[] = 'T.trouble_type = "' . $trouble_type . '"';
             if (!$use_stages && !$clientNick) {
-                $folders = \app\models\Trouble::dao()->getTaskFoldersCount(false, $trouble_type, $pk);
+                $troubleDao = YiiTrouble::dao();
+                $folders = $troubleDao->getTaskFoldersCount($troubleDao::MODE_GET, $trouble_type);
             } else {
 
                 $folders = $db->AllRecords($q = "
@@ -1852,9 +1855,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($id>0)
             $this->doers_action('fix_doers', $trouble_id, $id);
-
-
-        TroubleDao::me()->setChanged($trouble_id);
+        TroubleDao::me()->setChanged($trouble);
 
         //$this->checkTroubleToSendToAll4geo($trouble_id);
         $this->checkTroubleToSend($trouble_id);

@@ -17,6 +17,9 @@ class TroubleType extends ActiveRecord
 {
     const CONNECT = 8;
 
+    const FOLDER_TASK = 524033;
+    const PK_TASK = 2;
+
     /**
      * @return string
      */

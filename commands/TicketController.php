@@ -1,18 +1,11 @@
 <?php
 namespace app\commands;
 
-use app\classes\bill\ClientAccountBiller;
 use app\classes\enum\TicketStatusEnum;
-use app\exceptions\ModelValidationException;
+use app\classes\helpers\TTCounterHelper;
 use app\helpers\DateTimeZoneHelper;
-use app\models\Bill;
-use app\models\ClientAccount;
-use app\models\Param;
-use app\models\Payment;
 use app\models\support\Ticket;
-use app\models\Transaction;
 use app\models\Trouble;
-use app\models\TroubleType;
 use yii\console\Controller;
 
 class TicketController extends Controller
@@ -39,25 +32,14 @@ class TicketController extends Controller
     /**
      * Пересчет кол-во траблов для "хлебных крошек" на странице по умолчанию
      *
-     * @param $isAll 1 - пересчет всего, 0 - рассчитывает только таски
-     * @throws ModelValidationException
+     * @throws \Exception
      */
-    public function actionCheckTroubleCountRecal($isAll = 1)
+    public function actionCheckTroubleCountRecal()
     {
         $sleep = 5;
         $countAll = 8;
 
         $count = 0;
-
-        $troubleTypes = array_keys(Trouble::$types);
-        $arr = [];
-        foreach ($troubleTypes as $troubleType) {
-            $folder = TroubleType::find()->select('folders')->where(['code' => $troubleType])->scalar();
-            if (!$folder) {
-                continue;
-            }
-            $arr[$troubleType] = $folder;
-        }
 
         do {
             if ($count++ != 0) {
@@ -66,10 +48,10 @@ class TicketController extends Controller
 
             echo PHP_EOL . date('r');
 
-            $param = Param::findOne(['param' => Param::IS_NEED_RECALC_TT_COUNT]);
+            $param = TTCounterHelper::getIsNeedRecalc();
 
             if ($param && $param->value) {
-                $this->_recountTroubles($isAll, $arr);
+                $this->_recountTroubles($param->value);
                 $param->setZeroVal();
             }
 
@@ -77,21 +59,20 @@ class TicketController extends Controller
     }
 
     /**
-     * @param $isAll 1 - пересчет всего, 0 - рассчитывает только таски
-     * @param $data
+     * @param $val
+     * @throws \Exception
      */
-    private function _recountTroubles($isAll, $data)
+    private function _recountTroubles($val)
     {
-        if (!$isAll) {
-            echo PHP_EOL . date('r') . "+";
-            Trouble::dao()->getTaskFoldersCount();
+        if (!$val) {
             return;
         }
-        foreach ($data as $troubleType => $folder) {
+        $troubleTypes = array_column(TTCounterHelper::filterTroubleData(TTCounterHelper::getTroubleTypeData(), $val), 'code');
+        $troubleDao = Trouble::dao();
+        foreach ($troubleTypes as $troubleType) {
             echo PHP_EOL . date('r') . "+";
-            Trouble::dao()->getTaskFoldersCount(false, $troubleType, $folder);
+            $troubleDao->getTaskFoldersCount($troubleDao::MODE_RECOUNT, $troubleType);
         }
     }
-
 }
 
