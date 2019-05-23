@@ -30,7 +30,10 @@ class BalanceSellToExcelEu extends Excel
     {
         $this->openFile(\Yii::getAlias('@app/templates/balance_sell_eu.xls'));
 
-        $this->organization = Organization::findOne(['id' => $this->filter->organization_id]);
+        $this->organization = Organization::find()
+            ->byId($this->filter->organization_id)
+            ->actual()
+            ->one();
         $this->dateFrom = $this->filter->date_from;
         $this->dateTo = $this->filter->date_to;
 

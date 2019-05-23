@@ -45,12 +45,17 @@ class SaleBookController extends BaseController
         if (($isExcel = $request->get('is_excel')) && (int)$isExcel === 1) {
             // Формирование документа
 
-            if ($filter->is_euro_format) {
-                $excel = new BalanceSellToExcelEu(['filter' => $filter]);
-                $excel->download('Sale book');
-            } else {
-                $excel = new BalanceSellToExcel(['filter' => $filter]);
-                $excel->download('Книга продаж');
+            try {
+                if ($filter->is_euro_format) {
+                    $excel = new BalanceSellToExcelEu(['filter' => $filter]);
+                    $excel->download('Sale book');
+                } else {
+                    $excel = new BalanceSellToExcel(['filter' => $filter]);
+                    $excel->download('Книга продаж');
+                }
+            } catch (Exception $e) {
+                Yii::$app->session->setFlash('error', $e->getMessage());
+                return $this->redirect(['index']);
             }
         }
 
