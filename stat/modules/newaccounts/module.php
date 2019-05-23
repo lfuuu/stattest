@@ -1528,11 +1528,13 @@ class m_newaccounts extends IModule
                 'Кредит-нота' => ['credit_note'],
             ];
 
+            $allowTypes = array_merge($D['Счет-фактура'], $D['Акт'], $D['УПД']);
+
             foreach ($D as $k => $rs) {
                 $counter = 1;
                 foreach ($rs as $r) {
                     if (get_param_protected($r)) {
-                        if (!$this->isActionEnabled($r, $docs)) {
+                        if (in_array($r, $allowTypes) && !$this->isActionEnabled($r, $docs)) {
                             continue;
                         }
                         $isMultipleDocs = $counter > 1;
