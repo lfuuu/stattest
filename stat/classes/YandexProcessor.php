@@ -21,6 +21,10 @@ class YandexProcessor
             'shopId' => 548618,
             'password' => 'u2Gv46AeAcTSgQNL',
         ],
+        \app\models\Organization::MCN_TELECOM => [
+            'shopId' => 15339,
+            'password' => 'DnI1N7mjQ19GMOPy1k6X',
+        ],
     ];
 
     /*
