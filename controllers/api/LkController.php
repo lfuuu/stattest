@@ -8,6 +8,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\Currency;
 use app\models\media\ClientFiles;
+use app\models\Organization;
 use app\models\Payment;
 use app\models\SberbankOrder;
 use app\models\UsageVoip;
@@ -93,6 +94,7 @@ class LkController extends ApiController
             'version' => $account->account_version,
             'yandex_shop_id' => $shopId,
             'yandex_sc_id' => $scId,
+            'is_only_yandex' => $account->contract->organization_id == Organization::MCN_TELECOM
         ];
     }
 
