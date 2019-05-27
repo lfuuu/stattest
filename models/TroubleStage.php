@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use yii\db\ActiveQuery;
 
 /**
  * @property int $stage_id
@@ -86,7 +87,7 @@ class TroubleStage extends ActiveRecord
     }
 
     /**
-     * @return $this
+     * @return ActiveQuery
      */
     public static function find()
     {

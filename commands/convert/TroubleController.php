@@ -3,7 +3,9 @@
 namespace app\commands\convert;
 
 use app\dao\TroubleDao;
+use app\exceptions\ModelValidationException;
 use app\models\Trouble;
+use app\models\TroubleStage;
 use Yii;
 use yii\console\Controller;
 
@@ -34,6 +36,35 @@ class TroubleController extends Controller
         foreach ($troublesQuery->each() as $trouble) {
             /** @var $trouble Trouble */
             $trouble->addStage($newState, '(автоперевод)', null, $userId);
+        }
+    }
+
+    /**
+     * Вернуть предыдущий комментарий вместо комментария (автоперевод)
+     * @throws ModelValidationException
+     */
+    public function actionRollBackComment()
+    {
+        $troublesQuery = Trouble::find()
+            ->joinWith('stage')
+            ->where(['state_id' => 1]);
+        foreach ($troublesQuery->each() as $trouble) {
+            /** @var $trouble Trouble */
+            $stagesQuery = $trouble->getStages()->orderBy(['stage_id' => SORT_DESC]);
+            $neededStage = null;
+            foreach ($stagesQuery->each() as $stage) {
+                /** @var $stage TroubleStage */
+                if ($stage->comment == '(автоперевод)') {
+                    $neededStage = $stage;
+                } elseif ($neededStage) {
+                    /** @var $neededStage TroubleStage **/
+                    $neededStage->comment = $stage->comment;
+                    if (!$neededStage->save()) {
+                        throw new ModelValidationException($neededStage);
+                    }
+                    break;
+                }
+            }
         }
     }
 }
