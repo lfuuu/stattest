@@ -56,22 +56,33 @@ use Yii;
  */
 class CallsRawUnite extends ActiveRecord
 {
-    const TYPE_RETAIL = 1;
-    const TYPE_TRANSIT = 2;
-    const TYPE_INTERNAL = 3;
-    const TYPE_UNFINISHED = 4;
-    const TYPE_NOT_MERGED = 5;
+    const TYPE_UNFINISHED = 1;
+    const TYPE_NOT_MERGED = 2;
+    const TYPE_NOT_MERGED_TERM = 3;
+    const TYPE_BROKEN = 4;
+    const TYPE_RETAIL = 10;
+    const TYPE_AST = 11;
+    const TYPE_MVNO = 12;
+    const TYPE_TRANSIT = 20;
+    const TYPE_OTT = 30;
 
     const TRAFFIC_TYPE_ALL = 1;
-    const TRAFFIC_TYPE_CLIENT = 2; // TYPE_RETAIL + TYPE_INTERNAL
+    const TRAFFIC_TYPE_CLIENT = 2; // TYPE_RETAIL + TYPE_AST + TYPE_MVNO + TYPE_OTT
     const TRAFFIC_TYPE_OPERATOR = 3; // TYPE_TRANSIT
 
     public static $types = [
-        self::TYPE_RETAIL => 'Розница',
-        self::TYPE_TRANSIT => 'Транзитный',
-        self::TYPE_INTERNAL => 'Внутренний',
         self::TYPE_UNFINISHED => 'Несостоявшийся',
         self::TYPE_NOT_MERGED => 'Несклееный',
+        self::TYPE_NOT_MERGED_TERM => 'Несклееный (терм.)',
+        self::TYPE_BROKEN => 'Повреждённый',
+
+        self::TYPE_RETAIL => 'Розница',
+        self::TYPE_AST => 'Asterisks',
+        self::TYPE_MVNO => 'Радиосеть',
+
+        self::TYPE_TRANSIT => 'Транзитный',
+
+        self::TYPE_OTT => 'Мегатранк',
     ];
 
     public static $trafficTypes = [
@@ -108,7 +119,8 @@ class CallsRawUnite extends ActiveRecord
             'id_term' => 'Терминация. Ссылка на соответствующую запись calls_raw.',
             'connect_time_orig' => 'Оригинация. Время начала разговора (UTC).',
             'connect_time_term' => 'Терминация. Время начала разговора (UTC).',
-            'market_place' => 'Биржа, к которой принадлежат плечи звонка.',
+            'connect_day_key' => 'Ключ для дня начала разговора (UTC).',
+            'market_place_id' => 'Биржа, к которой принадлежат плечи звонка.',
             'type' => 'Тип звонка: retail (1)/transit (2)/internal (3)/unfinished (4)/not_merged (5).',
             'hub_id_orig' => 'Оригинация. Хаб плеча.auth.hub.id',
             'hub_id_term' => 'Терминация. Хаб плеча.auth.hub.id',
@@ -138,12 +150,20 @@ class CallsRawUnite extends ActiveRecord
             'tax_cost_term' => 'Терминация. НДС для общей стоимости звонка.',
             'our_orig' => 'Оригинация. Транк плеча наш. флаг берется из auth.trunk.our_trunk ',
             'our_term' => 'Терминация. Транк плеча наш. флаг берется из auth.trunk.our_trunk ',
+            'disconnect_cause_orig' => 'Терминация. Причина завершения вызова. billing.disconnect_cause.cause_id',
+            'disconnect_cause_term' => 'Терминация. Причина завершения вызова. billing.disconnect_cause.cause_id',
+            'has_asterisk' => 'Один из транков плеч - asterisk',
+            'has_mvno' => 'Один из транков плеч - радиосеть',
             'nnp_operator_id_a' => 'Оригинация. Расчитанный оператор для плеча.nnp.operator.id',
             'nnp_operator_id_b' => 'Терминация. Расчитанный оператор для плеча.nnp.operator.id',
             'nnp_region_id_a' => 'Оригинация. Расчитанный регион для плеча.nnp.region.id',
             'nnp_region_id_b' => 'Терминация. Расчитанный регион для плеча.nnp.region.id',
+            'nnp_city_id_a' => 'Оригинация. Рассчитанный город для плеча. nnp.city.id',
+            'nnp_city_id_b' => 'Терминация. Рассчитанный город для плеча. nnp.city.id',
             'nnp_country_code_a' => 'Оригинация. Расчитанная страна для плеча.nnp.country.id',
             'nnp_country_code_b' => 'Терминация. Расчитанная страна для плеча.nnp.country.id',
+            'ndc_type_id_a' => 'Оригинация. Тип номера. nnp.ndc_type.id',
+            'ndc_type_id_b' => 'Терминация. Тип номера. nnp.ndc_type.id',
             'nnp_filter_id1_orig' => 'Группа 1 оригинационного плеча.',
             'nnp_filter_id1_term' => 'Группа 1 терминационного плеча.',
             'nnp_filter_id2_orig' => 'Группа 2 оригинационного плеча.',
