@@ -481,6 +481,9 @@ class CallsRawFilter extends CallsRaw
                 'dst_cities_ids',
                 'src_destinations_ids',
                 'dst_destinations_ids',
+                'src_number_type_ids',
+                'dst_number_type_ids',
+                'is_success_calls',
                 'disconnect_causes',
             ];
         }

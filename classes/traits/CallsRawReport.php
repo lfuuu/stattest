@@ -302,7 +302,7 @@ trait CallsRawReport
         // Left joins к алиасу cr2 таблицы calls_raw.calls_raw с дополнительным условием
         if ($this->is_exclude_internal_trunk_term) {
             $query->leftJoin(['bst2' => ServiceTrunk::tableName()], $aliasResolverFunc('cr2.trunk_service_id') . ' = bst2.id');
-            $query->leftJoin(['bc2' => Clients::tableName()], 'bc2.id = bst.client_account_id AND bc2.organization_id = ' . Organization::INTERNAL_OFFICE);
+            $query->leftJoin(['bc2' => Clients::tableName()], 'bc2.id = bst2.client_account_id AND bc2.organization_id = ' . Organization::INTERNAL_OFFICE);
             $query->andWhere(['bc2.id' => null]);
         }
         // Добавление условия для поля cr1.billed_time
@@ -625,7 +625,7 @@ trait CallsRawReport
         // Left joins к алиасу cr2 таблицы calls_raw.calls_raw с дополнительным условием
         if ($this->is_exclude_internal_trunk_term) {
             $query->leftJoin(['bst2' => ServiceTrunk::tableName()], $aliasResolverFunc('cr2.trunk_service_id') . ' = bst2.id');
-            $query->leftJoin(['bc2' => Clients::tableName()], 'bc2.id = bst.client_account_id AND bc2.organization_id = ' . Organization::INTERNAL_OFFICE);
+            $query->leftJoin(['bc2' => Clients::tableName()], 'bc2.id = bst2.client_account_id AND bc2.organization_id = ' . Organization::INTERNAL_OFFICE);
             $query->andWhere(['bc2.id' => null]);
         }
         // Добавление условия для поля cr1.billed_time
@@ -653,29 +653,26 @@ trait CallsRawReport
             ->reportCondition($aliasResolverFunc('cr1.trunk_service_id'), $this->src_logical_trunks_ids)
             ->reportCondition($aliasResolverFunc('cr2.trunk_service_id'), $this->dst_logical_trunks_ids)
 
-            ->reportCondition('st1.contract_id', $this->dst_contracts_ids)
-            ->reportCondition('st2.contract_id', $this->src_contracts_ids)
+            ->reportCondition('st1.contract_id', $this->src_contracts_ids)
+            ->reportCondition('st2.contract_id', $this->dst_contracts_ids)
 
-            ->reportCondition($aliasResolverFunc('nnp_operator_id_a'), $this->dst_operator_ids)
-            ->reportCondition($aliasResolverFunc('nnp_operator_id_b'), $this->src_operator_ids)
+            ->reportCondition($aliasResolverFunc('nnp_operator_id_a'), $this->src_operator_ids)
+            ->reportCondition($aliasResolverFunc('nnp_operator_id_b'), $this->dst_operator_ids)
 
-            ->reportCondition($aliasResolverFunc('nnp_region_id_a'), $this->dst_regions_ids)
-            ->reportCondition($aliasResolverFunc('nnp_region_id_b'), $this->src_regions_ids)
+            ->reportCondition($aliasResolverFunc('nnp_region_id_a'), $this->src_regions_ids)
+            ->reportCondition($aliasResolverFunc('nnp_region_id_b'), $this->dst_regions_ids)
 
-//            ->reportCondition($aliasResolverFunc('nnp_city_id_a'), $this->dst_cities_ids)
-//            ->reportCondition($aliasResolverFunc('nnp_city_id_b'), $this->src_cities_ids)
+//            ->reportCondition($aliasResolverFunc('nnp_city_id_a'), $this->src_cities_ids)
+//            ->reportCondition($aliasResolverFunc('nnp_city_id_b'), $this->dst_cities_ids)
 
-            ->reportCondition($aliasResolverFunc('nnp_country_code_a'), $this->dst_countries_ids)
-            ->reportCondition($aliasResolverFunc('nnp_country_code_b'), $this->src_countries_ids);
+            ->reportCondition($aliasResolverFunc('nnp_country_code_a'), $this->src_countries_ids)
+            ->reportCondition($aliasResolverFunc('nnp_country_code_b'), $this->dst_countries_ids)
+        ;
 
-        // Находится ли src_ndc_type_id в массиве $this->group
-        $exceptGroupFields = [
-            'src_ndc_type_id',
-            'dst_ndc_type_id',
-            'src_city_name',
-            'dst_city_name',
-        ];
-        //$this->group = array_diff($this->group, $exceptGroupFields);
+        // Исключаем лишнее
+//        if ($exceptGroupFields = $this->getExceptGroupFields()) {
+//            $this->group = array_diff($this->group, $exceptGroupFields);
+//        }
 
 //        $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group);
 //        if ($isSrcNdcTypeGroup || $this->src_number_type_ids) {
@@ -694,18 +691,6 @@ trait CallsRawReport
 //            $query->andWhere([$aliasResolverFunc('dst_nr.ndc_type_id') => $this->dst_number_type_ids]);
 //        }
 
-        // Добавление условия для полей cr1.billed_time и cr2.billed_time
-        if ($this->is_success_calls) {
-            $query
-                ->andWhere(['or',
-                    $aliasResolverFunc('cr1.billed_time') . ' > 0',
-                    [$aliasResolverFunc('cr1.disconnect_cause') => DisconnectCause::$successCodes]
-                ])
-                ->andWhere(['or',
-                    $aliasResolverFunc('cr2.billed_time') . ' > 0',
-                    [$aliasResolverFunc('cr2.disconnect_cause') => DisconnectCause::$successCodes]
-                ]);
-        }
         // Если не требуется кеширование, то добавить условия для поля dst_number таблиц cr1 и cr2
         if ($this->dst_number) {
             $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
@@ -956,7 +941,7 @@ trait CallsRawReport
         // Left joins к алиасу cr2 таблицы calls_raw.calls_raw с дополнительным условием
         if ($this->is_exclude_internal_trunk_term) {
             $query->leftJoin(['bst2' => ServiceTrunk::tableName()], $aliasResolverFunc('cr2.trunk_service_id') . ' = bst2.id');
-            $query->leftJoin(['bc2' => Clients::tableName()], 'bc2.id = bst.client_account_id AND bc2.organization_id = ' . Organization::INTERNAL_OFFICE);
+            $query->leftJoin(['bc2' => Clients::tableName()], 'bc2.id = bst2.client_account_id AND bc2.organization_id = ' . Organization::INTERNAL_OFFICE);
             $query->andWhere(['bc2.id' => null]);
         }
         // Добавление условия для поля cr1.billed_time
