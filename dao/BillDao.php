@@ -531,10 +531,10 @@ class BillDao extends Singleton
 
         if ($contractDocument) {
             $name = Yii::t('uu', 'Services provided under the contract', [
-                'contract_no' => $contractDocument->contract_no,
-                'contract_date' => (new \DateTime($contractDocument->contract_date,
-                    new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->getTimestamp()
-            ], $lang) . $name;
+                    'contract_no' => $contractDocument->contract_no,
+                    'contract_date' => (new \DateTime($contractDocument->contract_date,
+                        new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->getTimestamp()
+                ], $lang) . $name;
         }
 
         return $name;
@@ -865,7 +865,7 @@ SQL;
      * @param ClientAccount $account
      * @param \DateTimeImmutable $periodStart
      * @param \DateTimeImmutable $periodEnd
-     * @throws ModelValidationException
+     * @throws \Exception
      */
     private function _advanceAccount(ClientAccount $account, \DateTimeImmutable $periodStart, \DateTimeImmutable $periodEnd)
     {
@@ -887,6 +887,11 @@ SQL;
 
         if ($trunks) {
             $trunkNamesStr = implode(", ", $trunks);
+        }
+
+        if ($offset = (new \DateTime('now', (new \DateTimeZone($account->timezone_name))))->getOffset()) {
+            $periodStart = $periodStart->sub(new \DateInterval('PT' . $offset . 'S'));
+            $periodEnd = $periodEnd->sub(new \DateInterval('PT' . $offset . 'S'));
         }
 
         CallsRaw::setPgTimeout(ActiveRecord::PG_CALCULATE_RESOURCE_TIMEOUT);
@@ -969,7 +974,7 @@ SQL;
             }
 
             $transaction->commit();
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error($e);
 
