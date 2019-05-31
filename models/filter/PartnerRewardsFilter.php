@@ -32,8 +32,6 @@ class PartnerRewardsFilter extends DynamicModel
         $summary = [],
         $possibleSummary = [];
 
-    private $_isPermanentResource;
-
     /**
      * @return array
      */
@@ -47,13 +45,11 @@ class PartnerRewardsFilter extends DynamicModel
 
     /**
      * @param bool $isExtendsMode
-     * @param bool $isPermanentResource
      */
-    public function __construct($isExtendsMode = false, $isPermanentResource = false)
+    public function __construct($isExtendsMode = false)
     {
         parent::__construct();
         $this->isExtendsMode = $isExtendsMode;
-        $this->_isPermanentResource = $isPermanentResource;
     }
 
     /**
@@ -126,8 +122,7 @@ SQL;
         ]);
 
         // Определение источника генерации партнерского вознаграждения
-        $partnerRewardsTableName = $this->_isPermanentResource ?
-            PartnerRewardsPermanent::tableName() : PartnerRewards::tableName();
+        $partnerRewardsTableName = PartnerRewards::tableName();
 
         $query
             ->from(['rewards' => $partnerRewardsTableName])

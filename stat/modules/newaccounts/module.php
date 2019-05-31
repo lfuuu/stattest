@@ -2280,7 +2280,7 @@ class m_newaccounts extends IModule
                     ->modify('first day of previous month')
                     ->format('Y-m');
                 // Создание фильтра и получение результата
-                $filterModel = (new PartnerRewardsFilter(true, true))->load();
+                $filterModel = (new PartnerRewardsFilter(true))->load();
                 // Вызов данного события обусловлен пройденной проверкой, в которой клиент счета имеет партнерское вознаграждение
                 $filterModel->partner_contract_id = $billModel->clientAccount->contract_id;
                 $filterModel->payment_date_before = $filterDate;

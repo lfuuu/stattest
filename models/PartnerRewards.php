@@ -24,6 +24,12 @@ class PartnerRewards extends ActiveRecord
         return 'partner_rewards';
     }
 
+    public function getBill()
+    {
+        return $this->hasOne(Bill::class, ['id' => 'bill_id']);
+    }
+
+
     /**
      * Вознаграждение не должно формироваться, если поля "Разовое", "% от подключения","% от абонентской платы",
      * "% от превышения","% от маржи" является null или 0.00
