@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models\traits;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\usages\UsageInterface;
@@ -10,6 +11,9 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use DateTimeImmutable;
+use Exception;
+use yii\db\Expression;
+use yii\db\Query;
 
 trait AccountTariffBillerTrait
 {
@@ -248,5 +252,30 @@ trait AccountTariffBillerTrait
         }
 
         return $accountLogPeriods;
+    }
+
+    /**
+     * Закрыть услугу
+     *
+     * @param null $actual_from_utc
+     * @throws \yii\db\Exception
+     */
+    public function setClosed($actual_from_utc = null)
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+        $nextAccountTariffLog = new AccountTariffLog();
+        $actual_from_utc = $actual_from_utc ?: (new Query)->select(new Expression('UTC_TIMESTAMP()'))->scalar();
+        try {
+            $nextAccountTariffLog->account_tariff_id = $this->id;
+            $nextAccountTariffLog->tariff_period_id = null;
+            $nextAccountTariffLog->actual_from_utc = $actual_from_utc;
+            if (!$nextAccountTariffLog->save()) {
+                throw new ModelValidationException($nextAccountTariffLog);
+            }
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 }
