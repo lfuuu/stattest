@@ -30,6 +30,8 @@ class MonitorFactory extends Singleton
             $this->getClientsOfSlovakia(),
             $this->getTestTariff(),
             $this->getShiftTariff(),
+            $this->getVatsInFutureRes(),
+            $this->getVatsInRes(),
         ];
     }
 
@@ -182,5 +184,21 @@ class MonitorFactory extends Singleton
     public function getShiftTariff()
     {
         return new ShiftTariff();
+    }
+
+    /**
+     * @return VatsResourceLessStat
+     */
+    public function getVatsInRes()
+    {
+        return new VatsResourceLessStat();
+    }
+
+    /**
+     * @return VatsResourceLessStat
+     */
+    public function getVatsInFutureRes()
+    {
+        return new VatsResourceLessStatInFuture();
     }
 }
