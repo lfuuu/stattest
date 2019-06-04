@@ -63,7 +63,7 @@ return [
         'attribute' => 'src_route',
     ],
     [
-        'label' => 'Договор',
+        'label' => 'Договор A',
         'attribute' => 'src_contract_name',
     ],
     [
@@ -71,7 +71,7 @@ return [
         'attribute' => 'dst_route',
     ],
     [
-        'label' => 'Договор',
+        'label' => 'Договор B',
         'attribute' => 'dst_contract_name',
     ],
     [

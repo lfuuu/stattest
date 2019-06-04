@@ -595,7 +595,10 @@ class CallsRawFilter extends CallsRaw
         $required = $this->getRequiredValues();
 
         $exclude = [];
-        if ($required['trafficType'] === CallsRawUnite::TRAFFIC_TYPE_ALL) {
+        if (
+            !$this->isFromUnite &&
+            $required['trafficType'] === CallsRawUnite::TRAFFIC_TYPE_ALL
+        ) {
             $exclude['trafficType'] = 1;
         }
 
