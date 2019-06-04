@@ -365,6 +365,18 @@ class ApiLk
 
         $data = [];
 
+        if ($clientCountryId == Country::RUSSIA && $bill->isHavePartnerRewards()) {
+            $data['partner_reward'] = API__print_bill_url . Encrypt::encodeArray([
+                    'object' => 'partner_reward',
+                    'bill' => $bill->bill_no,
+                    'client' => $bill->client_id,
+                    'is_pdf' => 1,
+                ]);
+
+            return $data;
+        }
+
+
         if ($clientCountryId == Country::RUSSIA || $bill->is_user_prepay) {
 
             $billData = [
@@ -381,14 +393,6 @@ class ApiLk
 
             $data['bill'] = API__print_bill_url . Encrypt::encodeArray($billData);
 
-            if ($bill->isHavePartnerRewards()) {
-                $data['partner_reward'] = API__print_bill_url . Encrypt::encodeArray([
-                        'object' => 'partner_reward',
-                        'bill' => $bill->bill_no,
-                        'client' => $bill->client_id,
-                        'is_pdf' => 1,
-                    ]);
-            }
         }
 
         // Универсальные инвойсы только для пользователей вне России

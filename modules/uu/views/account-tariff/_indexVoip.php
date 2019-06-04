@@ -9,6 +9,7 @@
  */
 
 use app\classes\helpers\DependecyHelper;
+use app\classes\Html;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -30,6 +31,9 @@ $rows = AccountTariff::getGroupedObjects($query);
 
     <p>
         <?= ($serviceType ? $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) : '') ?>
+        <?php if($serviceType && $serviceType->id == ServiceType::ID_VOIP):?>
+            <span class="pull-right"><?= Html::a('<i class="glyphicon glyphicon-trash"></i> Массовое отключение', '/uu/account-tariff/disable', ['class' => 'btn btn-warning']) ?></span>
+        <?php endif?>
     </p>
 
 <?php

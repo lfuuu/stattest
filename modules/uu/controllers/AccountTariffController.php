@@ -22,11 +22,16 @@ use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
+use DateTime;
+use DateTimeZone;
+use Exception;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
+use yii\db\Query;
 use yii\helpers\Url;
 use yii\filters\AccessControl;
 use yii\web\Response;
@@ -54,7 +59,7 @@ class AccountTariffController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel'],
+                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel', 'disable', 'select-numbers', 'close-numbers'],
                         'roles' => ['services_voip.edit'],
                     ],
                 ],
@@ -611,6 +616,130 @@ class AccountTariffController extends BaseController
                 'serviceTypeId' => $serviceTypeId,
             ]
         );
+    }
+
+    /**
+     * Ввести номера для отключения
+     * @return string
+     * @throws Exception
+     */
+    public function actionDisable()
+    {
+        if (!($clientAccountId = $this->_getCurrentClientAccountId())) {
+            throw new Exception('Выберите клиента');
+        }
+
+        $numbers = \Yii::$app->request->post('numbers', []);
+
+        $numbersArr = $numbers
+            ? array_filter(array_map(function ($item) {
+                $number = trim($item);
+                $len = strlen($number);
+                if (!is_numeric($number) || $len < 7 || $len > 15) {
+                    return null;
+                }
+                return $number;
+            }, preg_split("/(,|\n)/", $numbers)))
+            : null;
+
+        if (!$numbersArr) {
+            return $this->render('disableNumbers');
+        }
+
+
+        $numbers = $numbersArr;
+
+        if (!$numbers) {
+            return $this->redirect(['disable']);
+        }
+        $utc = (new Query)->select(new Expression('UTC_TIMESTAMP()'))->scalar();
+        $info = [];
+        foreach ($numbers as $number) {
+            /** @var AccountTariff $accountTariff */
+            $accountTariff = AccountTariff::find()
+                ->where(['voip_number' => $number])
+                ->andWhere(['client_account_id' => $clientAccountId])
+                ->andWhere(['NOT', ['tariff_period_id' => null]])
+                ->with('accountTariffLogs')
+                ->one();
+            if (!$accountTariff) {
+                $info[$number] = 'Не найден';
+                continue;
+            }
+            if (!$accountTariff->isEditable()) {
+                $info[$number] = 'Услуга нередактируемая';
+                continue;
+            }
+            /** @var AccountTariffLog $lastLog */
+            $lastLog = array_shift($accountTariff->accountTariffLogs);
+            if (($lastLog && !$lastLog->tariff_period_id)) {
+                $info[$number] = 'Уже закрыт';
+                continue;
+            }
+
+            /** @var AccountTariffLog $penultimateLog */
+            $penultimateLog = array_shift($accountTariff->accountTariffLogs);
+            if ($lastLog
+                && $penultimateLog
+                && $lastLog->actual_from_utc > $utc
+                && $penultimateLog->tariff_period_id
+                && $lastLog->tariff_period_id != $penultimateLog->tariff_period_id) {
+                $info[$number] = 'Установлен на смену тарифа';
+            } else {
+                $info[$number] = 'OK';
+            }
+        }
+        return $this->render('selectNumbers', ['info' => $info]);
+    }
+
+    /**
+     * Отключить номера
+     */
+    public function actionCloseNumbers()
+    {
+        $clientAccount = $this->_getCurrentClientAccount();
+        $clientAccountId = $clientAccount ? $clientAccount->id : null;
+        if (!$clientAccountId) {
+            throw new Exception('Клиент не найден');
+        }
+        $post = Yii::$app->request->post();
+        $numbers = isset($post['numbers']) ? $post['numbers'] : null;
+        $date = isset($post['date'])
+            ? DateTimeZoneHelper::setDateTime($post['date'], DateTimeZoneHelper::DATETIME_FORMAT)
+            : null;
+        if (!$numbers || !$date) {
+            throw new InvalidArgumentException('Отсутствует список номеров или не выбрана дата');
+        }
+
+        $accountTariffQuery = AccountTariff::find()
+            ->where([
+                'voip_number' => $numbers,
+                'client_account_id' => $clientAccountId
+            ])
+            ->andWhere(['NOT', ['tariff_period_id' => null]]);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        $message = '';
+        foreach ($accountTariffQuery->each() as $accountTariff) {
+            /** @var AccountTariff $accountTariff */
+            if (!$accountTariff->isEditable()) {
+                $message .= $accountTariff->voip_number . ': ' . 'услуга нередактируемая' . '<br>';
+                continue;
+            }
+            try {
+                $accountTariff->setClosed($date);
+            } catch (Exception $e) {
+                $message .= $accountTariff->voip_number . ': ' . $e->getMessage() . '<br>';
+            }
+        }
+        if ($message) {
+            Yii::$app->session->setFlash('error', $message);
+            $transaction->rollBack();
+        } else {
+            $transaction->commit();
+            Yii::$app->session->setFlash('success', 'Выбранные номера успешно отключены');
+        }
+        return $this->redirect('disable');
     }
 
     /**

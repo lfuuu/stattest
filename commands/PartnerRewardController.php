@@ -21,51 +21,6 @@ use yii\db\Expression;
 class PartnerRewardController extends Controller
 {
     /**
-     * Перманентное перекачивание данных за прошедшие сутки
-     *
-     * @param string $type Если значение - full, то выполнить полноценную синхронизацию, предварительно удалив старые записи из таблицы partner_rewards_permanent
-     */
-    public function actionCreatePermanent($type = '')
-    {
-        try {
-            $db = PartnerRewards::getDb();
-            // Если режим работы - полный, то очищаем все данные, находящиеся в PartnerRewardsPermanent
-            if ($type === 'full') {
-                PartnerRewardsPermanent::deleteAll();
-            }
-            // Перманентное перекачивание данных с учетом режима работы
-            $sql = '
-                INSERT INTO
-                  ' . PartnerRewardsPermanent::tableName() . ' 
-                  (bill_id, line_pk, created_at, once, percentage_once, percentage_of_fee, percentage_of_over, percentage_of_margin, partner_id)
-                  (
-                    SELECT
-                      rewards.bill_id,
-                      rewards.line_pk,
-                      rewards.created_at,
-                      rewards.once,
-                      rewards.percentage_once,
-                      rewards.percentage_of_fee,
-                      rewards.percentage_of_over,
-                      rewards.percentage_of_margin,
-                      contract.partner_contract_id partner_id
-                    FROM ' . PartnerRewards::tableName() . ' rewards
-                      LEFT JOIN ' . Bill::tableName() . ' bill ON rewards.bill_id = bill.id
-                      LEFT JOIN ' . ClientAccount::tableName() . ' client ON client.id = bill.client_id
-                      LEFT JOIN ' . ClientContract::tableName() . ' contract ON client.contract_id = contract.id
-                      ' . ($type === 'full' ? '' : 'WHERE rewards.created_at BETWEEN DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 00:00:00\') AND DATE_FORMAT(now() - INTERVAL 1 DAY,\'%Y-%m-%d 23:59:59\')') . '
-                  )
-                ;
-            ';
-            if (!$db->createCommand($sql)->execute()) {
-                \Yii::error(sprintf('Ошибка перманентного перекачивания данных: %s', date(DateTimeZoneHelper::DATETIME_FORMAT)));
-            }
-        } catch (\Exception $e) {
-            \Yii::error($e->getMessage());
-        }
-    }
-
-    /**
      * Расчет партнерских вознаграждений по оплаченным счетам за последние сутки
      */
     public function actionCalculateRewardsFor1Day()
@@ -137,7 +92,7 @@ class PartnerRewardController extends Controller
             round(coalesce(sum(percentage_of_over), 0), 2) +
             round(coalesce(sum(percentage_of_margin), 0), 2)');
 
-        $data = PartnerRewardsPermanent::find()
+        $data = PartnerRewards::find()
             ->alias('p')
             ->joinWith(['bill b'], true, 'INNER JOIN')
             ->select(['sum' => $exp])
