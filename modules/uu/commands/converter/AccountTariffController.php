@@ -217,8 +217,8 @@ class AccountTariffController extends Controller
 
         foreach ($arr as $trouble_id => $account_tariff_ids) {
             $account_tariff_ids = explode(',', $account_tariff_ids);
-            $packages = AccountTariff::find()->select('id')->where(['prev_account_tariff_id' => $account_tariff_ids])->column();
-            $account_tariff_ids = array_unique(array_merge($account_tariff_ids, $packages));
+            $packageIds = AccountTariff::find()->select('id')->where(['prev_account_tariff_id' => $account_tariff_ids])->column();
+            $account_tariff_ids = array_unique(array_merge($account_tariff_ids, $packageIds));
             $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $trouble_id]);
             $newPrice = AccountEntry::find()->select('sum(price_with_vat)')->where(['account_tariff_id' => $account_tariff_ids])->scalar();
             if (!$troubleRoistat || !is_numeric($newPrice)) {
