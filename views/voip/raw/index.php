@@ -117,10 +117,12 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             'label' => 'Номер В',
             'attribute' => 'dst_number',
         ];
-        $columns[] = [
-            'label' => 'ПДД',
-            'attribute' => 'pdd',
-        ];
+        if (!$filterModel->isFromUnite) {
+            $columns[] = [
+                'label' => 'ПДД',
+                'attribute' => 'pdd',
+            ];
+        }
     }
 }
 
