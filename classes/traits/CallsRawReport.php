@@ -519,7 +519,9 @@ trait CallsRawReport
 
         $select = array_merge($select, [
             //'number_of_calls' => '1'
-            'number_of_calls' => new Expression('1')
+            'number_of_calls' => new Expression('1'),
+            'src_number' => new Expression('src_number::varchar'),
+            'dst_number' => new Expression('dst_number::varchar'),
         ]);
 
         $query->select($select);
