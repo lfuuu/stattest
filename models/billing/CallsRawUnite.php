@@ -63,8 +63,7 @@ class CallsRawUnite extends ActiveRecord
     const TYPE_RETAIL = 10;
     const TYPE_AST = 11;
     const TYPE_MVNO = 12;
-    //const TYPE_TRANSIT = 20;
-    const TYPE_TRANSIT = 2;
+    const TYPE_TRANSIT = 20;
     const TYPE_OTT = 30;
 
     const TRAFFIC_TYPE_ALL = 1;
