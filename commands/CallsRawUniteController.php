@@ -271,8 +271,8 @@ WITH mvno_trunks as (
               cr.nnp_city_id                                                            nnp_city_id_B,
               COALESCE(cr.nnp_own_country_code, cr2.nnp_country_code)                   nnp_country_code_A,
               cr.nnp_country_code                                                       nnp_country_code_B,
-              dst_nr.ndc_type_id                                                        ndc_type_id_A,
-              src_nr.ndc_type_id                                                        ndc_type_id_B,
+              src_nr.ndc_type_id                                                        ndc_type_id_A,
+              dst_nr.ndc_type_id                                                        ndc_type_id_B,
               COALESCE(cr.nnp_filter_orig_id, cr.nnp_filter_orig_ids [ 1])              nnp_filter_id1_orig,
               COALESCE(cr.nnp_filter_term_id, cr.nnp_filter_term_ids [ 1])              nnp_filter_id1_term,
               cr.nnp_filter_orig_ids [ 2]                                               nnp_filter_id2_orig,
@@ -363,8 +363,8 @@ WITH mvno_trunks as (
               cr2.nnp_own_city_id                                            nnp_city_id_B,
               cr2.nnp_country_code                                           nnp_country_code_A,
               cr2.nnp_own_country_code                                       nnp_country_code_B,
-              dst_nr.ndc_type_id                                             ndc_type_id_A,
-              src_nr.ndc_type_id                                             ndc_type_id_B,
+              src_nr.ndc_type_id                                             ndc_type_id_A,
+              dst_nr.ndc_type_id                                             ndc_type_id_B,
               COALESCE(cr2.nnp_filter_orig_id, cr2.nnp_filter_orig_ids [ 1]) nnp_filter_id1_orig,
               COALESCE(cr2.nnp_filter_term_id, cr2.nnp_filter_term_ids [ 1]) nnp_filter_id1_term,
               cr2.nnp_filter_orig_ids [ 2]                                   nnp_filter_id2_orig,
@@ -691,6 +691,99 @@ WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < endin
     AND type IN (10, 11, 12)
     AND is_by_peer IS TRUE
 );
+
+
+-- 11. Fix transit and OTT by_peer
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type IN (20, 30)
+  AND is_by_peer IS FALSE
+  AND id_orig IN (
+  SELECT id_orig
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type >= 10
+    AND is_by_peer IS TRUE
+);
+
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type IN (20, 30)
+  AND is_by_peer IS FALSE
+  AND id_term IN (
+  SELECT id_term
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type >= 10
+    AND is_by_peer IS TRUE
+);
+
+
+-- 12. Fix extra MVNO Cost
+WITH origs as (
+  SELECT
+    id_orig,
+    min(id_term) id_term
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+  GROUP BY id_orig
+  HAVING count(DISTINCT id_term) > 1
+),
+terms_left as (
+  SELECT
+    id_term
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+    AND id_orig IN (SELECT id_orig FROM origs)
+    AND id_term NOT IN (SELECT id_term FROM origs)
+)
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE
+  (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type = 13
+  AND id_term IN (SELECT id_term FROM terms_left);
+
+
+WITH terms as (
+  SELECT
+    id_term,
+    min(id_orig) id_orig
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+  GROUP BY id_term
+  HAVING count(DISTINCT id_orig) > 1
+),
+origs_left as (
+  SELECT
+    id_orig
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+    AND id_term IN (SELECT id_term FROM terms)
+    AND id_orig NOT IN (SELECT id_orig FROM terms)
+)
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE
+  (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type = 13
+  AND id_orig IN (SELECT id_orig FROM origs_left);
 
 END;
 $$;

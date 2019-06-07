@@ -671,20 +671,20 @@ trait CallsRawReport
         // Находится ли src_ndc_type_id в массиве $this->group
         $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group);
         if ($isSrcNdcTypeGroup || $this->src_number_type_ids) {
-            $query->addSelect(['src_ndc_type_id' => $aliasResolverFunc('ndc_type_id_b')]);
+            $query->addSelect(['src_ndc_type_id' => $aliasResolverFunc('ndc_type_id_a')]);
         }
         if ($this->src_number_type_ids) {
-            $query->andWhere([$aliasResolverFunc('ndc_type_id_b') => $this->src_number_type_ids]);
+            $query->andWhere([$aliasResolverFunc('ndc_type_id_a') => $this->src_number_type_ids]);
         }
 
         // Находится ли dst_ndc_type_id в массиве $this->group
         $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group);
 
         if ($isDstNdcTypeGroup || $this->dst_number_type_ids) {
-            $query->addSelect(['dst_ndc_type_id' => $aliasResolverFunc('ndc_type_id_a')]);
+            $query->addSelect(['dst_ndc_type_id' => $aliasResolverFunc('ndc_type_id_b')]);
         }
         if ($this->dst_number_type_ids) {
-            $query->andWhere([$aliasResolverFunc('ndc_type_id_a') => $this->dst_number_type_ids]);
+            $query->andWhere([$aliasResolverFunc('ndc_type_id_b') => $this->dst_number_type_ids]);
         }
 
         // Если не требуется кеширование, то добавить условия для поля dst_number таблиц cr1 и cr2
