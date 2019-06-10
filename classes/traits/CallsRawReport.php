@@ -462,12 +462,12 @@ trait CallsRawReport
         $select = [
             'connect_time' => $aliasResolverFunc('cr1.connect_time'),
             'session_time' => $aliasResolverFunc('cr1.billed_time'),
-//            'disconnect_cause' => $aliasResolverFunc('cr1.disconnect_cause'),
+            'disconnect_cause' => $aliasResolverFunc('cr1.disconnect_cause'),
             'src_route' => 't1.name',
             'dst_operator_name' => 'o1.name',
             'dst_country_name' => 'nc1.name_rus',
             'dst_region_name' => 'r1.name',
-//            'dst_city_name' => 'ci1.name',
+            'dst_city_name' => 'ci1.name',
             'st1.contract_number || \' (\' || cct1.name || \')\' dst_contract_name',
             'sale' => new Expression("(
                 CASE 
@@ -493,7 +493,7 @@ trait CallsRawReport
             'src_operator_name' => 'o2.name',
             'src_country_name' => 'nc2.name_rus',
             'src_region_name' => 'r2.name',
-//            'src_city_name' => 'ci2.name',
+            'src_city_name' => 'ci2.name',
             'st2.contract_number || \' (\' || cct2.name || \')\' src_contract_name', //
             'cost_price' => new Expression("(
                 CASE 
@@ -518,7 +518,6 @@ trait CallsRawReport
         ];
 
         $select = array_merge($select, [
-            //'number_of_calls' => '1'
             'number_of_calls' => new Expression('1'),
             'src_number' => new Expression('src_number::varchar'),
             'dst_number' => new Expression('dst_number::varchar'),
@@ -528,7 +527,7 @@ trait CallsRawReport
         $query
             ->from(CallsRawUnite::tableName())
             ->andWhere([
-                'market_place' => $this->marketPlaceId,
+                'market_place_id' => $this->marketPlaceId,
             ])
         ;
 
@@ -541,7 +540,7 @@ trait CallsRawReport
             ->leftJoin(['o1' => Operator::tableName()], 'o1.id = ' . $aliasResolverFunc('nnp_operator_id_b'))
             ->leftJoin(['nc1' => Country::tableName()], 'nc1.code = ' . $aliasResolverFunc('nnp_country_code_b'))
             ->leftJoin(['r1' => Region::tableName()], 'r1.id = ' . $aliasResolverFunc('nnp_region_id_b'))
-            //->leftJoin(['ci1' => City::tableName()], 'ci1.id = ' . $aliasResolverFunc('nnp_city_id_b'))
+            ->leftJoin(['ci1' => City::tableName()], 'ci1.id = ' . $aliasResolverFunc('nnp_city_id_b'))
 
             ->leftJoin(['c1' => Clients::tableName()], 'c1.id = ' . $aliasResolverFunc('cr1.account_id'))
             ->leftJoin(['rate1' => CurrencyRate::tableName()], 'rate1.currency::public.currencies = c1.currency AND rate1.date = now()::date')
@@ -554,7 +553,7 @@ trait CallsRawReport
             ->leftJoin(['o2' => Operator::tableName()], 'o2.id = ' . $aliasResolverFunc('nnp_operator_id_a'))
             ->leftJoin(['nc2' => Country::tableName()], 'nc2.code = ' . $aliasResolverFunc('nnp_country_code_a'))
             ->leftJoin(['r2' => Region::tableName()], 'r2.id = ' . $aliasResolverFunc('nnp_region_id_a'))
-            //->leftJoin(['ci2' => City::tableName()], 'ci2.id = ' . $aliasResolverFunc('nnp_city_id_a'))
+            ->leftJoin(['ci2' => City::tableName()], 'ci2.id = ' . $aliasResolverFunc('nnp_city_id_a'))
 
             ->leftJoin(['c2' => Clients::tableName()], 'c2.id = ' . $aliasResolverFunc('cr2.account_id'))
             ->leftJoin(['rate2' => CurrencyRate::tableName()], 'rate2.currency::public.currencies = c2.currency AND rate2.date = now()::date');
@@ -574,14 +573,6 @@ trait CallsRawReport
                 $conditionFunc($aliasResolverFunc('cr1.connect_time')),
             ]);
         }
-
-        // Добавление условия для поля server_id
-//        if ($this->server_ids) {
-//            $query->andWhere(['AND',
-//                [$aliasResolverFunc('cr1.server_id') => $this->server_ids],
-//                [$aliasResolverFunc('cr2.server_id') => $this->server_ids],
-//            ]);
-//        }
 
         // Добавление условия для поля type
         $query->andWhere([
@@ -650,7 +641,8 @@ trait CallsRawReport
         if ($this->dst_physical_trunks_ids) {
             $query->andWhere([$aliasResolverFunc('cr2.trunk_id') => $this->dst_physical_trunks_ids]);
         }
-        // Добавление условий для полей trunk_service_id, contract_id, nnp_operator_id, nnp_region_id, nnp_city_id, nnp_country_code основных таблиц cr1 и cr2
+        // Добавление условий для полей trunk_service_id, contract_id,
+        // nnp_operator_id, nnp_region_id, nnp_city_id, nnp_country_code основных таблиц cr1 и cr2
         $query = $query
             ->reportCondition($aliasResolverFunc('cr1.trunk_service_id'), $this->src_logical_trunks_ids)
             ->reportCondition($aliasResolverFunc('cr2.trunk_service_id'), $this->dst_logical_trunks_ids)
@@ -664,8 +656,8 @@ trait CallsRawReport
             ->reportCondition($aliasResolverFunc('nnp_region_id_a'), $this->src_regions_ids)
             ->reportCondition($aliasResolverFunc('nnp_region_id_b'), $this->dst_regions_ids)
 
-//            ->reportCondition($aliasResolverFunc('nnp_city_id_a'), $this->src_cities_ids)
-//            ->reportCondition($aliasResolverFunc('nnp_city_id_b'), $this->dst_cities_ids)
+            ->reportCondition($aliasResolverFunc('nnp_city_id_a'), $this->src_cities_ids)
+            ->reportCondition($aliasResolverFunc('nnp_city_id_b'), $this->dst_cities_ids)
 
             ->reportCondition($aliasResolverFunc('nnp_country_code_a'), $this->src_countries_ids)
             ->reportCondition($aliasResolverFunc('nnp_country_code_b'), $this->dst_countries_ids)
@@ -676,22 +668,24 @@ trait CallsRawReport
 //            $this->group = array_diff($this->group, $exceptGroupFields);
 //        }
 
-//        $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group);
-//        if ($isSrcNdcTypeGroup || $this->src_number_type_ids) {
-//            $query->addSelect(['src_ndc_type_id' => $aliasResolverFunc('src_nr.ndc_type_id')]);
-//        }
-//        if ($this->src_number_type_ids) {
-//            $query->andWhere([$aliasResolverFunc('src_nr.ndc_type_id') => $this->src_number_type_ids]);
-//        }
-//        // Находится ли dst_ndc_type_id в массиве $this->group
-//        $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group);
-//
-//        if ($isDstNdcTypeGroup || $this->dst_number_type_ids) {
-//            $query->addSelect(['dst_ndc_type_id' => $aliasResolverFunc('dst_nr.ndc_type_id')]);
-//        }
-//        if ($this->dst_number_type_ids) {
-//            $query->andWhere([$aliasResolverFunc('dst_nr.ndc_type_id') => $this->dst_number_type_ids]);
-//        }
+        // Находится ли src_ndc_type_id в массиве $this->group
+        $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group);
+        if ($isSrcNdcTypeGroup || $this->src_number_type_ids) {
+            $query->addSelect(['src_ndc_type_id' => $aliasResolverFunc('ndc_type_id_a')]);
+        }
+        if ($this->src_number_type_ids) {
+            $query->andWhere([$aliasResolverFunc('ndc_type_id_a') => $this->src_number_type_ids]);
+        }
+
+        // Находится ли dst_ndc_type_id в массиве $this->group
+        $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group);
+
+        if ($isDstNdcTypeGroup || $this->dst_number_type_ids) {
+            $query->addSelect(['dst_ndc_type_id' => $aliasResolverFunc('ndc_type_id_b')]);
+        }
+        if ($this->dst_number_type_ids) {
+            $query->andWhere([$aliasResolverFunc('ndc_type_id_b') => $this->dst_number_type_ids]);
+        }
 
         // Если не требуется кеширование, то добавить условия для поля dst_number таблиц cr1 и cr2
         if ($this->dst_number) {

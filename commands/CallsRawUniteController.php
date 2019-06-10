@@ -87,7 +87,7 @@ class CallsRawUniteController extends Controller
     protected function createTable()
     {
         $sqlCreateTable = <<<ESQL
-create table if not exists calls_raw_unite.calls_raw_unite5
+create table if not exists calls_raw_unite.calls_raw_unite
 (
   id_orig bigint,
   id_term bigint,
@@ -148,7 +148,7 @@ create table if not exists calls_raw_unite.calls_raw_unite5
   mcn_callid uuid
 );
 
-alter table calls_raw_unite.calls_raw_unite5
+alter table calls_raw_unite.calls_raw_unite
   owner to postgres;
 ESQL;
 
@@ -167,7 +167,7 @@ BEGIN
 
 --clear
   DELETE FROM
-    calls_raw_unite.calls_raw_unite5
+    calls_raw_unite.calls_raw_unite
   WHERE
     connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp;
 
@@ -271,8 +271,8 @@ WITH mvno_trunks as (
               cr.nnp_city_id                                                            nnp_city_id_B,
               COALESCE(cr.nnp_own_country_code, cr2.nnp_country_code)                   nnp_country_code_A,
               cr.nnp_country_code                                                       nnp_country_code_B,
-              dst_nr.ndc_type_id                                                        ndc_type_id_A,
-              src_nr.ndc_type_id                                                        ndc_type_id_B,
+              src_nr.ndc_type_id                                                        ndc_type_id_A,
+              dst_nr.ndc_type_id                                                        ndc_type_id_B,
               COALESCE(cr.nnp_filter_orig_id, cr.nnp_filter_orig_ids [ 1])              nnp_filter_id1_orig,
               COALESCE(cr.nnp_filter_term_id, cr.nnp_filter_term_ids [ 1])              nnp_filter_id1_term,
               cr.nnp_filter_orig_ids [ 2]                                               nnp_filter_id2_orig,
@@ -363,8 +363,8 @@ WITH mvno_trunks as (
               cr2.nnp_own_city_id                                            nnp_city_id_B,
               cr2.nnp_country_code                                           nnp_country_code_A,
               cr2.nnp_own_country_code                                       nnp_country_code_B,
-              dst_nr.ndc_type_id                                             ndc_type_id_A,
-              src_nr.ndc_type_id                                             ndc_type_id_B,
+              src_nr.ndc_type_id                                             ndc_type_id_A,
+              dst_nr.ndc_type_id                                             ndc_type_id_B,
               COALESCE(cr2.nnp_filter_orig_id, cr2.nnp_filter_orig_ids [ 1]) nnp_filter_id1_orig,
               COALESCE(cr2.nnp_filter_term_id, cr2.nnp_filter_term_ids [ 1]) nnp_filter_id1_term,
               cr2.nnp_filter_orig_ids [ 2]                                   nnp_filter_id2_orig,
@@ -404,7 +404,7 @@ WITH mvno_trunks as (
          AND (cr.id IS NULL OR h2.id IS NULL)
      )
 INSERT
-INTO calls_raw_unite.calls_raw_unite5
+INTO calls_raw_unite.calls_raw_unite
 SELECT
   *
 FROM (
@@ -442,14 +442,14 @@ BEGIN
 FOR market_id IN 1..2 LOOP
 WITH callids as (
   SELECT mcn_callid
-  FROM calls_raw_unite.calls_raw_unite5
+  FROM calls_raw_unite.calls_raw_unite
   WHERE
     (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
     AND type = 30
     AND market_place_id = market_id
 )
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET
   type = 30
 WHERE
@@ -464,7 +464,7 @@ END LOOP;
 FOR market_id IN 1..2 LOOP
 WITH callids as (
   SELECT mcn_callid
-  FROM calls_raw_unite.calls_raw_unite5
+  FROM calls_raw_unite.calls_raw_unite
   WHERE
     (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
     AND type IN (10, 20)
@@ -472,7 +472,7 @@ WITH callids as (
     AND market_place_id = market_id
 )
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET
   type = 12
 WHERE
@@ -487,7 +487,7 @@ END LOOP;
 FOR market_id IN 1..2 LOOP
 WITH callids as (
   SELECT mcn_callid
-  FROM calls_raw_unite.calls_raw_unite5
+  FROM calls_raw_unite.calls_raw_unite
   WHERE
     (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
     AND type IN (10, 20)
@@ -495,7 +495,7 @@ WITH callids as (
     AND market_place_id = market_id
 )
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET
   type = 11
 WHERE
@@ -508,7 +508,7 @@ END LOOP;
 
 -- 6. Fix asterisks by_peer
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET type = 5
 WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
   AND type IN (10, 11, 12)
@@ -516,7 +516,7 @@ WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < endin
   AND has_mvno IS FALSE
   AND id_orig IN (
   SELECT id_orig
-  FROM calls_raw_unite.calls_raw_unite5
+  FROM calls_raw_unite.calls_raw_unite
   WHERE
     (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
     AND type IN (10, 11, 12)
@@ -524,7 +524,7 @@ WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < endin
 );
 
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET type = 5
 WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
   AND type IN (10, 11, 12)
@@ -532,7 +532,7 @@ WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < endin
   AND has_mvno IS FALSE
   AND id_term IN (
   SELECT id_term
-  FROM calls_raw_unite.calls_raw_unite5
+  FROM calls_raw_unite.calls_raw_unite
   WHERE
     (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
     AND type IN (10, 11, 12)
@@ -543,7 +543,7 @@ WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < endin
 -- 7. Fix asterisk by mismatch
 FOR market_id IN 1..2 LOOP
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET type = 5
 WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
   AND type IN (10, 11, 12)
@@ -555,7 +555,7 @@ WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < endin
   FROM (
          SELECT mcn_callid,
                 count(*)
-         FROM calls_raw_unite.calls_raw_unite5
+         FROM calls_raw_unite.calls_raw_unite
          WHERE
            (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
            AND type IN (10, 11, 12)
@@ -569,7 +569,7 @@ END LOOP;
 
 -- 8. Fix mvno with origs
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET
   type = 13,
   cost_term = 0,
@@ -604,7 +604,7 @@ WHERE
   AND id_term IN (
   select
     id_term
-  from calls_raw_unite.calls_raw_unite5
+  from calls_raw_unite.calls_raw_unite
   WHERE
     (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
     AND type = 12
@@ -616,7 +616,7 @@ WHERE
 
 -- 9. Fix mvno with terms
 UPDATE
-  calls_raw_unite.calls_raw_unite5
+  calls_raw_unite.calls_raw_unite
 SET
   type = 13,
   cost_orig = 0,
@@ -651,7 +651,7 @@ WHERE
   AND id_orig IN (
   select
     id_orig
-  from calls_raw_unite.calls_raw_unite5
+  from calls_raw_unite.calls_raw_unite
   WHERE
     (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
     AND type = 12
@@ -659,6 +659,131 @@ WHERE
   HAVING count(*) > 1
      AND SUM(CASE WHEN has_mvno IS TRUE THEN 1 ELSE 0 END) = 1
 );
+
+
+-- 10. Fix asterisks by_peer again
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type IN (10, 11, 12)
+  AND is_by_peer IS FALSE
+  AND id_orig IN (
+  SELECT id_orig
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type IN (10, 11, 12)
+    AND is_by_peer IS TRUE
+);
+
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type IN (10, 11, 12)
+  AND is_by_peer IS FALSE
+  AND id_term IN (
+  SELECT id_term
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type IN (10, 11, 12)
+    AND is_by_peer IS TRUE
+);
+
+
+-- 11. Fix transit and OTT by_peer
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type IN (20, 30)
+  AND is_by_peer IS FALSE
+  AND id_orig IN (
+  SELECT id_orig
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type >= 10
+    AND is_by_peer IS TRUE
+);
+
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type IN (20, 30)
+  AND is_by_peer IS FALSE
+  AND id_term IN (
+  SELECT id_term
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type >= 10
+    AND is_by_peer IS TRUE
+);
+
+
+-- 12. Fix extra MVNO Cost
+WITH origs as (
+  SELECT
+    id_orig,
+    min(id_term) id_term
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+  GROUP BY id_orig
+  HAVING count(DISTINCT id_term) > 1
+),
+terms_left as (
+  SELECT
+    id_term
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+    AND id_orig IN (SELECT id_orig FROM origs)
+    AND id_term NOT IN (SELECT id_term FROM origs)
+)
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE
+  (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type = 13
+  AND id_term IN (SELECT id_term FROM terms_left);
+
+
+WITH terms as (
+  SELECT
+    id_term,
+    min(id_orig) id_orig
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+  GROUP BY id_term
+  HAVING count(DISTINCT id_orig) > 1
+),
+origs_left as (
+  SELECT
+    id_orig
+  FROM calls_raw_unite.calls_raw_unite
+  WHERE
+    (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+    AND type = 13
+    AND id_term IN (SELECT id_term FROM terms)
+    AND id_orig NOT IN (SELECT id_orig FROM terms)
+)
+UPDATE
+  calls_raw_unite.calls_raw_unite
+SET type = 5
+WHERE
+  (connect_time_orig >= beginning :: timestamp AND connect_time_orig < ending :: timestamp)
+  AND type = 13
+  AND id_orig IN (SELECT id_orig FROM origs_left);
 
 END;
 $$;
@@ -673,94 +798,94 @@ ESQL;
     protected function addComment()
     {
         $sqlAddComment = <<<ESQL
-comment on column calls_raw_unite.calls_raw_unite5.id_orig is 'Оригинация. Ссылка на соответствующую запись calls_raw.';
-comment on column calls_raw_unite.calls_raw_unite5.id_term is 'Терминация. Ссылка на соответствующую запись calls_raw.';
+comment on column calls_raw_unite.calls_raw_unite.id_orig is 'Оригинация. Ссылка на соответствующую запись calls_raw.';
+comment on column calls_raw_unite.calls_raw_unite.id_term is 'Терминация. Ссылка на соответствующую запись calls_raw.';
 
-comment on column calls_raw_unite.calls_raw_unite5.connect_time_orig is 'Оригинация. Время начала разговора (UTC).';
-comment on column calls_raw_unite.calls_raw_unite5.connect_time_term is 'Терминация. Время начала разговора (UTC).';
+comment on column calls_raw_unite.calls_raw_unite.connect_time_orig is 'Оригинация. Время начала разговора (UTC).';
+comment on column calls_raw_unite.calls_raw_unite.connect_time_term is 'Терминация. Время начала разговора (UTC).';
 
-comment on column calls_raw_unite.calls_raw_unite5.connect_day_key is 'Ключ для дня начала разговора (UTC).';
+comment on column calls_raw_unite.calls_raw_unite.connect_day_key is 'Ключ для дня начала разговора (UTC).';
 
-comment on column calls_raw_unite.calls_raw_unite5.market_place_id is 'Биржа, к которой принадлежат плечи звонка.';
+comment on column calls_raw_unite.calls_raw_unite.market_place_id is 'Биржа, к которой принадлежат плечи звонка.';
 
-comment on column calls_raw_unite.calls_raw_unite5.type is 'Тип звонка: unfinished (1)/not_merged (2)/not_merged_term (3)/broken (4)/retail (10)/internal (11)/our (12)/MVNO (13)/transit (11)/OTT (30).';
+comment on column calls_raw_unite.calls_raw_unite.type is 'Тип звонка: unfinished (1)/not_merged (2)/not_merged_term (3)/broken (4)/wrong (5)/retail (10)/asterisk (11)/MVNO (12)/MVNO Cost (13)/transit (20)/OTT (30).';
 
-comment on column calls_raw_unite.calls_raw_unite5.hub_id_orig is 'Оригинация. Хаб плеча.auth.hub.id';
-comment on column calls_raw_unite.calls_raw_unite5.hub_id_term is 'Терминация. Хаб плеча.auth.hub.id';
+comment on column calls_raw_unite.calls_raw_unite.hub_id_orig is 'Оригинация. Хаб плеча.auth.hub.id';
+comment on column calls_raw_unite.calls_raw_unite.hub_id_term is 'Терминация. Хаб плеча.auth.hub.id';
 
-comment on column calls_raw_unite.calls_raw_unite5.cdr_id_orig is 'Оригинация. Ссылка на соответствующую запись calls_cdr';
-comment on column calls_raw_unite.calls_raw_unite5.cdr_id_term is 'Терминация. Ссылка на соответствующую запись calls_cdr';
+comment on column calls_raw_unite.calls_raw_unite.cdr_id_orig is 'Оригинация. Ссылка на соответствующую запись calls_cdr';
+comment on column calls_raw_unite.calls_raw_unite.cdr_id_term is 'Терминация. Ссылка на соответствующую запись calls_cdr';
 
-comment on column calls_raw_unite.calls_raw_unite5.trunk_id_orig is 'Оригинация. Физический транк плеча.auth.trunk';
-comment on column calls_raw_unite.calls_raw_unite5.trunk_id_term is 'Терминация. Физический транк плеча.auth.trunk';
+comment on column calls_raw_unite.calls_raw_unite.trunk_id_orig is 'Оригинация. Физический транк плеча.auth.trunk';
+comment on column calls_raw_unite.calls_raw_unite.trunk_id_term is 'Терминация. Физический транк плеча.auth.trunk';
 
-comment on column calls_raw_unite.calls_raw_unite5.account_id_orig is 'Оригинация. Лицевой счет плеча.billing.clients.id';
-comment on column calls_raw_unite.calls_raw_unite5.account_id_term is 'Терминация. Лицевой счет плеча.billing.clients.id';
+comment on column calls_raw_unite.calls_raw_unite.account_id_orig is 'Оригинация. Лицевой счет плеча.billing.clients.id';
+comment on column calls_raw_unite.calls_raw_unite.account_id_term is 'Терминация. Лицевой счет плеча.billing.clients.id';
 
-comment on column calls_raw_unite.calls_raw_unite5.trunk_service_id_orig is 'Оригинация. Услуга "транк" плеча.billing.service_trunk.id. Если есть.';
-comment on column calls_raw_unite.calls_raw_unite5.trunk_service_id_term is 'Терминация. Услуга "транк" плеча.billing.service_trunk.id. Если есть.';
+comment on column calls_raw_unite.calls_raw_unite.trunk_service_id_orig is 'Оригинация. Услуга "транк" плеча.billing.service_trunk.id. Если есть.';
+comment on column calls_raw_unite.calls_raw_unite.trunk_service_id_term is 'Терминация. Услуга "транк" плеча.billing.service_trunk.id. Если есть.';
 
-comment on column calls_raw_unite.calls_raw_unite5.number_service_id_orig is 'Оригинация. Услуга "номер" плеча. billing.service_number.id. Если есть.';
-comment on column calls_raw_unite.calls_raw_unite5.number_service_id_term is 'Терминация. Услуга "номер" плеча. billing.service_number.id. Если есть.';
+comment on column calls_raw_unite.calls_raw_unite.number_service_id_orig is 'Оригинация. Услуга "номер" плеча. billing.service_number.id. Если есть.';
+comment on column calls_raw_unite.calls_raw_unite.number_service_id_term is 'Терминация. Услуга "номер" плеча. billing.service_number.id. Если есть.';
 
-comment on column calls_raw_unite.calls_raw_unite5.src_number is 'Номер А звонка.';
-comment on column calls_raw_unite.calls_raw_unite5.dst_number is 'Номер Б звонка.';
+comment on column calls_raw_unite.calls_raw_unite.src_number is 'Номер А звонка.';
+comment on column calls_raw_unite.calls_raw_unite.dst_number is 'Номер Б звонка.';
 
-comment on column calls_raw_unite.calls_raw_unite5.currency_orig is 'Оригинация. Валюта лицевого счета плеча.billing.clients.currency';
-comment on column calls_raw_unite.calls_raw_unite5.currency_term is 'Терминация. Валюта лицевого счета плеча.billing.clients.currency';
+comment on column calls_raw_unite.calls_raw_unite.currency_orig is 'Оригинация. Валюта лицевого счета плеча.billing.clients.currency';
+comment on column calls_raw_unite.calls_raw_unite.currency_term is 'Терминация. Валюта лицевого счета плеча.billing.clients.currency';
 
-comment on column calls_raw_unite.calls_raw_unite5.billed_time_orig is 'Оригинация. Время по которому происходит тарификация. Применяются настройки округления и бесплатных секунд.';
-comment on column calls_raw_unite.calls_raw_unite5.billed_time_term is 'Терминация. Время по которому происходит тарификация. Применяются настройки округления и бесплатных секунд.';
+comment on column calls_raw_unite.calls_raw_unite.billed_time_orig is 'Оригинация. Время по которому происходит тарификация. Применяются настройки округления и бесплатных секунд.';
+comment on column calls_raw_unite.calls_raw_unite.billed_time_term is 'Терминация. Время по которому происходит тарификация. Применяются настройки округления и бесплатных секунд.';
 
-comment on column calls_raw_unite.calls_raw_unite5.session_time_orig is 'Оригинация. Продолжительность звонка.';
-comment on column calls_raw_unite.calls_raw_unite5.session_time_term is 'Терминация. Продолжительность звонка.';
+comment on column calls_raw_unite.calls_raw_unite.session_time_orig is 'Оригинация. Продолжительность звонка.';
+comment on column calls_raw_unite.calls_raw_unite.session_time_term is 'Терминация. Продолжительность звонка.';
 
-comment on column calls_raw_unite.calls_raw_unite5.rate_orig is 'Оригинация. Цена минуты звонка.';
-comment on column calls_raw_unite.calls_raw_unite5.rate_term is 'Терминация. Цена минуты звонка.';
+comment on column calls_raw_unite.calls_raw_unite.rate_orig is 'Оригинация. Цена минуты звонка.';
+comment on column calls_raw_unite.calls_raw_unite.rate_term is 'Терминация. Цена минуты звонка.';
 
-comment on column calls_raw_unite.calls_raw_unite5.tax_rate_orig is 'Оригинация. НДС для цены минуты звонка.';
-comment on column calls_raw_unite.calls_raw_unite5.tax_rate_term is 'Терминация. НДС для цены минуты звонка.';
+comment on column calls_raw_unite.calls_raw_unite.tax_rate_orig is 'Оригинация. НДС для цены минуты звонка.';
+comment on column calls_raw_unite.calls_raw_unite.tax_rate_term is 'Терминация. НДС для цены минуты звонка.';
 
-comment on column calls_raw_unite.calls_raw_unite5.cost_orig is 'Оригинация. Общая стоимость звона.На нее меняется баланс.Если есть минуты в пакетах - они уходят из стоимости.';
-comment on column calls_raw_unite.calls_raw_unite5.cost_term is 'Терминация. Общая стоимость звона.На нее меняется баланс.Если есть минуты в пакетах - они уходят из стоимости.';
+comment on column calls_raw_unite.calls_raw_unite.cost_orig is 'Оригинация. Общая стоимость звона.На нее меняется баланс.Если есть минуты в пакетах - они уходят из стоимости.';
+comment on column calls_raw_unite.calls_raw_unite.cost_term is 'Терминация. Общая стоимость звона.На нее меняется баланс.Если есть минуты в пакетах - они уходят из стоимости.';
 
-comment on column calls_raw_unite.calls_raw_unite5.tax_cost_orig is 'Оригинация. НДС для общей стоимости звонка.';
-comment on column calls_raw_unite.calls_raw_unite5.tax_cost_term is 'Терминация. НДС для общей стоимости звонка.';
+comment on column calls_raw_unite.calls_raw_unite.tax_cost_orig is 'Оригинация. НДС для общей стоимости звонка.';
+comment on column calls_raw_unite.calls_raw_unite.tax_cost_term is 'Терминация. НДС для общей стоимости звонка.';
 
-comment on column calls_raw_unite.calls_raw_unite5.our_orig is 'Оригинация. Транк плеча наш. флаг берется из auth.trunk.our_trunk';
-comment on column calls_raw_unite.calls_raw_unite5.our_term is 'Терминация. Транк плеча наш. флаг берется из auth.trunk.our_trunk';
+comment on column calls_raw_unite.calls_raw_unite.our_orig is 'Оригинация. Транк плеча наш. флаг берется из auth.trunk.our_trunk';
+comment on column calls_raw_unite.calls_raw_unite.our_term is 'Терминация. Транк плеча наш. флаг берется из auth.trunk.our_trunk';
 
-comment on column calls_raw_unite.calls_raw_unite5.disconnect_cause_orig is 'Оригинация. Причина завершения вызова. billing.disconnect_cause.cause_id';
-comment on column calls_raw_unite.calls_raw_unite5.disconnect_cause_term is 'Терминация. Причина завершения вызова. billing.disconnect_cause.cause_id';
+comment on column calls_raw_unite.calls_raw_unite.disconnect_cause_orig is 'Оригинация. Причина завершения вызова. billing.disconnect_cause.cause_id';
+comment on column calls_raw_unite.calls_raw_unite.disconnect_cause_term is 'Терминация. Причина завершения вызова. billing.disconnect_cause.cause_id';
 
-comment on column calls_raw_unite.calls_raw_unite5.has_asterisk is 'Один из транков плеч - asterisk';
+comment on column calls_raw_unite.calls_raw_unite.has_asterisk is 'Один из транков плеч - asterisk';
 
-comment on column calls_raw_unite.calls_raw_unite5.has_mvno is 'Один из транков плеч - радиосеть';
+comment on column calls_raw_unite.calls_raw_unite.has_mvno is 'Один из транков плеч - радиосеть';
 
-comment on column calls_raw_unite.calls_raw_unite5.is_by_peer is 'Связаны по peer_id';
+comment on column calls_raw_unite.calls_raw_unite.is_by_peer is 'Связаны по peer_id';
 
-comment on column calls_raw_unite.calls_raw_unite5.nnp_operator_id_A is 'Оригинация. Расчитанный оператор для плеча.nnp.operator.id';
-comment on column calls_raw_unite.calls_raw_unite5.nnp_operator_id_B is 'Терминация. Расчитанный оператор для плеча.nnp.operator.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_operator_id_A is 'Оригинация. Расчитанный оператор для плеча.nnp.operator.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_operator_id_B is 'Терминация. Расчитанный оператор для плеча.nnp.operator.id';
 
-comment on column calls_raw_unite.calls_raw_unite5.nnp_region_id_A is 'Оригинация. Расчитанный регион для плеча.nnp.region.id';
-comment on column calls_raw_unite.calls_raw_unite5.nnp_region_id_B is 'Терминация. Расчитанный регион для плеча.nnp.region.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_region_id_A is 'Оригинация. Расчитанный регион для плеча.nnp.region.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_region_id_B is 'Терминация. Расчитанный регион для плеча.nnp.region.id';
 
-comment on column calls_raw_unite.calls_raw_unite5.nnp_city_id_A is 'Оригинация. Рассчитанный город для плеча. nnp.city.id';
-comment on column calls_raw_unite.calls_raw_unite5.nnp_city_id_B is 'Терминация. Рассчитанный город для плеча. nnp.city.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_city_id_A is 'Оригинация. Рассчитанный город для плеча. nnp.city.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_city_id_B is 'Терминация. Рассчитанный город для плеча. nnp.city.id';
 
-comment on column calls_raw_unite.calls_raw_unite5.nnp_country_code_A is 'Оригинация. Расчитанная страна для плеча.nnp.country.id';
-comment on column calls_raw_unite.calls_raw_unite5.nnp_country_code_B is 'Терминация. Расчитанная страна для плеча.nnp.country.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_country_code_A is 'Оригинация. Расчитанная страна для плеча.nnp.country.id';
+comment on column calls_raw_unite.calls_raw_unite.nnp_country_code_B is 'Терминация. Расчитанная страна для плеча.nnp.country.id';
 
-comment on column calls_raw_unite.calls_raw_unite5.ndc_type_id_A is 'Оригинация. Тип номера. nnp.ndc_type.id';
-comment on column calls_raw_unite.calls_raw_unite5.ndc_type_id_B is 'Терминация. Тип номера. nnp.ndc_type.id';
+comment on column calls_raw_unite.calls_raw_unite.ndc_type_id_A is 'Оригинация. Тип номера. nnp.ndc_type.id';
+comment on column calls_raw_unite.calls_raw_unite.ndc_type_id_B is 'Терминация. Тип номера. nnp.ndc_type.id';
 
-comment on column calls_raw_unite.calls_raw_unite5.nnp_filter_id1_orig is 'Группа 1 оригинационного плеча.';
-comment on column calls_raw_unite.calls_raw_unite5.nnp_filter_id1_term is 'Группа 1 терминационного плеча.';
+comment on column calls_raw_unite.calls_raw_unite.nnp_filter_id1_orig is 'Группа 1 оригинационного плеча.';
+comment on column calls_raw_unite.calls_raw_unite.nnp_filter_id1_term is 'Группа 1 терминационного плеча.';
 
-comment on column calls_raw_unite.calls_raw_unite5.nnp_filter_id2_orig is 'Группа 2 оригинационного плеча.';
-comment on column calls_raw_unite.calls_raw_unite5.nnp_filter_id2_term is 'Группа 2 терминационного плеча.';
+comment on column calls_raw_unite.calls_raw_unite.nnp_filter_id2_orig is 'Группа 2 оригинационного плеча.';
+comment on column calls_raw_unite.calls_raw_unite.nnp_filter_id2_term is 'Группа 2 терминационного плеча.';
 
-comment on column calls_raw_unite.calls_raw_unite5.mcn_callid is 'Уникальный идентификатор звонка';
+comment on column calls_raw_unite.calls_raw_unite.mcn_callid is 'Уникальный идентификатор звонка';
 ESQL;
 
         $db = Yii::$app->dbPg;
@@ -770,23 +895,23 @@ ESQL;
     protected function createIndexes()
     {
         $sqlAddIndexes = <<<ESQL
-create index calls_raw_unite5_id_orig_idx
-  on calls_raw_unite.calls_raw_unite5 (id_orig);
+create index calls_raw_unite_id_orig_idx
+  on calls_raw_unite.calls_raw_unite (id_orig);
 
-create index calls_raw_unite5_id_term_idx
-  on calls_raw_unite.calls_raw_unite5 (id_term);
+create index calls_raw_unite_id_term_idx
+  on calls_raw_unite.calls_raw_unite (id_term);
 
-create index calls_raw_unite5_connect_time_orig_idx
-  on calls_raw_unite.calls_raw_unite5 (connect_time_orig);
+create index calls_raw_unite_connect_time_orig_idx
+  on calls_raw_unite.calls_raw_unite (connect_time_orig);
 
-create index calls_raw_unite5_type_market_place_id_idx
-  on calls_raw_unite.calls_raw_unite5 (type, market_place_id);
+create index calls_raw_unite_type_market_place_id_idx
+  on calls_raw_unite.calls_raw_unite (type, market_place_id);
 
-create index calls_raw_unite_5_connect_day_key_type_market_place_id_idx
-  on calls_raw_unite.calls_raw_unite.calls_raw_unite_5 (connect_day_key, type, market_place_id)
+create index calls_raw_unite_connect_day_key_type_market_place_id_idx
+  on calls_raw_unite.calls_raw_unite.calls_raw_unite (connect_day_key, type, market_place_id);
 
-create index calls_raw_unite5_mcn_callid_idx
-  on calls_raw_unite.calls_raw_unite5 (mcn_callid);
+create index calls_raw_unite_mcn_callid_idx
+  on calls_raw_unite.calls_raw_unite (mcn_callid);
 ESQL;
         $db = Yii::$app->dbPg;
         $db->createCommand($sqlAddIndexes);

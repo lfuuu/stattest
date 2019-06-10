@@ -455,10 +455,8 @@ class CallsRawFilter extends CallsRaw
         $exceptGroupFields = [];
         if ($this->isFromUnite) {
             $exceptGroupFields = [
-                'src_ndc_type_id',
-                'dst_ndc_type_id',
-                'src_city_name',
-                'dst_city_name',
+//                'src_ndc_type_id',
+//                'dst_ndc_type_id',
             ];
         }
 
@@ -477,14 +475,11 @@ class CallsRawFilter extends CallsRaw
             $exceptFilters = [
                 'server_ids',
                 'trafficType',
-                'src_cities_ids',
-                'dst_cities_ids',
+
                 'src_destinations_ids',
                 'dst_destinations_ids',
-                'src_number_type_ids',
-                'dst_number_type_ids',
+
                 'is_success_calls',
-                'disconnect_causes',
             ];
         }
 
