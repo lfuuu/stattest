@@ -215,10 +215,12 @@ class AccountTariffController extends Controller
             ->groupBy('trouble_id')
             ->column();
 
-        foreach ($arr as $trouble_id => $account_tariff_ids) {
-            $account_tariff_ids = explode(',', $account_tariff_ids);
-            $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $trouble_id]);
-            $newPrice = AccountEntry::find()->select('sum(price_with_vat)')->where(['account_tariff_id' => $account_tariff_ids])->scalar();
+        foreach ($arr as $troubleId => $accountTariffIds) {
+            $accountTariffIds = explode(',', $accountTariffIds);
+            $packageIds = AccountTariff::find()->select('id')->where(['prev_account_tariff_id' => $accountTariffIds])->column();
+            $accountTariffIds = array_unique(array_merge($accountTariffIds, $packageIds));
+            $troubleRoistat = TroubleRoistat::findOne(['trouble_id' => $troubleId]);
+            $newPrice = AccountEntry::find()->select('sum(price_with_vat)')->where(['account_tariff_id' => $accountTariffIds])->scalar();
             if (!$troubleRoistat || !is_numeric($newPrice)) {
                 continue;
             }
@@ -226,8 +228,7 @@ class AccountTariffController extends Controller
             if (!$troubleRoistat->save()) {
                 throw new ModelValidationException($troubleRoistat);
             }
-            $trouble = $troubleRoistat->trouble;
-            if ($trouble) {
+            if ($trouble = $troubleRoistat->trouble) {
                 $trouble->setIsChanged();
             }
         }
