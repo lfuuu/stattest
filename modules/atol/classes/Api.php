@@ -118,38 +118,45 @@ class Api extends Singleton
         $groupCode = $access['groupCode'];
         $inn = $access['inn'];
         $paymentAddress = $params['paymentAddress'];
-        $sno = $params['sno']; // можно пустое
+        $sno = isset($access['sno']) ? $access['sno'] : $params['sno']; // можно пустое
         $itemName = $params['itemName'];
-        $taxType = $params['tax'];
+        $taxType = isset($access['tax']) ? $access['tax'] : $params['tax'];
 
         if (!$this->isAvailable()) {
             throw new InvalidConfigException('Не настроен конфиг Атол');
         }
 
+
+        $itemTaxSum = 0;
+
         switch ($taxType) {
 
             case self::TAX_NONE:
             case self::TAX_VAT0:
-                $itemTaxSum = 0;
+                $taxRate = 0;
                 break;
 
             case self::TAX_VAT10:
             case self::TAX_VAT110:
-                $itemTaxSum = $itemPrice * 10 / 110;
+                $taxRate = 10;
                 break;
 
             case self::TAX_VAT18:
             case self::TAX_VAT118:
-                $itemTaxSum = $itemPrice * 18 / 118;
+                $taxRate = 18;
                 break;
 
             case self::TAX_VAT20:
             case self::TAX_VAT120:
-                $itemTaxSum = $itemPrice * 20 / 120;
+                $taxRate = 20;
                 break;
 
             default:
                 throw new InvalidConfigException('Не настроен конфиг Атол');
+        }
+
+        if ($taxRate) {
+            $itemTaxSum = round($taxRate / (100.0 + $taxRate) * $itemPrice, 2);
         }
 
         $token = $this->_getToken($access);
