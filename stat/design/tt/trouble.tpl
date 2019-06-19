@@ -287,7 +287,7 @@
                 </table>
 
                 <h2>Ответ пользователю</h2>
-                <form action="/support/comment-ticket" method=post id=form name=form>
+                <form action="/support/comment-ticket" method=post id=ticket-form name=form>
                     <input type=hidden name="SubmitTicketCommentForm[ticket_id]"
                            value='{$tt_trouble.support_ticket_id}'>
                     <textarea name="SubmitTicketCommentForm[text]" class=textarea></textarea>
@@ -327,7 +327,8 @@
                                 <tr>
                                     <td width="50%">&nbsp;
                                         {/if}
-                                        {$item.comment|escape|find_urls}
+                                        {capture assign=pattern}#(<br */?>\s*){ldelim}2,{rdelim}#i{/capture}
+                                        {$item.comment|escape|nl2br|regex_replace:$pattern:"<br/><br/>"|find_urls}
                                         {if $item.uspd}<br/>{$item.uspd}{/if}
                                         {if isset($item.stages_comment) && $item.stages_comment}
                                             <br/>
@@ -456,7 +457,6 @@
                                         {/foreach}
                                     {else}
                                         <select name='state' onChange="
-                                                tuspd.style.display=(document.getElementById('state_3') && state_3.selected?'':'none');
                                         {if access('tt','rating')} onChangeSelectState(this); {/if}
                                                 ">
                                             {foreach from=$tt_states item=item}
@@ -497,10 +497,6 @@
                                     <b>{$bill.state_1c}</b>
                                 </td>
                                 </tr>{/if}
-                            <tr id=tuspd style='display:none'>
-                                <td>Номер заявки в УСПД:</td>
-                                <td><input type=text class=text name=uspd value=""></td>
-                            </tr>
                             {if !(isset($admin_order) && $admin_order) || $order_editor == "stat"}
                                 <tr>
                                     <td>Выбрать исполнителя</td>
