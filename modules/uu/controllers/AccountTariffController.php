@@ -639,7 +639,7 @@ class AccountTariffController extends BaseController
                     return null;
                 }
                 return $number;
-            }, preg_split("/(,|\n)/", $numbers)))
+            }, preg_split("/(,|\s)/", $numbers)))
             : null;
 
         if (!$numbersArr) {
