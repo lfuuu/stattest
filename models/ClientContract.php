@@ -393,6 +393,14 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
+     * @return ActiveQuery
+     */
+    public function getClientContragent()
+    {
+        return $this->hasOne(ClientContragent::class, ['id' => 'contragent_id']);
+    }
+
+    /**
      * @param bool $isFromHistory
      * @return ClientAccount[]|array
      */

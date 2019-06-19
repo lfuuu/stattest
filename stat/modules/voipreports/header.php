@@ -66,6 +66,11 @@ class m_voipreports_head extends IModuleHead
             array('От кого пришли звонки', 'by_source_operator'),
             array('Отчет по операторскому трафику voip', 'operators_traf'),
             array('Нераспознанные вызовы', 'unrecognized'),
+            array('Баланс',
+                function () {
+                    return '/voipreport/balance-report';
+                }
+            ),
         );
         parent::__construct();
     }

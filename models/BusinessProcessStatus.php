@@ -190,11 +190,13 @@ class BusinessProcessStatus extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
+     * @param int $businessProcessId
      * @return string[]
      */
     public static function getList(
         $isWithEmpty = false,
-        $isWithNullAndNotNull = false
+        $isWithNullAndNotNull = false,
+        $businessProcessId = null
     )
     {
         return self::getListTrait(
@@ -203,7 +205,7 @@ class BusinessProcessStatus extends ActiveRecord
             $indexBy = 'id',
             $select = 'name',
             $orderBy = ['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC],
-            $where = []
+            $where = $businessProcessId ? ['business_process_id' => $businessProcessId] : []
         );
     }
 

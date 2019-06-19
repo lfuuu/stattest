@@ -91,6 +91,9 @@ use yii\helpers\Url;
  * @property-read LkNoticeSetting $lkNoticeSetting
  * @property-read ClientFlag $flag
  * @property-read ClientContact[] $contacts
+ * @property-read Bill[] $bills
+ * @property-read Payment[] $payments
+ * @property-read CounterInteropTrunk[] $counterInteropTrunks
  * @property-read ClientContract $contract  из версии
  * @property-read ClientContract $clientContractModel - напрямую
  * @property-read ClientContragent $contragent
@@ -411,6 +414,22 @@ class ClientAccount extends HistoryActiveRecord
     public function getSuperClient()
     {
         return $this->hasOne(ClientSuper::class, ['id' => 'super_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBills()
+    {
+        return $this->hasMany(Bill::class, ['client_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPayments()
+    {
+        return $this->hasMany(Payment::class, ['client_id' => 'id']);
     }
 
     /**
@@ -1278,6 +1297,14 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         return $counter;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCounterInteropTrunks()
+    {
+        return $this->hasMany(CounterInteropTrunk::class, ['account_id' => 'id']);
     }
 
     /**
