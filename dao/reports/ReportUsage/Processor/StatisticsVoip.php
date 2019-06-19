@@ -172,7 +172,11 @@ class StatisticsVoip extends Processor
 //            $this->config->to->setTime(0, 0, 0)->modify('+1 day');
         }
 
-        $query->orderBy('ts1 ASC, cr.mcn_callid ASC, cr.orig DESC');
+        if ($groupBy) {
+            $query->orderBy('ts1 ASC');
+        } else {
+            $query->orderBy('ts1 ASC, cr.mcn_callid ASC, cr.orig DESC');
+        }
     }
 
     /**
@@ -446,6 +450,7 @@ class StatisticsVoip extends Processor
 
         // добавление в тотал перед форматированием
         $price = $record['price'];
+        $priceWithTax = $record['price_with_tax'];
         $this->totals['cnt'] += $record['cnt'];
         $this->totals['ts2'] += $record['ts2'];
 
@@ -504,7 +509,7 @@ class StatisticsVoip extends Processor
 
         // добавление в тотал неформатированное
         $this->totals['price'] += $price;
-        $this->totals['price_with_tax'] += $record['price_with_tax'];
+        $this->totals['price_with_tax'] += $priceWithTax;
 
         if ($this->isFlat()) {
             $this->addPackageDetails($record);

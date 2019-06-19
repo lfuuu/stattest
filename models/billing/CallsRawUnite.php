@@ -12,7 +12,7 @@ use Yii;
  * @property integer $id_term
  * @property string $connect_time_orig
  * @property string $connect_time_term
- * @property integer $market_place
+ * @property integer $market_place_id
  * @property integer $type
  * @property integer $hub_id_orig
  * @property integer $hub_id_term
