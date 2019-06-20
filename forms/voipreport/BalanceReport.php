@@ -105,7 +105,7 @@ class BalanceReport extends Model
             ->select([
                 $clientAccountTableName . '.id',
                 '((select sum(sum) from ' . $billsTableName . ' where client_id = ' . $clientAccountTableName . '.id)'
-                . '+' .
+                . '-' .
                 '(select sum(sum) from ' . $paymentsTableName . ' where client_id = ' . $clientAccountTableName . '.id)) as balance',
                 $clientAccountTableName . '.currency',
                 $contragentTableName . '.name_full',
