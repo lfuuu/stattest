@@ -65,7 +65,7 @@
                             {*if $inv_is_new4 && $line.type == "service"}-{else}ЫФ.{/if*}
 
                             {if $inv_is_new4}
-                                {if $line.okvd_code}
+                                {if isset($line.okvd_code) && $line.okvd_code}
                                     {$line.okvd_code|okei_name}
                                 {else}
                                     {if $line.type == "service"}

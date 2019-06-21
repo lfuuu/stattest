@@ -452,11 +452,22 @@ class BillerController extends Controller
             'b.bill_date',
             $from->format(DateTimeZoneHelper::DATE_FORMAT),
             $to->format(DateTimeZoneHelper::DATE_FORMAT)
-        ]);
+        ])
+            ->andWhere(['>', 'sum', 0])
+        ;
+
 
         /** @var Bill $bill */
         foreach ($query->each() as $bill) {
-            $bill->generateInvoices();
+            echo ' .';
+            try {
+                $bill->generateInvoices();
+//                $bill->checkInvoices();
+            } catch (\Exception $e) {
+                echo PHP_EOL . $e->getMessage();
+                echo PHP_EOL;
+            }
+
         }
     }
 

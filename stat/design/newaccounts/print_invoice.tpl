@@ -16,7 +16,6 @@
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
-
     {if $inv_date >= strtotime("2017-08-01")}
         {assign var="isChanges20170801" value=1}
     {else}
@@ -296,7 +295,7 @@
                 -
             {else}
                 {if $inv_is_new4}
-                    {if $row.okvd_code}
+                    {if isset($row.okvd_code) && $row.okvd_code}
                         {$row.okvd_code|string_format:"%03d"}
                     {else}
                         {if $row.type == "service"}
@@ -318,7 +317,7 @@
                 -
             {else}
                 {if $inv_is_new4}
-                    {if $row.okvd_code}
+                    {if isset($row.okvd_code) && $row.okvd_code}
                         {$row.okvd_code|okei_name}
                     {else}
                         {if $row.type == "service"}
@@ -339,7 +338,7 @@
                 -
             {else}
                 {if $inv_is_new4}
-                    {if $row.okvd_code}
+                    {if isset($row.okvd_code) && $row.okvd_code}
                         {$row.amount|round:4}
                     {else}
 
@@ -364,7 +363,7 @@
                 -
             {else}
                 {if $inv_is_new4}
-                    {if $row.okvd_code}
+                    {if isset($row.okvd_code) && $row.okvd_cod}
                         {$row.outprice|round:2}
                     {else}
                         {if $row.type == "service"}
@@ -400,9 +399,9 @@
         <td align="center">
             {$row.sum|round:2}
         </td>
-        {if $inv_is_new3}<td align="center">{if $row.country_id == 0}-{else}{$row.country_id}{/if}</td>{/if}
-        <td align="center">{$row.country_name|default:"-"}</td>
-        <td align="center">{$row.gtd|default:"-"}</td>
+        {if $inv_is_new3}<td align="center">{if !isset($row.country_id) || $row.country_id == 0}-{else}{$row.country_id}{/if}</td>{/if}
+        <td align="center">{if isset($row.country_name)}{$row.country_name|default:"-"}{else}-{/if}</td>
+        <td align="center">{if isset($row.gtd)}{$row.gtd|default:"-"}{else}-{/if}</td>
       </tr>
 {/foreach}
      <tr>

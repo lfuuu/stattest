@@ -336,7 +336,7 @@ table.contract_table td {
                 --
                 {else}
                     {if $inv_is_new4}
-                        {if $row.okvd_code}
+                        {if isset($row.okvd_code) && $row.okvd_code}
                             {$row.okvd_code|string_format:"%03d"}
                         {else}
                             {if $row.type == "service"}
@@ -356,7 +356,7 @@ table.contract_table td {
                 --
             {else}
                 {if $inv_is_new4}
-                    {if $row.okvd_code}
+                    {if isset($row.okvd_code) && $row.okvd_code}
                         {$row.okvd_code|okei_name}
                     {else}
                         {if $row.type == "service"}
@@ -377,7 +377,7 @@ table.contract_table td {
                 --
             {else}
                 {if $inv_is_new4}
-                    {if $row.okvd_code}
+                    {if isset($row.okvd_code) && $row.okvd_code}
                         {$row.amount|round:2}
                     {else}
 
@@ -399,7 +399,7 @@ table.contract_table td {
                 --
             {else}
                 {if $inv_is_new4}
-                    {if $row.okvd_code}
+                    {if isset($row.okvd_code) && $row.okvd_code}
                         {$row.outprice|round:2}
                     {else}
                         {if $row.type == "service"}
@@ -442,13 +442,13 @@ table.contract_table td {
             </span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $row.country_id == 0}--{else}{$row.country_id}{/if}</span></p>
+			<p ><span>{if !isset($row.country_id) || $row.country_id == 0}--{else}{$row.country_id}{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$row.country_name|default:"--"}</span></p>
+			<p ><span>{if isset($row.country_name)}{$row.country_name|default:"--"}{else}--{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
-			<p ><span>{$row.gtd|default:"--"}</span></p>
+			<p ><span>{if isset($row.gtd)}{$row.gtd|default:"--"}{else}--{/if}</span></p>
 		</td>
 	</tr>
 {/foreach}

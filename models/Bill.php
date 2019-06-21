@@ -528,6 +528,18 @@ class Bill extends ActiveRecord
     }
 
     /**
+     * Проверить с/ф
+     *
+     * проверяется сохранение строк с/ф
+     *
+     * @return mixed
+     */
+    public function checkInvoices()
+    {
+        return self::dao()->generateInvoices($this, false, true);
+    }
+
+    /**
      * Сгенерировать авансовую с/ф
      *
      * @return mixed

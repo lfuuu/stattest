@@ -43,6 +43,8 @@ class Invoice extends ActiveRecord
     // Создается draft
     public $isSetDraft = null;
 
+    public $isAsInsert = false;
+
     /**
      * Название таблицы
      *
@@ -282,8 +284,8 @@ class Invoice extends ActiveRecord
     public function afterSave($isInsert, $changedAttributes)
     {
         if (
-            !$isInsert
-            || $this->bill->clientAccount->country_id == Country::RUSSIA
+            (!$isInsert && !$this->isAsInsert)
+//            || $this->bill->clientAccount->country_id == Country::RUSSIA
             || $this->bill->bill_date < '2019-02-01'
         ) {
             return;

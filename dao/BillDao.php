@@ -1066,7 +1066,13 @@ SQL;
 
     }
 
-    public static function generateInvoices(Bill $bill, $is4Invoice = false)
+    /**
+     * @param Bill $bill
+     * @param bool $is4Invoice
+     * @param bool $isAsInsert
+     * @throws \Exception
+     */
+    public static function generateInvoices(Bill $bill, $is4Invoice = false, $isAsInsert = false)
     {
         if ($bill->bill_date < Invoice::DATE_ACCOUNTING) { // 1 авг 2018 новый формат с/ф
             return;
@@ -1146,7 +1152,9 @@ SQL;
                     $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
                     $invoice->is_reversal = 0;
 
-                    if (abs((float)$invoice->sum - $sum) > 0.001) {
+                    $isAsInsert && $invoice->isAsInsert = true;
+
+                    if (abs((float)$invoice->sum - $sum) > 0.001 || $invoice->isAsInsert) {
                         $invoice->sum = $sum;
                         $invoice->sum_tax = $sumData['sum_tax'];
                         $invoice->sum_without_tax = $sumData['sum_without_tax'];

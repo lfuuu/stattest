@@ -3048,7 +3048,7 @@ class m_newaccounts extends IModule
                 }
 
 
-                if ($invoice = \app\models\Invoice::findOne($where)) {
+                if ($invoice = \app\models\Invoice::find()->where($where)->orderBy(['id' => SORT_DESC])->one()) {
                     $newInvoiceNumber = $invoice->number;
 
                     if ($is_four_order) {
