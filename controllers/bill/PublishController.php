@@ -532,6 +532,7 @@ class PublishController extends BaseController
                 if ($lineAddData['item'] && $lineAdd->load($lineAddData, '')) {
 
                     $lineAdd->sort = ((int)InvoiceLine::find()->where(['invoice_id' => $invoice->id])->max('sort'))+1;
+                    $lineAdd->tax_rate = $invoice->bill->clientAccount->getTaxRate();
                     $lineAdd->setDates();
 
                     if (!$lineAdd->validate()) {

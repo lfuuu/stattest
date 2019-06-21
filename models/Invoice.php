@@ -291,6 +291,11 @@ class Invoice extends ActiveRecord
             return;
         }
 
+        // строки уже есть
+        if ($this->isAsInsert && $this->getLines()->count() > 0) {
+            return;
+        }
+
         foreach ($this->bill->getLinesByTypeId($this->type_id, $isInsert) as $line) {
             $newLine = new InvoiceLine();
 
