@@ -363,17 +363,17 @@
                 -
             {else}
                 {if $inv_is_new4}
-                    {if isset($row.okvd_code) && $row.okvd_cod}
-                        {$row.outprice|round:2}
+                    {if isset($row.okvd_code) && $row.okvd_code}
+                        {$row.price|round:2}
                     {else}
                         {if $row.type == "service"}
                             -
                         {else}
-                            {$row.outprice|round:2}
+                            {$row.price|round:2}
                         {/if}
                     {/if}
                 {else}
-                    {$row.outprice|round:2}
+                    {$row.price|round:2}
                 {/if}
             {/if}
 
