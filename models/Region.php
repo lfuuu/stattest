@@ -16,6 +16,7 @@ use yii\helpers\Url;
  * @property int $country_id
  * @property int $type_id
  * @property int $is_active
+ * @property int $is_use_sip_trunk
  *
  * @property-read Datacenter $datacenter
  * @property-read Country $country
@@ -67,7 +68,7 @@ class Region extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'country_id', 'code', 'country_id', 'type_id', 'is_active'], 'integer'],
+            [['id', 'country_id', 'code', 'country_id', 'type_id', 'is_active', 'is_use_sip_trunk'], 'integer'],
             [['name', 'short_name', 'timezone_name'], 'string'],
         ];
     }
@@ -88,6 +89,7 @@ class Region extends ActiveRecord
             'country_id' => 'Страна',
             'type_id' => 'Тип',
             'is_active' => 'Активен',
+            'is_use_sip_trunk' => 'Используется в SIP-транках'
         ];
     }
 
@@ -139,12 +141,14 @@ class Region extends ActiveRecord
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $countryId
      * @param int[] $typeId
+     * @param int $isUseSipTrunk
      * @return string[]
      */
     public static function getList(
         $isWithEmpty = false,
         $countryId = null,
-        $typeId = null
+        $typeId = null,
+        $isUseSipTrunk = null
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -154,8 +158,12 @@ class Region extends ActiveRecord
             $orderBy = ['name' => SORT_ASC],
             $where = [
                 'AND',
-                ['type_id' => $typeId?:array_keys(self::$typeNames)],
-                $countryId ? ['country_id' => $countryId] : []
+                [
+                    'AND',
+                    ['type_id' => $typeId?:array_keys(self::$typeNames)],
+                    $countryId ? ['country_id' => $countryId] : []
+                ],
+                isset($isUseSipTrunk) ? ['is_use_sip_trunk' => $isUseSipTrunk] : []
             ]
         );
     }

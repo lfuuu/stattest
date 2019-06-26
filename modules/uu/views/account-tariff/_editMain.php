@@ -105,7 +105,7 @@ if (!$serviceType) {
         <div class="col-sm-2">
             <?= $form->field($accountTariff, 'region_id')
                 ->widget(Select2::class, [
-                    'data' => Region::getList(true),
+                    'data' => Region::getList(true, null, null, $serviceType->id == ServiceType::ID_SIPTRUNK ? 1 : null),
                 ])
                 ->label($accountTariff->getAttributeLabel('region_id') . $helpConfluence)
             ?>

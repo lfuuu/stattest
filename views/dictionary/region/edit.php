@@ -63,7 +63,8 @@ if (!$region->isNewRecord) {
         </div>
 
         <div class="col-sm-3">
-            <?= $form->field($region, 'is_active')->checkbox() ?>
+            <?= $form->field($region, 'is_active', ['options' => ['class' => 'pull-left', 'style'=> 'margin-right: 20px']])->checkbox() ?>
+            <?= $form->field($region, 'is_use_sip_trunk')->checkbox() ?>
         </div>
 
     </div>

@@ -77,6 +77,10 @@ $columns = [
         'class' => YesNoColumn::class,
     ],
     [
+        'attribute' => 'is_use_sip_trunk',
+        'class' => YesNoColumn::class,
+    ],
+    [
         'attribute' => 'type_id',
         'class' => ConstructColumn::class,
         'filter' => Region::$typeNames,
