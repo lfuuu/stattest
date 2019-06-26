@@ -11,11 +11,14 @@ use app\classes\grid\column\EnumColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\voip\Registry;
 use app\modules\nnp\column\NdcTypeColumn;
+use kartik\widgets\DatePicker;
+use kartik\widgets\Select2;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -82,6 +85,34 @@ $columns = [
     [
         'attribute' => 'ndc_type_id',
         'class' => NdcTypeColumn::class
+    ],
+    [
+        'attribute' => 'solution_number',
+        'value' => function ($model) {
+            return Html::a($model->solution_number, ['voip/number', 'NumberFilter[solution_number]' => $model->solution_number]);
+        },
+        'filter' => Select2::widget([
+            'model' => $filterModel,
+            'data' => Registry::find()->select('solution_number')->indexBy('solution_number')->column(),
+            'attribute' => 'solution_number',
+            'value' => $filterModel->solution_number
+        ]),
+        'format' => 'raw'
+    ],
+    [
+        'attribute' => 'solution_date',
+        'filter' => DatePicker::widget([
+            'model' => $filterModel,
+            'attribute' => 'solution_date',
+            'value' => $filterModel->solution_date
+        ])
+    ],
+    [
+        'attribute' => 'numbers_count',
+        'class' => IntegerRangeColumn::class
+    ],
+    [
+        'attribute' => 'comment'
     ],
     [
         'attribute' => 'ndc',

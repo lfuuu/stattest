@@ -21,8 +21,13 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\filter\voip\NumberFilter;
+use app\models\Number;
+use app\models\voip\Registry;
 use app\modules\nnp\column\NdcTypeColumn;
 use kartik\grid\ActionColumn;
+use kartik\select2\Select2;
+use kartik\widgets\DatePicker;
+use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -41,6 +46,35 @@ use yii\widgets\Breadcrumbs;
             'currentClientAccountId' => $currentClientAccountId,
         ]) */ ?>
     </div -->
+
+<?php
+$dataProvider = $filterModel->search();
+
+if (Yii::$app->user->can('voip.change-number-status')) {
+    $numbers = [];
+    $query = clone $dataProvider->query;
+    $isMoreNumbers = $query->count() > 1000;
+
+    if (!$isMoreNumbers) {
+        $numbers = $query->select('number')->column();
+
+        echo Html::tag('b', 'Изменить статус на') . '<br>';
+        echo Html::beginForm(Url::to(['change-status']));
+        echo Html::hiddenInput('numbers', json_encode($numbers));
+        echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px']);
+        echo Html::dropDownList('status', null,
+            [
+                Number::STATUS_NOTSALE => 'Не продается',
+                Number::STATUS_INSTOCK => 'Свободен',
+                Number::STATUS_RELEASED => 'Откреплен'
+            ], ['class' => 'form-control pull-left', 'style' => 'width: 15%']);
+        echo Html::endForm();
+    } else {
+        echo Html::tag('small', 'Слишком много номеров для измнения статуса (>1000)', ['class' => 'text-muted']);
+    }
+}
+
+?>
 
 <?php
 $baseView = $this;
@@ -70,7 +104,8 @@ $columns = [
     ],
     [
         'attribute' => 'number',
-        'class' => StringColumn::class,
+        'class' => IntegerRangeColumn::class,
+        'options' => ['style' => 'width: 150px;'],
     ],
     [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
@@ -114,11 +149,71 @@ $columns = [
         },
     ],
     [
-        'attribute' => 'registry_id',
-        'format' => 'html',
-        'value' => function ($data) {
-            return Html::a($data->registry_id, ["voip/registry/edit", 'id' => $data->registry_id]);
-        }
+        'label' => 'Реестр',
+        'attribute' => 'with_registry',
+        'value' => function ($model) {
+            if ($model->registry_id) {
+                return Html::a('Реестр #' . $model->registry_id, ['voip/registry/edit', 'id' => $model->registry_id]);
+            }
+            return '';
+        },
+        'class' => IsNullAndNotNullColumn::class,
+        'format' => 'raw'
+    ],
+    [
+        'attribute' => 'solution_number',
+        'value' => function ($model) {
+            if ($model->registry && $model->registry->solution_number) {
+                return Html::a($model->registry->solution_number, ['voip/registry', 'RegistryFilter[solution_number]' => $model->registry->solution_number]);
+            }
+            return '';
+        },
+        'filter' => Select2::widget([
+            'model' => $filterModel,
+            'data' => Registry::find()->select('solution_number')->indexBy('solution_number')->column(),
+            'attribute' => 'solution_number',
+            'value' => $filterModel->solution_number
+        ]),
+        'format' => 'raw',
+        'label' => 'Номер решения'
+    ],
+    [
+        'attribute' => 'solution_date',
+        'value' => function ($model) {
+            if ($model->registry && $model->registry->solution_date) {
+                return $model->registry->solution_date;
+            }
+            return '';
+        },
+        'filter' => DatePicker::widget([
+            'model' => $filterModel,
+            'attribute' => 'solution_date',
+            'value' => $filterModel->solution_date
+        ]),
+        'label' => 'Дата решения'
+    ],
+    [
+        'attribute' => 'registry_number_from',
+        'value' => function ($model) {
+            if ($model->registry) {
+                return Html::a($model->registry->number_full_from, ['voip/number', 'NumberFilter[number]' => $model->registry->number_full_from]);
+            }
+            return '';
+        },
+        'class' => StringColumn::class,
+        'format' => 'raw',
+        'label' => 'Начальный номер'
+    ],
+    [
+        'attribute' => 'numbers_count',
+        'value' => function (Number $model) {
+            /** @var Number $model */
+            if ($model->registry) {
+                return $model->registry->numbers_count;
+            }
+            return '';
+        },
+        'label' => 'Количество номеров'
     ],
     [
         'label' => 'Страна',
@@ -181,7 +276,7 @@ $columns = [
 ];
 
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/voip/registry/add/']),
     'columns' => $columns,

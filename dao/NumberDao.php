@@ -201,9 +201,19 @@ class NumberDao extends Singleton
 
     /**
      * @param \app\models\Number $number
+     * @throws ModelValidationException
      */
-    public function toInstock(\app\models\Number $number)
+    public function toInstock(\app\models\Number $number, $isWithCheck = false)
     {
+        if ($isWithCheck) {
+            Assert::isNotInArray($number->status, [
+                Number::STATUS_ACTIVE_TESTED,
+                Number::STATUS_ACTIVE_COMMERCIAL,
+                Number::STATUS_ACTIVE_CONNECTED,
+                Number::STATUS_NOTACTIVE_RESERVED
+            ]);
+        }
+
         $number->client_id = null;
         $number->usage_id = null;
         $number->uu_account_tariff_id = null;
@@ -211,16 +221,28 @@ class NumberDao extends Singleton
         $number->hold_to = null;
 
         $number->status = Number::STATUS_INSTOCK;
-        $number->save();
+        if (!$number->save()) {
+            throw new ModelValidationException($number);
+        }
 
         Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'N');
     }
 
     /**
      * @param \app\models\Number $number
+     * @throws ModelValidationException
      */
-    public function toRelease(\app\models\Number $number)
+    public function toRelease(\app\models\Number $number, $isWithCheck = false)
     {
+        if ($isWithCheck) {
+            Assert::isNotInArray($number->status, [
+                Number::STATUS_ACTIVE_TESTED,
+                Number::STATUS_ACTIVE_COMMERCIAL,
+                Number::STATUS_ACTIVE_CONNECTED,
+                Number::STATUS_NOTACTIVE_RESERVED,
+            ]);
+        }
+
         $number->client_id = null;
         $number->usage_id = null;
         $number->uu_account_tariff_id = null;
@@ -228,7 +250,9 @@ class NumberDao extends Singleton
         $number->hold_to = null;
 
         $number->status = Number::STATUS_RELEASED;
-        $number->save();
+        if (!$number->save()) {
+            throw new ModelValidationException($number);
+        }
 
         Number::dao()->log($number, NumberLog::ACTION_CREATE, 'N');
     }

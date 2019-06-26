@@ -7,13 +7,18 @@ namespace app\controllers\voip;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\classes\Html;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\voip\forms\NumberFormNew;
+use app\dao\NumberDao;
+use app\exceptions\ModelValidationException;
 use app\forms\usage\NumberForm;
 use app\models\Country;
 use app\models\DidGroup;
 use app\models\filter\voip\NumberFilter;
 use app\models\Number;
+use Exception;
+use InvalidArgumentException;
 use Yii;
 use yii\filters\AccessControl;
 
@@ -40,6 +45,11 @@ class NumberController extends BaseController
                         'allow' => true,
                         'actions' => ['index'],
                         'roles' => ['stats.report'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['change-status'],
+                        'roles' => ['voip.change-number-status'],
                     ],
                 ],
             ],
@@ -143,5 +153,57 @@ class NumberController extends BaseController
             'logList' => $number->getChangeStatusLog(),
             'actionForm' => $actionForm,
         ]);
+    }
+
+    /**
+     * Массовое изменение статуса
+     * @return \yii\web\Response
+     * @throws Exception
+     * @internal param string $numbers
+     * @internal param string $status
+     */
+    public function actionChangeStatus()
+    {
+        $post = Yii::$app->request->post();
+
+        $numbers = isset($post['numbers']) ? json_decode($post['numbers']) : [];
+        $status = isset($post['status']) ? $post['status'] : null;
+
+        if (!$numbers || !$status) {
+            throw new InvalidArgumentException('Выберите номера и статус');
+        }
+        $numbersQuery = Number::find()->where(['number' => $numbers]);
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $number = null;
+        try {
+            $count = 0;
+            foreach ($numbersQuery->each() as $number) {
+                switch ($status) {
+                    case Number::STATUS_INSTOCK:
+                        NumberDao::me()->toInstock($number, true);
+                        break;
+
+                    case Number::STATUS_RELEASED:
+                        NumberDao::me()->toRelease($number, true);
+                        break;
+
+                    case Number::STATUS_NOTSALE:
+                        NumberDao::me()->startNotSell($number);
+                        break;
+
+                    default:
+                        throw new \LogicException('Неправильный статус');
+                }
+
+                $count++;
+            }
+            $transaction->commit();
+            Yii::$app->session->setFlash('success', 'Статус был изменен у ' . $count . ' номера(ов)');
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::$app->session->setFlash('error', ($number ? 'Нельзя изменить статус у номера ' . $number->number. ' ' : '') .'<br/>'. Html::tag('small', $e->getMessage()));
+        }
+        return $this->redirect(Yii::$app->request->referrer);
     }
 }

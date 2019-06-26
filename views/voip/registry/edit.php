@@ -6,6 +6,7 @@
  * @var array $checkList
  * @var array $statusInfo
  */
+
 use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Html;
 use app\models\billing\Trunk;
@@ -16,9 +17,16 @@ use app\models\voip\Registry;
 use app\modules\nnp\models\NdcType;
 use kartik\builder\Form;
 use kartik\widgets\ActiveForm;
+use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
+
+$numbersWithoutRegistry = $checkList
+    ? array_column(array_filter($checkList, function ($item) {
+        return $item['filling'] == 'fill' && !$item['registry_id'];
+    }), 'end', 'start')
+    : [];
 
 $countryList = Country::getList();
 $cityLabelList = $cityList = City::getList($isWithEmpty = false, $model->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false);
@@ -170,7 +178,6 @@ $readonlyOptions = [
 
         $line3Attributes['comment'] = [
             'type' => Form::INPUT_TEXT,
-            'options' => $isEditable ? [] : $readonlyOptions,
         ];
 
         //
@@ -203,6 +210,23 @@ $readonlyOptions = [
             'attributes' => $line3Attributes
         ]);
 
+        //строка 4
+        $line4Attributes = [];
+        $line4Attributes['solution_number'] = [
+            'type' => Form::INPUT_TEXT,
+            'options' => $isEditable ? [] : $readonlyOptions,
+        ];
+        $line4Attributes['solution_date'] = [
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => DatePicker::class,
+            'options' => $isEditable ? [] : $readonlyOptions,
+        ];
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 6,
+            'attributes' => $line4Attributes
+        ]);
 
         $value = '';
         if ($model->id) {
@@ -227,6 +251,14 @@ $readonlyOptions = [
                         'value' => 'Передать в продажу номера'
                     ]);
             }
+
+            if ($numbersWithoutRegistry) {
+                $value .= ' ' . Html::submitButton('Прикрепить к реестру', [
+                        'class' => 'btn btn-info',
+                        'name' => 'attach-to-registry',
+                        'value' => $numbersWithoutRegistry
+                    ]);
+            }
         }
 
         echo Form::widget([
@@ -246,23 +278,21 @@ $readonlyOptions = [
                 'actions' => [
                     'type' => Form::INPUT_RAW,
                     'value' =>
-                        $isSubmitable && $isEditable ?
-                            Html::tag(
-                                'div',
-                                Html::button('Отменить', [
-                                    'class' => 'btn btn-link',
-                                    'style' => 'margin-right: 15px;',
-                                    'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
-                                ]) .
-                                Html::submitButton('Сохранить',
-                                    [
-                                        'class' => 'btn btn-primary',
-                                        'name' => 'save',
-                                        'value' => 'Сохранить'
-                                    ]),
-                                ['style' => 'text-align: right; padding-right: 0px;']
-                            ) :
-                            ''
+                        Html::tag(
+                            'div',
+                            Html::button('Отменить', [
+                                'class' => 'btn btn-link',
+                                'style' => 'margin-right: 15px;',
+                                'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
+                            ]) .
+                            Html::submitButton('Сохранить',
+                                [
+                                    'class' => 'btn btn-primary',
+                                    'name' => $submitName,
+                                    'value' => 'Сохранить'
+                                ]),
+                            ['style' => 'text-align: right; padding-right: 0px;']
+                        )
                 ],
             ],
         ]);
@@ -287,31 +317,65 @@ $readonlyOptions = [
         'panelHeadingTemplate' => '<div class="pull-left">{summary}</div>',
         'dataProvider' => $provider,
         'rowOptions' => function ($model) {
-            return ['class' => $model['filling'] === 'pass' ? 'warning' : 'success'];
+            return ['class' => $model['filling'] === 'fill' ? ($model['registry_id'] && !$model['is_alien_registry'] ? 'success' : 'danger') : 'warning'];
         },
         'columns' => [
             [
                 'attribute' => 'filling',
                 'label' => 'Состояние',
                 'value' => function ($model) {
-                    return $model['filling'] === 'pass' ? 'Пропущено' : 'Заполнено';
+                    switch ($model['filling']) {
+                        case 'pass':
+                            return 'Пропущено';
+                        case 'fill':
+                            return 'Заполнено';
+                    }
+                    return '';
                 }
             ],
             [
                 'attribute' => 'start',
-                'label' => 'Начало периода'
+                'value' => function ($model) {
+                    if ($model['filling'] === 'pass') {
+                        return $model['start'];
+                    }
+                    return Html::a($model['start'], ['voip/number', 'NumberFilter[number]' => $model['start']]);
+                },
+                'label' => 'Начало периода',
+                'format' => 'raw'
             ],
             [
                 'attribute' => 'end',
-                'label' => 'Конец периода'
+                'value' => function ($model) {
+                    if ($model['filling'] === 'pass') {
+                        return $model['end'];
+                    }
+                    return Html::a($model['end'], ['voip/number', 'NumberFilter[number]' => $model['end']]);
+                },
+                'label' => 'Конец периода',
+                'format' => 'raw'
             ],
             [
                 'attribute' => 'count',
-                'label' => 'Количество',
+                'label' => 'Кол-во',
                 'value' => function ($model) {
                     return ($model['end'] - $model['start']) + 1;
                 }
             ],
+            [
+                'attribute' => 'registry_id',
+                'label' => 'Реестр',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    return $model['filling'] == 'fill' ? ($model['registry_id'] ?
+                        Html::a(
+                            'Реестр #' . $model['registry_id'],
+                            ['voip/registry/edit', 'id' => $model['registry_id']],
+                            $model['is_alien_registry'] ? ['class' => 'label label-danger'] : [])
+                        : null)
+                        : '';
+                }
+            ]
         ],
     ]);
 

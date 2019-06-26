@@ -19,6 +19,9 @@ use app\modules\nnp\models\NdcType;
  * @property integer $ndc
  * @property string $source
  * @property integer $ndc_type_id
+ * @property string $solution_number
+ * @property integer $numbers_count
+ * @property string $solution_date
  * @property string $number_from
  * @property string $number_to
  * @property string $number_full_from
@@ -77,6 +80,10 @@ class Registry extends ActiveRecord
             'fmc_trunk_id' => 'FMC транк',
             'mvno_trunk_id' => 'MVNO транк',
             'nnp_operator_id' => 'ННП оператор',
+            'solution_number' => 'Номер решения',
+            'numbers_count' => 'Количество номеров',
+            'solution_date' => 'Дата',
+            'comment' => 'Комментарий',
         ];
     }
 
@@ -158,6 +165,14 @@ class Registry extends ActiveRecord
     public function toSale()
     {
         return self::dao()->toSale($this);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function attachNumbers()
+    {
+        return self::dao()->attachNumbers($this);
     }
 
     /**

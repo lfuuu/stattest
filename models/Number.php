@@ -6,6 +6,7 @@ use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
+use app\models\voip\Registry;
 use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Imsi;
 use app\modules\uu\models\AccountTariff;
@@ -51,6 +52,8 @@ use yii\helpers\Url;
  * @property integer $nnp_operator_id
  * @property integer $usr_operator_id
  * @property string $source
+ * @property integer $numbers_count
+ * @property string $solution_date
  *
  * @property-read City $city
  * @property-read Country $country
@@ -61,6 +64,7 @@ use yii\helpers\Url;
  * @property-read Region $regionModel
  * @property-read City $cityByName
  * @property-read Imsi $imsiModel
+ * @property-read Registry $registry
  *
  * @property-read float $originPrice
  * @property-read float $price
@@ -260,6 +264,14 @@ class Number extends ActiveRecord
     public function getImsiModel()
     {
         return $this->hasOne(Imsi::class, ['imsi' => 'imsi']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRegistry()
+    {
+        return $this->hasOne(Registry::class, ['id' => 'registry_id']);
     }
 
     /**

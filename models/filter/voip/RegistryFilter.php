@@ -19,6 +19,10 @@ class RegistryFilter extends Country
     public $number_to = '';
     public $account_id = '';
     public $ndc = '';
+    public $solution_date = '';
+    public $solution_number = '';
+    public $numbers_count_from = '';
+    public $numbers_count_to = '';
 
     /**
      * @return array
@@ -33,7 +37,8 @@ class RegistryFilter extends Country
             [['ndc'], 'integer'],
             [['number_from'], 'integer'],
             [['number_to'], 'integer'],
-            [['account_id'], 'integer'],
+            [['account_id', 'numbers_count_from', 'numbers_count_to'], 'integer'],
+            [['solution_date', 'solution_number'], 'string']
         ];
     }
 
@@ -47,7 +52,7 @@ class RegistryFilter extends Country
         $query = Registry::find();
 
         // equal filter
-        foreach (['country_id', 'city_id', 'source', 'ndc_type_id', 'account_id', 'ndc'] as $field) {
+        foreach (['country_id', 'city_id', 'source', 'ndc_type_id', 'account_id', 'ndc', 'solution_date'] as $field) {
             if ($this->{$field} !== '') {
                 $query->andWhere([$field => $this->{$field}]);
             }
@@ -55,6 +60,10 @@ class RegistryFilter extends Country
 
         $this->number_from !== '' && $query->andWhere(['LIKE', 'number_from', $this->number_from]);
         $this->number_to !== '' && $query->andWhere(['LIKE', 'number_to', $this->number_to]);
+
+        $this->solution_number !== '' && $query->andWhere(['solution_number' => $this->solution_number]);
+        $this->numbers_count_from !== '' && $query->andWhere(['>=', 'numbers_count', $this->numbers_count_from]);
+        $this->numbers_count_to !== '' && $query->andWhere(['<=', 'numbers_count', $this->numbers_count_to]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

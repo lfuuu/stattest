@@ -24,6 +24,9 @@ class RegistryForm extends Form
         $city_number_format_length = 0,
         $source = VoipRegistrySourceEnum::OPERATOR,
         $ndc_type_id = NdcType::ID_GEOGRAPHIC,
+        $solution_number,
+        $numbers_count,
+        $solution_date,
         $number_from,
         $number_to,
         $account_id,
@@ -59,7 +62,7 @@ class RegistryForm extends Form
                 }
             ],
             [
-                ['country_id', 'city_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'comment'],
+                ['country_id', 'city_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'comment', 'solution_number', 'numbers_count', 'solution_date'],
                 FormFieldValidator::class
             ],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
@@ -235,6 +238,8 @@ class RegistryForm extends Form
                      'number_to',
                      'account_id',
                      'comment',
+                     'solution_date',
+                     'solution_number',
                      'ndc',
                      'fmc_trunk_id',
                      'nnp_operator_id',
@@ -247,6 +252,7 @@ class RegistryForm extends Form
 
         $this->registry->number_full_from = $countryPrefix . $this->ndc . $this->number_from;
         $this->registry->number_full_to = $countryPrefix . $this->ndc . $this->number_to;
+        $this->registry->numbers_count = (int)$this->number_to - (int)$this->number_from;
 
         if (!($result = $this->registry->save())) {
             throw new ModelValidationException($this->registry);

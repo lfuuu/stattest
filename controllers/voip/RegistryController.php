@@ -3,10 +3,13 @@
 namespace app\controllers\voip;
 
 use app\classes\BaseController;
+use app\exceptions\ModelValidationException;
 use app\forms\voip\RegistryForm;
 use app\models\City;
 use app\models\filter\voip\RegistryFilter;
+use app\models\Number;
 use app\models\voip\Registry;
+use Exception;
 use Yii;
 use yii\filters\AccessControl;
 
@@ -62,7 +65,7 @@ class RegistryController extends BaseController
      *
      * @param int $id
      * @return string|\yii\web\Response
-     * @throws \yii\base\InvalidParamException
+     * @throws ModelValidationException
      */
     public function actionEdit($id)
     {
@@ -71,7 +74,17 @@ class RegistryController extends BaseController
 
         $model = new RegistryForm;
 
-        if (Yii::$app->request->post('save')) {
+        $post = Yii::$app->request->post();
+        $submitName = !$registry || ($registry && $registry->isEditable() && $registry->isSubmitable()) ? 'save' : 'save-comment';
+
+        if ($post['save-comment'] && ($comment = trim($post['RegistryForm']['comment']))) {
+            $registry->comment = $comment;
+            if (!$registry->save()) {
+                throw new ModelValidationException($registry);
+            }
+            return $this->redirect(['edit', 'id' => $registry->id]);
+        }
+        if ($post['save']) {
             $model->setScenario('save');
         }
 
@@ -79,7 +92,7 @@ class RegistryController extends BaseController
             $model->initModel($registry);
         }
 
-        $isLoad = $model->load(Yii::$app->request->post());
+        $isLoad = $model->load($post);
 
         $isSave = $model->getScenario() === 'save';
 
@@ -92,18 +105,23 @@ class RegistryController extends BaseController
         $checkList = null;
         $statusInfo = [];
         try {
-            if (Yii::$app->request->post('fill-numbers')) {
+            if ($post['fill-numbers']) {
                 $registry->fillNumbers();
                 City::dao()->markUseCities();
                 $isShowCheckList = true;
             }
 
-            if (Yii::$app->request->post('to-sale')) {
+            if ($post['to-sale']) {
                 $registry->toSale();
                 $isShowCheckList = true;
             }
 
-            if ($isShowCheckList || Yii::$app->request->post('check-numbers')) {
+            if ($post['attach-to-registry']) {
+                $registry->attachNumbers();
+                $isShowCheckList = true;
+            }
+
+            if ($isShowCheckList || $post['check-numbers']) {
                 $checkList = $registry->getPassMap();
                 $isShowCheckList = true;
             }
@@ -121,7 +139,8 @@ class RegistryController extends BaseController
             'model' => $model,
             'creatingMode' => false,
             'checkList' => $checkList,
-            'statusInfo' => $statusInfo
+            'statusInfo' => $statusInfo,
+            'submitName' => $submitName
         ]);
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Singleton;
@@ -63,8 +64,12 @@ class VoipRegistryDao extends Singleton
         $data = [];
         $lastValue = null;
         $startValue = null;
+        $registryId = null;
+        $lastRegistryId = null;
+
         foreach ($numbers->query() as $numberArr) {
             $number = $numberArr['number'];
+            $registryId = $numberArr['registry_id'];
 
             if (!$startValue) {
                 if ($registry->number_full_from < $number) {
@@ -73,20 +78,25 @@ class VoipRegistryDao extends Singleton
 
                 $startValue = $number;
                 $lastValue = $number;
+                $lastRegistryId = $registryId;
                 continue;
             }
 
             if (($number - $lastValue - 1) > 0) {
-                $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue];
+                $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue, 'registry_id' => $registryId, 'is_alien_registry' => $registry->id != $registryId];
                 $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $number - 1];
+                $startValue = $number;
+            } elseif ($lastRegistryId != $registryId) {
+                $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue, 'registry_id' => $lastRegistryId, 'is_alien_registry' => $registry->id != $lastRegistryId];
                 $startValue = $number;
             }
 
             $lastValue = $number;
+            $lastRegistryId = $registryId;
         }
 
         if ($startValue) {
-            $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue];
+            $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue, 'registry_id' => $registryId, 'is_alien_registry' => $registry->id != $registryId];
             if ($lastValue < $registry->number_full_to) {
                 $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $registry->number_full_to];
             }
@@ -260,14 +270,14 @@ class VoipRegistryDao extends Singleton
     {
         return ArrayHelper::map(
             (new Query())
-            ->from(Number::tableName())
-            ->where(['city_id' => $registry->city_id])
-            ->andWhere(['between', 'number', $registry->number_full_from, $registry->number_full_to])
-            ->select(['status' => 'status', 'count' => new Expression('count(*)')])
-            ->groupBy('status')
-            ->all(),
-        'status',
-        'count'
+                ->from(Number::tableName())
+                ->where(['city_id' => $registry->city_id])
+                ->andWhere(['between', 'number', $registry->number_full_from, $registry->number_full_to])
+                ->select(['status' => 'status', 'count' => new Expression('count(*)')])
+                ->groupBy('status')
+                ->all(),
+            'status',
+            'count'
         );
     }
 
@@ -279,16 +289,61 @@ class VoipRegistryDao extends Singleton
     public function toSale(Registry $registry)
     {
         foreach (Number::find()
-            ->where(['between', 'number', $registry->number_full_from, $registry->number_full_to])
-            ->andWhere([
-                'city_id' => $registry->city_id,
-                'status' => Number::STATUS_NOTSALE
-            ])->all() as $number) {
+                     ->where(['between', 'number', $registry->number_full_from, $registry->number_full_to])
+                     ->andWhere([
+                         'city_id' => $registry->city_id,
+                         'status' => Number::STATUS_NOTSALE
+                     ])->all() as $number) {
             \Yii::$app->getDb()->transaction(function ($db) use ($number) {
                 $number->status = Number::STATUS_INSTOCK;
                 $number->save();
                 Number::dao()->log($number, NumberLog::ACTION_SALE, "Y");
             });
         }
+    }
+
+    /**
+     * Привязать реестр к неприкрепленным номерам, входящие в диапазон этого реестра
+     *
+     * @param Registry $registry
+     * @throws \Exception
+     */
+    public function attachNumbers(Registry $registry)
+    {
+        $numbersWithoutRegistry = array_column(
+            array_filter($registry->getPassMap(), function ($item) {
+                return $item['filling'] == 'fill' && !$item['registry_id'];
+            }), 'end', 'start');
+
+        $transaction = Number::getDb()->beginTransaction();
+        try {
+            foreach ($numbersWithoutRegistry as $start => $end) {
+                $query = Number::find()
+                    ->where([
+                        'between',
+                        'number',
+                        $start,
+                        $end
+                    ])
+                    ->andWhere([
+                        'registry_id' => null,
+                        'city_id' => $registry->city_id
+                    ]);
+
+                /** @var Number $number */
+                foreach ($query->each() as $number) {
+                    $number->registry_id = $registry->id;
+                    if (!$number->save()) {
+                        throw new ModelValidationException($number);
+                    }
+                }
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+
     }
 }
