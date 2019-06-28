@@ -107,23 +107,6 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     }
 } else {
     $columns = require '_indexColumns.php';
-    // Если предрасчет не требуется, то дополним выводимые колонки
-    if (!$filterModel->isPreFetched) {
-        $columns[] = [
-            'label' => 'Номер А',
-            'attribute' => 'src_number',
-        ];
-        $columns[] = [
-            'label' => 'Номер В',
-            'attribute' => 'dst_number',
-        ];
-        if (!$filterModel->isFromUnite) {
-            $columns[] = [
-                'label' => 'ПДД',
-                'attribute' => 'pdd',
-            ];
-        }
-    }
 }
 
 $chooseError = function () use ($filterModel) {
@@ -191,7 +174,7 @@ $getHeader = function (CallsRawFilter $model) {
         return '
 <div class="row">
     <div class="col-md-12">
-        <h2>Отчет по маржинальности транзитного траффика по таблице склейки</h2>
+        <h2>Отчет по маржинальности траффика по таблице склейки</h2>
     </div>
 </div>
 ';

@@ -76,6 +76,7 @@ class CallsRawFilter extends CallsRaw
         'margin_percent',
     ];
     public $marketPlaceId = Hub::MARKET_PLACE_ID_RUSSIA;
+    public $account_id = null;
     public $server_ids = [];
     public $trafficType = CallsRawUnite::TRAFFIC_TYPE_ALL;
     public $connect_time_from = null;
@@ -159,6 +160,7 @@ class CallsRawFilter extends CallsRaw
             [
                 [
                     'marketPlaceId',
+                    'account_id',
                     'trafficType',
                     'is_success_calls',
                     'session_time_from',
@@ -276,7 +278,8 @@ class CallsRawFilter extends CallsRaw
                 // _indexFiler
                 'src_physical_trunks_ids' => 'Физический транк-оригинатор',
                 'src_trunk_group_ids' => 'Группа транка-оригинатора',
-                'session_time' => 'Длительность разговора',
+                'session_time' => 'Длительность оригинации',
+                'session_time_term' => 'Длительность терминации',
                 'calls_with_duration' => 'Только звонки с длительностью',
                 'src_operator_ids' => 'Оператор номера А',
                 'dst_operator_ids' => 'Оператор номера В',
@@ -464,17 +467,33 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
+     * Список исключенных аггрегаций
+     *
+     * @return array
+     */
+    protected function getExceptGroupAggregations()
+    {
+        $exceptAggregations = [];
+        if ($this->isFromUnite) {
+            $exceptAggregations = [
+                'calls_count',
+            ];
+        }
+
+        return $exceptAggregations;
+    }
+
+    /**
      * Список исключенных фильтров
      *
      * @return array
      */
     public function getExceptFilters()
     {
-        $exceptFilters = [];
+        $exceptFilters = ['trafficType'];
         if ($this->isFromUnite) {
             $exceptFilters = [
                 'server_ids',
-                'trafficType',
 
                 'src_destinations_ids',
                 'dst_destinations_ids',
@@ -484,6 +503,31 @@ class CallsRawFilter extends CallsRaw
         }
 
         return $exceptFilters;
+    }
+
+    /**
+     * Список исключенных колонок
+     *
+     * @return array
+     */
+    public function getExceptColumns()
+    {
+        $exceptColumns = [];
+        if ($this->isFromUnite) {
+            $exceptColumns = [
+                'pdd',
+            ];
+        }
+
+        if ($this->isPreFetched) {
+            $exceptColumns = [
+                'src_number',
+                'dst_number',
+                'pdd',
+            ];
+        }
+
+        return $exceptColumns;
     }
 
     /**
@@ -498,12 +542,16 @@ class CallsRawFilter extends CallsRaw
             $this->aggrConst['asr_u'] = str_replace('COUNT(cr1.connect_time)', 'SUM(number_of_calls)', $this->aggrConst['asr_u']);
         }
 
-        $fields = array_keys($this->aggrConst);
-        $fields = array_map(function ($value){
-            return $this->getAttributeLabel($value);
-        }, array_combine($fields, $fields));
+        $aggregations = array_keys($this->aggrConst);
+        if ($exceptAggregations = $this->getExceptGroupAggregations()) {
+            $aggregations = array_diff($aggregations, $exceptAggregations);
+        }
 
-        return $fields;
+        $aggregations = array_map(function ($value){
+            return $this->getAttributeLabel($value);
+        }, array_combine($aggregations, $aggregations));
+
+        return $aggregations;
 
     }
 
@@ -591,7 +639,7 @@ class CallsRawFilter extends CallsRaw
 
         $exclude = [];
         if (
-            !$this->isFromUnite &&
+            $this->isFromUnite &&
             $required['trafficType'] === CallsRawUnite::TRAFFIC_TYPE_ALL
         ) {
             $exclude['trafficType'] = 1;
@@ -706,6 +754,7 @@ class CallsRawFilter extends CallsRaw
             $sortFields = [
                 'connect_time',
                 'session_time',
+                'session_time_term',
                 'disconnect_cause',
                 'src_operator_name',
                 'src_country_name',
@@ -728,7 +777,9 @@ class CallsRawFilter extends CallsRaw
             // Добавление полей, которые не поддерживает кеширование
             if (!$this->isNewVersion || !$this->isPreFetched) {
                 $sortFields = array_merge($sortFields, [
-                    'src_number', 'dst_number', 'pdd'
+                    'src_number',
+                    'dst_number',
+                    'pdd',
                 ]);
             }
         }

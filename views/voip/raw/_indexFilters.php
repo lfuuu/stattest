@@ -53,6 +53,31 @@ $filters = [
         'class' => TrafficTypeColumn::class,
     ],
     [
+        'attribute' => 'account_id',
+        'class' => StringColumn::class,
+        'filterInputOptions' => [
+            'title' => 'Допустимы только цифры (любая последовательность цифр, в том числе пустая строка)'
+        ],
+    ],
+    [
+        'class' => WithEmptyFilterColumn::class,
+        'filterOptions' => [
+            'class' => 'no_display'
+        ],
+    ],
+    [
+        'class' => WithEmptyFilterColumn::class,
+        'filterOptions' => [
+            'class' => 'no_display'
+        ],
+    ],
+    [
+        'class' => WithEmptyFilterColumn::class,
+        'filterOptions' => [
+            'class' => 'no_display'
+        ],
+    ],
+    [
         'attribute' => 'src_number',
         'class' => StringColumn::class,
         'filterOptions' => [

@@ -202,23 +202,6 @@ trait CallsRawSlowReport
             && $query3
             && $query3->andWhere(['cu.server_id' => $this->server_ids]);
         }
-        // Добавление условия для поля trafficType
-        switch ($this->trafficType) {
-            case CallsRawUnite::TRAFFIC_TYPE_CLIENT:
-                $query1->addSelect(['cr.trunk_service_id']);
-                $query2->addSelect(['cr.trunk_service_id']);
-
-                $query4->andWhere(new Expression(
-                    '((cr1.trunk_service_id IS NOT NULL) AND (cr2.trunk_service_id IS NOT NULL)) IS FALSE'
-                ));
-                break;
-
-            case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
-                // number_service_id is NULL
-                $query1->andWhere(['IS NOT', 'cr.trunk_service_id', null]);
-                $query2->andWhere(['IS NOT', 'cr.trunk_service_id', null]);
-                break;
-        }
 
         if ($this->connect_time_from || $this->correct_connect_time_to) {
             $condition = function ($field) {
@@ -359,6 +342,12 @@ trait CallsRawSlowReport
             $query1->andWhere($condition);
             $query2->andWhere($condition);
             $query3 = null;
+        }
+
+        if ($this->account_id) {
+            $query1->andWhere(["cr.account_id" => $this->account_id]);
+            $query2->andWhere(["cr.account_id" => $this->account_id]);
+            $query3 && $query3->andWhere(["cr.account_id" => $this->account_id]);
         }
 
         if ($this->dst_number) {

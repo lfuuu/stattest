@@ -61,6 +61,7 @@ trait CallsRawReport
         $select = [
             'connect_time' => $aliasResolverFunc('cr1.connect_time'),
             'session_time' => $aliasResolverFunc('cr1.billed_time'),
+            'session_time_term' => $aliasResolverFunc('cr2.billed_time'),
             'disconnect_cause' => $aliasResolverFunc('cr1.disconnect_cause'),
             'src_route' => 't1.name',
             'dst_operator_name' => 'o1.name',
@@ -245,24 +246,6 @@ trait CallsRawReport
                 [$aliasResolverFunc('cr2.server_id') => $this->server_ids],
             ]);
         }
-        // Добавление условия для поля trafficType
-        if (!$isPreFetched) {
-            switch ($this->trafficType) {
-                case CallsRawUnite::TRAFFIC_TYPE_CLIENT:
-                    $query->andWhere(new Expression(
-                        '((cr1.trunk_service_id IS NOT NULL) AND (cr2.trunk_service_id IS NOT NULL)) IS FALSE'
-                    ));
-                    break;
-
-                case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
-                    // number_service_id is NULL
-                    $query->andWhere(['AND',
-                        ['IS NOT', 'cr1.trunk_service_id', null],
-                        ['IS NOT', 'cr2.trunk_service_id', null],
-                    ]);
-                    break;
-            }
-        }
         // Добавление условия для поля t1.id
         if ($this->src_trunk_group_ids) {
             $query->andWhere([
@@ -402,6 +385,16 @@ trait CallsRawReport
                     [$isPreFetched ? 'cr2_disconnect_cause' : 'cr2.disconnect_cause' => DisconnectCause::$successCodes]
                 ]);
         }
+
+        // Добавление условия для поля account_id
+        if ($this->account_id) {
+            $query
+                ->andWhere(['or',
+                    [$aliasResolverFunc('cr1.account_id') => $this->account_id],
+                    [$aliasResolverFunc('cr2.account_id') => $this->account_id],
+                ]);
+        }
+
         // Если не требуется кеширование, то добавить условия для поля dst_number таблиц cr1 и cr2
         if (!$isPreFetched && $this->dst_number) {
             $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
@@ -462,6 +455,7 @@ trait CallsRawReport
         $select = [
             'connect_time' => $aliasResolverFunc('cr1.connect_time'),
             'session_time' => $aliasResolverFunc('cr1.billed_time'),
+            'session_time_term' => $aliasResolverFunc('cr2.billed_time'),
             'disconnect_cause' => $aliasResolverFunc('cr1.disconnect_cause'),
             'src_route' => 't1.name',
             'dst_operator_name' => 'o1.name',
@@ -574,10 +568,32 @@ trait CallsRawReport
             ]);
         }
 
-        // Добавление условия для поля type
-        $query->andWhere([
-            'type' => CallsRawUnite::TYPE_TRANSIT,
-        ]);
+        // Добавление условия для поля trafficType
+        switch ($this->trafficType) {
+            case CallsRawUnite::TRAFFIC_TYPE_CLIENT:
+                $query->andWhere(['>=', 'type', CallsRawUnite::TYPE_RETAIL]);
+                $query->andWhere(['!=', 'type', CallsRawUnite::TYPE_TRANSIT]);
+                break;
+
+            case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
+            case CallsRawUnite::TRAFFIC_TYPE_CLIENT_RETAIL:
+            case CallsRawUnite::TRAFFIC_TYPE_CLIENT_AST:
+            case CallsRawUnite::TRAFFIC_TYPE_CLIENT_OTT:
+                $query->andWhere([
+                    'type' => $this->trafficType,
+                ]);
+                break;
+
+            case CallsRawUnite::TRAFFIC_TYPE_CLIENT_MVNO:
+                $query->andWhere([
+                    'type' => [CallsRawUnite::TYPE_MVNO, CallsRawUnite::TYPE_MVNO_COST],
+                ]);
+                break;
+
+            default:
+                $query->andWhere(['>=', 'type', CallsRawUnite::TYPE_RETAIL]);
+
+        }
 
         // Добавление условия для поля t1.id
         if ($this->src_trunk_group_ids) {
@@ -701,6 +717,16 @@ trait CallsRawReport
                 ->andWhere(['LIKE', 'CAST(src_number AS varchar)', $this->src_number, $isEscape = false])
                 ->andWhere(['LIKE', 'CAST(src_number AS varchar)', $this->src_number, $isEscape = false]);
         }
+
+        // Добавление условия для поля account_id
+        if ($this->account_id) {
+            $query
+                ->andWhere(['or',
+                    [$aliasResolverFunc('cr1.account_id') => $this->account_id],
+                    [$aliasResolverFunc('cr2.account_id') => $this->account_id],
+                ]);
+        }
+
         // Добавление условия для поля disconnect_causes таблиц cr1 и cr2
         if ($this->disconnect_causes) {
             $conditionFunc = function ($condition) {
@@ -740,6 +766,7 @@ trait CallsRawReport
         $select = [
             'connect_time' => $aliasResolverFunc('cr1.connect_time'),
             'session_time' => $aliasResolverFunc('cr1.billed_time'),
+            'session_time_term' => $aliasResolverFunc('cr2.billed_time'),
             'disconnect_cause' => $aliasResolverFunc('cr1.disconnect_cause'),
             'src_route' => 't1.name',
             'dst_operator_name' => 'o1.name',
@@ -880,23 +907,13 @@ trait CallsRawReport
                 [$aliasResolverFunc('cr2.server_id') => $this->server_ids],
             ]);
         }
-        // Добавление условия для поля trafficType
-        if (!$isPreFetched) {
-            switch ($this->trafficType) {
-                case CallsRawUnite::TRAFFIC_TYPE_CLIENT:
-                    $query->andWhere(new Expression(
-                        '((cr1.trunk_service_id IS NOT NULL) AND (cr2.trunk_service_id IS NOT NULL)) IS FALSE'
-                    ));
-                    break;
-
-                case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
-                    // number_service_id is NULL
-                    $query->andWhere(['AND',
-                        ['IS NOT', 'cr1.trunk_service_id', null],
-                        ['IS NOT', 'cr2.trunk_service_id', null],
-                    ]);
-                    break;
-            }
+        // Добавление условия для поля account_id
+        if ($this->account_id) {
+            $query
+                ->andWhere(['or',
+                    [$aliasResolverFunc('cr1.account_id') => $this->account_id],
+                    [$aliasResolverFunc('cr2.account_id') => $this->account_id],
+                ]);
         }
         // Добавление условия для поля t1.id
         if ($this->src_trunk_group_ids) {

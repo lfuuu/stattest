@@ -63,12 +63,17 @@ class CallsRawUnite extends ActiveRecord
     const TYPE_RETAIL = 10;
     const TYPE_AST = 11;
     const TYPE_MVNO = 12;
+    const TYPE_MVNO_COST = 13;
     const TYPE_TRANSIT = 20;
     const TYPE_OTT = 30;
 
     const TRAFFIC_TYPE_ALL = 1;
     const TRAFFIC_TYPE_CLIENT = 2; // TYPE_RETAIL + TYPE_AST + TYPE_MVNO + TYPE_OTT
-    const TRAFFIC_TYPE_OPERATOR = 3; // TYPE_TRANSIT
+    const TRAFFIC_TYPE_CLIENT_RETAIL = 10; // TYPE_RETAIL
+    const TRAFFIC_TYPE_CLIENT_AST = 11; // TYPE_AST
+    const TRAFFIC_TYPE_CLIENT_MVNO = 12; // TYPE_MVNO + TYPE_MVNO_COST
+    const TRAFFIC_TYPE_OPERATOR = 20; // TYPE_TRANSIT
+    const TRAFFIC_TYPE_CLIENT_OTT = 30; // TYPE_OTT
 
     public static $types = [
         self::TYPE_UNFINISHED => 'Несостоявшийся',
@@ -87,8 +92,13 @@ class CallsRawUnite extends ActiveRecord
 
     public static $trafficTypes = [
         self::TRAFFIC_TYPE_ALL => 'Весь',
-        self::TRAFFIC_TYPE_CLIENT => 'Клиентский',
-        self::TRAFFIC_TYPE_OPERATOR => 'Операторский',
+        self::TRAFFIC_TYPE_CLIENT => 'Клиентский (10, 11, 12, 13, 30)',
+        self::TRAFFIC_TYPE_OPERATOR => 'Операторский (20)',
+
+        self::TRAFFIC_TYPE_CLIENT_RETAIL => 'Клиентский: несортированный (10)',
+        self::TRAFFIC_TYPE_CLIENT_AST => 'Клиентский: астериски (11)',
+        self::TRAFFIC_TYPE_CLIENT_MVNO => 'Клиентский: радиосеть (12, 13)',
+        self::TRAFFIC_TYPE_CLIENT_OTT => 'Клиентский: мегатранки (30)',
     ];
 
     /**

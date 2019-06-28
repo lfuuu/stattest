@@ -9,22 +9,33 @@ use app\models\voip\filter\CallsRawFilter;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\column\billing\DisconnectCauseColumn;
 
-return [
+$columns = [
     [
         'label' => 'Время начала звонка',
         'attribute' => 'connect_time',
     ],
     [
-        'label' => 'Длительность разговора',
+        'label' => 'Длительность оригинации',
         'attribute' => 'session_time',
         'value' => function ($model) {
-            return DateTimeWithUserTimezone::formatSecondsToDetailedView($model['session_time']);
+            return DateTimeWithUserTimezone::formatSecondsToDayAndHoursAndMinutesAndSeconds($model['session_time']);
+        },
+    ],
+    [
+        'label' => 'Длительность терминации',
+        'attribute' => 'session_time_term',
+        'value' => function ($model) {
+            return DateTimeWithUserTimezone::formatSecondsToDayAndHoursAndMinutesAndSeconds($model['session_time_term']);
         },
     ],
     [
         'label' => 'Код завершения',
         'attribute' => 'disconnect_cause',
         'class' => DisconnectCauseColumn::class,
+    ],
+    [
+        'label' => 'Номер А',
+        'attribute' => 'src_number',
     ],
     [
         'label' => 'Оператор А',
@@ -41,6 +52,10 @@ return [
     [
         'label' => 'Город А',
         'attribute' => 'src_city_name',
+    ],
+    [
+        'label' => 'Номер В',
+        'attribute' => 'dst_number',
     ],
     [
         'label' => 'Оператор В',
@@ -114,4 +129,20 @@ return [
         },
         'format' => ['decimal', 4],
     ],
+    [
+        'label' => 'ПДД',
+        'attribute' => 'pdd',
+    ],
 ];
+
+if ($exceptColumns = $filterModel->getExceptColumns()) {
+    foreach ($columns as &$column) {
+        if (in_array($column['attribute'], $exceptColumns)) {
+            $column = null;
+        }
+    }
+
+    $columns = array_filter($columns);
+}
+
+return $columns;
