@@ -85,6 +85,8 @@ class NumberFilter extends Number
 
         $query->with('registry')->with('didGroup')->with('country');
 
+        $query->joinWith('registry');
+
         if ($this->number && !$this->number_from) {
             $this->number_from = $this->number;
         }
