@@ -102,6 +102,7 @@ use yii\helpers\Url;
  * @property-read LkWizardState $lkWizardState
  * @property-read ClientCounter $billingCounters
  * @property-read ClientCounter $billingCountersFastMass
+ * @property-read ClientCounter $clientCounter
  * @property-read string $company_full
  * @property-read string $address_jur
  * @property-read ClientContact[] $allContacts
@@ -1305,6 +1306,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getCounterInteropTrunks()
     {
         return $this->hasMany(CounterInteropTrunk::class, ['account_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getClientCounter()
+    {
+        return $this->hasOne(ClientCounter::class, ['client_id' => 'id']);
     }
 
     /**

@@ -10,6 +10,8 @@ use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
+use app\models\ClientCounter;
+use app\models\ContractType;
 use app\models\CounterInteropTrunk;
 use app\models\Payment;
 use yii\base\Model;
@@ -21,8 +23,13 @@ class BalanceReport extends Model
 
     public $id;
     public $account_manager;
+    public $contract_type_id;
     public $balance_from;
     public $balance_to;
+    public $credit_from;
+    public $credit_to;
+    public $realtime_balance_from;
+    public $realtime_balance_to;
     public $currency;
     public $b_id;
     public $bp_id;
@@ -46,8 +53,13 @@ class BalanceReport extends Model
                     'b_id',
                     'bp_id',
                     'bps_id',
+                    'contract_type_id',
                     'balance_from',
                     'balance_to',
+                    'credit_from',
+                    'credit_to',
+                    'realtime_balance_from',
+                    'realtime_balance_to',
                     'income_sum_from',
                     'income_sum_to',
                     'outcome_sum_from',
@@ -68,7 +80,10 @@ class BalanceReport extends Model
         return [
             'id' => 'ЛС',
             'account_manager' => 'Аккаунт менеджер',
-            'balance' => 'Баланс',
+            'contract_type_name' => 'Тип договора',
+            'balance' => 'Бухгалтерский баланс',
+            'realtime_balance' => 'Реалтаймовый баланс',
+            'credit' => 'Кредитный лимит',
             'currency' => 'Валюта',
             'name_full' => 'Название компании',
             'b_id' => 'Подразделение',
@@ -94,20 +109,25 @@ class BalanceReport extends Model
         $counterInteropTrunkTableName = CounterInteropTrunk::tableName();
         $billsTableName = Bill::tableName();
         $paymentsTableName = Payment::tableName();
+        $contractTypeTableName = ContractType::tableName();
+        $clientCounterTableName = ClientCounter::tableName();
         $query = ClientAccount::find()
             ->joinWith([
                 'clientContractModel.business',
                 'clientContractModel.businessProcess',
                 'clientContractModel.businessProcessStatus',
                 'counterInteropTrunks',
+                'clientCounter',
                 'clientContractModel.clientContragent'
             ])
+            ->leftJoin($contractTypeTableName, $clientContractTableName . '.contract_type_id = ' . $contractTypeTableName . '.id')
             ->select([
                 $clientAccountTableName . '.id',
                 '((select sum(sum) from ' . $billsTableName . ' where client_id = ' . $clientAccountTableName . '.id)'
                 . '-' .
                 '(select sum(sum) from ' . $paymentsTableName . ' where client_id = ' . $clientAccountTableName . '.id)) as balance',
                 $clientAccountTableName . '.currency',
+                $clientAccountTableName . '.credit',
                 $contragentTableName . '.name_full',
                 $businessTableName . '.name as b_name',
                 $businessProcessTableName . '.name as bp_name',
@@ -115,6 +135,8 @@ class BalanceReport extends Model
                 $clientContractTableName . '.account_manager',
                 $clientContractTableName . '.business_id',
                 $clientContractTableName . '.business_process_id',
+                '(' . $clientAccountTableName . '.balance + ' . $clientCounterTableName . '.amount_sum) as realtime_balance',
+                $contractTypeTableName . '.name as contract_type_name',
                 $counterInteropTrunkTableName . '.income_sum',
                 $counterInteropTrunkTableName . '.outcome_sum',
                 '(income_sum + outcome_sum) as inc_out_sum',
@@ -126,7 +148,10 @@ class BalanceReport extends Model
                 'attributes' => [
                     'id',
                     'account_manager',
+                    'contract_type_name',
+                    'credit',
                     'balance',
+                    'realtime_balance',
                     'currency',
                     'name_full',
                     'b_id',
@@ -152,15 +177,20 @@ class BalanceReport extends Model
         $query->andFilterWhere([$businessTableName . '.id' => ($this->b_id) ? $this->b_id : Business::OPERATOR]);
         $query->andFilterWhere([$businessProcessTableName . '.id' => $this->bp_id]);
         $query->andFilterWhere([$businessProcessStatusTableName . '.id' => $this->bps_id]);
+        $query->andFilterWhere([$clientContractTableName . '.contract_type_id' => $this->contract_type_id]);
+        $query->andFilterWhere(['>=', 'credit', $this->credit_from]);
+        $query->andFilterWhere(['<=', 'credit', $this->credit_to]);
 
         $query->andFilterHaving(['>=', 'balance', $this->balance_from]);
         $query->andFilterHaving(['<=', 'balance', $this->balance_to]);
 
-        $query->andFilterHaving(['>=', 'income_sum', $this->income_sum_from]);
-        $query->andFilterHaving(['<=', 'income_sum', $this->income_sum_to]);
+        $query->andFilterHaving(['>=', 'realtime_balance', $this->realtime_balance_from]);
+        $query->andFilterHaving(['<=', 'realtime_balance', $this->realtime_balance_to]);
 
-        $query->andFilterHaving(['>=', 'outcome_sum', $this->outcome_sum_from]);
-        $query->andFilterHaving(['<=', 'outcome_sum', $this->outcome_sum_to]);
+        $query->andFilterWhere(['>=', 'income_sum', $this->income_sum_from]);
+        $query->andFilterWhere(['<=', 'income_sum', $this->income_sum_to]);
+        $query->andFilterWhere(['>=', 'outcome_sum', $this->outcome_sum_from]);
+        $query->andFilterWhere(['<=', 'outcome_sum', $this->outcome_sum_to]);
 
         $query->andFilterHaving(['>=', 'inc_out_sum', $this->inc_out_sum_from]);
         $query->andFilterHaving(['<=', 'inc_out_sum', $this->inc_out_sum_to]);

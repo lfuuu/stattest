@@ -12,6 +12,8 @@ use app\classes\Html;
 use app\classes\grid\GridView;
 use app\forms\voipreport\BalanceReport;
 use app\models\Business;
+use app\models\ContractType;
+use kartik\select2\Select2;
 use yii\data\ArrayDataProvider;
 use yii\widgets\Breadcrumbs;
 use \app\models\Currency;
@@ -28,15 +30,39 @@ echo Breadcrumbs::widget([
 $columns = [
     [
         'attribute' => 'id',
+        'value' => function ($model) {
+            return Html::a($model['id'], ['client/view', 'id' => $model['id']]);
+        },
         'class' => DataColumn::class,
+        'format' => 'raw'
     ],
     [
         'attribute' => 'account_manager',
         'class' => DataColumn::class,
     ],
     [
+        'attribute' => 'contract_type_name',
+        'filter' => Select2::widget([
+            'data' => ContractType::getList($filterModel->bp_id, true),
+            'model' => $filterModel,
+            'attribute' => 'contract_type_id'
+        ])
+    ],
+    [
         'attribute' => 'balance',
         'class' => IntegerRangeColumn::class,
+    ],
+    [
+        'attribute' => 'realtime_balance',
+        'class' => IntegerRangeColumn::class,
+    ],
+    [
+        'attribute' => 'credit',
+        'value' => function ($model) {
+            return Html::tag('span', $model['credit'], ($model['credit'] >= 0 && $model['realtime_balance'] + $model['credit'] < 0) ? ['class' => 'text-danger'] : []);
+        },
+        'class' => IntegerRangeColumn::class,
+        'format' => 'raw'
     ],
     [
         'attribute' => 'currency',
