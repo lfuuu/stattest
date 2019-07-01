@@ -8,9 +8,11 @@
  * @var AccountTariffFilter $filterModel
  */
 
+use app\classes\helpers\DependecyHelper;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use yii\caching\TagDependency;
 use yii\db\ActiveQuery;
 
 
@@ -25,10 +27,13 @@ $queryDep = clone $query;
 $queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CONCAT(COALESCE(tariff_period_id, -1010)+ CAST(REPLACE(COALESCE(actual_from_utc, \'3020\'), \'-\', \'\') AS UNSIGNED)))
                    FROM uu_account_tariff_log
                    WHERE account_tariff_id = uu_account_tariff.id
-                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -100))')]);
+                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id))')]);
 
 $sqlDep = $queryDep->createCommand()->rawSql;
 $dbDep = new \yii\caching\DbDependency(['sql' => $sqlDep]);
+$tagDep = (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST, DependecyHelper::TAG_USAGE]]));
+
+$chainDep = (new \yii\caching\ChainedDependency(['dependencies' => [$tagDep, $dbDep]]));
 
 echo \Yii::$app->cache->getOrSet($key,
     function () use ($query) {
@@ -53,5 +58,5 @@ echo \Yii::$app->cache->getOrSet($key,
 
         return $content;
 
-    }, 3600 * 24 * 30, $dbDep
+    }, 3600 * 24 * 30, $chainDep
 );
