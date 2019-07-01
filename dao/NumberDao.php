@@ -332,7 +332,7 @@ class NumberDao extends Singleton
      */
     public function startNotSell(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_INSTOCK);
+        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_NOTACTIVE_HOLD]);
 
         $number->client_id = 764;
         $number->status = Number::STATUS_NOTSALE;

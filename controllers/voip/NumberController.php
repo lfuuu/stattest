@@ -202,7 +202,7 @@ class NumberController extends BaseController
             Yii::$app->session->setFlash('success', 'Статус был изменен у ' . $count . ' номера(ов)');
         } catch (\Exception $e) {
             $transaction->rollBack();
-            Yii::$app->session->setFlash('error', ($number ? 'Нельзя изменить статус у номера ' . $number->number. ' ' : '') .'<br/>'. Html::tag('small', $e->getMessage()));
+            Yii::$app->session->setFlash('error', ($number ? 'Нельзя изменить статус у номера ' . $number->number . ' ' : '') . '<br/>' . Html::tag('small', $e->getMessage()));
         }
         return $this->redirect(Yii::$app->request->referrer);
     }
