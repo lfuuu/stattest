@@ -197,6 +197,7 @@ class VoipRegistryDao extends Singleton
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
+        $number->original_beauty_level = $beautyLevel;
         $number->registry_id = $registry->id;
         $number->region = $registry->city_id ? $registry->city->connection_point_id : $registry->country->default_connection_point_id;
         $number->ndc_type_id = $registry->ndc_type_id;

@@ -261,6 +261,10 @@ $columns = [
         'class' => BeautyLevelColumn::class,
     ],
     [
+        'attribute' => 'original_beauty_level',
+        'class' => BeautyLevelColumn::class,
+    ],
+    [
         'attribute' => 'did_group_id',
         'class' => DidGroupColumn::class,
         'value' => function (\app\models\Number $number) {

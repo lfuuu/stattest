@@ -24,6 +24,7 @@ class NumberFilter extends Number
     public $source = '';
     public $did_group_id = '';
     public $beauty_level = '';
+    public $original_beauty_level = '';
     public $usage_id = '';
     public $client_id = '';
     public $country_id = '';
@@ -57,7 +58,7 @@ class NumberFilter extends Number
         return [
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
             [['imsi', 'registry_id'], 'integer'],
-            [['city_id', 'region', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
+            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
@@ -154,6 +155,7 @@ class NumberFilter extends Number
 
         $this->status !== '' && $query->andWhere([$numberTableName . '.status' => $this->status]);
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
+        $this->original_beauty_level !== '' && $query->andWhere([$numberTableName . '.original_beauty_level' => $this->original_beauty_level]);
         $this->did_group_id !== '' && $query->andWhere([$numberTableName . '.did_group_id' => $this->did_group_id]);
         $this->ndc_type_id !== '' && $query->andWhere([$numberTableName . '.ndc_type_id' => $this->ndc_type_id]);
         $this->number_tech !== '' && $query->andWhere([$numberTableName . '.number_tech' => $this->number_tech]);

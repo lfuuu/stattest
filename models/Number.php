@@ -22,6 +22,7 @@ use yii\helpers\Url;
  * @property string $hold_from
  * @property string $hold_to
  * @property int $beauty_level
+ * @property int $original_beauty_level
  * @property int $region
  * @property int $client_id
  * @property int $registry_id
@@ -155,6 +156,7 @@ class Number extends ActiveRecord
             'nnp_operator_id' => 'ННП-оператор',
             'usr_operator_id' => 'ННП-оператор пользователя',
             'source' => 'Источник',
+            'original_beauty_level' => 'Степень красивости (изначальная)',
         ];
     }
 
@@ -165,7 +167,7 @@ class Number extends ActiveRecord
     {
         return [
             [['status', 'number_tech', 'source'], 'string'],
-            [['beauty_level'], 'integer'],
+            [['beauty_level', 'original_beauty_level'], 'integer'],
             [['imsi', 'warehouse_status_id'], 'integer'],
             [['nnp_operator_id', 'usr_operator_id', 'registry_id', 'region'], 'integer'],
             [['status', 'beauty_level'], 'required', 'on' => 'save'],
@@ -523,5 +525,13 @@ class Number extends ActiveRecord
     {
         $numberLenth = strlen($number);
         return $numberLenth >= 4 && $numberLenth <= 5;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->number;
     }
 }

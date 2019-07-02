@@ -114,4 +114,34 @@ class ChangeBeautyLevelsController extends Controller
             }
         }
     }
+
+    public function actionSetOriginalBeautyLevel()
+    {
+        $numberQuery = Number::find();
+
+        $transaction = Number::getDb()->beginTransaction();
+        try {
+            /** @var Number $number */
+            foreach ($numberQuery->each() as $number) {
+                echo PHP_EOL . $number;
+                $postfixLength = $number->city_id ? $number->city->postfix_length : NumberBeautyDao::DEFAULT_POSTFIX_LENGTH;
+                $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($number->number, $postfixLength);
+
+                if ($number->original_beauty_level != $beautyLevel) {
+                    echo ' ' . $number->original_beauty_level . ' => ' . $beautyLevel;
+
+                    $number->original_beauty_level = $beautyLevel;
+
+                    if (!$number->save()) {
+                        throw new ModelValidationException($number);
+                    }
+                }
+
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
 }
