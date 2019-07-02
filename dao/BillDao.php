@@ -1202,4 +1202,35 @@ SQL;
             && BillLine::isAgentCommisionInLines($bill->lines);
     }
 
+    /**
+     * Публикуем все счета
+     *
+     * @return int
+     * @throws \Exception
+     */
+    public function publishAllBills()
+    {
+        $count = 0;
+        $query = Bill::find()->where([
+            'is_show_in_lk' => 0
+        ]);
+
+        $transaction = Bill::getDb()->beginTransaction();
+        try {
+            foreach ($query->each() as $bill) {
+                $bill->is_show_in_lk = 1;
+                $bill->save();
+                $count++;
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $count;
+
+    }
+
+
 }

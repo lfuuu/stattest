@@ -1469,17 +1469,7 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_publish($fixclient)
     {
-        $count = 0;
-
-        $query = Bill::find()->where([
-            'is_show_in_lk' => 0
-        ]);
-
-        foreach ($query->each() as $bill) {
-            $bill->is_show_in_lk = 1;
-            $bill->save();
-            $count++;
-        }
+        $count = Bill::dao()->publishAllBills();
 
         Yii::$app->session->addFlash('success', 'Опубликовано ' . $count . ' счетов');
 

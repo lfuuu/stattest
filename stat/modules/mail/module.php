@@ -463,7 +463,8 @@ class m_mail{
 
         if($state == "ready") //реальная отправка писем
         {
-            $this->_publishClientBills($id);
+//            $this->_publishClientBills($id);
+            \app\models\Bill::dao()->publishAllBills();
         }
 
 		if ($state=='PM') 
