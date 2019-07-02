@@ -131,4 +131,9 @@ class InvoiceLine extends ActiveRecord
     {
         return $this->tax_rate;
     }
+
+    public function getOutprice()
+    {
+        return $this->price;
+    }
 }
