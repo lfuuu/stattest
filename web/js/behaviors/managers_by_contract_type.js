@@ -44,7 +44,7 @@ jQuery(document).ready(function () {
                             );
                         });
 
-                        element.find('[value=' + currentValue + ']')
+                        element.find('[value=\'' + currentValue + '\']')
                             .prop('selected', true)
                             .trigger('change');
                     });
