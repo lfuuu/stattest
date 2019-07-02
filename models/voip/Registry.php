@@ -5,10 +5,12 @@ namespace app\models\voip;
 use app\classes\behaviors\CreatedAt;
 use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetListTrait;
 use app\dao\VoipRegistryDao;
 use app\models\City;
 use app\models\Country;
 use app\modules\nnp\models\NdcType;
+use yii\db\Expression;
 
 /**
  * Class Registry
@@ -39,6 +41,10 @@ use app\modules\nnp\models\NdcType;
  */
 class Registry extends ActiveRecord
 {
+    use GetListTrait {
+        getList as getListTrait;
+    }
+
     const STATUS_EMPTY = 'empty';
     const STATUS_PARTLY = 'partly';
     const STATUS_FULL = 'full';
@@ -209,5 +215,10 @@ class Registry extends ActiveRecord
     public function isSubmitable()
     {
         return $this->status != self::STATUS_FULL;
+    }
+
+    public static function getList()
+    {
+        return self::getListTrait(true, true, 'id' , (new Expression('concat(\'Реестр №\', id) as name ')), ['id' => SORT_ASC]);
     }
 }

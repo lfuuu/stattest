@@ -53,7 +53,7 @@ $dataProvider = $filterModel->search();
 if (Yii::$app->user->can('voip.change-number-status')) {
     $numbers = [];
     $query = clone $dataProvider->query;
-    $isMoreNumbers = $query->count() > 1000;
+    $isMoreNumbers = $query->count() > 10000;
 
     if (!$isMoreNumbers) {
         $numbers = $query->select('number')->column();
@@ -70,7 +70,7 @@ if (Yii::$app->user->can('voip.change-number-status')) {
             ], ['class' => 'form-control pull-left', 'style' => 'width: 15%']);
         echo Html::endForm();
     } else {
-        echo Html::tag('small', 'Слишком много номеров для измнения статуса (>1000)', ['class' => 'text-muted']);
+        echo Html::tag('small', 'Слишком много номеров для измнения статуса (>10000)', ['class' => 'text-muted']);
     }
 }
 
@@ -150,21 +150,26 @@ $columns = [
     ],
     [
         'label' => 'Реестр',
-        'attribute' => 'with_registry',
+        'attribute' => 'registry_id',
         'value' => function ($model) {
             if ($model->registry_id) {
-                return Html::a('Реестр #' . $model->registry_id, ['voip/registry/edit', 'id' => $model->registry_id]);
+                return Html::a('Реестр №' . $model->registry_id, ['voip/registry/edit', 'id' => $model->registry_id]);
             }
             return '';
         },
-        'class' => IsNullAndNotNullColumn::class,
-        'format' => 'raw'
+        'filter' => Select2::widget([
+            'model' => $filterModel,
+            'data' => Registry::getList(),
+            'attribute' => 'registry_id'
+        ]),
+        'format' => 'raw',
     ],
     [
         'attribute' => 'solution_number',
         'value' => function ($model) {
-            if ($model->registry && $model->registry->solution_number) {
-                return Html::a($model->registry->solution_number, ['voip/registry', 'RegistryFilter[solution_number]' => $model->registry->solution_number]);
+            if ($model->registry) {
+                $solutionNumber = $model->registry->solution_number;
+                return Html::a($solutionNumber, ['voip/registry', 'RegistryFilter[solution_number]' => $solutionNumber]);
             }
             return '';
         },
@@ -172,7 +177,7 @@ $columns = [
             'model' => $filterModel,
             'data' => Registry::find()->select('solution_number')->indexBy('solution_number')->column(),
             'attribute' => 'solution_number',
-            'value' => $filterModel->solution_number
+            'value' => $filterModel->solution_number,
         ]),
         'format' => 'raw',
         'label' => 'Номер решения'
@@ -180,7 +185,7 @@ $columns = [
     [
         'attribute' => 'solution_date',
         'value' => function ($model) {
-            if ($model->registry && $model->registry->solution_date) {
+            if ($model->registry) {
                 return $model->registry->solution_date;
             }
             return '';
@@ -196,7 +201,8 @@ $columns = [
         'attribute' => 'registry_number_from',
         'value' => function ($model) {
             if ($model->registry) {
-                return Html::a($model->registry->number_full_from, ['voip/number', 'NumberFilter[number]' => $model->registry->number_full_from]);
+                $numberFullFrom = $model->registry->number_full_from;
+                return Html::a($numberFullFrom, ['voip/number', 'NumberFilter[number]' => $numberFullFrom]);
             }
             return '';
         },

@@ -47,7 +47,7 @@ class NumberFilter extends Number
     public $numbers_count_from = '';
     public $numbers_count_to = '';
     public $registry_number_from = '';
-    public $with_registry = '';
+    public $registry_id = '';
 
     /**
      * @return array
@@ -56,7 +56,7 @@ class NumberFilter extends Number
     {
         return [
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
-            [['imsi', 'with_registry'], 'integer'],
+            [['imsi', 'registry_id'], 'integer'],
             [['city_id', 'region', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
@@ -135,6 +135,23 @@ class NumberFilter extends Number
                 break;
         }
 
+        switch ($this->registry_id) {
+            case '':
+                break;
+
+            case GetListTrait::$isNull:
+                $query->andWhere(['registry_id' => null]);
+                break;
+
+            case GetListTrait::$isNotNull:
+                $query->andWhere(['IS NOT', 'registry_id', null]);
+                break;
+
+            default:
+                $query->andWhere(['registry_id' => $this->registry_id]);
+                break;
+        }
+
         $this->status !== '' && $query->andWhere([$numberTableName . '.status' => $this->status]);
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
         $this->did_group_id !== '' && $query->andWhere([$numberTableName . '.did_group_id' => $this->did_group_id]);
@@ -154,7 +171,6 @@ class NumberFilter extends Number
 
         $this->registry_number_from !== '' && $query->andWhere([$registryTableName . '.number_full_from' => $this->registry_number_from]);
         $this->solution_date !== '' && $query->andWhere([$registryTableName . '.solution_date' => $this->solution_date]);
-        $this->with_registry !== '' && $query->andWhere($this->with_registry == -2 ? ['NOT', ['registry_id' => null]] : ['registry_id' => null]);
 
         $this->country_id !== '' && $query->andWhere([$numberTableName . '.country_code' => $this->country_id]);
         $query->andFilterWhere([$numberTableName . '.source' => $this->source]);
