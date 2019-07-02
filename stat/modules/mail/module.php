@@ -172,10 +172,16 @@ class m_mail{
 		$design->AddMain('mail/view.tpl');
 	}
 
-	private function _getFromEmails()
-	{
-        return ['info@mcn.ru' => 'info@mcn.ru', 'bill@wellsystems.ru' => 'bill@wellsystems.ru'];
-	}
+    private function _getFromEmails()
+    {
+        return [
+            'info@mcn.ru' => 'info@mcn.ru',
+            'bill@wellsystems.ru' => 'bill@wellsystems.ru',
+            'info@mcntele.com' => 'info@mcntele.com',
+            'invoice@mcntele.com' => 'invoice@mcntele.com',
+        ];
+    }
+
 	function mail_remove(){
 		global $db,$design;
 		$id=get_param_integer('id');
