@@ -20,6 +20,7 @@ use app\classes\grid\column\universal\SourceColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\models\DidGroup;
 use app\models\filter\voip\NumberFilter;
 use app\models\Number;
 use app\models\voip\Registry;
@@ -58,20 +59,38 @@ if (Yii::$app->user->can('voip.change-number-status')) {
     if (!$isMoreNumbers) {
         $numbers = $query->select('number')->column();
 
+        echo "<div>";
+        echo "<div class=well style='width: 400px; float: left;'>";
         echo Html::tag('b', 'Изменить статус на') . '<br>';
         echo Html::beginForm(Url::to(['change-status']));
         echo Html::hiddenInput('numbers', json_encode($numbers));
-        echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px']);
+        echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-status']);
         echo Html::dropDownList('status', null,
             [
                 Number::STATUS_NOTSALE => 'Не продается',
                 Number::STATUS_INSTOCK => 'Свободен',
                 Number::STATUS_RELEASED => 'Откреплен'
-            ], ['class' => 'form-control pull-left', 'style' => 'width: 15%']);
+            ], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+        echo "</div>";
+
+        echo "<div class=well style='width: 400px; float: left; margin-left: 10px;'>";
+        echo Html::tag('b', 'Изменить степень красивости') . '<br>';
+        echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-beauty-level']);
+        echo Html::dropDownList('beauty-level', null,
+            DidGroup::$beautyLevelNames + ['original' => 'Изначальный'], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+        echo "</div>";
         echo Html::endForm();
+        echo "</div>";
+
+        echo "<div style='clear: both;'></div>";
+
+
+
     } else {
         echo Html::tag('small', 'Слишком много номеров для измнения статуса (>10000)', ['class' => 'text-muted']);
     }
+
+
 }
 
 ?>

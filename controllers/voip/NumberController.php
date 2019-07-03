@@ -168,41 +168,116 @@ class NumberController extends BaseController
 
         $numbers = isset($post['numbers']) ? json_decode($post['numbers']) : [];
         $status = isset($post['status']) ? $post['status'] : null;
+        $beautyLevel = isset($post['beauty-level']) ? $post['beauty-level'] : null;
+        $isSetStatus = isset($post['set-status']);
 
-        if (!$numbers || !$status) {
-            throw new InvalidArgumentException('Выберите номера и статус');
+        if (!$numbers) {
+            throw new InvalidArgumentException('Выберите номера');
         }
-        $numbersQuery = Number::find()->where(['number' => $numbers]);
+
+        $whoStr = $isSetStatus ? 'Статус' : 'Степень красивости';
+
+        $numbersQuery = Number::find()
+            ->where(['number' => $numbers])
+            ->joinWith('registry');
+
         $transaction = Yii::$app->db->beginTransaction();
 
         $number = null;
         try {
+            if ($isSetStatus && !in_array($status, array_keys(Number::$statusList))) {
+                throw new InvalidArgumentException('Неизвестный статус');
+            } elseif (!$isSetStatus && !in_array($beautyLevel, array_keys(DidGroup::$beautyLevelNames + ['original' => '']))) {
+                throw new InvalidArgumentException('Неизвестная степень красивости');
+            }
+
+            $cacheDidGroup = [];
+
             $count = 0;
+            /** @var Number $number */
             foreach ($numbersQuery->each() as $number) {
-                switch ($status) {
-                    case Number::STATUS_INSTOCK:
-                        NumberDao::me()->toInstock($number, true);
-                        break;
+                if ($isSetStatus) {
+                    switch ($status) {
+                        case Number::STATUS_INSTOCK:
+                            NumberDao::me()->toInstock($number, true);
+                            break;
 
-                    case Number::STATUS_RELEASED:
-                        NumberDao::me()->toRelease($number, true);
-                        break;
+                        case Number::STATUS_RELEASED:
+                            NumberDao::me()->toRelease($number, true);
+                            break;
 
-                    case Number::STATUS_NOTSALE:
-                        NumberDao::me()->startNotSell($number);
-                        break;
+                        case Number::STATUS_NOTSALE:
+                            NumberDao::me()->startNotSell($number);
+                            break;
 
-                    default:
-                        throw new \LogicException('Неправильный статус');
+                        default:
+                            throw new \LogicException('Неправильный статус');
+                    }
+                } else {
+                    // set beauty level
+                    /** @var \app\models\Number $number */
+                    $newBeautyLevel = $beautyLevel == 'original' ? $number->original_beauty_level : $beautyLevel;
+
+                    if ($number->beauty_level == $newBeautyLevel) {
+                        continue;
+                    }
+
+                    $number->beauty_level = $newBeautyLevel;
+
+                    $registry = $number->registry;
+
+                    if (!$registry) {
+                        throw new InvalidArgumentException('Не установлен реестр');
+                    }
+
+                    $didGroupId = DidGroup::dao()->getIdByNumber($number);
+
+                    if (isset($cacheDidGroup[$didGroupId])) {
+                        $didGroup = $cacheDidGroup[$didGroupId];
+                    } else {
+                        $didGroup = DidGroup::findOne(['id' => $didGroupId]);
+                        $cacheDidGroup[$didGroupId] = $didGroup;
+                    }
+
+                    $numberParams = [
+                        'number' => $number->number,
+                        'beautyLevel' => \Yii::t('app', DidGroup::$beautyLevelNames[$newBeautyLevel])
+                    ];
+
+                    if (!$didGroup) {
+                        throw new \LogicException(
+                            \Yii::t(
+                                'number',
+                                'For the number {number} ({ndc_type}) with beauty: "{beautyLevel}" no DID group was found',
+                                $numberParams + ['ndc_type' => $registry->ndcType->name]
+                            )
+                        );
+                    }
+
+                    if ($didGroup->ndc_type_id != $registry->ndc_type_id) {
+                        throw new \LogicException(
+                            \Yii::t(
+                                'app',
+                                'Number type {number} ("{beautyLevel}") in the DID-group (id: {didId}) and in the registry do not match',
+                                $numberParams + ['didId' => $didGroup->id]
+                            )
+                        );
+                    }
+
+                    $number->did_group_id = $didGroup->id;
+
+                    if (!$number->save()) {
+                        throw new ModelValidationException($numbers);
+                    }
                 }
 
                 $count++;
             }
             $transaction->commit();
-            Yii::$app->session->setFlash('success', 'Статус был изменен у ' . $count . ' номера(ов)');
+            Yii::$app->session->setFlash('success', $whoStr . ' был изменен у ' . $count . ' номера(ов)');
         } catch (\Exception $e) {
             $transaction->rollBack();
-            Yii::$app->session->setFlash('error', ($number ? 'Нельзя изменить статус у номера ' . $number->number . ' ' : '') . '<br/>' . Html::tag('small', $e->getMessage()));
+            Yii::$app->session->setFlash('error', ($number ? 'Нельзя изменить ' . mb_strtolower($whoStr) . ' у номера ' . $number->number . ' ' : '') . '<br/>' . Html::tag('small', $e->getMessage()));
         }
         return $this->redirect(Yii::$app->request->referrer);
     }
