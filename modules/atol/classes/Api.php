@@ -253,7 +253,7 @@ class Api extends Singleton
 
 //                        "measurement_unit" => "кг",
                         "payment_method" => "full_payment",
-                        "payment_object" => "commodity",
+                        "payment_object" => "service",
                         "vat" => [
                             "type" => (string)$taxType
                         ]
