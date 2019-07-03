@@ -171,15 +171,7 @@ class NumberController extends BaseController
         $beautyLevel = isset($post['beauty-level']) ? $post['beauty-level'] : null;
         $isSetStatus = isset($post['set-status']);
 
-        if (!$numbers) {
-            throw new InvalidArgumentException('Выберите номера');
-        }
-
         $whoStr = $isSetStatus ? 'Статус' : 'Степень красивости';
-
-        $numbersQuery = Number::find()
-            ->where(['number' => $numbers])
-            ->joinWith('registry');
 
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -189,6 +181,14 @@ class NumberController extends BaseController
                 throw new InvalidArgumentException('Неизвестный статус');
             } elseif (!$isSetStatus && !in_array($beautyLevel, array_keys(DidGroup::$beautyLevelNames + ['original' => '']))) {
                 throw new InvalidArgumentException('Неизвестная степень красивости');
+            }
+
+            $numbersQuery = Number::find()
+                ->where(['number' => $numbers])
+                ->joinWith('registry');
+
+            if (!$numbers) {
+                throw new InvalidArgumentException('Выберите номера');
             }
 
             $cacheDidGroup = [];
