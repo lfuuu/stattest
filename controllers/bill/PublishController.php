@@ -359,30 +359,38 @@ class PublishController extends BaseController
 
         $lines = $bill->getLinesByTypeId($typeId);
 
-        if (!$lines) {
-            // не данных по этому типу документов
-            return $this->redirect($bill->getUrl());
-        }
+        try {
 
-        $sumData = BillLine::getSumsLines($lines);
-        $invoiceDate = Invoice::getDate($bill, $typeId);
+            if (!$lines) {
+                // не данных по этому типу документов
+                throw new \LogicException('Счет пустой');
+            }
 
+            $sumData = BillLine::getSumsLines($lines);
+            $invoiceDate = Invoice::getDate($bill, $typeId);
 
-        $invoice = new Invoice();
-        $invoice->isSetDraft = true;
+            if (!$invoiceDate) {
+                throw new \LogicException('Для создания авансовой с/ф требуется что бы по счету была оплата');
+            }
 
-        $invoice->bill_no = $bill->bill_no;
-        $invoice->type_id = $typeId;
+            $invoice = new Invoice();
+            $invoice->isSetDraft = true;
 
-        $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
-        $invoice->is_reversal = 0;
+            $invoice->bill_no = $bill->bill_no;
+            $invoice->type_id = $typeId;
 
-        $invoice->sum = $sumData['sum'];
-        $invoice->sum_tax = $sumData['sum_tax'];
-        $invoice->sum_without_tax = $sumData['sum_without_tax'];
+            $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
+            $invoice->is_reversal = 0;
 
-        if (!$invoice->save()) {
-            throw new ModelValidationException($invoice);
+            $invoice->sum = $sumData['sum'];
+            $invoice->sum_tax = $sumData['sum_tax'];
+            $invoice->sum_without_tax = $sumData['sum_without_tax'];
+
+            if (!$invoice->save()) {
+                throw new ModelValidationException($invoice);
+            }
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
         }
 
         return $this->redirect($bill->getUrl());
@@ -531,7 +539,7 @@ class PublishController extends BaseController
                 $lineAddData = \Yii::$app->request->post('InvoiceLineAdd');
                 if ($lineAddData['item'] && $lineAdd->load($lineAddData, '')) {
 
-                    $lineAdd->sort = ((int)InvoiceLine::find()->where(['invoice_id' => $invoice->id])->max('sort'))+1;
+                    $lineAdd->sort = ((int)InvoiceLine::find()->where(['invoice_id' => $invoice->id])->max('sort')) + 1;
                     $lineAdd->tax_rate = $invoice->bill->clientAccount->getTaxRate();
                     $lineAdd->setDates();
 
