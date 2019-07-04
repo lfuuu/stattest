@@ -7,6 +7,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffResource;
 use DateTime;
@@ -174,7 +175,7 @@ SQL;
     {
         $hashes = [];
         $hashes[] = $this->service_type_id;
-        $hashes[] = $this->city_id;
+        $hashes[] = $this->service_type_id == ServiceType::ID_SIPTRUNK ? $this->region_id : $this->city_id;
         $hashes[] = $this->tariff_period_id;
 
         return md5(implode('_', $hashes));
