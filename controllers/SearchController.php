@@ -231,12 +231,10 @@ class SearchController extends BaseController
         $form = DynamicModel::validateData(Yii::$app->request->queryParams,[
             ['troubleComment', 'required'],
             ['troubleComment', FormFieldValidator::class],
-            ['troubleComment', 'string', 'min' => 5]
+            ['troubleComment', 'string', 'min' => 4]
         ]);
 
-        if ($form->hasErrors()) {
-            throw new ModelValidationException($form);
-        }
+        $form->validateWithException();
 
         $troubleQuery = TroubleStage::find()
             ->where(['LIKE', 'comment', $form->troubleComment])
