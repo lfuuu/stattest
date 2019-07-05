@@ -127,6 +127,41 @@ $columns = [
         'options' => ['style' => 'width: 150px;'],
     ],
     [
+        'label' => 'Страна',
+        'attribute' => 'country_id',
+        'format' => 'html',
+        'class' => CountryColumn::class,
+        'value' => function (\app\models\Number $number) {
+            return $number->country_code ?
+                $number->country->getLink()
+                : Yii::t('common', '(not set)');
+        },
+    ],
+    [
+        'attribute' => 'city_id',
+        'class' => CityColumn::class,
+    ],
+    [
+        'attribute' => 'region',
+        'class' => RegionColumn::class,
+    ],
+    [
+        'attribute' => 'status',
+        'class' => NumberStatusColumn::class,
+    ],
+    [
+        'attribute' => 'ndc_type_id',
+        'class' => NdcTypeColumn::class
+    ],
+    [
+        'attribute' => 'beauty_level',
+        'class' => BeautyLevelColumn::class,
+    ],
+    [
+        'attribute' => 'original_beauty_level',
+        'class' => BeautyLevelColumn::class,
+    ],
+    [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
         'attribute' => 'calls_per_month_2',
         'class' => IntegerRangeColumn::class,
@@ -241,29 +276,6 @@ $columns = [
         'label' => 'Количество номеров'
     ],
     [
-        'label' => 'Страна',
-        'attribute' => 'country_id',
-        'format' => 'html',
-        'class' => CountryColumn::class,
-        'value' => function (\app\models\Number $number) {
-            return $number->country_code ?
-                $number->country->getLink()
-                : Yii::t('common', '(not set)');
-        },
-    ],
-    [
-        'attribute' => 'city_id',
-        'class' => CityColumn::class,
-    ],
-    [
-        'attribute' => 'region',
-        'class' => RegionColumn::class,
-    ],
-    [
-        'attribute' => 'status',
-        'class' => NumberStatusColumn::class,
-    ],
-    [
         'attribute' => 'source',
         'class' => SourceColumn::class,
     ],
@@ -272,16 +284,11 @@ $columns = [
         'class' => IsNullAndNotNullColumn::class,
     ],
     [
-        'attribute' => 'ndc_type_id',
-        'class' => NdcTypeColumn::class
-    ],
-    [
-        'attribute' => 'beauty_level',
-        'class' => BeautyLevelColumn::class,
-    ],
-    [
-        'attribute' => 'original_beauty_level',
-        'class' => BeautyLevelColumn::class,
+        'attribute' => 'iccid',
+        'format' => 'raw',
+        'value' => function (\app\models\Number $number) {
+            return $number->imsi && $number->imsiModel ? $number->imsiModel->getLink() : '';
+        },
     ],
     [
         'attribute' => 'did_group_id',
@@ -294,13 +301,6 @@ $columns = [
     [
         'attribute' => 'number_tech',
         'class' => StringColumn::class,
-    ],
-    [
-        'attribute' => 'iccid',
-        'format' => 'raw',
-        'value' => function (\app\models\Number $number) {
-            return $number->imsi && $number->imsiModel ? $number->imsiModel->getLink() : '';
-        },
     ],
 ];
 
