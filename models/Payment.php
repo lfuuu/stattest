@@ -90,6 +90,8 @@ class Payment extends ActiveRecord
         self::ECASH_STRIPE => 'Stripe',
     ];
 
+    public $isNeedToSendAtol = false;
+
     /**
      * Название таблицы
      *

@@ -321,7 +321,8 @@ class ClientController extends BaseController
                         'color' => $model->contract->businessProcessStatus->color,
                         'id' => $model->id,
                     ];
-                } if (isset($searchQuery['is_term'])) {
+                }
+                if (isset($searchQuery['is_term'])) {
 
                     $contragent = $model->contract->contragent;
                     $name = htmlspecialchars($contragent->name ?: $contragent->name_full);
@@ -447,4 +448,14 @@ class ClientController extends BaseController
         }
     }
 
+    public function actionCheckEmailExists($clientAccountId)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [
+            'result' => ClientContact::find()->where([
+                'client_id' => $clientAccountId,
+                'type' => ClientContact::TYPE_EMAIL,
+                'is_official' => 1
+            ])->exists()];
+    }
 }

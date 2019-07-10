@@ -4,6 +4,7 @@ namespace app\modules\atol\classes;
 
 use app\classes\HttpClient;
 use app\classes\Singleton;
+use app\models\Payment;
 use kartik\base\Config;
 use kartik\base\Module;
 use yii\base\InvalidConfigException;
@@ -33,7 +34,7 @@ class Api extends Singleton
 
     const TIMESTAMP_FORMAT = 'd.m.Y H:i:s'; // Формат timestamp
 
-    const PAYMENT_TYPE_ECASH = 1;
+    const PAYMENT_TYPE_BANK = 1;
 
     // Устанавливает номер налога в ККТ
     const TAX_NONE = 'none'; // без НДС
@@ -95,6 +96,10 @@ class Api extends Singleton
      */
     public function sendSell($externalId, $email, $phone, $itemPrice, $organizationId)
     {
+        $responseData= ['uuid' => 'xxx-xxxx-xxxx-xxx'];
+        return [$responseData['uuid'], Json::encode($responseData)];
+
+
         $phone = str_replace('+7', '', $phone);
         if (!$email && $phone && !preg_match('/\d{10}/', $phone)) {
             throw new \LogicException('Указан неправильный номер телефона ');
@@ -170,7 +175,7 @@ class Api extends Singleton
         $timestamp = date(self::TIMESTAMP_FORMAT);
         $itemQuantity = 1;
         $paymentSum = $total = $itemSum = $itemPrice * $itemQuantity;
-        $paymentType = self::PAYMENT_TYPE_ECASH;
+        $paymentType = self::PAYMENT_TYPE_BANK;
 
         $data = [
             // Идентификатор документа внешней системы, уникальный среди всех документов, отправляемых в данную группу ККТ. Тип данных – строка.
@@ -270,9 +275,15 @@ class Api extends Singleton
                         'sum' => (float)$paymentSum,
 
                         // Вид оплаты. Возможные значения:
-                        // «1» – электронный;
-                        // «9» – «9» – расширенные типы оплаты. Для каждого фискального типа оплаты можно указать расширенный тип оплаты.
-                        // Например, 1
+                        //
+                        // «1» – безналичный;
+                        // «2» – предварительная оплата (зачет аванса и
+                        //   (или) предыдущих платежей);
+                        // «3» – постоплата (кредит);
+                        // «4» – иная форма оплаты (встречное предоставление);
+                        // «5» – «9» – расширенные виды оплаты. Для
+                        // каждого фискального типа оплаты можно
+                        // указать расширенный вид оплаты.
                         'type' => (int)$paymentType,
                     ],
                 ],

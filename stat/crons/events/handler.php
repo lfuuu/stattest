@@ -643,7 +643,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case AtolModule::EVENT_SEND:
                     // АТОЛ. В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
                     $info = $isAtolServer ?
-                        SendToOnlineCashRegister::send($param['paymentId']) :
+                        SendToOnlineCashRegister::send($param['paymentId'], isset($param['isForcePush']) ? $param['isForcePush'] : false) :
                         EventQueue::API_IS_SWITCHED_OFF;
                     break;
 

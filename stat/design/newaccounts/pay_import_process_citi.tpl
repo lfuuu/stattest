@@ -11,7 +11,7 @@
 <table class="price" cellspacing="4" cellpadding="2" width="100%" border="0" id="pays_tbl">
     {foreach from=$pays item=pay name=outer}
         <tr bgcolor="#FFFFF5">
-            <td colspan="4">
+            <td colspan="5">
                 {if $pay.inn == $isSberObline}
                     <b><span class="accounts-show" data-pay-no="{$pay.no}">Показать всех</span> / <span class="accounts-hide" data-pay-no="{$pay.no}">Скрыть</span></b><br />
                 {/if}
@@ -50,6 +50,16 @@
                 <input type="hidden" name="pay[{$pay.no}][date]" value="{$pay.date}" />
                 <input type="hidden" name="pay[{$pay.no}][oper_date]" value="{$pay.oper_date}" />
                 <input type="hidden" name="pay[{$pay.no}][sum]" value="{$pay.sum}" />
+            </td>
+            <td style="vertical-align: bottom;">
+                {if $pay.is_need_to_send_atol}
+                <span>
+                    {if $pay.is_sended_to_atol}
+                        <div class="text-success glyphicon glyphicon-check" title="Чек клиенту отправлен"></div>
+                    {else}
+                        <input type="checkbox" data-pay-no="{$pay.no}" name="pay[{$pay.no}][is_need_check]" value="1" class="check-checkbox"></span>
+                    {/if}
+                {/if}&nbsp;
             </td>
             <td><b>{$pay.sum}</b> р.</td>
             <td>
@@ -361,6 +371,11 @@
             var $clients = $('div[data-pay-no="' + $(this).data('pay-no') + '"]'),
                 clientAccountId = $(this).find('option:selected').data('client-account-id');
 
+          $('input[type=checkbox][data-pay-no=' + $(this).data('pay-no') + '].check-checkbox')
+              .prop('checked', false)
+                  .parent().attr('title', '');
+
+
             $clients
                 .find('input[data-client-account-id="' + clientAccountId + '"]:not(:disabled)')
                     .prop('checked', true);
@@ -384,6 +399,36 @@
                 .parent('a')
                     .trigger('click');
         });
+
+        $('input[type=checkbox].check-checkbox').on('change', function () {
+           var $selectBox = $('select[data-pay-no="' + $(this).data('pay-no') + '"]');
+           var current = $selectBox.find('option[data-client-account-id]:selected');
+
+           var $that = $(this);
+
+
+          if (current.length) {
+            if ($(this).prop('checked')) {
+              $that.prop('disabled', true);
+              var clientAccountId = current.data('client-account-id');
+
+              $.get(
+                '/client/check-email-exists',
+                {clientAccountId: clientAccountId},
+                function (data) {
+                  $that.prop('disabled', false);
+                  if (!data.result) {
+                    $that.prop('checked', false);
+                    $that.parent().attr('title', 'У клиента '+ clientAccountId +' нет официального емайла').tooltip().tooltip('open');
+                  }
+                });
+            }
+          } else {
+            $(this).prop('checked',  false);
+            $that.parent().attr('title', 'нет клиента у выбранного счета').tooltip().tooltip('open');
+          }
+
+        })
     });
 {/literal}
 </script>

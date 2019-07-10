@@ -3564,6 +3564,16 @@ WHERE cg.inn = '" . $inn . "'";
             //if(abs($pay["sum"]) != 7080   ) continue;
             //if($pay["noref"] != 427) continue;
 
+            $pay['is_need_to_send_atol'] =
+                strpos(
+                    str_replace(
+                        ['р/с', 'p/c', 'p/с', 'р/c'],
+                        '',
+                        mb_strtolower(
+                            strip_tags($pay['company'])
+                        )
+                    ), '/') !== false;
+
             $clientId = [];
             $billNo = $this->GetBillNoFromComment(@$pay["description"]);
 
@@ -3760,15 +3770,21 @@ WHERE cg.inn = '" . $inn . "'";
     {
         global $db;
 
+        $pay['is_sended_to_atol'] = false;
+
         if (!$clientIds) {
             $clientIds = [-1];
         }
-        if ($pm = $db->GetRow('SELECT comment,bill_no FROM newpayments WHERE client_id IN ("' . implode('","',
+        if ($pm = $db->GetRow('SELECT id, comment,bill_no FROM newpayments WHERE client_id IN ("' . implode('","',
                 $clientIds) . '") AND sum = "' . $pay['sum'] . '" AND payment_date = "' . $pay['date'] . '" AND type="bank" AND payment_no = "' . $pay["noref"] . '"')
         ) {
             $pay['imported'] = 1;
             $pay["comment"] = $pm["comment"];
             $pay["bill_no"] = $pm["bill_no"];
+
+            if ($pay['is_need_to_send_atol']) {
+                $pay['is_sended_to_atol'] = \app\models\PaymentAtol::find()->where(['id' => $pm['id']])->exists();
+            }
         }
     }
 
@@ -4147,6 +4163,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
                         $payment->add_user = $user->Get('id');
                         $payment->type = 'bank';
                         $payment->bank = $bank;
+                        isset($P['is_need_check']) && $P['is_need_check'] && $payment->isNeedToSendAtol = true;
                         $payment->save();
                     }
                     if ($b) {

@@ -44,6 +44,7 @@ class SendToOnlineCashRegister extends Behavior
         // поставить в очередь для отправки
         EventQueue::go(\app\modules\atol\Module::EVENT_SEND, [
                 'paymentId' => $payment->id,
+                'isForcePush' => $payment->isNeedToSendAtol,
             ]
         );
     }
@@ -52,29 +53,27 @@ class SendToOnlineCashRegister extends Behavior
      * В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
      *
      * @param int $paymentId
-     * @return string|false
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \InvalidArgumentException
-     * @throws \yii\db\Exception
-     * @throws \LogicException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \HttpRequestException
+     * @param bool $isForcePush
+     * @return false|string
      */
-    public static function send($paymentId)
+    public static function send($paymentId, $isForcePush = false)
     {
         $payment = Payment::findOne(['id' => $paymentId]);
         if (!$payment) {
             throw new \InvalidArgumentException('Неправильный платеж ' . $paymentId);
         }
 
+        // уже отправленные не отправляем
+        if ($payment->currency !== Currency::RUB || $paymentAtol = $payment->paymentAtol) {
+            return false;
+        }
+
         if (
-            $payment->currency !== Currency::RUB
-            || $payment->type != Payment::TYPE_ECASH
-            || !array_key_exists($payment->ecash_operator, Payment::$ecash)
-            || $payment->ecash_operator == Payment::ECASH_CYBERPLAT
-            || $paymentAtol = $payment->paymentAtol
+            !$isForcePush && (
+                $payment->type != Payment::TYPE_ECASH
+                || !array_key_exists($payment->ecash_operator, Payment::$ecash)
+                || $payment->ecash_operator == Payment::ECASH_CYBERPLAT
+            )
         ) {
             // Отправлять в онлайн-кассу только рублевые электронные платежи за исключением Киберплата
             return false;
