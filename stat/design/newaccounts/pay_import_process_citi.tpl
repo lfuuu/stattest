@@ -58,6 +58,7 @@
                         <div class="text-success glyphicon glyphicon-check" title="Чек клиенту отправлен"></div>
                     {else}
                         <input type="checkbox" data-pay-no="{$pay.no}" name="pay[{$pay.no}][is_need_check]" value="1" class="check-checkbox"></span>
+                        {if isset($pay.payment_id) && $pay.payment_id}<input type="hidden" name="pay[{$pay.no}][payment_id]" value="{$pay.payment_id}">{/if}
                     {/if}
                 {/if}&nbsp;
             </td>

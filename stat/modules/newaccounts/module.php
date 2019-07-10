@@ -3567,7 +3567,7 @@ WHERE cg.inn = '" . $inn . "'";
             $pay['is_need_to_send_atol'] =
                 strpos(
                     str_replace(
-                        ['р/с', 'p/c', 'p/с', 'р/c'],
+                        ['р/с', 'p/c', 'p/с', 'р/c', 'л/с', 'л/c'],
                         '',
                         mb_strtolower(
                             strip_tags($pay['company'])
@@ -3771,6 +3771,7 @@ WHERE cg.inn = '" . $inn . "'";
         global $db;
 
         $pay['is_sended_to_atol'] = false;
+        $pay['payment_id'] = false;
 
         if (!$clientIds) {
             $clientIds = [-1];
@@ -3781,6 +3782,7 @@ WHERE cg.inn = '" . $inn . "'";
             $pay['imported'] = 1;
             $pay["comment"] = $pm["comment"];
             $pay["bill_no"] = $pm["bill_no"];
+            $pay['payment_id'] = $pm['id'];
 
             if ($pay['is_need_to_send_atol']) {
                 $pay['is_sended_to_atol'] = \app\models\PaymentAtol::find()->where(['id' => $pm['id']])->exists();
@@ -4172,6 +4174,8 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
                         echo '<br>Платеж ' . $P['pay'] . ' клиента ' . $client['client'] . ' не внесён, так как на ' . $P['date'] . ' отсутствует курс доллара';
                     }
                 }
+            } elseif (isset($P['is_need_check']) && isset($P['payment_id']) && $P['payment_id']) {
+                \app\modules\atol\behaviors\SendToOnlineCashRegister::addEvent($P['payment_id'], true);
             }
         }
 

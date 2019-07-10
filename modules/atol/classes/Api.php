@@ -96,9 +96,8 @@ class Api extends Singleton
      */
     public function sendSell($externalId, $email, $phone, $itemPrice, $organizationId)
     {
-        $responseData= ['uuid' => 'xxx-xxxx-xxxx-xxx'];
-        return [$responseData['uuid'], Json::encode($responseData)];
-
+//        $responseData= ['uuid' => 'xxx-xxxx-xxxx-xxx'];
+//        return [$responseData['uuid'], Json::encode($responseData)];
 
         $phone = str_replace('+7', '', $phone);
         if (!$email && $phone && !preg_match('/\d{10}/', $phone)) {

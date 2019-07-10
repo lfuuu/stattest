@@ -41,10 +41,15 @@ class SendToOnlineCashRegister extends Behavior
         /** @var Payment $payment */
         $payment = $event->sender;
 
+        self::addEvent($payment->id, $payment->isNeedToSendAtol);
+    }
+
+    public static function addEvent($paymentId, $isForcePush = false)
+    {
         // поставить в очередь для отправки
         EventQueue::go(\app\modules\atol\Module::EVENT_SEND, [
-                'paymentId' => $payment->id,
-                'isForcePush' => $payment->isNeedToSendAtol,
+                'paymentId' => $paymentId,
+                'isForcePush' => $isForcePush,
             ]
         );
     }
