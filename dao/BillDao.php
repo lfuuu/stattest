@@ -17,7 +17,6 @@ use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\ClientDocument;
-use app\models\Country;
 use app\models\Currency;
 use app\models\Invoice;
 use app\models\LogBill;
@@ -25,7 +24,6 @@ use app\models\Organization;
 use app\models\Payment;
 use app\models\Transaction;
 use app\models\UsageTrunk;
-use app\models\voip\filter\CallsRawFilter;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill as uuBill;
 use Yii;
@@ -982,7 +980,7 @@ SQL;
         }
     }
 
-    public static function getLinesByTypeId($bill, $typeId, $isInsert = null)
+    public static function getLinesByTypeId($bill, $typeId, $isInsert = false)
     {
         $lines = [];
 
@@ -1074,7 +1072,7 @@ SQL;
      */
     public static function generateInvoices(Bill $bill, $is4Invoice = false, $isAsInsert = false)
     {
-        if ($bill->bill_date < Invoice::DATE_ACCOUNTING) { // 1 авг 2018 новый формат с/ф
+        if ($bill->bill_date < Invoice::DATE_ACCOUNTING || $bill->isCorrectionType()) { // 1 авг 2018 новый формат с/ф
             return;
         }
 

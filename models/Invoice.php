@@ -23,10 +23,14 @@ use yii\web\NotFoundHttpException;
  * @property bool $is_reversal
  * @property string $add_date
  * @property string $reversal_date
+ * @property int $correction_bill_id
+ * @property float $original_sum
+ * @property float $original_sum_tax
  *
  * @property-read Bill $bill
  * @property-read InvoiceLine $lines
  * @property-read Organization $organization
+ * @property-read Bill $correctionBill
  */
 class Invoice extends ActiveRecord
 {
@@ -90,6 +94,14 @@ class Invoice extends ActiveRecord
     public function getOrganization()
     {
         return $this->hasOne(Organization::class, ['organization_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCorrectionBill()
+    {
+        return $this->hasOne(Bill::class, ['id' => 'correction_bill_id']);
     }
 
     public function getDateImmutable()
@@ -281,6 +293,17 @@ class Invoice extends ActiveRecord
         return $info;
     }
 
+    public function beforeDelete()
+    {
+        if ($this->correction_bill_id) {
+            $correction = $this->correctionBill;
+            $correction->isSkipCheckCorrection = true;
+            $correction->delete();
+        }
+
+        return parent::beforeDelete();
+    }
+
     public function afterSave($isInsert, $changedAttributes)
     {
         if (
@@ -325,22 +348,101 @@ class Invoice extends ActiveRecord
 
     public function recalcSumCorrection()
     {
-        $sums = InvoiceLine::find()
-            ->where(['invoice_id' => $this->id])
-            ->select([
-                'sum' => (new Expression('SUM(sum)')),
-                'sum_tax' => (new Expression('SUM(sum_tax)')),
-                'sum_without_tax' => (new Expression('SUM(sum_without_tax)')),
-            ])
-            ->asArray()
-            ->one();
+        $transaction = Invoice::getDb()->beginTransaction();
+        try {
+            $sums = InvoiceLine::find()
+                ->where(['invoice_id' => $this->id])
+                ->select([
+                    'sum' => (new Expression('SUM(sum)')),
+                    'sum_tax' => (new Expression('SUM(sum_tax)')),
+                    'sum_without_tax' => (new Expression('SUM(sum_without_tax)')),
+                ])
+                ->asArray()
+                ->one();
 
-        $this->sum = $sums['sum'];
-        $this->sum_tax = $sums['sum_tax'];
-        $this->sum_without_tax = $sums['sum_without_tax'];
+            $this->sum = $sums['sum'];
+            $this->sum_tax = $sums['sum_tax'];
+            $this->sum_without_tax = $sums['sum_without_tax'];
 
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+
+            $this->_makeCorrectionBill();
+
+            ClientAccount::dao()->updateBalance($this->bill->client_id);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Создание корректировочного счета
+     *
+     * @throws ModelValidationException
+     */
+    private function _makeCorrectionBill()
+    {
+        $diffSum = $this->sum - $this->original_sum;
+        $diffSumTax = $this->sum_tax - $this->original_sum_tax;
+
+        if (abs($diffSum) < 0.01 && abs($diffSumTax) < 0.01) {
+            if ($this->correction_bill_id) {
+                $this->correctionBill->delete();
+            }
+
+            return;
+        }
+
+        if (!$this->correction_bill_id) {
+            $bill = Bill::dao()->createBill($this->bill->clientAccount, $this->bill->currency);
+
+            $bill->operation_type_id = OperationType::ID_CORRECTION;
+            $bill->comment = 'Автоматическая корректировка';
+            $this->correction_bill_id = $bill->id;
+
+
+            $lineItem = \Yii::t(
+                'biller',
+                'correct_sum',
+                [],
+                \app\classes\Language::normalizeLang($this->bill->clientAccount->contract->contragent->lang_code)
+            );
+
+            $bill->addLine(
+                $lineItem,
+                1,
+                $diffSum,
+                BillLine::LINE_TYPE_SERVICE
+            );
+
+            $bill->sum = $diffSum;
+
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+
+            if (!$bill->save()) {
+                throw new ModelValidationException($bill);
+            }
+        }
+
+        $correctionBill = $this->correctionBill;
+
+        if ($diffSum != $correctionBill->sum) {
+
+            $line = reset($correctionBill->lines);
+            $line->price = $diffSum;
+            $line->calculateSum($correctionBill->price_include_vat);
+
+            if (!$line->save()) {
+                throw new ModelValidationException($line);
+            }
+
+            Bill::dao()->recalcBill($correctionBill);
         }
     }
 }

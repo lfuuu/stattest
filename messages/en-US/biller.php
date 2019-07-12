@@ -45,4 +45,6 @@ return [
 
     'nal' => 'cash',
     'beznal' => 'transfer',
+
+    'correct_sum' => 'Correction sum',
 ];

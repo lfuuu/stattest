@@ -18,9 +18,10 @@ use Yii;
 use yii\helpers\Url;
 
 /**
- * Class Bill
+ * Расчётный документ
  *
  * @property int $id
+ * @property int $operation_type_id
  * @property string $bill_no        номер счета для отображения
  * @property string $bill_date      дата счета
  * @property int $client_id      id лицевого счета
@@ -57,6 +58,7 @@ use yii\helpers\Url;
  * @property bool $is_to_uu_invoice
  * @property string $invoice_no_ext
  *
+ * @property-read OperationType $operationType
  * @property-read ClientAccount $clientAccount   из версий
  * @property-read ClientAccount $clientAccountModel   прямая модель
  * @property-read BillLine[] $lines   ??
@@ -105,6 +107,8 @@ class Bill extends ActiveRecord
     public $isHistoryVersioning = false;
 
     public $isSetPayOverdue = null;
+
+    public $isSkipCheckCorrection = false;
 
     /**
      * Название таблицы
@@ -157,6 +161,7 @@ class Bill extends ActiveRecord
      * Dao
      *
      * @return BillDao
+     * @throws \yii\base\Exception
      */
     public static function dao()
     {
@@ -164,7 +169,7 @@ class Bill extends ActiveRecord
     }
 
     /**
-     * Навзщение полей
+     * Название полей
      *
      * @return array
      */
@@ -172,6 +177,7 @@ class Bill extends ActiveRecord
     {
         return [
             'id' => 'Id',
+            'operation_type_id' => 'Тип документа',
             'client_id' => 'ЛС',
             'bill_no' => 'Номер счета',
             'bill_date' => 'Дата счета',
@@ -211,6 +217,14 @@ class Bill extends ActiveRecord
         }
 
         return $value;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOperationType()
+    {
+        return $this->hasOne(OperationType::class, ['id' => 'operation_type_id']);
     }
 
     /**
@@ -258,6 +272,8 @@ class Bill extends ActiveRecord
      * Закрыт ли счет?
      *
      * @return bool
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
     public function isClosed()
     {
@@ -267,7 +283,8 @@ class Bill extends ActiveRecord
     /**
      * Счет содержит партнерские вознаграждения
      *
-     * @return mixed
+     * @return bool
+     * @throws \yii\base\Exception
      */
     public function isHavePartnerRewards()
     {
@@ -319,6 +336,7 @@ class Bill extends ActiveRecord
 
     /**
      * @return Payment
+     * @throws \yii\base\Exception
      */
     public function getCreditNote()
     {
@@ -411,6 +429,10 @@ class Bill extends ActiveRecord
      */
     public function beforeDelete()
     {
+        if (!$this->isSkipCheckCorrection && $this->operation_type_id == OperationType::ID_CORRECTION) {
+            throw new \LogicException('Нельзя удалить корректировку');
+        }
+
         Trouble::deleteAll(['bill_no' => $this->bill_no]);
 
         foreach ($this->lines as $line) {
@@ -450,6 +472,7 @@ class Bill extends ActiveRecord
      * @param \DateTime|\DateTimeImmutable|string $dateFrom
      * @param \DateTime|\DateTimeImmutable|string $dateTo
      * @return BillLine
+     * @throws \Exception
      */
     public function addLine($item, $amount, $price, $type = BillLine::LINE_TYPE_SERVICE, $dateFrom = null, $dateTo = null)
     {
@@ -520,7 +543,7 @@ class Bill extends ActiveRecord
     /**
      * Сгенерировать с/ф
      *
-     * @return mixed
+     * @throws \Exception
      */
     public function generateInvoices()
     {
@@ -532,7 +555,7 @@ class Bill extends ActiveRecord
      *
      * проверяется сохранение строк с/ф
      *
-     * @return mixed
+     * @throws \Exception
      */
     public function checkInvoices()
     {
@@ -542,7 +565,7 @@ class Bill extends ActiveRecord
     /**
      * Сгенерировать авансовую с/ф
      *
-     * @return mixed
+     * @throws \Exception
      */
     public function generateAbInvoice()
     {
@@ -552,10 +575,13 @@ class Bill extends ActiveRecord
     /**
      * Получение позиций счета по типу
      *
-     * @param $typeId
-     * @return array
+     * @param int $typeId
+     * @param bool $isInsert
+     * @return array|bool
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getLinesByTypeId($typeId, $isInsert = null)
+    public function getLinesByTypeId($typeId, $isInsert = false)
     {
         return self::dao()->getLinesByTypeId($this, $typeId, $isInsert);
     }
@@ -604,5 +630,15 @@ class Bill extends ActiveRecord
     public function getDate()
     {
         return $this->bill_date;
+    }
+
+    /**
+     * Это корректировка
+     *
+     * @return bool
+     */
+    public function isCorrectionType()
+    {
+        return OperationType::isCorrection($this->operation_type_id);
     }
 }

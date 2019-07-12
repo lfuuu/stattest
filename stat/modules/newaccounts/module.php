@@ -1039,6 +1039,18 @@ class m_newaccounts extends IModule
             header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
         }
+
+        $billModel = Bill::findOne(['bill_no' => $bill_no]);
+
+        \app\classes\Assert::isObject($billModel);
+
+        if ($billModel->isCorrectionType()) {
+            \Yii::$app->session->addFlash('error', 'Нельзя редактировать корректировку');
+            header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_view&bill=" . urlencode($bill_no));
+            exit;
+        }
+
+
         $_SESSION['clients_client'] = $bill->Get("client_id");
         $fixclient_data = ClientAccount::findOne($bill->Get("client_id"));
         if (!$bill->CheckForAdmin()) {
@@ -2190,9 +2202,17 @@ class m_newaccounts extends IModule
         }
 
         $clientAccountId = $bill->client_id;
-        $bill->delete();
+        try {
+            if (!$bill->delete()) {
+                throw new ModelValidationException($bill);
+            }
 
-        ClientAccount::dao()->updateBalance($clientAccountId, false);
+            ClientAccount::dao()->updateBalance($clientAccountId, false);
+        } catch (Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
+            header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_view&bill=".urlencode($bill_no));
+            exit;
+        }
 
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");
@@ -2245,6 +2265,10 @@ class m_newaccounts extends IModule
         }
 
         $billModel = app\models\Bill::findOne(['bill_no' => $bill_no]);
+
+        if ($billModel->isCorrectionType()) {
+            throw new LogicException('Нет документов у корректировки');
+        }
 
         switch ($obj) {
             case 'receipt': {

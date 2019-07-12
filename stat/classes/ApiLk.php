@@ -30,7 +30,6 @@ use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\Trouble;
-use app\models\TroubleRoistat;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
@@ -359,7 +358,11 @@ class ApiLk
     {
         $dt = $bill->document;
 
-        if (!$dt || \app\models\Organization::isMcnTeleсomKft($organizationId)) {
+        if (
+            !$dt
+            || \app\models\Organization::isMcnTeleсomKft($organizationId)
+            || $bill->isCorrectionType()
+        ) {
             return [];
         }
 

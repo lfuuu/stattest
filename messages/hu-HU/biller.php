@@ -43,4 +43,6 @@ return [
 
     'nal' => 'készpénz',
     'beznal' => 'átutalás',
+
+    'correct_sum' => 'Correction sum',
 ];

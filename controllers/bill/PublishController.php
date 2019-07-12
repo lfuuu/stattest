@@ -5,7 +5,6 @@ namespace app\controllers\bill;
 use app\classes\Assert;
 use app\classes\helpers\DependecyHelper;
 use app\classes\Utils;
-use app\dao\BillDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
@@ -354,6 +353,10 @@ class PublishController extends BaseController
             throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
         }
 
+        if ($bill->isCorrectionType()) {
+            throw new \LogicException('Этот документ - корректировка');
+        }
+
         //@TODO
         // можно ли создать draft
 
@@ -382,8 +385,8 @@ class PublishController extends BaseController
             $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
             $invoice->is_reversal = 0;
 
-            $invoice->sum = $sumData['sum'];
-            $invoice->sum_tax = $sumData['sum_tax'];
+            $invoice->original_sum = $invoice->sum = $sumData['sum'];
+            $invoice->original_sum_tax = $invoice->sum_tax = $sumData['sum_tax'];
             $invoice->sum_without_tax = $sumData['sum_without_tax'];
 
             if (!$invoice->save()) {
