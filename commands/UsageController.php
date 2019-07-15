@@ -1,7 +1,10 @@
 <?php
+
 namespace app\commands;
 
 use app\classes\behaviors\SetTaxVoip;
+use app\health\MonitorVoipDelayOnPackages;
+use app\models\EventQueue;
 use app\models\Trouble;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -16,6 +19,7 @@ use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use app\models\LogTarif;
 use app\models\TariffVoip;
+use app\modules\uu\Module as uuModule;
 use Yii;
 use DateTime;
 use app\models\ClientAccount;
@@ -187,7 +191,7 @@ class UsageController extends Controller
             ':date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)
         ]);
 
-        foreach($query->queryAll() as $row) {
+        foreach ($query->queryAll() as $row) {
             $usage = UsageVoip::findOne(['id' => $row['usage_id']]);
             if (!$usage) {
                 continue;
@@ -218,7 +222,7 @@ class UsageController extends Controller
         $isMNBlockExp = new Expression('voip_limit_mn_day != 0 AND amount_mn_day_sum < -voip_limit_mn_day');
 
         $lockQuery = (new Query())
-            ->select(['cc.client_id', 'voip_limit_day', 'amount_day_sum','voip_limit_mn_day', 'amount_mn_day_sum','is_overran', 'is_mn_overran'])
+            ->select(['cc.client_id', 'voip_limit_day', 'amount_day_sum', 'voip_limit_mn_day', 'amount_mn_day_sum', 'is_overran', 'is_mn_overran'])
             ->addSelect([
                 'is_block_day' => $isDayBlockExp,
                 'is_block_mn' => $isMNBlockExp
@@ -228,7 +232,7 @@ class UsageController extends Controller
             ->innerJoin(['cl' => 'billing.locks'], 'c.id=cl.client_id')
             ->where([
                 'AND',
-                ['OR', ['cl.is_overran' => true],['cl.is_mn_overran' => true]], // стоит флаг превышения лимита (is_overran - дневной общий, is_mn_overran - дневной МН)
+                ['OR', ['cl.is_overran' => true], ['cl.is_mn_overran' => true]], // стоит флаг превышения лимита (is_overran - дневной общий, is_mn_overran - дневной МН)
                 ['OR', $isDayBlockExp, $isMNBlockExp], // или вычисляем сами блокировку под дневному и/или МН
                 ['c.voip_disabled' => false] // телефония не выключена
             ]);
@@ -353,7 +357,7 @@ class UsageController extends Controller
 
                     echo PHP_EOL . date('r') . ": " . $bill->bill_no . " " . ($bill->isSetPayOverdue ? "(+)" : "(-)");
                 }
-            }catch (\Exception $e) {
+            } catch (\Exception $e) {
                 Yii::error($e);
                 echo PHP_EOL . $bill->bill_no . " " . $e->getMessage();
             }
@@ -500,6 +504,45 @@ FROM
                 echo $account->id . ' ';
                 echo (int)$flag->is_notified_7day . '/' . (int)$flag->is_notified_3day . '/' . (int)$flag->is_notified_1day;
                 echo ' callsCost: ' . $callsCost . ', perDay: ' . $perDay . ', credit: ' . $account->credit . ', balance: ' . $balance;
+            }
+        }
+    }
+
+    /**
+     * Проверяем, есть ли невключенные пакеты, и включаем их
+     *
+     * @return int
+     * @throws ModelValidationException
+     */
+    public function actionCheckVoipDelay()
+    {
+        $monitor = new MonitorVoipDelayOnPackages();
+
+        $fromDataStr = (new DateTime('now'))
+            ->modify('-3 hours')
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        if (!($value = $monitor->getValue(600, ['>', 'insert_time', $fromDataStr]))) {
+            return ExitCode::OK;
+        }
+
+        /** @var AccountTariff $accountTariff */
+        foreach ($monitor->data as $accountTariff) {
+            $data = [
+                'account_tariff_id' => $accountTariff['id'],
+                'client_account_id' => $accountTariff['client_account_id'],
+            ];
+
+            echo PHP_EOL . str_replace([' ', '  ', '   ', "\r", "\n"], '', print_r($data, true));
+
+            $event = EventQueue::go(uuModule::EVENT_RECALC_ACCOUNT, $data);
+
+            if (!$event->log_error) {
+                $event->log_error = 'CheckVoipDelay';
+
+                if (!$event->save()) {
+                    throw new ModelValidationException($event);
+                }
             }
         }
     }
