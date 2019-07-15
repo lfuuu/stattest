@@ -159,7 +159,7 @@ restart()
         docker exec -u root --privileged  $CONTAINER systemctl restart php-fpm
         docker exec -u root --privileged  $CONTAINER systemctl restart mysql
 	docker exec -u root --privileged -d $CONTAINER su -c "/usr/pgsql-9.4/bin/pg_ctl -D data restart" postgres >> /dev/null
-        docker exec -u root --privileged -d $CONTAINER ./restore_db.sh
+	docker exec -u root --privileged -d $CONTAINER systemctl restart redis
 }
 
 case "$1" in

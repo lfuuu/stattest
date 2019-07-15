@@ -19,11 +19,14 @@ echo "create database if not exists nispd_test DEFAULT CHARACTER SET utf8" | mys
 echo "create database if not exists ats DEFAULT CHARACTER SET utf8" | mysql
 echo "create database if not exists ats2 DEFAULT CHARACTER SET utf8" | mysql
 
+echo "create user 'stat'@'%'" | mysql
 echo "create user 'stat'@'localhost'" | mysql
 echo "create user 'stat_operator'@'localhost'" | mysql
 echo "create user 'latyntsev'@'localhost'" | mysql
+echo "set password for 'stat'@'%' = password('stat')" | mysql
 echo "set password for 'stat'@'localhost' = password('stat')" | mysql
-echo "grant all privileges on * . * TO 'stat'@'localhost'" | mysql
+echo "grant all privileges on * . * TO 'stat'@'%' WITH GRANT OPTION" | mysql
+echo "grant all privileges on * . * TO 'stat'@'localhost' WITH GRANT OPTION" | mysql
 echo "grant all privileges on * . * TO 'stat_operator'@'localhost'" | mysql
 echo "grant all privileges on * . * TO 'latyntsev'@'localhost'" | mysql
 echo "flush privileges" | mysql
