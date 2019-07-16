@@ -6,6 +6,7 @@ use app\classes\Assert;
 use app\classes\HttpClient;
 use app\classes\Singleton;
 use app\models\ClientAccount;
+use app\models\Number;
 use app\models\Region;
 use app\models\UsageTrunk;
 use app\modules\nnp\models\NumberRange;
@@ -159,6 +160,13 @@ class ApiPhone extends Singleton
             $params['type'] = self::TYPE_VPBX;
         }
 
+        if (strpos($number, '7800') === 0) {
+            $params['tech_number_did'] = Number::find()
+                ->where(['number' => $number])
+                ->select('number_tech')
+                ->scalar() ?: '';
+        }
+
         $params = array_merge($params, NumberRange::getNumberInfo($number));
 
         return $this->_exec('add_did', $params);
@@ -220,6 +228,14 @@ class ApiPhone extends Singleton
         if ($number7800) {
             $params['nonumber_phone'] = $number7800;
         }
+
+        if (strpos($number, '7800') === 0) {
+            $params['tech_number_did'] = Number::find()
+                ->where(['number' => $number])
+                ->select('number_tech')
+                ->scalar() ?: '';
+        }
+
 
         $params = array_merge($params, NumberRange::getNumberInfo($number));
 
