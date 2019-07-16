@@ -353,45 +353,8 @@ class PublishController extends BaseController
             throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
         }
 
-        if ($bill->isCorrectionType()) {
-            throw new \LogicException('Этот документ - корректировка');
-        }
-
-        //@TODO
-        // можно ли создать draft
-
-        $lines = $bill->getLinesByTypeId($typeId);
-
         try {
-
-            if (!$lines) {
-                // не данных по этому типу документов
-                throw new \LogicException('Счет пустой');
-            }
-
-            $sumData = BillLine::getSumsLines($lines);
-            $invoiceDate = Invoice::getDate($bill, $typeId);
-
-            if (!$invoiceDate) {
-                throw new \LogicException('Для создания авансовой с/ф требуется что бы по счету была оплата');
-            }
-
-            $invoice = new Invoice();
-            $invoice->isSetDraft = true;
-
-            $invoice->bill_no = $bill->bill_no;
-            $invoice->type_id = $typeId;
-
-            $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
-            $invoice->is_reversal = 0;
-
-            $invoice->original_sum = $invoice->sum = $sumData['sum'];
-            $invoice->original_sum_tax = $invoice->sum_tax = $sumData['sum_tax'];
-            $invoice->sum_without_tax = $sumData['sum_without_tax'];
-
-            if (!$invoice->save()) {
-                throw new ModelValidationException($invoice);
-            }
+            Invoice::dao()->actionDraft($bill, $typeId);
         } catch (\Exception $e) {
             \Yii::$app->session->addFlash('error', $e->getMessage());
         }
@@ -409,21 +372,10 @@ class PublishController extends BaseController
             throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
         }
 
-        //@TODO
-        // можно ли удалить draft
-
-        $invoice = Invoice::findOne([
-            'bill_no' => $bill->bill_no,
-            'idx' => null,
-            'type_id' => $typeId
-        ]);
-
-        if (!$invoice) {
-            throw new NotFoundHttpException('Invoice not found');
-        }
-
-        if (!$invoice->delete()) {
-            throw new ModelValidationException($invoice);
+        try {
+            Invoice::dao()->actionDelete($bill, $typeId);
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
         }
 
         return $this->redirect($bill->getUrl());
@@ -439,29 +391,16 @@ class PublishController extends BaseController
             throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
         }
 
-        //@TODO
-        // можно ли удалить draft
-
-        $invoice = Invoice::findOne([
-            'bill_no' => $bill->bill_no,
-            'idx' => null,
-            'type_id' => $typeId
-        ]);
-
-        if (!$invoice) {
-            throw new NotFoundHttpException('Invoice not found');
-        }
-
-        $invoice->isSetDraft = false; // already set false
-
-        if (!$invoice->save()) {
-            throw new ModelValidationException($invoice);
+        try {
+            Invoice::dao()->actionRegister($bill, $typeId);
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
         }
 
         return $this->redirect($bill->getUrl());
     }
 
-    public function actionInvoiceStorno($bill_no, $type_id, $id)
+    public function actionInvoiceStorno($bill_no, $type_id)
     {
         $typeId = $type_id;
 
@@ -471,25 +410,11 @@ class PublishController extends BaseController
             throw new \InvalidArgumentException('Счет не найден ' . $bill_no);
         }
 
-        $invoice = Invoice::findOne([
-            'bill_no' => $bill->bill_no,
-            'id' => $id,
-            'type_id' => $typeId,
-            'is_reversal' => 0,
-        ]);
-
-        if (!$invoice) {
-            throw new NotFoundHttpException('Invoice not found');
+        try {
+            Invoice::dao()->actionStorno($bill, $typeId);
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
         }
-
-        $isSetNumber = $bill->clientAccount->country_id != Country::RUSSIA;
-
-        $revertInvoice = new Invoice();
-        $revertInvoice->setAttributes($invoice->getAttributes(null, ['id', 'add_date', 'number', 'idx', 'reversal_date']), false);
-
-        !$isSetNumber && $revertInvoice->isSetDraft = true;
-
-        $revertInvoice->setReversal(true);
 
         return $this->redirect($bill->getUrl());
     }
@@ -509,61 +434,66 @@ class PublishController extends BaseController
 
         $lineAdd = new InvoiceLine();
 
+        if (!\Yii::$app->request->isPost) {
+            return $this->render('invoice_edit', [
+                'invoice' => $invoice,
+                'lineAdd' => $lineAdd
+            ]);
+        }
+
         // сохранение
-        if (\Yii::$app->request->isPost) {
-            $transaction = Yii::$app->db->beginTransaction();
-            try {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
 
-                // позиции счета
-                $models = $invoice->lines;
+            // позиции счета
+            $models = $invoice->lines;
 
-                $delete = \Yii::$app->request->post('delete');
+            $delete = \Yii::$app->request->post('delete');
 
-                Model::loadMultiple($models, \Yii::$app->request->post());
+            Model::loadMultiple($models, \Yii::$app->request->post());
 
-                foreach ($models as $idx => $model) {
-                    if ($delete && in_array($idx, $delete)) {
-                        if (!$model->delete()) {
-                            throw new ModelValidationException($model);
-                        }
-                        continue;
-                    }
-
-                    if (!$model->save()) {
+            foreach ($models as $idx => $model) {
+                if ($delete && in_array($idx, $delete)) {
+                    if (!$model->delete()) {
                         throw new ModelValidationException($model);
                     }
+                    continue;
                 }
 
-                $lineAdd->setAttributes([
-                    'invoice_id' => $invoice->id,
-                ]);
-
-                // Сохранение новой строки
-                $lineAddData = \Yii::$app->request->post('InvoiceLineAdd');
-                if ($lineAddData['item'] && $lineAdd->load($lineAddData, '')) {
-
-                    $lineAdd->sort = ((int)InvoiceLine::find()->where(['invoice_id' => $invoice->id])->max('sort')) + 1;
-                    $lineAdd->tax_rate = $invoice->bill->clientAccount->getTaxRate();
-                    $lineAdd->setDates();
-
-                    if (!$lineAdd->validate()) {
-                        \Yii::$app->session->addFlash('error', implode("<br>", $lineAdd->getFirstErrors()));
-                    } elseif (!$lineAdd->save()) {
-                        throw new ModelValidationException($lineAdd);
-                    } else {
-                        // сохраненно. Сбрасываем модель.
-                        $lineAdd = new InvoiceLine();
-                    }
+                if (!$model->save()) {
+                    throw new ModelValidationException($model);
                 }
-
-                $invoice->refresh();
-                $invoice->recalcSumCorrection();
-
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                \Yii::$app->session->addFlash('error', $e->getMessage());
             }
+
+            $lineAdd->setAttributes([
+                'invoice_id' => $invoice->id,
+            ]);
+
+            // Сохранение новой строки
+            $lineAddData = \Yii::$app->request->post('InvoiceLineAdd');
+            if ($lineAddData['item'] && $lineAdd->load($lineAddData, '')) {
+
+                $lineAdd->sort = ((int)InvoiceLine::find()->where(['invoice_id' => $invoice->id])->max('sort')) + 1;
+                $lineAdd->tax_rate = $invoice->bill->clientAccount->getTaxRate();
+                $lineAdd->setDates();
+
+                if (!$lineAdd->validate()) {
+                    \Yii::$app->session->addFlash('error', implode("<br>", $lineAdd->getFirstErrors()));
+                } elseif (!$lineAdd->save()) {
+                    throw new ModelValidationException($lineAdd);
+                } else {
+                    // сохраненно. Сбрасываем модель.
+                    $lineAdd = new InvoiceLine();
+                }
+            }
+
+            $invoice->refresh();
+            $invoice->recalcSumCorrection();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            \Yii::$app->session->addFlash('error', $e->getMessage());
         }
 
         return $this->render('invoice_edit', [

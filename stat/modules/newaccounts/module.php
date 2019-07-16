@@ -22,6 +22,7 @@ use app\models\Currency;
 use app\models\CurrencyRate;
 use app\models\filter\PartnerRewardsFilter;
 use app\models\GoodPriceType;
+use app\models\Invoice;
 use app\models\Language;
 use app\models\Organization;
 use app\models\Param;
@@ -774,8 +775,8 @@ class m_newaccounts extends IModule
         $design->assign('admin_order', $adminNum);
 
 
-        $design->assign('is_new_invoice', $bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING);
-        $design->assign('invoice_info', \app\models\Invoice::find()
+        $design->assign('is_new_invoice', $bill->Get('bill_date') >= Invoice::DATE_ACCOUNTING);
+        $design->assign('invoice_info', Invoice::find()
             ->select(['sum', 'is_reversal', 'type_id', 'number'])
             ->where([
                 'bill_no' => $bill->GetNo()
@@ -785,7 +786,7 @@ class m_newaccounts extends IModule
             ->all()
         );
 
-        $design->assign('invoice2_info', \app\models\Invoice::getInfo($bill->GetNo()));
+        $design->assign('invoice2_info', Invoice::getInfo($bill->GetNo()));
 
 
         $design->assign('bill', $bill->GetBill());
@@ -818,8 +819,8 @@ class m_newaccounts extends IModule
          */
 
         $invoices = [];
-        if ($bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
-            $invoices = \app\models\Invoice::find()->where([
+        if ($bill->Get('bill_date') >= Invoice::DATE_ACCOUNTING) {
+            $invoices = Invoice::find()->where([
                 'bill_no' => $bill->Get('bill_no'),
                 'is_reversal' => 0,
             ])
@@ -832,7 +833,7 @@ class m_newaccounts extends IModule
         list($bill_akts, $bill_invoices, $bill_upd) = $this->get_bill_docs($bill, $L);
 
         if ($invoices) {
-            foreach (\app\models\Invoice::$types as $invoiceType) {
+            foreach (Invoice::$types as $invoiceType) {
                 if (in_array($invoiceType, $invoices)) {
                     continue;
                 }
@@ -1738,7 +1739,7 @@ class m_newaccounts extends IModule
 
             $billModel = Bill::findOne(['bill_no' => (string)$bills]);
 
-            if ($billModel && $billModel->currency != Currency::RUB && $billModel->bill_date >= \app\models\Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
+            if ($billModel && $billModel->currency != Currency::RUB && $billModel->bill_date >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
                 return $this->_portingPrintNoRub($billModel, $is_pdf, $invoiceId);
             }
 
@@ -2067,7 +2068,7 @@ class m_newaccounts extends IModule
 
         $invoice = null;
         if ($invoiceId) {
-            $invoice = \app\models\Invoice::findOne(['id' => $invoiceId]);
+            $invoice = Invoice::findOne(['id' => $invoiceId]);
 
             \app\classes\Assert::isObject($invoice);
 
@@ -2255,7 +2256,7 @@ class m_newaccounts extends IModule
             $obj = 'invoice';
             $invoiceId = get_param_integer('invoice_id');
 
-            $source = (int)\app\models\Invoice::find()->where(['id' => $invoiceId])->select(['type_id'])->scalar();
+            $source = (int)Invoice::find()->where(['id' => $invoiceId])->select(['type_id'])->scalar();
         }
 
 
@@ -3046,6 +3047,7 @@ class m_newaccounts extends IModule
         if ($do_assign) {
             $design->assign('cpe', $cpe);
             $design->assign('curr', $curr);
+            $invoice = null;
             if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
 
                 $newInvoiceNumber = false;
@@ -3055,14 +3057,14 @@ class m_newaccounts extends IModule
                     'is_reversal' => 0
                 ];
 
+                $where['type_id'] = $is_four_order ? Invoice::TYPE_PREPAID : $source;
+
                 if ($invoiceId) {
                     $where['id'] = $invoiceId;
-                } else {
-                    $where['type_id'] = $is_four_order ? \app\models\Invoice::TYPE_PREPAID : $source;
                 }
 
-
-                if ($invoice = \app\models\Invoice::find()->where($where)->orderBy(['id' => SORT_DESC])->one()) {
+                /** @var Invoice $invoice */
+                if ($invoice = Invoice::find()->where($where)->orderBy(['id' => SORT_DESC])->one()) {
                     $newInvoiceNumber = $invoice->number;
 
                     if ($is_four_order) {
@@ -3074,10 +3076,11 @@ class m_newaccounts extends IModule
                     }
                 }
 
-                $design->assign('is_document_ready', $newInvoiceNumber || $bill->Get('bill_date') < \app\models\Invoice::DATE_ACCOUNTING);
+                $design->assign('is_document_ready', $newInvoiceNumber || $bill->Get('bill_date') < Invoice::DATE_ACCOUNTING);
 
 
                 $design->assign('inv_number', $newInvoiceNumber);
+                $design->assign('invoice', $invoice);
 
                 $design->assign('inv_no', '-' . $source);
                 $design->assign('inv_date', $inv_date);
@@ -4934,8 +4937,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                 $invDate = $invDateObj->getTimestamp();
                             }
 
-                        } elseif ($bill->Get('bill_date') >= \app\models\Invoice::DATE_ACCOUNTING) {
-                            $invoice = \app\models\Invoice::findOne([
+                        } elseif ($bill->Get('bill_date') >= Invoice::DATE_ACCOUNTING) {
+                            $invoice = Invoice::findOne([
                                 'bill_no' => $A['bill']['bill_no'],
                                 'type_id' => $I == 4 ? 3 : $I,
                                 'is_reversal' => 0
@@ -5432,7 +5435,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
                                 $A['bill']['kpp'] = '-----';
                             }
 
-                            $invoice = \app\models\Invoice::findOne([
+                            $invoice = Invoice::findOne([
                                 'bill_no' => $A['bill']['bill_no'],
                                 'type_id' => $I,
                                 'is_reversal' => 0
@@ -6669,7 +6672,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 return;
             }
 
-            $invoice = \app\models\Invoice::findOne(['number' => $number]);
+            $invoice = Invoice::findOne(['number' => $number]);
 
             if (!$invoice) {
                 trigger_error2("Ошибка в номере!");

@@ -58,11 +58,11 @@ class SaleBookFilter extends Invoice
     public function rules()
     {
         return [
-            [['date_from', 'date_to', 'organization_id', 'filter', 'currency'], 'required'],
+            [['date_from', 'date_to', 'organization_id', /*'filter', */'currency'], 'required'],
             ['is_euro_format', 'integer'],
             [['date_from', 'date_to'], 'date'],
             [['organization_id'], 'in', 'range' => array_keys(Organization::dao()->getList())],
-            ['filter', 'in', 'range' => array_keys(self::$filters)],
+//            ['filter', 'in', 'range' => array_keys(self::$filters)],
         ];
     }
 
@@ -107,7 +107,7 @@ class SaleBookFilter extends Invoice
                 $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                 $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
             ])
-            ->andWhere(['IS NOT', 'number', null])
+            ->andWhere(['NOT', ['number' => null]])
             ->orderBy([
                 'inv.idx' => SORT_ASC,
                 'inv.id' => SORT_ASC,
@@ -116,6 +116,7 @@ class SaleBookFilter extends Invoice
         $query->joinWith('bill bill', true, 'INNER JOIN');
         $query->with('bill');
 
+        /*
         switch ($this->filter) {
             case self::FILTER_ALL:
                 // nothing
@@ -131,8 +132,8 @@ class SaleBookFilter extends Invoice
 
             default:
                 throw new NotSupportedException('Не готово');
-
         }
+        */
 
         return $query;
     }

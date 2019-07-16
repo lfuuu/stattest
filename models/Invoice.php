@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\behaviors\InvoiceNextIdx;
 use app\classes\model\ActiveRecord;
+use app\dao\InvoiceDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use yii\db\Expression;
@@ -26,6 +27,7 @@ use yii\web\NotFoundHttpException;
  * @property int $correction_bill_id
  * @property float $original_sum
  * @property float $original_sum_tax
+ * @property int $correction_idx
  *
  * @property-read Bill $bill
  * @property-read InvoiceLine $lines
@@ -69,6 +71,11 @@ class Invoice extends ActiveRecord
         return [
             'InvoiceNextIdx' => InvoiceNextIdx::class,
         ];
+    }
+
+    public static function dao()
+    {
+        return InvoiceDao::me();
     }
 
 
@@ -214,25 +221,38 @@ class Invoice extends ActiveRecord
 
     /**
      * @param bool $isRevertSum
-     * @throws ModelValidationException
+     * @throws \Exception
      */
     public function setReversal($isRevertSum = false)
     {
-        if ($this->is_reversal) {
-            return;
-        }
+        $transaction = $this->db->beginTransaction();
+        try {
+            if ($this->is_reversal) {
+                return;
+            }
 
-        $this->is_reversal = 1;
-        $this->reversal_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $this->is_reversal = 1;
+            $this->reversal_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if ($isRevertSum) {
-            $this->sum = -$this->sum;
-            $this->sum_without_tax = -$this->sum_without_tax;
-            $this->sum_tax = -$this->sum_tax;
-        }
+            if ($isRevertSum) {
+                $this->sum = -$this->sum;
+                $this->sum_without_tax = -$this->sum_without_tax;
+                $this->sum_tax = -$this->sum_tax;
+            }
 
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
+            if ($this->correction_bill_id) {
+                $this->correctionBill->isSkipCheckCorrection = true;
+                $this->correctionBill->delete();
+                $this->correction_bill_id = null;
+            }
+
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollback();
+            throw $e;
         }
     }
 

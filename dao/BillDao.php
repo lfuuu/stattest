@@ -1132,7 +1132,7 @@ SQL;
 
                     // не вносим отрицательные суммы
                     if ($sum <= 0) {
-                        $invoice && $invoice->setReversal();
+                        $invoice && $invoice->delete();
                         continue;
                     }
 
@@ -1163,7 +1163,7 @@ SQL;
                     }
 
                 } elseif ($invoice) {
-                    $invoice->setReversal();
+                    $invoice->delete();
                 }
             }
         } catch (\Exception $e) {

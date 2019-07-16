@@ -49,7 +49,9 @@ $printSum = function ($sum) {
             <div class="row">
             </div>
 
-            Фильтр: <?= \app\classes\Html::dropDownList('SaleBookFilter[filter]', $filter->filter, \app\models\filter\SaleBookFilter::$filters) ?>
+            <?php if (false) { ?>
+                Фильтр: <?= \app\classes\Html::dropDownList('SaleBookFilter[filter]', $filter->filter, \app\models\filter\SaleBookFilter::$filters) ?>
+            <?php } ?>
 
             <!-- Полный экран: <input type="checkbox" name="fullscreen" value="1"/>&nbsp;
             в Excel: <input type="checkbox" name="excel" value="1"/>

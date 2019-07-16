@@ -45,7 +45,7 @@
         {else} 
             {$without_date_date|mdate:"от d.m.Y г."}
         {/if}<br>
-ИСПРАВЛЕНИЕ N {if $correction_info}{$correction_info.number} от {$correction_info.date_timestamp|mdate:"d.m.Y г."}{else}----- от -----{/if}</strong></p></tr>
+ИСПРАВЛЕНИЕ N {if $invoice && $invoice.correction_idx}{$invoice.correction_idx} от {$invoice.date|mdate:"d.m.Y г."}{else}{if $correction_info}{$correction_info.number} от {$correction_info.date_timestamp|mdate:"d.m.Y г."}{else}----- от -----{/if}{/if}</strong></p></tr>
 {/if}
   <tr>
     {if $bill_client.firma=='all4geo'}
