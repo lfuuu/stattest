@@ -133,7 +133,7 @@
                 <td><?= ($idx++) ?> </td>
                 <td><?= ($invoice->type_id == Invoice::TYPE_PREPAID ? '02' : '01') ?></td>
                 <td><?= ($invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED)) ?></td>
-                <td><?= (!$invoice->is_reversal && $invoice->correction_idx ? $invoice->correction_idx . ' от ' .$invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '---')?></td>
+                <td><?= ($invoice->correction_idx ? $invoice->correction_idx . ' от ' .$invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '---')?></td>
                 <td>---</td>
                 <td>---</td>
                 <td><?= trim($contragent->name_full) ?></td>

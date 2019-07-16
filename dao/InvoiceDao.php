@@ -169,7 +169,7 @@ class InvoiceDao extends Singleton
         }
 
         $revertInvoice = new Invoice();
-        $revertInvoice->setAttributes($invoice->getAttributes(null, ['id', 'add_date', 'number', 'idx', 'reversal_date', 'correction_idx']), false);
+        $revertInvoice->setAttributes($invoice->getAttributes(null, ['id', 'add_date', 'number', 'idx', 'reversal_date']), false);
 
         $revertInvoice->setReversal(true);
     }
