@@ -2,13 +2,23 @@
 
 namespace app\models;
 
+use app\classes\behaviors\EventQueueAddEvent;
+use app\classes\behaviors\InvoiceGeneratePdf;
 use app\classes\behaviors\InvoiceNextIdx;
+use app\classes\Encrypt;
+use app\classes\HttpClient;
 use app\classes\model\ActiveRecord;
+use app\classes\Request;
 use app\dao\InvoiceDao;
 use app\exceptions\ModelValidationException;
+use app\exceptions\web\BadRequestHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\uu\models_light\InvoiceLight;
+use yii\base\InvalidCallException;
 use yii\db\Expression;
+use yii\web\NotAcceptableHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * @property int $id
@@ -70,6 +80,7 @@ class Invoice extends ActiveRecord
     {
         return [
             'InvoiceNextIdx' => InvoiceNextIdx::class,
+            'InvoiceGeneratePdf' => InvoiceGeneratePdf::class,
         ];
     }
 
@@ -364,6 +375,8 @@ class Invoice extends ActiveRecord
                 throw new ModelValidationException($newLine);
             }
         }
+
+        parent::afterSave($isInsert, $changedAttributes);
     }
 
     public function recalcSumCorrection()
@@ -464,5 +477,121 @@ class Invoice extends ActiveRecord
 
             Bill::dao()->recalcBill($correctionBill);
         }
+    }
+
+    public function getPath()
+    {
+        $pathStore = realpath(\Yii::$app->basePath . '/../store/invoices');
+
+        $organization = $this->bill->clientAccount->contract->organization->firma;
+        $dateStr = (new \DateTime($this->date))->format('Y-m');
+
+        $dirData = [$organization, $dateStr];
+
+        $path = $pathStore;
+        foreach ($dirData as $p) {
+            $path .= '/' . $p;
+            if (!is_dir($path)) {
+                mkdir($path, 0775, true);
+            }
+        }
+
+        return $path . '/';
+    }
+
+    public function getFilePath()
+    {
+        return $this->getPath()
+            . $this->bill->client_id
+            . '-' . $this->number
+            . ($this->is_reversal ? 'R' : '')
+            . ($this->correction_idx ? '-' . $this->correction_idx : '')
+            . '.pdf';
+    }
+
+    public function downloadFile()
+    {
+        if (!file_exists($this->getFilePath())) {
+            $this->generatePdfFile();
+        }
+
+        if (\Yii::$app instanceof \yii\console\Application) {
+            throw new InvalidCallException('В консольном режиме скачать файл не возможно');
+        }
+
+        $filePath = $this->getFilePath();
+        $info = pathinfo($filePath);
+
+        \Yii::$app->response->format = Response::FORMAT_RAW;
+        \Yii::$app->response->content = file_get_contents($filePath);
+        \Yii::$app->response->setDownloadHeaders($info['basename'], 'application/pdf', true);
+
+        \Yii::$app->end();
+
+    }
+
+    /**
+     * @return bool
+     */
+    public function generatePdfFile()
+    {
+        if (!$this->bill) {
+            return false;
+        }
+
+        if (file_exists($this->getFilePath())) {
+            return null;
+        }
+
+        if ($this->bill->currency == Currency::HUF) {
+            $pdf = $this->_getContentTemplate1Pdf();
+        } else {
+            $pdf = $this->_downloadPdfContent();
+        }
+
+        return file_put_contents($this->getFilePath(), $pdf);
+    }
+
+    private function _getContentTemplate1Pdf()
+    {
+        $invoiceDocument = (new InvoiceLight($this->bill->clientAccount))
+            ->setBill($this->bill);
+
+        $invoiceDocument->setInvoice($this);
+
+        $langCode = $this->bill->clientAccount->contragent->lang_code;
+
+        if (!is_null($langCode)) {
+            $invoiceDocument->setLanguage($langCode);
+        }
+
+        return $invoiceDocument->render($isPdf = true);
+    }
+
+    private function _downloadPdfContent()
+    {
+        $data = [
+            'bill' => $this->bill_no,
+            'object' => 'invoice-' . $this->type_id,
+            'client' => (string)$this->bill->client_id,
+            'is_pdf' => '1',
+            'emailed' => '1',
+        ];
+
+        $link = Encrypt::encodeArray($data);
+
+        $req = (new HttpClient())
+            ->get(\Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . $link)
+            ->send();
+
+        if ($req->statusCode != 200) {
+            throw new NotAcceptableHttpException($req->content, $req->statusCode);
+        }
+
+        if (strpos($req->content, '%PDF') !== 0) {
+            throw new \HttpResponseException('Content is not PDF');
+        }
+
+        return $req->content;
     }
 }

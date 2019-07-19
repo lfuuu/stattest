@@ -1114,9 +1114,10 @@ SQL;
                     ->orderBy(['id' => SORT_DESC])
                     ->one();
 
-                // Если последний документ сторнирован - то надо создать нормальный
+                // Если последний документ сторнирован - то так надо
                 if ($invoice && $invoice->is_reversal) {
-                    $invoice = null;
+                    continue;
+//                    $invoice = null;
                 }
 
                 $lines = $invoice && $invoice->lines ? $invoice->lines : $bill->getLinesByTypeId($typeId);
@@ -1130,8 +1131,8 @@ SQL;
 
                     $sum = $sumData['sum'];
 
-                    // не вносим отрицательные суммы
-                    if ($sum <= 0) {
+                    // не вносим отрицательные суммы, нулевые можно вносить
+                    if ($sum < 0) {
                         $invoice && $invoice->delete();
                         continue;
                     }

@@ -104,6 +104,7 @@ class EventQueue extends ActiveRecord
     const COMET_NOTIFIER_EVENT = 'comet_notifier_event';
     const TROUBLE_NOTIFIER_EVENT = 'trouble_notifier_event';
     const MAKE_CALL = 'make_call';
+    const INVOICE_GENERATE_PDF = 'invoice_generate_pdf';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
@@ -159,6 +160,7 @@ class EventQueue extends ActiveRecord
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
         self::COMET_NOTIFIER_EVENT => 'Comet-уведомление',
         self::MAKE_CALL => 'Сделать звонок',
+        self::INVOICE_GENERATE_PDF => 'С/ф. Генерация PDF',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',

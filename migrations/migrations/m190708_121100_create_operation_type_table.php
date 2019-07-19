@@ -29,7 +29,7 @@ class m190708_121100_create_operation_type_table extends \app\classes\Migration
             'key' => $this->string(32)->notNull(),
             'name' => $this->string(255)->notNull(),
             'is_convertible' => $this->boolean()->notNull()->defaultValue(false),
-        ]);
+        ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
 
         $this->addCommentOnTable(self::getTypeTableName(), 'Тип расчётной операции / документа');
 

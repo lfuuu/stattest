@@ -39,7 +39,7 @@ class InvoiceNextIdx extends Behavior
         // с 1 января, для всех не Россиских компаний номерация с/ф сквозная в течении года
         if (
             $invoice->date >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING
-            && $invoice->bill->clientAccount->currency != Currency::RUB
+            && $invoice->bill->clientAccount->contragent->country_id != Country::RUSSIA
         ) {
             $startDate = (new \DateTimeImmutable($invoice->date))
                 ->setDate($startDate->format('Y'), 1, 1);

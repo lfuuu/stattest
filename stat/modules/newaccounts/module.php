@@ -2254,7 +2254,7 @@ class m_newaccounts extends IModule
         $invoiceId = false;
         if ($obj == 'invoice2') {
             $obj = 'invoice';
-            $invoiceId = get_param_integer('invoice_id');
+            $invoiceId = isset($params['invoice_id']) && $params['invoice_id'] ? $params['invoice_id'] : get_param_integer('invoice_id');
 
             $source = (int)Invoice::find()->where(['id' => $invoiceId])->select(['type_id'])->scalar();
         }

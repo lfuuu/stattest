@@ -9,6 +9,7 @@ use app\classes\api\ApiPhone;
 use app\classes\api\ApiSipTrunk;
 use app\classes\api\ApiVpbx;
 use app\classes\api\ApiVps;
+use app\classes\behaviors\InvoiceGeneratePdf;
 use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\classes\partners\RewardCalculate;
@@ -53,8 +54,14 @@ $workTime = 300; // перезагрузка каждые 5-8 минут
 $maxCountShift = 3;
 
 // настраиваем запрос выборки событий
-$nnp = ['event' => [NnpModule::EVENT_FILTER_TO_PREFIX, NnpModule::EVENT_LINKER, NnpModule::EVENT_IMPORT]];
-$ats3Sync = ['event' => [
+$nnpEvents = ['event' => [
+    NnpModule::EVENT_FILTER_TO_PREFIX,
+    NnpModule::EVENT_LINKER,
+    NnpModule::EVENT_IMPORT,
+    EventQueue::INVOICE_GENERATE_PDF,
+]];
+
+$syncEvents = ['event' => [
     EventQueue::ATS3__SYNC,
     EventQueue::MAKE_CALL,
 ]];
@@ -65,14 +72,14 @@ $uuSyncEvents = [
     UuModule::EVENT_SIPTRUNK_SYNC,
 ];
 
-$ats3Sync['event'] = array_merge($ats3Sync['event'], $uuSyncEvents);
+$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents);
 
 $map = [
     'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', ['event' => $uuSyncEvents]]],
-    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnp], ['NOT', $ats3Sync]],
-    'ats3_sync' => [$ats3Sync],
-    'nnp' => [$nnp],
-    'no_nnp' => [['NOT', $nnp]], //для служебного пользования
+    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents]],
+    'ats3_sync' => [$syncEvents],
+    'nnp' => [$nnpEvents],
+    'no_nnp' => [['NOT', $nnpEvents]], //для служебного пользования
 ];
 
 // @TODO ordering? UuModule::EVENT_ADD_LIGHT in first
@@ -451,6 +458,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::MAKE_CALL:
                     ApiWebCall::me()->makeCall($param['abon'], $param['calling_number']);
+                    break;
+
+                case EventQueue::INVOICE_GENERATE_PDF:
+                    InvoiceGeneratePdf::generate($param['id']);
                     break;
 
 

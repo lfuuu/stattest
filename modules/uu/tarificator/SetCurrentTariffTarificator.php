@@ -231,7 +231,7 @@ SQL;
 
                     case ServiceType::ID_CALLTRACKING:
                         if ($eventType == ImportantEventsNames::UU_UPDATED) {
-                            return;
+                            break;
                         }
 
                         // При выключении или выключении услуги добавить в очередь экспорт номера

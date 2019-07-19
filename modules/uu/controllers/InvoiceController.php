@@ -99,6 +99,12 @@ class InvoiceController extends BaseController
     {
         $invoice = $clientAccountId = null;
 
+//        if ($invoiceId && $renderMode == 'pdf') {
+//            $invoice = Invoice::findOne(['id' => $invoiceId]);
+//            $invoice && $invoice->downloadFile();
+//            return '';
+//        }
+
         /** @var Bill $bill */
         if ($billId) {
             if ($bill = Bill::findOne(['id' => $billId])) {

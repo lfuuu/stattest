@@ -3,6 +3,7 @@
 namespace app\modules\uu\models_light;
 
 use app\classes\Assert;
+use app\classes\Html2Pdf;
 use app\classes\Smarty;
 use app\forms\templates\uu\InvoiceForm;
 use app\helpers\DateTimeZoneHelper;
@@ -209,11 +210,10 @@ class InvoiceLight extends Component
     }
 
     /**
+     * @param bool $isPdf
      * @return string
-     * @throws \Exception
-     * @throws \SmartyException
      */
-    public function render()
+    public function render($isPdf = false)
     {
         $smarty = Smarty::init();
         $smarty->assign($this->getProperties());
@@ -221,13 +221,23 @@ class InvoiceLight extends Component
         $invoiceTemplate = new InvoiceForm($this->_language);
 
         if ($invoiceTemplate->fileExists()) {
-            return $smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName()));
-        } else {
+            $content = $smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName()));
+
+            if ($isPdf) {
+                $generator = new Html2Pdf();
+                $generator->html = $content;
+                $content = $generator->pdf;
+            }
+
+            return $content;
+        } else {\
             Yii::$app->session->setFlash('error', 'Шаблон счета-фактуры для языка "' . $this->_language . '" не найден');
         }
 
         return false;
     }
+
+
 
     /**
      * @return array
