@@ -81,30 +81,30 @@ if (!$contragent) {
 $total = end($dataProvider->allModels);
 $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
 ?>
-
     По данным  <?= $firm->name ?> на <?= $dateToFormated ?> г.,
-
-<?php if (false) { //@TODO?>
-    {if $zalog} с учетом платежей полученных в обеспечение исполнения обязательств по договору:
+<?php if ($deposit): ?>
+    с учетом платежей полученных в обеспечение исполнения обязательств по договору:
     <table>
-        {foreach from=$zalog item=z name=zalog}
-        <tr>
-            <td>{$smarty.foreach.zalog.iteration}.&nbsp;</td>
-            <td>{$z.date|mdate:"d.m.Y"}, &#8470;{$z.inv_no} ({$z.items})</td>
-            <td>{$z.sum_income|money_currency:$currency}</td>
-        </tr>
-        {/foreach}
+        <?php
+        $i = 0;
+        foreach ($deposit as $value):
+            $i++; ?>
+            <tr>
+                <td>    <?= $i ?>.&nbsp;</td>
+                <td>    <?= date("d.m.Y", strtotime($value['bill_date'])) ?>&nbsp;</td>
+                <td> &#8470;<?= $value['inv_no'] ?>&nbsp;</td>
+                <td> (<?= $value['item'] ?>)&nbsp;</td>
+                <td>    <?= number_format($value['sum'], 2, ',', '') ?>&nbsp;рублей</td>
+            </tr>
+        <?php endforeach; ?>
     </table>
+<?php endif; ?>
 
-    {else}
-
-    {/if}
-<?php } ?>
     &nbsp;задолженность
-<?php if ($total['income_sum'] > 0.0001) {
-    echo 'в пользу ' . $firm->name . ' составляет ' . $total['income_sum'] . ' р.';
-} elseif ($total['outcome_sum'] > 0.0001) {
-    echo 'в пользу ' . $contragent->name_full . ' составляет ' . $total['outcome_sum'];
+<?php if ($deposit_balance > 0.0001) {
+    echo 'в пользу ' . $firm->name . ' составляет ' . number_format($deposit_balance, 2, ',', '') . ' рублей.';
+} elseif ($deposit_balance < 0.0001) {
+    echo 'в пользу ' . $contragent->name_full . ' составляет ' . number_format(-$deposit_balance, 2, ',', '') . ' рублей.';
 } else {
     echo 'отсутствует';
 }

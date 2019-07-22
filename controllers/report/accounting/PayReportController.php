@@ -74,6 +74,11 @@ class PayReportController extends BaseController
         return $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     * @throws \yii\base\Exception
+     */
     public function actionRevise()
     {
         $this->view->title = 'Акт сверки (новый)';
@@ -86,6 +91,8 @@ class PayReportController extends BaseController
         $allModels = [];
         $contragent = null;
         $firm = null;
+        $depositBalance = 0;
+        $deposit = 0;
 
         $isSubmit = isset($get['submit']);
 
@@ -100,8 +107,10 @@ class PayReportController extends BaseController
                 }
 
                 $this->view->title .= ',  ' . $account->getAccountTypeAndId();
-                $allModels = ActOfReconciliation::me()->getRevise($account, $dateFrom, $dateTo, $saldo);
-
+                $result = ActOfReconciliation::me()->getRevise($account, $dateFrom, $dateTo, $saldo);
+                $allModels = $result['data'];
+                $deposit = $result['deposit'];
+                $depositBalance = $result['deposit_balance'];
                 $contragent = $account->contract->getContragent($dateFrom);
                 $firm = $account->getOrganization($dateFrom);
             } elseif (isset($get['submit'])) {
@@ -122,6 +131,9 @@ class PayReportController extends BaseController
             'saldo' => $saldo,
             'contragent' => $contragent,
             'firm' => $firm,
+            'deposit' => $deposit,
+            'result' => $allModels,
+            'deposit_balance' => $depositBalance
         ]);
     }
 }

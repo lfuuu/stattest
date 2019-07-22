@@ -5,6 +5,7 @@ namespace app\classes;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\ClientAccount;
+use app\models\EntryPoint;
 use app\models\Invoice;
 use app\models\Payment;
 use app\models\Saldo;
@@ -47,6 +48,7 @@ class ActOfReconciliation extends Singleton
             ->select([
                 'sum',
                 'type' => new Expression('"payment"'),
+                'payment_type' => 'type',
                 'date' => 'payment_date',
                 'number' => 'payment_no',
             ])
@@ -62,6 +64,7 @@ class ActOfReconciliation extends Singleton
             ->select([
                 'i.sum',
                 'type' => new Expression('"invoice"'),
+                'payment_type' => new Expression('""'),
                 'i.date',
                 'number'
             ])
@@ -82,12 +85,21 @@ class ActOfReconciliation extends Singleton
             $isInvoice = $item['type'] == 'invoice';
             $date = (new \DateTimeImmutable($item['date']))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
             $sum = number_format($item['sum'], 2, ',', ' ');
+
+            $description = $isInvoice
+                ? 'Акт' . ' (' . $date . ', №' . $item['number'] . ')'
+                : (
+                ($item['payment_type'] == 'creditnote')
+                    ? 'Кредит-нота от ' . $date
+                    : 'Оплата' . ' (' . $date . ', №' . $item['number'] . ')'
+                );
             $result[] = [
                 'income_sum' => $isInvoice ? $sum : '',
                 'outcome_sum' => !$isInvoice ? $sum : '',
                 'type' => $item['type'],
-                'description' => ($isInvoice ? 'Акт' : 'Оплата') . ' (' . $date . ', №' . $item['number'] . ')'
+                'description' => $description
             ];
+
             $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
         }
 
@@ -100,7 +112,21 @@ class ActOfReconciliation extends Singleton
             'outcome_sum' => -$ressaldo > 0 ? -$ressaldo : 0
         ];
 
-        return $result;
-    }
+        $deposits = \Yii::$app->db->createCommand("
+        SELECT n.client_id,concat(n.bill_no,'-3') AS inv_no,n.bill_date,nb.bill_no,nb.item,nb.sum FROM newbills n
+        JOIN newbill_lines nb ON n.bill_no = nb.bill_no
+        WHERE client_id = $account->id AND nb.type = 'zalog'")->queryAll();
 
+        $depositSum = 0;
+        foreach ($deposits as $item) {
+            $depositSum += $item['sum'];
+        }
+
+        $depositBalance = $depositSum + $ressaldo;
+
+        return ['data' => $result,
+            'deposit' => $deposits,
+            'deposit_balance' => $depositBalance
+        ];
+    }
 }
