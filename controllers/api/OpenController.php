@@ -10,6 +10,7 @@ use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\modules\nnp\models\NdcType;
+use app\modules\nnp\models\PackagePrice;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
@@ -754,10 +755,15 @@ final class OpenController extends Controller
 
             if ($tariffPackage->voip_group_id === TariffVoipGroup::ID_LOCAL) {
                 // стоимость звонков
-                $packagePrices = $tariffPackage ? $tariffPackage->packagePrices : null;
-                if (count($packagePrices)) {
-                    $defaultTariff['call_price_mobile'] = array_shift($packagePrices)->price;
-                    $defaultTariff['call_price_local'] = array_shift($packagePrices)->price;
+                $packagePrices = $tariffPackage ? $tariffPackage->getPackagePrices()->with('destination')->all() : [];
+                foreach ($packagePrices as $packagePrice) {
+                    /** @var PackagePrice $packagePrice */
+                    $destination = $packagePrice->destination;
+                    if ($destination->isLocal()) {
+                        $defaultTariff['call_price_local'] = $packagePrice->price;
+                    } elseif ($destination->isMobile()) {
+                        $defaultTariff['call_price_mobile'] = $packagePrice->price;
+                    }
                 }
             }
 

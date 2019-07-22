@@ -317,7 +317,7 @@ class PricelistController extends BaseController
             header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
-        header("Content-Disposition: attachment; filename=" . $file->filename);
+        header("Content-Disposition: attachment; filename='" . $file->filename . "'");
         header('Content-Transfer-Encoding: binary');
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
