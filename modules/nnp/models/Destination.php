@@ -134,4 +134,23 @@ class Destination extends ActiveRecord
     {
         return $this->hasOne(Land::class, ['id' => 'status_id']);
     }
+
+
+    /**
+     * @return bool
+     */
+    public function isMobile()
+    {
+        $name = mb_strtolower($this->name);
+        return strpos($name, 'mob') !== false || strpos($name, 'моб') !== false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLocal()
+    {
+        $name = mb_strtolower($this->name);
+        return strpos($name, 'fix') !== false || strpos($name, 'стац') !== false;
+    }
 }
