@@ -1,4 +1,5 @@
 <?php
+
 namespace app\forms\organization;
 
 use Yii;
@@ -27,7 +28,8 @@ class OrganizationForm extends Form
         $logo_file_name,
         $stamp_file_name,
         $director_id = 0,
-        $accountant_id = 0;
+        $accountant_id = 0,
+        $invoice_counter_range_id = Organization::INVOICE_COUNTER_RANGE_ID_MONTH;
 
     const NEW_TITLE = 'Новая организация';
     const EDIT_TITLE = 'Обновление данных организации';
@@ -49,6 +51,7 @@ class OrganizationForm extends Form
                     'director_id',
                     'accountant_id',
                     'organization_id',
+                    'invoice_counter_range_id'
                 ],
                 'integer'
             ],
@@ -80,14 +83,14 @@ class OrganizationForm extends Form
         return [
             'actual_from' => 'Дата активации',
             'firma' => 'Код организации',
+            'invoice_counter_range_id' => 'Период счетчика с/ф',
         ];
     }
 
     /**
-     * @param Organization|false $organization
+     * @param bool|Organization $organization
      * @return bool
      * @throws \Exception
-     * @throws \yii\db\Exception
      */
     public function save($organization = false)
     {

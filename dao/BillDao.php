@@ -1114,58 +1114,63 @@ SQL;
                     ->orderBy(['id' => SORT_DESC])
                     ->one();
 
-                // Если последний документ сторнирован - то так надо
-                if ($invoice && $invoice->is_reversal) {
+                // Если последний документ - зарегистрирован, то ничего делать не надо
+                if ($invoice && $invoice->number) {
                     continue;
-//                    $invoice = null;
                 }
 
                 $lines = $invoice && $invoice->lines ? $invoice->lines : $bill->getLinesByTypeId($typeId);
+
+                if (!$lines) {
+                    $invoice && $invoice->delete();
+                    continue;
+                }
 
                 if ($typeId == Invoice::TYPE_PREPAID) {
                     $lines = BillLine::refactLinesWithFourOrderFacture($bill, $lines);
                 }
 
-                if ($lines) {
-                    $sumData = BillLine::getSumsLines($lines);
+                $sumData = BillLine::getSumsLines($lines);
 
-                    $sum = $sumData['sum'];
+                $sum = $sumData['sum'];
 
-                    // не вносим отрицательные суммы, нулевые можно вносить
-                    if ($sum < 0) {
-                        $invoice && $invoice->delete();
-                        continue;
-                    }
+                // не вносим отрицательные суммы, нулевые можно вносить
+                if ($sum < 0) {
+                    $invoice && $invoice->delete();
+                    continue;
+                }
 
-                    if (!$invoice) {
-                        $invoice = new Invoice();
-                        $invoice->bill_no = $bill->bill_no;
-                        $invoice->type_id = $typeId;
-                        $invoice->sum = $invoice->sum_tax = $invoice->sum_without_tax = 0;
-                    }
-
-                    if ($invoice && !$invoice->number) {
-                        $invoice->isSetDraft = false; // to apply draft
-                    }
-
+                if (!$invoice) {
+                    $invoice = new Invoice();
+                    $invoice->bill_no = $bill->bill_no;
+                    $invoice->type_id = $typeId;
+                    $invoice->sum = $invoice->sum_tax = $invoice->sum_without_tax = 0;
                     $invoice->date = $invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT);
                     $invoice->is_reversal = 0;
-
-                    $isAsInsert && $invoice->isAsInsert = true;
-
-                    if (abs((float)$invoice->sum - $sum) > 0.001 || $invoice->isAsInsert) {
-                        $invoice->sum = $sum;
-                        $invoice->sum_tax = $sumData['sum_tax'];
-                        $invoice->sum_without_tax = $sumData['sum_without_tax'];
-                    }
-
-                    if (!$invoice->save()) {
-                        throw new ModelValidationException($invoice);
-                    }
-
-                } elseif ($invoice) {
-                    $invoice->delete();
                 }
+
+                // если номера нет - его надо установить
+                if (!$invoice->number) {
+                    $invoice->isSetDraft = false;
+                }
+
+                $isAsInsert && $invoice->isAsInsert = true;
+
+                // сумму меняем только для новых, или принудительно
+                if (
+                    abs((float)$invoice->sum - $sum) > 0.001
+                    || $invoice->isAsInsert
+                ) {
+                    $invoice->sum = $sum;
+                    $invoice->sum_tax = $sumData['sum_tax'];
+                    $invoice->sum_without_tax = $sumData['sum_without_tax'];
+                }
+
+
+                if (!$invoice->save()) {
+                    throw new ModelValidationException($invoice);
+                }
+
             }
         } catch (\Exception $e) {
             throw $e;

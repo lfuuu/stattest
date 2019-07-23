@@ -41,6 +41,7 @@ use yii\helpers\Url;
  * @property string $stamp_file_name             Название файла с печатью
  * @property int $director_id                    ID записи персон на должность директора
  * @property int $accountant_id                  ID записи персон на должность бухгалтера
+ * @property int $invoice_counter_range_id       Счетчик с/ф месячный / годовой и т.д.
  *
  * @property-read Person $director
  * @property-read Person $accountant
@@ -58,8 +59,17 @@ class Organization extends ActiveRecord
     const INTERNAL_OFFICE = 18; // Взаиморасчеты MCN - Внутренний офис
     const MCN_TELECOM_KFT_SK = 19; // MCNtelecom Kft. Словакия
     const TEL2TEL_GMBH = 20;
+    const WL_MCN_INNONET = 23;
     const AB_SERVICE_MARCOMNET = 14;
     const WELLSTART = 8;
+
+    const INVOICE_COUNTER_RANGE_ID_MONTH = 1;
+    const INVOICE_COUNTER_RANGE_ID_YEAR = 2;
+
+    public static $invoiceCounterRangeNames = [
+        self::INVOICE_COUNTER_RANGE_ID_MONTH => 'Месяц',
+        self::INVOICE_COUNTER_RANGE_ID_YEAR => 'Год',
+    ];
 
     public static $ourLegalEntities = [
         self::MCN_TELECOM => 'МСН Телеком',

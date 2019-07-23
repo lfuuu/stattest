@@ -213,6 +213,10 @@ if (!empty($title)) {
                                 'style' => 'display: inline-block; margin-top: 2px;'
                             ]),
                         ], true);
+
+                    echo $form->field($model, 'invoice_counter_range_id')
+                        ->dropDownList(\app\models\Organization::$invoiceCounterRangeNames)
+                    ;
                     ?>
                 </div>
             </div>
