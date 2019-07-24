@@ -6,6 +6,8 @@ use app\classes\model\ActiveRecord;
 use app\dao\TransactionDao;
 
 /**
+ * Транзакция (старые ЛС)
+ *
  * @property int $id
  * @property int $client_account_id
  * @property string $source

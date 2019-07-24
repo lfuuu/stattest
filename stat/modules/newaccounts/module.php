@@ -402,12 +402,17 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q = '
                 SELECT * FROM (
             SELECT
-                "bill" AS type, bill_no, "" AS bill_id, ext_bill_no AS bill_no_ext, bill_date, payment_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id IS NULL OR (state_id IS NOT NULL AND state_id !=21), 0,1) AS is_canceled,is_pay_overdue,
+                "bill" AS type, bill_no, "" AS bill_id, ext_bill_no AS bill_no_ext, 
+                bill_date, payment_date, client_id, currency, sum, is_payed,
+                P.comment, postreg, nal, 
+                IF(state_id IS NULL OR (state_id IS NOT NULL AND state_id !=21), 0,1) AS is_canceled,
+                is_pay_overdue,
                 ' . (
             $sum[$fixclient_data['currency']]['ts']
                 ? 'IF(bill_date >= "' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)'
                 : '1'
-            ) . ' AS in_sum, sum_correction
+            ) . ' AS in_sum, 
+                sum_correction
             FROM
                 newbills P
                 LEFT JOIN newbills_external USING (bill_no)
@@ -467,7 +472,6 @@ class m_newaccounts extends IModule
             $sum[$fixclient_data['currency']]['saldo'] = 0;
         }
 
-
         $R2 = $db->AllRecords('
 
             select
@@ -500,7 +504,7 @@ class m_newaccounts extends IModule
             limit 1000
                 ',
             '', MYSQL_ASSOC);
-        $R = [];
+        $result = [];
 
         $bill_total_add = ['p' => 0, 'n' => 0];
         foreach ($R1 as $k => $r) {
@@ -510,6 +514,7 @@ class m_newaccounts extends IModule
             if ($r['sum'] < 0) {
                 $bill_total_add['n'] += $r['sum'];
             }
+
             $v = [
                 'bill' => $r,
                 'date' => $r['bill_date'],
@@ -560,7 +565,7 @@ class m_newaccounts extends IModule
                 $sum[$r['currency']]['bill'] += $r['sum'];
                 $sum[$r['currency']]['delta'] -= $v['delta'];
             }
-            $R[$r['bill_no'] . '-' . $r['bill_date']] = $v;
+            $result[$r['bill_no'] . '-' . $r['bill_date']] = $v;
         }
         foreach ($R2 as $r2) {
             if ($r2['sum_pay'] == '' || $r2['sum_pay'] == 0) {
@@ -575,14 +580,14 @@ class m_newaccounts extends IModule
             if ($r2['in_sum']) {
                 $sum[$fixclient_data['currency']]['delta'] -= $v['delta2'];
             }
-            $R[] = $v;
+            $result[] = $v;
         }
         if ($get_sum) {
             return $sum;
         }
         ## sorting
         $sk = [];
-        foreach ($R as $bn => $b) {
+        foreach ($result as $bn => $b) {
             if (!isset($sk[$b['date']])) {
                 $sk[$b['date']] = [];
             }
@@ -596,16 +601,16 @@ class m_newaccounts extends IModule
         foreach ($sk as $bn) {
             krsort($bn);
             foreach ($bn as $billno => $v) {
-                $buf[$billno] = $R[$billno];
+                $buf[$billno] = $result[$billno];
 
-                $bDate = isset($R[$billno]) && isset($R[$billno]["bill"]) ? $R[$billno]["bill"]["bill_date"] : false;
+                $bDate = isset($result[$billno]) && isset($result[$billno]["bill"]) ? $result[$billno]["bill"]["bill_date"] : false;
 
                 if ($bDate) {
                     $sw[$bDate] = $billno;
                 }
             }
         }
-        $R = $buf;
+        $result = $buf;
 
         ksort($buf);
         ksort($sw);
@@ -622,9 +627,9 @@ class m_newaccounts extends IModule
                     }
                 }
 
-                if ($ks && isset($R[$ks])) {
+                if ($ks && isset($result[$ks])) {
                     $organization = Organization::find()->byId($organizationId)->actual($date)->one();
-                    $R[$ks]['organization_switched'] = $organization;
+                    $result[$ks]['organization_switched'] = $organization;
                 }
             }
         }
@@ -640,8 +645,8 @@ class m_newaccounts extends IModule
         $design->assign("qrs_date", $qrsDate);
         $bill_total_add['t'] = $bill_total_add['n'] + $bill_total_add['p'];
         $design->assign('bill_total_add', $bill_total_add);
-        #krsort($R);
-        $design->assign('billops', $R);
+        #krsort($result);
+        $design->assign('billops', $result);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
         $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());

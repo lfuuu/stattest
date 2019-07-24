@@ -20,17 +20,19 @@ use yii\db\ActiveQuery;
 trait AccountTariffBillerResourceTrait
 {
     /** @var AccountLogFromToTariff[] */
-    private $_accountLogFromToTariffsOption = null;
+    protected $accountLogFromToTariffsOption = null;
 
     /**
-     * Вернуть периоды, по которым не произведен расчет по ресурсам-трафику
+     * Вернуть периоды, по которым не произведен расчёт по ресурсам-трафику
      *
-     * Здесь все просто: посуточно. Данные берутся из внешних источников (звонки - из низкоуровневого биллера, дисковое пространство - с платформы)
+     * Здесь все просто: посуточно.
+     * Данные берутся из внешних источников
+     * (звонки - из низкоуровневого биллера, дисковое пространство - с платформы)
      *
      * @return AccountLogFromToTariff[][]
-     * @throws \Exception
-     * @throws \LogicException
      * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function getUntarificatedResourceTrafficPeriods()
     {
@@ -39,7 +41,7 @@ trait AccountTariffBillerResourceTrait
             ->joinWith('tariffResource')
             ->where([
                 AccountLogResource::tableName() . '.account_tariff_id' => $this->id,
-                TariffResource::tableName() . '.resource_id' => array_keys(Resource::getReaderNames()), // только трафик
+                TariffResource::tableName() . '.resource_id' => Resource::getReaderIds(), // только трафик
             ]);
 
         /** @var AccountLogResource $accountLog */
@@ -49,23 +51,23 @@ trait AccountTariffBillerResourceTrait
             $accountLogss[$accountLog->date_from][$accountLog->tariffResource->resource_id] = $accountLog;
         }
 
-
         // по которым должен быть произведен расчет
         /** @var AccountLogFromToTariff[] $accountLogFromToTariffs */
         $chargePeriod = Period::findOne(['id' => Period::ID_DAY]); // трафик - посуточно
-        $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriod, $isWithCurrent = ($this->service_type_id == ServiceType::ID_ONE_TIME));
-
+        $accountLogFromToTariffs =
+            $this->getAccountLogFromToTariffs(
+                $chargePeriod,
+                $isWithCurrent = ($this->service_type_id == ServiceType::ID_ONE_TIME)
+            );
 
         // по которым не произведен расчет, хотя был должен
-        $untarificatedPeriodss = [];
+        $unTarificatedPeriodsByDate = [];
         $readerNames = Resource::getReaderNames();
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
 
             $dateYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
-            $tariffResources = $accountLogFromToTariff->tariffPeriod->tariff->tariffResources;
-
             // по всем ресурсам тарифа
-            foreach ($tariffResources as $tariffResource) {
+            foreach ($accountLogFromToTariff->tariffPeriod->tariff->tariffResources as $tariffResource) {
 
                 $resourceId = $tariffResource->resource_id;
                 if (!array_key_exists($resourceId, $readerNames)) {
@@ -74,16 +76,15 @@ trait AccountTariffBillerResourceTrait
                 }
 
                 if (array_key_exists($dateYmd, $accountLogss) && array_key_exists($resourceId, $accountLogss[$dateYmd])) {
-
-                    // такой ресурс-период рассчитан. unset нельзя, иначе потом ресурс добавится заново от другого пересекающегося периода
+                    // такой ресурс-период рассчитан.
+                    // unset нельзя, иначе потом ресурс добавится заново от другого пересекающегося периода
                     $accountLogss[$dateYmd][$resourceId] = null;
-
                 } else {
-
                     // этот ресурс-период не рассчитан
-                    // если в середине месяца сменили тариф, то за этот день будет две абонентки, но ресурс надо рассчитать только один раз (по последнему тарифу), поэтому используем хэш $dateYmd
-                    $untarificatedPeriodss[$dateYmd][$resourceId] = $accountLogFromToTariff;
-
+                    // если в середине месяца сменили тариф, то за этот день будет две абонентки,
+                    // но ресурс надо рассчитать только один раз (по последнему тарифу),
+                    // поэтому используем хэш $dateYmd
+                    $unTarificatedPeriodsByDate[$dateYmd][$resourceId] = $accountLogFromToTariff;
                 }
             }
         }
@@ -97,7 +98,9 @@ trait AccountTariffBillerResourceTrait
 
                     // остался неизвестный период, который уже рассчитан
                     // Такое бывает, когда после подключение тарифа меняют таймзону
-                    // throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
+                    // throw new \LogicException(sprintf(PHP_EOL .
+                    // 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL,
+                    // $this->id, $dateYmd, $resourceId));
                     if (!$accountLog->delete()) {
                         throw new ModelValidationException($accountLog);
                     }
@@ -105,17 +108,16 @@ trait AccountTariffBillerResourceTrait
             }
         }
 
-        return $untarificatedPeriodss;
+        return $unTarificatedPeriodsByDate;
     }
 
     /**
-     * Вернуть периоды, по которым не произведен расчет по ресурсам-опциям
+     * Вернуть периоды, по которым не произведен расчёт по ресурсам-опциям
      *
      * @return AccountLogFromToResource[][]
-     * @throws \app\exceptions\ModelValidationException
+     * @throws ModelValidationException
+     * @throws \Throwable
      * @throws \yii\db\StaleObjectException
-     * @throws \Exception
-     * @throws \LogicException
      */
     public function getUntarificatedResourceOptionPeriods()
     {
@@ -134,7 +136,6 @@ trait AccountTariffBillerResourceTrait
         foreach ($accountLogsQuery->each() as $accountLog) {
             $accountLogss[$accountLog->tariffResource->resource_id][$accountLog->getUniqueId()] = $accountLog;
         }
-
 
         // по всем ресурсам
         $resources = Resource::findAll(['service_type_id' => $this->service_type_id]);
@@ -185,8 +186,8 @@ trait AccountTariffBillerResourceTrait
      * Вернуть периоды не более месяца, по которым надо расчитывать списания за смену ресурсов
      *
      * @param int $resourceId
-     * @return AccountLogFromToResource[]
-     * @throws \LogicException
+     * @return array
+     * @throws \Exception
      */
     public function getAccountLogFromToResources($resourceId)
     {
@@ -201,7 +202,6 @@ trait AccountTariffBillerResourceTrait
             $dateTo = $hugeAccountLogFromToResource->dateFrom;
 
             do {
-
                 // сделать дату "до" в том же месяце, но не больше конца периода
                 $dateTo = $dateTo->modify('last day of this month');
                 if (
@@ -242,8 +242,8 @@ trait AccountTariffBillerResourceTrait
      * Если ресурс уменьшается - то до конца периода ничего не меняется, а списание уменьшается только со следующего периода.
      *
      * @param int $resourceId
-     * @return AccountLogFromToResource[]
-     * @throws \LogicException
+     * @return array
+     * @throws \Exception
      */
     public function getHugeAccountLogFromToResources($resourceId)
     {
@@ -265,14 +265,13 @@ trait AccountTariffBillerResourceTrait
         $dateCurrentYmd = $clientAccount->getDatetimeWithTimezone()->format(DateTimeZoneHelper::DATE_FORMAT); // по таймзоне клиента
 
         // смена тарифов по периодам оплаты (не всегда по месяцам!)
-        if (is_null($this->_accountLogFromToTariffsOption)) {
+        if (is_null($this->accountLogFromToTariffsOption)) {
             // если ресурсов несколько, то выгоднее закэшировать, чем по каждому спрашивать одно и то же
-            $this->_accountLogFromToTariffsOption = $this->getAccountLogFromToTariffs($chargePeriodMain = null, $isWithCurrent = true, $isSplitByMonth = false);
+            $this->accountLogFromToTariffsOption = $this->getAccountLogFromToTariffs($chargePeriodMain = null, $isWithCurrent = true, $isSplitByMonth = false);
         }
 
-
         // берем все периоды оплаты. Внутри них находим смены ресурсов и считаем по наибольшему
-        foreach ($this->_accountLogFromToTariffsOption as $accountLogFromToTariff) {
+        foreach ($this->accountLogFromToTariffsOption as $accountLogFromToTariff) {
 
             // нужно знать, сколько ресурса включено в тариф. И билинговать только превышение
             $tariffResources = $accountLogFromToTariff->tariffPeriod->tariff->tariffResourcesIndexedByResourceId;
@@ -333,14 +332,12 @@ trait AccountTariffBillerResourceTrait
                 }
 
                 // внутри периода
-                //
                 if ($accountTariffResourceLog->amount <= $prevAmount) {
                     // уменьшили ресурс - в этом периоде не учитываем
                     continue;
                 }
 
                 // значение ресурса увеличили
-                //
                 if (null === $prevAmount) {
                     throw new \LogicException('Начальное значение ресурса ' . $resourceId . ' не инициализировано. AccountTariffId = ' . $this->id);
                 }

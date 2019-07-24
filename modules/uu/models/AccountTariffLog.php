@@ -26,7 +26,7 @@ use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
- * Лог тарифов универсальной услуги
+ * Лог изменений тарифов универсальной услуги
  *
  * @property int $id
  * @property int $account_tariff_id
@@ -462,11 +462,10 @@ class AccountTariffLog extends ActiveRecord
 
         // ресурсы
         $priceResources = 0;
-        $readerNames = Resource::getReaderNames();
         $tariffResources = $tariffPeriod->tariff->tariffResources;
         foreach ($tariffResources as $tariffResource) {
 
-            if (array_key_exists($tariffResource->resource_id, $readerNames)) {
+            if (!Resource::isOptionId($tariffResource->resource_id)) {
                 // этот ресурс - не опция. Он считается по факту, а не заранее
                 continue;
             }

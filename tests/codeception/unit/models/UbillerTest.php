@@ -519,7 +519,10 @@ class UbillerTest extends _TestCase
     /**
      * Проверить, что при пересечении диапазонов ресурсы-трафик не дублируются
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
-     * @throws \Exception
+     *
+     * @throws \Throwable
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\StaleObjectException
      */
     public function testAccountLogTrafficResource()
     {

@@ -6,7 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 
 /**
- * Class BillExternal
+ * Внешний расчётный документ
  *
  * @property string $bill_no
  * @property string $ext_bill_no

@@ -3,13 +3,11 @@
 use app\dao\BillDao;
 use app\exceptions\ModelValidationException;
 use app\models\BillExternal;
-use app\models\TaxType;
 use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Courier;
 use app\models\Country;
 use app\models\BillDocument;
-use app\classes\BillContract;
 
 class Bill {
     public $client_id;

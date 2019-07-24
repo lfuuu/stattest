@@ -2,10 +2,22 @@
 
 namespace app\commands;
 
-use app\models\billing\CallsRaw;
-use app\models\billing\Locks;
+use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\tarificator\AccountEntryTarificator;
+use app\modules\uu\tarificator\AccountLogMinTarificator;
+use app\modules\uu\tarificator\AccountLogPeriodTarificator;
+use app\modules\uu\tarificator\AccountLogResourceTarificator;
+use app\modules\uu\tarificator\AccountLogSetupTarificator;
+use app\modules\uu\tarificator\AutoCloseAccountTariffTarificator;
+use app\modules\uu\tarificator\BillConverterTarificator;
+use app\modules\uu\tarificator\BillTarificator;
+use app\modules\uu\tarificator\FinanceBlockTarificator;
+use app\modules\uu\tarificator\FreePeriodInFinanceBlockTarificator;
+use app\modules\uu\tarificator\RealtimeBalanceTarificator;
+use app\modules\uu\tarificator\SetCurrentTariffTarificator;
+use app\modules\uu\tarificator\SyncResourceTarificator;
 use app\modules\uu\tarificator\Tarificator;
 use Yii;
 use yii\console\Controller;
@@ -84,22 +96,21 @@ class UbillerController extends Controller
      * Тарифицировать, вызвав нужный класс
      *
      * @param string $className
-     * @param string $name
      * @return int
      */
-    private function _tarificate($className, $name)
+    protected function executeRater($className)
     {
         try {
-            echo PHP_EOL . $name . '. ' . date(DATE_ATOM) . PHP_EOL;
-            $className = '\\app\\modules\\uu\\tarificator\\' . $className;
-            /** @var Tarificator $tarificator */
-            $tarificator = (new $className($isEcho = true));
-            $tarificator->tarificate();
+            /** @var Tarificator $rater */
+            $rater = (new $className($isEcho = true));
+            echo PHP_EOL . $rater->getDescription() . '. ' . date(DATE_ATOM) . PHP_EOL;
+
+            $rater->tarificate();
             echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
             return ExitCode::OK;
 
         } catch (\Exception $e) {
-            Yii::error('Ошибка универсального тарификатора');
+            Yii::error('Ошибка универсального тарификатора. Класс ' . substr(strrchr($className, "\\"), 1));
             Yii::error($e);
             printf('Error. %s %s', $e->getMessage(), $e->getTraceAsString());
             return ExitCode::UNSPECIFIED_ERROR;
@@ -114,7 +125,7 @@ class UbillerController extends Controller
      */
     public function actionSetup()
     {
-        $this->_tarificate('AccountLogSetupTarificator', 'Плата за подключение');
+        $this->executeRater(AccountLogSetupTarificator::class);
     }
 
     /**
@@ -126,7 +137,7 @@ class UbillerController extends Controller
      */
     public function actionPeriod()
     {
-        $this->_tarificate('AccountLogPeriodTarificator', 'Абонентская плата');
+        $this->executeRater(AccountLogPeriodTarificator::class);
     }
 
     /**
@@ -136,7 +147,7 @@ class UbillerController extends Controller
      */
     public function actionResource()
     {
-        $this->_tarificate('AccountLogResourceTarificator', 'Плата за ресурсы');
+        $this->executeRater(AccountLogResourceTarificator::class);
     }
 
     /**
@@ -145,7 +156,7 @@ class UbillerController extends Controller
      */
     public function actionMin()
     {
-        $this->_tarificate('AccountLogMinTarificator', 'Минималка за ресурсы');
+        $this->executeRater(AccountLogMinTarificator::class);
     }
 
     /**
@@ -154,7 +165,7 @@ class UbillerController extends Controller
      */
     public function actionEntry()
     {
-        $this->_tarificate('AccountEntryTarificator', 'Проводки');
+        $this->executeRater(AccountEntryTarificator::class);
     }
 
     /**
@@ -163,7 +174,7 @@ class UbillerController extends Controller
      */
     public function actionBill()
     {
-        $this->_tarificate('BillTarificator', 'Счета');
+        $this->executeRater(BillTarificator::class);
     }
 
     /**
@@ -172,7 +183,7 @@ class UbillerController extends Controller
      */
     public function actionFreePeriodInFinanceBlock()
     {
-        $this->_tarificate('FreePeriodInFinanceBlockTarificator', 'Не списывать абонентку и минималку при финансовой блокировке');
+        $this->executeRater(FreePeriodInFinanceBlockTarificator::class);
     }
 
     /**
@@ -180,7 +191,7 @@ class UbillerController extends Controller
      */
     public function actionBillConverter()
     {
-        $this->_tarificate('BillConverterTarificator', 'Конвертировать счета в старую бухгалтерию');
+        $this->executeRater(BillConverterTarificator::class);
     }
 
     /**
@@ -190,7 +201,7 @@ class UbillerController extends Controller
      */
     public function actionSetCurrentTariff()
     {
-        $this->_tarificate('SetCurrentTariffTarificator', 'Обновить AccountTariff.TariffPeriod');
+        $this->executeRater(SetCurrentTariffTarificator::class);
     }
 
     /**
@@ -198,7 +209,7 @@ class UbillerController extends Controller
      */
     public function actionSyncResource()
     {
-        $this->_tarificate('SyncResourceTarificator', 'Отправить измененные ресурсы на платформу');
+        $this->executeRater(SyncResourceTarificator::class);
     }
 
     /**
@@ -206,7 +217,7 @@ class UbillerController extends Controller
      */
     public function actionRealtimeBalance()
     {
-        $this->_tarificate('RealtimeBalanceTarificator', 'RealtimeBalance');
+        $this->executeRater(RealtimeBalanceTarificator::class);
     }
 
     /**
@@ -214,7 +225,7 @@ class UbillerController extends Controller
      */
     public function actionFinanceBlock()
     {
-        $this->_tarificate('FinanceBlockTarificator', 'Месячную финансовую блокировку заменить на постоянную');
+        $this->executeRater(FinanceBlockTarificator::class);
     }
 
     /**
@@ -222,7 +233,7 @@ class UbillerController extends Controller
      */
     public function actionAutoCloseAccountTariff()
     {
-        $this->_tarificate('AutoCloseAccountTariffTarificator', 'Автоматически закрыть услугу по истечению тестового периода');
+        $this->executeRater(AutoCloseAccountTariffTarificator::class);
     }
 
     /**
@@ -265,6 +276,31 @@ class UbillerController extends Controller
 
         // пересчитать realtimeBalance
         $this->actionRealtimeBalance();
+    }
+
+    /**
+     * Пересчёт конкретной услуги конкретного клиента
+     *
+     * @param int|null $clientId
+     * @param int|null $accountTariffId
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
+    public function actionCalcAccountTariff($clientId = null, $accountTariffId = null)
+    {
+        if (is_null($clientId) || is_null($accountTariffId)) {
+            echo 'Please provide data with client_account_id and account_tariff_id.' . PHP_EOL;
+        } else {
+            $params = [
+                'client_account_id' => $clientId,
+                'account_tariff_id' => $accountTariffId,
+            ];
+
+            echo sprintf('Билинговать услугу #%s у клиента #%s', $accountTariffId, $clientId) . PHP_EOL;
+            AccountTariffBiller::recalc($params);
+            echo PHP_EOL . 'Done!' . PHP_EOL;
+        }
     }
 
     /**

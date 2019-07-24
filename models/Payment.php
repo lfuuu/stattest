@@ -12,7 +12,7 @@ use Yii;
 use yii\db\ActiveQuery;
 
 /**
- * Class Payment
+ * Платёж
  *
  * @property int $id             идентификатор платежа
  * @property int $client_id      идентификатор лицевого счета
@@ -195,6 +195,7 @@ class Payment extends ActiveRecord
     /**
      * @param bool $insert
      * @param array $changedAttributes
+     * @throws \yii\db\Exception
      */
     public function afterSave($insert, $changedAttributes)
     {
@@ -218,6 +219,7 @@ class Payment extends ActiveRecord
 
     /**
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function beforeDelete()
     {

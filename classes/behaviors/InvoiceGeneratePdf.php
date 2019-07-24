@@ -6,7 +6,6 @@ use app\classes\Assert;
 use app\models\EventQueue;
 use app\models\Invoice;
 use yii\base\Behavior;
-use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use yii\db\AfterSaveEvent;
 
@@ -24,6 +23,11 @@ class InvoiceGeneratePdf extends Behavior
         ];
     }
 
+    /**
+     * @param $event
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\Exception
+     */
     public function doCheck($event)
     {
         /** @var Invoice $invoice */
@@ -41,6 +45,11 @@ class InvoiceGeneratePdf extends Behavior
         }
     }
 
+    /**
+     * @param int $invoiceId
+     * @throws \HttpResponseException
+     * @throws \yii\base\Exception
+     */
     public static function generate($invoiceId)
     {
         $invoice = Invoice::findOne(['id' => $invoiceId]);

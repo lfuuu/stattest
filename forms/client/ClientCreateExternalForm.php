@@ -15,7 +15,6 @@ use app\models\BusinessProcessStatus;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\ClientContact;
-use app\models\ClientContract;
 use app\models\ClientSuper;
 use app\models\Country;
 use app\models\DidGroup;
@@ -28,7 +27,6 @@ use app\models\Organization;
 use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\Trouble;
-use app\models\TroubleRoistat;
 use app\models\TroubleRoistatStore;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
@@ -230,6 +228,7 @@ class ClientCreateExternalForm extends Form
      * Создание клиента
      *
      * @return bool|null
+     * @throws \yii\db\Exception
      */
     public function create()
     {

@@ -429,7 +429,7 @@ class Bill extends ActiveRecord
      */
     public function beforeDelete()
     {
-        if (!$this->isSkipCheckCorrection && $this->operation_type_id == OperationType::ID_CORRECTION) {
+        if (!$this->isSkipCheckCorrection && $this->isCorrectionType()) {
             throw new \LogicException('Нельзя удалить корректировку');
         }
 
@@ -543,11 +543,12 @@ class Bill extends ActiveRecord
     /**
      * Сгенерировать с/ф
      *
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function generateInvoices()
     {
-        return self::dao()->generateInvoices($this);
+        self::dao()->generateInvoices($this);
     }
 
     /**
@@ -555,21 +556,24 @@ class Bill extends ActiveRecord
      *
      * проверяется сохранение строк с/ф
      *
-     * @throws \Exception
+     * @return void
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function checkInvoices()
     {
-        return self::dao()->generateInvoices($this, false, true);
+        self::dao()->generateInvoices($this, false, true);
     }
 
     /**
      * Сгенерировать авансовую с/ф
      *
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function generateAbInvoice()
     {
-        return self::dao()->generateInvoices($this, true);
+        self::dao()->generateInvoices($this, true);
     }
 
     /**

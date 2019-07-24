@@ -16,13 +16,13 @@ use yii\helpers\Url;
  * @property int $tariff_period_id  кэш accountTariff -> accountTariffLog -> tariff_period_id
  * @property int $tariff_resource_id
  * @property int $account_tariff_id
- * @property float $amount_use кэш из пребиллера (например, virtpbx_stat)
- * @property float $amount_free кэш tariffResource -> amount
- * @property float $amount_overhead кэш ceil(amount_use - amount_free)
- * @property float $price_per_unit кэш tariffResource -> price_per_unit
- * @property int $coefficient кэш (date_to - date_from)
- * @property float $price кэш amount_overhead * price_per_unit * $coefficient
- * @property float $cost_price
+ * @property float $amount_use кэш из пребиллера (например, virtpbx_stat)       // Используемое количество ресурса
+ * @property float $amount_free кэш tariffResource -> amount                    // Условно-бесплатное количество ресурса, включенное в тариф
+ * @property float $amount_overhead кэш ceil(amount_use - amount_free)          // Количество ресурса сверх бесплатного (amount_use - amount_free)
+ * @property float $price_per_unit кэш tariffResource -> price_per_unit         // Цена за единицу ресурса в день
+ * @property int $coefficient кэш (date_to - date_from)                         // Количество дней
+ * @property float $price кэш amount_overhead * price_per_unit * $coefficient   // Стоимость этого ресурса за период, указанный ниже. Если null - списание невозможно
+ * @property float $cost_price                                                  // себестоимость
  * @property string $insert_time
  * @property int $account_entry_id
  * @property int $account_tariff_resource_log_id
@@ -132,6 +132,7 @@ class AccountLogResource extends ActiveRecord
      * @param string $dateToModify
      * @return int
      * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public static function clearCalls($dateFromModify, $dateToModify)
     {

@@ -48,6 +48,7 @@ class BillDao extends Singleton
      * @param \DateTime|string $billDate
      * @param int $organizationId
      * @return string
+     * @throws \Exception
      */
     public function spawnBillNumber($billDate, $organizationId = Organization::MCN_TELECOM)
     {
@@ -88,6 +89,7 @@ class BillDao extends Singleton
      * Дата, после которой номер счета с организацией
      *
      * @return \DateTime
+     * @throws \Exception
      */
     public function getDateAfterBillNoWithOrganization()
     {
@@ -95,10 +97,11 @@ class BillDao extends Singleton
     }
 
     /**
-     * Пересчет счета
+     * Пересчёт счёта
      *
      * @param Bill $bill
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\Exception
      */
     public function recalcBill(Bill $bill)
     {
@@ -162,9 +165,12 @@ class BillDao extends Singleton
      *
      * @param Bill $bill
      * @param BillLine[] $lines
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     private function _updateTransactions(Bill $bill, array $lines)
     {
+        /** @var Transaction[] $transactions */
         $transactions = Transaction::find()
             ->andWhere([
                 'bill_id' => $bill->id
@@ -221,7 +227,7 @@ class BillDao extends Singleton
     }
 
     /**
-     * Закрыт ли счет
+     * Закрыт ли счёт
      *
      * @param Bill $bill
      * @return bool
@@ -240,7 +246,7 @@ class BillDao extends Singleton
     }
 
     /**
-     * Получить менеджера счета
+     * Получить менеджера счёта
      *
      * @param string $billNo
      * @return bool|string
@@ -254,7 +260,7 @@ class BillDao extends Singleton
     }
 
     /**
-     * Установить менеджер счета
+     * Установить менеджер счёта
      *
      * @param string $billNo
      * @param int $userId
@@ -276,7 +282,7 @@ class BillDao extends Singleton
     }
 
     /**
-     * Функция переноса проводок универсального биллера в "старые" счета
+     * Функция переноса универсального счёта в "старый"
      *
      * @param uuBill $uuBill
      * @return bool
@@ -290,8 +296,11 @@ class BillDao extends Singleton
             ->where(['uu_bill_id' => $uuBill->id])
             ->one();
 
-        if (!round($uuBill->price, 2)) {
-            // нулевые счета не нужны
+        $roundPrice = round($uuBill->price, 2);
+        // нулевые счета не нужны
+        $isSkip = !$roundPrice;
+
+        if ($isSkip) {
             if ($bill && !$bill->delete()) {
                 throw new ModelValidationException($bill);
             }
@@ -310,7 +319,6 @@ class BillDao extends Singleton
             }
         }
 
-
         if (!$bill) {
             $bill = new Bill();
             $bill->client_id = $clientAccount->id;
@@ -328,6 +336,34 @@ class BillDao extends Singleton
             $bill->uu_bill_id = $uuBill->id;
             if (!$bill->save()) {
                 throw new ModelValidationException($bill);
+            }
+        }
+
+        return $this->transferAccountEntries($uuBill, $bill);
+    }
+
+    /**
+     * Функция переноса проводок универсального биллера в записи "старых" счетов
+     *
+     * @param uuBill $uuBill
+     * @param Bill $bill
+     * @return bool
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     * @throws \yii\db\StaleObjectException
+     */
+    protected function transferAccountEntries(uuBill $uuBill, Bill $bill)
+    {
+        $clientAccount = $uuBill->clientAccount;
+        $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
+
+        $billRenameDate = false;
+        if ($clientAccount->isBillRename1()) {
+            $startBillRename1Start = new \DateTimeImmutable(ClientAccount::UNIVERSAL_BILL_RENAME1_DATE);
+            if ($uuBillDateTime >= $startBillRename1Start) {
+                $billRenameDate = $uuBillDateTime;
             }
         }
 
@@ -398,7 +434,7 @@ class BillDao extends Singleton
             $sum = round($accountEntry->price_with_vat, self::PRICE_PRECISION);
             $sumWithoutTax = round($accountEntry->price_without_vat, self::PRICE_PRECISION);
 
-            $accountEntryName = $this->_getAccountEntryName($clientAccount, $accountEntry, $billRenameDate);
+            $accountEntryName = $this->getAccountEntryName($clientAccount, $accountEntry, $billRenameDate);
 
             if (
                 abs((float)$line->sum_without_tax - (float)$accountEntry->price_without_vat) > self::ADMISSIBLE_COMPUTATION_ERROR_SUM
@@ -453,7 +489,7 @@ class BillDao extends Singleton
             $line->sort = $billLinePosition;
             $line->bill_no = $bill->bill_no;
 
-            $line->item = $this->_getAccountEntryName($clientAccount, $accountEntry, $billRenameDate);
+            $line->item = $this->getAccountEntryName($clientAccount, $accountEntry, $billRenameDate);
             $line->date_from = $accountEntry->date_from;
             $line->date_to = $accountEntry->date_to;
             $line->type = BillLine::LINE_TYPE_SERVICE;
@@ -490,6 +526,8 @@ class BillDao extends Singleton
         if ($toRecalculateBillSum) {
             Bill::dao()->recalcBill($bill);
         }
+
+        return true;
     }
 
     /**
@@ -497,10 +535,11 @@ class BillDao extends Singleton
      *
      * @param ClientAccount $clientAccount
      * @param AccountEntry $accountEntry
-     * @param \DateTimeImmutable $billRenameDate
+     * @param $billRenameDate
      * @return string
+     * @throws \Exception
      */
-    private function _getAccountEntryName(ClientAccount $clientAccount, AccountEntry $accountEntry, $billRenameDate)
+    protected function getAccountEntryName(ClientAccount $clientAccount, AccountEntry $accountEntry, $billRenameDate)
     {
         static $cacheDocument = [];
         static $cacheLang = [];
@@ -588,7 +627,8 @@ ESQL;
      * Дата перехода с МСН Телкома на МСН Телеком Ритейл
      *
      * @param integer $accountId
-     * @return false|null|string
+     * @return false|string|null
+     * @throws \yii\db\Exception
      */
     public function getNewCompanyDate($accountId)
     {
@@ -660,7 +700,8 @@ SQL;
      * @param float $sum
      * @param string $currency
      * @param bool $isForceCreate
-     * @return Bill
+     * @return Bill|null
+     * @throws \Exception
      */
     public function getPrepayedBillOnSum($accountId, $sum, $currency = Currency::RUB, $isForceCreate = false)
     {
@@ -682,6 +723,7 @@ SQL;
      * @param float $sum
      * @param string $currency
      * @return Bill|null
+     * @throws \yii\db\Exception
      */
     public function getPrepayedBillNoOnSumFromDB($accountId, $sum, $currency = Currency::RUB)
     {
@@ -849,6 +891,7 @@ SQL;
      * @param Query $query
      * @param \DateTimeImmutable $periodStart
      * @param \DateTimeImmutable $periodEnd
+     * @throws \Exception
      */
     public function advanceAccounts(Query $query, \DateTimeImmutable $periodStart, \DateTimeImmutable $periodEnd)
     {
@@ -980,6 +1023,14 @@ SQL;
         }
     }
 
+    /**
+     * @param Bill $bill
+     * @param int $typeId
+     * @param bool $isInsert
+     * @return array|bool|\yii\db\ActiveRecord[]
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
+     */
     public static function getLinesByTypeId($bill, $typeId, $isInsert = false)
     {
         $lines = [];
@@ -1033,7 +1084,9 @@ SQL;
             }
 
             $isAllow = false;
-            // в первой с/ф только проводки с датой по умолчанию - они заведены в ручную, и абонентка за текущий месяц. Всё отсальное - с/ф 2
+            // в первой с/ф только проводки с датой по умолчанию - они заведены в ручную,
+            // и абонентка за текущий месяц.
+            // Всё остальное - с/ф 2
             if ($typeId == Invoice::TYPE_1) {
                 if (
                     $dateFrom == BillLine::DATE_DEFAULT
@@ -1068,11 +1121,16 @@ SQL;
      * @param Bill $bill
      * @param bool $is4Invoice
      * @param bool $isAsInsert
-     * @throws \Exception
+     * @throws \Throwable
      */
     public static function generateInvoices(Bill $bill, $is4Invoice = false, $isAsInsert = false)
     {
-        if ($bill->bill_date < Invoice::DATE_ACCOUNTING || $bill->isCorrectionType()) { // 1 авг 2018 новый формат с/ф
+        if (
+            $bill->bill_date < Invoice::DATE_ACCOUNTING
+            || !$bill->operationType->is_convertible
+        ) {
+            // 1 авг 2018 новый формат с/ф
+            // или не конвертируемый
             return;
         }
 
@@ -1119,7 +1177,9 @@ SQL;
                     continue;
                 }
 
-                $lines = $invoice && $invoice->lines ? $invoice->lines : $bill->getLinesByTypeId($typeId);
+                $lines = $invoice && $invoice->lines ?
+                    $invoice->lines :
+                    $bill->getLinesByTypeId($typeId);
 
                 if (!$lines) {
                     $invoice && $invoice->delete();
@@ -1182,6 +1242,7 @@ SQL;
      *
      * @param Bill $bill
      * @param bool $is4Invoice
+     * @throws ModelValidationException
      */
     public function invoiceReversal(Bill $bill, $is4Invoice = false)
     {
@@ -1235,6 +1296,5 @@ SQL;
         return $count;
 
     }
-
 
 }

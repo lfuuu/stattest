@@ -105,8 +105,8 @@ trait AccountTariffBillerTrait
      *
      * @param bool $isWithFuture
      * @param Period $chargePeriodMain если указано, то использовать указанное, а не из tariffPeriod
-     * @return AccountLogFromToTariff[]
-     * @throws \LogicException
+     * @return AccountLogFromToTariff[]|array
+     * @throws Exception
      */
     public function getAccountLogHugeFromToTariffs($isWithFuture = false, $chargePeriodMain = null)
     {

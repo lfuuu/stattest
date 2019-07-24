@@ -32,31 +32,31 @@ class BillTarificator extends Tarificator
         // Создать пустые счета, если их еще нет
         // --------------------------------------------
         $this->out('. ');
-        $this->_createEmptyBills($accountTariffId);
+        $this->createEmptyBills($accountTariffId);
 
         // --------------------------------------------
         // Привязать проводки к счетам
         // --------------------------------------------
         $this->out('. ');
-        $this->_linkEntryToBill($accountTariffId);
+        $this->linkEntryToBill($accountTariffId);
 
         // --------------------------------------------
         // Подготовить данные для обновления счетов
         // --------------------------------------------
         $this->out('. ');
-        $this->_createTmpTable($clientAccountId, $tmpTableName = 'uu_entry_tmp');
+        $this->createTmpTable($clientAccountId, $tmpTableName = 'uu_entry_tmp');
 
         // --------------------------------------------
         // Обновить стоимость счетов
         // --------------------------------------------
         $this->out('. ');
-        $this->_updateBill($clientAccountId, $tmpTableName);
+        $this->updateBill($clientAccountId, $tmpTableName);
 
         // --------------------------------------------
         // Удалить временную таблицу
         // --------------------------------------------
         $this->out('. ');
-        $this->_dropTmpTable($tmpTableName);
+        $this->dropTmpTable($tmpTableName);
     }
 
     /**
@@ -65,7 +65,7 @@ class BillTarificator extends Tarificator
      * @param int $accountTariffId
      * @throws \yii\db\Exception
      */
-    private function _createEmptyBills($accountTariffId)
+    protected function createEmptyBills($accountTariffId)
     {
         $billTableName = Bill::tableName();
         $accountEntryTableName = AccountEntry::tableName();
@@ -110,7 +110,7 @@ SQL;
      * @param int $accountTariffId
      * @throws \yii\db\Exception
      */
-    private function _linkEntryToBill($accountTariffId)
+    protected function linkEntryToBill($accountTariffId)
     {
         $billTableName = Bill::tableName();
         $accountEntryTableName = AccountEntry::tableName();
@@ -152,7 +152,7 @@ SQL;
      * @param string $tmpTableName
      * @throws \yii\db\Exception
      */
-    private function _createTmpTable($clientAccountId, $tmpTableName)
+    protected function createTmpTable($clientAccountId, $tmpTableName)
     {
         $accountEntryTableName = AccountEntry::tableName();
 
@@ -186,7 +186,7 @@ SQL;
      * @param string $tmpTableName
      * @throws \yii\db\Exception
      */
-    private function _updateBill($clientAccountId, $tmpTableName)
+    protected function updateBill($clientAccountId, $tmpTableName)
     {
         $billTableName = Bill::tableName();
 
@@ -215,7 +215,7 @@ SQL;
      * @param string $tmpTableName
      * @throws \yii\db\Exception
      */
-    private function _dropTmpTable($tmpTableName)
+    protected function dropTmpTable($tmpTableName)
     {
         Yii::$app->db
             ->createCommand("DROP TEMPORARY TABLE IF EXISTS {$tmpTableName}")

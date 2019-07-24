@@ -43,6 +43,10 @@ class BillController extends BaseController
      * @param integer $type_id
      * @return string
      * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     * @throws \yii\db\StaleObjectException
      */
     public function actionCorrectionInvoice($bill_no, $type_id)
     {

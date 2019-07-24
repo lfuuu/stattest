@@ -76,10 +76,10 @@ SQL;
         foreach ($query as $row) {
 
             $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
+            $newTariffId = $row['new_tariff_period_id'];
 
             if (
                 $accountTariff->prev_account_tariff_id
-//                && !$accountTariff->tariff_period_id
                 && ($mainAccountTariff = AccountTariff::findOne(['id' => $accountTariff->prev_account_tariff_id]))
                 && !$mainAccountTariff->tariff_period_id
             ) {
@@ -89,238 +89,30 @@ SQL;
 
             $isWithTransaction && $transaction = $db->beginTransaction();
             try {
+                // тип события
+                $eventType = $this->getEventType($accountTariff, $newTariffId);
 
-                if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
+                // сменить тариф
+                $this->changeAccountTariff($accountTariff, $newTariffId, $eventType);
 
-                    if (!$accountTariff->tariff_period_id) {
-                        // не было тарифа - включение услуги
-                        $eventType = ImportantEventsNames::UU_SWITCHED_ON;
-                    } elseif (!$row['new_tariff_period_id']) {
-                        // не будет тарифа - закрытие услуги
-                        $eventType = ImportantEventsNames::UU_SWITCHED_OFF;
-                    } else {
-                        // "Ленин - жил, Ленин - жив, Ленин - будет жить" - смена тарифа
-                        $eventType = ImportantEventsNames::UU_UPDATED;
-                    }
-
-                    // создать важное событие
-                    ImportantEvents::create($eventType,
-                        ImportantEventsSources::SOURCE_STAT, [
-                            'account_tariff_id' => $accountTariff->id,
-                            'service_type_id' => $accountTariff->service_type_id,
-                            'client_id' => $accountTariff->client_account_id,
-                        ]);
-
-                    // сменить тариф
-                    $accountTariff->tariff_period_id = $row['new_tariff_period_id'];
-                    $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
-                        ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-                    if (!$accountTariff->save()) {
-                        throw new ModelValidationException($accountTariff);
-                    }
-
-                    if ($accountTariff->tariff_period_id) {
-                        // Билинговать с новым тарифом при смене тарифа (но не при закрытии услуги)
-                        $this->checkBalance($accountTariff, $eventType == ImportantEventsNames::UU_UPDATED);
-                    }
-                } else {
-                    $eventType = null;
-                }
-
-                if ($eventType === ImportantEventsNames::UU_SWITCHED_ON) {
-                    EventQueue::go(\app\modules\uu\Module::EVENT_UU_SWITCHED_ON, [
-                        'client_account_id' => $accountTariff->client_account_id,
-                        'account_tariff_id' => $accountTariff->id,
-                    ]);
-                }
-
-                // доп. обработка в зависимости от типа услуги
-                switch ($accountTariff->service_type_id) {
-
-                    case ServiceType::ID_VOIP:
-                        // Телефония
-                        // \app\dao\ActualNumberDao::collectFromUsages ресурс "линии" всегда передает 1. Надо дополнительно отправить запрос про ресурсы
-                        EventQueue::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
-                            'client_account_id' => $accountTariff->client_account_id,
-                            'account_tariff_id' => $accountTariff->id,
-                            'number' => $accountTariff->voip_number,
-                        ]);
-
-                        $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
-                        if ($isCoreServer) {
-                            if (AccountTariff::hasTrunk($accountTariff->client_account_id)) {
-                                HandlerLogger::me()->add('Мегатранк');
-                            } else {
-                                ActaulizerVoipNumbers::me()->actualizeByNumber($accountTariff->voip_number, $accountTariff->id); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
-                            }
-                        }
-
-                        /** @var \app\modules\callTracking\Module $callTrackingModule */
-                        $callTrackingModule = Yii::$app->getModule('callTracking');
-                        $callTrackingParams = $callTrackingModule->params;
-                        if (isset($callTrackingParams['client_account_id']) && $callTrackingParams['client_account_id'] == $accountTariff->client_account_id) {
-                            // При выключении или выключении услуги добавить в очередь экспорт номера
-                            if (in_array($eventType, [ImportantEventsNames::UU_SWITCHED_ON, ImportantEventsNames::UU_SWITCHED_OFF], true)) {
-                                EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_VOIP_NUMBER, [
-                                    'account_tariff_id' => $accountTariff->id,
-                                    'voip_number' => $accountTariff->voip_number,
-                                    'is_active' => $eventType === ImportantEventsNames::UU_SWITCHED_ON,
-                                ]);
-                            }
-                        }
-                        break;
-
-                    case ServiceType::ID_VOIP_PACKAGE_CALLS:
-                        // Пакеты телефонии
-                        if ($eventType === ImportantEventsNames::UU_SWITCHED_OFF) {
-                            // только при закрытиии - закрыть в Light
-                            EventQueue::go(\app\modules\uu\Module::EVENT_CLOSE_LIGHT, [
-                                'client_account_id' => $accountTariff->client_account_id,
-                                'account_tariff_id' => $accountTariff->id,
-                            ]);
-                        }
-                        break;
-
-                    case ServiceType::ID_VPBX:
-                        // ВАТС
-                        EventQueue::go(\app\modules\uu\Module::EVENT_VPBX, [
-                            'client_account_id' => $accountTariff->client_account_id,
-                            'account_tariff_id' => $accountTariff->id,
-                        ]);
-                        // Из VirtPbx3Action::add/dataChanged передаются все текущие ресурсы. Больше ничего не надо
-                        break;
-
-                    case ServiceType::ID_VPS:
-                        EventQueue::go(\app\modules\uu\Module::EVENT_VPS_SYNC, [
-                            'client_account_id' => $accountTariff->client_account_id,
-                            'account_tariff_id' => $accountTariff->id,
-                        ]);
-                        break;
-
-                    case ServiceType::ID_VPS_LICENCE:
-                        EventQueue::go(\app\modules\uu\Module::EVENT_VPS_LICENSE, [
-                            'client_account_id' => $accountTariff->client_account_id,
-                            'account_tariff_id' => $accountTariff->id,
-                        ]);
-                        break;
-
-                    case ServiceType::ID_CALL_CHAT:
-                        // call chat
-                        switch ($eventType) {
-                            case ImportantEventsNames::UU_SWITCHED_ON:
-                                // создать
-                                EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT_CREATE, [
-                                    'client_account_id' => $accountTariff->client_account_id,
-                                    'account_tariff_id' => $accountTariff->id,
-                                ]);
-                                break;
-
-                            case ImportantEventsNames::UU_SWITCHED_OFF:
-                                // удалить
-                                EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT_REMOVE, [
-                                    'client_account_id' => $accountTariff->client_account_id,
-                                    'account_tariff_id' => $accountTariff->id,
-                                ]);
-                                break;
-
-                            default:
-                                // сменить тариф
-                                break;
-                        }
-                        break;
-
-                    case ServiceType::ID_CALLTRACKING:
-                        if ($eventType == ImportantEventsNames::UU_UPDATED) {
-                            break;
-                        }
-
-                        // При выключении или выключении услуги добавить в очередь экспорт номера
-                        EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
-                            'account_tariff_id' => $accountTariff->id,
-                            'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON),
-                            'calltracking_params' => $accountTariff->calltracking_params,
-                        ]);
-                        break;
-
-                    case ServiceType::ID_SIPTRUNK:
-                        $event = null;
-                        $isCreate = false;
-                        $isDelete = false;
-
-                        switch ($eventType) {
-                            case ImportantEventsNames::UU_SWITCHED_ON:
-                                $isCreate = true;
-                                break;
-                            case ImportantEventsNames::UU_SWITCHED_OFF:
-                                $isDelete = true;
-                                break;
-                            case ImportantEventsNames::UU_UPDATED:
-                            default:
-                                /*nothing*/
-                                break;
-                        }
-
-                        EventQueue::go(Module::EVENT_SIPTRUNK_SYNC, [
-                            'account_tariff_id' => $accountTariff->id,
-                            'account_client_id' => $accountTariff->client_account_id,
-                            'is_create' => $isCreate,
-                            'is_delete' => $isDelete,
-                        ]);
-                        break;
-                }
+                // создать события
+                $this->generateEvents($accountTariff, $eventType);
 
                 $isWithTransaction && $transaction->commit();
 
             } catch (FinanceException $e) {
+                // баланс отрицательный
                 $isWithTransaction && $transaction->rollBack();
 
                 $errorMessage = $e->getMessage();
                 $this->out(PHP_EOL . $errorMessage . PHP_EOL);
                 Yii::error($errorMessage);
-
                 HandlerLogger::me()->add($errorMessage);
 
-                // смену тарифа отодвинуть в надежде, что за это время клиент пополнит баланс
                 $isWithTransaction && $transaction = $db->beginTransaction();
 
-                $accountTariff->comment .= ($accountTariff->comment ? PHP_EOL : '') . $errorMessage;
-                if (!$accountTariff->save()) {
-                    // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
-                    // throw new ModelValidationException($accountTariff);
-                }
-
-                $accountTariffLogs = $accountTariff->accountTariffLogs;
-                $accountTariffLog = reset($accountTariffLogs);
-                $accountTariffLog->actual_from_utc = $accountTariff->getDefaultActualFrom();
-                if (!$accountTariffLog->save()) {
-                    // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
-                    // throw new ModelValidationException($accountTariffLog);
-                }
-
-
-                // Сдвигаем дату включения невключенных пакетов вместе с основной услугой
-                $packages = $accountTariff->nextAccountTariffs;
-                foreach ($packages as $package) {
-                    if ($package->isStarted()) {
-                        continue;
-                    }
-
-                    // только для ещё невключенных пакетов
-                    $packageLogs = $package->accountTariffLogs;
-                    $packageLog = reset($packageLogs);
-
-                    // пакет должен включится позже
-                    if ($packageLog->actual_from_utc > $accountTariffLog->actual_from_utc) {
-                        continue;
-                    }
-
-                    $packageLog->actual_from_utc = $accountTariffLog->actual_from_utc;
-
-                    if (!$packageLog->save()) {
-                        throw new ModelValidationException($packageLog);
-                    }
-                }
-
+                // смену тарифа отодвинуть в надежде, что за это время клиент пополнит баланс
+                $this->moveAccountTariffDate($accountTariff, $errorMessage);
 
                 $isWithTransaction && $transaction->commit();
 
@@ -337,12 +129,234 @@ SQL;
     }
 
     /**
+     * Получаем тип события для универсального тарифа (включение, выключение, смена)
+     *
+     * @param AccountTariff $accountTariff
+     * @param $newTariffId
+     * @return string|null
+     */
+    protected function getEventType(AccountTariff $accountTariff, $newTariffId)
+    {
+        $eventType = null;
+        if ($accountTariff->tariff_period_id != $newTariffId) {
+            if (!$accountTariff->tariff_period_id) {
+                // не было тарифа - включение услуги
+                $eventType = ImportantEventsNames::UU_SWITCHED_ON;
+            } elseif (!$newTariffId) {
+                // не будет тарифа - закрытие услуги
+                $eventType = ImportantEventsNames::UU_SWITCHED_OFF;
+            } else {
+                // "Ленин - жил, Ленин - жив, Ленин - будет жить" - смена тарифа
+                // (C) Korobkov
+                $eventType = ImportantEventsNames::UU_UPDATED;
+            }
+
+        }
+
+        return $eventType;
+    }
+
+    /**
+     * @param AccountTariff $accountTariff
+     * @param string|null $eventType
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
+     */
+    protected function generateEvents(AccountTariff $accountTariff, $eventType)
+    {
+        if ($eventType) {
+            // создать важное событие
+            ImportantEvents::create($eventType,
+                ImportantEventsSources::SOURCE_STAT, [
+                    'account_tariff_id' => $accountTariff->id,
+                    'service_type_id' => $accountTariff->service_type_id,
+                    'client_id' => $accountTariff->client_account_id,
+                ]);
+        }
+
+        if ($eventType === ImportantEventsNames::UU_SWITCHED_ON) {
+            EventQueue::go(\app\modules\uu\Module::EVENT_UU_SWITCHED_ON, [
+                'client_account_id' => $accountTariff->client_account_id,
+                'account_tariff_id' => $accountTariff->id,
+            ]);
+        }
+
+        // доп. обработка в зависимости от типа услуги
+        switch ($accountTariff->service_type_id) {
+
+            case ServiceType::ID_VOIP:
+                // Телефония
+                // \app\dao\ActualNumberDao::collectFromUsages ресурс "линии" всегда передает 1. Надо дополнительно отправить запрос про ресурсы
+                EventQueue::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
+                    'client_account_id' => $accountTariff->client_account_id,
+                    'account_tariff_id' => $accountTariff->id,
+                    'number' => $accountTariff->voip_number,
+                ]);
+
+                $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
+                if ($isCoreServer) {
+                    if (AccountTariff::hasTrunk($accountTariff->client_account_id)) {
+                        HandlerLogger::me()->add('Мегатранк');
+                    } else {
+                        ActaulizerVoipNumbers::me()->actualizeByNumber($accountTariff->voip_number, $accountTariff->id); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
+                    }
+                }
+
+                /** @var \app\modules\callTracking\Module $callTrackingModule */
+                $callTrackingModule = Yii::$app->getModule('callTracking');
+                $callTrackingParams = $callTrackingModule->params;
+                if (isset($callTrackingParams['client_account_id']) && $callTrackingParams['client_account_id'] == $accountTariff->client_account_id) {
+                    // При выключении или выключении услуги добавить в очередь экспорт номера
+                    if (in_array($eventType, [ImportantEventsNames::UU_SWITCHED_ON, ImportantEventsNames::UU_SWITCHED_OFF], true)) {
+                        EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_VOIP_NUMBER, [
+                            'account_tariff_id' => $accountTariff->id,
+                            'voip_number' => $accountTariff->voip_number,
+                            'is_active' => $eventType === ImportantEventsNames::UU_SWITCHED_ON,
+                        ]);
+                    }
+                }
+                break;
+
+            case ServiceType::ID_VOIP_PACKAGE_CALLS:
+                // Пакеты телефонии
+                if ($eventType === ImportantEventsNames::UU_SWITCHED_OFF) {
+                    // только при закрытиии - закрыть в Light
+                    EventQueue::go(\app\modules\uu\Module::EVENT_CLOSE_LIGHT, [
+                        'client_account_id' => $accountTariff->client_account_id,
+                        'account_tariff_id' => $accountTariff->id,
+                    ]);
+                }
+                break;
+
+            case ServiceType::ID_VPBX:
+                // ВАТС
+                EventQueue::go(\app\modules\uu\Module::EVENT_VPBX, [
+                    'client_account_id' => $accountTariff->client_account_id,
+                    'account_tariff_id' => $accountTariff->id,
+                ]);
+                // Из VirtPbx3Action::add/dataChanged передаются все текущие ресурсы. Больше ничего не надо
+                break;
+
+            case ServiceType::ID_VPS:
+                EventQueue::go(\app\modules\uu\Module::EVENT_VPS_SYNC, [
+                    'client_account_id' => $accountTariff->client_account_id,
+                    'account_tariff_id' => $accountTariff->id,
+                ]);
+                break;
+
+            case ServiceType::ID_VPS_LICENCE:
+                EventQueue::go(\app\modules\uu\Module::EVENT_VPS_LICENSE, [
+                    'client_account_id' => $accountTariff->client_account_id,
+                    'account_tariff_id' => $accountTariff->id,
+                ]);
+                break;
+
+            case ServiceType::ID_CALL_CHAT:
+                // call chat
+                switch ($eventType) {
+                    case ImportantEventsNames::UU_SWITCHED_ON:
+                        // создать
+                        EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT_CREATE, [
+                            'client_account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
+
+                    case ImportantEventsNames::UU_SWITCHED_OFF:
+                        // удалить
+                        EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT_REMOVE, [
+                            'client_account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
+
+                    default:
+                        // сменить тариф
+                        break;
+                }
+                break;
+
+            case ServiceType::ID_CALLTRACKING:
+                if ($eventType == ImportantEventsNames::UU_UPDATED) {
+                    break;
+                }
+
+                // При выключении или выключении услуги добавить в очередь экспорт номера
+                EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
+                    'account_tariff_id' => $accountTariff->id,
+                    'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON),
+                    'calltracking_params' => $accountTariff->calltracking_params,
+                ]);
+                break;
+
+            case ServiceType::ID_SIPTRUNK:
+                $event = null;
+                $isCreate = false;
+                $isDelete = false;
+
+                switch ($eventType) {
+                    case ImportantEventsNames::UU_SWITCHED_ON:
+                        $isCreate = true;
+                        break;
+                    case ImportantEventsNames::UU_SWITCHED_OFF:
+                        $isDelete = true;
+                        break;
+                    case ImportantEventsNames::UU_UPDATED:
+                    default:
+                        /*nothing*/
+                        break;
+                }
+
+                EventQueue::go(Module::EVENT_SIPTRUNK_SYNC, [
+                    'account_tariff_id' => $accountTariff->id,
+                    'account_client_id' => $accountTariff->client_account_id,
+                    'is_create' => $isCreate,
+                    'is_delete' => $isDelete,
+                ]);
+                break;
+        }
+    }
+
+    /**
+     * Сменить тариф
+     *
+     * @param AccountTariff $accountTariff
+     * @param $newTariffId
+     * @param string|null $eventType
+     * @throws FinanceException
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    protected function changeAccountTariff(AccountTariff $accountTariff, $newTariffId, $eventType)
+    {
+        if (is_null($eventType)) {
+            return;
+        }
+
+        $accountTariff->tariff_period_id = $newTariffId;
+        $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        if (!$accountTariff->save()) {
+            throw new ModelValidationException($accountTariff);
+        }
+
+        if ($accountTariff->tariff_period_id) {
+            // Билинговать с новым тарифом при смене тарифа (но не при закрытии услуги)
+            $this->checkBalance($accountTariff, $eventType == ImportantEventsNames::UU_UPDATED);
+        }
+    }
+
+    /**
      * Билинговать с новым тарифом
      *
      * @param AccountTariff $accountTariff
      * @param bool $isUpdate
      * @throws FinanceException
-     * @throws \Exception
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     protected function checkBalance(AccountTariff $accountTariff, $isUpdate)
     {
@@ -389,5 +403,54 @@ SQL;
             throw new FinanceException($errorMessage);
         }
 
+    }
+
+    /**
+     * Отодвинуть смену тарифа
+     *
+     * @param AccountTariff $accountTariff
+     * @param string $errorMessage
+     * @throws ModelValidationException
+     */
+    protected function moveAccountTariffDate(AccountTariff $accountTariff, $errorMessage)
+    {
+        $accountTariff->comment .= ($accountTariff->comment ? PHP_EOL : '') . $errorMessage;
+        if (!$accountTariff->save()) {
+            // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
+            // (C) Korobkov
+            // throw new ModelValidationException($accountTariff);
+        }
+
+        $accountTariffLogs = $accountTariff->accountTariffLogs;
+        $accountTariffLog = reset($accountTariffLogs);
+        $accountTariffLog->actual_from_utc = $accountTariff->getDefaultActualFrom();
+        if (!$accountTariffLog->save()) {
+            // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
+            // (C) Korobkov
+            // throw new ModelValidationException($accountTariffLog);
+        }
+
+        // Сдвигаем дату включения невключенных пакетов вместе с основной услугой
+        $packages = $accountTariff->nextAccountTariffs;
+        foreach ($packages as $package) {
+            if ($package->isStarted()) {
+                continue;
+            }
+
+            // только для ещё невключенных пакетов
+            $packageLogs = $package->accountTariffLogs;
+            $packageLog = reset($packageLogs);
+
+            // пакет должен включится позже
+            if ($packageLog->actual_from_utc > $accountTariffLog->actual_from_utc) {
+                continue;
+            }
+
+            $packageLog->actual_from_utc = $accountTariffLog->actual_from_utc;
+
+            if (!$packageLog->save()) {
+                throw new ModelValidationException($packageLog);
+            }
+        }
     }
 }

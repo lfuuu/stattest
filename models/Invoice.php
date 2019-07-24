@@ -2,16 +2,13 @@
 
 namespace app\models;
 
-use app\classes\behaviors\EventQueueAddEvent;
 use app\classes\behaviors\InvoiceGeneratePdf;
 use app\classes\behaviors\InvoiceNextIdx;
 use app\classes\Encrypt;
 use app\classes\HttpClient;
 use app\classes\model\ActiveRecord;
-use app\classes\Request;
 use app\dao\InvoiceDao;
 use app\exceptions\ModelValidationException;
-use app\exceptions\web\BadRequestHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models_light\InvoiceLight;
 use yii\base\InvalidCallException;
@@ -21,6 +18,8 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
+ * Счёт-фактура
+ *
  * @property int $id
  * @property string $number
  * @property int $organization_id
@@ -40,7 +39,7 @@ use yii\web\Response;
  * @property int $correction_idx
  *
  * @property-read Bill $bill
- * @property-read InvoiceLine $lines
+ * @property-read InvoiceLine[] $lines
  * @property-read Organization $organization
  * @property-read Bill $correctionBill
  */
@@ -89,7 +88,6 @@ class Invoice extends ActiveRecord
         return InvoiceDao::me();
     }
 
-
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -122,6 +120,10 @@ class Invoice extends ActiveRecord
         return $this->hasOne(Bill::class, ['id' => 'correction_bill_id']);
     }
 
+    /**
+     * @return \DateTimeImmutable
+     * @throws \Exception
+     */
     public function getDateImmutable()
     {
         return (new \DateTimeImmutable($this->date));
@@ -132,7 +134,8 @@ class Invoice extends ActiveRecord
      *
      * @param Bill $bill
      * @param int $typeId
-     * @return \DateTimeImmutable
+     * @return bool|\DateTimeImmutable
+     * @throws \Exception
      */
     public static function getDate(Bill $bill, $typeId)
     {
@@ -148,11 +151,11 @@ class Invoice extends ActiveRecord
                 break;
 
             case self::TYPE_GOOD:
-                return self::_getBillWithGoodDate($bill, $date);
+                return self::getBillWithGoodDate($bill, $date);
                 break;
 
             case self::TYPE_PREPAID:
-                return self::_getBillPaymentDate($bill);
+                return self::getBillPaymentDate($bill);
                 break;
 
             default:
@@ -165,8 +168,9 @@ class Invoice extends ActiveRecord
      *
      * @param Bill $bill
      * @return bool|\DateTimeImmutable
+     * @throws \Exception
      */
-    public static function _getBillPaymentDate(Bill $bill)
+    public static function getBillPaymentDate(Bill $bill)
     {
         /** @var Payment $payment */
         $payment = Payment::find()
@@ -185,8 +189,9 @@ class Invoice extends ActiveRecord
      * @param Bill $bill
      * @param $defaultDate
      * @return bool|\DateTimeImmutable
+     * @throws \Exception
      */
-    private static function _getBillWithGoodDate(Bill $bill, $defaultDate)
+    protected static function getBillWithGoodDate(Bill $bill, $defaultDate)
     {
         if (!$bill->is1C()) {
             return $defaultDate;
@@ -196,7 +201,7 @@ class Invoice extends ActiveRecord
             return (new \DateTimeImmutable())->setTimestamp($bill->doc_date);
         }
 
-        $date = self::_getShippedDateFromTrouble($bill);
+        $date = self::getShippedDateFromTrouble($bill);
 
         if ($date) {
             return $date;
@@ -208,8 +213,9 @@ class Invoice extends ActiveRecord
     /**
      * @param Bill $bill
      * @return bool|\DateTimeImmutable
+     * @throws \yii\db\Exception
      */
-    private static function _getShippedDateFromTrouble(Bill $bill)
+    protected static function getShippedDateFromTrouble(Bill $bill)
     {
         $value = \Yii::$app->db->createCommand("
                      SELECT 
@@ -232,7 +238,7 @@ class Invoice extends ActiveRecord
 
     /**
      * @param bool $isRevertSum
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function setReversal($isRevertSum = false)
     {
@@ -267,6 +273,12 @@ class Invoice extends ActiveRecord
         }
     }
 
+    /**
+     * @param $billNo
+     * @return array
+     * @throws NotFoundHttpException
+     * @throws \yii\base\Exception
+     */
     public static function getInfo($billNo)
     {
         $bill = Bill::findOne(['bill_no' => $billNo]);
@@ -277,7 +289,7 @@ class Invoice extends ActiveRecord
 
         $info = [];
         foreach (array_merge(self::$types, [self::TYPE_PREPAID]) as $typeId) {
-            if ($typeInfo = self::_getInfoByType($bill, $typeId)) {
+            if ($typeInfo = self::getInfoByType($bill, $typeId)) {
                 $info[$typeId] = $typeInfo;
             }
         }
@@ -285,7 +297,13 @@ class Invoice extends ActiveRecord
         return $info;
     }
 
-    public function _getInfoByType(Bill $bill, $typeId)
+    /**
+     * @param Bill $bill
+     * @param $typeId
+     * @return array|bool
+     * @throws \yii\base\Exception
+     */
+    public function getInfoByType(Bill $bill, $typeId)
     {
         $lines = $bill->getLinesByTypeId($typeId);
 
@@ -324,6 +342,11 @@ class Invoice extends ActiveRecord
         return $info;
     }
 
+    /**
+     * @return bool
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
     public function beforeDelete()
     {
         if ($this->correction_bill_id) {
@@ -335,6 +358,12 @@ class Invoice extends ActiveRecord
         return parent::beforeDelete();
     }
 
+    /**
+     * @param bool $isInsert
+     * @param array $changedAttributes
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
+     */
     public function afterSave($isInsert, $changedAttributes)
     {
         if (
@@ -379,6 +408,11 @@ class Invoice extends ActiveRecord
         parent::afterSave($isInsert, $changedAttributes);
     }
 
+    /**
+     *
+     * @throws \Throwable
+     * @throws \yii\db\Exception
+     */
     public function recalcSumCorrection()
     {
         $transaction = Invoice::getDb()->beginTransaction();
@@ -401,7 +435,7 @@ class Invoice extends ActiveRecord
                 throw new ModelValidationException($this);
             }
 
-            $this->_makeCorrectionBill();
+            $this->makeCorrectionBill();
 
             ClientAccount::dao()->updateBalance($this->bill->client_id);
 
@@ -416,8 +450,12 @@ class Invoice extends ActiveRecord
      * Создание корректировочного счета
      *
      * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     * @throws \yii\db\StaleObjectException
      */
-    private function _makeCorrectionBill()
+    protected function makeCorrectionBill()
     {
         $diffSum = $this->sum - $this->original_sum;
         $diffSumTax = $this->sum_tax - $this->original_sum_tax;
@@ -479,6 +517,10 @@ class Invoice extends ActiveRecord
         }
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public function getPath()
     {
         $pathStore = realpath(\Yii::$app->basePath . '/../store/invoices');
@@ -499,6 +541,10 @@ class Invoice extends ActiveRecord
         return $path . '/';
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public function getFilePath()
     {
         return $this->getPath()
@@ -509,6 +555,12 @@ class Invoice extends ActiveRecord
             . '.pdf';
     }
 
+    /**
+     * @throws NotAcceptableHttpException
+     * @throws \HttpResponseException
+     * @throws \yii\base\ExitException
+     * @throws \Exception
+     */
     public function downloadFile()
     {
         if (!file_exists($this->getFilePath())) {
@@ -532,6 +584,9 @@ class Invoice extends ActiveRecord
 
     /**
      * @return bool
+     * @throws NotAcceptableHttpException
+     * @throws \HttpResponseException
+     * @throws \Exception
      */
     public function generatePdfFile()
     {
@@ -544,15 +599,18 @@ class Invoice extends ActiveRecord
         }
 
         if ($this->bill->currency == Currency::HUF) {
-            $pdf = $this->_getContentTemplate1Pdf();
+            $pdf = $this->getContentTemplate1Pdf();
         } else {
-            $pdf = $this->_downloadPdfContent();
+            $pdf = $this->downloadPdfContent();
         }
 
         return file_put_contents($this->getFilePath(), $pdf);
     }
 
-    private function _getContentTemplate1Pdf()
+    /**
+     * @return mixed
+     */
+    protected function getContentTemplate1Pdf()
     {
         $invoiceDocument = (new InvoiceLight($this->bill->clientAccount))
             ->setBill($this->bill);
@@ -568,7 +626,12 @@ class Invoice extends ActiveRecord
         return $invoiceDocument->render($isPdf = true);
     }
 
-    private function _downloadPdfContent()
+    /**
+     * @return mixed
+     * @throws NotAcceptableHttpException
+     * @throws \HttpResponseException
+     */
+    protected function downloadPdfContent()
     {
         $data = [
             'bill' => $this->bill_no,

@@ -10,7 +10,6 @@ use app\modules\uu\models\Resource;
 use yii\base\Behavior;
 use yii\base\Event;
 
-
 class FillAccountTariffResourceLog extends Behavior
 {
     /**
@@ -49,12 +48,12 @@ class FillAccountTariffResourceLog extends Behavior
 
         /** @var \app\models\Number $number */
         $number = $number = $accountTariff->number;
-        $readerNames = Resource::getReaderNames();
+
         $tariff = $accountTariffLog->tariffPeriod->tariff;
         $tariffResources = $tariff->tariffResources;
         foreach ($tariffResources as $tariffResource) {
 
-            if (array_key_exists($tariffResource->resource_id, $readerNames)) {
+            if (!Resource::isOptionId($tariffResource->resource_id)) {
                 // этот ресурс - не опция. Он считается по факту, а не заранее
                 continue;
             }
@@ -88,7 +87,9 @@ class FillAccountTariffResourceLog extends Behavior
      * Удалить лог ресурсов при удалении услуги
      *
      * @param Event $event
-     * @throws \app\exceptions\ModelValidationException
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function deleteFromAccountTariffResourceLog(Event $event)
     {

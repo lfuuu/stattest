@@ -13,8 +13,9 @@ trait AccountTariffBillerSetupTrait
      * В отличии от getUntarificatedPeriodPeriods - в периоде учитывается только начало, а не регулярное списание
      *
      * @return AccountLogFromToTariff[]
-     * @throws \Exception
-     * @throws \LogicException
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function getUntarificatedSetupPeriods()
     {

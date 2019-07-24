@@ -26,7 +26,8 @@ class AccountLogResourceTarificator extends Tarificator
      * Рассчитать плату всех услуг
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\Exception
      */
     public function tarificate($accountTariffId = null)
     {
@@ -104,10 +105,8 @@ class AccountLogResourceTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге за ресурсы-опции (количество линий, запись звонков и пр.)
      *
      * @param AccountTariff $accountTariff
-     * @throws \RangeException
-     * @throws \LogicException
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \Exception
+     * @throws ModelValidationException
+     * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
     public function tarificateAccountTariffOption(AccountTariff $accountTariff)
@@ -133,15 +132,15 @@ class AccountLogResourceTarificator extends Tarificator
      *
      * @param AccountTariff $accountTariff
      * @return bool Успешно ли (нет ли пропущенных)
-     * @throws \LogicException
-     * @throws \app\exceptions\ModelValidationException
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function tarificateAccountTariffTraffic(AccountTariff $accountTariff)
     {
         $isOk = true;
 
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceTrafficPeriods();
-
         /** @var AccountLogFromToTariff[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $dateYmd => $untarificatedPeriods) {
 

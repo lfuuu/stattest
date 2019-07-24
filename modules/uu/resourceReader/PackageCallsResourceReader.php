@@ -16,12 +16,12 @@ use yii\db\Query;
 abstract class PackageCallsResourceReader extends BaseObject implements ResourceReaderInterface
 {
     /** @var [] кэш данных */
-    private $_callsByPrice = []; // [$date => [$packagePriceId => [0 => $price, 1 => $costPrice]]]
-    private $_callsByPricelist = []; // [$date => [$packagePricelistId => [0 => $price, 1 => $costPrice]]]
+    protected $callsByPrice = []; // [$date => [$packagePriceId => [0 => $price, 1 => $costPrice]]]
+    protected $callsByPriceList = []; // [$date => [$packagePricelistId => [0 => $price, 1 => $costPrice]]]
 
-    private $_accountTariffId = null;
+    protected $accountTariffId = null;
 
-    private static $_packages = [];
+    protected static $packages = [];
 
     /**
      * Вернуть количество потраченного ресурса
@@ -30,53 +30,54 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
      * @param DateTimeImmutable $dateTime
      * @param TariffPeriod $tariffPeriod
      * @return Amounts
+     * @throws \yii\db\Exception
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        if ($this->_accountTariffId !== $accountTariff->prev_account_tariff_id) {
-            $this->_setDateToValue($accountTariff, $dateTime);
+        if ($this->accountTariffId !== $accountTariff->prev_account_tariff_id) {
+            $this->setDateToValue($accountTariff, $dateTime);
         }
 
         $price = $costPrice = 0;
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-        if (!isset($this->_callsByPrice[$date]) && !isset($this->_callsByPricelist[$date])) {
+        if (!isset($this->callsByPrice[$date]) && !isset($this->callsByPriceList[$date])) {
             return new Amounts($price, $costPrice);
         }
 
         $tariffId = $tariffPeriod->tariff_id;
-        if (!isset(self::$_packages[$tariffId])) {
+        if (!isset(self::$packages[$tariffId])) {
             // записать в кэш
             $tariff = $tariffPeriod->tariff;
-            self::$_packages[$tariffId] = [
+            self::$packages[$tariffId] = [
                 'packagePriceIds' => $tariff->getPackagePrices()->select(['id'])->column(),
                 'packagePricelistIds' => $tariff->getPackagePricelists()->select(['id'])->column(),
                 'packagePricelistNnpIds' => $tariff->getPackagePricelistsNnp()->select(['id'])->column(),
             ];
         }
 
-        $package = self::$_packages[$tariffId];
+        $package = self::$packages[$tariffId];
 
         // Цена по направлениям
         foreach ($package['packagePriceIds'] as $packagePriceId) {
-            if (isset($this->_callsByPrice[$date][$packagePriceId])) {
-                $price += $this->_callsByPrice[$date][$packagePriceId][0];
-                $costPrice += $this->_callsByPrice[$date][$packagePriceId][1];
+            if (isset($this->callsByPrice[$date][$packagePriceId])) {
+                $price += $this->callsByPrice[$date][$packagePriceId][0];
+                $costPrice += $this->callsByPrice[$date][$packagePriceId][1];
             }
         }
 
         // Прайслист с МГП
         foreach ($package['packagePricelistIds'] as $packagePricelistId) {
-            if (isset($this->_callsByPricelist[$date][$packagePricelistId])) {
-                $price += $this->_callsByPricelist[$date][$packagePricelistId][0];
-                $costPrice += $this->_callsByPricelist[$date][$packagePricelistId][1];
+            if (isset($this->callsByPriceList[$date][$packagePricelistId])) {
+                $price += $this->callsByPriceList[$date][$packagePricelistId][0];
+                $costPrice += $this->callsByPriceList[$date][$packagePricelistId][1];
             }
         }
 
         // Прайслист v2
         foreach ($package['packagePricelistNnpIds'] as $packagePricelistId) {
-            if (isset($this->_callsByPricelist[$date][$packagePricelistId])) {
-                $price += $this->_callsByPricelist[$date][$packagePricelistId][0];
-                $costPrice += $this->_callsByPricelist[$date][$packagePricelistId][1];
+            if (isset($this->callsByPriceList[$date][$packagePricelistId])) {
+                $price += $this->callsByPriceList[$date][$packagePricelistId][0];
+                $costPrice += $this->callsByPriceList[$date][$packagePricelistId][1];
             }
         }
 
@@ -88,11 +89,12 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
      *
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
+     * @throws \yii\db\Exception
      */
-    private function _setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
+    protected function setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $this->_accountTariffId = $accountTariff->prev_account_tariff_id;
-        $this->_callsByPrice = $this->_callsByPricelist = [];
+        $this->accountTariffId = $accountTariff->prev_account_tariff_id;
+        $this->callsByPrice = $this->callsByPriceList = [];
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
@@ -131,7 +133,11 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
             ])
             ->andWhere(['>=', 'calls_price.connect_time', $connectTime])
             ->andWhere(['<', 'calls_price.cost', 0])
-            ->groupBy(['aggr_date', 'calls_price.nnp_package_price_id', 'calls_price.nnp_package_pricelist_id'])
+            ->groupBy([
+                'aggr_date',
+                'calls_price.nnp_package_price_id',
+                'calls_price.nnp_package_pricelist_id']
+            )
             ->orderBy(['aggr_date' => SORT_ASC])
             ->asArray();
 
@@ -143,30 +149,30 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
             $sumCostPrice = 0; // $row['sum_cost_price'];
 
             if ($tariffId = $row['nnp_package_price_id']) {
-                if (!isset($this->_callsByPrice[$aggrDate])) {
-                    $this->_callsByPrice[$aggrDate] = [];
+                if (!isset($this->callsByPrice[$aggrDate])) {
+                    $this->callsByPrice[$aggrDate] = [];
                 }
 
-                if (isset($this->_callsByPrice[$aggrDate][$tariffId])) {
-                    $this->_callsByPrice[$aggrDate][$tariffId][0] += $sumPrice;
-                    $this->_callsByPrice[$aggrDate][$tariffId][1] += $sumCostPrice;
+                if (isset($this->callsByPrice[$aggrDate][$tariffId])) {
+                    $this->callsByPrice[$aggrDate][$tariffId][0] += $sumPrice;
+                    $this->callsByPrice[$aggrDate][$tariffId][1] += $sumCostPrice;
                 } else {
-                    $this->_callsByPrice[$aggrDate][$tariffId] = [$sumPrice, $sumCostPrice];
+                    $this->callsByPrice[$aggrDate][$tariffId] = [$sumPrice, $sumCostPrice];
                 }
 
                 continue;
             }
 
             if ($tariffId = $row['nnp_package_pricelist_id']) {
-                if (!isset($this->_callsByPricelist[$aggrDate])) {
-                    $this->_callsByPricelist[$aggrDate] = [];
+                if (!isset($this->callsByPriceList[$aggrDate])) {
+                    $this->callsByPriceList[$aggrDate] = [];
                 }
 
-                if (isset($this->_callsByPricelist[$aggrDate][$tariffId])) {
-                    $this->_callsByPricelist[$aggrDate][$tariffId][0] += $sumPrice;
-                    $this->_callsByPricelist[$aggrDate][$tariffId][1] += $sumCostPrice;
+                if (isset($this->callsByPriceList[$aggrDate][$tariffId])) {
+                    $this->callsByPriceList[$aggrDate][$tariffId][0] += $sumPrice;
+                    $this->callsByPriceList[$aggrDate][$tariffId][1] += $sumCostPrice;
                 } else {
-                    $this->_callsByPricelist[$aggrDate][$tariffId] = [$sumPrice, $sumCostPrice];
+                    $this->callsByPriceList[$aggrDate][$tariffId] = [$sumPrice, $sumCostPrice];
                 }
 
                 continue;

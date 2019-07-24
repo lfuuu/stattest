@@ -438,7 +438,8 @@ class EventQueue extends ActiveRecord
      * @param bool $isForceAdd Принудительное добавления события. (Если событие уже есть в очереди, то оно не добавляется)
      * @param string $nextStart
      * @return self
-     * @throws \app\exceptions\ModelValidationException
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
      */
     public static function go($event, $param = "", $isForceAdd = false, $nextStart = null)
     {

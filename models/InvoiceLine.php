@@ -6,6 +6,8 @@ use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 
 /**
+ * Строка в счёте-фактуре
+ *
  * @property integer $pk
  * @property integer $invoice_id
  * @property string $bill_no
@@ -82,9 +84,9 @@ class InvoiceLine extends ActiveRecord
     }
 
     /**
-     * Дата счета фактуры в timestamp
+     * Дата счёта-фактуры в timestamp
      *
-     * @return int
+     * @throws \Exception
      */
     public function setDates()
     {
@@ -97,41 +99,65 @@ class InvoiceLine extends ActiveRecord
         $this->date_to = $endDate->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
-
+    /**
+     * @return float
+     */
     public function getVat()
     {
         return $this->sum_tax;
     }
 
+    /**
+     * @return float
+     */
     public function getPrice_without_vat()
     {
         return $this->sum_without_tax;
     }
 
+    /**
+     * @return float
+     */
     public function getPrice_with_vat()
     {
         return $this->sum;
     }
 
+    /**
+     * @return float
+     */
     public function getAmount()
     {
         return $this->amount;
     }
 
+    /**
+     * @return string
+     */
     public function getFullName()
     {
         return $this->item;
     }
 
+    /**
+     * @return string
+     */
     public function getTypeUnitName()
     {
         return '';
     }
+
+    /**
+     * @return int
+     */
     public function getVat_rate()
     {
         return $this->tax_rate;
     }
 
+    /**
+     * @return float
+     */
     public function getOutprice()
     {
         return $this->price;

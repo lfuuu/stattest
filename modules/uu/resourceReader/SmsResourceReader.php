@@ -20,12 +20,12 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
 {
     const COST_AMOUNT = 0.47; // Себестоимость MTT без НДС, руб
 
-    private $_accountTariffId = null;
+    protected $accountTariffId = null;
 
     /**
      * @var array
      */
-    private $_cache = [];
+    protected $cache = [];
 
     /**
      * Вернуть количество потраченного ресурса
@@ -37,15 +37,15 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        if ($this->_accountTariffId !== $accountTariff->prev_account_tariff_id) {
-            $this->_setDateToValue($accountTariff, $dateTime);
+        if ($this->accountTariffId !== $accountTariff->prev_account_tariff_id) {
+            $this->setDateToValue($accountTariff, $dateTime);
         }
 
         $dateTimeFormat = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
 
         /** @var integer $amount количество штук СМС */
-        $amount = array_key_exists($dateTimeFormat, $this->_cache) ?
-            $this->_cache[$dateTimeFormat] : 0;
+        $amount = array_key_exists($dateTimeFormat, $this->cache) ?
+            $this->cache[$dateTimeFormat] : 0;
 
         return new Amounts($amount, $amount * self::COST_AMOUNT);
     }
@@ -56,9 +56,9 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
      */
-    private function _setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
+    protected function setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $this->_accountTariffId = $accountTariff->prev_account_tariff_id;
+        $this->accountTariffId = $accountTariff->prev_account_tariff_id;
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
@@ -77,7 +77,7 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
 
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
-        $this->_cache = MttRaw::find()
+        $this->cache = MttRaw::find()
             ->select([
                 'cnt' => 'SUM(chargedqty)',
                 'aggr_date' => sprintf("TO_CHAR(connect_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),

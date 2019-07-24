@@ -36,7 +36,7 @@ class AccountEntryTarificator extends Tarificator
         // Подключение
         // Транзакции группировать в проводки следующего месяца
         $this->out('Проводки за подключение');
-        $this->_tarificate(
+        $this->calculateEntries(
             AccountLogSetup::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_SETUP),
             'date',
@@ -51,7 +51,7 @@ class AccountEntryTarificator extends Tarificator
         // Предоплатные: помесячные транзакции от 1го числа группировать в проводки того же месяца. Остальные транзакции (посуточные или не от 1го числа) группировать в проводки следующего месяца
         // Посуточные проводки не группировать в транзакции, а так и оставлять 1-в-1 независимо от типа оплаты
         $this->out(PHP_EOL . 'Проводки за абоненскую плату');
-        $this->_tarificate(
+        $this->calculateEntries(
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
@@ -64,7 +64,7 @@ class AccountEntryTarificator extends Tarificator
         // Ресурсы
         // (аналогично абонентке за исключением группировки - группировать всегда)
         $this->out(PHP_EOL . 'Проводки за ресурсы');
-        $this->_tarificate(
+        $this->calculateEntries(
             AccountLogResource::tableName(),
             'tariff_resource_id',
             'date_from',
@@ -78,7 +78,7 @@ class AccountEntryTarificator extends Tarificator
         // Минимальная плата
         // Транзакции группировать в проводки следующего месяца
         $this->out(PHP_EOL . 'Проводки за минимальную плату');
-        $this->_tarificate(
+        $this->calculateEntries(
             AccountLogMin::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_MIN),
             'date_from',
@@ -90,7 +90,7 @@ class AccountEntryTarificator extends Tarificator
 
         // Расчёт НДС
         $this->out(PHP_EOL . 'Расчёт НДС');
-        $this->_tarificateVat($accountTariffId);
+        $this->calculateVat($accountTariffId);
 
         $this->out(PHP_EOL);
     }
@@ -108,7 +108,7 @@ class AccountEntryTarificator extends Tarificator
      * @param int|float|string $costPrice Себестоимость. Значение и "account_log.поле"
      * @throws \yii\db\Exception
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isSplitByMonths, $isGroupPerDayToMonth, $costPrice = 0)
+    protected function calculateEntries($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isSplitByMonths, $isGroupPerDayToMonth, $costPrice = 0)
     {
         /** @var Connection $db */
         $db = Yii::$app->db;
@@ -252,7 +252,7 @@ SQL;
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @throws \yii\db\Exception
      */
-    private function _tarificateVat($accountTariffId)
+    protected function calculateVat($accountTariffId)
     {
         /** @var Connection $db */
         $db = Yii::$app->db;
@@ -320,7 +320,8 @@ SQL;
         $resourceIdCalls = implode(', ', Resource::$calls); // стоимость звонков от низкоуровневого биллера уже приходит с НДС
 
         // нужно знать is_include_vat из тарифа, а это можно получить только через транзакции
-        // @todo может быть несколько транзакций на одну проводку. Будет лишнее обновление, но на значения это не влияет
+        // @todo Может быть несколько транзакций на одну проводку.
+        // @todo Будет лишнее обновление, но на значения это не влияет
         $accountLogs = [
             AccountLogSetup::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_SETUP,
             AccountLogPeriod::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_PERIOD,

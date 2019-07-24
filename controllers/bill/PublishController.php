@@ -8,10 +8,8 @@ use app\classes\Utils;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
-use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\ClientContract;
-use app\models\Country;
 use app\models\Invoice;
 use app\models\InvoiceLine;
 use app\models\Organization;
@@ -154,6 +152,8 @@ class PublishController extends BaseController
      * Генерация счет-фактур по организации
      *
      * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function actionInvoices()
     {
@@ -171,29 +171,38 @@ class PublishController extends BaseController
                 'cc.organization_id' => $organizationId,
             ]);
 
-        $this->_filterQueryByThisMonth($query);
-        $this->_genetateInvocesForBill($query);
+        $this->filterQueryByThisMonth($query);
+        $this->generateBillInvoices($query);
 
         return $this->redirect(['/bill/publish/index', 'organizationId' => $organizationId]);
     }
 
     /**
      * Генерация с/ф для всех в этом месяце
+     * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function actionInvoicesForAll()
     {
         $query = Bill::find()
             ->alias('b');
 
-        $this->_filterQueryByThisMonth($query);
-        $this->_genetateInvocesForBill($query);
+        $this->filterQueryByThisMonth($query);
+        $this->generateBillInvoices($query);
 
         return $this->redirect(['/bill/publish/index']);
     }
 
-    private function _filterQueryByThisMonth($query)
+    /**
+     * @param Query $query
+     * @throws \Exception
+     */
+    protected function filterQueryByThisMonth(Query $query)
     {
-        $from = (new \DateTimeImmutable())->setTime(0, 0, 0)->modify('first day of this month');
+        $from = (new \DateTimeImmutable())
+            ->setTime(0, 0, 0)
+            ->modify('first day of this month');
         $to = $from->modify('last day of this month');
 
         $query->andWhere([
@@ -210,6 +219,8 @@ class PublishController extends BaseController
      *
      * @param string $bill_no
      * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function actionMakeInvoice($bill_no)
     {
@@ -226,7 +237,7 @@ class PublishController extends BaseController
             Yii::$app->session->addFlash('error', 'Счет не найден');
             exit();
         } else {
-            $this->_genetateInvocesForBill($billQuery);
+            $this->generateBillInvoices($billQuery);
         }
 
         return $this->redirect($bill->getUrl());
@@ -235,8 +246,10 @@ class PublishController extends BaseController
     /**
      * @param Query $query
      * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
-    private function _genetateInvocesForBill(Query $query)
+    protected function generateBillInvoices(Query $query)
     {
 
         /** @var Bill $bill */
@@ -252,6 +265,7 @@ class PublishController extends BaseController
      *
      * @param string $bill_no
      * @return \yii\web\Response
+     * @throws \yii\base\Exception
      */
     public function actionInvoiceReversal($bill_no)
     {
@@ -272,6 +286,8 @@ class PublishController extends BaseController
      *
      * @param string $bill_no
      * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function actionMakeAbInvoice($bill_no)
     {
@@ -296,6 +312,7 @@ class PublishController extends BaseController
      *
      * @param string $bill_no
      * @return \yii\web\Response
+     * @throws \yii\base\Exception
      */
     public function actionInvoiceAbReversal($bill_no)
     {
@@ -311,6 +328,9 @@ class PublishController extends BaseController
         return $this->redirect($bill->getUrl());
     }
 
+    /**
+     * @return \yii\web\Response
+     */
     public function actionCache()
     {
         $tags = \Yii::$app->request->post('tags');
@@ -327,6 +347,7 @@ class PublishController extends BaseController
      *
      * @param string $bill_no
      * @return \yii\web\Response
+     * @throws ModelValidationException
      */
     public function actionBill($bill_no)
     {
@@ -343,6 +364,11 @@ class PublishController extends BaseController
         return $this->redirect($bill->getUrl());
     }
 
+    /**
+     * @param $bill_no
+     * @param $type_id
+     * @return \yii\web\Response
+     */
     public function actionInvoiceDraft($bill_no, $type_id)
     {
         $typeId = $type_id;
@@ -362,6 +388,11 @@ class PublishController extends BaseController
         return $this->redirect($bill->getUrl());
     }
 
+    /**
+     * @param $bill_no
+     * @param $type_id
+     * @return \yii\web\Response
+     */
     public function actionInvoiceDelete($bill_no, $type_id)
     {
         $typeId = $type_id;
@@ -381,6 +412,13 @@ class PublishController extends BaseController
         return $this->redirect($bill->getUrl());
     }
 
+    /**
+     * @param $bill_no
+     * @param $type_id
+     * @return \yii\web\Response
+     * @throws ModelValidationException
+     * @throws NotFoundHttpException
+     */
     public function actionInvoiceRegister($bill_no, $type_id)
     {
         $typeId = $type_id;
@@ -400,6 +438,11 @@ class PublishController extends BaseController
         return $this->redirect($bill->getUrl());
     }
 
+    /**
+     * @param $bill_no
+     * @param $type_id
+     * @return \yii\web\Response
+     */
     public function actionInvoiceStorno($bill_no, $type_id)
     {
         $typeId = $type_id;
@@ -420,11 +463,13 @@ class PublishController extends BaseController
     }
 
     /**
-     * Седактирование с/ф
+     * Редактирование с/ф
      *
      * @param integer $invoice_id
      * @return string
-     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
     public function actionInvoiceEdit($invoice_id)
     {

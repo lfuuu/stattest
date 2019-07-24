@@ -4,7 +4,6 @@ namespace app\modules\uu\tarificator;
 
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
-use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
 

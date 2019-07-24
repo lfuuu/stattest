@@ -10,7 +10,7 @@ use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
 /**
- * Бухгалтерская проводка
+ * Универсальная проводка
  * Объединяет предварительное списание (транзакции) для одной услуги и типу (подключение, абонентка, каждый ресурс) по календарным месяцам
  *
  * @property int $id
@@ -18,12 +18,12 @@ use yii\helpers\Url;
  * @property int $account_tariff_id
  * @property int $tariff_period_id Кэш accountTariff.tariff_period_id на эту дату
  * @property int $type_id Если положительное, то TariffResource, иначе подключение или абонентка. Поэтому нет FK
- * @property float $price
+ * @property float $price Цена по тарифу
  * @property float $cost_price
- * @property float $price_without_vat
+ * @property float $price_without_vat Цена без НДС
  * @property int $vat_rate
- * @property float $vat
- * @property float $price_with_vat
+ * @property float $vat НДС
+ * @property float $price_with_vat Цена с НДС
  * @property string $update_time
  * @property int $is_next_month
  * @property int $bill_id

@@ -18,7 +18,7 @@ use Yii;
 use yii\db\ActiveQuery;
 
 /**
- * Ресурс (дисковое пространство, абоненты, линии и пр.)
+ * Ресурс (справочник) (дисковое пространство, абоненты, линии и пр.)
  *
  * @property integer $id
  * @property string $name
@@ -82,6 +82,35 @@ class Resource extends ActiveRecord
 
     protected $isAttributeTypecastBehavior = true;
 
+    protected static $readers = [
+        // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
+        self::ID_VPBX_DISK => VpbxDiskResourceReader::class,
+
+        // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
+        self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::class,
+
+        // Смс по пакетам телефонии. Берется из mtt_raw
+        self::ID_VOIP_PACKAGE_SMS => SmsResourceReader::class,
+
+        // Интернет-трафик по пакетам телефонии (Мб, float). Не важно, сколько потрачено
+        self::ID_VOIP_PACKAGE_INTERNET => ZeroResourceReader::class,
+
+        // Звонки ориг-пакета транка (у.е, float). Берется из calls_raw
+        self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::class,
+
+        // Разовая услуга. Менеджер сам определяет стоимость
+        self::ID_ONE_TIME => ZeroResourceReader::class,
+
+        // ННП. Кол-во номеров
+        self::ID_NNP_NUMBERS => NnpNumberResourceReader::class,
+
+        // Calltracking
+        self::ID_CALLTRACKING => CalltrackingResourceReader::class,
+
+        // Интернет. Roamobility
+        self::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => InternetResourceReader::class,
+    ];
+
     public static $calls = [
         Resource::ID_VOIP_PACKAGE_CALLS => Resource::ID_VOIP_PACKAGE_CALLS,
         Resource::ID_TRUNK_PACKAGE_ORIG_CALLS => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
@@ -138,14 +167,20 @@ class Resource extends ActiveRecord
      */
     public static function getReader($id)
     {
-        $idToClassName = self::getReaderNames();
-
-        if (!isset($idToClassName[$id])) {
+        if (!array_key_exists($id, self::$readers)) {
             return null;
         }
 
-        $className = $idToClassName[$id];
+        $className = self::$readers[$id];
         return new $className();
+    }
+
+    /**
+     * @return int[]
+     */
+    public static function getReaderIds()
+    {
+        return array_keys(self::$readers);
     }
 
     /**
@@ -153,34 +188,18 @@ class Resource extends ActiveRecord
      */
     public static function getReaderNames()
     {
-        return [
-            // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
-            self::ID_VPBX_DISK => VpbxDiskResourceReader::class,
+        return self::$readers;
+    }
 
-            // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
-            self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::class,
-
-            // Смс по пакетам телефонии. Берется из mtt_raw
-            self::ID_VOIP_PACKAGE_SMS => SmsResourceReader::class,
-
-            // Интернет-трафик по пакетам телефонии (Мб, float). Не важно, сколько потрачено
-            self::ID_VOIP_PACKAGE_INTERNET => ZeroResourceReader::class,
-
-            // Звонки по ориг-пакета транка (у.е, float). Берется из calls_raw
-            self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::class,
-
-            // Разовая услуга. Менеджер сам определяет стоимость
-            self::ID_ONE_TIME => ZeroResourceReader::class,
-
-            // ННП. Кол-во номеров
-            self::ID_NNP_NUMBERS => NnpNumberResourceReader::class,
-
-            // Calltracking
-            self::ID_CALLTRACKING => CalltrackingResourceReader::class,
-
-            // Интернет. Roamobility
-            self::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => InternetResourceReader::class,
-        ];
+    /**
+     * Id Опции?
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function isOptionId($id)
+    {
+        return !array_key_exists($id, self::$readers);
     }
 
     /**
@@ -190,8 +209,7 @@ class Resource extends ActiveRecord
      */
     public function isOption()
     {
-        $readerNames = self::getReaderNames();
-        return !isset($readerNames[$this->id]);
+        return self::isOptionId($this->id);
     }
 
     /**

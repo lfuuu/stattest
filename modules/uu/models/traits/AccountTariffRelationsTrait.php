@@ -7,6 +7,7 @@ use app\models\ClientAccount;
 use app\models\Datacenter;
 use app\models\Region;
 use app\models\UsageTrunk;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
@@ -30,6 +31,7 @@ use yii\db\Expression;
  * @property-read City $city
  * @property-read \app\models\Number $number
  * @property-read AccountTariff $prevAccountTariff  Основная услуга
+ * @property-read AccountEntry[] $accountEntries  Универсальные проводки
  * @property-read AccountTariff[] $nextAccountTariffs   Пакеты
  * @property-read AccountTariff[] $nextAccountTariffsEager   Пакеты
  * @property-read AccountTariff $prevUsage  Перенесено из
@@ -80,6 +82,15 @@ trait AccountTariffRelationsTrait
     public function getPrevAccountTariff()
     {
         return $this->hasOne(self::class, ['id' => 'prev_account_tariff_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountEntries()
+    {
+        return $this->hasMany(AccountEntry::class, ['account_tariff_id' => 'id'])
+            ->inverseOf('accountTariff');
     }
 
     /**

@@ -71,7 +71,9 @@ class AccountTariffBiller extends Behavior
      * Билинговать
      *
      * @param array $params [accountTariffId, clientAccountId]
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
     public static function recalc(array $params)
     {

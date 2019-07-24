@@ -13,7 +13,9 @@ class BillConverterTarificator extends Tarificator
 {
     /**
      * @param int|null $clientAccountId Если указан, то только для этого ЛС. Если не указан - для всех
-     * @throws \Exception
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     public function tarificate($clientAccountId = null)
     {
@@ -34,14 +36,26 @@ class BillConverterTarificator extends Tarificator
 
         /** @var Bill $bill */
         foreach ($activeQuery->each() as $bill) {
-            \app\models\Bill::dao()->transferUniversalBillsToBills($bill);
-            $this->out('. ');
-
-            $bill->is_converted = 1;
-            if (!$bill->save()) {
-                throw new ModelValidationException($bill);
-            }
+            $this->transferBill($bill);
         }
+    }
 
+    /**
+     * Перенос универсального счёта в new_bills
+     *
+     * @param Bill $bill
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    public function transferBill(Bill $bill)
+    {
+        \app\models\Bill::dao()->transferUniversalBillsToBills($bill);
+        $this->out('. ');
+
+        $bill->is_converted = 1;
+        if (!$bill->save()) {
+            throw new ModelValidationException($bill);
+        }
     }
 }

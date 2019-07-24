@@ -36,8 +36,8 @@ class SyncAccountTariffLight extends Behavior
      * Триггер при изменении (добавлении/редактировании) списания абонентки
      *
      * @param Event $event
-     * @throws \LogicException
-     * @throws \app\exceptions\ModelValidationException
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
      */
     public function accountLogPeriodChange(Event $event)
     {
@@ -91,7 +91,8 @@ class SyncAccountTariffLight extends Behavior
      * Триггер при удалении списания абонентки
      *
      * @param Event $event
-     * @throws \app\exceptions\ModelValidationException
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
      */
     public function accountLogPeriodDelete(Event $event)
     {
@@ -174,7 +175,9 @@ class SyncAccountTariffLight extends Behavior
      * Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
      *
      * @param array $params [id]
-     * @throws \Exception
+     * @throws ModelValidationException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public static function deleteFromAccountTariffLight(array $params)
     {

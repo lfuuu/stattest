@@ -14,8 +14,6 @@ use app\models\SberbankOrder;
 use app\models\Transaction;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Period;
-use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\TariffPeriod;
 use Yii;
 use DateTime;
 use app\classes\bill\ClientAccountBiller;
@@ -31,6 +29,7 @@ class BillerController extends Controller
      * Запуск создания транзакций для счетов
      *
      * @return int
+     * @throws \Exception
      */
     public function actionTariffication()
     {
@@ -60,7 +59,7 @@ class BillerController extends Controller
 
                 foreach ($clientAccounts as $clientAccount) {
                     $offset++;
-                    $this->_tarifficateClientAccount($clientAccount, $date, $offset);
+                    $this->tarifficateClientAccount($clientAccount, $date, $offset);
                 }
 
                 $count = count($clientAccounts);
@@ -84,7 +83,7 @@ class BillerController extends Controller
      * @param int $position
      * @return int
      */
-    private function _tarifficateClientAccount(ClientAccount $clientAccount, DateTime $date, $position)
+    protected function tarifficateClientAccount(ClientAccount $clientAccount, DateTime $date, $position)
     {
         Yii::info("Тарификатор. $position. Лицевой счет: " . $clientAccount->id);
 
@@ -114,6 +113,7 @@ class BillerController extends Controller
      * Генерация событий предполагаемого отключения ЛС после выставления счета
      *
      * @return int
+     * @throws \Exception
      */
     public function actionForecastAccountBlock()
     {
@@ -187,11 +187,11 @@ class BillerController extends Controller
 
                     switch ($clientAccount->account_version) {
                         case ClientAccount::VERSION_BILLER_UNIVERSAL:
-                            $forecastBillSum = $this->_forecastingUniversalAccountBill($clientAccount, $firstDay, $lastDay, $forecastCoefficient);
+                            $forecastBillSum = $this->forecastingUniversalAccountBill($clientAccount, $firstDay, $lastDay, $forecastCoefficient);
                             break;
 
                         case ClientAccount::VERSION_BILLER_USAGE:
-                            $forecastBillSum = $this->_forecastingAccountBill($clientAccount, $date, $forecastCoefficient);
+                            $forecastBillSum = $this->forecastingAccountBill($clientAccount, $date, $forecastCoefficient);
                             break;
 
                         default:
@@ -238,7 +238,7 @@ class BillerController extends Controller
      * @internal param float $monthPart
      * @internal param int $position
      */
-    private function _forecastingAccountBill(ClientAccount $clientAccount, DateTime $date, $forecastCoefficient)
+    protected function forecastingAccountBill(ClientAccount $clientAccount, DateTime $date, $forecastCoefficient)
     {
         $billerSubscription = ClientAccountBiller::create(
             $clientAccount,
@@ -268,8 +268,8 @@ class BillerController extends Controller
                     $billerSubscription->getTransactions(),
                     $billerResource->getTransactions()
                 ),
-                /** @var Transaction $item */
                 function ($sum, $item) {
+                    /** @var Transaction $item */
                     return $sum + $item->sum;
                 }
             ),
@@ -285,7 +285,7 @@ class BillerController extends Controller
      * @param float $forecastCoefficient
      * @return int
      */
-    private function _forecastingUniversalAccountBill(ClientAccount $account, DateTime $firstDate, DateTime $lastDate, $forecastCoefficient)
+    protected function forecastingUniversalAccountBill(ClientAccount $account, DateTime $firstDate, DateTime $lastDate, $forecastCoefficient)
     {
         $data = AccountEntry::find()
             ->alias('entry')
@@ -328,6 +328,7 @@ class BillerController extends Controller
 
     /**
      * Завершение сбербанковских платежей (запускать каждую минуту)
+     * @throws \Exception
      */
     public function actionSberbankOrdersFinishing()
     {
@@ -376,6 +377,8 @@ class BillerController extends Controller
 
     /**
      * Выставление авансовых счетов операторам
+     * @throws \yii\base\Exception
+     * @throws \Exception
      */
     public function actionAdvanceAccounts()
     {
@@ -436,6 +439,7 @@ class BillerController extends Controller
 
     /**
      * Занести инвойсы в книгу продаж за прошлый месяц.
+     * @throws \Throwable
      */
     public function actionMakeInvoices()
     {
@@ -473,6 +477,8 @@ class BillerController extends Controller
 
     /**
      * Сгенерировать отчет по счетам
+     * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function actionGetBillReport()
     {

@@ -8,7 +8,7 @@ use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
 /**
- * Счет
+ * Универсальный счёт
  *
  * @link http://bugtracker.welltime.ru/jira/browse/BIL-1909
  *
@@ -21,6 +21,7 @@ use yii\helpers\Url;
  *
  * @property-read ClientAccount $clientAccount
  * @property-read AccountEntry[] $accountEntries
+ * @property-read \app\models\Bill $newBill
  *
  * @method static Bill findOne($condition)
  * @method static Bill[] findAll($condition)
@@ -69,6 +70,15 @@ class Bill extends ActiveRecord
     {
         return $this->hasMany(AccountEntry::class, ['bill_id' => 'id'])
             ->indexBy('id');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNewBill()
+    {
+        return $this->hasOne(\app\models\Bill::class, ['uu_bill_id' => 'id'])
+            ->inverseOf('universalBill');
     }
 
     /**

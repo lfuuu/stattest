@@ -86,6 +86,12 @@ class BillCorrection extends ActiveRecord
         ];
     }
 
+    /**
+     * @param bool $isInsert
+     * @param array $changedAttributes
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
+     */
     public function afterSave($isInsert, $changedAttributes)
     {
         if (!$isInsert) {
@@ -166,6 +172,7 @@ class BillCorrection extends ActiveRecord
     /**
      * Пересчитать скорректированную сумму счета
      * @throws ModelValidationException
+     * @throws \yii\base\Exception
      */
     public function recalcSumCorrection()
     {
@@ -230,18 +237,21 @@ class BillCorrection extends ActiveRecord
     /**
      * Получение позиций счета по типу документа
      *
-     * @param integer $typeId
-     * @return array
+     * @param int $typeId
+     * @param bool $isInsert
+     * @return array|bool
+     * @throws \yii\base\Exception
      */
-    private function _getOriginalBillLinesByTypeId($typeId, $isInsert = null)
+    private function _getOriginalBillLinesByTypeId($typeId, $isInsert = false)
     {
         return $this->bill->getLinesByTypeId($typeId, $isInsert);
     }
 
     /**
-     * Дата счета фактуры в timestamp
+     * Дата счета-фактуры в timestamp
      *
      * @return int
+     * @throws \Exception
      */
     public function getInvoiceDate()
     {
@@ -264,6 +274,7 @@ class BillCorrection extends ActiveRecord
      * Сумма позиций изначального документа
      *
      * @return float
+     * @throws \yii\base\Exception
      */
     public function getOriginalSum()
     {

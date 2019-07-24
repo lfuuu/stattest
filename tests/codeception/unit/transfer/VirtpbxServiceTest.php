@@ -53,6 +53,7 @@ class VirtpbxServiceTest extends _BaseService
     /**
      * @param ClientAccount $clientAccount
      * @return AccountTariff
+     * @throws ModelValidationException
      */
     protected function createUniversalService(ClientAccount $clientAccount)
     {

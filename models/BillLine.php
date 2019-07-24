@@ -3,14 +3,11 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
-use app\dao\BillDao;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
-use yii\base\InvalidParamException;
-use yii\base\BaseObject;
 
 /**
- * Class BillLine
+ * Расчётная проводка
  *
  * @property int $pk
  * @property string $bill_no        номер счета, ссылка на счет

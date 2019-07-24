@@ -6,7 +6,6 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\DidGroup;
-use app\models\EventQueue;
 use app\models\LogTarif;
 use app\models\TariffVoipPackage;
 use app\models\usages\UsageInterface;
@@ -16,36 +15,14 @@ use app\modules\transfer\components\services\Processor;
 use app\modules\transfer\components\services\regular\RegularTransfer;
 use app\modules\transfer\components\services\universal\UniversalTransfer;
 use app\modules\transfer\forms\services\BaseForm;
-use app\modules\uu\models\AccountEntry;
-use app\modules\uu\models\AccountLogMin;
-use app\modules\uu\models\AccountLogPeriod;
-use app\modules\uu\models\AccountLogResource;
-use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
-use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Bill;
 use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\Tariff;
-use app\modules\uu\models\TariffCountry;
-use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
-use app\modules\uu\models\TariffResource;
-use app\modules\uu\models\TariffVoipCity;
-use app\modules\uu\models\TariffVoipCountry;
-use app\modules\uu\models\TariffVoipNdcType;
 use app\tests\codeception\fixtures\DestinationFixture;
 use app\tests\codeception\fixtures\EntryPointFixture;
 use app\tests\codeception\fixtures\NumberFixture;
 use app\tests\codeception\fixtures\TariffVoipPackageFixture;
-use app\tests\codeception\fixtures\uu\TariffCountryFixture;
-use app\tests\codeception\fixtures\uu\TariffFixture;
-use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
-use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
-use app\tests\codeception\fixtures\uu\TariffResourceFixture;
-use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
-use app\tests\codeception\fixtures\uu\TariffVoipCountryFixture;
-use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use DateTime;
 use DateTimeZone;
 use tests\codeception\unit\models\_ClientAccount;
@@ -354,6 +331,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
     /**
      * @param string $date
      * @return string
+     * @throws \Exception
      */
     protected function getActivationDate($date = '-1 week')
     {
