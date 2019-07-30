@@ -13,7 +13,6 @@ $request = Yii::$app->request->get();
         <input type="hidden" name="searchType"
                value="<?= (isset($request['searchType'])) ? $request['searchType'] : '' ?>"
                id="search-type">
-
         <div class="col-sm-4">
             <div class="input-group">
                 <input id="search" type="text" class="form-control input-sm" placeholder="Search ..." name="search"
@@ -67,6 +66,9 @@ $request = Yii::$app->request->get();
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="sip"
                         data-placeholder="Поиск по номеру SIP-учетки" title="Поиск по номеру SIP-учетки">SIP
+                </button>
+                <button type="submit" class="btn btn-default btn-xs" data-search="roistat_visit"
+                        data-placeholder="roistat visit" title="Поиск по roistat-visit заявки">RS
                 </button>
             </div>
         </div>

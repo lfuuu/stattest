@@ -10,6 +10,7 @@ use app\models\Bill;
 use app\models\GoodsIncomeOrder;
 use app\models\Invoice;
 use app\models\Trouble;
+use app\models\TroubleRoistat;
 use app\models\TroubleStage;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -141,6 +142,24 @@ class SearchController extends BaseController
                 }
 
                 return $this->render('result', ['message' => 'Заявка № ' . $search . ' не найдена']);
+
+            case 'roistat_visit':
+
+                $troubleRoistat = TroubleRoistat::find()
+                    ->select('trouble_id')
+                    ->from('tt_troubles_roistat')
+                    ->where(['roistat_visit' => $search])
+                    ->scalar();
+
+                if ($trouble = Trouble::findOne($troubleRoistat)) {
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [['url' => $trouble->getUrl(), 'value' => $trouble->id]];
+                    }
+                    return $this->redirect($trouble->getUrl());
+                }
+
+                return $this->render('result', ['message' => 'Заявка c roistat visit ' . $search . ' не найдена!']);
 
             case 'troubleText':
                 /** @var Trouble $model */
