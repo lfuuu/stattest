@@ -362,14 +362,21 @@ class BillerController extends Controller
                     continue;
                 }
 
-                $info = $sberbankApi->getOrderStatusExtended($order->order_id);
+                try {
 
-                if ($info['orderStatus'] == SberbankOrder::STATUS_PAYED) {
-                    $order->makePayment($info);
+                    $info = $sberbankApi->getOrderStatusExtended($order->order_id);
 
-                    ClientAccount::dao()->updateBalance($order->bill->client_id);
+                    if ($info['orderStatus'] == SberbankOrder::STATUS_PAYED) {
+                        $order->makePayment($info);
 
-                    echo PHP_EOL . date("r") . ': ' . $order->bill_no . ' - payed';
+                        ClientAccount::dao()->updateBalance($order->bill->client_id);
+
+                        echo PHP_EOL . date("r") . ': ' . $order->bill_no . ' - payed';
+                    }
+                } catch (\Exception $e) {
+                    echo PHP_EOL;
+                    var_dump($order->getAttributes());
+                    echo PHP_EOL . 'Error: ' . $e->getMessage();
                 }
             }
         }
@@ -457,8 +464,7 @@ class BillerController extends Controller
             $from->format(DateTimeZoneHelper::DATE_FORMAT),
             $to->format(DateTimeZoneHelper::DATE_FORMAT)
         ])
-            ->andWhere(['>', 'sum', 0])
-        ;
+            ->andWhere(['>', 'sum', 0]);
 
 
         /** @var Bill $bill */
