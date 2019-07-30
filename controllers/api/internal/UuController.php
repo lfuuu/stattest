@@ -507,9 +507,6 @@ class UuController extends ApiInternalController
                 $accountTariff->voip_number;
 
             $voip_city_id = $accountTariff->city_id;
-            if ($accountTariff->city_id) {
-                $voip_country_id = $accountTariff->city->country_id;
-            }
         }
 
         if ($client_account_id) {
@@ -553,6 +550,7 @@ class UuController extends ApiInternalController
                     $priceLevelField = 'tariff_status_main' . $clientAccount->price_level;
                     $tariff_status_id = $number->didGroup->{$priceLevelField};
                     $voip_ndc_type_id = $number->ndc_type_id;
+                    $voip_country_id = $number->country_code;
                     break;
 
                 case ServiceType::ID_VOIP_PACKAGE_CALLS:
@@ -569,6 +567,7 @@ class UuController extends ApiInternalController
                     $priceLevelField = 'tariff_status_package' . $clientAccount->price_level;
                     $tariff_status_id = $number->didGroup->{$priceLevelField};
                     $voip_ndc_type_id = $number->ndc_type_id;
+                    $voip_country_id = $number->country_code;
                     break;
             }
         }
