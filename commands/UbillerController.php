@@ -106,7 +106,20 @@ class UbillerController extends Controller
             echo PHP_EOL . $rater->getDescription() . '. ' . date(DATE_ATOM) . PHP_EOL;
 
             $rater->tarificate();
-            echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+
+            $dbStat = ['???', 0];
+            if (Yii::getLogger() && Yii::getLogger()->getDbProfiling()) {
+                $dbStat = Yii::getLogger()->getDbProfiling();
+            }
+            echo
+                PHP_EOL . date(DATE_ATOM)
+                . ', Memory: ' . sprintf(
+                        '%4.2f MB (%4.2f MB in peak)',
+                        memory_get_usage(true) / 1048576,
+                        memory_get_peak_usage(true) / 1048576
+                    )
+                . ', DB queries: ' . sprintf('%s (%6.3f sec)', $dbStat[0], $dbStat[1])
+                . PHP_EOL;
             return ExitCode::OK;
 
         } catch (\Exception $e) {

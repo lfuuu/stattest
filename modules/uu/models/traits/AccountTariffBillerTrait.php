@@ -4,7 +4,6 @@ namespace app\modules\uu\models\traits;
 
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
 use app\models\usages\UsageInterface;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -186,9 +185,7 @@ trait AccountTariffBillerTrait
         $dateTo = $dateFrom = null;
         $minLogDatetime = self::getMinLogDatetime();
 
-        /** @var ClientAccount $clientAccount */
-        $clientAccount = $this->clientAccount;
-        $dateTimeNow = $clientAccount->getDatetimeWithTimezone();
+        $dateTimeNow = $this->getClientDatetimeWithTimezone();
 
         // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам

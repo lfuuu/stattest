@@ -5,9 +5,11 @@ namespace app\modules\uu\tarificator;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToTariff;
+use app\modules\uu\classes\DateTimeOffsetParams;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use app\widgets\ConsoleProgress;
 use RangeException;
 use Yii;
 
@@ -17,6 +19,7 @@ use Yii;
 class AccountLogPeriodTarificator extends Tarificator
 {
     const DAYS_IN_MONTH = 30.42; // в среднем по всем месяцам (365 / 12)
+    const BATCH_READ_SIZE = 500;
 
     /**
      * Рассчитать плату всех услуг
@@ -30,6 +33,9 @@ class AccountLogPeriodTarificator extends Tarificator
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
 
+        $dateTimeOffsetParams = new DateTimeOffsetParams($this);
+        $utcDateTime = $dateTimeOffsetParams->getCurrentDateTime();
+
         // в целях оптимизации удалить старые данные
         if (!$accountTariffId) {
             AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
@@ -40,21 +46,19 @@ class AccountLogPeriodTarificator extends Tarificator
             ->andWhere([
                 'OR',
                 ['account_log_period_utc' => null], // абонентка не списана
-                ['<', 'account_log_period_utc', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT)] // или списана давно
+                ['<', 'account_log_period_utc', $utcDateTime->format(DateTimeZoneHelper::DATETIME_FORMAT)] // или списана давно
             ]);
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
-        $i = 0;
-        /** @var AccountTariff $accountTariff */
-        foreach ($accountTariffQuery->each() as $accountTariff) {
-            if ($i++ % 1000 === 0) {
-                $this->out('. ');
-            }
+        $progress = new ConsoleProgress($accountTariffQuery->count());
+        foreach ($accountTariffQuery->each(self::BATCH_READ_SIZE) as $accountTariff) {
+            /** @var AccountTariff $accountTariff */
+            $progress->nextStep();
 
             $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
-                $this->tarificateAccountTariff($accountTariff);
+                $this->tarificateAccountTariff($accountTariff, $dateTimeOffsetParams);
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
@@ -72,17 +76,18 @@ class AccountLogPeriodTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге
      *
      * @param AccountTariff $accountTariff
-     * @throws \RangeException
-     * @throws \LogicException
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \Exception
+     * @param DateTimeOffsetParams|null $dateTimeOffsetParams
+     * @throws ModelValidationException
      * @throws \Throwable
      */
-    public function tarificateAccountTariff(AccountTariff $accountTariff)
+    public function tarificateAccountTariff(AccountTariff $accountTariff, DateTimeOffsetParams $dateTimeOffsetParams = null)
     {
         $maxDateTo = 0;
 
+        $accountTariff->setDateOffsetParams($dateTimeOffsetParams);
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods();
+        $accountTariff->setDateOffsetParams(null);
+
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
             $maxDateTo = max($maxDateTo, $accountLogPeriod->date_to);

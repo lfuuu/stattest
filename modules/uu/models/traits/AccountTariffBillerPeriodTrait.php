@@ -4,11 +4,16 @@ namespace app\modules\uu\models\traits;
 
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
 use app\modules\uu\classes\AccountLogFromToTariff;
+use app\modules\uu\classes\DateTimeOffsetParams;
 use app\modules\uu\models\AccountLogPeriod;
 
 trait AccountTariffBillerPeriodTrait
 {
+    /** @var DateTimeOffsetParams */
+    public $dateOffsetParams;
+
     /**
      * Вернуть даты периодов, по которым не произведен расчет абонентки
      *
@@ -32,7 +37,6 @@ trait AccountTariffBillerPeriodTrait
         // по которым должен быть произведен расчет
         /** @var AccountLogFromToTariff[] $accountLogFromToTariffs */
         $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriodMain = null, $isWithCurrent = true); // все
-
 
         // по которым не произведен расчет, хотя был должен
         $untarificatedPeriods = [];
@@ -77,5 +81,35 @@ trait AccountTariffBillerPeriodTrait
         }
 
         return $untarificatedPeriods;
+    }
+
+    /**
+     * Устанавливает натсройки смещения времени для получения не тарифицированных периодов (абонентка)
+     *
+     * @param DateTimeOffsetParams|null $dateTimeOffsetParams
+     * @return $this
+     */
+    public function setDateOffsetParams($dateTimeOffsetParams)
+    {
+        $this->dateOffsetParams = $dateTimeOffsetParams;
+
+        return $this;
+    }
+
+    /**
+     * Возвращает текущее время
+     *
+     * @return \DateTimeImmutable
+     * @throws \Exception
+     */
+    public function getClientDatetimeWithTimezone()
+    {
+        if ($this->dateOffsetParams) {
+            return $this->dateOffsetParams->getClientDateTime($this);
+        }
+
+        /** @var ClientAccount $clientAccount */
+        $clientAccount = $this->clientAccount;
+        return $clientAccount->getDatetimeWithTimezone();
     }
 }

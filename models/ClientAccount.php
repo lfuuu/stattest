@@ -1345,7 +1345,6 @@ class ClientAccount extends HistoryActiveRecord
         $timezone = new DateTimeZone($timezoneName);
         return (new DateTimeImmutable($time))
             ->setTimezone($timezone);
-
     }
 
     /**

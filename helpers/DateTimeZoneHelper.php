@@ -71,6 +71,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
      * @param DateTimeZone|string $timezone
      * @param string $format
      * @return string
+     * @throws \Exception
      */
     public static function getActivationDateTime($date, $timezone, $format = self::DATETIME_FORMAT)
     {
@@ -95,6 +96,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
      * @param string $checkDate
      * @param string $showDate
      * @return DateTime|string
+     * @throws \Exception
      */
     public static function getDateTimeLimit($checkDate, $showDate = '')
     {
@@ -140,10 +142,38 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
      *
      * @param string $date в дефолтной таймзоне
      * @return DateTimeImmutable
+     * @throws \Exception
      */
     public static function getUtcDateTime($date = 'now')
     {
         return (new DateTimeImmutable($date))
             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+    }
+
+    /**
+     * Дата на 1-е число месяца
+     *
+     * @param DateTimeImmutable $dateTime
+     * @return bool
+     */
+    public static function isFirstDayOfMonth(DateTimeImmutable $dateTime)
+    {
+        $currentDay = (int)$dateTime->format('j');
+
+        return $currentDay === 1;
+    }
+
+    /**
+     * Дата на последнее число месяца
+     *
+     * @param DateTimeImmutable $dateTime
+     * @return bool
+     */
+    public static function isLastDayOfMonth(DateTimeImmutable $dateTime)
+    {
+        $daysInMonth = (int)$dateTime->format('t');
+        $currentDay = (int)$dateTime->format('j');
+
+        return $currentDay === $daysInMonth;
     }
 }

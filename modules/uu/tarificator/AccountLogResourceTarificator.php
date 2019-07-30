@@ -6,11 +6,13 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
+use app\modules\uu\classes\DateTimeOffsetParams;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
+use app\widgets\ConsoleProgress;
 use DateTimeImmutable;
 use Yii;
 
@@ -19,6 +21,8 @@ use Yii;
  */
 class AccountLogResourceTarificator extends Tarificator
 {
+    const BATCH_READ_SIZE = 500;
+
     /** @var ResourceReaderInterface[] кэш */
     protected $resourceIdToReader = [];
 
@@ -32,7 +36,10 @@ class AccountLogResourceTarificator extends Tarificator
     public function tarificate($accountTariffId = null)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
-        $minTarificateDatetime = AccountTariff::getMinSetupDatetime();
+        $minSetupDatetime = AccountTariff::getMinSetupDatetime();
+
+        $dateTimeOffsetParams = new DateTimeOffsetParams($this);
+        $utcDateTime = $dateTimeOffsetParams->getCurrentDateTime();
 
         // в целях оптимизации удалить старые данные
         if (!$accountTariffId) {
@@ -43,19 +50,21 @@ class AccountLogResourceTarificator extends Tarificator
         $accountTariffQuery = AccountTariff::find()
             ->where([
                 'OR',
-                ['IS NOT', 'tariff_period_id', null], // незакрытые
-                ['>=', 'tariff_period_utc', $minTarificateDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)], // или недавно произошла смена тарифа (если вчера закрыли, то деньги все равно надо списать)
+                // незакрытые
+                ['IS NOT', 'tariff_period_id', null],
+                // или недавно произошла смена тарифа (если вчера закрыли, то деньги все равно надо списать)
+                ['>=', 'tariff_period_utc', $minSetupDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)],
             ])
             ->andWhere([
                 'OR',
                 ['account_log_resource_utc' => null], // ресурсы не списаны
-                ['<', 'account_log_resource_utc', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATE_FORMAT)] // или списаны давно
+                ['<', 'account_log_resource_utc', $utcDateTime->format(DateTimeZoneHelper::DATE_FORMAT)] // или списаны давно
             ]);
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         $i = 0;
-        /** @var AccountTariff $accountTariff */
-        foreach ($accountTariffQuery->each() as $accountTariff) {
+        foreach ($accountTariffQuery->each(self::BATCH_READ_SIZE) as $accountTariff) {
+            /** @var AccountTariff $accountTariff */
             if ($i++ % 1000 === 0) {
                 $this->out('. ');
             }
