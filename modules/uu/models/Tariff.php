@@ -163,7 +163,7 @@ class Tariff extends ActiveRecord
             [['currency_id'], 'string', 'max' => 3],
             [['name'], 'required'],
             ['vm_id', 'validatorVm', 'skipOnEmpty' => false],
-            [['count_of_validity_period', 'count_of_carry_period'], 'integer', 'min'=>0, 'max' => 30],
+            [['count_of_validity_period', 'count_of_carry_period'], 'integer', 'min' => 0, 'max' => 30],
             ['count_of_validity_period', 'validatorTest', 'skipOnEmpty' => false],
             ['count_of_carry_period', 'validatorBurnInternet'],
         ];
@@ -449,7 +449,8 @@ class Tariff extends ActiveRecord
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
         $serviceTypeId = null
-    ) {
+    )
+    {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
@@ -571,8 +572,9 @@ class Tariff extends ActiveRecord
 
         if ($cityId && $this->service_type_id == ServiceType::ID_VOIP) {
             $query->joinWith('voipCities')
-                ->andWhere([
-                    TariffVoipCity::tableName() . '.city_id' => $cityId,
+                ->andWhere(['OR',
+                    [TariffVoipCity::tableName() . '.city_id' => $cityId],
+                    [TariffVoipCity::tableName() . '.city_id' => null]
                 ]);
         }
 
