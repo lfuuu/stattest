@@ -12,6 +12,8 @@ class ConsoleProgress
     protected $stepLength;
     protected $index;
     protected $progress;
+    /** @var \Closure */
+    protected $outputCallback;
 
     /**
      * ConsoleProgress constructor.
@@ -19,16 +21,19 @@ class ConsoleProgress
      * @param string $stepString
      * @param int $stepLength
      */
-    public function __construct($count, $stepString = '. ', $stepLength = 50)
+    public function __construct($count, \Closure $outputCallback = null, $stepString = '. ', $stepLength = 50)
     {
         $this->count = $count;
         $this->stepString = $stepString;
         $this->stepLength = $stepLength;
         $this->index = $this->progress = 0;
+        if ($outputCallback) {
+            $this->outputCallback = $outputCallback;
+        }
 
         if ($count) {
             $this->printStep($this->stepLength);
-            echo $count . PHP_EOL;
+            $this->output($count . PHP_EOL);
         }
     }
 
@@ -39,7 +44,24 @@ class ConsoleProgress
      */
     protected function printStep($size = 1)
     {
-        echo str_repeat('. ', $size);
+        $this->output(
+            str_repeat($this->stepString, $size)
+        );
+    }
+
+    /**
+     * Вывод
+     *
+     * @param $string
+     */
+    protected function output($string)
+    {
+        if ($this->outputCallback) {
+            $closure = $this->outputCallback;
+            $closure($string);
+        } else {
+            echo $string;
+        }
     }
 
     /**

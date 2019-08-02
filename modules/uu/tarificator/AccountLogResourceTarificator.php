@@ -63,10 +63,11 @@ class AccountLogResourceTarificator extends Tarificator
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         $i = 0;
+        $all = $accountTariffQuery->count();
         foreach ($accountTariffQuery->each(self::BATCH_READ_SIZE) as $accountTariff) {
             /** @var AccountTariff $accountTariff */
-            if ($i++ % 1000 === 0) {
-                $this->out('. ');
+            if ($i++ % 500 === 0) {
+                $this->out(PHP_EOL . ($i - 1) . ' of ' . $all . ' account tariffs processed' . PHP_EOL);
             }
 
             $transaction = Yii::$app->db->beginTransaction();

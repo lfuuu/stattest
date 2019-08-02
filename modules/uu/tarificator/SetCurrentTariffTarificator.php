@@ -15,6 +15,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\Module;
+use app\widgets\ConsoleProgress;
 use Yii;
 
 /**
@@ -73,7 +74,11 @@ SQL;
         )
             ->query();
 
+        $progress = new ConsoleProgress($query->count(), function ($string) {
+            $this->out($string);
+        });
         foreach ($query as $row) {
+            $progress->nextStep();
 
             $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
             $newTariffId = $row['new_tariff_period_id'];

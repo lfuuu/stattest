@@ -9,6 +9,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
+use app\widgets\ConsoleProgress;
 use Yii;
 use yii\base\InvalidParamException;
 
@@ -53,11 +54,13 @@ SQL;
 
         $utcTimezone = new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
 
+        $progress = new ConsoleProgress($query->count(), function ($string) {
+            $this->out($string);
+        });
         foreach ($query as $row) {
+            $progress->nextStep();
 
-            $this->out('. ');
             $transaction = null;
-
             try {
 
                 $accountTariff = AccountTariff::findOne(['id' => $row['id']]);

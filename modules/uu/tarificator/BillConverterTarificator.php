@@ -5,6 +5,7 @@ namespace app\modules\uu\tarificator;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\Bill;
+use app\widgets\ConsoleProgress;
 
 /**
  * Конвертацию УУ-счетов в старую бухгалтерию
@@ -34,8 +35,12 @@ class BillConverterTarificator extends Tarificator
             $activeQuery->andWhere(['client_account_id' => $clientAccountId]);
         }
 
-        /** @var Bill $bill */
+        $progress = new ConsoleProgress($activeQuery->count(), function ($string) {
+            $this->out($string);
+        });
         foreach ($activeQuery->each() as $bill) {
+            $progress->nextStep();
+            /** @var Bill $bill */
             $this->transferBill($bill);
         }
     }
@@ -51,7 +56,6 @@ class BillConverterTarificator extends Tarificator
     public function transferBill(Bill $bill)
     {
         \app\models\Bill::dao()->transferUniversalBillsToBills($bill);
-        $this->out('. ');
 
         $bill->is_converted = 1;
         if (!$bill->save()) {

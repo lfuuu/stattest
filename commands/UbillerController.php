@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\classes\QueryCounterTarget;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\tarificator\AccountEntryTarificator;
@@ -28,6 +29,42 @@ use yii\console\ExitCode;
  */
 class UbillerController extends Controller
 {
+    protected $logger;
+    protected $queryCounter;
+
+    /**
+     * Плучаем основной логгер
+     *
+     * @return \yii\log\Logger
+     */
+    protected function getLogger()
+    {
+        return Yii::getLogger();
+    }
+
+    /**
+     * Получаем таргет-объект со статистикой запросов к БД
+     *
+     * @return QueryCounterTarget|null
+     */
+    public function getQueryCounter()
+    {
+        if (!$this->queryCounter) {
+            $logger = $this->getLogger();
+
+            if (
+                $logger &&
+                $logger->dispatcher
+            ) {
+                $dbStatTarget = new QueryCounterTarget();
+                $logger->dispatcher->targets[] = $dbStatTarget;
+
+                $this->queryCounter = $dbStatTarget;
+            }
+        }
+
+        return $this->queryCounter;
+    }
 
     /**
      * Создать транзакции/проводки/счета за вчера и сегодня. hot 4 минуты / cold 3 часа
@@ -103,22 +140,38 @@ class UbillerController extends Controller
         try {
             /** @var Tarificator $rater */
             $rater = (new $className($isEcho = true));
-            echo PHP_EOL . $rater->getDescription() . '. ' . date(DATE_ATOM) . PHP_EOL;
+            echo PHP_EOL . '******************************************************************************************************************************************************';
+            echo PHP_EOL . '******************************************************************************************************************************************************';
+            echo PHP_EOL . $rater->getDescription() . '. ' . date("Y-m-d H:i:s P") . PHP_EOL;
 
+            $logger = $this->getLogger();
+            $queryCounter = $this->getQueryCounter();
+            if ($queryCounter) {
+                $logger->flush();
+                $queryCounter->reset();
+            }
+
+            $time = microtime(1);
+
+            // run rater
             $rater->tarificate();
 
+            $time = microtime(1) - $time;
+
             $dbStat = ['???', 0];
-            if (Yii::getLogger() && Yii::getLogger()->getDbProfiling()) {
-                $dbStat = Yii::getLogger()->getDbProfiling();
+            if ($queryCounter) {
+                $logger->flush();
+                $dbStat = $queryCounter->getStat();
             }
             echo
-                PHP_EOL . date(DATE_ATOM)
+                PHP_EOL . date("Y-m-d H:i:s P")
+                . ', Done in: ' . gmdate("H:i:s", $time)
                 . ', Memory: ' . sprintf(
                         '%4.2f MB (%4.2f MB in peak)',
                         memory_get_usage(true) / 1048576,
                         memory_get_peak_usage(true) / 1048576
                     )
-                . ', DB queries: ' . sprintf('%s (%6.3f sec)', $dbStat[0], $dbStat[1])
+                . ', DB queries: ' . sprintf('%s (%6.3f sec), duplicates: %s', $dbStat[0], $dbStat[1], $dbStat[2])
                 . PHP_EOL;
             return ExitCode::OK;
 

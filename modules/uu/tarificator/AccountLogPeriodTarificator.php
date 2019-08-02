@@ -51,7 +51,9 @@ class AccountLogPeriodTarificator extends Tarificator
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
-        $progress = new ConsoleProgress($accountTariffQuery->count());
+        $progress = new ConsoleProgress($accountTariffQuery->count(), function ($string) {
+            $this->out($string);
+        });
         foreach ($accountTariffQuery->each(self::BATCH_READ_SIZE) as $accountTariff) {
             /** @var AccountTariff $accountTariff */
             $progress->nextStep();
