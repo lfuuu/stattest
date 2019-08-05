@@ -1,8 +1,12 @@
 <?php
 
+use app\classes\Html2Pdf;
 use app\models\Bill;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\documents\DocumentReport;
+use app\models\Country;
+use app\modules\uu\models_light\InvoiceLight;
+use yii\web\Response;
 
 define("PATH_TO_ROOT", '../stat/');
 include PATH_TO_ROOT . "conf_yii.php";
@@ -12,7 +16,7 @@ if (!($R = \app\classes\Encrypt::decodeToArray(get_param_raw('bill')))) {
 
 $bill = null;
 
-if (!isset($R["object"]) || $R["object"] != "receipt-2-RUB") {
+if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RUB")) {
     if (!$R['client'] || !$R['bill']) {
         return;
     }
@@ -31,6 +35,43 @@ $isPdf = isset($R['is_pdf']) && $R['is_pdf'] == 1;
 $isEmailed = get_param_raw('emailed', 1);
 
 header('Content-Type: ' . ($isPdf ? 'application/pdf' : 'text/html; charset=utf-8'));
+
+if (isset($R['tpl1']) && $R['tpl1']) {
+
+    if (!isset($R['invoice_id']) || !isset($R['client'])) {
+        return;
+    }
+
+    $invoice = \app\models\Invoice::findOne(['id' => $R['invoice_id']]);
+
+    if (
+        !$invoice
+        || !($bill = $invoice->bill)
+        || !($clientAccount = $bill->clientAccount)
+        || $bill->client_id != $R['client']
+    ) {
+        return;
+    }
+
+    $clientAccount = $invoice->bill->clientAccount;
+    $invoiceDocument = (new InvoiceLight($clientAccount));
+    $invoiceDocument->setInvoice($invoice);
+    $invoiceDocument->setBill($bill);
+    $invoiceDocument->setLanguage(Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->lang);
+
+    $generator = new Html2Pdf();
+    $generator->html = $invoiceDocument->render();
+    $pdfContent = $generator->pdf;
+
+
+    $attachmentName = $clientAccount->id . '-' . $invoice->number . '.pdf';
+
+    Yii::$app->response->format = Response::FORMAT_RAW;
+    Yii::$app->response->content = $pdfContent;
+    Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
+
+    \Yii::$app->end();
+}
 
 if (
     isset($R['doc_type'])

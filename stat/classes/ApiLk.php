@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\ActOfReconciliation;
 use app\classes\api\PayPal;
 use app\classes\Assert;
 use app\classes\Encrypt;
@@ -51,7 +52,7 @@ class ApiLk
      */
     private static function getAccount($clientId)
     {
-        return ClientAccount::findOne($clientId);
+        return ClientAccount::findOne(['id' => $clientId]);
     }
 
     public static function getBalanceList($clientId)
@@ -140,6 +141,26 @@ class ApiLk
         ];
 
         return ["bills" => $bills, "sums" => $nSum];
+    }
+
+    public static function getInvoiceBalance($clientId)
+    {
+        if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId)) {
+            throw new Exception("account_is_bad");
+        }
+
+        $account = self::getAccount($clientId);
+        if (!$account) {
+            throw new Exception("account_not_found");
+        }
+
+        return ActOfReconciliation::me()->getData(
+            $account,
+            '2019-01-01',
+            (new DateTimeImmutable('now'))
+                ->modify('last day of this month')
+                ->format(DateTimeZoneHelper::DATE_FORMAT)
+        );
     }
 
     public static function getUserBillOnSum($clientId, $sum)

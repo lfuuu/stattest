@@ -63,11 +63,20 @@ if ($isSubmit) {
             ],
             [
                 'attribute' => 'income_sum',
-                'label' => 'Дебет'
+                'label' => 'Дебет',
+                'format' => 'raw',
+                'value' => function($row) {
+                    return $row['income_sum'] !== '' ? number_format($row['income_sum'], 2, ',', ' ') : '';
+                }
             ],
             [
                 'attribute' => 'outcome_sum',
-                'label' => 'Кредит'
+                'label' => 'Кредит',
+                'format' => 'raw',
+                'value' => function($row) {
+                    return $row['outcome_sum'] !== '' ? number_format($row['outcome_sum'], 2, ',', ' ') : '';
+                }
+
             ],
         ],
         'isFilterButton' => false
@@ -94,7 +103,7 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
                 <td>    <?= date("d.m.Y", strtotime($value['bill_date'])) ?>&nbsp;</td>
                 <td> &#8470;<?= $value['inv_no'] ?>&nbsp;</td>
                 <td> (<?= $value['item'] ?>)&nbsp;</td>
-                <td>    <?= number_format($value['sum'], 2, ',', '') ?>&nbsp;рублей</td>
+                <td>    <?= number_format($value['sum'], 2, ',', ' ') ?>&nbsp;рублей</td>
             </tr>
         <?php endforeach; ?>
     </table>
@@ -102,9 +111,9 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
 
     &nbsp;задолженность
 <?php if ($deposit_balance > 0.0001) {
-    echo 'в пользу ' . $firm->name . ' составляет ' . number_format($deposit_balance, 2, ',', '') . ' рублей.';
+    echo 'в пользу ' . $firm->name . ' составляет ' . number_format($deposit_balance, 2, ',', ' ') . ' рублей.';
 } elseif ($deposit_balance < 0.0001) {
-    echo 'в пользу ' . $contragent->name_full . ' составляет ' . number_format(-$deposit_balance, 2, ',', '') . ' рублей.';
+    echo 'в пользу ' . $contragent->name_full . ' составляет ' . number_format(-$deposit_balance, 2, ',', ' ') . ' рублей.';
 } else {
     echo 'отсутствует';
 }

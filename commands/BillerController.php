@@ -2,9 +2,11 @@
 
 namespace app\commands;
 
+use app\classes\ActOfReconciliation;
 use app\classes\api\SberbankApi;
 use app\classes\HandlerLogger;
 use app\helpers\DateTimeZoneHelper;
+use app\models\BalanceByMonth;
 use app\models\Bill;
 use app\models\ClientAccountOptions;
 use app\models\important_events\ImportantEvents;
@@ -453,10 +455,11 @@ class BillerController extends Controller
         $query = Bill::find()
             ->alias('b');
 
-        $from = (new \DateTimeImmutable())
-            ->setTime(0, 0, 0)
-            ->modify('first day of previous month');
-        $to = $from->modify('last day of this month');
+        $now = (new \DateTimeImmutable())
+            ->setTime(0, 0, 0);
+
+        $from = $now->modify('first day of previous month');
+        $to = $now->modify('last day of this month');
 
         $query->andWhere([
             'between',
@@ -477,8 +480,10 @@ class BillerController extends Controller
                 echo PHP_EOL . $e->getMessage();
                 echo PHP_EOL;
             }
-
         }
+
+        echo PHP_EOL . 'start save balances';
+        ActOfReconciliation::me()->saveBalances();
     }
 
     /**
@@ -577,5 +582,13 @@ ORDER BY mn, firm_name, bs_name, currency
                 echo "\t" . str_replace(".", ",", $sum);
             }
         }
+    }
+
+    /**
+     * Сохраняем балансы в ЛС по месяцам
+     */
+    public function actionSaveMonthBalance()
+    {
+        ActOfReconciliation::me()->saveBalances();
     }
 }

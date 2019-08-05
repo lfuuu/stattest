@@ -47,6 +47,7 @@ function do_func($function)
 
 		case 'getBalance': return Api::getBalance(get_param_raw("client_id"), false); break;
 		case 'getBalanceList': return ApiLk::getBalanceList(get_param_raw("client_id")); break;
+		case 'getInvoiceBalance': return ApiLk::getInvoiceBalance(get_param_raw("client_id")); break;
 		case 'getUserBillOnSum': return ApiLk::getUserBillOnSum(get_param_raw("client_id"), get_param_raw("sum")); break;
 		case 'getBillURL': return ApiLk::getBillURL(get_param_raw("bill_no")); break;
 		case 'getReceiptURL': return ApiLk::getReceiptURL(get_param_raw("client_id"), get_param_raw("sum")); break;
