@@ -5,6 +5,7 @@ namespace app\classes;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
 use app\models\ClientAccount;
+use app\models\Country;
 use app\models\Invoice;
 use app\models\Payment;
 use app\modules\uu\models\Bill as uuBill;
@@ -156,6 +157,19 @@ class ActOfReconciliation extends Singleton
             })
         );
 
+        // У клиентов вне россии стоит неправильная дата. Её надо брать из счета.
+        if ($account->getUuCountryId() != Country::RUSSIA) {
+            $data = array_map(function($value) use ($account) {
+                if ($value['type'] == 'invoice') {
+                    $invoice = Invoice::findOne(['id' => $value['id']]);
+                    if ($invoice && $invoice->bill) {
+                        $value['date'] = $invoice->bill->bill_date;
+                    }
+                }
+                return $value;
+            }, $data);
+        }
+
         $result = [];
         $balance = $account->billingCounters->realtimeBalance;
         $accountingBalance = $account->balance;
@@ -194,6 +208,15 @@ class ActOfReconciliation extends Singleton
             'description' => 'current_statement',
         ];
         $balance += $currentStatementSum;
+
+        $firstMonthDate = date(DateTimeZoneHelper::DATE_FORMAT, strtotime('first day of this month'));
+        $result[] = [
+            'type' => 'month',
+            'date' => $firstMonthDate,
+            'add_datetime' => $setDateTime($firstMonthDate, true),
+            'balance' => $balance,
+            'description' => 'month_balance',
+        ];
 
 
         $findDate = null;
