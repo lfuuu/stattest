@@ -14,6 +14,13 @@ abstract class VpbxResourceReader extends BaseObject implements ResourceReaderIn
 {
     protected $fieldName = '';
 
+    protected $accountTariffId = null;
+
+    /**
+     * @var array
+     */
+    protected $cache = [];
+
     /**
      * Вернуть количество потраченного ресурса
      *
@@ -24,11 +31,15 @@ abstract class VpbxResourceReader extends BaseObject implements ResourceReaderIn
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
+        if ($this->accountTariffId !== $accountTariff->id) {
+            $this->setDateToValue($accountTariff, $dateTime);
+        }
+
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-        $virtpbxStat = VirtpbxStat::findOne([
-            'date' => $date,
-            'usage_id' => $accountTariff->id,
-        ]);
+
+        /** @var $virtpbxStat VirtpbxStat */
+        $virtpbxStat = array_key_exists($date, $this->cache) ?
+            $this->cache[$date] : null;
 
         if (!$virtpbxStat) {
             Yii::error(sprintf('VpbxResourceReader. Нет данных по ресурсу %s. AccountTariffId = %d, дата = %s.', $this->fieldName, $accountTariff->id, $date));
@@ -36,6 +47,28 @@ abstract class VpbxResourceReader extends BaseObject implements ResourceReaderIn
         }
 
         return new Amounts($virtpbxStat->{$this->fieldName}, 0);
+    }
+
+    /**
+     * Построить кэш по этой услуге
+     *
+     * @param AccountTariff $accountTariff
+     * @param DateTimeImmutable $dateTime
+     */
+    protected function setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
+    {
+        $this->accountTariffId = $accountTariff->id;
+
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        $this->cache =
+            VirtpbxStat::find()
+            ->where([
+                'usage_id' => $this->accountTariffId,
+            ])
+            ->andWhere(['>=', 'date', $date])
+            ->indexBy('date')
+            ->all();
     }
 
     /**

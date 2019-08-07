@@ -398,4 +398,38 @@ class ActiveRecord extends \yii\db\ActiveRecord
         }
         return $data;
     }
+
+    /**
+     * Пакетная вставка массива моделей
+     *
+     * @param ActiveRecord[] $models
+     * @return int
+     * @throws ModelValidationException
+     * @throws \yii\db\Exception
+     */
+    public static function batchInsertModels(array $models)
+    {
+        if (empty($models)) {
+            return 0;
+        }
+
+        $rows = [];
+        foreach ($models as $model) {
+            if (!$model->validate()) {
+                // At least one model has invalid data
+                throw new ModelValidationException($model);
+            }
+
+            $rows[] = $model->attributes;
+        }
+
+        return $model
+            ->getDb()
+            ->createCommand()
+            ->batchInsert(
+                $model->tableName(),
+                $model->attributes(),
+                $rows
+            )->execute();
+    }
 }

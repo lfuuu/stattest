@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToTariff;
@@ -48,6 +49,16 @@ class AccountLogPeriodTarificator extends Tarificator
                 ['account_log_period_utc' => null], // абонентка не списана
                 ['<', 'account_log_period_utc', $utcDateTime->format(DateTimeZoneHelper::DATETIME_FORMAT)] // или списана давно
             ]);
+
+        $accountTariffQuery
+            ->with('clientAccount')
+            ->with('accountLogPeriodsByUniqueKey')
+            ->with('accountTariffLogs.accountTariff.clientAccount')
+            ->with('accountTariffLogs.tariffPeriod.tariff')
+            ->with('accountTariffLogs.tariffPeriod.chargePeriod')
+            ->with('tariffPeriod.tariff')
+            ->with('number');
+
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
@@ -78,8 +89,10 @@ class AccountLogPeriodTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге
      *
      * @param AccountTariff $accountTariff
-     * @param DateTimeOffsetParams|null $dateTimeOffsetParams
-     * @throws ModelValidationException
+     * @throws \RangeException
+     * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \Exception
      * @throws \Throwable
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff, DateTimeOffsetParams $dateTimeOffsetParams = null)
@@ -90,13 +103,13 @@ class AccountLogPeriodTarificator extends Tarificator
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods();
         $accountTariff->setDateOffsetParams(null);
 
+        $modelsToSave = [];
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
             $maxDateTo = max($maxDateTo, $accountLogPeriod->date_to);
-            if (!$accountLogPeriod->save()) {
-                throw new ModelValidationException($accountLogPeriod);
-            }
+            $modelsToSave[] = $accountLogPeriod;
         }
+        ActiveRecord::batchInsertModels($modelsToSave);
 
         if ($maxDateTo) {
             // обновить дату, до которой списана абонентка
@@ -106,6 +119,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 ->setTime(0, 0, 0)
                 ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))// перевести в UTC
                 ->modify('+1 day'); // "оплачено по" означает "00:00", а нам надо "23:59"
+
             $accountTariff->account_log_period_utc = $maxDateTimeTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
             if (!$accountTariff->save()) {
                 throw new ModelValidationException($accountTariff);
@@ -137,6 +151,7 @@ class AccountLogPeriodTarificator extends Tarificator
 
         $accountLogPeriod->tariff_period_id = $tariffPeriod->id;
         $accountLogPeriod->account_tariff_id = $accountTariff->id;
+        $accountLogPeriod->populateRelation('accountTariff', $accountTariff);
         $accountLogPeriod->period_price = $tariffPeriod->price_per_period;
 
         $totalDays = 1 + $accountLogFromToTariff->dateTo

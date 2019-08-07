@@ -31,6 +31,7 @@ trait AccountTariffBillerTrait
      * Это нужно для оптимизации, чтобы не хранить много лишних данных, которые не нужны, а только тормозят расчет новых
      *
      * @return DateTimeImmutable
+     * @throws Exception
      */
     public static function getMinLogDatetime()
     {
@@ -42,10 +43,12 @@ trait AccountTariffBillerTrait
     }
 
     /**
-     * Вернуть дату, с которой рассчитываем подключение при сокращенной проверке. Для ускорения пересчета более старые смены тарифов не учитываем (но и не удаляем).
+     * Вернуть дату, с которой рассчитываем подключение при сокращенной проверке.
+     * Для ускорения пересчета более старые смены тарифов не учитываем (но и не удаляем).
      * На расчет минималки, абонентки и ресурсов это не влияет.
      *
      * @return DateTimeImmutable
+     * @throws Exception
      */
     public static function getMinSetupDatetime()
     {

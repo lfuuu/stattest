@@ -30,6 +30,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
      * @param string $format
      * @param bool|true $showTimezoneName
      * @return DateTime|string
+     * @throws \Exception
      */
     public static function getDateTime($date, $format = self::DATETIME_FORMAT, $showTimezoneName = true)
     {
@@ -52,6 +53,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
      * @param DateTimeZone|string $timezone
      * @param string $format
      * @return string
+     * @throws \Exception
      */
     public static function getExpireDateTime($date, $timezone, $format = self::DATETIME_FORMAT)
     {

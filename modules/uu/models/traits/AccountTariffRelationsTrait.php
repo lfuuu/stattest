@@ -20,13 +20,14 @@ use app\modules\uu\models\helper\AccountTariffHelper;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffResource;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
  * @property-read ClientAccount $clientAccount
  * @property-read ServiceType $serviceType
- * @property-read \app\modules\uu\models\Resource[] $resources
+ * @property-read Resource[] $resources
  * @property-read Region $region
  * @property-read City $city
  * @property-read \app\models\Number $number
@@ -47,8 +48,11 @@ use yii\db\Expression;
  *
  * @property-read AccountLogSetup[] $accountLogSetups
  * @property-read AccountLogPeriod[] $accountLogPeriods
+ * @property-read AccountLogPeriod[] $accountLogPeriodsByUniqueKey
  * @property-read AccountLogPeriod $accountLogPeriodLast
  * @property-read AccountLogResource[] $accountLogResources
+ * @property-read AccountLogResource[] $accountLogResourceOptions
+ * @property-read AccountLogResource[] $accountLogResourceTraffics
  *
  * @property-read AccountTariffHelper $helper
  *
@@ -245,6 +249,18 @@ trait AccountTariffRelationsTrait
     /**
      * @return ActiveQuery
      */
+    public function getAccountLogPeriodsByUniqueKey()
+    {
+        return $this->hasMany(AccountLogPeriod::class, ['account_tariff_id' => 'id'])
+            ->indexBy(function (AccountLogPeriod $accountLogPeriod) {
+                return $accountLogPeriod->getUniqueId();
+            })
+            ->inverseOf('accountTariff');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getAccountLogPeriodLast()
     {
         return $this->hasOne(AccountLogPeriod::class, ['account_tariff_id' => 'id'])
@@ -275,11 +291,36 @@ trait AccountTariffRelationsTrait
     /**
      * @return ActiveQuery
      */
+    public function getAccountLogResourceOptions()
+    {
+        return $this->hasMany(AccountLogResource::class, ['account_tariff_id' => 'id'])
+            ->joinWith('tariffResource')
+            ->where([
+                'NOT', [TariffResource::tableName() . '.resource_id' => Resource::getReaderIds()], // только опции
+            ]);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountLogResourceTraffics()
+    {
+        return $this->hasMany(AccountLogResource::class, ['account_tariff_id' => 'id'])
+            ->joinWith('tariffResource')
+            ->where([
+                TariffResource::tableName() . '.resource_id' => Resource::getReaderIds(), // только трафик
+            ]);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getAccountTariffLogs()
     {
         return $this->hasMany(AccountTariffLog::class, ['account_tariff_id' => 'id'])
             ->orderBy(['id' => SORT_DESC])
-            ->indexBy('id');
+            ->indexBy('id')
+            ->inverseOf('accountTariff');
     }
 
     /**
@@ -310,9 +351,9 @@ trait AccountTariffRelationsTrait
         }
 
         $logs = [];
-        foreach($this->accountTariffResourceLogsAll as $accountTariffResourceLog) {
+        foreach($this->accountTariffResourceLogsAll as $id => $accountTariffResourceLog) {
             if ($accountTariffResourceLog->resource_id == $resourceId) {
-                $logs[] = $accountTariffResourceLog;
+                $logs[$id] = $accountTariffResourceLog;
             }
         }
 

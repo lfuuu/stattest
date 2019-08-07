@@ -34,7 +34,7 @@ use yii\db\Expression;
  * @property string $actual_from
  *
  * @property-read AccountTariff $accountTariff
- * @property-read \app\modules\uu\models\Resource $resource
+ * @property-read Resource $resource
  *
  * @method static AccountTariffResourceLog findOne($condition)
  * @method static AccountTariffResourceLog[] findAll($condition)

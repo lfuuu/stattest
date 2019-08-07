@@ -26,6 +26,7 @@ class AccountTariffAddDefaultPackage extends Behavior
      *
      * @param Event $event
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\Exception
      */
     public function addDefaultPackage(Event $event)
     {

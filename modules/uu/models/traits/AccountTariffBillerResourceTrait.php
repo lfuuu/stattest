@@ -22,6 +22,8 @@ trait AccountTariffBillerResourceTrait
     /** @var AccountLogFromToTariff[] */
     protected $accountLogFromToTariffsOption = null;
 
+    protected static $chargePeriodDay;
+
     /**
      * Вернуть периоды, по которым не произведен расчёт по ресурсам-трафику
      *
@@ -37,40 +39,36 @@ trait AccountTariffBillerResourceTrait
     public function getUntarificatedResourceTrafficPeriods()
     {
         // по которым произведен расчет
-        $accountLogsQuery = AccountLogResource::find()
-            ->joinWith('tariffResource')
-            ->where([
-                AccountLogResource::tableName() . '.account_tariff_id' => $this->id,
-                TariffResource::tableName() . '.resource_id' => Resource::getReaderIds(), // только трафик
-            ]);
-
         /** @var AccountLogResource $accountLog */
         $accountLogss = [];
-        foreach ($accountLogsQuery->each() as $accountLog) {
+        foreach ($this->accountLogResourceTraffics as $accountLog) {
             // у трафика date_from и date_to совпадают, поэтому date_to можно игнорировать
             $accountLogss[$accountLog->date_from][$accountLog->tariffResource->resource_id] = $accountLog;
         }
 
         // по которым должен быть произведен расчет
+        if (is_null(self::$chargePeriodDay)) {
+            // если ресурсов несколько, то выгоднее закэшировать, чем по каждому спрашивать одно и то же
+            self::$chargePeriodDay = Period::findOne(['id' => Period::ID_DAY]);
+        }
+
         /** @var AccountLogFromToTariff[] $accountLogFromToTariffs */
-        $chargePeriod = Period::findOne(['id' => Period::ID_DAY]); // трафик - посуточно
         $accountLogFromToTariffs =
             $this->getAccountLogFromToTariffs(
-                $chargePeriod,
+                self::$chargePeriodDay,
                 $isWithCurrent = ($this->service_type_id == ServiceType::ID_ONE_TIME)
             );
 
         // по которым не произведен расчет, хотя был должен
         $unTarificatedPeriodsByDate = [];
-        $readerNames = Resource::getReaderNames();
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
 
             $dateYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             // по всем ресурсам тарифа
-            foreach ($accountLogFromToTariff->tariffPeriod->tariff->tariffResources as $tariffResource) {
+            foreach ($accountLogFromToTariff->tariffPeriod->tariff->tariffResourcesIndexedByResourceId as $tariffResource) {
 
                 $resourceId = $tariffResource->resource_id;
-                if (!array_key_exists($resourceId, $readerNames)) {
+                if (!Resource::isTrafficId($resourceId)) {
                     // этот ресурс - не трафик. Он считается в соседнем методе
                     continue;
                 }
@@ -124,22 +122,15 @@ trait AccountTariffBillerResourceTrait
         $accountLogFromToResourcess = [];
 
         // по которым произведен расчет
-        $accountLogsQuery = AccountLogResource::find()
-            ->joinWith('tariffResource')
-            ->where([
-                'AND',
-                [AccountLogResource::tableName() . '.account_tariff_id' => $this->id],
-                ['NOT', [TariffResource::tableName() . '.resource_id' => array_keys(Resource::getReaderNames())]], // только опции
-            ]);
         /** @var AccountLogResource $accountLog */
         $accountLogss = [];
-        foreach ($accountLogsQuery->each() as $accountLog) {
+        foreach ($this->accountLogResourceOptions as $accountLog) {
             $accountLogss[$accountLog->tariffResource->resource_id][$accountLog->getUniqueId()] = $accountLog;
         }
 
         // по всем ресурсам
-        $resources = Resource::findAll(['service_type_id' => $this->service_type_id]);
-        foreach ($resources as $resource) {
+        /** @var Resource $resource */
+        foreach ($this->resources as $resource) {
 
             if (!$resource->isOption()) {
                 // этот ресурс - не опция. Он считается в соседнем методе
@@ -242,7 +233,7 @@ trait AccountTariffBillerResourceTrait
      * Если ресурс уменьшается - то до конца периода ничего не меняется, а списание уменьшается только со следующего периода.
      *
      * @param int $resourceId
-     * @return array
+     * @return AccountLogFromToResource[]
      * @throws \Exception
      */
     public function getHugeAccountLogFromToResources($resourceId)
@@ -251,14 +242,8 @@ trait AccountTariffBillerResourceTrait
 
         // лог смены ресурсов
         /** @var ActiveQuery $accountTariffResourceLogsQuery */
-        $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resourceId);
-        /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
-        $accountTariffResourceLogs = $accountTariffResourceLogsQuery
-            ->orderBy(
-                [
-                    'id' => SORT_ASC,
-                ])
-            ->all();
+        $accountTariffResourceLogs = $this->getAccountTariffResourceLogsByResourceId($resourceId);
+        ksort($accountTariffResourceLogs);
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = $this->clientAccount;

@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToResource;
@@ -10,9 +11,7 @@ use app\modules\uu\classes\DateTimeOffsetParams;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Resource;
-use app\modules\uu\models\TariffResource;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
-use app\widgets\ConsoleProgress;
 use DateTimeImmutable;
 use Yii;
 
@@ -23,8 +22,23 @@ class AccountLogResourceTarificator extends Tarificator
 {
     const BATCH_READ_SIZE = 500;
 
-    /** @var ResourceReaderInterface[] кэш */
-    protected $resourceIdToReader = [];
+    /** @var ResourceReaderInterface[] */
+    protected $readersByResourceId = [];
+
+    /**
+     * Получить ридер по Id ресурса
+     *
+     * @param $resourceId
+     * @return ResourceReaderInterface
+     */
+    protected function getReaderByResourceId($resourceId)
+    {
+        if (!isset($this->readersByResourceId[$resourceId])) {
+            $this->readersByResourceId[$resourceId] = Resource::getReader($resourceId);
+        }
+
+        return $this->readersByResourceId[$resourceId];
+    }
 
     /**
      * Рассчитать плату всех услуг
@@ -60,7 +74,26 @@ class AccountLogResourceTarificator extends Tarificator
                 ['account_log_resource_utc' => null], // ресурсы не списаны
                 ['<', 'account_log_resource_utc', $utcDateTime->format(DateTimeZoneHelper::DATE_FORMAT)] // или списаны давно
             ]);
-        $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
+
+        $accountTariffQuery
+            ->with('clientAccount')
+            ->with('resources')
+            ->with('accountLogResourceOptions')
+            ->with('accountLogResourceTraffics')
+            ->with('accountTariffResourceLogsAll')
+            ->with('accountTariffLogs.tariffPeriod.tariff.tariffResourcesIndexedByResourceId')
+            ->with('accountTariffLogs.tariffPeriod.chargePeriod')
+            ->with('tariffPeriod.tariff')
+            ->with('number');
+
+        if ($accountTariffId) {
+            $accountTariffQuery->andWhere(['id' => $accountTariffId]);
+        } else {
+            $accountTariffQuery->orderBy([
+                'client_account_id' => SORT_ASC,
+                'prev_account_tariff_id' => SORT_ASC,
+            ]);
+        }
 
         $i = 0;
         $all = $accountTariffQuery->count();
@@ -124,17 +157,17 @@ class AccountLogResourceTarificator extends Tarificator
         /** @var AccountLogFromToResource[][] $untarificatedPeriodss */
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceOptionPeriods();
 
+        $modelsToSave = [];
         /** @var AccountLogFromToResource[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $resourceId => $untarificatedPeriods) {
 
             /** @var AccountLogFromToResource $untarificatedPeriod */
             foreach ($untarificatedPeriods as $untarificatedPeriod) {
-                $accountLogResource = $this->getAccountLogResource($accountTariff, $untarificatedPeriod, $resourceId);
-                if (!$accountLogResource->save()) {
-                    throw new ModelValidationException($accountLogResource);
-                }
+                $modelsToSave[] = $this->getAccountLogResource($accountTariff, $untarificatedPeriod, $resourceId);
             }
         }
+        $this->out('+ ');
+        ActiveRecord::batchInsertModels($modelsToSave);
     }
 
     /**
@@ -151,6 +184,8 @@ class AccountLogResourceTarificator extends Tarificator
         $isOk = true;
 
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceTrafficPeriods();
+
+        $modelsToSave = [];
         /** @var AccountLogFromToTariff[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $dateYmd => $untarificatedPeriods) {
 
@@ -161,26 +196,15 @@ class AccountLogResourceTarificator extends Tarificator
                 $dateTime = $untarificatedPeriod->dateFrom;
                 $tariffPeriod = $untarificatedPeriod->tariffPeriod;
 
-                $tariffResource = TariffResource::findOne([
-                    'resource_id' => $resourceId,
-                    'tariff_id' => $tariffPeriod->tariff_id,
-                ]);
+                $tariffResource = $tariffPeriod->tariff->tariffResourcesIndexedByResourceId[$resourceId];
 
-                if (!isset($this->resourceIdToReader[$resourceId])) {
-                    // записать в кэш
-                    $this->resourceIdToReader[$resourceId] = Resource::getReader($resourceId);
-                }
-
-                /** @var ResourceReaderInterface $reader */
-                $reader = $this->resourceIdToReader[$resourceId];
+                $reader = $this->getReaderByResourceId($resourceId);
                 $amounts = $reader->read($accountTariff, $dateTime, $tariffPeriod);
                 if ($amounts->amount === null) {
                     $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- Resource ' . $resourceId . ' is null' . PHP_EOL);
                     $isOk = false;
                     continue; // нет данных. Пропустить
                 }
-
-                $this->out('+ ');
 
                 $accountLogResource = new AccountLogResource();
                 $accountLogResource->date_from
@@ -198,11 +222,12 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->coefficient = 1;
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
                 $accountLogResource->cost_price = $amounts->costAmount * $accountLogResource->price_per_unit;
-                if (!$accountLogResource->save()) {
-                    throw new ModelValidationException($accountLogResource);
-                }
+
+                $modelsToSave[] = $accountLogResource;
             }
         }
+        $this->out('+ ');
+        ActiveRecord::batchInsertModels($modelsToSave);
 
         return $isOk;
     }
@@ -221,13 +246,7 @@ class AccountLogResourceTarificator extends Tarificator
     {
         $tariffPeriod = $accountLogFromToResource->tariffPeriod;
 
-        /** @var TariffResource $tariffResource */
-        $tariffResource = TariffResource::findOne([
-            'resource_id' => $resourceId,
-            'tariff_id' => $tariffPeriod->tariff_id,
-        ]);
-
-        $this->out('+ ');
+        $tariffResource = $tariffPeriod->tariff->tariffResourcesIndexedByResourceId[$resourceId];
 
         $accountLogResource = new AccountLogResource();
         $accountLogResource->date_from = $accountLogFromToResource->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);

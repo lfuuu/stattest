@@ -29,8 +29,8 @@ use yii\db\ActiveQuery;
  *
  * @property-read ServiceType $serviceType
  *
- * @method static \app\modules\uu\models\Resource findOne($condition)
- * @method static \app\modules\uu\models\Resource[] findAll($condition)
+ * @method static Resource findOne($condition)
+ * @method static Resource[] findAll($condition)
  */
 class Resource extends ActiveRecord
 {
@@ -192,6 +192,17 @@ class Resource extends ActiveRecord
     }
 
     /**
+     * Id трафика?
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function isTrafficId($id)
+    {
+        return array_key_exists($id, self::$readers);
+    }
+
+    /**
      * Id Опции?
      *
      * @param int $id
@@ -199,7 +210,7 @@ class Resource extends ActiveRecord
      */
     public static function isOptionId($id)
     {
-        return !array_key_exists($id, self::$readers);
+        return !self::isTrafficId($id);
     }
 
     /**

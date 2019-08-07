@@ -308,18 +308,10 @@ class BillDao extends Singleton
             return false;
         }
 
-        $clientAccount = $uuBill->clientAccount;
-        $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
-
-        $billRenameDate = false;
-        if ($clientAccount->isBillRename1()) {
-            $startBillRename1Start = new \DateTimeImmutable(ClientAccount::UNIVERSAL_BILL_RENAME1_DATE);
-            if ($uuBillDateTime >= $startBillRename1Start) {
-                $billRenameDate = $uuBillDateTime;
-            }
-        }
-
         if (!$bill) {
+            $clientAccount = $uuBill->clientAccount;
+            $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
+
             $bill = new Bill();
             $bill->client_id = $clientAccount->id;
             $bill->currency = $clientAccount->currency;

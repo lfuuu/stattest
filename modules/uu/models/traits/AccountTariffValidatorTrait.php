@@ -180,6 +180,7 @@ trait AccountTariffValidatorTrait
      * Сменить тариф - с любой даты, но эта по умолчанию.
      *
      * @return string
+     * @throws \Exception
      */
     public function getDefaultActualFrom()
     {

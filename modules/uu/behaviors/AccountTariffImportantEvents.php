@@ -29,6 +29,8 @@ class AccountTariffImportantEvents extends Behavior
 
     /**
      * @param Event $event
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\Exception
      */
     public function beforeUpdate(Event $event)
     {
@@ -46,8 +48,6 @@ class AccountTariffImportantEvents extends Behavior
 
     /**
      * @param Event $event
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \Exception
      * @throws \yii\db\Exception
      */
     public function afterInsert(Event $event)
@@ -66,8 +66,6 @@ class AccountTariffImportantEvents extends Behavior
 
     /**
      * @param Event $event
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \Exception
      * @throws \yii\db\Exception
      */
     public function afterDelete(Event $event)

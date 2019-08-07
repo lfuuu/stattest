@@ -29,7 +29,8 @@ class AccountTariffVoipInternet extends Behavior
     /**
      * @param Event $event
      * @throws \app\exceptions\ModelValidationException
-     * @throws \LogicException
+     * @throws \yii\base\Exception
+     * @throws \Exception
      */
     public function addVoipInternetPackage(Event $event)
     {

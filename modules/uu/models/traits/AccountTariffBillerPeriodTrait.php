@@ -26,13 +26,7 @@ trait AccountTariffBillerPeriodTrait
     public function getUntarificatedPeriodPeriods()
     {
         // по которым произведен расчет
-        /** @var AccountLogPeriod[] $accountLogs */
-        $accountLogs = AccountLogPeriod::find()
-            ->where(['account_tariff_id' => $this->id])
-            ->indexBy(function (AccountLogPeriod $accountLogPeriod) {
-                return $accountLogPeriod->getUniqueId();
-            })
-            ->all();
+        $accountLogs = $this->accountLogPeriodsByUniqueKey;
 
         // по которым должен быть произведен расчет
         /** @var AccountLogFromToTariff[] $accountLogFromToTariffs */
