@@ -68,13 +68,17 @@ class ApiLk
 
         $params = ["client_id" => $account->id, "client_currency" => $account->currency, 'is_from_lk' => true];
 
+        if ($account->getUuCountryId() != Country::RUSSIA) {
+            $params['to_date'] = '2019-08-01';
+        }
+
         list($R, $sum,) = BalanceSimple::get($params);
 
         $cutOffDate = '2000-01-01';
 
         $bills = [];
 
-        if ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+        if (!isset($params['to_date']) && $account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
             $bills[] = [
                 'bill_no' => 'current_statement',
                 'bill_date' => (new DateTime('now', new DateTimeZone($account->timezone_name)))->format(DateTimeZoneHelper::DATE_FORMAT),
@@ -156,7 +160,7 @@ class ApiLk
 
         return ActOfReconciliation::me()->getData(
             $account,
-            '2019-01-01',
+            null,
             (new DateTimeImmutable('now'))
                 ->modify('last day of this month')
                 ->format(DateTimeZoneHelper::DATE_FORMAT)

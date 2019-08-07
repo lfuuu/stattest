@@ -58,6 +58,7 @@ class ActOfReconciliation extends Singleton
                 'date' => 'payment_date',
                 'number' => 'payment_no',
                 'correction_idx' => new Expression('""'),
+                'bill_date' => new Expression('""'),
                 'add_datetime' => 'add_date',
             ])
             ->where([
@@ -77,6 +78,7 @@ class ActOfReconciliation extends Singleton
                 'i.date',
                 'number',
                 'correction_idx',
+                'bill_date',
                 'add_datetime' => 'add_date',
             ])
             ->joinWith('bill')
@@ -109,6 +111,7 @@ class ActOfReconciliation extends Singleton
                     'id' => $item['id'],
                     'type' => $item['payment_type'] == 'creditnote' ? 'creditnote' : $item['type'],
                     'date' => $item['date'],
+                    'bill_date' => $item['bill_date'],
                     'number' => $item['number'],
                     'description' => $description,
                     'income_sum' => $sum > 0 ? $sum : '',
@@ -149,6 +152,11 @@ class ActOfReconciliation extends Singleton
 
     public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true)
     {
+        $isNotRussia = $account->getUuCountryId() != Country::RUSSIA;
+        if (!$dateFrom) {
+            $dateFrom = $isNotRussia ? '2019-07-31' : '2019-01-01';
+        }
+
         $dirtyData = $this->getRevise($account, $dateFrom, $dateTo);
 
         $data = array_reverse(
@@ -157,17 +165,22 @@ class ActOfReconciliation extends Singleton
             })
         );
 
-        // У клиентов вне россии стоит неправильная дата. Её надо брать из счета.
-        if ($account->getUuCountryId() != Country::RUSSIA) {
-            $data = array_map(function($value) use ($account) {
-                if ($value['type'] == 'invoice') {
-                    $invoice = Invoice::findOne(['id' => $value['id']]);
-                    if ($invoice && $invoice->bill) {
-                        $value['date'] = $invoice->bill->bill_date;
-                    }
+        // У клиентов вне России стоит неправильная дата. Её надо брать из счета.
+        if ($isNotRussia) {
+            $data =
+            array_filter(
+                array_map(
+                    function ($value) use ($account) {
+                        if ($value['type'] == 'invoice') {
+                            $value['date'] = $value['bill_date'];
+                        }
+                        return $value;
+                    }, $data
+                ),
+                function ($value) use ($dateFrom) {
+                    return $value['bill_date'] >= $dateFrom;
                 }
-                return $value;
-            }, $data);
+            );
         }
 
         $result = [];
@@ -210,17 +223,20 @@ class ActOfReconciliation extends Singleton
         $balance += $currentStatementSum;
 
         $firstMonthDate = date(DateTimeZoneHelper::DATE_FORMAT, strtotime('first day of this month'));
-        $result[] = [
-            'type' => 'month',
-            'date' => $firstMonthDate,
-            'add_datetime' => $setDateTime($firstMonthDate, true),
-            'balance' => $balance,
-            'description' => 'month_balance',
-        ];
+        $firstDataDate = $data ? reset($data)['date'] : false;
 
+        if ($firstDataDate && $firstDataDate < $firstMonthDate) {
+            $result[] = [
+                'type' => 'month',
+                'date' => $firstMonthDate,
+                'add_datetime' => $setDateTime($firstMonthDate, true),
+                'balance' => $balance,
+                'description' => 'month_balance',
+            ];
+        }
 
         $findDate = null;
-        foreach ($data as &$row) {
+        foreach ($data as $idx => &$row) {
             $row['add_datetime'] = isset($row['add_datetime']) ? $setDateTime($row['add_datetime']) : $setDateTime($row['date'] . ' 00:00:00', true);
 
             if ($row['type'] == 'invoice') {
@@ -247,16 +263,19 @@ class ActOfReconciliation extends Singleton
             }
 
             $date = $row['date'];
-            while ($date <= $findDate) {
-                $result[] = [
-                    'type' => 'month',
-                    'date' => $findDate,
-                    'add_datetime' => $setDateTime($findDate, true),
-                    'balance' => $balance,
-                    'description' => 'month_balance',
-                ];
+            // месячная линия, он долна быть после всех документов
+            if ($date <= $findDate && (!isset($data[$idx+1]) || (isset($data[$idx+1]) && $data[$idx+1] < $findDate))) {
+                while ($date <= $findDate) {
+                    $result[] = [
+                        'type' => 'month',
+                        'date' => $findDate,
+                        'add_datetime' => $setDateTime($findDate, true),
+                        'balance' => $balance,
+                        'description' => 'month_balance',
+                    ];
 
-                $findDate = date('Y-m-d', strtotime('first day of previous month', strtotime($findDate)));
+                    $findDate = date('Y-m-d', strtotime('first day of previous month', strtotime($findDate)));
+                }
             }
             $result[] = $row;
             $balance += $row['income_sum'] - $row['outcome_sum'];
@@ -332,7 +351,7 @@ class ActOfReconciliation extends Singleton
         $clientQuery = ClientAccount::find()->where(['is_active' => 1]);
 
         foreach ($clientQuery->each() as $account) {
-            $data = $this->getData($account, '2019-01-01', (date('Y') + 1) . '-01-01', false);
+            $data = $this->getData($account, null, (date('Y') + 1) . '-01-01', false);
 
             $data = array_filter($data, function ($row) {
                 return $row['type'] == 'month';

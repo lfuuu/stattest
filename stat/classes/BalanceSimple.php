@@ -99,7 +99,8 @@ class BalanceSimple
             where
                 client_id=' . $params['client_id']
             . ($params["is_multy"] /*&& !$params["is_view_canceled"]*/ ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "")
-            . ($isFromLk && $saldo ? " AND bill_date > '" . $saldo['ts'] . "'" : '') .
+            . ($isFromLk && $saldo ? " AND bill_date > '" . $saldo['ts'] . "'" : '')
+            . (isset($params['to_date']) && $params['to_date'] ? ' AND bill_date < \'' . $params['to_date'] . '\'' : '') .
             ' order by
                 bill_date desc,
                 bill_no desc
@@ -123,7 +124,8 @@ class BalanceSimple
                 U.id=P.add_user
             where
                 P.client_id='.$params['client_id']
-                . ($isFromLk && $saldo ? " AND P.payment_date > '" . $saldo['ts'] . "'" : '') .
+                . ($isFromLk && $saldo ? " AND P.payment_date > '" . $saldo['ts'] . "'" : '')
+                . (isset($params['to_date']) && $params['to_date'] ? ' AND P.payment_date < "' . $params['to_date'] . '"' : '') .
             '
             order by
                 P.payment_date
