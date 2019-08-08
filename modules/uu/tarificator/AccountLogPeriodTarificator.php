@@ -103,13 +103,16 @@ class AccountLogPeriodTarificator extends Tarificator
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods();
         $accountTariff->setDateOffsetParams(null);
 
-        $modelsToSave = [];
+//        $modelsToSave = [];
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
             $maxDateTo = max($maxDateTo, $accountLogPeriod->date_to);
-            $modelsToSave[] = $accountLogPeriod;
+//            $modelsToSave[] = $accountLogPeriod;
+            if (!$accountLogPeriod->save()) {
+                throw new ModelValidationException($accountLogPeriod);
+            }
         }
-        ActiveRecord::batchInsertModels($modelsToSave);
+//        ActiveRecord::batchInsertModels($modelsToSave);
 
         if ($maxDateTo) {
             // обновить дату, до которой списана абонентка
