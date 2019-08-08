@@ -68,9 +68,7 @@ class LkController extends ApiController
             ]
         );
 
-        if ($form->hasErrors()) {
-            throw new ModelValidationException($form);
-        }
+        $form->validateWithException();
 
         $account = ClientAccount::findOne(["id" => $form->account_id]);
         Assert::isObject($account);
@@ -94,7 +92,8 @@ class LkController extends ApiController
             'version' => $account->account_version,
             'yandex_shop_id' => $shopId,
             'yandex_sc_id' => $scId,
-            'is_only_yandex' => $account->contract->organization_id == Organization::MCN_TELECOM
+            'is_only_yandex' => $account->contract->organization_id == Organization::MCN_TELECOM,
+            'organization_id' => $account->contract->organization_id,
         ];
     }
 
