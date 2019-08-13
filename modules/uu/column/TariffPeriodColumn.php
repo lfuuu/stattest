@@ -13,7 +13,10 @@ class TariffPeriodColumn extends DataColumn
 //    use ListTrait; @todo
 
     public $filterType = GridView::FILTER_SELECT2;
+
     public $serviceTypeId = null;
+
+    public $withTariffId = false;
 
     public function __construct($config = [])
     {
@@ -27,7 +30,13 @@ class TariffPeriodColumn extends DataColumn
             $voipCountryIdTmp = null,
             $cityIdTmp = null,
             $isWithEmptyTmp = true,
-            $isWithNullAndNotNullTmp = true);
+            $isWithNullAndNotNullTmp = true,
+            $statusId = null,
+            $isPostpaid = null,
+            $isIncludeVat = null,
+            $organizationId = null,
+            $ndcTypeId = null,
+            $withTariffId = $this->withTariffId);
 
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' tariff-period-column';

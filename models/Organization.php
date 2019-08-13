@@ -11,8 +11,11 @@ use app\dao\OrganizationDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\queries\OrganizationQuery;
+use DateTime;
+use DateTimeZone;
 use ReflectionClass;
 use Yii;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 
@@ -45,6 +48,7 @@ use yii\helpers\Url;
  *
  * @property-read Person $director
  * @property-read Person $accountant
+ * @property-read Organization $actual
  * @property-read OrganizationSettlementAccount $settlementAccount
  */
 class Organization extends ActiveRecord
@@ -181,6 +185,36 @@ class Organization extends ActiveRecord
     public function getAccountant()
     {
         return $this->hasOne(Person::class, ['id' => 'accountant_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     * @throws \Exception
+     */
+    public function getActual()
+    {
+        $actualDate =
+            (new DateTime())
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        return $this->hasOne(Organization::class, ['organization_id' => 'organization_id'])
+            ->from(['o1' => Organization::tableName()])
+            ->where(
+                new Expression(
+                    'o1.id = (' .
+                    Organization::find()
+                        ->select(['MAX(o2.id)'])
+                        ->from(['o2' => Organization::tableName()])
+                        ->where(['o2.organization_id' => new Expression('o1.organization_id')])
+                        ->andWhere(['o2.actual_from' => new Expression('o1.actual_from')])
+                        ->andWhere(new Expression('CAST(:date AS date) BETWEEN o1.actual_from AND o2.actual_to', ['date' => $actualDate]))
+                        ->orderBy('o2.`actual_from` DESC')
+                        ->limit(1)
+                        ->createCommand()->rawSql .
+                    ')'
+                )
+            );
     }
 
     /**

@@ -12,8 +12,8 @@ use app\modules\uu\models\AccountTariff;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
-
 $serviceType = $filterModel->getServiceType();
+
 ?>
 <?= Breadcrumbs::widget([
     'links' => [

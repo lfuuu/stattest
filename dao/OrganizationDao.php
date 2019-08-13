@@ -25,11 +25,12 @@ class OrganizationDao extends Singleton
         $organizations = Organization::find()
             ->distinct()
             ->select('organization_id')
+            ->with('actual')
             ->all();
-        foreach ($organizations as $organization) {
 
+        foreach ($organizations as $organization) {
             /** @var Organization $actual */
-            $actual = Organization::find()->byId($organization->organization_id)->actual()->one();
+            $actual = $organization->actual;
 
             if ($actual instanceof Organization) {
                 $result[$actual->organization_id] = $actual;

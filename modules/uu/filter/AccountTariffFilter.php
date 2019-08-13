@@ -166,7 +166,9 @@ class AccountTariffFilter extends AccountTariff
             ->joinWith('region')
             ->joinWith('tariffPeriod')
 
-            ->with('prevAccountTariff')
+            ->with('serviceType')
+            ->with('prevAccountTariff.tariffPeriod.chargePeriod')
+            ->with('prevAccountTariff.tariffPeriod.tariff.currency')
             ->with('tariffPeriod.chargePeriod')
             ->with('tariffPeriod.tariff.currency')
             ->with('tariffPeriod.tariff.tariffCountries.country')

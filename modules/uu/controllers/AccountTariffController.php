@@ -98,7 +98,7 @@ class AccountTariffController extends BaseController
      *
      * @param int $serviceTypeId
      * @return string|Response
-     * @throws \yii\base\InvalidParamException
+     * @throws Exception
      */
     public function actionNew($serviceTypeId)
     {
@@ -250,6 +250,7 @@ class AccountTariffController extends BaseController
      * Сменить количество ресурса
      *
      * @return string|Response
+     * @throws \yii\db\Exception
      */
     private function _saveVoipResource()
     {
@@ -328,6 +329,7 @@ class AccountTariffController extends BaseController
      * Сменить тариф
      *
      * @return string|Response
+     * @throws \yii\db\Exception
      */
     private function _saveVoipTariff()
     {
@@ -449,6 +451,8 @@ class AccountTariffController extends BaseController
      *
      * @param string $accountTariffHash хэш услуги
      * @return string|Response
+     * @throws \Throwable
+     * @throws \yii\db\Exception
      */
     public function actionCancel($accountTariffHash = null)
     {
@@ -563,7 +567,8 @@ class AccountTariffController extends BaseController
      * @param int[] $ids
      * @param int $resourceId
      * @return string|Response
-     * @throws \yii\base\InvalidParamException
+     * @throws \Throwable
+     * @throws \yii\db\Exception
      */
     public function actionResourceCancel(array $ids, $resourceId)
     {

@@ -37,6 +37,9 @@ class TariffPeriod extends ActiveRecord
     const TEST_VPBX_ID = 5670;
     const START_VPBX_ID = 5694;
 
+    // size for getList()
+    const BATCH_SIZE_READ = 500;
+
     protected $isAttributeTypecastBehavior = true;
 
     /**
@@ -88,6 +91,21 @@ class TariffPeriod extends ActiveRecord
             $tariff->currency->symbol,
             $this->chargePeriod->name
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getNameWithTariffId()
+    {
+        $tariff = $this->tariff;
+        return Yii::t('models/' . self::tableName(), 'name_with_id', [
+            'name' => $tariff->name,
+            'price' => $this->price_per_period,
+            'currency' => $tariff->currency->symbol,
+            'periodName' => $this->chargePeriod->name,
+            'tariffId' => $tariff->id
+        ]);
     }
 
     /**
@@ -165,6 +183,7 @@ class TariffPeriod extends ActiveRecord
      * @param bool $isIncludeVat
      * @param int $organizationId
      * @param int $ndcTypeId
+     * @param bool $withTariffId
      * @return array
      */
     public static function getList(
@@ -180,7 +199,8 @@ class TariffPeriod extends ActiveRecord
         $isPostpaid = null,
         $isIncludeVat = null,
         $organizationId = null,
-        $ndcTypeId = null
+        $ndcTypeId = null,
+        $withTariffId = false
     ) {
         $defaultTariffPeriodId = null;
 
@@ -198,6 +218,9 @@ class TariffPeriod extends ActiveRecord
 
         $activeQuery = self::find()
             ->innerJoinWith('tariff tariff')
+            ->with('tariff.status')
+            ->with('tariff.currency')
+            ->with('chargePeriod')
             ->andWhere(['tariff.service_type_id' => $serviceTypeId])
             ->orderBy(['tariff.tariff_status_id' => SORT_ASC]);
 
@@ -268,8 +291,7 @@ class TariffPeriod extends ActiveRecord
         }
 
         /** @var TariffPeriod $tariffPeriod */
-        foreach ($activeQuery->each() as $tariffPeriod) {
-
+        foreach ($activeQuery->each(self::BATCH_SIZE_READ) as $tariffPeriod) {
             $tariff = $tariffPeriod->tariff;
             $status = $tariff->status; // @todo надо бы заджойнить таблицу status
 
@@ -281,7 +303,10 @@ class TariffPeriod extends ActiveRecord
                 $selectboxItems[$status->name] = [];
             }
 
-            $selectboxItems[$status->name][$tariffPeriod->id] = (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') . $tariffPeriod->getName();
+            $selectboxItems[$status->name][$tariffPeriod->id] =
+                (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') .
+                ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName())
+            ;
         }
 
         return $selectboxItems;

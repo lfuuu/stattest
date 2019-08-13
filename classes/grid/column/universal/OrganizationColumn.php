@@ -24,6 +24,7 @@ class OrganizationColumn extends DataColumn
 
     /**
      * @param array $config
+     * @throws \yii\base\Exception
      */
     public function __construct($config = [])
     {

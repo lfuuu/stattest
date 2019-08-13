@@ -14,9 +14,11 @@ trait AccountTariffLinkTrait
 {
     /**
      * @param bool $isWithAccount
+     * @param bool $withLink
+     * @param bool $withTariffId
      * @return string
      */
-    public function getName($isWithAccount = true, $withLink = false)
+    public function getName($isWithAccount = true, $withLink = false, $withTariffId = false)
     {
         $names = [];
 
@@ -47,7 +49,8 @@ trait AccountTariffLinkTrait
             }
         }
 
-        $names[] = $this->getNotNullTariffPeriod()->getName();
+        $tariffPeriod = $this->getNotNullTariffPeriod();
+        $names[] = $withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName();
 
         return implode('. ', $names);
     }

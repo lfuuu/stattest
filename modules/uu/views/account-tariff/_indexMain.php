@@ -56,9 +56,10 @@ $columns = [
         'attribute' => 'tariff_period_id',
         'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $serviceType ? $serviceType->id : '',
+        'withTariffId' => true,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
-            return Html::encode($accountTariff->getName(false));
+            return Html::encode($accountTariff->getName(false, false, true));
         },
     ],
 ];
@@ -145,7 +146,7 @@ if ($serviceType && $serviceTypeId = $serviceType->isPackage()) {
         'value' => function (AccountTariff $accountTariff) {
             $prevAccountTariff = $accountTariff->prevAccountTariff;
             $tariffPeriod = $prevAccountTariff ? $prevAccountTariff->tariffPeriod : null;
-            return $tariffPeriod ? $tariffPeriod->getName() : null;
+            return $tariffPeriod ? $tariffPeriod->getNameWithTariffId() : null;
         },
     ];
 }

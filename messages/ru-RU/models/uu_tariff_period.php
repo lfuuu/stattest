@@ -4,4 +4,5 @@ return [
     'price_per_period' => 'Цена за месяц, ¤',
     'price_min' => 'Мин. стоимость ресурсов за месяц, ¤',
     'price_setup' => 'Цена подключения, ¤',
+    'name_with_id' => '{name} {price} {currency} {periodName} (тариф #{tariffId})',
 ];
