@@ -413,7 +413,6 @@ class ClientController extends BaseController
             ->getContacts()
             ->andWhere([
                 'type' => ClientContact::TYPE_PHONE,
-                'is_official' => 1
             ])
             ->orderBy(['id' => SORT_DESC])
             ->limit(1)
@@ -422,7 +421,7 @@ class ClientController extends BaseController
 
         EventQueue::goWithIndicator(
             EventQueue::CORE_CREATE_OWNER,
-            ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data] + ($phone ? ['phone' => $phone] : []),
+            ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
             ClientSuper::tableName(),
             $account->super_id
         );

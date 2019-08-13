@@ -182,7 +182,6 @@ class ApiCore
             ->getContacts()
             ->andWhere([
                 'type' => ClientContact::TYPE_PHONE,
-                'is_official' => 1
             ])
             ->orderBy(['id' => SORT_DESC])
             ->limit(1)
@@ -195,7 +194,7 @@ class ApiCore
 
         EventQueue::goWithIndicator(
             EventQueue::CORE_CREATE_OWNER,
-            ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data] + ($phone ? ['phone' => $phone] : []),
+            ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
             \app\models\ClientSuper::tableName(),
             $superId);
     }
