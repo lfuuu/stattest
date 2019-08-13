@@ -177,13 +177,25 @@ class ApiCore
             ])
             ->one();
 
+        /** @var ClientContact $adminEmail */
+        $phone = $account
+            ->getContacts()
+            ->andWhere([
+                'type' => ClientContact::TYPE_PHONE,
+                'is_official' => 1
+            ])
+            ->orderBy(['id' => SORT_DESC])
+            ->limit(1)
+            ->select('data')
+            ->scalar();
+
         if (!$adminEmail) {
             return;
         }
 
         EventQueue::goWithIndicator(
             EventQueue::CORE_CREATE_OWNER,
-            ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data],
+            ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data] + ($phone ? ['phone' => $phone] : []),
             \app\models\ClientSuper::tableName(),
             $superId);
     }

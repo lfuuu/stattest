@@ -408,11 +408,24 @@ class ClientController extends BaseController
 
         Assert::isObject($contact);
 
+        /** @var ClientContact $adminEmail */
+        $phone = $account
+            ->getContacts()
+            ->andWhere([
+                'type' => ClientContact::TYPE_PHONE,
+                'is_official' => 1
+            ])
+            ->orderBy(['id' => SORT_DESC])
+            ->limit(1)
+            ->select('data')
+            ->scalar();
+
         EventQueue::goWithIndicator(
             EventQueue::CORE_CREATE_OWNER,
-            ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data],
+            ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data] + ($phone ? ['phone' => $phone] : []),
             ClientSuper::tableName(),
-            $account->super_id);
+            $account->super_id
+        );
 
         return $this->redirect(Url::to(['/client/view', 'id' => $account->id]));
     }
