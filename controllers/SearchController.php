@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controllers;
 
 use app\classes\BaseController;
@@ -145,21 +146,37 @@ class SearchController extends BaseController
 
             case 'roistat_visit':
 
-                $troubleRoistat = TroubleRoistat::find()
+                $countRoistatVisit = TroubleRoistat::find()
                     ->select('trouble_id')
-                    ->from('tt_troubles_roistat')
                     ->where(['roistat_visit' => $search])
-                    ->scalar();
+                    ->count();
 
-                if ($trouble = Trouble::findOne($troubleRoistat)) {
-                    if (Yii::$app->request->isAjax) {
-                        Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => $trouble->getUrl(), 'value' => $trouble->id]];
+                if ($countRoistatVisit == 1) {
+                    $troubleRoistat = TroubleRoistat::find()
+                        ->select('trouble_id')
+                        ->where(['roistat_visit' => $search])
+                        ->scalar();
+
+                    if ($trouble = Trouble::findOne($troubleRoistat)) {
+                        if (Yii::$app->request->isAjax) {
+                            Yii::$app->response->format = Response::FORMAT_JSON;
+                            return [['url' => $trouble->getUrl(), 'value' => $trouble->id]];
+                        }
+                        return $this->redirect($trouble->getUrl());
                     }
-                    return $this->redirect($trouble->getUrl());
-                }
+                    return $this->render('result', ['message' => 'Заявка c roistat visit ' . $search . ' не найдена!']);
+                } else {
+                    $searchRoistatVisit = Trouble::find()
+                        ->join('INNER JOIN', 'tt_troubles_roistat', 'tt_troubles.id = tt_troubles_roistat.trouble_id')
+                        ->where(['tt_troubles_roistat.roistat_visit' => $search])
+                        ->orderBy(['date_creation' => SORT_DESC]);
 
-                return $this->render('result', ['message' => 'Заявка c roistat visit ' . $search . ' не найдена!']);
+                    $dataProvider = new ActiveDataProvider([
+                        'query' => $searchRoistatVisit
+                    ]);
+                    return $this->render('roistat', ['dataProvider' => $dataProvider,]);
+                }
+                break;
 
             case 'troubleText':
                 /** @var Trouble $model */
@@ -201,13 +218,13 @@ class SearchController extends BaseController
                 $params['adsl'] = trim($search);
                 break;
 
-	        case 'contactPhone':
-		        $params['contactPhone'] = trim($search);
-		        break;
+            case 'contactPhone':
+                $params['contactPhone'] = trim($search);
+                break;
 
-	        case 'sip':
-		        $params['sip'] = trim($search);
-		        break;
+            case 'sip':
+                $params['sip'] = trim($search);
+                break;
 
             default:
                 return $this->render('result', ['message' => 'Ничего не найдено']);
