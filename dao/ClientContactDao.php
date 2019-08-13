@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Singleton;
@@ -21,6 +22,11 @@ class ClientContactDao extends Singleton
         $phone = str_replace('-', '', $phone); // удалить тире. Как между цифрами, так и между телефоном и комментом
         $phone = preg_replace('/ +(\d)/', '$1', $phone); // удалить пробелы перед цифрой. Другие пробелы оставить!
         $e164Phones = [];
+
+        //изменить формат номера телефона Венгрии в международный формат
+        if (preg_match_all('/^(06)(\d{3,})/', $phone, $matches)) {
+            $phone = preg_replace('/^06/', '+36', $phone);
+        }
 
         // найти NDC на случай следующего телефона без NDC
         if (preg_match('/\((\d{3,4})\)/', $phone, $matches)) {
