@@ -85,6 +85,8 @@
             {if $bill_ext.ext_akt_date}<br>Дата внешнего акта: {$bill_ext.ext_akt_date}{/if}
             {if $bill_ext.ext_invoice_no}<br>Номер внешней с/ф: {$bill_ext.ext_invoice_no}{/if}
             {if $bill_ext.ext_invoice_date}<br>Дата внешней с/ф: {$bill_ext.ext_invoice_date}{/if}
+            {if $bill_ext.ext_sum_without_vat}<br>Счет без НДС из с/ф постав.: {$bill_ext.ext_sum_without_vat}{/if}
+            {if $bill_ext.ext_vat}<br>НДС из с/ф поставщика: {$bill_ext.ext_vat}{/if}
 
             {if false && access('newaccounts_bills','edit') && !$isClosed}
                 <form action="?" method="post">
