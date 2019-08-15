@@ -58,7 +58,7 @@ class ActOfReconciliation extends Singleton
                 'date' => 'payment_date',
                 'number' => 'payment_no',
                 'correction_idx' => new Expression('""'),
-                'bill_date' => new Expression('""'),
+                'bill_date' => 'payment_date',
                 'add_datetime' => 'add_date',
             ])
             ->where([
