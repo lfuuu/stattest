@@ -218,7 +218,16 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->price_per_unit = $reader->getIsMonthPricePerUnit() ?
                     $tariffResource->price_per_unit / $dateTime->format('t') : // это "цена за месяц", а надо перевести в "цену за день"
                     $tariffResource->price_per_unit; // это "цена за день", так и оставить
-                $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
+
+                if ($amounts->amount < 0) {
+                    $accountLogResource->amount_overhead = $accountLogResource->amount_use;
+                } else {
+                    $accountLogResource->amount_overhead = max(
+                        0,
+                        $accountLogResource->amount_use - $accountLogResource->amount_free
+                    );
+                }
+
                 $accountLogResource->coefficient = 1;
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
                 $accountLogResource->cost_price = $amounts->costAmount * $accountLogResource->price_per_unit;

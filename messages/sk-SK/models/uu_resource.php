@@ -43,11 +43,12 @@ return [
     'Resource #38' => 'FMC',
     'Resource #39' => 'Pod účet',
     'Resource #40' => 'Volania',
-    'Resource #41' => 'Volania',
+    'Resource #41' => 'Volania (odchádzajúce)',
     'Resource #42' => 'Mobilný internet',
     'Resource #43' => 'Odchádzajúca prevádzka z mobilných telefónnych čísiel',
     'Resource #44' => 'Počet čísiel podľa dotazov',
     'Resource #48' => 'Prevádzka kvót',
+    'Resource #49' => 'Volania (prichádzajúce)',
 
     'Gb' => 'Gb',
     'Unit' => 'jednotka',

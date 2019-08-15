@@ -43,12 +43,13 @@ return [
     'Resource #38' => 'FMC',
     'Resource #39' => 'Sub-account',
     'Resource #40' => 'Calls',
-    'Resource #41' => 'Calls',
+    'Resource #41' => 'Calls (outgoing)',
     'Resource #42' => 'Mobile internet',
     'Resource #43' => 'Outbound traffic option from mobile numbers',
     'Resource #44' => 'Amount of numbers from requests',
     'Resource #45' => 'Minutes',
     'Resource #48' => 'Quota traffic',
+    'Resource #49' => 'Calls (incoming)',
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
 ];

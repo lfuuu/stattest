@@ -7,6 +7,7 @@ use app\models\billing\CallsRaw;
 use app\models\ClientAccount;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\resourceReader\PackageCallsResourceReader\TrafficParamsManager;
 use DateTimeImmutable;
 use DateTimeZone;
 use Yii;
@@ -89,6 +90,7 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
      *
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
+     * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
     protected function setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
@@ -132,7 +134,6 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
                 'calls_price.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ])
             ->andWhere(['>=', 'calls_price.connect_time', $connectTime])
-            ->andWhere(['<', 'calls_price.cost', 0])
             ->groupBy([
                 'aggr_date',
                 'calls_price.nnp_package_price_id',
@@ -143,11 +144,13 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
 
         $this->andWhere($query, $accountTariff);
 
+        $trafficParams = TrafficParamsManager::me()->getTrafficParams($accountTariff);
         foreach ($query->each() as $row) {
             $aggrDate = $row['aggr_date'];
             $sumPrice = $row['sum_price'];
             $sumCostPrice = 0; // $row['sum_cost_price'];
 
+            $row = $trafficParams->updateResult($row);
             if ($tariffId = $row['nnp_package_price_id']) {
                 if (!isset($this->callsByPrice[$aggrDate])) {
                     $this->callsByPrice[$aggrDate] = [];

@@ -219,6 +219,38 @@ $allTariffResources = [
         'resource_id' => Resource::ID_VOIP_PACKAGE_INTERNET,
         'tariff_id' => Tariff::DELTA + 14,
     ],
+
+    // Тариф 15, 16 - звонки оригинация
+    [
+        'amount' => 0,
+        'price_per_unit' => 1,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
+        'tariff_id' => Tariff::DELTA + 15,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 1,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
+        'tariff_id' => Tariff::DELTA + 16,
+    ],
+
+    // Тариф 17, 18 - звонки терминация
+    [
+        'amount' => 0,
+        'price_per_unit' => 1,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_TRUNK_PACKAGE_TERM_CALLS,
+        'tariff_id' => Tariff::DELTA + 17,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 1,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_TRUNK_PACKAGE_TERM_CALLS,
+        'tariff_id' => Tariff::DELTA + 35,
+    ],
 ];
 
 $vpbxBaseResources = [

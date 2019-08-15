@@ -54,4 +54,34 @@ return [
         'region_id' => Region::MOSCOW,
     ],
 
+    // Трафик: звонки (ориг)
+    [
+        'id' => AccountTariff::DELTA + 7,
+        'client_account_id' => $account->id,
+        'service_type_id' => ServiceType::ID_TRUNK_PACKAGE_ORIG,
+        'region_id' => Region::MOSCOW,
+    ],
+    [
+        'id' => AccountTariff::DELTA + 8,
+        'client_account_id' => $account->id,
+        'prev_account_tariff_id' => AccountTariff::DELTA + 7,
+        'service_type_id' => ServiceType::ID_TRUNK_PACKAGE_ORIG,
+        'region_id' => Region::MOSCOW,
+    ],
+
+    // Трафик: звонки (терм)
+    [
+        'id' => AccountTariff::DELTA + 9,
+        'client_account_id' => $account->id,
+        'service_type_id' => ServiceType::ID_TRUNK_PACKAGE_TERM,
+        'region_id' => Region::MOSCOW,
+    ],
+    [
+        'id' => AccountTariff::DELTA + 10,
+        'client_account_id' => $account->id,
+        'prev_account_tariff_id' => AccountTariff::DELTA + 9,
+        'service_type_id' => ServiceType::ID_TRUNK_PACKAGE_TERM,
+        'region_id' => Region::MOSCOW,
+    ],
+
 ];

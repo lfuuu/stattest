@@ -5,6 +5,7 @@ namespace tests\codeception\unit\models;
 use app\classes\HandlerLogger;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
+use app\models\OperationType;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -23,8 +24,13 @@ use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\modules\uu\tarificator\AccountEntryTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
+use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AutoCloseAccountTariffTarificator;
+use app\modules\uu\tarificator\BillConverterTarificator;
+use app\modules\uu\tarificator\BillTarificator;
+use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
@@ -594,6 +600,161 @@ class UbillerTest extends _TestCase
         // 1го со 3го выключил
         // ресурсов за другой день быть не должно
         $this->assertEquals(2, count($untarificatedTrafficPeriodss));
+    }
+
+    /**
+     * Ресурсы-трафик звонки оригинация
+     *
+     * @throws \Throwable
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\StaleObjectException
+     */
+    public function testAccountLogTrafficPriceResource()
+    {
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 8])->one();
+        $this->assertNotEmpty($accountTariff);
+
+        // ***
+        // билингуем
+        (new AccountLogResourceTarificator)->tarificateAccountTariffTraffic($accountTariff);
+        (new AccountEntryTarificator)->tarificate($accountTariff->id);
+        (new BillTarificator)->tarificate($accountTariff->id);
+
+        // за 3 дня
+        $accountLogResources = $accountTariff->accountLogResources;
+        $this->assertEquals(3, count($accountLogResources));
+
+        // транзакции на том же тариф-периоде
+        $accountLogResource = array_shift($accountLogResources);
+        $this->assertEquals($accountTariff->tariff_period_id, $accountLogResource->tariff_period_id);
+
+        // операция у проводки - доход
+        $accountEntry = $accountLogResource->accountEntry;
+        $this->assertEquals(OperationType::ID_PRICE, $accountEntry->operation_type_id);
+
+        // операция у счёта - доход
+        $bill = $accountEntry->bill;
+        $this->assertEquals(OperationType::ID_PRICE, $bill->operation_type_id);
+
+        // всего проводок
+        $accountEntries = $accountTariff->accountEntries;
+        $this->assertEquals(4, count($accountEntries));
+
+        // проводки другие (недоходные)
+        $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
+            return $accountEntry->tariffResource->resource_id != Resource::ID_TRUNK_PACKAGE_ORIG_CALLS;
+        });
+        $this->assertEquals(3, count($accountEntries));
+
+        // операция у другой проводки - доход, счёт тот же
+        $accountEntry = array_shift($accountEntries);
+        $this->assertEquals(OperationType::ID_PRICE, $accountEntry->operation_type_id);
+        $this->assertTrue($accountEntry->price >= 0);
+        $this->assertTrue($accountEntry->bill_id === $bill->id);
+
+        // ***
+        // создание старого счёта
+        (new BillConverterTarificator)->transferBill($bill);
+        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
+
+        // Универсальный счёт сконвертирован
+        $this->assertEquals($bill->is_converted, 1);
+
+        // операция у нового "старого" счёта - расход
+        $newBill = $bill->newBill;
+        $this->assertEquals(OperationType::ID_PRICE, $newBill->operation_type_id);
+        $this->assertTrue($newBill->sum > 0);
+        $this->assertNotEmpty($newBill->lines);
+
+        // ***
+        // создание с/ф
+        $newBill->generateInvoices();
+
+        // Кол-во с/ф
+        $invoices = $newBill->invoices;
+        $this->assertEquals(2, count($invoices));
+    }
+
+    /**
+     * Ресурсы-трафик звонки терминация
+     *
+     * @throws \Throwable
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\StaleObjectException
+     */
+    public function testAccountLogTrafficCostResource()
+    {
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 10])->one();
+        $this->assertNotEmpty($accountTariff);
+
+        // ***
+        // билингуем Звонки (терминация)
+        (new AccountLogResourceTarificator)->tarificateAccountTariffTraffic($accountTariff);
+        (new AccountEntryTarificator)->tarificate($accountTariff->id);
+        (new BillTarificator)->tarificate($accountTariff->id);
+
+        // за 3 дня
+        $accountLogResources = $accountTariff->accountLogResources;
+        $this->assertEquals(3, count($accountLogResources));
+
+        // транзакции на том же тариф-периоде
+        $accountLogResource = array_shift($accountLogResources);
+        $this->assertEquals($accountTariff->tariff_period_id, $accountLogResource->tariff_period_id);
+
+        // операция у проводки - расход
+        $accountEntry = $accountLogResource->accountEntry;
+        $this->assertEquals(OperationType::ID_COST, $accountEntry->operation_type_id);
+        $this->assertTrue($accountEntry->price < 0);
+
+        // операция у счёта - расход
+        $billCost = $accountEntry->bill;
+        $this->assertEquals(OperationType::ID_COST, $billCost->operation_type_id);
+        $this->assertTrue($billCost->price < 0);
+
+        // всего проводок
+        $accountEntries = $accountTariff->accountEntries;
+        $this->assertEquals(4, count($accountEntries));
+
+        // проводки другие (нерасходные)
+        $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
+            return $accountEntry->operation_type_id != OperationType::ID_COST;
+        });
+        $this->assertEquals(3, count($accountEntries));
+
+        // операция у другой проводки - доход
+        $accountEntry = array_shift($accountEntries);
+        $this->assertEquals(OperationType::ID_PRICE, $accountEntry->operation_type_id);
+        $this->assertTrue($accountEntry->price >= 0);
+
+        // операция у другого счёта другой проводки - доход, счета разные
+        $billPrice = $accountEntry->bill;
+        $this->assertEquals(OperationType::ID_PRICE, $billPrice->operation_type_id);
+        $this->assertTrue($billPrice->price >= 0);
+        $this->assertFalse($billPrice->id === $billCost->id);
+
+        // ***
+        // создание старого счёта
+        (new BillConverterTarificator)->transferBill($billCost);
+        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
+
+        // Универсальный счёт сконвертирован
+        $this->assertTrue($billCost->is_converted === 1);
+
+        // операция у нового "старого" счёта - расход, строк нет
+        $newBill = $billCost->newBill;
+        $this->assertEquals(OperationType::ID_COST, $newBill->operation_type_id);
+        $this->assertTrue($newBill->sum < 0);
+        $this->assertNotEmpty($newBill->lines);
+
+        // ***
+        // создание с/ф
+        $newBill->generateInvoices();
+
+        // нет с/ф
+        $invoices = $newBill->invoices;
+        $this->assertEmpty($invoices);
     }
 
     /**

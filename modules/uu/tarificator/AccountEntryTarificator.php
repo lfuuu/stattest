@@ -5,6 +5,7 @@ namespace app\modules\uu\tarificator;
 use app\classes\Connection;
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\OperationType;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -143,12 +144,32 @@ class AccountEntryTarificator extends Tarificator
             $isGroupPerDayToMonthSql = "IF(account_log.`{$dateFieldNameTo}` = account_log.`{$dateFieldNameFrom}`, '%Y-%m-%d', '%Y-%m-01')";
         }
 
+        // operation type
+        $operationType = OperationType::getDefaultId();
+        $tariffResourceTableName = '';
+        $sqlResourceAndWhere = '';
+        if ($accountLogTableName === AccountLogResource::tableName()) {
+            // ресурсы
+            // добавляем условие для operation_type_id
+            $tariffResourceTableName = TariffResource::tableName();
+            $tariffResourceTableName .= ' tariff_resource,';
+
+            $operationType = '(CASE ';
+            foreach (Resource::$operationTypesMap as $resourceId => $operationTypeId) {
+                $operationType .= ' WHEN tariff_resource.resource_id = ' . $resourceId . ' THEN ' . $operationTypeId;
+            }
+            $operationType .= ' ELSE ' . OperationType::getDefaultId() . ' END)';
+
+            $sqlResourceAndWhere .= ' AND tariff_resource.id = account_log.tariff_resource_id';
+        }
+
         // создать пустые проводки
         $this->out('. ');
         $insertSQL = <<<SQL
             INSERT INTO {$accountEntryTableName}
-            (date, account_tariff_id, type_id, price, is_next_month, tariff_period_id, date_from, date_to)
+            (operation_type_id, date, account_tariff_id, type_id, price, is_next_month, tariff_period_id, date_from, date_to)
                 SELECT DISTINCT
+                    {$operationType} AS operation_type_id,
                     DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, {$isGroupPerDayToMonthSql}) AS date,
                     account_log.account_tariff_id,
                     {$typeId} as type_id,
@@ -159,12 +180,14 @@ class AccountEntryTarificator extends Tarificator
                     account_log.`{$dateFieldNameTo}` AS date_to
                 FROM
                     {$accountLogTableName} account_log,
+                    {$tariffResourceTableName}
                     {$accountTariffTableName} account_tariff,
                     {$clientAccountTableName} client_account
                 WHERE
                     account_log.account_entry_id IS NULL
                     AND account_log.account_tariff_id = account_tariff.id
                     AND account_tariff.client_account_id = client_account.id
+                    {$sqlResourceAndWhere}
                     {$sqlAndWhere}
             ON DUPLICATE KEY UPDATE price = 0
 SQL;
@@ -178,6 +201,7 @@ SQL;
             UPDATE
                 {$accountEntryTableName} account_entry,
                 {$accountLogTableName} account_log,
+                {$tariffResourceTableName}
                 {$accountTariffTableName} account_tariff,
                 {$clientAccountTableName} client_account
             SET
@@ -190,7 +214,9 @@ SQL;
                 AND account_entry.account_tariff_id = account_log.account_tariff_id
                 AND account_entry.tariff_period_id = account_log.tariff_period_id
                 AND account_log.account_tariff_id = account_tariff.id
+                AND account_entry.operation_type_id = {$operationType}
                 AND account_tariff.client_account_id = client_account.id
+                {$sqlResourceAndWhere}
                 {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql, $sqlParams)

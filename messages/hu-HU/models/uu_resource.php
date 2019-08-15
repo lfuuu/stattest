@@ -36,11 +36,12 @@ return [
     'Resource #38' => 'FMC',
     'Resource #39' => 'Al fiók',
     'Resource #40' => 'Hívások',
-    'Resource #41' => 'Hívások',
+    'Resource #41' => 'Hívások (kimenő)',
     'Resource #42' => 'Mobil internet',
     'Resource #43' => 'Kimenő forgalom mobil számokról opció',
     'Resource #44' => 'Számok mennyisége lekérésekből',
     'Resource #48' => 'Kvóta forgalom',
+    'Resource #49' => 'Hívások (bejövő)',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

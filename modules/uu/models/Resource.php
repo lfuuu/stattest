@@ -5,12 +5,14 @@ namespace app\modules\uu\models;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
+use app\models\OperationType;
 use app\modules\uu\resourceReader\CalltrackingResourceReader;
 use app\modules\uu\resourceReader\InternetResourceReader;
 use app\modules\uu\resourceReader\NnpNumberResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\SmsResourceReader;
 use app\modules\uu\resourceReader\TrunkCallsResourceReader;
+use app\modules\uu\resourceReader\TrunkCallsTermResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use app\modules\uu\resourceReader\VpbxDiskResourceReader;
 use app\modules\uu\resourceReader\ZeroResourceReader;
@@ -66,6 +68,7 @@ class Resource extends ActiveRecord
     const ID_ONE_TIME = 18; // Разовая услуга
 
     const ID_TRUNK_PACKAGE_ORIG_CALLS = 41; // Ориг-пакеты транка. Звонки
+    const ID_TRUNK_PACKAGE_TERM_CALLS = 49; // Терм-пакеты транка. Звонки
 
     const ID_NNP_NUMBERS = 44; // ННП. Кол-во номеров
 
@@ -98,6 +101,9 @@ class Resource extends ActiveRecord
         // Звонки ориг-пакета транка (у.е, float). Берется из calls_raw
         self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::class,
 
+        // Звонки терм-пакета транка (у.е, float). Берется из calls_raw
+        self::ID_TRUNK_PACKAGE_TERM_CALLS => TrunkCallsTermResourceReader::class,
+
         // Разовая услуга. Менеджер сам определяет стоимость
         self::ID_ONE_TIME => ZeroResourceReader::class,
 
@@ -114,6 +120,12 @@ class Resource extends ActiveRecord
     public static $calls = [
         Resource::ID_VOIP_PACKAGE_CALLS => Resource::ID_VOIP_PACKAGE_CALLS,
         Resource::ID_TRUNK_PACKAGE_ORIG_CALLS => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
+        Resource::ID_TRUNK_PACKAGE_TERM_CALLS => Resource::ID_TRUNK_PACKAGE_TERM_CALLS,
+    ];
+
+    // map for operation types
+    public static $operationTypesMap = [
+        Resource::ID_TRUNK_PACKAGE_TERM_CALLS => OperationType::ID_COST,
     ];
 
     /**

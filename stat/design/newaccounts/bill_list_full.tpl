@@ -137,6 +137,7 @@
         <td class="header sum_column" valign="bottom">Сумма</td>
         <td class="header sum_column" valign="bottom">Исправленная сумма</td>
         <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
+        <td class="header sum_column" valign="bottom">Тип операции</td>
         <td class="header sum_column" valign="bottom">Сумма</td>
         <td class="header payment_info_column" valign="bottom">Дата</td>
         <td class="header" valign="bottom">Кто</td>
@@ -167,6 +168,9 @@
                 {if $fixclient_data.currency == $op.bill.currency}
                     {objCurrency op=$op obj='delta' currency=$fixclient_data.currency}
                 {/if}
+            </td>
+            <td rowspan="{$rowspan}">
+                {$op.bill.operationType}
             </td>
             {if count($op.pays)}
                 {foreach from=$op.pays item=pay key=keyin name=inner}

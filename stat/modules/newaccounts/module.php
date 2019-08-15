@@ -24,6 +24,7 @@ use app\models\filter\PartnerRewardsFilter;
 use app\models\GoodPriceType;
 use app\models\Invoice;
 use app\models\Language;
+use app\models\OperationType;
 use app\models\Organization;
 use app\models\Param;
 use app\models\Payment;
@@ -412,7 +413,8 @@ class m_newaccounts extends IModule
                 ? 'IF(bill_date >= "' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)'
                 : '1'
             ) . ' AS in_sum, 
-                sum_correction
+                sum_correction,
+                P.operation_type_id
             FROM
                 newbills P
                 LEFT JOIN newbills_external USING (bill_no)
@@ -515,6 +517,7 @@ class m_newaccounts extends IModule
                 $bill_total_add['n'] += $r['sum'];
             }
 
+            $r['operationType'] = OperationType::getNameById($r['operation_type_id']);
             $v = [
                 'bill' => $r,
                 'date' => $r['bill_date'],

@@ -78,8 +78,9 @@ class BillTarificator extends Tarificator
 
         $sqlInsert = <<<SQL
             INSERT INTO {$billTableName}
-            (date, client_account_id, price)
+            (operation_type_id, date, client_account_id, price)
                 SELECT DISTINCT
+                    account_entry.operation_type_id,
                     IF(account_entry.is_next_month = 1, 
                         DATE_FORMAT(account_entry.date, '%Y-%m-01') + INTERVAL 1 MONTH, 
                         DATE_FORMAT(account_entry.date, '%Y-%m-01')
@@ -138,6 +139,7 @@ SQL;
                 ) = bill.date
                 AND account_tariff.client_account_id = bill.client_account_id
                 AND account_tariff.client_account_id = client_account.id
+                AND account_entry.operation_type_id = bill.operation_type_id
                 {$sqlWhere}
 SQL;
         Yii::$app->db

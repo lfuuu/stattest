@@ -245,4 +245,30 @@ class AccountTariff extends ActiveRecord
             }],
         ];
     }
+
+    /**
+     * Является ли услуга тестовой для отрицательных проводок
+     *
+     * @return bool
+     */
+    public function isTestForOperationCost()
+    {
+        // по услуге
+        if (YII_ENV_TEST) {
+            if (in_array($this->id, [
+                AccountTariff::DELTA + 10
+            ])) {
+                return true;
+            }
+        }
+
+        // по клиенту
+        if (in_array($this->client_account_id, [
+            57863
+        ])) {
+            return true;
+        }
+
+        return false;
+    }
 }

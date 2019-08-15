@@ -109,4 +109,36 @@ return [
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+14 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
+
+    // Звонки оригинация
+    [
+        // Базовый (ориг)
+        'account_tariff_id' => AccountTariff::DELTA + 7,
+        'tariff_period_id' => 16,
+        'actual_from_utc' => $dateTimeYesterday->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+    [
+        // Основной (ориг), работатет последние 3 дня
+        'account_tariff_id' => AccountTariff::DELTA + 8,
+        'tariff_period_id' => 17,
+        'actual_from_utc' => $dateTimeYesterday->modify('-2 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+
+    // Звонки терминация
+    [
+        // Базовый (терм)
+        'account_tariff_id' => AccountTariff::DELTA + 9,
+        'tariff_period_id' => 18,
+        'actual_from_utc' => $dateTimeYesterday->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+    [
+        // Основной (терм), работатет последние 3 дня
+        'account_tariff_id' => AccountTariff::DELTA + 10,
+        'tariff_period_id' => 19,
+        'actual_from_utc' => $dateTimeYesterday->modify('-2 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
 ];

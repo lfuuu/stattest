@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
+use app\models\OperationType;
 use app\models\ClientAccount;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -13,12 +14,14 @@ use yii\helpers\Url;
  * @link http://bugtracker.welltime.ru/jira/browse/BIL-1909
  *
  * @property int $id
+ * @property int $operation_type_id
  * @property string $date Важен только месяц, день всегда 1
  * @property int $client_account_id
  * @property float $price
  * @property string $update_time
  * @property int $is_converted
  *
+ * @property-read OperationType $operationType
  * @property-read ClientAccount $clientAccount
  * @property-read AccountEntry[] $accountEntries
  * @property-read \app\models\Bill $newBill
@@ -49,10 +52,18 @@ class Bill extends ActiveRecord
     public function rules()
     {
         return [
-            [['client_account_id', 'is_converted'], 'integer'],
+            [['operation_type_id', 'client_account_id', 'is_converted'], 'integer'],
             [['price'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOperationType()
+    {
+        return $this->hasOne(OperationType::class, ['id' => 'operation_type_id']);
     }
 
     /**

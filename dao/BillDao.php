@@ -313,6 +313,7 @@ class BillDao extends Singleton
             $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
 
             $bill = new Bill();
+            $bill->operation_type_id = $uuBill->operation_type_id;
             $bill->client_id = $clientAccount->id;
             $bill->currency = $clientAccount->currency;
             $bill->nal = $clientAccount->nal;

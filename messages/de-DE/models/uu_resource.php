@@ -43,11 +43,12 @@ return [
     'Resource #38' => 'FMC',
     'Resource #39' => 'Sub-account',
     'Resource #40' => 'Anrufe',
-    'Resource #41' => 'Anrufe',
+    'Resource #41' => 'Anrufe (ausgehend)',
     'Resource #42' => 'Mobiles internet',
     'Resource #43' => 'Ausgehender Verkehr über mobile Rufnummern',
     'Resource #44' => 'Anzahl der Rufnummern aus Abfragen',
     'Resource #48' => 'Quotenverkehr',
+    'Resource #49' => 'Anrufe (eingehend)',
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];

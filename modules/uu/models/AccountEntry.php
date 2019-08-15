@@ -14,6 +14,7 @@ use yii\helpers\Url;
  * Объединяет предварительное списание (транзакции) для одной услуги и типу (подключение, абонентка, каждый ресурс) по календарным месяцам
  *
  * @property int $id
+ * @property int $operation_type_id
  * @property string $date Важен только месяц, день всегда 1
  * @property int $account_tariff_id
  * @property int $tariff_period_id Кэш accountTariff.tariff_period_id на эту дату
@@ -83,7 +84,7 @@ class AccountEntry extends ActiveRecord
     public function rules()
     {
         return [
-            [['account_tariff_id', 'type_id', 'is_next_month'], 'integer'],
+            [['operation_type_id', 'account_tariff_id', 'type_id', 'is_next_month'], 'integer'],
             [['price', 'cost_price'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
