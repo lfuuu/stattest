@@ -324,19 +324,19 @@ class AccountTariffResourceLog extends ActiveRecord
 
 
         // Проверка, что бы кол-во оплаченных абонентов на ВАТС не было меньше фактического
-        if (
-            $resource->service_type_id == ServiceType::ID_VPBX
-            && $resource->id == Resource::ID_VPBX_ABONENT
-        ) {
-            if (
-                ($lastAbonents = VirtpbxStat::getLastValue($this->account_tariff_id, 'numbers'))
-                && ($lastAbonents > $this->amount)
-            ) {
-                $this->addError($attribute, 'Значение ' . $this->amount . ' ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" меньше фактического количества: ' . $lastAbonents . '.');
-                $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_AMOUNT_MIN;
-                return;
-            }
-        }
+//        if (
+//            $resource->service_type_id == ServiceType::ID_VPBX
+//            && $resource->id == Resource::ID_VPBX_ABONENT
+//        ) {
+//            if (
+//                ($lastAbonents = VirtpbxStat::getLastValue($this->account_tariff_id, 'numbers'))
+//                && ($lastAbonents > $this->amount)
+//            ) {
+//                $this->addError($attribute, 'Значение ' . $this->amount . ' ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" меньше фактического количества: ' . $lastAbonents . '.');
+//                $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_AMOUNT_MIN;
+//                return;
+//            }
+//        }
 
         /** @var self $prev */
         $prev = self::find()
