@@ -128,6 +128,7 @@ abstract class RewardCalculate
                 $reward->line_pk = $line->pk;
             }
             $reward->created_at = $createdAt;
+            $reward->partner_id = $partnerContractId;
             // Выполнение рассчета прикрепленными обработчиками
             foreach ($rewardsHandler->getAvailableRewards() as $rewardClass) {
                 /** @var Reward $rewardClass */
