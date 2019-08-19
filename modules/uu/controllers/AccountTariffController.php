@@ -832,7 +832,7 @@ class AccountTariffController extends BaseController
 
                 $transaction->commit();
                 Yii::$app->session->addFlash('success', $accountTariff->getLink()  . ' обновлена');
-            } catch (yii\db\Exception $e) {
+            } catch (\Exception $e) {
                 $transaction->rollBack();
                 Yii::$app->session->addFlash('error', $accountTariff->getLink() . ":\n" . $e->getMessage());
             }
