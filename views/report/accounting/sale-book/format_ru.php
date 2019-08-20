@@ -9,45 +9,38 @@
 
     <thead>
     <tr>
-        <td rowspan="2" class="s">№ п/п</td>
-        <td rowspan="2" class="s">Код вида опера&shy;ции</td>
-        <td rowspan="2" class="s">Дата и номер счета- факту&shy;ры про&shy;давца</td>
-        <td rowspan="2" class="s">Номер и дата испра&shy;вления счета-факту&shy;ры про&shy;дав&shy;ца</td>
-        <td rowspan="2" class="s">Номер и дата корректи&shy;ровочного счета-фактуры продавца</td>
-        <td rowspan="2" class="s">Номер и дата испра&shy;вления корректи&shy;ровочного счета-фактуры продавца</td>
-        <td rowspan="2">Наиме&shy;нова&shy;ние поку&shy;па&shy;те&shy;ля</td>
-        <td rowspan="2">ИНН/КПП<br/>поку&shy;пате&shy;ля</td>
-
-        <td colspan="2">Сведения о посреднике (коми&shy;сси&shy;онере, агенте)</td>
-
-        <td rowspan="2">Тип ЛС</td>
-        <td rowspan="2">Тип до&shy;го&shy;во&shy;ра</td>
-        <td rowspan="2">Статус</td>
-
-        <td rowspan="2" class="s">Номер и дата до&shy;ку&shy;мен&shy;та, подтве&shy;ржда&shy;ющего оплату</td>
-        <td rowspan="2" class="s">На&shy;име&shy;но&shy;ва&shy;ние и код валюты</td>
-
-
-        <td colspan="2" class="s">
+        <td rowspan="2" class="s" align="center">№ п/п</td>
+        <td rowspan="2" class="s" align="center">Код вида операции</td>
+        <td rowspan="2" class="s" align="center">Номер и дата счета-фактуры продавца</td>
+        <td rowspan="2" class="s" align="center">Регистрационный номер таможенной декларации</td>
+        <td rowspan="2" class="s" align="center">Код вида товара</td>
+        <td rowspan="2" class="s" align="center">Номер и дата исправ-ления счета-факту-ры про-давца</td>
+        <td rowspan="2" class="s" align="center">Номер и дата корректи-ровочного счета-фактуры продавца</td>
+        <td rowspan="2" class="s" align="center">Номер и дата исправ-ления корректи-ровочного счета-фактуры продавца
+        </td>
+        <td rowspan="2" class="s" align="center">Наименование покупателя</td>
+        <td rowspan="2" class="s" align="center">ИНН/КПП<br/>покупателя</td>
+        <td colspan="2" class="s" align="center">Сведения о посреднике (комиссио-нере, агенте)</td>
+        <td rowspan="2" class="s" align="center">Номер и дата документа, подтверждаю-щего оплату</td>
+        <td rowspan="2" class="s" align="center">Наимено-вание <br/>и<br/>код валюты</td>
+        <td colspan="2" class="s" align="center">
             Стоимость продаж по счету-фактуре, разница стоимости по
             корректировочному счету-фактуре (включая НДС) в валюте
             счета-фактуры
         </td>
-
         <td colspan="3" class="s">
             Стоимость продаж, облагаемых налогом, по
-            счету-фактуре, разница стоимости по корректи-
-            ровочному счету-фактуре (без НДС) в рублях и
+            счету-фактуре, разница стоимости по корректировочному
+            счету-фактуре<br/>(без НДС) в рублях и
             копейках по ставке
         </td>
-
         <td colspan="2" class="s">
             Сумма НДС по счету-фактуре,
             разница стоимости по корректи-
             ровочному счету-фактуре в руб-
             лях и копейках, по ставке
         </td>
-        <td rowspan="2" class="s">
+        <td rowspan="2" class="s" align="center">
             Стоимость
             продаж,
             освобождаемых
@@ -61,27 +54,18 @@
             в рублях и
             копейках
         </td>
-
-        <td rowspan="2">Дата внесения</td>
-        <td rowspan="2">Дата удаления</td>
-        <td rowspan="2">Внесение в книгу продаж</td>
     </tr>
-
-    <td>наиме&shy;нова&shy;ние по&shy;сре&shy;дни&shy;ка</td>
-    <td>ИНН/КПП по&shy;сре&shy;дни&shy;ка</td>
-
-    <td>в валюте счета- фактуры</td>
-    <td>в рублях и копейках</td>
-
-    <td>18 про&shy;цен&shy;тов</td>
-    <td>10 про&shy;цен&shy;тов</td>
-    <td>0 про&shy;цен&shy;тов</td>
-
-    <td>18 про&shy;цен&shy;тов</td>
-    <td>10 про&shy;цен&shy;тов</td>
-
-    <tr>
-    </tr>
+    <td class="s" align="center">наименова-ние посред-ника</td>
+    <td class="s" align="center">ИНН/КПП посредника</td>
+    <td class="s" align="center">в валюте счета-фактуры</td>
+    <td class="s" align="center">в рублях и копейках</td>
+    <td class="s" align="center">20 про-цен-тов</td>
+    <td class="s" align="center">18 про-цен-тов</td>
+    <td class="s" align="center">10 про-цен-тов</td>
+    <td class="s" align="center">0 про-цен-тов</td>
+    <td class="s" align="center">20 про-цен-тов</td>
+    <td class="s" align="center">18 про-цен-тов</td>
+    <td class="s" align="center">10 про-цен-тов</td>
     </thead>
     <tbody>
     <?php
@@ -94,7 +78,7 @@
 
     $idx = 1;
 
-    $total = ['sumAll' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0,];
+    $total = ['sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0,];
 
     if ($query)
         foreach ($query->each() as $invoice) : ?>
@@ -133,7 +117,9 @@
                 <td><?= ($idx++) ?> </td>
                 <td><?= ($invoice->type_id == Invoice::TYPE_PREPAID ? '02' : '01') ?></td>
                 <td><?= ($invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED)) ?></td>
-                <td><?= ($invoice->correction_idx ? $invoice->correction_idx . ' от ' .$invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '---')?></td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td><?= ($invoice->correction_idx ? $invoice->correction_idx . ' от ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '---') ?></td>
                 <td>---</td>
                 <td>---</td>
                 <td><?= trim($contragent->name_full) ?></td>
@@ -141,38 +127,33 @@
                     <?= ($contragent->legal_type == ClientContragent::LEGAL_TYPE ? '/' . (trim($contragent->kpp) ?: '') : '') ?></td>
                 <td>---</td>
                 <td>---</td>
-                <td><?= $contragent->legal_type ?></td>
-                <td><?= $account->contract->business->name ?></td>
-                <td><?= $contract->businessProcessStatus->name ?></td>
                 <td><?= $invoice->getPaymentsStr() ?: '&nbsp;' ?></td>
                 <td><?= $account->currencyModel->name ?> <?= $account->currencyModel->code ?></td>
                 <td><?= $printSum($sum) ?></td>
                 <td><?= $printSum($sum) ?></td>
+                <td><?= $taxRate == 20 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 0 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
+                <td><?= $taxRate == 20 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td>&nbsp;</td>
-                <td><?= (new DateTime($invoice->add_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) ?></td>
-                <td><?= $invoice->is_reversal && $invoice->reversal_date ? (new DateTime($invoice->reversal_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '&nbsp;' ?></td>
-                <td></td>
             </tr>
-            <?php
+        <?php
         endforeach;
     ?>
     <tr class="even">
-        <td colspan="15" align="right">Всего:</td>
+        <td colspan="14" align="right">Всего:</td>
         <td><?= $printSum($total['sumAll']) ?></td>
         <td><?= $printSum($total['sumAll']) ?></td>
+        <td><?= $printSum($total['sum20']) ?></td>
         <td><?= $printSum($total['sum18']) ?></td>
         <td><?= $printSum($total['sum10']) ?></td>
         <td><?= $printSum($total['sum0']) ?></td>
+        <td><?= $printSum($total['tax20']) ?></td>
         <td><?= $printSum($total['tax18']) ?></td>
         <td><?= $printSum($total['tax10']) ?></td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
         <td>&nbsp;</td>
     </tr>
     </tbody>
