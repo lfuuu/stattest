@@ -13,6 +13,7 @@ use app\classes\model\ActiveRecord;
  * @property float $percentage_of_fee
  * @property float $percentage_of_over
  * @property float $percentage_of_margin
+ * @property int $partner_id
  */
 class PartnerRewards extends ActiveRecord
 {

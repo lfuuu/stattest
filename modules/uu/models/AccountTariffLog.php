@@ -372,8 +372,9 @@ class AccountTariffLog extends ActiveRecord
             }
 
             $isPackage = array_key_exists($tariff->service_type_id, ServiceType::$packages);
-            if ($isPackage && $tariff->is_default) {
+            if ($isPackage && ($tariff->is_default || $tariff->is_charge_after_blocking)) {
                 // пакеты по умолчанию подключаются/отключаются автоматически. Им можно всё
+                // пакеты со списание после блокировки можно подключить всегда
                 return;
             }
 

@@ -349,7 +349,14 @@ SQL;
 
         if ($accountTariff->tariff_period_id) {
             // Билинговать с новым тарифом при смене тарифа (но не при закрытии услуги)
-            $this->checkBalance($accountTariff, $eventType == ImportantEventsNames::UU_UPDATED);
+
+            // менять тариф, даже если нет денег
+            // менять тариф, если стоит флаг "списывать после блокировки" не смотря ни на что
+            $this->checkBalance(
+                $accountTariff,
+                $eventType == ImportantEventsNames::UU_UPDATED
+                || $accountTariff->tariffPeriod->tariff->is_charge_after_blocking
+            );
         }
     }
 
@@ -357,13 +364,13 @@ SQL;
      * Билинговать с новым тарифом
      *
      * @param AccountTariff $accountTariff
-     * @param bool $isUpdate
+     * @param bool $isForceUpdate
      * @throws FinanceException
      * @throws ModelValidationException
      * @throws \Throwable
      * @throws \yii\base\Exception
      */
-    protected function checkBalance(AccountTariff $accountTariff, $isUpdate)
+    protected function checkBalance(AccountTariff $accountTariff, $isForceUpdate)
     {
         ob_start();
         try {
@@ -397,7 +404,7 @@ SQL;
                 $credit, $clientAccount->currency);
 
             // всегда менять тариф, даже если денег не хватает
-            if ($isUpdate) {
+            if ($isForceUpdate) {
                 $accountTariff->comment .= ($accountTariff->comment ? PHP_EOL : '') . $errorMessage . ', но тариф изменен';
                 if (!$accountTariff->save()) {
                     throw new ModelValidationException($accountTariff);
