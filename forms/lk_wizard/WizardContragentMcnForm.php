@@ -4,6 +4,8 @@ namespace app\forms\lk_wizard;
 
 use app\classes\Form;
 
+use app\classes\validators\PassportNumberUniqValidator;
+use app\classes\validators\PassportValuesValidator;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
@@ -35,8 +37,7 @@ class WizardContragentMcnForm extends Form
         $passport_issued,
         $passport_date_issued,
         $birthday,
-        $address
-    ;
+        $address;
 
     public function rules()
     {
@@ -89,6 +90,28 @@ class WizardContragentMcnForm extends Form
             'required',
             'when' => function ($model) {
                 return $model->legal_type == ClientContragent::IP_TYPE;
+            }
+        ];
+
+        $rules[] = [
+            [
+                'passport_serial',
+                'passport_number'
+            ],
+            PassportValuesValidator::class,
+            'when' => function ($model) {
+                return $model->legal_type == ClientContragent::PERSON_TYPE;
+            }
+        ];
+
+        $rules[] = [
+            [
+                'passport_serial',
+                'passport_number'
+            ],
+            PassportNumberUniqValidator::class,
+            'when' => function ($model) {
+                return $model->legal_type == ClientContragent::PERSON_TYPE;
             }
         ];
 

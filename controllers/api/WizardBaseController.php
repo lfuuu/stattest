@@ -4,6 +4,7 @@ namespace app\controllers\api;
 
 use app\classes\Form;
 use app\classes\Html2Pdf;
+use app\models\Country;
 use yii;
 use app\classes\ApiController;
 use app\models\LkWizardState;
@@ -78,6 +79,11 @@ abstract class WizardBaseController extends ApiController
         if (!$this->account) {
             throw new InvalidParamException("account_not_found");
         }
+
+        $countryCode = $this->account->getUuCountryId() ?: Country::RUSSIA;
+        $country = Country::findOne(['code' => $countryCode]) ?: Country::findOne(['code' => Country::RUSSIA]);
+
+        \Yii::$app->language = $country->language;
     }
 
     /**

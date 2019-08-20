@@ -304,7 +304,7 @@ class WizardMcnController extends WizardBaseController
 
         try {
             if (!$form->validate()) {
-                throw new ModelValidationException($form);
+                return $this->getFormErrors($form->getErrors());
             }
 
             return $form->saveInContragent($this->account);

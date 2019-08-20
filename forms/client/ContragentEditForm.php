@@ -2,6 +2,8 @@
 
 namespace app\forms\client;
 
+use app\classes\validators\PassportNumberUniqValidator;
+use app\classes\validators\PassportValuesValidator;
 use yii\base\Exception;
 use app\classes\Form;
 use app\classes\traits\DoubleAttributeLabelTrait;
@@ -184,6 +186,8 @@ class ContragentEditForm extends Form
             ],
             [['super_id', 'country_id', 'opf_id', 'sale_channel_id'], 'integer'],
             ['lang_code', 'string'],
+            [['passport_serial', 'passport_number'], PassportValuesValidator::class],
+            [['passport_serial', 'passport_number'], PassportNumberUniqValidator::class]
         ];
 
         // Валидация КПП, состоящая из 9 цифр, для контрагентов юр.лиц. со страной Россия

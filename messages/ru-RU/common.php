@@ -50,5 +50,8 @@ return [
     'Published {n, plural, one{# bill} other{# bills}}' => 'Опубликованно {n, plural, one{# счет} many{# счетов} other{# счета}}',
 
     'Tasks {count, plural, one{# entry} other{# entries}}' => '{count, plural, one{# заявка} many{# заявок} other{# заявки}}',
-    'Client account with ID: {account_id} not found' => 'ЛС с ID: {account_id} не найден'
+    'Client account with ID: {account_id} not found' => 'ЛС с ID: {account_id} не найден',
+    'Passport with such number and series already exists' => 'Паспорт с таким номером и серией уже сущетсвует',
+    'Passport number must be completed' => 'Номер паспорта должен быть заполнен',
+    'Passport series must be completed' => 'Серия паспорта должна быть заполнена',
 ];
