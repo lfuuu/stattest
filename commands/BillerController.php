@@ -165,27 +165,30 @@ class BillerController extends Controller
                 throw new \LogicException('Прогнозирование запускается не в тот день.');
         }
 
-        try {
-            $count = $partSize;
-            $offset = 0;
-            while ($count >= $partSize) {
-                $clientAccounts = ClientAccount::find()
-                    ->andWhere(['NOT IN', 'status', [
-                        ClientAccount::STATUS_CLOSED,
-                        ClientAccount::STATUS_DENY,
-                        ClientAccount::STATUS_TECH_DENY,
-                        ClientAccount::STATUS_TRASH,
-                        ClientAccount::STATUS_ONCE]])
-                    ->limit($partSize)
-                    ->offset($offset)
-                    ->orderBy('id')
-                    ->all();
 
-                foreach ($clientAccounts as $clientAccount) {
+        $count = $partSize;
+        $offset = 0;
+        while ($count >= $partSize) {
+            $clientAccounts = ClientAccount::find()
+                ->andWhere(['NOT IN', 'status', [
+                    ClientAccount::STATUS_CLOSED,
+                    ClientAccount::STATUS_DENY,
+                    ClientAccount::STATUS_TECH_DENY,
+                    ClientAccount::STATUS_TRASH,
+                    ClientAccount::STATUS_ONCE]])
+                ->limit($partSize)
+                ->offset($offset)
+                ->orderBy('id')
+                ->all();
 
-                    $offset++;
+            foreach ($clientAccounts as $clientAccount) {
 
-                    Yii::info("Прогнозирование. $offset. Лицевой счет: " . $clientAccount->id);
+                echo '. ';
+                $offset++;
+
+                Yii::info("Прогнозирование. $offset. Лицевой счет: " . $clientAccount->id);
+
+                try {
 
                     switch ($clientAccount->account_version) {
                         case ClientAccount::VERSION_BILLER_UNIVERSAL:
@@ -214,14 +217,17 @@ class BillerController extends Controller
                             ]
                         );
                     }
+
+                } catch (\Exception $e) {
+                    echo PHP_EOL . 'Error: ' . $clientAccount->id . ': ' . $e->getMessage();
+
+                    Yii::error('Ошибка прогнозирования');
+                    Yii::error($e);
                 }
 
-                $count = count($clientAccounts);
             }
-        } catch (\Exception $e) {
-            Yii::error('Ошибка прогнозирования');
-            Yii::error($e);
-            return ExitCode::UNSPECIFIED_ERROR;
+
+            $count = count($clientAccounts);
         }
 
         Yii::info("Прогнозирование законилось");

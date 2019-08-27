@@ -170,7 +170,7 @@ class IpPortBiller extends Biller
 
             // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
             if ($logTariff === null || $logTariff->date_activation >= $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)) {
-                return false;
+                return null;
             }
 
             $this->billerPeriodFrom = $this->usageActualFrom = $this->billerActualFrom =
