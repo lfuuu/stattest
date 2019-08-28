@@ -212,7 +212,7 @@ class ApiCore
         $accountSync->id = $params['id'];
         $accountSync->type = CoreSyncIds::TYPE_SUPER_CLIENT;
 
-        $info = self::createCoreOwner($params['id'], $params['account_id'], $params['email']);
+        $info = self::createCoreOwner($params['id'], $params['account_id'], $params['email'], isset($params['phone']) && $params['phone'] ? $params['phone'] : null );
 
         $accountSync->external_id = $info['user_id'];
 
@@ -229,15 +229,16 @@ class ApiCore
      * @param int $superClientId
      * @param int $accountId
      * @param string $email
+     * @param string $phone
      * @return array
      */
-    public static function createCoreOwner($superClientId, $accountId, $email)
+    public static function createCoreOwner($superClientId, $accountId, $email, $phone = null)
     {
         $result = ApiCore::exec('create_core_owner', [
             'id' => $superClientId,
             'email' => $email,
             'account_id' => $accountId,
-        ]);
+        ] + ($phone ? ['phone' => $phone] : []));
 
         if (isset($result['data'])) {
             return $result['data'];
