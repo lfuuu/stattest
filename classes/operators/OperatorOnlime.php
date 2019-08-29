@@ -163,6 +163,12 @@ class OperatorOnlime extends Operators
             'nameFull' => '(Onlime) Видеокамера IP HikVision Ezviz CS-C6SZW',
             'id_1c' => 'cb035e7c-4634-11e9-ab58-00155d881200',
         ],
+        'count_56' => [ //beced319-c4be-11e9-8b9a-00155d881200	19041	(Onlime) Видеокамера IP Switcam-HS303 low АО НПК РоТеК	Видеокамера IP Switcam-HS303 low АО НПК РоТеК
+            'id' => 19041,
+            'name' => 'Видеокамера IP Switcam-HS303 low АО НПК РоТеК',
+            'nameFull' => '(Onlime) Видеокамера IP Switcam-HS303 low АО НПК РоТеК',
+            'id_1c' => 'beced319-c4be-11e9-8b9a-00155d881200',
+        ],
     ];
 
     public static $requestModes = [
