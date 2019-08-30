@@ -30,6 +30,13 @@ abstract class RewardCalculate
         Transaction::SERVICE_TRUNK => TrunkHandler::class,
     ];
 
+    public static $servicesToId = [
+        Transaction::SERVICE_VOIP => 1,
+        Transaction::SERVICE_VIRTPBX => 2,
+        Transaction::SERVICE_CALL_CHAT => 3,
+        Transaction::SERVICE_TRUNK => 4,
+    ];
+
     /**
      * @param ClientAccount|int $clientAccount
      * @param Bill|int $bill
@@ -49,7 +56,7 @@ abstract class RewardCalculate
         }
         Assert::isObject($bill);
         // Получение partner_contract_id для дальнейшего поиска партнерской настройки
-        $contract = $clientAccount->contract;
+        $contract = $clientAccount->clientContractModel;
         $partnerContractId = $contract->partner_contract_id;
         if (!$partnerContractId) {
             HandlerLogger::me()->add(sprintf('pci_%s ', $contract->id));
@@ -82,11 +89,12 @@ abstract class RewardCalculate
             if (!isset($contractRewards[$service])) {
                 continue;
             }
-            $rewardsSettingsByType = $contractRewards[$service];
+            /** @var array $rewardsSettings */
+            $rewardsSettings = $contractRewards[$service];
             // Если периодом услуги является месяц, то нужно проверить пролонгацию
-            if ($rewardsSettingsByType['period_type'] === ClientContractReward::PERIOD_MONTH) {
+            if ($rewardsSettings['period_type'] === ClientContractReward::PERIOD_MONTH) {
                 // Пролонгация - месяц добавление настройки к остальной пролонгации
-                $prolongation = (int)$rewardsSettingsByType['period_month'] + 1;
+                $prolongation = (int)$rewardsSettings['period_month'] + 1;
                 // Проверка попадания строчки счета в пролонгацию для расчета вознаграждения
                 $billLineTableName = BillLine::tableName();
                 $isCantReward = (bool)BillLine::getDb()->createCommand("
@@ -122,17 +130,20 @@ abstract class RewardCalculate
                 continue;
             }
             // Попытка найти партнерское вознаграждение
-            if (!($reward = PartnerRewards::findOne(['bill_id' => $bill, 'line_pk' => $line->pk]))) {
+            if (!($reward = PartnerRewards::findOne(['bill_id' => $bill->id, 'line_pk' => $line->pk]))) {
                 $reward = new PartnerRewards;
                 $reward->bill_id = $bill->id;
                 $reward->line_pk = $line->pk;
             }
+            $reward->reward_service_type_id = self::$servicesToId[$service];
+            $reward->reward_service_id = $line->id_service;
+
             $reward->created_at = $createdAt;
             $reward->partner_id = $partnerContractId;
             // Выполнение рассчета прикрепленными обработчиками
             foreach ($rewardsHandler->getAvailableRewards() as $rewardClass) {
                 /** @var Reward $rewardClass */
-                $rewardClass::calculate($reward, $line, $rewardsSettingsByType);
+                $rewardClass::calculate($reward, $line, $rewardsSettings);
             }
             // Пропускаем счета с нулевыми суммами по "Разовое" или "% от подключения" или "% от абонентской платы"
             // или "% от превышения" или "% от маржи"

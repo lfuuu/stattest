@@ -14,6 +14,8 @@ use app\classes\model\ActiveRecord;
  * @property float $percentage_of_over
  * @property float $percentage_of_margin
  * @property int $partner_id
+ * @property int $reward_service_type_id
+ * @property int $reward_service_id
  */
 class PartnerRewards extends ActiveRecord
 {

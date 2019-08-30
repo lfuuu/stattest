@@ -2,6 +2,7 @@
 
 namespace app\classes\partners\rewards;
 
+use app\models\Bill;
 use app\models\BillLine;
 use app\models\PartnerRewards;
 
@@ -30,14 +31,38 @@ abstract class EnableReward
             return false;
         }
 
-        $calculatedRewards = PartnerRewards::find()
+        // разовое вознаграждение за услугу уже посчитано
+        $isCalculatedRewards = PartnerRewards::find()
             ->where([
-                'bill_id' => $line->bill->id,
-                'line_pk' => $line->pk,
+                'reward_service_type_id' => $reward->reward_service_type_id,
+                'reward_service_id' => $reward->reward_service_id,
             ])
-            ->count();
+            ->exists();
 
-        if (!$calculatedRewards) {
+        $reward->once = 0;
+
+        if ($isCalculatedRewards) {
+            return true;
+        }
+
+        $bill = $line->bill;
+
+        // Есть ли эта услуга в более ранних оплачиных, а значит обсчитаных, счетах
+        $isHavePrevPayedBills = BillLine::find()
+            ->alias('l')
+            ->joinWith('bill b')
+            ->andWhere([
+                'b.client_id' => $bill->client_id,
+                'b.is_payed' => Bill::STATUS_IS_PAID,
+                'l.service' => $line->service,
+                'l.id_service' => $line->id_service,
+            ])
+            ->andWhere(['<=', 'payment_date', $bill->payment_date])
+            ->andWhere(['not', ['b.bill_no' => $bill->bill_no]]);
+
+        $isHavePrevPayedBills = $isHavePrevPayedBills->exists();
+
+        if (!$isHavePrevPayedBills) {
             // Если вознаграждение еще не рассчитано
             $reward->once = $settings[self::getField()];
         }

@@ -55,6 +55,8 @@ class PartnerRewardController extends Controller
                 ['>=', 'payment_date', $date],
                 ['=', 'is_payed', Bill::STATUS_IS_PAID],
             ]);
+        $bills->with('clientAccountModel', 'clientAccountModel.clientContractModel');
+
         $this->_calculateRewards($bills);
     }
 
@@ -71,7 +73,7 @@ class PartnerRewardController extends Controller
         foreach ($bills->each() as $bill) {
             /** @var Bill $bill */
             try {
-                RewardCalculate::run($bill->clientAccount, $bill, $createdAt);
+                RewardCalculate::run($bill->clientAccountModel, $bill, $createdAt);
             } catch (\Exception $e) {
                 echo sprintf("Bill %s: %s ", $bill->id, $e->getMessage());
             }
@@ -96,7 +98,7 @@ class PartnerRewardController extends Controller
             ->alias('p')
             ->joinWith(['bill b'], true, 'INNER JOIN')
             ->select(['sum' => $exp])
-            ->where(['between', 'b.bill_date', $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT), $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)])
+            ->where(['between', 'b.payment_date', $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT), $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)])
             ->groupBy('partner_id')
             ->indexBy('partner_id')
             ->column();
@@ -104,7 +106,7 @@ class PartnerRewardController extends Controller
 
         foreach ($data as $contractId => $sum) {
             $sum = -$sum;
-            
+
             $contract = ClientContract::findOne(['id' => $contractId]);
 
             if (!$contract || !$contract->isPartner()) {
@@ -126,8 +128,8 @@ class PartnerRewardController extends Controller
                             [$dateFrom->getTimestamp(), $dateTo->getTimestamp()],
                             $lang)],
                         $lang),
-                1,
-                $sum);
+                    1,
+                    $sum);
                 Bill::dao()->recalcBill($bill);
                 ClientAccount::dao()->updateBalance($bill->client_id);
 

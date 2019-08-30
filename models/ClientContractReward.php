@@ -117,7 +117,7 @@ class ClientContractReward extends ActiveRecord
      * @param integer $partnerContractId
      * @param string $createdAt
      * @param boolean $isSpecial
-     * @return array|\yii\db\ActiveRecord[]
+     * @return array
      */
     public static function getActualByContract($partnerContractId, $createdAt, $isSpecial = true)
     {

@@ -42,6 +42,11 @@ class SetBillPaymentDate extends Behavior
     {
         if ($event->sender instanceof Bill) {
             $bill = $event->sender;
+
+            if ($bill->payment_date) {
+                return;
+            }
+
             if (
                 $bill->isAttributeChanged('is_payed') &&
                 $bill->is_payed != $bill->getOldAttribute('is_payed') &&
