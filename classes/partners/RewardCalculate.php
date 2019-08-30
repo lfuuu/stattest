@@ -143,7 +143,7 @@ abstract class RewardCalculate
             // Выполнение рассчета прикрепленными обработчиками
             foreach ($rewardsHandler->getAvailableRewards() as $rewardClass) {
                 /** @var Reward $rewardClass */
-                $rewardClass::calculate($reward, $line, $rewardsSettings);
+                $rewardClass::calculate($reward, $line, $rewardsSettings, $serviceObj);
             }
             // Пропускаем счета с нулевыми суммами по "Разовое" или "% от подключения" или "% от абонентской платы"
             // или "% от превышения" или "% от маржи"

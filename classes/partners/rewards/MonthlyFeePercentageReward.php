@@ -25,7 +25,7 @@ abstract class MonthlyFeePercentageReward implements Reward
      * @param BillLine $line
      * @param array $settings
      */
-    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
+    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings, $serviceObj)
     {
         if (!array_key_exists(self::getField(), $settings)) {
             return;

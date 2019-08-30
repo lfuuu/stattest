@@ -24,7 +24,7 @@ abstract class MarginPercentageReward implements Reward
      * @param array $settings
      * @return bool
      */
-    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
+    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings, $serviceObj)
     {
         if (!array_key_exists(self::getField(), $settings)) {
             return false;

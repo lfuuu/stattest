@@ -18,6 +18,6 @@ interface Reward
      * @param BillLine $line
      * @param array $settings
      */
-    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings);
+    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings, $serviceObj);
 
 }

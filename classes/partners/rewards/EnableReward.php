@@ -5,6 +5,10 @@ namespace app\classes\partners\rewards;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\PartnerRewards;
+use app\models\UsageVirtpbx;
+use app\models\UsageVoip;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 
 abstract class EnableReward
 {
@@ -23,11 +27,18 @@ abstract class EnableReward
      * @param PartnerRewards $reward
      * @param BillLine $line
      * @param array $settings
+     * @param UsageVoip|UsageVirtpbx|AccountTariff $serviceObj
      * @return bool
      */
-    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
+    public static function calculate(PartnerRewards $reward, BillLine $line, array $settings, $serviceObj)
     {
         if (!array_key_exists(self::getField(), $settings)) {
+            return false;
+        }
+
+        // разовые подключения только у усновных услуг
+        /** @var AccountTariff $serviceObj */
+        if ($serviceObj->id > AccountTariff::DELTA && $serviceObj->prev_account_tariff_id) {
             return false;
         }
 
