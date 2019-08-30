@@ -444,8 +444,8 @@ class m_newaccounts extends IModule
                     0,
                     1 in_sum,
                     0 as is_pay_overdue,
-                    null as sum_correction
-
+                    null as sum_correction,
+                    1 as operation_type_id
                     FROM `g_income_order` g
                         LEFT JOIN tt_troubles t ON (g.id = t.bill_id)
                         LEFT JOIN tt_stages ts ON  (ts.stage_id = t.cur_stage_id)
