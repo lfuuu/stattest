@@ -55,8 +55,13 @@ class BalanceSellToExcel extends Excel
             /** @var \app\models\filter\SaleBookFilter $invoice */
             $account = $invoice->bill->clientAccount;
             $contract = $account->contract;
+            $currencyModel = $account->currencyModel;
 
             $contragent = $contract->contragent;
+            $currencyName = $currencyModel->name;
+            $currencyCode = $currencyModel->code;
+            $taxRate = $account->getTaxRate();
+            $paymentsStr = $invoice->getPaymentsStr();
 
             $data[] = [
                 'sum' => $invoice->sum,
@@ -67,6 +72,10 @@ class BalanceSellToExcel extends Excel
                 'kpp' => trim($contragent->kpp),
                 'inv_no' => $invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'type' => $contragent->legal_type,
+                'taxRate' => $taxRate,
+                'currency_name' => $currencyName,
+                'currency_code' => $currencyCode,
+                'payments_str' => $paymentsStr
             ];
         }
         return $data;
@@ -94,12 +103,27 @@ class BalanceSellToExcel extends Excel
             $worksheet->setCellValueByColumnAndRow(0, $line, ($i + 1));
             $worksheet->setCellValueByColumnAndRow(1, $line, '01');
             $worksheet->setCellValueByColumnAndRow(2, $line, $row['inv_no']);
-            $worksheet->setCellValueByColumnAndRow(6, $line, $companyName);
-            $worksheet->setCellValueByColumnAndRow(7, $line,
+            $worksheet->setCellValueByColumnAndRow(8, $line, $companyName);
+            $worksheet->setCellValueByColumnAndRow(9, $line,
                 $row['inn'] . ($row['type'] == 'legal' ? '/' . ($row['kpp'] ?: '') : ''));
-            $worksheet->setCellValueByColumnAndRow(13, $line, sprintf('%0.2f', round($row['sum'], 2)));
-            $worksheet->setCellValueByColumnAndRow(14, $line, sprintf('%0.2f', round($row['sum_without_tax'], 2)));
-            $worksheet->setCellValueByColumnAndRow(17, $line, sprintf('%0.2f', round($row['sum_tax'], 2)));
+            $worksheet->setCellValueByColumnAndRow(12, $line, $row['payments_str']);
+            $worksheet->setCellValueByColumnAndRow(13, $line, $row['currency_name'] .' '. $row['currency_code']);
+            $worksheet->setCellValueByColumnAndRow(14, $line, sprintf('%0.2f', round($row['sum'], 2)));
+            $worksheet->setCellValueByColumnAndRow(15, $line, sprintf('%0.2f', round($row['sum'], 2)));
+            $worksheet->setCellValueByColumnAndRow(16, $line,
+                $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
+            $worksheet->setCellValueByColumnAndRow(17, $line,
+                $row['taxRate'] == 18 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
+            $worksheet->setCellValueByColumnAndRow(18, $line,
+                $row['taxRate'] == 10 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
+            $worksheet->setCellValueByColumnAndRow(19, $line,
+                $row['taxRate'] == 0 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
+            $worksheet->setCellValueByColumnAndRow(20, $line,
+                $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sum_tax'], 2)) : '');
+            $worksheet->setCellValueByColumnAndRow(21, $line,
+                $row['taxRate'] == 18 ? sprintf('%0.2f', round($row['sum_tax'], 2)) : '');
+            $worksheet->setCellValueByColumnAndRow(22, $line,
+                $row['taxRate'] == 10 ? sprintf('%0.2f', round($row['sum_tax'], 2)) : '');
         }
     }
 
