@@ -73,9 +73,8 @@ trait AccountTariffBillerTrait
         /** @var AccountTariffLog $accountTariffLogPrev */
         $accountTariffLogPrev = null;
 
-        $accountTariffLogsTmp = $this->accountTariffLogs;
-        $clientDate = reset($accountTariffLogsTmp)
-            ->getClientDateTime()
+        $clientDate = $this
+            ->getClientDatetimeWithTimezone()
             ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         /** @var AccountTariffLog $accountTariffLog */
