@@ -32,13 +32,20 @@ abstract class EnableReward
      */
     public static function calculate(PartnerRewards $reward, BillLine $line, array $settings, $serviceObj)
     {
+        $reward->once = 0;
+
         if (!array_key_exists(self::getField(), $settings)) {
             return false;
         }
 
-        // разовые подключения только у усновных услуг
+        // разовые подключения только у основных услуг
         /** @var AccountTariff $serviceObj */
         if ($serviceObj->id > AccountTariff::DELTA && $serviceObj->prev_account_tariff_id) {
+            return false;
+        }
+
+        // переносы не учитываем
+        if ($serviceObj->prev_usage_id) {
             return false;
         }
 
@@ -49,8 +56,6 @@ abstract class EnableReward
                 'reward_service_id' => $reward->reward_service_id,
             ])
             ->exists();
-
-        $reward->once = 0;
 
         if ($isCalculatedRewards) {
             return true;
