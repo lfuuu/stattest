@@ -107,12 +107,7 @@ class ReportUsageDao extends Singleton
             ->andWhere(['account_id' => $accountId]);
 
         // скрываем технические записи звонков
-        $query->andWhere([
-                'NOT', [
-                'cost' => 0,
-                'leg_type' => [2, 3],
-                'sim_imsi_profile_id' => [1,5]]
-            ]);
+        $query->andWhere('NOT COALESCE(cr.cost=0 and cr.leg_type IN (2, 3) AND cr.sim_imsi_profile_id IN (1, 5), false)');
 
         $direction !== 'both' && $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
         isset($usages) && count($usages) > 0 && $query->andWhere([($region == 'trunk' ? 'trunk_service_id' : 'number_service_id') => $usages]);
