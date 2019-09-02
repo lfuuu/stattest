@@ -58,6 +58,7 @@ class BalanceSellToExcel extends Excel
             $currencyModel = $account->currencyModel;
 
             $contragent = $contract->contragent;
+            $currencyId = $currencyModel->id;
             $currencyName = $currencyModel->name;
             $currencyCode = $currencyModel->code;
             $taxRate = $account->getTaxRate();
@@ -73,6 +74,7 @@ class BalanceSellToExcel extends Excel
                 'inv_no' => $invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'type' => $contragent->legal_type,
                 'taxRate' => $taxRate,
+                'currency_id' => $currencyId,
                 'currency_name' => $currencyName,
                 'currency_code' => $currencyCode,
                 'payments_str' => $paymentsStr
@@ -108,7 +110,9 @@ class BalanceSellToExcel extends Excel
                 $row['inn'] . ($row['type'] == 'legal' ? '/' . ($row['kpp'] ?: '') : ''));
             $worksheet->setCellValueByColumnAndRow(12, $line, $row['payments_str']);
             $worksheet->setCellValueByColumnAndRow(13, $line, $row['currency_name'] .' '. $row['currency_code']);
-            $worksheet->setCellValueByColumnAndRow(14, $line, sprintf('%0.2f', round($row['sum'], 2)));
+            $worksheet->setCellValueByColumnAndRow(14, $line,
+                $row['currency_id'] == 'RUB' ? '' :
+                        sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(15, $line, sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(16, $line,
                 $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');

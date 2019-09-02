@@ -128,7 +128,7 @@
                 <td>---</td>
                 <td><?= $invoice->getPaymentsStr() ?: '&nbsp;' ?></td>
                 <td><?= $account->currencyModel->name ?> <?= $account->currencyModel->code ?></td>
-                <td><?= $printSum($sum) ?></td>
+                <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
                 <td><?= $printSum($sum) ?></td>
                 <td><?= $taxRate == 20 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
@@ -144,7 +144,7 @@
     ?>
     <tr class="even">
         <td colspan="14" align="right">Всего:</td>
-        <td><?= $printSum($total['sumAll']) ?></td>
+        <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
         <td><?= $printSum($total['sumAll']) ?></td>
         <td><?= $printSum($total['sum20']) ?></td>
         <td><?= $printSum($total['sum18']) ?></td>
