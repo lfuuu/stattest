@@ -83,7 +83,7 @@ class BaseForm extends Form
         $clients = ClientAccount::findAll(['id' => $this->clients]);
 
         try {
-            ApiCore::transferContragent($contragent->id, $superClient->id, $this->targetClientAccount->id);
+//            ApiCore::transferContragent($contragent->id, $superClient->id, $this->targetClientAccount->id);
         } catch (Exception $e) {
             $this->addError('transfer-error', 'API: ' . $e->getMessage());
             return false;
@@ -117,7 +117,7 @@ class BaseForm extends Form
             return false;
         }
 
-        $this->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
+//        $this->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
 
         return true;
     }
