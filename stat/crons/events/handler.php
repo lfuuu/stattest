@@ -461,7 +461,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case EventQueue::INVOICE_GENERATE_PDF:
-                    InvoiceGeneratePdf::generate($param['id']);
+                    InvoiceGeneratePdf::generate($param['id'], $param['document']);
                     break;
 
 

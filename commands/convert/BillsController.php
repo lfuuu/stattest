@@ -4,7 +4,9 @@ namespace app\commands\convert;
 
 use app\exceptions\ModelValidationException;
 use app\models\Bill;
+use app\models\BillDocument;
 use app\models\BillLine;
+use app\models\EventQueue;
 use app\models\Invoice;
 use app\models\Payment;
 use app\models\PaymentOrder;
@@ -16,17 +18,18 @@ class BillsController extends Controller
     {
         $time0 = microtime(true);;
         $query = \app\models\ClientContact::find()->where(['!=', 'comment', ''])->createCommand();
-        foreach($query->query() as $contact) {
+        foreach ($query->query() as $contact) {
             $comment = $contact['comment'];
             $newComment = \yii\helpers\HtmlPurifier::process($comment);
 
             if ($newComment != $comment) {
-                echo PHP_EOL . $comment.' /// ' . $newComment;
+                echo PHP_EOL . $comment . ' /// ' . $newComment;
                 \app\models\ClientContact::updateAll(['comment' => $comment], ['id' => $contact['id']]);
             }
         }
-        echo PHP_EOL . 'work length: ' . round(time() - $time0, 2).' sec';
+        echo PHP_EOL . 'work length: ' . round(time() - $time0, 2) . ' sec';
     }
+
     /**
      * Сборка данных для колонки `payment_date` модели Bill
      */
@@ -83,7 +86,7 @@ class BillsController extends Controller
                 DROP TEMPORARY TABLE IF EXISTS temporary_payments_orders;
             ")->execute();
             $transaction->commit();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             echo $e->getMessage() . PHP_EOL;
         }
@@ -93,12 +96,13 @@ class BillsController extends Controller
      * Удаление данных из колонки `payment_date` модели Bill
      */
     public function actionClearPaymentDateColumn()
-    {   $db = Bill::getDb();
+    {
+        $db = Bill::getDb();
         $transaction = $db->beginTransaction();
         try {
             Bill::updateAll(['payment_date' => null,]);
             $transaction->commit();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             echo $e->getMessage() . PHP_EOL;
         }
@@ -141,11 +145,45 @@ class BillsController extends Controller
                 if (!$invoice->save()) {
                     throw new ModelValidationException($invoice);
                 }
-            }catch (\Exception $e) {
-                echo PHP_EOL. '!!' . $e->getMessage();
+            } catch (\Exception $e) {
+                echo PHP_EOL . '!!' . $e->getMessage();
             }
         }
 
         echo PHP_EOL . (time() - $time);
+    }
+
+    /**
+     * Заполняем флаги с/ф и акт в закрывающих документах
+     * @throws ModelValidationException
+     */
+    public function actionClosingDocumentsSetFlags()
+    {
+        $invoiceQuery = Invoice::find()//->where(['is_invoice' => 0, 'is_act' => 0])
+        ->with('bill', 'lines');
+
+        /** @var Invoice $invoice */
+        foreach ($invoiceQuery->each() as $invoice) {
+            echo ' .';
+            $invoiceDate = new \DateTimeImmutable($invoice->date);
+            $invoice->is_invoice = (int)(bool)BillDocument::dao()->me()->_isSF($invoice->bill->client_id, BillDocument::TYPE_INVOICE, $invoiceDate->getTimestamp(), $invoice->type_id);
+            $invoice->is_act = (int)(bool)BillDocument::dao()->me()->_isSF($invoice->bill->client_id, BillDocument::TYPE_AKT, $invoiceDate->getTimestamp());
+
+            // no actions on save
+            $invoice->detachBehaviors();
+
+            if (!$invoice->save()) {
+                throw new ModelValidationException($invoice);
+            }
+
+            if ($invoice->is_invoice) {
+                EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_INVOICE]);
+            }
+
+            if ($invoice->is_act) {
+                EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_AKT]);
+            }
+
+        }
     }
 }

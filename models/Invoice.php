@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\behaviors\InvoiceGeneratePdf;
 use app\classes\behaviors\InvoiceNextIdx;
+use app\classes\behaviors\InvoiceSetFlags;
 use app\classes\Encrypt;
 use app\classes\HttpClient;
 use app\classes\model\ActiveRecord;
@@ -11,6 +12,7 @@ use app\dao\InvoiceDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models_light\InvoiceLight;
+use Couchbase\Document;
 use yii\base\InvalidCallException;
 use yii\db\Expression;
 use yii\web\NotAcceptableHttpException;
@@ -37,6 +39,8 @@ use yii\web\Response;
  * @property float $original_sum
  * @property float $original_sum_tax
  * @property int $correction_idx
+ * @property int $is_invoice
+ * @property int $is_act
  *
  * @property-read Bill $bill
  * @property-read InvoiceLine[] $lines
@@ -80,6 +84,7 @@ class Invoice extends ActiveRecord
         return [
             'InvoiceNextIdx' => InvoiceNextIdx::class,
             'InvoiceGeneratePdf' => InvoiceGeneratePdf::class,
+            'InvoiceSetFlags' => InvoiceSetFlags::class,
         ];
     }
 
@@ -542,14 +547,14 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * @param $document
      * @return string
-     * @throws \Exception
      */
-    public function getFilePath()
+    public function getFilePath($document)
     {
         return $this->getPath()
             . $this->bill->client_id
-            . '-' . $this->number
+            . '-' . $document . '-' . $this->number
             . ($this->is_reversal ? 'R' : '')
             . ($this->correction_idx ? '-' . $this->correction_idx : '')
             . '.pdf';
@@ -561,17 +566,17 @@ class Invoice extends ActiveRecord
      * @throws \yii\base\ExitException
      * @throws \Exception
      */
-    public function downloadFile()
+    public function downloadFile($document)
     {
-        if (!file_exists($this->getFilePath())) {
-            $this->generatePdfFile();
+        if (!file_exists($this->getFilePath($document))) {
+            $this->generatePdfFile($document);
         }
 
         if (\Yii::$app instanceof \yii\console\Application) {
             throw new InvalidCallException('В консольном режиме скачать файл не возможно');
         }
 
-        $filePath = $this->getFilePath();
+        $filePath = $this->getFilePath($document);
         $info = pathinfo($filePath);
 
         \Yii::$app->response->format = Response::FORMAT_RAW;
@@ -579,32 +584,32 @@ class Invoice extends ActiveRecord
         \Yii::$app->response->setDownloadHeaders($info['basename'], 'application/pdf', true);
 
         \Yii::$app->end();
-
     }
 
     /**
+     * @param string $document
      * @return bool
-     * @throws NotAcceptableHttpException
-     * @throws \HttpResponseException
-     * @throws \Exception
      */
-    public function generatePdfFile()
+    public function generatePdfFile($document)
     {
         if (!$this->bill) {
             return false;
         }
 
-        if (file_exists($this->getFilePath())) {
+        $filePath = $this->getFilePath($document);
+
+        // already exists
+        if (file_exists($filePath)) {
             return null;
         }
 
-        if ($this->bill->currency == Currency::HUF) {
+        if (in_array($this->organization_id, [Organization::TEL2TEL_KFT, Organization::TEL2TEL_GMBH])) {
             $pdf = $this->getContentTemplate1Pdf();
         } else {
-            $pdf = $this->downloadPdfContent();
+            $pdf = $this->downloadPdfContent($document);
         }
 
-        return file_put_contents($this->getFilePath(), $pdf);
+        return file_put_contents($filePath, $pdf);
     }
 
     /**
@@ -627,15 +632,16 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * @param $document
      * @return mixed
      * @throws NotAcceptableHttpException
      * @throws \HttpResponseException
      */
-    protected function downloadPdfContent()
+    protected function downloadPdfContent($document = BillDocument::TYPE_INVOICE)
     {
         $data = [
             'bill' => $this->bill_no,
-            'object' => 'invoice-' . $this->type_id,
+            'object' => $document . '-' . $this->type_id,
             'client' => (string)$this->bill->client_id,
             'is_pdf' => '1',
             'emailed' => '1',
@@ -652,7 +658,7 @@ class Invoice extends ActiveRecord
         }
 
         if (strpos($req->content, '%PDF') !== 0) {
-            throw new \HttpResponseException('Content is not PDF');
+            throw new \LogicException('Content is not PDF');
         }
 
         return $req->content;

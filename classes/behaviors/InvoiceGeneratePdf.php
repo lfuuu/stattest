@@ -3,6 +3,7 @@
 namespace app\classes\behaviors;
 
 use app\classes\Assert;
+use app\models\BillDocument;
 use app\models\EventQueue;
 use app\models\Invoice;
 use yii\base\Behavior;
@@ -41,21 +42,26 @@ class InvoiceGeneratePdf extends Behavior
             ($isNewRecord && $invoice->number)
             || (!$isNewRecord && $invoice->number && !$invoice->getOldAttribute('number'))
         ) {
-            EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id]);
+            if ($invoice->is_invoice) {
+                EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_INVOICE]);
+            }
+
+            if ($invoice->is_act) {
+                EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_AKT]);
+            }
         }
     }
 
     /**
      * @param int $invoiceId
-     * @throws \HttpResponseException
-     * @throws \yii\base\Exception
+     * @param string $document
      */
-    public static function generate($invoiceId)
+    public static function generate($invoiceId, $document)
     {
         $invoice = Invoice::findOne(['id' => $invoiceId]);
 
         Assert::isObject($invoice);
 
-        $invoice->generatePdfFile();
+        $invoice->generatePdfFile($document);
     }
 }

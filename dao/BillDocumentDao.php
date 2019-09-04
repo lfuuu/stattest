@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Singleton;
@@ -66,13 +67,13 @@ class BillDocumentDao extends Singleton
 
         $gds = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_GDS, 3, $billLines, $billTs);
 
-        $bill_akts = array(
+        $bill_akts = [
             1 => $a1,
             2 => $a2,
             3 => $a3
-        );
+        ];
 
-        $bill_invoices = array(
+        $bill_invoices = [
             1 => $p1,
             2 => $p2,
             3 => $p3,
@@ -80,12 +81,12 @@ class BillDocumentDao extends Singleton
             5 => ($p5 == -1 || $p5 == 0) ? $p5 : $p5,
             6 => 0,
             7 => $gds
-        );
+        ];
 
-        $bill_invoice_akts = array(
+        $bill_invoice_akts = [
             1 => $p1,
             2 => $p2
-        );
+        ];
 
         $doctypes = [
             'a1' => 0, 'a2' => 0, 'a3' => 0,
@@ -107,15 +108,15 @@ class BillDocumentDao extends Singleton
         } else {
 
             for ($i = 1; $i <= 3; $i++) {
-                $doctypes['a' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_AKT, $bill_akts[$i]);
+                $doctypes['a' . $i] = (int)$this->_isSF($accountId, BillDocument::TYPE_AKT, $this->_getDocumentDateByLines($bill_akts[$i], $billTs));
             }
 
             for ($i = 1; $i <= 7; $i++) {
-                $doctypes['i' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_INVOICE, $bill_invoices[$i], $i);
+                $doctypes['i' . $i] = (int)$this->_isSF($accountId, BillDocument::TYPE_INVOICE, $this->_getDocumentDateByLines($bill_invoices[$i], $billTs), $i);
             }
 
             for ($i = 1; $i <= 2; $i++) {
-                $v = $this->_isSF($accountId, $billTs, BillDocument::TYPE_UPD, $bill_invoice_akts[$i]);
+                $v = $this->_isSF($accountId, BillDocument::TYPE_UPD, $this->_getDocumentDateByLines($bill_invoice_akts[$i], $billTs));
                 $doctypes['ia' . $i] = $v === null ? 0 : (int)!$v;
             }
         }
@@ -134,36 +135,42 @@ class BillDocumentDao extends Singleton
         return ($returnData) ? $docs->toArray() : true;
     }
 
+    private function _getDocumentDateByLines($lines, $billTs)
+    {
+        if (!$lines) {
+            return null;
+        }
+
+        $l = reset($lines);
+        return strtotime($l['date_from']) ?: $billTs;
+    }
+
     /**
      * Доступна ли счет/фактура
      *
      * @param integer $accountId
-     * @param int $billTs
      * @param string $type
-     * @param array $filtredBillLines
+     * @param integer $documentDate
      * @param int $objId
      * @return bool|null
      */
-    private function _isSF($accountId, $billTs, $type, $filtredBillLines, $objId = null)
+    public function _isSF($accountId, $type, $documentDate = null, $objId = null)
     {
         static $cache = [];
 
-        if (!$filtredBillLines) {
+        if (!$documentDate) {
             return null;
         }
 
-        $l = reset($filtredBillLines);
-        $ts = $l['ts_from'] ?: $billTs;
-
-        if (!isset($cache[$accountId]) || !isset($cache[$accountId][$ts])) {
+        if (!isset($cache[$accountId]) || !isset($cache[$accountId][$documentDate])) {
             /** @var ClientAccount $account */
             $account = ClientAccount::findOne(['id' => $accountId])
-                ->loadVersionOnDate(date(DateTimeZoneHelper::DATE_FORMAT, $ts));
+                ->loadVersionOnDate(date(DateTimeZoneHelper::DATE_FORMAT, $documentDate));
 
-            $cache[$accountId][$ts] = $account->getTaxRate();
+            $cache[$accountId][$documentDate] = $account->getTaxRate();
         }
 
-        $taxRate = $cache[$accountId][$ts];
+        $taxRate = $cache[$accountId][$documentDate];
 
         if ($type == BillDocument::TYPE_INVOICE && $objId == BillDocument::ID_GOODS) { // документ на товар
             return $taxRate ? BillDocument::SUBID_GOODS_UPDT : BillDocument::SUBID_GOODS_LADING; // 1 - УПДТ, 2 - Товарная накладная
@@ -182,9 +189,9 @@ class BillDocumentDao extends Singleton
         $period2 = strtotime("2017-01-01"); // возврат на с/ф и акт
 
 
-        if ($ts >= $period2) {
+        if ($documentDate >= $period2) {
             return true;
-        } else if ($ts >= $period1) {
+        } else if ($documentDate >= $period1) {
             return false;
         } else {
             return true;
