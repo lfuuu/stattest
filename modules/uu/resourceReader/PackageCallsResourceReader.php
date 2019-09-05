@@ -21,6 +21,7 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
     protected $callsByPriceList = []; // [$date => [$packagePricelistId => [0 => $price, 1 => $costPrice]]]
 
     protected $accountTariffId = null;
+    protected $minDateTime = null;
 
     protected static $packages = [];
 
@@ -35,7 +36,9 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        if ($this->accountTariffId !== $accountTariff->prev_account_tariff_id) {
+        // сменилась основная услуга у пакета, или дата получаемых данных раньше, чем сохраннено в кеше
+        if ($this->accountTariffId !== $accountTariff->prev_account_tariff_id || ($this->minDateTime && ($dateTime < $this->minDateTime))) {
+            echo ($this->accountTariffId !== $accountTariff->prev_account_tariff_id ? 'Z ' : 'DateChangedSame ');
             $this->setDateToValue($accountTariff, $dateTime);
         }
 
@@ -96,6 +99,8 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
     protected function setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
         $this->accountTariffId = $accountTariff->prev_account_tariff_id;
+        $this->minDateTime = $dateTime;
+
         $this->callsByPrice = $this->callsByPriceList = [];
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента

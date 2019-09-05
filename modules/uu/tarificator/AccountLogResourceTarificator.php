@@ -92,6 +92,7 @@ class AccountLogResourceTarificator extends Tarificator
             $accountTariffQuery->orderBy([
                 'client_account_id' => SORT_ASC,
                 'prev_account_tariff_id' => SORT_ASC,
+                'id' => SORT_ASC,
             ]);
         }
 
