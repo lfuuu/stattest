@@ -169,6 +169,12 @@ class OperatorOnlime extends Operators
             'nameFull' => '(Onlime) Видеокамера IP Switcam-HS303 low АО НПК РоТеК',
             'id_1c' => 'beced319-c4be-11e9-8b9a-00155d881200',
         ],
+        'count_57' => [ //c820ca61-d075-11e9-87a0-00155d881200	19044	(Onlime) Приставка, IPTV Sercomm STB 122A STB Android	Приставка, IPTV Sercomm STB 122A STB Android
+            'id' => 19044,
+            'name' => 'Приставка, IPTV Sercomm STB 122A STB Android',
+            'nameFull' => '(Onlime) Приставка, IPTV Sercomm STB 122A STB Android',
+            'id_1c' => 'c820ca61-d075-11e9-87a0-00155d881200',
+        ],
     ];
 
     public static $requestModes = [
