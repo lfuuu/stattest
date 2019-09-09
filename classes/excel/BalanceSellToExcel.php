@@ -109,7 +109,8 @@ class BalanceSellToExcel extends Excel
             $worksheet->setCellValueByColumnAndRow(9, $line,
                 $row['inn'] . ($row['type'] == 'legal' ? '/' . ($row['kpp'] ?: '') : ''));
             $worksheet->setCellValueByColumnAndRow(12, $line, $row['payments_str']);
-            $worksheet->setCellValueByColumnAndRow(13, $line, $row['currency_name'] .' '. $row['currency_code']);
+            $worksheet->setCellValueByColumnAndRow(13, $line,
+                $row['currency_id'] == 'RUB' ? ' ' : $row['currency_name'] .' '. $row['currency_code']);
             $worksheet->setCellValueByColumnAndRow(14, $line,
                 $row['currency_id'] == 'RUB' ? '' :
                         sprintf('%0.2f', round($row['sum'], 2)));

@@ -127,7 +127,7 @@
                 <td>---</td>
                 <td>---</td>
                 <td><?= $invoice->getPaymentsStr() ?: '&nbsp;' ?></td>
-                <td><?= $account->currencyModel->name ?> <?= $account->currencyModel->code ?></td>
+                <td><?= $account->currency == 'RUB' ? ' ' : $account->currencyModel->name. ' ' . $account->currencyModel->code ?></td>
                 <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
                 <td><?= $printSum($sum) ?></td>
                 <td><?= $taxRate == 20 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
