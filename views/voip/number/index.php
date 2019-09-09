@@ -25,6 +25,7 @@ use app\models\filter\voip\NumberFilter;
 use app\models\Number;
 use app\models\voip\Registry;
 use app\modules\nnp\column\NdcTypeColumn;
+use app\modules\nnp\column\OperatorColumn;
 use kartik\grid\ActionColumn;
 use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
@@ -278,6 +279,10 @@ $columns = [
     [
         'attribute' => 'source',
         'class' => SourceColumn::class,
+    ],
+    [
+        'attribute' => 'nnp_operator_id',
+        'class' => OperatorColumn::class,
     ],
     [
         'attribute' => 'imsi',

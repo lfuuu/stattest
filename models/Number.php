@@ -8,6 +8,7 @@ use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
 use app\models\voip\Registry;
 use app\modules\nnp\models\NdcType;
+use app\modules\nnp\models\Operator;
 use app\modules\sim\models\Imsi;
 use app\modules\uu\models\AccountTariff;
 use yii\helpers\Url;
@@ -66,6 +67,7 @@ use yii\helpers\Url;
  * @property-read City $cityByName
  * @property-read Imsi $imsiModel
  * @property-read Registry $registry
+ * @property-read Operator $nnpOperator
  *
  * @property-read float $originPrice
  * @property-read float $price
@@ -274,6 +276,11 @@ class Number extends ActiveRecord
     public function getRegistry()
     {
         return $this->hasOne(Registry::class, ['id' => 'registry_id']);
+    }
+
+    public function getNnpOperator()
+    {
+        return $this->hasOne(Operator::class, ['id' => 'nnp_operator_id']);
     }
 
     /**

@@ -12,6 +12,7 @@ use app\models\Country;
 use app\models\voip\Registry;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\nnp\models\Operator;
 
 class RegistryForm extends Form
 {
@@ -33,10 +34,11 @@ class RegistryForm extends Form
         $comment = '',
         $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
         $ndcList = [],
-        $operator = '',
         $fmc_trunk_id = null,
         $mvno_trunk_id = null,
-        $nnp_operator_id = null;
+        $nnp_operator_id = null,
+        $nnp_operator_name = ''
+    ;
 
 
     /** @var Registry */
@@ -87,7 +89,7 @@ class RegistryForm extends Form
                 'comment' => 'Комментарий',
                 'city_number_format' => 'Формат номера',
                 'ndc' => 'NDC',
-                'operator' => 'ННП-оператор',
+                'nnp_operator_name' => 'ННП-оператор',
             ];
     }
 
@@ -156,6 +158,7 @@ class RegistryForm extends Form
 
         $this->_setNDC();
         $this->_setCityNumberFormat();
+        $this->_setNnpOperator();
 
         if ($isSaveFromPost) {
             $this->_prepareNumbesFromPost();
@@ -211,6 +214,15 @@ class RegistryForm extends Form
                 $country->prefix . ' ' . $this->ndc) . ' 999999[9][9][9]';
 
         $this->city_number_format_length = strlen($country->prefix . ' ' . $this->ndc) + 1;
+    }
+
+    private function _setNnpOperator()
+    {
+        if (!$this->nnp_operator_id) {
+            return ;
+        }
+
+        $this->nnp_operator_name = Operator::find()->where(['id' => $this->nnp_operator_id])->select('name')->scalar();
     }
 
     /**

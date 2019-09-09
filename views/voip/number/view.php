@@ -49,14 +49,16 @@ echo \yii\widgets\Breadcrumbs::widget([
                 </tr>
                 <tr>
                     <td>ННП-оператор</td>
-                    <th><?= $number->nnp_operator_id ?></th>
+                    <th><?php if ($nnpOperator = $number->nnpOperator) {
+                            echo Html::a($nnpOperator->name, $nnpOperator->getUrl());
+                        }
+                        ?></th>
+                    <?php if ($number->imsi && $imsi = Imsi::findOne(['imsi' => $number->imsi])) : ?>
+                <tr>
+                    <td>Привязка к сим-карте</td>
+                    <th><?= Html::a($number->imsi, Card::getUrlById($imsi->iccid)) ?></th>
                 </tr>
-                <?php if ($number->imsi && $imsi = Imsi::findOne(['imsi' => $number->imsi])) : ?>
-                    <tr>
-                        <td>Привязка к сим-карте</td>
-                        <th><?= Html::a($number->imsi, Card::getUrlById($imsi->iccid)) ?></th>
-                    </tr>
-                <?php  endif; ?>
+                <?php endif; ?>
                 <?php if ($number->client_id) : ?>
                     <tr>
                         <td>Лицевой счет</td>
@@ -73,8 +75,8 @@ echo \yii\widgets\Breadcrumbs::widget([
                         <td>Регион</td>
                         <th>
                             <?php
-                                $region = Region::findOne($number->region);
-                                echo ($region) ? Html::a($region->name, $region->getUrl()) : '';
+                            $region = Region::findOne($number->region);
+                            echo ($region) ? Html::a($region->name, $region->getUrl()) : '';
                             ?>
                         </th>
                     </tr>
@@ -178,7 +180,8 @@ echo \yii\widgets\Breadcrumbs::widget([
                         <tr>
                             <td style='text-align:center;font-weight:bolder;color:#555'><?= DateTimeZoneHelper::getDateTime($log['human_time']) ?></td>
                             <td>
-                                <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
+                                <a style='text-decoration:none;font-weight:bold'
+                                   href='?module=employeers&user=<?= $log['user'] ?>'><?= $log['user'] ?></a>
 
                                 <?php
 
@@ -219,7 +222,8 @@ echo \yii\widgets\Breadcrumbs::widget([
                                             ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_TESTED] ?></b><?php
                                         } else {
                                             if ($log['addition'] == NumberLog::ACTION_ADDITION_COMMERCIAL) {
-                                                ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
+                                                ?>
+                                                <b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
                                             } else {
                                                 ?><b>Используется</b><?php
                                             }

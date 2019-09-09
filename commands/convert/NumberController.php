@@ -2,10 +2,14 @@
 
 namespace app\commands\convert;
 
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\models\Number;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NumberRange;
+use app\widgets\ConsoleProgress;
 use yii\console\Controller;
 use app\exceptions\ModelValidationException;
+use yii\db\Expression;
 
 class NumberController extends Controller
 {
@@ -35,6 +39,47 @@ class NumberController extends Controller
                 }
             } catch (ModelValidationException $e) {
                 echo $e->getMessage() . PHP_EOL;
+            }
+        }
+    }
+
+    /**
+     * Заполнение поля ННП-оператор в номерах
+     *
+     * @throws ModelValidationException
+     */
+    public function actionSetNnpOperator()
+    {
+        $numberQuery = Number::find()
+            ->where([
+                'nnp_operator_id' => null,
+                'source' => VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE,
+            ]);
+
+        $progress = new ConsoleProgress($numberQuery->count(), function ($string) {
+            echo $string;
+        });
+
+        /** @var Number $number */
+        foreach ($numberQuery->each() as $number) {
+            $progress->nextStep();
+
+            /** @var NumberRange $numberRange */
+            $numberRange = NumberRange::find()
+                ->where([
+                    'is_active' => true
+                ])
+                ->andWhere(['<=', 'full_number_from', $number->number])
+                ->andWhere(['>=', 'full_number_to', $number->number])
+                ->orderBy(['id' => SORT_DESC])
+                ->one();
+
+            if ($numberRange && $numberRange->operator_id) {
+                $number->nnp_operator_id = $numberRange->operator_id;
+
+                if (!$number->save()) {
+                    throw new ModelValidationException($number);
+                }
             }
         }
     }

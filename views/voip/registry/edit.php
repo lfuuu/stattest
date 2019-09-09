@@ -182,7 +182,7 @@ $readonlyOptions = [
 
         //
 
-        $line3Attributes['operator'] = [
+        $line3Attributes['nnp_operator_name'] = [
             'type' => Form::INPUT_TEXT,
             'options' => $readonlyOptions, // определяется автоматически из ННП
         ];

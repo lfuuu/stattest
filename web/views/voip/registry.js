@@ -14,7 +14,7 @@
         });
 
         $('#registryform-number_from, #registryform-number_to').on('blur', function () {
-            let $operator = $('#registryform-operator');
+            let $operator = $('#registryform-nnp_operator_name');
             let $nnp_operator_id = $('#registryform-nnp_operator_id');
 
             $nnp_operator_id.val("");
