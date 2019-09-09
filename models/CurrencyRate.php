@@ -5,6 +5,8 @@ namespace app\models;
 use app\classes\model\ActiveRecord;
 use app\dao\CurrencyRateDao;
 use app\queries\CurrencyRateQuery;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
  * @property int $id
@@ -34,6 +36,17 @@ class CurrencyRate extends ActiveRecord
     public static function tableName()
     {
         return 'currency_rate';
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'updatedAtAttribute' => null,
+                'value' => new Expression('UTC_TIMESTAMP()'),
+            ]
+        ];
     }
 
     /**

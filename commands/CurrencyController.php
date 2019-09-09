@@ -21,6 +21,7 @@ class CurrencyController extends Controller
     {
         Yii::info('CurrencyImport: start');
 
+        $now = (new DateTime());
         $dateTimeFrom = (new DateTime())->modify('-1 month'); // совсем уж старое не надо скачивать
         $dateTimeTomorrow = (new DateTime())->modify('+1 day');
 
@@ -28,6 +29,7 @@ class CurrencyController extends Controller
         $currencyRates = [];
         $currencyRateQuery = CurrencyRate::find()
             ->where(['>', 'date', $dateTimeFrom->format(DateTimeZoneHelper::DATE_FORMAT)]);
+
         /** @var CurrencyRate $currencyRate */
         foreach ($currencyRateQuery->each() as $currencyRate) {
             $currencyRates[$currencyRate->date][$currencyRate->currency] = true;
@@ -45,7 +47,6 @@ class CurrencyController extends Controller
         while ($dateTimeFrom->modify('+1 day') <= $dateTimeTomorrow) {
 
             $date = $dateTimeFrom->format(DateTimeZoneHelper::DATE_FORMAT);
-            Yii::info('CurrencyImport: ' . $date);
 
             $currenciesCopy = $currencies;
             if (isset($currencyRates[$date])) {
@@ -57,16 +58,16 @@ class CurrencyController extends Controller
 
             if (!count($currenciesCopy)) {
                 // за этот день все скачано
-                Yii::info('CurrencyImport: already');
                 continue;
             }
 
             // скачать
             // иногда курс на завтра уже известен, тогда скачаем. Иначе подождем до завтра (третий параметр - strict)
-            $this->importByDate($currenciesCopy, $dateTimeFrom, $dateTimeFrom == $dateTimeTomorrow);
-        }
 
-        Yii::info('CurrencyImport: finish');
+            $isStrict = $dateTimeFrom == $dateTimeTomorrow && $now->format('G') < 15; // UTC
+            Yii::info('CurrencyImport: ' . $date . ' ' . ($isStrict ? 'strict' : 'not_strict'));
+            $this->importByDate($currenciesCopy, $dateTimeFrom, $isStrict);
+        }
     }
 
     /**
@@ -96,8 +97,11 @@ class CurrencyController extends Controller
 
             $dateTimeXml = new DateTime($date);
             Yii::info('CurrencyImport: ' . print_r($currencies, true));
-            if ($isStrictDate && $dateTimeXml->format(DateTimeZoneHelper::DATE_FORMAT) !== $dateTime->format(DateTimeZoneHelper::DATE_FORMAT)) {
-                Yii::info('CurrencyImport: strict');
+
+            $date1 = $dateTimeXml->format(DateTimeZoneHelper::DATE_FORMAT);
+            $date2 = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
+            if ($isStrictDate && $date1 !== $date2) {
+                Yii::info('CurrencyImport: strict ' . $date1 . ' != ' . $date2);
                 return false;
             }
 
