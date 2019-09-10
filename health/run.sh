@@ -6,6 +6,7 @@
 ./apiFreeNumbersSilver.sh > ../web/export/health/apiFreeNumbersSilver.json
 ./apiFreeNumbersAccount.sh > ../web/export/health/apiFreeNumbersAccount.json
 ./ubillerLog.sh > ../web/export/health/ubillerLog.json
+./nnpPortedNumberLog.sh > ../web/export/health/nnpPortedNumberLog.json
 ./mttLog.sh > ../web/export/health/mttLog.json
 ./mttProcess.sh > ../web/export/health/mttProcess.json
 ./nnpPortedApi.sh > ../web/export/health/nnpPortedApi.json
