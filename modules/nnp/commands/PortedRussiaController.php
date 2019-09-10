@@ -5,6 +5,7 @@ namespace app\modules\nnp\commands;
 use app\modules\nnp\classes\FtpSsh2Downloader;
 use app\modules\nnp\models\Country;
 use yii\base\InvalidConfigException;
+use yii\console\ExitCode;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -40,6 +41,9 @@ class PortedRussiaController extends PortedController
      * @throws \yii\db\Exception
      * @throws \LogicException
      */
+
+    protected $downloadedFile = null;
+
     protected function readData()
     {
         $fileUrl = 'zip://' . \Yii::getAlias('@runtime/' . $this->fileName);
@@ -105,8 +109,54 @@ class PortedRussiaController extends PortedController
 
         $file = reset($files);
 
-        $ftpSsh2Downloader->downloadFile($file);
+        if ($ftpSsh2Downloader->downloadFile($file)) {
+            echo PHP_EOL . 'Файл успешно скачан: ' . $file;
+        } else {
+            echo PHP_EOL . 'Файл ' . $file . ' уже скачен';
+        }
 
-        echo PHP_EOL . 'Файл успешно скачан: ' . $file;
+        $this->downloadedFile = $file;
+
+        return ExitCode::OK;
     }
+
+    /**
+     * Полный цикл портирования номеров (скачивание, обновление, линковка, синхронизация)
+     */
+    public function actionUpdatePortedNumbers()
+    {
+        echo PHP_EOL . date('r') . ': Start porting numbers';
+
+        if ($this->actionDownloadFileData() != ExitCode::OK) {
+            throw new \LogicException('Error in actionDownloadFileData');
+        }
+
+        if (!$this->downloadedFile) {
+            throw new \LogicException('Файл не скачен');
+        }
+
+        if (!preg_match('/^(.*).zip$/', $this->downloadedFile, $matches) || !isset($matches[1])) {
+            throw new \LogicException('Файл не распознан (' . $this->downloadedFile . ')');
+        }
+
+        $fileNameWithoutExt = $matches[1];
+
+        echo PHP_EOL . date('r') . ': начало импорта';
+        $this->fileName = $fileNameWithoutExt . '.zip#' . $fileNameWithoutExt . '.csv';
+        if ($this->actionImport() != ExitCode::OK) {
+            throw new \LogicException('Error in actionImport');
+        }
+
+        echo PHP_EOL . date('r') . ': начало линковки';
+        if (\Yii::$app->runAction('nnp/import/link') != ExitCode::OK) {
+            throw new \LogicException('Error in nnp/import/link');
+        }
+
+        echo PHP_EOL . date('r') . ': Создаем событие синхронизации';
+        $this->actionNotifyEventPortedNumber();
+
+
+        echo PHP_EOL . date('r') . ': End porting numbers';
+    }
+
 }

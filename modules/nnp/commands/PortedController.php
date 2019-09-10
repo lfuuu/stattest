@@ -178,5 +178,7 @@ SQL;
     public function actionNotifyEventPortedNumber()
     {
         \Yii::$app->dbPg->createCommand("select event.notify_event_to_all('nnp_ported_number')")->execute();
+
+        return ExitCode::OK;
     }
 }

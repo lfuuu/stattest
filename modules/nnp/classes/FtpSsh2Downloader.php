@@ -1,4 +1,5 @@
 <?php
+
 namespace app\modules\nnp\classes;
 
 
@@ -84,8 +85,15 @@ class FtpSsh2Downloader extends Component
      */
     public function downloadFile($file)
     {
-        if (is_file($this->_srcDir . '/' . $file)) {
-            throw new \LogicException('Файл ' . $file . ' уже скачен');
+        $localFileWithPath = $this->_srcDir . '/' . $file;
+
+        // already?
+        if (is_file($localFileWithPath)) {
+            if (filesize($localFileWithPath) == 0) {
+                unlink($localFileWithPath);
+            } else {
+                return false;
+            }
         }
 
         $sftp = ssh2_sftp($this->_connection);
@@ -98,12 +106,12 @@ class FtpSsh2Downloader extends Component
             throw new \Exception('handleSrc is null');
         }
 
-        $handleDst = fopen($this->_srcDir . '/' . $file, 'w+');
+        $handleDst = fopen($localFileWithPath, 'w+');
         if (!$handleDst) {
             throw new \Exception('handleDst is null');
         }
 
-        while ($c = stream_get_contents($handleSrc, 4048)) {
+        while ($c = stream_get_contents($handleSrc, 1024)) {
             fwrite($handleDst, $c);
         }
 

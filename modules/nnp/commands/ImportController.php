@@ -10,6 +10,7 @@ use app\modules\nnp\media\ImportServiceRossvyaz;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NumberRange;
 use yii\console\Controller;
+use yii\console\ExitCode;
 
 class ImportController extends Controller
 {
@@ -47,6 +48,8 @@ class ImportController extends Controller
         echo 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
         echo 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
         echo 'Города: ' . CityLinker::me()->run() . PHP_EOL;
+
+        return ExitCode::OK;
     }
 
     /**
