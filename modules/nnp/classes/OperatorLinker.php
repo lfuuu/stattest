@@ -6,7 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\TranslitHelper;
-use app\modules\nnp\models\Number;
+use app\modules\nnp\models\Number as nnpNumber;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\Module;
@@ -38,7 +38,7 @@ class OperatorLinker extends Singleton
         $log .= $this->_link($object);
         $log .= $this->_updateCnt($object, true);
 
-        $object = new Number();
+        $object = new nnpNumber();
         $log .= $this->_setNull($object);
         $log .= $this->_link($object);
         $log .= $this->_updateCnt($object, false);
@@ -104,7 +104,7 @@ class OperatorLinker extends Singleton
 
         $i = 0;
 
-        /** @var NumberRange|Number $numberRange */
+        /** @var NumberRange|nnpNumber $numberRange */
         foreach ($numberRangeQuery->each() as $numberRange) {
 
             if ($i++ % 1000 === 0) {
