@@ -7,7 +7,6 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\billing\InstanceSettings;
-use app\models\Number;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -354,8 +353,8 @@ class NumberRange extends ActiveRecord
     {
         $numberModel = $number;
 
-        if (!($number instanceof Number)) {
-            $numberModel = Number::findOne(['number' => $number]);
+        if (!($number instanceof \app\models\Number)) {
+            $numberModel = \app\models\Number::findOne(['number' => $number]);
         }
 
         if (!$numberModel) {

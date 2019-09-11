@@ -3,7 +3,7 @@
 namespace app\modules\nnp\commands;
 
 use app\helpers\DateTimeZoneHelper;
-use app\modules\nnp\models\Number;
+use app\modules\nnp\models\Number as nnpNumber;
 use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
@@ -123,7 +123,7 @@ SQL;
 
 
         // обновить
-        $tableName = Number::tableName();
+        $tableName = nnpNumber::tableName();
         $sql = <<<SQL
             UPDATE
                 {$tableName} number
