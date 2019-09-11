@@ -41,4 +41,9 @@ class TariffVirtpbx extends ActiveRecord implements TariffInterface
         return new TariffVirtpbxHelper($this);
     }
 
+    public function isTest()
+    {
+        return $this->status == self::STATUS_TEST;
+    }
+
 }

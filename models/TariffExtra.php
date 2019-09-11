@@ -13,4 +13,9 @@ class TariffExtra extends ActiveRecord
     {
         return 'tarifs_extra';
     }
+
+    public function isTest()
+    {
+        return false;
+    }
 }

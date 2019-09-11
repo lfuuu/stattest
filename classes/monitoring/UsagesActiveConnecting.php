@@ -2,6 +2,7 @@
 
 namespace app\classes\monitoring;
 
+use app\models\usages\UsageInterface;
 use Yii;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
@@ -85,26 +86,29 @@ class UsagesActiveConnecting extends Component implements MonitoringInterface
             UsageWelltime::class,
         ];
 
-        $result = [];
+        $data = [];
         foreach ($usages as $usage) {
-            $result = array_merge(
-                $result,
-                (array)$usage::find()
+                $results = $usage::find()
                     ->select('u.*')
                     ->from($usage::tableName() . ' u')
                     ->leftJoin(ClientAccount::tableName() . ' c', 'c.client = u.client')
                     ->leftJoin(ClientContract::tableName() . ' cc', 'cc.id = c.contract_id')
                     ->where(new Expression('u.actual_from <= CAST(NOW() AS DATE)'))
                     ->andWhere(new Expression('u.actual_to > CAST(NOW() AS DATE)'))
-                    ->andWhere(['u.status' => 'connecting'])
+                    ->andWhere(['u.status' => UsageInterface::STATUS_CONNECTING])
                     ->andFilterWhere(['cc.manager' => $params['manager']])
                     ->andFilterWhere(['cc.business_process_status_id' => $params['business_process_status_id']])
-                    ->all()
-            );
+                    ->all();
+
+                foreach ($results as $result) {
+                    if ($result->tariff && !$result->tariff->isTest()) {
+                        $data[] = $result;
+                    }
+                }
         }
 
         return new ArrayDataProvider([
-            'allModels' => $result,
+            'allModels' => $data,
         ]);
     }
 

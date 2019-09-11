@@ -4,6 +4,8 @@ namespace app\classes\monitoring;
 
 use app\classes\api\ApiVpbx;
 use app\models\UsageVoip;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use yii\helpers\Html;
 
 class SyncErrorsUsageVoip extends SyncErrorsUsageBase
@@ -48,17 +50,23 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
     /**
      * @return string
      */
-    public function getServiceClass()
+    public function getStatData()
     {
-        return UsageVoip::class;
-    }
-
-    /**
-     * @return string
-     */
-    public function getServiceIdField()
-    {
-        return 'E164';
+        return UsageVoip::find()
+            ->alias('uv')
+            ->actual()
+            ->joinWith('clientAccount c')
+            ->select('c.id')
+            ->indexBy('E164')
+            ->asArray()
+            ->column() +
+        AccountTariff::find()
+            ->where(['NOT', ['tariff_period_id' => null]])
+            ->andWhere(['service_type_id' => ServiceType::ID_VOIP])
+            ->select('client_account_id')
+            ->indexBy('voip_number')
+            ->asArray()
+            ->column();
     }
 
     /**
@@ -93,8 +101,23 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
                 'label' => 'Id услуги',
                 'format' => 'html',
                 'value' => function ($model) {
-                    $usage = UsageVoip::find()->where(['E164' => $model['usage_id']])->orderBy(['id' => SORT_DESC])->one();
-                    return ($usage ? Html::a(' ' . $usage->id . ' ', $usage->helper->editLink) : '');
+
+                    $usage =
+                        AccountTariff::find()
+                            ->where([
+                                'voip_number' => $model['usage_id'],
+                                'service_type_id' => ServiceType::ID_VOIP
+                            ])
+                            ->andWhere(['NOT', ['tariff_period_id' => null]])
+                            ->one()
+                        ?: UsageVoip::find()
+                            ->where([
+                                'E164' => $model['usage_id']
+                            ])
+                            ->orderBy(['id' => SORT_DESC])
+                            ->one();
+
+                    return ($usage ? Html::a(' ' . $usage->id . ' ', $usage->url) : '');
                 }
             ],
             [

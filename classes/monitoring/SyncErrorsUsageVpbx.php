@@ -5,6 +5,8 @@ namespace app\classes\monitoring;
 use app\classes\api\ApiVpbx;
 use app\classes\Html;
 use app\models\UsageVirtpbx;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 
 class SyncErrorsUsageVpbx extends SyncErrorsUsageBase
 {
@@ -47,9 +49,23 @@ class SyncErrorsUsageVpbx extends SyncErrorsUsageBase
     /**
      * @return string
      */
-    public function getServiceClass()
+    public function getStatData()
     {
-        return UsageVirtpbx::class;
+        return UsageVirtpbx::find()
+                ->alias('uv')
+                ->actual()
+                ->joinWith('clientAccount c')
+                ->select('c.id')
+                ->indexBy('id')
+                ->asArray()
+                ->column() +
+            AccountTariff::find()
+                ->where(['service_type_id' => ServiceType::ID_VPBX])
+                ->andWhere(['NOT', ['tariff_period_id' => null]])
+                ->select('client_account_id')
+                ->indexBy('id')
+                ->asArray()
+                ->column();
     }
 
     /**
@@ -62,8 +78,14 @@ class SyncErrorsUsageVpbx extends SyncErrorsUsageBase
                 'label' => 'Id услуги',
                 'format' => 'html',
                 'value' => function ($model) {
-                    $usage = UsageVirtpbx::findOne(['id' => $model['usage_id']]);
-                    return ($usage ? Html::a(' ' . $model['usage_id'] . ' ', $usage->helper->editLink) : $model['usage_id']);
+                    $usage = $model['usage_id'] > AccountTariff::DELTA
+                        ? AccountTariff::find()
+                            ->where([
+                                'id' => $model['usage_id'],
+                                'service_type_id' => ServiceType::ID_VPBX
+                            ])->one()
+                        : UsageVirtpbx::findOne(['id' => $model['usage_id']]);
+                    return ($usage ? Html::a(' ' . $model['usage_id'] . ' ', $usage->url) : $model['usage_id']);
                 }
             ],
             [

@@ -15,6 +15,8 @@ use app\models\usages\UsageLogTariffInterface;
 use app\modules\uu\models\AccountTariff;
 use app\queries\UsageQuery;
 use DateTime;
+use yii\base\InvalidParamException;
+use yii\helpers\Url;
 
 /**
  * @property int $id
@@ -25,6 +27,7 @@ use DateTime;
  * @property-read TariffVirtpbx $tariff
  * @property-read ClientAccount $clientAccount
  * @property-read UsageVirtpbxHelper $helper
+ * @property-read string $url
  */
 class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
@@ -133,6 +136,26 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
     {
         return UsagesLostTariffs::intoLogTariff(self::class);
     }
+
+    /**
+     * @return string
+     * @throws InvalidParamException
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     * @throws InvalidParamException
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/pop_services.php', 'table' => 'usage_virtpbx', 'id' => $id]);
+    }
+
 
     /**
      * Переоткрытие услуги

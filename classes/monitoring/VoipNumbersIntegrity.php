@@ -5,6 +5,7 @@ namespace app\classes\monitoring;
 use app\classes\Html;
 use app\models\Number;
 use app\models\UsageVoip;
+use app\modules\uu\models\AccountTariff;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
@@ -49,23 +50,27 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
                 'label' => 'Результат',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    $usage = UsageVoip::findOne($data['usage_id']);
+
+
+                    if ($data['usage_id']) {
+                        $usage = UsageVoip::findOne(['id' => $data['usage_id']]);
+                    } elseif ($data['account_tariff_id']) {
+                        $usage = AccountTariff::findOne(['id' => $data['account_tariff_id']]);
+                    } else {
+                        return Html::tag('span', 'Нет услуги', ['style' => 'color: blue;']);
+                    }
+                    $clientAccount = $usage->clientAccount;
 
                     if ($data['status'] == Number::STATUS_INSTOCK && $usage->id) {
                         return
-                            Html::tag('span', 'Используется ', ['style' => 'color: red;']) .
+                            Html::a('Используется ', $usage->getUrl(), ['style' => 'color: red;', 'target' => '_blank']) . '&nbsp;' .
                             Html::a(
-                                $usage->clientAccount->contract->contragent->name .
-                                ' / Договор № ' . $usage->clientAccount->contract->number .
-                                ' / ' . $usage->clientAccount->getAccountTypeAndId(),
-                                ['/client/view', 'id' => $usage->clientAccount->id],
+                                $clientAccount->contract->contragent->name .
+                                ' / Договор № ' . $clientAccount->contract->number .
+                                ' / ' . $clientAccount->getAccountTypeAndId(),
+                                ['/client/view', 'id' => $clientAccount->id],
                                 ['target' => '_blank']
-
                             );
-                    }
-
-                    if (!$data['usage_id']) {
-                        return Html::tag('span', 'Нет услуги', ['style' => 'color: blue;']);
                     }
                 },
             ],
@@ -82,24 +87,24 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
         $result = array_merge(
             $result,
             (new Query)
-                ->select(['vn.*', 'uv.id AS usage_id'])
+                ->select(['vn.*', 'usage_id' => 'uv.id', 'account_tariff_id' => 'at.id'])
                 ->from([Number::tableName() . ' vn'])
-                ->leftJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = vn.number')
+                ->leftJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = vn.number AND CAST(NOW() AS DATE) between uv.actual_from AND uv.actual_to')
+                ->leftJoin(AccountTariff::tableName() . ' at', 'at.voip_number = vn.number AND at.tariff_period_id IS NOT NULL')
                 ->where(['vn.status' => Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]])
-                ->andWhere('uv.id IS NULL')
+                ->andWhere(['uv.id' => null, 'at.id' => null])
                 ->all()
         );
 
         $result = array_merge(
             $result,
             (new Query)
-                ->select(['vn.*', 'uv.id AS usage_id'])
-                ->from([UsageVoip::tableName() . ' uv'])
-                ->leftJoin(Number::tableName() . ' vn', 'vn.number = uv.E164')
-                ->where(['uv.type_id' => 'number'])
-                ->andWhere(new Expression('uv.actual_from <= CAST(NOW() AS DATE)'))
-                ->andWhere(new Expression('uv.actual_to > CAST(NOW() AS DATE)'))
+                ->select(['vn.*', 'usage_id' => 'uv.id', 'account_tariff_id' => 'at.id'])
+                ->from([Number::tableName() . ' vn'])
+                ->leftJoin(UsageVoip::tableName() . ' uv', 'uv.E164 = vn.number AND CAST(NOW() AS DATE) between uv.actual_from AND uv.actual_to')
+                ->leftJoin(AccountTariff::tableName() . ' at', 'at.voip_number = vn.number AND at.tariff_period_id IS NOT NULL')
                 ->andWhere(['not in', 'vn.status', Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]])
+                ->andWhere(['NOT', ['uv.id' => null, 'at.id' => null]])
                 ->all()
         );
 

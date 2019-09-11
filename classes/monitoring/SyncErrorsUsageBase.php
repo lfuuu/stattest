@@ -58,64 +58,55 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
 
         if (Yii::$app->request->get('page') && Yii::$app->cache->exists($cacheId)) {
             $result = Yii::$app->cache->get($cacheId);
-        } else {
 
-            $platformaResult = ArrayHelper::map(
-                $this->getServiceData(),
-                "service_id",
-                "account_id"
-            );
-
-            $serviceClass = $this->getServiceClass();
-
-            $statResult = ArrayHelper::map(
-                $serviceClass::find()
-                    ->select(['id' => 'u.' . $this->getServiceIdField(), 'client_id' => 'c.id'])
-                    ->from(['u' => $serviceClass::tableName()])
-                    ->actual()
-                    ->innerJoin(['c' => ClientAccount::tableName()], 'c.client = u.client')
-                    ->limit(self::LIMIT_DEFAULT)
-                    ->createCommand()->queryAll(),
-                'id',
-                'client_id'
-            );
-
-            $platformaResult = $this->filterResult($platformaResult);
-            $statResult = $this->filterResult($statResult);
-
-            $platformaKeys = array_keys($platformaResult);
-            $statKeys = array_keys($statResult);
-
-            foreach (array_diff($platformaKeys, $statKeys) as $platformaUsageId) {
-                $result[$platformaUsageId] = [
-                    'usage_id' => $platformaUsageId,
-                    'account_id' => $platformaResult[$platformaUsageId],
-                    'status' => self::STATUS_IN_PLATFORM
-                ];
-            }
-
-            foreach (array_diff($statKeys, $platformaKeys) as $statUsageId) {
-                $result[$statUsageId] = [
-                    'usage_id' => $statUsageId,
-                    'account_id' => $statResult[$statUsageId],
-                    'status' => self::STATUS_IN_STAT
-                ];
-            }
-
-            foreach (array_intersect($platformaKeys, $statKeys) as $usageId) {
-                if ($platformaResult[$usageId] != $statResult[$usageId]) {
-                    $result[$usageId] = [
-                        'usage_id' => $usageId,
-                        'account_id' => $statResult[$usageId],
-                        'account_id2' => $platformaResult[$usageId],
-                        'status' => self::STATUS_ACCOUNT_DIFF
-                    ];
-                }
-            }
-
-            ksort($result);
-            Yii::$app->cache->set($cacheId, $result);
+            return new ArrayDataProvider([
+                'allModels' => $result,
+            ]);
         }
+
+        $platformaResult = ArrayHelper::map(
+            $this->getServiceData(),
+            "service_id",
+            "account_id"
+        );
+
+        $statResult = $this->getStatData();
+
+        $platformaResult = $this->filterResult($platformaResult);
+        $statResult = $this->filterResult($statResult);
+
+        $platformaKeys = array_keys($platformaResult);
+        $statKeys = array_keys($statResult);
+
+        foreach (array_diff($platformaKeys, $statKeys) as $platformaUsageId) {
+            $result[$platformaUsageId] = [
+                'usage_id' => $platformaUsageId,
+                'account_id' => $platformaResult[$platformaUsageId],
+                'status' => self::STATUS_IN_PLATFORM
+            ];
+        }
+
+        foreach (array_diff($statKeys, $platformaKeys) as $statUsageId) {
+            $result[$statUsageId] = [
+                'usage_id' => $statUsageId,
+                'account_id' => $statResult[$statUsageId],
+                'status' => self::STATUS_IN_STAT
+            ];
+        }
+
+        foreach (array_intersect($platformaKeys, $statKeys) as $usageId) {
+            if ($platformaResult[$usageId] != $statResult[$usageId]) {
+                $result[$usageId] = [
+                    'usage_id' => $usageId,
+                    'account_id' => $statResult[$usageId],
+                    'account_id2' => $platformaResult[$usageId],
+                    'status' => self::STATUS_ACCOUNT_DIFF
+                ];
+            }
+        }
+
+        ksort($result);
+        Yii::$app->cache->set($cacheId, $result);
 
         return new ArrayDataProvider([
             'allModels' => $result,

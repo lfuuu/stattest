@@ -96,7 +96,6 @@ class MissingManager extends Component implements MonitoringInterface
                         [
                             BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
                             BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
-                            BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
                         ]
                     ])
                     ->groupBy('cc.id')
