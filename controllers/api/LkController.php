@@ -3,6 +3,7 @@
 namespace app\controllers\api;
 
 use app\classes\api\SberbankApi;
+use app\classes\media\MediaManager;
 use app\exceptions\api\SberbankApiException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
@@ -169,7 +170,8 @@ class LkController extends ApiController
             "is_show_in_lk" => 1
         ]) as $file) {
             $files[] = [
-                "name" => $file->name
+                'id' => $file->id,
+                'name' => $file->name,
             ];
         }
 
@@ -263,6 +265,76 @@ class LkController extends ApiController
                 ]
             ];
         }
+    }
+
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с файлами"},
+     *   path="/lk/get-file/",
+     *   summary="Получение файла",
+     *   operationId="Получение файла",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Parameter(name="file_id",type="integer",description="идентификатор файла",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Описание файла",
+     *     )
+     *   ),
+     * )
+     **/
+    public function actionGetFile()
+    {
+        $form = DynamicModel::validateData(
+            \Yii::$app->request->bodyParams,
+            [
+                ['account_id', AccountIdValidator::class],
+                ['file_id', 'required'],
+                ['file_id', 'integer'],
+            ]
+        );
+
+        $form->validateWithException();
+
+        $files = array_column($this->_getFiles($form->account_id), 'id');
+
+        if (!in_array($form->file_id, $files)) {
+            return [
+                'error' => [
+                    ['code' => 'File not found']
+                ]
+            ];
+        }
+
+        $account = ClientAccount::findOne(['id' => $form->account_id]);
+        $file = ClientFiles::find()->where(['id' => $form->file_id, 'contract_id' => $account->contract_id])->one();
+
+
+        /** @var ClientMedia $media */
+        $media = $file->mediaManager;
+
+        $filePath = $media->getFilePath($file);
+
+        if (!file_exists($filePath)) {
+            return [
+                'error' => [
+                    ['code' => 'File not found']
+                ]
+            ];
+        }
+
+        $fileData = $media->getFile($file);
+
+        $content = file_get_contents($filePath);
+        $fileData['content'] = base64_encode($content);
+        $fileData['length'] = mb_strlen($content, '8bit');
+
+        return [
+            'id' => $fileData['id'],
+            'name' => $fileData['name'],
+            'mimeType' => $fileData['mimeType'],
+            'content' => $fileData['content'],
+            'length' => $fileData['length'],
+        ];
     }
 
     /**
