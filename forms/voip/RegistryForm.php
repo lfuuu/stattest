@@ -264,7 +264,7 @@ class RegistryForm extends Form
 
         $this->registry->number_full_from = $countryPrefix . $this->ndc . $this->number_from;
         $this->registry->number_full_to = $countryPrefix . $this->ndc . $this->number_to;
-        $this->registry->numbers_count = (int)$this->number_to - (int)$this->number_from;
+        $this->registry->numbers_count = (int)$this->number_to - (int)$this->number_from + 1;
 
         if (!($result = $this->registry->save())) {
             throw new ModelValidationException($this->registry);
