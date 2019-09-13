@@ -10,6 +10,7 @@ use app\models\BusinessProcess;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\ClientAccountComment;
+use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContractComment;
 use app\models\ClientContractReward;
@@ -320,12 +321,13 @@ class ContractEditForm extends Form
      */
     public function validateState($attribute)
     {
-        if (!array_key_exists($this->$attribute, $this->getModel()->statusesForChange())) {
+        $model = $this->getModel();
+        if (!array_key_exists($this->$attribute, $model->statusesForChange())) {
             $this->addError($attribute, 'Вы не можете менять статус');
         }
 
-        if ($this->getModel()->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
-            $contragent = ClientContragent::findOne($this->contragent_id);
+        if ($model->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
+            $contragent = ClientContragent::findOne(['id' => $this->contragent_id]);
             if (!$contragent->getIsNewRecord()) {
                 $contragent->hasChecked = true;
             }
@@ -333,6 +335,13 @@ class ContractEditForm extends Form
             if (!$contragent->validate()) {
                 $this->addError('state', $contragent->getFirstError('inn'));
                 $this->addError('state', $contragent->getFirstError('kpp'));
+                return;
+            }
+        }
+
+        if ($model->$attribute !== $this->state && $this->state == ClientContract::STATE_CHECKED_COPY) {
+            if (!$model->getContractInfo()) {
+                $this->addError('state', 'У копии должен быть договор с датой');
             }
         }
     }
