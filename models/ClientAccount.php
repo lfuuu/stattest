@@ -1069,15 +1069,7 @@ class ClientAccount extends HistoryActiveRecord
             return;
         }
 
-        try {
-            if (($Client = \Sync1C::getClient()) !== false) {
-                $Client->saveClientCards($this->id);
-            } else {
-                throw new Exception('Ошибка синхронизации с 1С.');
-            }
-        } catch (\Sync1CException $e) {
-            $e->triggerError();
-        }
+        EventQueue::go(EventQueue::SYNC_1C_CLIENT, ['client_id' => $this->id]);
     }
 
     /**

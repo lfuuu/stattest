@@ -64,6 +64,7 @@ $nnpEvents = ['event' => [
 $syncEvents = ['event' => [
     EventQueue::ATS3__SYNC,
     EventQueue::MAKE_CALL,
+    EventQueue::SYNC_1C_CLIENT,
 ]];
 
 $uuSyncEvents = [
@@ -87,7 +88,7 @@ $map = [
 $consoleParam = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null;
 
 if (!$consoleParam || !isset($map[$consoleParam])) {
-    echo PHP_EOL . 'Не задан параметр очереди: ['.implode(', ', array_keys($map)).']';
+    echo PHP_EOL . 'Не задан параметр очереди: [' . implode(', ', array_keys($map)) . ']';
     echo PHP_EOL;
     return ExitCode::UNSPECIFIED_ERROR;
 }
@@ -153,6 +154,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
         $flags['isAsyncServer'] = AsyncAdapter::me()->isAvailable();
         $flags['isSipTrunkServer'] = ApiSipTrunk::me()->isAvailable();
         $flags['isClientChangedServer'] = ClientChangedAmqAdapter::me()->isAvailable();
+        $flags['is1CServer'] = defined('SYNC1C_UT_SOAP_URL') && SYNC1C_UT_SOAP_URL;
     }
 
     $isCoreServer = $flags['isCoreServer'];
@@ -168,6 +170,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     $isAsyncServer = $flags['isAsyncServer'];
     $isSipTrunkServer = $flags['isSipTrunkServer'];
     $isClientChangedServer = $flags['isClientChangedServer'];
+    $is1CServer = $flags['is1CServer'];
     echo '. ';
 
 
@@ -462,6 +465,18 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::INVOICE_GENERATE_PDF:
                     InvoiceGeneratePdf::generate($param['id'], $param['document']);
+                    break;
+
+                case EventQueue::SYNC_1C_CLIENT:
+                    if ($is1CServer) {
+                        if (($Client = \Sync1C::getClient()) !== false) {
+                            $Client->saveClientCards($param['client_id']);
+                        } else {
+                            throw new Exception('Ошибка синхронизации с 1С.');
+                        }
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
                     break;
 
 

@@ -105,6 +105,7 @@ class EventQueue extends ActiveRecord
     const TROUBLE_NOTIFIER_EVENT = 'trouble_notifier_event';
     const MAKE_CALL = 'make_call';
     const INVOICE_GENERATE_PDF = 'invoice_generate_pdf';
+    const SYNC_1C_CLIENT = 'sync_1c_client';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
@@ -161,6 +162,7 @@ class EventQueue extends ActiveRecord
         self::COMET_NOTIFIER_EVENT => 'Comet-уведомление',
         self::MAKE_CALL => 'Сделать звонок',
         self::INVOICE_GENERATE_PDF => 'С/ф. Генерация PDF',
+        self::SYNC_1C_CLIENT => 'Синхронизировать клиента в 1С',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',
