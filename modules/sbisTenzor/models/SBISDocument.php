@@ -318,14 +318,19 @@ class SBISDocument extends ActiveRecord
                     break;
 
                 case SBISDocumentStatus::ACCEPTED:
+                    if (!$this->read_at) {
+                        $this->read_at = $dateNowString;
+                    }
                     $this->completed_at = $dateNowString;
                     break;
             }
 
+            $oldState = $this->state;
+            // change state
             $this->state = $state;
 
             $this->raiseEvents($state);
-            Yii::info(sprintf('SBISDocument #%s, %s, state changed: %s -> %s', $this->id, $this->external_id, $this->state, $state), self::LOG_CATEGORY);
+            Yii::info(sprintf('SBISDocument #%s, %s, state changed: %s -> %s', $this->id, $this->external_id, $oldState, $state), self::LOG_CATEGORY);
         }
 
         return $this;
