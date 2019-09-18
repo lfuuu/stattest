@@ -13,6 +13,7 @@ class ImportantEventsGroups extends ActiveRecord
 {
     const ID_FINANCIAL = 6;
     const ID_ACCOUNT = 8;
+    const ID_DOCUMENT_FLOW = 15;
 
     // Определяет getList (список для selectbox)
     use \app\classes\traits\GetListTrait {

@@ -27,7 +27,7 @@ if ($debugLogging) {
             [
                 'class' => 'welltime\graylog\GraylogTarget',
                 'levels' => ['info', 'trace'],
-                'categories' => ['application', 'request'],
+                'categories' => ['application', 'request', 'sbis'],
                 'host' => $graylogHost,
                 'source' => $source,
             ],

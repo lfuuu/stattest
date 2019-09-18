@@ -1,0 +1,3 @@
+* * * * * flock -w 3 /tmp/yii-sbis-processor-sign /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/sign >> /var/log/sbis/processor-sign.log
+* * * * * flock -w 3 /tmp/yii-sbis-processor-send /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/send >> /var/log/sbis/processor-sender.log
+* * * * * flock -w 3 /tmp/yii-sbis-processor-check /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/check >> /var/log/sbis/processor-check.log

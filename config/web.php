@@ -226,6 +226,7 @@ $config = [
         'mchs' => ['class' => 'app\modules\mchs\Module'],
         'freeNumber' => ['class' => 'app\modules\freeNumber\Module'],
         'async' => ['class' => 'app\modules\async\Module'],
+        'sbisTenzor' => ['class' => 'app\modules\sbisTenzor\Module',],
     ],
     'params' => $params,
 ];

@@ -54,6 +54,8 @@ build()
 	docker exec -u root -w /opt/stat_rep -it $CONTAINER mkdir -p /opt/stat_rep/store/files
 	docker exec -u root -w /opt/stat_rep -it $CONTAINER mkdir -p /opt/stat_rep/store/files/invoice_content
 	docker exec -u root -w /opt/stat_rep -it $CONTAINER mkdir -p /opt/stat_rep/store/files/payment_templates
+	docker exec -u root -w /opt/stat_rep -it $CONTAINER mkdir -p /opt/stat_rep/store/files/external
+	docker exec -u root -w /opt/stat_rep -it $CONTAINER mkdir -p /opt/stat_rep/store/files/external/sbis
 	docker exec -u root -w /opt/stat_rep -it $CONTAINER chmod -R 777 /opt/stat_rep/store/files/
 	docker exec -u root -w /opt/stat_rep/stat -it $CONTAINER /usr/local/bin/composer install
 	docker exec -u root -w /opt/stat_rep/stat -it $CONTAINER /usr/local/bin/composer global require "fxp/composer-asset-plugin"

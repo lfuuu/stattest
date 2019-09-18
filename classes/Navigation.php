@@ -201,6 +201,11 @@ class Navigation
             $module->getNavigation($this);
         }
 
+        /** @var \app\modules\sbisTenzor\Module $module */
+        if ($module = Yii::$app->getModule('sbisTenzor')) {
+            $module->getNavigation($this);
+        }
+
         /** @var \app\modules\sim\Module $module */
         if ($module = Yii::$app->getModule('sim')) {
             $module->getNavigation($this);

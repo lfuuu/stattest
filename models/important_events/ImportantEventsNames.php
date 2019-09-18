@@ -96,6 +96,11 @@ class ImportantEventsNames extends ActiveRecord
     const VPS_STOP = 'vps_stop';
     const VPS_START = 'vps_start';
 
+    // SBIS
+    const SBIS_DOCUMENT_SENT = 'sbis_document_sent';
+    const SBIS_DOCUMENT_ACCEPTED = 'sbis_document_accepted';
+    const SBIS_DOCUMENT_EVENT = 'sbis_document_event';
+
     /**
      * @return string
      */

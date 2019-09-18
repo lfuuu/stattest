@@ -38,6 +38,10 @@
         <li style="background: url('/images/icons/envelope.gif') no-repeat 0px 6px;">
             <a href="/notifier/personal-scheme">Уведомления</a>
         </li>
+        <li>
+            <i class="glyphicon glyphicon-transfer" style="display:block;position:relative;left:-16px;margin-right:-16px;float:left;"></i>
+            <a href="/sbisTenzor/document/?clientId=<?= $account->id ?>">Документы в СБИС</a>
+        </li>
     </ul>
 </div>
 
