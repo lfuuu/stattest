@@ -59,6 +59,35 @@ class PurchaseBookToExcel extends Excel
         }
     }
 
+    public function prepareToIfns()
+    {
+        $rowsCounter = 10;
+        $counter = 1;
+
+        /** @var \PHPExcel_Worksheet $worksheet */
+        $worksheet = $this->document->getActiveSheet();
+
+        $worksheet->insertNewRowBefore($rowsCounter + 1, count($this->data));
+
+        $this->setOrganization($worksheet);
+        $this->setDateRange($worksheet);
+
+        foreach ($this->data as $chunk) {
+            $worksheet->setCellValueByColumnAndRow(0, $rowsCounter, $counter);
+            $worksheet->setCellValueByColumnAndRow(2, $rowsCounter, $chunk['bill_no'] .';'.' '. $chunk['bill_date']);
+            $worksheet->setCellValueByColumnAndRow(7, $rowsCounter, $chunk['ext_invoice_date']);
+            $worksheet->setCellValueByColumnAndRow(8, $rowsCounter, $chunk['name_full']);
+            $worksheet->setCellValueByColumnAndRow(9, $rowsCounter,
+                $chunk['legal_type'] != 'person' ? $chunk['inn']. '/'. $chunk['kpp'] : '');
+            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['sum']);
+            $worksheet->setCellValueByColumnAndRow(15, $rowsCounter, $chunk['vat']);
+
+            ++$rowsCounter;
+            ++$counter;
+        }
+        $worksheet->removeRow($rowsCounter,1);
+    }
+
     private function setOrganization(\PHPExcel_Worksheet $worksheet)
     {
         $cell = $worksheet->getCell('A4');

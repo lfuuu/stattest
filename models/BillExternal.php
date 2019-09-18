@@ -89,6 +89,7 @@ class BillExternal extends ActiveRecord
     {
         return [
             'bill_no' => 'Номер счета',
+            'ext_registration_date' => 'Дата регистрации с/ф',
             'ext_bill_no' => 'Внешний счет',
             'ext_bill_date' => 'Дата внешнего счета',
             'ext_invoice_no' => 'Внешная с/ф',

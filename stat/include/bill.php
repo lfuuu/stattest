@@ -224,6 +224,11 @@ class Bill {
         BillExternal::saveValue($this->bill_no, 'ext_bill_date', $bill_no_ext_date);
     }
 
+    public function SetRegistrationDateExt($date)
+    {
+        BillExternal::saveValue($this->bill_no, 'ext_registration_date', $date);
+    }
+
     public function SetAktNoExt($no)
     {
         BillExternal::saveValue($this->bill_no, 'ext_akt_no', $no);

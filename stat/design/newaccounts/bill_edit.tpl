@@ -85,7 +85,7 @@
             {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <label>Номер внешнего акта</label>
+                        <label>Номер внешнего акта:</label>
                         <input type="text" class="form-control input-sm" name="akt_no_ext"
                                value="{$bill_ext.ext_akt_no}">
                     </div>
@@ -103,17 +103,28 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <div class="form-group">
                     <label>Исполнитель:</label>
                     {html_options name='courier' options=$l_couriers selected=$bill.courier_id}
                 </div>
             </div>
 
+                <div class="col-sm-1">
+                    <div class="form-group">
+                        <label>Дата<br/>регистр. c/ф:</label>
+                        <div class="form-group">
+                            <input  class="form-control input-sm"
+                                    id="registration_date_ext" type="text"  name="registration_date_ext"
+                                    value="{$bill_ext.ext_registration_date}">
+                        </div>
+                    </div>
+                </div>
+
             {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <label>Номер<br/> внешней с/ф</label>
+                        <label>Номер<br/> внешней с/ф:</label>
                         <input type="text" class="form-control input-sm" name="invoice_no_ext"
                                value="{$bill_ext.ext_invoice_no}">
                     </div>
@@ -125,20 +136,19 @@
                             <input class="form-control input-sm"
                                    id=invoice_ext_date type=text name=invoice_date_ext
                                    value="{$bill_ext.ext_invoice_date}">
-
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <label>Сумма без НДС<br/> из с/ф постав.</label>
+                        <label>Сумма без НДС<br/> из с/ф постав.:</label>
                         <input type="text" class="form-control input-sm" name="ext_sum_without_vat"
                                value="{$bill_ext.ext_sum_without_vat}">
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <label>НДС из с/ф <br>поставщика</label>
+                        <label>НДС из с/ф <br>поставщика:</label>
                         <input type="text" class="form-control input-sm" name="ext_vat"
                                value="{$bill_ext.ext_vat}">
                     </div>
@@ -158,16 +168,12 @@
             {if !$bill.uu_bill_id && $clientAccountVersion == 5}
                 <div class="col-sm-4">
                     <div class="form-group">
-
                         <label>Включить в У-с/ф:</label>
                         <input type="checkbox" value="Y"
                                name="is_to_uu_invoice" {if $bill.is_to_uu_invoice} checked{/if}>
                     </div>
                 </div>
             {/if}
-
-
-        </div>
 
         <div class="row">
             <div class="col-sm-11"></div>
@@ -261,6 +267,10 @@
 
     $('#invoice_ext_date').datepicker({
       dateFormat: 'dd-mm-yy',
+    });
+
+    $('#registration_date_ext').datepicker({
+        dateFormat: 'dd-mm-yy',
     });
 
     function mark_del() {

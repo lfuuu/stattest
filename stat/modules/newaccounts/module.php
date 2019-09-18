@@ -444,8 +444,10 @@ class m_newaccounts extends IModule
                     0,
                     1 in_sum,
                     0 as is_pay_overdue,
+
                     null as sum_correction,
                     1 as operation_type_id
+
                     FROM `g_income_order` g
                         LEFT JOIN tt_troubles t ON (g.id = t.bill_id)
                         LEFT JOIN tt_stages ts ON  (ts.stage_id = t.cur_stage_id)
@@ -1158,7 +1160,7 @@ class m_newaccounts extends IModule
         $bill_no_ext = get_param_raw("bill_no_ext");
         $invoice_no_ext = get_param_raw("invoice_no_ext");
         $invoice_date_ext = get_param_raw("invoice_date_ext");
-
+        $registration_date_ext = get_param_raw("registration_date_ext");
         $vat_ext = get_param_raw("ext_vat", "");
         $ext_sum_without_vat = get_param_raw("ext_sum_without_vat", "");
 
@@ -1194,6 +1196,7 @@ class m_newaccounts extends IModule
         $bill->SetExtNo($bill_no_ext);
         $bill->SetInvoiceNoExt($invoice_no_ext);
         $bill->SetInvoiceDateExt($invoice_date_ext);
+        $bill->SetRegistrationDateExt($registration_date_ext);
         $bill->SetIsToUuInvoice($isToUuInvoice);
         $bill->SetAktNoExt($akt_no_ext);
         $bill->SetExtDate($bill_no_ext_date);
@@ -5105,7 +5108,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
         $design->assign('is_ext_invoice_only', $isExtInvoiceOnly = (bool)get_param_raw('is_ext_invoice_only', false));
 
-
         $where = "";
         $whereParam = [];
         if ($currency) {
@@ -5129,6 +5131,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
   cg.name_full,
   cg.inn,
   cg.kpp,
+  cg.legal_type,
   cg.address_jur,
   b.sum AS bill_sum,
   (ex.ext_vat+ex.ext_sum_without_vat) AS sum,
@@ -5187,7 +5190,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
             $excel->dateTo = $date_to;
             $excel->openFile(Yii::getAlias('@app/templates/purchase_book.xls'));
             $excel->prepare();
-            $excel->download('Книга продаж');
+            $excel->download('Книга покупок');
         }
 
         $design->assign('data', $data);
@@ -5195,6 +5198,104 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
         $design->assign('date_from', $date_from);
         $design->assign('date_to', $date_to);
         $design->AddMain('newaccounts/ext_bills.tpl');
+    }
+
+    function newaccounts_ext_bills_ifns($fixclient)
+    {
+        global $design, $db, $user, $fixclient_data;
+
+        $dateFrom = new DatePickerValues('date_from', 'first');
+        $dateTo = new DatePickerValues('date_to', 'last');
+        $date_from = $dateFrom->getDay();
+        $date_to = $dateTo->getDay();
+
+        $design->assign('organizations', Organization::dao()->getList());
+        $design->assign('organization_id', $organizationId = get_param_protected('organization_id', Organization::MCN_TELECOM));
+
+        $design->assign('currencies', Currency::getList($isWithEmpty = true));
+        $design->assign('currency', $currency = get_param_protected('currency', ''));
+
+        $design->assign('filter', $filterOption = get_param_raw('filter'));
+
+        $where = "";
+        $whereParam = [];
+        if ($currency) {
+            $where .= ' AND b.currency = :currency';
+            $whereParam = [':currency' => $currency];
+        }
+
+        if ($filterOption == 'dateRegistrationSf') {
+            $where .= ' AND ex.ext_registration_date != ""';
+        }else{
+            $where .= ' AND ex.ext_registration_date = ""';
+        }
+
+        $sql = "SELECT
+  b.bill_no,
+  b.bill_date,
+  cg.name_full,
+  cg.inn,
+  cg.kpp,
+  cg.legal_type,
+  b.sum AS bill_sum,
+  ex.ext_invoice_date,
+  (ex.ext_vat+ex.ext_sum_without_vat) AS sum,
+  ex.ext_vat AS vat,
+  ex.ext_sum_without_vat AS sum_without_vat,
+  ex.ext_registration_date,
+  (SELECT value
+   FROM organization_i18n n
+   WHERE n.organization_record_id = (SELECT max(id) max_id
+                                     FROM `organization` o
+                                     WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
+         field = 'name') AS orgznization_name
+FROM newbills_external ex, newbills b, clients c, client_contract cc, client_contragent cg
+WHERE STR_TO_DATE(ext_invoice_date, '%d-%m-%Y') BETWEEN :date_from AND :date_to
+      AND b.bill_no = ex.bill_no
+      AND b.organization_id = :organization_id
+      AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
+      " . $where . "
+ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
+
+        $query = \Yii::$app->db->createCommand($sql, [
+                ':date_from' => $dateFrom->getSqlDay(),
+                ':date_to' => $dateTo->getSqlDay(),
+                ':organization_id' => $organizationId
+            ]+ $whereParam);
+
+        $data = $query->queryAll();
+
+        $total = [];
+        foreach ($data as $row) {
+
+            if (!isset($total[$row['currency']])) {
+                $total[$row['currency']] = [
+                    'sum' => 0,
+                    'vat' => 0,
+                ];
+            }
+
+            $total[$row['currency']]['sum'] += $row['sum'];
+            $total[$row['currency']]['vat'] += $row['vat'];
+        }
+
+        if (get_param_raw('is_to_excel', 0) == 1) {
+            $excel = new \app\classes\excel\PurchaseBookToExcel;
+            $excel->data = $data;
+            $excel->total = $total;
+            $excel->organizationId = $organizationId;
+            $excel->dateFrom = $date_from;
+            $excel->dateTo = $date_to;
+            $excel->openFile(Yii::getAlias('@app/templates/purchase_book_ifns.xls'));
+            $excel->prepareToIfns();
+            $excel->download('Книга покупок для ИФНС');
+        }
+
+        $design->assign('data', $data);
+        $design->assign('totals', $total);
+        $design->assign('date_from', $date_from);
+        $design->assign('date_to', $date_to);
+        $design->AddMain('newaccounts/ext_bills_ifns.tpl');
     }
 
     function newaccounts_balance_sell($fixclient)

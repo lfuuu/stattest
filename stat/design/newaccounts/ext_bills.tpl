@@ -64,8 +64,7 @@
         <tr>
             <td>С:<br><input type=text1 id="date_from" name=date_from value='{$date_from}' class=text
                              style="width:100px;"></td>
-            <td>По:<br><input type=text1 id="date_to" name=date_to value='{$date_to}' class=text style="width:100px;">
-            </td>
+            <td>По:<br><input type=text1 id="date_to" name=date_to value='{$date_to}' class=text style="width:100px;"></td>
         </tr>
         <tr>
             <td colspan="2">
@@ -91,7 +90,7 @@
     <thead>
     <tr>
         <td>п/п</td>
-        <td>&#8470; счета</td>
+        <td>№ счета</td>
         <td>Дата счета</td>
         <td>ЛС</td>
         <td>Номер договора</td>
@@ -149,7 +148,6 @@
     {/foreach}
     </tbody>
 </table>
-
 
 <script>
   optools.DatePickerInit();
