@@ -574,6 +574,16 @@ trait CallsRawReport
                 $query->andWhere(['>=', 'type', CallsRawUnite::TYPE_RETAIL]);
                 $query->andWhere(['!=', 'type', CallsRawUnite::TYPE_TRANSIT]);
                 break;
+            case CallsRawUnite::TRAFFIC_TYPE_RETAIL:
+                $query->andWhere([
+                    'type' => [
+                        CallsRawUnite::TRAFFIC_TYPE_CLIENT_RETAIL,
+                        CallsRawUnite::TRAFFIC_TYPE_CLIENT_AST,
+                        CallsRawUnite::TYPE_MVNO,
+                        CallsRawUnite::TYPE_MVNO_COST
+                    ],
+                ]);
+                break;
 
             case CallsRawUnite::TRAFFIC_TYPE_OPERATOR:
             case CallsRawUnite::TRAFFIC_TYPE_CLIENT_RETAIL:

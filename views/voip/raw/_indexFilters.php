@@ -138,18 +138,22 @@ $filters = [
     [
         'attribute' => 'src_operator_ids',
         'class' => OperatorColumn::class,
+        'label' => $filterModel->getAttributeLabel('src_operator_ids') . '*',
         'filterInputOptions' => [
             'multiple' => true,
         ],
+        'countryCode' => $filterModel->src_countries_ids ?: OperatorColumn::EMPTY_VALUE_ID,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'dst_operator_ids',
         'class' => OperatorColumn::class,
+        'label' => $filterModel->getAttributeLabel('dst_operator_ids') . '*',
         'filterInputOptions' => [
             'multiple' => true,
         ],
+        'countryCode' => $filterModel->dst_countries_ids ?: OperatorColumn::EMPTY_VALUE_ID,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
@@ -214,6 +218,7 @@ $filters = [
     [
         'attribute' => 'src_regions_ids',
         'class' => RegionColumn::class,
+        'label' => $filterModel->getAttributeLabel('src_regions_ids') . '*',
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -224,6 +229,7 @@ $filters = [
     [
         'attribute' => 'dst_regions_ids',
         'class' => RegionColumn::class,
+        'label' => $filterModel->getAttributeLabel('dst_regions_ids') . '*',
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -234,6 +240,7 @@ $filters = [
     [
         'attribute' => 'src_cities_ids',
         'class' => CityColumn::class,
+        'label' => $filterModel->getAttributeLabel('src_cities_ids') . '**',
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -245,6 +252,7 @@ $filters = [
     [
         'attribute' => 'dst_cities_ids',
         'class' => CityColumn::class,
+        'label' => $filterModel->getAttributeLabel('dst_cities_ids') . '**',
         'filterInputOptions' => [
             'multiple' => true,
         ],

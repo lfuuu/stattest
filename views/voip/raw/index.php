@@ -231,6 +231,15 @@ $getHeader = function (CallsRawFilter $model) {
     return '';
 };
 
+$getHeaderAdditional = function (CallsRawFilter $model) {
+    return '
+<p>
+    * для выбора оператора/региона необходимо первоначально произвести фильтрацию по стране (странам) номера<br />
+    ** для выбора города необходимо первоначально произвести фильтрацию по стране или региону номера
+</p>
+    ';
+};
+
 try {
     $highLightErrors($filterModel);
 
@@ -257,7 +266,7 @@ try {
             'filterModel' => $filterModel,
             'columns' => $columns,
         ]),
-        'panelHeadingTemplate' => $getHeader($filterModel),
+        'panelHeadingTemplate' => $getHeader($filterModel) . $getHeaderAdditional($filterModel),
     ]);
 } catch (yii\db\Exception $e) {
     Yii::$app->session->addFlash(

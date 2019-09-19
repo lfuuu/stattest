@@ -69,6 +69,7 @@ class CallsRawUnite extends ActiveRecord
 
     const TRAFFIC_TYPE_ALL = 1;
     const TRAFFIC_TYPE_CLIENT = 2; // TYPE_RETAIL + TYPE_AST + TYPE_MVNO + TYPE_OTT
+    const TRAFFIC_TYPE_RETAIL = 3; // TYPE_RETAIL + TYPE_AST + TYPE_MVNO
     const TRAFFIC_TYPE_CLIENT_RETAIL = 10; // TYPE_RETAIL
     const TRAFFIC_TYPE_CLIENT_AST = 11; // TYPE_AST
     const TRAFFIC_TYPE_CLIENT_MVNO = 12; // TYPE_MVNO + TYPE_MVNO_COST
@@ -93,6 +94,7 @@ class CallsRawUnite extends ActiveRecord
     public static $trafficTypes = [
         self::TRAFFIC_TYPE_ALL => 'Весь',
         self::TRAFFIC_TYPE_CLIENT => 'Клиентский (10, 11, 12, 13, 30)',
+        self::TRAFFIC_TYPE_RETAIL => 'Розничный (10, 11, 12, 13)',
         self::TRAFFIC_TYPE_OPERATOR => 'Операторский (20)',
 
         self::TRAFFIC_TYPE_CLIENT_RETAIL => 'Клиентский: несортированный (10)',
