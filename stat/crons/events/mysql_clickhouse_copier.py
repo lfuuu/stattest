@@ -11,7 +11,7 @@ def copy(mysqlCursor, clickhouse):
    mysqlMaxId = mysqlCursor.fetchone()['mid']
    clickhouseMaxId = clickhouse.execute("SELECT max(id) mid FROM  mcn.important_events")[0][0]
 
-   print("Copy new bulk of data mysqlMaxId: %d, clickhouseMaxId: %d" % (mysqlMaxId, clickhouseMaxId))
+   print("important_events: Copy new bulk of data mysqlMaxId: %d, clickhouseMaxId: %d" % (mysqlMaxId, clickhouseMaxId))
 
    if mysqlMaxId <= clickhouseMaxId :
        return False
@@ -31,6 +31,36 @@ def copy(mysqlCursor, clickhouse):
 
    return True
 
+def copyUu(mysqlCursor, clickhouse):
+   mysqlCursor.execute('SELECT max(id) as mid FROM uu_account_log_resource ulr WHERE price != 0')
+
+   mysqlMaxId = mysqlCursor.fetchone()['mid']
+   clickhouseMaxId = clickhouse.execute("SELECT max(id) mid FROM  mcn.uu_account_log_resource")[0][0]
+
+   print("uu_account_log_resource: Copy new bulk of data mysqlMaxId: %d, clickhouseMaxId: %d" % (mysqlMaxId, clickhouseMaxId))
+
+   if mysqlMaxId <= clickhouseMaxId :
+       return False
+
+   mysqlCursor.execute("""
+    select c.id as account_id, ulr.id, ulr.date_from, ulr.date_to, ulr.account_tariff_id, ulr.price, utr.resource_id
+    from uu_account_log_resource ulr
+    inner JOIN uu_account_tariff uat ON uat.id = ulr.account_tariff_id
+    inner JOIN clients c ON c.id = uat.client_account_id
+    inner JOIN uu_tariff_resource utr ON utr.id = ulr.tariff_resource_id
+    WHERE
+    ulr.price != 0 and ulr.id > %d
+    order by ulr.id
+    limit 100000""" % clickhouseMaxId)
+   data = [ row for row in mysqlCursor]
+
+   for row in data:
+       row['price'] = float(row['price'])
+
+   clickhouse.execute("INSERT INTO mcn.uu_account_log_resource (account_id, id, date_from, date_to, account_tariff_id, price, resource_id) VALUES", data, types_check=True)
+
+   return True
+
 with closing(pymysql.connect(
                host = "stat.mcn.ru",
                user= "stat_readonly",
@@ -41,6 +71,9 @@ with closing(pymysql.connect(
         client = Client(host="eridanus3.mcn.ru", password="Sdfwe342") 
         while copy(cursor, client):
             pass
+
+        while copyUu(cursor, client):
+            pass
+
         client.disconnect()
 
-        
