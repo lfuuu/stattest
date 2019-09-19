@@ -61,7 +61,7 @@ class PurchaseBookToExcel extends Excel
 
     public function prepareToIfns()
     {
-        $rowsCounter = 10;
+        $rowsCounter = 11;
         $counter = 1;
 
         /** @var \PHPExcel_Worksheet $worksheet */
