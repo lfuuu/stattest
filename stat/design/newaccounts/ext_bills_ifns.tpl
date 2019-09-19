@@ -52,10 +52,10 @@
 <ul class="breadcrumb">
     <li><a href="/">Главная</a></li>
     <li class="active">Бухгалтерия</li>
-    <li><a href="/?module=newaccounts&action=ext_bills_ifns">Книга покупок (Новая)</a></li>
+    <li><a href="/?module=newaccounts&action=ext_bills_ifns">Книга покупок (ИФНС)</a></li>
 </ul>
 
-<h2>Книга покупок</h2>
+<h2>Книга покупок ИФНС</h2>
 
 <form style='display:inline' action='?' id="f_send">
     <input type=hidden name=module value=newaccounts>
@@ -146,7 +146,7 @@
         <tr>
             <td>{$smarty.foreach.outer.iteration}</td>
             <td></td>
-            <td>{$item.bill_no} {$item.bill_date}</td>
+            <td>{$item.bill_no} {$item.ext_invoice_date}</td>
             <td></td>
             <td></td>
             <td></td>

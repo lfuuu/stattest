@@ -5225,9 +5225,9 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
         }
 
         if ($filterOption == 'dateRegistrationSf') {
-            $where .= ' AND ex.ext_registration_date != ""';
+            $where .= ' AND ex.ext_registration_date IS NOT NULL AND ex.ext_registration_date != ""';
         }else{
-            $where .= ' AND ex.ext_registration_date = ""';
+            $where .= ' AND (ex.ext_registration_date IS NULL OR ex.ext_registration_date = "")';
         }
 
         $sql = "SELECT
@@ -5237,11 +5237,9 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
   cg.inn,
   cg.kpp,
   cg.legal_type,
-  b.sum AS bill_sum,
   ex.ext_invoice_date,
   (ex.ext_vat+ex.ext_sum_without_vat) AS sum,
   ex.ext_vat AS vat,
-  ex.ext_sum_without_vat AS sum_without_vat,
   ex.ext_registration_date,
   (SELECT value
    FROM organization_i18n n

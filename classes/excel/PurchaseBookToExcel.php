@@ -74,7 +74,7 @@ class PurchaseBookToExcel extends Excel
 
         foreach ($this->data as $chunk) {
             $worksheet->setCellValueByColumnAndRow(0, $rowsCounter, $counter);
-            $worksheet->setCellValueByColumnAndRow(2, $rowsCounter, $chunk['bill_no'] .';'.' '. $chunk['bill_date']);
+            $worksheet->setCellValueByColumnAndRow(2, $rowsCounter, $chunk['bill_no'] .';'.' '. $chunk['ext_invoice_date']);
             $worksheet->setCellValueByColumnAndRow(7, $rowsCounter, $chunk['ext_invoice_date']);
             $worksheet->setCellValueByColumnAndRow(8, $rowsCounter, $chunk['name_full']);
             $worksheet->setCellValueByColumnAndRow(9, $rowsCounter,

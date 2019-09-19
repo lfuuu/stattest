@@ -273,6 +273,10 @@
         dateFormat: 'dd-mm-yy',
     });
 
+    $('#registration_date_fix').datepicker({
+        dateFormat: 'dd-mm-yy',
+    });
+
     function mark_del() {
       if (document.getElementById('mark_del').checked)
         $('input.mark_del').attr('checked', 'checked');
