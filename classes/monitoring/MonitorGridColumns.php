@@ -177,7 +177,7 @@ abstract class MonitorGridColumns
             'label' => 'Номер',
             'format' => 'raw',
             'value' => function ($data) {
-                return Html::a($data['number'], ['/usage/number/view', 'did' => $data['number']],
+                return Html::a($data['number'], ['/voip/number/view', 'did' => $data['number']],
                     ['target' => '_blank']);
             },
         ];

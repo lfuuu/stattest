@@ -68,6 +68,8 @@ use yii\helpers\Url;
  * @property-read Imsi $imsiModel
  * @property-read Registry $registry
  * @property-read Operator $nnpOperator
+ * @property-read string $link
+ * @property-read Url $url
  *
  * @property-read float $originPrice
  * @property-read float $price

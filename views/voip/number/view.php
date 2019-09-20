@@ -14,6 +14,7 @@ use app\modules\sim\models\Imsi;
 use app\modules\sim\models\Card;
 use kartik\widgets\ActiveForm;
 use app\models\Region;
+use yii\helpers\Url;
 
 echo app\classes\Html::formLabel($this->title = 'Номер ' . $number->number);
 
@@ -45,7 +46,14 @@ echo \yii\widgets\Breadcrumbs::widget([
                 </tr>
                 <tr>
                     <td>Статус</td>
-                    <th><?= Number::$statusList[$number->status] ?></th>
+                    <th><?= Number::$statusList[$number->status] ?>
+                        <div style="float: right">
+                            <?= Html::a(
+                                'Пересчитать статус',
+                                Url::current(['do' => 'checkStatus']),
+                                ['class' => 'btn btn-primary btn-xs']
+                            ) ?></div>
+                    </th>
                 </tr>
                 <tr>
                     <td>ННП-оператор</td>

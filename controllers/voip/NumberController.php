@@ -131,6 +131,11 @@ class NumberController extends BaseController
             return $this->redirect(['view', 'did' => $did]);
         }
 
+        if (\Yii::$app->request->get('do') == 'checkStatus') {
+            Number::dao()->actualizeStatus($number);
+            return $this->redirect($number->url);
+        }
+
         // редактирование формы
         $actionForm = new NumberForm();
         $actionForm->number_tech = $number->number_tech;

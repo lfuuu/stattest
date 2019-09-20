@@ -176,7 +176,7 @@ class NumberDao extends Singleton
             return;
         }
 
-        if ($usage && $usage->tariff->isTest()) {
+        if ($usage && (!$usage->tariff || $usage->tariff->isTest())) {
             Number::dao()->toInstock($number);
             return;
         }
