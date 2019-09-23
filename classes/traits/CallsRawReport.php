@@ -68,7 +68,7 @@ trait CallsRawReport
             'dst_country_name' => 'nc1.name_rus',
             'dst_region_name' => 'r1.name',
             'dst_city_name' => 'ci1.name',
-            'st1.contract_number || \' (\' || cct1.name || \')\' dst_contract_name',
+            'st1.contract_number || \' (\' || cct1.name || \')\' src_contract_name',
             'sale' => new Expression("(
                 CASE 
                    WHEN
@@ -94,7 +94,7 @@ trait CallsRawReport
             'src_country_name' => 'nc2.name_rus',
             'src_region_name' => 'r2.name',
             'src_city_name' => 'ci2.name',
-            'st2.contract_number || \' (\' || cct2.name || \')\' src_contract_name', //
+            'st2.contract_number || \' (\' || cct2.name || \')\' dst_contract_name', //
             'cost_price' => new Expression("(
                 CASE 
                    WHEN
@@ -457,12 +457,13 @@ trait CallsRawReport
             'session_time' => $aliasResolverFunc('cr1.billed_time'),
             'session_time_term' => $aliasResolverFunc('cr2.billed_time'),
             'disconnect_cause' => $aliasResolverFunc('cr1.disconnect_cause'),
+
             'src_route' => 't1.name',
             'dst_operator_name' => 'o1.name',
             'dst_country_name' => 'nc1.name_rus',
             'dst_region_name' => 'r1.name',
             'dst_city_name' => 'ci1.name',
-            'st1.contract_number || \' (\' || cct1.name || \')\' dst_contract_name',
+            'st1.contract_number || \' (\' || cct1.name || \')\' src_contract_name',
             'sale' => new Expression("(
                 CASE 
                    WHEN
@@ -483,12 +484,13 @@ trait CallsRawReport
                       " . $aliasResolverFunc('cr1.rate') . "
                 END
             )"),
+
             'dst_route' => 't2.name',
             'src_operator_name' => 'o2.name',
             'src_country_name' => 'nc2.name_rus',
             'src_region_name' => 'r2.name',
             'src_city_name' => 'ci2.name',
-            'st2.contract_number || \' (\' || cct2.name || \')\' src_contract_name', //
+            'st2.contract_number || \' (\' || cct2.name || \')\' dst_contract_name', //
             'cost_price' => new Expression("(
                 CASE 
                    WHEN
@@ -783,7 +785,7 @@ trait CallsRawReport
             'dst_country_name' => 'nc1.name_rus',
             'dst_region_name' => 'r1.name',
             'dst_city_name' => 'ci1.name',
-            'st1.contract_number || \' (\' || cct1.name || \')\' dst_contract_name',
+            'st1.contract_number || \' (\' || cct1.name || \')\' src_contract_name',
             'sale' => new Expression("(
                 CASE 
                    WHEN
@@ -809,7 +811,7 @@ trait CallsRawReport
             'src_country_name' => 'nc2.name_rus',
             'src_region_name' => 'r2.name',
             'src_city_name' => 'ci2.name',
-            'st2.contract_number || \' (\' || cct2.name || \')\' src_contract_name', //
+            'st2.contract_number || \' (\' || cct2.name || \')\' dst_contract_name', //
             'cost_price' => new Expression("(
                 CASE 
                    WHEN
