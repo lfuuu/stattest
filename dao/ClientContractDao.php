@@ -92,13 +92,16 @@ class ClientContractDao extends Singleton
 
     /**
      * @param ClientContract $contract
-     * @param \DateTime|null $date
-     * @return null|\app\models\ClientDocument
+     * @param \DateTime|null $dateOrig
+     * @return ClientDocument|null
+     * @internal param \DateTime|null $date
      */
-    public function getContractInfo(ClientContract $contract, \DateTime $date = null)
+    public function getContractInfo(ClientContract $contract, \DateTime $dateOrig = null)
     {
-        if (!$date) {
+        if (!$dateOrig) {
             $date = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+        } else {
+            $date = $dateOrig;
         }
 
         $contractDoc = ClientDocument::find()
@@ -113,6 +116,13 @@ class ClientContractDao extends Singleton
                 ->contract()
                 ->andWhere(['contract_id' => $contract->id])
                 ->andWhere(['<=', 'contract_date', $date->format(DateTimeZoneHelper::DATETIME_FORMAT)])
+                ->last();
+        }
+
+        if (!$contractDoc) {
+            $contractDoc = ClientDocument::find()
+                ->contract()
+                ->andWhere(['contract_id' => $contract->id])
                 ->last();
         }
 
