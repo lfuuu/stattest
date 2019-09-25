@@ -12,7 +12,8 @@ use app\dao\BillDocumentDao;
 class BillDocument extends ActiveRecord
 {
     const TYPE_BILL = 'bill';
-    const TYPE_AKT = 'akt';
+    const TYPE_AKT = 'akt'; // не использовать !!!!!
+    const TYPE_ACT = 'act';
     const TYPE_INVOICE = 'invoice';
     const TYPE_LADING = 'lading';
     const TYPE_GDS = 'gds';

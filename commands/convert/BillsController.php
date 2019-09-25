@@ -181,7 +181,7 @@ class BillsController extends Controller
             }
 
             if ($invoice->is_act) {
-                EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_AKT]);
+                EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_ACT]);
             }
 
         }
