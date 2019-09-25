@@ -1171,7 +1171,7 @@ where c.client="'.$trouble['client_orig'].'"')
         $design->assign("tt_show_add", get_param_raw("show_add_form", "") != "");
 
             $min_time = strtotime('first day of this month');
-            $min_time = strtotime('-1 year', $min_time);
+            $min_time = strtotime('-2 year', $min_time);
 
             if($create_date_from < $min_time)
             {
