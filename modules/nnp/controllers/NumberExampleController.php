@@ -35,7 +35,6 @@ class NumberExampleController extends BaseController
     /**
      * Список
      *
-     * @return string
      */
     public function actionIndex()
     {
@@ -46,6 +45,11 @@ class NumberExampleController extends BaseController
         $get = Yii::$app->request->get();
 
         $filterModel->load($get);
+
+        if (is_null($filterModel->country_code)) {
+            // ести страна не заполнена - ставим Россию
+            $filterModel->country_code = 643;
+        }
 
         return $this->render('index', [
             'filterModel' => $filterModel,
