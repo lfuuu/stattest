@@ -32,6 +32,7 @@ use app\modules\nnp\classes\OperatorLinker;
 use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\models\CountryFile;
+use app\modules\nnp\models\NumberExample;
 use app\modules\nnp\Module as NnpModule;
 use app\modules\socket\classes\Socket;
 use app\modules\uu\behaviors\AccountTariffBiller;
@@ -57,6 +58,7 @@ $maxCountShift = 3;
 $nnpEvents = ['event' => [
     NnpModule::EVENT_FILTER_TO_PREFIX,
     NnpModule::EVENT_LINKER,
+    NnpModule::EVENT_EXAMPLES,
     NnpModule::EVENT_IMPORT,
     EventQueue::INVOICE_GENERATE_PDF,
 ]];
@@ -702,6 +704,13 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         'Регионы: ' . RegionLinker::me()->run() . PHP_EOL .
                         'Города: ' . CityLinker::me()->run() . PHP_EOL :
                         EventQueue::API_IS_SWITCHED_OFF;
+
+                    EventQueue::go(NnpModule::EVENT_EXAMPLES);
+                    break;
+
+                case NnpModule::EVENT_EXAMPLES:
+                    // ННП. Перерасчёт примеров номеров
+                    NumberExample::renewAll();
                     break;
 
                 case NnpModule::EVENT_FILTER_TO_PREFIX:

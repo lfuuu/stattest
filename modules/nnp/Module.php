@@ -43,6 +43,7 @@ use yii\base\InvalidConfigException;
 class Module extends \yii\base\Module
 {
     const EVENT_LINKER = 'nnp_linker';
+    const EVENT_EXAMPLES = 'nnp_examples';
     const EVENT_IMPORT = 'nnp_import';
     const EVENT_FILTER_TO_PREFIX = 'nnp_filter_to_prefix';
 
@@ -136,6 +137,7 @@ class Module extends \yii\base\Module
                 ->setTitle('ННП')
                 ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => Country::RUSSIA, 'NumberRangeFilter[is_active]' => 1], ['nnp.read'])
                 ->addItem('Портированные номера', ['/nnp/number/', 'NumberFilter[country_code]' => Country::RUSSIA], ['nnp.read'])
+                ->addItem('Примеры номеров', ['/nnp/number-example/'], ['nnp.read'])
                 ->addItem('Операторы', ['/nnp/operator/'], ['nnp.read'])
                 ->addItem('Операторы. Лог', ['/history/', 'HistoryChangesFilter[model]' => Operator::class], ['nnp.read'])
                 ->addItem('Страны', ['/nnp/country/'], ['nnp.read'])
