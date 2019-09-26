@@ -173,6 +173,5 @@ class NumberExample extends ActiveRecord
         $db = self::getDb();
 
         $db->createCommand('SELECT nnp.number_example_renew()')->execute();
-        $db->createCommand('SELECT nnp.number_example_copy()')->execute();
     }
 }
