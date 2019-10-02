@@ -56,8 +56,16 @@ class UbillerTest extends _TestCase
      * @throws \Exception
      * @throws \Throwable
      */
+
+    public $isMonthTransition = false;
+
     protected function setUp()
     {
+        // отслеживаем переход месяца
+        if (in_array(date('d'), [1, 2])) {
+            $this->isMonthTransition = true;
+        }
+
         parent::setUp();
 
         self::unloadUu();
@@ -639,13 +647,13 @@ class UbillerTest extends _TestCase
 
         // всего проводок
         $accountEntries = $accountTariff->accountEntries;
-        $this->assertEquals(4, count($accountEntries));
+        $this->assertEquals($this->isMonthTransition ? 7 : 4, count($accountEntries));
 
         // проводки другие (недоходные)
         $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
             return $accountEntry->tariffResource->resource_id != Resource::ID_TRUNK_PACKAGE_ORIG_CALLS;
         });
-        $this->assertEquals(3, count($accountEntries));
+        $this->assertEquals($this->isMonthTransition ? 5 : 3, count($accountEntries));
 
         // операция у другой проводки - доход, счёт тот же
         $accountEntry = array_shift($accountEntries);
@@ -715,13 +723,13 @@ class UbillerTest extends _TestCase
 
         // всего проводок
         $accountEntries = $accountTariff->accountEntries;
-        $this->assertEquals(4, count($accountEntries));
+        $this->assertEquals($this->isMonthTransition ? 7 : 4, count($accountEntries));
 
         // проводки другие (нерасходные)
         $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
             return $accountEntry->operation_type_id != OperationType::ID_COST;
         });
-        $this->assertEquals(3, count($accountEntries));
+        $this->assertEquals($this->isMonthTransition ? 5 : 3, count($accountEntries));
 
         // операция у другой проводки - доход
         $accountEntry = array_shift($accountEntries);
