@@ -198,6 +198,11 @@ class Bill extends ActiveRecord
         ];
     }
 
+    public function getParentId()
+    {
+        return $this->client_id;
+    }
+
     /**
      * Подготовка полей для исторических данных
      *
@@ -496,6 +501,7 @@ class Bill extends ActiveRecord
 
         $line = new BillLine();
         $line->bill_no = $this->bill_no;
+        $line->setParentId($this->id);
         $line->sort = ((int)BillLine::find()
                 ->where(['bill_no' => $this->bill_no])
                 ->max('sort')) + 1;

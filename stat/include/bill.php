@@ -171,6 +171,7 @@ class Bill {
 
         $line = new BillLine();
         $line->bill_no = $this->bill_no;
+        $line->setParentId($this->Get('id'));
         $line->sort = $this->max_sort;
         $line->item = $title;
         $line->amount = $amount;

@@ -1063,7 +1063,9 @@ class ClientAccount extends HistoryActiveRecord
             define("NO_WEB", 1);
         }
 
-        include_once PATH_TO_ROOT . 'conf.php';
+        if (!defined('DESIGN_PATH')) {
+            include_once PATH_TO_ROOT . 'conf.php';
+        }
 
         if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL) {
             return;

@@ -354,7 +354,7 @@
 {/if}
 
 {$_showHistoryBill}
-{$_showHistoryLines}
+
 <hr/>
 
 <form action="?" method="get" target="_blank" name="formsend" id="formsend">

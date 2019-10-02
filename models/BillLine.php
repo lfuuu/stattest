@@ -55,6 +55,8 @@ class BillLine extends ActiveRecord
 
     public $isHistoryVersioning = false;
 
+    protected $billId = null;
+
     /**
      * @return string
      */
@@ -106,6 +108,16 @@ class BillLine extends ActiveRecord
             $this->hasOne(Transaction::class, ['bill_line_id' => 'pk'])
                 ->select('transaction_type')
                 ->scalar();
+    }
+
+    public function getParentId()
+    {
+        return $this->billId ?: $this->getBill()->select('id')->scalar();
+    }
+
+    public function setParentId($billId)
+    {
+        $this->billId = $billId;
     }
 
     /**

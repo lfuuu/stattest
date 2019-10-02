@@ -1075,6 +1075,7 @@ class m_newaccounts extends IModule
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
+        $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $lines = $bill->GetLines();
         $lines[$bill->GetMaxSort() + 1] = [];
         $lines[$bill->GetMaxSort() + 2] = [];

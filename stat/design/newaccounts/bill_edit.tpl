@@ -237,7 +237,7 @@
         <input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if $isDisabledLines} disabled{/if}>
     </div>
 </form>
-
+{$_showHistoryLines}
 <script>
     {literal}
 

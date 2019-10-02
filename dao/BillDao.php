@@ -481,6 +481,7 @@ class BillDao extends Singleton
             $line = new BillLine();
             $line->sort = $billLinePosition;
             $line->bill_no = $bill->bill_no;
+            $line->setParentId($bill->id);
 
             $line->item = $this->getAccountEntryName($clientAccount, $accountEntry, $billRenameDate);
             $line->date_from = $accountEntry->date_from;

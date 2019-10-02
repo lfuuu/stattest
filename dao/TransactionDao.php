@@ -130,6 +130,7 @@ class TransactionDao extends Singleton
         $line = new BillLine();
         $line->sort = $billLinePosition;
         $line->bill_no = $bill->bill_no;
+        $line->setParentId($bill->id);
         $this->fillBillLineByTransaction($line, $transaction);
         $line->save();
 
