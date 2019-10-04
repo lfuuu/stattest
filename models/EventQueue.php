@@ -75,6 +75,7 @@ class EventQueue extends ActiveRecord
     const CHECK__VOIP_OLD_NUMBERS = 'check__voip_old_numbers';
     const CLIENT_SET_STATUS = 'client_set_status';
     const CYBERPLAT_PAYMENT = 'cyberplat_payment';
+    const DOC_DATE_CHANGED = 'doc_date_changed';
     const SET_GOOD_BILL_DATE = 'set_bill_good_date';
     const LK_SETTINGS_TO_MAILER = 'lk_settings_to_mailer';
     const MIDNIGHT = 'midnight';
@@ -134,6 +135,7 @@ class EventQueue extends ActiveRecord
         self::CHECK__VOIP_NUMBERS => 'Актуализировать все номера',
         self::CHECK__VOIP_OLD_NUMBERS => 'Синхронизировать все "старые" услуги номеров',
         self::CLIENT_SET_STATUS => 'Изменился бизнес процесс ЛС',
+        self::DOC_DATE_CHANGED => 'Изменился дата отгрузки счета',
         self::SET_GOOD_BILL_DATE => 'Изменился дата отгрузки товарного счета',
         self::LK_SETTINGS_TO_MAILER => 'Передать настройки в mailer',
         self::MIDNIGHT => 'Полночь',

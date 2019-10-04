@@ -498,6 +498,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case EventQueue::NEWBILLS__INSERT:
                 case EventQueue::NEWBILLS__UPDATE:
                 case EventQueue::NEWBILLS__DELETE:
+                case EventQueue::DOC_DATE_CHANGED:
                 case EventQueue::YANDEX_PAYMENT:
                 case EventQueue::ATS3__BLOCKED:
                 case EventQueue::ADD_ACCOUNT:
