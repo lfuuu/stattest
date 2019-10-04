@@ -229,6 +229,11 @@ abstract class TariffForm extends \app\classes\Form
                         break;
 
                     case ServiceType::ID_VOIP_PACKAGE_CALLS:
+                        $tariffVoipCountries = new TariffVoipCountry();
+                        $tariffVoipCountries->tariff_id = $this->id;
+                        $this->tariffVoipCountries = $this->crudMultipleSelect2($this->tariffVoipCountries, $post, $tariffVoipCountries, 'country_id');
+                        // no break;
+
                     case ServiceType::ID_VOIP_PACKAGE_SMS:
                     case ServiceType::ID_TRUNK_PACKAGE_ORIG:
                     case ServiceType::ID_TRUNK_PACKAGE_TERM:

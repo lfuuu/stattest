@@ -40,6 +40,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
             Телефония. Пакет звонков
             <?= $helpConfluence ?>
         </h2>
+        <?= $this->render('_editMainVoipCountry', $viewParams) ?>
         <div class="row">
 
             <div class="col-sm-3">
