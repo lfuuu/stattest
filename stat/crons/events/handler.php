@@ -481,6 +481,15 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
                     break;
 
+                case EventQueue::SET_GOOD_BILL_DATE:
+                    $bill = \app\models\Bill::findOne(['bill_no' => $param['bill_no']]);
+
+                    if ($bill) {
+                        $bill->generateInvoices();
+                    }
+
+                    break;
+
 
                 // --------------------------------------------
                 // Псевдо-логирование
@@ -489,7 +498,6 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case EventQueue::NEWBILLS__INSERT:
                 case EventQueue::NEWBILLS__UPDATE:
                 case EventQueue::NEWBILLS__DELETE:
-                case EventQueue::DOC_DATE_CHANGED:
                 case EventQueue::YANDEX_PAYMENT:
                 case EventQueue::ATS3__BLOCKED:
                 case EventQueue::ADD_ACCOUNT:

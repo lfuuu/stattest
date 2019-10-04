@@ -645,6 +645,8 @@ class Bill {
             $wDate = "0000-00-00";
         }
 
+        \app\models\EventQueue::go(\app\models\EventQueue::SET_GOOD_BILL_DATE, ['bill_no' => $this->bill_no]);
+
         $db->QueryUpdate("newbills", "bill_no", array(
                     "bill_no" => $this->bill_no,
                     "doc_date" => $wDate));

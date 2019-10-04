@@ -1055,6 +1055,7 @@ class SoapHandler{
 
                 if ($state_1c == 'Отгружен') {
                     $q = "UPDATE `tt_stages` SET `comment` = 'Товар Отгружен: " . nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) . "', `date_edit` = NOW(), `user_edit` = '1C' WHERE `stage_id` = " . (int) $curtt['cur_stage_id'];
+                    \app\models\EventQueue::go(\app\models\EventQueue::SET_GOOD_BILL_DATE, ['bill_no' => $curbill['bill_no']]);
                 }
                 elseif($state_1c == 'КОтгрузке') {
                     $q = "UPDATE `tt_stages` SET `comment` = 'Возврат товара: " . nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."', `date_edit` = NOW(), `user_edit` = '1C' WHERE `stage_id` = " . (int) $curtt['cur_stage_id'];

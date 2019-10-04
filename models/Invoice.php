@@ -203,7 +203,7 @@ class Invoice extends ActiveRecord
         }
 
         if ($bill->doc_date && $bill->doc_date != '0000-00-00') {
-            return (new \DateTimeImmutable())->setTimestamp($bill->doc_date);
+            return (new \DateTimeImmutable($bill->doc_date));
         }
 
         $date = self::getShippedDateFromTrouble($bill);
