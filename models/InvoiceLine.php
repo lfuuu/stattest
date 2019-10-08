@@ -160,7 +160,7 @@ class InvoiceLine extends ActiveRecord
      */
     public function getOutprice()
     {
-        return $this->price;
+        return abs(($this->sum_without_tax / $this->amount) - $this->price) < 0.1 ? $this->price : round($this->sum_without_tax / $this->amount, 4);
     }
 
     /**
