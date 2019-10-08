@@ -162,4 +162,20 @@ class InvoiceLine extends ActiveRecord
     {
         return $this->price;
     }
+
+    /**
+     * @return null|string
+     */
+    public function getGtd()
+    {
+        if ($this->type != BillLine::LINE_TYPE_GOOD) {
+            return null;
+        }
+
+        if (!$this->invoice || !$this->invoice->bill) {
+            return null;
+        }
+
+        return $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select('gtd')->scalar();
+    }
 }
