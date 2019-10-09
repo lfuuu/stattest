@@ -3611,7 +3611,7 @@ WHERE cg.inn = '" . $inn . "'";
                         mb_strtolower(
                             strip_tags($pay['company'])
                         )
-                    ), '/') !== false;
+                    ), '/') !== false || ($pay['noref'] > 100000 && preg_match('/^(\s+)?(\w+)\s+(\w+)\s+(\w+)/mu', $pay['company']));
 
             $clientId = [];
             $billNo = $this->GetBillNoFromComment(@$pay["description"]);
