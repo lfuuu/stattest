@@ -16,11 +16,12 @@ use yii\widgets\Breadcrumbs;
 
 $baseView = $this;
 
-echo Html::formLabel('Список групп событий');
+echo Html::formLabel('Названия событий');
 echo Breadcrumbs::widget([
     'links' => [
+        'Словари',
         ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],
-        'Список названий событий'
+        ['label' => 'Список названий событий', 'url' => Url::toRoute(['/important_events/names'])],
     ],
 ]);
 

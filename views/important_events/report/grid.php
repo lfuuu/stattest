@@ -12,11 +12,20 @@ use app\models\important_events\ImportantEvents;
 use kartik\daterange\DateRangePicker;
 use kartik\grid\ExpandRowColumn;
 use yii\data\ActiveDataProvider;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
 
 echo Html::formLabel('Лог значимых событий');
+echo Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Группы событий', 'url' => Url::toRoute(['/important_events/groups/'])],
+        ['label' => 'Источники событий', 'url' => Url::toRoute(['/important_events/sources/'])],
+        ['label' => 'Лог значимых событий', 'url' => Url::toRoute(['/important_events/report/'])],
+    ],
+]);
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,

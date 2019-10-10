@@ -17,7 +17,7 @@ echo Html::formLabel('Список источников событий');
 echo Breadcrumbs::widget([
     'links' => [
         ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],
-        'Список источников событий'
+        ['label' => 'Список источников событий', 'url' => Url::toRoute(['/important_events/sources'])],
     ],
 ]);
 

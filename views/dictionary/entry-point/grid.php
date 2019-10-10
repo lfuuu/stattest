@@ -16,10 +16,11 @@ use yii\widgets\Breadcrumbs;
 
 $baseView = $this;
 
+echo Html::formLabel('Точки входа');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Точки входа', 'url' => '/dictionary/entry-point'],
+        'Словари',
+        ['label' => 'Точки входа', 'url' => Url::toRoute(['/dictionary/entry-point'])],
     ],
 ]);
 

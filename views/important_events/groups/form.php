@@ -11,8 +11,10 @@ use app\models\important_events\ImportantEventsRules;
 echo Html::formLabel($model->id ? 'Редактирование группы' : 'Новая группа');
 echo Breadcrumbs::widget([
     'links' => [
+        'Словари',
         ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],
-        ['label' => 'Список групп событий', 'url' => Url::toRoute(['/important_events/groups'])],
+        ['label' => 'Названия событий', 'url' => Url::toRoute(['/important_events/names'])],
+        ['label' => 'Список групп', 'url' => Url::toRoute(['/important_events/groups'])],
         $model->id ? 'Редактирование группы' : 'Новая группа'
     ],
 ]);

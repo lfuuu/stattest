@@ -1,9 +1,21 @@
 <?php
 
 use app\models\RoistatNumberFields;
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 /* @var $this \yii\web\View */
 /* @var $model RoistatNumberFields */
+
+echo Html::formLabel('Настройка номера');
+echo Breadcrumbs::widget([
+    'links' => [
+        'Словари',
+        ['label' => 'Roistat. Настройки параметров', 'url' => Url::toRoute(['/dictionary/roistat-number-fields/index'])],
+        'Настройка номера',
+    ],
+]);
 
 $number = $model->number ? $model->number : 'false';
 $fields = $model->fields ? $model->fields : 'false';

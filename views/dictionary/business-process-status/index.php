@@ -15,15 +15,17 @@ use app\models\BusinessProcess;
 use app\models\filter\BusinessProcessStatusFilter;
 use app\models\BusinessProcessStatus;
 use app\widgets\GridViewSequence\GridViewSequence;
+use app\classes\Html;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 ?>
-
+<?= Html::formLabel('Статусы бизнес процессов'); ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Статусы бизнес процессов', 'url' => '/dictionary/business-process-status/'],
+        'Словари',
+        ['label' => 'Статусы бизнес процессов', 'url' => Url::toRoute(['/dictionary/business-process-status/'])],
     ],
 ]) ?>
 

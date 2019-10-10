@@ -2,6 +2,7 @@
 
 use yii\data\ActiveDataProvider;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 use kartik\grid\ActionColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -12,10 +13,11 @@ use app\models\dictionary\PublicSite;
 
 $baseView = $this;
 
+echo Html::formLabel('Публичные сайты');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Публичные сайты', 'url' => '/dictionary/public-site'],
+        'Словари',
+        ['label' => 'Публичные сайты', 'url' => Url::toRoute(['/dictionary/public-site/'])],
     ],
 ]);
 

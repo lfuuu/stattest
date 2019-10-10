@@ -17,13 +17,15 @@ use app\models\filter\CountryFilter;
 use app\widgets\GridViewSequence\GridViewSequence;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 ?>
 
+<?= Html::formLabel('Страны'); ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Страны', 'url' => '/dictionary/country/'],
+        'Словари',
+        ['label' => 'Страны', 'url' => Url::toRoute(['/dictionary/country/'])],
     ],
 ]) ?>
 

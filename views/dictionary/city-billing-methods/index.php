@@ -5,11 +5,13 @@ use kartik\grid\ActionColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\CityBillingMethod;
+use yii\helpers\Url;
 
+echo Html::formLabel('Методы билингования');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Методы биллингования', 'url' => '/dictionary/city-billing-methods/'],
+        'Словари',
+        ['label' => 'Методы биллингования', 'url' => Url::toRoute(['/dictionary/city-billing-methods/'])],
     ],
 ]);
 

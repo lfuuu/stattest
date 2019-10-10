@@ -1,8 +1,16 @@
 <?php
 
 use app\classes\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 echo Html::formLabel('Организации');
+echo Breadcrumbs::widget([
+    'links' => [
+        'Словари',
+        ['label' => 'Организации', 'url' => Url::toRoute(['/organization'])],
+    ],
+]);
 ?>
 
 <div style="text-align: right; padding-bottom: 10px;">

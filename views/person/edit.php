@@ -24,11 +24,9 @@ $form = ActiveForm::begin([
 echo Html::formLabel('Редактирование ответственного лица');
 echo Breadcrumbs::widget([
     'links' => [
-        [
-            'label' => 'Ответственные лица',
-            'url' => Url::toRoute(['/person'])
-        ],
-        'Редактирование ответственного лица'
+        'Словари',
+        ['label' => 'Ответственные лица', 'url' => Url::toRoute(['/person'])],
+        'Редактирование ответственного лица',
     ],
 ]);
 

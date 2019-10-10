@@ -3,9 +3,19 @@
 
 use app\classes\grid\GridView;
 use kartik\grid\ActionColumn;
-use yii\helpers\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
+use app\classes\Html;
 
 /* @var $dataProvider \yii\data\ActiveDataProvider */
+
+echo Html::formLabel('Roistat. Настройки параметров');
+echo Breadcrumbs::widget([
+    'links' => [
+        'Словари',
+        ['label' => 'Roistat. Настройки параметров', 'url' => Url::toRoute(['/dictionary/roistat-number-fields/index'])],
+    ],
+]);
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,

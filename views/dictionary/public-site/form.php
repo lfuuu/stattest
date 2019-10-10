@@ -13,6 +13,7 @@ use app\widgets\MultipleInput\MultipleInput;
 use kartik\editable\Editable;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 if (!$model->isNewRecord) {
     $this->title = $model->title;
@@ -20,12 +21,12 @@ if (!$model->isNewRecord) {
     $this->title = Yii::t('common', 'Create');
 }
 ?>
-
+<?= Html::formLabel('Редактирование публичного сайта'); ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
+        'Словари',
         ['label' => 'Публичные сайты', 'url' => $cancelUrl = '/dictionary/public-site'],
-        $this->title
+        $this->title,
     ],
 ]) ?>
 

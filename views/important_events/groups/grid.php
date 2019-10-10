@@ -16,8 +16,10 @@ $baseView = $this;
 echo Html::formLabel('Список групп событий');
 echo Breadcrumbs::widget([
     'links' => [
+        'Словари',
         ['label' => 'Значимые события', 'url' => Url::toRoute(['/important_events/report'])],
-        'Список групп событий'
+        ['label' => 'Названия событий', 'url' => Url::toRoute(['/important_events/names'])],
+        ['label' => 'Список групп', 'url' => Url::toRoute(['/important_events/groups'])],
     ],
 ]);
 

@@ -2,6 +2,8 @@
 
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
+use app\classes\Html;
+use yii\helpers\Url;
 
 $record = $formModel->record;
 
@@ -10,10 +12,10 @@ $this->title = Yii::t('common', 'Create');
 if (!$record->isNewRecord) {
     $this->title = $record->name;
 }
-
+echo Html::formLabel('Редактирование метода билингования');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
+        'Словари',
         ['label' => 'Методы биллингования', 'url' => $cancelUrl = '/dictionary/city-billing-methods'],
         $this->title
     ],

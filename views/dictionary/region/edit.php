@@ -23,7 +23,7 @@ if (!$region->isNewRecord) {
 
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
+        'Словари',
         ['label' => 'Регионы (точки подключения)', 'url' => $cancelUrl = '/dictionary/region'],
         $this->title
     ],

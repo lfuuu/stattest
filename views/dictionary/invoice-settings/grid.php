@@ -13,10 +13,11 @@ use yii\widgets\Breadcrumbs;
 
 $baseView = $this;
 
+echo Html::formLabel('Настройки платежных документов');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Настройки платежных документов', 'url' => '/dictionary/invoice-settings'],
+        'Словари',
+        ['label' => 'Настройки платежных документов', 'url' => Url::toRoute(['/dictionary/invoice-settings/'])],
     ],
 ]);
 

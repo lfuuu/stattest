@@ -5,6 +5,7 @@
 use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
+use app\classes\Html;
 
 $model = $formModel->model;
 $this->title = !$model->isNewRecord ?
@@ -12,9 +13,11 @@ $this->title = !$model->isNewRecord ?
     Yii::t('common', 'Create');
 
 $currentStep = (!$model->isNewRecord ? 'Редактирование метки "' . $this->title . '"' : 'Новая метка');
+
+echo Html::formLabel('Редактирование метки');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочники',
+        'Словари',
         ['label' => 'Метки', 'url' => $cancelUrl = Url::toRoute(['/dictionary/tags'])],
         $currentStep,
     ],

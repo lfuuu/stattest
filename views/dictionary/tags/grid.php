@@ -12,11 +12,11 @@ use yii\widgets\Breadcrumbs;
 /** @var \app\forms\dictonary\tags\TagsForm $form */
 
 $baseView = $this;
-
+echo Html::formLabel('Метки');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Метки', 'url' => '/dictionary/tags'],
+        'Словари',
+        ['label' => 'Метки', 'url' => Url::toRoute(['/dictionary/tags/'])],
     ],
 ]);
 

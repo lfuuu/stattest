@@ -4,6 +4,8 @@ use app\classes\Html;
 use app\forms\person\PersonForm;
 use kartik\grid\GridView;
 use yii\data\ActiveDataProvider;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 /** @var $dataProvider ActiveDataProvider */
 /** @var $model PersonForm */
@@ -32,6 +34,12 @@ $recordBtns = [
 ];
 
 echo Html::formLabel('Ответственные лица');
+echo Breadcrumbs::widget([
+    'links' => [
+        'Словари',
+        ['label' => 'Ответственные лица', 'url' => Url::toRoute(['/person'])],
+    ],
+]);
 
 echo GridView::widget([
     'id' => 'PersonList',

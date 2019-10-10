@@ -8,16 +8,17 @@
 
 use app\classes\dictionary\forms\BusinessProcessStatusForm;
 use app\models\BusinessProcess;
+use app\classes\Html;
 use kartik\select2\Select2;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
 $status = $formModel->status;
-
+echo Html::formLabel('Редактирование статуса бизнес процесса');
 $breadCrumbLinks = [
-    'Справочник',
-    ['label' => 'Статусы бизнес процессов', 'url' => $cancelUrl = '/dictionary/business-process-status']
+    'Словари',
+    ['label' => 'Статусы бизнес процессов', 'url' => $cancelUrl = '/dictionary/business-process-status'],
 ];
 
 $businessProcesses = BusinessProcess::getListWithBusinessName($isWithEmpty = $status->isNewRecord);

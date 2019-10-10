@@ -14,15 +14,17 @@ use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\models\filter\RegionFilter;
 use app\models\Region;
+use app\classes\Html;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 ?>
-
+<?= Html::formLabel('Регионы'); ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Регионы (точки подключения)', 'url' => '/dictionary/region/'],
+        'Словари',
+        ['label' => 'Регионы (точки подключения)', 'url' => Url::toRoute(['/dictionary/region'])],
     ],
 ]) ?>
 

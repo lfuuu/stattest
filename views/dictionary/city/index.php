@@ -18,14 +18,16 @@ use app\models\City;
 use app\models\filter\CityFilter;
 use app\widgets\GridViewSequence\GridViewSequence;
 use kartik\grid\ActionColumn;
+use app\classes\Html;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 ?>
-
+<?= Html::formLabel('Города'); ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
-        ['label' => $this->title = 'Города', 'url' => '/dictionary/city/'],
+        'Словари',
+        ['label' => 'Города', 'url' => Url::toRoute([ '/dictionary/city'])],
     ],
 ]) ?>
 

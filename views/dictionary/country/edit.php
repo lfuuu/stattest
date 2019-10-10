@@ -26,7 +26,7 @@ if (!$country->isNewRecord) {
 
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
+        'Словари',
         ['label' => 'Страны', 'url' => $cancelUrl = '/dictionary/country/'],
         $this->title
     ],

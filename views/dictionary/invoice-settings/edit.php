@@ -2,6 +2,7 @@
 
 use app\dao\OrganizationDao;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 use kartik\widgets\ActiveForm;
 use app\classes\Html;
 use app\models\Country;
@@ -15,9 +16,10 @@ $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
 ]);
 
+echo Html::formLabel('Редактирование настроек платежных документов');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
+        'Словари',
         ['label' => $this->title = 'Настройки платежных документов', 'url' => $cancelUrl = '/dictionary/invoice-settings'],
         'Редактирование настроек платежных документов'
     ],

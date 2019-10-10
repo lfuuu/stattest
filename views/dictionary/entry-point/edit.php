@@ -7,9 +7,11 @@ use app\models\Currency;
 use app\models\dictionary\PublicSite;
 use app\models\LkWizardState;
 use app\models\Region;
+use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 use app\models\ClientAccount;
 
 /** @var \app\models\EntryPoint $model */
@@ -26,11 +28,12 @@ $regions = Region::find()
     ->asArray()
     ->all();
 
+echo Html::formLabel('Редактирование точки входа');
 echo Breadcrumbs::widget([
     'links' => [
-        'Справочник',
+        'Словари',
         ['label' => $this->title = 'Точки входа', 'url' => $cancelUrl = '/dictionary/entry-point'],
-        ($model->id ? 'Редактирование' : 'Добавление')
+        ($model->id ? 'Редактирование' : 'Добавление'),
     ],
 ]);
 

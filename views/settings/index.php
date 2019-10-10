@@ -1,3 +1,16 @@
+<?php
+use app\classes\Html;
+use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
+?>
+
+<?= Html::formLabel('Общие настройки'); ?>
+<?= Breadcrumbs::widget([
+    'links' => [
+        'Словари',
+        ['label' => 'Общие настройки', 'url' => Url::toRoute(['/settings/'])],
+    ],
+]) ?>
 
 <div class="well text-center" style="width: 500px;">
     <?php if ($isLogOn) : ?>

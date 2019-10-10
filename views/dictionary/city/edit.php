@@ -11,9 +11,11 @@ use app\models\City;
 use app\models\CityBillingMethod;
 use app\models\Country;
 use app\models\Region;
+use app\classes\Html;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
+use yii\helpers\Url;
 
 $city = $formModel->city;
 
@@ -23,10 +25,10 @@ if (!$city->isNewRecord) {
     $this->title = Yii::t('common', 'Create');
 }
 ?>
-
+<?= Html::formLabel('Редактирование города'); ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        'Справочник',
+        'Словари',
         ['label' => 'Города', 'url' => $cancelUrl = '/dictionary/city'],
         $this->title
     ],
