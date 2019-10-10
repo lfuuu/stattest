@@ -60,7 +60,10 @@ class DataController extends BaseController
 
         $data = [];
         foreach ($form->info as $info) {
-            $data[$info->key] = ['url' => $info->url];
+            $data[$info->key] = [
+                'url' => $info->url,
+                'text' => nl2br($info->text),
+            ];
         }
 
         return $data;
@@ -80,8 +83,8 @@ class DataController extends BaseController
         $requestForm = DynamicModel::validateData(
             \Yii::$app->request->get(),
             [
-            [['form_url', 'key', 'url'], 'required'],
-            [['form_url', 'key', 'url'], 'string'],
+            [['form_url', 'key'], 'required'],
+            [['form_url', 'key', 'url', 'text'], 'string'],
             ['is_delete', 'integer'],
             ['is_delete', 'default', 'value' => 0],
         ]);
@@ -112,6 +115,7 @@ class DataController extends BaseController
         }
 
         $info->url = $requestForm->url;
+        $info->text = $requestForm->text;
 
         if (!$info->save()) {
             throw new ModelValidationException($info);

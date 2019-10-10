@@ -139,9 +139,10 @@ $activeClient = isset($fixclient_data['id']) ?
         ?>
 
     </body>
-    <div id="alf_form" style="width: 470px; height: 80px; background-color: #e5e5e5 ; display: none;" class="well">
+    <div id="alf_form" style="width: 470px; height: 206px; background-color: #e5e5e5 ; display: none;" class="well">
         <label>##Создать ссылку на описание:</label><br>
-        <span>URL: <input type="text" id="alf_url"></span>
+        <span>URL: <br><input type="text" id="alf_url" style="width: 400px;"></span>
+        <div style="vertical-align: top;">Описание: <br><textarea id="alf_text" style="width: 400px; height: 75px;">###</textarea></div>
         <span><button class="btn btn-primary btn-xs alf_save">##Создать ссылку</button></span>
         <span><button class="btn btn-warning btn-xs alf_delete">Удалить</button></span>
         <span><button class="btn btn-cancel btn-xs alf_cancel">Отмена</button></span>

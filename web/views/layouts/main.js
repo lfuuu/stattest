@@ -85,12 +85,10 @@ var setPossition = function (obj, event, isEdit) {
   }
 
   if (isEdit) {
-    obj.css({'width': '440px'});
     obj.find('.alf_delete').show();
     obj.find('.alf_save').text('Сохранить');
     obj.find('label').text('Редактировать ссылку на описание:');
   } else {
-    obj.css({'width': '360px'});
     obj.find('.alf_delete').hide();
     obj.find('.alf_save').text('Создать');
     obj.find('label').text('Создать ссылку на описание:');
@@ -125,10 +123,12 @@ $(document).ready(function () {
 
       var key = $a.attr('for');
       if (key in data) {
-        a.innerHTML += '&nbsp;<a href="' + data[key].url + '" target=_blank><span class="glyphicon glyphicon-question-sign description-info" data-key="' + key + '"></span></a>';
+        a.innerHTML += '&nbsp;<a href="' + (data[key].url ? data[key].url : '#') + '" target=_blank ' + (data[key].text ? ' class="tooltip-on" title="' + data[key].text + '"' : '') + '><span class="glyphicon glyphicon-question-sign description-info" data-key="' + key + '"></span></a>';
       } else {
         a.innerHTML += '&nbsp;<span class="glyphicon glyphicon-question-sign text-info description-info-add" style="opacity: 0.3;" title="*Создать ссылку на описание*" data-key="' + key + '"></span>';
       }
+
+      $(a).find('.tooltip-on').tooltip();
     });
 
     // редактирование
@@ -144,6 +144,7 @@ $(document).ready(function () {
         linkForm.data('key', key);
 
         $('#alf_url').val(data[key].url);
+        $('#alf_text').val(data[key].text.replace(/<br \/>/g, ""));
 
         setPossition(linkForm, event, true);
 
@@ -164,6 +165,7 @@ $(document).ready(function () {
         linkForm.hide().find('input').val('');
         linkForm.data('key', $(event.target).data('key'));
         $('#alf_url').val('http://');
+        $('#alf_text').val('');
         setPossition(linkForm, event, false);
       });
     });
@@ -173,16 +175,27 @@ $(document).ready(function () {
     });
 
     $('.alf_save').click(function () {
+      var url = $('#alf_url').val();
+
+      if (url == 'http://') {
+        url = '';
+      }
+
+      var text = $('#alf_text').val().trim();
+
       $.get('/dictionary/data/save', {
         form_url: document.alf_form_url,
         key: $('#alf_form').data('key'),
-        url: $('#alf_url').val()
+        url: url,
+        text: text
       }).done(function (data) {
         if ('status' in data && data.status == 'ok') {
           document.location.replace(document.location.href);
         } else {
           alert(data);
         }
+      }).fail(function (answer) {
+        alert(answer.responseText);
       });
     });
     $('.alf_delete').click(function () {
@@ -197,6 +210,8 @@ $(document).ready(function () {
         } else {
           alert(data);
         }
+      }).fail(function (answer) {
+        alert(answer.responseText);
       });
     });
 

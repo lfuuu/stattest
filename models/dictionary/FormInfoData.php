@@ -9,6 +9,7 @@ use app\classes\model\ActiveRecord;
  * @property int $form_id
  * @property int $key
  * @property int $url
+ * @property int $text
  */
 class FormInfoData extends ActiveRecord
 {
@@ -23,8 +24,8 @@ class FormInfoData extends ActiveRecord
     public function rules()
     {
         return [
-            [['form_id', 'key', 'url',], 'required'],
-            [['key', 'url'], 'string'],
+            [['form_id', 'key',], 'required'],
+            [['key', 'url', 'text',], 'string'],
             [['form_id'], 'integer'],
         ];
     }
