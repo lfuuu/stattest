@@ -94,7 +94,7 @@
                         {if !$is_select && $pay.bill_no}
                             </optgroup>
                             <optgroup label="Вне списка">
-                                <option value="{$pay.bill_no}" selected>{$pay.bill_no}{if !isset($pay.imported) || !$pay.imported} !?{/if} ??</option>
+                                <option value="{$pay.bill_no}"  data-client-account-id="{$bill.client_id}" selected>{$pay.bill_no}{if !isset($pay.imported) || !$pay.imported} !?{/if} ??</option>
                             </optgroup>
                         {/if}
                     </select>
