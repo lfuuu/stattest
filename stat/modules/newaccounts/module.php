@@ -33,7 +33,6 @@ use app\models\Store;
 use app\models\Transaction;
 use app\models\User;
 use yii\db\Expression;
-use \app\modules\uu\models\Bill as UuBill;
 
 class m_newaccounts extends IModule
 {
@@ -152,7 +151,6 @@ class m_newaccounts extends IModule
         if (!$fixclient) {
             return;
         }
-        $isYieldConsumable = $fixclient_data->contract->isYieldConsumable();
 
         set_time_limit(60);
 
@@ -183,12 +181,6 @@ class m_newaccounts extends IModule
         }
 
         $sum_l["payments"] = $db->GetValue("SELECT sum(p.sum) FROM newpayments p WHERE p.client_id ='" . $fixclient_data["id"] . "'");
-        if ($isYieldConsumable) {
-            $sum_l["divided_payments"] = $db->GetRow("SELECT sum(CASE WHEN p.sum < 0 THEN -p.sum ELSE 0 END) as negative_total,
-       sum(CASE WHEN p.sum >= 0 THEN p.sum ELSE 0 END) as positive_total FROM newpayments p WHERE p.client_id ='" . $fixclient_data["id"] . "'");
-        } else {
-            $sum_l['divided_payments'] = ['positive_total' => 0, 'negative_total' => 0];
-        }
 
         $design->assign("sum_l", $sum_l);
 
@@ -204,25 +196,12 @@ class m_newaccounts extends IModule
                 ->andWhere('bill_id is null')
                 ->all()
         );
-        if ($isYieldConsumable) {
-            $design->assign('is_yield_consumable', $isYieldConsumable);
-            $design->assign('interop_counter', $fixclient_data->getInteropCounter());
-
-            $divided_price_with_vat = UuBill::getUnconvertedAccountEntries($fixclient)
-                ->select( '
-               sum(CASE WHEN price_with_vat < 0 THEN -price_with_vat ELSE 0 END) as negative,
-               sum(CASE WHEN price_with_vat >= 0 THEN price_with_vat ELSE 0 END) as positive'
-                )
-                ->asArray()
-                ->one();
-            $design->assign('divided_price_with_vat', $divided_price_with_vat);
-        }
 
 
         if ($user->Flag('balance_simple')) {
-            return $this->newaccounts_bill_list_simple($get_sum, $sum_l['divided_payments']);
+            return $this->newaccounts_bill_list_simple($get_sum);
         } else {
-            return $this->newaccounts_bill_list_full($get_sum, $sum_l['divided_payments']);
+            return $this->newaccounts_bill_list_full($get_sum);
         }
     }
 
@@ -252,11 +231,10 @@ class m_newaccounts extends IModule
         return $result;
     }
 
-    function newaccounts_bill_list_simple($get_sum = false, $divided_payments)
+    function newaccounts_bill_list_simple($get_sum = false)
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isYieldConsumable = $fixclient_data->contract->isYieldConsumable();
         $clientAccount = ClientAccount::findOne($fixclient);
         $isMulty = $clientAccount->isMulty();
         $isViewCanceled = get_param_raw("view_canceled", null);
@@ -279,8 +257,7 @@ class m_newaccounts extends IModule
             "client_currency" => $fixclient_data["currency"],
             "is_multy" => $isMulty,
             "is_view_canceled" => $isViewCanceled,
-            "get_sum" => $get_sum,
-            "is_yield_consumable" => $isYieldConsumable
+            "get_sum" => $get_sum
         ];
 
         $R = BalanceSimple::get($params);
@@ -289,16 +266,7 @@ class m_newaccounts extends IModule
             return $R;
         }
 
-        if ($isYieldConsumable) {
-            list($R, $sum, $sw, $sum_divided) = $R;
-
-            $design->assign('sum_divided', $sum_divided);
-
-            $design->assign('positive_result', $sum_divided['positive'] - $divided_payments['positive_total']);
-            $design->assign('negative_result', $sum_divided['negative'] - $divided_payments['negative_total']);
-        } else {
-            list($R, $sum, $sw) = $R;
-        }
+        list($R, $sum, $sw) = $R;
 
         ksort($sw);
 
@@ -359,11 +327,10 @@ class m_newaccounts extends IModule
         exit();
     }
 
-    function newaccounts_bill_list_full($get_sum = false, $divided_payments)
+    function newaccounts_bill_list_full($get_sum = false)
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
-        $isYieldConsumable = $fixclient_data->contract->isYieldConsumable();
         $clientAccount = ClientAccount::findOne($fixclient);
         $isMulty = $clientAccount->isMulty();
         $isViewCanceled = get_param_raw("view_canceled", null);
@@ -491,19 +458,6 @@ class m_newaccounts extends IModule
                 bill_no DESC
             LIMIT 1000
         ', '', MYSQL_ASSOC);
-        if ($isYieldConsumable) {
-            $sum_divided = ['positive' => 0, 'negative' => 0];
-            $bills_sum = array_column($R1, 'sum');
-
-            foreach($bills_sum as $item) {
-                $sum_divided[($item >= 0 ? 'positive' : 'negative')] += abs($item);
-            }
-
-            $design->assign('sum_divided', $sum_divided);
-
-            $design->assign('positive_result', $sum_divided['positive'] - $divided_payments['positive_total']);
-            $design->assign('negative_result', $sum_divided['negative'] - $divided_payments['negative_total']);
-        }
 
 
         if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0) {

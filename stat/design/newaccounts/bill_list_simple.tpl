@@ -1,4 +1,3 @@
-<div class="block1-wrapper pull-left">
 <h2>
     Бухгалтерия {$fixclient_data.id} &nbsp;&nbsp;&nbsp;
     <span style="font-size: 10px;">
@@ -29,8 +28,6 @@
 </form>
 
 &nbsp; <a href="javascript:toggle2(document.getElementById('saldo_history'))">&raquo;</a><br />
-</div>
-
 <table style="display:none;margin-left:20px" class="price" id="saldo_history">
     <tr>
         <td class="header">Дата изменения</td>
@@ -50,98 +47,28 @@
     {/foreach}
 </table>
 
-<table>
+<table width=100%>
     <tr>
         <td valign="top" width="50%">
-            <table width="100%" border="0" style="margin-left: 100px;">
-                <tr>
-                    <td><b>
-                            {if ($is_yield_consumable)}
-                                БУХГАЛТЕРСКИЙ БАЛАНС &nbsp;&nbsp;&nbsp;
-                            {else}
-                                РЕАЛТАЙМОВЫЙ БАЛАНС &nbsp;&nbsp;&nbsp;<span style="background-color: #eaeaea;">{$divided_price_with_vat.positive-$divided_price_with_vat.negative|money:$fixclient_data.currency}</span>
-                            {/if}
-                    </b></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                {if ($is_yield_consumable)}
-                    <tr>
-                        <td></td>
-                        <td align="right">Доходы</td>
-                        <td></td>
-                        <td align="right">Расходы</td>
-                        <td></td>
-                    </tr>
-                {/if}
+            <table width="100%" border="0">
                 <tr style="background-color: #eaeaea;">
                     <td>Всего залогов:</td>
                     <td align="right"> <b>{$sum_l.zalog.RUB|money:'RUB'}</b> </td>
                     <td></td>
                     <td align="right"> <b>{$sum_l.zalog.USD|money:'USD'}</b> </td>
-                    <td></td>
                 </tr>
                 <tr>
                     <td>Всего платежей:</td>
-                    <td align="right"> <b>{if ($is_yield_consumable)} {$sum_l.divided_payments.positive_total|money:$fixclient_data.currency} {else} {$sum_l.payments|default:'0.00'|money:'RUB'} {/if}</b></td>
+                    <td align="right"> <b>{$sum_l.payments|default:'0.00'|money:'RUB'}</b></td>
                     <td></td>
-                    <td align="right">{if ($is_yield_consumable)}<b>{$sum_l.divided_payments.negative_total|abs|money:$fixclient_data.currency}</b>{/if}</td>
                     <td></td>
                 </tr>
-                <tr style="background-color: #eaeaea;">
+                <tr  style="background-color: #eaeaea;">
                     <td>Общая сумма оказанных услуг:</td>
-                    <td align="right"><b>
-                            {if ($is_yield_consumable)}
-                                {$sum_divided.positive|money:$fixclient_data.currency}
-                            {else}
-                                {if $fixclient_data.currency=='USD'}{$sum.RUB.bill|money:'RUB'}{else}{$sum_cur.bill|money:'RUB'}{/if}
-                            {/if}
-                    </b></td>
+                    <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum.RUB.bill|money:'RUB'}{else}{$sum_cur.bill|money:'RUB'}{/if}</b></td>
                     <td></td>
-                    <td align="right"><b>
-                            {if ($is_yield_consumable)}
-                                {$sum_divided.negative|abs|money:$fixclient_data.currency}
-                            {else}
-                                {if $fixclient_data.currency=='USD'}{$sum_cur.bill|money:'USD'}{else}{$sum.USD.bill|money:'USD'}{/if}
-                            {/if}
-                    </b></td>
-                    <td></td>
+                    <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|money:'USD'}{else}{$sum.USD.bill|money:'USD'}{/if}</b></td>
                 </tr>
-                {if ($is_yield_consumable)}
-                    <tr>
-                        <td align="right"><b>Итого</b></td>
-                        <td align="right">
-                            <b>{$positive_result|money:$fixclient_data.currency}</b>
-                        </td>
-                        <td>
-                        </td>
-                        <td align="right">
-                            <b style="margin-right: 25px">Итого</b>
-                            <b>{$negative_result|money:$fixclient_data.currency}</b>
-                        </td>
-                        <td align="right"><b><span style="background-color: #eaeaea;">{$positive_result+$negative_result|money:$fixclient_data.currency}</span></b></td>
-                    </tr>
-                    <tr style="height: 17px !important;"> </tr>
-                    <tr>
-                        <td>
-                            <b>РЕАЛТАЙМОВЫЙ БАЛАНС &nbsp;&nbsp;&nbsp;<span style="background-color: #eaeaea;">{$divided_price_with_vat.positive-$divided_price_with_vat.negative|money:$fixclient_data.currency}</span></b>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td align="right"><span style="float: left;">Всего услуг:</span><b>Итого</b> </td>
-                        <td align="right"><b>{$divided_price_with_vat.positive|money:$fixclient_data.currency}</b></td>
-                        <td></td>
-                        <td align="right"><b style="margin-right: 25px">Итого</b>
-                            <b>{$divided_price_with_vat.negative|abs|money:$fixclient_data.currency}</b></td>
-                        <td align="right"><span style="background-color: #eaeaea;"><b>{$counters.amount_month_sum|money:$fixclient_data.currency}</b></span></td>
-                    </tr>
-                {else}
                 <tr>
                     <td>Общая сумма <span title="Клиент должен нам">долга</span> (с учётом сальдо):</td>
                     <td align="right">
@@ -158,7 +85,6 @@
                         &nbsp;
                     </td>
                 </tr>
-                {/if}
             </table>
         </td>
         <td valign=top style="padding-left: 100px;" align="right">
@@ -167,10 +93,6 @@
                     <tr>
                         <td>
                             <b>IP-Телефония:</b><br/>
-                            {if ($is_yield_consumable)}
-                                Оригинация: <b>{$interop_counter.income_sum}</b><br/>
-                                Терминация: <b>{$interop_counter.outcome_sum}</b><br/>
-                            {/if}
                             Расход за день: <b>{$counters.amount_day_sum}</b><br/>
                             Расход за день МН: <b>{$counters.amount_mn_day_sum}</b><br/>
                             Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>

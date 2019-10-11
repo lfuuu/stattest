@@ -32,7 +32,6 @@ class BalanceSimple
         );
 
         $isFromLk = isset($params['is_from_lk']) && $params['is_from_lk'];
-        $isYieldConsumable = isset($params['is_yield_consumable']) && $params['is_yield_consumable'];
 
         $saldo=$db->GetRow('
             select
@@ -176,7 +175,6 @@ class BalanceSimple
             $r['v'] = $v;
         }
         unset($r);
-        $sumArr = ['negative' => 0, 'positive' => 0];
         foreach($R1 as $r){
             $v=$r['v'];
             foreach($R2 as $k2=>$r2)
@@ -189,9 +187,6 @@ class BalanceSimple
                     $v['pays'][]=$r2;
                     $v['delta']+=round($r2['sum'],2);
                     unset($R2[$k2]);
-                }
-                if ($isYieldConsumable) {
-                    $sumArr[($r['sum'] >= 0 ? 'positive' : 'negative')] += abs($r['sum']);
                 }
             if($r['in_sum']){
                 $sum[$r['currency']]['bill'] += $r['sum'];
@@ -244,12 +239,7 @@ class BalanceSimple
         }
 
         $R = $buf;
-
-        $result = [$R, $sum, $sw];
-        if ($isYieldConsumable) {
-            $result[] = $sumArr;
-        }
-
-        return $result;
+        
+        return array($R, $sum, $sw);
     }
 }

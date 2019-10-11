@@ -540,14 +540,4 @@ class ClientContract extends HistoryActiveRecord
     {
         self::dao()->resetTaxVoip($this, $contragent);
     }
-
-    /**
-     * Является ли финансовый тип доходно-расходным
-     *
-     * @return bool
-     */
-    public function isYieldConsumable()
-    {
-        return $this->financial_type === self::FINANCIAL_TYPE_YIELD_CONSUMABLE;
-    }
 }
