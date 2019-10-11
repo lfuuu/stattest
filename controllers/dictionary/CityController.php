@@ -9,8 +9,10 @@ use app\classes\BaseController;
 use app\classes\dictionary\forms\CityFormEdit;
 use app\classes\dictionary\forms\CityFormNew;
 use app\models\filter\CityFilter;
+use app\modules\nnp\models\City;
 use Yii;
 use yii\filters\AccessControl;
+use yii\web\Response;
 
 class CityController extends BaseController
 {
@@ -23,6 +25,10 @@ class CityController extends BaseController
             'access' => [
                 'class' => AccessControl::class,
                 'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['ajax-city-list'],
+                    ],
                     [
                         'allow' => true,
                         'actions' => ['index'],
@@ -98,4 +104,24 @@ class CityController extends BaseController
             ]);
         }
     }
+
+    public function actionAjaxCityList($country_id)
+    {
+        if (!Yii::$app->request->isAjax) {
+            return;
+        }
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $data = '';
+
+        $city_arr = City::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $country_id, $isUsedOnly = false);
+
+        foreach ($city_arr as $city_id => $value) {
+            $data .= '<option value="' . $city_id . '">' . $value . '</option>';
+        }
+
+        return $data;
+    }
+
 }
