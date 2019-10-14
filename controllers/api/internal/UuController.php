@@ -481,6 +481,7 @@ class UuController extends ApiInternalController
         $service_type_id = (int)$service_type_id;
 
         // "сначала намечались торжества. Потом аресты. Потом решили совместить" (С) К/ф "Тот самый Мюнхгаузен"
+        $origCountryId = $country_id;
         $voip_country_id = (int)$country_id; // страна телефонного номера. Выбирается явно. Путаница с именами для обратной совместимости c API.
         $country_id = null; // страна клиента. Это зависит от точки входа (или организации) клиента, а не выбирается явно
 
@@ -567,9 +568,14 @@ class UuController extends ApiInternalController
                     $priceLevelField = 'tariff_status_package' . $clientAccount->price_level;
                     $tariff_status_id = $number->didGroup->{$priceLevelField};
                     $voip_ndc_type_id = $number->ndc_type_id;
-                    $voip_country_id = $number->country_code;
+                    $country_id = $number->country_code;
                     break;
             }
+        }
+
+        if ($service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
+            $voip_country_id = null;
+            $country_id = $origCountryId;
         }
 
 //        if (!$tariff_status_id) {
