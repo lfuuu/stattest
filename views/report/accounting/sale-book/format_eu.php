@@ -9,23 +9,23 @@
 
     <thead>
     <tr>
-        <td>Дата счета</td>
-        <td>Номер УЛС / ЛС</td>
-        <td>Страна</td>
-        <td>Тип</td>
-        <td width="500px">Название клиента</td>
-        <td width="500px">Адрес</td>
-        <td>Тип договора</td>
-        <td>INVOICE number</td>
-        <td>Срок оплаты счета</td>
-        <td>Всего к оплате</td>
-        <td>Наименование валюты счета</td>
-        <td>Сумма НДС</td>
-        <td>netto</td>
-        <td>Процент НДС</td>
-        <td>Евро ИНН номер</td>
-        <td>ИНН страны покупателя</td>
-        <td>ссылка на счет в PDF формате</td>
+        <td>Invoice Date</td>
+        <td>Account ID</td>
+        <td>Country</td>
+        <td>Type</td>
+        <td width="500px">Client name</td>
+        <td width="500px">Address</td>
+        <td>Agreement type</td>
+        <td>INVOICE number (RYYmmOO-NNNN)</td>
+        <td>Due date</td>
+        <td>Total</td>
+        <td>Currency</td>
+        <td>VAT total</td>
+        <td>Net</td>
+        <td>VAT %</td>
+        <td>EU VAT №</td>
+        <td>Local VAT №</td>
+        <td>Link to invoice (internal)</td>
     </tr>
     </thead>
     <tbody>
