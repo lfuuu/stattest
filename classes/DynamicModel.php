@@ -32,7 +32,7 @@ class DynamicModel extends \yii\base\DynamicModel
     {
         $message = '';
         foreach ($errors as $attribute => $error) {
-            $message .= "Аттрибут '$attribute': ";
+//            $message .= "Аттрибут '$attribute': ";
             foreach ($error as $subError) {
                 $message .= $subError;
             }

@@ -2,9 +2,12 @@
 
 namespace app\controllers\api;
 
+use app\classes\validators\FormFieldValidator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ContractType;
 use app\models\Country;
+use app\models\EquipmentUser;
+use app\models\HistoryChanges;
 use Yii;
 use app\classes\validators\AccountIdValidator;
 use app\exceptions\ModelValidationException;
@@ -12,10 +15,12 @@ use app\classes\ApiController;
 use app\classes\DynamicModel;
 use app\models\ClientDocument;
 use app\models\ClientAccount;
+use yii\db\Query;
 
 class LkDocsController extends ApiController
 {
     private $accountId = 0;
+    private $account = null;
 
     private function validateAccountId()
     {
@@ -28,6 +33,14 @@ class LkDocsController extends ApiController
 
         if (!$form->hasErrors()) {
             $this->accountId = $form->account_id;
+            $this->account = ClientAccount::findOne(['id' => $this->accountId]);;
+
+            $countryCode = $this->account->getUuCountryId() ?: Country::RUSSIA;
+            $country = Country::findOne(['code' => $countryCode]) ?: Country::findOne(['code' => Country::RUSSIA]);
+
+
+            \Yii::$app->language = $country->language;
+
             return true;
         } else {
             throw new \Exception("Account not found");
@@ -260,4 +273,135 @@ class LkDocsController extends ApiController
         return $result;
     }
 
+    public function actionPassportList()
+    {
+        $this->validateAccountId();
+
+        $userQuery = EquipmentUser::find()
+            ->where(['client_account_id' => $this->accountId]);
+
+        $result = [];
+
+        /** @var EquipmentUser $user */
+        foreach ($userQuery->each() as $user) {
+            $result[] = $this->_getPassportRow($user);
+        }
+
+        return $result;
+    }
+
+    public function actionPassportDelete()
+    {
+        $this->validateAccountId();
+
+        $form = DynamicModel::validateData(
+            Yii::$app->request->bodyParams,
+            [
+                [['id'], 'required'],
+                [['id'], 'exist', 'skipOnError' => true, 'targetClass' => EquipmentUser::class, 'filter' => ['client_account_id' => $this->accountId]],
+            ]
+        );
+
+        $form->validateWithException();
+
+        $equipUser = EquipmentUser::findOne(['id' => $form->id, 'client_account_id' => $this->accountId]);
+
+        return ['success' => $equipUser ? $equipUser->delete() : 0];
+    }
+
+    /**
+     * @param EquipmentUser $user
+     * @return array
+     */
+    protected function _getPassportRow(EquipmentUser $user)
+    {
+        return [
+            'id' => $user->id,
+            'full_name' => $user->full_name,
+            'date_of_birth' => (new \DateTime($user->birth_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
+            'passport_num_and_series' => $user->passport,
+            'passport_issued_by' => $user->passport_ext,
+            'updated' => (new \DateTime($user->updated_at))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
+        ];
+    }
+
+    public function actionPassportSave()
+    {
+        $this->validateAccountId();
+
+        $form = DynamicModel::validateData(
+            Yii::$app->request->bodyParams,
+            [
+                [['id'], 'exist', 'skipOnEmpty' => true, 'targetClass' => EquipmentUser::class, 'filter' => ['client_account_id' => $this->accountId]],
+                [['date_of_birth', 'full_name', 'passport_issued_by', 'passport_num_and_series'], 'required'],
+                [['date_of_birth', 'full_name', 'passport_issued_by', 'passport_num_and_series'], 'string'],
+                ['date_of_bird', 'date', 'format' => 'd.m.Y']
+            ]
+        );
+
+        $form->validateWithException();
+
+        if ($form->id) {
+            $equipUser = EquipmentUser::findOne(['id' => $form->id, 'client_account_id' => $this->accountId]);
+        } else {
+            $equipUser = new EquipmentUser();
+            $equipUser->client_account_id = $this->accountId;
+        }
+
+        $equipUser->setAttributes([
+            'birth_date' => (new \DateTime($form->date_of_birth))->format(DateTimeZoneHelper::DATE_FORMAT),
+            'full_name' => $form->full_name,
+            'passport' => $form->passport_num_and_series,
+            'passport_ext' => $form->passport_issued_by,x
+        ]);
+
+        if (!$equipUser->save()) {
+            throw new ModelValidationException($equipUser);
+        }
+
+        return ['success' => 1];
+    }
+
+    public function actionPassportsHistory()
+    {
+        $this->validateAccountId();
+
+        $historyQuery = HistoryChanges::find()
+            ->where([
+                'model' => EquipmentUser::class,
+                'parent_model_id' => $this->accountId
+            ])
+            ->orderBy([
+                'created_at' => SORT_DESC
+            ])
+            ->limit(500);
+
+        /** @var HistoryChanges $hist */
+        foreach ($historyQuery->each() as $hist) {
+            $new = json_decode($hist->data_json, true);
+            $old = json_decode($hist->prev_data_json, true);
+
+            $result[] = [
+                'updated' => (new \DateTime($hist->created_at))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
+                'new' => $this->_getHistoryRow($new),
+                'old' => $this->_getHistoryRow($old),
+            ];
+        }
+
+        return $result;
+    }
+
+    protected function _getHistoryRow($row)
+    {
+        if (!$row) {
+            return '';
+        }
+
+        $data = [];
+        foreach(["full_name", "birth_date", "passport","passport_ext"] as $field) {
+            $data[] = isset($row[$field]) ? $row[$field] : '';
+        }
+
+        return implode(' / ', $data);
+    }
 }
