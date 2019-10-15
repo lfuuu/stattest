@@ -162,12 +162,24 @@ class SaleBookFilter extends Invoice
     {
         $contract = $invoice->bill->clientAccount->contract;
 
+        // internal office
+        if ($contract->contract_type_id == 6) {
+            return false;
+
+        }
+
+        // если есть с/ф-3 - значит была реализация
+        if ($invoice->type_id == Invoice::TYPE_GOOD) {
+            return true;
+        }
+
+
         # AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
 
         # AND cr.`contract_type_id` != 6 ## internal office
         # AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
 
-        return !($contract->contract_type_id === 6 || in_array($contract->business_process_status_id, self::$skipping_bps));
+        return !(in_array($contract->business_process_status_id, self::$skipping_bps));
     }
 
 }
