@@ -146,6 +146,11 @@ class Invoice extends ActiveRecord
     {
         $date = new \DateTimeImmutable($bill->bill_date);
 
+        if ($bill->is1C()) {
+            //all as good invoice
+            $typeId = self::TYPE_GOOD;
+        }
+
         switch ($typeId) {
             case self::TYPE_1:
                 return $date->modify('last day of this month');

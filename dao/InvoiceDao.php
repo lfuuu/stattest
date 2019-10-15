@@ -95,7 +95,11 @@ class InvoiceDao extends Singleton
         $invoiceDate = Invoice::getDate($bill, $typeId);
 
         if (!$invoiceDate) {
-            throw new \LogicException('Для создания авансовой с/ф требуется что бы по счету была оплата');
+            if ($bill->is1C()) {
+                throw new \LogicException('Для создания с/ф требуется что бы была произведена отгрузка');
+            } else {
+                throw new \LogicException('Для создания авансовой с/ф требуется что бы по счету была оплата');
+            }
         }
 
         $invoice = new Invoice();
