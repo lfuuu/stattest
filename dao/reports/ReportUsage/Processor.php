@@ -207,8 +207,8 @@ abstract class Processor implements ProcessorInterface
                 $rateTax1 = floatval(100 / (100 + $rateTax1));
                 $rateTaxWith1 = 1;
             } else {
-                $rateTax1 = 1;
                 $rateTaxWith1 = floatval((100 + $rateTax1) / 100);
+                $rateTax1 = 1;
             }
 
             $this->rateTax1 = $rateTax1 != 1 ? ' * ' . $rateTax1 : '';
