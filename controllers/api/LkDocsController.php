@@ -376,6 +376,8 @@ class LkDocsController extends ApiController
             ])
             ->limit(500);
 
+        $result = [];
+        
         /** @var HistoryChanges $hist */
         foreach ($historyQuery->each() as $hist) {
             $new = json_decode($hist->data_json, true);
