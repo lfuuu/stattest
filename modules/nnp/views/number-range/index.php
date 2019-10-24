@@ -60,8 +60,8 @@ $filterColumns = [
         'class' => StringColumn::class,
     ],
     [
-        'attribute' => 'ndc',
-        'class' => IntegerColumn::class,
+        'attribute' => 'ndc_str',
+        'class' => StringColumn::class,
     ],
     [
         'label' => 'Полный номер начала диапазона (маска)&nbsp;' . $this->render('//layouts/_helpMysqlLike'),

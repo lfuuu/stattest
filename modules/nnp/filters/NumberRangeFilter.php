@@ -19,7 +19,7 @@ use yii\web\Application;
 class NumberRangeFilter extends NumberRange
 {
     public $country_code = '';
-    public $ndc = '';
+    public $ndc_str = '';
     public $full_number_from = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это full_number
     public $full_number_mask = '';
     public $operator_source = '';
@@ -44,8 +44,8 @@ class NumberRangeFilter extends NumberRange
     public function rules()
     {
         return [
-            [['operator_source', 'region_source', 'city_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
-            [['country_code', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'prefix_id'], 'integer'],
+            [['operator_source', 'ndc_str', 'region_source', 'city_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
+            [['country_code', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
             [['date_resolution_from', 'date_resolution_to'], 'string'],
         ];
@@ -66,7 +66,7 @@ class NumberRangeFilter extends NumberRange
         ]);
 
         $this->country_code && $query->andWhere([$numberRangeTableName . '.country_code' => $this->country_code]);
-        $this->ndc && $query->andWhere([$numberRangeTableName . '.ndc' => $this->ndc]);
+        $this->ndc_str && $query->andWhere([$numberRangeTableName . '.ndc_str' => $this->ndc_str]);
 
         $this->is_active !== '' && $query->andWhere([$numberRangeTableName . '.is_active' => (bool)$this->is_active]);
 

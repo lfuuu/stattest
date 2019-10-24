@@ -140,7 +140,7 @@ abstract class ImportService extends Model
                 $this->addLog('. ');
                 $this->_db->createCommand()->batchInsert(
                     $tableName,
-                    ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
+                    ['ndc', 'ndc_str', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
                     $insertValues
                 )->execute();
                 $insertValues = [];
@@ -157,7 +157,7 @@ abstract class ImportService extends Model
             $this->addLog('.. ');
             $this->_db->createCommand()->batchInsert(
                 $tableName,
-                ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
+                ['ndc', 'ndc_str', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
                 $insertValues
             )->execute();
         }
@@ -177,6 +177,7 @@ abstract class ImportService extends Model
 CREATE TEMPORARY TABLE number_range_tmp
 (
   ndc integer,
+  ndc_str character varying(255),
   number_from bigint,
   number_to bigint,
   ndc_type_id integer,
@@ -264,6 +265,7 @@ SQL;
     (
         country_code,
         ndc,
+        ndc_str,
         number_from,
         number_to,
         ndc_type_id,
@@ -281,6 +283,7 @@ SQL;
     SELECT 
         :country_code as country_code, 
         ndc,
+        ndc_str,
         number_from,
         number_to,
         ndc_type_id,

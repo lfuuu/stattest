@@ -19,7 +19,7 @@ use yii\widgets\Breadcrumbs;
 $numberRange = $formModel->numberRange;
 
 if (!$numberRange->isNewRecord) {
-    $this->title = $numberRange->ndc . ' ' . $numberRange->number_from . ' - ' . $numberRange->number_to;
+    $this->title = $numberRange->ndc_str . ' ' . $numberRange->number_from . ' - ' . $numberRange->number_to;
 } else {
     $this->title = Yii::t('common', 'Create');
 }

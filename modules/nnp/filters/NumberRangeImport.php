@@ -42,8 +42,10 @@ class NumberRangeImport extends NumberRange
      */
     public function setNdc($value)
     {
+        $origValue = $value;
         if ($this->_checkNatural($value, $isEmptyAllowed = true, $isConvertToInt = false)) {
             $this->ndc = $value;
+            $this->ndc_str = $origValue;
             return true;
         }
 
@@ -285,14 +287,15 @@ class NumberRangeImport extends NumberRange
     {
         return [
             $this->ndc,
+            $this->ndc_str,
             $this->number_from,
             $this->number_to,
             $this->ndc_type_id,
             $this->operator_source,
             $this->region_source,
             $this->city_source,
-            $this->country_prefix . $this->ndc . $this->number_from, // full_number_from
-            $this->country_prefix . $this->ndc . $this->number_to, // full_number_to
+            $this->country_prefix . $this->ndc_str . $this->number_from, // full_number_from
+            $this->country_prefix . $this->ndc_str . $this->number_to, // full_number_to
             $this->date_resolution,
             $this->detail_resolution,
             $this->status_number,

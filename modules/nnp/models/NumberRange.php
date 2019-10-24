@@ -18,6 +18,7 @@ use yii\helpers\Url;
  * @property int $id
  * @property int $country_code
  * @property int $ndc
+ * @property int $ndc_str
  * @property int $number_from bigint
  * @property int $number_to bigint
  * @property int $full_number_from bigint
@@ -77,6 +78,7 @@ class NumberRange extends ActiveRecord
             'id' => 'ID',
             'country_code' => 'Страна',
             'ndc' => 'NDC',
+            'ndc_str' => 'NDC',
             'number_from' => 'Номер от',
             'number_to' => 'Номер до',
             'full_number_from' => 'Полный номер от',
@@ -318,11 +320,11 @@ class NumberRange extends ActiveRecord
             $cityId && $where['city_id'] = $cityId;
 
             $_cache[$countryCode][$cityId] = NumberRange::find()
-                ->select('ndc')
+                ->select('ndc_str')
                 ->distinct()
                 ->where($where)
-                ->indexBy('ndc')
-                ->orderBy(['ndc' => SORT_ASC])
+                ->indexBy('ndc_str')
+                ->orderBy(['ndc_str' => SORT_ASC])
                 ->column();
         }
 
@@ -380,7 +382,7 @@ class NumberRange extends ActiveRecord
         }
 
         return [
-            'ndc' => (int)$numberModel->ndc,
+            'ndc' => $nnpNumberRange ? $nnpNumberRange->ndc_str : (string)$numberModel->ndc,
             'ndc_type' => (int)$numberModel->ndc_type_id,
             'country_name' => $countryName,
             'country_prefix' => $nnpCountry ? $nnpCountry->prefix : null,
