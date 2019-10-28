@@ -2161,11 +2161,17 @@ class ApiLk
     ) {
         global $db;
 
-        if (!self::validateClient($client_id)) {
+        if (!($account = self::validateClient($client_id))) {
             return [
                 'status' => 'error',
                 'message' => 'account_is_bad'
             ];
+        }
+
+        $minDayRule = ['min_day_limit', 'integer'];
+
+        if (!in_array($account->contract->business_id, [\app\models\Business::OTT, \app\models\Business::OPERATOR, \app\models\Business::PROVIDER])) {
+            $minDayRule['min'] = 0;
         }
 
         $model = \app\classes\DynamicModel::validateData([
@@ -2173,7 +2179,7 @@ class ApiLk
             'min_day_limit' => $minDayLimit
         ], [
             ['min_balance', 'integer'],
-            ['min_day_limit', 'integer', 'min' => 0]
+            $minDayRule
         ]);
 
         if (!$model->validate()) {
