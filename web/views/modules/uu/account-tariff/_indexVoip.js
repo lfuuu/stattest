@@ -119,6 +119,19 @@
                 e.preventDefault();
                 $(this).parents('.account-tariff-voip-form').prev().click();
             });
+
+        $('#btnDisableAll').click(function () {
+            var $form = $('#disableAllForm');
+
+            if ($form.data('is-showed')) {
+                $form.data('is-showed', '0').toggle('hide');
+            } else {
+                $form.data('is-showed', '1').toggle('show');
+                $.get('/uu/account-tariff/disable-all').done(function (data) {
+                    $form.html(data);
+                });
+            }
+        });
     })
 
 }(jQuery);

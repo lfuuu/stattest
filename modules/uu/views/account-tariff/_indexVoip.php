@@ -29,12 +29,12 @@ if (!$serviceType) {
 $rows = AccountTariff::getGroupedObjects($query);
 ?>
 
-    <p>
-        <?= ($serviceType ? $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) : '') ?>
-        <?php if($serviceType && $serviceType->id == ServiceType::ID_VOIP):?>
-            <span class="pull-right"><?= Html::a('<i class="glyphicon glyphicon-trash"></i> Массовое отключение', '/uu/account-tariff/disable', ['class' => 'btn btn-warning']) ?></span>
-        <?php endif?>
-    </p>
+<p>
+    <?= ($serviceType ? $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) : '') ?>
+    <?php if ($serviceType && $serviceType->id == ServiceType::ID_VOIP): ?>
+        <span class="pull-right"><?= Html::a('<i class="glyphicon glyphicon-trash"></i> Массовое отключение', '/uu/account-tariff/disable', ['class' => 'btn btn-warning']) ?></span>
+    <?php endif ?>
+</p>
 
 <?php
 foreach ($rows as $hash => $row) {
@@ -123,3 +123,15 @@ foreach ($rows as $hash => $row) {
 
     ActiveForm::end();
 }
+?>
+<span class="pull-right">
+<?= $this->render('//layouts/_button', [
+    'glyphicon' => 'glyphicon-trash',
+    'text' => '',
+    'params' => [
+        'id' => 'btnDisableAll',
+        'class' => 'btn btn-danger',
+    ]
+]) ?>
+</span>
+<div id="disableAllForm" style="display: none;" data-is-showed="0"></div>

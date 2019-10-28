@@ -16,14 +16,13 @@ use app\modules\nnp\models\NdcType;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\forms\AccountTariffAddForm;
 use app\modules\uu\forms\AccountTariffEditForm;
+use app\modules\uu\forms\DisableForm;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
-use DateTime;
-use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
 use LogicException;
@@ -32,7 +31,6 @@ use yii\base\InvalidParamException;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 use yii\db\Query;
-use yii\helpers\Url;
 use yii\filters\AccessControl;
 use yii\web\Response;
 
@@ -59,7 +57,7 @@ class AccountTariffController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel', 'disable', 'select-numbers', 'close-numbers'],
+                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel', 'disable', 'select-numbers', 'close-numbers', 'disable-all'],
                         'roles' => ['services_voip.edit'],
                     ],
                 ],
@@ -823,15 +821,15 @@ class AccountTariffController extends BaseController
 
                 // Отключение услуги
                 if (isset($post['closeTariff'])) {
-                     $accountTariffLog->tariff_period_id = null;
+                    $accountTariffLog->tariff_period_id = null;
                 }
 
                 if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
-                     throw new ModelValidationException($accountTariffLog);
+                    throw new ModelValidationException($accountTariffLog);
                 }
 
                 $transaction->commit();
-                Yii::$app->session->addFlash('success', $accountTariff->getLink()  . ' обновлена');
+                Yii::$app->session->addFlash('success', $accountTariff->getLink() . ' обновлена');
             } catch (\Exception $e) {
                 $transaction->rollBack();
                 Yii::$app->session->addFlash('error', $accountTariff->getLink() . ":\n" . $e->getMessage());
@@ -839,5 +837,26 @@ class AccountTariffController extends BaseController
         }
 
         return true;
+    }
+
+    public function actionDisableAll()
+    {
+        $this->layout = '@app/views/layouts/minimal';
+        $clientAccount = $this->_getCurrentClientAccount();
+
+        $form = new DisableForm();
+
+        if ($form->load(Yii::$app->request->post())) {
+            if ($form->validate() && $form->go()) {
+                Yii::$app->session->addFlash('success', 'Поставленно на отключние услуг: ' . $form->serviceCount);
+            }
+
+            return $this->redirect(Yii::$app->request->referrer ?: $clientAccount->getUrl());
+        }
+
+        $form->clientAccountId = $clientAccount->id;
+        $code = $form->generateCode();
+
+        return $this->render('disableAll', ['model' => $form, 'clientAccount' => $clientAccount, 'code' => $code]);
     }
 }
