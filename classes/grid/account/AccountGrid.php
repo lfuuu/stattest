@@ -38,6 +38,7 @@ abstract class AccountGrid implements AccountGridInterface
             '\telecom\maintenance\AutoBlockDayLimitFolder',
             '\telecom\maintenance\BlockBillPayOverdueFolder',
             '\telecom\maintenance\AutoBlock800Folder',
+            '\telecom\maintenance\AutoBlockInternetFolder',
         ],
     ];
 
