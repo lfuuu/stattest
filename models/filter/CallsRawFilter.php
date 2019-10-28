@@ -129,6 +129,7 @@ class CallsRawFilter extends CallsRaw
     public $timezone = DateTimeZoneHelper::TIMEZONE_UTC;
 
     public $is_full_report = 1;
+    public $is_from_archive = 0;
 
     /**
      * @return array
@@ -175,7 +176,7 @@ class CallsRawFilter extends CallsRaw
 
             [['billed_time_sum_from', 'billed_time_sum_to'], 'double'],
 
-            [['disconnect_cause', 'is_full_report'], 'integer'],
+            [['disconnect_cause', 'is_full_report','is_from_archive'], 'integer'],
             [['timezone'], 'string'],
         ];
     }
@@ -205,6 +206,7 @@ class CallsRawFilter extends CallsRaw
             'stats_nnp_package_minute_id_to' => 'Потрачено минут пакета до',
             'timezone' => 'Таймзона',
             'is_full_report' => 'Полный отчет',
+            'is_from_archive' => 'С архивного сервера',
             'src_number' => 'Номер А',
             'dst_number' => 'Номер Б',
         ]);
@@ -256,7 +258,7 @@ class CallsRawFilter extends CallsRaw
     {
         $query = CallsRaw::find();
         $dataProvider = new \app\classes\grid\ActiveDataProvider([
-            'db' => CallsRaw::getDb(),
+            'db' => $this->is_from_archive ? Yii::$app->dbPgStatistic : CallsRaw::getDb(),
             'query' => $query,
             'pagination' => [
                 'pageSize' => $pageSize,

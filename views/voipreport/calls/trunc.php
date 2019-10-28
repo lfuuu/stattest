@@ -38,7 +38,8 @@ echo GridView::widget([
     'dataProvider' => new ActiveDataProvider(['query' =>
         DeferredTask::find()
             ->where(['!=', 'status', DeferredTask::STATUS_IN_REMOVING])
-            ->orderBy(['created_at' => SORT_ASC])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->limit(10)
     ]),
     'options' => ['id' => 'deferred-task-table'],
     'isFilterButton' => false,
@@ -66,7 +67,7 @@ echo GridView::widget([
                 $firstElements = '';
                 $otherElements = '<div class="other-elements" style="display: none">';
                 $callsRawFilterInstance = CallsRawFilter::instance();
-                foreach($parsedParams as $key => $value) {
+                foreach ($parsedParams as $key => $value) {
                     $current = '';
                     $trimmedVal = trim($value);
                     $label = $callsRawFilterInstance->getAttributeLabel($key);
@@ -74,7 +75,7 @@ echo GridView::widget([
                         $current .= ($label) ? $label : $key;
                         $current .= ':' . $trimmedVal . '<br>';
                     }
-                    if ($key == 'trunk' || $key == 'connect_time_from' ||  $key == 'connect_time_to') {
+                    if ($key == 'trunk' || $key == 'connect_time_from' || $key == 'connect_time_to') {
                         $firstElements .= $current;
                     } else {
                         $otherElements .= $current;
@@ -241,6 +242,10 @@ $filterColumns = [
         'attribute' => 'is_full_report',
         'class' => YesNoColumn::class,
     ],
+    [
+        'attribute' => 'is_from_archive',
+        'class' => YesNoColumn::class,
+    ],
 ];
 
 if (!$filterModel->is_full_report) {
@@ -276,22 +281,21 @@ if (!$filterModel->is_full_report) {
 }
 
 
-
 ?>
 
 <form action="voipreport/deferred-task/new" id="calls-report-form">
-<?php
-$columns = $filterModel->getColumns();
-$dataProvider = $filterModel->search();
-$dataProvider->setTotalCount($summary->calls_count);
+    <?php
+    $columns = $filterModel->getColumns();
+    $dataProvider = $filterModel->search();
+    $dataProvider->setTotalCount($summary->calls_count);
 
-echo GridView::widget([
-    'dataProvider' => $dataProvider,
-    'filterModel' => $filterModel,
-    'extraButtons' => $this->render('//layouts/_button', [
-        'params' => [
-            'class' => 'btn btn-warning',
-            'onclick' => "$.ajax({
+    echo GridView::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'extraButtons' => $this->render('//layouts/_button', [
+            'params' => [
+                'class' => 'btn btn-warning',
+                'onclick' => "$.ajax({
                 type: 'get',
                 url:  'voipreport/deferred-task/new',
                 data: $('#calls-report-form').serialize(),
@@ -303,24 +307,24 @@ echo GridView::widget([
                     alert(responseData.responseText);
                 },
             });"
-        ],
-        'text' => 'В отложенные задания',
-        'glyphicon' => 'glyphicon-share-alt',
-    ]),
-    'columns' => $columns,
-    'resizableColumns' => false, // все равно не влезает на экран
-    'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
-    'afterHeader' => $afterHeader,
-    'exportWidget' => GridViewExport::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $filterModel,
+            ],
+            'text' => 'В отложенные задания',
+            'glyphicon' => 'glyphicon-share-alt',
+        ]),
         'columns' => $columns,
-    ]),
-    'beforeHeader' => [ // фильтры вне грида
-        'columns' => $filterColumns,
-    ],
+        'resizableColumns' => false, // все равно не влезает на экран
+        'emptyText' => $filterModel->isFilteringPossible() ? Yii::t('yii', 'No results found.') : 'Выберите транк и время начала разговора',
+        'afterHeader' => $afterHeader,
+        'exportWidget' => GridViewExport::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $filterModel,
+            'columns' => $columns,
+        ]),
+        'beforeHeader' => [ // фильтры вне грида
+            'columns' => $filterColumns,
+        ],
 
-]); ?>
+    ]); ?>
 
 </form>
 
