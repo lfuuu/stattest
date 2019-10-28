@@ -63,6 +63,11 @@ class ClientAccountOptions extends ActiveRecord
         ];
     }
 
+    public function getParentId()
+    {
+        return $this->client_account_id;
+    }
+
     /**
      * Значение по умолчанию для опции
      *

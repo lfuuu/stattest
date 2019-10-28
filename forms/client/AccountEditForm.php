@@ -409,7 +409,6 @@ class AccountEditForm extends Form
 
     private function _saveFromPost()
     {
-
         $client = $this->clientM;
 
         if ($this->getIsNewRecord()) {
@@ -488,34 +487,8 @@ class AccountEditForm extends Form
 
             $this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK] = (string)(int)$this->{ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK};
 
-            ClientAccountOptions::deleteAll(
-                [
-                    'and',
-                    'client_account_id = :clientAccountId',
-                    ['in', 'option', array_keys($this->options)]
-                ],
-                [
-                    ':clientAccountId' => $client->id,
-                ]);
+            $this->_saveOptions();
 
-            foreach ($this->options as $option => $values) {
-
-                if (!is_array($values)) {
-                    $values = [$values];
-                }
-
-                foreach ($values as $value) {
-                    if ($value === '') {
-                        continue;
-                    }
-
-                    (new ClientAccountOptionsForm)
-                        ->setClientAccountId($client->id)
-                        ->setOption($option)
-                        ->setValue($value)
-                        ->save($deleteExisting = false);
-                }
-            }
         }
     }
 
@@ -547,7 +520,7 @@ class AccountEditForm extends Form
 
         $this->setAttributes($client->getAttributes(), false);
 
-        ClientAccountOptions::deleteAll(['client_account_id' => $client->id]);
+        $optionsSaveForm = new ClientAccountOptionsSaveForm();
 
         /** @var ClientAccountOptions $option */
         foreach ($fromAccount->options as $option)
@@ -556,12 +529,15 @@ class AccountEditForm extends Form
                 continue;
             }
 
-            (new ClientAccountOptionsForm)
+            $optionsSaveForm->addOptionForm(
+                (new ClientAccountOptionsForm)
                 ->setClientAccountId($client->id)
                 ->setOption($option->option)
                 ->setValue($option->value)
-                ->save($deleteExisting = false);
+            );
         }
+
+        $optionsSaveForm->save();
 
         ClientContact::deleteAll(['client_id' => $client->id]);
 
@@ -574,6 +550,34 @@ class AccountEditForm extends Form
                 throw new ModelValidationException($newContact);
             }
         }
+
+    }
+
+    public function _saveOptions()
+    {
+        $optionsSaveForm = new ClientAccountOptionsSaveForm();
+
+        foreach ($this->options as $option => $values) {
+
+            if (!is_array($values)) {
+                $values = [$values];
+            }
+
+            foreach ($values as $value) {
+                if ($value === '') {
+                    continue;
+                }
+
+                $optionsSaveForm->addOptionForm(
+                    (new ClientAccountOptionsForm)
+                    ->setClientAccountId($this->clientM->id)
+                    ->setOption($option)
+                    ->setValue($value)
+                );
+            }
+        }
+
+        $optionsSaveForm->save();
 
     }
 
