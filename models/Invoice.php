@@ -478,8 +478,9 @@ class Invoice extends ActiveRecord
             $bill = Bill::dao()->createBill($this->bill->clientAccount, $this->bill->currency);
 
             $bill->operation_type_id = OperationType::ID_CORRECTION;
-            $bill->comment = 'Автоматическая корректировка';
+            $bill->comment = 'Автоматическая корректировка к счету ' . $this->bill_no . ' (' . $this->type_id . ')';
             $this->correction_bill_id = $bill->id;
+            $bill->price_include_vat = $this->bill->price_include_vat;
 
 
             $lineItem = \Yii::t(
