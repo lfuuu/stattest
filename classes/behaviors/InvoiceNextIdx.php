@@ -102,7 +102,11 @@ class InvoiceNextIdx extends Behavior
             && !$invoice->correction_idx
             && $invoice->bill->clientAccount->contragent->country_id == Country::RUSSIA
         ) {
-            $count = Invoice::find()->where(['bill_no' => $invoice->bill_no, 'is_reversal' => 0])->count();
+            $count = Invoice::find()->where([
+                'bill_no' => $invoice->bill_no,
+                'is_reversal' => 0,
+                'type_id' => $invoice->type_id
+            ])->count();
 
             if ($count > 1) {
                 $invoice->correction_idx = $count - 1;
