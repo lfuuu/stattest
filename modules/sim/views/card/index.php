@@ -11,6 +11,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
+use app\modules\sim\columns\ImsiProfileColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\DidGroup;
@@ -135,7 +136,7 @@ $columns = [
             $imsies = $card->imsies;
             $statuses = [];
             foreach ($imsies as $imsi) {
-                $statuses[] = $imsi->number ?  Number::$statusList[$imsi->number->status] : '';
+                $statuses[] = $imsi->number ? Number::$statusList[$imsi->number->status] : '';
             }
             return implode(' <br>', $statuses);
         },
@@ -184,6 +185,21 @@ $columns = [
     [
         'attribute' => 'status_id',
         'class' => CardStatusColumn::class,
+    ],
+    [
+        'label' => 'Profile name',
+        'attribute' => 'profile_id',
+        'format' => 'raw',
+        'filterOptions' => ['style' => 'width: 150px'],
+        'class' => ImsiProfileColumn::class,
+        'value' => function (Card $card) {
+            $imsies = $card->imsies;
+            $names = [];
+            foreach ($imsies as $imsi) {
+                    $names[] = $imsi->profile->name;
+            }
+            return implode(' <br>', $names);
+        },
     ],
 ];
 

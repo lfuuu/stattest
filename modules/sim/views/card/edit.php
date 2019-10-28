@@ -106,3 +106,8 @@ use yii\widgets\Breadcrumbs;
 <?php }
 $this->registerJsFile('@web/views/sim/card/edit.js');
 ?>
+
+<script type="text/javascript">
+$(':input:not(#card-client_account_id):not(#card-status_id)').attr("disabled","disabled");
+$('.btn:not(.btn-primary):not(.btn-link)').attr("disabled","disabled");
+</script>

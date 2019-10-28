@@ -29,6 +29,7 @@ use yii\helpers\Url;
  * @property-read Number $number
  * @property-read ImsiStatus $status
  * @property-read ImsiPartner $partner
+ * @property-read ImsiProfile $profile
  *
  * @method static Imsi findOne($condition)
  * @method static Imsi[] findAll($condition)
@@ -124,6 +125,14 @@ class Imsi extends ActiveRecord
     public function getPartner()
     {
         return $this->hasOne(ImsiPartner::class, ['id' => 'partner_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getProfile()
+    {
+        return $this->hasOne(ImsiProfile::class, ['id' => 'profile_id']);
     }
 
     /**
