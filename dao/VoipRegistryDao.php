@@ -214,6 +214,7 @@ class VoipRegistryDao extends Singleton
         $number->source = $registry->source;
         $registry->fmc_trunk_id && $number->fmc_trunk_id = $registry->fmc_trunk_id;
         $registry->mvno_trunk_id && $number->mvno_trunk_id = $registry->mvno_trunk_id;
+        $registry->mvno_partner_id && $number->mvno_partner_id = $registry->mvno_partner_id;
         $registry->nnp_operator_id && $number->nnp_operator_id = $registry->nnp_operator_id;
 
         $didGroupId = DidGroup::dao()->getIdByNumber($number);

@@ -49,6 +49,7 @@ use yii\helpers\Url;
  * @property int $is_service
  * @property integer $fmc_trunk_id
  * @property integer $mvno_trunk_id
+ * @property integer $mvno_partner_id
  * @property integer $imsi
  * @property integer $warehouse_status_id
  * @property integer $nnp_operator_id

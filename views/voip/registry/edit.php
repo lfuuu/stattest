@@ -196,9 +196,9 @@ $readonlyOptions = [
         }
 
         if ($model->source == VoipRegistrySourceEnum::REGULATOR) {
-            $line3Attributes['mvno_trunk_id'] = [
+            $line3Attributes['mvno_partner_id'] = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => ($model->account_id ? Trunk::dao()->getList(['accountId' => $model->account_id], $isWithEmpty = true) : ['' => '----']),
+                'items' => app\modules\sim\models\ImsiPartner::getList($isWithEmpty = true),
                 'options' => ($isEditable ? [] : $readonlyOptions)
             ];
         }

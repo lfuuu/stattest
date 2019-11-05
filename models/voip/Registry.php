@@ -33,6 +33,7 @@ use yii\db\Expression;
  * @property string $comment
  * @property integer $fmc_trunk_id
  * @property integer $mvno_trunk_id
+ * @property integer $mvno_partner_id
  * @property-read City $city
  * @property-read Country $country
  * @property-read NdcType $ndcType
@@ -85,6 +86,7 @@ class Registry extends ActiveRecord
             'ndc' => 'NDC',
             'fmc_trunk_id' => 'FMC транк',
             'mvno_trunk_id' => 'MVNO транк',
+            'mvno_partner_id' => 'MVNO партнер',
             'nnp_operator_id' => 'ННП оператор',
             'solution_number' => 'Номер решения',
             'numbers_count' => 'Количество номеров',

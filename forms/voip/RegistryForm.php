@@ -35,7 +35,7 @@ class RegistryForm extends Form
         $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
         $ndcList = [],
         $fmc_trunk_id = null,
-        $mvno_trunk_id = null,
+        $mvno_partner_id = null,
         $nnp_operator_id = null,
         $nnp_operator_name = ''
     ;
@@ -75,7 +75,7 @@ class RegistryForm extends Form
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
             ['number_from', 'validateNumbersRange'],
-            [['ndc', 'mvno_trunk_id', 'fmc_trunk_id'], 'safe'],
+            [['ndc', 'mvno_partner_id', 'fmc_trunk_id'], 'safe'],
             [['nnp_operator_id'], 'integer'],
         ];
     }
@@ -255,7 +255,7 @@ class RegistryForm extends Form
                      'ndc',
                      'fmc_trunk_id',
                      'nnp_operator_id',
-                     'mvno_trunk_id',
+                     'mvno_partner_id',
                  ] as $field) {
             $this->registry->{$field} = $this->{$field};
         }
