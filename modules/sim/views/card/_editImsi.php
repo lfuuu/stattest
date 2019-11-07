@@ -107,6 +107,14 @@ if (!$card->isNewRecord) {
                 ],
             ],
             [
+                'name' => 'profile_id',
+                'title' => $attributeLabels['profile_id'],
+                'type' => Editable::INPUT_SELECT2,
+                'options' => [
+                    'data' => \app\modules\sim\models\ImsiProfile::getList($isWithEmpty = true),
+                ],
+            ],
+            [
                 'name' => 'is_default',
                 'title' => 'По<br>умолч.', // $attributeLabels['is_default']
                 'type' => Editable::INPUT_CHECKBOX,

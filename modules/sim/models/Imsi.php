@@ -74,7 +74,7 @@ class Imsi extends ActiveRecord
     {
         return [
             [['imsi', 'iccid'], 'required'],
-            [['imsi', 'iccid', 'msisdn', 'did', 'is_active', 'is_anti_cli', 'is_roaming', 'status_id', 'partner_id', 'is_default'], 'integer'],
+            [['imsi', 'iccid', 'msisdn', 'did', 'is_active', 'is_anti_cli', 'is_roaming', 'status_id', 'partner_id', 'profile_id', 'is_default'], 'integer'],
             [['actual_from', 'actual_to'], 'date', 'format' => 'php:Y-m-d'],
             ['did', 'default', 'value' => null], // иначе пустая строка получается, ибо в БД это поле varchar
             ['did', 'exist', 'skipOnError' => true, 'targetClass' => Number::class, 'targetAttribute' => ['did' => 'number']],
