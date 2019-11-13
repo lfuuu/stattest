@@ -7,6 +7,7 @@ use app\helpers\DateTimeZoneHelper;
 use Closure;
 use Exception;
 use Yii;
+use yii\db\ActiveQuery;
 use yii\helpers\BaseInflector;
 use yii\helpers\StringHelper;
 
@@ -206,7 +207,9 @@ class ExportGridView extends GridView
      */
     protected function createFile()
     {
-        $query = $this->filterModel->search()->query;
+        /** @var ActiveQuery $query */
+        $dataProvider = $this->filterModel->search();
+        $query = $dataProvider->query;
         $filename = $this->getFilename();
 
         $fullpath = $this->path . $filename;
@@ -219,7 +222,7 @@ class ExportGridView extends GridView
             $this->writeRow($handle, $this->getHeaders());
         }
 
-        foreach ($query->each() as $model) {
+        foreach ($query->each(100, $dataProvider->db) as $model) {
             $this->writeRow($handle, $this->getValuesRow($model));
         }
         fclose($handle);
