@@ -71,8 +71,9 @@
             <td>&nbsp;&nbsp;Фильтровать по:</td>
             <td>
                 <select name="filter" id="filter">
-                    <option  value="dateSf" {if $filter == 'dateSf'} selected{/if}>Дате с/ф</option>
                     <option  value="dateRegistrationSf" {if $filter == 'dateRegistrationSf'} selected{/if}>Дате регистрации с/ф</option>
+                    <option  value="dateOutSf" {if $filter == 'dateOutSf'} selected{/if}>Дате внешней с/ф</option>
+                    <option  value="dateWithoutSf" {if $filter == 'dateWithoutSf'} selected{/if}>С/ф без даты регистрации</option>
                 </select>
             </td>
         </tr>
@@ -169,6 +170,7 @@
             <td colspan="14" style="text-align: right">Итого:</td>
             <td>{$total.sum|replace:".":","}</td>
             <td>{$total.vat|replace:".":","}</td>
+            <td>&nbsp;</td>
         </tr>
     {/foreach}
     </tbody>

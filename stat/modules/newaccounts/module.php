@@ -5226,9 +5226,14 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
         }
 
         if ($filterOption == 'dateRegistrationSf') {
+            $dateField = 'STR_TO_DATE(ex.ext_registration_date, \'%d-%m-%Y\')';
             $where .= ' AND ex.ext_registration_date IS NOT NULL AND ex.ext_registration_date != ""';
-        }else{
-            $where .= ' AND (ex.ext_registration_date IS NULL OR ex.ext_registration_date = "")';
+        }elseif ($filterOption == 'dateOutSf'){
+            $dateField = 'STR_TO_DATE(ex.ext_invoice_date, \'%d-%m-%Y\')';
+            $where .= ' AND ex.ext_invoice_date IS NOT NULL AND ex.ext_invoice_date != ""';
+        }else{ // dateWithoutSf
+            $dateField = 'b.bill_date';
+            $where .= ' AND (ex.ext_registration_date IS NULL OR ex.ext_registration_date = "") AND cc.financial_type in (\'profitable\', \'yield-consumable\')';
         }
 
         $sql = "SELECT
@@ -5248,13 +5253,13 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
                                      FROM `organization` o
                                      WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
          field = 'name') AS orgznization_name
-FROM newbills_external ex, newbills b, clients c, client_contract cc, client_contragent cg
-WHERE STR_TO_DATE(ext_invoice_date, '%d-%m-%Y') BETWEEN :date_from AND :date_to
-      AND b.bill_no = ex.bill_no
+FROM clients c, client_contract cc, client_contragent cg, newbills b
+left join newbills_external ex ON (ex.bill_no = b.bill_no)
+WHERE " . $dateField . " BETWEEN :date_from AND :date_to
       AND b.organization_id = :organization_id
       AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
       " . $where . "
-ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
+ORDER BY " . $dateField . ", sum DESC";
 
         $query = \Yii::$app->db->createCommand($sql, [
                 ':date_from' => $dateFrom->getSqlDay(),
