@@ -5233,7 +5233,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
             $where .= ' AND ex.ext_invoice_date IS NOT NULL AND ex.ext_invoice_date != ""';
         }else{ // dateWithoutSf
             $dateField = 'b.bill_date';
-            $where .= ' AND (ex.ext_registration_date IS NULL OR ex.ext_registration_date = "") AND cc.financial_type in (\'profitable\', \'yield-consumable\')';
+            $where .= ' AND (ex.ext_registration_date IS NULL OR ex.ext_registration_date = "") AND cc.financial_type in (\'profitable\', \'yield-consumable\') and b.sum < 0';
         }
 
         $sql = "SELECT
