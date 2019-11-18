@@ -6479,6 +6479,8 @@ SELECT cr.manager, cr.account_manager FROM clients c
             exit();
         }
 
+        $telekomGoodIds = [12469];
+
         $prod = get_param_raw('findProduct');
         if (strlen($prod) >= 1) {
             $ret = "";
@@ -6550,6 +6552,10 @@ SELECT cr.manager, cr.account_manager FROM clients c
                         "store_name:'" . addcslashes($storeInfo->name, "\\'") . "',";
                 } else {
                     $add_fields = '';
+                }
+
+                if (in_array($good['code'], $telekomGoodIds)) {
+                    $good['name'] .= ' -- ****ПРОДАЖА ОТ МСН ТЕЛЕКОМ**** ';
                 }
 
                 $ret .= "{" .
