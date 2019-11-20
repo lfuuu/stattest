@@ -105,6 +105,7 @@ trait AccountTariffPackageTrait
         $defaultPackages = $tariffPeriod->tariff->findDefaultPackages(
             $countryId,
             $this->city_id,
+            $number ? $number->country_code : null,
             $number ? $number->ndc_type_id : null,
             $tariffPeriod->tariff->is_include_vat,
             $tariffStatuses,

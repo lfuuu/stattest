@@ -544,13 +544,14 @@ class Tariff extends ActiveRecord
      *
      * @param int $countryId
      * @param int $cityId
+     * @param int $voipCountryId
      * @param int $ndcTypeId
      * @param bool $isIncludeVat
      * @param int[] $tariffStatuses
      * @param int $packageType
      * @return Tariff[]|null
      */
-    public function findDefaultPackages($countryId, $cityId, $ndcTypeId, $isIncludeVat, $tariffStatuses, $packageType)
+    public function findDefaultPackages($countryId, $cityId, $voipCountryId, $ndcTypeId, $isIncludeVat, $tariffStatuses, $packageType)
     {
         if ($this->service_type_id == ServiceType::ID_VOIP && !$ndcTypeId) {
             // пакеты по умолчанию только для телефонии и билнгации API. Даже для пакетов транков их нет
@@ -575,6 +576,14 @@ class Tariff extends ActiveRecord
                 ->andWhere(['OR',
                     [TariffVoipCity::tableName() . '.city_id' => $cityId],
                     [TariffVoipCity::tableName() . '.city_id' => null]
+                ]);
+        }
+
+        if ($voipCountryId && $this->service_type_id == ServiceType::ID_VOIP) {
+            $query->joinWith('tariffVoipCountries')
+                ->andWhere(['OR',
+                    [TariffVoipCountry::tableName() . '.country_id' => $voipCountryId],
+                    [TariffVoipCountry::tableName() . '.country_id' => null]
                 ]);
         }
 
