@@ -190,7 +190,11 @@ class TariffFilter extends Tariff
         if ($voipCountryId) {
             $query
                 ->joinWith('tariffVoipCountries')
-                ->andWhere([TariffVoipCountry::tableName() . '.country_id' => $voipCountryId]);
+                ->andWhere([
+                    'OR',
+                    [TariffVoipCountry::tableName() . '.country_id' => $voipCountryId],
+                    [TariffVoipCountry::tableName() . '.country_id' => null]
+                ]);
         }
 
         if ($voipCityId) {
