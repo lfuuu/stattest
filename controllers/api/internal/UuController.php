@@ -364,7 +364,8 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_postpaid", type = "integer", description = "0 - только предоплата, 1 - только постоплата, не указано - все"),
      *   @SWG\Property(property = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)"),
      *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "country", type = "object", description = "Страна", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "country", type = "object", description = "Страна клиента", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "voip_country", type = "object", description = "Страна номера", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_status", type = "object", description = "Статус (публичный, специальный, архивный и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_person", type = "object", description = "Для кого действует тариф (для всех, физиков, юриков)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_tag", type = "object", description = "Тэг (хит продаж)", ref = "#/definitions/idNameRecord"),
@@ -416,6 +417,7 @@ class UuController extends ApiInternalController
      * @param int $id
      * @param int $service_type_id
      * @param int $country_id
+     * @param null $voip_country_id
      * @param int $client_account_id
      * @param string $currency_id
      * @param int $is_default
@@ -429,6 +431,7 @@ class UuController extends ApiInternalController
      * @param int $organization_id
      * @param string $voip_number
      * @param int $account_tariff_id
+     * @param bool $is_include_vat
      * @return array
      * @throws HttpException
      */
@@ -436,6 +439,7 @@ class UuController extends ApiInternalController
         $id = null,
         $service_type_id = null,
         $country_id = null,
+        $voip_country_id = null,
         $client_account_id = null,
         $currency_id = null,
         $is_default = null,
@@ -459,6 +463,7 @@ class UuController extends ApiInternalController
                 $id,
                 $service_type_id,
                 $country_id,
+                $voip_country_id,
                 $client_account_id,
                 $currency_id,
                 $is_default,
@@ -481,9 +486,12 @@ class UuController extends ApiInternalController
         $service_type_id = (int)$service_type_id;
 
         // "сначала намечались торжества. Потом аресты. Потом решили совместить" (С) К/ф "Тот самый Мюнхгаузен"
-        $origCountryId = $country_id;
-        $voip_country_id = (int)$country_id; // страна телефонного номера. Выбирается явно. Путаница с именами для обратной совместимости c API.
-        $country_id = null; // страна клиента. Это зависит от точки входа (или организации) клиента, а не выбирается явно
+//        $origCountryId = $country_id;
+//        $voip_country_id = (int)$country_id; // страна телефонного номера. Выбирается явно. Путаница с именами для обратной совместимости c API.
+//        $country_id = null; // страна клиента. Это зависит от точки входа (или организации) клиента, а не выбирается явно
+
+        $country_id = (int)$country_id;
+        $voip_country_id = (int)$voip_country_id;
 
         $client_account_id = (int)$client_account_id;
         $tariff_status_id = (int)$tariff_status_id;
@@ -568,15 +576,15 @@ class UuController extends ApiInternalController
                     $priceLevelField = 'tariff_status_package' . $clientAccount->price_level;
                     $tariff_status_id = $number->didGroup->{$priceLevelField};
                     $voip_ndc_type_id = $number->ndc_type_id;
-                    $country_id = $number->country_code;
+                    $voip_country_id = $number->country_code;
                     break;
             }
         }
 
-        if ($service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
-            $voip_country_id = null;
-            $country_id = $origCountryId;
-        }
+//        if ($service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
+//            $voip_country_id = null;
+//            $country_id = $origCountryId;
+//        }
 
 //        if (!$tariff_status_id) {
 //            $tariff_status_id = TariffStatus::ID_PUBLIC;
@@ -600,6 +608,8 @@ class UuController extends ApiInternalController
 
         $result = [];
         $defaultPackageRecordsFetched = null;
+
+        $sql = $tariffQuery->createCommand()->rawSql;
         /** @var Tariff $tariff */
         foreach ($tariffQuery->all() as $tariff) {
             if ($tariff->service_type_id == ServiceType::ID_VOIP) {
@@ -607,6 +617,7 @@ class UuController extends ApiInternalController
                     $defaultPackageRecordsFetched = $this->actionGetTariffs(
                         $id_tmp = null,
                         ServiceType::ID_VOIP_PACKAGE_CALLS,
+                        $country_id,
                         $voip_country_id,
                         $client_account_id,
                         $currency_id,
@@ -652,6 +663,7 @@ class UuController extends ApiInternalController
         $package = $tariff->package;
         $tariffVoipCountries = $tariff->tariffVoipCountries;
         $tariffVoipCountry = reset($tariffVoipCountries);
+        $tariffCountries = $tariff->tariffCountries;
         return [
             'id' => $tariff->id,
             'name' => $tariff->name,
@@ -664,6 +676,8 @@ class UuController extends ApiInternalController
             'currency' => $tariff->currency_id,
             'service_type' => $this->_getIdNameRecord($tariff->serviceType),
             'country' => $this->_getIdNameRecord($tariffVoipCountry ? $tariffVoipCountry->country : null, 'code'), // @todo multi и переименовать в voip_countries
+            'countries' => $this->_getIdNameRecord($tariffCountries, 'country_id'),
+            'voip_countries' => $this->_getIdNameRecord($tariffVoipCountries, 'country_id'),
             'tariff_status' => $this->_getIdNameRecord($tariff->status),
             'tariff_person' => $this->_getIdNameRecord($tariff->person),
             'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
