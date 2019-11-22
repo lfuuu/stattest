@@ -118,7 +118,7 @@ class Invoice extends ActiveRecord
      */
     public function getOrganization()
     {
-        return $this->hasOne(Organization::class, ['id' => 'organization_id']);
+        return $this->hasOne(Organization::class, ['organization_id' => 'organization_id'])->orderBy(['id' => SORT_DESC]);
     }
 
     /**

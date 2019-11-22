@@ -60,8 +60,7 @@ class SBISOrganization extends ActiveRecord
         return [
             [['organization_id', 'is_active', 'is_sign_needed', 'thumbprint', 'date_of_expire'], 'required'],
             [['organization_id', 'updated_by'], 'integer'],
-            [['date_of_expire', 'created_at', 'updated_at', 'last_fetched_at'], 'safe'],
-            [['is_active', 'is_sign_needed'], 'string', 'max' => 1],
+            [['date_of_expire', 'created_at', 'updated_at', 'last_fetched_at', 'is_active', 'is_sign_needed'], 'safe'],
             [['exchange_id'], 'string', 'max' => 46],
             [['thumbprint'], 'string', 'max' => 2048],
             [['last_event_id', 'previous_event_id'], 'string', 'max' => 36],
