@@ -18,6 +18,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
+use app\models\Invoice;
 use app\modules\async\classes\AsyncAdapter;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\modules\atol\Module as AtolModule;
@@ -34,6 +35,7 @@ use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\models\NumberExample;
 use app\modules\nnp\Module as NnpModule;
+use app\modules\sbisTenzor\helpers\SBISDataProvider;
 use app\modules\socket\classes\Socket;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
@@ -61,6 +63,7 @@ $nnpEvents = ['event' => [
     NnpModule::EVENT_EXAMPLES,
     NnpModule::EVENT_IMPORT,
     EventQueue::INVOICE_GENERATE_PDF,
+    EventQueue::INVOICE_ALL_PDF_CREATED,
 ]];
 
 $syncEvents = ['event' => [
@@ -467,6 +470,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::INVOICE_GENERATE_PDF:
                     InvoiceGeneratePdf::generate($param['id'], $param['document']);
+                    Invoice::checkAllPdfFiles($param['id']);
+                    break;
+
+                case EventQueue::INVOICE_ALL_PDF_CREATED:
+                    SBISDataProvider::checkInvoiceForExchange($param['id']);
                     break;
 
                 case EventQueue::SYNC_1C_CLIENT:

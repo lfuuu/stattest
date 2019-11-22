@@ -20,6 +20,7 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
+use app\modules\sbisTenzor\helpers\SBISInfo;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
@@ -92,6 +93,7 @@ class AccountEditForm extends Form
         $settings_advance_invoice,
         $upload_to_sales_book,
         $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS,
+        $exchange_group_id,
         $transfer_params_from = 0;
 
     /**
@@ -171,10 +173,11 @@ class AccountEditForm extends Form
                     'type_of_bill',
                     'price_level',
                     'uu_tariff_status_id',
+                    'exchange_group_id',
                     'settings_advance_invoice',
                     'upload_to_sales_book',
                     'show_in_lk',
-                    'transfer_params_from'
+                    'transfer_params_from',
                 ],
                 'integer'
             ],
@@ -405,6 +408,18 @@ class AccountEditForm extends Form
         $this->id && $query->andWhere(['NOT', ['id' => $this->id]]);
 
         return GetListTrait::getEmptyList(true) + $query->column();
+    }
+
+    /**
+     * @return string
+     */
+    public function getExchangeGroupError()
+    {
+        if ($this->getIsNewRecord()) {
+            return 'Интерацию со СБИС можно настроить только после создания клиента';
+        }
+
+        return SBISInfo::getClientError($this->getModel());
     }
 
     private function _saveFromPost()

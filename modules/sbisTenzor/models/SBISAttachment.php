@@ -3,10 +3,8 @@
 namespace app\modules\sbisTenzor\models;
 
 use app\classes\model\ActiveRecord;
-use app\models\User;
 use app\modules\sbisTenzor\helpers\SBISUtils;
 use Yii;
-use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 
@@ -36,9 +34,6 @@ use yii\db\Expression;
  */
 class SBISAttachment extends ActiveRecord
 {
-    const EXTENSION_PDF = 'pdf';
-    const EXTENSION_XML = 'xml';
-
     const STORE_PATH = 'files/external/sbis';
     const SUB_DIR_SIGNATURES = 'signatures';
 
@@ -56,16 +51,16 @@ class SBISAttachment extends ActiveRecord
     public function rules()
     {
         return [
-            [['sbis_document_id', 'number', 'is_sign_needed', 'is_signed', 'created_at'], 'required'],
+            [['sbis_document_id', 'external_id', 'number', 'is_sign_needed', 'is_signed'], 'required'],
             [['sbis_document_id'], 'integer'],
-            [['number', 'is_sign_needed', 'is_signed', 'link', 'created_at', 'updated_at', 'signed_at'], 'safe'],
+            [['created_at', 'updated_at', 'signed_at', 'number'], 'safe'],
             [['external_id'], 'string', 'max' => 36],
             [['extension'], 'string', 'max' => 10],
-            [['file_name', 'hash'], 'string', 'max' => 255],
-            [['stored_path', 'signature_stored_path'], 'string', 'max' => 512],
-            [['url_online'], 'string', 'max' => 128],
-            [['url_html', 'url_pdf'], 'string', 'max' => 1500],
-            [['sbis_document_id'], 'exist', 'skipOnError' => true, 'targetClass' => SBISDocument::class, 'targetAttribute' => ['sbis_document_id' => 'id']],
+            [['file_name', 'hash', 'url_online'], 'string', 'max' => 255],
+            [['stored_path', 'signature_stored_path', 'link'], 'string', 'max' => 512],
+            [['url_html', 'url_pdf'], 'string', 'max' => 2048],
+            [['sbis_document_id', 'number'], 'unique', 'targetAttribute' => ['sbis_document_id', 'number'], 'message' => 'The combination of Sbis Document ID and Number has already been taken.'],
+            [['sbis_document_id'], 'exist', 'skipOnError' => true, 'targetClass' => SbisDocument::class, 'targetAttribute' => ['sbis_document_id' => 'id']],
         ];
     }
 
@@ -171,17 +166,25 @@ class SBISAttachment extends ActiveRecord
     /**
      * Получить путь для сохранения вложения
      *
+     * @param string $dirSuffix
      * @return string
      * @throws \Exception
      */
-    public function getPath()
+    public function getPath($dirSuffix = '')
     {
         $organizationFrom = $this->document->sbisOrganization->organization->firma;
         $clientTo = $this->document->clientAccount->client;
         $date = $this->document->date ? (new \DateTime($this->document->date)) : (new \DateTime());
         $dateStr = $date->format('Y-m');
 
-        $dirData = [$organizationFrom, $clientTo, $dateStr];
+        $day = $this->document->date ? (new \DateTime($this->document->date)) : (new \DateTime());
+        $dayStr = $day->format('Ymd');
+        $folderName = $dayStr. '-' . $this->document->external_id;
+        if ($dirSuffix) {
+            $folderName .= '-' . $dirSuffix;
+        }
+
+        $dirData = [$organizationFrom, $clientTo, $dateStr, $folderName];
 
         $path = self::getBasePath();
         foreach ($dirData as $p) {
@@ -195,21 +198,17 @@ class SBISAttachment extends ActiveRecord
     /**
      * Получить полный путь для сохранения вложения
      *
+     * @param string $fileName
+     * @param string $dirSuffix
      * @return string
      * @throws \Exception
      */
-    public function getStoredPath()
+    public function getStoredPath($fileName = '', $dirSuffix = '')
     {
-        $date = $this->document->date ? (new \DateTime($this->document->date)) : (new \DateTime());
-        $dateStr = $date->format('Ymd');
-
         $info = pathinfo($this->file_name);
+        $fileName = $fileName ? : sprintf('%02d.%s', $this->number, $info['extension']);
 
-        return $this->getPath()
-            . $dateStr
-            . '-' . $this->document->external_id
-            . '-' . sprintf('%02d', $this->number)
-            . '.' . $info['extension'];
+        return $this->getPath($dirSuffix) . $fileName;
     }
 
     /**

@@ -1,3 +1,5 @@
 * * * * * flock -w 3 /tmp/yii-sbis-processor-sign /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/sign >> /var/log/sbis/processor-sign.log
 * * * * * flock -w 3 /tmp/yii-sbis-processor-send /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/send >> /var/log/sbis/processor-sender.log
 * * * * * flock -w 3 /tmp/yii-sbis-processor-check /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/check >> /var/log/sbis/processor-check.log
+* * * * * flock -w 3 /tmp/yii-sbis-processor-generate /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/generate >> /var/log/sbis/processor-generate.log
+0 12 1 * * flock -w 3 /tmp/yii-sbis-contractor-update /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/contractor/update >> /var/log/sbis/contractor-update.log

@@ -33,7 +33,7 @@ class DocumentController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'cancel', 'restore', 'start'],
+                        'actions' => ['add', 'cancel', 'cancel-auto', 'restore', 'restore-auto', 'start', 'send-auto'],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                 ],
@@ -79,6 +79,9 @@ class DocumentController extends BaseController
         return $this->render('index', [
             'dataProvider' => $indexForm->getDataProvider(),
             'title' => $indexForm->getTitle(),
+            'isAuto' => $client->exchange_group_id,
+            'sendAutoConfirmText' => $indexForm->getSendAutoConfirmText(),
+            'sendAutoCount' => $indexForm->getSendAutoCount(),
             'clientId' => $client->id,
             'state' => $state,
         ]);
@@ -138,7 +141,6 @@ class DocumentController extends BaseController
      *
      * @param int $id
      * @return \yii\web\Response
-     * @return \yii\web\Response
      */
     public function actionCancel($id = 0)
     {
@@ -152,10 +154,26 @@ class DocumentController extends BaseController
     }
 
     /**
-     * Restore document
+     * Cancel auto-created document
      *
      * @param int $id
      * @return \yii\web\Response
+     */
+    public function actionCancelAuto($id = 0)
+    {
+        try {
+            $id = ViewForm::cancelAuto($id);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/document/view?id=' . $id);
+    }
+
+    /**
+     * Restore document
+     *
+     * @param int $id
      * @return \yii\web\Response
      */
     public function actionRestore($id = 0)
@@ -170,10 +188,26 @@ class DocumentController extends BaseController
     }
 
     /**
-     * Запуск документа в работу
+     * Restore auto-created document
      *
      * @param int $id
      * @return \yii\web\Response
+     */
+    public function actionRestoreAuto($id = 0)
+    {
+        try {
+            $id = ViewForm::restoreAuto($id);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/document/view?id=' . $id);
+    }
+
+    /**
+     * Запуск документа в работу
+     *
+     * @param int $id
      * @return \yii\web\Response
      */
     public function actionStart($id = 0)
@@ -185,6 +219,26 @@ class DocumentController extends BaseController
         }
 
         return $this->redirect('/sbisTenzor/document/view?id=' . $id);
+    }
+
+    /**
+     * Send all auto-created
+     *
+     * @param int $clientId
+     * @return \yii\web\Response
+     */
+    public function actionSendAuto($clientId = 0)
+    {
+        try {
+            $client = $this->getClient($clientId, false);
+            $indexForm = new IndexForm(0, $client);
+
+            $indexForm->sendAuto();
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/document/' . ($clientId ? '?clientId=' . $clientId : ''));
     }
 
     /**

@@ -9,7 +9,7 @@ use app\modules\sbisTenzor\models\SBISOrganization;
 class m190829_115800_create_sbis_organization extends \app\classes\Migration
 {
     public $tableName;
-    public $tableOptions;
+    public $tableOptions = 'ENGINE=InnoDB DEFAULT CHARSET=utf8';
 
     public $tableNameUser = 'user_users';
 

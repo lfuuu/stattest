@@ -3,6 +3,8 @@
 namespace app\modules\sbisTenzor\classes;
 
 use app\classes\HttpClient;
+use app\models\ClientAccount;
+use app\models\ClientContragent;
 use app\models\Organization;
 use app\modules\sbisTenzor\classes\SBISTensorAPI\SBISDocumentInfo;
 use app\modules\sbisTenzor\exceptions\SBISTensorException;
@@ -24,6 +26,7 @@ class SBISTensorAPI
     const METHOD_AUTH = 'СБИС.Аутентифицировать';
     const METHOD_LOG_OUT = 'СБИС.Выход';
     const METHOD_PROFILE = 'СБИС.ИнформацияОТекущемПользователе';
+    const METHOD_CONTRACTOR_INFO = 'СБИС.ИнформацияОКонтрагенте';
 
     const METHOD_SAVE_DOCUMENT = 'СБИС.ЗаписатьДокумент';
     const METHOD_PREPARE_ACTION = 'СБИС.ПодготовитьДействие';
@@ -70,7 +73,7 @@ class SBISTensorAPI
      */
     protected function checkConfig()
     {
-        $this->organizationFrom = Organization::find()->byId($this->sbisOrganization->organization_id)->actual()->one();
+        $this->organizationFrom = $this->sbisOrganization->getOrganization();
         if (!$this->organizationFrom) {
             throw new \Exception('SBISTensorApi host organization not found, sbisOrganization: ' . $this->sbisOrganization->id);
         }
@@ -380,6 +383,120 @@ class SBISTensorAPI
     }
 
     /**
+     * Получить информацию о контрагенте
+     *
+     * @param string $inn
+     * @param string $kpp
+     * @return array
+     * @throws BadRequestHttpException
+     * @throws SBISTensorException
+     * @throws \yii\base\Exception
+     */
+    public function getContractorInfoLegal($inn, $kpp)
+    {
+        $data = [
+            'Участник' => [
+                'СвЮЛ' => [
+                    'ИНН' => $inn,
+                    'КПП' => $kpp,
+                ],
+            ],
+        ];
+
+        $result = $this->sendRequest($this->serviceUrl, self::METHOD_CONTRACTOR_INFO, $data);
+
+        return $result;
+    }
+
+    /**
+     * Получить информацию о контрагенте
+     *
+     * @param string $inn
+     * @param string $kpp
+     * @return array
+     * @throws BadRequestHttpException
+     * @throws SBISTensorException
+     * @throws \yii\base\Exception
+     */
+    public function getContractorInfoIp($inn)
+    {
+        $data = [
+            'Участник' => [
+                'СвФЛ' => [
+                    'ИНН' => $inn,
+                ],
+            ],
+        ];
+
+        $result = $this->sendRequest($this->serviceUrl, self::METHOD_CONTRACTOR_INFO, $data);
+
+        return $result;
+    }
+
+    /**
+     * Получить информацию о контрагенте
+     *
+     * @param string $inn
+     * @param string $inila СНИЛС
+     * @return array
+     * @throws BadRequestHttpException
+     * @throws SBISTensorException
+     * @throws \yii\base\Exception
+     */
+    public function getContractorInfoPerson($inn = '', $inila = '')
+    {
+        $data = [
+            'Участник' => [
+                'СвФЛ' => [
+                    'ЧастноеЛицо' => 'Да',
+                ],
+            ],
+        ];
+
+        if ($inn) {
+            $data['Участник']['СвФЛ']['ИНН'] = $inn;
+        }
+        if ($inila) {
+            $data['Участник']['СвФЛ']['СНИЛС'] = $inila;
+        }
+
+        $result = $this->sendRequest($this->serviceUrl, self::METHOD_CONTRACTOR_INFO, $data);
+
+        return $result;
+    }
+
+    /**
+     * Получить информацию о контрагенте
+     *
+     * @param ClientAccount $client
+     * @return array
+     * @throws BadRequestHttpException
+     * @throws SBISTensorException
+     * @throws \yii\base\Exception
+     */
+    public function getContractorInfo(ClientAccount $client)
+    {
+        switch ($client->contragent->legal_type) {
+            case ClientContragent::PERSON_TYPE:
+                $result = $this->getContractorInfoPerson($client->getInn());
+                break;
+
+            case ClientContragent::IP_TYPE:
+                $result = $this->getContractorInfoIp($client->getInn());
+                break;
+
+            case ClientContragent::LEGAL_TYPE:
+                $result = $this->getContractorInfoLegal($client->getInn(), $client->getKpp());
+                break;
+
+            default:
+                return [];
+        }
+
+        return $result;
+    }
+
+    /**
      * Получить информацию о клиенте
      *
      * @param string $inn
@@ -544,11 +661,22 @@ class SBISTensorAPI
         $documentData['Дата'] = $date;
         $documentData['Номер'] = $document->number;
 
-        $documentData['Контрагент']['СвЮЛ'] = [
-            'ИНН' => $document->clientAccount->contragent->inn,
-            'КПП' => $document->clientAccount->contragent->kpp,
-            'Название' => strval($document->clientAccount->contragent->name_full),
-        ];
+        $legalType = $document->clientAccount->contragent->legal_type;
+        if ($legalType == ClientContragent::LEGAL_TYPE) {
+            $documentData['Контрагент']['СвЮЛ'] = [
+                'ИНН' => $document->clientAccount->contragent->inn,
+                'КПП' => $document->clientAccount->contragent->kpp,
+                'Название' => strval($document->clientAccount->contragent->name_full),
+            ];
+        } else {
+            $documentData['Контрагент']['СвФЛ'] = [
+                'ИНН' => $document->clientAccount->contragent->inn,
+            ];
+
+            if ($legalType == ClientContragent::PERSON_TYPE) {
+                $documentData['Контрагент']['СвФЛ']['ЧастноеЛицо'] = 'Да';
+            }
+        }
 
         $documentData['НашаОрганизация']['СвЮЛ'] = [
             'ИНН' => $this->organizationFrom->tax_registration_id,

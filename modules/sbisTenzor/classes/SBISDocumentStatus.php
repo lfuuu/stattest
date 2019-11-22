@@ -9,7 +9,9 @@ namespace app\modules\sbisTenzor\classes;
 class SBISDocumentStatus
 {
     const CANCELLED = 5;
+    const CANCELLED_AUTO = 6;
     const CREATED = 10;
+    const CREATED_AUTO = 11;
     const PROCESSING = 15;
     const SIGNED = 20;
     const SAVED = 30;
@@ -34,7 +36,9 @@ class SBISDocumentStatus
 
     protected static $states = [
         self::CANCELLED => 'Отменён',
+        self::CANCELLED_AUTO => 'Отменён (авто)',
         self::CREATED => 'Создан',
+        self::CREATED_AUTO => 'Создан (авто)',
         self::PROCESSING => 'Отправляется',
         self::SIGNED => 'Подписан',
         self::SAVED => 'Сохранён',

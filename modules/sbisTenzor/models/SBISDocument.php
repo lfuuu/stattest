@@ -75,6 +75,8 @@ class SBISDocument extends ActiveRecord
     const MAX_TRIES = 3;
     const LOG_CATEGORY = 'sbis';
 
+    protected static $eventsDelayed = [];
+
     /**
      * @inheritdoc
      */
@@ -89,17 +91,17 @@ class SBISDocument extends ActiveRecord
     public function rules()
     {
         return [
-            [['sbis_organization_id', 'client_account_id', 'type', 'state', 'priority', 'tries', 'created_at', 'created_by'], 'required'],
-            [['sbis_organization_id', 'client_account_id', 'type', 'state', 'external_state', 'flags', 'error_code', 'priority', 'tries', 'updated_by'], 'integer'],
-            [['date', 'external_state_name', 'external_state_description', 'created_at', 'updated_at', 'started_at', 'saved_at', 'prepared_at', 'signed_at', 'sent_at', 'last_fetched_at', 'read_at', 'completed_at'], 'safe'],
+            [['external_id', 'sbis_organization_id', 'client_account_id', 'state', 'type', 'priority', 'tries'], 'required'],
+            [['sbis_organization_id', 'client_account_id', 'state', 'external_state', 'type', 'flags', 'error_code', 'priority', 'tries', 'created_by', 'updated_by'], 'integer'],
+            [['date', 'created_at', 'updated_at', 'started_at', 'saved_at', 'prepared_at', 'signed_at', 'sent_at', 'last_fetched_at', 'read_at', 'completed_at'], 'safe'],
             [['errors'], 'string'],
             [['external_id', 'last_event_id'], 'string', 'max' => 36],
-            [['number', 'external_state_name'], 'string', 'max' => 64],
-            [['comment', 'external_state_description'], 'string', 'max' => 255],
-            [['url_our', 'url_external'], 'string', 'max' => 100],
-            [['url_pdf'], 'string', 'max' => 1500],
-            [['url_archive'], 'string', 'max' => 350],
+            [['external_state_name', 'number'], 'string', 'max' => 64],
+            [['external_state_description', 'comment', 'url_our', 'url_external'], 'string', 'max' => 255],
+            [['url_pdf', 'url_archive'], 'string', 'max' => 2048],
+            [['external_id'], 'unique'],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['created_by' => 'id']],
+            [['sbis_organization_id'], 'exist', 'skipOnError' => true, 'targetClass' => SbisOrganization::class, 'targetAttribute' => ['sbis_organization_id' => 'id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
         ];
     }
@@ -329,7 +331,7 @@ class SBISDocument extends ActiveRecord
             // change state
             $this->state = $state;
 
-            $this->raiseEvents($state);
+            $this->addEvents($state);
             Yii::info(sprintf('SBISDocument #%s, %s, state changed: %s -> %s', $this->id, $this->external_id, $oldState, $state), self::LOG_CATEGORY);
         }
 
@@ -365,28 +367,27 @@ class SBISDocument extends ActiveRecord
     }
 
     /**
-     * Создать событие
+     * Создать событие создания
+     */
+    public function addCreateEvent()
+    {
+        self::$eventsDelayed[] = ImportantEventsNames::SBIS_DOCUMENT_CREATED;
+    }
+
+    /**
+     * Добавить события в отложенную очередь
      *
      * @param int $state новый статус
-     * @throws \yii\db\Exception
      */
-    protected function raiseEvents($state)
+    protected function addEvents($state)
     {
         switch ($state) {
             case SBISDocumentStatus::SENT:
-                ImportantEvents::create(
-                    ImportantEventsNames::SBIS_DOCUMENT_SENT,
-                ImportantEventsSources::SOURCE_STAT,
-                    $this->getInfo()
-                );
+                self::$eventsDelayed[] = ImportantEventsNames::SBIS_DOCUMENT_SENT;
                 break;
 
             case SBISDocumentStatus::ACCEPTED:
-                ImportantEvents::create(
-                    ImportantEventsNames::SBIS_DOCUMENT_ACCEPTED,
-                    ImportantEventsSources::SOURCE_STAT,
-                    $this->getInfo()
-                );
+                self::$eventsDelayed[] = ImportantEventsNames::SBIS_DOCUMENT_ACCEPTED;
                 break;
 
             default:
@@ -394,14 +395,28 @@ class SBISDocument extends ActiveRecord
                     ($state > SBISDocumentStatus::SENT) &&
                     ($state != SBISDocumentStatus::DELIVERED)
                 ) {
-                    ImportantEvents::create(
-                        ImportantEventsNames::SBIS_DOCUMENT_EVENT,
-                        ImportantEventsSources::SOURCE_STAT,
-                        $this->getInfo()
-                    );
+                    self::$eventsDelayed[] = ImportantEventsNames::SBIS_DOCUMENT_EVENT;
                     break;
                 }
         }
+    }
+
+    /**
+     * Отложенно создаём события
+     *
+     * @throws \yii\db\Exception
+     */
+    protected function raiseEventsDelayed()
+    {
+        foreach (self::$eventsDelayed as $event) {
+            ImportantEvents::create(
+                $event,
+                ImportantEventsSources::SOURCE_STAT,
+                $this->getInfo()
+            );
+        }
+
+        self::$eventsDelayed = [];
     }
 
     /**
@@ -416,6 +431,7 @@ class SBISDocument extends ActiveRecord
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::CREATED),
             'passed' => true,
+            'date' => $this->created_at,
         ];
 
         if ($this->state == SBISDocumentStatus::CANCELLED) {
@@ -430,31 +446,37 @@ class SBISDocument extends ActiveRecord
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::PROCESSING),
             'passed' => !empty($this->started_at),
+            'date' => $this->started_at,
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SIGNED),
             'passed' => !empty($this->signed_at),
+            'date' => $this->signed_at,
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SAVED),
             'passed' => !empty($this->saved_at),
+            'date' => $this->saved_at,
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::READY),
             'passed' => !empty($this->prepared_at),
+            'date' => $this->prepared_at,
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SENT),
             'passed' => !empty($this->sent_at),
+            'date' => $this->sent_at,
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::DELIVERED),
             'passed' => !empty($this->read_at),
+            'date' => $this->read_at,
         ];
 
         if (
@@ -470,6 +492,7 @@ class SBISDocument extends ActiveRecord
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::ACCEPTED),
             'passed' => !empty($this->completed_at),
+            'date' => $this->completed_at,
         ];
 
         return $chain;
@@ -479,6 +502,7 @@ class SBISDocument extends ActiveRecord
      * @param string $insert
      * @param array $changedAttributes
      * @throws ModelValidationException
+     * @throws \yii\db\Exception
      */
     public function afterSave($insert, $changedAttributes)
     {
@@ -492,14 +516,19 @@ class SBISDocument extends ActiveRecord
                 $attachment->number = ++$i;
                 $attachment->sbis_document_id = $this->id;
                 $attachment->populateRelation('document', null);
+
+                if (is_null($attachment->extension)) {
+                    $attachment->extension = pathinfo($attachment->file_name, PATHINFO_EXTENSION);
+                }
             }
         }
-
         foreach($this->attachments as $attachment) {
-            if (!$attachment->validate() || !$attachment->save()) {
+            if (!$attachment->save()) {
                 throw new ModelValidationException($attachment);
             }
         }
+
+        $this->raiseEventsDelayed();
     }
 
     /**

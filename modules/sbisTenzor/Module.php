@@ -58,6 +58,9 @@ class Module extends \yii\base\Module
                 ->setId('sbisTenzor')
                 ->setTitle('СБИС')
                 ->addItem('Общий список пакетов документов', ['/sbisTenzor/document'])
+                ->addItem('Список сгенерированных черновиков', ['/sbisTenzor/draft'])
+                ->addItem('Список групп обмена', ['/sbisTenzor/group'])
+                ->addItem('Список форм документов', ['/sbisTenzor/form'])
         );
     }
 

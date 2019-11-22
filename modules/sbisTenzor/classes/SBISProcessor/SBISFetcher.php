@@ -124,7 +124,7 @@ class SBISFetcher extends SBISProcessor
      */
     protected function afterLaunchAction(SBISOrganization $sbisOrganization)
     {
-        if (!$sbisOrganization->validate() || !$sbisOrganization->save()) {
+        if (!$sbisOrganization->save()) {
             throw new ModelValidationException($sbisOrganization);
         }
     }

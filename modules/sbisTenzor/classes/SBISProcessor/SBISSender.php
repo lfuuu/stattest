@@ -92,6 +92,31 @@ class SBISSender extends SBISProcessor
     }
 
     /**
+     * Предобработка пакета документов
+     *
+     * @param SBISDocument $document
+     * @return bool
+     * @throws ModelValidationException
+     * @throws \Exception
+     */
+    protected function beforeProcess(SBISDocument $document)
+    {
+        $tries = $document->tries;
+
+        if (++$tries <= SBISDocument::getMaxTries()) {
+            $document->tries = $tries;
+        } else {
+            $document->setState(SBISDocumentStatus::ERROR);
+        }
+
+        if (!$document->save()) {
+            throw new ModelValidationException($document);
+        }
+
+        return true;
+    }
+
+    /**
      * Обработка пакета документов
      *
      * @param SBISDocument $document

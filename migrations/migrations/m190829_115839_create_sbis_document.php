@@ -10,7 +10,7 @@ class m190829_115839_create_sbis_document extends \app\classes\Migration
 {
     public $tableName;
     public $tableNameOrganization;
-    public $tableOptions;
+    public $tableOptions = 'ENGINE=InnoDB DEFAULT CHARSET=utf8';
 
     public $tableNameUser = 'user_users';
 

@@ -4,6 +4,7 @@ namespace app\modules\sbisTenzor\classes;
 
 use app\exceptions\ModelValidationException;
 use app\modules\sbisTenzor\classes\SBISProcessor\SBISFetcher;
+use app\modules\sbisTenzor\classes\SBISProcessor\SBISGenerator;
 use app\modules\sbisTenzor\classes\SBISProcessor\SBISSender;
 use app\modules\sbisTenzor\classes\SBISProcessor\SBISSigner;
 use app\modules\sbisTenzor\models\SBISDocument;
@@ -18,11 +19,13 @@ abstract class SBISProcessor
     const TYPE_SENDER = 'sender';
     const TYPE_FETCHER = 'fetcher';
     const TYPE_SIGNER = 'signer';
+    const TYPE_GENERATOR = 'generator';
 
     protected static $classes = [
         self::TYPE_SENDER => SBISSender::class,
         self::TYPE_FETCHER => SBISFetcher::class,
         self::TYPE_SIGNER => SBISSigner::class,
+        self::TYPE_GENERATOR => SBISGenerator::class,
     ];
 
     /** @var SBISTensorAPI[] */

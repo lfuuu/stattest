@@ -43,6 +43,16 @@ echo Breadcrumbs::widget([
                 ],
             ]);
         }
+        if ($form->getShowCancelAutoButton()) {
+            $out .= $this->render('//layouts/_button', [
+                'text' => 'Отменить',
+                'glyphicon' => 'glyphicon-remove',
+                'params' => [
+                    'class' => 'btn btn-warning',
+                    'onClick' => sprintf('if (confirm("%s")) { window.location.href = "%s"; };', 'Отменить данный пакет?', $form->getCancelAutoUrl()),
+                ],
+            ]);
+        }
 
         if ($form->getShowRestoreButton()) {
             $out .= $this->render('//layouts/_button', [
@@ -51,6 +61,16 @@ echo Breadcrumbs::widget([
                 'params' => [
                     'class' => 'btn btn-info',
                     'onClick' => sprintf('if (confirm("%s")) { window.location.href = "%s"; };', 'Восстановить данный пакет?', $form->getRestoreUrl()),
+                ],
+            ]);
+        }
+        if ($form->getShowRestoreAutoButton()) {
+            $out .= $this->render('//layouts/_button', [
+                'text' => 'Восстановить',
+                'glyphicon' => 'glyphicon-ok',
+                'params' => [
+                    'class' => 'btn btn-info',
+                    'onClick' => sprintf('if (confirm("%s")) { window.location.href = "%s"; };', 'Восстановить данный пакет?', $form->getRestoreAutoUrl()),
                 ],
             ]);
         }
@@ -63,6 +83,14 @@ echo Breadcrumbs::widget([
                     'class' => 'btn btn-success',
                     'onClick' => sprintf('window.location.href = "%s";', $form->getStartUrl()),
                 ],
+            ]);
+        }
+
+        if ($form->getShowRefreshButton()) {
+            $out .= $this->render('//layouts/_buttonLink', [
+                'url' => \Yii::$app->getRequest()->getUrl(),
+                'text' => 'Обновить',
+                'glyphicon' => 'glyphicon-refresh',
             ]);
         }
 
@@ -107,7 +135,7 @@ echo Breadcrumbs::widget([
             foreach ($model->getStatusesChain() as $chain) {
                 $itemText = $chain['name'];
                 $addedClass = $chain['passed'] ? 'btn-info' : 'btn-default';
-                $itemText = '<label class="btn btn-xs ' . $addedClass . '">' . $itemText . '</label>';
+                $itemText = '<label class="btn btn-xs ' . $addedClass . '" title="' . $chain['date'] . '">' . $itemText . '</label>';
                 $out .= ($out ? '&nbsp;<i class="glyphicon glyphicon-menu-right"></i>&nbsp;' : '') . $itemText;
             }
             echo $out;
@@ -154,6 +182,12 @@ echo Breadcrumbs::widget([
         <td><label>Вложения</label></td>
         <td>
             <?php foreach ($model->attachments as $attachment): ?>
+
+                <?=sprintf(
+                    '<span class="file20 file_%s"></span>',
+                    $attachment->extension
+                );?>
+
                 <?=$attachment->number ?>. <?=$attachment->file_name ?>
                 &nbsp;&nbsp;&nbsp;
                 <a href="<?= Url::toRoute([

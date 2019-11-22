@@ -19,6 +19,7 @@ use app\classes\Utils;
 use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
 use app\models\voip\StatisticDay;
+use app\modules\sbisTenzor\models\SBISExchangeGroup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffStatus;
@@ -79,6 +80,7 @@ use yii\helpers\Url;
  * @property int $price_level
  * @property int $uu_tariff_status_id
  * @property int $show_in_lk
+ * @property int $exchange_group_id
  * @property string $bill_rename1
  *
  * @property-read Currency $currencyModel
@@ -119,6 +121,7 @@ use yii\helpers\Url;
  * @property-read UsageTrunk[] $usageTrunks
  * @property-read UsageCallChat[] $usageCallChats
  * @property-read TariffStatus $tariffStatus
+ * @property-read SBISExchangeGroup $exchangeGroup
  * @property-read ClientAccountComment[] $comments
  * @property-read ClientAccountComment $lastAccountComment
  * @property-read integer $is_show_in_lk
@@ -291,7 +294,7 @@ class ClientAccount extends HistoryActiveRecord
     {
         $rules = [
             ['country_id', 'required'],
-            [['country_id', 'uu_tariff_status_id'], 'integer'],
+            [['country_id', 'uu_tariff_status_id', 'exchange_group_id'], 'integer'],
             ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
             ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC],
             ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC],
@@ -406,6 +409,7 @@ class ClientAccount extends HistoryActiveRecord
             'settings_advance_invoice' => 'Настройки выставления авансовых счетов',
             'upload_to_sales_book' => 'Выгружать с/ф ЛС в книгу продаж',
             'show_in_lk' => 'Показывать ЛС в ЛК',
+            'exchange_group_id' => 'Группа документов для отправки в системе СБИС',
         ];
     }
 
@@ -941,6 +945,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getTariffStatus()
     {
         return $this->hasOne(TariffStatus::class, ['id' => 'uu_tariff_status_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExchangeGroup()
+    {
+        return $this->hasOne(SBISExchangeGroup::class, ['id' => 'exchange_group_id']);
     }
 
     /**

@@ -38,6 +38,15 @@ class ProcessorController extends Controller
     }
 
     /**
+     * Сгенерировать пакеты документов
+     */
+    public function actionGenerate()
+    {
+        $processor = SBISProcessor::createProcessor(SBISProcessor::TYPE_GENERATOR);
+        $this->smartProcess($processor, self::WAITING_TIMEOUT_2_TIMES);
+    }
+
+    /**
      * Умный вызов обработчика
      *
      * @param SBISProcessor $processor

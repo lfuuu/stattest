@@ -495,3 +495,24 @@ label.invalid {
 	text-decoration: line-through;
 	color: grey;
 }
+
+.file20 {
+	display: inline-block;
+	background: url("./images/files/blank.png") no-repeat;
+	width: 20px;
+	height: 20px;
+	margin-bottom: -4px;
+	padding-left: 20px;
+}
+.file_pdf {
+	background: url("./images/files/pdf.png") no-repeat;
+}
+.file_xml {
+	background: url("./images/files/xml.png") no-repeat;
+}
+.file_jpg, .file_jpeg {
+	background: url("./images/files/jpg.png") no-repeat;
+}
+.file_png {
+	background: url("./images/files/png.png") no-repeat;
+}

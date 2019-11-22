@@ -11,8 +11,8 @@ use app\classes\model\ActiveRecord;
 use app\dao\InvoiceDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\uu\models_light\InvoiceLight;
-use Couchbase\Document;
 use yii\base\InvalidCallException;
 use yii\db\Expression;
 use yii\web\NotAcceptableHttpException;
@@ -88,6 +88,10 @@ class Invoice extends ActiveRecord
         ];
     }
 
+    /**
+     * @return InvoiceDao
+     * @throws \yii\base\Exception
+     */
     public static function dao()
     {
         return InvoiceDao::me();
@@ -114,7 +118,7 @@ class Invoice extends ActiveRecord
      */
     public function getOrganization()
     {
-        return $this->hasOne(Organization::class, ['organization_id' => 'id']);
+        return $this->hasOne(Organization::class, ['id' => 'organization_id']);
     }
 
     /**
@@ -549,8 +553,33 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * Получить начальную дату
+     *
+     * @return string
+     */
+    public function getInitialDate()
+    {
+        if ($this->correction_idx) {
+            return self::find()
+                ->select('date')
+                ->where([
+                    'number' => $this->number,
+                    'is_reversal' => false,
+                ])
+                ->orderBy(['correction_idx' => SORT_ASC])
+                ->limit(1)
+                ->scalar();
+        }
+
+        return $this->date;
+    }
+
+    /**
+     * Получить путь к pdf-файлу
+     *
      * @param $document
      * @return string
+     * @throws \Exception
      */
     public function getFilePath($document)
     {
@@ -591,6 +620,8 @@ class Invoice extends ActiveRecord
     /**
      * @param string $document
      * @return bool
+     * @throws NotAcceptableHttpException
+     * @throws \HttpResponseException
      */
     public function generatePdfFile($document)
     {
@@ -664,5 +695,37 @@ class Invoice extends ActiveRecord
         }
 
         return $req->content;
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isAllPdfGenerated()
+    {
+        if ($this->is_act && !file_exists($this->getFilePath(BillDocument::TYPE_ACT))) {
+            return false;
+        }
+
+        if ($this->is_invoice && !file_exists($this->getFilePath(BillDocument::TYPE_INVOICE))) {
+            return false;
+        }
+
+        return $this->is_act || $this->is_invoice;
+    }
+
+    /**
+     * @param int $invoiceId
+     * @throws ModelValidationException
+     * @throws \yii\base\Exception
+     * @throws \Exception
+     */
+    public static function checkAllPdfFiles($invoiceId)
+    {
+        $invoice = Invoice::findOne(['id' => $invoiceId]);
+
+        if ($invoice && $invoice->isAllPdfGenerated()) {
+            EventQueue::go(EventQueue::INVOICE_ALL_PDF_CREATED, ['id' => $invoice->id]);
+        }
     }
 }

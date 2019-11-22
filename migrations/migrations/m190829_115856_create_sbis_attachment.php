@@ -9,7 +9,7 @@ use app\modules\sbisTenzor\models\SBISDocument;
 class m190829_115856_create_sbis_attachment extends \app\classes\Migration
 {
     public $tableName;
-    public $tableOptions;
+    public $tableOptions = 'ENGINE=InnoDB DEFAULT CHARSET=utf8';
 
     public $tableNameUser = 'user_users';
     public $tableNameSBISDocument;

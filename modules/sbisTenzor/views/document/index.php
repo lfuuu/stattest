@@ -5,6 +5,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\classes\SBISDocumentStatus;
 use app\modules\sbisTenzor\models\SBISDocument;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 use kartik\grid\ActionColumn;
 use app\classes\grid\GridView;
@@ -13,8 +14,11 @@ use app\classes\grid\GridView;
  * @var ActiveDataProvider $dataProvider
  * @var \app\classes\BaseView $baseView
  * @var int $clientId
+ * @var int $isAuto
  * @var int $state
  * @var string $title
+ * @var int $sendAutoCount
+ * @var string $sendAutoConfirmText
  */
 
 $baseView = $this;
@@ -28,6 +32,29 @@ echo Breadcrumbs::widget([
         ['label' => $this->title = $title,],
     ],
 ]);
+
+?>
+
+<?php
+    if ($clientId && $isAuto) :
+?>
+    <div class="text-center text-success">
+        Для данного клиента включена автоматическая генерация пакетов документов для отправки в СБИС.<br />
+        Выключить данную настройку вы можете в <a href="<?= Url::toRoute(['/account/edit', 'id' => $clientId]) ?>">профиле клиента</a>.
+    </div>
+<?php
+    elseif ($clientId) :
+?>
+    <div class="text-center text-warning">
+        Для данного клиента выключена автоматическая генерация пакетов документов для отправки в СБИС.<br />
+        Включить данную настройку вы можете в <a href="<?= Url::toRoute(['/account/edit', 'id' => $clientId]) ?>">профиле клиента</a>.
+    </div>
+<?php
+    endif;
+?>
+
+
+<?php
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
@@ -85,7 +112,22 @@ echo GridView::widget([
             'label' => 'Вложений',
             'format' => 'html',
             'value'     => function (SBISDocument $model) {
-                return Html::a(count($model->attachments), $model->getUrl());
+                return
+                    implode(
+                        '',
+                        array_map(function($attachment) {
+                            return
+                                sprintf(
+                                    '<a href="%s" title="%s"><span class="file20 file_%s"></span></a>',
+                                    Url::toRoute([
+                                        '/sbisTenzor/document/download-attachment',
+                                        'id' => $attachment->id,
+                                    ]),
+                                    $attachment->file_name,
+                                    $attachment->extension
+                                );
+                        }, $model->attachments)
+                    );
             },
         ],
         [
@@ -93,7 +135,10 @@ echo GridView::widget([
             'label' => 'Подписан',
             'format' => 'html',
             'value'     => function (SBISDocument $model) use ($baseView) {
-                return $model->isSigned() ? $baseView->render('//layouts/_actionEnable') : $baseView->render('//layouts/_actionDisable');
+                return
+                    $model->isSigned() ?
+                        Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']) :
+                        Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
             },
         ],
         [
@@ -102,7 +147,7 @@ echo GridView::widget([
             'value'     => function (SBISDocument $model) {
                 $external = $model->external_state_name ? : '';
                 $external = $external ? sprintf(' (%s)', $external) : '';
-                return Html::a($model->stateName . $external, $model->getUrl());;
+                return Html::a($model->stateName . $external, $model->getUrl());
             },
         ],
         [
@@ -152,6 +197,13 @@ echo GridView::widget([
             ]
         ) .
             $this->render('//layouts/_buttonLink', [
+                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::CREATED . ($clientId ? '&clientId=' . $clientId : ''),
+                    'text' => 'На отправку',
+                    'glyphicon' => 'glyphicon-filter',
+                    'class' => 'btn-xs btn-' . ($state == SBISDocumentStatus::CREATED ? 'primary' : 'default'),
+                ]
+            ) .
+            $this->render('//layouts/_buttonLink', [
                     'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::CANCELLED . ($clientId ? '&clientId=' . $clientId : ''),
                     'text' => 'Отменённые',
                     'glyphicon' => 'glyphicon-filter',
@@ -166,7 +218,19 @@ echo GridView::widget([
                 ]
             ) .
             '&nbsp;&nbsp;&nbsp;' .
-            $this->render('//layouts/_buttonCreate', ['url' => '/sbisTenzor/document/add' . ($clientId ? '?clientId=' . $clientId : '')]),
+            $this->render('//layouts/_buttonCreate', ['url' => '/sbisTenzor/document/add' . ($clientId ? '?clientId=' . $clientId : '')]) .
+            $this->render(
+                '//layouts/_link',
+                [
+                    'url' => '/sbisTenzor/document/send-auto' . ($clientId ? '?clientId=' . $clientId : ''),
+                    'text' => sprintf('Отправить подготовленные пакеты (%s)', $sendAutoCount),
+                    'glyphicon' => 'glyphicon-send',
+                    'params' => [
+                        'onClick' => 'return confirm("' . $sendAutoConfirmText . '")',
+                        'class' => 'btn btn-success',
+                    ],
+                ]
+            ),
     'isFilterButton' => false,
     'floatHeader' => false,
 ]);

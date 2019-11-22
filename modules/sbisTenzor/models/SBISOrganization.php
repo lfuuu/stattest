@@ -19,6 +19,7 @@ use yii\db\Expression;
  * @property integer $id
  * @property integer $organization_id
  * @property integer $is_active
+ * @property string $exchange_id
  * @property integer $is_sign_needed
  * @property string $thumbprint
  * @property string $date_of_expire
@@ -57,11 +58,14 @@ class SBISOrganization extends ActiveRecord
     public function rules()
     {
         return [
-            [['organization_id', 'is_active', 'is_sign_needed', 'thumbprint', 'date_of_expire', 'created_at'], 'required'],
+            [['organization_id', 'is_active', 'is_sign_needed', 'thumbprint', 'date_of_expire'], 'required'],
             [['organization_id', 'updated_by'], 'integer'],
-            [['is_active', 'is_sign_needed', 'date_of_expire', 'created_at', 'updated_at', 'last_fetched_at'], 'safe'],
+            [['date_of_expire', 'created_at', 'updated_at', 'last_fetched_at'], 'safe'],
+            [['is_active', 'is_sign_needed'], 'string', 'max' => 1],
+            [['exchange_id'], 'string', 'max' => 46],
             [['thumbprint'], 'string', 'max' => 2048],
             [['last_event_id', 'previous_event_id'], 'string', 'max' => 36],
+            [['organization_id', 'is_active'], 'unique', 'targetAttribute' => ['organization_id', 'is_active'], 'message' => 'The combination of Organization ID and Is Active has already been taken.'],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
         ];
     }

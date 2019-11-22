@@ -1,0 +1,270 @@
+<?php
+
+namespace app\modules\sbisTenzor\classes\XmlGenerator;
+
+use app\models\ClientContragent;
+use app\modules\sbisTenzor\classes\XmlGenerator;
+
+class Invoice2016Form5_02 extends XmlGenerator
+{
+    /** @var string */
+    protected $formVersion = '5.02';
+    /** @var int */
+    protected $kndCode = 1115125;
+    /** @var string */
+    protected $fileIdPattern = 'ON_SCHFDOPPR_{A}_{O}_{GGGGMMDD}_{N}';
+    /** @var string */
+    protected $signerBaseAttribute = 'ОснПолн';
+
+    /**
+     * Создает свойство Документ
+     *
+     * @param \DOMDocument $dom
+     * @return \DOMElement
+     */
+    protected function createElementDocument(\DOMDocument $dom)
+    {
+        $elDoc = parent::createElementDocument($dom);
+        $elDoc->setAttribute('Функция', 'СЧФ');
+
+        return $elDoc;
+    }
+
+    /**
+     * Заполняет свойство Файл.Документ
+     *
+     * @param \DOMElement $elDoc
+     * @throws \Exception
+     */
+    protected function fillElementDocument(\DOMElement $elDoc)
+    {
+        $dom = $elDoc->ownerDocument;
+        // --------------------------------------------------------------------------------------------------------------
+        // Файл.Документ.СвСчФакт
+        $elInvoiceInfo = $dom->createElement('СвСчФакт');
+        $elInvoiceInfo->setAttribute('ДатаСчФ', $this->invoiceInitialDate->format('d.m.Y'));
+        $elInvoiceInfo->setAttribute('КодОКВ', $this->bill->currencyModel->code);
+        $elInvoiceInfo->setAttribute('НомерСчФ', $this->invoice->number);
+
+        if ($this->invoice->correction_idx >= 1) {
+            $elInfoCorrection = $dom->createElement('ИспрСчФ');
+            $elInfoCorrection->setAttribute('НомИспрСчФ', $this->invoice->correction_idx);
+            //$elInfoCorrection->setAttribute('ДефНомИспрСчФ', $this->invoice->correction_idx - 1);
+            $elInfoCorrection->setAttribute('ДатаИспрСчФ', $this->invoiceDate->format('d.m.Y'));
+            //$elInfoCorrection->setAttribute('ДефДатаИспрСчФ', $this->invoiceDate->format('d.m.Y'));
+            $elInvoiceInfo->appendChild($elInfoCorrection);
+        }
+
+        $elInfoSeller = $dom->createElement('СвПрод');
+        $elInvoiceInfo->appendChild($elInfoSeller);
+
+        $elInfoSellerId = $dom->createElement('ИдСв');
+        $elInfoSeller->appendChild($elInfoSellerId);
+
+        $elInfoSellerIdData = $dom->createElement('СвЮЛУч');
+        $elInfoSellerIdData->setAttribute('ИННЮЛ', $this->organizationFrom->tax_registration_id);
+        $elInfoSellerIdData->setAttribute('КПП', $this->organizationFrom->tax_registration_reason);
+        $elInfoSellerIdData->setAttribute('НаимОрг', $this->prepareText($this->organizationFrom->full_name));
+        $elInfoSellerId->appendChild($elInfoSellerIdData);
+
+        $elInfoSellerAddress = $dom->createElement('Адрес');
+        $elInfoSeller->appendChild($elInfoSellerAddress);
+
+        $elInfoSellerAddressData = $dom->createElement('АдрИнф');
+        $elInfoSellerAddressData->setAttribute('АдрТекст', $this->organizationFrom->legal_address);
+        $elInfoSellerAddressData->setAttribute('КодСтр', $this->organizationFrom->country_id);
+        $elInfoSellerAddress->appendChild($elInfoSellerAddressData);
+
+        $elInfoBuyer = $dom->createElement('СвПокуп');
+        $elInvoiceInfo->appendChild($elInfoBuyer);
+
+        $elInfoBuyerId = $dom->createElement('ИдСв');
+        $elInfoBuyer->appendChild($elInfoBuyerId);
+
+        $this->addBuyerInfo($elInfoBuyerId);
+
+        $elInfoBuyerAddress = $dom->createElement('Адрес');
+        $elInfoBuyer->appendChild($elInfoBuyerAddress);
+
+        $elInfoBuyerAddressData = $dom->createElement('АдрИнф');
+        $elInfoBuyerAddressData->setAttribute('АдрТекст', $this->client->contragent->address_jur);
+        $elInfoBuyerAddressData->setAttribute('КодСтр', $this->client->contragent->country_id);
+        $elInfoBuyerAddress->appendChild($elInfoBuyerAddressData);
+
+        $clientContacts = $this->client->getOfficialContact();
+        $phone = array_shift($clientContacts['phone']);
+        if ($phone) {
+            $elInfoBuyerContact = $dom->createElement('Контакт');
+            $elInfoBuyerContact->setAttribute('Тлф', $phone);
+            $elInfoBuyer->appendChild($elInfoBuyerContact);
+        }
+
+        // --------------------------------------------------------------------------------------------------------------
+        // Файл.Документ.ТаблСчФакт
+        $elInvoiceTable = $this->addElementItemsTable($dom);
+
+        // --------------------------------------------------------------------------------------------------------------
+        // Файл.Документ.СвПродПер
+        $elPass = $dom->createElement('СвПродПер');
+        $elPassInfo = $dom->createElement('СвПер');
+        $elPassInfo->setAttribute('СодОпер', 'Реализация');
+        $elPass->appendChild($elPassInfo);
+
+        $elPassInfoMain = $dom->createElement('ОснПер');
+        $elPassInfoMain->setAttribute('ДатаОсн', '14.02.2012');
+        $elPassInfoMain->setAttribute('НаимОсн', '1 от 14.02.2012');
+        $elPassInfoMain->setAttribute('НомОсн', 1);
+        $elPassInfo->appendChild($elPassInfoMain);
+
+        // add
+        $elDoc->appendChild($elInvoiceInfo);
+        $elDoc->appendChild($elInvoiceTable);
+        $elDoc->appendChild($elPass);
+    }
+
+    /**
+     * Информация о Покупателе
+     *
+     * @param \DOMElement $elInfoBuyerId
+     * @throws \Exception
+     */
+    protected function addBuyerInfo(\DOMElement $elInfoBuyerId)
+    {
+        switch ($this->client->contragent->legal_type) {
+            case ClientContragent::LEGAL_TYPE:
+                $this->addBuyerInfoLegal($elInfoBuyerId);
+                break;
+
+            case ClientContragent::IP_TYPE:
+                $this->addBuyerInfoIp($elInfoBuyerId);
+                break;
+
+            case ClientContragent::PERSON_TYPE:
+                // TODO: может ли вообще использоваться?
+                $this->addBuyerInfoPerson($elInfoBuyerId);
+                break;
+        }
+    }
+
+    /**
+     * Информация о Покупателе - Организации
+     *
+     * @param \DOMElement $elInfoBuyerId
+     */
+    protected function addBuyerInfoLegal(\DOMElement $elInfoBuyerId)
+    {
+        $dom = $elInfoBuyerId->ownerDocument;
+
+        $elInfoBuyerIdData = $dom->createElement('СвЮЛУч');
+        $elInfoBuyerIdData->setAttribute('ИННЮЛ', $this->client->contragent->inn);
+        $elInfoBuyerIdData->setAttribute('КПП', $this->client->contragent->kpp);
+        $elInfoBuyerIdData->setAttribute('НаимОрг', $this->prepareText($this->client->contragent->name_full));
+        $elInfoBuyerId->appendChild($elInfoBuyerIdData);
+    }
+
+    /**
+     * Информация о Покупателе - ИП
+     *
+     * @param \DOMElement $elInfoBuyerId
+     */
+    protected function addBuyerInfoIp(\DOMElement $elInfoBuyerId)
+    {
+        $dom = $elInfoBuyerId->ownerDocument;
+
+        $elInfoBuyerIdType = $dom->createElement('СвИП');
+        $elInfoBuyerIdType->setAttribute('ИННФЛ', $this->client->contragent->inn);
+        $elInfoBuyerId->appendChild($elInfoBuyerIdType);
+
+        $elInfoBuyerIdTypeData = $dom->createElement('ФИО');
+        $initials = $this->getInitials($this->client->contragent->name_full);
+        $elInfoBuyerIdTypeData->setAttribute('Имя', $initials[1]);
+        $elInfoBuyerIdTypeData->setAttribute('Отчество', $initials[2]);
+        $elInfoBuyerIdTypeData->setAttribute('Фамилия', $initials[0]);
+        $elInfoBuyerIdType->appendChild($elInfoBuyerIdTypeData);
+    }
+
+    /**
+     * Информация о Покупателе - ФЛ
+     *
+     * @param \DOMElement $elInfoBuyerId
+     * @throws \Exception
+     */
+    protected function addBuyerInfoPerson(\DOMElement $elInfoBuyerId)
+    {
+        throw new \Exception(
+            sprintf('Данный документ не предназначен для работы с физическими лицами!')
+        );
+    }
+
+    /**
+     * Добавить таблицу товаров Файл.Документ.ТаблСчФакт
+     *
+     * @param \DOMDocument $dom
+     * @return \DOMElement
+     */
+    protected function addElementItemsTable(\DOMDocument $dom)
+    {
+        $elInvoiceTable = $dom->createElement('ТаблСчФакт');
+
+        $index = 1;
+        $maxVatRate = 0;
+        foreach ($this->invoice->lines as $line) {
+            $elLine = $dom->createElement('СведТов');
+            $elLine->setAttribute('НомСтр', $index++);
+            $elLine->setAttribute('НалСт', $line->getVat_rate() . '%');
+            $elLine->setAttribute('НаимТов', $this->prepareText($line->getFullName()));// optional
+            $elLine->setAttribute('СтТовУчНал', $this->formatNumber($line->getPrice_with_vat()));// optional
+            // http://www.classbase.ru/okei
+            // 796 - штука
+            //$elLine->setAttribute('ОКЕИ_Тов', 796); // choice1
+            $elLine->setAttribute('КолТов', $this->formatNumber($line->getAmount(), 3));// optional
+            $elLine->setAttribute('СтТовБезНДС', $this->formatNumber($line->getPrice_without_vat()));// optional
+            $elLine->setAttribute('ЦенаТов', $this->formatNumber($line->price));// optional
+            $elInvoiceTable->appendChild($elLine);
+
+            $elLineExcise = $dom->createElement('Акциз');
+            $elLine->appendChild($elLineExcise);
+            $excise = $dom->createElement('БезАкциз', $this->formatText('без акциза'));
+            $elLineExcise->appendChild($excise);
+
+            $elLineTaxSum = $dom->createElement('СумНал');
+            $this->addTaxSumElement($elLineTaxSum, $line->getVat_rate(), $line->getVat());
+            $elLine->appendChild($elLineTaxSum);
+
+            $maxVatRate = max($maxVatRate, $line->getVat_rate());
+        }
+
+        $elTotal = $dom->createElement('ВсегоОпл');// required
+        $elTotal->setAttribute('СтТовБезНДСВсего', $this->formatNumber($this->invoice->sum_without_tax));
+        $elTotal->setAttribute('СтТовУчНалВсего', $this->formatNumber($this->invoice->sum));// optional
+        $elInvoiceTable->appendChild($elTotal);
+
+        $elTotalSumTotal = $dom->createElement('СумНалВсего');// required
+        $this->addTaxSumElement($elTotalSumTotal, $maxVatRate, $this->invoice->sum_tax);
+        $elTotal->appendChild($elTotalSumTotal);
+
+        return $elInvoiceTable;
+    }
+
+    /**
+     * Добавить свойство СумНДСТип
+     *
+     * @param \DOMElement $elTaxSum
+     * @param int $vatRate
+     * @param float $vatSum
+     * @return \DOMElement
+     */
+    protected function addTaxSumElement(\DOMElement $elTaxSum, $vatRate, $vatSum)
+    {
+        $dom = $elTaxSum->ownerDocument;
+
+        if ($vatRate) {
+            $taxSum = $dom->createElement('СумНал', $this->formatNumber($vatSum));
+        } else {
+            $taxSum = $dom->createElement('БезНДС', $this->formatText('без НДС'));
+        }
+        $elTaxSum->appendChild($taxSum);
+
+        return $elTaxSum;
+    }
+}
