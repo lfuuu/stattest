@@ -79,7 +79,7 @@ $columns = [
             'delete' => function ($url, Tariff $model, $key) use ($baseView) {
                 $params = array_merge(['id' => $model->id], $_GET);
                 return $baseView->render('//layouts/_actionDrop', [
-                    'url' => '/uu/tariff/edit?'. http_build_query($params)
+                    'url' => '/uu/tariff/edit?' . http_build_query($params)
                 ]);
             },
         ],
@@ -417,10 +417,34 @@ foreach ($resources as $resource) {
 
 $dataProvider = $filterModel->search();
 
+$isShowArchiveHtml = Html::beginTag('label') .
+    'Показывать архивные тарифы: ' .
+    Html::checkbox(
+        $filterModel->formName() . '[is_show_archive]',
+        $filterModel->is_show_archive,
+        ['id' => 'is_show_archive']
+    ) .
+    Html::endTag('label');
+
+
+$this->registerJs(
+    new \yii\web\JsExpression(
+        '$("body").on("click", "#is_show_archive", function() {
+                    var name = "Form' . $filterModel->formName() . 'Data";
+                    var data = Cookies.get(name);
+                    data = data ? $.parseJSON(data) : {};
+                    data["is_show_archive"] = $(this).is(\':checked\');
+                    Cookies.set(name, data, { path: "/" });
+                    $("#submitButtonFilter").click();
+                });'
+    )
+);
+
+
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
-    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => Tariff::getUrlNew($serviceType->id)]),
+    'extraButtons' => $isShowArchiveHtml . $this->render('//layouts/_buttonCreate', ['url' => Tariff::getUrlNew($serviceType->id)]),
     'columns' => $columns,
     'exportWidget' => GridViewExport::widget([
         'dataProvider' => $dataProvider,

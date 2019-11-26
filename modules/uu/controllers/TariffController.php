@@ -62,6 +62,7 @@ class TariffController extends BaseController
     {
         $filterModel = new TariffFilter($serviceTypeId);
         $filterModel->load(Yii::$app->request->get());
+        $filterModel->initExtraValues();
 
         return $this->render('index', ['filterModel' => $filterModel]);
     }

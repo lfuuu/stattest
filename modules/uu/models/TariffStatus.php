@@ -47,6 +47,10 @@ class TariffStatus extends ActiveRecord
         self::ID_TEST, self::ID_VOIP_8800_TEST, self::ID_ARCHIVE_TEST
     ];
 
+    const ARCHIVE_LIST = [
+        self::ID_ARCHIVE, self::ID_ARCHIVE_TEST
+    ];
+
     /**
      * @return string
      */

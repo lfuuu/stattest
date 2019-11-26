@@ -7,10 +7,12 @@ use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPerson;
+use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Json;
 
 /**
  * Фильтрация для Tariff
@@ -38,6 +40,8 @@ class TariffFilter extends Tariff
     public $is_default = '';
     public $is_postpaid = '';
 
+    public $is_show_archive = false;
+
 
     /**
      * @return array
@@ -47,6 +51,17 @@ class TariffFilter extends Tariff
         $rules = parent::rules();
         $rules[] = [['country_id', 'voip_country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
         return $rules;
+    }
+
+    public function initExtraValues()
+    {
+        if (isset($_COOKIE['Form' . $this->formName() . 'Data'])) {
+            $data = Json::decode($_COOKIE['Form' . $this->formName() . 'Data']);
+
+            if (isset($data['is_show_archive'])) {
+                $this->is_show_archive = $data['is_show_archive'];
+            }
+        }
     }
 
     /**
@@ -98,6 +113,9 @@ class TariffFilter extends Tariff
         $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
         $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
+
+        !$this->is_show_archive && $query->andWhere(['NOT', ['tariff_status_id' => TariffStatus::ARCHIVE_LIST]]);
+
 
         if ($this->country_id !== '') {
             $query->joinWith('tariffCountries');
