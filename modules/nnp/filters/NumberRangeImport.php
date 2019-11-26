@@ -101,7 +101,7 @@ class NumberRangeImport extends NumberRange
     {
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
-            && strlen($value) >= 3
+            && strlen($value) >= 2
         ) {
             $this->number_from = $value;
             return true;
