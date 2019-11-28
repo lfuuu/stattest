@@ -2263,6 +2263,10 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr', 'RUB');
         }
 
+        if ($obj == 'act') {
+            $obj = 'akt';
+        }
+
         $invoiceId = false;
         if ($obj == 'invoice2') {
             $obj = 'invoice';
