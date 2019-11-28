@@ -3,6 +3,7 @@ namespace app\controllers\usage;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\exceptions\ModelValidationException;
 use app\forms\usage\UsageVoipAddPackageForm;
 use app\forms\usage\UsageVoipDeleteHistoryForm;
 use app\forms\usage\UsageVoipEditForm;
@@ -93,23 +94,35 @@ class VoipController extends BaseController
     {
         $usage = UsageVoip::findOne($id);
 
+        $post = Yii::$app->request->post();
+
         $form = new UsageVoipDeleteHistoryForm();
-        if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
+        if ($form->load($post) && $form->validate() && $form->process()) {
             Yii::$app->session->addFlash('success', 'Тариф удален');
             return $this->redirect(['edit', 'id' => $id]);
         }
 
         $form = new UsageVoipAddPackageForm;
-        if ($form->load(Yii::$app->request->post()) && $form->validate() && $form->process()) {
+        if ($form->load($post) && $form->validate() && $form->process()) {
             Yii::$app->session->addFlash('success', 'Пакет добавлен');
             return $this->redirect(['edit', 'id' => $id]);
+        }
+
+
+        if (!$usage->isActive() && $post && isset($post['UsageVoipEditForm'])) {
+            $usage->address = $post['UsageVoipEditForm']['address'];
+            $usage->usage_comment = $post['UsageVoipEditForm']['usage_comment'];
+
+            if (!$usage->save()) {
+                throw new ModelValidationException($usage);
+            }
         }
 
         $model = new UsageVoipEditForm;
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($usage->clientAccount, $usage);
 
-        if ($model->load(Yii::$app->request->post())) {
+        if ($usage->isActive() && $model->load(Yii::$app->request->post())) {
             if ($model->scenario === 'edit' && $model->validate() && $model->edit()) {
                 Yii::$app->session->addFlash('success', 'Запись обновлена');
                 return $this->redirect(['edit', 'id' => $model->id]);

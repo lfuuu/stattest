@@ -160,8 +160,8 @@ switch ($formModel->serviceTypeId) {
             'value' => function (AccountTariff $accountTariff) {
                 return $this->render('//layouts/_buttonLink',
                     ['url' => Url::toRoute(['/callTracking/log',]),
-                    'text' => 'CallTracking',
-                ]);
+                        'text' => 'CallTracking',
+                    ]);
             }
         ];
         break;
@@ -228,7 +228,7 @@ switch ($formModel->serviceTypeId) {
         $attributes[] = [
             'attribute' => 'calltracking_params',
             'format' => 'raw',
-            'value' => function(AccountTariff $accountTariff) {
+            'value' => function (AccountTariff $accountTariff) {
                 return '<pre>' . json_encode(json_decode($accountTariff->calltracking_params), JSON_PRETTY_PRINT) . '</pre>';
             },
         ];
@@ -241,6 +241,32 @@ switch ($formModel->serviceTypeId) {
     'model' => $accountTariff,
     'attributes' => $attributes,
 ]) ?>
+
+<?php if ($formModel->serviceTypeId == ServiceType::ID_VOIP) : ?>
+    <?php $form = \kartik\form\ActiveForm::begin([
+        'id' => 'addAccountTariffVoipForm',
+    ]); ?>
+    <div class="well">
+        <div class="row">
+            <div class="col-sm-10">
+                <?=$form->field($formModel->accountTariff, 'device_address')->textInput() ?>
+            </div>
+            <div class="col-sm-2">
+                <label class="control-label">&nbsp;</label>
+                <?= $this->render('//layouts/_submitButton', [
+                    'text' => Yii::t('common', 'Save'),
+                    'glyphicon' => 'glyphicon-save',
+                    'params' => [
+                            'class' => 'btn btn-primary form-control',
+                            'id' => 'submit-button'
+                        ],
+                ]) ?>
+
+            </div>
+        </div>
+    </div>
+    <?php \kartik\form\ActiveForm::end(); ?>
+<?php endif; ?>
 
 <div class="well">
     <?= $this->render('//layouts/_showHistory', ['model' => $accountTariff]) ?>
