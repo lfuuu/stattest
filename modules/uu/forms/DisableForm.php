@@ -79,6 +79,15 @@ class DisableForm extends Form
                     continue;
                 }
 
+
+                $accountTariffLogs = $accountTariff->accountTariffLogs;
+                if (($lastTariffLog = reset($accountTariffLogs)) && !$lastTariffLog->tariff_period_id) {
+                    if ($lastTariffLog->actual_from_utc < $datetimeStr) {
+                        $message .= 'уже отключено';
+                        continue;
+                    }
+                }
+
                 $this->serviceCount++;
 
                 $accountTariff->setClosed($datetimeStr);
