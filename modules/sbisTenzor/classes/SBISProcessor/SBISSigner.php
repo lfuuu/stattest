@@ -30,7 +30,7 @@ class SBISSigner extends SBISProcessor
             ->joinWith('attachments')
             ->where(['sbis_organization_id' => $sbisOrganizationId])
             ->andWhere(['=', 'state', SBISDocumentStatus::PROCESSING])
-            ->andWhere(['<', 'tries', SBISDocument::getMaxTries()])
+            ->andWhere(['<=', 'tries', SBISDocument::getMaxTries()])
             ->orderBy([
                 'priority' => SORT_DESC,
                 'state' => SORT_DESC,
@@ -96,17 +96,44 @@ class SBISSigner extends SBISProcessor
 
                     Yii::error($e);
                     $errorText = sprintf(
-                        'Ошибка обработчика подписи документов (document id: %s): %s',
-                        $document->id,
+                        'Ошибка обработчика подписи документов: %s',
                         $e->getMessage()
                     );
 
                     $document->addErrorText($errorText);
+                    if (!$document->save()) {
+                        throw new ModelValidationException($document);
+                    }
                 }
             }
         }
 
         return $processed;
+    }
+
+    /**
+     * Предобработка пакета документов
+     *
+     * @param SBISDocument $document
+     * @return bool
+     * @throws ModelValidationException
+     * @throws \Exception
+     */
+    protected function beforeProcess(SBISDocument $document)
+    {
+        $tries = $document->tries;
+
+        if (++$tries <= SBISDocument::getMaxTries()) {
+            $document->tries = $tries;
+        } else {
+            $document->setState(SBISDocumentStatus::ERROR);
+        }
+
+        if (!$document->save()) {
+            throw new ModelValidationException($document);
+        }
+
+        return true;
     }
 
     /**

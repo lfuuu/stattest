@@ -243,7 +243,7 @@ class SBISFetcher extends SBISProcessor
 
                 default:
                     $document->addErrorText(
-                        sprintf('SBISDocument #%s, %s in unknown state while fetching: %s', $document->id, $document->external_id, $document->state)
+                        sprintf('Unknown state while fetching: %s', $document->state)
                     );
             }
 

@@ -109,7 +109,10 @@ class SBISGeneratedDraft extends ActiveRecord
      */
     public function addErrorText($errorText)
     {
-        Yii::error($errorText, SBISDocument::LOG_CATEGORY);
+        Yii::error(
+            sprintf('SBISGeneratedDraft #%s: %s', $this->id, $errorText),
+            SBISDocument::LOG_CATEGORY
+        );
 
         $now = new DateTime('now');
         $this->errors .=

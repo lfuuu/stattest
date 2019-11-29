@@ -197,7 +197,10 @@ class SBISDocument extends ActiveRecord
      */
     public function addErrorText($errorText)
     {
-        Yii::error($errorText, SBISDocument::LOG_CATEGORY);
+        Yii::error(
+            sprintf('SBISDocument #%s, %s: %s', $this->id, $this->external_id, $errorText),
+            SBISDocument::LOG_CATEGORY
+        );
 
         $now = new DateTime('now');
         $this->errors .=

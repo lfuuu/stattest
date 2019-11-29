@@ -39,7 +39,7 @@ class SBISSender extends SBISProcessor
                     SBISDocumentStatus::READY,
                 ]
             ])
-            ->andWhere(['<', 'tries', SBISDocument::getMaxTries()])
+            ->andWhere(['<=', 'tries', SBISDocument::getMaxTries()])
             ->orderBy([
                 'priority' => SORT_DESC,
                 'state' => SORT_DESC,
@@ -79,12 +79,14 @@ class SBISSender extends SBISProcessor
                     $transaction->rollBack();
                     Yii::error($e);
                     $errorText = sprintf(
-                        'Ошибка обработчика отправки документов (document id: %s): %s',
-                        $document->id,
+                        'Ошибка обработчика отправки документов: %s',
                         $e->getMessage()
                     );
 
                     $document->addErrorText($errorText);
+                    if (!$document->save()) {
+                        throw new ModelValidationException($document);
+                    }
                 }
             }
         }
