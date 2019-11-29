@@ -204,11 +204,12 @@ echo Breadcrumbs::widget([
                         '<span class="text-warning"><i class="glyphicon glyphicon-question-sign"></i>&nbsp;Не подписан</span>'
                 ?>
                 <?php
-                    if ($attachment->is_sign_needed) {
-                        $hash = $attachment->getGeneratedHash();
+                    $hash = $attachment->hash;
+                    if ($attachment->is_sign_needed && $hash) {
+                        $ourHash = $attachment->getGeneratedHash();
                         ?>
-                            <br />Хэш СБИС: <?=$attachment->hash ?>
-                            <br />Хэш файл: <?=$hash ?> <?=
+                            <br />Хэш СБИС: <?=$hash ?>
+                            <br />Хэш файл: <?=$ourHash ?> <?=
                                 $hash ?
                                     (
                                         $attachment->isHashesEqual() ?
@@ -235,6 +236,10 @@ echo Breadcrumbs::widget([
     <tr>
         <td><label><?= $model->getAttributeLabel('updated_at'); ?></label></td>
         <td><?= DateTimeZoneHelper::getDateTime($model->updated_at) ?><?= ($model->updatedBy ? (' (' . $model->updatedBy->name . ')') : '') ?></td>
+    </tr>
+    <tr>
+        <td><label><?= $model->getAttributeLabel('tries'); ?></label></td>
+        <td><?= $model->tries ?></td>
     </tr>
     <tr>
         <td><label><?= $model->getAttributeLabel('started_at'); ?></label></td>
