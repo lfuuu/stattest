@@ -17,6 +17,7 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use yii\base\InvalidConfigException;
+use yii\base\InvalidValueException;
 
 class SBISDocumentManager
 {
@@ -147,7 +148,13 @@ class SBISDocumentManager
 
         foreach ($this->client->exchangeGroup->getExchangeFiles() as $exchangeFile) {
             if ($exchangeFile->isXML()) {
-                $files[] = new SBISFile(null, XmlGenerator::createXmlGenerator($exchangeFile->form, $invoice));
+                // check if valid
+                $xmlFile = XmlGenerator::createXmlGenerator($exchangeFile->form, $invoice);
+                if ($errorText = $xmlFile->getErrorText()) {
+                    throw new InvalidValueException($errorText);
+                }
+
+                $files[] = new SBISFile(null, $xmlFile);
             }
 
             if ($exchangeFile->isPdf()) {
@@ -215,7 +222,7 @@ class SBISDocumentManager
             $attachment->is_sign_needed = $document->sbisOrganization->is_sign_needed;
             $attachment->is_signed = '0';
 
-            $fileName = $attachment->getStoredPath($file->getOfficialFileName(), $this->attachmentsCount);
+            $fileName = $attachment->getFullStoredPath($file->getOfficialFileName(), $this->attachmentsCount);
             if (!$file->saveAs($fileName)) {
                 $this->removeFiles($fileNames);
 

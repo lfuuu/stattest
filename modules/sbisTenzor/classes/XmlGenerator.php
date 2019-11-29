@@ -27,6 +27,12 @@ abstract class XmlGenerator// extends SBISExchangeForm
         SBISExchangeForm::INVOICE_2019_5_01 => Invoice2019Form5_01::class,
     ];
 
+    protected static $xsdFilePathParts = [
+        __DIR__,
+        'XmlGenerator',
+        'schemas'
+    ];
+
     /** @var SBISExchangeForm */
     protected $form;
     /** @var Invoice */
@@ -63,6 +69,8 @@ abstract class XmlGenerator// extends SBISExchangeForm
     protected $organizationFrom;
     /** @var string */
     protected $sbisIdSender;
+    /** @var string */
+    protected $xsdFile;
 
     /**
      * Создание генератора
@@ -149,8 +157,76 @@ abstract class XmlGenerator// extends SBISExchangeForm
      */
     public function getContent()
     {
-        return $this->domDocument->saveXML();
+        //return $this->domDocument->saveXML();
         return $this->domDocument->saveXML($this->domDocument->documentElement);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getXsdFile()
+    {
+        if (!$this->xsdFile) {
+            return '';
+        }
+
+        $parts = self::$xsdFilePathParts;
+        $parts[] = $this->xsdFile;
+
+        return implode(DIRECTORY_SEPARATOR, $parts);
+    }
+
+    /**
+     * Возвращает текст ошибки валидации no схеме xsd
+     *
+     * @return string
+     */
+    public function getErrorText()
+    {
+        $errorText = '';
+
+        $xsdFile = $this->getXsdFile();
+        if (!$xsdFile || !file_exists($xsdFile)) {
+            return $errorText;
+        }
+
+        try {
+            if ($this->domDocument->schemaValidate($xsdFile)) {
+                return $errorText;
+            }
+            $errors = libxml_get_errors() ? : [libxml_get_last_error()];
+            foreach ($errors as $error) {
+                switch ($error->level) {
+                    case LIBXML_ERR_WARNING:
+                        $errorText .= "Warning $error->code: ";
+                        break;
+                    case LIBXML_ERR_ERROR:
+                        $errorText .= "Error $error->code: ";
+                        break;
+                    case LIBXML_ERR_FATAL:
+                        $errorText .= "Fatal Error $error->code: ";
+                        break;
+                }
+
+                $errorText .= trim($error->message);
+                if ($error->file) {
+                    $errorText .= " in $error->file";
+                }
+
+                if ($error->line) {
+                    $errorText .= " on line $error->line" . PHP_EOL;
+                }
+            }
+        } catch (\Exception $e) {
+            $errorText = $e->getMessage();
+
+            // strip 'DOMDocument::schemaValidate(): '
+            if (strpos($errorText, 'DOMDocument::schemaValidate(): ') !== false) {
+                $errorText = substr($errorText, 31);
+            }
+        }
+
+        return $errorText;
     }
 
     /**

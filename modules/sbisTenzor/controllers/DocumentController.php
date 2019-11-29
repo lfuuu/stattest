@@ -251,11 +251,13 @@ class DocumentController extends BaseController
     public function actionDownloadAttachment($id = 0)
     {
         if ($attachment = SBISAttachment::findOne(['id' => $id])) {
+            $fileName = $attachment->getActualStoredPath();
+
             Yii::$app
                 ->response
                 ->sendContentAsFile(
-                    file_get_contents($attachment->stored_path),
-                    $attachment->file_name
+                    file_get_contents($fileName),
+                    basename($fileName)
                 );
         }
 

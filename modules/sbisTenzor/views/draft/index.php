@@ -2,7 +2,7 @@
 
 use app\classes\Html;
 use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
-use app\modules\sbisTenzor\helpers\SBISDataProvider;
+use app\modules\sbisTenzor\classes\XmlGenerator;
 use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use kartik\grid\ActionColumn;
 use yii\data\ActiveDataProvider;
@@ -120,6 +120,13 @@ echo GridView::widget([
                                     'number' => $i++,
                                 ])]
                             );
+
+                        if ($exchangeFile->isXML()) {
+                            $xmlFile = XmlGenerator::createXmlGenerator($exchangeFile->form, $model->invoice);
+                            if ($errorText = $xmlFile->getErrorText()) {
+                                $html .= '<span class="text-danger" title="' . $errorText . '"><i class="glyphicon glyphicon-remove"></i>&nbsp;Ошибки</span>';
+                            }
+                        }
                     }
                 }
 
@@ -148,6 +155,7 @@ echo GridView::widget([
                                 SBISGeneratedDraftStatus::getIconById($model->state),
                                 SBISGeneratedDraftStatus::getTextClassById($model->state)
                         ),
+                        'title' => $model->errors
                     ]
                 );
             },

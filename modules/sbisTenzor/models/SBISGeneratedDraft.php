@@ -3,7 +3,7 @@
 namespace app\modules\sbisTenzor\models;
 
 use app\exceptions\ModelValidationException;
-use app\models\ClientAccount;
+use app\helpers\DateTimeZoneHelper;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
@@ -14,6 +14,7 @@ use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
 use app\modules\sbisTenzor\exceptions\SBISTensorException;
 use app\modules\sbisTenzor\helpers\SBISDataProvider;
 use app\modules\sbisTenzor\helpers\SBISInfo;
+use DateTime;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -26,6 +27,7 @@ use yii\helpers\Url;
  * @property integer $state
  * @property integer $invoice_id
  * @property integer $sbis_document_id
+ * @property string $errors
  * @property string $created_at
  * @property string $updated_at
  *
@@ -53,6 +55,7 @@ class SBISGeneratedDraft extends ActiveRecord
             [['invoice_id', 'state'], 'required'],
             [['invoice_id', 'sbis_document_id', 'state'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
+            [['errors'], 'string'],
             [['invoice_id'], 'unique'],
             [['invoice_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invoice::class, 'targetAttribute' => ['invoice_id' => 'id']],
             [['sbis_document_id'], 'exist', 'skipOnError' => true, 'targetClass' => SBISDocument::class, 'targetAttribute' => ['sbis_document_id' => 'id']],
@@ -77,6 +80,7 @@ class SBISGeneratedDraft extends ActiveRecord
             'state' => 'Статус',
             'invoice_id' => 'Закрывающий документ',
             'sbis_document_id' => 'Пакет документов',
+            'errors' => 'Ошибки',
             'created_at' => 'Добавлен',
             'updated_at' => 'Обновлён',
         ];
@@ -96,6 +100,21 @@ class SBISGeneratedDraft extends ActiveRecord
                 'value' => new Expression("UTC_TIMESTAMP()"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
         ];
+    }
+
+    /**
+     * Добавить ошибку в лог
+     *
+     * @param $errorText
+     */
+    public function addErrorText($errorText)
+    {
+        Yii::error($errorText, SBISDocument::LOG_CATEGORY);
+
+        $now = new DateTime('now');
+        $this->errors .=
+            ($this->errors ? PHP_EOL : '') .
+            sprintf('%s: %s', $now->format(DateTimeZoneHelper::DATETIME_FORMAT), $errorText);
     }
 
     /**

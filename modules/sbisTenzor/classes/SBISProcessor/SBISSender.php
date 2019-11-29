@@ -83,7 +83,8 @@ class SBISSender extends SBISProcessor
                         $document->id,
                         $e->getMessage()
                     );
-                    Yii::error($errorText, SBISDocument::LOG_CATEGORY);
+
+                    $document->addErrorText($errorText);
                 }
             }
         }

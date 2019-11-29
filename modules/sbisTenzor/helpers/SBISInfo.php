@@ -21,9 +21,10 @@ class SBISInfo
      *
      * @param ClientAccount $client
      * @param Organization|null $organization
+     * @param bool $isForce
      * @return string
      */
-    public static function getClientError(ClientAccount $client, Organization $organization = null)
+    public static function getClientError(ClientAccount $client, Organization $organization = null, $isForce = false)
     {
         $sbisOrganization = SBISDataProvider::getSBISOrganizationByClient($client, $organization);
         if (!$sbisOrganization) {
@@ -68,7 +69,7 @@ class SBISInfo
 
         $ready = false;
         try {
-            $ready = SBISInfo::checkExchangeIntegration($client);
+            $ready = SBISInfo::checkExchangeIntegration($client, $isForce);
         } catch (\Exception $e) {}
 
         if (!$ready) {
@@ -139,28 +140,29 @@ class SBISInfo
      * Проверка регистрации клиента в ЭДО
      *
      * @param ClientAccount $client
+     * @param bool $isForce
      * @return bool
      * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
      * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public static function checkExchangeIntegration(ClientAccount $client)
+    public static function checkExchangeIntegration(ClientAccount $client, $isForce = false)
     {
-        return !empty(self::getExchangeIntegrationId($client));
+        return !empty(self::getExchangeIntegrationId($client, $isForce));
     }
 
     /**
      * Получить Идентификатор в ЭДО
      *
      * @param ClientAccount $client
-     * @param bool $force
+     * @param bool $isForce
      * @return string
      * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
      * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      * @throws \Exception
      */
-    public static function getExchangeIntegrationId(ClientAccount $client, $force = false)
+    public static function getExchangeIntegrationId(ClientAccount $client, $isForce = false)
     {
         $edoId = '';
 
@@ -168,11 +170,11 @@ class SBISInfo
         if ($sbisContractor) {
             $edoId = $sbisContractor->exchange_id;
         } else {
-            $force = true;
+            $isForce = true;
             $sbisContractor = new SBISContractor();
         }
 
-        if ($force) {
+        if ($isForce) {
             /** @var Module $module */
             $module = Config::getModule('sbisTenzor');
             $params = $module->getParams();

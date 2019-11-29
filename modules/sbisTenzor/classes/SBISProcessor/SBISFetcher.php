@@ -242,7 +242,9 @@ class SBISFetcher extends SBISProcessor
                     break;
 
                 default:
-                    Yii::error(sprintf('SBISDocument #%s, %s in unknown state while fetching: %s', $document->id, $document->external_id, $document->state), SBISDocument::LOG_CATEGORY);
+                    $document->addErrorText(
+                        sprintf('SBISDocument #%s, %s in unknown state while fetching: %s', $document->id, $document->external_id, $document->state)
+                    );
             }
 
             $document->setState($newState, $dateNow);

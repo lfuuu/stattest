@@ -4,14 +4,18 @@ namespace app\modules\sbisTenzor\classes\XmlGenerator;
 
 class Invoice2019Form5_01 extends Invoice2016Form5_02
 {
+    const KND_CODE = 1115131;
+
     /** @var string */
     protected $softName = 'MCN-Stat';
     /** @var string */
     protected $formVersion = '5.01';
     /** @var int */
-    protected $kndCode = 1115131;
+    protected $kndCode = self::KND_CODE;
     /** @var string */
     protected $fileIdPattern = 'ON_NSCHFDOPPR_{A}_{O}_{GGGGMMDD}_{N}';
+    /** @var string */
+    protected $xsdFile = 'invoice_2019-1115131_5_01.xsd';
 
     /**
      * Информация о Покупателе - ФЛ
@@ -77,7 +81,8 @@ class Invoice2019Form5_01 extends Invoice2016Form5_02
 
         $elTotal = $dom->createElement('ВсегоОпл');// required
         $elTotal->setAttribute('СтТовБезНДСВсего', $this->formatNumber($this->invoice->sum_without_tax));// optional
-        $elTotal->setAttribute('СтТовУчНалВсего', $this->formatNumber($this->invoice->sum));// optional
+        $elTotal->setAttribute('СтТовУчНалВсего', $this->formatNumber($this->invoice->sum));
+        //$elTotal->setAttribute('ДефСтТовУчНалВсего', '-');
         $elInvoiceTable->appendChild($elTotal);
 
         $elTotalSumTotal = $dom->createElement('СумНалВсего');// required

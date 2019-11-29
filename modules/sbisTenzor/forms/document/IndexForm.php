@@ -39,11 +39,17 @@ class IndexForm extends \app\classes\Form
         $query = SBISDocument::find();
 
         if ($this->state) {
-            $query->where(['=', 'state', $this->state]);
+            $states = [$this->state];
+            if ($this->state == SBISDocumentStatus::CREATED) {
+                $states[] = SBISDocumentStatus::CREATED_AUTO;
+            }
+
+            $query->where(['state' => $states]);
         } else {
             $query
                 ->where(['>=', 'state', SBISDocumentStatus::CREATED])
-                ->andWhere(['!=', 'state', SBISDocumentStatus::ACCEPTED]);
+                ->andWhere(['!=', 'state', SBISDocumentStatus::ACCEPTED])
+                ->andWhere(['!=', 'state', SBISDocumentStatus::ERROR]);
         }
 
         if ($this->client) {

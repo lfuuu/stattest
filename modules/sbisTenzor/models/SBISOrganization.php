@@ -22,6 +22,7 @@ use yii\db\Expression;
  * @property string $exchange_id
  * @property integer $is_sign_needed
  * @property string $thumbprint
+ * @property string $algorithm
  * @property string $date_of_expire
  * @property string $last_event_id
  * @property string $previous_event_id
@@ -43,6 +44,7 @@ class SBISOrganization extends ActiveRecord
     public $authUrl;
     public $serviceUrl;
     public $signCommand;
+    public $hashCommand;
 
     /**
      * @inheritdoc
@@ -63,6 +65,7 @@ class SBISOrganization extends ActiveRecord
             [['date_of_expire', 'created_at', 'updated_at', 'last_fetched_at', 'is_active', 'is_sign_needed'], 'safe'],
             [['exchange_id'], 'string', 'max' => 46],
             [['thumbprint'], 'string', 'max' => 2048],
+            [['algorithm'], 'string', 'max' => 32],
             [['last_event_id', 'previous_event_id'], 'string', 'max' => 36],
             [['organization_id', 'is_active'], 'unique', 'targetAttribute' => ['organization_id', 'is_active'], 'message' => 'The combination of Organization ID and Is Active has already been taken.'],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
@@ -88,6 +91,7 @@ class SBISOrganization extends ActiveRecord
             'is_active' => 'Is Active',
             'is_sign_needed' => 'Is Sign Needed',
             'thumbprint' => 'Thumbprint',
+            'algorithm' => 'Algorithm',
             'date_of_expire' => 'Date Of Expire',
             'last_event_id' => 'Last Event ID',
             'previous_event_id' => 'Previous Event ID',

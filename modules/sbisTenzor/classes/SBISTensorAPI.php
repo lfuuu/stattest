@@ -9,6 +9,7 @@ use app\models\Organization;
 use app\modules\sbisTenzor\classes\SBISTensorAPI\SBISDocumentInfo;
 use app\modules\sbisTenzor\exceptions\SBISTensorException;
 use app\modules\sbisTenzor\helpers\SBISUtils;
+use app\modules\sbisTenzor\models\SBISAttachment;
 use app\modules\sbisTenzor\models\SBISDocument;
 use app\modules\sbisTenzor\models\SBISOrganization;
 use DateTime;
@@ -49,6 +50,7 @@ class SBISTensorAPI
     protected $thumbprint;
     protected $needSign;
     public $signCommand;
+    public $hashCommand;
 
     protected $requestId;
 
@@ -107,6 +109,7 @@ class SBISTensorAPI
         $this->needSign = $this->sbisOrganization->is_sign_needed;
         $this->thumbprint = $this->sbisOrganization->thumbprint;
         $this->signCommand = $this->sbisOrganization->signCommand;
+        $this->hashCommand = $this->sbisOrganization->hashCommand;
     }
 
     /**
@@ -746,6 +749,11 @@ class SBISTensorAPI
                 $attachment->url_online = $attachmentData['СсылкаВКабинет'];
                 $attachment->url_html = $attachmentData['СсылкаНаHTML'];
                 $attachment->url_pdf = $attachmentData['СсылкаНаPDF'];
+
+                if ($attachmentData['Модифицирован'] === 'Да') {
+                    // original file modified
+                    $this->processModifiedFile($attachment);
+                }
             }
 
             $document->setAttachments($attachments);
@@ -777,7 +785,7 @@ class SBISTensorAPI
         if ($this->needSign) {
             $attachments = [];
             foreach ($document->attachments as $attachment) {
-                $attachment->sign($this->signCommand);
+                $attachment->sign($this->signCommand, $this->hashCommand);
 
                 $attachments[] = [
                     'Идентификатор' => $attachment->external_id,
@@ -813,5 +821,136 @@ class SBISTensorAPI
             ($document->external_id == $documentInfo->externalId) &&
             ($documentInfo->externalState == SBISDocumentStatus::EXTERNAL_SENT)
             ;
+    }
+
+    /**
+     * Отправка GET запроса в СБИС на получение изменённого файла
+     *
+     * @param SBISAttachment $attachment
+     * @throws BadRequestHttpException
+     * @throws SBISTensorException
+     * @throws \yii\base\Exception
+     * @throws \yii\httpclient\Exception
+     */
+    public function processModifiedFile(SBISAttachment $attachment)
+    {
+        $url = $attachment->link;
+        if (!$url) {
+            $attachment->document->addErrorText(
+                sprintf("SBIS modified file: no link, attachment #%s", $attachment->id)
+            );
+
+            return;
+        }
+
+        $headers = [
+            'Content-Type' => 'application/json-rpc;charset=windows-1251',
+        ];
+
+        if ($authSid = $this->auth()) {
+            $headers['X-SBISSessionID'] = $authSid;
+        }
+
+        $request = [
+            'url' => $url,
+            'headers' => $headers,
+        ];
+
+        // log request
+        $this->requestId = SBISUtils::generateUuid();
+        Yii::info(sprintf('SBIS GET request (%s): %s', $this->requestId, $this->encode($request)), SBISDocument::LOG_CATEGORY);
+
+        try {
+            $response = (new HttpClient())
+                ->createRequest()
+                ->setHeaders($headers)
+                ->setUrl($url)
+                ->setIsCheckOk(false)
+                ->send();
+        } catch (\Exception $e) {
+            $attachment->document->addErrorText(
+                sprintf(
+                    'Неизвестная ошибка от СБИС при GET-запросе %s по адресу %s, ошибка: %s',
+                    $this->requestId,
+                    $url,
+                    $e->getMessage()
+                )
+            );
+
+            return;
+        }
+
+        $this->processModifiedFileResponse($attachment, $response, $url);
+    }
+
+    /**
+     * Обработка ответа от GET-запроса к СБИС
+     *
+     * @param SBISAttachment $attachment
+     * @param Response $response
+     * @param string $url
+     * @throws \yii\httpclient\Exception
+     */
+    protected function processModifiedFileResponse(SBISAttachment $attachment, Response $response, $url = '')
+    {
+        if (!$response) {
+            $attachment->document->addErrorText(
+                sprintf(
+                    'Не получен ответ от СБИС при GET-запросе %s по адресу %s' ,
+                    $this->requestId,
+                    $url
+                )
+            );
+
+            return;
+        }
+
+        if (!$response->getIsOk()) {
+            $attachment->document->addErrorText(
+                sprintf(
+                    'Получен ошибочный ответ от СБИС при GET-запросе %s по адресу %s: %s' ,
+                    $this->requestId,
+                    $url,
+                    $response->getStatusCode()
+                )
+            );
+
+            return;
+        }
+
+        $content = $response->getContent();
+        if (!$content) {
+            $attachment->document->addErrorText(
+                sprintf(
+                    'Не получен тело файла от СБИС при GET-запросе %s по адресу %s, attachment #%s' ,
+                    $this->requestId,
+                    $url,
+                    $attachment->id
+                )
+            );
+
+            return;
+        }
+
+        $contentDisposition = $response->getHeaders()->get('content-disposition');
+        if (!$contentDisposition) {
+            $attachment->document->addErrorText(
+                sprintf("SBIS modified file: empty content-disposition, attachment #%s", $attachment->id)
+            );
+        }
+
+        // log response
+        Yii::info(sprintf('SBIS response for content-disposition "%s" (%s): %s', $contentDisposition, $this->requestId, $this->encode($response->getData())), SBISDocument::LOG_CATEGORY);
+
+        if (
+            !preg_match_all("/[\w_-]+\.\w+/", $contentDisposition, $output) ||
+            empty($output[0][0])
+        ) {
+            $attachment->document->addErrorText(
+                sprintf("SBIS modified file: no file name in content-disposition, attachment #%s: %s", $attachment->id, $contentDisposition)
+            );
+        }
+
+        $attachment->saveModifiedFile($output[0][0], $content);
     }
 }

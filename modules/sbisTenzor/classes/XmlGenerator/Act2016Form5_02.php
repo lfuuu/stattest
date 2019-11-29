@@ -16,6 +16,8 @@ class Act2016Form5_02 extends XmlGenerator
     protected $fileIdPattern = 'DP_REZRUISP_{A}_{O}_{GGGGMMDD}_{N}';
     /** @var string */
     protected $signerBaseAttribute = 'ОснПолнПодп';
+    /** @var string */
+    protected $xsdFile = 'act_2016-1175012_5_02.xsd';
 
     /**
      * Создает свойство Файл.Документ

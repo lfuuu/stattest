@@ -5,7 +5,6 @@ namespace app\forms\client;
 use app\classes\api\ApiCore;
 use app\classes\Assert;
 use app\classes\Form;
-use app\classes\model\ActiveRecord;
 use app\classes\traits\GetListTrait;
 use app\classes\validators\ArrayValidator;
 use app\classes\validators\BikValidator;
@@ -416,10 +415,10 @@ class AccountEditForm extends Form
     public function getExchangeGroupError()
     {
         if ($this->getIsNewRecord()) {
-            return 'Интерацию со СБИС можно настроить только после создания клиента';
+            return 'Интерацию со СБИС можно настроить через редактирование только после создания клиента ';
         }
 
-        return SBISInfo::getClientError($this->getModel());
+        return SBISInfo::getClientError($this->getModel(), null, true);
     }
 
     private function _saveFromPost()

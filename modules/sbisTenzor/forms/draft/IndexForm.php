@@ -192,7 +192,7 @@ class IndexForm extends \app\classes\Form
             throw new InvalidArgumentException('Не найдено вложение с номером ' . $number);
         }
 
-        return $attachment->file_name;
+        return basename($attachment->getActualStoredPath());
     }
 
     /**
@@ -233,7 +233,7 @@ class IndexForm extends \app\classes\Form
             throw new InvalidArgumentException('Не найдено вложение с номером ' . $number);
         }
 
-        return file_get_contents($attachment->stored_path);
+        return file_get_contents($attachment->getActualStoredPath());
     }
 
     /**

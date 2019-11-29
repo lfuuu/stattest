@@ -146,8 +146,11 @@ echo GridView::widget([
             'format' => 'html',
             'value'     => function (SBISDocument $model) {
                 $external = $model->external_state_name ? : '';
-                $external = $external ? sprintf(' (%s)', $external) : '';
-                return Html::a($model->stateName . $external, $model->getUrl());
+                $external = $external ? sprintf('<br />(%s)', $external) : '';
+
+                $html = sprintf('<strong>%s</strong>%s', $model->stateName, $external);
+
+                return Html::a($html, $model->getUrl());
             },
         ],
         [
@@ -215,6 +218,13 @@ echo GridView::widget([
                     'text' => 'Принятые',
                     'glyphicon' => 'glyphicon-filter',
                     'class' => 'btn-xs btn-' . ($state == SBISDocumentStatus::ACCEPTED ? 'primary' : 'default'),
+                ]
+            ) .
+            $this->render('//layouts/_buttonLink', [
+                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::ERROR . ($clientId ? '&clientId=' . $clientId : ''),
+                    'text' => 'Ошибка',
+                    'glyphicon' => 'glyphicon-filter',
+                    'class' => 'btn-xs btn-' . ($state == SBISDocumentStatus::ERROR ? 'primary' : 'default'),
                 ]
             ) .
             '&nbsp;&nbsp;&nbsp;' .

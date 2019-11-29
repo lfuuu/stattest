@@ -172,7 +172,7 @@ echo Breadcrumbs::widget([
     </tr>
     <tr>
         <td><label><?= $model->getAttributeLabel('url_our'); ?></label></td>
-        <td><?= $model->url_our ? Html::a('Скачать', $model->url_our, ['target' => '_blank']) : '' ?></td>
+        <td><?= $model->url_our ? Html::a('Открыть', $model->url_our, ['target' => '_blank']) : '' ?></td>
     </tr>
     <tr>
         <td><label><?= $model->getAttributeLabel('url_archive'); ?></label></td>
@@ -188,7 +188,7 @@ echo Breadcrumbs::widget([
                     $attachment->extension
                 );?>
 
-                <?=$attachment->number ?>. <?=$attachment->file_name ?>
+                <?=$attachment->number ?>. <?=basename($attachment->getActualStoredPath()) ?>
                 &nbsp;&nbsp;&nbsp;
                 <a href="<?= Url::toRoute([
                     '/sbisTenzor/document/download-attachment',
@@ -202,6 +202,23 @@ echo Breadcrumbs::widget([
                     $attachment->is_signed == $attachment->is_sign_needed ?
                         '<span class="text-success"><i class="glyphicon glyphicon-ok"></i>&nbsp;Подписан</span>' :
                         '<span class="text-warning"><i class="glyphicon glyphicon-question-sign"></i>&nbsp;Не подписан</span>'
+                ?>
+                <?php
+                    if ($attachment->is_sign_needed) {
+                        $hash = $attachment->getGeneratedHash();
+                        ?>
+                            <br />Хэш СБИС: <?=$attachment->hash ?>
+                            <br />Хэш файл: <?=$hash ?> <?=
+                                $hash ?
+                                    (
+                                        $attachment->isHashesEqual() ?
+                                            '<span class="text-success"><i class="glyphicon glyphicon-ok"></i></span>' :
+                                            '<span class="text-danger"><i class="glyphicon glyphicon-remove"></i></span>'
+                                    ) :
+                                    ''
+                            ?>
+                        <?php
+                    }
                 ?>
                 <br /><br />
             <?php endforeach; ?>
@@ -251,6 +268,12 @@ echo Breadcrumbs::widget([
         <td><label><?= $model->getAttributeLabel('completed_at'); ?></label></td>
         <td><?= DateTimeZoneHelper::getDateTime($model->completed_at) ? : '---' ?></td>
     </tr>
+    <?php if ($errors = $model->errors) : ?>
+        <tr>
+            <td><label><?= $model->getAttributeLabel('errors'); ?></label></td>
+            <td><?= implode('<br /><br />', array_reverse(array_filter(explode(PHP_EOL, $errors)))) ?></td>
+        </tr>
+    <?php endif ?>
     </tbody>
 </table>
 

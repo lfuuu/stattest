@@ -7,14 +7,18 @@ use app\modules\sbisTenzor\classes\XmlGenerator;
 
 class Invoice2016Form5_02 extends XmlGenerator
 {
+    const KND_CODE = 1115125;
+
     /** @var string */
     protected $formVersion = '5.02';
     /** @var int */
-    protected $kndCode = 1115125;
+    protected $kndCode = self::KND_CODE;
     /** @var string */
     protected $fileIdPattern = 'ON_SCHFDOPPR_{A}_{O}_{GGGGMMDD}_{N}';
     /** @var string */
     protected $signerBaseAttribute = 'ОснПолн';
+    /** @var string */
+    protected $xsdFile = 'invoice_2016-1115125_5_02.xsd';
 
     /**
      * Создает свойство Документ
@@ -63,6 +67,9 @@ class Invoice2016Form5_02 extends XmlGenerator
 
         $elInfoSellerIdData = $dom->createElement('СвЮЛУч');
         $elInfoSellerIdData->setAttribute('ИННЮЛ', $this->organizationFrom->tax_registration_id);
+        if ($this->kndCode == Invoice2019Form5_01::KND_CODE) {
+            //$elInfoSellerIdData->setAttribute('ДефИННЮЛ', '-');
+        }
         $elInfoSellerIdData->setAttribute('КПП', $this->organizationFrom->tax_registration_reason);
         $elInfoSellerIdData->setAttribute('НаимОрг', $this->prepareText($this->organizationFrom->full_name));
         $elInfoSellerId->appendChild($elInfoSellerIdData);
@@ -157,6 +164,9 @@ class Invoice2016Form5_02 extends XmlGenerator
 
         $elInfoBuyerIdData = $dom->createElement('СвЮЛУч');
         $elInfoBuyerIdData->setAttribute('ИННЮЛ', $this->client->contragent->inn);
+        if ($this->kndCode == Invoice2019Form5_01::KND_CODE) {
+            //$elInfoBuyerIdData->setAttribute('ДефИННЮЛ', '-');
+        }
         $elInfoBuyerIdData->setAttribute('КПП', $this->client->contragent->kpp);
         $elInfoBuyerIdData->setAttribute('НаимОрг', $this->prepareText($this->client->contragent->name_full));
         $elInfoBuyerId->appendChild($elInfoBuyerIdData);
@@ -173,6 +183,9 @@ class Invoice2016Form5_02 extends XmlGenerator
 
         $elInfoBuyerIdType = $dom->createElement('СвИП');
         $elInfoBuyerIdType->setAttribute('ИННФЛ', $this->client->contragent->inn);
+        if ($this->kndCode == Invoice2019Form5_01::KND_CODE) {
+            //$elInfoBuyerIdType->setAttribute('ДефИННФЛ', '-');
+        }
         $elInfoBuyerId->appendChild($elInfoBuyerIdType);
 
         $elInfoBuyerIdTypeData = $dom->createElement('ФИО');
@@ -235,8 +248,8 @@ class Invoice2016Form5_02 extends XmlGenerator
         }
 
         $elTotal = $dom->createElement('ВсегоОпл');// required
-        $elTotal->setAttribute('СтТовБезНДСВсего', $this->formatNumber($this->invoice->sum_without_tax));
-        $elTotal->setAttribute('СтТовУчНалВсего', $this->formatNumber($this->invoice->sum));// optional
+        $elTotal->setAttribute('СтТовБезНДСВсего', $this->formatNumber($this->invoice->sum_without_tax));// optional
+        $elTotal->setAttribute('СтТовУчНалВсего', $this->formatNumber($this->invoice->sum));
         $elInvoiceTable->appendChild($elTotal);
 
         $elTotalSumTotal = $dom->createElement('СумНалВсего');// required

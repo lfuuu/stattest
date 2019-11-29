@@ -5,7 +5,6 @@ namespace app\modules\sbisTenzor\classes\SBISProcessor;
 use app\exceptions\ModelValidationException;
 use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
 use app\modules\sbisTenzor\classes\SBISProcessor;
-use app\modules\sbisTenzor\models\SBISDocument;
 use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use Yii;
 
@@ -85,7 +84,7 @@ class SBISGenerator extends SBISProcessor
                     $draft->id,
                     $e->getMessage()
                 );
-                Yii::error($errorText, SBISDocument::LOG_CATEGORY);
+                $draft->addErrorText($errorText);
 
                 $draft->state = SBISGeneratedDraftStatus::ERROR;
                 if (!$draft->save()) {

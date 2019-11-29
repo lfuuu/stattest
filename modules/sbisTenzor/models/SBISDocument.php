@@ -139,7 +139,7 @@ class SBISDocument extends ActiveRecord
             'url_pdf' => 'Ссылка на pdf',
             'url_archive' => 'Ссылка на архив',
             'error_code' => 'Код ошибки',
-            'errors' => 'Errors',
+            'errors' => 'Ошибки',
             'priority' => 'Приоритет',
             'tries' => 'Кол-во попыток',
             'created_at' => 'Создан',
@@ -188,6 +188,21 @@ class SBISDocument extends ActiveRecord
     public static function getMaxTries()
     {
         return self::MAX_TRIES;
+    }
+
+    /**
+     * Добавить ошибку в лог
+     *
+     * @param $errorText
+     */
+    public function addErrorText($errorText)
+    {
+        Yii::error($errorText, SBISDocument::LOG_CATEGORY);
+
+        $now = new DateTime('now');
+        $this->errors .=
+            ($this->errors ? PHP_EOL : '') .
+            sprintf('%s: %s', $now->format(DateTimeZoneHelper::DATETIME_FORMAT), $errorText);
     }
 
     /**
@@ -518,7 +533,7 @@ class SBISDocument extends ActiveRecord
                 $attachment->populateRelation('document', null);
 
                 if (is_null($attachment->extension)) {
-                    $attachment->extension = pathinfo($attachment->file_name, PATHINFO_EXTENSION);
+                    $attachment->extension = pathinfo(basename($attachment->getActualStoredPath()), PATHINFO_EXTENSION);
                 }
             }
         }

@@ -55,9 +55,10 @@ class SBISSigner extends SBISProcessor
         $success = true;
 
         $signCommand = $this->getAPIByDocument($document)->signCommand;
+        $hashCommand = $this->getAPIByDocument($document)->hashCommand;
         foreach ($document->attachments as $attachment) {
             if ($attachment->is_sign_needed !== $attachment->is_signed) {
-                if (!$attachment->sign($signCommand)) {
+                if (!$attachment->sign($signCommand, $hashCommand)) {
                     return false;
                 }
             }
@@ -99,7 +100,8 @@ class SBISSigner extends SBISProcessor
                         $document->id,
                         $e->getMessage()
                     );
-                    Yii::error($errorText, SBISDocument::LOG_CATEGORY);
+
+                    $document->addErrorText($errorText);
                 }
             }
         }
