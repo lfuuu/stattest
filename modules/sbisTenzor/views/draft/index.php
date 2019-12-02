@@ -3,6 +3,7 @@
 use app\classes\Html;
 use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
 use app\modules\sbisTenzor\classes\XmlGenerator;
+use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use kartik\grid\ActionColumn;
 use yii\data\ActiveDataProvider;
@@ -73,7 +74,11 @@ echo GridView::widget([
             'value'     => function (SBISGeneratedDraft $model) {
                 $organization = $model->invoice->organization;
 
-                return $organization->name;
+                return $html = Html::tag(
+                    'span',
+                    SBISUtils::getShortOrganizationName($organization),
+                    ['class' => 'text-nowrap']
+                );
             },
         ],
         [
@@ -125,6 +130,8 @@ echo GridView::widget([
                             $xmlFile = XmlGenerator::createXmlGenerator($exchangeFile->form, $model->invoice);
                             if ($errorText = $xmlFile->getErrorText()) {
                                 $html .= '<span class="text-danger" title="' . $errorText . '"><i class="glyphicon glyphicon-remove"></i>&nbsp;Ошибки</span>';
+                            } else {
+                                $html .= ' <span class="text-success" title="Проверен"><i class="glyphicon glyphicon-ok-circle"></i></span>';
                             }
                         }
                     }
@@ -138,8 +145,16 @@ echo GridView::widget([
             'format' => 'html',
             'value'     => function (SBISGeneratedDraft $model) {
                 $invoice = $model->invoice;
-                $text = sprintf('#%s: №%s от %s на сумму %s %s<br/ >Счёт №%s от %s', $invoice->id, $invoice->number, $invoice->date, number_format($invoice->sum, 2, '.', ''), $invoice->bill->currency, $invoice->bill->bill_no, $invoice->bill->bill_date);
-                return Html::a($text, $invoice->bill->getUrl());
+
+                $html = Html::tag(
+                    'span',
+                    sprintf('#%s: №%s от %s', $invoice->id, $invoice->number, $invoice->date),
+                    ['class' => 'text-nowrap']
+                );
+                $html = sprintf('%s<br />Сумма: %s %s', $html, number_format($invoice->sum, 2, '.', ''), $invoice->bill->currency);
+                $html = sprintf('%s<br/ ><small>Счёт №%s от %s</small>', Html::a($html, $invoice->bill->getUrl()), $invoice->bill->bill_no, $invoice->bill->bill_date);
+
+                return $html;
             },
         ],
         [
@@ -218,28 +233,28 @@ echo GridView::widget([
     ],
     'extraButtons' =>
         $this->render('//layouts/_buttonLink', [
-                'url' => '/sbisTenzor/draft/' . ($clientId ? '?clientId=' . $clientId : ''),
+                'url' => '/sbisTenzor/draft/',
                 'text' => 'На создание',
                 'glyphicon' => 'glyphicon-filter',
                 'class' => 'btn-xs btn-' . ($state == 0 ? 'primary' : 'default'),
             ]
         ) .
         $this->render('//layouts/_buttonLink', [
-                'url' => '/sbisTenzor/draft/?state=' . SBISGeneratedDraftStatus::CANCELLED . ($clientId ? '&clientId=' . $clientId : ''),
+                'url' => '/sbisTenzor/draft/?state=' . SBISGeneratedDraftStatus::CANCELLED,
                 'text' => 'Отменённые',
                 'glyphicon' => 'glyphicon-filter',
                 'class' => 'btn-xs btn-' . ($state == SBISGeneratedDraftStatus::CANCELLED ? 'primary' : 'default'),
             ]
         ) .
         $this->render('//layouts/_buttonLink', [
-                'url' => '/sbisTenzor/draft/?state=' . SBISGeneratedDraftStatus::DONE . ($clientId ? '&clientId=' . $clientId : ''),
+                'url' => '/sbisTenzor/draft/?state=' . SBISGeneratedDraftStatus::DONE,
                 'text' => 'Обработанные',
                 'glyphicon' => 'glyphicon-filter',
                 'class' => 'btn-xs btn-' . ($state == SBISGeneratedDraftStatus::DONE ? 'primary' : 'default'),
             ]
         ) .
         $this->render('//layouts/_buttonLink', [
-                'url' => '/sbisTenzor/draft/?state=' . SBISGeneratedDraftStatus::ERROR . ($clientId ? '&clientId=' . $clientId : ''),
+                'url' => '/sbisTenzor/draft/?state=' . SBISGeneratedDraftStatus::ERROR,
                 'text' => 'Ошибка',
                 'glyphicon' => 'glyphicon-filter',
                 'class' => 'btn-xs btn-' . ($state == SBISGeneratedDraftStatus::ERROR ? 'primary' : 'default'),
@@ -249,7 +264,7 @@ echo GridView::widget([
         $this->render(
             '//layouts/_link',
             [
-                'url' => '/sbisTenzor/draft/process' . ($clientId ? '?clientId=' . $clientId : ''),
+                'url' => '/sbisTenzor/draft/process',
                 'text' => sprintf('Создать пакеты на основе черновиков (%s)', $processCount),
                 'glyphicon' => 'glyphicon-send',
                 'params' => [

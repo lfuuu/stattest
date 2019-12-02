@@ -47,12 +47,21 @@ class DocumentController extends BaseController
      * @param int|null $clientId
      * @param bool $strict
      * @return ClientAccount|null
+     * @throws \yii\base\InvalidConfigException
      */
     protected function getClient($clientId = null, $strict = true)
     {
         $client = null;
         if ($clientId) {
             $client = ClientAccount::findOne(['id' => $clientId]);
+            if (!$client) {
+                throw new InvalidArgumentException('Клиент ' . $clientId . ' не найден!');
+            }
+
+            if (!$this->getFixClient()) {
+                $_SESSION["clients_client"] = $clientId;
+                $this->redirect(\Yii::$app->getRequest()->getUrl());
+            }
         } else {
             $client = $this->getFixClient();
         }
@@ -70,6 +79,7 @@ class DocumentController extends BaseController
      * @param int $clientId
      * @param int $state
      * @return string
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionIndex($clientId = 0, $state =  0)
     {
@@ -132,7 +142,8 @@ class DocumentController extends BaseController
         return $this->render('view', [
             'model' => $document,
             'form' => $form,
-            'indexUrl' => '/sbisTenzor/document/' . ($form ? '?clientId=' . $form->getDocument()->client_account_id : ''),
+            'indexUrl' => '/sbisTenzor/document/',
+            'indexClientUrl' => '/sbisTenzor/document/' . ($form ? '?clientId=' . $form->getDocument()->client_account_id : ''),
         ]);
     }
 

@@ -43,6 +43,9 @@ class IndexForm extends \app\classes\Form
             if ($this->state == SBISDocumentStatus::CREATED) {
                 $states[] = SBISDocumentStatus::CREATED_AUTO;
             }
+            if ($this->state == SBISDocumentStatus::CANCELLED) {
+                $states[] = SBISDocumentStatus::CANCELLED_AUTO;
+            }
 
             $query->where(['state' => $states]);
         } else {
@@ -55,6 +58,11 @@ class IndexForm extends \app\classes\Form
         if ($this->client) {
             $query->andWhere(['client_account_id' => $this->client->id]);
         }
+
+        $query->orderBy([
+            'updated_at' => SORT_DESC,
+            'id' => SORT_DESC,
+        ]);
 
         return new ActiveDataProvider([
             'query' => $query,

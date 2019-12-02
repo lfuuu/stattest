@@ -3,6 +3,7 @@
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\classes\SBISDocumentStatus;
+use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISDocument;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
@@ -68,19 +69,39 @@ echo GridView::widget([
             },
         ],
         [
-            'attribute' => 'sbis_organization_id',
-            'label' => 'Направление',
+            'attribute' => 'clientAccount.organization.id',
+            'label' => 'От кого',
             'format' => 'html',
             'value'     => function (SBISDocument $model) {
-                return
-                    Html::a(
-                        sprintf(
-                            "%s >>> %s",
-                            $model->sbisOrganization->organization->name,
-                            $model->clientAccount->contragent->name
-                        ),
-                        $model->getUrl()
+                $organizationFrom = $model->clientAccount->organization;
+
+                $html = SBISUtils::getShortOrganizationName($organizationFrom);
+                $organization = $model->sbisOrganization->organization;
+                if ($organization->id != $organizationFrom->id) {
+                    // исходная организация не совпадает с той, через которую отправляем в СБИС
+                    $html =  sprintf(
+                    '<strong>%s</strong><br /><small>(через %s)</small>',
+                        $html,
+                        SBISUtils::getShortOrganizationName($organization)
                     );
+                }
+
+                return $html = Html::tag(
+                    'span',
+                    $html,
+                    ['class' => 'text-nowrap']
+                );
+            },
+        ],
+        [
+            'attribute' => 'clientAccount.contragent.name_full',
+            'label' => 'Кому',
+            'format' => 'html',
+            'value'     => function (SBISDocument $model) {
+                $client = $model->clientAccount;
+
+                $text = $client->contragent->name;
+                return Html::a($text, $client->getUrl());
             },
         ],
         [
@@ -146,9 +167,13 @@ echo GridView::widget([
             'format' => 'html',
             'value'     => function (SBISDocument $model) {
                 $external = $model->external_state_name ? : '';
-                $external = $external ? sprintf('<br />(%s)', $external) : '';
+                $external = $external ? sprintf('<br /><small>(%s)</small>', $external) : '';
 
-                $html = sprintf('<strong>%s</strong>%s', $model->stateName, $external);
+                $html = Html::tag(
+                    'span',
+                    sprintf('<strong>%s</strong>%s', $model->stateName, $external),
+                    ['class' => 'text-nowrap']
+                );
 
                 return Html::a($html, $model->getUrl());
             },
@@ -193,46 +218,46 @@ echo GridView::widget([
     ],
     'extraButtons' =>
         $this->render('//layouts/_buttonLink', [
-                'url' => '/sbisTenzor/document/' . ($clientId ? '?clientId=' . $clientId : ''),
+                'url' => '/sbisTenzor/document/',
                 'text' => 'Активные',
                 'glyphicon' => 'glyphicon-filter',
                 'class' => 'btn-xs btn-' . ($state == 0 ? 'primary' : 'default'),
             ]
         ) .
             $this->render('//layouts/_buttonLink', [
-                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::CREATED . ($clientId ? '&clientId=' . $clientId : ''),
+                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::CREATED,
                     'text' => 'На отправку',
                     'glyphicon' => 'glyphicon-filter',
                     'class' => 'btn-xs btn-' . ($state == SBISDocumentStatus::CREATED ? 'primary' : 'default'),
                 ]
             ) .
             $this->render('//layouts/_buttonLink', [
-                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::CANCELLED . ($clientId ? '&clientId=' . $clientId : ''),
+                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::CANCELLED,
                     'text' => 'Отменённые',
                     'glyphicon' => 'glyphicon-filter',
                     'class' => 'btn-xs btn-' . ($state == SBISDocumentStatus::CANCELLED ? 'primary' : 'default'),
                 ]
             ) .
             $this->render('//layouts/_buttonLink', [
-                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::ACCEPTED . ($clientId ? '&clientId=' . $clientId : ''),
+                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::ACCEPTED,
                     'text' => 'Принятые',
                     'glyphicon' => 'glyphicon-filter',
                     'class' => 'btn-xs btn-' . ($state == SBISDocumentStatus::ACCEPTED ? 'primary' : 'default'),
                 ]
             ) .
             $this->render('//layouts/_buttonLink', [
-                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::ERROR . ($clientId ? '&clientId=' . $clientId : ''),
+                    'url' => '/sbisTenzor/document/?state=' . SBISDocumentStatus::ERROR,
                     'text' => 'Ошибка',
                     'glyphicon' => 'glyphicon-filter',
                     'class' => 'btn-xs btn-' . ($state == SBISDocumentStatus::ERROR ? 'primary' : 'default'),
                 ]
             ) .
             '&nbsp;&nbsp;&nbsp;' .
-            $this->render('//layouts/_buttonCreate', ['url' => '/sbisTenzor/document/add' . ($clientId ? '?clientId=' . $clientId : '')]) .
+            $this->render('//layouts/_buttonCreate', ['url' => '/sbisTenzor/document/add']) .
             $this->render(
                 '//layouts/_link',
                 [
-                    'url' => '/sbisTenzor/document/send-auto' . ($clientId ? '?clientId=' . $clientId : ''),
+                    'url' => '/sbisTenzor/document/send-auto',
                     'text' => sprintf('Отправить подготовленные пакеты (%s)', $sendAutoCount),
                     'glyphicon' => 'glyphicon-send',
                     'params' => [

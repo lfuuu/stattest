@@ -2,6 +2,8 @@
 
 namespace app\modules\sbisTenzor\helpers;
 
+use app\models\Organization;
+
 class SBISUtils
 {
     /**
@@ -41,5 +43,23 @@ class SBISUtils
         if (!is_dir($dirPath)) {
             mkdir($dirPath, 0775, true);
         }
+    }
+
+    /**
+     * Get short organization name
+     *
+     * @param Organization $organization
+     * @return string
+     */
+    public static function getShortOrganizationName(Organization $organization)
+    {
+        return strtr(
+            $organization->name,
+            [
+                'ООО ' => '',
+                '«' => '',
+                '»' => '',
+            ]
+        );
     }
 }
