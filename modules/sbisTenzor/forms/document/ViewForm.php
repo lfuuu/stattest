@@ -265,4 +265,100 @@ class ViewForm extends \app\classes\Form
             'Пакет документов в статусе {state} не может быть запущен в работу.'
         );
     }
+
+    /**
+     * Возвращает цепочку пройденных статусов
+     *
+     * @return array
+     */
+    public function getStatusesChain()
+    {
+        $document = $this->getDocument();
+
+        $chain = [];
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::CREATED),
+            'passed' => true,
+            'date' => $document->created_at,
+        ];
+
+        if (in_array($document->state, [SBISDocumentStatus::CANCELLED, SBISDocumentStatus::CANCELLED_AUTO])) {
+            $chain[] = [
+                'name' => $document->getStateName(),
+                'passed' => true,
+                'btn' => 'btn-warning',
+            ];
+
+            return $chain;
+        }
+
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::PROCESSING),
+            'passed' => !empty($document->started_at),
+            'date' => $document->started_at,
+        ];
+
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SIGNED),
+            'passed' => !empty($document->signed_at),
+            'date' => $document->signed_at,
+        ];
+
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SAVED),
+            'passed' => !empty($document->saved_at),
+            'date' => $document->saved_at,
+        ];
+
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::READY),
+            'passed' => !empty($document->prepared_at),
+            'date' => $document->prepared_at,
+        ];
+
+        $passed = !empty($document->sent_at);
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SENT),
+            'passed' => $passed,
+            'date' => $document->sent_at,
+            'btn' => $passed ? 'btn-info' : '',
+            'extra' => ' <i class="glyphicon glyphicon-send"></i>',
+        ];
+
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::DELIVERED),
+            'passed' => !empty($document->read_at),
+            'date' => $document->read_at,
+        ];
+
+        if (
+            ($document->state > SBISDocumentStatus::DELIVERED) &&
+            ($document->state != SBISDocumentStatus::ACCEPTED) &&
+            ($document->state != SBISDocumentStatus::ERROR)
+        ) {
+            $chain[] = [
+                'name' => $document->getStateName(),
+                'passed' => true,
+            ];
+        }
+
+        $passed = !empty($document->completed_at);
+        $chain[] = [
+            'name' => SBISDocumentStatus::getById(SBISDocumentStatus::ACCEPTED),
+            'passed' => !empty($document->completed_at),
+            'date' => $document->completed_at,
+            'btn' => $passed ? 'btn-success' : '',
+            'extra' => ' <i class="glyphicon glyphicon-ok-circle"></i>',
+        ];
+
+        if ($document->state == SBISDocumentStatus::ERROR) {
+            $chain[] = [
+                'name' => SBISDocumentStatus::getById(SBISDocumentStatus::ERROR),
+                'passed' => true,
+                'btn' => 'btn-danger',
+            ];
+        }
+
+        return $chain;
+    }
 }

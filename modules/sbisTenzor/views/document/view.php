@@ -4,6 +4,7 @@
  * @var \app\classes\BaseView $this
  * @var ViewForm $form
  * @var string $indexUrl
+ * @var string $indexClientUrl
  */
 
 use app\classes\Html;
@@ -28,7 +29,13 @@ echo Breadcrumbs::widget([
 
 <?php if ($form) : ?>
 <div class="form-group text-right">
-
+    <div style="float: left;">
+        <?= $this->render('//layouts/_buttonLink', [
+            'url' => $indexClientUrl,
+            'text' => 'Все пакеты документов для ' . $model->clientAccount->contragent->name,
+            'glyphicon' => 'glyphicon-chevron-left',
+        ]) ?>
+    </div>
     <?php
         $model = $form->getDocument();
 
@@ -111,15 +118,15 @@ echo Breadcrumbs::widget([
         <td><?= $model->id ?></td>
     </tr>
     <tr>
-        <td><label>Отправитель</label></td>
-        <td><?= $model->sbisOrganization->organization->name ?></td>
+        <td><label>От кого</label></td>
+        <td><?= $model->clientAccount->organization->name ?></td>
     </tr>
     <tr>
         <td><label>Направление</label></td>
         <td><?= sprintf(
                 "%s >>> %s",
                 $model->sbisOrganization->organization->name,
-                $model->clientAccount->contragent->name
+                Html::a($model->clientAccount->contragent->name, $model->clientAccount->getUrl())
             ) ?></td>
     </tr>
     <tr>
@@ -132,9 +139,15 @@ echo Breadcrumbs::widget([
         <td colspan="2" class="text-center">
             <?php
             $out = '';
-            foreach ($model->getStatusesChain() as $chain) {
+            foreach ($form->getStatusesChain() as $chain) {
                 $itemText = $chain['name'];
-                $addedClass = $chain['passed'] ? 'btn-info' : 'btn-default';
+
+                $addedClass = 'btn-default';
+                if ($chain['passed']) {
+                    $addedClass = !empty($chain['btn']) ? $chain['btn'] : 'btn-info';
+                }
+                $itemText .= !empty($chain['extra']) ? $chain['extra'] : '';
+
                 $itemText = '<label class="btn btn-xs ' . $addedClass . '" title="' . $chain['date'] . '">' . $itemText . '</label>';
                 $out .= ($out ? '&nbsp;<i class="glyphicon glyphicon-menu-right"></i>&nbsp;' : '') . $itemText;
             }

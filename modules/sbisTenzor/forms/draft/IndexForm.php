@@ -50,6 +50,11 @@ class IndexForm extends \app\classes\Form
                 ->andWhere(['c1.id' => $this->client->id]);
         }
 
+        $query->orderBy([
+            'updated_at' => SORT_DESC,
+            'id' => SORT_DESC,
+        ]);
+
         return new ActiveDataProvider([
             'query' => $query,
             'sort' => false,
