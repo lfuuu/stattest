@@ -3,6 +3,7 @@
 namespace app\modules\sbisTenzor\classes\XmlGenerator;
 
 use app\models\ClientContragent;
+use app\models\Currency;
 use app\modules\sbisTenzor\classes\XmlGenerator;
 use DateTime;
 
@@ -167,6 +168,17 @@ class Act2016Form5_02 extends XmlGenerator
             $elWorkList->setAttribute('СумНДСИт', $this->formatNumber($this->invoice->sum_tax));// optional
         }
         $elInfoContent->appendChild($elWorkList);
+
+        if ($this->bill->currency !== Currency::RUB) {
+            // в иностранной валюте сумма прописью в интерфейсе СБИС неверна, поэтому выбираем визуализацию 1С
+            $elInfoContentFacts = $dom->createElement('ИнфПолФХЖ1');
+            $elInfoContent->appendChild($elInfoContentFacts);
+
+            $elInfoContentFactsText = $dom->createElement('ТекстИнф');
+            $elInfoContentFactsText->setAttribute('Значен', '1С');
+            $elInfoContentFactsText->setAttribute('Идентиф', 'ИдВизуализации');
+            $elInfoContentFacts->appendChild($elInfoContentFactsText);
+        }
 
         // --------------------------------------------------------------------------------------------------------------
         // Файл.Документ.СодФХЖ2

@@ -85,7 +85,9 @@ class SBISDocumentManager
     protected function checkClient()
     {
         $organization = $this->invoice ? $this->invoice->organization : null;
-        if ($error = SBISInfo::getClientError($this->client, $organization)) {
+
+        $contractorInfo = ContractorInfo::get($this->client, $organization);
+        if ($error = $contractorInfo->getFullErrorText()) {
             throw new \Exception($error);
         }
 

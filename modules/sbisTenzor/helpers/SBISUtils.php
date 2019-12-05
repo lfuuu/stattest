@@ -62,4 +62,15 @@ class SBISUtils
             ]
         );
     }
+
+    /**
+     * Удаление параметра из URL
+     *
+     * @param string $url
+     * @param string $variableName
+     * @return string
+     */
+    public static function removeVariableFromURL($url, $variableName) {
+        return trim(preg_replace('/([?&])'.$variableName.'=[^&]+(&|$)/','$1',$url), '?');
+    }
 }

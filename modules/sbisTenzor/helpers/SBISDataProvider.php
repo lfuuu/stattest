@@ -3,7 +3,6 @@
 namespace app\modules\sbisTenzor\helpers;
 
 use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\Invoice;
@@ -13,8 +12,6 @@ use app\modules\sbisTenzor\models\SBISContractor;
 use app\modules\sbisTenzor\models\SBISDocument;
 use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use app\modules\sbisTenzor\models\SBISOrganization;
-use DateTime;
-use DateTimeZone;
 use Yii;
 
 class SBISDataProvider
@@ -61,12 +58,6 @@ class SBISDataProvider
             return;
         }
 
-        if ($error = SBISInfo::getClientError($client, $invoice->organization)) {
-            // ошибки при интеграции со СБИС
-            Yii::info(sprintf('Ошибка интеграции при обработке Invoice #%s: %s', $invoice->id, $error), SBISDocument::LOG_CATEGORY);
-            return;
-        }
-
         self::createDraftForInvoice($invoice);
     }
 
@@ -91,8 +82,10 @@ class SBISDataProvider
         $draft = new SBISGeneratedDraft();
 
         $draft->invoice_id = $invoice->id;
+        $draft->populateRelation('invoice', $invoice);
         $draft->state = SBISGeneratedDraftStatus::DRAFT;
 
+        $draft->checkForWarnings();
         $draft->addCreateEvent();
         if (!$draft->save()) {
             throw new ModelValidationException($draft);

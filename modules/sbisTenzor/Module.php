@@ -6,6 +6,7 @@ use app\classes\Navigation;
 use app\classes\NavigationBlock;
 use app\modules\sbisTenzor\models\SBISOrganization;
 use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * sbisTenzor Модуль взаимодействия с системой СБИС компании Тензор
@@ -13,6 +14,7 @@ use Yii;
 class Module extends \yii\base\Module
 {
     protected $organizations = [];
+    public $isEnabled;
 
     /**
      * @inheritdoc
@@ -81,9 +83,14 @@ class Module extends \yii\base\Module
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getParams()
     {
+        if (!$this->isEnabled) {
+            throw new InvalidConfigException('Функционал взаимодействия со СБИС отключён');
+        }
+
         return $this->params;
     }
 }

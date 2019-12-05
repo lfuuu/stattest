@@ -240,6 +240,8 @@ use kartik\widgets\ActiveForm;
                     <?php
                 } else {
                     echo $f->field($model, 'exchange_group_id')->dropDownList(SBISExchangeGroup::getList($model->getModel(), $isWithEmpty = true));
+
+                    echo $model->getEdfOperatorHtml();
                 }
             ?>
         </div>

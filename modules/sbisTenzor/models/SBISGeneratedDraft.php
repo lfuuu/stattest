@@ -9,6 +9,7 @@ use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\models\Invoice;
 use app\classes\model\ActiveRecord;
+use app\modules\sbisTenzor\classes\ContractorInfo;
 use app\modules\sbisTenzor\classes\SBISDocumentManager;
 use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
 use app\modules\sbisTenzor\exceptions\SBISTensorException;
@@ -27,6 +28,7 @@ use yii\helpers\Url;
  * @property integer $state
  * @property integer $invoice_id
  * @property integer $sbis_document_id
+ * @property string $warnings
  * @property string $errors
  * @property string $created_at
  * @property string $updated_at
@@ -55,7 +57,7 @@ class SBISGeneratedDraft extends ActiveRecord
             [['invoice_id', 'state'], 'required'],
             [['invoice_id', 'sbis_document_id', 'state'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
-            [['errors'], 'string'],
+            [['warnings', 'errors'], 'string'],
             [['invoice_id'], 'unique'],
             [['invoice_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invoice::class, 'targetAttribute' => ['invoice_id' => 'id']],
             [['sbis_document_id'], 'exist', 'skipOnError' => true, 'targetClass' => SBISDocument::class, 'targetAttribute' => ['sbis_document_id' => 'id']],
@@ -80,6 +82,7 @@ class SBISGeneratedDraft extends ActiveRecord
             'state' => 'Статус',
             'invoice_id' => 'Закрывающий документ',
             'sbis_document_id' => 'Пакет документов',
+            'warnings' => 'Предупреждения',
             'errors' => 'Ошибки',
             'created_at' => 'Добавлен',
             'updated_at' => 'Обновлён',
@@ -248,5 +251,30 @@ class SBISGeneratedDraft extends ActiveRecord
         }
 
         self::$eventsDelayed = [];
+    }
+
+    /**
+     * Проверка на возможные ошибки
+     *
+     * @param bool $withSaving
+     * @throws ModelValidationException
+     */
+    public function checkForWarnings($withSaving = false)
+    {
+        if ($this->state != SBISGeneratedDraftStatus::DRAFT) {
+            return;
+        }
+
+        $invoice = $this->invoice;
+        $client = $invoice->bill->clientAccount;
+
+        $contractorInfo = ContractorInfo::get($client, $invoice->organization);
+        $this->warnings = $contractorInfo->getFullErrorText();
+
+        if ($withSaving) {
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+        }
     }
 }

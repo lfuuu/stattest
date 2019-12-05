@@ -1,6 +1,6 @@
 <?php
 
-use app\modules\sbisTenzor\helpers\SBISInfo;
+use app\modules\sbisTenzor\classes\ContractorInfo;
 
 ?>
 <div id="rightmenu">
@@ -43,10 +43,11 @@ use app\modules\sbisTenzor\helpers\SBISInfo;
         <li style="background: url('/images/icons/envelope.gif') no-repeat 0px 6px;">
             <a href="/notifier/personal-scheme">Уведомления</a>
         </li>
-        <?php if ($account && !SBISInfo::getClientError($account)) : ?>
+        <?php if ($account && ($contractorInfo = ContractorInfo::get($account)) && !$contractorInfo->getErrorText()) : ?>
             <li>
                 <i class="glyphicon glyphicon-transfer" style="display:block;position:relative;left:-16px;margin-right:-16px;float:left;"></i>
                 <a href="/sbisTenzor/document/?clientId=<?= $account->id ?>">Документы в СБИС</a>
+                <?= ($contractorInfo->isRoamingEnabled() ? ' (+)' : '') ?>
             </li>
         <?php endif; ?>
     </ul>

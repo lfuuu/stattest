@@ -5,6 +5,7 @@ namespace app\forms\client;
 use app\classes\api\ApiCore;
 use app\classes\Assert;
 use app\classes\Form;
+use app\classes\Html;
 use app\classes\traits\GetListTrait;
 use app\classes\validators\ArrayValidator;
 use app\classes\validators\BikValidator;
@@ -19,7 +20,7 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
-use app\modules\sbisTenzor\helpers\SBISInfo;
+use app\modules\sbisTenzor\classes\ContractorInfo;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
@@ -94,6 +95,8 @@ class AccountEditForm extends Form
         $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS,
         $exchange_group_id,
         $transfer_params_from = 0;
+
+    protected $contractorInfo;
 
     /**
      * Правила
@@ -410,7 +413,28 @@ class AccountEditForm extends Form
     }
 
     /**
+     * Получить информацию по ЭДО для контрагента
+     *
+     * @return ContractorInfo|null
+     * @throws Exception
+     */
+    protected function getContractorInfo() {
+        if ($this->getIsNewRecord()) {
+            throw new Exception('Client is not created!');
+        }
+
+        if (is_null($this->contractorInfo)) {
+            $this->contractorInfo = ContractorInfo::get($this->getModel(), null, true);
+        }
+
+        return $this->contractorInfo;
+    }
+
+    /**
+     * Получить ошибку интеграции с ЭДО
+     *
      * @return string
+     * @throws Exception
      */
     public function getExchangeGroupError()
     {
@@ -418,7 +442,54 @@ class AccountEditForm extends Form
             return 'Интерацию со СБИС можно настроить через редактирование только после создания клиента ';
         }
 
-        return SBISInfo::getClientError($this->getModel(), null, true);
+        return $this->getContractorInfo()->getErrorText();
+    }
+
+    /**
+     * Получить информацию об операторе ЭДО
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function getEdfOperatorHtml()
+    {
+        $result = '';
+
+        $contractorInfo = $this->getContractorInfo();
+
+        $operator = $contractorInfo->getOperator();
+        if ($operator && $operator->isExternal()) {
+            $roaming =
+                $contractorInfo->isRoamingEnabled() ?
+                    Html::tag(
+                        'span',
+                        '<i class="glyphicon glyphicon-ok"></i> роуминг включён',
+                        ['class' => 'text-success']
+                    ) :
+                    Html::tag(
+                        'span',
+                        '<i class="glyphicon glyphicon-remove"></i> без роуминга',
+                        ['class' => 'text-danger']
+                    );
+
+            $name = $contractorInfo->getOperator()->getName();
+            if ($url = $contractorInfo->getOperator()->getUrl()) {
+                $name = Html::tag('a',
+                    $contractorInfo->getOperator()->getName(),
+                    [
+                        'href' => $url,
+                        'target' => '_blank',
+                    ]
+                );
+            }
+
+            $result = Html::tag(
+                'i',
+                sprintf('Клиент в системе %s (%s)', $name, $roaming)
+            );
+        }
+
+        return $result;
     }
 
     private function _saveFromPost()
