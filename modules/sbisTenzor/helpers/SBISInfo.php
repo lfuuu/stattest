@@ -104,6 +104,7 @@ class SBISInfo
         if (!$sbisContractor) {
             $isForce = true;
             $sbisContractor = new SBISContractor();
+            $sbisContractor->is_roaming = false;
         }
 
         if ($isForce) {
