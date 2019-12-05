@@ -11,10 +11,12 @@ use yii\db\Expression;
  * Данные по контрагенту в системе СБИС
  *
  * @property integer $id
+ * @property integer $account_id
  * @property string $tin     Идентификационный номер налогоплательщика (ИНН) (для ЮЛ)
  * @property string $itn     Идентификационный номер налогоплательщика (ИНН) (для ФЛ и ИП)
  * @property string $iec     Код причины постановки (КПП)
  * @property string $full_name
+ * @property bool $is_roaming
  * @property string $email
  * @property string $phone
  * @property string $exchange_id
@@ -46,8 +48,8 @@ class SBISContractor extends ActiveRecord
     public function rules()
     {
         return [
-            [['full_name', 'is_private'], 'required'],
-            [['country_code'], 'integer'],
+            [['full_name', 'is_roaming', 'is_private'], 'required'],
+            [['account_id', 'country_code'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['tin'], 'string', 'max' => 10],
             [['itn'], 'string', 'max' => 12],
@@ -75,10 +77,12 @@ class SBISContractor extends ActiveRecord
     {
         return [
             'id' => 'ID',
+            'account_id' => 'Клиент',
             'tin' => 'ИНН для ЮЛ',
             'itn' => 'ИНН для ФЛ и ИП',
             'iec' => 'КПП',
             'full_name' => 'Название',
+            'is_roaming' => 'Включён роуминг',
             'email' => 'Email',
             'phone' => 'Телефон',
             'exchange_id' => 'Идентификатор',

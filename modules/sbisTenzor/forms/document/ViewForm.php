@@ -3,6 +3,7 @@
 namespace app\modules\sbisTenzor\forms\document;
 
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\classes\SBISDocumentStatus;
 use app\modules\sbisTenzor\models\SBISDocument;
 use yii\base\InvalidArgumentException;
@@ -270,6 +271,7 @@ class ViewForm extends \app\classes\Form
      * Возвращает цепочку пройденных статусов
      *
      * @return array
+     * @throws \Exception
      */
     public function getStatusesChain()
     {
@@ -279,7 +281,8 @@ class ViewForm extends \app\classes\Form
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::CREATED),
             'passed' => true,
-            'date' => $document->created_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->created_at)
+                . PHP_EOL . '(' . $document->createdBy->name . ')',
         ];
 
         if (in_array($document->state, [SBISDocumentStatus::CANCELLED, SBISDocumentStatus::CANCELLED_AUTO])) {
@@ -287,6 +290,8 @@ class ViewForm extends \app\classes\Form
                 'name' => $document->getStateName(),
                 'passed' => true,
                 'btn' => 'btn-warning',
+                'date' => DateTimeZoneHelper::getDateTime($document->updated_at)
+                    . ($document->updatedBy ? PHP_EOL . '(' . $document->updatedBy->name . ')' : ''),
             ];
 
             return $chain;
@@ -295,32 +300,32 @@ class ViewForm extends \app\classes\Form
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::PROCESSING),
             'passed' => !empty($document->started_at),
-            'date' => $document->started_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->started_at),
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SIGNED),
             'passed' => !empty($document->signed_at),
-            'date' => $document->signed_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->signed_at),
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SAVED),
             'passed' => !empty($document->saved_at),
-            'date' => $document->saved_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->saved_at),
         ];
 
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::READY),
             'passed' => !empty($document->prepared_at),
-            'date' => $document->prepared_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->prepared_at),
         ];
 
         $passed = !empty($document->sent_at);
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::SENT),
             'passed' => $passed,
-            'date' => $document->sent_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->sent_at),
             'btn' => $passed ? 'btn-info' : '',
             'extra' => ' <i class="glyphicon glyphicon-send"></i>',
         ];
@@ -328,7 +333,7 @@ class ViewForm extends \app\classes\Form
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::DELIVERED),
             'passed' => !empty($document->read_at),
-            'date' => $document->read_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->read_at),
         ];
 
         if (
@@ -346,7 +351,7 @@ class ViewForm extends \app\classes\Form
         $chain[] = [
             'name' => SBISDocumentStatus::getById(SBISDocumentStatus::ACCEPTED),
             'passed' => !empty($document->completed_at),
-            'date' => $document->completed_at,
+            'date' => DateTimeZoneHelper::getDateTime($document->completed_at),
             'btn' => $passed ? 'btn-success' : '',
             'extra' => ' <i class="glyphicon glyphicon-ok-circle"></i>',
         ];

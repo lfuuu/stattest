@@ -7,6 +7,7 @@ use app\models\ClientAccount;
 use app\modules\sbisTenzor\forms\document\EditForm;
 use app\modules\sbisTenzor\forms\document\IndexForm;
 use app\modules\sbisTenzor\forms\document\ViewForm;
+use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISAttachment;
 use yii\base\InvalidArgumentException;
 use yii\filters\AccessControl;
@@ -60,7 +61,11 @@ class DocumentController extends BaseController
 
             if (!$this->getFixClient()) {
                 $_SESSION["clients_client"] = $clientId;
-                $this->redirect(\Yii::$app->getRequest()->getUrl());
+
+                $url = \Yii::$app->getRequest()->getUrl();
+                $url = SBISUtils::removeVariableFromURL($url, 'clientId');
+
+                $this->redirect($url);
             }
         } else {
             $client = $this->getFixClient();

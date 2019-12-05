@@ -287,9 +287,15 @@ echo Breadcrumbs::widget([
         <td><?= DateTimeZoneHelper::getDateTime($model->completed_at) ? : '---' ?></td>
     </tr>
     <?php if ($errors = $model->errors) : ?>
+        <?php
+            $items = array_reverse(array_filter(explode(PHP_EOL, $errors)));
+            $items = array_map(function ($item) {
+                return wordwrap($item, 80, ' ', true);
+            }, $items);
+        ?>
         <tr>
             <td><label><?= $model->getAttributeLabel('errors'); ?></label></td>
-            <td><?= implode('<br /><br />', array_reverse(array_filter(explode(PHP_EOL, $errors)))) ?></td>
+            <td><?= implode('<br /><br />', $items) ?></td>
         </tr>
     <?php endif ?>
     </tbody>

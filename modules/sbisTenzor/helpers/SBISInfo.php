@@ -3,10 +3,8 @@
 namespace app\modules\sbisTenzor\helpers;
 
 use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
-use app\models\Organization;
 use app\modules\sbisTenzor\models\SBISContractor;
 use app\modules\sbisTenzor\classes\SBISTensorAPI;
 use app\modules\sbisTenzor\models\SBISExchangeGroup;
@@ -16,69 +14,6 @@ use kartik\base\Config;
 
 class SBISInfo
 {
-    /**
-     * Проверка клиента на ошибки
-     *
-     * @param ClientAccount $client
-     * @param Organization|null $organization
-     * @param bool $isForce
-     * @return string
-     */
-    public static function getClientError(ClientAccount $client, Organization $organization = null, $isForce = false)
-    {
-        $sbisOrganization = SBISDataProvider::getSBISOrganizationByClient($client, $organization);
-        if (!$sbisOrganization) {
-            $organization = $organization ? : $client->organization;
-            return sprintf('Обслуживающая организация %s не настроена для работы со СБИС', $organization->name);
-        }
-
-        $groupIds = SBISInfo::getExchangeGroupsByClient($client, $sbisOrganization);
-        if (empty($groupIds)) {
-            return sprintf('Для данного клиента нет подходящих документов для отправки в СБИС');
-        }
-
-        $inn = $client->contragent->inn;
-        if (!$inn) {
-            return 'У контрагента данного клиента не заполнен ИНН!';
-        }
-
-        switch ($client->contragent->legal_type) {
-            case ClientContragent::LEGAL_TYPE:
-                if (!@preg_match('/^(([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})[0-9]{8})$/', $inn)) {
-                    return sprintf('У контрагента данного клиента ИНН не соответствует формату (10 цифр для ЮЛ): "%s"!', $inn);
-                }
-
-                $kpp = $client->contragent->kpp;
-                if (!$kpp) {
-                    return 'У контрагента данного клиента не заполнен КПП!';
-                }
-                if (!@preg_match('/^(([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})([0-9]{2})([0-9A-Z]{2})([0-9]{3}))$/', $kpp)) {
-                    return sprintf('У контрагента данного клиента КПП не соответствует формату (9 символов): "%s"!', $kpp);
-                }
-
-                break;
-
-            case ClientContragent::IP_TYPE:
-            case ClientContragent::PERSON_TYPE:
-                if (!@preg_match('/^(([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})[0-9]{10})$/', $inn)) {
-                    return sprintf('У контрагента данного клиента ИНН не соответствует формату (12 цифр для ИП/ФЛ): "%s"!', $inn);
-                }
-
-                break;
-        }
-
-        $ready = false;
-        try {
-            $ready = SBISInfo::checkExchangeIntegration($client, $isForce);
-        } catch (\Exception $e) {}
-
-        if (!$ready) {
-            return sprintf('Данный клиент не зарегистрирован в системе докуметооборота СБИС');
-        }
-
-        return '';
-    }
-
     /**
      * Получить доступные группы обмена первичными документами
      *
@@ -137,26 +72,11 @@ class SBISInfo
     }
 
     /**
-     * Проверка регистрации клиента в ЭДО
-     *
-     * @param ClientAccount $client
-     * @param bool $isForce
-     * @return bool
-     * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
-     * @throws \yii\base\Exception
-     * @throws \yii\web\BadRequestHttpException
-     */
-    public static function checkExchangeIntegration(ClientAccount $client, $isForce = false)
-    {
-        return !empty(self::getExchangeIntegrationId($client, $isForce));
-    }
-
-    /**
      * Получить Идентификатор в ЭДО
      *
      * @param ClientAccount $client
      * @param bool $isForce
-     * @return string
+     * @return string|null
      * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
      * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
@@ -164,29 +84,43 @@ class SBISInfo
      */
     public static function getExchangeIntegrationId(ClientAccount $client, $isForce = false)
     {
-        $edoId = '';
+        return self::getPreparedContractor($client, $isForce)->exchange_id;
+    }
 
+    /**
+     * Получить данные по контрагенту
+     *
+     * @param ClientAccount $client
+     * @param bool $isForce
+     * @return SBISContractor
+     * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
+     * @throws \yii\base\Exception
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \Exception
+     */
+    public static function getPreparedContractor(ClientAccount $client, $isForce = false)
+    {
         $sbisContractor = SBISDataProvider::getSBISContractor($client);
-        if ($sbisContractor) {
-            $edoId = $sbisContractor->exchange_id;
-        } else {
+        if (!$sbisContractor) {
             $isForce = true;
             $sbisContractor = new SBISContractor();
         }
 
         if ($isForce) {
+            $sbisContractor->account_id = $client->id;
+
             /** @var Module $module */
             $module = Config::getModule('sbisTenzor');
-            $params = $module->getParams();
+            if ($params = $module->getParams()) {
+                $sbisOrganization = array_shift($params);
+                $api = new SBISTensorAPI($sbisOrganization);
 
-            $sbisOrganization = array_shift($params);
-            $api = new SBISTensorAPI($sbisOrganization);
-
-            $result = $api->getContractorInfo($client);
-            $edoId = self::saveSBISContractorInfo($sbisContractor, $result);
+                $result = $api->getContractorInfo($client);
+                self::prepareAndSaveContractor($sbisContractor, $result);
+            }
         }
 
-        return $edoId;
+        return $sbisContractor;
     }
 
     /**
@@ -194,13 +128,12 @@ class SBISInfo
      *
      * @param SBISContractor $sbisContractor
      * @param array $result
-     * @return string
      * @throws \Exception
      */
-    protected static function saveSBISContractorInfo(SBISContractor $sbisContractor, $result)
+    protected static function prepareAndSaveContractor(SBISContractor $sbisContractor, $result)
     {
         if (!array_key_exists('Идентификатор', $result)) {
-            return '';
+            return;
         }
 
         $fieldsMap = [
@@ -244,7 +177,5 @@ class SBISInfo
         if (!$sbisContractor->save()) {
             throw new ModelValidationException($sbisContractor);
         }
-
-        return $result['Идентификатор'];
     }
 }

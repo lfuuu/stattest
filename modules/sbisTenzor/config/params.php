@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'isEnabled' => false,
     'params' => [
         \app\models\Organization::MCN_TELECOM => [
             'authUrl' => 'https://online.sbis.ru/auth/service/',
