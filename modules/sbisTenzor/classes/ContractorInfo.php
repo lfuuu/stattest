@@ -117,7 +117,7 @@ class ContractorInfo
     {
         $client = $this->client;
 
-        $inn = $client->contragent->inn;
+        $inn = $client->getInn();
         if (!$inn) {
             return 'У контрагента данного клиента не заполнен ИНН!';
         }
@@ -129,7 +129,7 @@ class ContractorInfo
                     return sprintf('У контрагента данного клиента ИНН не соответствует формату (10 цифр для ЮЛ): "%s"!', $inn);
                 }
 
-                $kpp = $client->contragent->kpp;
+                $kpp = $client->getKpp();
                 if (!$kpp) {
                     return 'У контрагента данного клиента не заполнен КПП!';
                 }

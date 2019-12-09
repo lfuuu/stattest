@@ -475,7 +475,7 @@ class SBISTensorAPI
      * @return array
      * @throws BadRequestHttpException
      * @throws SBISTensorException
-     * @throws \yii\base\Exception
+     * @throws \Exception
      */
     public function getContractorInfo(ClientAccount $client)
     {
@@ -494,6 +494,51 @@ class SBISTensorAPI
 
             default:
                 return [];
+        }
+
+        return $this->processContractorInfoResponse($client, $result);
+    }
+
+    /**
+     * Обработка информации по контрагенту с проверкой на совпадение реквизитов
+     *
+     * @param ClientAccount $client
+     * @param array $result
+     * @return array
+     * @throws \Exception
+     */
+    protected function processContractorInfoResponse(ClientAccount $client, array $result)
+    {
+        // ИНН
+        if (
+            array_key_exists('СвЮЛ', $result) &&
+            ($result['СвЮЛ']['ИНН'] !== $client->getInn())
+        ) {
+            throw new \LogicException(sprintf('ИНН ЮЛ %s не совпадает с ИНН ЮЛ в системе СБИС: %s, %s', $client->getInn(), $result['СвЮЛ']['ИНН'], $result['СвЮЛ']['Название']));
+        } elseif (
+            array_key_exists('СвФЛ', $result) &&
+            ($result['СвФЛ']['ИНН'] !== $client->getInn())
+        ) {
+            $type = $result['СвФЛ']['ЧастноеЛицо'] === 'Да' ? 'ФЛ' : 'ИП';
+            throw new \LogicException(
+                sprintf(
+                    'ИНН %s %s не совпадает с ИНН %s в системе СБИС: %s, %s %s',
+                    $type,
+                    $client->getInn(),
+                    $type,
+                    $result['СвФЛ']['ИНН'],
+                    $type,
+                    $result['СвФЛ']['Фамилия']
+                )
+            );
+        }
+
+        // КПП
+        if (
+            array_key_exists('СвЮЛ', $result) &&
+            ($result['СвЮЛ']['КПП'] !== $client->getKpp())
+        ) {
+            throw new \LogicException(sprintf('КПП ЮЛ %s не совпадает с КПП ЮЛ в системе СБИС: %s, %s', $client->getKpp(), $result['СвЮЛ']['КПП'], $result['СвЮЛ']['Название']));
         }
 
         return $result;

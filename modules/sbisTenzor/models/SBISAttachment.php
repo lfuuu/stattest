@@ -65,8 +65,11 @@ class SBISAttachment extends ActiveRecord
             [['file_name', 'hash', 'url_online'], 'string', 'max' => 255],
             [['stored_path', 'stored_path_modified', 'hash_stored_path', 'signature_stored_path', 'link'], 'string', 'max' => 512],
             [['url_html', 'url_pdf'], 'string', 'max' => 2048],
-            [['sbis_document_id', 'number'], 'unique', 'targetAttribute' => ['sbis_document_id', 'number'], 'message' => 'The combination of Sbis Document ID and Number has already been taken.'],
             [['sbis_document_id'], 'exist', 'skipOnError' => true, 'targetClass' => SbisDocument::class, 'targetAttribute' => ['sbis_document_id' => 'id']],
+            [
+                ['sbis_document_id', 'number'], 'unique', 'targetAttribute' => ['sbis_document_id', 'number'],
+                'message' => 'Вложение для пакета документов с этим порядковым номером уже существует: {values}'
+            ],
         ];
     }
 
