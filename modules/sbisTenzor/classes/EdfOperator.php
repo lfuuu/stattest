@@ -136,9 +136,9 @@ class EdfOperator
             'url' => 'http://www.kds-trust.ru/',
         ],
         self::CODE_2BN => [
-            'name' => '2BN',
-            'company' => '2BN',
-            'url' => '',
+            'name' => 'Линк-ЭДО',
+            'company' => 'Линк-Сервис',
+            'url' => 'http://www.link-service.ru/',
         ],
         self::CODE_2LB => [
             'name' => '2LB',
@@ -299,9 +299,10 @@ class EdfOperator
 
     protected static $withAutoRoaming = [
         self::CODE_2BE,
-        self::CODE_2AL,
-        self::CODE_2GP,
-        self::CODE_2PS,
+        // авто-роуминг пока не работает у СБИС'а как надо
+//        self::CODE_2AL,
+//        self::CODE_2GP,
+//        self::CODE_2PS,
     ];
 
     /** @var string */

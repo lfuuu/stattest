@@ -58,7 +58,19 @@ class SBISContractor extends ActiveRecord
             [['exchange_id'], 'string', 'max' => 46],
             [['inila'], 'string', 'max' => 15],
             [['last_name', 'first_name', 'middle_name'], 'string', 'max' => 60],
-            [['tin', 'itn', 'iec', 'inila'], 'unique', 'targetAttribute' => ['tin', 'itn', 'iec', 'inila'], 'message' => 'The combination of Tin, Itn, Iec and Inila has already been taken.'],
+            [
+                ['tin', 'itn', 'iec', 'inila'], 'unique', 'targetAttribute' => ['tin', 'itn', 'iec', 'inila'],
+                'message' => 'Данная комбинация реквизитов из  {attributes} (поля необязательные) {values} уже закреплена за другим контрагентом!',
+                'when' => function ($model, $attribute) {
+                    // убираем дублирующиеся ошибки для каждого из полей
+                    foreach (['tin', 'itn', 'iec', 'inila'] as $property) {
+                        if (!empty($model->$property)) {
+                            return $property === $attribute;
+                        }
+                    }
+                    return true;
+                }
+            ],
         ];
     }
 

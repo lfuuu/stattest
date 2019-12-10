@@ -67,8 +67,11 @@ class SBISOrganization extends ActiveRecord
             [['thumbprint'], 'string', 'max' => 2048],
             [['algorithm'], 'string', 'max' => 32],
             [['last_event_id', 'previous_event_id'], 'string', 'max' => 36],
-            [['organization_id', 'is_active'], 'unique', 'targetAttribute' => ['organization_id', 'is_active'], 'message' => 'The combination of Organization ID and Is Active has already been taken.'],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
+            [
+                ['organization_id', 'is_active'], 'unique', 'targetAttribute' => ['organization_id', 'is_active'],
+                'message' => 'Данная организация {value} для работы со СБИС уже есть и активна.'
+            ],
         ];
     }
 
