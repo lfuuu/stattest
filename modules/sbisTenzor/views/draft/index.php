@@ -134,8 +134,14 @@ echo GridView::widget([
                             );
 
                         if ($exchangeFile->isXML()) {
-                            $xmlFile = XmlGenerator::createXmlGenerator($exchangeFile->form, $model->invoice);
-                            if ($errorText = $xmlFile->getErrorText()) {
+                            try {
+                                $xmlFile = XmlGenerator::createXmlGenerator($exchangeFile->form, $model->invoice);
+                                $errorText = $xmlFile->getErrorText();
+                            } catch (\Exception $e) {
+                                $errorText = $e->getMessage();
+                            }
+
+                            if ($errorText) {
                                 $html .= '<span class="text-danger" title="' . htmlspecialchars($errorText) . '"><i class="glyphicon glyphicon-remove"></i>&nbsp;Ошибки</span>';
                             } else {
                                 $html .= ' <span class="text-success" title="Проверен"><i class="glyphicon glyphicon-ok-circle"></i></span>';

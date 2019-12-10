@@ -60,7 +60,7 @@ class SBISContractor extends ActiveRecord
             [['last_name', 'first_name', 'middle_name'], 'string', 'max' => 60],
             [
                 ['tin', 'itn', 'iec', 'inila'], 'unique', 'targetAttribute' => ['tin', 'itn', 'iec', 'inila'],
-                'message' => 'Данная комбинация реквизитов из  {attributes} (поля необязательные) {values} уже закреплена за другим контрагентом!',
+                'message' => 'Данная комбинация реквизитов из {attributes} (поля необязательные) {values} уже закреплена за другим контрагентом!',
                 'when' => function ($model, $attribute) {
                     // убираем дублирующиеся ошибки для каждого из полей
                     foreach (['tin', 'itn', 'iec', 'inila'] as $property) {

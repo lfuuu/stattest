@@ -4463,6 +4463,13 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         AgentReport::getDetails();
     }
 
+    public function stats_ip($fixclient)
+    {
+        include_once 'StatIp.php';
+
+        new StatIp($fixclient);
+    }
+
 }
 
 

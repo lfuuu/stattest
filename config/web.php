@@ -35,6 +35,11 @@ if (file_exists($file = __DIR__ . '/db_pgsql_nfdump.local.php')) {
     $dbPgNfDump = ArrayHelper::merge($dbPgNfDump, require($file));
 }
 
+$dbPgCallLegs = require(__DIR__ . '/db_pg_calllegs.php');
+if (file_exists($file = __DIR__ . '/db_pg_calllegs.local.php')) {
+    $dbPgCallLegs = ArrayHelper::merge($dbPgCallLegs, require($file));
+}
+
 $dbAts = require(__DIR__ . '/db_ats.php');
 if (file_exists($file = __DIR__ . '/db_ats.local.php')) {
     $dbAts = ArrayHelper::merge($dbAts, require($file));
@@ -150,6 +155,7 @@ $config = [
         'dbPgSlaveCache' => $dbPgSlaveCache,
         'dbPgCache' => $dbPgCache,
         'dbPgNfDump' => $dbPgNfDump,
+        'dbPgCallLegs' => $dbPgCallLegs,
         'dbAts' => $dbAts,
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,

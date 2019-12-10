@@ -34,7 +34,7 @@ class m_stats_head extends IModuleHead{
         'save_agent_settings' => array('stats', 'vip_report'),
         'report_agent_details' => array('stats','vip_report'),
 		'onlime_details'	    => array('stats','report'),
-		'report_by_one_manager' => array('stats','report'),
+		'ip' => array('stats','report'),
 	);
 
     var $menu=[];
@@ -74,6 +74,7 @@ class m_stats_head extends IModuleHead{
             array('Настройка агента', 'agent_settings'),
             array('Региональные представители', 'report_sale_channel'),
             array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),
+            array('Статистика: звонки-IP', 'ip'),
         );
     }
 }

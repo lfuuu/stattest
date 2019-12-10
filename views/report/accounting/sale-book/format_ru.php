@@ -99,7 +99,7 @@
                 $taxRate = $account->getTaxRate();
 
                 $sum = $invoice->sum;
-                $sum_without_tax = $invoice->sum_without_tax;
+                $sum_without_tax = $invoice->type_id != Invoice::TYPE_PREPAID ? $invoice->sum_without_tax : null;
                 $sum_tax = $invoice->sum_tax;
 
             } catch (Exception $e) {
@@ -108,7 +108,7 @@
             }
 
             $total['sumAll'] += $sum;
-            $total['sum' . $taxRate] += $sum_without_tax;
+            $sum_without_tax && $total['sum' . $taxRate] += $sum_without_tax;
             $total['tax' . $taxRate] += $sum_tax;
 
             ?>
@@ -118,7 +118,7 @@
                 <td><?= ($invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED)) ?></td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
-                <td><?= ($invoice->correction_idx ? $invoice->correction_idx . ' от ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '---') ?></td>
+                <td><?= ($invoice->correction_idx ? $invoice->correction_idx . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : '---') ?></td>
                 <td>---</td>
                 <td>---</td>
                 <td><?= trim($contragent->name_full) ?></td>
@@ -130,7 +130,7 @@
                 <td><?= $account->currency == 'RUB' ? ' ' : $account->currencyModel->name. ' ' . $account->currencyModel->code ?></td>
                 <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
                 <td><?= $printSum($sum) ?></td>
-                <td><?= $taxRate == 20 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
+                <td><?= $sum_without_tax !== null && $taxRate == 20 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 0 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>

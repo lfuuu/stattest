@@ -29,6 +29,12 @@ class OperationType extends ActiveRecord
         self::ID_CORRECTION     => 'Корректировка',
     ];
 
+    protected static $namesFull = [
+        self::ID_PRICE          => 'Заказ/Доходный документ',
+        self::ID_COST           => 'Расходный документ',
+        self::ID_CORRECTION     => 'Корректировочный документ',
+    ];
+
     /**
      * @inheritdoc
      */
@@ -47,11 +53,12 @@ class OperationType extends ActiveRecord
 
     /**
      * @param int $id
+     * @param bool $isFull
      * @return string
      */
-    public static function getNameById($id)
+    public static function getNameById($id, $isFull = false)
     {
-        return self::$names[$id];
+        return $isFull ? self::$namesFull[$id] : self::$names[$id];
     }
 
     /**
