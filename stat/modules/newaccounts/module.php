@@ -948,6 +948,9 @@ class m_newaccounts extends IModule
 
         $design->assign('isPartnerRewards', $newbill->isHavePartnerRewards());
 
+
+        $design->assign('operationType', OperationType::getNameById($newbill->operation_type_id, true));
+
         $design->AddMain('newaccounts/bill_view.tpl');
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='" . $bill_no . "'");

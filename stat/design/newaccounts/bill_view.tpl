@@ -12,7 +12,7 @@
             {assign var="isClosed" value="0"}
             {if isset($tt_trouble) && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
 
-            {if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}
+            {if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}{if $bill.sum >= 0}Заказ{else}{$operationType}{/if}{/if}
             {if $bill.is_rollback}-<b><u>возврат</u></b>{/if}
             <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill_ext.ext_bill_no)} ({$bill_ext.ext_bill_no}){/if}</b>
 
@@ -238,9 +238,13 @@
                 {if $item.type == "good"}
                     {if $item.store == "yes"}
                         <b style="color: green;">Склад</b>
-                    {elseif $item.store == "no"}
+
+{elseif $item.store == "no"}
+
                         <b style="color: blue;">Заказ</b>
-                    {elseif $item.store == "remote"}
+
+{elseif $item.store == "remote"}
+
                         <b style="color: #c40000;">ДалСклад</b>
                     {/if}
                 {/if}
@@ -577,87 +581,90 @@
 
 
     </div>
-    <div style="float: left">
-        <table border="0">
-            <tr>
-                <td valign="top" style="width: 400px;">
-                    Счета-фактур
-                    <table>
-                        <tr>
-                            {foreach from=$invoice2_info key=typeId item=item}
-                                <td>
-                                    <b>{if $typeId == 4}Авансовая с/ф{else}С/ф №{$typeId}{/if}</b>
-                                </td>
-                                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            {/foreach}
 
-                        </tr>
-                        <tr>
-                            {foreach from=$invoice2_info key=typeId item=item}
-                                <td valign="top">
-                                    <table>
-                                        {foreach from=$item.invoices item=invoice}
-                                            <tr>
-                                                {if $invoice.idx}
+    {if $bill.sum > 0}
+        <div style="float: left">
+            <table border="0">
+                <tr>
+                    <td valign="top" style="width: 400px;">
+                        Счета-фактур
+                        <table>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td>
+                                        <b>{if $typeId == 4}Авансовая с/ф{else}С/ф №{$typeId}{/if}</b>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+
+                            </tr>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td valign="top">
+                                        <table>
+                                            {foreach from=$item.invoices item=invoice}
+                                                <tr>
+                                                    {if $invoice.idx}
+                                                        <td>
+                                                            <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
+                                                               target="_blank">{$invoice.number}{if $invoice.correction_idx} ({$invoice.correction_idx}){/if}</a>:
+                                                        </td>
+                                                        <td>{$invoice.sum|round:2}</td>
+                                                    {elseif $invoice.is_reversal}
+                                                        <td>&nbsp;</td>
+                                                        <td>{$invoice.sum|round:2}</td>
+                                                    {/if}
+                                                </tr>
+                                            {/foreach}
+
+                                            {if $item.status == 'draft'}
+                                                <tr>
                                                     <td>
                                                         <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
-                                                           target="_blank">{$invoice.number}{if $invoice.correction_idx} ({$invoice.correction_idx}){/if}</a>:
+                                                           target="_blank">*{$invoice.bill_no}*</a>:
                                                     </td>
-                                                    <td>{$invoice.sum|round:2}</td>
-                                                {elseif $invoice.is_reversal}
-                                                    <td>&nbsp;</td>
-                                                    <td>{$invoice.sum|round:2}</td>
-                                                {/if}
-                                            </tr>
-                                        {/foreach}
-
-                                        {if $item.status == 'draft'}
-                                            <tr>
-                                                <td>
-                                                    <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
-                                                       target="_blank">*{$invoice.bill_no}*</a>:
-                                                </td>
-                                                <td> {$invoice.sum|round:2}</td>
-                                            </tr>
+                                                    <td> {$invoice.sum|round:2}</td>
+                                                </tr>
+                                            {/if}
+                                        </table>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+                            </tr>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td valign="top">
+                                        {if $item.status == 'empty' || $item.status == 'reversal'}
+                                            <a href="/bill/publish/invoice-draft?bill_no={$bill.bill_no}&type_id={$typeId}">
+                                                Создать драфт
+                                            </a>
+                                        {elseif $item.status == 'draft'}
+                                            <a href="/bill/publish/invoice-edit?invoice_id={$item.lastId}">Редактирование</a>
+                                            |
+                                            <a href="/bill/publish/invoice-delete?bill_no={$bill.bill_no}&type_id={$typeId}">Удалить</a>
+                                            |
+                                            <a href="/bill/publish/invoice-register?bill_no={$bill.bill_no}&type_id={$typeId}">Регистрировать</a>
+                                        {elseif $item.status == 'invoice'}
+                                            <a href="/bill/publish/invoice-storno?bill_no={$bill.bill_no}&type_id={$typeId}&id={$item.stornoId}">Сторно</a>
                                         {/if}
-                                    </table>
-                                </td>
-                                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            {/foreach}
-                        </tr>
-                        <tr>
-                            {foreach from=$invoice2_info key=typeId item=item}
-                                <td valign="top">
-                                    {if $item.status == 'empty' || $item.status == 'reversal'}
-                                        <a href="/bill/publish/invoice-draft?bill_no={$bill.bill_no}&type_id={$typeId}">
-                                            Создать драфт
-                                        </a>
-                                    {elseif $item.status == 'draft'}
-                                        <a href="/bill/publish/invoice-edit?invoice_id={$item.lastId}">Редактирование</a>
-                                        |
-                                        <a href="/bill/publish/invoice-delete?bill_no={$bill.bill_no}&type_id={$typeId}">Удалить</a>
-                                        |
-                                        <a href="/bill/publish/invoice-register?bill_no={$bill.bill_no}&type_id={$typeId}">Регистрировать</a>
-                                    {elseif $item.status == 'invoice'}
-                                        <a href="/bill/publish/invoice-storno?bill_no={$bill.bill_no}&type_id={$typeId}&id={$item.stornoId}">Сторно</a>
-                                    {/if}
-                                </td>
-                                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            {/foreach}
-                        </tr>
-                        <tr>
-                            {foreach from=$invoice2_info key=typeId item=item}
-                                <td>
-                                </td>
-                                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            {/foreach}
-                        </tr>
-                    </table>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+                            </tr>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+                            </tr>
+                        </table>
 
-                </td>
-            </tr>
-        </table>
-    </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {/if}
     <div style="clear: both"></div>
 </form>
 

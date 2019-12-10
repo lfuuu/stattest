@@ -464,6 +464,10 @@ class Bill extends ActiveRecord
             $this->organization_id = $account->contract->organization_id;
         }
 
+        if ($this->sum < 0 && $this->operation_type_id == OperationType::ID_PRICE) {
+            $this->operation_type_id = OperationType::ID_COST;
+        }
+
         return parent::beforeSave($isInsert);
     }
 

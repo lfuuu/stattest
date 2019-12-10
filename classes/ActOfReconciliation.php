@@ -89,7 +89,31 @@ class ActOfReconciliation extends Singleton
             ->andWhere(['!=', 'i.sum', 0])
             ->andWhere(['NOT', ['i.number' => null]])
             ->andWhere(['between', 'date', $dateFrom, $dateTo])
-            ->union($paymentsQuery, true);
+            ->union($paymentsQuery, true)
+            ->union('SELECT
+  b.id,
+  -if(coalesce(ext_vat, 0) > 0,
+     ext_vat + ext_sum_without_vat,
+     round(((SELECT max(tax_rate)
+             FROM newbill_lines l
+             WHERE l.bill_no = b.bill_no) + 100) * ext_sum_without_vat / 100, 2)
+  )                                         AS sum,
+  \'invoice\'                                 AS type,
+  \'\'                                        AS payment_type,
+  STR_TO_DATE(ext_invoice_date, \'%d-%m-%Y\') AS date,
+  ex.ext_invoice_no                         AS number,
+  \'\'                                        AS correction_idx,
+  b.bill_date                               AS bill_date,
+  b.bill_date                               AS add_datetime
+FROM newbills b
+  JOIN `newbills_external` ex USING (bill_no)
+WHERE b.client_id = ' . $account->id . '
+      AND b.currency = \'' . $account->currency . '\'
+      AND b.sum < 0
+      AND length(trim(coalesce(ext_invoice_date))) > 0
+      AND trim(coalesce(ext_invoice_no, \'\')) != \'\'
+      AND coalesce(ext_sum_without_vat, 0) > 0
+      AND STR_TO_DATE(ext_invoice_date, \'%d-%m-%Y\') BETWEEN \'' . $dateFrom . '\' AND \'' . $dateTo . '\'', true);
 
         // сортировка работает отдельно от union
         $arr = (new Query())->from(['a' => $query])->orderBy(['date' => SORT_ASC, 'a.id' => SORT_ASC])->all();
@@ -168,19 +192,19 @@ class ActOfReconciliation extends Singleton
         // У клиентов вне России стоит неправильная дата. Её надо брать из счета.
         if ($isNotRussia) {
             $data =
-            array_filter(
-                array_map(
-                    function ($value) use ($account) {
-                        if ($value['type'] == 'invoice') {
-                            $value['date'] = $value['bill_date'];
-                        }
-                        return $value;
-                    }, $data
-                ),
-                function ($value) use ($dateFrom) {
-                    return $value['bill_date'] >= $dateFrom;
-                }
-            );
+                array_filter(
+                    array_map(
+                        function ($value) use ($account) {
+                            if ($value['type'] == 'invoice') {
+                                $value['date'] = $value['bill_date'];
+                            }
+                            return $value;
+                        }, $data
+                    ),
+                    function ($value) use ($dateFrom) {
+                        return $value['bill_date'] >= $dateFrom;
+                    }
+                );
         }
 
         $result = [];
@@ -264,7 +288,7 @@ class ActOfReconciliation extends Singleton
 
             $date = $row['date'];
             // месячная линия, он долна быть после всех документов
-            if ($date <= $findDate && (!isset($data[$idx+1]) || (isset($data[$idx+1]) && $data[$idx+1] < $findDate))) {
+            if ($date <= $findDate && (!isset($data[$idx + 1]) || (isset($data[$idx + 1]) && $data[$idx + 1] < $findDate))) {
                 while ($date <= $findDate) {
                     $result[] = [
                         'type' => 'month',
