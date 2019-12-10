@@ -4,6 +4,7 @@ namespace app\classes\excel;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\filter\SaleBookFilter;
+use app\models\Invoice;
 use DateTime;
 use app\models\Organization;
 
@@ -65,14 +66,16 @@ class BalanceSellToExcel extends Excel
             $paymentsStr = $invoice->getPaymentsStr();
 
             $data[] = [
+                'code' => $invoice->type_id == Invoice::TYPE_PREPAID ? '02' : '01',
                 'sum' => $invoice->sum,
-                'sum_without_tax' => $invoice->sum_without_tax,
+                'sum_without_tax' => $invoice->type_id !== Invoice::TYPE_PREPAID ? $invoice->sum_without_tax : null,
                 'sum_tax' => $invoice->sum_tax,
                 'company_full' => trim($contragent->name_full),
                 'inn' => trim($contragent->inn),
                 'kpp' => trim($contragent->kpp),
                 'inv_no' => $invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'type' => $contragent->legal_type,
+                'correction' => ($invoice->correction_idx ? $invoice->correction_idx . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : ''),
                 'taxRate' => $taxRate,
                 'currency_id' => $currencyId,
                 'currency_name' => $currencyName,
@@ -103,8 +106,9 @@ class BalanceSellToExcel extends Excel
             $companyName = str_replace(['«', '»'], '"', html_entity_decode($row['company_full']));
 
             $worksheet->setCellValueByColumnAndRow(0, $line, ($i + 1));
-            $worksheet->setCellValueByColumnAndRow(1, $line, '01');
+            $worksheet->setCellValueByColumnAndRow(1, $line, $row['code']);
             $worksheet->setCellValueByColumnAndRow(2, $line, $row['inv_no']);
+            $worksheet->setCellValueByColumnAndRow(5, $line, $row['correction']);
             $worksheet->setCellValueByColumnAndRow(8, $line, $companyName);
             $worksheet->setCellValueByColumnAndRow(9, $line,
                 $row['inn'] . ($row['type'] == 'legal' ? '/' . ($row['kpp'] ?: '') : ''));
@@ -116,7 +120,7 @@ class BalanceSellToExcel extends Excel
                         sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(15, $line, sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(16, $line,
-                $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
+                $row['sum_without_tax'] !== null && $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
             $worksheet->setCellValueByColumnAndRow(17, $line,
                 $row['taxRate'] == 18 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
             $worksheet->setCellValueByColumnAndRow(18, $line,
