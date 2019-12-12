@@ -66,6 +66,7 @@ class BikUpdaterDBF
 		$res = array(
 			'bank_city' => iconv("cp866", "utf-8", trim($d['NNP'])),
 			'bank_name' => iconv("cp866", "utf-8", trim($d['NAMEP'])),
+			'bank'      => iconv("cp866", "utf-8", trim($d['NAMEN'])),
 			'bik'       => iconv("cp866", "utf-8", trim($d['NEWNUM'])),
 			'corr_acc'  => iconv("cp866", "utf-8", trim($d['KSNP'])),
 			'date_in'   => iconv("cp866", "utf-8", trim($d['DATE_IN'])),
@@ -108,7 +109,7 @@ class BikUpdaterDBF
 			$bik = $db->GetRow("SELECT * FROM bik WHERE bik='" . $d['bik'] . "'");
 			
 			if ($bik) {
-			    foreach (['corr_acc', 'bank_name', 'bank_city', 'bank_address'] as $field) {
+			    foreach (['corr_acc', 'bank_name', 'bank_city', 'bank_address', 'bank'] as $field) {
                     if ($bik[$field] != $d[$field]) {
                         $this->final_data['update'][$d['bik']][$field] = $d[$field];
                         $this->log['update'][$d['bik']][$field] = [$bik[$field], $d[$field]];
