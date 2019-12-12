@@ -5244,7 +5244,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
         }
 
         $sql = "SELECT
-  b.bill_no,
+  ex.ext_invoice_no as bill_no,
   b.bill_date,
   cg.name_full,
   cg.inn,
