@@ -5,6 +5,11 @@ use yii\web\Response;
 
 Yii::setAlias('@app', dirname(__DIR__));
 
+$cacheRedis = require(__DIR__ . '/cache_redis.php');
+if (file_exists($file = __DIR__ . '/cache_redis.local.php')) {
+    $cacheRedis = ArrayHelper::merge($cacheRedis, require($file));
+}
+
 $db = require(__DIR__ . '/db_stat.php');
 if (file_exists($file = __DIR__ . '/db_stat.local.php')) {
     $db = ArrayHelper::merge($db, require($file));
@@ -123,9 +128,7 @@ $config = [
             'dirMode' => 0777,
             'fileMode' => 0666,
         ],*/
-        'redis' => [
-            'class' => 'yii\redis\Connection',
-        ],
+        'redis' => $cacheRedis,
         'cache' => [
             'class' => 'yii\redis\Cache',
             'keyPrefix' => 'stat:',
