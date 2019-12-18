@@ -147,7 +147,7 @@ class ApiPhone extends Singleton
             'region' => (int)$region,
             'timezone' => Region::getTimezoneByRegionId($region),
             'type' => self::TYPE_LINE,
-            'sip_accounts' => ((UsageTrunk::dao()->hasService($accountClient) || AccountTariff::hasTrunk($clientAccountId)) ? 0 : 1),
+            'sip_accounts' => (($lines == 0 || UsageTrunk::dao()->hasService($accountClient) || AccountTariff::hasTrunk($clientAccountId)) ? 0 : 1),
             'nonumber' => $isNonumber
         ];
 

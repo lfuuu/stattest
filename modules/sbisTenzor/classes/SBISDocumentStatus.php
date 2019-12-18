@@ -27,6 +27,7 @@ class SBISDocumentStatus
     const ERROR = 90;
 
     const EXTERNAL_EDIT = 0;
+    const EXTERNAL_SENT_INVITATION = 2;
     const EXTERNAL_SENT = 3;
     const EXTERNAL_DELIVERED = 4;
     const EXTERNAL_ERROR = 6;
@@ -56,6 +57,7 @@ class SBISDocumentStatus
 
     protected static $externalStates = [
         self::EXTERNAL_EDIT => 'Документ редактируется',
+        self::EXTERNAL_SENT_INVITATION => 'Отправлено приглашение',
         self::EXTERNAL_SENT => 'Отправлен',
         self::EXTERNAL_DELIVERED => 'Доставлен',
         self::EXTERNAL_ERROR => 'Ошибка',

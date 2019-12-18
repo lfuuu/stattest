@@ -864,7 +864,10 @@ class SBISTensorAPI
 
         return
             ($document->external_id == $documentInfo->externalId) &&
-            ($documentInfo->externalState == SBISDocumentStatus::EXTERNAL_SENT)
+            in_array($documentInfo->externalState, [
+                SBISDocumentStatus::EXTERNAL_SENT_INVITATION,
+                SBISDocumentStatus::EXTERNAL_SENT,
+            ])
             ;
     }
 

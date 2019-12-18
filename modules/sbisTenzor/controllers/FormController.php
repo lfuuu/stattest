@@ -5,7 +5,6 @@ namespace app\modules\sbisTenzor\controllers;
 use app\classes\BaseController;
 use app\modules\sbisTenzor\forms\form\IndexForm;
 use yii\filters\AccessControl;
-use Yii;
 
 /**
  * FormController controller for the `sbisTenzor` module

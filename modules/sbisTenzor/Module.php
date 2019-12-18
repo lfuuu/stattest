@@ -63,6 +63,7 @@ class Module extends \yii\base\Module
                 ->addItem('Список сгенерированных черновиков', ['/sbisTenzor/draft'])
                 ->addItem('Список групп обмена', ['/sbisTenzor/group'])
                 ->addItem('Список форм документов', ['/sbisTenzor/form'])
+                ->addItem('Роуминг', ['/sbisTenzor/contractor/roaming'])
         );
     }
 

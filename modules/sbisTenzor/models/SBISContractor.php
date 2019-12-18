@@ -3,6 +3,7 @@
 namespace app\modules\sbisTenzor\models;
 
 use app\classes\model\ActiveRecord;
+use app\models\ClientAccount;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -31,6 +32,8 @@ use yii\db\Expression;
  *
  * @property string $created_at
  * @property string $updated_at
+ *
+ * @property-read ClientAccount $clientAccount
  */
 class SBISContractor extends ActiveRecord
 {
@@ -125,5 +128,13 @@ class SBISContractor extends ActiveRecord
                 'value' => new Expression("UTC_TIMESTAMP()"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::class, ['id' => 'account_id']);
     }
 }
