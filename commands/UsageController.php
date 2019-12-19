@@ -2,6 +2,7 @@
 
 namespace app\commands;
 
+use app\classes\adapters\Tele2Adapter;
 use app\classes\behaviors\SetTaxVoip;
 use app\health\MonitorVoipDelayOnPackages;
 use app\models\EventQueue;
@@ -545,5 +546,13 @@ FROM
                 }
             }
         }
+    }
+
+    public function actionRunTele2Daemon()
+    {
+        Tele2Adapter::me()->runReceiverDaemon();
+
+        echo PHP_EOL;
+        return ExitCode::OK;
     }
 }

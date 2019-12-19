@@ -17,6 +17,7 @@ use yii\helpers\Url;
  */
 class ImsiProfile extends ActiveRecord
 {
+    const ID_TELE2_TEST = 6;
 
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;

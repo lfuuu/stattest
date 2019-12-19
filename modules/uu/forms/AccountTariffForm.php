@@ -130,6 +130,7 @@ abstract class AccountTariffForm extends Form
                     Yii::info('AccountTariffForm. Before voip $accountTariff->save', 'uu');
                     $accountTariff = clone $this->accountTariff;
                     $accountTariff->voip_number = $voipNumber;
+                    $accountTariff->voip_numbers_warehouse_status = $this->accountTariffVoip->voip_numbers_warehouse_status;
                     $accountTariff->id = 0;
                     unset($accountTariff->number); // populateRelation
                     if (!$accountTariff->save()) {

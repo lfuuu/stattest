@@ -3,6 +3,7 @@
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\adapters\ClientChangedAmqAdapter;
+use app\classes\adapters\Tele2Adapter;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
@@ -38,6 +39,7 @@ use app\modules\nnp\Module as NnpModule;
 use app\modules\sbisTenzor\helpers\SBISDataProvider;
 use app\modules\socket\classes\Socket;
 use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\AccountTariffCheckHlr;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\classes\SyncVps;
@@ -155,6 +157,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
         $flags['isCallTrackingServer'] = CallTrackingModule::isAvailable();
         $flags['isAtolServer'] = \app\modules\atol\classes\Api::me()->isAvailable();
         $flags['isMttServer'] = MttAdapter::me()->isAvailable();
+        $flags['isTele2Server'] = Tele2Adapter::me()->isAvailable();
         $flags['isFreeNumberServer'] = FreeNumberAdapter::me()->isAvailable();
         $flags['isAsyncServer'] = AsyncAdapter::me()->isAvailable();
         $flags['isSipTrunkServer'] = ApiSipTrunk::me()->isAvailable();
@@ -171,6 +174,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     $isCallTrackingServer = $flags['isCallTrackingServer'];
     $isAtolServer = $flags['isAtolServer'];
     $isMttServer = $flags['isMttServer'];
+    $isTele2Server = $flags['isTele2Server'];
     $isFreeNumberServer = $flags['isFreeNumberServer'];
     $isAsyncServer = $flags['isAsyncServer'];
     $isSipTrunkServer = $flags['isSipTrunkServer'];
@@ -496,6 +500,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         $bill->generateInvoices();
                     }
 
+                    break;
+
+                case EventQueue::SYNC_TELE2_GET_IMSI:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::reservImsi($param) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case EventQueue::SYNC_TELE2_LINK_IMSI:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::linkImsi($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
 

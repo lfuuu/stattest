@@ -118,6 +118,7 @@ class VoipController extends BaseController
      * @param int $limit
      * @param string $ndcTypeId
      * @param int $warehouseStatusId
+     * @param int $hlrId
      * @return string
      * @throws \InvalidArgumentException
      * @throws \yii\base\InvalidParamException
@@ -133,7 +134,8 @@ class VoipController extends BaseController
         $mask = '',
         $limit = FreeNumberFilter::LIMIT,
         $ndcTypeId = '',
-        $warehouseStatusId = null
+        $warehouseStatusId = null,
+        $hlrId = null
     )
     {
         $numbers = new FreeNumberFilter;
@@ -141,6 +143,7 @@ class VoipController extends BaseController
         switch ($ndcTypeId) {
             case NdcType::ID_MOBILE:
                 $warehouseStatusId && $numbers->setWarehouseStatus($warehouseStatusId);
+                $hlrId && $numbers->setHlr($hlrId);
                 break;
             case NdcType::ID_MCN_LINE:
                 // "линия без номера"

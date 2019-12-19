@@ -9,6 +9,8 @@
 ./nnpPortedNumberLog.sh > ../web/export/health/nnpPortedNumberLog.json
 ./mttLog.sh > ../web/export/health/mttLog.json
 ./mttProcess.sh > ../web/export/health/mttProcess.json
+./tele2Log.sh > ../web/export/health/tele2Log.json
+./tele2Process.sh > ../web/export/health/tele2Process.json
 ./nnpPortedApi.sh > ../web/export/health/nnpPortedApi.json
 ./socketApi.sh > ../web/export/health/socketApi.json
 ./uuApiLog.sh > ../web/export/health/uuApiLog.json
