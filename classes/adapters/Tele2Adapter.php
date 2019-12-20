@@ -3,6 +3,7 @@
 namespace app\classes\adapters;
 
 use app\classes\Singleton;
+use app\exceptions\ModelValidationException;
 use app\models\EventQueue;
 use app\modules\mtt\classes\MttResponse;
 use PhpAmqpLib\Channel\AMQPChannel;
@@ -488,9 +489,17 @@ class Tele2Adapter extends Singleton
     public function receiverCallback(\PhpAmqpLib\Message\AMQPMessage $msg)
     {
         $bodyStr = $msg->body;
+
         echo date(DATE_ATOM) . ' ' . print_r($bodyStr, true) . PHP_EOL;
 
-        /** @var MttResponse $response */
+        // ACK
+        /** @var AMQPChannel $channel */
+        $channel = $msg->delivery_info['channel'];
+        $deliveryTag = $msg->delivery_info['delivery_tag'];
+        // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.ack
+        $channel->basic_ack($deliveryTag);
+
+
         $response = json_decode($bodyStr, true);
         if (!$response) {
             echo 'Error. Не JSON.';
@@ -521,15 +530,11 @@ class Tele2Adapter extends Singleton
 
         if (!$event) {
             echo 'Error. Задание в очереди не найдено.';
+            return;
         }
 
-        $event && $event->save();
-
-        // ACK
-        /** @var AMQPChannel $channel */
-        $channel = $msg->delivery_info['channel'];
-        $deliveryTag = $msg->delivery_info['delivery_tag'];
-        // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.ack
-        $channel->basic_ack($deliveryTag);
+        if (!$event->save()) {
+            throw new ModelValidationException($event);
+        }
     }
 }
