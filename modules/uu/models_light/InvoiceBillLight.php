@@ -21,7 +21,9 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $summary_without_vat = 0,
         $summary_vat = 0,
         $summary_with_vat = 0,
-        $payment_type = ''
+        $payment_type = '',
+        $original_id = ''
+
     ;
 
     private $_language;
@@ -36,6 +38,11 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         parent::__construct();
 
         $this->id = $invoice ? $invoice->number : ($bill instanceof Bill ? $bill->bill_no : $bill->id);
+
+        if ($invoice && $invoice->is_reversal && ($rInvoice = $invoice->getReversalInvoice())) {
+            $this->original_id = $rInvoice->number;
+        }
+
         $this->_language = $language;
 
         $statBill = $this->_getStatBill($bill);

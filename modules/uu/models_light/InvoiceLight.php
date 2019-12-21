@@ -218,7 +218,7 @@ class InvoiceLight extends Component
         $smarty = Smarty::init();
         $smarty->assign($this->getProperties());
 
-        $invoiceTemplate = new InvoiceForm($this->_language);
+        $invoiceTemplate = new InvoiceForm($this->_language, $this->_invoice);
 
         if ($invoiceTemplate->fileExists()) {
             $content = $smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName()));
