@@ -2100,7 +2100,7 @@ class m_newaccounts extends IModule
                     'link' => \yii\helpers\Url::to(['/uu/invoice/get',
                         'billNo' => $bill->bill_no,
                         'typeId' => $docId,
-                        'langCode' => $bill->clientAccount->contragent->lang_code,
+                        'langCode' => $bill->clientAccount->clientContractModel->clientContragent->lang_code,
                     ]
                         + ($isPdf || $invoice ? ['renderMode' => 'pdf', 'isShow' => true] : [])
                         + ($invoice ? ['invoiceId' => $invoiceId] : [])
