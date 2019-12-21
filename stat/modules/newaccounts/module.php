@@ -5136,7 +5136,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
   STR_TO_DATE(ext_registration_date, '%d-%m-%Y') AS registration_date,
   c.id                                           AS account_id,
   cg.name_full,
-  cnt.name_rus                                   AS country_name,
+  cnt.name                                       AS country_name,
   cg.inn_euro,
   cg.inn,
   ext_invoice_no,
