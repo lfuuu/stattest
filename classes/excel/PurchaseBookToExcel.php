@@ -34,25 +34,19 @@ class PurchaseBookToExcel extends Excel
 
         foreach ($this->data as $chunk) {
             $worksheet->setCellValueByColumnAndRow(0, $rowsCounter, $counter);
-            $worksheet->setCellValueByColumnAndRow(1, $rowsCounter, $chunk['bill_no']);
-            $worksheet->setCellValueByColumnAndRow(2, $rowsCounter, $chunk['bill_date']);
-            $worksheet->setCellValueByColumnAndRow(3, $rowsCounter, $chunk['id']);
-            $worksheet->setCellValueByColumnAndRow(4, $rowsCounter, $chunk['number']);
-            $worksheet->setCellValueByColumnAndRow(5, $rowsCounter, $chunk['ext_bill_no']);
-            $worksheet->setCellValueByColumnAndRow(6, $rowsCounter, $chunk['ext_bill_date']);
-            $worksheet->setCellValueByColumnAndRow(7, $rowsCounter, $chunk['ext_invoice_no']);
-            $worksheet->setCellValueByColumnAndRow(8, $rowsCounter, $chunk['ext_invoice_date']);
-            $worksheet->setCellValueByColumnAndRow(9, $rowsCounter, $chunk['ext_akt_no']);
-            $worksheet->setCellValueByColumnAndRow(10, $rowsCounter, $chunk['ext_akt_date']);
-            $worksheet->setCellValueByColumnAndRow(11, $rowsCounter, $chunk['name_full']);
-            $worksheet->setCellValueByColumnAndRow(12, $rowsCounter, $chunk['inn']);
-            $worksheet->setCellValueByColumnAndRow(13, $rowsCounter, $chunk['kpp']);
-            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['address_jur']);
-            $worksheet->setCellValueByColumnAndRow(15, $rowsCounter, $chunk['bill_sum']);
-            $worksheet->setCellValueByColumnAndRow(16, $rowsCounter, $chunk['sum_without_vat']);
-            $worksheet->setCellValueByColumnAndRow(17, $rowsCounter, $chunk['vat']);
-            $worksheet->setCellValueByColumnAndRow(18, $rowsCounter, $chunk['sum']);
-            $worksheet->setCellValueByColumnAndRow(19, $rowsCounter, $chunk['currency']);
+            $worksheet->setCellValueByColumnAndRow(1, $rowsCounter, (new DateTime($chunk['registration_date']))->format('m'));
+            $worksheet->setCellValueByColumnAndRow(2, $rowsCounter, $chunk['account_id']);
+            $worksheet->setCellValueByColumnAndRow(3, $rowsCounter, $chunk['name_full']);
+            $worksheet->setCellValueByColumnAndRow(4, $rowsCounter, $chunk['country_name']);
+            $worksheet->setCellValueByColumnAndRow(5, $rowsCounter, $chunk['inn_euro']);
+            $worksheet->setCellValueByColumnAndRow(6, $rowsCounter, $chunk['ext_invoice_no']);
+            $worksheet->setCellValueByColumnAndRow(7, $rowsCounter, $chunk['invoice_date']);
+            $worksheet->setCellValueByColumnAndRow(8, $rowsCounter, $chunk['due_date']);
+            $worksheet->setCellValueByColumnAndRow(9, $rowsCounter, $chunk['sum_without_vat']);
+            $worksheet->setCellValueByColumnAndRow(10, $rowsCounter, $chunk['vat']);
+            $worksheet->setCellValueByColumnAndRow(11, $rowsCounter, $chunk['sum']);
+            $worksheet->setCellValueByColumnAndRow(12, $rowsCounter, $chunk['currency']);
+            $worksheet->setCellValueByColumnAndRow(13, $rowsCounter, $chunk['rate']);
 
             ++$rowsCounter;
             ++$counter;
