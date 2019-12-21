@@ -5103,6 +5103,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
     {
         global $design, $db, $user, $fixclient_data;
 
+        $periodType = get_param_raw('period_type', 'registration');
+
         $dateFromStr = get_param_raw('date_from', date('m-Y'));
         $dateToStr = get_param_raw('date_to', date('m-Y'));
 
@@ -5117,42 +5119,46 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $design->assign('organizations', Organization::dao()->getList());
         $design->assign('organization_id', $organizationId = get_param_protected('organization_id', Organization::MCN_TELECOM));
 
-        $design->assign('currencies', Currency::getList($isWithEmpty = true));
-        $design->assign('currency', $currency = get_param_protected('currency', ''));
+        $design->assign('period_type_list', ['registration' => 'По дайте регистрации', 'ext_invoice_date' => 'По дате внешней с/ф']);
+        $design->assign('period_type', $periodType);
 
         $design->assign('is_ext_invoice_only', $isExtInvoiceOnly = (bool)get_param_raw('is_ext_invoice_only', false));
 
         $where = "";
-        $whereParam = [];
-        if ($currency) {
-            $where .= ' AND b.currency = :currency';
-            $whereParam = [':currency' => $currency];
-        }
 
         $isExtInvoiceOnly && $where .= ' AND ex.ext_invoice_no IS NOT NULL AND ex.ext_invoice_no != ""';
 
+        if ($periodType == 'registration') {
+            $dateField = 'STR_TO_DATE(ex.ext_registration_date, \'%d-%m-%Y\')';
+            $where .= ' AND ex.ext_registration_date IS NOT NULL AND ex.ext_registration_date != ""';
+        }elseif ($periodType == 'ext_invoice_date'){
+            $dateField = 'STR_TO_DATE(ex.ext_invoice_date, \'%d-%m-%Y\')';
+            $where .= ' AND ex.ext_invoice_date IS NOT NULL AND ex.ext_invoice_date != ""';
+        }
+
         $sql = "SELECT
-  b.bill_no, 
-  STR_TO_DATE(ext_registration_date, '%d-%m-%Y') AS registration_date,
-  c.id                                           AS account_id,
+  b.bill_no,
+  STR_TO_DATE(ext_registration_date, '%d-%m-%Y')                  AS registration_date,
+  c.id                                                            AS account_id,
   cg.name_full,
-  cnt.name                                       AS country_name,
+  cnt.name                                                        AS country_name,
   cg.inn_euro,
   cg.inn,
   ext_invoice_no,
-  STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')      AS invoice_date,
-  pay_bill_until                                 AS due_date,
-  ext_sum_without_vat                            AS sum_without_vat,
-  ext_vat                                        AS vat,
-  (ex.ext_vat + ex.ext_sum_without_vat)          AS sum,
+  STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')                       AS invoice_date,
+  pay_bill_until                                                  AS due_date,
+  coalesce(ext_sum_without_vat, 0)                                AS sum_without_vat,
+  coalesce(ext_vat, 0)                                            AS vat,
+  (coalesce(ex.ext_vat, 0) + coalesce(ex.ext_sum_without_vat, 0)) AS sum,
   b.currency,
-  cur_euro.rate as euro_rate,
-  cur_nat.rate as nat_rate
+  cur_euro.rate                                                   AS euro_rate,
+  cur_nat.rate                                                    AS nat_rate
 
 FROM newbills b, clients c, client_contract cc, client_contragent cg, country cnt, newbills_external ex
-  LEFT JOIN currency_rate cur_euro ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_euro.date AND cur_euro.currency = 'EUR')
-  LEFT JOIN currency_rate cur_nat ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_nat.date )
-WHERE STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') BETWEEN :date_from AND :date_to
+  LEFT JOIN currency_rate cur_euro
+    ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_euro.date AND cur_euro.currency = 'EUR')
+  LEFT JOIN currency_rate cur_nat ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_nat.date)
+WHERE " . $dateField . " BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
       AND cur_nat.currency = b.currency
       AND b.organization_id = :organization_id
@@ -5165,7 +5171,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
                 ':date_from' => $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                 ':date_to' => $dateTo->format(DateTimeZoneHelper::DATE_FORMAT),
                 ':organization_id' => $organizationId
-            ] + $whereParam);
+            ]);
 
         $data = $query->queryAll();
 

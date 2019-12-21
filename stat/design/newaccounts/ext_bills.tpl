@@ -72,7 +72,8 @@
                 &nbsp;Организация:{html_options options=$organizations selected=$organization_id name="organization_id"}</td>
         </tr>
         <tr>
-            <td colspan="2">&nbsp;Валюта:{html_options options=$currencies selected=$currency name="currency"}</td>
+            <td colspan="2">
+                {html_options options=$period_type_list selected=$period_type name="period_type"}</td>
         </tr>
         <tr>
             <td>&nbsp;Только с внешней с/ф:<input type="checkbox" name='is_ext_invoice_only'
