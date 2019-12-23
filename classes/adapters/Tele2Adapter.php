@@ -20,6 +20,8 @@ class Tele2Adapter extends Singleton
     const EVENT_PREFIX = 'Tele2_';
     const PREFIX = 'Tele2_';
 
+    const PROFILE_NUMBER = 301;
+
     // Натройки подключения
     private $_settings;
 
@@ -195,13 +197,12 @@ class Tele2Adapter extends Singleton
      * @param string $requestId
      * @param string $imsi
      * @param string $msisdn
-     * @param string $profileNumber
      * @return string
      * @internal param string $msisdn
      */
-    public function addSubscriber($requestId, $imsi, $msisdn, $profileNumber)
+    public function addSubscriber($requestId, $imsi, $msisdn)
     {
-        return $this->_exec('addSubscriber', $requestId, $imsi, ['msisdn' => $msisdn, 'profileNumber' => $profileNumber]);
+        return $this->_exec('addSubscriber', $requestId, $imsi, ['msisdn' => $msisdn, 'profileNumber' => self::PROFILE_NUMBER]);
     }
 
     /**
