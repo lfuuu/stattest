@@ -62,9 +62,9 @@
     <input type=hidden name=action value=ext_bills>
     <table>
         <tr>
-            <td>С:<br><input type=text1 id="date_from" name=date_from value='{$date_from}' class=text
+            <td>С:<br><input type=text1 id="date_from" name=date_from value='{$date_from}' class="form-control"
                              style="width:100px;"></td>
-            <td>По:<br><input type=text1 id="date_to" name=date_to value='{$date_to}' class=text style="width:100px;">
+            <td>По:<br><input type=text1 id="date_to" name=date_to value='{$date_to}' class="form-control" style="width:100px;">
             </td>
         </tr>
         <tr>
@@ -81,7 +81,7 @@
             <td> в Excel: <input type=checkbox name='is_to_excel' value="1" class=button></td>
         </tr>
         <tr>
-            <td colspan="2"><input type=submit value='Поехали' class=button></td>
+            <td colspan="2"><input type=submit value='Поехали' class="btn btn-primary"></td>
         </tr>
     </table>
 

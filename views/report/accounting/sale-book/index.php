@@ -36,7 +36,7 @@ $printSum = function ($sum) {
         </div>
         <div class="col-sm-3">
             <label class="control-label">Валюта:</label>
-            <?= \app\classes\Html::dropDownList('SaleBookFilter[currency]', $filter->currency, \app\models\Currency::getList(), ['class' => 'select2']) ?>
+            <?= \app\classes\Html::dropDownList('SaleBookFilter[currency]', $filter->currency, \app\models\Currency::getList(true), ['class' => 'select2']) ?>
         </div>
 
     </div>
@@ -57,7 +57,7 @@ $printSum = function ($sum) {
             в Excel: <input type="checkbox" name="excel" value="1"/>
             -->
             <br/>
-            <input type="submit" value="Показать" class="button" name="do"/>
+            <input type="submit" value="Показать" class="btn btn-primary" name="do"/>
 </form>
 
 <?=$this->render(($filter->is_euro_format ? 'format_eu' : 'format_ru'), ['filter' => $filter, 'printSum' => $printSum])?>

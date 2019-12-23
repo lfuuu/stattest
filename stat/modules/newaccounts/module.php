@@ -1743,6 +1743,7 @@ class m_newaccounts extends IModule
         $is_pdf = get_param_raw("is_pdf", 0);
         $one_pdf = get_param_raw("one_pdf", 0);
         $invoiceId = get_param_raw("invoice_id", 0);
+        $isDirectLink = (bool)get_param_raw("isDirectLink", 0);
 
 
         $this->do_include();
@@ -1755,7 +1756,7 @@ class m_newaccounts extends IModule
             $billModel = Bill::findOne(['bill_no' => (string)$bills]);
 
             if ($billModel && $billModel->currency != Currency::RUB && $billModel->bill_date >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
-                return $this->_portingPrintNoRub($billModel, $is_pdf, $invoiceId);
+                return $this->_portingPrintNoRub($billModel, $is_pdf, $invoiceId, $isDirectLink);
             }
 
             $bills = [$bills];
@@ -2071,7 +2072,7 @@ class m_newaccounts extends IModule
 
     }
 
-    private function _portingPrintNoRub(Bill $bill, $isPdf, $invoiceId)
+    private function _portingPrintNoRub(Bill $bill, $isPdf, $invoiceId, $isDirectLink)
     {
         global $design;
 
@@ -2107,6 +2108,14 @@ class m_newaccounts extends IModule
                     )
                 ];
             }
+        }
+
+        if ($isDirectLink) {
+            $linkData = reset($objects);
+            $link = $linkData['link'];
+
+            header('Location: ' . $link);
+            exit();
         }
 
         /*

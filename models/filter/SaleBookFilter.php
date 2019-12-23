@@ -99,7 +99,6 @@ class SaleBookFilter extends Invoice
             ->alias('inv')
             ->where([
                 'inv.organization_id' => $this->organization_id,
-                'bill.currency' => $this->currency,
             ])
             ->andWhere([
                 'between',
@@ -115,6 +114,8 @@ class SaleBookFilter extends Invoice
 
         $query->joinWith('bill bill', true, 'INNER JOIN');
         $query->with('bill');
+
+        $this->currency && $query->andWhere(['bill.currency' => $this->currency]);
 
         /*
         switch ($this->filter) {
