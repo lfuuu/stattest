@@ -60,7 +60,7 @@ class AccountTariffCheckHlr extends Behavior
             throw new \LogicException('AccountTraiff ' . $params['account_tariff_id'] . ' не найден');
         }
 
-        $transactionPg = Imsi::getDb()->beginTransaction();
+//        $transactionPg = Imsi::getDb()->beginTransaction();
 
         /** @var Imsi $imsi */
         $imsi = self::getNextImsi($params['voip_numbers_warehouse_status']);
@@ -69,7 +69,7 @@ class AccountTariffCheckHlr extends Behavior
             throw new \LogicException('IMSI не найдена');
         }
 
-        $transactionMs = EventQueue::getDb()->beginTransaction();
+//        $transactionMs = EventQueue::getDb()->beginTransaction();
         try {
             $imsi->msisdn = $accountTariff->voip_number;
             $imsi->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
@@ -100,11 +100,11 @@ class AccountTariffCheckHlr extends Behavior
                 'iccid' => $imsi->iccid,
             ]);
 
-            $transactionPg->commit();
-            $transactionMs->commit();
+//            $transactionPg->commit();
+//            $transactionMs->commit();
         } catch (\Exception $e) {
-            $transactionPg->rollBack();
-            $transactionMs->rollBack();
+//            $transactionPg->rollBack();
+//            $transactionMs->rollBack();
             throw $e;
         }
 
