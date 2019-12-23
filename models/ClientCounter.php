@@ -24,6 +24,9 @@ use yii\helpers\ArrayHelper;
  * @property float $daySummary
  * @property float $dayMnSummary
  * @property float $monthSummary
+ * @property float $sum_w_neg_rate
+ * @property float $sum_w_neg_rate_day
+ * @property float $sum_w_neg_rate_month
  *
  * @property-read ClientAccount $clientAccount
  */
@@ -182,6 +185,11 @@ class ClientCounter extends ActiveRecord
             $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
             $localCounter->amount_mn_day_sum = $billingCounter->amount_mn_day_sum;
             $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
+
+            $localCounter->sum_w_neg_rate = $billingCounter->sum_w_neg_rate;
+            $localCounter->sum_w_neg_rate_day = $billingCounter->sum_w_neg_rate_day;
+            $localCounter->sum_w_neg_rate_month = $billingCounter->sum_w_neg_rate_month;
+
             $localCounter->save();
 
         } catch (\UnexpectedValueException $e) {

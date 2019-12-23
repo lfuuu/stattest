@@ -132,6 +132,6 @@ class AccountTariffCheckHlr extends Behavior
 
     public static function linkImsi($requestId, $param)
     {
-        return Tele2Adapter::me()->addSubscriber($requestId, $param['imsi'], $param['voip_number'], $param['account_tariff_id']);
+        return Tele2Adapter::me()->addSubscriber($requestId, $param['imsi'], $param['voip_number']);
     }
 }
