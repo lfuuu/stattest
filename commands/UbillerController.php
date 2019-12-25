@@ -2,8 +2,10 @@
 
 namespace app\commands;
 
+use app\exceptions\ModelValidationException;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\classes\QueryCounterTarget;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\tarificator\AccountEntryTarificator;
@@ -375,5 +377,85 @@ class UbillerController extends Controller
     public static function getHelpConfluence()
     {
         return ['confluenceId' => 4391334, 'message' => 'Универсальный биллер'];
+    }
+
+
+    /**
+     * Очитска минималок, выставленных после закрытия услуги
+     *
+     * @param bool $isTest
+     * @param integer $clientAccountId
+     * @throws \Exception
+     */
+    public function actionClearMinEntry($isTest = true, $clientAccountId = null)
+    {
+        $isTest = is_bool($isTest) ? $isTest : !($isTest == 'false' || $isTest == '0');
+
+        echo PHP_EOL . 'isTest:' . ($isTest ? 'true' : 'false');
+
+        echo PHP_EOL . 'clientAccountId: ' . ($clientAccountId ? $clientAccountId : 'all');
+        echo PHP_EOL;
+
+        $accountWhere = $clientAccountId ? 'a.client_account_id = ' . $clientAccountId . ' AND' : '';
+        $sql = <<<SQL
+SELECT
+  client_account_id,
+  l.account_tariff_id,
+  cast(actual_from_utc AS DATE) AS close_date,
+  m.pack_id,
+  e.id
+FROM uu_account_tariff_log l, (SELECT
+                                client_account_id,
+                                 a.id      pack_id,
+                                 account_tariff_id,
+                                 max(l.id) m_id
+                               FROM uu_account_tariff_log l, uu_account_tariff a
+                               WHERE l.account_tariff_id = a.prev_account_tariff_id AND a.service_type_id = 3 AND
+                                     {$accountWhere} actual_from_utc < now()
+                               GROUP BY pack_id) m
+  , uu_account_entry e
+WHERE m.m_id = l.id AND l.tariff_period_id IS NULL
+      AND e.account_tariff_id = pack_id AND e.date > cast(actual_from_utc AS DATE)
+      AND e.type_id = -3 AND e.price > 0
+ORDER BY client_account_id
+SQL;
+
+        $data = \Yii::$app->db->createCommand($sql)->queryAll();
+
+        $transaction = \Yii::$app->db->beginTransaction();
+
+        try {
+            foreach ($data as $row) {
+                $entry = AccountEntry::findOne(['id' => $row['id']]);
+
+                echo PHP_EOL . 'AccountEntry[id=' . $entry->id . '] price: ' . $entry->price;
+
+                foreach ($entry->accountLogMins as $logMin) {
+                    echo PHP_EOL . '(-) AccountLogMins[id=' . $logMin->id . ']';
+                    !$isTest && $logMin->delete();
+                }
+
+                /** @var \app\modules\uu\models\Bill $bill */
+                $bill = $entry->bill;
+
+                if ($bill && $bill->is_converted) {
+                    $bill->is_converted = 0;
+
+                    echo PHP_EOL . '(*) uuBill[id=' . $bill->id . '][bill_no=' . ($bill->newBill ? $bill->newBill->bill_no : '?') . '] account_id: ' . $bill->client_account_id . ', price: ' . $bill->price;
+
+                    if (!$isTest && !$bill->save()) {
+                        throw new ModelValidationException($bill);
+                    }
+                }
+
+                echo PHP_EOL . '(-) AccountEntry[id=' . $entry->id . ']';
+                !$isTest && $entry->delete();
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
     }
 }
