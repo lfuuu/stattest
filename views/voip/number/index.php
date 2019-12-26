@@ -128,6 +128,14 @@ $columns = [
         'options' => ['style' => 'width: 150px;'],
     ],
     [
+        'attribute' => 'beauty_level',
+        'class' => BeautyLevelColumn::class,
+    ],
+    [
+        'attribute' => 'original_beauty_level',
+        'class' => BeautyLevelColumn::class,
+    ],
+    [
         'label' => 'Страна',
         'attribute' => 'country_id',
         'format' => 'html',
@@ -164,14 +172,6 @@ $columns = [
                 $number->clientAccount->getLink() :
                 Yii::t('common', '(not set)');
         },
-    ],
-    [
-        'attribute' => 'beauty_level',
-        'class' => BeautyLevelColumn::class,
-    ],
-    [
-        'attribute' => 'original_beauty_level',
-        'class' => BeautyLevelColumn::class,
     ],
     [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
