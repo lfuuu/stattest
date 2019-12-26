@@ -155,6 +155,17 @@ $columns = [
         'class' => NdcTypeColumn::class
     ],
     [
+        'attribute' => 'client_id',
+        'class' => IntegerColumn::class,
+        'isNullAndNotNull' => true,
+        'format' => 'html',
+        'value' => function (\app\models\Number $number) {
+            return $number->client_id ?
+                $number->clientAccount->getLink() :
+                Yii::t('common', '(not set)');
+        },
+    ],
+    [
         'attribute' => 'beauty_level',
         'class' => BeautyLevelColumn::class,
     ],
@@ -189,17 +200,6 @@ $columns = [
                         $number->usage->getUrl()
                     ) : $number->usage_id
                 :
-                Yii::t('common', '(not set)');
-        },
-    ],
-    [
-        'attribute' => 'client_id',
-        'class' => IntegerColumn::class,
-        'isNullAndNotNull' => true,
-        'format' => 'html',
-        'value' => function (\app\models\Number $number) {
-            return $number->client_id ?
-                $number->clientAccount->getLink() :
                 Yii::t('common', '(not set)');
         },
     ],
