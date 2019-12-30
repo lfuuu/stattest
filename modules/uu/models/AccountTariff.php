@@ -8,6 +8,7 @@ use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\classes\validators\FormFieldValidator;
 use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
+use app\modules\uu\behaviors\AccountTariffCheckHlr;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
 use app\modules\uu\behaviors\AccountTariffTransferClean;
 use app\modules\uu\behaviors\AccountTariffVoipNumber;
@@ -135,6 +136,8 @@ class AccountTariff extends ActiveRecord
 
     protected $isAttributeTypecastBehavior = true;
 
+    public $voip_numbers_warehouse_status = null;
+
     /**
      * @return array
      */
@@ -148,6 +151,7 @@ class AccountTariff extends ActiveRecord
                 AccountTariffVoipNumber::class,
                 AccountTariffAddDefaultPackage::class,
                 AccountTariffTransferClean::class,
+                AccountTariffCheckHlr::class,
                 ClientChangeNotifier::class,
                 [
                     // Установить "когда создал" и "когда обновил"
@@ -193,6 +197,7 @@ class AccountTariff extends ActiveRecord
                     'prev_account_tariff_id',
                     'trunk_type_id',
                     'vm_elid_id',
+                    'voip_numbers_warehouse_status'
                 ],
                 'integer'
             ],

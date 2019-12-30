@@ -11,7 +11,6 @@ use app\classes\model\ActiveRecord;
 use app\dao\InvoiceDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\uu\models_light\InvoiceLight;
 use yii\base\InvalidCallException;
 use yii\db\Expression;
@@ -350,6 +349,21 @@ class Invoice extends ActiveRecord
         }
 
         return $info;
+    }
+
+    /**
+     * Получаем Invoice, который сторнировали
+     *
+     * @return Invoice
+     */
+    public function getReversalInvoice()
+    {
+        return Invoice::find()
+            ->alias('i')
+            ->join('INNER JOIN', ['orig' => Invoice::tableName()], 'i.bill_no = orig.bill_no AND i.id < orig.id AND orig.sum = -i.sum')
+            ->where(['orig.number' => $this->number])
+            ->orderBy(['i.id' => SORT_DESC])
+            ->one();
     }
 
     /**

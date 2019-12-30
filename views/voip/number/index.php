@@ -128,6 +128,14 @@ $columns = [
         'options' => ['style' => 'width: 150px;'],
     ],
     [
+        'attribute' => 'beauty_level',
+        'class' => BeautyLevelColumn::class,
+    ],
+    [
+        'attribute' => 'original_beauty_level',
+        'class' => BeautyLevelColumn::class,
+    ],
+    [
         'label' => 'Страна',
         'attribute' => 'country_id',
         'format' => 'html',
@@ -155,12 +163,15 @@ $columns = [
         'class' => NdcTypeColumn::class
     ],
     [
-        'attribute' => 'beauty_level',
-        'class' => BeautyLevelColumn::class,
-    ],
-    [
-        'attribute' => 'original_beauty_level',
-        'class' => BeautyLevelColumn::class,
+        'attribute' => 'client_id',
+        'class' => IntegerColumn::class,
+        'isNullAndNotNull' => true,
+        'format' => 'html',
+        'value' => function (\app\models\Number $number) {
+            return $number->client_id ?
+                $number->clientAccount->getLink() :
+                Yii::t('common', '(not set)');
+        },
     ],
     [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
@@ -189,17 +200,6 @@ $columns = [
                         $number->usage->getUrl()
                     ) : $number->usage_id
                 :
-                Yii::t('common', '(not set)');
-        },
-    ],
-    [
-        'attribute' => 'client_id',
-        'class' => IntegerColumn::class,
-        'isNullAndNotNull' => true,
-        'format' => 'html',
-        'value' => function (\app\models\Number $number) {
-            return $number->client_id ?
-                $number->clientAccount->getLink() :
                 Yii::t('common', '(not set)');
         },
     ],

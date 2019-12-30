@@ -18,6 +18,7 @@ use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\sim\classes\VoipHlr;
 use app\modules\uu\models\TariffPeriod;
 use yii\db\Expression;
 
@@ -118,6 +119,7 @@ class VoipController extends BaseController
      * @param int $limit
      * @param string $ndcTypeId
      * @param int $warehouseStatusId
+     * @param int $hlrId
      * @return string
      * @throws \InvalidArgumentException
      * @throws \yii\base\InvalidParamException
@@ -133,14 +135,16 @@ class VoipController extends BaseController
         $mask = '',
         $limit = FreeNumberFilter::LIMIT,
         $ndcTypeId = '',
-        $warehouseStatusId = null
+        $warehouseStatusId = null,
+        $hlrId = null
     )
     {
         $numbers = new FreeNumberFilter;
 
         switch ($ndcTypeId) {
             case NdcType::ID_MOBILE:
-                $warehouseStatusId && $numbers->setWarehouseStatus($warehouseStatusId);
+                $warehouseStatusId && ($hlrId != VoipHlr::ID_TELE2) && $numbers->setWarehouseStatus($warehouseStatusId);
+                $hlrId && $numbers->setHlr($hlrId);
                 break;
             case NdcType::ID_MCN_LINE:
                 // "линия без номера"

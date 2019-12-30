@@ -17,7 +17,7 @@ class AccountTariffVoip extends AccountTariff
     public $voip_numbers_list_mask = '';
     public $voip_numbers_list_limit = 40;
     public $voip_numbers = []; // Номера
-    public $voip_numbers_warehouse_status = null; // Синхронизированный статус склада сим-карты
+    public $voip_numbers_hlr = null;
 
     /**
      * Вернуть имена полей
@@ -38,6 +38,7 @@ class AccountTariffVoip extends AccountTariff
                 'voip_numbers_list_mask' => 'Шаблон поиска',
                 'voip_numbers_list_limit' => 'Количество на странице',
                 'voip_numbers_warehouse_status' => 'Статус склада мобильных номеров',
+                'voip_numbers_hlr' => 'API/HLR',
             ]);
     }
 
@@ -57,6 +58,7 @@ class AccountTariffVoip extends AccountTariff
                     'voip_numbers_list_limit',
                     'city_id',
                     'voip_numbers_warehouse_status',
+                    'voip_numbers_hlr',
                 ],
                 'integer'
             ],

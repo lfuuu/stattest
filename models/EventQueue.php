@@ -108,6 +108,8 @@ class EventQueue extends ActiveRecord
     const INVOICE_GENERATE_PDF = 'invoice_generate_pdf';
     const INVOICE_ALL_PDF_CREATED = 'invoice_all_pdf_created';
     const SYNC_1C_CLIENT = 'sync_1c_client';
+    const SYNC_TELE2_GET_IMSI = 'sync_tele2_get_imsi';
+    const SYNC_TELE2_LINK_IMSI = 'sync_tele2_link_imsi';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
@@ -167,6 +169,8 @@ class EventQueue extends ActiveRecord
         self::INVOICE_GENERATE_PDF => 'С/ф. Генерация PDF',
         self::INVOICE_ALL_PDF_CREATED => 'С/ф. Все PDF сгенерированы',
         self::SYNC_1C_CLIENT => 'Синхронизировать клиента в 1С',
+        self::SYNC_TELE2_GET_IMSI => 'Теле2. Получить IMSI',
+        self::SYNC_TELE2_LINK_IMSI => 'Теле2. Прикрепить номер к IMSI',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',

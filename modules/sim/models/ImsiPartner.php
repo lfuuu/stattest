@@ -31,6 +31,8 @@ class ImsiPartner extends ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
+    const ID_TELE2 = 5;
+
     const ROAMABILITY = 4;
 
     /**

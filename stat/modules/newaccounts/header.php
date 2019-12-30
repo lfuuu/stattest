@@ -121,7 +121,7 @@ class m_newaccounts_head extends IModuleHead{
             array('Документы: история',	'docs'),
             array('Документы: Нераспознанное',	'docs_unrec'),
             array('Отчёт по платежам. Клиенты.', 'pay_report'),
-            array('Книга покупок', 'ext_bills'),
+            array('Европейская книга покупок', 'ext_bills'),
 			array('Книга покупок (ИФНС)', 'ext_bills_ifns')
         );
 

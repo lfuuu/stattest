@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\templates\uu;
 
+use app\models\Invoice;
 use Yii;
 use app\classes\Form;
 use app\classes\Smarty;
@@ -15,15 +16,18 @@ class InvoiceForm extends Form
     const UNIVERSAL_INVOICE_KEY = 'en-EN-universal';
 
     private $_langCode = Language::LANGUAGE_DEFAULT;
+    private $_invoice = null;
 
     /**
-     * @param string $langCode
+     * @param array|string $langCode
+     * @param Invoice $invoice
      */
-    public function __construct($langCode = Language::LANGUAGE_DEFAULT)
+    public function __construct($langCode = Language::LANGUAGE_DEFAULT, $invoice = null)
     {
         parent::__construct();
 
         $this->_langCode = $langCode;
+        $this->_invoice = $invoice;
     }
 
     /**
@@ -41,7 +45,7 @@ class InvoiceForm extends Form
      */
     public function getFileName()
     {
-        return self::getPath() . $this->_langCode . '.' . self::TEMPLATE_EXTENSION;
+        return self::getPath() . $this->_langCode . ($this->_invoice && $this->_invoice->is_reversal ? '-storno' : '') . '.' . self::TEMPLATE_EXTENSION;
     }
 
     /**
@@ -58,7 +62,7 @@ class InvoiceForm extends Form
     public function getFile()
     {
         if ($this->fileExists()) {
-            return file_get_contents(self::getPath() . $this->_langCode . '.' . self::TEMPLATE_EXTENSION);
+            return file_get_contents($this->getFileName());
         }
 
         return false;

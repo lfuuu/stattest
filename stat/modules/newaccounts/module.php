@@ -1743,6 +1743,7 @@ class m_newaccounts extends IModule
         $is_pdf = get_param_raw("is_pdf", 0);
         $one_pdf = get_param_raw("one_pdf", 0);
         $invoiceId = get_param_raw("invoice_id", 0);
+        $isDirectLink = (bool)get_param_raw("isDirectLink", 0);
 
 
         $this->do_include();
@@ -1755,7 +1756,7 @@ class m_newaccounts extends IModule
             $billModel = Bill::findOne(['bill_no' => (string)$bills]);
 
             if ($billModel && $billModel->currency != Currency::RUB && $billModel->bill_date >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
-                return $this->_portingPrintNoRub($billModel, $is_pdf, $invoiceId);
+                return $this->_portingPrintNoRub($billModel, $is_pdf, $invoiceId, $isDirectLink);
             }
 
             $bills = [$bills];
@@ -2071,7 +2072,7 @@ class m_newaccounts extends IModule
 
     }
 
-    private function _portingPrintNoRub(Bill $bill, $isPdf, $invoiceId)
+    private function _portingPrintNoRub(Bill $bill, $isPdf, $invoiceId, $isDirectLink)
     {
         global $design;
 
@@ -2100,13 +2101,21 @@ class m_newaccounts extends IModule
                     'link' => \yii\helpers\Url::to(['/uu/invoice/get',
                         'billNo' => $bill->bill_no,
                         'typeId' => $docId,
-                        'langCode' => $bill->clientAccount->contragent->lang_code,
+                        'langCode' => $bill->clientAccount->clientContractModel->clientContragent->lang_code,
                     ]
                         + ($isPdf || $invoice ? ['renderMode' => 'pdf', 'isShow' => true] : [])
                         + ($invoice ? ['invoiceId' => $invoiceId] : [])
                     )
                 ];
             }
+        }
+
+        if ($isDirectLink) {
+            $linkData = reset($objects);
+            $link = $linkData['link'];
+
+            header('Location: ' . $link);
+            exit();
         }
 
         /*
@@ -5103,73 +5112,90 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
     {
         global $design, $db, $user, $fixclient_data;
 
-        $dateFrom = new DatePickerValues('date_from', 'first');
-        $dateTo = new DatePickerValues('date_to', 'last');
-        $date_from = $dateFrom->getDay();
-        $date_to = $dateTo->getDay();
+        $periodType = get_param_raw('period_type', 'registration');
+
+        $dateFromStr = get_param_raw('date_from', date('m-Y'));
+        $dateToStr = get_param_raw('date_to', date('m-Y'));
+
+        $dateFromExp = explode('-', $dateFromStr . '-00-00-00');
+        $dateToExp = explode('-', $dateToStr . '-00-00-00');
+        $dateFrom = (new DateTimeImmutable())->setDate($dateFromExp[1], $dateFromExp[0], 1)->setTime(0, 0, 0);
+        $dateTo = (new DateTimeImmutable())->setDate($dateToExp[1], $dateToExp[0], 1)->setTime(0, 0, 0)->modify('+1 month')->modify('-1 day');
+
+        $design->assign('date_from', $dateFrom->format('m-Y'));
+        $design->assign('date_to', $dateTo->format('m-Y'));
 
         $design->assign('organizations', Organization::dao()->getList());
         $design->assign('organization_id', $organizationId = get_param_protected('organization_id', Organization::MCN_TELECOM));
 
-        $design->assign('currencies', Currency::getList($isWithEmpty = true));
-        $design->assign('currency', $currency = get_param_protected('currency', ''));
+        $design->assign('period_type_list', ['registration' => 'По дайте регистрации', 'ext_invoice_date' => 'По дате внешней с/ф']);
+        $design->assign('period_type', $periodType);
 
         $design->assign('is_ext_invoice_only', $isExtInvoiceOnly = (bool)get_param_raw('is_ext_invoice_only', false));
 
         $where = "";
-        $whereParam = [];
-        if ($currency) {
-            $where .= ' AND b.currency = :currency';
-            $whereParam = [':currency' => $currency];
-        }
 
         $isExtInvoiceOnly && $where .= ' AND ex.ext_invoice_no IS NOT NULL AND ex.ext_invoice_no != ""';
 
+        if ($periodType == 'registration') {
+            $dateField = 'STR_TO_DATE(ex.ext_registration_date, \'%d-%m-%Y\')';
+            $where .= ' AND ex.ext_registration_date IS NOT NULL AND ex.ext_registration_date != ""';
+        }elseif ($periodType == 'ext_invoice_date'){
+            $dateField = 'STR_TO_DATE(ex.ext_invoice_date, \'%d-%m-%Y\')';
+            $where .= ' AND ex.ext_invoice_date IS NOT NULL AND ex.ext_invoice_date != ""';
+        }
+
         $sql = "SELECT
   b.bill_no,
-  b.bill_date,
-  c.id,
-  cc.number,
-  ext_bill_no,
-  ext_bill_date,
-  ext_invoice_no,
-  ext_invoice_date,
-  ext_akt_no,
-  ext_akt_date,
+  STR_TO_DATE(ext_registration_date, '%d-%m-%Y')                  AS registration_date,
+  c.id                                                            AS account_id,
   cg.name_full,
+  cnt.name                                                        AS country_name,
+  cg.inn_euro,
   cg.inn,
-  cg.kpp,
-  cg.legal_type,
-  cg.address_jur,
-  b.sum AS bill_sum,
-  (ex.ext_vat+ex.ext_sum_without_vat) AS sum,
-  ex.ext_vat AS vat,
-  ex.ext_sum_without_vat AS sum_without_vat,
+  ext_invoice_no,
+  STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')                       AS invoice_date,
+  pay_bill_until                                                  AS due_date,
+  coalesce(ext_sum_without_vat, 0)                                AS sum_without_vat,
+  coalesce(ext_vat, 0)                                            AS vat,
+  (coalesce(ex.ext_vat, 0) + coalesce(ex.ext_sum_without_vat, 0)) AS sum,
   b.currency,
-  (SELECT value
-   FROM organization_i18n n
-   WHERE n.organization_record_id = (SELECT max(id) max_id
-                                     FROM `organization` o
-                                     WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
-         field = 'name') AS orgznization_name
-FROM newbills_external ex, newbills b, clients c, client_contract cc, client_contragent cg
-WHERE STR_TO_DATE(ext_invoice_date, '%d-%m-%Y') BETWEEN :date_from AND :date_to
+  cur_euro.rate                                                   AS euro_rate,
+  cur_nat.rate                                                    AS nat_rate
+
+FROM newbills b, clients c, client_contract cc, client_contragent cg, country cnt, newbills_external ex
+  LEFT JOIN currency_rate cur_euro
+    ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_euro.date AND cur_euro.currency = 'EUR')
+  LEFT JOIN currency_rate cur_nat ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_nat.date)
+WHERE " . $dateField . " BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
+      AND cur_nat.currency = b.currency
       AND b.organization_id = :organization_id
       AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
-      " . $where . "
+      AND cnt.code = cg.country_id
+" . $where . "
 ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
 
         $query = \Yii::$app->db->createCommand($sql, [
-                ':date_from' => $dateFrom->getSqlDay(),
-                ':date_to' => $dateTo->getSqlDay(),
+                ':date_from' => $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                ':date_to' => $dateTo->format(DateTimeZoneHelper::DATE_FORMAT),
                 ':organization_id' => $organizationId
-            ] + $whereParam);
+            ]);
 
         $data = $query->queryAll();
 
-        $total = [];
-        foreach ($data as $row) {
+        $total = $totalEuro = [];
+        $total['EUR'] = ['sum' => 0, 'vat' => 0, 'sum_without_vat' => 0, 'count' => 0];
+        foreach ($data as $idx => $row) {
+
+            $rate = $row['nat_rate'] / $row['euro_rate'];
+
+            $data[$idx]['sum_without_vat_euro'] = $row['sum_without_vat_euro'] = round($row['sum_without_vat'] * $rate, 2);
+            $data[$idx]['vat_euro'] = $row['vat_euro'] = round($row['vat'] * $rate, 2);
+            $data[$idx]['sum_euro'] = $row['sum_euro'] = round($row['sum'] * $rate, 2);
+            $data[$idx]['rate'] = $row['rate'] = round($rate, 4);
+
+
 
             if (!isset($total[$row['currency']])) {
                 $total[$row['currency']] = [
@@ -5184,7 +5210,12 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
             $total[$row['currency']]['sum'] += $row['sum'];
             $total[$row['currency']]['vat'] += $row['vat'];
             $total[$row['currency']]['sum_without_vat'] += $row['sum_without_vat'];
-            $total[$row['currency']]['bill_sum'] += $row['bill_sum'];
+
+            $totalEuro['sum_without_vat'] += $row['sum_without_vat_euro'];
+            $totalEuro['vat'] += $row['vat_euro'];
+            $totalEuro['sum'] += $row['sum_euro'];
+
+//            $total[$row['currency']]['bill_sum'] += $row['bill_sum'];
 
             $total[$row['currency']]['count']++;
         }
@@ -5194,17 +5225,16 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
             $excel->data = $data;
             $excel->total = $total;
             $excel->organizationId = $organizationId;
-            $excel->dateFrom = $date_from;
-            $excel->dateTo = $date_to;
+            $excel->dateFrom = $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
+            $excel->dateTo = $dateTo->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
             $excel->openFile(Yii::getAlias('@app/templates/purchase_book.xls'));
             $excel->prepare();
-            $excel->download('Книга покупок');
+            $excel->download('Европейская книга покупок');
         }
 
         $design->assign('data', $data);
         $design->assign('totals', $total);
-        $design->assign('date_from', $date_from);
-        $design->assign('date_to', $date_to);
+        $design->assign('totalEuro', $totalEuro);
         $design->AddMain('newaccounts/ext_bills.tpl');
     }
 

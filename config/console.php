@@ -6,6 +6,11 @@ Yii::setAlias('@tests', dirname(__DIR__) . '/tests');
 Yii::setAlias('@webroot', Yii::getAlias('@app'));
 Yii::setAlias('@web', Yii::getAlias('@app'));
 
+$cacheRedis = require(__DIR__ . '/cache_redis.php');
+if (file_exists($file = __DIR__ . '/cache_redis.local.php')) {
+    $cacheRedis = ArrayHelper::merge($cacheRedis, require($file));
+}
+
 $db = require(__DIR__ . '/db_stat.php');
 if (file_exists($file = __DIR__ . '/db_stat.local.php')) {
     $db = ArrayHelper::merge($db, require($file));
@@ -92,9 +97,7 @@ return [
         'dirMode' => 0777,
         'fileMode' => 0666,
     ],*/
-        'redis' => [
-            'class' => 'yii\redis\Connection',
-        ],
+        'redis' => $cacheRedis,
         'cache' => [
             'class' => 'yii\redis\Cache',
             'keyPrefix' => 'stat:',

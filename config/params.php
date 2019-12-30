@@ -49,4 +49,15 @@ return [
         'pass' => '',
         'queue' => 'stat_changes'
     ],
+    'Tele2AmqSettings' => [
+        'host' => '',
+        'port' => 5672,
+        'vhost' => '/',
+        'user' => '',
+        'pass' => '',
+        'exchangeRequest' => 'tele2request',
+        'queueRequest' => 'tele2ApiRequest',
+        'exchangeResponse' => 'tele2response',
+        'queueResponse' => 'tele2ApiResponse'
+    ],
 ];
