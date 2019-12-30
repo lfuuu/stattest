@@ -57,6 +57,10 @@ class SBISDataProvider
             // без интеграции со СБИС
             return;
         }
+        if ($invoice->is_reversal) {
+            // сторнирующие не отправляем
+            return;
+        }
 
         self::createDraftForInvoice($invoice);
     }
