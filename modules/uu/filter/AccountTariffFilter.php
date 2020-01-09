@@ -176,6 +176,8 @@ class AccountTariffFilter extends AccountTariff
 
             ->with('accountTariffLogs.tariffPeriod.tariff.currency')
             ->with('accountTariffLogs.tariffPeriod.chargePeriod')
+            ->with('number')
+            ->with('number.imsiModel')
 
             ->leftJoin("{$accountTroubleTableName} at", "{$accountTariffTableName}.id = at.account_tariff_id")
             ->leftJoin("{$accountTariffHeap} uath", "uath.account_tariff_id = {$accountTariffTableName}.id")
