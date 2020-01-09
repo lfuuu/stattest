@@ -371,6 +371,11 @@ class Bill {
         return BillExternal::find()->where(['bill_no' => $this->bill_no])->asArray()->one() ?: (new BillExternal())->getAttributes();
 	}
 
+    public function GetExtFile()
+    {
+        return \app\models\media\BillExtFiles::findOne(['bill_no' => $this->bill_no]);;
+    }
+
     public function isClosed()
     {
         global $db;

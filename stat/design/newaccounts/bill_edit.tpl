@@ -16,7 +16,7 @@
 
 <h2>Бухгалтерия {$fixclient}</h2>
 <H3>Редактирование проводки</H3>
-<form action="?" method=post id=form name=form>
+<form action="?" method=post id=form name=form enctype="multipart/form-data">
     <input type=hidden name=module value=newaccounts>
     <input type=hidden name=bill value={$bill.bill_no}>
     <input type=hidden name=action value=bill_apply>
@@ -110,52 +110,6 @@
                 </div>
             </div>
 
-                <div class="col-sm-1">
-                    <div class="form-group">
-                        <label>Дата<br/>регистр. c/ф:</label>
-                        <div class="form-group">
-                            <input  class="form-control input-sm"
-                                    id="registration_date_ext" type="text"  name="registration_date_ext"
-                                    value="{$bill_ext.ext_registration_date}">
-                        </div>
-                    </div>
-                </div>
-
-            {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <label>Номер<br/> внешней с/ф:</label>
-                        <input type="text" class="form-control input-sm" name="invoice_no_ext"
-                               value="{$bill_ext.ext_invoice_no}">
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <label>Дата<br/> внешней с/ф:</label>
-                        <div class="form-group">
-                            <input class="form-control input-sm"
-                                   id=invoice_ext_date type=text name=invoice_date_ext
-                                   value="{$bill_ext.ext_invoice_date}">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <label>Сумма без НДС<br/> из с/ф постав.:</label>
-                        <input type="text" class="form-control input-sm" name="ext_sum_without_vat"
-                               value="{$bill_ext.ext_sum_without_vat}">
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <label>НДС из с/ф <br>поставщика:</label>
-                        <input type="text" class="form-control input-sm" name="ext_vat"
-                               value="{$bill_ext.ext_vat}">
-                    </div>
-                </div>
-            {else}
-                <div class="col-sm-4">&nbsp;</div>
-            {/if}
             <div class="col-sm-4">
                 <div class="form-group">
                     <label>
@@ -174,6 +128,82 @@
                     </div>
                 </div>
             {/if}
+        </div>
+
+
+        {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Дата регистр. c/ф:</label>
+                        <div class="form-group">
+                            <input class="form-control input-sm"
+                                   id="registration_date_ext" type="text" name="registration_date_ext"
+                                   value="{$bill_ext.ext_registration_date}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label>Номер внешней с/ф:</label>
+                        <input type="text" class="form-control input-sm" name="invoice_no_ext"
+                               value="{$bill_ext.ext_invoice_no}">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Дата внешней с/ф:</label>
+                        <div class="form-group">
+                            <input class="form-control input-sm"
+                                   id=invoice_ext_date type=text name=invoice_date_ext
+                                   value="{$bill_ext.ext_invoice_date}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Сумма без НДС из с/ф постав.:</label>
+                        <input type="text" class="form-control input-sm" name="ext_sum_without_vat"
+                               value="{$bill_ext.ext_sum_without_vat}">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>НДС из с/ф поставщика:</label>
+                        <input type="text" class="form-control input-sm" name="ext_vat"
+                               value="{$bill_ext.ext_vat}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label>Файл</label>
+                        <div class="form-group">
+                            <input type="file" name="bill_ext_file" class="form-control input-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label>Комментарий к файлу</label>
+                        <div class="form-group">
+                            <input type="text" name="bill_ext_file_comment" class="form-control input-sm" value="{$bill_ext_file.comment}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Скачать файл</label>
+                        <div class="form-group text-center">
+                            {if $bill_ext_file}<a href="./?module=newaccounts&action=bill_ext_file_get&bill_no={$bill.bill_no|escape:'url'}">{$bill_ext_file.name}</a>{else}<span class="text-muted">Нет файла</span>{/if}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {/if}
 
         <div class="row">
             <div class="col-sm-11"></div>
@@ -270,11 +300,11 @@
     });
 
     $('#registration_date_ext').datepicker({
-        dateFormat: 'dd-mm-yy',
+      dateFormat: 'dd-mm-yy',
     });
 
     $('#registration_date_fix').datepicker({
-        dateFormat: 'dd-mm-yy',
+      dateFormat: 'dd-mm-yy',
     });
 
     function mark_del() {
