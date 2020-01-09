@@ -35,6 +35,7 @@
 			<OPTION value=month{if $detality=='month'} selected{/if}>месяцам</OPTION>
 			<OPTION value=year{if $detality=='year'} selected{/if}>годам</OPTION>
 			<OPTION value=dest{if $detality=='dest'} selected{/if}>направлениям</OPTION>
+			<OPTION value=package{if $detality=='package'} selected{/if}>пакетам</OPTION>
 		</SELECT>
 		</TD></TR>
 		<tr>
