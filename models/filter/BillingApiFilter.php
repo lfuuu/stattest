@@ -52,16 +52,18 @@ class BillingApiFilter extends ApiRaw
     {
         $query = ApiRaw::find()->with('method');
 
-        if (!($this->connect_time_from && $this->connect_time_to)) {
+        if (!($this->connect_time_from && $this->connect_time_to && $this->accountId)) {
             $query->andWhere('false');
         } else {
             $this->isLoad = true;
-            $query->andWhere(['between', 'connect_time', $this->connect_time_from, $this->connect_time_to]);
+            $query->andWhere(['between', 'connect_time', $this->connect_time_from . ' 00:00:00', $this->connect_time_to . ' 23:59:59.999999']);
         }
 
+        $query->andWhere(['account_id' => $this->accountId]);
+
         $this->api_method_id && $query->andWhere(['api_method_id' => $this->api_method_id]);
-        $this->api_weight_from && $query->andWhere(['>=', 'api_weight', $this->api_weight_from .' 00:00:00']);
-        $this->api_weight_to && $query->andWhere(['<=', 'api_weight', $this->api_weight_to . ' 23:59:59.999999']);
+        $this->api_weight_from && $query->andWhere(['>=', 'api_weight', $this->api_weight_from]);
+        $this->api_weight_to && $query->andWhere(['<=', 'api_weight', $this->api_weight_to]);
 
         return $query;
     }

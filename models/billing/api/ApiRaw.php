@@ -56,7 +56,7 @@ class ApiRaw extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'connect_time' => 'Время вызова',
+            'connect_time' => 'Время вызова, UTC',
             'api_method_id' => 'API-метод',
             'rate' => 'Ставка',
             'cost' => 'Стоимость',
