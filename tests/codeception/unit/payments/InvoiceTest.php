@@ -6,11 +6,13 @@ namespace tests\codeception\unit\payments;
 use app\classes\payments\cyberplat\CyberplatProcessor;
 use app\classes\payments\cyberplat\exceptions\AnswerErrorStatus;
 use app\classes\payments\cyberplat\exceptions\AnswerOk;
+use app\exceptions\ModelValidationException;
 use app\forms\client\ClientCreateExternalForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
+use app\models\Country;
 use app\models\Invoice;
 use app\models\Organization;
 use app\models\Payment;
@@ -253,14 +255,38 @@ class InvoiceTest extends _TestCase
     {
         $account = _ClientAccount::createOne();
 
+        $contragent = $account->contragent;
+        $contragent->country_id = Country::HUNGARY;
+
+        if (!$contragent->save()) {
+            throw new ModelValidationException($contragent);
+        }
+
         Organization::updateAll(['invoice_counter_range_id' => Organization::INVOICE_COUNTER_RANGE_ID_YEAR]);
 
         $counter = 0;
-        foreach (['-3 month', '-2 month', '-1 month', 'now'] as $dateModificator) {
+        $year = '';
+
+        $range = array_map(function ($a) {
+            return $a . ' month';
+        }, range(-14, -1));
+
+        $range[] = 'now';
+
+        foreach ($range as $dateModificator) {
             $bill = $this->makeBill($account, $dateModificator);
             $bill->generateInvoices();
 
             $invoice = $this->getInvoice($bill);
+
+            $invYear = (new \DateTime($invoice->date))->format('Y');
+
+            // сквозная номерация с определенный даты, при переходе года сбрасывается нумерация
+            if ($invoice->date < Invoice::DATE_NO_RUSSIAN_ACCOUNTING || $invYear != $year) {
+                $year = $invYear;
+                $counter = 0;
+            }
+
             $this->assertNotEmpty($invoice->number);
             $this->assertNotEmpty($invoice->idx);
             $this->assertEquals($invoice->idx, ++$counter);
