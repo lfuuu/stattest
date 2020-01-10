@@ -1,7 +1,7 @@
-      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=voip&phone={$phone}&paidonly={$paidonly}&detality=day&date_from={$prev_date_from}&date_to={$prev_date_to}">прошлый месяц</a>,
-      								за <a href="?module=stats&action=voip&phone={$phone}&paidonly={$paidonly}&detality=day&date_from={$cur_date_from}&date_to={$cur_date_to}">текущий месяц</a>)</H3>
+      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=voip&phone={$phone}&paidonly={$paidonly}&detality={$detality}&date_from={$prev_date_from}&date_to={$prev_date_to}&tariff_id={$tariff_id}">прошлый месяц</a>,
+      								за <a href="?module=stats&action=voip&phone={$phone}&paidonly={$paidonly}&detality={$detality}&date_from={$cur_date_from}&date_to={$cur_date_to}&tariff_id={$tariff_id}">текущий месяц</a>)</H3>
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
-  
+
         <TBODY>
         <TR>
           <TD class=left>Телефон:</TD>
@@ -39,7 +39,7 @@
 		</SELECT>
 		</TD></TR>
 		<tr>
-			<td class="left">Направление</td>
+			<td class="left" style="text-decoration: line-through">Направление</td>
 			<td>
 				<select name="destination">
 					<option value="all"{if $destination eq 'all'} selected='selected'{/if}>Все</option>
@@ -51,6 +51,15 @@
 					<option value="1-m"{if $destination eq '1-m'} selected='selected'{/if}>&nbsp;&nbsp;Россия мобильные</option>
 					<option value="1-f"{if $destination eq '1-f'} selected='selected'{/if}>&nbsp;&nbsp;Россия стационарные</option>
 					<option value="2"{if $destination eq '2'} selected='selected'{/if}>Международные</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td class="left">Тариф</td>
+			<td>
+				<select name="tariff_id">
+					<option value=""{if $tariff_id eq ''} selected='selected'{/if}>Все</option>
+					{html_options options=$tariffs selected=$tariff_id}
 				</select>
 			</td>
 		</tr>
