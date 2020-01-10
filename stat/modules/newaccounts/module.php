@@ -812,6 +812,7 @@ class m_newaccounts extends IModule
             'telekom_to_service' => Bill::dao()->isBillNewCompany($newbill, 1, 21),
         ]);
         $design->assign('bill_is_credit_note', Bill::dao()->isBillWithCreditNote($newbill));
+        $design->assign('bill_is_one_zadatok', $bill->isOneZadatok());
 
         /*
            счет-фактура(1)-абонен.плата

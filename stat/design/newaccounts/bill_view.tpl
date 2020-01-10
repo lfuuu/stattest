@@ -582,7 +582,7 @@
 
     </div>
 
-    {if $bill.sum > 0}
+    {if $bill.sum > 0 || $bill_is_one_zadatok}
         <div style="float: left">
             <table border="0">
                 <tr>
