@@ -46,7 +46,8 @@ class VoipPackageController extends BaseController
      */
     public function actionUseReport()
     {
-        if (!$this->_getCurrentClientAccountId()) {
+        $account = $this->_getCurrentClientAccount();
+        if (!$account) {
             Yii::$app->session->addFlash('error', 'Выберите клиента');
         }
 
@@ -118,13 +119,13 @@ class VoipPackageController extends BaseController
             }
         }
 
-        $numbers = UsageVoip::find()->client($fixclient_data->client)->actual()->indexBy('id')->all();
-        $packages = UsageVoipPackage::find()->client($fixclient_data->client)->all();
+        $numbers = UsageVoip::find()->client($account->client)->actual()->select('e164')->indexBy('id')->asArray()->column();
+        $packages = UsageVoipPackage::find()->client($account->client)->all();
 
         return $this->render(
             'use-report',
             [
-                'clientAccount' => $fixclient_data,
+                'clientAccount' => $account,
                 'numbers' => $numbers,
                 'packages' => $packages,
                 'report' => $report,
