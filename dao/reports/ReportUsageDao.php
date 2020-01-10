@@ -688,18 +688,18 @@ class ReportUsageDao extends Singleton
     {
 
         $query->leftJoin(['l' => AccountTariffLight::tableName()], 'l.id = cr.account_tariff_light_id');
-        $query->addSelect(['l.tariff_id']);
 
-        $query->groupBy(['l.tariff_id']);
 
         $query->select([
-            'tariff_id' => 'l.tariff_id',
             'price' => '-SUM(cr.cost)',
             'len' => 'SUM(cr.billed_time)',
             'cnt' => 'SUM(1)'
         ]);
+        $query->addSelect(['l.tariff_id', 'l.account_package_id']);
 
-        $query->groupBy(['l.tariff_id']);
+        $query->groupBy(['l.tariff_id', 'l.account_package_id']);
+        $query->orderBy(['l.account_package_id' => SORT_ASC, 'l.tariff_id' => SORT_ASC]);
+
 
         $result = [];
 
