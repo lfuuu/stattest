@@ -7,8 +7,8 @@ use app\models\filter\SaleBookFilter;
 /** @var SaleBookFilter $filter */
 /** @var array $skipping_bps */
 
-$printSum = function ($sum) {
-    return str_replace(".", ",", sprintf("%0.2f", $sum));
+$printSum = function ($sum, $len = 2) {
+    return str_replace(".", ",", sprintf("%0." . $len . "f", $sum));
 };
 
 
