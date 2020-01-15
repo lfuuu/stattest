@@ -164,9 +164,11 @@ class Invoice extends ActiveRecord
 
     public function getCurrencyRateToEuro()
     {
-        $origCurrency = $this->bill->currency;
+        $bill = $this->bill;
+        $origCurrency = $bill->currency;
+        $billDate = $bill->bill_date;
 
-        return self::getCurrencyRates($this->date, $origCurrency) / self::getCurrencyRates($this->date, Currency::EUR);
+        return self::getCurrencyRates($billDate, $origCurrency) / self::getCurrencyRates($billDate, Currency::EUR);
     }
 
     /**
