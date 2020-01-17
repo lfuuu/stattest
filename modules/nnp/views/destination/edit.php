@@ -76,7 +76,7 @@ if (!$destination->isNewRecord) {
     <div class="row">
 
         <?php // префиксы (сложение) ?>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <label>Префиксы (+)</label>
             <?= Select2::widget([
                 'name' => 'AdditionPrefixDestination[]',
@@ -89,12 +89,25 @@ if (!$destination->isNewRecord) {
         </div>
 
         <?php // префиксы (вычитание) ?>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <label>Префиксы (-)</label>
             <?= Select2::widget([
                 'name' => 'SubtractionPrefixDestination[]',
                 'value' => array_keys((array)$destination->subtractionPrefixDestinations),
                 'data' => $prefixList,
+                'options' => [
+                    'multiple' => true,
+                ],
+            ]) ?>
+        </div>
+
+        <?php // major'ы ?>
+        <div class="col-sm-4">
+            <label>NNP-фильтры (major)</label>
+            <?= Select2::widget([
+                'name' => 'DestinationMajor[]',
+                'value' => array_keys((array)$destination->majors),
+                'data' => \app\modules\nnp\models\Major::getList(false),
                 'options' => [
                     'multiple' => true,
                 ],
