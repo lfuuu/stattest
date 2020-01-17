@@ -20,10 +20,11 @@ class ActOfReconciliation extends Singleton
      * @param string $dateFrom
      * @param string $dateTo
      * @param int $startSaldo
+     * @param bool $sortByBillDate
      * @return array
      * @throws Exception
      */
-    public function getRevise(ClientAccount $account, $dateFrom, $dateTo, $startSaldo = 0)
+    public function getRevise(ClientAccount $account, $dateFrom, $dateTo, $startSaldo = 0, $sortByBillDate = false)
     {
         $dateFrom = DateTimeZoneHelper::getDateTime($dateFrom, DateTimeZoneHelper::DATE_FORMAT, false);
         $dateTo = DateTimeZoneHelper::getDateTime($dateTo, DateTimeZoneHelper::DATE_FORMAT, false);
@@ -116,7 +117,10 @@ WHERE b.client_id = ' . $account->id . '
       AND STR_TO_DATE(ext_invoice_date, \'%d-%m-%Y\') BETWEEN \'' . $dateFrom . '\' AND \'' . $dateTo . '\'', true);
 
         // сортировка работает отдельно от union
-        $arr = (new Query())->from(['a' => $query])->orderBy(['date' => SORT_ASC, 'a.id' => SORT_ASC])->all();
+        $arr = (new Query())
+            ->from(['a' => $query])
+            ->orderBy([($sortByBillDate ? 'bill_date' : 'date') => SORT_ASC, 'a.id' => SORT_ASC])
+            ->all();
 
         foreach ($arr as $item) {
             $isInvoice = $item['type'] == 'invoice';
@@ -181,7 +185,7 @@ WHERE b.client_id = ' . $account->id . '
             $dateFrom = $isNotRussia ? '2019-07-31' : '2019-01-01';
         }
 
-        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo);
+        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia);
 
         $data = array_reverse(
             array_filter($dirtyData['data'], function ($a) {
@@ -261,7 +265,9 @@ WHERE b.client_id = ' . $account->id . '
 
         $findDate = null;
         foreach ($data as $idx => &$row) {
-            $row['add_datetime'] = isset($row['add_datetime']) ? $setDateTime($row['add_datetime']) : $setDateTime($row['date'] . ' 00:00:00', true);
+            $row['add_datetime'] = isset($row['add_datetime'])
+                ? $setDateTime($row['add_datetime'])
+                : $setDateTime($row['date'] . ' 00:00:00', true);
 
             if ($row['type'] == 'invoice') {
                 $row['type'] = 'act';
@@ -287,9 +293,17 @@ WHERE b.client_id = ' . $account->id . '
             }
 
             $date = $row['date'];
-            // месячная линия, он долна быть после всех документов
-            if ($date <= $findDate && (!isset($data[$idx + 1]) || (isset($data[$idx + 1]) && $data[$idx + 1] < $findDate))) {
-                while ($date <= $findDate) {
+            // месячная линия,  должна быть после всех документов в месяце
+            if (
+                $date < $findDate && (
+                    !isset($data[$idx + 1])
+                    || (
+                        isset($data[$idx + 1])
+                        && $data[$idx + 1]['date'] < $findDate
+                    )
+                )
+            ) {
+                while ($date < $findDate) {
                     $result[] = [
                         'type' => 'month',
                         'date' => $findDate,
