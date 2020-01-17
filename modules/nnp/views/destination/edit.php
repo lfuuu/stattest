@@ -9,6 +9,7 @@
 use app\classes\Html;
 use app\modules\nnp\forms\destination\Form;
 use app\modules\nnp\models\Land;
+use app\modules\nnp\models\Major;
 use app\modules\nnp\models\Prefix;
 use app\modules\nnp\models\Status;
 use kartik\select2\Select2;
@@ -106,8 +107,8 @@ if (!$destination->isNewRecord) {
             <label>NNP-фильтры (major)</label>
             <?= Select2::widget([
                 'name' => 'DestinationMajor[]',
-                'value' => array_keys((array)$destination->majors),
-                'data' => \app\modules\nnp\models\Major::getList(false),
+                'value' => array_keys((array)$destination->destinationMajors),
+                'data' => Major::getList(false),
                 'options' => [
                     'multiple' => true,
                 ],

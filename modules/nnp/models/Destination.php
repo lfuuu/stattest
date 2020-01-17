@@ -22,7 +22,7 @@ use yii\helpers\Url;
  * @property-read PrefixDestination[] $prefixDestinations
  * @property-read PrefixDestination[] $additionPrefixDestinations
  * @property-read PrefixDestination[] $subtractionPrefixDestinations
- * @property-read DestinationMajor[] $majors
+ * @property-read DestinationMajor[] $destinationMajors
  */
 class Destination extends ActiveRecord
 {
@@ -105,7 +105,7 @@ class Destination extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getMajors()
+    public function getDestinationMajors()
     {
         return $this->hasMany(DestinationMajor::class, ['destination_id' => 'id'])
             ->indexBy('major_id');

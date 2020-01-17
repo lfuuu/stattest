@@ -84,7 +84,7 @@ abstract class Form extends \app\classes\Form
 
                 $destinationMajor = new DestinationMajor();
                 $destinationMajor->destination_id = $this->id;
-                $this->crudMultipleSelect2($this->destination->majors, $post, $destinationMajor, $fieldName = 'major_id', $formName = 'DestinationMajor');
+                $this->crudMultipleSelect2($this->destination->destinationMajors, $post, $destinationMajor, $fieldName = 'major_id', $formName = 'DestinationMajor');
 
                 $prefixDestinationsIntersect = array_intersect_key($additionPrefixDestinations, $subtractionPrefixDestinations);
                 if (count($prefixDestinationsIntersect)) {

@@ -64,4 +64,9 @@ class Major extends ActiveRecord
         return Yii::$app->dbPgNnp;
     }
 
+    public function __toString()
+    {
+        return $this->name;
+    }
+
 }

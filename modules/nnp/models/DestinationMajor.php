@@ -14,7 +14,7 @@ use yii\db\Expression;
  * @property int $destination_id
  * @property int $major_id
  *
- * @property-read Prefix $prefix
+ * @property-read Major $major
  * @property-read Destination $destination
  */
 class DestinationMajor extends ActiveRecord
@@ -90,7 +90,7 @@ class DestinationMajor extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getPrefix()
+    public function getMajor()
     {
         return $this->hasOne(Major::class, ['id' => 'major_id']);
     }
