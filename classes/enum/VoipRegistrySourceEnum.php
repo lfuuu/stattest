@@ -11,6 +11,7 @@ class VoipRegistrySourceEnum extends Enum
     const VOXBONE = 'voxbone';
     const DETACHED = 'detached';
     const PORTABILITY_NOT_FOR_SALE = 'portability_not_for_sale';
+    const PORTABILITY_INNONET = 'portability_innonet';
     const OPERATOR_NOT_FOR_SALE = 'operator_not_for_sale';
 
 
@@ -21,11 +22,13 @@ class VoipRegistrySourceEnum extends Enum
         self::VOXBONE => 'Voxbone',
         self::DETACHED => 'Detached',
         self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
+        self::PORTABILITY_INNONET => 'Portability (Innonet)',
         self::OPERATOR_NOT_FOR_SALE => 'Operator (Not for sale)'
     ];
 
     public static $service = [
         self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
+        self::PORTABILITY_INNONET => 'Portability (Innonet)',
         self::OPERATOR_NOT_FOR_SALE => 'Operator (Not for sale)'
     ];
 }
