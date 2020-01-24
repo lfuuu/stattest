@@ -85,9 +85,10 @@ class VatsController extends Controller
         $this->stdout('Скрипт сбора статистики по ВАТС.', Console::BOLD);
         $this->stdout("\n\n");
 
-        while ($periodStart <= $periodEnd) {
-            $this->_setDayStatistic($this->_getDayStatistic($periodStart), $periodStart);
-            $periodStart->modify('+1 day');
+        $date = clone $periodStart;
+        while ($date <= $periodEnd) {
+            $this->_setDayStatistic($this->_getDayStatistic($date), $periodStart, $date);
+            $date->modify('+1 day');
         }
     }
 
@@ -112,15 +113,21 @@ class VatsController extends Controller
 
     /**
      * @param array $list
+     * @param DateTime $startDate
      * @param DateTime $date
      */
-    private function _setDayStatistic($list, $date)
+    private function _setDayStatistic($list, $startDate, $date)
     {
         if ($date->format(DateTimeZoneHelper::DATE_FORMAT) > self::DATE1) {
             $localDate = clone $date;
             $localDate->modify('-1 day');
         } else {
             $localDate = $date;
+        }
+
+        // если дата за пределами диапазона - пропускаем.
+        if ($localDate < $startDate) {
+            return;
         }
 
         $day = $localDate->format(DateTimeZoneHelper::DATE_FORMAT);
