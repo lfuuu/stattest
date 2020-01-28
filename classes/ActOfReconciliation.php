@@ -4,9 +4,11 @@ namespace app\classes;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
+use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Country;
 use app\models\Invoice;
+use app\models\OperationType;
 use app\models\Payment;
 use app\modules\uu\models\Bill as uuBill;
 use Exception;
@@ -21,10 +23,11 @@ class ActOfReconciliation extends Singleton
      * @param string $dateTo
      * @param int $startSaldo
      * @param bool $sortByBillDate
+     * @param bool $isWithBills
      * @return array
      * @throws Exception
      */
-    public function getRevise(ClientAccount $account, $dateFrom, $dateTo, $startSaldo = 0, $sortByBillDate = false)
+    public function getRevise(ClientAccount $account, $dateFrom, $dateTo, $startSaldo = 0, $sortByBillDate = false, $isWithBills = false)
     {
         $dateFrom = DateTimeZoneHelper::getDateTime($dateFrom, DateTimeZoneHelper::DATE_FORMAT, false);
         $dateTo = DateTimeZoneHelper::getDateTime($dateTo, DateTimeZoneHelper::DATE_FORMAT, false);
@@ -68,6 +71,27 @@ class ActOfReconciliation extends Singleton
             ])
             ->andWhere(['between', 'payment_date', $dateFrom, $dateTo]);
 
+        $billQuery = Bill::find()
+            ->alias('b')
+            ->select([
+                'b.id',
+                'sum',
+                'type' => new Expression('"bill"'),
+                'payment_type' => new Expression('""'),
+                'date' => 'bill_date',
+                'number' => 'bill_no',
+                'correction_idx' => new Expression('""'),
+                'bill_date' => 'bill_date',
+                'add_datetime' => 'bill_date',
+            ])
+            ->where([
+                'client_id' => $account->id,
+                'currency' => $account->currency,
+                'operation_type_id' => OperationType::ID_PRICE,
+            ])
+            ->andWhere(['>', 'sum', 0])
+            ->andWhere(['between', 'bill_date', $dateFrom, $dateTo]);
+
 
         $query = Invoice::find()
             ->alias('i')
@@ -90,7 +114,6 @@ class ActOfReconciliation extends Singleton
             ->andWhere(['!=', 'i.sum', 0])
             ->andWhere(['NOT', ['i.number' => null]])
             ->andWhere(['between', 'date', $dateFrom, $dateTo])
-            ->union($paymentsQuery, true)
             ->union('SELECT
   b.id,
   -if(coalesce(ext_vat, 0) > 0,
@@ -115,6 +138,10 @@ WHERE b.client_id = ' . $account->id . '
       AND trim(coalesce(ext_invoice_no, \'\')) != \'\'
       AND coalesce(ext_sum_without_vat, 0) > 0
       AND STR_TO_DATE(ext_invoice_date, \'%d-%m-%Y\') BETWEEN \'' . $dateFrom . '\' AND \'' . $dateTo . '\'', true);
+
+        $query->union($paymentsQuery, true);
+        $isWithBills && $query->union($billQuery, true);
+
 
         // сортировка работает отдельно от union
         $arr = (new Query())
@@ -185,7 +212,7 @@ WHERE b.client_id = ' . $account->id . '
             $dateFrom = $isNotRussia ? '2019-07-31' : '2019-01-01';
         }
 
-        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia);
+        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia, !$isNotRussia);
 
         $data = array_reverse(
             array_filter($dirtyData['data'], function ($a) {
@@ -280,6 +307,13 @@ WHERE b.client_id = ' . $account->id . '
                     'client' => $account->id,
                     'invoice_id' => $row['id']
                 ]);
+            } elseif ($row['type'] == 'bill' && !$isNotRussia) {
+                $row['link'] = Encrypt::encodeArray([
+                        'bill' => $row['number'],
+                        'object' => 'bill-2-RUB',
+                        'client' => $account->id,
+                        'is_pdf' => 1
+                    ]);
             }
             unset($row['id']);
 
@@ -316,7 +350,9 @@ WHERE b.client_id = ' . $account->id . '
                 }
             }
             $result[] = $row;
-            $balance += $row['income_sum'] - $row['outcome_sum'];
+            if ($row['type'] != 'bill') {
+                $balance += $row['income_sum'] - $row['outcome_sum'];
+            }
 
         }
         unset($row);
