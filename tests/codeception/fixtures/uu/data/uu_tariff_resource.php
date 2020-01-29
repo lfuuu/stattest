@@ -61,7 +61,20 @@ $allTariffResources = [
         'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
         'tariff_id' => Tariff::DELTA + 1,
     ],
-
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_VOICE_ASSISTANT,
+        'tariff_id' => Tariff::DELTA + 1,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_ROBOT_CONTROLLER,
+        'tariff_id' => Tariff::DELTA + 1,
+    ],
 
     // тариф 2
     [
@@ -301,6 +314,18 @@ $vpbxBaseResources = [
         'price_per_unit' => 9,
         'price_min' => 0,
         'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_ROBOT_CONTROLLER,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_VOICE_ASSISTANT,
     ],
 ];
 

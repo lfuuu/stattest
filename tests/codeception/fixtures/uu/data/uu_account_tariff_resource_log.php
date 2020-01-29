@@ -126,6 +126,22 @@ $accountTariffResourceLogs = [
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
+    [
+        // инициализация с 1го
+        'account_tariff_id' => AccountTariff::DELTA + 2,
+        'resource_id' => Resource::ID_VPBX_VOICE_ASSISTANT,
+        'amount' => 0,
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+    [
+        // инициализация с 1го
+        'account_tariff_id' => AccountTariff::DELTA + 2,
+        'resource_id' => Resource::ID_VPBX_ROBOT_CONTROLLER,
+        'amount' => 0,
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
 ];
 
 $resources = [
@@ -136,6 +152,9 @@ $resources = [
     Resource::ID_VPBX_MIN_ROUTE,
     Resource::ID_VPBX_GEO_ROUTE,
     Resource::ID_VPBX_SUB_ACCOUNT,
+    Resource::ID_VPBX_VOICE_ASSISTANT,
+    Resource::ID_VPBX_ROBOT_CONTROLLER
+
 ];
 $accountTariffIds = [
     AccountTariff::DELTA + 1,

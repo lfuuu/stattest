@@ -121,6 +121,10 @@ SQL;
 
                 $isWithTransaction && $transaction->commit();
 
+                if (defined('YII_ENV') && YII_ENV == 'test') {
+                    throw $e;
+                }
+
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
                 $this->out(PHP_EOL . 'Error. ' . $e->getMessage() . PHP_EOL);

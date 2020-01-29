@@ -47,6 +47,9 @@ class Resource extends ActiveRecord
     const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
     const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
     const ID_VPBX_SUB_ACCOUNT = 39; // ВАТС. Лимиты по субсчетам
+    const ID_VPBX_VOICE_ASSISTANT = 51; // ВАТС. Голосовой помощник
+    const ID_VPBX_ROBOT_CONTROLLER = 52; // ВАТС. Робот-контролер
+
 
     const ID_VOIP_LINE = 7; // Телефония. Линия
     const ID_VOIP_FMC = 38; // Телефония. FMC
