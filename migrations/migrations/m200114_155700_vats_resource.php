@@ -20,11 +20,6 @@ class m200114_155700_vats_resource extends \app\classes\Migration
      */
     public function safeUp()
     {
-
-        if (!(defined("YII_ENV") && YII_ENV === 'test')) {
-            throw new \Exception('please start manualy');
-        }
-
         $this->insertResource(ServiceType::ID_VPBX, Resource::ID_VPBX_VOICE_ASSISTANT, [
             'name' => 'Голосовой помощник',
             'unit' => '',
