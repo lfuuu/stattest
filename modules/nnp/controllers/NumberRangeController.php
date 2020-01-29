@@ -88,6 +88,8 @@ class NumberRangeController extends BaseController
             Yii::$app->session->setFlash('success', 'Префиксы будут пересчитаны через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 
+        \Yii::$app->session->close();
+
         return $this->render('index', [
             'filterModel' => $filterModel,
         ]);

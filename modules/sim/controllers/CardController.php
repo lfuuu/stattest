@@ -63,6 +63,8 @@ class CardController extends BaseController
         $filterModel = new CardFilter();
         $filterModel->load(Yii::$app->request->get());
 
+        \Yii::$app->session->close();
+
         return $this->render('index', [
             'filterModel' => $filterModel,
         ]);
