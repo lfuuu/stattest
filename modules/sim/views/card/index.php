@@ -6,6 +6,7 @@
  * @var CardFilter $filterModel
  */
 
+use app\classes\grid\column\universal\ActionCheckboxColumn;
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
@@ -20,7 +21,9 @@ use app\modules\sim\columns\CardStatusColumn;
 use app\modules\sim\columns\ImsiPartnerColumn;
 use app\modules\sim\filters\CardFilter;
 use app\modules\sim\models\Card;
+use app\modules\sim\models\CardStatus;
 use app\widgets\GridViewExport\GridViewExport;
+use kartik\form\ActiveForm;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
@@ -33,30 +36,61 @@ use yii\helpers\Url;
     ],
 ]) ?>
 
+
+
 <?php
+
+$form = ActiveForm::begin(['method' => 'post', 'id' => 'setStatusForm']);
+
+echo "<div>";
+echo "<div class=well style='width: 400px; float: left;'>";
+echo Html::tag('b', 'Изменить статус на') . '<br>';
+echo Html::button('Изменить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-status']);
+
+echo Html::dropDownList('status', null, CardStatus::getList(true), ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+echo "</div>";
+$width = $account ? 300 : 170;
+
+echo "<div class=well style='width: ".$width."px; float: left; margin-left: 10px;'>";
+echo Html::tag('b', 'Связка с ЛС') . '<br>';
+if ($account) {
+    echo $this->render('//layouts/_submitButton', [
+        'text' => 'Привязать',
+        'glyphicon' => 'glyphicon-link',
+        'params' => [
+            'name' => 'set-link',
+            'class' => 'btn btn-success',
+            'style' => 'margin-left: 10px;',
+        ],
+    ]);
+}
+
+echo $this->render('//layouts/_submitButton', [
+    'text' => 'Отвязать',
+    'glyphicon' => 'glyphicon-scissors',
+    'params' => [
+        'name' => 'set-unlink',
+        'class' => 'btn btn-warning',
+        'style' => 'margin-left: 10px;',
+    ],
+]);
+
+
+echo "</div>";
+echo "</div>";
+
+echo "<div style='clear: both;'></div>";
+
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::class,
-        'template' => '{update}',
-        'buttons' => [
-            'update' => function ($url, Card $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => Url::to(['/sim/card/edit', 'originIccid' => $model->iccid]),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
+        'class' => ActionCheckboxColumn::class,
+        'name' => 'cardIccids',
+        'staticValue' => false,
     ],
 
     [
         'attribute' => 'iccid',
-        'class' => StringColumn::class,
-    ],
-
-    [
-        'attribute' => 'imei',
         'class' => StringColumn::class,
     ],
 
@@ -99,50 +133,6 @@ $columns = [
     ],
 
     [
-        'label' => 'DID',
-        'attribute' => 'did',
-        'class' => StringColumn::class,
-        'format' => 'raw',
-        'value' => function (Card $card) {
-            $dids = [];
-            $imsies = $card->imsies;
-            foreach ($imsies as $imsi) {
-                $dids[] = $imsi->did ?: Yii::t('common', '(not set)');
-            }
-
-            return implode(' <br>', $dids);
-        },
-    ],
-
-    [
-        'label' => 'Красивость',
-        'attribute' => 'beauty_level',
-        'class' => BeautyLevelColumn::class,
-        'value' => function (Card $card) {
-            $imsies = $card->imsies;
-            $levels = [];
-            foreach ($imsies as $imsi) {
-                $levels[] = $imsi->number ? DidGroup::$beautyLevelNames[$imsi->number->beauty_level] : '';
-            }
-            return implode(' <br>', $levels);
-        },
-    ],
-
-    [
-        'label' => 'Статус номера',
-        'attribute' => 'number_status',
-        'class' => NumberStatusColumn::class,
-        'value' => function (Card $card) {
-            $imsies = $card->imsies;
-            $statuses = [];
-            foreach ($imsies as $imsi) {
-                $statuses[] = $imsi->number ? Number::$statusList[$imsi->number->status] : '';
-            }
-            return implode(' <br>', $statuses);
-        },
-    ],
-
-    [
         'label' => 'MVNO-партнер',
         'attribute' => 'imsi_partner',
         'class' => ImsiPartnerColumn::class,
@@ -167,13 +157,18 @@ $columns = [
     ],
 
     [
-        'attribute' => 'client_account_id',
-        'class' => IntegerColumn::class,
-        'format' => 'html',
+        'label' => 'Profile name',
+        'attribute' => 'profile_id',
+        'format' => 'raw',
+        'filterOptions' => ['style' => 'width: 150px'],
+        'class' => ImsiProfileColumn::class,
         'value' => function (Card $card) {
-            return $card->client_account_id ?
-                ($card->clientAccount ? $card->clientAccount->getLink() : $card->client_account_id) :
-                Yii::t('common', '(not set)');
+            $imsies = $card->imsies;
+            $names = [];
+            foreach ($imsies as $imsi) {
+                $names[] = $imsi->profile->name;
+            }
+            return implode(' <br>', $names);
         },
     ],
 
@@ -186,20 +181,30 @@ $columns = [
         'attribute' => 'status_id',
         'class' => CardStatusColumn::class,
     ],
+
     [
-        'label' => 'Profile name',
-        'attribute' => 'profile_id',
-        'format' => 'raw',
-        'filterOptions' => ['style' => 'width: 150px'],
-        'class' => ImsiProfileColumn::class,
+        'attribute' => 'client_account_id',
+        'class' => IntegerColumn::class,
+        'format' => 'html',
         'value' => function (Card $card) {
-            $imsies = $card->imsies;
-            $names = [];
-            foreach ($imsies as $imsi) {
-                    $names[] = $imsi->profile->name;
-            }
-            return implode(' <br>', $names);
+            return $card->client_account_id ?
+                ($card->clientAccount ? $card->clientAccount->getLink() : $card->client_account_id) :
+                Yii::t('common', '(not set)');
         },
+    ],
+
+    [
+        'class' => ActionColumn::class,
+        'template' => '{update}',
+        'buttons' => [
+            'update' => function ($url, Card $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => Url::to(['/sim/card/edit', 'originIccid' => $model->iccid]),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 
@@ -216,3 +221,5 @@ echo GridView::widget([
         'columns' => $columns,
     ]),
 ]);
+
+ActiveForm::end();
