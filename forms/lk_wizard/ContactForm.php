@@ -63,7 +63,11 @@ class ContactForm extends Form
 
         if (!$contact->validate()) {
             $this->addError('contact_phone', 'format_error');
+            return false;
+        }
 
+        if (!ClientContact::dao()->validateNnp($this->contact_phone)) {
+            $this->addError('contact_phone', 'phone_error_no_valid');
             return false;
         }
 
