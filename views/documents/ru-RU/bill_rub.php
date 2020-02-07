@@ -85,7 +85,29 @@ $payerCompany = $document->getPayer();
 </table>
 <hr/>
 
-<center><h2>Счёт &#8470;<?= $document->bill->bill_no; ?></h2></center>
+<center><h2>Счёт &#8470;<?= $document->bill->bill_no; ?><?php
+
+        $time = time() + (3600 * 3); // moscow TZ
+        $billNo = $document->bill->bill_no;
+        $hourLimit = 12;
+
+        $isCompleted = true;
+        if (
+            $document->bill->uu_bill_id
+            && date('d', $time) == 1
+            && strpos($billNo, date('Ym', $time) . '-') === 0
+            && date('H', $time) < $hourLimit
+        ) {
+            $isCompleted = false;
+        };
+        ?>
+<?php if (!$isCompleted): ?>
+    <br><b style="color:red; font-size: +140%;">*** Формирование счета ещё не закончено ***</b>
+    <br><b style="color:red; ">
+        Планируемое время завершения:
+        <?= Yii::$app->formatter->asDatetime(date('Y-m-d', $time), 'php:1.m.Y') . ' ' . $hourLimit . ':00 (время московское)' ?></b>
+<?php endif; ?></h2></center>
+
 
 <p align=right>Дата: <b> <?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:d.m.Y'); ?> г.</b></p>
 
@@ -212,100 +234,102 @@ $payerCompany = $document->getPayer();
     </p>
 <?php endif; ?>
 
-<table border="0" align=center cellspacing="1" cellpadding="0" style="padding-left: 100px; width: 600px;">
-    <tbody>
-    <tr>
-        <td nowrap><?= $director->post_nominative; ?></td>
-        <?php if ($document->sendEmail): ?>
-            <td>
-                <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
-                    $image_options = [
-                        'width' => 140,
-                        'border' => 0,
-                        'align' => 'top',
-                    ];
-
-                    if ($inline_img):
-                        echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
-                    else:
-                        array_walk($image_options, function (&$item, $key) {
-                            $item = $key . '="' . $item . '"';
-                        });
-                        ?>
-                        <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
-                    <?php endif; ?>
-                <?php else: ?>
-                    _________________________________
-                <?php endif; ?>
-            </td>
-        <?php else: ?>
-            <td>
-                <br/><br/>_________________________________<br/><br/>
-            </td>
-        <?php endif; ?>
-        <td>/ <?= $director->name_nominative; ?> /</td>
-    </tr>
-    <tr>
-        <td nowrap>Главный бухгалтер</td>
-        <?php if ($document->sendEmail) : ?>
-            <td>
-                <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $accountant->signature_file_name)):
-                    $image_options = [
-                        'width' => 140,
-                        'border' => 0,
-                        'align' => 'top',
-                    ];
-
-                    if ($inline_img):
-                        echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name), $image_options);
-                    else:
-                        array_walk($image_options, function (&$item, $key) {
-                            $item = $key . '="' . $item . '"';
-                        });
-                        ?>
-                        <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
-                    <?php endif; ?>
-                <?php else: ?>
-                    _________________________________
-                <?php endif; ?>
-            </td>
-        <?php else: ?>
-            <td>
-                <br/><br/>_________________________________<br/><br/>
-            </td>
-        <?php endif; ?>
-        <td>
-            / <?= $accountant->name_nominative; ?> /
+<?php if ($isCompleted) : ?>
+    <table border="0" align=center cellspacing="1" cellpadding="0" style="padding-left: 100px; width: 600px;">
+        <tbody>
+        <tr>
+            <td nowrap><?= $director->post_nominative; ?></td>
             <?php if ($document->sendEmail): ?>
-                <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
-                    $image_options = [
-                        'width' => 200,
-                        'border' => 0,
-                        'style' => 'position:relative; left:-165; top:10px; z-index:-10; margin-bottom:-170px;',
-                    ];
+                <td>
+                    <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
+                        $image_options = [
+                            'width' => 140,
+                            'border' => 0,
+                            'align' => 'top',
+                        ];
 
-                    if ($inline_img):
-                        echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
-                    else:
-                        array_walk($image_options, function (&$item, $key) {
-                            $item = $key . '="' . $item . '"';
-                        });
-                        ?>
-                        <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                        if ($inline_img):
+                            echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
+                        else:
+                            array_walk($image_options, function (&$item, $key) {
+                                $item = $key . '="' . $item . '"';
+                            });
+                            ?>
+                            <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                        <?php endif; ?>
+                    <?php else: ?>
+                        _________________________________
+                    <?php endif; ?>
+                </td>
+            <?php else: ?>
+                <td>
+                    <br/><br/>_________________________________<br/><br/>
+                </td>
+            <?php endif; ?>
+            <td>/ <?= $director->name_nominative; ?> /</td>
+        </tr>
+        <tr>
+            <td nowrap>Главный бухгалтер</td>
+            <?php if ($document->sendEmail) : ?>
+                <td>
+                    <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $accountant->signature_file_name)):
+                        $image_options = [
+                            'width' => 140,
+                            'border' => 0,
+                            'align' => 'top',
+                        ];
+
+                        if ($inline_img):
+                            echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name), $image_options);
+                        else:
+                            array_walk($image_options, function (&$item, $key) {
+                                $item = $key . '="' . $item . '"';
+                            });
+                            ?>
+                            <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                        <?php endif; ?>
+                    <?php else: ?>
+                        _________________________________
+                    <?php endif; ?>
+                </td>
+            <?php else: ?>
+                <td>
+                    <br/><br/>_________________________________<br/><br/>
+                </td>
+            <?php endif; ?>
+            <td>
+                / <?= $accountant->name_nominative; ?> /
+                <?php if ($document->sendEmail): ?>
+                    <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
+                        $image_options = [
+                            'width' => 200,
+                            'border' => 0,
+                            'style' => 'position:relative; left:-165; top:10px; z-index:-10; margin-bottom:-170px;',
+                        ];
+
+                        if ($inline_img):
+                            echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
+                        else:
+                            array_walk($image_options, function (&$item, $key) {
+                                $item = $key . '="' . $item . '"';
+                            });
+                            ?>
+                            <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                        <?php endif; ?>
                     <?php endif; ?>
                 <?php endif; ?>
-            <?php endif; ?>
-        </td>
-    </tr>
-    </tbody>
-</table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 
-<?php if (!in_array($document->bill->clientAccount->firma, ['ooocmc', 'ooomcn', 'all4net', 'ab.service_marcomnet'])): ?>
-    <small>
-        Примечание:
-        При отсутствии оплаты счета до конца текущего месяца услуги по договору будут приостановлены до полного
-        погашения задолженности.
-    </small>
+    <?php if (!in_array($document->bill->clientAccount->firma, ['ooocmc', 'ooomcn', 'all4net', 'ab.service_marcomnet'])): ?>
+        <small>
+            Примечание:
+            При отсутствии оплаты счета до конца текущего месяца услуги по договору будут приостановлены до полного
+            погашения задолженности.
+        </small>
+    <?php endif; ?>
 <?php endif; ?>
 </body>
 </html>
