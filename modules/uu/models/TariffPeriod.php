@@ -2,10 +2,15 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use Yii;
+use yii\caching\ChainedDependency;
+use yii\caching\DbDependency;
+use yii\caching\TagDependency;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Стоимость тарифа
@@ -201,9 +206,8 @@ class TariffPeriod extends ActiveRecord
         $organizationId = null,
         $ndcTypeId = null,
         $withTariffId = false
-    ) {
-        $defaultTariffPeriodId = null;
-
+    )
+    {
         if ($serviceTypeId == ServiceType::ID_VOIP_PACKAGE_INTERNET) {
 
             // пакеты интернета - по стране
@@ -217,6 +221,7 @@ class TariffPeriod extends ActiveRecord
         }
 
         $activeQuery = self::find()
+            ->alias('tp')
             ->innerJoinWith('tariff tariff')
             ->with('tariff.status')
             ->with('tariff.currency')
@@ -290,26 +295,46 @@ class TariffPeriod extends ActiveRecord
             $selectboxItems[self::IS_SET] = Yii::t('common', 'Switched on');
         }
 
-        /** @var TariffPeriod $tariffPeriod */
-        foreach ($activeQuery->each(self::BATCH_SIZE_READ) as $tariffPeriod) {
-            $tariff = $tariffPeriod->tariff;
-            $status = $tariff->status; // @todo надо бы заджойнить таблицу status
 
-            if ($tariff->is_default && !$defaultTariffPeriodId && $status->id != TariffStatus::ID_ARCHIVE) {
-                $defaultTariffPeriodId = $tariffPeriod->id;
-            }
+        $chainDep = null;
 
-            if (!isset($selectboxItems[$status->name])) {
-                $selectboxItems[$status->name] = [];
-            }
+        $checkCacheQuery1 = clone $activeQuery;
+        $checkCacheQuery2 = clone $activeQuery;
 
-            $selectboxItems[$status->name][$tariffPeriod->id] =
-                (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') .
-                ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName())
-            ;
+        $sqlDep = $checkCacheQuery2->createCommand()->rawSql;
+
+        $key = self::tableName() . '_getList_' .md5($sqlDep);
+
+        if ($firstRow = $checkCacheQuery1->one()) {
+            $dbDep = new DbDependency(['sql' => $sqlDep]);
+            $tagDep = (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST]]));
+            $chainDep = (new ChainedDependency(['dependencies' => [$tagDep, $dbDep]]));
         }
 
-        return $selectboxItems;
+        return \Yii::$app->cache->getOrSet($key, function () use ($activeQuery, $selectboxItems, $withTariffId) {
+
+            $defaultTariffPeriodId = null;
+
+            /** @var TariffPeriod $tariffPeriod */
+            foreach ($activeQuery->each(self::BATCH_SIZE_READ) as $tariffPeriod) {
+                $tariff = $tariffPeriod->tariff;
+                $status = $tariff->status; // @todo надо бы заджойнить таблицу status
+
+                if ($tariff->is_default && !$defaultTariffPeriodId && $status->id != TariffStatus::ID_ARCHIVE) {
+                    $defaultTariffPeriodId = $tariffPeriod->id;
+                }
+
+                if (!isset($selectboxItems[$status->name])) {
+                    $selectboxItems[$status->name] = [];
+                }
+
+                $selectboxItems[$status->name][$tariffPeriod->id] =
+                    (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') .
+                    ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName());
+            }
+            return $selectboxItems;
+        }, 3600 * 24 * 30, $chainDep);
+
     }
 
     /**

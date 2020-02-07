@@ -429,3 +429,9 @@ echo GridView::widget([
 echo $this->render('_indexMainGroupAction', [
     'filterModel' => $filterModel,
 ]);
+
+if ($serviceType && $serviceType->id == ServiceType::ID_VOIP) {
+    echo $this->render('_addPackage', [
+        'filterModel' => $filterModel,
+    ]);
+}

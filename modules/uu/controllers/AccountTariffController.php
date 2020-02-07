@@ -6,6 +6,7 @@
 namespace app\modules\uu\controllers;
 
 use app\classes\BaseController;
+use app\classes\Html;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -19,6 +20,7 @@ use app\modules\uu\forms\AccountTariffEditForm;
 use app\modules\uu\forms\DisableForm;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffLogAdd;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
@@ -819,31 +821,69 @@ class AccountTariffController extends BaseController
     {
         $post = Yii::$app->request->post();
 
-        if ($filterModel->tariff_period_id <= 0 || !$post || !isset($post['AccountTariffLog']['actual_from'])) {
+        if ($filterModel->tariff_period_id <= 0 || !$post) {
+            return false;
+        }
+
+        if (
+            !isset($post['AccountTariffLog']['actual_from'])
+            && !isset($post['AccountTariffLogAdd']['tariff_period_id'])
+            && !isset($post['AccountTariffLogAdd']['actual_from'])
+        ) {
             return false;
         }
 
         /** @var ActiveQuery $query */
         $query = $filterModel->search()->query;
+        /** @var AccountTariff $accountTariff */
         foreach ($query->each() as $accountTariff) {
             $transaction = \Yii::$app->db->beginTransaction();
+
             try {
-                $accountTariffLog = new AccountTariffLog;
-                $accountTariffLog->account_tariff_id = $accountTariff->id;
 
-                $accountTariffLog->load($post);
+                if (isset($post['AddPackageButton'])) { // add
+                    // подключить базовый пакет
+                    $accountTariffPackage = new AccountTariff();
+                    $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
+                    $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE_CALLS;
+                    $accountTariffPackage->region_id = $accountTariff->region_id;
+                    $accountTariffPackage->city_id = $accountTariff->city_id;
+                    $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
+                    if (!$accountTariffPackage->save()) {
+                        throw new ModelValidationException($accountTariffPackage);
+                    }
 
-                // Отключение услуги
-                if (isset($post['closeTariff'])) {
-                    $accountTariffLog->tariff_period_id = null;
-                }
+                    $accountTariffPackageLog = new AccountTariffLogAdd();
 
-                if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
-                    throw new ModelValidationException($accountTariffLog);
+                    if (!$accountTariffPackageLog->load($post)) {
+                        throw new LogicException('данные для добавления не получены');
+                    }
+
+                    $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
+                    if (!$accountTariffPackageLog->save()) {
+                        throw new ModelValidationException($accountTariffPackageLog);
+                    }
+                    Yii::$app->session->addFlash('success', 'К ' . $accountTariff->getLink() . ' подключен пакет-тариф: ' .
+                        Html::a(Html::encode($accountTariffPackage->getName(false)), $accountTariffPackage->getUrl()));
+                } else { // change && close
+
+                    $accountTariffLog = new AccountTariffLog;
+                    $accountTariffLog->account_tariff_id = $accountTariff->id;
+
+                    $accountTariffLog->load($post);
+
+                    // Отключение услуги
+                    if (isset($post['closeTariff'])) {
+                        $accountTariffLog->tariff_period_id = null;
+                    }
+
+                    if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
+                        throw new ModelValidationException($accountTariffLog);
+                    }
+                    Yii::$app->session->addFlash('success', $accountTariff->getLink() . ' обновлена');
                 }
 
                 $transaction->commit();
-                Yii::$app->session->addFlash('success', $accountTariff->getLink() . ' обновлена');
             } catch (\Exception $e) {
                 $transaction->rollBack();
                 Yii::$app->session->addFlash('error', $accountTariff->getLink() . ":\n" . $e->getMessage());
