@@ -868,9 +868,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case ClientChangedAmqAdapter::EVENT:
+                    /*
                     $info = $isClientChangedServer
                         ? ClientChangedAmqAdapter::me()->process($param)
                         : EventQueue::API_IS_SWITCHED_OFF;
+                    */
                     break;
 
                 // --------------------------------------------
