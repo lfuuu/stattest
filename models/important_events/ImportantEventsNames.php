@@ -51,6 +51,7 @@ class ImportantEventsNames extends ActiveRecord
     const ACCOUNT_CONTRACT_CHANGED = 'account_contract_changed';
     const TRANSFER_CONTRAGENT = 'transfer_contragent';
     const CHANGE_CREDIT_LIMIT = 'change_credit_limit';
+    const CLIENT_LOGGED_IN = 'client_logged_in';
 
     // Troubles
     const CREATED_TROUBLE = 'created_trouble';

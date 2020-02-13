@@ -91,6 +91,13 @@ echo GridView::widget([
             'width' => '10%',
         ],
         [
+            'attribute' => 'remote_ip',
+            'width' => '10%',
+        ],        [
+            'attribute' => 'login',
+            'width' => '10%',
+        ],
+        [
             'class' => TagsColumn::class,
             'filter' => TagsColumn::class,
             'width' => '20%',
