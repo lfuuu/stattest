@@ -4,6 +4,7 @@ namespace app\classes\documents;
 
 use app\models\BillLine;
 use app\models\ClientAccount;
+use app\models\Currency;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\base\NotSupportedException;
@@ -27,11 +28,16 @@ abstract class DocumentReport extends BaseObject
     const DOC_TYPE_INVOICE = 'invoice';
     const DOC_TYPE_PROFORMA = 'proforma';
     const DOC_TYPE_CREDIT_NOTE = 'credit_note';
+    const DOC_TYPE_CURRENT_STATEMENT = 'current_statement';
 
     /**
      * @var Bill
      */
     public $bill;
+    /**
+     * @var ClientAccount
+     */
+    public $clientAccount;
     public $sendEmail;
     public $lines = [];
 
@@ -97,6 +103,23 @@ abstract class DocumentReport extends BaseObject
     public function setBill(Bill $bill = null)
     {
         $this->bill = $bill;
+        return $this;
+    }
+
+    /**
+     * @param ClientAccount $clientAccount
+     * @return $this
+     */
+    public function setClientAccount(ClientAccount $clientAccount)
+    {
+        $this->clientAccount = $clientAccount;
+
+        $this->bill = new Bill();
+        $this->bill->bill_date = date('Y-m-d');
+        $this->bill->client_id = $clientAccount->id;
+        $this->bill->currency = $clientAccount->currency;
+        $this->bill->price_include_vat = $clientAccount->price_include_vat;
+
         return $this;
     }
 
@@ -225,8 +248,20 @@ abstract class DocumentReport extends BaseObject
      */
     protected function postFilterLines()
     {
-        if ($this->bill->clientAccount->type_of_bill == ClientAccount::TYPE_OF_BILL_SIMPLE) {
-            $this->lines = BillLine::compactLines($this->lines, $this->bill->clientAccount->contragent->lang_code, $this->bill->price_include_vat);
+        $type = $langCode = $priceIncludeVat = null;
+
+        if ($this->clientAccount && $this->clientAccount instanceof ClientAccount) {
+            $type = $this->clientAccount->type_of_bill;
+            $priceIncludeVat = $this->clientAccount->price_include_vat;
+            $langCode = $this->clientAccount->contragent->lang_code;
+        } elseif ($this->bill && $this->bill instanceof Bill) {
+            $type = $this->bill->clientAccount->type_of_bill;
+            $priceIncludeVat = $this->bill->price_include_vat;
+            $langCode = $this->bill->clientAccount->contragent->lang_code;
+        }
+
+        if ($type !== null && $type == ClientAccount::TYPE_OF_BILL_SIMPLE) {
+            $this->lines = BillLine::compactLines($this->lines, $langCode, $priceIncludeVat);
         }
 
         return $this;

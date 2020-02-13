@@ -182,6 +182,7 @@ $config = [
             'translations' => [
                 '*' => [
                     'class' => 'yii\i18n\PhpMessageSource',
+                    'forceTranslation' => true,
                     // 'sourceLanguage' => 'ru-RU'
                 ],
                 'biller' => [

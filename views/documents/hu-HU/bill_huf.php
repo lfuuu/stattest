@@ -14,7 +14,7 @@ $bill_date = Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:Y
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
-        <title>Díjbekérő No <?= $document->bill->bill_no; ?></title>
+        <title><?= $isCurrentStatement ? 'Jelenlegi nyilatkozat' : 'Díjbekérő No ' . $document->bill->bill_no; ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style type="text/css">
             body {margin-top: 0px;margin-left: 0px;}
@@ -89,7 +89,7 @@ $bill_date = Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:Y
     <div id="page_1">
         <div class="dclr"></div>
         <div id="id_1">
-            <P class="p0 ft0">Számviteli bizonylat</P>
+            <P class="p0 ft0"><?= $isCurrentStatement ? 'Jelenlegi nyilatkozat' : 'Számviteli bizonylat' ?></P>
         </div>
         <div id="id_2">
             <div id="id_2_1">

@@ -2,7 +2,10 @@
 
 namespace app\classes\documents;
 
+use app\classes\Language;
+use app\models\Currency;
 use Yii;
+use app\models\ClientAccount;
 use app\classes\Singleton;
 use app\classes\Assert;
 use app\models\Bill;
@@ -32,18 +35,31 @@ class DocumentReportFactory extends Singleton
             CreditNoteDocument::class,
             InvoiceDocument::class,
             BillOperator::class,
+            CurrentStatementRuDocument::class,
+            CurrentStatementHuDocument::class,
+            CurrentStatementEnDocument::class,
         ];
     }
 
     /**
-     * @param Bill $bill
+     * @param Bill|ClientAccount $bill
      * @param bool|false $docType
      * @return DocumentReport[]
      */
-    public function availableDocuments(Bill $bill, $docType = null)
+    public function availableDocuments($bill, $docType = null)
     {
-        $currency = $bill->currency;
-        $language = $bill->clientAccount->contragent->country->lang;
+        $currency = null;
+        $language = null;
+
+        if ($bill instanceof Bill) {
+            $currency = $bill->currency;
+            $language = $bill->clientAccount->contragent->country->lang;
+        } elseif ($bill instanceof ClientAccount) {
+            $currency = $bill->currency;
+            $language = $bill->contragent->country->lang;
+        } else {
+            Assert::isUnreachable('main object unreachable');
+        }
 
         return self::availableDocumentsEx($language, $currency, $docType);
     }
@@ -85,20 +101,19 @@ class DocumentReportFactory extends Singleton
     }
 
     /**
-     * @param Bill $bill
+     * @param Bill|ClientAccount $bill
      * @param string|array $docType
      * @param bool|false $sendEmail
      * @return DocumentReport
      * @throws \yii\base\Exception
      */
-    public function getReport(Bill $bill, $docType, $sendEmail = false)
+    public function getReport($mainDocument, $docType, $sendEmail = false)
     {
-        foreach (self::availableDocuments($bill, $docType) as $documentReport) {
-            return
-                $documentReport
-                    ->setSendEmail($sendEmail)
-                    ->setBill($bill)
-                    ->prepare();
+        foreach (self::availableDocuments($mainDocument, $docType) as $documentReport) {
+            $r = $documentReport->setSendEmail($sendEmail);
+            $mainDocument instanceof Bill && $r->setBill($mainDocument);
+            $mainDocument instanceof ClientAccount && $r->setClientAccount($mainDocument);
+            return $r->prepare();
         }
 
         Assert::isUnreachable('Document report not found');

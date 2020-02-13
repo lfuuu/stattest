@@ -26,7 +26,7 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
 <head>
-    <title>Bill &#8470;<?= $document->bill->bill_no; ?></title>
+    <title><?= $isCurrentStatement ? 'Current statement' : 'Invoice No' . $document->bill->bill_no; ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <?php if ($inline_img) : ?>
         <style type="text/css">
@@ -120,10 +120,12 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
                     <tr>
                         <td colspan="2" align="center">
                             <?php
-                            if ($inline_img):
-                                echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
-                            else: ?>
-                                <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0"/>
+                            if (!$isCurrentStatement):
+                                if ($inline_img):
+                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
+                                else: ?>
+                                    <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0"/>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -133,7 +135,7 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
     </tr>
 </table>
 
-<h1>Invoice No<?= $bill->bill_no ?></h1>
+<h1><?= $isCurrentStatement ? 'Current statement' : 'Invoice No' . $bill->bill_no ?></h1>
 <h2>Date: <?= $hDate($bill->bill_date) ?></h2>
 <h2>Invoice Time Zone: +00:00</h2>
 
@@ -155,104 +157,113 @@ VAT Number: <?= $contragent->inn_euro ?>
     <?php if (!$isOperatorBill) { ?>
         <th>Volume, min</th><?php } ?>
     <th>Amount, <?= $currency ?></th>
-    <th>VAT rate, %</th>
-    <th>VAT amount, <?= $currency ?></th>
+    <?php if (!$isCurrentStatement): ?>
+        <th>VAT rate, %</th>
+        <th>VAT amount, <?= $currency ?></th>
+    <?php endif; ?>
     <th>Amount inc. VAT, <?= $currency ?></th>
     </thead>
     <tbody>
     <?php
     $total = ['amount' => 0, 'sum' => 0];
-    foreach ($bill->lines as $idx => $line) : ?>
+    foreach ($document->lines as $idx => $line) : ?>
         <tr>
             <td align="center"><?= ($idx + 1); ?></td>
-            <td align="center"><?= $line->item ?></td>
-            <td align="center"><?= $hDate($line->date_from) . ' - ' . $hDate($line->date_to) ?></td>
+            <td align="center"><?= $line['item'] ?></td>
+            <td align="center"><?= $hDate($line['date_from']) . ' - ' . $hDate($line['date_to']) ?></td>
             <?php if (!$isOperatorBill) { ?>
-                <td align="center"><?= $line->amount ?></td><?php } ?>
-            <td align="center"><?= $line->price ?></td>
-            <td align="center"><?= $line->tax_rate ?></td>
-            <td align="center"><?= $line->sum_tax ?></td>
-            <td align="center"><?= $line->sum ?></td>
+                <td align="center"><?= $line['amount'] ?></td><?php } ?>
+            <td align="center"><?= $line['price'] ?></td>
+            <?php if (!$isCurrentStatement): ?>
+                <td align="center"><?= $line['tax_rate'] ?></td>
+                <td align="center"><?= $line['sum_tax'] ?></td>
+            <?php endif; ?>
+            <td align="center"><?= $line['sum'] ?></td>
         </tr>
         <?php
 
-        $total['amount'] += $line->sum - $line->sum_tax;
-        $total['tax'] += $line->sum_tax;
-        $total['sum'] += $line->sum;
+        $total['amount'] += $line['sum'] - $line['sum_tax'];
+        $total['tax'] += $line['sum_tax'];
+        $total['sum'] += $line['sum'];
     endforeach; ?>
     <tr>
         <td colspan="<?= $isOperatorBill ? 3 : 4 ?>" align="right"><b>Total Amount Due:</b></td>
         <td align="center"><?= number_format($total['amount'], 2, '.', '') ?></td>
+        <?php if (!$isCurrentStatement): ?>
         <td align="center">&nbsp;</td>
         <td align="center"><?= number_format($total['tax'], 2, '.', '') ?></td>
+        <?php endif; ?>
         <td align="center"><?= number_format($total['sum'], 2, '.', '') ?></td>
     </tr>
     </tbody>
 </table>
-<br>
-<br>
-<br>
-<br>
+<?php if (!$isCurrentStatement) : ?>
+    <br>
+    <br>
+    <br>
+    <br>
 
-<?php $director = $organization->director->setLanguage(Language::LANGUAGE_ENGLISH); ?>
+    <?php $director = $organization->director->setLanguage(Language::LANGUAGE_ENGLISH); ?>
 
-<p>Managing <?= $director->post_nominative ?>: <?= $director->name_nominative ?></p>
-<br>
-<br>
-<table border="0">
-    <tr>
-        <td valign="bottom">Signature</td>
-        <?php if ($document->sendEmail) : ?>
-            <td>
-                <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
-                    $image_options = [
-                        'width' => 140,
-                        'border' => 0,
-                        'align' => 'top',
-                        'style' => 'position: relative; left: -160px; top: -40px;'
-                    ];
 
-                    if ($inline_img):
-                        echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
-                    else:
-                        array_walk($image_options, function (&$item, $key) {
-                            $item = $key . '="' . $item . '"';
-                        });
-                        ?>
-                        <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
+    <p>Managing <?= $director->post_nominative ?>: <?= $director->name_nominative ?></p>
+    <br>
+    <br>
+    <table border="0">
+        <tr>
+            <td valign="bottom">Signature</td>
+            <?php if ($document->sendEmail) : ?>
+                <td>
+                    <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
+                        $image_options = [
+                            'width' => 140,
+                            'border' => 0,
+                            'align' => 'top',
+                            'style' => 'position: relative; left: -160px; top: -40px;'
+                        ];
+
+                        if ($inline_img):
+                            echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
+                        else:
+                            array_walk($image_options, function (&$item, $key) {
+                                $item = $key . '="' . $item . '"';
+                            });
+                            ?>
+                            <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                        <?php endif; ?>
+                        <div style="float: left">_________________________________</div>
                     <?php endif; ?>
-                    <div style="float: left">_________________________________</div>
-                <?php endif; ?>
-            </td>
-        <?php else: ?>
-            <td>
-                _________________________________
-            </td>
+                </td>
+            <?php else: ?>
+                <td>
+                    _________________________________
+                </td>
+            <?php endif; ?>
+        </tr>
+    </table>
+
+    <?php if ($contragent->tax_registration_reason): ?>
+        <div align="right">
+            <?= $contragent->tax_registration_reason ?>
+        </div>
+    <?php endif ?>
+
+    <?php if ($document->sendEmail && MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
+        $image_options = [
+            'width' => 200,
+            'border' => 0,
+            'style' => 'position:relative; left:160; top:-200; z-index:-10; ',
+        ];
+
+        if ($inline_img):
+            echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
+        else:
+            array_walk($image_options, function (&$item, $key) {
+                $item = $key . '="' . $item . '"';
+            });
+            ?>
+            <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
         <?php endif; ?>
-    </tr>
-</table>
-
-<?php if ($contragent->tax_registration_reason): ?>
-    <div align="right">
-        <?= $contragent->tax_registration_reason ?>
-    </div>
-<?php endif?>
-
-<?php if ($document->sendEmail && MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
-    $image_options = [
-        'width' => 200,
-        'border' => 0,
-        'style' => 'position:relative; left:160; top:-200; z-index:-10; ',
-    ];
-
-    if ($inline_img):
-        echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
-    else:
-        array_walk($image_options, function (&$item, $key) {
-            $item = $key . '="' . $item . '"';
-        });
-        ?>
-        <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
     <?php endif; ?>
 <?php endif; ?>
 

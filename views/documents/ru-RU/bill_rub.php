@@ -8,6 +8,8 @@ use app\helpers\MediaFileHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 
+$isCurrentStatement = isset($isCurrentStatement) ? $isCurrentStatement : false;
+
 $hasDiscount = $document->sum_discount > 0;
 
 $currencyWithoutValue = Utils::money('', $document->getCurrency());
@@ -23,7 +25,7 @@ $payerCompany = $document->getPayer();
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-    <title>Счёт &#8470;<?= $document->bill->bill_no; ?></title>
+    <title><?= $isCurrentStatement ? 'Текущая выписка' : 'Счёт &#8470;' . $document->bill->bill_no; ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <?php if ($inline_img) : ?>
         <style type="text/css">
@@ -71,11 +73,14 @@ $payerCompany = $document->getPayer();
                     <tr>
                         <td colspan="2" align="center">
                             <?php
-                            if ($inline_img):
-                                echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
-                            else: ?>
-                                <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0"/>
-                            <?php endif; ?>
+                            if (!$isCurrentStatement) {
+                                if ($inline_img) {
+                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
+                                } else {
+                                    ?><img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>"
+                                           border="0"/><?php
+                                };
+                            } ?>
                         </td>
                     </tr>
                 </table>
@@ -85,7 +90,7 @@ $payerCompany = $document->getPayer();
 </table>
 <hr/>
 
-<center><h2>Счёт &#8470;<?= $document->bill->bill_no; ?><?php
+<center><h2><?= $isCurrentStatement ? 'Текущая выписка' : 'Счёт &#8470;' . $document->bill->bill_no; ?><?php
 
         $time = time() + (3600 * 3); // moscow TZ
         $billNo = $document->bill->bill_no;
@@ -100,13 +105,17 @@ $payerCompany = $document->getPayer();
         ) {
             $isCompleted = false;
         };
+
+        if ($isCurrentStatement) {
+            $isCompleted = false;
+        }
         ?>
-<?php if (!$isCompleted): ?>
-    <br><b style="color:red; font-size: +140%;">*** Формирование счета ещё не закончено ***</b>
-    <br><b style="color:red; ">
-        Планируемое время завершения:
-        <?= Yii::$app->formatter->asDatetime(date('Y-m-d', $time), 'php:1.m.Y') . ' ' . $hourLimit . ':00 (время московское)' ?></b>
-<?php endif; ?></h2></center>
+        <?php if (!$isCompleted && !$isCurrentStatement): ?>
+            <br><b style="color:red; font-size: +140%;">*** Формирование счета ещё не закончено ***</b>
+            <br><b style="color:red; ">
+                Планируемое время завершения:
+                <?= Yii::$app->formatter->asDatetime(date('Y-m-d', $time), 'php:1.m.Y') . ' ' . $hourLimit . ':00 (время московское)' ?></b>
+        <?php endif; ?></h2></center>
 
 
 <p align=right>Дата: <b> <?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:d.m.Y'); ?> г.</b></p>
