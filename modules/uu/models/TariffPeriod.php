@@ -299,13 +299,14 @@ class TariffPeriod extends ActiveRecord
         $chainDep = null;
 
         $checkCacheQuery1 = clone $activeQuery;
-        $checkCacheQuery2 = clone $activeQuery;
 
-        $sqlDep = $checkCacheQuery2->createCommand()->rawSql;
-
-        $key = self::tableName() . '_getList_' .md5($sqlDep);
+        $key = self::tableName() . '_getList_' . md5($checkCacheQuery1->createCommand()->rawSql);
 
         if ($firstRow = $checkCacheQuery1->one()) {
+            $checkCacheQuery2 = clone $activeQuery;
+
+            $sqlDep = $checkCacheQuery2->select(new Expression('sum(tp.' . implode('+tp.', array_keys($firstRow->getAttributes())) . ')'))->createCommand()->rawSql;
+
             $dbDep = new DbDependency(['sql' => $sqlDep]);
             $tagDep = (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST]]));
             $chainDep = (new ChainedDependency(['dependencies' => [$tagDep, $dbDep]]));
@@ -313,27 +314,27 @@ class TariffPeriod extends ActiveRecord
 
         return \Yii::$app->cache->getOrSet($key, function () use ($activeQuery, $selectboxItems, $withTariffId) {
 
-            $defaultTariffPeriodId = null;
+                $defaultTariffPeriodId = null;
 
-            /** @var TariffPeriod $tariffPeriod */
-            foreach ($activeQuery->each(self::BATCH_SIZE_READ) as $tariffPeriod) {
-                $tariff = $tariffPeriod->tariff;
-                $status = $tariff->status; // @todo надо бы заджойнить таблицу status
+                /** @var TariffPeriod $tariffPeriod */
+                foreach ($activeQuery->each(self::BATCH_SIZE_READ) as $tariffPeriod) {
+                    $tariff = $tariffPeriod->tariff;
+                    $status = $tariff->status; // @todo надо бы заджойнить таблицу status
 
-                if ($tariff->is_default && !$defaultTariffPeriodId && $status->id != TariffStatus::ID_ARCHIVE) {
-                    $defaultTariffPeriodId = $tariffPeriod->id;
+                    if ($tariff->is_default && !$defaultTariffPeriodId && $status->id != TariffStatus::ID_ARCHIVE) {
+                        $defaultTariffPeriodId = $tariffPeriod->id;
+                    }
+
+                    if (!isset($selectboxItems[$status->name])) {
+                        $selectboxItems[$status->name] = [];
+                    }
+
+                    $selectboxItems[$status->name][$tariffPeriod->id] =
+                        (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') .
+                        ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName());
                 }
-
-                if (!isset($selectboxItems[$status->name])) {
-                    $selectboxItems[$status->name] = [];
-                }
-
-                $selectboxItems[$status->name][$tariffPeriod->id] =
-                    (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') .
-                    ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName());
-            }
-            return $selectboxItems;
-        }, 3600 * 24 * 30, $chainDep);
+                return $selectboxItems;
+            }, $chainDep ? 3600 * 24 * 30 : null, $chainDep);
 
     }
 
