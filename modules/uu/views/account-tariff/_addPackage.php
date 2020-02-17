@@ -2,13 +2,15 @@
 
 use app\classes\Html;
 use app\modules\uu\models\AccountTariffLogAdd;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use kartik\form\ActiveForm;
 
 
 if (
     $filterModel->tariff_period_id <= 0 ||
-    !$accountTariffFirst = $filterModel->search()->query->one()
+    !($accountTariffFirst = $filterModel->search()->query->one())
+    || $accountTariffFirst->service_type_id != ServiceType::ID_VOIP
 ) {
     return '';
 }
@@ -38,7 +40,7 @@ $id = mt_rand(0, 1000000);
                 ->widget(\kartik\select2\Select2::class, [
                     'data' => TariffPeriod::getList(
                         $defaultTariffPeriodId,
-                        $serviceTypeId,
+                        ServiceType::ID_VOIP_PACKAGE_CALLS,
                         $clientAccount->currency,
                         $countryId,
                         $voipCountryIdTmp = null,

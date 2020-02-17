@@ -841,30 +841,54 @@ class AccountTariffController extends BaseController
 
             try {
 
-                if (isset($post['AddPackageButton'])) { // add
-                    // подключить базовый пакет
-                    $accountTariffPackage = new AccountTariff();
-                    $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
-                    $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE_CALLS;
-                    $accountTariffPackage->region_id = $accountTariff->region_id;
-                    $accountTariffPackage->city_id = $accountTariff->city_id;
-                    $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
-                    if (!$accountTariffPackage->save()) {
-                        throw new ModelValidationException($accountTariffPackage);
+                if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) { // add
+
+                    $tariffPeriodIdAdd = $post['AccountTariffLogAdd']['tariff_period_id'];
+
+                    $isAlreadyAdded = false;
+                    foreach($accountTariff->nextAccountTariffs as $package) {
+
+                        if ($package->tariff_period_id == $tariffPeriodIdAdd) {
+                            $isAlreadyAdded = true;
+                            break;
+                        }
+
+                        // в будущем
+                        $logs = $package->accountTariffLogs;
+                        $log = reset($logs);
+                        if ($log->tariff_period_id == $tariffPeriodIdAdd) {
+                            $isAlreadyAdded = true;
+                            break;
+                        }
                     }
 
-                    $accountTariffPackageLog = new AccountTariffLogAdd();
+                    if (!$isAlreadyAdded) {
+                        // подключить базовый пакет
+                        $accountTariffPackage = new AccountTariff();
+                        $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
+                        $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE_CALLS;
+                        $accountTariffPackage->region_id = $accountTariff->region_id;
+                        $accountTariffPackage->city_id = $accountTariff->city_id;
+                        $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
+                        if (!$accountTariffPackage->save()) {
+                            throw new ModelValidationException($accountTariffPackage);
+                        }
 
-                    if (!$accountTariffPackageLog->load($post)) {
-                        throw new LogicException('данные для добавления не получены');
-                    }
+                        $accountTariffPackageLog = new AccountTariffLogAdd();
 
-                    $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
-                    if (!$accountTariffPackageLog->save()) {
-                        throw new ModelValidationException($accountTariffPackageLog);
+                        if (!$accountTariffPackageLog->load($post)) {
+                            throw new LogicException('данные для добавления не получены');
+                        }
+
+                        $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
+                        if (!$accountTariffPackageLog->save()) {
+                            throw new ModelValidationException($accountTariffPackageLog);
+                        }
+                        Yii::$app->session->addFlash('success', 'К ' . $accountTariff->getLink() . ' подключен пакет-тариф: ' .
+                            Html::a(Html::encode($accountTariffPackage->getName(false)), $accountTariffPackage->getUrl()));
+                    } else {
+                        Yii::$app->session->addFlash('success', 'Подключаемый тариф-пакет уже включен: ' . $accountTariff->getLink());
                     }
-                    Yii::$app->session->addFlash('success', 'К ' . $accountTariff->getLink() . ' подключен пакет-тариф: ' .
-                        Html::a(Html::encode($accountTariffPackage->getName(false)), $accountTariffPackage->getUrl()));
                 } else { // change && close
 
                     $accountTariffLog = new AccountTariffLog;
