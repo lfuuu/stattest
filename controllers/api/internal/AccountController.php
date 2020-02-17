@@ -357,15 +357,21 @@ class AccountController extends ApiInternalController
             throw new BadRequestHttpException(reset($errors));
         }
 
-        list(, $number) = ClientContact::dao()->getE164($number);
+        list(, $numbers) = ClientContact::dao()->getE164($number);
 
-        $number = str_replace('+', '', $number);
+        if (!$numbers) {
+            return [
+                'is_found' => false
+            ];
+        }
+
+        $number = str_replace('+', '', $numbers[0]);
 
         $clientContactAccountIds = ClientContact::find()
             ->joinWith('client.clientContractModel cc', true, 'INNER JOIN')
             ->where([
                 'type' => ClientContact::$phoneTypes,
-                'data' => $number,
+                'data' => '+' . $number,
             ])
             ->andWhere(['NOT', ['cc.business_process_status_id' => ClientContract::$offBPSids]])
             ->orderBy(['client_id' => SORT_DESC])
