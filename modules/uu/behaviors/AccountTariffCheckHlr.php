@@ -3,6 +3,7 @@
 namespace app\modules\uu\behaviors;
 
 use app\classes\adapters\Tele2Adapter;
+use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -38,7 +39,11 @@ class AccountTariffCheckHlr extends Behavior
             return;
         }
 
-        if (VoipHlr::me()->isNumberBelongHlr($accountTariff->voip_number, VoipHlr::ID_TELE2)) {
+        if (
+            VoipHlr::me()->isNumberBelongHlr($accountTariff->voip_number, VoipHlr::ID_TELE2)
+            && $accountTariff->voip_numbers_warehouse_status
+            && $accountTariff->voip_numbers_warehouse_status > 0
+        ) {
 
             if ($accountTariff->number->imsi) {
                 throw new \LogicException('IMSI уже прописан у номера ' . $accountTariff->voip_number);
@@ -54,6 +59,10 @@ class AccountTariffCheckHlr extends Behavior
 
     public static function reservImsi($params)
     {
+        if (!$params['voip_numbers_warehouse_status']) {
+            throw new \LogicException('Склад не установлен');
+        }
+
         $accountTariff = AccountTariff::findOne(['id' => $params['account_tariff_id']]);
 
         if (!$accountTariff) {
