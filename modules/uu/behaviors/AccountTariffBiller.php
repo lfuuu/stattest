@@ -112,5 +112,7 @@ class AccountTariffBiller extends Behavior
 
 
         HandlerLogger::me()->add(ob_get_clean());
+
+        return $isNeedRecalc ? '+' : '-';
     }
 }

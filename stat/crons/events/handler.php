@@ -567,7 +567,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case UuModule::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
-                    AccountTariffBiller::recalc($param);
+                    $info = AccountTariffBiller::recalc($param);
                     break;
 
                 case UuModule::EVENT_RECALC_BALANCE:
