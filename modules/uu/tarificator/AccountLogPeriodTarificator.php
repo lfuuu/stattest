@@ -111,6 +111,11 @@ class AccountLogPeriodTarificator extends Tarificator
             if (!$accountLogPeriod->save()) {
                 throw new ModelValidationException($accountLogPeriod);
             }
+
+            if (abs($accountLogPeriod->price) >= 0.01) {
+                $this->isNeedRecalc = true;
+            }
+
         }
 //        ActiveRecord::batchInsertModels($modelsToSave);
 

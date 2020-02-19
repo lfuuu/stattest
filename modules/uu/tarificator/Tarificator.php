@@ -8,6 +8,7 @@ namespace app\modules\uu\tarificator;
 abstract class Tarificator
 {
     protected $isEcho = false;
+    public $isNeedRecalc = false;
 
     protected static $descriptions = [
         AccountLogSetupTarificator::class => 'Плата за подключение',

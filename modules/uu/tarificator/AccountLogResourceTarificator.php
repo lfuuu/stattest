@@ -159,16 +159,24 @@ class AccountLogResourceTarificator extends Tarificator
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceOptionPeriods();
 
         $modelsToSave = [];
+        $isNeedRecalc = false;
         /** @var AccountLogFromToResource[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $resourceId => $untarificatedPeriods) {
 
             /** @var AccountLogFromToResource $untarificatedPeriod */
             foreach ($untarificatedPeriods as $untarificatedPeriod) {
-                $modelsToSave[] = $this->getAccountLogResource($accountTariff, $untarificatedPeriod, $resourceId);
+                $model = $this->getAccountLogResource($accountTariff, $untarificatedPeriod, $resourceId);
+                if (!$isNeedRecalc && abs($model->price) >= 0.01) {
+                    $isNeedRecalc = true;
+                }
+
+                $modelsToSave[] = $model;
             }
         }
         $this->out('+ ');
         ActiveRecord::batchInsertModels($modelsToSave);
+
+        $isNeedRecalc && $this->isNeedRecalc = true;
     }
 
     /**
@@ -186,6 +194,7 @@ class AccountLogResourceTarificator extends Tarificator
 
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceTrafficPeriods();
 
+        $isNeedRecalc = false;
         $modelsToSave = [];
         /** @var AccountLogFromToTariff[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $dateYmd => $untarificatedPeriods) {
@@ -233,11 +242,18 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
                 $accountLogResource->cost_price = $amounts->costAmount * $accountLogResource->price_per_unit;
 
+                if (!$isNeedRecalc && abs($accountLogResource->price) >= 0.01) {
+                    $isNeedRecalc = true;
+                }
+
+
                 $modelsToSave[] = $accountLogResource;
             }
         }
         $this->out('+ ');
         ActiveRecord::batchInsertModels($modelsToSave);
+
+        $isNeedRecalc && $this->isNeedRecalc = true;
 
         return $isOk;
     }
