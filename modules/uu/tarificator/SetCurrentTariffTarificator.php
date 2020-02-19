@@ -395,6 +395,9 @@ SQL;
             if ($isNeedRecalc) {
                 (new AccountEntryTarificator)->tarificate($accountTariff->id);
                 (new BillTarificator)->tarificate($accountTariff->id);
+                HandlerLogger::me()->add('Balance full recalced');
+            } else {
+                HandlerLogger::me()->add('Balance recalced partially');
             }
             (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
             HandlerLogger::me()->add(ob_get_clean());
