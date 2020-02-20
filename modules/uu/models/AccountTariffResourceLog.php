@@ -221,7 +221,7 @@ class AccountTariffResourceLog extends ActiveRecord
             return;
         }
 
-        if (!$this->resource->isOption()) {
+        if (!$this->resource->isOption() && !$this->isAllowSavingInPast) {
             $this->addError($attribute, 'Этот ресурс "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" - трафик, а не опция. Его нельзя установить заранее.');
             $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_TRAFFIC;
             return;

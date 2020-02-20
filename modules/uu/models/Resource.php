@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
 use app\models\OperationType;
+use app\modules\uu\resourceReader\ApiResourceReader;
 use app\modules\uu\resourceReader\CalltrackingResourceReader;
 use app\modules\uu\resourceReader\InternetResourceReader;
 use app\modules\uu\resourceReader\NnpNumberResourceReader;
@@ -59,6 +60,7 @@ class Resource extends ActiveRecord
     const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
     const ID_VOIP_PACKAGE_SMS = 14; // Пакеты телефонии. СМС
     const ID_VOIP_PACKAGE_INTERNET_ROAMABILITY = 48; //Пакеты телефонии. Интернет. Roamability
+    const ID_API_CALL = 50; //Билингация вызовов API. Вызов метода.
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
@@ -118,12 +120,16 @@ class Resource extends ActiveRecord
 
         // Интернет. Roamobility
         self::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => InternetResourceReader::class,
+
+        //билингация вызовов API
+        self::ID_API_CALL => ApiResourceReader::class,
     ];
 
     public static $calls = [
         Resource::ID_VOIP_PACKAGE_CALLS => Resource::ID_VOIP_PACKAGE_CALLS,
         Resource::ID_TRUNK_PACKAGE_ORIG_CALLS => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
         Resource::ID_TRUNK_PACKAGE_TERM_CALLS => Resource::ID_TRUNK_PACKAGE_TERM_CALLS,
+        Resource::ID_API_CALL => Resource::ID_API_CALL,
     ];
 
     // map for operation types

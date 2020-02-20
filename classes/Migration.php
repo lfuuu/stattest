@@ -144,7 +144,7 @@ class Migration extends \yii\db\Migration
      * @param $resourceData
      * @throws ModelValidationException
      */
-    public function insertResource($serviceTypeId, $resourceId, $resourceData, $prices = [])
+    public function insertResource($serviceTypeId, $resourceId, $resourceData, $prices = [], $isOption = true)
     {
         $this->insert(Resource::tableName(), $resourceData + [
                 'id' => $resourceId,
@@ -170,7 +170,7 @@ class Migration extends \yii\db\Migration
                 continue;
             }
 
-            $price = 0;
+            $price = $isOption ? 0 : 1;
 
             if ($prices && isset($prices[$tariff->currency_id])) {
                 $price = $prices[$tariff->currency_id];
@@ -185,6 +185,10 @@ class Migration extends \yii\db\Migration
             ]);
         }
 
+        if (!$isOption) {
+            return;
+        }
+
         $query = AccountTariff::find()->where([
             'service_type_id' => $serviceTypeId,
             'tariff_period_id' => $tariffPeriods
@@ -196,19 +200,48 @@ class Migration extends \yii\db\Migration
                 continue;
             }
 
+            $actualFromStr = $accountTariff->getAccountTariffResourceLogs()->min('actual_from_utc');
+
+            if (!$actualFromStr) {
+                $actualFromStr = $accountTariff->getAccountTariffLogs()->min('actual_from_utc');
+            }
+
             $atResourceLog = new AccountTariffResourceLog();
             $atResourceLog->isAllowSavingInPast = true;
             $atResourceLog->account_tariff_id = $accountTariff->id;
             $atResourceLog->resource_id = $resourceId;
             $atResourceLog->amount = 0;
-            $atResourceLog->actual_from_utc = $accountTariff->getAccountTariffResourceLogs()->min('actual_from_utc');
+            $atResourceLog->actual_from_utc = $actualFromStr;
             $atResourceLog->sync_time = DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
             if (!$atResourceLog->save()) {
                 throw new ModelValidationException($atResourceLog);
             }
         }
-
     }
+
+    public function deleteResource($resourceId)
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $this->delete(TariffResource::tableName(), [
+                'resource_id' => $resourceId
+            ]);
+
+            $this->delete(AccountTariffResourceLog::tableName(), [
+                'resource_id' => $resourceId
+            ]);
+
+            $this->delete(Resource::tableName(), [
+                'id' => $resourceId
+            ]);
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+    }
+
 
 }
