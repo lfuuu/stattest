@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\helpers\DependecyHelper;
 use app\exceptions\ModelValidationException;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffHeap;
@@ -12,6 +13,7 @@ use app\modules\uu\models\TariffStatus;
 use yii\base\Behavior;
 use yii\base\Event;
 use app\classes\model\ActiveRecord;
+use yii\caching\TagDependency;
 use yii\db\Expression;
 
 class AccountTariffLogTimeHistory extends Behavior
@@ -54,24 +56,39 @@ class AccountTariffLogTimeHistory extends Behavior
                 // Услуга является тестовой
                 $accountTariffHeap->test_connect_date = $accountTariffLog->actual_from_utc;
             } else {
-                // Получение даты продажи
-                $dateSale = AccountTariffLog::find()
-                    ->select([
-                        'actual_from_utc' => new Expression('MIN(uatl.actual_from_utc)'),
-                    ])
-                    ->alias('uatl')
-                    ->innerJoin(['uat' => AccountTariff::tableName()], 'uatl.account_tariff_id = uat.id')
-                    ->leftJoin(['utp' => TariffPeriod::tableName()], 'uatl.tariff_period_id = utp.id')
-                    ->leftJoin(['ut' => Tariff::tableName()], 'utp.tariff_id = ut.id')
-                    ->where([
-                        'uat.client_account_id' => $accountTariff->client_account_id,
-                        'uat.prev_account_tariff_id' => null,
-                    ])
-                    ->andWhere(['AND',
-                        ['NOT', ['uatl.tariff_period_id' => null]],
-                        ['NOT', ['ut.tariff_status_id' => TariffStatus::TEST_LIST]],
-                    ])
-                    ->scalar();
+
+                $cacheKey = 'date_sale_by_account_id=' . $accountTariff->client_account_id;
+
+                // при массовых добавлениях пакетов данный запрос:
+                // а) выполняется долго (относительно) на крупных клиентах;
+                // б) всегда один и тот же результат, если уже есть данные;
+                if (\Yii::$app->cache->exists($cacheKey)) {
+                    $dateSale = \Yii::$app->cache->get($cacheKey);
+                } else {
+                    // Получение даты продажи
+                    $dateSale = AccountTariffLog::find()
+                        ->select([
+                            'actual_from_utc' => new Expression('MIN(uatl.actual_from_utc)'),
+                        ])
+                        ->alias('uatl')
+                        ->innerJoin(['uat' => AccountTariff::tableName()], 'uatl.account_tariff_id = uat.id')
+                        ->leftJoin(['utp' => TariffPeriod::tableName()], 'uatl.tariff_period_id = utp.id')
+                        ->leftJoin(['ut' => Tariff::tableName()], 'utp.tariff_id = ut.id')
+                        ->where([
+                            'uat.client_account_id' => $accountTariff->client_account_id,
+                            'uat.prev_account_tariff_id' => null,
+                        ])
+                        ->andWhere(['AND',
+                            ['NOT', ['uatl.tariff_period_id' => null]],
+                            ['NOT', ['ut.tariff_status_id' => TariffStatus::TEST_LIST]],
+                        ])
+                        ->scalar();
+
+                    if($dateSale) {
+                        \Yii::$app->cache->set($cacheKey, $dateSale, 3600 * 24 * 30 * 12, (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST]])));
+                    }
+                }
+
                 $dateSaleTime = $dateSale ? strtotime($dateSale) : null;
                 $accountTariffLogTime = strtotime($accountTariffLog->actual_from_utc);
                 // Если дата продажи по всем услугам клиента отсутствует или дата продажи + 2 недели содержит текущую дату лога

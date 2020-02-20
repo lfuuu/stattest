@@ -61,7 +61,7 @@ class AccountTariffBiller extends Behavior
             // 1. Чтобы пересчет был не по каждому ресурсу услуги, а один на всю услугу
             // 2. Костыль, чтобы обработка очереди не обгоняла сохранение
             $nextStart = DateTimeZoneHelper::getUtcDateTime()
-                ->modify('+1 minute')
+                ->modify('+10 second') // +1 minute
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT)
 
         );
