@@ -321,6 +321,7 @@ class EventQueue extends ActiveRecord
         $logs = HandlerLogger::me()->get();
         if ($logs) {
             $this->trace .= implode(PHP_EOL . PHP_EOL, $logs). PHP_EOL;
+            HandlerLogger::me()->clear();
         }
 
         $this->status = self::STATUS_OK;
@@ -359,6 +360,7 @@ class EventQueue extends ActiveRecord
             $logs = HandlerLogger::me()->get();
             if ($logs) {
                 $this->trace .= implode(PHP_EOL . PHP_EOL, $logs) . PHP_EOL;
+                HandlerLogger::me()->clear();
             }
 
             $this->trace .= $e->getFile() . ':' . $e->getLine() . ';\n ' . $e->getTraceAsString() . PHP_EOL;
