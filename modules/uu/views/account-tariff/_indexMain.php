@@ -57,6 +57,7 @@ $columns = [
         'class' => TariffPeriodColumn::class,
         'serviceTypeId' => $serviceType ? $serviceType->id : '',
         'withTariffId' => true,
+        'currency' => $filterModel->tariff_currency_id ?: null,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             return Html::encode($accountTariff->getName(false, false, true));
@@ -430,7 +431,7 @@ echo $this->render('_indexMainGroupAction', [
     'filterModel' => $filterModel,
 ]);
 
-if ($serviceType && $serviceType->id == ServiceType::ID_VOIP) {
+if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {
     echo $this->render('_addPackage', [
         'filterModel' => $filterModel,
     ]);

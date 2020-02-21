@@ -845,6 +845,10 @@ class AccountTariffController extends BaseController
 
                     $tariffPeriodIdAdd = $post['AccountTariffLogAdd']['tariff_period_id'];
 
+                    if ($accountTariff->prev_account_tariff_id) {
+                        $accountTariff = $accountTariff->prevAccountTariff;
+                    }
+
                     $isAlreadyAdded = false;
                     foreach($accountTariff->nextAccountTariffs as $package) {
 

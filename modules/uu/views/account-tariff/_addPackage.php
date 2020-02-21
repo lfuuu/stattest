@@ -10,7 +10,7 @@ use kartik\form\ActiveForm;
 if (
     $filterModel->tariff_period_id <= 0 ||
     !($accountTariffFirst = $filterModel->search()->query->one())
-    || $accountTariffFirst->service_type_id != ServiceType::ID_VOIP
+    || !in_array($accountTariffFirst->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])
 ) {
     return '';
 }
