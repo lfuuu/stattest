@@ -879,12 +879,12 @@ class AccountTariffController extends BaseController
                         }
 
                         $accountTariffPackageLog = new AccountTariffLogAdd();
+                        $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
 
                         if (!$accountTariffPackageLog->load($post)) {
                             throw new LogicException('данные для добавления не получены');
                         }
 
-                        $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
                         if (!$accountTariffPackageLog->save()) {
                             throw new ModelValidationException($accountTariffPackageLog);
                         }
