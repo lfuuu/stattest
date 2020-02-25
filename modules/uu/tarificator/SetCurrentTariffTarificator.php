@@ -84,6 +84,7 @@ SQL;
             $newTariffId = $row['new_tariff_period_id'];
 
             if (
+//                (!$row['tariff_period_id'] && $row['new_tariff_period_id'] || $row['id'] > 110000) && // только на включение
                 $accountTariff->prev_account_tariff_id
                 && ($mainAccountTariff = AccountTariff::findOne(['id' => $accountTariff->prev_account_tariff_id]))
                 && !$mainAccountTariff->tariff_period_id
@@ -356,10 +357,12 @@ SQL;
 
             // менять тариф, даже если нет денег
             // менять тариф, если стоит флаг "списывать после блокировки" не смотря ни на что
+            // включать пакет, если он "по-умолчанию"
             $this->checkBalance(
                 $accountTariff,
                 $eventType == ImportantEventsNames::UU_UPDATED
                 || $accountTariff->tariffPeriod->tariff->is_charge_after_blocking
+                || $accountTariff->tariffPeriod->tariff->is_default
             );
         }
     }
