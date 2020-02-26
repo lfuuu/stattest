@@ -57,6 +57,8 @@ class AccountTariffResourceLog extends ActiveRecord
     /** @var string Это поле только для записи в историю */
     public $user_info = '';
 
+    public $isAllowSavingInPast = false;
+
     /**
      * @return string
      */
@@ -219,7 +221,7 @@ class AccountTariffResourceLog extends ActiveRecord
             return;
         }
 
-        if (!$this->resource->isOption()) {
+        if (!$this->resource->isOption() && !$this->isAllowSavingInPast) {
             $this->addError($attribute, 'Этот ресурс "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" - трафик, а не опция. Его нельзя установить заранее.');
             $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_TRAFFIC;
             return;
@@ -254,7 +256,7 @@ class AccountTariffResourceLog extends ActiveRecord
             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if ($this->actual_from_utc < $currentDateTimeUtc) {
+        if (!$this->isAllowSavingInPast && $this->actual_from_utc < $currentDateTimeUtc) {
             $this->addError($attribute, 'Нельзя менять количество ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" задним числом.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PREV;
             return;

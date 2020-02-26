@@ -3,6 +3,7 @@
 namespace app\modules\nnp\forms\destination;
 
 use app\modules\nnp\models\Destination;
+use app\modules\nnp\models\DestinationMajor;
 use app\modules\nnp\models\PrefixDestination;
 use InvalidArgumentException;
 use yii;
@@ -80,6 +81,10 @@ abstract class Form extends \app\classes\Form
                 // префиксы (-)
                 $prefixDestination->is_addition = false;
                 $subtractionPrefixDestinations = $this->crudMultipleSelect2($this->destination->subtractionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'SubtractionPrefixDestination');
+
+                $destinationMajor = new DestinationMajor();
+                $destinationMajor->destination_id = $this->id;
+                $this->crudMultipleSelect2($this->destination->destinationMajors, $post, $destinationMajor, $fieldName = 'major_id', $formName = 'DestinationMajor');
 
                 $prefixDestinationsIntersect = array_intersect_key($additionPrefixDestinations, $subtractionPrefixDestinations);
                 if (count($prefixDestinationsIntersect)) {

@@ -259,6 +259,8 @@ class m_stats extends IModule{
         $design->assign('paidonly', $paidOnly = get_param_integer('paidonly', 0));
         $design->assign('timezone', $timezone = get_param_raw('timezone', $account->timezone_name));
         $design->assign('timezones', ReportUsageDao::me()->getTimezones($account, $usagesData['voip']));
+        $design->assign('tariffs', ReportUsageDao::me()->getTariffs($account));
+        $design->assign('tariff_id', $tariffId = get_param_raw('tariff_id', ''));
 
         list($usageIds, $regions, $isTrunk) = ReportUsageDao::me()->reportConfig($phone, $usagesData);
 
@@ -279,7 +281,8 @@ class m_stats extends IModule{
                 $direction,
                 $isFull = false,
                 $packages = [],
-                $timezone
+                $timezone,
+                $tariffId
             ))
             ) {
                 return;

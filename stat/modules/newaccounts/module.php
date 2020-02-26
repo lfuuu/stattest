@@ -812,6 +812,7 @@ class m_newaccounts extends IModule
             'telekom_to_service' => Bill::dao()->isBillNewCompany($newbill, 1, 21),
         ]);
         $design->assign('bill_is_credit_note', Bill::dao()->isBillWithCreditNote($newbill));
+        $design->assign('bill_is_one_zadatok', $bill->isOneZadatok());
 
         /*
            счет-фактура(1)-абонен.плата
@@ -1075,6 +1076,7 @@ class m_newaccounts extends IModule
         $design->assign('clientAccountVersion', $fixclient_data['account_version']);
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_ext', $bill->GetExt());
+        $design->assign('bill_ext_file', $bill->GetExtFile());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
@@ -1168,6 +1170,9 @@ class m_newaccounts extends IModule
         $vat_ext = get_param_raw("ext_vat", "");
         $ext_sum_without_vat = get_param_raw("ext_sum_without_vat", "");
 
+        $ext_file = isset($_FILES["bill_ext_file"]) ? $_FILES["bill_ext_file"] : null;
+        $ext_file_comment = get_param_raw('bill_ext_file_comment');
+
         $akt_no_ext = get_param_raw("akt_no_ext");
         $akt_date_ext = get_param_raw("akt_date_ext");
 
@@ -1209,6 +1214,10 @@ class m_newaccounts extends IModule
         $bill->SetSumWithoutVatExt($ext_sum_without_vat);
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
+
+        if ($ext_file) {
+            (new \app\classes\media\BillExtMedia($billModel))->addFile($ext_file, $ext_file_comment);
+        }
 
         $item = get_param_raw("item");
         $amount = get_param_raw("amount");
@@ -1412,6 +1421,27 @@ class m_newaccounts extends IModule
         } else {
             return $this->newaccounts_bill_list($client);
         }
+    }
+
+    function newaccounts_bill_ext_file_get($fixclient)
+    {
+        $billNo = get_param_raw('bill_no');
+
+        /** @var Bill $bill */
+        $bill = null;
+
+        if (
+            !$billNo ||
+            !($bill = Bill::find()->where(['bill_no' => $billNo])->one()) ||
+            !($extFile = $bill->extFile) ||
+            !($manager = $extFile->getMediaManager())
+        ) {
+            header('HTTP/1.1 404 Not Found');
+            exit();
+        }
+
+        $manager->getContent($extFile, true);
+
     }
 
     function newaccounts_bill_mass($fixclient)

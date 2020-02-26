@@ -18,6 +18,8 @@ class TariffPeriodColumn extends DataColumn
 
     public $withTariffId = false;
 
+    public $currency = null;
+
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -25,7 +27,7 @@ class TariffPeriodColumn extends DataColumn
         $this->filter = TariffPeriod::getList(
             $defaultTariffPeriodId,
             $this->serviceTypeId,
-            $currencyTmp = null,
+            $this->currency,
             $countryIdTmp = null,
             $voipCountryIdTmp = null,
             $cityIdTmp = null,

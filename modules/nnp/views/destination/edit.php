@@ -9,6 +9,7 @@
 use app\classes\Html;
 use app\modules\nnp\forms\destination\Form;
 use app\modules\nnp\models\Land;
+use app\modules\nnp\models\Major;
 use app\modules\nnp\models\Prefix;
 use app\modules\nnp\models\Status;
 use kartik\select2\Select2;
@@ -76,7 +77,7 @@ if (!$destination->isNewRecord) {
     <div class="row">
 
         <?php // префиксы (сложение) ?>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <label>Префиксы (+)</label>
             <?= Select2::widget([
                 'name' => 'AdditionPrefixDestination[]',
@@ -89,12 +90,25 @@ if (!$destination->isNewRecord) {
         </div>
 
         <?php // префиксы (вычитание) ?>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <label>Префиксы (-)</label>
             <?= Select2::widget([
                 'name' => 'SubtractionPrefixDestination[]',
                 'value' => array_keys((array)$destination->subtractionPrefixDestinations),
                 'data' => $prefixList,
+                'options' => [
+                    'multiple' => true,
+                ],
+            ]) ?>
+        </div>
+
+        <?php // major'ы ?>
+        <div class="col-sm-4">
+            <label>NNP-фильтры (major)</label>
+            <?= Select2::widget([
+                'name' => 'DestinationMajor[]',
+                'value' => array_keys((array)$destination->destinationMajors),
+                'data' => Major::getList(false),
                 'options' => [
                     'multiple' => true,
                 ],

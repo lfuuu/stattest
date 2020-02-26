@@ -12,6 +12,7 @@ use app\classes\Utils;
 use app\dao\BillDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\media\BillExtFiles;
 use app\modules\uu\models\Bill as uuBill;
 use app\queries\BillQuery;
 use Yii;
@@ -70,6 +71,7 @@ use yii\helpers\Url;
  * @property-read Invoice[] $invoices
  * @property-read array $document
  * @property-read Payment[] $payments
+ * @property-read BillExtFiles $extFile
  */
 class Bill extends ActiveRecord
 {
@@ -326,6 +328,11 @@ class Bill extends ActiveRecord
     public function getTrouble()
     {
         return $this->hasOne(Trouble::class, ['bill_no' => 'bill_no']);
+    }
+
+    public function getExtFile()
+    {
+        return $this->hasOne(BillExtFiles::class, ['bill_no' => 'bill_no']);
     }
 
     /**

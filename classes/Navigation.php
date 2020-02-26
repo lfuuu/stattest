@@ -81,6 +81,7 @@ class Navigation
                 ->addItem('Отчет по OnLime', ['/reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['/reports/onlime-devices-report'], ['stats.report'])
                 ->addItem('Себестоимость звонков', ['/report/voip/cost-report'], ['stats.report'])
+                ->addItem('Статистика: Вызовы-API', ['/stats/billing-api'], ['stats.r'])
         );
         $this->_addBlockForStatModule('routers');
 

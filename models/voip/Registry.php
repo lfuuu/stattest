@@ -190,7 +190,11 @@ class Registry extends ActiveRecord
      */
     public function isSourcePotability()
     {
-        return in_array($this->source, [VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE, VoipRegistrySourceEnum::OPERATOR_NOT_FOR_SALE]);
+        return in_array($this->source, [
+            VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE,
+            VoipRegistrySourceEnum::PORTABILITY_INNONET,
+            VoipRegistrySourceEnum::OPERATOR_NOT_FOR_SALE,
+        ]);
     }
 
     /**

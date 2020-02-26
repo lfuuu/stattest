@@ -2,15 +2,18 @@
 
 namespace app\dao\reports;
 
+use app\models\ClientCounter;
 use app\models\Currency;
 use app\models\UsageTrunk;
 use app\models\UsageVoip;
+use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -42,6 +45,7 @@ class ReportUsageDao extends Singleton
     const CONNECT_SLOW_AND_BIG = 2;
 
     const DETALITY_DEST = 'dest';
+    const DETALITY_PACKAGE = 'package';
     const DETALITY_CALL = 'call';
 
     const DETALITY_DAY = 'day';
@@ -70,6 +74,7 @@ class ReportUsageDao extends Singleton
      * @param bool|false $isFull
      * @param array $packages
      * @param string $timeZone
+     * @param int $tariffId
      * @return array
      */
     public function getUsageVoipStatistic(
@@ -84,7 +89,8 @@ class ReportUsageDao extends Singleton
         $direction = 'both',
         $isFull = false,
         $packages = [],
-        $timeZone = null
+        $timeZone = null,
+        $tariffId = null
     )
     {
         $this->_account = ClientAccount::findOne(['id' => $accountId]);
@@ -166,8 +172,11 @@ class ReportUsageDao extends Singleton
             case self::DETALITY_DEST:
                 return $this->_voipStatisticByDestination($query, $from, $to);
                 break;
+            case self::DETALITY_PACKAGE:
+                return $this->_voipStatisticByPackage($query, $from, $to, $tariffId);
+                break;
             default:
-                return $this->_voipStatistic($query, $from, $to, $packages, $detality, $paidonly);
+                return $this->_voipStatistic($query, $from, $to, $packages, $detality, $paidonly, $tariffId);
                 break;
         }
     }
@@ -201,6 +210,7 @@ class ReportUsageDao extends Singleton
      * @param array $packages
      * @param string $detality
      * @param int $paidOnly
+     * @param int $tariffId
      * @return array
      * @throws \Exception
      */
@@ -210,13 +220,19 @@ class ReportUsageDao extends Singleton
         DateTime $to,
         $packages = [],
         $detality = '',
-        $paidOnly = 0
+        $paidOnly = 0,
+        $tariffId = null
     )
     {
         $offset = $from->getOffset();
 
         if (isset($packages) && count($packages) > 0) {
             $query->andWhere(['in', 'cr.service_package_id', $packages]);
+        }
+
+        if ($tariffId) {
+            $query->leftJoin(['l' => AccountTariffLight::tableName()], 'l.id = cr.account_tariff_light_id');
+            $query->andWhere(['l.tariff_id' => $tariffId]);
         }
 
         switch ($detality) {
@@ -229,12 +245,16 @@ class ReportUsageDao extends Singleton
                 ]);
                 break;
             }
-            default: {
+            case self::DETALITY_CALL: {
                 $groupBy = '';
                 $query->addSelect([
                     'ts1' => new Expression("cr.connect_time + '" . $offset . " second'::interval"),
                 ]);
                 break;
+            }
+
+            default: {
+                throw new \LogicException('Impossible call parameter');
             }
         }
 
@@ -669,6 +689,84 @@ class ReportUsageDao extends Singleton
     }
 
     /**
+     * Вспомогательная функция. Статистика по пакетам
+     *
+     * @param ActiveQuery $query
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param int $tariffId
+     * @return array
+     */
+    private function _voipStatisticByPackage(ActiveQuery $query, DateTime $from, DateTime $to, $tariffId = null)
+    {
+        $query->leftJoin(['l' => AccountTariffLight::tableName()], 'l.id = cr.account_tariff_light_id');
+
+        $query->select([
+            'price' => '-SUM(cr.cost)',
+            'len' => 'SUM(cr.billed_time)',
+            'cnt' => 'SUM(1)'
+        ]);
+        $query->addSelect(['l.tariff_id', 'l.account_package_id']);
+
+        $query->groupBy(['l.tariff_id', 'l.account_package_id']);
+        $query->orderBy(['l.account_package_id' => SORT_ASC, 'l.tariff_id' => SORT_ASC]);
+
+        $tariffId && $query->andWhere(['l.tariff_id' => $tariffId]);
+
+        $result = [];
+
+        $callBackRecordProcessing = function ($record) use (&$result) {
+            static $cache = ['' => '---- Бесплатные вызовы ----'];
+
+            if (!isset($cache[$record['tariff_id']])) {
+                $cache[$record['tariff_id']] = Tariff::find()->where(['id' => $record['tariff_id']])->select(['name'])->scalar();
+            }
+
+            $record['tsf1'] = $cache[$record['tariff_id']];
+            $result[] = $record;
+        };
+
+        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_DEST);
+
+        $cnt = 0;
+        $len = 0;
+        $price = 0;
+        foreach ($result as &$data) {
+            $cnt += $data['cnt'];
+            $len += $data['len'];
+            $price += $data['price'];
+
+            $delta = 0;
+            if ($data['len'] >= 24 * 60 * 60) {
+                $delta = floor($data['len'] / (24 * 60 * 60));
+            }
+
+            $data['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s',
+                    $data['len'] - $delta * 24 * 60 * 60);
+            $data['price'] = number_format($data['price'], 2, '.', '');
+        }
+
+        $delta = 0;
+        $total_row = [
+            'is_total' => true,
+            'tsf1' => 'Итого',
+            'price' => $price,
+            'cnt' => $cnt,
+        ];
+
+        if ($len >= 24 * 60 * 60) {
+            $delta = floor($len / (24 * 60 * 60));
+        }
+
+        $total_row['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s', $len - $delta * 24 * 60 * 60);
+        $total_row = $this->_getTotalPrices($total_row);
+
+        $result['total'] = $total_row;
+
+        return $result;
+    }
+
+    /**
      * Формирование итоговых значений
      *
      * @param array $row
@@ -890,6 +988,22 @@ class ReportUsageDao extends Singleton
         }
 
         return array_keys($timezones);
+    }
+
+    public function getTariffs(ClientAccount $account)
+    {
+        return AccountTariff::find()
+            ->alias('at')
+            ->where([
+                'at.client_account_id' => $account->id,
+                'at.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS
+            ])
+            ->joinWith('accountTariffLogs.tariffPeriod.tariff t', false, 'INNER JOIN')
+            ->select(['t.name', 't.id'])
+            ->indexBy('id')
+            ->orderBy(['t.name' => SORT_ASC])
+            ->asArray()
+            ->column();
     }
 
     /**

@@ -45,6 +45,9 @@ use yii\web\Response;
  * @property-read InvoiceLine[] $lines
  * @property-read Organization $organization
  * @property-read Bill $correctionBill
+ *
+ * @property-read float $currencyRates
+ * @property-read float $currencyRatesInEuro
  */
 class Invoice extends ActiveRecord
 {
@@ -126,6 +129,46 @@ class Invoice extends ActiveRecord
     public function getCorrectionBill()
     {
         return $this->hasOne(Bill::class, ['id' => 'correction_bill_id']);
+    }
+
+    public function getCurrencyRate()
+    {
+        return $this->hasMany(CurrencyRate::class, ['date' => 'date']);
+    }
+
+    /**
+     * @return float
+     */
+    public static function getCurrencyRates($date, $currency = null)
+    {
+        static $cache = [];
+
+        if (!isset($cache[$date])) {
+            $cache[$date] = CurrencyRate::find()
+                ->where([
+                    'date' => $date,
+                ])
+                ->select('rate')
+                ->indexBy('currency')
+                ->column();
+        }
+
+        $rates = $cache[$date];
+
+        if ($currency) {
+            return isset($rates[$currency]) ? $rates[$currency] : false;
+        }
+
+        return $rates;
+    }
+
+    public function getCurrencyRateToEuro()
+    {
+        $bill = $this->bill;
+        $origCurrency = $bill->currency;
+        $billDate = $bill->bill_date;
+
+        return self::getCurrencyRates($billDate, $origCurrency) / self::getCurrencyRates($billDate, Currency::EUR);
     }
 
     /**

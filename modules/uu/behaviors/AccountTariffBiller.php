@@ -61,7 +61,7 @@ class AccountTariffBiller extends Behavior
             // 1. Чтобы пересчет был не по каждому ресурсу услуги, а один на всю услугу
             // 2. Костыль, чтобы обработка очереди не обгоняла сохранение
             $nextStart = DateTimeZoneHelper::getUtcDateTime()
-                ->modify('+1 minute')
+                ->modify('+10 second') // +1 minute
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT)
 
         );
@@ -82,17 +82,37 @@ class AccountTariffBiller extends Behavior
         $accountTariffId = $params['account_tariff_id'];
         $clientAccountId = $params['client_account_id'];
 
+        $isNeedRecalc = false;
+
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
         (new SyncResourceTarificator())->tarificate($accountTariffId);
-        (new AccountLogSetupTarificator)->tarificate($accountTariffId);
-        (new AccountLogPeriodTarificator)->tarificate($accountTariffId);
-        (new AccountLogResourceTarificator)->tarificate($accountTariffId);
-        (new AccountLogMinTarificator)->tarificate($accountTariffId);
-        (new AccountEntryTarificator)->tarificate($accountTariffId);
-        (new BillTarificator)->tarificate($accountTariffId);
-        // (new BillConverterTarificator)->tarificate($clientAccountId); // это не обязательно делать в реалтайме. По крону вполне сойдет
+
+        $tarificator = (new AccountLogSetupTarificator);
+        $tarificator->tarificate($accountTariffId);
+        $tarificator->isNeedRecalc && $isNeedRecalc = true;
+
+        $tarificator = (new AccountLogPeriodTarificator);
+        $tarificator->tarificate($accountTariffId);
+        $tarificator->isNeedRecalc && $isNeedRecalc = true;
+
+        $tarificator = (new AccountLogResourceTarificator);
+        $tarificator->tarificate($accountTariffId);
+        $tarificator->isNeedRecalc && $isNeedRecalc = true;
+
+        $tarificator = (new AccountLogMinTarificator);
+        $tarificator->tarificate($accountTariffId);
+        $tarificator->isNeedRecalc && $isNeedRecalc = true;
+
+        if ($isNeedRecalc) {
+            (new AccountEntryTarificator)->tarificate($accountTariffId);
+            (new BillTarificator)->tarificate($accountTariffId);
+//         (new BillConverterTarificator)->tarificate($clientAccountId); // это не обязательно делать в реалтайме. По крону вполне сойдет
+        }
         (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
 
+
         HandlerLogger::me()->add(ob_get_clean());
+
+        return $isNeedRecalc ? '+' : '-';
     }
 }

@@ -66,7 +66,7 @@
         </small>
     </td>
 {else}
-    <TD>{$item.tsf1}</TD>
+    <TD>{if isset($item.account_package_id)}<a href="/uu/account-tariff/edit?id={$item.account_package_id}" target="_blank">{$item.tsf1}</a>{else}{$item.tsf1}{/if}</TD>
     <TD>{$item.cnt}</TD>
     <TD><b>{$item.tsf2}</b></TD>
     <TD>{$item.price}</TD>

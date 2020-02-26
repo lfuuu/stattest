@@ -75,6 +75,8 @@ class UbillerController extends Controller
      */
     public function actionIndex()
     {
+        ini_set('memory_limit', '5G');
+
         // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
         // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
         // обязательно это вызывать до транзакций (чтобы они правильно посчитали)

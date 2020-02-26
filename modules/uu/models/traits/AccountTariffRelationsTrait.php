@@ -43,8 +43,8 @@ use yii\db\Expression;
  * @property-read TariffPeriod $tariffPeriod
  * @property-read Datacenter $datacenter
  * @property-read UsageTrunk $usageTrunk
- * @property-read  AccountTariffHeap $accountTariffHeap
- * @property-read  AccountTrouble[] $accountTroubles
+ * @property-read AccountTariffHeap $accountTariffHeap
+ * @property-read AccountTrouble[] $accountTroubles
  *
  * @property-read AccountLogSetup[] $accountLogSetups
  * @property-read AccountLogPeriod[] $accountLogPeriods

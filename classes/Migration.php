@@ -2,8 +2,15 @@
 
 namespace app\classes;
 
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\models\UserGrantGroups;
 use app\models\UserRight;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Resource;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffResource;
 use yii\console\Exception;
 
 class Migration extends \yii\db\Migration
@@ -127,4 +134,114 @@ class Migration extends \yii\db\Migration
             'resource' => $resource,
         ]);
     }
+
+
+    /**
+     * Добавляем новый ресурс в У-услугу
+     *
+     * @param $serviceTypeId
+     * @param $resourceId
+     * @param $resourceData
+     * @throws ModelValidationException
+     */
+    public function insertResource($serviceTypeId, $resourceId, $resourceData, $prices = [], $isOption = true)
+    {
+        $this->insert(Resource::tableName(), $resourceData + [
+                'id' => $resourceId,
+                'service_type_id' => $serviceTypeId,
+            ]);
+
+        $tariffQuery = Tariff::find()->where([
+            'service_type_id' => $serviceTypeId,
+        ]);
+
+        $tariffPeriods = [];
+        /** @var Tariff $tariff */
+        foreach ($tariffQuery->each() as $tariff) {
+            $tariffPeriods = array_merge($tariffPeriods, array_map(
+                function ($tariffPeriod) {
+                    return $tariffPeriod->id;
+                },
+                $tariff->tariffPeriods
+            ));
+
+            if ($tariff->getTariffResource($resourceId)->exists()) {
+                // already
+                continue;
+            }
+
+            $price = $isOption ? 0 : 1;
+
+            if ($prices && isset($prices[$tariff->currency_id])) {
+                $price = $prices[$tariff->currency_id];
+            }
+
+            $this->insert(TariffResource::tableName(), [
+                'amount' => 0,
+                'price_per_unit' => $price,
+                'price_min' => 0,
+                'resource_id' => $resourceId,
+                'tariff_id' => $tariff->id,
+            ]);
+        }
+
+        if (!$isOption) {
+            return;
+        }
+
+        $query = AccountTariff::find()->where([
+            'service_type_id' => $serviceTypeId,
+            'tariff_period_id' => $tariffPeriods
+        ]);
+
+        /** @var AccountTariff $accountTariff */
+        foreach ($query->each() as $accountTariff) {
+            if ($accountTariff->getAccountTariffResourceLogsAll()->where(['resource_id' => $resourceId])->exists()) {
+                continue;
+            }
+
+            $actualFromStr = $accountTariff->getAccountTariffResourceLogs()->min('actual_from_utc');
+
+            if (!$actualFromStr) {
+                $actualFromStr = $accountTariff->getAccountTariffLogs()->min('actual_from_utc');
+            }
+
+            $atResourceLog = new AccountTariffResourceLog();
+            $atResourceLog->isAllowSavingInPast = true;
+            $atResourceLog->account_tariff_id = $accountTariff->id;
+            $atResourceLog->resource_id = $resourceId;
+            $atResourceLog->amount = 0;
+            $atResourceLog->actual_from_utc = $actualFromStr;
+            $atResourceLog->sync_time = DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+            if (!$atResourceLog->save()) {
+                throw new ModelValidationException($atResourceLog);
+            }
+        }
+    }
+
+    public function deleteResource($resourceId)
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $this->delete(TariffResource::tableName(), [
+                'resource_id' => $resourceId
+            ]);
+
+            $this->delete(AccountTariffResourceLog::tableName(), [
+                'resource_id' => $resourceId
+            ]);
+
+            $this->delete(Resource::tableName(), [
+                'id' => $resourceId
+            ]);
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+    }
+
+
 }

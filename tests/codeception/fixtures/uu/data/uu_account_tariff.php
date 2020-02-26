@@ -8,6 +8,7 @@ use tests\codeception\unit\models\_ClientAccount;
 
 $account = _ClientAccount::createOne();
 $account->account_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
+$account->credit = 100501;
 $account->save();
 
 return [

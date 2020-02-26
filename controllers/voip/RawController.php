@@ -319,6 +319,8 @@ class RawController extends BaseController
             Yii::$app->session->addFlash('error', 'Неизвестная ошибка: ' . $e->getMessage());
         }
 
+        \Yii::$app->session->close();
+
         return $this->render('index', [
             'filterModel' => $model,
         ]);

@@ -53,6 +53,10 @@ class BalanceSellToExcelEu extends Excel
             \PHPExcel_Cell_DataType::TYPE_NUMERIC,
             \PHPExcel_Cell_DataType::TYPE_NUMERIC,
             \PHPExcel_Cell_DataType::TYPE_STRING,
+            \PHPExcel_Cell_DataType::TYPE_NUMERIC,
+            \PHPExcel_Cell_DataType::TYPE_NUMERIC,
+            \PHPExcel_Cell_DataType::TYPE_NUMERIC,
+            \PHPExcel_Cell_DataType::TYPE_NUMERIC,
             \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_STRING
@@ -83,6 +87,15 @@ class BalanceSellToExcelEu extends Excel
 
             $contragent = $contract->contragent;
 
+            $rate = $invoice->getCurrencyRateToEuro();
+
+            $inEuro = [
+                'rate' => $rate,
+                'total' => $invoice->sum * $rate,
+                'vat' => $invoice->sum_tax * $rate,
+                'net' => $invoice->sum_without_tax * $rate,
+            ];
+
             $data[] = [
                 (new DateTime($bill->bill_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 $account->id,
@@ -99,6 +112,12 @@ class BalanceSellToExcelEu extends Excel
                 $invoice->sum_tax,
                 $invoice->sum_without_tax,
                 $account->getTaxRate($bill->bill_date) . '%',
+
+                $inEuro['rate'],
+                $inEuro['net'],
+                $inEuro['vat'],
+                $inEuro['total'],
+
                 $contragent->inn_euro,
                 $contragent->inn,
                 \Yii::$app->params['SITE_URL']. Url::to([

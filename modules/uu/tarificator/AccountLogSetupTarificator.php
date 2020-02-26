@@ -73,8 +73,13 @@ class AccountLogSetupTarificator extends Tarificator
         /** @var AccountLogFromToTariff $untarificatedPeriod */
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogSetup = $this->getAccountLogSetup($accountTariff, $untarificatedPeriod);
+
             if (!$accountLogSetup->save()) {
                 throw new ModelValidationException($accountLogSetup);
+            }
+
+            if (abs($accountLogSetup->price) >= 0.01) {
+                $this->isNeedRecalc = true;
             }
         }
     }

@@ -60,11 +60,41 @@ class CardController extends BaseController
      */
     public function actionIndex()
     {
+        $account = $this->getFixClient();
+
+        $getData = Yii::$app->request->post();
+
+        if ($account && Yii::$app->request->isGet) {
+            if (!isset($getData['CardFilter']['client_account_id']) || !$getData['CardFilter']['client_account_id']) {
+                $getData['CardFilter']['client_account_id'] = $account->id;
+            }
+        }
+
         $filterModel = new CardFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $filterModel->load($getData);
+
+        $cardIccids = [];
+        if (isset($getData['cardIccids']) && $getData['cardIccids'] && is_array($getData['cardIccids'])) {
+            $cardIccids = $getData['cardIccids'];
+        }
+
+        if ($cardIccids) {
+            if (isset($getData['set-status']) && isset($getData['status']) && $getData['status']) {
+                $filterModel->actionSetStatus($cardIccids, $getData['status']);
+            } elseif (isset($getData['set-link']) && $account) {
+                $filterModel->actionSetLink($cardIccids, $account->id);
+            } elseif (isset($getData['set-unlink'])) {
+                $filterModel->actionSetUnLink($cardIccids);
+            }
+        }
+
+
+
+        \Yii::$app->session->close();
 
         return $this->render('index', [
             'filterModel' => $filterModel,
+            'account' => $account,
         ]);
     }
 

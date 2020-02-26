@@ -63,7 +63,7 @@ class InvoiceDao extends Singleton
                 return $invoice && !$invoice->number;
 
             case self::ACTION_REGISTER:
-                return $invoice && !$invoice->number && $invoice->sum > 0;
+                return $invoice && !$invoice->number && $invoice->sum >= 0;
 
             case self::ACTION_STORNO:
                 return $invoice && $invoice->number && !$invoice->is_reversal;

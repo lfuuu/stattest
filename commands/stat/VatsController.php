@@ -85,9 +85,10 @@ class VatsController extends Controller
         $this->stdout('Скрипт сбора статистики по ВАТС.', Console::BOLD);
         $this->stdout("\n\n");
 
-        while ($periodStart <= $periodEnd) {
-            $this->_setDayStatistic($this->_getDayStatistic($periodStart), $periodStart);
-            $periodStart->modify('+1 day');
+        $date = clone $periodStart;
+        while ($date <= $periodEnd) {
+            $this->_setDayStatistic($this->_getDayStatistic($date), $date);
+            $date->modify('+1 day');
         }
     }
 
@@ -98,8 +99,10 @@ class VatsController extends Controller
     private function _getDayStatistic(DateTime $date)
     {
         try {
+            $requestDate = clone $date;
+            $requestDate->modify('+1 day');
 
-            return ApiVpbx::me()->getResourceUsagePerDay($date);
+            return ApiVpbx::me()->getResourceUsagePerDay($requestDate);
 
         } catch (\Exception $e) {
             if ($e->getCode() != 540) {
@@ -113,17 +116,11 @@ class VatsController extends Controller
     /**
      * @param array $list
      * @param DateTime $date
+     * @internal param DateTime $startDate
      */
     private function _setDayStatistic($list, $date)
     {
-        if ($date->format(DateTimeZoneHelper::DATE_FORMAT) > self::DATE1) {
-            $localDate = clone $date;
-            $localDate->modify('-1 day');
-        } else {
-            $localDate = $date;
-        }
-
-        $day = $localDate->format(DateTimeZoneHelper::DATE_FORMAT);
+        $day = $date->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $insert = [];
 

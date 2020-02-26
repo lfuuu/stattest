@@ -103,6 +103,22 @@ $columns = [
             return implode('<br />', $htmlArray);
         },
     ],
+    [
+        'label' => 'NNP-фильтры (major)',
+        'attribute' => 'majors',
+        'class' => PrefixColumn::class,
+        'isAddLink' => false,
+        'format' => 'html',
+        'value' => function (Destination $destination) {
+            $htmlArray = [];
+            /** @var \app\modules\nnp\models\DestinationMajor $dstMajor */
+            foreach ($destination->destinationMajors as $dstMajor) {
+                $htmlArray[] = Html::a($dstMajor->major, 'http://voiprouting.mcn.ru/billing', ['target' => '_blank']);
+            }
+
+            return implode('<br />', $htmlArray);
+        },
+    ],
 
     [
         'label' => 'Префиксы номеров',

@@ -92,7 +92,9 @@ class SimController extends ApiInternalController
      *   @SWG\Property(property = "is_anti_cli", type = "integer", description = "Анти-АОН"),
      *   @SWG\Property(property = "is_roaming", type = "integer", description = "Роуминг"),
      *   @SWG\Property(property = "is_active", type = "integer", description = "Вкл."),
+     *   @SWG\Property(property = "is_default", type = "integer", description = "По-умолчанию"),
      *   @SWG\Property(property = "status", type = "object", description = "Статус", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "profile", type = "object", description = "Статус", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "actual_from", type = "string", description = "Действует с")
      * ),
      *
@@ -112,7 +114,9 @@ class SimController extends ApiInternalController
      */
     public function actionGetCards($client_account_id)
     {
-        $query = Card::find()->where(['client_account_id' => $client_account_id]);
+        $query = Card::find()
+            ->where(['client_account_id' => $client_account_id])
+            ->with('status', 'imsies', 'imsies.profile', 'imsies.status');
         $result = [];
         foreach ($query->each() as $model) {
             $result[] = $this->_simCardRecord($model);
@@ -128,8 +132,8 @@ class SimController extends ApiInternalController
     private function _simCardRecord(Card $card)
     {
         return [
-            'iccid' => $card->iccid,
-            'imei' => $card->imei,
+            'iccid' => (string)$card->iccid,
+            'imei' => (string)$card->imei,
             'is_active' => $card->is_active,
             'status' => $this->_getIdNameRecord($card->status),
             'imsies' => $this->_simImsiesRecord($card->imsies),
@@ -145,13 +149,15 @@ class SimController extends ApiInternalController
         $records = [];
         foreach ($imsies as $imsi) {
             $records[] = [
-                'imsi' => $imsi->imsi,
-                'msisdn' => $imsi->msisdn,
-                'did' => $imsi->did,
+                'imsi' => (string)$imsi->imsi,
+                'msisdn' => (string)$imsi->msisdn,
+                'did' => (string)$imsi->did,
                 'is_anti_cli' => $imsi->is_anti_cli,
                 'is_roaming' => $imsi->is_roaming,
                 'is_active' => $imsi->is_active,
+                'is_default' => $imsi->is_default,
                 'status' => $this->_getIdNameRecord($imsi->status),
+                'profile' => $this->_getIdNameRecord($imsi->profile),
                 'actual_from' => $imsi->actual_from,
             ];
         }
@@ -165,10 +171,12 @@ class SimController extends ApiInternalController
      *   @SWG\Parameter(name = "iccid", type = "integer", description = "ICCID", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "imsi", type = "integer", description = "IMSI", in = "query", required = true, default = ""),
      *
-     *   @SWG\Parameter(name = "did", type = "integer", description = "Новое значение DID", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "did", type = "integer", description = "Новое значение DID (пустое значегние - NULL)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "msisdn", type = "integer", description = "Новое значение MSISDN (пустое значегние - NULL)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_anti_cli", type = "integer", description = "Новое значение Анти-АОН", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_roaming", type = "integer", description = "Новое значение Роуминг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_active", type = "integer", description = "Новое значение Вкл.", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "is_default", type = "integer", description = "По-умолчанию", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "SIM-карта отредактирована",
      *     @SWG\Schema(type = "boolean", description = "true - успешно")
@@ -201,6 +209,10 @@ class SimController extends ApiInternalController
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
+
+            $post = array_map(function ($value) {
+                return $value == 'NULL' || $value == '' ? NULL : $value;
+            }, $post);
 
             $imsiObject->setAttributes($post);
             if (!$imsiObject->save()) {

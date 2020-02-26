@@ -26,6 +26,8 @@ use yii\helpers\ArrayHelper;
  * @property string $event
  * @property int $source_id
  * @property int $from_ip
+ * @property string $remote_ip
+ * @property string $login
  * @property string $comment
  * @property string $context - JSON formatted
  *
@@ -99,6 +101,9 @@ class ImportantEvents extends ActiveRecord
             'source_id' => 'Источник',
             'comment' => 'Комментарий',
             'tags_filter' => 'Метки',
+            'remote_ip' => 'IP клиента',
+            'ip' => 'IP источника',
+            'login' => 'Login входа в ЛК'
         ];
     }
 
@@ -147,6 +152,16 @@ class ImportantEvents extends ActiveRecord
 
         if ((int)$event->client_id) {
             $data['balance'] = $event->getBalance();
+        }
+
+        if ($eventType == ImportantEventsNames::CLIENT_LOGGED_IN && isset($data['is_support']) && !$data['is_support']) {
+            if (isset($data['login']) && $data['login']) {
+                $event->login = $data['login'];
+            }
+
+            if (isset($data['REMOTE_ADDR']) && $data['REMOTE_ADDR']) {
+                $event->remote_ip = $data['REMOTE_ADDR'];
+            }
         }
 
         $event->context = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

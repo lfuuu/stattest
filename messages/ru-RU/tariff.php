@@ -27,5 +27,6 @@ return [
     'Tariff log' => 'Лог тарифов',
     'Change tariff' => 'Сменить тариф',
     'Close tariff' => 'Отключить услугу',
+    'Add Package' => 'Подключить тариф-пакет',
     'Are you sure you want to close this tariff?' => 'Действительно отключить услугу?',
 ];

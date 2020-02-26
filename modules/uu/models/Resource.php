@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
 use app\models\OperationType;
+use app\modules\uu\resourceReader\ApiResourceReader;
 use app\modules\uu\resourceReader\CalltrackingResourceReader;
 use app\modules\uu\resourceReader\InternetResourceReader;
 use app\modules\uu\resourceReader\NnpNumberResourceReader;
@@ -47,6 +48,9 @@ class Resource extends ActiveRecord
     const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
     const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
     const ID_VPBX_SUB_ACCOUNT = 39; // ВАТС. Лимиты по субсчетам
+    const ID_VPBX_VOICE_ASSISTANT = 51; // ВАТС. Голосовой помощник
+    const ID_VPBX_ROBOT_CONTROLLER = 52; // ВАТС. Робот-контролер
+
 
     const ID_VOIP_LINE = 7; // Телефония. Линия
     const ID_VOIP_FMC = 38; // Телефония. FMC
@@ -56,6 +60,7 @@ class Resource extends ActiveRecord
     const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
     const ID_VOIP_PACKAGE_SMS = 14; // Пакеты телефонии. СМС
     const ID_VOIP_PACKAGE_INTERNET_ROAMABILITY = 48; //Пакеты телефонии. Интернет. Roamability
+    const ID_API_CALL = 50; //Билингация вызовов API. Вызов метода.
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
@@ -115,12 +120,16 @@ class Resource extends ActiveRecord
 
         // Интернет. Roamobility
         self::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => InternetResourceReader::class,
+
+        //билингация вызовов API
+        self::ID_API_CALL => ApiResourceReader::class,
     ];
 
     public static $calls = [
         Resource::ID_VOIP_PACKAGE_CALLS => Resource::ID_VOIP_PACKAGE_CALLS,
         Resource::ID_TRUNK_PACKAGE_ORIG_CALLS => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
         Resource::ID_TRUNK_PACKAGE_TERM_CALLS => Resource::ID_TRUNK_PACKAGE_TERM_CALLS,
+        Resource::ID_API_CALL => Resource::ID_API_CALL,
     ];
 
     // map for operation types

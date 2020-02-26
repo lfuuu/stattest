@@ -130,6 +130,9 @@ class ApiVpbx extends Singleton
                 'enable_geo' => $tariff['enable_geo'],
                 'enable_min_price' => $tariff['enable_min_price'],
                 'enable_sub_accounts' => $tariff['enable_sub_accounts'],
+                'voice_assistant' => isset($tariff['voice_assistant']) ? $tariff['voice_assistant'] : 0,
+                'robot_controller' => isset($tariff['robot_controller']) ? $tariff['robot_controller'] : 0,
+
             ]
         );
     }
@@ -290,6 +293,8 @@ class ApiVpbx extends Singleton
                 'enable_geo' => $tariff['enable_geo'],
                 'enable_min_price' => $tariff['enable_min_price'],
                 'enable_sub_accounts' => $tariff['enable_sub_accounts'],
+                'voice_assistant' => isset($tariff['voice_assistant']) ? $tariff['voice_assistant'] : 0,
+                'robot_controller' => isset($tariff['robot_controller']) ? $tariff['robot_controller'] : 0,
             ]
         );
     }
@@ -458,6 +463,8 @@ SQL;
             'enable_geo' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_GEO_ROUTE),
             'enable_min_price' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_MIN_ROUTE),
             'enable_sub_accounts' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_SUB_ACCOUNT),
+            'voice_assistant' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_VOICE_ASSISTANT),
+            'robot_controller' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_ROBOT_CONTROLLER),
         ];
     }
 }

@@ -567,7 +567,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case UuModule::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
-                    AccountTariffBiller::recalc($param);
+                    $info = AccountTariffBiller::recalc($param);
                     break;
 
                 case UuModule::EVENT_RECALC_BALANCE:
@@ -868,9 +868,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case ClientChangedAmqAdapter::EVENT:
+                    /*
                     $info = $isClientChangedServer
                         ? ClientChangedAmqAdapter::me()->process($param)
                         : EventQueue::API_IS_SWITCHED_OFF;
+                    */
                     break;
 
                 // --------------------------------------------
@@ -890,9 +892,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $message . ' in ' . $e->getFile() . ' +' . $e->getLine();
 
+            // завершение задачи, в зависимости от ошибки
             if (
                 ($event->event == AtolModule::EVENT_SEND && strpos($message, 'Не указаны контакты клиента') !== false)
                 || ($event->event == EventQueue::CORE_CREATE_OWNER && $e->getCode() == 503 /* Пользователь с таким email существует */)
+                || ($event->event == EventQueue::INVOICE_GENERATE_PDF && strpos($message, 'Content is not PDF') !== false)
             ) {
                 $event->setOk('[-] ' . $e->getCode() . ': ' . $message);
             } else {

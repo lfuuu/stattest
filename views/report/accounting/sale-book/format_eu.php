@@ -21,10 +21,17 @@
         <td>If storno, Original INVOICE number</td>
         <td>Due date</td>
         <td>Total</td>
+
         <td>Currency</td>
         <td>VAT total</td>
         <td>Net</td>
         <td>VAT %</td>
+
+        <td>Exchange rate (Euro)</td>
+        <td>Net (Euro)</td>
+        <td>VAT (Euro)</td>
+        <td>Total (Euro)</td>
+
         <td>EU VAT №</td>
         <td>Local VAT №</td>
         <td>Link to invoice (internal)</td>
@@ -66,6 +73,16 @@
                 $sum_without_tax = $invoice->sum_without_tax;
                 $sum_tax = $invoice->sum_tax;
 
+                $rate = $invoice->getCurrencyRateToEuro();
+
+                $inEuro = [
+                    'rate' => $rate,
+                    'total' => $invoice->sum * $rate,
+                    'vat' => $invoice->sum_tax * $rate,
+                    'net' => $invoice->sum_without_tax * $rate,
+                ];
+
+
             } catch (Exception $e) {
                 Yii::$app->session->addFlash('error', $e->getMessage());
                 continue;
@@ -94,6 +111,12 @@
                 <td><?= $printSum($invoice->sum_tax) ?></td>
                 <td><?= $printSum($invoice->sum_without_tax) ?></td>
                 <td><?= $taxRate ?>%</td>
+
+                <td><?= $printSum($inEuro['rate'], 6) ?> </td>
+                <td><?= $printSum($inEuro['net']) ?> </td>
+                <td><?= $printSum($inEuro['vat']) ?> </td>
+                <td><?= $printSum($inEuro['total']) ?> </td>
+
                 <td nowrap><?= $contragent->inn_euro ?></td>
                 <td nowrap><?= $contragent->inn ?></td>
                 <td nowrap=""><?= Html::a($account->id . '-' . $invoice->number . '.pdf', [
