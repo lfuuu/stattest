@@ -171,7 +171,8 @@ class SimController extends ApiInternalController
      *   @SWG\Parameter(name = "iccid", type = "integer", description = "ICCID", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "imsi", type = "integer", description = "IMSI", in = "query", required = true, default = ""),
      *
-     *   @SWG\Parameter(name = "did", type = "integer", description = "Новое значение DID", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "did", type = "integer", description = "Новое значение DID (пустое значегние - NULL)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "msisdn", type = "integer", description = "Новое значение MSISDN (пустое значегние - NULL)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_anti_cli", type = "integer", description = "Новое значение Анти-АОН", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_roaming", type = "integer", description = "Новое значение Роуминг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_active", type = "integer", description = "Новое значение Вкл.", in = "formData", default = ""),
@@ -208,6 +209,10 @@ class SimController extends ApiInternalController
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
+
+            $post = array_map(function ($value) {
+                return $value == 'NULL' || $value == '' ? NULL : $value;
+            }, $post);
 
             $imsiObject->setAttributes($post);
             if (!$imsiObject->save()) {
