@@ -4,6 +4,7 @@ namespace app\modules\sbisTenzor\controllers;
 
 use app\classes\BaseController;
 use app\models\ClientAccount;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\forms\draft\IndexForm;
 use yii\base\InvalidArgumentException;
 use yii\filters\AccessControl;
@@ -30,7 +31,7 @@ class DraftController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['cancel', 'restore', 'save', 'process'],
+                        'actions' => ['cancel', 'restore', 'save', 'process', 'process-all'],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                 ],
@@ -73,12 +74,25 @@ class DraftController extends BaseController
         $client = $this->getClient($clientId, false);
         $indexForm = new IndexForm($client);
 
+        $processCountAll = 0;
+        $showAll = false;
+
+        $processCount = $indexForm->getProcessCount();
+        if (!$processCount) {
+            $processCountAll = $indexForm->getProcessCount(true);
+            $showAll = true;
+        }
+
         return $this->render('index', [
             'dataProvider' => $indexForm->getDataProvider($state),
             'title' => $indexForm->getTitle(),
             'isAuto' => $client->exchange_group_id,
+            'isVerified' => SBISExchangeStatus::isVerifiedById($client->exchange_status),
             'processConfirmText' => $indexForm->getProcessConfirmText(),
-            'processCount' => $indexForm->getProcessCount(),
+            'processAllConfirmText' => $indexForm->getProcessConfirmText(true),
+            'processCount' => $processCount,
+            'showAll' => $showAll,
+            'processCountAll' => $processCountAll,
             'clientId' => $client->id,
             'state' => $state,
         ]);
@@ -161,7 +175,7 @@ class DraftController extends BaseController
     }
 
     /**
-     * Запуск всех черновиков в работу
+     * Запуск черновиков в работу по клиенту
      *
      * @param int $clientId
      * @return \yii\web\Response
@@ -173,6 +187,26 @@ class DraftController extends BaseController
             $indexForm = new IndexForm($client);
 
             $indexForm->process();
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/draft/');
+    }
+
+    /**
+     * Запуск черновиков в работу всех подтвержденных клиентов
+     *
+     * @param int $clientId
+     * @return \yii\web\Response
+     */
+    public function actionProcessAll($clientId = 0)
+    {
+        try {
+            $client = $this->getClient($clientId, false);
+            $indexForm = new IndexForm($client);
+
+            $indexForm->process(true);
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error', $e->getMessage());
         }

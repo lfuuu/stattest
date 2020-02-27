@@ -4,12 +4,14 @@ namespace app\modules\sbisTenzor\forms\draft;
 
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
 use app\modules\sbisTenzor\classes\XmlGenerator;
 use app\modules\sbisTenzor\models\SBISAttachment;
 use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use yii\base\InvalidArgumentException;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 
 class IndexForm extends \app\classes\Form
 {
@@ -242,31 +244,40 @@ class IndexForm extends \app\classes\Form
     }
 
     /**
+     * @param bool $isForAll
      * @return string
      */
-    public function getProcessConfirmText()
+    public function getProcessConfirmText($isForAll = false)
     {
         return
-            $this->client ?
+            $this->client && !$isForAll ?
                 sprintf('Создать пакеты для клиента %s?', $this->client->contragent->name) :
-                'Создать пакеты по всем клиентам?'
+                'Создать пакеты по всем подтвержденным клиентам?'
             ;
     }
 
     /**
+     * @param $isForAll
+     * @param bool $eagerLoading
      * @return \yii\db\ActiveQuery
      */
-    protected function getProcessQuery()
+    protected function getProcessQuery($isForAll, $eagerLoading = true)
     {
         $query = SBISGeneratedDraft::find();
 
         $query
-            ->where(['=', 'state', SBISGeneratedDraftStatus::DRAFT]);
+            ->where(['=', 'state', SBISGeneratedDraftStatus::DRAFT])
+            ->joinWith('invoice.bill.clientAccountModel as c1', $eagerLoading);
+
+        if ($isForAll) {
+            $query->andWhere(['c1.exchange_status' => SBISExchangeStatus::$verified]);
+            return $query;
+        }
 
         if ($this->client) {
-            $query
-                ->joinWith('invoice.bill.clientAccountModel as c1')
-                ->andWhere(['c1.id' => $this->client->id]);
+            $query->andWhere(['c1.id' => $this->client->id]);
+        } else {
+            $query->andWhere(new Expression('0 = 1'));
         }
 
         return $query;
@@ -275,21 +286,23 @@ class IndexForm extends \app\classes\Form
     /**
      * Возвращает количество черновиков для обработки
      *
+     * @param bool $isForAll
      * @return int
      */
-    public function getProcessCount()
+    public function getProcessCount($isForAll = false)
     {
-        return $this->getProcessQuery()->count();
+        return $this->getProcessQuery($isForAll, false)->count();
     }
 
     /**
      * Отправляет все подготовленные черновики пакетов документов на обработку
      *
-     * @throws \Exception
+     * @param bool $isForAll
+     * @throws ModelValidationException
      */
-    public function process()
+    public function process($isForAll = false)
     {
-        $query = $this->getProcessQuery();
+        $query = $this->getProcessQuery($isForAll);
 
         /** @var SBISGeneratedDraft $draft */
         foreach ($query->each() as $draft) {

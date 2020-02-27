@@ -5,6 +5,7 @@ namespace app\modules\sbisTenzor\classes\SBISProcessor;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\classes\SBISDocumentStatus;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\classes\SBISProcessor;
 use app\modules\sbisTenzor\exceptions\SBISTensorException;
 use app\modules\sbisTenzor\models\SBISDocument;
@@ -181,6 +182,18 @@ class SBISSender extends SBISProcessor
                 case SBISDocumentStatus::NOT_SIGNED:
                 case SBISDocumentStatus::READY:
                     $newState = SBISDocumentStatus::SENT;
+
+                    if ($document->external_state == SBISDocumentStatus::EXTERNAL_SENT_INVITATION) {
+                        $client = $document->clientAccount;
+                        if (
+                            ($client->exchange_status != SBISExchangeStatus::PROBLEM) &&
+                            !SBISExchangeStatus::isFixedById($client->exchange_status)
+                        ) {
+                            $client->exchange_status = SBISExchangeStatus::PROBLEM;
+                            $client->save();
+                        }
+                    }
+
                     break;
             }
 
