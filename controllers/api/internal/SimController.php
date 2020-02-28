@@ -211,7 +211,9 @@ class SimController extends ApiInternalController
             $post = Yii::$app->request->post();
 
             $post = array_map(function ($value) {
-                return $value == 'NULL' || $value == '' ? NULL : $value;
+                return $value === 'NULL' || $value === '' ? NULL :
+                    is_bool($value) ? (int)$value
+                        : $value;
             }, $post);
 
             $imsiObject->setAttributes($post);
