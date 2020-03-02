@@ -50,10 +50,10 @@ use yii\widgets\ActiveForm;
 
 <div class="form-group text-right">
     <?= $this->render('//layouts/_buttonCancel', ['url' => '/sim/card/']) ?>
-    <?= Html::tag('div', $card->isNewRecord ? 'Создать' : 'Обновить', [
+    <?php /* Html::tag('div', $card->isNewRecord ? 'Создать' : 'Обновить', [
             'id' => $card->isNewRecord ? 'submitButtonCreateCard' : $submitButtonId,
             'class' => ['btn', 'btn-primary'],
-    ]) ?>
+    ]) */ ?>
 </div>
 
 <?php ActiveForm::end(); ?>
