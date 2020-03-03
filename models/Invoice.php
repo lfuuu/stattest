@@ -529,6 +529,7 @@ class Invoice extends ActiveRecord
 
         if (abs($diffSum) < 0.01 && abs($diffSumTax) < 0.01) {
             if ($this->correction_bill_id) {
+                $this->correctionBill->isSkipCheckCorrection = true;
                 $this->correctionBill->delete();
             }
 
@@ -536,12 +537,12 @@ class Invoice extends ActiveRecord
         }
 
         if (!$this->correction_bill_id) {
-            $bill = Bill::dao()->createBill($this->bill->clientAccount, $this->bill->currency);
+            $bill = Bill::dao()->createBill($this->bill->clientAccount, $this->bill->currency, true);
 
             $bill->operation_type_id = OperationType::ID_CORRECTION;
             $bill->comment = 'Автоматическая корректировка к счету ' . $this->bill_no . ' (' . $this->type_id . ')';
             $this->correction_bill_id = $bill->id;
-            $bill->price_include_vat = $this->bill->price_include_vat;
+            $bill->price_include_vat = 1; // здесь сумма конечная, всегда с НДС
 
 
             $lineItem = \Yii::t(
