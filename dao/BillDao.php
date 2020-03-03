@@ -1047,7 +1047,7 @@ SQL;
 
         $dependency = new ChainedDependency(['dependencies' => [$dbDep, $tagsDep]]);
 
-        $key = 'getLineByTypeId' . $typeId . 'b' . str_replace(['-', '/'], ['i', 'g'], $bill->bill_no) . 't' . $clientAccount->type_of_bill;
+        $key = 'getLineByTypeId' . str_replace(['-', '/'], ['i', 'g'], $bill->bill_no) . 't' . $typeId . 't' . $clientAccount->type_of_bill;
 
         if (\Yii::$app->cache->exists($key)) {
             return \Yii::$app->cache->get($key);
