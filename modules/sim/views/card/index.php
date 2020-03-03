@@ -192,7 +192,6 @@ $columns = [
                 Yii::t('common', '(not set)');
         },
     ],
-/*
     [
         'class' => ActionColumn::class,
         'template' => '{update}',
@@ -206,7 +205,6 @@ $columns = [
         ],
         'hAlign' => GridView::ALIGN_CENTER,
     ],
-*/
 ];
 
 $dataProvider = $filterModel->search();

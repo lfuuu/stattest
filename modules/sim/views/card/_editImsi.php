@@ -40,6 +40,7 @@ if (!$card->isNewRecord) {
     <?= TabularInput::widget([
         'models' => array_values($imsies), // ключ должен быть автоинкрементный
         'allowEmptyList' => false,
+        'addButtonOptions' => $optionDisable,
         'columns' => [
             [
                 'name' => 'imsi',
@@ -47,7 +48,7 @@ if (!$card->isNewRecord) {
                 'options' => [
                     'class' => 'signature_imsi',
                     'onFocus' => "if ($(this).parent().css('width') !== '150px') { $(this).parent().css('width', '150px'); }",
-                ],
+                ] + $optionDisable,
             ],
             [
                 'name' => 'msisdn',
@@ -55,14 +56,14 @@ if (!$card->isNewRecord) {
                 'options' => [
                     'class' => 'signature_msisdn',
                     'onFocus' => "if ($(this).parent().css('width') !== '150px') { $(this).parent().css('width', '150px'); }",
-                ],
+                ] + $optionDisable,
             ],
             [
                 'name' => 'did',
                 'title' => $attributeLabels['did'],
                 'options' => [
                     'onFocus' => "if ($(this).parent().css('width') !== '150px') { $(this).parent().css('width', '150px'); }",
-                ],
+                ] + $optionDisable
             ],
             [
                 'name' => 'actual_from',
@@ -75,7 +76,7 @@ if (!$card->isNewRecord) {
                         'format' => 'yyyy-mm-dd',
                         'todayHighlight' => true,
                     ],
-                ],
+                ] + $optionDisable,
             ],
             [
                 'name' => 'actual_to',
@@ -88,7 +89,7 @@ if (!$card->isNewRecord) {
                         'format' => 'yyyy-mm-dd',
                         'todayHighlight' => true,
                     ],
-                ],
+                ] + $optionDisable,
             ],
             [
                 'name' => 'status_id',
@@ -96,7 +97,7 @@ if (!$card->isNewRecord) {
                 'type' => Editable::INPUT_SELECT2,
                 'options' => [
                     'data' => ImsiStatus::getList(),
-                ],
+                ] + $optionDisable,
             ],
             [
                 'name' => 'partner_id',
@@ -104,7 +105,7 @@ if (!$card->isNewRecord) {
                 'type' => Editable::INPUT_SELECT2,
                 'options' => [
                     'data' => ImsiPartner::getList($isWithEmpty = true),
-                ],
+                ] + $optionDisable,
             ],
             [
                 'name' => 'profile_id',
@@ -112,31 +113,36 @@ if (!$card->isNewRecord) {
                 'type' => Editable::INPUT_SELECT2,
                 'options' => [
                     'data' => \app\modules\sim\models\ImsiProfile::getList($isWithEmpty = true),
-                ],
+                ] + $optionDisable,
             ],
             [
                 'name' => 'is_default',
                 'title' => 'По<br>умолч.', // $attributeLabels['is_default']
                 'type' => Editable::INPUT_CHECKBOX,
+                'options' => $optionDisable,
             ],
             [
                 'name' => 'is_anti_cli',
                 'title' => 'Анти-<br>АОН', // $attributeLabels['is_anti_cli']
                 'type' => Editable::INPUT_CHECKBOX,
+                'options' => $optionDisable,
             ],
             [
                 'name' => 'is_roaming',
                 'title' => 'Роум<br>минг', // $attributeLabels['is_roaming'],
                 'type' => Editable::INPUT_CHECKBOX,
+                'options' => $optionDisable,
             ],
             [
                 'name' => 'is_active',
                 'title' => $attributeLabels['is_active'],
                 'type' => Editable::INPUT_CHECKBOX,
+                'options' => $optionDisable,
             ],
             [
                 'name' => 'imsi', // чтобы идентифицировать модель
                 'type' => TabularColumn::TYPE_HIDDEN_INPUT,
+                'options' => $optionDisable,
             ],
         ],
     ]); ?>
