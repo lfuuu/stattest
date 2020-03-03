@@ -162,7 +162,7 @@ class BillLine extends ActiveRecord
      */
     public static function compactLines($lines, $lang, $isPriceIncludeVat)
     {
-        $cacheKey = md5(json_encode($lines));
+        $cacheKey = md5(serialize($lines));
 
         if (\Yii::$app->cache->exists($cacheKey)) {
             return \Yii::$app->cache->get($cacheKey);
