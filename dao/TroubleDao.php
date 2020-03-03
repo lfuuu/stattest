@@ -489,7 +489,8 @@ SQL;
         if ($mode === self::MODE_GET && \Yii::$app->cache->exists($key)) {
             return \Yii::$app->cache->get($key);
         }
-        $arr = reset(TTCounterHelper::getTroubleTypeData(['pk', 'folders'], $trouble_type));
+        $ttd = TTCounterHelper::getTroubleTypeData(['pk', 'folders'], $trouble_type);
+        $arr = reset($ttd);
         $pk = isset($arr['pk']) ? $arr['pk'] : null;
         $folder = isset($arr['folders']) ? $arr['folders'] : null;
         if (!$pk || !$folder) {
@@ -501,7 +502,7 @@ SQL;
         }
 
         $sql = <<<SQL
-SELECT SQL_NO_CACHE
+SELECT
   tf.pk,
   tf.name,
   COUNT(DISTINCT (T.id)) AS cnt

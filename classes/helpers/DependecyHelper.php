@@ -26,6 +26,7 @@ class DependecyHelper extends Singleton
     const TAG_TROUBLE_COUNT = 'trouble_count';
     const TAG_CALLS_RAW = 'calls_raw';
     const TAG_GRID_FOLDER = 'grid_folder';
+    const TAG_BILL = 'bill';
 
     const LIST_TAGS = [
         self::ALL => 'Всё',
@@ -35,6 +36,7 @@ class DependecyHelper extends Singleton
         self::TAG_TROUBLE_COUNT => 'Кол-во траблов в открытых без привязки',
         self::TAG_CALLS_RAW => 'CallsRaw',
         self::TAG_GRID_FOLDER => 'Кол-во в гриде',
+        self::TAG_BILL => 'Счета',
     ];
 
     public function getKey($name, $value, $value2 = null)
