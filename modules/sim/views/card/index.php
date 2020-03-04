@@ -41,44 +41,44 @@ use yii\helpers\Url;
 <?php
 
 $form = ActiveForm::begin(['method' => 'post', 'id' => 'setStatusForm']);
+if (\Yii::$app->user->can('sim.write') || \Yii::$app->user->can('sim.link')) {
+    echo "<div>";
+    echo "<div class=well style='width: 400px; float: left;'>";
+    echo Html::tag('b', 'Изменить статус на') . '<br>';
+    echo Html::button('Изменить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-status']);
 
-echo "<div>";
-echo "<div class=well style='width: 400px; float: left;'>";
-echo Html::tag('b', 'Изменить статус на') . '<br>';
-echo Html::button('Изменить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-status']);
+    echo Html::dropDownList('status', null, CardStatus::getList(true), ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+    echo "</div>";
+    $width = $account ? 300 : 170;
 
-echo Html::dropDownList('status', null, CardStatus::getList(true), ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
-echo "</div>";
-$width = $account ? 300 : 170;
+    echo "<div class=well style='width: " . $width . "px; float: left; margin-left: 10px;'>";
+    echo Html::tag('b', 'Связка с ЛС') . '<br>';
+    if ($account) {
+        echo $this->render('//layouts/_submitButton', [
+            'text' => 'Привязать',
+            'glyphicon' => 'glyphicon-link',
+            'params' => [
+                'name' => 'set-link',
+                'class' => 'btn btn-success',
+                'style' => 'margin-left: 10px;',
+            ],
+        ]);
+    }
 
-echo "<div class=well style='width: ".$width."px; float: left; margin-left: 10px;'>";
-echo Html::tag('b', 'Связка с ЛС') . '<br>';
-if ($account) {
     echo $this->render('//layouts/_submitButton', [
-        'text' => 'Привязать',
-        'glyphicon' => 'glyphicon-link',
+        'text' => 'Отвязать',
+        'glyphicon' => 'glyphicon-scissors',
         'params' => [
-            'name' => 'set-link',
-            'class' => 'btn btn-success',
+            'name' => 'set-unlink',
+            'class' => 'btn btn-warning',
             'style' => 'margin-left: 10px;',
         ],
     ]);
+
+
+    echo "</div>";
+    echo "</div>";
 }
-
-echo $this->render('//layouts/_submitButton', [
-    'text' => 'Отвязать',
-    'glyphicon' => 'glyphicon-scissors',
-    'params' => [
-        'name' => 'set-unlink',
-        'class' => 'btn btn-warning',
-        'style' => 'margin-left: 10px;',
-    ],
-]);
-
-
-echo "</div>";
-echo "</div>";
-
 echo "<div style='clear: both;'></div>";
 
 $baseView = $this;

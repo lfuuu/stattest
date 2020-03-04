@@ -80,7 +80,7 @@ class CardController extends BaseController
 
         if ($cardIccids) {
 
-            $isEditAllow = \Yii::$app->user->can('sim.write');
+            $isEditAllow = \Yii::$app->user->can('sim.write') || \Yii::$app->user->can('sim.link');
 
             if (isset($getData['set-status']) && isset($getData['status']) && $getData['status']) {
                 if ($isEditAllow) {
