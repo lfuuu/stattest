@@ -1034,7 +1034,7 @@ SQL;
 
         $clientAccount = $bill->clientAccount;
 
-        $sql = 'SELECT (SELECT sum(pk + sum + date_from + date_to + coalesce(id_service, 0) + amount) + count(*) AS cnt
+        $sql = 'SELECT (SELECT coalesce(sum(pk + sum + date_from + date_to + coalesce(id_service, 0) + amount), 0) + count(*) AS cnt
         FROM newbill_lines
         WHERE bill_no = :billNo) +
        (SELECT coalesce(sum(pk + sum + date_from + date_to + bill_correction_id + amount) + count(*), 0) AS cnt
@@ -1049,8 +1049,8 @@ SQL;
 
         $key = 'getLineByTypeId' . str_replace(['-', '/'], ['i', 'g'], $bill->bill_no) . 't' . $typeId . 't' . $clientAccount->type_of_bill;
 
-        if (\Yii::$app->cache->exists($key)) {
-            return \Yii::$app->cache->get($key);
+        if (($value = \Yii::$app->cache->get($key)) !== false) {
+            return $value;
         }
 
         $lines = [];
