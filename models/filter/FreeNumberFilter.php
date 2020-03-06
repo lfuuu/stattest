@@ -20,6 +20,7 @@ class FreeNumberFilter extends Number
     // лимиты для обычной выборки
     const LIMIT = 5000; // Старый ЛК не умеет пагинировать, приходится выгружать ему все сразу
     const MAX_LIMIT = 5000;
+    const NO_LIMIT = null;
 
     // лимиты для сгруппированной выборки
     const GROUPED_LIMIT = 10000;
@@ -295,7 +296,13 @@ class FreeNumberFilter extends Number
      */
     public function setLimit($limit = self::LIMIT, $maxLimit = self::MAX_LIMIT)
     {
+        if ($limit === null) {
+            $this->_limit = null;
+            return $this;
+        }
+
         $limit = (int)$limit;
+
         if ($limit > 0 && $limit <= $maxLimit) {
             $this->_limit = (int)$limit;
         }
@@ -389,6 +396,27 @@ class FreeNumberFilter extends Number
             ->all();
     }
 
+    /**
+     * @return \app\models\Number[]
+     */
+    public function resultF()
+    {
+        if ($this->_mask) {
+            return $this->_resultByMask();
+        }
+
+        if ($this->_similar) {
+            return $this->_resultByLevenshtein();
+        }
+
+        $this->_totalCount = null; // будет посчитано автоматически в $this->count()
+
+        $q = $this->_query
+            ->offset($this->_offset)
+            ->limit($this->_limit);
+
+        return $q->select(['number', 'city_id', 'did_group_id'])->createCommand()->queryAll();
+    }
     /**
      * @return \app\models\Number[]
      */
