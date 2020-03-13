@@ -535,7 +535,7 @@ final class OpenController extends Controller
                 $response[$groupKey][$key] = $value;
             }
 
-            $response[$groupKey]['numbers'] = [$freeNumber->number];
+            $response[$groupKey]['numbers'] = [(string)$freeNumber->number];
         }
 
         return $response;
