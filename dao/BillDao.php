@@ -3,6 +3,7 @@
 namespace app\dao;
 
 use app\classes\HandlerLogger;
+use app\classes\helpers\DependecyHelper;
 use app\classes\Language;
 use app\classes\model\ActiveRecord;
 use app\classes\Singleton;
@@ -27,6 +28,9 @@ use app\models\UsageTrunk;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill as uuBill;
 use Yii;
+use yii\caching\ChainedDependency;
+use yii\caching\DbDependency;
+use yii\caching\TagDependency;
 use yii\db\Expression;
 use yii\db\Query;
 
@@ -1027,9 +1031,31 @@ SQL;
      */
     public static function getLinesByTypeId($bill, $typeId, $isInsert = false)
     {
-        $lines = [];
 
         $clientAccount = $bill->clientAccount;
+
+        $sql = 'SELECT (SELECT coalesce(sum(pk + sum + date_from + date_to + coalesce(id_service, 0) + amount), 0) + count(*) AS cnt
+        FROM newbill_lines
+        WHERE bill_no = :billNo) +
+       (SELECT coalesce(sum(pk + sum + date_from + date_to + bill_correction_id + amount) + count(*), 0) AS cnt
+        FROM newbill_lines_correction
+        WHERE bill_no = :billNo) as check_sum';
+
+
+        $tagsDep = new TagDependency(['tags' => [DependecyHelper::TAG_BILL]]);
+        $dbDep = new DbDependency(['sql' => $sql, 'params' => [':billNo' => $bill->bill_no]]);
+
+        $dependency = new ChainedDependency(['dependencies' => [$dbDep, $tagsDep]]);
+
+        $key = 'getLineByTypeId' . str_replace(['-', '/'], ['i', 'g'], $bill->bill_no) . 't' . $typeId . 't' . $clientAccount->type_of_bill;
+
+        if (($value = \Yii::$app->cache->get($key)) !== false) {
+            return $value;
+        }
+
+        $lines = [];
+
+
 
         $billLines = $bill->lines;
 
@@ -1106,6 +1132,8 @@ SQL;
             $lines = BillLine::refactLinesWithFourOrderFacture($bill, $lines);
         }
 
+
+        \Yii::$app->cache->set($key, $lines, DependecyHelper::DEFAULT_TIMELIFE, $dependency);
 
         return $lines;
 

@@ -181,11 +181,27 @@ class InvoiceLine extends ActiveRecord
 
     public function getCountry_Id()
     {
+        if ($this->type != BillLine::LINE_TYPE_GOOD) {
+            return null;
+        }
+
+        if (!$this->invoice || !$this->invoice->bill) {
+            return null;
+        }
+
         return $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select('country_id')->scalar();
     }
 
     public function getCountry_name()
     {
+        if ($this->type != BillLine::LINE_TYPE_GOOD) {
+            return null;
+        }
+
+        if (!$this->invoice || !$this->invoice->bill) {
+            return null;
+        }
+
         $row = $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select(['contry_maker', 'country_id'] )->asArray()->one();
 
         if (!$row) {

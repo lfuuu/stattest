@@ -27,7 +27,7 @@ use yii\widgets\Breadcrumbs;
         'submitButtonId' => 'submitButtonOriginCard',
     ]) ?>
 </div>
-<?php if (!$dsm->origin->isNewRecord) { ?>
+<?php if (!$dsm->origin->isNewRecord && \Yii::$app->user->can('sim.write')) { ?>
     <!-- Блок, отображающий методы для выбора необходимой сим-карты или непривязанного номера -->
     <div class="well">
         <div class="row">

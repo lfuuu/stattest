@@ -3,6 +3,7 @@
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\classes\SBISDocumentStatus;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISDocument;
 use yii\data\ActiveDataProvider;
@@ -101,6 +102,12 @@ echo GridView::widget([
                 $client = $model->clientAccount;
 
                 $text = $client->contragent->name;
+
+                $text .=
+                    SBISExchangeStatus::isVerifiedById($client->exchange_status) ?
+                        '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']) :
+                        '';
+
                 return Html::a($text, $client->getUrl());
             },
         ],
@@ -158,8 +165,8 @@ echo GridView::widget([
             'value'     => function (SBISDocument $model) use ($baseView) {
                 return
                     $model->isSigned() ?
-                        Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']) :
-                        Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
+                        Html::tag('strong', 'Да', ['class' => 'text-success']) :
+                        Html::tag('strong', 'Нет', ['class' => 'text-danger']);
             },
         ],
         [

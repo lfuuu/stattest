@@ -5,6 +5,7 @@ namespace app\modules\uu\behaviors;
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
+use app\helpers\Semaphore;
 use app\models\EventQueue;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
@@ -103,13 +104,19 @@ class AccountTariffBiller extends Behavior
         $tarificator->tarificate($accountTariffId);
         $tarificator->isNeedRecalc && $isNeedRecalc = true;
 
+        if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
+            throw new \LogicException('Error. AccountTariff::recalc not started');
+        }
+
         if ($isNeedRecalc) {
             (new AccountEntryTarificator)->tarificate($accountTariffId);
             (new BillTarificator)->tarificate($accountTariffId);
 //         (new BillConverterTarificator)->tarificate($clientAccountId); // это не обязательно делать в реалтайме. По крону вполне сойдет
         }
+
         (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
 
+        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
 
         HandlerLogger::me()->add(ob_get_clean());
 

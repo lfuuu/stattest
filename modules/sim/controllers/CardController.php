@@ -37,13 +37,13 @@ class CardController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index'],
+                        'actions' => ['index', 'edit'],
                         'roles' => ['sim.read'],
                     ],
                     [
                         'allow' => true,
                         'actions' => [
-                            'new', 'edit', 'change-msisdn', 'change-iccid-and-imsi', 'change-unassigned-number', 'create-card', 'update-card'
+                            'new', 'change-msisdn', 'change-iccid-and-imsi', 'change-unassigned-number', 'create-card', 'update-card'
                         ],
                         'roles' => ['sim.write'],
                     ],
@@ -79,15 +79,30 @@ class CardController extends BaseController
         }
 
         if ($cardIccids) {
+
+            $isEditAllow = \Yii::$app->user->can('sim.write') || \Yii::$app->user->can('sim.link');
+
             if (isset($getData['set-status']) && isset($getData['status']) && $getData['status']) {
-                $filterModel->actionSetStatus($cardIccids, $getData['status']);
+                if ($isEditAllow) {
+                    $filterModel->actionSetStatus($cardIccids, $getData['status']);
+                } else {
+                    \Yii::$app->session->addFlash('error', 'Действие запрещено');
+                }
             } elseif (isset($getData['set-link']) && $account) {
-                $filterModel->actionSetLink($cardIccids, $account->id);
+                if ($isEditAllow) {
+                    $filterModel->actionSetLink($cardIccids, $account->id);
+                } else {
+                    \Yii::$app->session->addFlash('error', 'Действие запрещено');
+                }
+
             } elseif (isset($getData['set-unlink'])) {
-                $filterModel->actionSetUnLink($cardIccids);
+                if ($isEditAllow) {
+                    $filterModel->actionSetUnLink($cardIccids);
+                } else {
+                    \Yii::$app->session->addFlash('error', 'Действие запрещено');
+                }
             }
         }
-
 
 
         \Yii::$app->session->close();
@@ -123,14 +138,16 @@ class CardController extends BaseController
      */
     public function actionEdit()
     {
+        $isAllowEdit = \Yii::$app->user->can('sim.write');
+
         $request = Yii::$app->request;
         $queryGet = $request->getQueryParams();
         // Получение запрашиваемой сим-карты с дополнительными связями
         if (!isset($queryGet['originIccid']) || !($originCard = Card::findOne(['iccid' => $queryGet['originIccid']]))) {
             throw new NotFoundHttpException;
         }
-        $originImsies = $originCard->imsies;
-        if ($this->loadFromInput($originCard, $imsies, new Imsi)) {
+
+        if ($isAllowEdit && $this->loadFromInput($originCard, $imsies, new Imsi)) {
             return $this->redirect($originCard->getUrl());
         }
         // Создание Data State Model
@@ -138,7 +155,7 @@ class CardController extends BaseController
         $dsm->origin = $originCard;
 
         // Формирование DSM по приоритету: номер - склад
-        if ($request->isPost) {
+        if ($isAllowEdit && $request->isPost) {
             if ($rawNumber = $request->post(Dsm::ENV_WITH_RAW_NUMBER)) {
                 $dsm->rawNumber = $rawNumber;
                 //  Временно пропускаем номер 79587980598, т.к. он используется на 3-х сим-картах
@@ -169,7 +186,7 @@ class CardController extends BaseController
                     'status_id' => $warehouseStatus,
                     'is_active' => 1, // Активный
                     'client_account_id' => null, // Не должен быть привязан
-                    ]);
+                ]);
                 if (!$virtual_card) {
                     $dsm->errorMessages[] = sprintf('Виртуальная сим-карта по статусу склада %s не найдена', $warehouseStatus);
                     goto ret;
@@ -178,7 +195,7 @@ class CardController extends BaseController
             }
         }
         ret:
-            return $this->render('edit', ['dsm' => $dsm]);
+        return $this->render('edit', ['dsm' => $dsm]);
     }
 
     /**
@@ -391,7 +408,7 @@ class CardController extends BaseController
     private function _getImsiesFromRequest($request)
     {
         list($originImsiParam, $virtualImsiParam) = [
-            $request->post('origin_imsi'),  $request->post('virtual_imsi')
+            $request->post('origin_imsi'), $request->post('virtual_imsi')
         ];
         // Проверка наличия требуемых параметров
         if (!$originImsiParam || !$virtualImsiParam) {

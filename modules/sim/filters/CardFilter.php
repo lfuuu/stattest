@@ -57,7 +57,15 @@ class CardFilter extends Card
             'query' => $query,
         ]);
 
-        $this->iccid && $query->andWhere([$cardTableName . '.iccid' => $this->iccid]);
+        if ($this->iccid) {
+            if (strpos($this->iccid, '*') !== false) {
+                $iccid = strtr($this->iccid, ['**' => '*', '*' => '%']);
+                $query->andWhere($cardTableName . '.iccid::varchar like :like', [':like' => $iccid]);
+            } else {
+                $query->andWhere([$cardTableName . '.iccid' => $this->iccid]);
+            }
+        }
+
         $this->imei && $query->andWhere([$cardTableName . '.imei' => $this->imei]);
         $this->client_account_id && $query->andWhere([$cardTableName . '.client_account_id' => $this->client_account_id]);
         $this->is_active && $query->andWhere([$cardTableName . '.is_active' => $this->is_active]);
@@ -170,7 +178,7 @@ class CardFilter extends Card
                 $counter++;
             }
             $transaction->commit();
-            \Yii::$app->session->addFlash('success', 'Привязано к УЛС ' . $accountId. ' карт: ' . $counter);
+            \Yii::$app->session->addFlash('success', 'Привязано к УЛС ' . $accountId . ' карт: ' . $counter);
         } catch (\Exception $e) {
             $transaction->rollBack();
             \Yii::$app->session->addFlash('error', $e->getMessage());

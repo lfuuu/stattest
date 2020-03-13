@@ -21,6 +21,7 @@ use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
 use app\modules\sbisTenzor\classes\ContractorInfo;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
@@ -94,6 +95,7 @@ class AccountEditForm extends Form
         $upload_to_sales_book,
         $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS,
         $exchange_group_id,
+        $exchange_status = SBISExchangeStatus::UNKNOWN,
         $transfer_params_from = 0;
 
     protected $contractorInfo;
@@ -176,6 +178,7 @@ class AccountEditForm extends Form
                     'price_level',
                     'uu_tariff_status_id',
                     'exchange_group_id',
+                    'exchange_status',
                     'settings_advance_invoice',
                     'upload_to_sales_book',
                     'show_in_lk',
