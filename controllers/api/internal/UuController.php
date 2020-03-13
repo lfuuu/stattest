@@ -7,6 +7,7 @@ use app\classes\DynamicModel;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\helpers\Semaphore;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\Country;
@@ -1722,12 +1723,16 @@ class UuController extends ApiInternalController
 
     public function _addAccountTariff($post)
     {
+
         if (isset($post['is_async']) && $post['is_async']) {
             $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
             $requestId = isset($post['request_id']) && $post['request_id'] ? $post['request_id'] : $event->id;
 
             return ['request_id' => $requestId];
         }
+
+        $sem = Semaphore::me();
+        $sem->acquire(Semaphore::ID_UU_CALCULATOR);
 
         $transaction = Yii::$app->db->beginTransaction();
         $accountTariff = new AccountTariff();
@@ -1766,9 +1771,11 @@ class UuController extends ApiInternalController
             );
 
             $transaction->commit();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
             return $accountTariff->id;
         } catch (Exception $e) {
             $transaction->rollBack();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
             $code = $e->getCode();
             if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
                 \Yii::error(
@@ -1834,6 +1841,8 @@ class UuController extends ApiInternalController
         }
 
         $transaction = Yii::$app->db->beginTransaction();
+        $sem = Semaphore::me();
+        $sem->acquire(Semaphore::ID_UU_CALCULATOR);
         try {
 
             foreach ($account_tariff_ids as $account_tariff_id) {
@@ -1859,11 +1868,14 @@ class UuController extends ApiInternalController
             Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
 
             $transaction->commit();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
 
             return true;
 
         } catch (Exception $e) {
             $transaction->rollBack();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
+
             $code = $e->getCode();
             if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
                 \Yii::error(

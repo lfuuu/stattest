@@ -5,6 +5,7 @@ namespace app\modules\uu\forms;
 use app\classes\Form;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\helpers\Semaphore;
 use app\models\EventQueue;
 use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
@@ -78,21 +79,24 @@ abstract class AccountTariffForm extends Form
         $this->accountTariffVoip->city_id = $this->accountTariff->city_id;
         $this->accountTariffVoip->voip_ndc_type_id = $this->ndcTypeId;
 
-        // Обработать submit (создать, редактировать, удалить)
-        $this->loadFromInput();
-    }
-
-    /**
-     * Обработать submit (создать, редактировать, удалить)
-     */
-    public function loadFromInput()
-    {
         /** @var array $post */
         $post = $this->postData ?: Yii::$app->request->post();
         if (!$post) {
             return;
         }
 
+        // Обработать submit (создать, редактировать, удалить)
+        Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
+        $this->loadFromInput($post);
+        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+    }
+
+    /**
+     * Обработать submit (создать, редактировать, удалить)
+     */
+    public function loadFromInput($post)
+    {
+        /** @var array $post */
         $transaction = \Yii::$app->db->beginTransaction();
 
         // при создании услуга + лог в одной форме, при редактировании - в разных
