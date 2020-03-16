@@ -94,6 +94,7 @@ class ClientContractDao extends Singleton
      * @param ClientContract $contract
      * @param \DateTime|null $dateOrig
      * @return ClientDocument|null
+     * @throws \Exception
      * @internal param \DateTime|null $date
      */
     public function getContractInfo(ClientContract $contract, \DateTime $dateOrig = null)

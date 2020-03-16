@@ -82,7 +82,7 @@ $form = ActiveForm::begin([
     <div class="row">
         <div class="col-sm-6">
             <label>Документы</label>
-            <?php for ($i =1; $i <= SBISDocument::MAX_ATTACHMENTS; $i++): ?>
+            <?php for ($i = 1; $i <= SBISDocument::MAX_ATTACHMENTS; $i++): ?>
                 <input type="file" name="<?= $model->formName(); ?>[filename][<?= $i ?>]" class="media-manager" data-language="ru-RU" /><br /><br />
             <?php endfor; ?>
         </div>

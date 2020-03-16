@@ -2,6 +2,7 @@
 
 namespace app\modules\sbisTenzor\classes\XmlGenerator;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContragent;
 use app\modules\sbisTenzor\classes\XmlGenerator;
 
@@ -111,22 +112,32 @@ class Invoice2016Form5_02 extends XmlGenerator
         $elInvoiceTable = $this->addElementItemsTable($dom);
 
         // --------------------------------------------------------------------------------------------------------------
-        // Файл.Документ.СвПродПер
-        $elPass = $dom->createElement('СвПродПер');
-        $elPassInfo = $dom->createElement('СвПер');
-        $elPassInfo->setAttribute('СодОпер', 'Реализация');
-        $elPass->appendChild($elPassInfo);
+        $elPass = null;
 
-        $elPassInfoMain = $dom->createElement('ОснПер');
-        $elPassInfoMain->setAttribute('ДатаОсн', '14.02.2012');
-        $elPassInfoMain->setAttribute('НаимОсн', '1 от 14.02.2012');
-        $elPassInfoMain->setAttribute('НомОсн', 1);
-        $elPassInfo->appendChild($elPassInfoMain);
+        $billDateTime = new \DateTime($this->bill->date);
+        if ($contract = $this->client->contract->getContractInfo($billDateTime)) {
+            $contractDateTime = new \DateTime($contract->contract_date, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+            $contractDate = $contractDateTime->format('d.m.Y');
+
+            // Файл.Документ.СвПродПер
+            $elPass = $dom->createElement('СвПродПер');
+            $elPassInfo = $dom->createElement('СвПер');
+            $elPassInfo->setAttribute('СодОпер', 'Реализация');
+            $elPass->appendChild($elPassInfo);
+
+            $elPassInfoMain = $dom->createElement('ОснПер');
+            $elPassInfoMain->setAttribute('ДатаОсн', $contractDate);
+            $elPassInfoMain->setAttribute('НаимОсн', sprintf('%s от %s', $contract->contract_no, $contractDate));
+            $elPassInfoMain->setAttribute('НомОсн', $contract->contract_no);
+            $elPassInfo->appendChild($elPassInfoMain);
+        }
 
         // add
         $elDoc->appendChild($elInvoiceInfo);
         $elDoc->appendChild($elInvoiceTable);
-        $elDoc->appendChild($elPass);
+        if ($elPass) {
+            $elDoc->appendChild($elPass);
+        }
     }
 
     /**

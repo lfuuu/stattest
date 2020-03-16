@@ -4,11 +4,13 @@ namespace app\modules\sbisTenzor\controllers;
 
 use app\classes\BaseController;
 use app\models\ClientAccount;
+use app\modules\sbisTenzor\forms\document\AddFilesForm;
 use app\modules\sbisTenzor\forms\document\EditForm;
 use app\modules\sbisTenzor\forms\document\IndexForm;
 use app\modules\sbisTenzor\forms\document\ViewForm;
 use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISAttachment;
+use app\modules\sbisTenzor\models\SBISDocument;
 use yii\base\InvalidArgumentException;
 use yii\filters\AccessControl;
 use Yii;
@@ -34,7 +36,7 @@ class DocumentController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'cancel', 'cancel-auto', 'restore', 'restore-auto', 'start', 'send-auto'],
+                        'actions' => ['add', 'add-files', 'cancel', 'cancel-auto', 'restore', 'restore-auto', 'start', 'send-auto'],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                 ],
@@ -126,6 +128,33 @@ class DocumentController extends BaseController
             'model' => $document,
             'indexUrl' => EditForm::getIndexUrl($clientId),
         ]);
+    }
+
+    /**
+     * Add attachments to document
+     *
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionAddFiles($id)
+    {
+        try {
+            if (!$id) {
+                throw new InvalidArgumentException('Пакет документов не выбран');
+            }
+
+            $document = SBISDocument::findOne(['id' => $id]);
+            if (!$document) {
+                throw new InvalidArgumentException('Пакет документов ' . $id . ' не найден!');
+            }
+
+            $addFilesForm = new AddFilesForm($document);
+            $addFilesForm->tryToSave();
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/document/view?id='. $id);
     }
 
     /**

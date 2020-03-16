@@ -4,12 +4,17 @@ namespace app\modules\sbisTenzor\commands;
 
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
+use app\models\ClientContragent;
 use app\modules\sbisTenzor\classes\ContractorInfo;
+use app\modules\sbisTenzor\classes\SBISTensorAPI;
 use app\modules\sbisTenzor\helpers\SBISInfo;
 use app\modules\sbisTenzor\models\SBISDocument;
 use app\modules\sbisTenzor\models\SBISOrganization;
+use app\modules\sbisTenzor\Module;
 use app\widgets\ConsoleProgress;
+use kartik\base\Config;
 use Yii;
+use yii\base\InvalidArgumentException;
 use yii\console\Controller;
 
 class ContractorController extends Controller
@@ -26,6 +31,7 @@ class ContractorController extends Controller
             ->with('clientContractModel.clientContragent')
             ->andWhere(['NOT', ['exchange_group_id' => null]]);
     }
+
     /**
      * Запрос на получение списка клиентов, которые могут работать с ЭДО
      *
@@ -116,5 +122,61 @@ class ContractorController extends Controller
             echo implode(PHP_EOL, $allErrors);
             echo PHP_EOL;
         }
+    }
+
+    /**
+     * Запросить информацию по контрагенту
+     *
+     * @param int $clientId
+     * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \Exception
+     */
+    public function actionContractorInfo($clientId = 0)
+    {
+        if (!$clientId) {
+            throw new InvalidArgumentException('No client');
+        }
+
+        $client = ClientAccount::findOne(['id' => $clientId]);
+
+        if (!$client) {
+            throw new InvalidArgumentException('Client not found');
+        }
+
+        echo '--------------------------------' . PHP_EOL;
+        echo 'Client id: ' . $clientId . PHP_EOL;
+        echo 'Client full name: ' . $client->contragent->name . PHP_EOL;
+        echo 'Client inn: ' . $client->getInn() . PHP_EOL;
+
+        $result = [];
+
+        /** @var Module $module */
+        $module = Config::getModule('sbisTenzor');
+        if ($params = $module->getParams()) {
+            $sbisOrganization = array_shift($params);
+            $api = new SBISTensorAPI($sbisOrganization);
+
+            switch ($client->contragent->legal_type) {
+                case ClientContragent::PERSON_TYPE:
+                    $result = $api->getContractorInfoPerson($client->getInn());
+                    break;
+
+                case ClientContragent::IP_TYPE:
+                    $result = $api->getContractorInfoIp($client->getInn());
+                    break;
+
+                case ClientContragent::LEGAL_TYPE:
+                    echo 'Client kpp: ' . $client->getKpp() . PHP_EOL;
+                    $result = $api->getContractorInfoLegal($client->getInn(), $client->getKpp());
+                    break;
+            }
+        }
+
+        echo '--------------------------------' . PHP_EOL;
+        echo 'Result: ' . PHP_EOL;
+        var_dump($result);
     }
 }
