@@ -5,6 +5,7 @@ namespace app\modules\uu\models\traits;
 use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\exceptions\ModelValidationException;
+use app\helpers\Semaphore;
 use app\models\ClientAccount;
 use app\models\DidGroup;
 use app\modules\uu\models\AccountLogPeriod;
@@ -30,7 +31,15 @@ trait AccountTariffPackageTrait
             throw new InvalidParamException('Услуга не найдена: ' . $accountTariffId);
         }
 
-        $accountTariff->addOrCloseDefaultPackage();
+        Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
+        try {
+            $accountTariff->addOrCloseDefaultPackage();
+        } catch (\Exception $e) {
+            Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+            throw $e;
+        }
+        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+
     }
 
     /**

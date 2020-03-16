@@ -78,6 +78,10 @@ class AccountTariffBiller extends Behavior
      */
     public static function recalc(array $params)
     {
+        if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
+            throw new \LogicException('Error. AccountTariff::recalc not started');
+        }
+
         ob_start();
 
         $accountTariffId = $params['account_tariff_id'];
@@ -103,10 +107,6 @@ class AccountTariffBiller extends Behavior
         $tarificator = (new AccountLogMinTarificator);
         $tarificator->tarificate($accountTariffId);
         $tarificator->isNeedRecalc && $isNeedRecalc = true;
-
-        if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
-            throw new \LogicException('Error. AccountTariff::recalc not started');
-        }
 
         if ($isNeedRecalc) {
             (new AccountEntryTarificator)->tarificate($accountTariffId);
