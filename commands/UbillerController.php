@@ -157,7 +157,15 @@ class UbillerController extends Controller
 
     public function sem_stop()
     {
-        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+        return Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+    }
+
+    /**
+     * консольное отключение симафора блокировок (используется при деплое)
+     */
+    public function actionSemStop()
+    {
+        var_dump($this->sem_stop());
     }
 
     /**
