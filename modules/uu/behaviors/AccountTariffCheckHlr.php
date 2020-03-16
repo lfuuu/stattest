@@ -3,12 +3,11 @@
 namespace app\modules\uu\behaviors;
 
 use app\classes\adapters\Tele2Adapter;
-use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
-use app\modules\sim\classes\VoipHlr;
+use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\ImsiPartner;
 use app\modules\sim\models\ImsiProfile;
@@ -26,35 +25,138 @@ class AccountTariffCheckHlr extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_INSERT => 'check',
+            ActiveRecord::EVENT_AFTER_INSERT => 'doOn',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'doOff',
         ];
     }
 
-    public function check(AfterSaveEvent $event)
+    /**
+     * Проверка при отключении услуги
+     *
+     * @param AfterSaveEvent $event
+     */
+    public function doOff(AfterSaveEvent $event)
     {
         /** @var AccountTariff $accountTariff */
         $accountTariff = $event->sender;
 
-        if ($accountTariff->service_type_id != ServiceType::ID_VOIP) {
+        if (!$this->_check($event)) {
             return;
         }
 
+        // нет изменений, или не выключили
         if (
-            VoipHlr::me()->isNumberBelongHlr($accountTariff->voip_number, VoipHlr::ID_TELE2)
-            && $accountTariff->voip_numbers_warehouse_status
-            && $accountTariff->voip_numbers_warehouse_status > 0
+            !isset($event->changedAttributes['tariff_period_id']) ||
+            !(
+                $event->changedAttributes['tariff_period_id']
+                && !$accountTariff->tariff_period_id
+            )
         ) {
+            return;
+        }
 
-            if ($accountTariff->number->imsi) {
-                throw new \LogicException('IMSI уже прописан у номера ' . $accountTariff->voip_number);
+        EventQueue::go(EventQueue::SYNC_TELE2_UNSET_IMSI, [
+            'account_tariff_id' => $accountTariff->id,
+            'voip_number' => $accountTariff->voip_number,
+        ]);
+    }
+
+    public static function unsetImsi($params)
+    {
+        $accountTariff = AccountTariff::findOne(['id' => $params['account_tariff_id']]);
+
+        if (!$accountTariff) {
+            throw new \LogicException('AccountTraiff ' . $params['account_tariff_id'] . ' не найден');
+        }
+
+        $number = $accountTariff->number;
+
+        if (!$number) {
+            throw new \LogicException('Номер у услуги не найден ' . $accountTariff->id);
+        }
+
+        $number->imsi = null;
+        if (!$number->save()) {
+            throw new ModelValidationException($number);
+        }
+
+        $transaction = Imsi::getDb()->beginTransaction();
+
+        $partnerTele2Imsi = null;
+
+        try {
+            $imsis = Imsi::find()->where(['msisdn' => $number->number])->all();
+
+            /** @var Imsi $imsi */
+            foreach ($imsis as $imsi) {
+
+                if ($imsi->partner_id = ImsiPartner::ID_TELE2) {
+                    $partnerTele2Imsi = $imsi;
+                }
+
+                $imsi->msisdn = null;
+
+                if (!$imsi->save()) {
+                    throw new ModelValidationException($imsi);
+                }
             }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
 
-            EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
+            throw $e;
+        }
+
+        if ($partnerTele2Imsi) {
+            EventQueue::go(EventQueue::SYNC_TELE2_UNLINK_IMSI, [
                 'account_tariff_id' => $accountTariff->id,
                 'voip_number' => $accountTariff->voip_number,
-                'voip_numbers_warehouse_status' => $accountTariff->voip_numbers_warehouse_status,
+                'imsi' => $partnerTele2Imsi->imsi,
+                'iccid' => $partnerTele2Imsi->iccid,
             ]);
         }
+    }
+
+    /**
+     * проверка - работаем ли мы с этой услугой вообше
+     *
+     * @param AfterSaveEvent $event
+     * @return bool
+     */
+    private function _check(AfterSaveEvent $event)
+    {
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = $event->sender;
+
+        if ($accountTariff->service_type_id != ServiceType::ID_VOIP || $accountTariff->number->ndc_type_id != NdcType::ID_MOBILE) {
+            return false;
+        }
+
+        if (!($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function doOn(AfterSaveEvent $event)
+    {
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = $event->sender;
+
+        if (!$this->_check($event)) {
+            return;
+        }
+
+        if ($accountTariff->number->imsi) {
+            throw new \LogicException('IMSI уже прописан у номера ' . $accountTariff->voip_number);
+        }
+
+        EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
+            'account_tariff_id' => $accountTariff->id,
+            'voip_number' => $accountTariff->voip_number,
+            'voip_numbers_warehouse_status' => $accountTariff->voip_numbers_warehouse_status,
+        ]);
     }
 
     public static function reservImsi($params)
@@ -69,25 +171,33 @@ class AccountTariffCheckHlr extends Behavior
             throw new \LogicException('AccountTraiff ' . $params['account_tariff_id'] . ' не найден');
         }
 
-//        $transactionPg = Imsi::getDb()->beginTransaction();
+        $transactionPg = Imsi::getDb()->beginTransaction();
 
-        /** @var Imsi $imsi */
-        $imsi = self::getNextImsi($params['voip_numbers_warehouse_status']);
+        /** @var Imsi $foundImsi */
+        $foundImsi = self::getNextImsi($params['voip_numbers_warehouse_status']);
 
-        if (!$imsi) {
+        if (!$foundImsi) {
             throw new \LogicException('IMSI не найдена');
         }
 
+        $card = $foundImsi->card;
+
 //        $transactionMs = EventQueue::getDb()->beginTransaction();
         try {
-            $imsi->msisdn = $accountTariff->voip_number;
-            $imsi->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+            /** @var Imsi $imsi */
+            foreach ($card->imsies as $imsi) {
 
-            if (!$imsi->save()) {
-                throw new ModelValidationException($imsi);
+                if (!in_array($imsi->profile_id, ImsiProfile::IDS_OWN)) {
+                    continue;
+                }
+
+                $imsi->msisdn = $accountTariff->voip_number;
+                $imsi->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+
+                if (!$imsi->save()) {
+                    throw new ModelValidationException($imsi);
+                }
             }
-
-            $card = $imsi->card;
 
             $card->client_account_id = $accountTariff->client_account_id;
 
@@ -109,15 +219,15 @@ class AccountTariffCheckHlr extends Behavior
                 'iccid' => $imsi->iccid,
             ]);
 
-//            $transactionPg->commit();
+            $transactionPg->commit();
 //            $transactionMs->commit();
         } catch (\Exception $e) {
-//            $transactionPg->rollBack();
+            $transactionPg->rollBack();
 //            $transactionMs->rollBack();
             throw $e;
         }
 
-        return $imsi->imsi;
+        return $card->iccid;
     }
 
     /**
@@ -142,5 +252,10 @@ class AccountTariffCheckHlr extends Behavior
     public static function linkImsi($requestId, $param)
     {
         return Tele2Adapter::me()->addSubscriber($requestId, $param['imsi'], $param['voip_number']);
+    }
+
+    public static function unlinkImsi($requestId, $params)
+    {
+        return Tele2Adapter::me()->deleteSubscriber($requestId, $params['imsi']);
     }
 }

@@ -61,11 +61,6 @@ class AccountTariffEdit
       @warehouseStatus = @warehouseField.find('#voipNumbersWarehouseStatus')
       $('#' + @warehouseStatus.attr('id')).on('change', @showNumbersList)
 
-      # Дополнительное поле "API/HLR"
-      @hlrField = $('#voipNumberMobileHlrField')
-      @hlrStatus = @hlrField.find('#voipNumberMobileHlr')
-      $('#' + @hlrStatus.attr('id')).on('change', @showNumbersList)
-
       $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
       # показать список номеров и обновить тариф
@@ -108,9 +103,6 @@ class AccountTariffEdit
 
     # поведение поля "Статус склада мобильных номеров"
     @mobileDynamicBehavior(@warehouseStatus, @warehouseField)
-
-    # поведение поля "Статус склада мобильных номеров"
-    @mobileDynamicBehavior(@hlrStatus, @hlrField)
 
     if ndcTypeId
       @ndcType.parent().parent().removeClass(@errorClassName)
@@ -171,7 +163,6 @@ class AccountTariffEdit
       limit: @numbersListLimit.val()
       ndcTypeId: ndcTypeId
       warehouseStatusId: @warehouseStatus.val()
-      hlrId: @hlrStatus.val()
     }, (html) =>
       @showHideTariffDiv(html)
 
