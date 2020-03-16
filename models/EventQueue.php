@@ -315,7 +315,7 @@ class EventQueue extends ActiveRecord
     public function setOk($info = '')
     {
         if ($info) {
-            $this->log_error = $info;
+            $this->log_error = $info . PHP_EOL . $this->log_error;
         }
 
         $logs = HandlerLogger::me()->get();

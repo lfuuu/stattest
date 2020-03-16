@@ -31,7 +31,10 @@ trait AccountTariffPackageTrait
             throw new InvalidParamException('Услуга не найдена: ' . $accountTariffId);
         }
 
-        Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
+        if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
+            throw new \LogicException('calculator busy, try restart later');
+        }
+
         try {
             $accountTariff->addOrCloseDefaultPackage();
         } catch (\Exception $e) {

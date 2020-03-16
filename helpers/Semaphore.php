@@ -11,6 +11,11 @@ class Semaphore extends Singleton
 
     private $_storage = [];
 
+    /**
+     * @param int $semId
+     * @param bool $isWait
+     * @return bool
+     */
     public function acquire($semId, $isWait = true)
     {
         $resource = sem_get($semId);
@@ -25,6 +30,10 @@ class Semaphore extends Singleton
         return sem_acquire($resource, !$isWait);
     }
 
+    /**
+     * @param int $semId
+     * @return bool
+     */
     public function release($semId)
     {
         if (!isset($this->_storage[$semId])) {
@@ -40,6 +49,9 @@ class Semaphore extends Singleton
         return $result;
     }
 
+    /**
+     * standart destructor
+     */
     public function __destruct()
     {
         foreach ($this->_storage as $semResource) {
