@@ -86,6 +86,7 @@ class Number extends ActiveRecord
     const STATUS_NOTACTIVE_RESERVED = 'notactive_reserved';
     const STATUS_NOTACTIVE_HOLD = 'notactive_hold';
     const STATUS_RELEASED = 'released';
+    const STATUS_RELEASED_AND_PORTED = 'released_and_ported';
 
     const STATUS_GROUP_ACTIVE = 'active';
     const STATUS_GROUP_NOTACTIVE = 'notactive';
@@ -114,6 +115,7 @@ class Number extends ActiveRecord
         self::STATUS_NOTACTIVE_RESERVED => 'В резерве',
         self::STATUS_NOTACTIVE_HOLD => 'В отстойнике',
         self::STATUS_RELEASED => 'Откреплен',
+        self::STATUS_RELEASED_AND_PORTED => 'Откреплен и портирован',
     ];
 
     public static $statusGroup = [

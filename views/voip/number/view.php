@@ -142,6 +142,7 @@ echo \yii\widgets\Breadcrumbs::widget([
                     break;
 
                 case Number::STATUS_RELEASED:
+                case Number::STATUS_RELEASED_AND_PORTED:
                     echo Html::button('Вернуть открепленный номер', ['class' => 'btn btn-default col-sm-12', 'onclick' => "numberSubmitForm('unRelease')"]);
                     break;
             }
@@ -173,6 +174,7 @@ echo \yii\widgets\Breadcrumbs::widget([
 
             if ($number->status == Number::STATUS_INSTOCK) {
                 echo "<br />" . Html::button('Высвободить номер', ['class' => 'btn btn-danger btn-sm col-sm-3', 'style' => 'margin-top: 200px;', 'onclick' => "numberSubmitForm('toRelease')"]);
+                echo Html::button('Высвободить и портировать номер', ['class' => 'btn btn-danger btn-sm col-sm-4', 'style' => 'margin-top: 200px; margin-left: 10px;', 'onclick' => "numberSubmitForm('toReleaseAndPort')"]);
             }
 
             $form->end();
@@ -246,6 +248,8 @@ echo \yii\widgets\Breadcrumbs::widget([
                                     case NumberLog::ACTION_CREATE:
                                         if ($log['addition'] == "N") {
                                             echo '<b>Номер высвобожден</b>';
+                                        } elseif ($log['addition'] == "NP") {
+                                            echo '<b>Номер высвобожден и портирован</b>';
                                         } else {
                                             echo '<b>Номер создан</b>';
                                         }
