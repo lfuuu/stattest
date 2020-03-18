@@ -40,7 +40,7 @@ class AccountTariffCheckHlr extends Behavior
         /** @var AccountTariff $accountTariff */
         $accountTariff = $event->sender;
 
-        if (!$this->_check($event)) {
+        if (!$this->_check($event, false)) {
             return;
         }
 
@@ -123,7 +123,7 @@ class AccountTariffCheckHlr extends Behavior
      * @param AfterSaveEvent $event
      * @return bool
      */
-    private function _check(AfterSaveEvent $event)
+    private function _check(AfterSaveEvent $event, $isWithWS = true)
     {
         /** @var AccountTariff $accountTariff */
         $accountTariff = $event->sender;
@@ -132,7 +132,7 @@ class AccountTariffCheckHlr extends Behavior
             return false;
         }
 
-        if (!($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
+        if ($isWithWS && !($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
             return false;
         }
 
