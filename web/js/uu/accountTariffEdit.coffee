@@ -59,7 +59,6 @@ class AccountTariffEdit
       # Дополнительное поле "Статус склада мобильных номеров"
       @warehouseField = $('#voipNumbersWarehouseStatusField')
       @warehouseStatus = @warehouseField.find('#voipNumbersWarehouseStatus')
-      $('#' + @warehouseStatus.attr('id')).on('change', @showNumbersList)
 
       $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
@@ -162,7 +161,6 @@ class AccountTariffEdit
       mask: @numbersListMask.val()
       limit: @numbersListLimit.val()
       ndcTypeId: ndcTypeId
-      warehouseStatusId: @warehouseStatus.val()
     }, (html) =>
       @showHideTariffDiv(html)
 

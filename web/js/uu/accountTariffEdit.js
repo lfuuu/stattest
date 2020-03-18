@@ -86,7 +86,6 @@
 
           _this.warehouseField = $('#voipNumbersWarehouseStatusField');
           _this.warehouseStatus = _this.warehouseField.find('#voipNumbersWarehouseStatus');
-          $('#' + _this.warehouseStatus.attr('id')).on('change', _this.showNumbersList);
 
 
           $('#addAccountTariffVoipForm').on('submit', _this.onFormSubmit);
@@ -216,8 +215,7 @@
         orderByType: this.numbersListOrderByType.val(),
         mask: this.numbersListMask.val(),
         limit: this.numbersListLimit.val(),
-        ndcTypeId: ndcTypeId,
-        warehouseStatusId: this.warehouseStatus.val()
+        ndcTypeId: ndcTypeId
       }, (function(_this) {
         return function(html) {
           return _this.showHideTariffDiv(html);
