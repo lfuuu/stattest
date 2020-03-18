@@ -9,7 +9,6 @@ use app\models\Currency;
 use app\models\light_models\NumberLight;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
-use app\modules\sim\classes\VoipHlr;
 use yii\db\Expression;
 
 /**
@@ -98,11 +97,6 @@ class FreeNumberFilter extends Number
         $this->_query->andWhere(['not in', parent::tableName() . '.number', parent::LIST_SKIPPING]);
 
         return $this;
-    }
-
-    public function setHlr($hlrId)
-    {
-        VoipHlr::me()->addAndWhereInQuery($this->_query, $hlrId);
     }
 
     /**

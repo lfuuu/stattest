@@ -11,7 +11,7 @@ class JiraSoftFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'JiraSoft';
+        return 'Международный Транзит';
     }
 
     public function getColumns()

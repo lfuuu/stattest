@@ -11,7 +11,6 @@ use app\assets\AppAsset;
 use app\classes\Html;
 use app\models\City;
 use app\models\ClientAccount;
-use app\modules\sim\classes\VoipHlr;
 use app\modules\sim\models\CardStatus;
 use app\models\Country;
 use app\models\DidGroup;
@@ -207,19 +206,6 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                     ])
             ?>
         </div>
-        <div class="col-sm-4" id="voipNumberMobileHlrField" style="display: none;">
-            <?php
-                $statuses = VoipHlr::getList($isWithEmpty = true, $isWithNullAndNotNull = false);
-                echo $form->field($accountTariffVoip, 'voip_numbers_hlr')
-                    ->widget(Select2::class, [
-                        'data' => $statuses,
-                        'options' => [
-                            'id' => 'voipNumberMobileHlr',
-                        ],
-                    ])
-            ?>
-        </div>
-
     </div>
 
 <?php // чекбокс "выбрать все" ?>

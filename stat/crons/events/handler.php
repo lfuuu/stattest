@@ -510,6 +510,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = $isTele2Server ? AccountTariffCheckHlr::linkImsi($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
+                case EventQueue::SYNC_TELE2_UNSET_IMSI:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::unsetImsi($param) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case EventQueue::SYNC_TELE2_UNLINK_IMSI:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::unlinkImsi($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
 
                 // --------------------------------------------
                 // Псевдо-логирование
