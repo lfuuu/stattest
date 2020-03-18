@@ -84,7 +84,7 @@ SQL;
             $newTariffId = $row['new_tariff_period_id'];
 
             if (
-//                (!$row['tariff_period_id'] && $row['new_tariff_period_id'] || $row['id'] > 110000) && // только на включение
+                (!$row['tariff_period_id'] && $row['new_tariff_period_id']) && // только на включение
                 $accountTariff->prev_account_tariff_id
                 && ($mainAccountTariff = AccountTariff::findOne(['id' => $accountTariff->prev_account_tariff_id]))
                 && !$mainAccountTariff->tariff_period_id
