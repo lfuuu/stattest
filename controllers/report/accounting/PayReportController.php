@@ -12,6 +12,7 @@ use app\models\filter\PayReportFilter;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\db\Exception;
+use yii\web\Response;
 
 class PayReportController extends BaseController
 {
@@ -93,6 +94,8 @@ class PayReportController extends BaseController
         $firm = null;
         $depositBalance = 0;
         $deposit = 0;
+        $sign = 'director';
+        $format = '';
 
         $isSubmit = isset($get['submit']);
 
@@ -100,6 +103,8 @@ class PayReportController extends BaseController
             $dateFrom = $get['dateFrom'];
             $dateTo = $get['dateTo'];
             $saldo = $get['saldo'];
+            $sign = $get['sign'];
+            $format = isset($get['format']) ? $get['format'] : '';
 
             if ($dateFrom && $dateTo && $accountId) {
                 if (!$accountId || !($account = ClientAccount::findOne(['id' => $accountId]))) {
@@ -123,7 +128,7 @@ class PayReportController extends BaseController
             'pagination' => false
         ]);
 
-        return $this->render('revise', [
+        $viewParams = [
             'dataProvider' => $dataProvider,
             'isSubmit' => $isSubmit,
             'dateFrom' => $dateFrom,
@@ -133,7 +138,30 @@ class PayReportController extends BaseController
             'firm' => $firm,
             'deposit' => $deposit,
             'result' => $allModels,
-            'deposit_balance' => $depositBalance
-        ]);
+            'deposit_balance' => $depositBalance,
+            'accountId' => $accountId,
+            'sign' => $sign,
+            'format' => $format,
+        ];
+
+
+        switch ($format) {
+            case 'pdf':
+
+                $response = Yii::$app->response;
+                $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
+                $response->content = $this->renderAsPDF('revise', $viewParams);
+                $response->format = Response::FORMAT_RAW;
+                Yii::$app->end();
+
+                break;
+
+            case 'html':
+                return $this->renderPartial('revise', $viewParams);
+                break;
+
+            default:
+                return $this->render('revise', $viewParams);
+        }
     }
 }
