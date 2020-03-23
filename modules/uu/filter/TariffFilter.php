@@ -171,22 +171,23 @@ class TariffFilter extends Tariff
         $tariffTable = Tariff::tableName();
 
         $query
-            ->with('tariffPeriods.chargePeriod')
-            ->with('tariffCountries')
-            ->with('tariffVoipCountries.country')
-            ->with('package')
-            ->with('serviceType')
-            ->with('status')
-            ->with('person')
-            ->with('tag')
-            ->with('tariffResources.resource.serviceType')
-            ->with('voipGroup')
-            ->with('voipCities.city')
-            ->with('voipNdcTypes.ndcType')
-            ->with('organizations.organization')
+//            ->with('tariffPeriods.chargePeriod')
+//            ->with('tariffCountries')
+//            ->with('tariffVoipCountries.country')
+//            ->with('package')
+//            ->with('serviceType')
+//            ->with('status')
+//            ->with('person')
+//            ->with('tag')
+//            ->with('tariffResources.resource.serviceType')
+//            ->with('voipGroup')
+//            ->with('voipCities.city')
+//            ->with('voipNdcTypes.ndcType')
+//            ->with('organizations.organization')
             ->with('packageMinutes.destination')
-            ->with('packagePrices.destination')
-            ->with('packagePricelists.pricelist');
+//            ->with('packagePrices.destination')
+//            ->with('packagePricelists.pricelist')
+;
 
         $id && $query->andWhere(["{$tariffTable}.id" => $id]);
         $serviceTypeId && $query->andWhere(["{$tariffTable}.service_type_id" => (int)$serviceTypeId]);
