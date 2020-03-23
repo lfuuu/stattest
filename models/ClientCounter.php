@@ -27,6 +27,12 @@ use yii\helpers\ArrayHelper;
  * @property float $sum_w_neg_rate
  * @property float $sum_w_neg_rate_day
  * @property float $sum_w_neg_rate_month
+ * @property float $voice_sum_day
+ * @property float $voice_sum_month
+ * @property float $data_sum_day
+ * @property float $data_sum_month
+ * @property float $sms_sum_day
+ * @property float $sms_sum_month
  *
  * @property-read ClientAccount $clientAccount
  */
@@ -189,6 +195,15 @@ class ClientCounter extends ActiveRecord
             $localCounter->sum_w_neg_rate = $billingCounter->sum_w_neg_rate;
             $localCounter->sum_w_neg_rate_day = $billingCounter->sum_w_neg_rate_day;
             $localCounter->sum_w_neg_rate_month = $billingCounter->sum_w_neg_rate_month;
+
+            $localCounter->voice_sum_day = $billingCounter->voice_sum_day;
+            $localCounter->voice_sum_month = $billingCounter->voice_sum_month;
+
+            $localCounter->data_sum_day = $billingCounter->data_sum_day;
+            $localCounter->data_sum_month = $billingCounter->data_sum_month;
+
+            $localCounter->sms_sum_day = $billingCounter->sms_sum_day;
+            $localCounter->sms_sum_month = $billingCounter->sms_sum_month;
 
             $localCounter->save();
 
