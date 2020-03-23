@@ -13,74 +13,172 @@ use yii\widgets\Breadcrumbs;
 /* @var $contragent \app\models\ClientContragent */
 /* @var $firm \app\models\Organization */
 
+$isShowForm = $format == '';
 
-echo Html::formLabel($this->title);
-echo Breadcrumbs::widget([
-    'links' => [
-        'Бухгалтерия',
-        ['label' => $this->title, 'url' => '/report/accounting/pay-report/revise'],
-    ],
-]);
+if ($isShowForm) {
+    echo Html::formLabel($this->title);
+    echo Breadcrumbs::widget([
+        'links' => [
+            'Бухгалтерия',
+            ['label' => $this->title, 'url' => '/report/accounting/pay-report/revise'],
+        ],
+    ]);
 
 
-echo Html::beginForm(['revise'], 'get');
-echo '<span class="row"><span class="col-sm-2"><label>От:</label>';
-echo DatePicker::widget([
-    'name' => 'dateFrom',
-    'value' => $dateFrom,
-    'pluginOptions' => [
-        'format' => 'yyyy-mm-dd',
-    ]
-]);
-echo '</span><span class="col-sm-2"><label>До:</label>';
-echo DatePicker::widget([
-    'name' => 'dateTo',
-    'value' => $dateTo,
-    'pluginOptions' => [
-        'format' => 'yyyy-mm-dd',
-    ]
+    echo Html::beginForm(['revise'], 'get', ['id' => 'f_send']);
+    echo '<span class="row"><span class="col-sm-2"><label>От:</label>';
+    echo DatePicker::widget([
+        'name' => 'dateFrom',
+        'value' => $dateFrom,
+        'pluginOptions' => [
+            'format' => 'yyyy-mm-dd',
+        ]
+    ]);
+    echo '</span>';
+    echo '<span class="col-sm-2"><label>До:</label>';
+    echo DatePicker::widget([
+        'name' => 'dateTo',
+        'value' => $dateTo,
+        'pluginOptions' => [
+            'format' => 'yyyy-mm-dd',
+        ]
 
-]);
-echo '</span><span class="col-sm-2"><label>Начальное сальдо:</label>';
-echo Html::textInput('saldo', $saldo, ['class' => 'pull-left form-control']);
-echo '</span><span class="col-sm-2">';
-echo Html::submitButton('Фильтровать', [
-    'class' => 'pull-left btn btn-primary',
-    'style' => 'margin-top: 20px',
-    'name' => 'submit'
-]);
-echo '</span></span>';
-echo Html::endForm();
+    ]);
+    echo '</span>';
+
+    echo '<span class="col-sm-2"><label>Начальное сальдо:</label>';
+    echo Html::textInput('saldo', $saldo, ['class' => 'pull-left form-control']);
+    echo '</span>';
+
+    echo '<span class="col-sm-1">';
+    echo Html::submitButton('Сделать', [
+        'class' => 'pull-left btn btn-primary',
+        'style' => 'margin-top: 20px',
+        'name' => 'submit',
+        'onclick' => 'return sendForm()',
+    ]);
+    echo '</span>';
+
+    echo '<span class="col-sm-2"><label>Подпись:</label>';
+    echo Html::dropDownList('sign', $sign, ['director' => 'Директор', 'istomina' => 'Истомина И. В.'], ['class' => 'select2']);
+    echo '</span>';
+
+    echo '<span class="col-sm-2"><label>Формат:</label>';
+    echo Html::dropDownList('format', '', ['' => ' ----- ', 'html' => 'HTML', 'pdf' => 'PDF'], ['class' => 'select2', 'id' => 'format']);
+    echo '</span>';
+
+
+    echo '</span>';
+
+
+    echo Html::hiddenInput('fullscreen', 0, ['id' => 'i_fullscreen']);
+    echo Html::hiddenInput('is_pdf', 0, ['id' => 'is_pdf']);
+
+    echo Html::endForm();
+
+    echo <<< JScrip
+<script>
+    
+	function sendForm()
+	{
+		var format = $('#format').val();
+		if (format == 'html' || format == 'pdf') {
+			$("#f_send").attr('target','_blank');
+		} else {
+		    $("#f_send").removeAttr('target');
+		}
+        return true;
+	}
+	</script>
+JScrip;
+} else {
+    echo <<<ECHO
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+    <title>Акт сверки {$contragent->name_full}</title>
+    <META http-equiv=Content-Type content="text/html; charset=utf-8">
+    <style>
+    .price {
+        font-size:15px;
+    }
+    body {
+        color: black;
+        font-size: 8pt;
+    }
+    td {
+        color: black;
+    }
+    thead tr td {
+        font-weight:bold;
+    }
+    h2 {
+        text-align:center;
+        font-size: 12pt;
+    }
+    h3 {
+        text-align:center;
+    }
+    p {font-family: 'Times New Roman'; font-size: 8pt;}
+    td {font-family: 'Times New Roman'; font-size: 8pt;}
+    th {font-family: Verdana; font-size: 6pt;}
+    small {font-size: 6.5pt;}
+    strong {font-size: 6.5pt;}
+    </style>
+</head>
+
+
+<body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
+ECHO;
+
+}
 
 if ($isSubmit) {
-    echo GridView::widget([
-        'dataProvider' => $dataProvider,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-            [
-                'attribute' => 'description',
-                'label' => 'Описание',
-            ],
-            [
-                'attribute' => 'income_sum',
-                'label' => 'Дебет',
-                'format' => 'raw',
-                'value' => function($row) {
-                    return $row['income_sum'] !== '' ? number_format($row['income_sum'], 2, ',', ' ') : '';
-                }
-            ],
-            [
-                'attribute' => 'outcome_sum',
-                'label' => 'Кредит',
-                'format' => 'raw',
-                'value' => function($row) {
-                    return $row['outcome_sum'] !== '' ? number_format($row['outcome_sum'], 2, ',', ' ') : '';
-                }
-
-            ],
-        ],
-        'isFilterButton' => false
-    ]);
+    ?>
+    <br>
+    <br>
+    <center>
+        <h2>АКТ СВЕРКИ</h2>
+        <br>
+        <h3 style="color: black;">взаимных расчетов по состоянию на <?= date("d.m.Y") ?> г.
+            <br>между <?= $contragent->name_full ?>
+            лицевой счет № <?= $accountId ?> <br>и <?= $firm->name->value ?></h3>
+        <br>
+        <br>
+    </center>
+    <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
+        <thead>
+        <tr>
+            <td width=50% colspan=4>По данным <?= $firm->name->value ?>, руб.</td>
+            <td width=50% colspan=4>По данным <?= $contragent->name_full ?>, руб.</td>
+        </tr>
+        <tr>
+            <td width=4%>&#8470; п/п</td>
+            <td width=36%>Наименование операции,<br>документы</td>
+            <td width=5%>Дебет</td>
+            <td width=5%>Кредит</td>
+            <td width=4%>&#8470; п/п</td>
+            <td width=24%>Наименование операции,<br>документы</td>
+            <td width=11%>Дебет</td>
+            <td width=11%>Кредит</td>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($dataProvider->allModels as $idx => $item) : ?>
+            <tr>
+                <td><?= ($idx + 1) ?></td>
+                <td><?= $item['description'] ?></td>
+                <td align=right><?= ($item['income_sum'] !== '' ? number_format($item['income_sum'], 2, ',', '&nbsp;') : '') ?></td>
+                <td align=right><?= ($item['outcome_sum'] !== '' ? number_format($item['outcome_sum'], 2, ',', '&nbsp;') : '') ?></td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php
 }
 
 if (!$contragent) {
@@ -116,4 +214,76 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
     echo 'в пользу ' . $contragent->name_full . ' составляет ' . number_format(-$deposit_balance, 2, ',', ' ') . ' рублей.';
 } else {
     echo 'отсутствует';
+}
+
+?>
+
+    <div>
+        <table border="0" cellpadding="0" cellspacing="5">
+            <tr>
+                <td colspan="3"><p>От <?= $firm->name->value ?></p></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td><p>От <?= $contragent->name_full ?></p></td>
+            </tr>
+            <tr>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+            <tr>
+                <td><?= ($sign == 'istomina' ? 'Бухгалтер' : 'Руководитель организации') ?></td>
+                <td>___________________</td>
+                <td><?= ($sign == 'istomina' ? 'Истомина И.В. Приказ N24 от 01.08.2013' : $firm->director->name_nominative) ?></td>
+                <td></td>
+                <td>______________________________</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td align="center">
+                    <small>(подпись)</small>
+                </td>
+                <td></td>
+                <td></td>
+                <td align="center">
+                    <small>(подпись)</small>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td align="center">М.П.</td>
+                <td></td>
+                <td></td>
+                <td align="center">М.П.</td>
+            </tr>
+        </table>
+    </div>
+<?php if ($sign == 'istomina') : ?>
+    <div style="position:absolute; z-index:100; left:190px; margin-left:-110px;margin-top:-90px;">
+        <img src="/images/sign_istomina.png" width="120px" height="62px"/>
+    </div>
+    <?php if ($firm->stamp_file_name) : ?>
+        <div style="position:absolute; z-index:100; left:200px; margin-left:-90px; margin-top:-150px">
+            <img src="/images/stamp/<?= $firm->stamp_file_name ?>" width="200" height="200" {/if} />
+        </div>
+    <?php endif; ?>
+<?php elseif ($sign == 'director') : ?>
+    <div style="position:absolute; z-index:100; left:200px; margin-left:-30px;margin-top:<?= (in_array($firm->director->signature_file_name, ['sign_vav.png', 'sign_bnv.png']) ? '-100px;' : '-86px;') ?>">
+        <img src="/images/signature/<?= $firm->director->signature_file_name ?>" border="0" alt="" align="top">
+    </div>
+    <?php if ($firm->stamp_file_name) : ?>
+        <div style="position:absolute; z-index:100; left:200px; margin-left:-120px; margin-top:-150px">
+            <img src="/images/stamp/<?= $firm->stamp_file_name ?>" width="200" height="200"/>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
+
+<?= date('r') ?>
+
+<?php
+if (!$isShowForm) {
+    echo <<<ECHO
+</body>
+</html>
+ECHO;
 }
