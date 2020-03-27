@@ -691,7 +691,7 @@ class UuController extends ApiInternalController
                 'tariff_person' => $this->_getIdNameRecord($tariff->person),
                 'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
                 'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
-                'tariff_periods' => $this->_getTariffPeriodRecord($tariffPeriod),
+                'tariff_periods' => null, //$this->_getTariffPeriodRecord($tariffPeriod),
                 'is_termination' => $package ? $package->is_termination : null,
                 'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
                 'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
@@ -709,6 +709,7 @@ class UuController extends ApiInternalController
             Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
         }
 
+        $data['tariff_periods'] = $this->_getTariffPeriodRecord($tariffPeriod);
         $data['voip_package_minute'] = $this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic);
 
         return $data;
