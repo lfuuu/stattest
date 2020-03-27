@@ -7,6 +7,7 @@
  */
 
 use app\classes\BillContract;
+use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\GridView;
 use app\models\ClientAccount;
@@ -26,6 +27,18 @@ use app\models\User;
 
 <?php
 
+function hlValue(\app\models\ClientContragentPerson $model, $field, $isForceError = false)
+{
+    return $model->{$field} ?
+        _hlHtml($model->{$field}, $isForceError)
+        : _hlHtml($model->getAttributeLabel($field), true);
+}
+
+function _hlHtml($value, $isError)
+{
+    return !$isError ? $value : \app\classes\Html::tag('span', $value, ['style' => ['background-color' => 'red', 'color' => 'white', 'padding' => '0px 5px 0px 5px', 'border' => '1px solid #E9967A']]);
+}
+
 $baseView = $this;
 $columns = [
     [
@@ -37,16 +50,21 @@ $columns = [
     ],
     [
         'label' => $filterModel->getAttributeLabel('name_full'),
-        'format' => 'raw',
+        'format' => 'html',
         'value' => function (ClientAccount $account) {
             $returnStr = $account->contragent->name_full;
 
             if ($account->contragent->legal_type == ClientContragent::PERSON_TYPE) {
                 $person = $account->contragent->person;
 
-                $returnStr .= '<br>' . $person->last_name . '*' . $person->first_name . '*' . $person->middle_name . '<br>' .
-                    $person->birthday . '*' . $person->passport_serial . '*' . $person->passport_number . '<br>' .
-                    $person->passport_issued . '<br>' . $person->passport_date_issued;
+                $returnStr = hlValue($person, 'last_name') .
+                    '*' . hlValue($person, 'first_name') .
+                    '*' . hlValue($person, 'middle_name') .
+                    '<br>' . hlValue($person, 'birthday') .
+                    '*' . hlValue($person, 'passport_serial', strlen($person->passport_serial) != 4 || !preg_match('/^\d+$/', $person->passport_serial)) .
+                    '*' . hlValue($person, 'passport_number', strlen($person->passport_number) != 6 || !preg_match('/^\d+$/', $person->passport_number)) .
+                    '<br>' . hlValue($person, 'passport_issued', strlen($person->passport_number) < 6) .
+                    '<br>' . hlValue($person, 'passport_date_issued');
             }
 
             return $returnStr;
@@ -73,44 +91,73 @@ $columns = [
                 return $contractInfo['no'];
             }
             return $account->contract_id;
-        }
+        },
     ],
     [
         'label' => $filterModel->getAttributeLabel('inn'),
-        'contentOptions' => [
-            'class' => 'sorm-client-cell',
-            'data' => ['field' => 'inn']
-        ],
 
         'value' => function (ClientAccount $account) {
             return $account->contragent->inn;
+        },
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+                'class' => 'sorm-client-cell',
+                'data' => ['field' => 'inn']
+            ];
+
+            if ($account->contragent->legal_type != ClientContragent::PERSON_TYPE && !$account->contragent->inn) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
         }
     ],
     [
         'label' => $filterModel->getAttributeLabel('bik'),
-        'contentOptions' => [
-            'class' => 'sorm-client-cell',
-            'data' => ['field' => 'bik']
-        ],
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+                'class' => 'sorm-client-cell',
+                'data' => ['field' => 'bik']
+            ];
+
+            if ($account->contragent->legal_type != ClientContragent::PERSON_TYPE && !$account->bik) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
+        },
         'value' => 'bik',
     ], [
         'label' => $filterModel->getAttributeLabel('bank'),
         'value' => 'bank_name',
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [];
+
+            if ($account->contragent->legal_type != ClientContragent::PERSON_TYPE && !$account->bank_name) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
+        }
     ],
     [
         'attribute' => 'pay_acc',
-        'contentOptions' => [
-            'class' => 'sorm-client-cell',
-            'data' => ['field' => 'pay_acc']
-        ],
         'value' => 'pay_acc',
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+                'class' => 'sorm-client-cell',
+                'data' => ['field' => 'pay_acc']
+            ];
+
+            if ($account->contragent->legal_type != ClientContragent::PERSON_TYPE && !$account->pay_acc) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
+        }
     ],
     [
         'label' => $filterModel->getAttributeLabel('contact_fio'),
-        'contentOptions' => [
-            'class' => 'sorm-client-cell',
-            'data' => ['field' => 'contact_fio']
-        ],
 
         'value' => function (ClientAccount $account) use ($filterModel) {
             /** @var \app\models\ClientContact $contact */
@@ -121,15 +168,22 @@ $columns = [
             }
 
             return '';
+        },
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+                'class' => 'sorm-client-cell',
+                'data' => ['field' => 'contact_fio']
+            ];
+
+            if (!($contact = SormClientFilter::getContactByAccount($account)) || !$contact->comment) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
         }
     ],
     [
         'label' => $filterModel->getAttributeLabel('contact_phone'),
-        'contentOptions' => [
-            'class' => 'sorm-client-cell',
-            'data' => ['field' => 'contact_phone']
-        ],
-
         'value' => function (ClientAccount $account) use ($contactWhere, $contactOrderBy) {
             /** @var \app\models\ClientContact $contact */
             $contact = SormClientFilter::getContactByAccount($account);
@@ -139,22 +193,99 @@ $columns = [
             }
 
             return '';
+        },
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+                'class' => 'sorm-client-cell',
+                'data' => ['field' => 'contact_phone']
+            ];
+
+            if (!($contact = SormClientFilter::getContactByAccount($account)) || !$contact->data) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
         }
     ],
     [
         'label' => $filterModel->getAttributeLabel('address_jur'),
-        'contentOptions' => [
-            'class' => 'sorm-client-cell',
-            'data' => ['field' => 'address_jur'],
-        ],
         'value' => function (ClientAccount $account) {
             /** @var \app\models\ClientContact $contact */
             return
                 $account->contragent->legal_type == ClientContragent::PERSON_TYPE
                     ? $account->contragent->person->registration_address
                     : $account->contragent->address_jur;
+        },
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+                'class' => 'sorm-client-cell',
+                'data' => ['field' => 'address_jur']
+            ];
+
+            if (!($account->contragent->legal_type == ClientContragent::PERSON_TYPE
+                ? $account->contragent->person->registration_address
+                : $account->contragent->address_jur)) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
         }
     ],
+    [
+        'attribute' => 'address_post',
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+                'class' => 'sorm-client-cell',
+                'data' => ['field' => 'address_post']
+            ];
+
+            if ($account->contragent->legal_type != ClientContragent::PERSON_TYPE && !$account->address_post) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
+        }
+    ],
+
+    [
+        'label' => 'Польз. обордв.',
+        'contentOptions' => function (ClientAccount $account) {
+            $options = [
+            ];
+
+            if ($account->getEquipmentUsers()->count() == 0) {
+                $options['style'] = ['background-color' => 'red'];
+            }
+
+            return $options;
+        },
+        'format' => 'raw',
+        'value' => function (ClientAccount $account) {
+
+            $eqUser = $account
+                ->getEquipmentUsers()
+                ->select(new \yii\db\Expression('group_concat(full_name SEPARATOR ", ")'))->scalar();
+
+            if ($eqUser) {
+                return $eqUser;
+            }
+
+            $fio = $account->contragent->fio;
+
+            if (preg_match('/\s*[А-Я][а-я]+\s+[А-Я][а-я]+\s+[А-Я][а-я]+\s*/u', $fio)) {
+                return $this->render('//layouts/_button', [
+                    'text' => $fio,
+                    'glyphicon' => 'glyphicon glyphicon-save',
+                    'params' => [
+                        'class' => 'btn btn-danger btn-sm sorm-save-equ',
+                        'data' => ['account_id' => $account->id]
+                    ],
+                ]);
+            }
+
+            return $fio ? _hlHtml($fio, true) : '';
+        }
+    ]
 ];
 
 $filterColumns = [
@@ -166,7 +297,19 @@ $filterColumns = [
         'attribute' => 'account_manager',
         'filterType' => GridView::FILTER_SELECT2,
         'filter' => User::getAccountManagerList(true),
-        'class' => \app\classes\grid\column\DataColumn::class
+        'class' => DataColumn::class
+    ],
+    [
+        'attribute' => 'filter_by',
+        'filterType' => GridView::FILTER_SELECT2,
+        'filter' => SormClientFilter::$filterList,
+        'class' => DataColumn::class
+    ],
+    [
+        'attribute' => 'is_with_error',
+        'class' => DataColumn::class,
+        'filterType' => GridView::FILTER_SELECT2,
+        'filter' => SormClientFilter::$errList,
     ],
 ];
 

@@ -59,6 +59,39 @@
       event.stopPropagation();
     });
 
+    $('.sorm-save-equ').click(function(event) {
+
+      var $tg = $(event.currentTarget);
+
+      var data = {
+        value: $tg.text(),
+        field: 'equ',
+        accountId: $tg.data('account_id')
+      };
+
+      console.log($tg);
+      console.log(data);
+
+      $.ajax({
+        url: '/monitoring/sorm-clients-save',
+        method: 'get',
+        data: data,
+        success: function (content) {
+          console.log(content);
+          console.log($tg);
+
+          if (content == 'ok') {
+            $tg.parent().text(data.value).css('background-color', '');
+          } else {
+            alert(content);
+          }
+        },
+        error: function (content) {
+          alert(content.responseText);
+        }
+      });
+    });
+
     $('html').click(function () {
       endEditable();
     });
