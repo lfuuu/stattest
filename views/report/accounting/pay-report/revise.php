@@ -60,7 +60,7 @@ if ($isShowForm) {
     echo '</span>';
 
     echo '<span class="col-sm-2"><label>Подпись:</label>';
-    echo Html::dropDownList('sign', $sign, ['director' => 'Директор', 'istomina' => 'Истомина И. В.'], ['class' => 'select2']);
+    echo Html::dropDownList('sign', $sign, ['' => ' --- Без подписи --- ', 'director' => 'Директор'], ['class' => 'select2']);
     echo '</span>';
 
     echo '<span class="col-sm-2"><label>Формат:</label>';
@@ -232,9 +232,9 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
                 <td colspan="5">&nbsp;</td>
             </tr>
             <tr>
-                <td><?= ($sign == 'istomina' ? 'Бухгалтер' : 'Руководитель организации') ?></td>
+                <td>Руководитель организации</td>
                 <td>___________________</td>
-                <td><?= ($sign == 'istomina' ? 'Истомина И.В. Приказ N24 от 01.08.2013' : $firm->director->name_nominative) ?></td>
+                <td><?= $firm->director->name_nominative ?></td>
                 <td></td>
                 <td>______________________________</td>
             </tr>
@@ -258,16 +258,7 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
             </tr>
         </table>
     </div>
-<?php if ($sign == 'istomina') : ?>
-    <div style="position:absolute; z-index:100; left:190px; margin-left:-110px;margin-top:-90px;">
-        <img src="/images/sign_istomina.png" width="120px" height="62px"/>
-    </div>
-    <?php if ($firm->stamp_file_name) : ?>
-        <div style="position:absolute; z-index:100; left:200px; margin-left:-90px; margin-top:-150px">
-            <img src="/images/stamp/<?= $firm->stamp_file_name ?>" width="200" height="200" {/if} />
-        </div>
-    <?php endif; ?>
-<?php elseif ($sign == 'director') : ?>
+<?php if ($sign == 'director') : ?>
     <div style="position:absolute; z-index:100; left:200px; margin-left:-30px;margin-top:<?= (in_array($firm->director->signature_file_name, ['sign_vav.png', 'sign_bnv.png']) ? '-100px;' : '-86px;') ?>">
         <img src="/images/signature/<?= $firm->director->signature_file_name ?>" border="0" alt="" align="top">
     </div>
@@ -277,8 +268,6 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
         </div>
     <?php endif; ?>
 <?php endif; ?>
-
-<?= date('r') ?>
 
 <?php
 if (!$isShowForm) {
