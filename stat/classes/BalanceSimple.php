@@ -71,6 +71,7 @@ class BalanceSimple
 
         if(!isset($params["is_multy"])) $params["is_multy"] = false;
         if(!isset($params["is_view_canceled"])) $params["is_view_canceled"] = true;
+        if(!isset($params["is_with_file_name"])) $params["is_with_file_name"] = false;
 
         $sqlLimit = $params["is_multy"] ? " limit 1000" : "";
 
@@ -90,11 +91,13 @@ class BalanceSimple
                         ?    'IF(bill_date >= "'.$sum[$params['client_currency']]['ts'].'",1,0)'
                         :    '1'
                 ).' as in_sum
+                ' . ($params["is_with_file_name"] ? ', bf.name as file_name' : '') . '
             from
                 newbills
 
                 left join tt_troubles t using (bill_no)
                 left join tt_stages ts on (ts.stage_id = t. cur_stage_id)
+                ' . ($params["is_with_file_name"] ? 'left join newbills_external_files bf using (bill_no)' : '') . '
 
             where
                 client_id=' . $params['client_id']

@@ -64,7 +64,8 @@
         <tr>
             <td>С:<br><input type=text1 id="date_from" name=date_from value='{$date_from}' class="form-control"
                              style="width:100px;"></td>
-            <td>По:<br><input type=text1 id="date_to" name=date_to value='{$date_to}' class="form-control" style="width:100px;">
+            <td>По:<br><input type=text1 id="date_to" name=date_to value='{$date_to}' class="form-control"
+                              style="width:100px;">
             </td>
         </tr>
         <tr>
@@ -140,7 +141,9 @@
             <td>{$item.sum_without_vat_euro|string_format:"%4.2f"}</td>
             <td>{$item.vat_euro|string_format:"%4.2f"}</td>
             <td>{$item.sum_euro|string_format:"%4.2f"}</td>
-            <td>...</td>
+            <td>{if $item.file_name}<a
+                    href="/?module=newaccounts&action=bill_ext_file_get&bill_no={$item.bill_no|escape:'url'}"
+                    class="">{$item.file_name}</a>{else}...{/if}</td>
         </tr>
     {/foreach}
     {foreach from=$totals key=currency item=total}
@@ -203,3 +206,36 @@
 
     {/literal}
 </style>
+<BR>
+<BR>
+<BR>
+<BR>
+<div class="well" style="width: 225px;">
+<button id="downloadAll" class="btn btn-warning">Скачать все документы</button>
+</div>
+
+<script>
+    {literal}
+    $(document).ready(function () {
+      $('#downloadAll').click(function (e) {
+        e.stopPropagation();
+
+        var ll = $('a[href*=bill_ext_file_get]');
+
+        var link = document.createElement('a');
+
+        link.setAttribute('download', null);
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+
+        for (var i = 0; i < ll.length; i++) {
+          link.setAttribute('href', ll[i]);
+          link.click();
+        }
+
+        document.body.removeChild(link);
+      });
+    });
+    {/literal}
+</script>
