@@ -127,6 +127,7 @@ use yii\helpers\Url;
  * @property-read ClientAccountComment $lastAccountComment
  * @property-read integer $is_show_in_lk
  * @property-read ClientAccountOptions $options
+ * @property-read EquipmentUser $equipmentUsers
  *
  * @method static ClientAccount findOne($condition)
  * @method static ClientAccount[] findAll($condition)
@@ -963,6 +964,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getLkNoticeSetting()
     {
         return $this->hasMany(LkNoticeSetting::class, ['client_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEquipmentUsers()
+    {
+        return $this->hasMany(EquipmentUser::class, ['client_account_id' => 'id']);
     }
 
     /**

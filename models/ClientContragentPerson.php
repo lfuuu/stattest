@@ -30,6 +30,25 @@ class ClientContragentPerson extends HistoryActiveRecord
         return 'client_contragent_person';
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'contragent_id' => 'Конатргент',
+            'last_name' => 'Фамилия',
+            'first_name' => 'Имя',
+            'middle_name' => 'Отчество',
+            'passport_date_issued' => 'Паспорт выдан',
+            'passport_serial' => 'Паспорт серия',
+            'passport_number' => 'Паспорт номер',
+            'passport_issued' => 'Паспорт выдан',
+            'registration_address' => 'Дарес прописки',
+            'mother_maiden_name' => 'Имя матери',
+            'birthplace' => 'Место рождения',
+            'birthday' => 'День рождения',
+            'other_document' => 'Другой документ',
+        ];
+    }
+
     /**
      * @return array
      */

@@ -19,6 +19,8 @@ use yii\behaviors\TimestampBehavior;
  */
 class EquipmentUser extends ActiveRecord
 {
+    public $isStrongCheck = true;
+
     /**
      * Название таблицы
      *
@@ -44,12 +46,16 @@ class EquipmentUser extends ActiveRecord
 
     public function rules()
     {
-        return [
-            [['birth_date', 'full_name', 'passport', 'passport_ext'], 'required'],
-            [['birth_date', 'full_name', 'passport', 'passport_ext'], 'string'],
-            [['birth_date', 'full_name', 'passport', 'passport_ext'], FormFieldValidator::class],
-            ['birth_date', 'date', 'format' => 'Y-m-d']
-        ];
+        $rules = [];
+
+        if ($this->isStrongCheck) {
+            $rules[] = [['birth_date', 'full_name', 'passport', 'passport_ext'], 'required'];
+            $rules[] = [['birth_date', 'full_name', 'passport', 'passport_ext'], 'string'];
+        }
+        $rules[] = [['birth_date', 'full_name', 'passport', 'passport_ext'], FormFieldValidator::class];
+        $rules[] = ['birth_date', 'date', 'format' => 'Y-m-d'];
+
+        return $rules;
     }
 
     public function getParentId()
