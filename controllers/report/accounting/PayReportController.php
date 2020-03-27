@@ -116,7 +116,7 @@ class PayReportController extends BaseController
                 $allModels = $result['data'];
                 $deposit = $result['deposit'];
                 $depositBalance = $result['deposit_balance'];
-                $contragent = $account->contract->getContragent($dateFrom);
+                $contragent = $account->contract->getContragent($dateTo);
                 $firm = $account->getOrganization($dateFrom);
             } elseif (isset($get['submit'])) {
                 Yii::$app->session->setFlash('error', 'Выберите клиента и заполните дату');
