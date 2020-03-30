@@ -171,6 +171,7 @@ class TariffFilter extends Tariff
         $tariffTable = Tariff::tableName();
 
         $query
+            ->with('tariffPeriods')
 //            ->with('tariffPeriods.chargePeriod')
 //            ->with('tariffCountries')
 //            ->with('tariffVoipCountries.country')

@@ -257,7 +257,9 @@ class m_newaccounts extends IModule
             "client_currency" => $fixclient_data["currency"],
             "is_multy" => $isMulty,
             "is_view_canceled" => $isViewCanceled,
-            "get_sum" => $get_sum
+            "get_sum" => $get_sum,
+            'is_with_file_name' => true,
+
         ];
 
         $R = BalanceSimple::get($params);
@@ -5191,12 +5193,13 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
   (coalesce(ex.ext_vat, 0) + coalesce(ex.ext_sum_without_vat, 0)) AS sum,
   b.currency,
   cur_euro.rate                                                   AS euro_rate,
-  cur_nat.rate                                                    AS nat_rate
-
+  cur_nat.rate                                                    AS nat_rate,
+  bf.name                                                         AS file_name
 FROM newbills b, clients c, client_contract cc, client_contragent cg, country cnt, newbills_external ex
   LEFT JOIN currency_rate cur_euro
     ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_euro.date AND cur_euro.currency = 'EUR')
   LEFT JOIN currency_rate cur_nat ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_nat.date)
+  LEFT JOIN newbills_external_files bf ON bf.bill_no = ex.bill_no
 WHERE " . $dateField . " BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
       AND cur_nat.currency = b.currency
