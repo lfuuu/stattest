@@ -416,12 +416,14 @@ class m_newaccounts extends IModule
                 : '1'
             ) . ' AS in_sum, 
                 sum_correction,
-                P.operation_type_id
+                P.operation_type_id,
+                bf.name as file_name
             FROM
                 newbills P
                 LEFT JOIN newbills_external USING (bill_no)
                 LEFT JOIN tt_troubles t USING (bill_no)
                 LEFT JOIN tt_stages ts ON  (ts.stage_id = t. cur_stage_id)
+                LEFT JOIN newbills_external_files bf using (bill_no)
             WHERE
                 client_id=' . $fixclient_data['id'] . '
                 ' . ($isMulty && !$isViewCanceled ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
@@ -809,6 +811,7 @@ class m_newaccounts extends IModule
         $design->assign('bill_courier', $bill->GetCourier());
         $design->assign('bill_lines', $L = $bill->GetLines());
         $design->assign('bill_bonus', $this->getBillBonus($bill->GetNo()));
+        $design->assign('bill_file_name', $newbill->getExtFile()->select('name')->scalar());
         $design->assign('bill_is_new_company', [
             'retail_to_service' => Bill::dao()->isBillNewCompany($newbill, 11, 21),
             'telekom_to_service' => Bill::dao()->isBillNewCompany($newbill, 1, 21),
