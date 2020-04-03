@@ -27,6 +27,7 @@ use app\modules\transfer\components\services\universal\UniversalTransfer;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\TariffPeriod;
 use Yii;
 use yii\base\InvalidCallException;
 use yii\base\InvalidValueException;
@@ -385,7 +386,7 @@ class MonitoringController extends BaseController
         $usageVoipIds = [];
         $accountTariffIds = [];
         if ($regionId = $filterModelSearch->region_id) {
-            $ids = SormClientFilter::getAccountTariffIds($regionId);
+            $ids = SormClientFilter::getAccountTariffIds($regionId, $filterModelSearch->is_device_empty === '' ? null : ($filterModelSearch->is_device_empty == TariffPeriod::IS_NOT_SET ? false : true));
 
             $usageVoipIds = array_filter($ids, function ($v) {
                 return $v < AccountTariff::DELTA;

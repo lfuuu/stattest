@@ -247,10 +247,17 @@ SQL;
      * @param int $regionId
      * @return array
      */
-    public static function getAccountTariffIds($regionId)
+    public static function getAccountTariffIds($regionId, $isEmptyDevice = null)
     {
         $sqlPhoneList = self::getSqlPhoneList($regionId);
-        return \Yii::$app->db->createCommand("SELECT u_id FROM ({$sqlPhoneList}) a ")->queryColumn();
+
+        $addSql = '';
+
+        if ($isEmptyDevice !== null) {
+            $addSql = 'where ' . ($isEmptyDevice ? 'NOT ' : '') . 'device_address = \'\'';
+        }
+
+        return \Yii::$app->db->createCommand("SELECT u_id FROM ({$sqlPhoneList}) a " . $addSql)->queryColumn();
     }
 
     /**
@@ -267,16 +274,15 @@ SQL;
 
         return <<<SQL
 SELECT
-         u_id,
-         client_id,
-         e164,
-         region,
-         if(actual_from < '{$dateStart} 00:00:00' , '{$dateStart} 00:00:00' , actual_from) actual_from,
-         actual_to,
-         device_address
-       FROM (
-              SELECT
-                a.*/*,
+  u_id,
+  client_id,
+  e164,
+  a.region,
+  if(actual_from < '{$dateStart} 00:00:00', '{$dateStart} 00:00:00', actual_from) actual_from,
+  actual_to,
+  device_address
+FROM (
+       SELECT a.* /*,
                 (SELECT contract_no
                  FROM client_document cd, clients c
                  WHERE
@@ -290,49 +296,52 @@ SELECT
                  LIMIT 1) AS contract_no
                  */
 
-              FROM (SELECT
-                      u.id                                                                           as u_id,
-                      c.id                                                                           AS client_id,
-                      u.e164,
-                      v.region,
-                      CONCAT(actual_from, ' 00:00:00') AS actual_from,
-                      IF(actual_to > '3000-01-01', NULL, concat(actual_to, ' 23:59:59'))             AS actual_to,
-                      u.address                                                                      AS device_address
-                    FROM usage_voip u, voip_numbers v, clients c
-                    WHERE
-                      c.client = u.client
-                      AND v.region = {$regionId}
-                                       AND u.e164 = v.number
-                                                     AND actual_to >= '{$dateStart}'
+       FROM (SELECT
+               u.id                                                               as u_id,
+               c.id                                                               AS client_id,
+               u.e164,
+               v.region,
+               CONCAT(actual_from, ' 00:00:00')                                   AS actual_from,
+               IF(actual_to > '3000-01-01', NULL, concat(actual_to, ' 23:59:59')) AS actual_to,
+               u.address                                                          AS device_address
+             FROM usage_voip u, voip_numbers v, clients c
+             WHERE
+               c.client = u.client
+               AND v.region = {$regionId}
+                                AND u.e164 = v.number
+                                              AND actual_to >= '{$dateStart}'
 
-                                                     UNION
+                                              UNION
 
-                                                     SELECT *
-                                                     FROM (
-                                                     select u_id, client_id, e164, region, CONCAT(IF(actual_from < '2019-03-01', '2019-03-01', actual_from), ' 00:00:00') AS actual_from, actual_to, device_address from (
-              SELECT u.id as u_id,
-              client_account_id AS client_id,
-              voip_number AS e164,
-              v.region,
-              ( SELECT actual_from_utc + INTERVAL 3 HOUR
-                FROM uu_account_tariff_log
-                WHERE account_tariff_id = u.id AND tariff_period_id IS NOT NULL
-                                        ORDER BY actual_from_utc
-                                              LIMIT 1)            actual_from,
-              ( SELECT actual_from_utc + INTERVAL 3 HOUR
-                FROM uu_account_tariff_log
-                WHERE account_tariff_id = u.id AND tariff_period_id IS NULL
-                                        ORDER BY actual_from_utc DESC
-                                                 LIMIT 1)            actual_to,
-                                                                     u.device_address
-                                                                     FROM uu_account_tariff u, voip_numbers v
-                                                                                                            WHERE v.region = {$regionId} AND u.voip_number = v.number AND service_type_id = 2
-                                                          ) a
-                                                          ) a
-                    WHERE actual_to IS NULL OR actual_to >= '{$dateStart} 00:00:00') a
-              #HAVING contract_no IS NOT NULL
-            ) a
-       WHERE client_id NOT IN (44725, 51147, 54112, 52552, 52921, 46247)
+                                              SELECT *
+                                              FROM (
+       select u_id, client_id, e164, region, CONCAT( IF (actual_from < '2019-03-01', '2019-03-01', actual_from), ' 00:00:00') AS actual_from, actual_to, device_address from (
+       SELECT u.id as u_id,
+       client_account_id AS client_id,
+       voip_number AS e164,
+       v.region,
+       ( SELECT actual_from_utc + INTERVAL 3 HOUR
+         FROM uu_account_tariff_log
+         WHERE account_tariff_id = u.id AND tariff_period_id IS NOT NULL
+                                 ORDER BY actual_from_utc
+                                       LIMIT 1)            actual_from,
+       ( SELECT actual_from_utc + INTERVAL 3 HOUR
+         FROM uu_account_tariff_log
+         WHERE account_tariff_id = u.id AND tariff_period_id IS NULL
+                                 ORDER BY actual_from_utc DESC
+                                          LIMIT 1)            actual_to,
+                                                              u.device_address
+                                                              FROM uu_account_tariff u, voip_numbers v
+                                                                                                     WHERE v.region = {$regionId} AND u.voip_number = v.number AND service_type_id = 2
+                                                                                                                                                                             ) a
+                                                   ) a
+             WHERE actual_to IS NULL OR actual_to >= '{$dateStart} 00:00:00') a
+       #HAVING contract_no IS NOT NULL
+     ) a, clients c, client_contract cc
+WHERE client_id NOT IN (44725, 51147, 54112, 52552, 52921, 46247)
+and a.client_id = c.id and c.contract_id = cc.id
+and cc.business_process_status_id not in (22, 28, 19, 29) ## отказ, Мусор, Заказ услуг, Дубликат
+
 SQL;
 
 
