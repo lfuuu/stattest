@@ -141,11 +141,11 @@ class UbillerController extends Controller
         }
 
         $startWait = microtime(true);
-        echo PHP_EOL . date('r') . 'Error. command/ubiller wait';
+        echo PHP_EOL . date('r') . ' Info. command/ubiller wait';
 
         Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
 
-        echo PHP_EOL . date('r') . 'Error. command/ubiller begined. Wait time: ' . round(microtime(true) - $startWait, 2) . ' sec';
+        echo PHP_EOL . date('r') . 'Info. command/ubiller begined. Wait time: ' . round(microtime(true) - $startWait, 2) . ' sec';
     }
 
     public function sem_restart()
