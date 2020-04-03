@@ -278,7 +278,7 @@ abstract class WizardBaseController extends ApiController
      */
     protected function makeNotify()
     {
-        $manager = $this->account->userAccountManager;
+        $manager = $this->account->userAccountManager ?: ($this->account->superClient->entryPoint ? $this->account->superClient->entryPoint->connectTroubleUser : null);
 
         $subj = "ЛК - Wizard";
         $text = "Клиент id: " . $this->account->id . " заполнил Wizard в ЛК";

@@ -75,6 +75,19 @@ class AccountLogResourceTarificator extends Tarificator
                 ['<', 'account_log_resource_utc', $utcDateTime->format(DateTimeZoneHelper::DATE_FORMAT)] // или списаны давно
             ]);
 
+        // распаралелливание обработки
+        if (isset($_SERVER['argv']) && count($_SERVER['argv']) == 4 && $_SERVER['argv'][1] == 'ubiller/resource') {
+
+            $fromId = (int)$_SERVER['argv'][2];
+            $toId = (int)$_SERVER['argv'][3];
+
+            if (!$fromId || !$toId || $fromId >= $toId) {
+                throw new \InvalidArgumentException('Неверные аргументы');
+            }
+
+            $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
+        }
+
         $accountTariffQuery
             ->with('clientAccount')
             ->with('resources')

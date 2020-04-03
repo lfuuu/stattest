@@ -92,7 +92,7 @@ class SormClientFilter extends ClientAccount
         $query->joinWith('clientContractModel.clientContragent AS cg');
         $query->joinWith('clientContractModel.clientContragent.personModel AS cgp');
 
-        $query->andWhere(['NOT', ['cc.business_process_status_id' => [22, 28, 19]]]); // отказ, Мусор, Заказ услуг
+        $query->andWhere(['NOT', ['cc.business_process_status_id' => [22, 28, 19, 29]]]); // отказ, Мусор, Заказ услуг, Дубликат
 
         if ($this->account_manager) {
             $query->andWhere(['cc.account_manager' => $this->account_manager]);
