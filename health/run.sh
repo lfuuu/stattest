@@ -1,21 +1,28 @@
 #!/bin/bash
 
-./loadAverage.sh > ../web/export/health/loadAverage.json
-./apiFreeNumbers495.sh > ../web/export/health/apiFreeNumbers495.json
-./apiFreeNumbers499.sh > ../web/export/health/apiFreeNumbers499.json
-./apiFreeNumbersSilver.sh > ../web/export/health/apiFreeNumbersSilver.json
-./apiFreeNumbersAccount.sh > ../web/export/health/apiFreeNumbersAccount.json
-./ubillerLog.sh > ../web/export/health/ubillerLog.json
-./nnpPortedNumberLog.sh > ../web/export/health/nnpPortedNumberLog.json
-./mttLog.sh > ../web/export/health/mttLog.json
-./mttProcess.sh > ../web/export/health/mttProcess.json
-./tele2Log.sh > ../web/export/health/tele2Log.json
-./numberPortedLog.sh > ../web/export/health/numberPortedLog.json
-./tele2Process.sh > ../web/export/health/tele2Process.json
-./nnpPortedApi.sh > ../web/export/health/nnpPortedApi.json
-./socketApi.sh > ../web/export/health/socketApi.json
-./uuApiLog.sh > ../web/export/health/uuApiLog.json
-./mailerLog.sh > ../web/export/health/mailerLog.json
-./mailerProcess.sh > ../web/export/health/mailerProcess.json
-./handlerProcess.sh > ../web/export/health/handlerProcess.json
-./exportFreeNumbers.sh > ../web/export/health/exportFreeNumbers.json
+whDir="../web/export/health";
+
+function monitorItem {
+   ./$1.sh > $whDir/$1.json.tmp;
+   mv -f $whDir/$1.json.tmp $whDir/$1.json
+}
+
+monitorItem loadAverage;
+monitorItem apiFreeNumbers495;
+monitorItem apiFreeNumbers499;
+monitorItem apiFreeNumbersSilver;
+monitorItem apiFreeNumbersAccount;
+monitorItem ubillerLog;
+monitorItem nnpPortedNumberLog;
+monitorItem mttLog;
+monitorItem mttProcess;
+monitorItem tele2Log;
+monitorItem numberPortedLog;
+monitorItem tele2Process;
+monitorItem nnpPortedApi;
+monitorItem socketApi;
+monitorItem uuApiLog;
+monitorItem mailerLog;
+monitorItem mailerProcess;
+monitorItem handlerProcess;
+monitorItem exportFreeNumbers;

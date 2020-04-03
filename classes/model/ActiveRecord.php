@@ -22,7 +22,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
 {
     const PG_ACCOUNT_TIMEOUT = 1000;
     const PG_DEFAULT_TIMEOUT = 3000;
-    const PG_CALCULATE_RESOURCE_TIMEOUT = 300000;
+    const PG_CALCULATE_RESOURCE_TIMEOUT = 600000;
 
     protected $isAttributeTypecastBehavior = false;
 
