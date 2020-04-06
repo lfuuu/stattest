@@ -272,6 +272,15 @@ $columns = [
 
             $fio = $account->contragent->fio;
 
+            if (!$fio && $account->contragent->legal_type == ClientContragent::PERSON_TYPE) {
+                $person = $account->contragent->personModel;
+                if (!$person->last_name || !$person->middle_name || !$person->first_name) {
+                    return '';
+                }
+
+                $fio = $person->last_name . ' ' . $person->first_name . ' ' . $person->middle_name;
+            }
+
             if (preg_match('/\s*[А-Я][а-я]+\s+[А-Я][а-я]+\s+[А-Я][а-я]+\s*/u', $fio)) {
                 return $this->render('//layouts/_button', [
                     'text' => $fio,
