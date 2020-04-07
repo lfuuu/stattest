@@ -281,7 +281,11 @@ $columns = [
                 $fio = $person->last_name . ' ' . $person->first_name . ' ' . $person->middle_name;
             }
 
-            if (preg_match('/\s*[А-Я][а-я]+\s+[А-Я][а-я]+\s+[А-Я][а-я]+\s*/u', $fio)) {
+            if (!$fio && $account->contragent->legal_type == ClientContragent::IP_TYPE) {
+                $fio = preg_replace('/^s*ИП\s+/u', '', $account->contragent->name_full);
+            }
+
+            if (preg_match('/^\s*[А-Я][а-яё]+\s+[А-Я][а-яё]+\s+[А-Я][а-яё]+\s*$/u', $fio)) {
                 return $this->render('//layouts/_button', [
                     'text' => $fio,
                     'glyphicon' => 'glyphicon glyphicon-save',
