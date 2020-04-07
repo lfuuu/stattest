@@ -94,7 +94,7 @@ class PayReportController extends BaseController
         $firm = null;
         $depositBalance = 0;
         $deposit = 0;
-        $sign = 'director';
+        $sign = '';
         $format = '';
 
         $isSubmit = isset($get['submit']);
