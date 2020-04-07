@@ -140,7 +140,7 @@ if ($isSubmit) {
     <center>
         <h2>АКТ СВЕРКИ</h2>
         <br>
-        <h3 style="color: black;">взаимных расчетов по состоянию на <?= date("d.m.Y") ?> г.
+        <h3 style="color: black;">взаимных расчетов по состоянию на <?= (new DateTime($dateTo))->format("d.m.Y") ?> г.
             <br>между <?= $contragent->name_full ?>
             лицевой счет № <?= $accountId ?> <br>и <?= $firm->name->value ?></h3>
         <br>
