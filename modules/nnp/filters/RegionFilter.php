@@ -24,7 +24,7 @@ class RegionFilter extends Region
     public function rules()
     {
         return [
-            [['name', 'name_translit'], 'string'],
+            [['name', 'name_translit', 'iso'], 'string'],
             [['id', 'country_code', 'parent_id', 'cnt_from', 'cnt_to'], 'integer'],
         ];
     }
