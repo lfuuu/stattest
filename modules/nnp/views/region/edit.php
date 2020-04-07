@@ -55,6 +55,11 @@ if (!$region->isNewRecord) {
             </div>
         </div>
 
+        <?php // Название ?>
+        <div class="col-sm-1">
+            <?= $form->field($region, 'iso')->textInput() ?>
+        </div>
+
         <div class="col-sm-2">
             <?= $form->field($region, 'parent_id')->widget(Select2::class, [
                 'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code),
@@ -67,12 +72,12 @@ if (!$region->isNewRecord) {
         </div>
 
         <?php // Название ?>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <?= $form->field($region, 'name')->textInput() ?>
         </div>
 
         <?php // Название транслитом ?>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <?= $form->field($region, 'name_translit')->textInput() ?>
         </div>
 
