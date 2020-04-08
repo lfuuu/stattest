@@ -210,7 +210,7 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
     &nbsp;задолженность
 <?php if ($deposit_balance > 0.0001) {
     echo 'в пользу ' . $firm->name . ' составляет ' . number_format($deposit_balance, 2, ',', ' ') . ' рублей.';
-} elseif ($deposit_balance < 0.0001) {
+} elseif ($deposit_balance < -0.0001) {
     echo 'в пользу ' . $contragent->name_full . ' составляет ' . number_format(-$deposit_balance, 2, ',', ' ') . ' рублей.';
 } else {
     echo 'отсутствует';
