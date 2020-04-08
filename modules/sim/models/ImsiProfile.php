@@ -23,7 +23,7 @@ class ImsiProfile extends ActiveRecord
     const ID_S1 = 2;
     const ID_S2 = 3;
 
-    const IDS_OWN = [self::ID_MCN, self::ID_S1, self::ID_S2];
+    const IDS_OWN = [self::ID_TELE2_TEST, self::ID_S1, self::ID_S2];
 
 
     // Определяет getList (список для selectbox) и __toString
