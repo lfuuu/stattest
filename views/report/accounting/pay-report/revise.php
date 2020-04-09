@@ -50,15 +50,6 @@ if ($isShowForm) {
     echo Html::textInput('saldo', $saldo, ['class' => 'pull-left form-control']);
     echo '</span>';
 
-    echo '<span class="col-sm-1">';
-    echo Html::submitButton('Сделать', [
-        'class' => 'pull-left btn btn-primary',
-        'style' => 'margin-top: 20px',
-        'name' => 'submit',
-        'onclick' => 'return sendForm()',
-    ]);
-    echo '</span>';
-
     echo '<span class="col-sm-2"><label>Подпись:</label>';
     echo Html::dropDownList('sign', $sign, ['' => ' --- Без подписи --- ', 'director' => 'Директор'], ['class' => 'select2']);
     echo '</span>';
@@ -67,6 +58,14 @@ if ($isShowForm) {
     echo Html::dropDownList('format', '', ['' => ' ----- ', 'html' => 'HTML', 'pdf' => 'PDF'], ['class' => 'select2', 'id' => 'format']);
     echo '</span>';
 
+    echo '<span class="col-sm-1">';
+    echo Html::submitButton('Сформировать', [
+        'class' => 'pull-left btn btn-primary',
+        'style' => 'margin-top: 20px',
+        'name' => 'submit',
+        'onclick' => 'return sendForm()',
+    ]);
+    echo '</span>';
 
     echo '</span>';
 
