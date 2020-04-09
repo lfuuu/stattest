@@ -5970,7 +5970,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $design->assign("order_by", $order_by);
 
         $types = '';
-        foreach (['bank', 'prov', 'neprov', 'ecash'] as $k) {
+        foreach (['bank', 'prov', 'neprov', 'ecash', 'terminal'] as $k) {
             if ($v = get_param_raw($k)) {
                 $types .= ($types ? ',' : '') . '"' . $k . '"';
             }
