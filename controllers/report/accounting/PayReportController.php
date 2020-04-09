@@ -102,8 +102,8 @@ class PayReportController extends BaseController
         if ($isSubmit) {
             $dateFrom = $get['dateFrom'];
             $dateTo = $get['dateTo'];
-            $saldoView = $get['saldo'];
-            $saldo = (float)preg_replace("/\s/", '', str_replace(',', '.', $saldoView));
+            $saldoView = preg_replace("/\s/", '', $get['saldo']);
+            $saldo = (float)str_replace(',', '.', $saldoView);
             $sign = $get['sign'];
             $format = isset($get['format']) ? $get['format'] : '';
 
