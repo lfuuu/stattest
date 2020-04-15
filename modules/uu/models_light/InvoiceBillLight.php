@@ -47,7 +47,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
         $statBill = $this->_getStatBill($bill);
 
-        $this->date = $statBill->date;
+        $this->date = $invoice && $invoice->is_reversal ? (new \DateTimeImmutable($invoice->reversal_date))->format(DateTimeZoneHelper::DATE_FORMAT) : $statBill->date;
 
         if (!$statBill) {
             return;
