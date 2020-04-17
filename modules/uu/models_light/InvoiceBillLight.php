@@ -47,13 +47,13 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
         $statBill = $this->_getStatBill($bill);
 
-        $this->date = $invoice && $invoice->is_reversal ? (new \DateTimeImmutable($invoice->reversal_date))->format(DateTimeZoneHelper::DATE_FORMAT) : $statBill->date;
+        $this->date = $invoice ? (new \DateTimeImmutable($invoice->date))->format(DateTimeZoneHelper::DATE_FORMAT) : $statBill->date;
 
         if (!$statBill) {
             return;
         }
 
-        $this->pay_bill_until = $statBill->pay_bill_until;
+        $this->pay_bill_until = $invoice->pay_bill_until ?: $statBill->pay_bill_until;
 
         $this->_setPaymentDate($statBill);
         $this->_setPaymentType($statBill);
