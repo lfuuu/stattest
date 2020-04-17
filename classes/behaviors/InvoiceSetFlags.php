@@ -37,7 +37,8 @@ class InvoiceSetFlags extends Behavior
         if (!$invoice->pay_bill_until) {
             // для "не россйских" с/ф и при наличии зарегистрированных, дата вычисляется
             if (
-                Invoice::isHaveRegistredInvoices($invoice->bill, $invoice->type_id)
+                Invoice::isHaveRegistredInvoices($invoice->bill, $invoice->type_id, false)
+                && Invoice::isHaveRegistredInvoices($invoice->bill, $invoice->type_id, true)
                 && $invoice->bill->clientAccount->contragent->country_id != Country::RUSSIA
             ) {
                 $invoice->pay_bill_until = (new \DateTimeImmutable($invoice->date))->modify('+30 day')->format(DateTimeZoneHelper::DATE_FORMAT);

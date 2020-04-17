@@ -186,15 +186,16 @@ class Invoice extends ActiveRecord
      *
      * @param Bill $bill
      * @param int $typeId
+     * @param bool $isReversal
      * @return bool
      */
-    public static function isHaveRegistredInvoices(Bill $bill, $typeId)
+    public static function isHaveRegistredInvoices(Bill $bill, $typeId, $isReversal = false)
     {
         return Invoice::find()
             ->where([
                 'bill_no' => $bill->bill_no,
                 'type_id' => $typeId,
-                'is_reversal' => 0,
+                'is_reversal' => (int)$isReversal,
             ])
             ->andWhere(['NOT', ['idx' => null]])
             ->exists();
