@@ -42,8 +42,6 @@ class InvoiceSetFlags extends Behavior
                 && $invoice->bill->clientAccount->contragent->country_id != Country::RUSSIA
             ) {
                 $invoice->pay_bill_until = (new \DateTimeImmutable($invoice->date))->modify('+30 day')->format(DateTimeZoneHelper::DATE_FORMAT);
-            } else {
-                $invoice->pay_bill_until = $invoice->bill->pay_bill_until;
             }
         }
     }
