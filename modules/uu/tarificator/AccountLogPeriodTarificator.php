@@ -50,6 +50,19 @@ class AccountLogPeriodTarificator extends Tarificator
                 ['<', 'account_log_period_utc', $utcDateTime->format(DateTimeZoneHelper::DATETIME_FORMAT)] // или списана давно
             ]);
 
+        // распаралелливание обработки
+        if (isset($_SERVER['argv']) && count($_SERVER['argv']) == 4 && $_SERVER['argv'][1] == 'ubiller/period') {
+
+            $fromId = (int)$_SERVER['argv'][2];
+            $toId = (int)$_SERVER['argv'][3];
+
+            if (!$fromId || !$toId || $fromId >= $toId) {
+                throw new \InvalidArgumentException('Неверные аргументы');
+            }
+
+            $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
+        }
+
         $accountTariffQuery
             ->with('clientAccount')
             ->with('accountLogPeriodsByUniqueKey')
@@ -111,6 +124,11 @@ class AccountLogPeriodTarificator extends Tarificator
             if (!$accountLogPeriod->save()) {
                 throw new ModelValidationException($accountLogPeriod);
             }
+
+            if (abs($accountLogPeriod->price) >= 0.01) {
+                $this->isNeedRecalc = true;
+            }
+
         }
 //        ActiveRecord::batchInsertModels($modelsToSave);
 

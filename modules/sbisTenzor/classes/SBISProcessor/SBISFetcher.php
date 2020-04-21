@@ -5,6 +5,7 @@ namespace app\modules\sbisTenzor\classes\SBISProcessor;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\classes\SBISDocumentStatus;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\classes\SBISProcessor;
 use app\modules\sbisTenzor\classes\SBISTensorAPI;
 use app\modules\sbisTenzor\classes\SBISTensorAPI\SBISDocumentInfo;
@@ -229,6 +230,16 @@ class SBISFetcher extends SBISProcessor
 
                         case SBISDocumentStatus::EXTERNAL_SUCCESS:
                             $newState = SBISDocumentStatus::ACCEPTED;
+
+                            $client = $document->clientAccount;
+                            if (
+                                ($client->exchange_status != SBISExchangeStatus::SET_UP) &&
+                                !SBISExchangeStatus::isFixedById($client->exchange_status)
+                            ) {
+                                $client->exchange_status = SBISExchangeStatus::SET_UP;
+                                $client->save();
+                            }
+
                             break;
 
                         case SBISDocumentStatus::EXTERNAL_NEGOTIATED:

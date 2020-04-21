@@ -81,6 +81,7 @@ use yii\helpers\Url;
  * @property int $uu_tariff_status_id
  * @property int $show_in_lk
  * @property int $exchange_group_id
+ * @property int $exchange_status
  * @property string $bill_rename1
  *
  * @property-read Currency $currencyModel
@@ -126,6 +127,7 @@ use yii\helpers\Url;
  * @property-read ClientAccountComment $lastAccountComment
  * @property-read integer $is_show_in_lk
  * @property-read ClientAccountOptions $options
+ * @property-read EquipmentUser $equipmentUsers
  *
  * @method static ClientAccount findOne($condition)
  * @method static ClientAccount[] findAll($condition)
@@ -294,7 +296,7 @@ class ClientAccount extends HistoryActiveRecord
     {
         $rules = [
             ['country_id', 'required'],
-            [['country_id', 'uu_tariff_status_id', 'exchange_group_id'], 'integer'],
+            [['country_id', 'uu_tariff_status_id', 'exchange_group_id', 'exchange_status'], 'integer'],
             ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
             ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC],
             ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC],
@@ -410,6 +412,7 @@ class ClientAccount extends HistoryActiveRecord
             'upload_to_sales_book' => 'Выгружать с/ф ЛС в книгу продаж',
             'show_in_lk' => 'Показывать ЛС в ЛК',
             'exchange_group_id' => 'Группа документов для отправки в системе СБИС',
+            'exchange_status' => 'Статус интеграции с системой СБИС',
         ];
     }
 
@@ -961,6 +964,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getLkNoticeSetting()
     {
         return $this->hasMany(LkNoticeSetting::class, ['client_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEquipmentUsers()
+    {
+        return $this->hasMany(EquipmentUser::class, ['client_account_id' => 'id']);
     }
 
     /**

@@ -41,6 +41,44 @@ class AccountLogMinTarificator extends Tarificator
 
         // создать заново
         $this->out('. ');
+
+        $selectTmpSql = <<<SQL
+            SELECT
+                #fields#
+            FROM
+               {$accountLogPeriodTableName} account_log_period,
+               {$tariffPeriodTableName} tariff_period
+            WHERE
+                account_log_period.tariff_period_id = tariff_period.id
+SQL;
+
+        if ($accountTariffId) {
+            $selectTmpSql .= " AND account_log_period.account_tariff_id = {$accountTariffId}";
+
+            $selectSumSql = str_replace('#fields#', 'SUM(tariff_period.price_min * account_log_period.coefficient) as sum_price', $selectTmpSql);
+
+            $sum = $db->createCommand($selectSumSql)->queryScalar();
+
+            if (abs($sum) >= 0.01) {
+                $this->isNeedRecalc = true;
+            }
+        }
+
+        $fields = <<<SQL
+                account_log_period.id,	
+                account_log_period.date_from,
+                account_log_period.date_to,
+                account_log_period.tariff_period_id,
+                account_log_period.account_tariff_id,
+                null as account_entry_id,
+                tariff_period.price_min as period_price,
+                account_log_period.coefficient,
+                tariff_period.price_min * account_log_period.coefficient as price
+SQL;
+
+        $selectMainSql = str_replace('#fields#', $fields, $selectTmpSql);
+
+
         $insertSql = <<<SQL
             INSERT INTO {$accountLogMinTableName} (
                 id,	
@@ -53,25 +91,8 @@ class AccountLogMinTarificator extends Tarificator
                 coefficient,
                 price
             )
-            SELECT
-                account_log_period.id,	
-                account_log_period.date_from,
-                account_log_period.date_to,
-                account_log_period.tariff_period_id,
-                account_log_period.account_tariff_id,
-                null as account_entry_id,
-                tariff_period.price_min as period_price,
-                account_log_period.coefficient,
-                tariff_period.price_min * account_log_period.coefficient as price
-            FROM
-               {$accountLogPeriodTableName} account_log_period,
-               {$tariffPeriodTableName} tariff_period
-            WHERE
-                account_log_period.tariff_period_id = tariff_period.id
+            {$selectMainSql}
 SQL;
-        if ($accountTariffId) {
-            $insertSql .= " AND account_log_period.account_tariff_id = {$accountTariffId}";
-        }
 
         $db->createCommand($insertSql)
             ->execute();

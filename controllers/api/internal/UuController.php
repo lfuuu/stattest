@@ -4,9 +4,11 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
+use app\classes\helpers\DependecyHelper;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\helpers\Semaphore;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\Country;
@@ -19,6 +21,7 @@ use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
+use app\modules\nnp\models\PackagePricelistNnp;
 use app\modules\uu\classes\SyncVps;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\filter\TariffFilter;
@@ -29,6 +32,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
+use app\modules\uu\models\billing_uu\Pricelist;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
@@ -46,6 +50,7 @@ use DateTimeZone;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\caching\TagDependency;
 use yii\web\HttpException;
 
 class UuController extends ApiInternalController
@@ -609,7 +614,6 @@ class UuController extends ApiInternalController
         $result = [];
         $defaultPackageRecordsFetched = null;
 
-        $sql = $tariffQuery->createCommand()->rawSql;
         /** @var Tariff $tariff */
         foreach ($tariffQuery->all() as $tariff) {
             if ($tariff->service_type_id == ServiceType::ID_VOIP) {
@@ -660,42 +664,55 @@ class UuController extends ApiInternalController
             return null;
         }
 
-        $package = $tariff->package;
-        $tariffVoipCountries = $tariff->tariffVoipCountries;
-        $tariffVoipCountry = reset($tariffVoipCountries);
-        $tariffCountries = $tariff->tariffCountries;
-        return [
-            'id' => $tariff->id,
-            'name' => $tariff->name,
-            'count_of_validity_period' => $tariff->count_of_validity_period,
-            'is_autoprolongation' => $tariff->is_autoprolongation,
-            'is_charge_after_blocking' => $tariff->is_charge_after_blocking,
-            'is_include_vat' => $tariff->is_include_vat,
-            'is_default' => $tariff->is_default,
-            'is_postpaid' => $tariff->is_postpaid,
-            'currency' => $tariff->currency_id,
-            'service_type' => $this->_getIdNameRecord($tariff->serviceType),
-            'country' => $this->_getIdNameRecord($tariffVoipCountry ? $tariffVoipCountry->country : null, 'code'), // @todo multi и переименовать в voip_countries
-            'countries' => $this->_getIdNameRecord($tariffCountries, 'country_id'),
-            'voip_countries' => $this->_getIdNameRecord($tariffVoipCountries, 'country_id'),
-            'tariff_status' => $this->_getIdNameRecord($tariff->status),
-            'tariff_person' => $this->_getIdNameRecord($tariff->person),
-            'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
-            'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
-            'tariff_periods' => $this->_getTariffPeriodRecord($tariffPeriod),
-            'is_termination' => $package ? $package->is_termination : null,
-            'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
-            'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
-            'tarification_type' => $package ? $package->tarification_type : null,
-            'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
-            'voip_group' => $this->_getIdNameRecord($tariff->voipGroup),
-            'voip_cities' => $this->_getIdNameRecord($tariff->voipCities, 'city_id'),
-            'voip_ndc_types' => $this->_getIdNameRecord($tariff->voipNdcTypes, 'ndc_type_id'),
-            'organizations' => $this->_getIdNameRecord($tariff->organizations, 'organization_id'),
-            'voip_package_minute' => $this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic),
-            'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices),
-            'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
-        ];
+        $cacheKey = 'uuapitariff' . $tariff->id;
+
+        if (!($data = \Yii::$app->cache->get($cacheKey))) {
+
+            $package = $tariff->package;
+            $tariffVoipCountries = $tariff->tariffVoipCountries;
+            $tariffVoipCountry = reset($tariffVoipCountries);
+            $tariffCountries = $tariff->tariffCountries;
+
+            $data = [
+                'id' => $tariff->id,
+                'name' => $tariff->name,
+                'count_of_validity_period' => $tariff->count_of_validity_period,
+                'is_autoprolongation' => $tariff->is_autoprolongation,
+                'is_charge_after_blocking' => $tariff->is_charge_after_blocking,
+                'is_include_vat' => $tariff->is_include_vat,
+                'is_default' => $tariff->is_default,
+                'is_postpaid' => $tariff->is_postpaid,
+                'currency' => $tariff->currency_id,
+                'service_type' => $this->_getIdNameRecord($tariff->serviceType),
+                'country' => $this->_getIdNameRecord($tariffVoipCountry ? $tariffVoipCountry->country : null, 'code'), // @todo multi и переименовать в voip_countries
+                'countries' => $this->_getIdNameRecord($tariffCountries, 'country_id'),
+                'voip_countries' => $this->_getIdNameRecord($tariffVoipCountries, 'country_id'),
+                'tariff_status' => $this->_getIdNameRecord($tariff->status),
+                'tariff_person' => $this->_getIdNameRecord($tariff->person),
+                'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
+                'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
+                'tariff_periods' => null, //$this->_getTariffPeriodRecord($tariffPeriod),
+                'is_termination' => $package ? $package->is_termination : null,
+                'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
+                'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
+                'tarification_type' => $package ? $package->tarification_type : null,
+                'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
+                'voip_group' => $this->_getIdNameRecord($tariff->voipGroup),
+                'voip_cities' => $this->_getIdNameRecord($tariff->voipCities, 'city_id'),
+                'voip_ndc_types' => $this->_getIdNameRecord($tariff->voipNdcTypes, 'ndc_type_id'),
+                'organizations' => $this->_getIdNameRecord($tariff->organizations, 'organization_id'),
+                'voip_package_minute' => null, //$this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic),
+                'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices, $tariff->id) ?: $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp),
+                'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
+            ];
+
+            Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
+        }
+
+        $data['tariff_periods'] = $this->_getTariffPeriodRecord($tariffPeriod);
+        $data['voip_package_minute'] = $this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic);
+
+        return $data;
     }
 
     /**
@@ -804,6 +821,7 @@ class UuController extends ApiInternalController
         }
 
         if (is_array($packagePrices)) {
+
             $result = [];
             foreach ($packagePrices as $packagePrice) {
                 $result[] = $this->_getVoipPackagePriceRecord($packagePrice);
@@ -816,6 +834,24 @@ class UuController extends ApiInternalController
             'destination' => (string)$packagePrices->destination,
             'price' => $packagePrices->price,
         ];
+    }
+
+    /**
+     * @param PackagePricelistNnp[] $packagePriceLists
+     * @return array
+     */
+    private function _getVoipPackagePriceV2Record($packagePriceLists)
+    {
+        if (!$packagePriceLists) {
+            return null;
+        }
+
+        $result = [];
+        foreach ($packagePriceLists as $packagePriceList) {
+            $result = array_merge($result, Pricelist::getVoipPackagePriceV2Record($packagePriceList->nnp_pricelist_id));
+        }
+
+        return $result;
     }
 
     /**
@@ -1333,7 +1369,7 @@ class UuController extends ApiInternalController
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
 
-        $limit = min($limit ? : self::DEFAULT_LIMIT, self::MAX_LIMIT);
+        $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
         $accountTariffQuery = AccountTariffFilter::getListWithPackagesQuery($id, $client_account_id, $service_type_id, $voip_number, $limit, $offset);
 
         $result = [];
@@ -1722,12 +1758,16 @@ class UuController extends ApiInternalController
 
     public function _addAccountTariff($post)
     {
+
         if (isset($post['is_async']) && $post['is_async']) {
             $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
             $requestId = isset($post['request_id']) && $post['request_id'] ? $post['request_id'] : $event->id;
 
             return ['request_id' => $requestId];
         }
+
+        $sem = Semaphore::me();
+        $sem->acquire(Semaphore::ID_UU_CALCULATOR);
 
         $transaction = Yii::$app->db->beginTransaction();
         $accountTariff = new AccountTariff();
@@ -1766,9 +1806,11 @@ class UuController extends ApiInternalController
             );
 
             $transaction->commit();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
             return $accountTariff->id;
         } catch (Exception $e) {
             $transaction->rollBack();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
             $code = $e->getCode();
             if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
                 \Yii::error(
@@ -1834,6 +1876,8 @@ class UuController extends ApiInternalController
         }
 
         $transaction = Yii::$app->db->beginTransaction();
+        $sem = Semaphore::me();
+        $sem->acquire(Semaphore::ID_UU_CALCULATOR);
         try {
 
             foreach ($account_tariff_ids as $account_tariff_id) {
@@ -1859,11 +1903,14 @@ class UuController extends ApiInternalController
             Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
 
             $transaction->commit();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
 
             return true;
 
         } catch (Exception $e) {
             $transaction->rollBack();
+            $sem->release(Semaphore::ID_UU_CALCULATOR);
+
             $code = $e->getCode();
             if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
                 \Yii::error(

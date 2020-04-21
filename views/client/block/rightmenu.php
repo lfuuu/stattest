@@ -1,6 +1,8 @@
 <?php
 
 use app\modules\sbisTenzor\classes\ContractorInfo;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
+use yii\helpers\Html;
 
 ?>
 <div id="rightmenu">
@@ -47,7 +49,11 @@ use app\modules\sbisTenzor\classes\ContractorInfo;
             <li>
                 <i class="glyphicon glyphicon-transfer" style="display:block;position:relative;left:-16px;margin-right:-16px;float:left;"></i>
                 <a href="/sbisTenzor/document/?clientId=<?= $account->id ?>">Документы в СБИС</a>
-                <?= ($contractorInfo->isRoamingEnabled() ? ' (+)' : '') ?>
+                <?=
+                    SBISExchangeStatus::isVerifiedById($account->exchange_status) ?
+                        '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']) :
+                        ($contractorInfo->isRoamingEnabled() ? '&nbsp;' . Html::tag('span', '+', ['class' => 'text-success']) : '')
+                ?>
             </li>
         <?php endif; ?>
     </ul>

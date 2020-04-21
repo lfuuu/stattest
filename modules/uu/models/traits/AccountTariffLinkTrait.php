@@ -181,4 +181,30 @@ trait AccountTariffLinkTrait
     {
         return ['confluenceId' => 25887490, 'message' => 'Услуга'];
     }
+
+    public function addParam($param, $value)
+    {
+        $data = $this->calltracking_params ? json_decode($this->calltracking_params, true) : [];
+        $data[$param] = $value;
+        $this->calltracking_params = json_encode($data);
+    }
+
+    public function getParam($param, $defaultValue = null)
+    {
+        if (!$this->calltracking_params) {
+            return $defaultValue;
+        }
+
+        $data = @json_decode($this->calltracking_params, true);
+
+        if (!$data) {
+            return $defaultValue;
+        }
+
+        if (!array_key_exists($param, $data)) {
+            return $defaultValue;
+        }
+
+        return $data[$param];
+    }
 }

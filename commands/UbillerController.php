@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\exceptions\ModelValidationException;
+use app\helpers\Semaphore;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\classes\QueryCounterTarget;
 use app\modules\uu\models\AccountEntry;
@@ -75,6 +76,8 @@ class UbillerController extends Controller
      */
     public function actionIndex()
     {
+        ini_set('memory_limit', '5G');
+
         // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
         // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
         // обязательно это вызывать до транзакций (чтобы они правильно посчитали)
@@ -98,26 +101,71 @@ class UbillerController extends Controller
         $this->actionResource();
         $this->actionMin();
 
+        $this->sem_start();
+
         // проводки
         $this->actionEntry();
 
+        $this->sem_restart();
+
 		// Не списывать абонентку и минималку (обнулять транзакции) за ВТОРОЙ и последующие периоды при финансовой блокировке
 		// Должно идти после actionEntry (чтобы проводки уже были), но до actionBill (чтобы проводки правильно учлись в счете)
-		$this->actionFreePeriodInFinanceBlock();
+        $this->actionFreePeriodInFinanceBlock();
+
+        $this->sem_restart();
 
         // счета
         $this->actionBill();
 
+        $this->sem_restart();
         // Конвертировать счета в старую бухгалтерию
         $this->actionBillConverter();
 
+        $this->sem_restart();
+
         // пересчитать realtimeBalance
         $this->actionRealtimeBalance();
+
+        $this->sem_stop();
 
         // Месячную финансовую блокировку заменить на постоянную
         // $this->actionFinanceBlock();
 
         return ExitCode::OK;
+    }
+
+    public function sem_start()
+    {
+        if (Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
+            return true;
+        }
+
+        $startWait = microtime(true);
+        echo PHP_EOL . date('r') . ' Info. command/ubiller wait';
+
+        Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
+
+        echo PHP_EOL . date('r') . 'Info. command/ubiller begined. Wait time: ' . round(microtime(true) - $startWait, 2) . ' sec';
+    }
+
+    public function sem_restart()
+    {
+        $this->sem_stop();
+        sleep(1);
+        $this->sem_start();
+    }
+
+    public function sem_stop()
+    {
+        return Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+    }
+
+    /**
+     * консольное отключение симафора блокировок (используется при деплое)
+     */
+    public function actionSemStop()
+    {
+        var_dump($this->sem_stop());
     }
 
     /**
@@ -434,6 +482,11 @@ SQL;
                     echo PHP_EOL . '(-) AccountLogMins[id=' . $logMin->id . ']';
                     !$isTest && $logMin->delete();
                 }
+                // @TODO - find by id from min log
+//                foreach ($entry->accountLogPeriods as $logPeriod) {
+//                    echo PHP_EOL . '(-) accountLogPeriods[id=' . $logPeriod->id . ']';
+//                    !$isTest && $logPeriod->delete();
+//                }
 
                 /** @var \app\modules\uu\models\Bill $bill */
                 $bill = $entry->bill;

@@ -42,6 +42,11 @@ class IndexForm extends \app\classes\Form
             $states = [$this->state];
             if ($this->state == SBISDocumentStatus::CREATED) {
                 $states[] = SBISDocumentStatus::CREATED_AUTO;
+                $states[] = SBISDocumentStatus::PROCESSING;
+                $states[] = SBISDocumentStatus::SIGNED;
+                $states[] = SBISDocumentStatus::SAVED;
+                $states[] = SBISDocumentStatus::NOT_SIGNED;
+                $states[] = SBISDocumentStatus::READY;
             }
             if ($this->state == SBISDocumentStatus::CANCELLED) {
                 $states[] = SBISDocumentStatus::CANCELLED_AUTO;

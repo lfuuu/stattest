@@ -213,13 +213,13 @@ class SBISDocumentManager
     {
         $fileNames = [];
         $attachments = [];
-        $i = 1;
+        $i = 0;
         foreach ($this->files as $file) {
             $attachment = new SBISAttachment();
             $attachment->populateRelation('document', $document);
 
             $attachment->external_id = SBISUtils::generateUuid();
-            $attachment->number = $i++;
+            $attachment->number = ++$i;
             $attachment->file_name = $file->getFileName();
             $attachment->is_sign_needed = $document->sbisOrganization->is_sign_needed;
             $attachment->is_signed = '0';

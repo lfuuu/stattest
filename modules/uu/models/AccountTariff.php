@@ -244,7 +244,7 @@ class AccountTariff extends ActiveRecord
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
             ['calltracking_params', function ($value) {
-                if ($value && !json_decode($value)) {
+                if ($this->calltracking_params && !json_decode($this->calltracking_params)) {
                     $this->addError('calltracking_params', 'Невалидный JSON формат');
                 }
             }],

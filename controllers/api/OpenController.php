@@ -9,6 +9,7 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
+use app\models\Number;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\uu\models\AccountTariff;
@@ -413,8 +414,8 @@ final class OpenController extends Controller
         $maxCost = null,
         $beautyLvl = null,
         $like = null,
-        $limit = FreeNumberFilter::GROUPED_LIMIT,
-        $limitPerGroup = 100,
+        $limit = FreeNumberFilter::NO_LIMIT,
+        $limitPerGroup = FreeNumberFilter::NO_LIMIT,
         $currency = Currency::RUB,
         $countryCode = 0,
         array $cities = [],
@@ -439,7 +440,7 @@ final class OpenController extends Controller
             ->setExcludeNdcs($excludeNdcs)
             ->setNdcType($ndcType)
             // ->setOffset($offset)
-            ->setLimit($limit, FreeNumberFilter::GROUPED_LIMIT)
+            ->setLimit($limit, FreeNumberFilter::NO_LIMIT)
             ->setIsShowInLk($isShowInLkLevel)
             ->orderBy(['number' => SORT_ASC]);
 
@@ -476,18 +477,21 @@ final class OpenController extends Controller
 
         $response = [];
 
-        foreach ($numbers->result() as $freeNumber) {
-            $groupKey = $freeNumber->city_id . '_' . $freeNumber->did_group_id;
+        foreach ($numbers->resultF() as $_freeNumber) {
 
-            if (count($response[$groupKey]['numbers']) >= $limitPerGroup) {
+            $groupKey = $_freeNumber['city_id'] . '_' . $_freeNumber['did_group_id'];
+
+            if ($limitPerGroup && count($response[$groupKey]['numbers']) >= $limitPerGroup) {
                 continue;
             }
 
             if (isset($response[$groupKey])) {
                 // добавить номер в существующую группу
-                $response[$groupKey]['numbers'][] = $freeNumber->number;
+                $response[$groupKey]['numbers'][] = $_freeNumber['number'];
                 continue;
             }
+
+            $freeNumber = Number::findOne(['number' => $_freeNumber]);
 
             $didGroup = $freeNumber->getCachedDidGroup();
 
@@ -531,7 +535,7 @@ final class OpenController extends Controller
                 $response[$groupKey][$key] = $value;
             }
 
-            $response[$groupKey]['numbers'] = [$freeNumber->number];
+            $response[$groupKey]['numbers'] = [(string)$freeNumber->number];
         }
 
         return $response;
@@ -585,8 +589,8 @@ final class OpenController extends Controller
         $maxCost = null,
         $beautyLvl = null,
         $like = null,
-        $limit = FreeNumberFilter::GROUPED_LIMIT,
-        $limitPerGroup = 100,
+        $limit = FreeNumberFilter::NO_LIMIT,
+        $limitPerGroup = FreeNumberFilter::NO_LIMIT,
         $currency = Currency::RUB,
         $countryCode = 0,
         array $cities = [],

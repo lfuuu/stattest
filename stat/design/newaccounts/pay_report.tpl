@@ -67,6 +67,7 @@ function checkPeriod()
           		<input type=checkbox name=bank{if $bank} checked{/if}>b
           		<input type=checkbox name=prov{if $prov} checked{/if}>p
           		<input type=checkbox name=neprov{if $neprov} checked{/if}>n
+          		<input type=checkbox name=terminal{if $terminal} checked{/if}><span title="Терминал">t</span>
           		<input type=checkbox name=ecash{if $ecash} checked{/if}>Эл. деньги
 			</td></tr>
         <tr>
@@ -179,6 +180,7 @@ $( "#to_period" ).datepicker({
 <tr><td colspan=2>Сумма по RUB</td><td>b</td><td></td><td></td><td align=right>{$totals.bRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan=2>Сумма по RUB</td><td>p</td><td></td><td></td><td align=right>{$totals.pRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan=2>Сумма по RUB</td><td>n</td><td></td><td></td><td align=right>{$totals.nRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUB</td><td title="Терминал">t</td><td></td><td></td><td align=right>{$totals.tRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan=2>Сумма по RUB</td><td>Эл. деньги</td><td></td><td></td><td align=right>{$totals.eRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan=2>Сумма по RUB</td><td></td><td></td><td></td><td align=right>{$totals.RUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
 {if $totals.bUSD+$totals.pUSD+$totals.nUSD!=0}

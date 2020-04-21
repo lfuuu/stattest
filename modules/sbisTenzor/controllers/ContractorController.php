@@ -6,6 +6,7 @@ use app\classes\BaseController;
 use app\models\ClientAccount;
 use app\modules\sbisTenzor\forms\contractor\IndexForm;
 use app\modules\sbisTenzor\forms\contractor\AddForm;
+use app\modules\sbisTenzor\forms\contractor\RoamingForm;
 use Yii;
 use yii\base\InvalidArgumentException;
 use yii\filters\AccessControl;
@@ -26,7 +27,7 @@ class ContractorController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['roaming'],
+                        'actions' => ['index', 'roaming'],
                         'roles' => ['newaccounts_bills.read'],
                     ],
                     [
@@ -63,6 +64,24 @@ class ContractorController extends BaseController
     }
 
     /**
+     * Информация по интеграции клиентов
+     *
+     * @param int $clientId
+     * @param int $state
+     * @return string|\yii\web\Response
+     */
+    public function actionIndex($clientId = 0, $state = -1)
+    {
+        $indexForm = new IndexForm($this->getClient($clientId, false));
+
+        return $this->render('index', [
+            'dataProvider' => $indexForm->getDataProvider($state),
+            'state' => $state,
+            'title' => $indexForm->getTitle(),
+        ]);
+    }
+
+    /**
      * Информация по контрагентам с роумингом
      *
      * @param int $clientId
@@ -70,9 +89,9 @@ class ContractorController extends BaseController
      */
     public function actionRoaming($clientId = 0)
     {
-        $indexForm = new IndexForm($this->getClient($clientId, false));
+        $indexForm = new RoamingForm($this->getClient($clientId, false));
 
-        return $this->render('index', [
+        return $this->render('roaming', [
             'dataProvider' => $indexForm->getDataProvider(),
             'title' => $indexForm->getTitle(),
         ]);

@@ -31,17 +31,22 @@ $form = ActiveForm::begin([
 ?>
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <?= $form->field($filterModelSearch, 'region_id')->widget(Select2::className(), [
                 'data' => Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE])
             ]) ?>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <?= $form->field($filterModelSearch, 'account_manager')->widget(Select2::className(), [
                 'data' => User::getAccountManagerList(true)
             ]) ?>
         </div>
-        <div class="col-md-4" style="margin-top: 20px">
+        <div class="col-md-3">
+            <?= $form->field($filterModelSearch, 'is_device_empty')->widget(Select2::className(), [
+                'data' => \app\classes\traits\GetListTrait::getEmptyList(true, true)
+            ]) ?>
+        </div>
+        <div class="col-md-2" style="margin-top: 20px">
             <?= Html::submitButton('Фильтровать', ['class' => 'btn btn-info']) ?>
         </div>
     </div>

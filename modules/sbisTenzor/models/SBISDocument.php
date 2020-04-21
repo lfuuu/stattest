@@ -191,6 +191,22 @@ class SBISDocument extends ActiveRecord
     }
 
     /**
+     * Пакет в статусе создан
+     *
+     * @return bool
+     */
+    public function isJustCreated()
+    {
+        return
+            in_array(
+                $this->state, [
+                    SBISDocumentStatus::CREATED,
+                    SBISDocumentStatus::CREATED_AUTO,
+                ]
+            );
+    }
+
+    /**
      * Добавить ошибку в лог
      *
      * @param $errorText
@@ -455,13 +471,15 @@ class SBISDocument extends ActiveRecord
                 $attachment->number = ++$i;
                 $attachment->sbis_document_id = $this->id;
                 $attachment->populateRelation('document', null);
-
-                if (is_null($attachment->extension)) {
-                    $attachment->extension = pathinfo(basename($attachment->getActualStoredPath()), PATHINFO_EXTENSION);
-                }
             }
         }
+
+        // сохранение
         foreach($this->attachments as $attachment) {
+            if (is_null($attachment->extension)) {
+                $attachment->extension = pathinfo(basename($attachment->getActualStoredPath()), PATHINFO_EXTENSION);
+            }
+
             if (!$attachment->save()) {
                 throw new ModelValidationException($attachment);
             }

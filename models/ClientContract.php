@@ -43,6 +43,7 @@ use yii\db\ActiveQuery;
  * @property string $offer_date
  *
  * @property-read ClientContragent $contragent
+ * @property-read ClientContragent clientContragent - напрямую
  * @property-read ClientAccount[] $accounts
  * @property-read Organization $organization
  * @property-read ClientMedia $mediaManager
@@ -115,6 +116,16 @@ class ClientContract extends HistoryActiveRecord
     public static $lkAccess = [
         self::IS_LK_ACCESS_YES => 'Да',
         self::IS_LK_ACCESS_NO => 'Нет',
+    ];
+
+    public static $offBPSids = [
+        111, 121, 122, 123, 124, 131,22, // Мусор
+        28, // Отказ
+        29, // Дубликат
+        42, // Расторгнут
+        44, // Отказ
+        //34, // Внутренний офис
+        10 // Отключенные
     ];
 
     public
@@ -253,6 +264,8 @@ class ClientContract extends HistoryActiveRecord
      *
      * @param \DateTime|null $date
      * @return null|ClientDocument
+     * @throws \yii\base\Exception
+     * @throws \Exception
      */
     public function getContractInfo(\DateTime $date = null)
     {

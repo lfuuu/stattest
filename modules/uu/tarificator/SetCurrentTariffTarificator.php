@@ -84,6 +84,7 @@ SQL;
             $newTariffId = $row['new_tariff_period_id'];
 
             if (
+                (!$row['tariff_period_id'] && $row['new_tariff_period_id']) && // только на включение
                 $accountTariff->prev_account_tariff_id
                 && ($mainAccountTariff = AccountTariff::findOne(['id' => $accountTariff->prev_account_tariff_id]))
                 && !$mainAccountTariff->tariff_period_id
@@ -356,10 +357,12 @@ SQL;
 
             // менять тариф, даже если нет денег
             // менять тариф, если стоит флаг "списывать после блокировки" не смотря ни на что
+            // включать пакет, если он "по-умолчанию"
             $this->checkBalance(
                 $accountTariff,
                 $eventType == ImportantEventsNames::UU_UPDATED
                 || $accountTariff->tariffPeriod->tariff->is_charge_after_blocking
+                || $accountTariff->tariffPeriod->tariff->is_default
             );
         }
     }
@@ -377,13 +380,28 @@ SQL;
     protected function checkBalance(AccountTariff $accountTariff, $isForceUpdate)
     {
         ob_start();
+        $isNeedRecalc = false;
         try {
-            (new AccountLogSetupTarificator)->tarificateAccountTariff($accountTariff);
-            (new AccountLogPeriodTarificator)->tarificateAccountTariff($accountTariff);
-            (new AccountLogResourceTarificator)->tarificateAccountTariffOption($accountTariff);
-            (new AccountLogMinTarificator)->tarificate($accountTariff->id);
-            (new AccountEntryTarificator)->tarificate($accountTariff->id);
-            (new BillTarificator)->tarificate($accountTariff->id);
+            $tarificator = (new AccountLogSetupTarificator);
+            $tarificator->tarificateAccountTariff($accountTariff);
+            $tarificator->isNeedRecalc && $isNeedRecalc = true;
+            $tarificator = (new AccountLogPeriodTarificator);
+            $tarificator->tarificateAccountTariff($accountTariff);
+            $tarificator->isNeedRecalc && $isNeedRecalc = true;
+            $tarificator = (new AccountLogResourceTarificator);
+            $tarificator->tarificateAccountTariffOption($accountTariff);
+            $tarificator->isNeedRecalc && $isNeedRecalc = true;
+            $tarificator = (new AccountLogMinTarificator);
+            $tarificator->tarificate($accountTariff->id);
+            $tarificator->isNeedRecalc && $isNeedRecalc = true;
+
+            if ($isNeedRecalc) {
+                (new AccountEntryTarificator)->tarificate($accountTariff->id);
+                (new BillTarificator)->tarificate($accountTariff->id);
+                HandlerLogger::me()->add('Balance full recalced');
+            } else {
+                HandlerLogger::me()->add('Balance recalced partially');
+            }
             (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
             HandlerLogger::me()->add(ob_get_clean());
         } catch (\Exception $e) {

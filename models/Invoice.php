@@ -40,6 +40,7 @@ use yii\web\Response;
  * @property int $correction_idx
  * @property int $is_invoice
  * @property int $is_act
+ * @property string $pay_bill_until
  *
  * @property-read Bill $bill
  * @property-read InvoiceLine[] $lines
@@ -181,6 +182,26 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * есть ли зарегестрированный инвойс
+     *
+     * @param Bill $bill
+     * @param int $typeId
+     * @param bool $isReversal
+     * @return bool
+     */
+    public static function isHaveRegistredInvoices(Bill $bill, $typeId, $isReversal = false)
+    {
+        return Invoice::find()
+            ->where([
+                'bill_no' => $bill->bill_no,
+                'type_id' => $typeId,
+                'is_reversal' => (int)$isReversal,
+            ])
+            ->andWhere(['NOT', ['idx' => null]])
+            ->exists();
+    }
+
+    /**
      * Получает даты по типу
      *
      * @param Bill $bill
@@ -195,6 +216,14 @@ class Invoice extends ActiveRecord
         if ($bill->is1C()) {
             //all as good invoice
             $typeId = self::TYPE_GOOD;
+        }
+
+        if (
+            in_array($typeId, [self::TYPE_1, self::TYPE_2])
+            && $bill->clientAccount->contragent->country_id != Country::RUSSIA
+            && self::isHaveRegistredInvoices($bill, $typeId)
+        ) {
+            return (new \DateTimeImmutable('now'));
         }
 
         switch ($typeId) {
@@ -300,8 +329,15 @@ class Invoice extends ActiveRecord
                 return;
             }
 
+            $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)));
+
             $this->is_reversal = 1;
-            $this->reversal_date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $this->reversal_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+            // дата сторинрования для "не русских" с/ф должна быть "сегодня"
+            if ($this->bill->clientAccount->contragent->country_id != Country::RUSSIA) {
+                $this->date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
+            }
 
             if ($isRevertSum) {
                 $this->sum = -$this->sum;
@@ -529,6 +565,7 @@ class Invoice extends ActiveRecord
 
         if (abs($diffSum) < 0.01 && abs($diffSumTax) < 0.01) {
             if ($this->correction_bill_id) {
+                $this->correctionBill->isSkipCheckCorrection = true;
                 $this->correctionBill->delete();
             }
 
@@ -536,12 +573,12 @@ class Invoice extends ActiveRecord
         }
 
         if (!$this->correction_bill_id) {
-            $bill = Bill::dao()->createBill($this->bill->clientAccount, $this->bill->currency);
+            $bill = Bill::dao()->createBill($this->bill->clientAccount, $this->bill->currency, true);
 
             $bill->operation_type_id = OperationType::ID_CORRECTION;
             $bill->comment = 'Автоматическая корректировка к счету ' . $this->bill_no . ' (' . $this->type_id . ')';
             $this->correction_bill_id = $bill->id;
-            $bill->price_include_vat = $this->bill->price_include_vat;
+            $bill->price_include_vat = 1; // здесь сумма конечная, всегда с НДС
 
 
             $lineItem = \Yii::t(

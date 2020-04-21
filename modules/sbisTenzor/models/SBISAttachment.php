@@ -304,10 +304,30 @@ class SBISAttachment extends ActiveRecord
      */
     public function getFullStoredPath($fileName = '', $dirSuffix = '')
     {
-        $info = pathinfo($this->file_name);
-        $fileName = $fileName ? : sprintf('%02d.%s', $this->number, $info['extension']);
+        if (!$fileName) {
+            $fileName = $this->generateFileName();
+        }
 
         return $this->getPath($dirSuffix) . $fileName;
+    }
+
+    /**
+     * Генерирует имя файла (в хранилище)
+     *
+     * @return string
+     */
+    public function generateFileName()
+    {
+        if ($this->file_name) {
+            $info = pathinfo($this->file_name);
+            return sprintf('%02d.%s', $this->number, $info['extension']);
+        }
+
+        if ($this->external_id) {
+            return $this->external_id;
+        }
+
+        return SBISUtils::generateUuid();
     }
 
     /**

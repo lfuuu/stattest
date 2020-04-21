@@ -44,7 +44,7 @@ class ApiRaw extends ActiveRecord
      */
     public static function getDb()
     {
-        return Yii::$app->dbPgSlave;
+        return Yii::$app->dbPgNnp;
     }
 
 

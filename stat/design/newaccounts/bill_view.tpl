@@ -87,6 +87,7 @@
             {if $bill_ext.ext_invoice_date}<br>Дата внешней с/ф: {$bill_ext.ext_invoice_date}{/if}
             {if $bill_ext.ext_sum_without_vat}<br>Счет без НДС из с/ф постав.: {$bill_ext.ext_sum_without_vat}{/if}
             {if $bill_ext.ext_vat}<br>НДС из с/ф поставщика: {$bill_ext.ext_vat}{/if}
+            {if $bill_file_name}<br>&nbsp;<a href="/?module=newaccounts&action=bill_ext_file_get&bill_no={$bill.bill_no|escape:"url"}"><span class="glyphicon glyphicon-upload"></span> {$bill_file_name}</a>{/if}
 
             {if false && access('newaccounts_bills','edit') && !$isClosed}
                 <form action="?" method="post">

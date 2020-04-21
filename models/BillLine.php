@@ -2,9 +2,11 @@
 
 namespace app\models;
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
+use yii\caching\TagDependency;
 
 /**
  * Расчётная проводка
@@ -161,6 +163,12 @@ class BillLine extends ActiveRecord
      */
     public static function compactLines($lines, $lang, $isPriceIncludeVat)
     {
+        $cacheKey = md5(serialize($lines));
+
+        if (\Yii::$app->cache->exists($cacheKey)) {
+            return \Yii::$app->cache->get($cacheKey);
+        }
+
         $data = [];
         $idx = [];
 
@@ -257,6 +265,8 @@ class BillLine extends ActiveRecord
 
             $data[] = $line;
         }
+
+        \Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_BILL]])));
 
         return $data;
     }

@@ -278,7 +278,7 @@
                 {if isset($op.bill.comment) && $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="7" class="comment">{$op.bill.comment|strip_tags}</td>
+                        <td colspan="7" class="comment">{$op.bill.comment|strip_tags} {if $op.bill.file_name}&nbsp;<a href="/?module=newaccounts&action=bill_ext_file_get&bill_no={$op.bill.bill_no|escape:"url"}" class="btn btn-warning btn-sm" style="padding: 0 3px;"><span class="glyphicon glyphicon-upload"></span> {$op.bill.file_name}</a>{/if}</td>
                 {/if}
             {/if}
         </tr>

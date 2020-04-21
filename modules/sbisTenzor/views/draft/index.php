@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
 use app\modules\sbisTenzor\classes\XmlGenerator;
 use app\modules\sbisTenzor\helpers\SBISUtils;
@@ -17,9 +18,13 @@ use yii\helpers\Url;
  * @var string $title
  * @var int $clientId
  * @var int $isAuto
+ * @var int $isVerified
  * @var int $state
  * @var int $processCount
+ * @var bool $showAll
+ * @var int $processCountAll
  * @var string $processConfirmText
+ * @var string $processAllConfirmText
  */
 
 $baseView = $this;
@@ -49,6 +54,7 @@ if ($clientId && $isAuto) :
     <div class="text-center text-success">
         Для данного клиента включена автоматическая генерация пакетов документов для отправки в СБИС.<br />
         Выключить данную настройку вы можете в <a href="<?= Url::toRoute(['/account/edit', 'id' => $clientId]) ?>">профиле клиента</a>.
+        <?=$isVerified ? '<br />' . Html::tag('strong', 'Клиент в списке проверенных', ['class' => 'text-success']) : ''?>
     </div>
 <?php
 elseif ($clientId) :
@@ -95,12 +101,19 @@ echo GridView::widget([
             'value'     => function (SBISGeneratedDraft $model) {
                 $client = $model->invoice->bill->clientAccount;
 
-                $text = $client->contragent->name_full;
-                return Html::a($text, $client->getUrl());
+                $html = $client->contragent->name_full;
+                if (SBISExchangeStatus::isVerifiedById($client->exchange_status)) {
+                    $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']);
+                } else if (SBISExchangeStatus::isNotApprovedById($client->exchange_status)) {
+                    $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
+                } else if ($client->exchange_status == SBISExchangeStatus::UNKNOWN) {
+                    $html .= '&nbsp;' . Html::tag('strong', '?', ['class' => 'text-warning']);
+                }
+
+                return Html::a($html, $client->getUrl());
             },
         ],
         [
-            'attribute' => 'invoice.bill.clientAccount.contragent.name_full',
             'label' => 'Файлы',
             'format' => 'html',
             'value'     => function (SBISGeneratedDraft $model) {
@@ -226,6 +239,11 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'updated_at',
+            'value'     => function (SBISGeneratedDraft $model) {
+                $html = $model->updated_at;
+
+                return $html ? : '';
+            },
         ],
         [
             'class' => ActionColumn::class,
@@ -293,17 +311,38 @@ echo GridView::widget([
             ]
         ) .
         '&nbsp;&nbsp;&nbsp;' .
-        $this->render(
-            '//layouts/_link',
-            [
-                'url' => '/sbisTenzor/draft/process',
-                'text' => sprintf('Создать пакеты на основе черновиков (%s)', $processCount),
-                'glyphicon' => 'glyphicon-send',
-                'params' => [
-                    'onClick' => 'return confirm("' . $processConfirmText . '")',
-                    'class' => 'btn btn-success',
-                ],
-            ]
+        (
+            $processCount ?
+                $this->render(
+                    '//layouts/_link',
+                    [
+                        'url' => '/sbisTenzor/draft/process',
+                        'text' => sprintf('Создать пакеты по клиенту (%s)', $processCount),
+                        'glyphicon' => 'glyphicon-arrow-down',
+                        'params' => [
+                            'onClick' => 'return confirm("' . $processConfirmText . '")',
+                            'class' => 'btn btn-success',
+                        ],
+                    ]
+                ) .
+                '&nbsp;' :
+                ''
+        ) .
+        (
+            $showAll ?
+                $this->render(
+                    '//layouts/_link',
+                    [
+                        'url' => '/sbisTenzor/draft/process-all',
+                        'text' => sprintf('Создать пакеты для всех подтвержденных (%s)', $processCountAll),
+                        'glyphicon' => 'glyphicon-sort-by-attributes',
+                        'params' => [
+                            'onClick' => 'return confirm("' . $processAllConfirmText . '")',
+                            'class' => 'btn btn-success',
+                        ],
+                    ]
+                ) :
+                ''
         ),
     'isFilterButton' => false,
     'floatHeader' => false,

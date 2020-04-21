@@ -815,7 +815,8 @@ class ClientAccountDao extends Singleton
 
             select id
             from uu_account_tariff u
-            where u.client_account_id = :client_account_id and tariff_period_id is not null
+            where u.client_account_id = :client_account_id and tariff_period_id is not null 
+            and prev_account_tariff_id is null
         ', [
             ':client' => $clientAccount->client,
             ':client_account_id' => $clientAccount->id,

@@ -510,6 +510,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = $isTele2Server ? AccountTariffCheckHlr::linkImsi($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
+                case EventQueue::SYNC_TELE2_UNSET_IMSI:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::unsetImsi($param) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case EventQueue::SYNC_TELE2_UNLINK_IMSI:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::unlinkImsi($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
 
                 // --------------------------------------------
                 // Псевдо-логирование
@@ -567,7 +575,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case UuModule::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
-                    AccountTariffBiller::recalc($param);
+                    $info = AccountTariffBiller::recalc($param);
                     break;
 
                 case UuModule::EVENT_RECALC_BALANCE:
@@ -868,9 +876,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case ClientChangedAmqAdapter::EVENT:
+                    /*
                     $info = $isClientChangedServer
                         ? ClientChangedAmqAdapter::me()->process($param)
                         : EventQueue::API_IS_SWITCHED_OFF;
+                    */
                     break;
 
                 // --------------------------------------------

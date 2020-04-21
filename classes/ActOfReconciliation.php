@@ -2,6 +2,7 @@
 
 namespace app\classes;
 
+use app\classes\documents\DocumentReport;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
 use app\models\Bill;
@@ -274,6 +275,12 @@ WHERE b.client_id = ' . $account->id . '
             'add_datetime' => $setDateTime('now'),
             'income_sum' => (float)$currentStatementSum,
             'description' => 'current_statement',
+            'link' => Encrypt::encodeArray([
+                'client' => $account->id,
+                'doc_type' => DocumentReport::DOC_TYPE_CURRENT_STATEMENT,
+                'tpl1' => 2,
+                'is_pdf' => 1,
+            ])
         ];
         $balance += $currentStatementSum;
 
@@ -309,11 +316,11 @@ WHERE b.client_id = ' . $account->id . '
                 ]);
             } elseif ($row['type'] == 'bill' && !$isNotRussia) {
                 $row['link'] = Encrypt::encodeArray([
-                        'bill' => $row['number'],
-                        'object' => 'bill-2-RUB',
-                        'client' => $account->id,
-                        'is_pdf' => 1
-                    ]);
+                    'bill' => $row['number'],
+                    'object' => 'bill-2-RUB',
+                    'client' => $account->id,
+                    'is_pdf' => 1
+                ]);
             }
             unset($row['id']);
 

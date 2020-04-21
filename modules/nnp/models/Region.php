@@ -4,6 +4,7 @@ namespace app\modules\nnp\models;
 
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\classes\validators\FormFieldValidator;
 use Yii;
 use yii\helpers\Url;
 
@@ -13,6 +14,7 @@ use yii\helpers\Url;
  * @property string $name
  * @property string $name_translit
  * @property int $country_code
+ * @property string $iso
  * @property int $cnt
  *
  * @property-read Country $country
@@ -54,6 +56,7 @@ class Region extends ActiveRecord
             'name_translit' => 'Название транслитом',
             'country_code' => 'Страна',
             'cnt' => 'Кол-во номеров',
+            'iso' => 'ISO',
         ];
     }
 
@@ -74,6 +77,8 @@ class Region extends ActiveRecord
     {
         return [
             [['name', 'name_translit'], 'string'],
+            [['name', 'name_translit', 'iso'], FormFieldValidator::class],
+            ['iso', 'string', 'max' => 3],
             [['country_code', 'parent_id'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
@@ -111,6 +116,15 @@ class Region extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgNnp;
+    }
+
+    public function beforeSave($isInsert)
+    {
+        if ($this->iso) {
+            $this->iso = strtoupper($this->iso);
+        }
+
+        return parent::beforeSave($isInsert);
     }
 
     /**

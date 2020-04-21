@@ -1,16 +1,21 @@
 <?php
 
+use app\classes\Encrypt;
 use app\classes\Html2Pdf;
 use app\models\Bill;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\documents\DocumentReport;
+use app\models\ClientAccount;
 use app\models\Country;
+use app\models\Invoice;
 use app\modules\uu\models_light\InvoiceLight;
 use yii\web\Response;
 
 define("PATH_TO_ROOT", '../stat/');
 include PATH_TO_ROOT . "conf_yii.php";
-if (!($R = \app\classes\Encrypt::decodeToArray(get_param_raw('bill')))) {
+
+$billStr = get_param_raw('bill');
+if (!($R = Encrypt::decodeToArray($billStr))) {
     return;
 }
 
@@ -36,13 +41,13 @@ $isEmailed = get_param_raw('emailed', 1);
 
 header('Content-Type: ' . ($isPdf ? 'application/pdf' : 'text/html; charset=utf-8'));
 
-if (isset($R['tpl1']) && $R['tpl1']) {
+if (isset($R['tpl1']) && $R['tpl1'] == 1) {
 
     if (!isset($R['invoice_id']) || !isset($R['client'])) {
         return;
     }
 
-    $invoice = \app\models\Invoice::findOne(['id' => $R['invoice_id']]);
+    $invoice = Invoice::findOne(['id' => $R['invoice_id']]);
 
     if (
         !$invoice
@@ -73,6 +78,7 @@ if (isset($R['tpl1']) && $R['tpl1']) {
     \Yii::$app->end();
 }
 
+// 'tpl1' => 2,
 if (
     isset($R['doc_type'])
     || (
@@ -80,10 +86,14 @@ if (
         && strpos($R['object'], 'bill') === 0
     )
 ) {
-    $bill = $bill ?: Bill::findOne(['bill_no' => $R['bill']]);
+    if (isset($R['doc_type']) && $R['doc_type'] == DocumentReport::DOC_TYPE_CURRENT_STATEMENT) {
+        $mainDocument = ClientAccount::findOne(['id' => $R['client']]);
+    } else {
+        $mainDocument = $bill ?: Bill::findOne(['bill_no' => $R['bill']]);
+    }
 
     $report = DocumentReportFactory::me()->getReport(
-        $bill,
+        $mainDocument,
         (!isset($R['doc_type']) ? DocumentReport::DOC_TYPE_BILL : $R['doc_type']),
         $isEmailed
     );

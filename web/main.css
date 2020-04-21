@@ -516,3 +516,21 @@ label.invalid {
 .file_png {
 	background: url("./images/files/png.png") no-repeat;
 }
+.file_doc, .file_docx {
+	background: url("./images/files/doc2.png") no-repeat;
+}
+.file_xls, .file_xlsx {
+	background: url("./images/files/xls2.png") no-repeat;
+}
+.file_ppt, .file_pptx {
+	background: url("./images/files/ppt2.png") no-repeat;
+}
+.file_txt {
+	background: url("./images/files/txt2.png") no-repeat;
+}
+.file_zip {
+	background: url("./images/files/zip.png") no-repeat;
+}
+.file_rar {
+	background: url("./images/files/rar.png") no-repeat;
+}

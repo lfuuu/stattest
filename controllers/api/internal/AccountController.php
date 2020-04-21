@@ -4,6 +4,7 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\Assert;
+use app\classes\DynamicModel;
 use app\exceptions\api\internal\ExceptionValidationAccountId;
 use app\exceptions\api\internal\PartnerNotFoundException;
 use app\exceptions\web\BadRequestHttpException;
@@ -12,8 +13,11 @@ use app\models\ActualVirtpbx;
 use app\models\billing\StatsAccount;
 use app\models\Business;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\Region;
+use app\models\UsageVoip;
+use app\modules\uu\models\AccountTariff;
 
 class AccountController extends ApiInternalController
 {
@@ -304,6 +308,120 @@ class AccountController extends ApiInternalController
             'sum_mg_day' => null,
             'sum_mg_month' => null,
             'used_seconds' => $statsNnpPackageMinute,
+        ];
+    }
+
+    /**
+     * @SWG\GET(
+     *   tags={"ClientAccount"},
+     *   path="/internal/account/find-by-phone-number/",
+     *   summary="Поиск ЛС по номеру телефона",
+     *   operationId="Поиск ЛС по номеру телефона",
+     *   @SWG\Parameter(name="number",type="string",description="Номер телефона",in="query",required=true,default=""),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="результат работы метода",
+     *     @SWG\Definition(
+     *       type="object",
+     *       @SWG\Property(property="is_found", type="boolean", description="Найдено?"),
+     *       @SWG\Property(property="is_from_contact", type="boolean", description="Найдено в контактах? (иначе в услугах)"),
+     *       @SWG\Property(property="account_ids", type="array", description="IDs ЛС"),
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
+     * Поиск ЛС по номеру телефона
+     */
+    public function actionFindByPhoneNumber($number)
+    {
+
+        $model = DynamicModel::validateData(
+            [
+                'number' => $number,
+            ],
+            [
+                ['number', 'required'],
+            ]
+        );
+
+        if ($model->hasErrors()) {
+            $errors = $model->getFirstErrors();
+            throw new BadRequestHttpException(reset($errors));
+        }
+
+        list(, $numbers) = ClientContact::dao()->getE164($number);
+
+        if (!$numbers) {
+            return [
+                'is_found' => false
+            ];
+        }
+
+        $number = str_replace('+', '', $numbers[0]);
+
+        $clientContactAccountIds = ClientContact::find()
+            ->joinWith('client.clientContractModel cc', true, 'INNER JOIN')
+            ->where([
+                'type' => ClientContact::$phoneTypes,
+                'data' => '+' . $number,
+            ])
+            ->andWhere(['NOT', ['cc.business_process_status_id' => ClientContract::$offBPSids]])
+            ->orderBy(['client_id' => SORT_DESC])
+            ->select('client_id')
+            ->distinct()
+            ->column();
+
+        if ($clientContactAccountIds) {
+            return [
+                'is_found' => true,
+                'is_from_contact' => true,
+                'account_ids' => $clientContactAccountIds
+            ];
+        }
+
+        $clientContactAccountIds = UsageVoip::find()
+            ->joinWith('clientAccount c', true, 'INNER JOIN')
+            ->phone($number)
+            ->actual()
+            ->select('c.id')
+            ->distinct()
+            ->column();
+
+        if ($clientContactAccountIds) {
+            return [
+                'is_found' => true,
+                'is_from_contact' => false,
+                'account_ids' => $clientContactAccountIds
+            ];
+        }
+
+
+        /** @var AccountTariff $accountTariff */
+        $clientContactAccountIds = AccountTariff::find()
+            ->andWhere(['voip_number' => $number])
+            ->andWhere(['IS NOT', 'tariff_period_id', null])
+            ->select('client_account_id')
+            ->distinct()
+            ->column();
+
+        if ($clientContactAccountIds) {
+            return [
+                'is_found' => true,
+                'is_from_contact' => false,
+                'account_ids' => $clientContactAccountIds
+            ];
+        }
+
+        return [
+            'is_found' => false
         ];
     }
 }

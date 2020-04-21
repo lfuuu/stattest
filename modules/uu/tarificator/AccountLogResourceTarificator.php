@@ -75,6 +75,19 @@ class AccountLogResourceTarificator extends Tarificator
                 ['<', 'account_log_resource_utc', $utcDateTime->format(DateTimeZoneHelper::DATE_FORMAT)] // или списаны давно
             ]);
 
+        // распаралелливание обработки
+        if (isset($_SERVER['argv']) && count($_SERVER['argv']) == 4 && $_SERVER['argv'][1] == 'ubiller/resource') {
+
+            $fromId = (int)$_SERVER['argv'][2];
+            $toId = (int)$_SERVER['argv'][3];
+
+            if (!$fromId || !$toId || $fromId >= $toId) {
+                throw new \InvalidArgumentException('Неверные аргументы');
+            }
+
+            $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
+        }
+
         $accountTariffQuery
             ->with('clientAccount')
             ->with('resources')
@@ -159,16 +172,24 @@ class AccountLogResourceTarificator extends Tarificator
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceOptionPeriods();
 
         $modelsToSave = [];
+        $isNeedRecalc = false;
         /** @var AccountLogFromToResource[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $resourceId => $untarificatedPeriods) {
 
             /** @var AccountLogFromToResource $untarificatedPeriod */
             foreach ($untarificatedPeriods as $untarificatedPeriod) {
-                $modelsToSave[] = $this->getAccountLogResource($accountTariff, $untarificatedPeriod, $resourceId);
+                $model = $this->getAccountLogResource($accountTariff, $untarificatedPeriod, $resourceId);
+                if (!$isNeedRecalc && abs($model->price) >= 0.01) {
+                    $isNeedRecalc = true;
+                }
+
+                $modelsToSave[] = $model;
             }
         }
         $this->out('+ ');
         ActiveRecord::batchInsertModels($modelsToSave);
+
+        $isNeedRecalc && $this->isNeedRecalc = true;
     }
 
     /**
@@ -186,6 +207,7 @@ class AccountLogResourceTarificator extends Tarificator
 
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceTrafficPeriods();
 
+        $isNeedRecalc = false;
         $modelsToSave = [];
         /** @var AccountLogFromToTariff[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $dateYmd => $untarificatedPeriods) {
@@ -233,11 +255,18 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
                 $accountLogResource->cost_price = $amounts->costAmount * $accountLogResource->price_per_unit;
 
+                if (!$isNeedRecalc && abs($accountLogResource->price) >= 0.01) {
+                    $isNeedRecalc = true;
+                }
+
+
                 $modelsToSave[] = $accountLogResource;
             }
         }
         $this->out('+ ');
         ActiveRecord::batchInsertModels($modelsToSave);
+
+        $isNeedRecalc && $this->isNeedRecalc = true;
 
         return $isOk;
     }

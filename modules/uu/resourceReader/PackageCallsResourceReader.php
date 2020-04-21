@@ -120,6 +120,9 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
 
         $connectTime = $dateTimeUtc->format(DATE_ATOM);
 
+        // ресурсы ограничиваем концом сегоднящнего дня
+        $maxDateTime = (new DateTimeImmutable('now'))->setTime(0, 0, 0)->modify('+ 1 day')->format(DATE_ATOM);
+
         CallsRaw::setPgTimeout(CallsRaw::PG_CALCULATE_RESOURCE_TIMEOUT);
 
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
@@ -139,6 +142,7 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
                 'calls_price.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ])
             ->andWhere(['>=', 'calls_price.connect_time', $connectTime])
+            ->andWhere(['<', 'calls_price.connect_time', $maxDateTime])
             ->groupBy([
                 'aggr_date',
                 'calls_price.nnp_package_price_id',

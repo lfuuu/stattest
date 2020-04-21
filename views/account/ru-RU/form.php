@@ -6,6 +6,7 @@ use app\models\ClientAccountOptions;
 use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
+use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\models\SBISExchangeGroup;
 use app\modules\uu\models\TariffStatus;
 use kartik\widgets\ActiveForm;
@@ -229,9 +230,12 @@ use kartik\widgets\ActiveForm;
                 ])
             ?>
         </div>
+        <?php
+            $exchangeError = $model->getExchangeGroupError();
+        ?>
         <div class="col-sm-3">
             <?php
-                if ($exchangeError = $model->getExchangeGroupError()) {
+                if ($exchangeError) {
                     ?>
                     <div class="form-group">
                         <label>Интеграция со СБИС</label><br /><br />
@@ -245,7 +249,13 @@ use kartik\widgets\ActiveForm;
                 }
             ?>
         </div>
-        <div class="col-sm-3"></div>
+        <div class="col-sm-3">
+            <?php
+            if (!$exchangeError) {
+                echo $f->field($model, 'exchange_status')->dropDownList(SBISExchangeStatus::$states);
+            }
+            ?>
+        </div>
         <div class="col-sm-3"><?= $f->field($model, 'transfer_params_from')->dropDownList($model->getNearAccounts())?></div>
     </div>
 

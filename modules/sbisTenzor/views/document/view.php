@@ -10,6 +10,8 @@
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\forms\document\ViewForm;
+use app\modules\sbisTenzor\models\SBISDocument;
+use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -196,12 +198,14 @@ echo Breadcrumbs::widget([
         <td>
             <?php foreach ($model->attachments as $attachment): ?>
 
+                <?=$attachment->number ?>.
+
                 <?=sprintf(
                     '<span class="file20 file_%s"></span>',
                     $attachment->extension
                 );?>
 
-                <?=$attachment->number ?>. <?=basename($attachment->getActualStoredPath()) ?>
+                <?=basename($attachment->getActualStoredPath()) ?>
                 &nbsp;&nbsp;&nbsp;
                 <a href="<?= Url::toRoute([
                     '/sbisTenzor/document/download-attachment',
@@ -238,6 +242,33 @@ echo Breadcrumbs::widget([
             <?php endforeach; ?>
         </td>
     </tr>
+    <?php if ($model->isJustCreated()): ?>
+        <tr>
+            <td><label>Добавить вложения</label></td>
+            <td>
+                <?php
+                    $form = ActiveForm::begin([
+                        'type' => ActiveForm::TYPE_VERTICAL,
+                        'options' => [
+                            'enctype' => 'multipart/form-data',
+                        ],
+                        'action' => ['add-files', 'id' => $model->id],
+                    ]);
+                ?>
+                <?php for ($i = 1; $i <= SBISDocument::MAX_ATTACHMENTS; $i++): ?>
+                    <input type="file" name="<?= $model->formName(); ?>[filename][<?= $i ?>]" class="media-manager" data-language="ru-RU" /><br /><br />
+                <?php endfor; ?>
+                <?= $this->render('//layouts/_submitButton', [
+                    'text' => 'Прикрепить вложения',
+                    'glyphicon' => 'glyphicon-copy',
+                    'params' => [
+                        'class' => 'btn btn-info',
+                    ],
+                ]) ?>
+                <?php ActiveForm::end(); ?>
+            </td>
+        </tr>
+    <?php endif; ?>
     <tr>
         <td><label><?= $model->getAttributeLabel('type'); ?></label></td>
         <td><?= $model->typeName ?></td>
