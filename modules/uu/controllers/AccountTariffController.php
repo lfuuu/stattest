@@ -22,7 +22,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffLogAdd;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use Exception;
@@ -594,8 +594,8 @@ class AccountTariffController extends BaseController
             throw new InvalidParamException('Услуга не найдена');
         }
 
-        /** @var \app\modules\uu\models\Resource $resource */
-        $resource = Resource::findOne(['id' => $resourceId]);
+        /** @var ResourceClass $resource */
+        $resource = ResourceClass::findOne(['id' => $resourceId]);
         if (!$resource) {
             throw new InvalidParamException('Ресурс не найден');
         }

@@ -15,7 +15,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
@@ -651,7 +651,7 @@ class UbillerTest extends _TestCase
 
         // проводки другие (недоходные)
         $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
-            return $accountEntry->tariffResource->resource_id != Resource::ID_TRUNK_PACKAGE_ORIG_CALLS;
+            return $accountEntry->tariffResource->resource_id != ResourceClass::ID_TRUNK_PACKAGE_ORIG_CALLS;
         });
         $this->assertEquals($this->isMonthTransition ? 5 : 3, count($accountEntries));
 
@@ -712,14 +712,34 @@ class UbillerTest extends _TestCase
         $this->assertEquals($accountTariff->tariff_period_id, $accountLogResource->tariff_period_id);
 
         // операция у проводки - расход
+        $priceForAccountEntryCostCanBeZero = false;
         $accountEntry = $accountLogResource->accountEntry;
+
         $this->assertEquals(OperationType::ID_COST, $accountEntry->operation_type_id);
-        $this->assertTrue($accountEntry->price < 0);
+        if ($accountEntry->price == 0) {
+            // для нулевой расходной проводки проверим все ее транзакции
+            // помечаем, что цена может быть нулевой
+            foreach ($accountEntry->accountLogResources as $accountLogResource) {
+                $this->assertEquals(
+                    OperationType::ID_COST,
+                    ResourceClass::$operationTypesMap[$accountLogResource->tariffResource->resource->id] ?? ''
+                );
+                $this->assertTrue($accountEntry->price <= 0);
+            }
+
+            $priceForAccountEntryCostCanBeZero = true;
+        } else {
+            $this->assertTrue($accountEntry->price < 0);
+        }
 
         // операция у счёта - расход
         $billCost = $accountEntry->bill;
         $this->assertEquals(OperationType::ID_COST, $billCost->operation_type_id);
-        $this->assertTrue($billCost->price < 0);
+        if ($priceForAccountEntryCostCanBeZero) {
+            $this->assertTrue($billCost->price <= 0);
+        } else {
+            $this->assertTrue($billCost->price < 0);
+        }
 
         // всего проводок
         $accountEntries = $accountTariff->accountEntries;
@@ -750,19 +770,22 @@ class UbillerTest extends _TestCase
         // Универсальный счёт сконвертирован
         $this->assertTrue($billCost->is_converted === 1);
 
-        // операция у нового "старого" счёта - расход, строк нет
-        $newBill = $billCost->newBill;
-        $this->assertEquals(OperationType::ID_COST, $newBill->operation_type_id);
-        $this->assertTrue($newBill->sum < 0);
-        $this->assertNotEmpty($newBill->lines);
+        // для ненулевых - проверяем создание нового "старого" счета (nispd.newbill)
+        if ($billCost->price != 0) {
+            // операция у нового "старого" счёта - расход, строк нет
+            $newBill = $billCost->newBill;
+            $this->assertEquals(OperationType::ID_COST, $newBill->operation_type_id);
+            $this->assertTrue($newBill->sum < 0);
+            $this->assertNotEmpty($newBill->lines);
 
-        // ***
-        // создание с/ф
-        $newBill->generateInvoices();
+            // ***
+            // создание с/ф
+            $newBill->generateInvoices();
 
-        // нет с/ф
-        $invoices = $newBill->invoices;
-        $this->assertEmpty($invoices);
+            // нет с/ф
+            $invoices = $newBill->invoices;
+            $this->assertEmpty($invoices);
+        }
     }
 
     /**
@@ -810,7 +833,7 @@ class UbillerTest extends _TestCase
         // У ВАТС 7 ресурсов. Для тестирования ограничимся только "линиями" (15 транзакций)
         /** @var AccountLogResource[] $accountLogResources */
         $accountLogResources = array_filter($accountLogResources, function (AccountLogResource $accountLogResource) {
-            return $accountLogResource->tariffResource->resource_id == Resource::ID_VPBX_ABONENT;
+            return $accountLogResource->tariffResource->resource_id == ResourceClass::ID_VPBX_ABONENT;
         });
         $this->assertEquals(15, count($accountLogResources));
 

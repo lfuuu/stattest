@@ -466,7 +466,7 @@ class Bill {
 		";
 
 		$db->Query($query);
-		$pay = $db->NextRecord(MYSQL_ASSOC);
+		$pay = $db->NextRecord(MYSQLI_ASSOC);
 		if($pay && $pay['type'] == 'PAY'){
 
             $tax_rate = $this->Client()->getTaxRate();
@@ -848,7 +848,7 @@ WHERE
   ) /*or bill_no = '201109/0574'*/
             ";
 
-        return $db->AllRecords($query, null, MYSQL_ASSOC);
+        return $db->AllRecords($query, null, MYSQLI_ASSOC);
     }
 }
 ?>

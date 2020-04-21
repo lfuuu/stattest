@@ -6,7 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use yii\base\Behavior;
 use yii\base\Event;
 
@@ -53,7 +53,7 @@ class FillAccountTariffResourceLog extends Behavior
         $tariffResources = $tariff->tariffResources;
         foreach ($tariffResources as $tariffResource) {
 
-            if (!Resource::isOptionId($tariffResource->resource_id)) {
+            if (!ResourceClass::isOptionId($tariffResource->resource_id)) {
                 // этот ресурс - не опция. Он считается по факту, а не заранее
                 continue;
             }
@@ -63,12 +63,12 @@ class FillAccountTariffResourceLog extends Behavior
             $accountTariffResourceLog->actual_from_utc = $accountTariffLog->actual_from_utc;
             $accountTariffResourceLog->resource_id = $tariffResource->resource_id;
 
-            if ($tariffResource->resource_id == Resource::ID_VOIP_FMC && $number) {
+            if ($tariffResource->resource_id == ResourceClass::ID_VOIP_FMC && $number) {
                 // Костыль для FMC. Включенность этого ресурса зависит от типа телефонного номера
                 $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $tariffResource->amount);
                 $accountTariffResourceLog->amount = (int) $isFmcActive;
 
-            } elseif ($tariffResource->resource_id == Resource::ID_VOIP_MOBILE_OUTBOUND && $number) {
+            } elseif ($tariffResource->resource_id == ResourceClass::ID_VOIP_MOBILE_OUTBOUND && $number) {
                 // Костыль для Исх.Моб.Связь. Включенность этого ресурса зависит от типа телефонного номера
                 $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $tariffResource->amount);
                 $accountTariffResourceLog->amount = (int) $isMobileOutboundActive;

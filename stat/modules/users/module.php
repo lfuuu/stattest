@@ -13,7 +13,7 @@ class m_users {
 					array('Отделы',		'default',	'&m=departs'),
 					array('Обновить права в БД', 'default', '&m=update_rights'),
 				);
-	function m_users(){
+	function __construct(){
 	}
 	function GetPanel($fixclient){
 		$R=array();

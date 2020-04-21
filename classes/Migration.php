@@ -8,7 +8,7 @@ use app\models\UserGrantGroups;
 use app\models\UserRight;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffResource;
 use yii\console\Exception;
@@ -17,6 +17,11 @@ class Migration extends \yii\db\Migration
 {
     public $migrationPath;
 
+    /**
+     * @param $sql
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\db\Exception
+     */
     public function executeRaw($sql)
     {
         $pdo = $this->db->getMasterPdo();
@@ -27,12 +32,22 @@ class Migration extends \yii\db\Migration
         }
     }
 
+    /**
+     * @param $fileName
+     * @throws Exception
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\db\Exception
+     */
     public function executeFile($fileName)
     {
         $sql = $this->readFile($fileName);
         $this->executeRaw($sql);
     }
 
+    /**
+     * @param $fileName
+     * @throws Exception
+     */
     public function executeSqlFile($fileName)
     {
         if (!preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', $this->db->dsn, $matches)) {
@@ -57,6 +72,9 @@ class Migration extends \yii\db\Migration
         }
     }
 
+    /**
+     * @param $tableName
+     */
     public function applyFixture($tableName)
     {
         $fixture = new Fixture();
@@ -65,6 +83,11 @@ class Migration extends \yii\db\Migration
         $fixture->load();
     }
 
+    /**
+     * @param $fileName
+     * @return false|string
+     * @throws Exception
+     */
     private function readFile($fileName)
     {
         $fullFileName = $this->getFullFileName($fileName);
@@ -143,10 +166,11 @@ class Migration extends \yii\db\Migration
      * @param $resourceId
      * @param $resourceData
      * @throws ModelValidationException
+     * @throws \Exception
      */
     public function insertResource($serviceTypeId, $resourceId, $resourceData, $prices = [], $isOption = true)
     {
-        $this->insert(Resource::tableName(), $resourceData + [
+        $this->insert(ResourceClass::tableName(), $resourceData + [
                 'id' => $resourceId,
                 'service_type_id' => $serviceTypeId,
             ]);

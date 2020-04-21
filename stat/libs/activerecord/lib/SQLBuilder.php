@@ -67,7 +67,7 @@ class SQLBuilder
 	public function to_s()
 	{
 		$func = 'build_' . strtolower($this->operation);
-		return $this->$func();
+		return $this->{$func}();
 	}
 
 	/**
@@ -205,11 +205,11 @@ class SQLBuilder
 	 * Converts a string like "id_and_name_or_z" into a conditions value like array("id=? AND name=? OR z=?", values, ...).
 	 *
 	 * @param Connection $connection
-	 * @param $name Underscored string
-	 * @param $values Array of values for the field names. This is used
+	 * @param string $name
+	 * @param array $values Array of values for the field names. This is used
 	 *   to determine what kind of bind marker to use: =?, IN(?), IS NULL
-	 * @param $map A hash of "mapped_column_name" => "real_column_name"
-	 * @return A conditions array in the form array(sql_string, value1, value2,...)
+	 * @param array|null $map // A hash of "mapped_column_name" => "real_column_name"
+	 * @return array|null //A conditions array in the form array(sql_string, value1, value2,...)
 	 */
 	public static function create_conditions_from_underscored_string(Connection $connection, $name, &$values=array(), &$map=null)
 	{

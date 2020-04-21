@@ -32,10 +32,10 @@ use yii\db\ActiveQuery;
  *
  * @property-read ServiceType $serviceType
  *
- * @method static Resource findOne($condition)
- * @method static Resource[] findAll($condition)
+ * @method static ResourceClass findOne($condition)
+ * @method static ResourceClass[] findAll($condition)
  */
-class Resource extends ActiveRecord
+class ResourceClass extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -126,15 +126,15 @@ class Resource extends ActiveRecord
     ];
 
     public static $calls = [
-        Resource::ID_VOIP_PACKAGE_CALLS => Resource::ID_VOIP_PACKAGE_CALLS,
-        Resource::ID_TRUNK_PACKAGE_ORIG_CALLS => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
-        Resource::ID_TRUNK_PACKAGE_TERM_CALLS => Resource::ID_TRUNK_PACKAGE_TERM_CALLS,
-        Resource::ID_API_CALL => Resource::ID_API_CALL,
+        self::ID_VOIP_PACKAGE_CALLS => self::ID_VOIP_PACKAGE_CALLS,
+        self::ID_TRUNK_PACKAGE_ORIG_CALLS => self::ID_TRUNK_PACKAGE_ORIG_CALLS,
+        self::ID_TRUNK_PACKAGE_TERM_CALLS => self::ID_TRUNK_PACKAGE_TERM_CALLS,
+        self::ID_API_CALL => self::ID_API_CALL,
     ];
 
     // map for operation types
     public static $operationTypesMap = [
-        Resource::ID_TRUNK_PACKAGE_TERM_CALLS => OperationType::ID_COST,
+        self::ID_TRUNK_PACKAGE_TERM_CALLS => OperationType::ID_COST,
     ];
 
     /**
@@ -268,7 +268,7 @@ class Resource extends ActiveRecord
         if (!$serviceTypeId) {
             array_walk(
                 $list,
-                function (\app\modules\uu\models\Resource &$resource) {
+                function (self &$resource) {
                     $resource = $resource->getFullName();
                 }
             );

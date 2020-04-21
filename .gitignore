@@ -5,8 +5,6 @@ tags
 web/noc
 web/tst
 web/images/graphs
-web/info.php
-web/check.php
 xdebug/
 /package.box
 /stat.iml

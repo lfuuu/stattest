@@ -295,7 +295,7 @@ class UsageVoipForm extends Form
      */
     public function validateChangeTariff($attr)
     {
-        $tariff = TariffVoip::findOne(['id' => $this->$attr]);
+        $tariff = TariffVoip::findOne(['id' => $this->{$attr}]);
 
         if (!$tariff) {
             $this->addError($attr, 'Тариф не найден');

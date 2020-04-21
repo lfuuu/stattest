@@ -11,7 +11,7 @@ use app\models\ClientAccountOptions;
 use app\models\Trouble;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use app\modules\uu\models\ServiceType;
 use yii\base\InvalidParamException;
 
@@ -67,8 +67,8 @@ class SyncVps
             $apiVps->vpsUpdate(
                 $accountTariff->client_account_id,
                 $accountTariff->vm_elid_id,
-                $resourceRam = (int)$tariffResources[Resource::ID_VPS_RAM],
-                $resourceProcessor = (int)$tariffResources[Resource::ID_VPS_PROCESSOR]
+                $resourceRam = (int)$tariffResources[ResourceClass::ID_VPS_RAM],
+                $resourceProcessor = (int)$tariffResources[ResourceClass::ID_VPS_PROCESSOR]
             );
 
         } else {
@@ -127,17 +127,17 @@ class SyncVps
         ApiVps::me()->vpsUpdate(
             $clientAccountId,
             $accountTariff->vm_elid_id,
-            isset($resources[Resource::ID_VPS_RAM]) ? $resources[Resource::ID_VPS_RAM] : null,
-            isset($resources[Resource::ID_VPS_PROCESSOR]) ? $resources[Resource::ID_VPS_PROCESSOR] : null,
-            isset($resources[Resource::ID_VPS_HDD]) ? $resources[Resource::ID_VPS_HDD] : null
+            isset($resources[ResourceClass::ID_VPS_RAM]) ? $resources[ResourceClass::ID_VPS_RAM] : null,
+            isset($resources[ResourceClass::ID_VPS_PROCESSOR]) ? $resources[ResourceClass::ID_VPS_PROCESSOR] : null,
+            isset($resources[ResourceClass::ID_VPS_HDD]) ? $resources[ResourceClass::ID_VPS_HDD] : null
         );
 
-        if (isset($resources[Resource::ID_VPS_HDD])) {
+        if (isset($resources[ResourceClass::ID_VPS_HDD])) {
             Trouble::dao()->createTrouble(
                 $clientAccountId,
                 Trouble::TYPE_TASK,
                 Trouble::SUBTYPE_TASK,
-                sprintf('Для VPS ELID ID = %d изменить ресурс HDD на %d GB. УУ %s', $accountTariff->vm_elid_id, $resources[Resource::ID_VPS_HDD], $accountTariff->getUrl()),
+                sprintf('Для VPS ELID ID = %d изменить ресурс HDD на %d GB. УУ %s', $accountTariff->vm_elid_id, $resources[ResourceClass::ID_VPS_HDD], $accountTariff->getUrl()),
                 null,
                 Trouble::DEFAULT_VPS_SUPPORT
             );

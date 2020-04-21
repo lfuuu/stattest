@@ -42,9 +42,10 @@ use ArrayIterator;
 class Validations
 {
 	private $model;
-	private $options = array();
 	private $validators = array();
 	private $record;
+	/* @var Singleton */
+	protected $class;
 
 	private static $VALIDATION_FUNCTIONS = array(
 		'validates_presence_of',
@@ -86,14 +87,14 @@ class Validations
 	 * Constructs a {@link Validations} object.
 	 *
 	 * @param Model $model The model to validate
-	 * @return Validations
 	 */
 	public function __construct(Model $model)
 	{
 		$this->model = $model;
 		$this->record = new Errors($this->model);
-		$this->klass = Reflections::instance()->get(get_class($this->model));
-		$this->validators = array_intersect(array_keys($this->klass->getStaticProperties()), self::$VALIDATION_FUNCTIONS);
+		$this->class = Reflections::instance()->get(get_class($this->model));
+
+		$this->validators = array_intersect(array_keys($this->class->getStaticProperties()), self::$VALIDATION_FUNCTIONS);
 	}
 
 	public function get_record()
@@ -111,7 +112,7 @@ class Validations
 		$data = array();
 		foreach ($this->validators as $validate)
 		{
-			$attrs = $this->klass->getStaticPropertyValue($validate);
+			$attrs = $this->class->getStaticPropertyValue($validate);
 
 			foreach (wrap_strings_in_arrays($attrs) as $attr)
 			{
@@ -137,8 +138,8 @@ class Validations
 	{
 		foreach ($this->validators as $validate)
 		{
-			$definition = $this->klass->getStaticPropertyValue($validate);
-			$this->$validate(wrap_strings_in_arrays($definition));
+			$definition = $this->class->getStaticPropertyValue($validate);
+			$this->{$validate}(wrap_strings_in_arrays($definition));
 		}
 
 		$model_reflection = Reflections::instance()->get($this->model);
@@ -245,7 +246,7 @@ class Validations
 	 * @see validates_inclusion_of
 	 * @see validates_exclusion_of
 	 * @param string $type Either inclusion or exclusion
-	 * @param $attrs Validation definition
+	 * @param array $attrs Validation definition
 	 */
 	public function validates_inclusion_or_exclusion_of($type, $attrs)
 	{
@@ -255,7 +256,7 @@ class Validations
 		{
 			$options = array_merge($configuration, $attr);
 			$attribute = $options[0];
-			$var = $this->model->$attribute;
+			$var = $this->model->{$attribute};
 
 			if (isset($options['in']))
 				$enum = $options['in'];
@@ -302,6 +303,7 @@ class Validations
 	 * </ul>
 	 *
 	 * @param array $attrs Validation definition
+	 * @throws ValidationsArgumentError
 	 */
 	public function validates_numericality_of($attrs)
 	{
@@ -314,7 +316,7 @@ class Validations
 		{
 			$options = array_merge($configuration, $attr);
 			$attribute = $options[0];
-			$var = $this->model->$attribute;
+			$var = $this->model->{$attribute};
 
 			$numericalityOptions = array_intersect_key(self::$ALL_NUMERICALITY_CHECKS, $options);
 
@@ -344,7 +346,6 @@ class Validations
 
 			foreach ($numericalityOptions as $option => $check)
 			{
-				$option_value = $options[$option];
 				$message = (isset($options['message']) ? $options['message'] : Errors::$DEFAULT_ERROR_MESSAGES[$option]);
 
 				if ('odd' != $option && 'even' != $option)
@@ -420,7 +421,7 @@ class Validations
 		{
 			$options = array_merge($configuration, $attr);
 			$attribute = $options[0];
-			$var = $this->model->$attribute;
+			$var = $this->model->{$attribute};
 
 			if (is_null($options['with']) || !is_string($options['with']) || !is_string($options['with']))
 				throw new ValidationsArgumentError('A regular expression must be supplied as the [with] option of the configuration array.');
@@ -486,7 +487,7 @@ class Validations
 			}
 
 			$attribute = $options[0];
-			$var = $this->model->$attribute;
+			$var = $this->model->{$attribute};
 			if ($this->is_null_with_option($var, $options) || $this->is_blank_with_option($var, $options))
 				continue;
 			if ($range_options[0] == 'within' || $range_options[0] == 'in')
@@ -494,7 +495,7 @@ class Validations
 				$range = $options[$range_options[0]];
 
 				if (!(Utils::is_a('range', $range)))
-					throw new  ValidationsArgumentError("$range_option must be an array composing a range of numbers with key [0] being less than key [1]");
+					throw new  ValidationsArgumentError("range_option must be an array composing a range of numbers with key [0] being less than key [1]");
 				$range_options = array('minimum', 'maximum');
 				$attr['minimum'] = $range[0];
 				$attr['maximum'] = $range[1];
@@ -509,7 +510,7 @@ class Validations
 				if (is_float($option))
 					throw new  ValidationsArgumentError("$range_option value cannot use a float for length.");
 
-				if (!($range_option == 'maximum' && is_null($this->model->$attribute)))
+				if (!($range_option == 'maximum' && is_null($this->model->{$attribute})))
 				{
 					$messageOptions = array('is' => 'wrong_length', 'minimum' => 'too_short', 'maximum' => 'too_long');
 
@@ -520,7 +521,7 @@ class Validations
 					
 
 					$message = str_replace('%d', $option, $message);
-					$attribute_value = $this->model->$attribute;
+					$attribute_value = $this->model->{$attribute};
 					$len = strlen($attribute_value);
 					$value = (int)$attr[$range_option];
 
@@ -566,13 +567,13 @@ class Validations
 			'message' => Errors::$DEFAULT_ERROR_MESSAGES['unique']
 		));
 		// Retrieve connection from model for quote_name method
-		$connection = $this->klass->getMethod('connection')->invoke(null);
+		$connection = $this->class->getMethod('connection')->invoke(null);
 
 		foreach ($attrs as $attr)
 		{
 			$options = array_merge($configuration, $attr);
 			$pk = $this->model->get_primary_key();
-			$pk_value = $this->model->$pk[0];
+			$pk_value = $this->model->{$pk[0]};
 
 			if (is_array($options[0]))
 			{
@@ -601,7 +602,7 @@ class Validations
 				$field = $this->model->get_real_attribute_name($field);
 				$quoted_field = $connection->quote_name($field);
 				$sql .= " AND {$quoted_field}=?";
-				array_push($conditions,$this->model->$field);
+				array_push($conditions,$this->model->{$field});
 			}
 
 			$conditions[0] = $sql;
@@ -703,7 +704,7 @@ class Errors implements IteratorAggregate
 		if (empty($msg))
 			$msg = self::$DEFAULT_ERROR_MESSAGES['empty'];
 
-		if (empty($this->model->$attribute))
+		if (empty($this->model->{$attribute}))
 			$this->add($attribute, $msg);
 	}
 
@@ -732,7 +733,7 @@ class Errors implements IteratorAggregate
 		if (!$msg)
 			$msg = self::$DEFAULT_ERROR_MESSAGES['blank'];
 
-		if (($value = $this->model->$attribute) === '' || $value === null)
+		if (($value = $this->model->{$attribute}) === '' || $value === null)
 			$this->add($attribute, $msg);
 	}
 
@@ -751,11 +752,11 @@ class Errors implements IteratorAggregate
 	 * Returns the error message(s) for the specified attribute or null if none.
 	 *
 	 * @param string $attribute Name of an attribute on the model
-	 * @return string/array	Array of strings if several error occured on this attribute.
+	 * @return string|array	Array of strings if several error occured on this attribute.
 	 */
 	public function on($attribute)
 	{
-		$errors = $this->$attribute;
+		$errors = $this->{$attribute};
 
 		return $errors && count($errors) == 1 ? $errors[0] : $errors;
 	}

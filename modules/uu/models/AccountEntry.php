@@ -312,7 +312,7 @@ class AccountEntry extends ActiveRecord
                     ($tariffResource = $this->tariffResource)
                     && ($resource = $tariffResource->resource)
                 ) {
-                    if (array_key_exists($resource->id, Resource::$calls)) {
+                    if (array_key_exists($resource->id, ResourceClass::$calls)) {
                         // В звонках указана стоимость, но не минуты
                         return 1;
                     }
@@ -361,14 +361,14 @@ class AccountEntry extends ActiveRecord
             case self::TYPE_ID_PERIOD:
             case self::TYPE_ID_MIN:
 
-                return Yii::t('models/' . Resource::tableName(), Resource::DEFAULT_UNIT, [], $langCode);
+                return Yii::t('models/' . ResourceClass::tableName(), ResourceClass::DEFAULT_UNIT, [], $langCode);
 
             default:
                 if (
                     ($tariffResource = $this->tariffResource) &&
                     ($resource = $tariffResource->resource)
                 ) {
-                    return Yii::t('models/' . Resource::tableName(), $resource->unit, [], $langCode);
+                    return Yii::t('models/' . ResourceClass::tableName(), $resource->unit, [], $langCode);
                 }
 
                 Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);

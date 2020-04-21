@@ -135,7 +135,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 continue;
             }
 
-            $value = $this->$attribute;
+            $value = $this->{$attribute};
             if ($isSkipEmpty && ($value === null || $value === '')) {
                 // дефолтное значение. Сохранять не надо
                 continue;

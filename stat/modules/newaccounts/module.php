@@ -462,7 +462,7 @@ class m_newaccounts extends IModule
                 bill_date DESC,
                 bill_no DESC
             LIMIT 1000
-        ', '', MYSQL_ASSOC);
+        ', '', MYSQLI_ASSOC);
 
 
         if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0) {
@@ -512,7 +512,7 @@ class m_newaccounts extends IModule
                 P.payment_date desc
             limit 1000
                 ',
-            '', MYSQL_ASSOC);
+            '', MYSQLI_ASSOC);
         $result = [];
 
         $bill_total_add = ['p' => 0, 'n' => 0];
@@ -2814,7 +2814,7 @@ class m_newaccounts extends IModule
                         bill_no = '" . $bill['bill_no'] . "'
                 ");
 
-                    $ret = $db->NextRecord(MYSQL_ASSOC);
+                    $ret = $db->NextRecord(MYSQLI_ASSOC);
 
                     if (in_array($ret['nal'], ['nal', 'prov'])) {
                         $db->Query($q = "
@@ -2825,7 +2825,7 @@ class m_newaccounts extends IModule
                         WHERE
                             bill_no = '" . $bill['bill_no'] . "'
                     ");
-                        $ret = $db->NextRecord(MYSQL_ASSOC);
+                        $ret = $db->NextRecord(MYSQLI_ASSOC);
                         if ($ret == 0) {
                             return -1;
                         }
@@ -2871,7 +2871,7 @@ class m_newaccounts extends IModule
 
                     //echo $query;
                     $db->Query($query);
-                    $ret = $db->NextRecord(MYSQL_ASSOC);
+                    $ret = $db->NextRecord(MYSQLI_ASSOC);
 
                     if ($ret == 0) {
                         return 0;
@@ -5549,7 +5549,7 @@ ORDER BY " . $dateField . ", sum DESC";
                 $AA[] = $l;
             }
 
-            //$res = mysql_query($q = "select * from (".$q_service." union ".$q_gds.") a order by a.bill_no") or die(mysql_error());
+            //$res = mysqli_query($q = "select * from (".$q_service." union ".$q_gds.") a order by a.bill_no") or die(mysqli_error());
 
             $t = time();
 
@@ -5557,7 +5557,7 @@ ORDER BY " . $dateField . ", sum DESC";
 
             foreach ($AA as $p) {
 
-                //while(($p = mysql_fetch_assoc($res))!==false){
+                //while(($p = mysqli_fetch_assoc($res))!==false){
 
                 try {
                     $bill = new \Bill($p['bill_no']);
@@ -6019,7 +6019,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $design->assign('user', $user);
         $design->assign('users',
             $db->AllRecords("SELECT id,user,name FROM user_users WHERE usergroup IN ('admin','manager','account_managers','accounts_department') AND enabled = 'yes' ORDER BY name",
-                null, MYSQL_ASSOC));
+                null, MYSQLI_ASSOC));
         $design->assign('payments', $R);
         $design->assign('totals', $S);
         $design->assign("fullscreen", $isFullscreen = (get_param_raw("fullscreen", "") != ""));
@@ -6091,7 +6091,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                         sort = " . ((int)$_REQUEST['sort_number']) . "
                 ";
                 $db->Query($query);
-                $ret = $db->NextRecord(MYSQL_ASSOC);
+                $ret = $db->NextRecord(MYSQLI_ASSOC);
                 echo '{date_from:"' . $ret['date_from'] . '",date_to:"' . $ret['date_to'] . '"}';
                 break;
             }

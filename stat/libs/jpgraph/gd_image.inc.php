@@ -68,7 +68,8 @@ class Image {
     protected $ff_font1_bold;
     protected $ff_font2;
     protected $ff_font2_bold;
-
+    
+    protected static $lastImg = null;
 
     //---------------
     // CONSTRUCTOR
@@ -93,6 +94,14 @@ class Image {
         $this->ff_font2 =  imageloadfont(dirname(__FILE__) . "/fonts/FF_FONT2.gdf");
         $this->ff_font1_bold =  imageloadfont(dirname(__FILE__) . "/fonts/FF_FONT1-Bold.gdf");
         $this->ff_font2_bold =  imageloadfont(dirname(__FILE__) . "/fonts/FF_FONT2-Bold.gdf");
+    }
+
+    public function setImg($img)
+    {
+        $this->img = $img;
+        self::$lastImg = $img;
+
+        return $this;
     }
 
     // Enable interlacing in images
@@ -124,7 +133,7 @@ class Image {
             JpGraphError::RaiseL(25082,$aWidth,$aHeight);//("Illegal sizes specified for width or height when creating an image, (width=$aWidth, height=$aHeight)");
         }
 
-        $this->img = @imagecreatetruecolor($aWidth, $aHeight);
+        $this->setImg(@imagecreatetruecolor($aWidth, $aHeight));
         if( $this->img < 1 ) {
             JpGraphError::RaiseL(25126);
             //die("Can't create truecolor image. Check that you really have GD2 library installed.");
@@ -164,7 +173,7 @@ class Image {
             // We will set the final size later.
             // Note: The size must be specified before any other
             // img routines that stroke anything are called.
-            $this->img = null;
+            $this->setImg(null);
             $this->rgb = null;
             return $old;
         }
@@ -221,14 +230,14 @@ class Image {
 
     static function GetWidth($aImg=null) {
         if( $aImg === null ) {
-            $aImg = $this->img;
+            $aImg = self::$lastImg;
         }
         return imagesx($aImg);
     }
 
     static function GetHeight($aImg=null) {
         if( $aImg === null ) {
-            $aImg = $this->img;
+            $aImg = self::$lastImg;
         }
         return imagesy($aImg);
     }
@@ -243,7 +252,7 @@ class Image {
     }
 
     function SetCanvasH($aHdl) {
-        $this->img = $aHdl;
+        $this->setImg($aHdl);
         $this->rgb->img = $aHdl;
     }
 
@@ -1309,13 +1318,13 @@ class Image {
 
             switch( $aStyle ) {
                 case 2: // Dotted
-                    $this->$dashed_line_method($x1,$y1,$x2,$y2,2,6);
+                    $this->{$dashed_line_method}($x1,$y1,$x2,$y2,2,6);
                     break;
                 case 3: // Dashed
-                    $this->$dashed_line_method($x1,$y1,$x2,$y2,5,9);
+                    $this->{$dashed_line_method}($x1,$y1,$x2,$y2,5,9);
                     break;
                 case 4: // Longdashes
-                    $this->$dashed_line_method($x1,$y1,$x2,$y2,9,13);
+                    $this->{$dashed_line_method}($x1,$y1,$x2,$y2,9,13);
                     break;
                 default:
                     JpGraphError::RaiseL(25104,$this->line_style);//(" Unknown line style: $this->line_style ");
@@ -1693,7 +1702,7 @@ class Image {
         $dst_img = @imagecreatetruecolor($this->original_width, $this->original_height);
         imagecopyresampled($dst_img, $this->img, 0, 0, 0, 0, $this->original_width, $this->original_height, $this->width, $this->height);
         $this->Destroy();
-        return $this->img = $dst_img;
+        return $this->setImg($dst_img);
     }
 
     // Clear resources used by image (this is normally not used since all resources are/should be
@@ -1912,13 +1921,13 @@ class Image {
         if (strpos($name, 'raw_') !== false) {
             // if $name == 'raw_left_margin' , return $this->_left_margin;
             $variable_name = '_' . str_replace('raw_', '', $name);
-            return $this->$variable_name;
+            return $this->{$variable_name};
         }
 
         $variable_name = '_' . $name; 
 
-        if (isset($this->$variable_name)) {
-            return $this->$variable_name * SUPERSAMPLING_SCALE;
+        if (isset($this->{$variable_name})) {
+            return $this->{$variable_name} * SUPERSAMPLING_SCALE;
         } else {
             JpGraphError::RaiseL('25132', $name);
         } 
@@ -2215,7 +2224,7 @@ class ImgStreamCache {
                     return;
                 }
                 else {
-                    JpGraphError::RaiseL(25116,$aFile);//(" Cant open file from cache [$aFile]");
+                    JpGraphError::RaiseL(25116,$aCacheFileName);//(" Cant open file from cache [$aCacheFileName]");
                 }
             }
         }

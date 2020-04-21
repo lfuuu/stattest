@@ -9,11 +9,9 @@ use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Period;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\TariffResource;
 use DateTimeImmutable;
 use yii\db\ActiveQuery;
 
@@ -68,7 +66,7 @@ trait AccountTariffBillerResourceTrait
             foreach ($accountLogFromToTariff->tariffPeriod->tariff->tariffResourcesIndexedByResourceId as $tariffResource) {
 
                 $resourceId = $tariffResource->resource_id;
-                if (!Resource::isTrafficId($resourceId)) {
+                if (!ResourceClass::isTrafficId($resourceId)) {
                     // этот ресурс - не трафик. Он считается в соседнем методе
                     continue;
                 }
@@ -129,7 +127,7 @@ trait AccountTariffBillerResourceTrait
         }
 
         // по всем ресурсам
-        /** @var Resource $resource */
+        /** @var ResourceClass $resource */
         foreach ($this->resources as $resource) {
 
             if (!$resource->isOption()) {

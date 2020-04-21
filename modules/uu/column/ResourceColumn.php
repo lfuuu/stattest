@@ -3,7 +3,7 @@
 namespace app\modules\uu\column;
 
 use app\classes\grid\column\DataColumn;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use kartik\grid\GridView;
 
 
@@ -18,7 +18,7 @@ class ResourceColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Resource::getList($this->serviceTypeId, true);
+        $this->filter = ResourceClass::getList($this->serviceTypeId, true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' resource-column';
     }

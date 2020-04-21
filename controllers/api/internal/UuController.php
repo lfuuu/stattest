@@ -11,13 +11,10 @@ use app\helpers\DateTimeZoneHelper;
 use app\helpers\Semaphore;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
-use app\models\Country;
-use app\models\Currency;
 use app\models\EventQueue;
 use app\models\Number;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
-use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -34,7 +31,7 @@ use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
 use app\modules\uu\models\billing_uu\Pricelist;
 use app\modules\uu\models\Period;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
@@ -43,7 +40,6 @@ use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffTag;
 use app\modules\uu\models\TariffVoipGroup;
-use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\Module;
 use app\modules\async\Module as asyncModule;
 use DateTimeZone;
@@ -169,9 +165,9 @@ class UuController extends ApiInternalController
      */
     public function actionGetResources()
     {
-        $query = Resource::find();
+        $query = ResourceClass::find();
         $result = [];
-        /** @var \app\modules\uu\models\Resource $model */
+        /** @var ResourceClass $model */
         foreach ($query->each() as $model) {
             $result[] = $this->_getResourceRecord($model);
         }
@@ -180,7 +176,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @param \app\modules\uu\models\Resource $model
+     * @param ResourceClass $model
      * @return array
      */
     private function _getResourceRecord($model)
@@ -1444,10 +1440,10 @@ class UuController extends ApiInternalController
 
         if ($number) {
             $isFmcEditable = $number->isMobileOutboundEditable();
-            $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC));
+            $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(ResourceClass::ID_VOIP_FMC));
 
             $isMobileOutboundEditable = $number->isMobileOutboundEditable();
-            $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_MOBILE_OUTBOUND));
+            $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(ResourceClass::ID_VOIP_MOBILE_OUTBOUND));
         } else {
             $isFmcEditable = $isFmcActive = null;
             $isMobileOutboundEditable = $isMobileOutboundActive = null;

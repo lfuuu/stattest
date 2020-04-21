@@ -4,7 +4,7 @@
  *
  * @var \app\classes\BaseView $this
  * @var AccountTariff $accountTariff
- * @var \app\modules\uu\models\Resource $resource
+ * @var \app\modules\uu\models\ResourceClass $resource
  */
 
 // app\classes\grid\GridView добавляет много лишнего

@@ -34,7 +34,7 @@ use yii\db\Expression;
  * @property string $actual_from
  *
  * @property-read AccountTariff $accountTariff
- * @property-read Resource $resource
+ * @property-read ResourceClass $resource
  *
  * @method static AccountTariffResourceLog findOne($condition)
  * @method static AccountTariffResourceLog[] findAll($condition)
@@ -141,7 +141,7 @@ class AccountTariffResourceLog extends ActiveRecord
      */
     public function getResource()
     {
-        return $this->hasOne(Resource::class, ['id' => 'resource_id']);
+        return $this->hasOne(ResourceClass::class, ['id' => 'resource_id']);
     }
 
     /**

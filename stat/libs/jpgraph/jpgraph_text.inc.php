@@ -306,13 +306,13 @@ class Text {
         if (strpos($name, 'raw_') !== false) {
             // if $name == 'raw_left_margin' , return $this->_left_margin;
             $variable_name = '_' . str_replace('raw_', '', $name);
-            return $this->$variable_name;
+            return $this->{$variable_name};
         }
 
         $variable_name = '_' . $name; 
 
-        if (isset($this->$variable_name)) {
-            return $this->$variable_name * SUPERSAMPLING_SCALE;
+        if (isset($this->{$variable_name})) {
+            return $this->{$variable_name} * SUPERSAMPLING_SCALE;
         } else {
             JpGraphError::RaiseL('25132', $name);
         } 

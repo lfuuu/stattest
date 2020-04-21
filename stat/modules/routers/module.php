@@ -118,7 +118,7 @@ class m_routers {
         return $ret['cnt'];
     }
 
-    function m_routers(){}
+    function __construct(){}
 
     function GetMain($action,$fixclient){
         if (!isset($this->actions[$action])) return;
@@ -177,7 +177,7 @@ class m_routers {
                             tech_ports
                         ORDER BY
                             port_type
-                    ",null,MYSQL_ASSOC);
+                    ",null,MYSQLI_ASSOC);
                     $ret = array();
                     foreach($rows as $row){
                         $ret[] = $row['port_type'];
@@ -211,7 +211,7 @@ class m_routers {
                             node <> ''
                         ORDER BY
                             node
-                    ",null,MYSQL_ASSOC);
+                    ",null,MYSQLI_ASSOC);
                     $ret = array();
                     foreach($rows as $row){
                         $ret[] = $row['node'];
@@ -235,7 +235,7 @@ class m_routers {
                         GROUP BY
                             r.node,
                             tp.node
-                    ",null,MYSQL_ASSOC);
+                    ",null,MYSQLI_ASSOC);
                     $nodes = array();
                     foreach($rows as $row){
                         $nodes[$row['node']] = $row;
@@ -271,7 +271,7 @@ class m_routers {
                             `port_type`='".$port_type."'
                         AND
                             `node`='".$node."'
-                    ",null,MYSQL_ASSOC);
+                    ",null,MYSQLI_ASSOC);
                     $json = '{';
                     $i = 0;
                     foreach($rows as $port){
@@ -299,7 +299,7 @@ class m_routers {
                             node = '".$node."'
                         ORDER BY
                             port_name
-                    ",null,MYSQL_ASSOC);
+                    ",null,MYSQLI_ASSOC);
                     $ena = array();
                     foreach($rows as $row){
                         $ena[] = $row['port_name'];
@@ -315,7 +315,7 @@ class m_routers {
                             node <> '".$node."'
                         ORDER BY
                             port_name
-                    ",null,MYSQL_ASSOC);
+                    ",null,MYSQLI_ASSOC);
                     $dis = array();
                     foreach($rows as $row){
                         $dis[] = $row['port_name'];

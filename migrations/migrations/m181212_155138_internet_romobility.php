@@ -1,6 +1,6 @@
 <?php
 
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceClass;
 use app\modules\uu\models\ServiceType;
 
 /**
@@ -20,8 +20,8 @@ class m181212_155138_internet_romobility extends \app\classes\Migration
             'close_after_days' => 60,
         ]);
 
-        $this->insert(Resource::tableName(), [
-            'id' => Resource::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY,
+        $this->insert(ResourceClass::tableName(), [
+            'id' => ResourceClass::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY,
             'name' => 'Траффик',
             'unit' => 'Мб',
             'min_value' => 0,
@@ -35,7 +35,7 @@ class m181212_155138_internet_romobility extends \app\classes\Migration
      */
     public function safeDown()
     {
-        $this->delete(Resource::tableName(), ['id' => Resource::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY]);
+        $this->delete(ResourceClass::tableName(), ['id' => ResourceClass::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY]);
         $this->delete(ServiceType::tableName(), ['id' => ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY]);
     }
 }

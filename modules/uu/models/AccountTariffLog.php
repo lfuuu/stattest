@@ -468,7 +468,7 @@ class AccountTariffLog extends ActiveRecord
         $tariffResources = $tariffPeriod->tariff->tariffResources;
         foreach ($tariffResources as $tariffResource) {
 
-            if (!Resource::isOptionId($tariffResource->resource_id)) {
+            if (!ResourceClass::isOptionId($tariffResource->resource_id)) {
                 // этот ресурс - не опция. Он считается по факту, а не заранее
                 continue;
             }
