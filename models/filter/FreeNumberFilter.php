@@ -409,7 +409,7 @@ class FreeNumberFilter extends Number
             ->offset($this->_offset)
             ->limit($this->_limit);
 
-        return $q->select(['number', 'city_id', 'did_group_id'])->createCommand()->queryAll();
+        return $q->select(['voip_numbers.number', 'voip_numbers.city_id', 'voip_numbers.did_group_id'])->createCommand()->queryAll();
     }
     /**
      * @return \app\models\Number[]
