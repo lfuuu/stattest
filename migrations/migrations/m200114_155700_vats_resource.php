@@ -3,7 +3,7 @@
 
 use app\models\Currency;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffResource;
 
@@ -17,7 +17,7 @@ class m200114_155700_vats_resource extends \app\classes\Migration
      */
     public function safeUp()
     {
-        $this->insertResource(ServiceType::ID_VPBX, ResourceClass::ID_VPBX_VOICE_ASSISTANT, [
+        $this->insertResource(ServiceType::ID_VPBX, ResourceModel::ID_VPBX_VOICE_ASSISTANT, [
             'name' => 'Голосовой помощник',
             'unit' => '',
             'min_value' => 0,
@@ -29,7 +29,7 @@ class m200114_155700_vats_resource extends \app\classes\Migration
             Currency::USD => 39,
         ]);
 
-        $this->insertResource(ServiceType::ID_VPBX, ResourceClass::ID_VPBX_ROBOT_CONTROLLER, [
+        $this->insertResource(ServiceType::ID_VPBX, ResourceModel::ID_VPBX_ROBOT_CONTROLLER, [
             'name' => 'Робот-контролер',
             'unit' => '',
             'min_value' => 0,
@@ -49,22 +49,22 @@ class m200114_155700_vats_resource extends \app\classes\Migration
     {
         $this->delete(TariffResource::tableName(), [
             'resource_id' => [
-                ResourceClass::ID_VPBX_VOICE_ASSISTANT,
-                ResourceClass::ID_VPBX_ROBOT_CONTROLLER,
+                ResourceModel::ID_VPBX_VOICE_ASSISTANT,
+                ResourceModel::ID_VPBX_ROBOT_CONTROLLER,
             ]
         ]);
 
         $this->delete(AccountTariffResourceLog::tableName(), [
             'resource_id' => [
-                ResourceClass::ID_VPBX_VOICE_ASSISTANT,
-                ResourceClass::ID_VPBX_ROBOT_CONTROLLER,
+                ResourceModel::ID_VPBX_VOICE_ASSISTANT,
+                ResourceModel::ID_VPBX_ROBOT_CONTROLLER,
             ]
         ]);
 
-        $this->delete(ResourceClass::tableName(), [
+        $this->delete(ResourceModel::tableName(), [
             'id' => [
-                ResourceClass::ID_VPBX_VOICE_ASSISTANT,
-                ResourceClass::ID_VPBX_ROBOT_CONTROLLER,
+                ResourceModel::ID_VPBX_VOICE_ASSISTANT,
+                ResourceModel::ID_VPBX_ROBOT_CONTROLLER,
             ]
         ]);
     }

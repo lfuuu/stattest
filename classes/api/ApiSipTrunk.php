@@ -5,7 +5,7 @@ namespace app\classes\api;
 use app\classes\HttpClient;
 use app\classes\Singleton;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -162,8 +162,8 @@ class ApiSipTrunk extends Singleton
             'account_id' => $accountTariff->client_account_id,
             'stat_product_id' => $accountTariff->id,
             'region_id' => $accountTariff->region_id,
-            'call_limit' => (int)$accountTariff->getResourceValue(ResourceClass::ID_CALLLIMIT),
-            'allow_diversion' => (bool)$accountTariff->getResourceValue(ResourceClass::ID_ALLOW_DIVERSION),
+            'call_limit' => (int)$accountTariff->getResourceValue(ResourceModel::ID_CALLLIMIT),
+            'allow_diversion' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_ALLOW_DIVERSION),
             'name' => trim($accountTariff->comment) ?: 'SIP-Trunk #' . $accountTariff->id,
         ];
     }

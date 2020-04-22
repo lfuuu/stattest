@@ -6,7 +6,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\db\Expression;
@@ -55,10 +55,10 @@ class SyncResourceTarificator extends Tarificator
                                 'client_account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                                 'number' => $accountTariff->voip_number,
-                                'lines' => $accountTariff->getResourceValue(ResourceClass::ID_VOIP_LINE),
-                                'is_fmc_active' => ($number ? ($number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(ResourceClass::ID_VOIP_FMC))) : null),
+                                'lines' => $accountTariff->getResourceValue(ResourceModel::ID_VOIP_LINE),
+                                'is_fmc_active' => ($number ? ($number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(ResourceModel::ID_VOIP_FMC))) : null),
                                 'is_fmc_editable' => ($number ? $number->isFmcEditable() : null),
-                                'is_mobile_outbound_active' => ($number ? ($number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(ResourceClass::ID_VOIP_MOBILE_OUTBOUND))) : null),
+                                'is_mobile_outbound_active' => ($number ? ($number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(ResourceModel::ID_VOIP_MOBILE_OUTBOUND))) : null),
                                 'is_mobile_outbound_editable' => ($number ? $number->isMobileOutboundEditable() : null),
                             ]);
                             break;

@@ -4,7 +4,7 @@ namespace app\modules\uu\column;
 
 use app\classes\grid\column\DataColumn;
 use app\modules\uu\models\AccountEntry;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use kartik\grid\GridView;
 use Yii;
 
@@ -21,7 +21,7 @@ class AccountEntryTypeColumn extends DataColumn
             AccountEntry::TYPE_ID_SETUP => Yii::t('uu', AccountEntry::$names[AccountEntry::TYPE_ID_SETUP]),
             AccountEntry::TYPE_ID_PERIOD => Yii::t('uu', AccountEntry::$names[AccountEntry::TYPE_ID_PERIOD]),
             AccountEntry::TYPE_ID_MIN => Yii::t('uu', AccountEntry::$names[AccountEntry::TYPE_ID_MIN]),
-            'Ресурсы' => ResourceClass::getList(null, false),
+            'Ресурсы' => ResourceModel::getList(null, false),
         ];
 
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');

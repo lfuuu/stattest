@@ -15,7 +15,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
@@ -651,7 +651,7 @@ class UbillerTest extends _TestCase
 
         // проводки другие (недоходные)
         $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
-            return $accountEntry->tariffResource->resource_id != ResourceClass::ID_TRUNK_PACKAGE_ORIG_CALLS;
+            return $accountEntry->tariffResource->resource_id != ResourceModel::ID_TRUNK_PACKAGE_ORIG_CALLS;
         });
         $this->assertEquals($this->isMonthTransition ? 5 : 3, count($accountEntries));
 
@@ -722,7 +722,7 @@ class UbillerTest extends _TestCase
             foreach ($accountEntry->accountLogResources as $accountLogResource) {
                 $this->assertEquals(
                     OperationType::ID_COST,
-                    ResourceClass::$operationTypesMap[$accountLogResource->tariffResource->resource->id] ?? ''
+                    ResourceModel::$operationTypesMap[$accountLogResource->tariffResource->resource->id] ?? ''
                 );
                 $this->assertTrue($accountEntry->price <= 0);
             }
@@ -833,7 +833,7 @@ class UbillerTest extends _TestCase
         // У ВАТС 7 ресурсов. Для тестирования ограничимся только "линиями" (15 транзакций)
         /** @var AccountLogResource[] $accountLogResources */
         $accountLogResources = array_filter($accountLogResources, function (AccountLogResource $accountLogResource) {
-            return $accountLogResource->tariffResource->resource_id == ResourceClass::ID_VPBX_ABONENT;
+            return $accountLogResource->tariffResource->resource_id == ResourceModel::ID_VPBX_ABONENT;
         });
         $this->assertEquals(15, count($accountLogResources));
 

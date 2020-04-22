@@ -8,7 +8,7 @@ use app\models\UserGrantGroups;
 use app\models\UserRight;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffResource;
 use yii\console\Exception;
@@ -170,7 +170,7 @@ class Migration extends \yii\db\Migration
      */
     public function insertResource($serviceTypeId, $resourceId, $resourceData, $prices = [], $isOption = true)
     {
-        $this->insert(ResourceClass::tableName(), $resourceData + [
+        $this->insert(ResourceModel::tableName(), $resourceData + [
                 'id' => $resourceId,
                 'service_type_id' => $serviceTypeId,
             ]);

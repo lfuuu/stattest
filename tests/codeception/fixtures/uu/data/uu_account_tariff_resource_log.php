@@ -2,7 +2,7 @@
 
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 
 // начало действиях всех ресурсов должно совпадать с uu_account_tariff_log!
 $dateTimeCurrent = (new DateTimeImmutable())
@@ -44,35 +44,35 @@ $accountTariffResourceLogs = [
         // всего должно быть 3 + 12 = 15 платных транзакций
 
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_ABONENT,
+        'resource_id' => ResourceModel::ID_VPBX_ABONENT,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_ABONENT,
+        'resource_id' => ResourceModel::ID_VPBX_ABONENT,
         'amount' => 3,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_ABONENT,
+        'resource_id' => ResourceModel::ID_VPBX_ABONENT,
         'amount' => 6,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_ABONENT,
+        'resource_id' => ResourceModel::ID_VPBX_ABONENT,
         'amount' => 2,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+2 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_ABONENT,
+        'resource_id' => ResourceModel::ID_VPBX_ABONENT,
         'amount' => 10,
         'actual_from_utc' => $dateTimeFirstTomorrow->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstTomorrow->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -81,7 +81,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_EXT_DID,
+        'resource_id' => ResourceModel::ID_VPBX_EXT_DID,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -89,7 +89,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_RECORD,
+        'resource_id' => ResourceModel::ID_VPBX_RECORD,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -97,7 +97,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_FAX,
+        'resource_id' => ResourceModel::ID_VPBX_FAX,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -105,7 +105,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_MIN_ROUTE,
+        'resource_id' => ResourceModel::ID_VPBX_MIN_ROUTE,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -113,7 +113,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_GEO_ROUTE,
+        'resource_id' => ResourceModel::ID_VPBX_GEO_ROUTE,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -121,7 +121,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_SUB_ACCOUNT,
+        'resource_id' => ResourceModel::ID_VPBX_SUB_ACCOUNT,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -129,7 +129,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_VOICE_ASSISTANT,
+        'resource_id' => ResourceModel::ID_VPBX_VOICE_ASSISTANT,
         'amount' => 0,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -137,7 +137,7 @@ $accountTariffResourceLogs = [
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,
-        'resource_id' => ResourceClass::ID_VPBX_ROBOT_CONTROLLER,
+        'resource_id' => ResourceModel::ID_VPBX_ROBOT_CONTROLLER,
         'amount' => 0,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -145,15 +145,15 @@ $accountTariffResourceLogs = [
 ];
 
 $resources = [
-    ResourceClass::ID_VPBX_ABONENT,
-    ResourceClass::ID_VPBX_EXT_DID,
-    ResourceClass::ID_VPBX_RECORD,
-    ResourceClass::ID_VPBX_FAX,
-    ResourceClass::ID_VPBX_MIN_ROUTE,
-    ResourceClass::ID_VPBX_GEO_ROUTE,
-    ResourceClass::ID_VPBX_SUB_ACCOUNT,
-    ResourceClass::ID_VPBX_VOICE_ASSISTANT,
-    ResourceClass::ID_VPBX_ROBOT_CONTROLLER
+    ResourceModel::ID_VPBX_ABONENT,
+    ResourceModel::ID_VPBX_EXT_DID,
+    ResourceModel::ID_VPBX_RECORD,
+    ResourceModel::ID_VPBX_FAX,
+    ResourceModel::ID_VPBX_MIN_ROUTE,
+    ResourceModel::ID_VPBX_GEO_ROUTE,
+    ResourceModel::ID_VPBX_SUB_ACCOUNT,
+    ResourceModel::ID_VPBX_VOICE_ASSISTANT,
+    ResourceModel::ID_VPBX_ROBOT_CONTROLLER
 
 ];
 $accountTariffIds = [

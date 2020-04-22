@@ -1,7 +1,7 @@
 <?php
 
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
@@ -17,24 +17,24 @@ class m190711_161245_uu_calls_term extends \app\classes\Migration
      */
     public function safeUp()
     {
-        if (ResourceClass::findOne(['id' => ResourceClass::ID_TRUNK_PACKAGE_TERM_CALLS])) {
+        if (ResourceModel::findOne(['id' => ResourceModel::ID_TRUNK_PACKAGE_TERM_CALLS])) {
             return;
         }
 
         // update calls orig resource
         $this->update(
-            ResourceClass::tableName(),
+            ResourceModel::tableName(),
             [
                 'name' => 'Звонки (оригинация)',
             ],
             [
-                'id' => ResourceClass::ID_TRUNK_PACKAGE_ORIG_CALLS,
+                'id' => ResourceModel::ID_TRUNK_PACKAGE_ORIG_CALLS,
             ]
         );
 
         // insert calls term resource
-        $this->insert(ResourceClass::tableName(), [
-            'id' => ResourceClass::ID_TRUNK_PACKAGE_TERM_CALLS,
+        $this->insert(ResourceModel::tableName(), [
+            'id' => ResourceModel::ID_TRUNK_PACKAGE_TERM_CALLS,
             'name' => 'Звонки (терминация)',
             'unit' => '¤',
             'min_value' => 0.000000,
@@ -87,7 +87,7 @@ class m190711_161245_uu_calls_term extends \app\classes\Migration
                 'amount' => 0.000000,
                 'price_per_unit' => 1.000000,
                 'price_min' => 0.000000,
-                'resource_id' => ResourceClass::ID_TRUNK_PACKAGE_TERM_CALLS,
+                'resource_id' => ResourceModel::ID_TRUNK_PACKAGE_TERM_CALLS,
                 'tariff_id' => $tariffId,
             ]);
         }
@@ -98,16 +98,16 @@ class m190711_161245_uu_calls_term extends \app\classes\Migration
      */
     public function safeDown()
     {
-        if (!ResourceClass::findOne(['id' => ResourceClass::ID_TRUNK_PACKAGE_TERM_CALLS])) {
+        if (!ResourceModel::findOne(['id' => ResourceModel::ID_TRUNK_PACKAGE_TERM_CALLS])) {
             return;
         }
 
         $this->delete(TariffResource::tableName(), [
-            'resource_id' => [ResourceClass::ID_TRUNK_PACKAGE_TERM_CALLS]
+            'resource_id' => [ResourceModel::ID_TRUNK_PACKAGE_TERM_CALLS]
         ]);
 
-        $this->delete(ResourceClass::tableName(), [
-            'id' => [ResourceClass::ID_TRUNK_PACKAGE_TERM_CALLS]
+        $this->delete(ResourceModel::tableName(), [
+            'id' => [ResourceModel::ID_TRUNK_PACKAGE_TERM_CALLS]
         ]);
     }
 }

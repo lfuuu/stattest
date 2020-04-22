@@ -143,7 +143,7 @@ class AccountLogResource extends ActiveRecord
         // удалить ресурсы
         $accountLogResourceTableName = AccountLogResource::tableName();
         $tariffResourceTableName = TariffResource::tableName();
-        $resourceIdCalls = implode(', ', ResourceClass::$calls);
+        $resourceIdCalls = implode(', ', ResourceModel::$calls);
         $sql = <<<SQL
             DELETE
                 account_log_resource.*

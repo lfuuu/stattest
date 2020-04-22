@@ -14,7 +14,7 @@ use app\classes\model\ActiveRecord;
  * @property integer $resource_id
  * @property integer $tariff_id
  *
- * @property-read ResourceClass $resource
+ * @property-read ResourceModel $resource
  * @property-read Tariff $tariff
  *
  * @method static TariffResource findOne($condition)
@@ -67,7 +67,7 @@ class TariffResource extends ActiveRecord
      */
     public function getResource()
     {
-        return $this->hasOne(ResourceClass::class, ['id' => 'resource_id']);
+        return $this->hasOne(ResourceModel::class, ['id' => 'resource_id']);
     }
 
     /**

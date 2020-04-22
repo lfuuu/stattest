@@ -1,6 +1,6 @@
 <?php
 
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 
 /**
@@ -18,8 +18,8 @@ class m181212_141614_uu_sip_trunk extends \app\classes\Migration
         }
 
         $this->insert(ServiceType::tableName(), ['id' => ServiceType::ID_SIPTRUNK, 'name' => 'SIP-trunk', 'close_after_days' => ServiceType::CLOSE_AFTER_DAYS]);
-        $this->insert(ResourceClass::tableName(), [
-            'id' => ResourceClass::ID_CALLLIMIT,
+        $this->insert(ResourceModel::tableName(), [
+            'id' => ResourceModel::ID_CALLLIMIT,
             'name' => 'Call limit',
             'unit' => 'Unit',
             'min_value' => 0,
@@ -27,8 +27,8 @@ class m181212_141614_uu_sip_trunk extends \app\classes\Migration
             'service_type_id' => ServiceType::ID_SIPTRUNK,
         ]);
 
-        $this->insert(ResourceClass::tableName(), [
-            'id' => ResourceClass::ID_ALLOW_DIVERSION,
+        $this->insert(ResourceModel::tableName(), [
+            'id' => ResourceModel::ID_ALLOW_DIVERSION,
             'name' => 'Allow diversion',
             'unit' => '',
             'min_value' => 0,
@@ -46,8 +46,8 @@ class m181212_141614_uu_sip_trunk extends \app\classes\Migration
             return;
         }
 
-        $this->delete(ResourceClass::tableName(), [
-            'id' => [ResourceClass::ID_CALLLIMIT, ResourceClass::ID_ALLOW_DIVERSION]
+        $this->delete(ResourceModel::tableName(), [
+            'id' => [ResourceModel::ID_CALLLIMIT, ResourceModel::ID_ALLOW_DIVERSION]
         ]);
 
         $this->delete(ServiceType::tableName(), ['id' => ServiceType::ID_SIPTRUNK]);

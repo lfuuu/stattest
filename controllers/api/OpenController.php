@@ -14,7 +14,7 @@ use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Period;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
@@ -708,7 +708,7 @@ final class OpenController extends Controller
         }
 
         /** @var TariffResource $tariffResources */
-        $tariffResources = $tariff->getTariffResource(ResourceClass::ID_VOIP_LINE)->one();
+        $tariffResources = $tariff->getTariffResource(ResourceModel::ID_VOIP_LINE)->one();
 
         $defaultTariff = [
             'name' => $tariff->name,

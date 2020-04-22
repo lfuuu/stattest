@@ -31,7 +31,7 @@ use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
 use app\modules\uu\models\billing_uu\Pricelist;
 use app\modules\uu\models\Period;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
@@ -165,9 +165,9 @@ class UuController extends ApiInternalController
      */
     public function actionGetResources()
     {
-        $query = ResourceClass::find();
+        $query = ResourceModel::find();
         $result = [];
-        /** @var ResourceClass $model */
+        /** @var ResourceModel $model */
         foreach ($query->each() as $model) {
             $result[] = $this->_getResourceRecord($model);
         }
@@ -176,7 +176,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @param ResourceClass $model
+     * @param ResourceModel $model
      * @return array
      */
     private function _getResourceRecord($model)
@@ -1440,10 +1440,10 @@ class UuController extends ApiInternalController
 
         if ($number) {
             $isFmcEditable = $number->isMobileOutboundEditable();
-            $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(ResourceClass::ID_VOIP_FMC));
+            $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(ResourceModel::ID_VOIP_FMC));
 
             $isMobileOutboundEditable = $number->isMobileOutboundEditable();
-            $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(ResourceClass::ID_VOIP_MOBILE_OUTBOUND));
+            $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(ResourceModel::ID_VOIP_MOBILE_OUTBOUND));
         } else {
             $isFmcEditable = $isFmcActive = null;
             $isMobileOutboundEditable = $isMobileOutboundActive = null;

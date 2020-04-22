@@ -4,7 +4,7 @@ namespace app\modules\uu\forms;
 
 use app\models\Currency;
 use app\modules\nnp\models\PackageApi;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
@@ -52,7 +52,7 @@ class TariffAddForm extends TariffForm
     public function getTariffResources()
     {
         $tariffResources = [];
-        $resources = ResourceClass::findAll(['service_type_id' => $this->serviceTypeId]);
+        $resources = ResourceModel::findAll(['service_type_id' => $this->serviceTypeId]);
         foreach ($resources as $resource) {
             $tariffResource = new TariffResource();
             $tariffResource->resource_id = $resource->id;

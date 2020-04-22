@@ -32,10 +32,10 @@ use yii\db\ActiveQuery;
  *
  * @property-read ServiceType $serviceType
  *
- * @method static ResourceClass findOne($condition)
- * @method static ResourceClass[] findAll($condition)
+ * @method static ResourceModel findOne($condition)
+ * @method static ResourceModel[] findAll($condition)
  */
-class ResourceClass extends ActiveRecord
+class ResourceModel extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

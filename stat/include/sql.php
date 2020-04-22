@@ -148,7 +148,7 @@ class MySQLDatabase {
         return $this->_LinkId ? @mysqli_insert_id($this->_LinkId) : 0;
     }
 
-  	function AllRecords($query='',$by_id='', $return_type=mysqli_ASSOC) {
+  	function AllRecords($query='',$by_id='', $return_type=MYSQLI_ASSOC) {
   		if ($query) $this->Query($query);
         if (!$this->_QueryId) return 0;
   		$R=array();

@@ -7,7 +7,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffResource;
@@ -124,7 +124,7 @@ SQL;
         unset($nextAccountTariffs, $accountTariffPackage);
 
         // ресурсы
-        /** @var ResourceClass[] $resources */
+        /** @var ResourceModel[] $resources */
         $resources = $this->resources;
         foreach ($resources as $resource) {
             if (!$resource->isEditable()) {

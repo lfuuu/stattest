@@ -10,7 +10,7 @@ use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\classes\DateTimeOffsetParams;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use DateTimeImmutable;
 use Yii;
@@ -34,7 +34,7 @@ class AccountLogResourceTarificator extends Tarificator
     protected function getReaderByResourceId($resourceId)
     {
         if (!isset($this->readersByResourceId[$resourceId])) {
-            $this->readersByResourceId[$resourceId] = ResourceClass::getReader($resourceId);
+            $this->readersByResourceId[$resourceId] = ResourceModel::getReader($resourceId);
         }
 
         return $this->readersByResourceId[$resourceId];

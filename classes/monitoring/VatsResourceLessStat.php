@@ -7,7 +7,7 @@ use app\models\ClientAccount;
 use app\models\VirtpbxStat;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\ResourceClass;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
@@ -113,7 +113,7 @@ class VatsResourceLessStat extends Component implements MonitoringInterface
             ])
             ->where([
                 's.date' => (new \DateTime('now'))->modify('-1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
-                'l.id' => (AccountTariffResourceLog::find()->where(['resource_id' => ResourceClass::ID_VPBX_ABONENT])->select(new Expression('max(id)'))->groupBy('account_tariff_id')),
+                'l.id' => (AccountTariffResourceLog::find()->where(['resource_id' => ResourceModel::ID_VPBX_ABONENT])->select(new Expression('max(id)'))->groupBy('account_tariff_id')),
                 'service_type_id' => ServiceType::ID_VPBX
             ])
             ->andWhere(['IS NOT', 'tariff_period_id', NULL])
