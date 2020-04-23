@@ -115,7 +115,8 @@ class Pricelist extends ActiveRecord
         $type = null,
         $orig = null,
         $priceIncludeVat = null
-    ) {
+    )
+    {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
@@ -144,5 +145,10 @@ class Pricelist extends ActiveRecord
         $db = self::getDb();
         $db->createCommand("select event.notify('defs-manual',0)")->execute();
         $db->createCommand("select event.notify('pricelist-manual',0)")->execute();
+        $db->createCommand("select event.notify('nnp_pricelist',0)")->execute();
+        $db->createCommand("select event.notify('nnp_pricelist_filter_a',0)")->execute();
+        $db->createCommand("select event.notify('nnp_pricelist_filter_b',0)")->execute();
+        $db->createCommand("select event.notify('nnp_pricelist_prefix_price',0)")->execute();
+        $db->createCommand("select event.notify('nnp_pricelist_location',0)")->execute();
     }
 }
