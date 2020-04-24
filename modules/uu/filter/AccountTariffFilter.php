@@ -483,9 +483,9 @@ class AccountTariffFilter extends AccountTariff
 
             ->with('number')
             ->with('city')
-            ->with('accountTariffLogs.accountTariff.clientAccount')
+            ->with('clientAccount')
+            ->with('accountTariffLogs')
             ->with('accountTariffLogs.tariffPeriod.tariff')
-            ->with('nextAccountTariffs')
 
             ->andWhere([
                 'client_account_id' => $clientAccountId,
