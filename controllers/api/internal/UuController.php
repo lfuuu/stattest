@@ -927,7 +927,7 @@ class UuController extends ApiInternalController
         $accountTariffQuery = AccountTariffFilter::getListForExcelQuery($client_account_id, $service_type_id);
 
         $result = [];
-        foreach ($accountTariffQuery->all() as $accountTariff) {
+        foreach ($accountTariffQuery->each() as $accountTariff) {
             /** @var AccountTariff $accountTariff */
             $result[] = $this->_getAccountTariffForExcelRecord($accountTariff);
         }
