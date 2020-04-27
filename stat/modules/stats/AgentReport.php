@@ -50,7 +50,7 @@ class AgentReport
                         $interest_type = $_agent_interests->interest;
                         foreach ($interests_types[$interest_type] as $k => $v)
                         {
-                                $agent_interests[$k] = $_agent_interests->$v['field_name'];
+                            $agent_interests[$k] = $_agent_interests->{$v['field_name']};
                         }
                         $interests=array_keys($interests_types[$interest_type]);
                 } else {

@@ -450,7 +450,7 @@ class m_tt extends IModule{
                 (select count(*) from tt_troubles where trouble_type=tty.code) cnt
             from
                 tt_types tty
-            ",null,MYSQL_ASSOC);
+            ",null,MYSQLI_ASSOC);
 
         $design->assign_by_ref('tt_types',$types);
         $design->AddMain('tt/types_list.html');
@@ -1517,7 +1517,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         `cr`.`depart`,
                         `cr`.`name`
                 ";
-                $R[$trouble_id]['stages'][$stage_id]['doers']=$db->AllRecords($query,null,MYSQL_ASSOC);
+                $R[$trouble_id]['stages'][$stage_id]['doers']=$db->AllRecords($query,null,MYSQLI_ASSOC);
             }
         }
 
@@ -1562,7 +1562,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 ORDER BY
                     `tf`.`order`",
                     'pk',
-                    MYSQL_ASSOC
+                    MYSQLI_ASSOC
                 );
             }
             $all_folders = $db->AllRecords("
@@ -1670,8 +1670,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             is_payed=0 
                         and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ' 
                         and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") 
-                        order by bill_date desc','bill_no',MYSQL_ASSOC));
-            $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQL_ASSOC));
+                        order by bill_date desc','bill_no',MYSQLI_ASSOC));
+            $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQLI_ASSOC));
 
             $design->assign('curtype',$this->curtype);
             if(in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
@@ -2620,7 +2620,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $db->Query($query);
         $sumBonus = 0;
         $count = 0;
-        while($row=$db->NextRecord(MYSQL_ASSOC)){
+        while($row=$db->NextRecord(MYSQLI_ASSOC)){
             if(!isset($ret[$row['date']])){
                 $ret[$row['date']] = array('rowspan'=>0,'doers'=>array());
             }
@@ -2693,7 +2693,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         ORDER BY
                             `depart`,
                             `name`
-                    ", null, MYSQL_ASSOC) as $id => $d)
+                    ", null, MYSQLI_ASSOC) as $id => $d)
             {
                 $dDoers[$d["depart"]][$d["id"]] = $d["name"];
             }
@@ -2715,7 +2715,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         ORDER BY
                             `depart`,
                             `name`
-                    ", null, MYSQL_ASSOC)
+                    ", null, MYSQLI_ASSOC)
                 )
             );*/
 
@@ -2735,11 +2735,11 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             pk & 17703 #2047
                         ORDER BY
                             `name`
-                    ", null, MYSQL_ASSOC)
+                    ", null, MYSQLI_ASSOC)
                 )
             );
 
-            $design->assign('tt_states_list',$db->AllRecords('select * from tt_states','id',MYSQL_ASSOC));
+            $design->assign('tt_states_list',$db->AllRecords('select * from tt_states','id',MYSQLI_ASSOC));
 
             $design->AddMain('tt/doers_report.tpl');
         }
@@ -2962,7 +2962,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         ";
         $doers = array();
         $db->Query($query);
-        while($row=$db->NextRecord(MYSQL_ASSOC)){
+        while($row=$db->NextRecord(MYSQLI_ASSOC)){
             if(!isset($doers[$row['depart']]))
                 $doers[$row['depart']] = array();
             $doers[$row['depart']][] = $row;

@@ -326,7 +326,7 @@ class Model
 		if (method_exists($this, "get_$name"))
 		{
 			$name = "get_$name";
-			$value = $this->$name();
+			$value = $this->{$name}();
 			return $value;
 		}
 
@@ -402,7 +402,7 @@ class Model
 		elseif (method_exists($this,"set_$name"))
 		{
 			$name = "set_$name";
-			return $this->$name($value);
+			return $this->{$name}($value);
 		}
 
 		if (array_key_exists($name,$this->attributes))
@@ -414,7 +414,7 @@ class Model
 		foreach (static::$delegate as &$item)
 		{
 			if (($delegated_name = $this->is_delegated($name,$item)))
-				return $this->$item['to']->$delegated_name = $value;
+				return $this->{$item['to']}->{$delegated_name} = $value;
 		}
 
 		throw new UndefinedPropertyException(get_called_class(),$name);
@@ -508,9 +508,9 @@ class Model
 			if (($delegated_name = $this->is_delegated($name,$item)))
 			{
 				$to = $item['to'];
-				if ($this->$to)
+				if ($this->{$to})
 				{
-					$val =& $this->$to->__get($delegated_name);
+					$val =& $this->{$to}->__get($delegated_name);
 					return $val;
 				}
 				else
@@ -1028,7 +1028,7 @@ class Model
 		$filter = array();
 
 		foreach ($attribute_names as $name)
-			$filter[$name] = $this->$name;
+			$filter[$name] = $this->{$name};
 
 		return $filter;
 	}
@@ -1184,7 +1184,7 @@ class Model
 
 				// set valid table data
 				try {
-					$this->$name = $value;
+					$this->{$name} = $value;
 				} catch (UndefinedPropertyException $e) {
 					$exceptions[] = $e->getMessage();
 				}
@@ -1377,8 +1377,8 @@ class Model
 			{
 				// access association to ensure that the relationship has been loaded
 				// so that we do not double-up on records if we append a newly created
-				$this->$association_name;
-				return $association->$method($this, $args);
+				$this->{$association_name};
+				return $association->{$method}($this, $args);
 			}
 		}
 
@@ -1832,10 +1832,10 @@ class Model
 	 * });
 	 * </code>
 	 *
-	 * @param Closure $closure The closure to execute. To cause a rollback have your closure return false or throw an exception.
+	 * @param \Closure $closure The closure to execute. To cause a rollback have your closure return false or throw an exception.
 	 * @return boolean True if the transaction was committed, False if rolled back.
 	 */
-	public static function transaction($closure)
+	public static function transaction(\Closure $closure)
 	{
 		$connection = static::connection();
 

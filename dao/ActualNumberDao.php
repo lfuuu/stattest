@@ -5,7 +5,6 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\models\ActualNumber;
 use app\models\ClientAccount;
-use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 
 /**

@@ -14,9 +14,9 @@ class ApiExternalTest
 
     public function __construct(_WebTester $server)
     {
-        $server->haveHttpHeader("Content-Type", "application/json");
         $server->amBearerAuthenticated(Yii::$app->params['API_SECURE_KEY']);
-        $server->seeResponseIsJson();
+        $server->haveHttpHeader("Content-Type", "application/json");
+        //$server->seeResponseIsJson();
 
         $this->server = $server;
 

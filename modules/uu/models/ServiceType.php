@@ -15,7 +15,7 @@ use yii\helpers\Url;
  * @property int $close_after_days
  *
  * @property-read ServiceType $parent
- * @property-read Resource[] $resources
+ * @property-read ResourceModel[] $resources
  *
  * @method static ServiceType findOne($condition)
  * @method static ServiceType[] findAll($condition)
@@ -137,7 +137,7 @@ class ServiceType extends ActiveRecord
      */
     public function getResources()
     {
-        return $this->hasMany(Resource::class, ['service_type_id' => 'id'])
+        return $this->hasMany(ResourceModel::class, ['service_type_id' => 'id'])
             ->inverseOf('serviceType');
     }
 

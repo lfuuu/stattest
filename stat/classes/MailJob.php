@@ -217,7 +217,7 @@ class MailJob {
 					`bill_date` BETWEEN '" . $match[3] . "-1' AND DATE_ADD(DATE_ADD('" . $match[3] . "-1', INTERVAL 1 MONTH), INTERVAL -1 DAY)
 			".$pay_flag;
 
-		$rows = $db->AllRecords($query,null,MYSQL_ASSOC);
+		$rows = $db->AllRecords($query,null,MYSQLI_ASSOC);
 
 		foreach($rows as $r) {//while($r = $db->NextRecord()){
             if (strlen($T) > 0) {

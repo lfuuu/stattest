@@ -12,7 +12,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
@@ -155,7 +155,7 @@ class AccountEntryTarificator extends Tarificator
             $tariffResourceTableName .= ' tariff_resource,';
 
             $operationType = '(CASE ';
-            foreach (Resource::$operationTypesMap as $resourceId => $operationTypeId) {
+            foreach (ResourceModel::$operationTypesMap as $resourceId => $operationTypeId) {
                 $operationType .= ' WHEN tariff_resource.resource_id = ' . $resourceId . ' THEN ' . $operationTypeId;
             }
             $operationType .= ' ELSE ' . OperationType::getDefaultId() . ' END)';
@@ -343,7 +343,7 @@ SQL;
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $tariffResourceTableName = TariffResource::tableName();
-        $resourceIdCalls = implode(', ', Resource::$calls); // стоимость звонков от низкоуровневого биллера уже приходит с НДС
+        $resourceIdCalls = implode(', ', ResourceModel::$calls); // стоимость звонков от низкоуровневого биллера уже приходит с НДС
 
         // нужно знать is_include_vat из тарифа, а это можно получить только через транзакции
         // @todo Может быть несколько транзакций на одну проводку.

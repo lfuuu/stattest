@@ -3,7 +3,6 @@
 namespace app\classes;
 
 use Yii;
-use app\classes\Singleton;
 
 class StatDbDriver extends Singleton
 {

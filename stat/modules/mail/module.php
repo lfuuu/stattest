@@ -29,7 +29,7 @@ class m_mail{
 		array('Просмотр сообщений',	'default',	''),
 	);
 
-	function m_mail(){}
+	function __construct(){}
 	function GetPanel(){
 		global $fixclient_data,$db;
 		$R=array();

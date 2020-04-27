@@ -2,11 +2,14 @@
 
 class MySQLDatabase_yii {
 
+    /* @var \yii\db\Connection */
     private $db = null;
+
+    /* @var \yii\db\DataReader */
     private $reader = null;
 
 
-    public function MySQLDatabase_yii($db) 
+    public function __construct($db)
     {
     	$this->db = $db;
     }
@@ -41,7 +44,7 @@ class MySQLDatabase_yii {
         return $this->db->getLastInsertID();
     }
 
-    public function AllRecords($query='',$by_id='', $return_type=MYSQL_ASSOC) 
+    public function AllRecords($query='',$by_id='', $return_type=MYSQLI_ASSOC)
     {
         $res = $this->db->createCommand($query)->queryAll($this->_getType($return_type));
 
@@ -85,7 +88,7 @@ class MySQLDatabase_yii {
         return $r;
     }
             
-    public function NextRecord($type = MYSQL_BOTH) 
+    public function NextRecord($type = MYSQLI_BOTH)
     {
         if (!$this->reader) {
             return 0;
@@ -146,7 +149,7 @@ class MySQLDatabase_yii {
         if(defined("exception_sql")){
             throw new Exception($this->mError);
         }
-		trigger_error2('Database error: ' . $msg, E_USER_NOTICE);
+		trigger_error2('Database error: ' . $msg);
     }
 
     public function QueryInsert($table,$data, $get_new_id=true) 
@@ -210,8 +213,8 @@ class MySQLDatabase_yii {
 
     public function QuerySelectAll($table, $data)
     {
-        $rs = $this->QuerySelect($table, $data);
-        $this->reader->setFetchMode($this->_getType(MYSQL_ASSOC));
+        $this->QuerySelect($table, $data);
+        $this->reader->setFetchMode($this->_getType(MYSQLI_ASSOC));
         return $this->reader->readAll();
     }
 
@@ -250,8 +253,8 @@ class MySQLDatabase_yii {
 
     public function QuerySelectRow($table, $data)
     {
-        $rs = $this->QuerySelect($table, $data);
-        $this->reader->setFetchMode($this->_getType(MYSQL_ASSOC));
+        $this->QuerySelect($table, $data);
+        $this->reader->setFetchMode($this->_getType(MYSQLI_ASSOC));
         return $this->reader->read();
     }
 
@@ -300,10 +303,10 @@ class MySQLDatabase_yii {
 
     private function _getType($type) 
     {
-        if ($type == MYSQL_ASSOC)
+        if ($type == MYSQLI_ASSOC)
             $type = \PDO::FETCH_ASSOC;
 
-        if ($type == MYSQL_BOTH)
+        if ($type == MYSQLI_BOTH)
             $type = \PDO::FETCH_BOTH;
 
         return $type;

@@ -129,7 +129,7 @@ class m_voipreports_operators_traf
             $operators = [];
 
             $pg_db->Query($query);
-            while($row=$pg_db->NextRecord(MYSQL_ASSOC)){
+            while($row=$pg_db->NextRecord(MYSQLI_ASSOC)){
                 $tTrunk = isset($trunks[$row['trunk_id']]) ? $trunks[$row['trunk_id']] : ['id' => '', 'name' => ''];
                 $tServiceTrunk = isset($serviceTrunks[$row['trunk_service_id']]) ? $serviceTrunks[$row['trunk_service_id']] : ['id' => '', 'name' => ''];
 

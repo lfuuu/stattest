@@ -22,7 +22,7 @@ class m_monitoring {
 					array('Отчет: Динамика звоноков',	'report_voip_graph'),
 					array('Отчет: Динамика счетов',	'report_bill_graph'),
 				);
-	function m_monitoring(){	
+	function __construct(){
 		
 	
 	}

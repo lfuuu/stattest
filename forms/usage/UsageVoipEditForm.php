@@ -169,8 +169,8 @@ class UsageVoipEditForm extends UsageVoipForm
     public function validateMinTariff($attribute)
     {
         $field = static::$_mapPriceToId[$attribute];
-        $val = $this->getMinByTariff($this->$field);
-        if (($val > 0) && ($this->$attribute == 0)) {
+        $val = $this->getMinByTariff($this->{$field});
+        if (($val > 0) && ($this->{$attribute} == 0)) {
             $this->addError($attribute, 'Минимальный платеж не должен быть в этом тарифе');
             return;
         }
@@ -183,11 +183,11 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     public function validateNoUsedLine($attribute)
     {
-        if (!UsageVoip::findOne(['client' => $this->clientAccount->client, 'id' => $this->$attribute])) {
+        if (!UsageVoip::findOne(['client' => $this->clientAccount->client, 'id' => $this->{$attribute}])) {
             $this->addError('line7800_id', 'Линия не найдена');
         }
 
-        if (UsageVoip::findOne(['client' => $this->clientAccount->client, 'line7800_id' => $this->$attribute])) {
+        if (UsageVoip::findOne(['client' => $this->clientAccount->client, 'line7800_id' => $this->{$attribute}])) {
             $this->addError('line7800_id', 'Линия подключена к другому номеру');
         }
     }

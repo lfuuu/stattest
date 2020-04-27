@@ -50,14 +50,18 @@ class TrunkContragentColumn extends DataColumn
 
         if (isset($this->contragents[$value]) && is_array($this->contragents[$value])) {
             reset($this->contragents[$value]);
-            list($contragent_id, $contragent_name) = each($this->contragents[$value]);
+
+            $all = $this->contragents[$value];
+            $keys = array_keys($all);
+            $contragentId = array_shift($keys);
+            $contragentName = array_shift($all);
 
             return
                 '(' .
-                Html::a($value, Url::toRoute(['client/view', 'id' => $value]) . '#contragent' . $contragent_id,
+                Html::a($value, Url::toRoute(['client/view', 'id' => $value]) . '#contragent' . $contragentId,
                     ['target' => '_blank']) .
                 ') ' .
-                $contragent_name;
+                $contragentName;
         }
 
         return $value;

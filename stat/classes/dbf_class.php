@@ -82,7 +82,7 @@ class dbf_class {
      * Инициализация класса, сохраниние информации о файле и о его содержимом
      * @param string $filename путь к dbf файлу
      */
-    function dbf_class($filename) {
+    function __construct($filename) {
         if ( !file_exists($filename)) {
             echo 'Not a valid DBF file !!!'; exit;
         }

@@ -102,7 +102,7 @@ class ContractEditForm extends Form
             [
                 'federal_district',
                 function ($attribute) {
-                    SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->$attribute, $this);
+                    SetFieldTypeHelper::validateField($this->getModel(), $attribute, $this->{$attribute}, $this);
                 }
             ],
             [['federal_district', 'financial_type'], 'default', 'value' => ''],
@@ -112,7 +112,7 @@ class ContractEditForm extends Form
                 [
                     ['business_process_id', 'business_process_status_id'],
                     function ($attribute) {
-                        if (!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute) {
+                        if (!Yii::$app->user->can('clients.restatus') && $this->{$attribute} !== $this->getModel()->{$attribute}) {
                             $this->addError('state', 'Вы не можете менять бизнес процесс');
                         }
                     }
@@ -122,7 +122,7 @@ class ContractEditForm extends Form
             [
                 'business_id',
                 function ($attribute) {
-                    if (!$this->getIsNewRecord() && $this->$attribute != $this->getModel()->$attribute && !Yii::$app->user->can('clients.restatus')) {
+                    if (!$this->getIsNewRecord() && $this->{$attribute} != $this->getModel()->{$attribute} && !Yii::$app->user->can('clients.restatus')) {
                         $this->addError('state', 'Вы не можете менять тип договора');
                     }
                 }
@@ -322,11 +322,11 @@ class ContractEditForm extends Form
     public function validateState($attribute)
     {
         $model = $this->getModel();
-        if (!array_key_exists($this->$attribute, $model->statusesForChange())) {
+        if (!array_key_exists($this->{$attribute}, $model->statusesForChange())) {
             $this->addError($attribute, 'Вы не можете менять статус');
         }
 
-        if ($model->$attribute !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
+        if ($model->{$attribute} !== $this->state && $this->state != ClientContract::STATE_UNCHECKED) {
             $contragent = ClientContragent::findOne(['id' => $this->contragent_id]);
             if (!$contragent->getIsNewRecord()) {
                 $contragent->hasChecked = true;
@@ -339,7 +339,7 @@ class ContractEditForm extends Form
             }
         }
 
-        if ($model->$attribute !== $this->state && $this->state == ClientContract::STATE_CHECKED_COPY) {
+        if ($model->{$attribute} !== $this->state && $this->state == ClientContract::STATE_CHECKED_COPY) {
             if (!$model->getContractInfo()) {
                 $this->addError('state', 'У копии должен быть договор с датой');
             }

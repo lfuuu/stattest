@@ -26,7 +26,7 @@ class MySQLDatabase {
 	var $host,$user,$pass,$db;
 
 
-    function MySQLDatabase($host = null,$user = null,$pass = null,$db = null) {
+    function __construct($host = null,$user = null,$pass = null,$db = null) {
     	$this->host = $host !== null ? $host : SQL_HOST;
     	$this->user = $user !== null ? $user : SQL_USER;
     	$this->pass = $pass !== null ? $pass : SQL_PASS;
@@ -43,17 +43,17 @@ class MySQLDatabase {
 
     function Connect() {
         if ($this->_LinkId == 0) {
-            $this->_LinkId = @mysql_connect($this->host, $this->user, $this->pass, true);
+            $this->_LinkId = @mysqli_connect($this->host, $this->user, $this->pass, true);
             if (!$this->_LinkId && $this->host !== 'thiamis.mcn.ru'){
                 $this->_Halt("connect failed.");
-                echo "can't connect mysql ".$this->host; exit;
-                return 0;
+                echo "can't connect mysql ".$this->host;
+                exit();
             }
 
-            if (!@mysql_select_db($this->db, $this->_LinkId) && $this->host !== 'thiamis.mcn.ru'){
+            if (!@mysqli_select_db($this->db, $this->_LinkId) && $this->host !== 'thiamis.mcn.ru'){
                 $this->_Halt("cannot use database " . $this->db);
-                echo "can't use database"; exit;
-                return 0;
+                echo "can't use database";
+                exit();
             }
             $this->Query("set names utf8");
             $this->Query("SET @@session.time_zone = '+00:00'");
@@ -73,17 +73,15 @@ class MySQLDatabase {
 
     function Free() {
         if(!$this->_QueryId) return;
-        @mysql_free_result($this->_QueryId);
+        @mysqli_free_result($this->_QueryId);
         $this->_QueryId = 0;
     }
     function QueryX($query) {
     	trigger_error2(htmlspecialchars_($query));
-    	$this->Query($query);
+    	return $this->Query($query);
     }
 
     function Query($query, $saveDefault = 1) {
-
-        global $user;
 
         if(defined("print_sql") || (isset($_GET["show_sql"]) && $_GET["show_sql"] == 1))
         {
@@ -120,44 +118,44 @@ class MySQLDatabase {
         	if ($this->_QueryId) $this->Free();
         }
 		if (DEBUG_LEVEL>=3) time_start("sql");
-        $req = @mysql_query($query, $this->_LinkId);
+        $req = @mysqli_query($query, $this->_LinkId);
 		if (DEBUG_LEVEL>=3) trigger_error2("it took ".time_finish("sql")." seconds");
 
         /*
-		if(mysql_errno()>0){
+		if(mysqli_errno()>0){
             if(strpos($query, "monitor_5min_ins") === false)
             {
                 if(!class_exists('Logger'))
                     require_once(dirname(__FILE__)."/Logger.php");
                 try{
-                    throw new Exception('mysql_error');
+                    throw new Exception('mysqli_error');
                 }catch(Exception $e){
                     $trace = $e->getTrace();
-                    $pack = "MySQL error! file:'".$trace[1]['file']."', line:'".$trace[1]['line']."', query= ".$query.", \t error:".mysql_error()." \t REQUEST:".var_export(array_merge($_GET, $_POST), true);
-                    Logger::put($pack, 'mysql_error','dga@mcn.ru');
+                    $pack = "MySQL error! file:'".$trace[1]['file']."', line:'".$trace[1]['line']."', query= ".$query.", \t error:".mysqli_error()." \t REQUEST:".var_export(array_merge($_GET, $_POST), true);
+                    Logger::put($pack, 'mysqli_error','dga@mcn.ru');
                 }
             }
 		}*/
 
         $this->mRow   = 0;
-        $this->mErrno = mysql_errno();
-        $this->mError = mysql_error();
+        $this->mErrno = mysqli_errno();
+        $this->mError = mysqli_error();
        	if (!$req) $this->_Halt("Invalid SQL: " . htmlspecialchars_($query));
         if ($saveDefault && is_resource($req)) $this->_QueryId = $req;
        	return $req;
     }
     function GetInsertId() {
-        return $this->_LinkId ? @mysql_insert_id($this->_LinkId) : 0;
+        return $this->_LinkId ? @mysqli_insert_id($this->_LinkId) : 0;
     }
 
-  	function AllRecords($query='',$by_id='', $return_type=MYSQL_ASSOC) {
+  	function AllRecords($query='',$by_id='', $return_type=MYSQLI_ASSOC) {
   		if ($query) $this->Query($query);
         if (!$this->_QueryId) return 0;
   		$R=array();
 
-       	$this->mErrno  = mysql_errno();
-       	$this->mError  = mysql_error();
-		while ($r= @mysql_fetch_array($this->_QueryId,$return_type)){
+       	$this->mErrno  = mysqli_errno();
+       	$this->mError  = mysqli_error();
+		while ($r= @mysqli_fetch_array($this->_QueryId,$return_type)){
         	$this->mRow++;
         	if ($by_id && isset($r[$by_id])) $R[$r[$by_id]]=$r; else $R[]=$r;
 		}
@@ -166,7 +164,7 @@ class MySQLDatabase {
   	}
   	function GetRow($query) {
   		$this->Query($query);
-  		return $this->NextRecord(MYSQL_ASSOC);
+  		return $this->NextRecord(MYSQLI_ASSOC);
   	}
     function GetValue($query){
         $r = $this->GetRow($query);
@@ -198,16 +196,16 @@ class MySQLDatabase {
         return $r;
     }
             
-    function NextRecord($type=MYSQL_BOTH) {
+    function NextRecord($type=MYSQLI_BOTH) {
         if (!$this->_QueryId) {
 //            $this->_Halt("NextRecord called with no query pending.");
             return 0;
         }
     
-        $this->mRecord = @mysql_fetch_array($this->_QueryId,$type);
+        $this->mRecord = @mysqli_fetch_array($this->_QueryId,$type);
         $this->mRow++;
-        $this->mErrno  = mysql_errno();
-        $this->mError  = mysql_error();
+        $this->mErrno  = mysqli_errno();
+        $this->mError  = mysqli_error();
       
         $stat = is_array($this->mRecord);
         if (!$stat) {
@@ -222,7 +220,7 @@ class MySQLDatabase {
         
         $query = "lock table ";
 		$query .= $table . ' ' . $mode;
-        $res = @mysql_query($query, $this->_LinkId);
+        $res = @mysqli_query($query, $this->_LinkId);
         if (!$res) {
             $this->_Halt("lock($table, $mode) failed.");
             return 0;
@@ -233,7 +231,7 @@ class MySQLDatabase {
     function Unlock() {
         $this->connect();
     
-        $res = @mysql_query("unlock tables", $this->_LinkId);
+        $res = @mysqli_query("unlock tables", $this->_LinkId);
         if (!$res) {
             $this->_Halt("unlock() failed.");
             return 0;
@@ -243,25 +241,25 @@ class MySQLDatabase {
 
 
     function AffectedRows() {
-        return @mysql_affected_rows($this->_LinkId);
+        return @mysqli_affected_rows($this->_LinkId);
     }
 
     function NumRows() {
-        return @mysql_num_rows($this->_QueryId);
+        return @mysqli_num_rows($this->_QueryId);
     }
 
     function NumFields() {
-        return @mysql_num_fields($this->_QueryId);
+        return @mysqli_num_fields($this->_QueryId);
     }
     function ListFields($table) {
-        $res=mysql_list_fields($this->db, $table,$this->_LinkId);
+        $res=mysqli_list_fields($this->db, $table,$this->_LinkId);
         if (!$res) {
         	$this->_Halt("list_fields failed");
         	return 0;	
         }
-        $c=mysql_num_fields($res);
+        $c=mysqli_num_fields($res);
         $R=array();
-        for ($i=0;$i<$c;$i++) $R[]=mysql_field_name($res,$i);
+        for ($i=0;$i<$c;$i++) $R[]=mysqli_field_name($res,$i);
         return $R;
     }
 
@@ -270,13 +268,13 @@ class MySQLDatabase {
     }
 
     function _Halt($msg) {
-        $this->mError = @mysql_error($this->_LinkId);
-        $this->mErrno = @mysql_errno($this->_LinkId);
+        $this->mError = @mysqli_error($this->_LinkId);
+        $this->mErrno = @mysqli_errno($this->_LinkId);
         if(defined("exception_sql")){
             throw new Exception($this->mError);
         }
-		trigger_error2('Database error: ' . $msg, E_USER_NOTICE);
-		trigger_error2('MySQL Error: ' . $this->mErrno . ' (' . $this->mError . ')', E_USER_NOTICE);
+		trigger_error2('Database error: ' . $msg);
+		trigger_error2('MySQL Error: ' . $this->mErrno . ' (' . $this->mError . ')');
     }
 
     function QueryInsert($table,$data, $get_new_id=true) {
@@ -330,13 +328,16 @@ class MySQLDatabase {
           $V[]=$k.'='.$v;
         }
 
-    	if (!$x) return $this->Query('select * from '.$table.' where ('.implode(') AND (',$V).')');
-    		else return $this->QueryX('select * from '.$table.' where ('.implode(') AND (',$V).')');
+    	if (!$x) {
+    	    return $this->Query('select * from '.$table.' where ('.implode(') AND (',$V).')');
+        }
+
+    	return $this->QueryX('select * from '.$table.' where ('.implode(') AND (',$V).')');
     }
     function QuerySelectAll($table, $data, $x=0){
         $r = array();
         $rs = $this->QuerySelect($table, $data, $x);
-        while($l = $this->NextRecord(MYSQL_ASSOC)) $r[] =$l;
+        while($l = $this->NextRecord(MYSQLI_ASSOC)) $r[] =$l;
         return $r;
     }
     function QueryDelete($table,$data) {
@@ -370,7 +371,7 @@ class MySQLDatabase {
     }
     function QuerySelectRow($table,$data,$x = 0) {
     	$this->QuerySelect($table,$data,$x);
-    	return $this->NextRecord(MYSQL_ASSOC);
+    	return $this->NextRecord(MYSQLI_ASSOC);
     }
 
     public function Begin()
@@ -404,7 +405,7 @@ class MySQLDatabase {
         if (!$this->_LinkId)
             $this->Connect();
 
-        return mysql_real_escape_string($str);
+        return mysqli_real_escape_string($str);
     }
 
 

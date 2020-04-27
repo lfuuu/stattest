@@ -46,7 +46,7 @@ class Graphic2 {
 			$this->c_line[$I]=ImageColorAllocate ($this->im, $r,$g,$b);
 		}
 	}
-	function Graphic2($type,$x_scale=1,$days = null) {
+	function __construct($type,$x_scale=1,$days = null) {
 		if ($type=='day') {
 			$pict_width=288;
 			$pict_height=200;
@@ -147,7 +147,7 @@ class Graphic {
 		return ($this->x_size-$this->lpad-$this->rpad);
 	}
 	
-	function Graphic($x_size = 608,$y_size = 130) {		//320
+	function __construct($x_size = 608,$y_size = 130) {		//320
 		$this->x_size=$x_size;
 		$this->y_size=$y_size;
 		$this->im=ImageCreate($x_size,$y_size);

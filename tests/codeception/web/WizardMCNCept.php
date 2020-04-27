@@ -29,9 +29,9 @@ $I->see('ok:');
 
 $accountId = app\models\ClientContact::find()->select('client_id')->where(['data' => $email])->scalar();
 
-$I->haveHttpHeader("Content-Type", "application/json");
 $I->amBearerAuthenticated(Yii::$app->params['API_SECURE_KEY']);
-$I->seeResponseIsJson();
+$I->haveHttpHeader("Content-Type", "application/json");
+//$I->seeResponseIsJson();
 
 //
 //read state

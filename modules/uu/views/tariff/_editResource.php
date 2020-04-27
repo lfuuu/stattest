@@ -11,11 +11,11 @@
 use app\classes\Html;
 use app\modules\uu\controllers\TariffController;
 use app\modules\uu\models\AccountLogResource;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\TariffResource;
 
 $tariffResourceTableName = TariffResource::tableName();
-$resourceTableName = Resource::tableName();
+$resourceTableName = ResourceModel::tableName();
 
 $tariffResources = $formModel->tariffResources;
 
@@ -111,7 +111,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 <div class="col-sm-1">
                     <?php
                     $params = [];
-                    if (array_key_exists($tariffResource->resource_id, Resource::$calls)) {
+                    if (array_key_exists($tariffResource->resource_id, ResourceModel::$calls)) {
                         $tariffResource->price_per_unit = 1; // стоимость звонков 1-в-1 из низкоуровневого биллинга
                         $params['readonly'] = 'readonly';
                     }

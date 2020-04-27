@@ -66,7 +66,7 @@ class DbView
 
         $dbview_data = array();
         $db->Query($this->rawQuery);
-        while ($row = $db->NextRecord(MYSQL_ASSOC)) {
+        while ($row = $db->NextRecord(MYSQLI_ASSOC)) {
             foreach ($this->SQLFieldsReplacement as $key => &$field) {
                 if (isset($row[$key]) && is_array($field) && array_key_exists($row[$key], $field)) {
                     $row[$key] = $field[$row[$key]];

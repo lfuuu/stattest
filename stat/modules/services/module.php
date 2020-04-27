@@ -231,7 +231,7 @@ class m_services extends IModule
         $db->Query($query);
         $ret = [];
         $cnt = 1;
-        while ($row = $db->NextRecord(MYSQL_ASSOC)) {
+        while ($row = $db->NextRecord(MYSQLI_ASSOC)) {
             $ret[] = [
                 'speed_mgts' => str_replace('.00', '', $row['speed_mgts']),
                 'id' => $row['id'],
@@ -506,7 +506,7 @@ class m_services extends IModule
             $msg = $design->fetch('../store/acts/' . $suffix . '_act.tpl');
             $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`id`=' . $fixclient;
             $db->Query($query);
-            $mails = $db->NextRecord(MYSQL_ASSOC);
+            $mails = $db->NextRecord(MYSQLI_ASSOC);
             $mails = $mails['mails'];
             $design->clear_all_assign();
             $design->assign('content_encode', 'base64');
@@ -564,7 +564,7 @@ class m_services extends IModule
             $msg = $design->fetch('../store/acts/' . $suffix . '_act_pon.tpl');
             $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`id`=' . $fixclient;
             $db->Query($query);
-            $mails = $db->NextRecord(MYSQL_ASSOC);
+            $mails = $db->NextRecord(MYSQLI_ASSOC);
             $mails = $mails['mails'];
             $design->clear_all_assign();
             $design->assign('content_encode', 'base64');
@@ -1353,7 +1353,7 @@ class m_services extends IModule
             $msg = $design->fetch('../store/acts/voip_act.tpl');
             $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`id`=' . $fixclient;
             $db->Query($query);
-            $mails = $db->NextRecord(MYSQL_ASSOC);
+            $mails = $db->NextRecord(MYSQLI_ASSOC);
             $mails = $mails['mails'];
             $design->clear_all_assign();
             $design->assign('content_encode', 'base64');
@@ -2525,7 +2525,7 @@ class m_services extends IModule
             $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`client`="' . addcslashes($fixclient,
                     '\\"') . '"';
             $db->Query($query);
-            $mails = $db->NextRecord(MYSQL_ASSOC);
+            $mails = $db->NextRecord(MYSQLI_ASSOC);
             $mails = $mails['mails'];
             $design->clear_all_assign();
             $design->assign('content_encode', 'base64');
@@ -2888,7 +2888,7 @@ class m_services extends IModule
                 `id`";
         $db->Query($query);
         $ppps = [];
-        while ($row = $db->NextRecord(MYSQL_ASSOC)) {
+        while ($row = $db->NextRecord(MYSQLI_ASSOC)) {
             $ppps[] = $row;
         }
         if (!count($ppps)) {

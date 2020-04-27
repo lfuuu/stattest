@@ -3,7 +3,7 @@
 
 class Schema
 {
-    public function Schema(&$modObj, $fixclient)
+    public function __construct(&$modObj, $fixclient)
     {
         //router
 

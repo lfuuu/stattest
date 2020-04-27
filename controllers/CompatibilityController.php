@@ -3,10 +3,8 @@
 namespace app\controllers;
 
 use app\classes\StatModule;
-use app\models\User;
 use Yii;
 use app\classes\BaseController;
-use app\classes\Encoding;
 
 class CompatibilityController extends BaseController
 {
