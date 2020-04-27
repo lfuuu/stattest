@@ -86,11 +86,7 @@
 
           _this.warehouseField = $('#voipNumbersWarehouseStatusField');
           _this.warehouseStatus = _this.warehouseField.find('#voipNumbersWarehouseStatus');
-          $('#' + _this.warehouseStatus.attr('id')).on('change', _this.showNumbersList);
 
-          _this.hlrField = $('#voipNumberMobileHlrField');
-          _this.hlrStatus = _this.hlrField.find('#voipNumberMobileHlr');
-          $('#' + _this.hlrStatus.attr('id')).on('change', _this.showNumbersList);
 
           $('#addAccountTariffVoipForm').on('submit', _this.onFormSubmit);
           return _this.onNdcTypeChange();
@@ -142,7 +138,6 @@
       cityId = this.city.val();
       ndcTypeId = this.ndcType.val();
       this.mobileDynamicBehavior(this.warehouseStatus, this.warehouseField);
-      this.mobileDynamicBehavior(this.hlrStatus, this.hlrField);
       if (ndcTypeId) {
         this.ndcType.parent().parent().removeClass(this.errorClassName);
       } else {
@@ -220,9 +215,7 @@
         orderByType: this.numbersListOrderByType.val(),
         mask: this.numbersListMask.val(),
         limit: this.numbersListLimit.val(),
-        ndcTypeId: ndcTypeId,
-        warehouseStatusId: this.warehouseStatus.val(),
-        hlrId: this.hlrStatus.val()
+        ndcTypeId: ndcTypeId
       }, (function(_this) {
         return function(html) {
           return _this.showHideTariffDiv(html);

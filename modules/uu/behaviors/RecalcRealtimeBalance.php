@@ -4,6 +4,7 @@ namespace app\modules\uu\behaviors;
 
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
+use app\helpers\Semaphore;
 use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\Payment;
@@ -62,8 +63,14 @@ class RecalcRealtimeBalance extends Behavior
             return;
         }
 
+        if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
+            throw new \LogicException('Error. AccountTariff::recalc not started');
+        }
+
         ob_start();
         (new RealtimeBalanceTarificator)->tarificate($clientAcccount->id);
+
+        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
         HandlerLogger::me()->add(ob_get_clean());
     }
 }

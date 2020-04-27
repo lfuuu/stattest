@@ -25,6 +25,7 @@ use yii\helpers\Url;
  * @property int $operation_type_id
  * @property string $bill_no        номер счета для отображения
  * @property string $bill_date      дата счета
+ * @property string $date           дата счета -> bill_date
  * @property int $client_id      id лицевого счета
  * @property string $currency       валюта. значения: USD, RUB
  * @property int $is_approved    Признак проведенности счета. 1 - проведен, влияет на балланс. 0 - не проведен, не влияет на баланс.

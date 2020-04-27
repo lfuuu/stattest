@@ -42,6 +42,7 @@ use yii\db\Expression;
  *
  * @property-read ClientAccount[] $accounts
  * @property-read ClientContragentPerson $person
+ * @property-read ClientContragentPerson $personModel
  * @property-read ClientContract[] $contracts
  * @property-read ClientContract[] $contractsActiveQuery
  * @property-read Country $country
@@ -247,6 +248,15 @@ class ClientContragent extends HistoryActiveRecord
         }
 
         return $person;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPersonModel()
+    {
+        return $this->hasOne(ClientContragentPerson::class, ['contragent_id' => 'id']);
+
     }
 
     /**

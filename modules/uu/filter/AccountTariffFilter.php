@@ -74,6 +74,8 @@ class AccountTariffFilter extends AccountTariff
     // Связанный лид с услугами
     public $trouble_id = '';
 
+    public $is_device_empty = '';
+
     /**
      * @param int $serviceTypeId
      */
@@ -99,7 +101,8 @@ class AccountTariffFilter extends AccountTariff
     public function attributeLabels()
     {
         return array_merge(parent::attributeLabels(), [
-            'account_manager' => 'Ак. Менеджер'
+            'account_manager' => 'Ак. Менеджер',
+            'is_device_empty' => 'Адрес устройства заполнен',
         ]);
     }
 
@@ -128,7 +131,7 @@ class AccountTariffFilter extends AccountTariff
         $rules[] = [['number_ndc_type_id'], 'integer'];
         $rules[] = [['tariff_period_utc_from', 'tariff_period_utc_to'], 'string'];
         $rules[] = [['account_log_period_utc_from', 'account_log_period_utc_to'], 'string'];
-        $rules[] = ['is_unzipped', 'integer'];
+        $rules[] = [['is_unzipped', 'is_device_empty'], 'integer'];
         $rules[] = [
             [
                 'account_manager_name',
@@ -306,6 +309,20 @@ class AccountTariffFilter extends AccountTariff
 
         $this->trouble_id !== '' && $query->andWhere(['at.trouble_id' => $this->trouble_id]);
 
+        $qWhere = ['at.device_address' => ''];
+
+        switch ($this->is_device_empty) {
+            case '';
+                break;
+            case TariffPeriod::IS_NOT_SET:
+                $query->andWhere(['NOT', $qWhere]);
+                break;
+
+            case TariffPeriod::IS_SET:
+                $query->andWhere($qWhere);
+                break;
+        }
+
         switch ($this->tariff_period_id) {
             case '':
                 break;
@@ -466,9 +483,9 @@ class AccountTariffFilter extends AccountTariff
 
             ->with('number')
             ->with('city')
-            ->with('accountTariffLogs.accountTariff.clientAccount')
+            ->with('clientAccount')
+            ->with('accountTariffLogs')
             ->with('accountTariffLogs.tariffPeriod.tariff')
-            ->with('nextAccountTariffs')
 
             ->andWhere([
                 'client_account_id' => $clientAccountId,

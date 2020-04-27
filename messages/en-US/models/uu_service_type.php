@@ -33,5 +33,6 @@ return [
     'Type #26' => '', // Infrastructure
     'Type #27' => 'NNP access',
     'Type #28' => 'VPS. Additional Service',
+    'Type #30' => 'SIP-trunk',
     'Type #31' => 'Mobile Internet',
 ];

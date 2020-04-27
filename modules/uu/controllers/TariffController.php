@@ -131,6 +131,7 @@ class TariffController extends BaseController
 
         if ($formModel->isSaved) {
             if ($formModel->id) {
+                Yii::$app->cache->delete('uuapitariff' . $formModel->id);
                 Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
                 return $this->redirect(['edit', 'id' => $formModel->id]);
             }

@@ -33,5 +33,6 @@ return [
     'Type #26' => '', // Infraštruktúra
     'Type #27' => 'Prístup k NNP',
     'Type #28' => 'VPS. Additional Service',
+    'Type #30' => 'SIP-trunk',
     'Type #31' => 'Mobilný internet',
 ];

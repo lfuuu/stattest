@@ -48,6 +48,7 @@ return [
     'Resource #43' => 'Outbound traffic option from mobile numbers',
     'Resource #44' => 'Amount of numbers from requests',
     'Resource #45' => 'Minutes',
+    'Resource #46' => 'Call limit',
     'Resource #48' => 'Quota traffic',
     'Resource #49' => 'Calls (incoming)',
 

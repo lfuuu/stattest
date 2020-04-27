@@ -208,7 +208,8 @@ class NumberController extends BaseController
                             break;
 
                         case Number::STATUS_RELEASED:
-                            NumberDao::me()->toRelease($number, true);
+                        case Number::STATUS_RELEASED_AND_PORTED:
+                            NumberDao::me()->toRelease($number, true, $status);
                             break;
 
                         case Number::STATUS_NOTSALE:

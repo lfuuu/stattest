@@ -1,4 +1,5 @@
 <?php
+
 namespace app\classes\validators;
 
 use Yii;
@@ -18,6 +19,6 @@ class FormFieldValidator extends FilterValidator
 
     public static function cleanField($value)
     {
-        return htmlspecialchars(trim(strip_tags($value)));
+        return htmlspecialchars(trim(strip_tags($value)), ENT_NOQUOTES | ENT_HTML401);
     }
 }

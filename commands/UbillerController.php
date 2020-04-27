@@ -141,11 +141,11 @@ class UbillerController extends Controller
         }
 
         $startWait = microtime(true);
-        echo PHP_EOL . date('r') . 'Error. command/ubiller wait';
+        echo PHP_EOL . date('r') . ' Info. command/ubiller wait';
 
         Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
 
-        echo PHP_EOL . date('r') . 'Error. command/ubiller begined. Wait time: ' . round(microtime(true) - $startWait, 2) . ' sec';
+        echo PHP_EOL . date('r') . 'Info. command/ubiller begined. Wait time: ' . round(microtime(true) - $startWait, 2) . ' sec';
     }
 
     public function sem_restart()
@@ -157,7 +157,15 @@ class UbillerController extends Controller
 
     public function sem_stop()
     {
-        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+        return Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+    }
+
+    /**
+     * консольное отключение симафора блокировок (используется при деплое)
+     */
+    public function actionSemStop()
+    {
+        var_dump($this->sem_stop());
     }
 
     /**

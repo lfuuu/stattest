@@ -264,6 +264,8 @@ class ClientContract extends HistoryActiveRecord
      *
      * @param \DateTime|null $date
      * @return null|ClientDocument
+     * @throws \yii\base\Exception
+     * @throws \Exception
      */
     public function getContractInfo(\DateTime $date = null)
     {

@@ -257,7 +257,9 @@ class m_newaccounts extends IModule
             "client_currency" => $fixclient_data["currency"],
             "is_multy" => $isMulty,
             "is_view_canceled" => $isViewCanceled,
-            "get_sum" => $get_sum
+            "get_sum" => $get_sum,
+            'is_with_file_name' => true,
+
         ];
 
         $R = BalanceSimple::get($params);
@@ -414,12 +416,14 @@ class m_newaccounts extends IModule
                 : '1'
             ) . ' AS in_sum, 
                 sum_correction,
-                P.operation_type_id
+                P.operation_type_id,
+                bf.name as file_name
             FROM
                 newbills P
                 LEFT JOIN newbills_external USING (bill_no)
                 LEFT JOIN tt_troubles t USING (bill_no)
                 LEFT JOIN tt_stages ts ON  (ts.stage_id = t. cur_stage_id)
+                LEFT JOIN newbills_external_files bf using (bill_no)
             WHERE
                 client_id=' . $fixclient_data['id'] . '
                 ' . ($isMulty && !$isViewCanceled ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
@@ -446,7 +450,8 @@ class m_newaccounts extends IModule
                     0 as is_pay_overdue,
 
                     null as sum_correction,
-                    1 as operation_type_id
+                    1 as operation_type_id,
+                    null as file_name
 
                     FROM `g_income_order` g
                         LEFT JOIN tt_troubles t ON (g.id = t.bill_id)
@@ -807,6 +812,7 @@ class m_newaccounts extends IModule
         $design->assign('bill_courier', $bill->GetCourier());
         $design->assign('bill_lines', $L = $bill->GetLines());
         $design->assign('bill_bonus', $this->getBillBonus($bill->GetNo()));
+        $design->assign('bill_file_name', $newbill->getExtFile()->select('name')->scalar());
         $design->assign('bill_is_new_company', [
             'retail_to_service' => Bill::dao()->isBillNewCompany($newbill, 11, 21),
             'telekom_to_service' => Bill::dao()->isBillNewCompany($newbill, 1, 21),
@@ -5191,12 +5197,13 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
   (coalesce(ex.ext_vat, 0) + coalesce(ex.ext_sum_without_vat, 0)) AS sum,
   b.currency,
   cur_euro.rate                                                   AS euro_rate,
-  cur_nat.rate                                                    AS nat_rate
-
+  cur_nat.rate                                                    AS nat_rate,
+  bf.name                                                         AS file_name
 FROM newbills b, clients c, client_contract cc, client_contragent cg, country cnt, newbills_external ex
   LEFT JOIN currency_rate cur_euro
     ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_euro.date AND cur_euro.currency = 'EUR')
   LEFT JOIN currency_rate cur_nat ON (STR_TO_DATE(ex.ext_invoice_date, '%d-%m-%Y') = cur_nat.date)
+  LEFT JOIN newbills_external_files bf ON bf.bill_no = ex.bill_no
 WHERE " . $dateField . " BETWEEN :date_from AND :date_to
       AND b.bill_no = ex.bill_no
       AND cur_nat.currency = b.currency
@@ -5963,7 +5970,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $design->assign("order_by", $order_by);
 
         $types = '';
-        foreach (['bank', 'prov', 'neprov', 'ecash'] as $k) {
+        foreach (['bank', 'prov', 'neprov', 'ecash', 'terminal'] as $k) {
             if ($v = get_param_raw($k)) {
                 $types .= ($types ? ',' : '') . '"' . $k . '"';
             }

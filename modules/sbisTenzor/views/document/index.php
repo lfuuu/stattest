@@ -37,6 +37,14 @@ echo Breadcrumbs::widget([
 
 ?>
 
+    <div class="text-right">
+        <?= $this->render('//layouts/_buttonLink', [
+            'url' => \Yii::$app->getRequest()->getUrl(),
+            'text' => 'Обновить',
+            'glyphicon' => 'glyphicon-refresh',
+        ])?>
+    </div>
+
 <?php
     if ($clientId && $isAuto) :
 ?>
@@ -173,16 +181,46 @@ echo GridView::widget([
             'attribute' => 'state',
             'format' => 'html',
             'value'     => function (SBISDocument $model) {
+                $progressValue = 0;
+                $progressStyle = 'info';
+
+                if (
+                    $model->state >= SBISDocumentStatus::PROCESSING &&
+                    $model->state < SBISDocumentStatus::SENT
+                ) {
+                    $progressValue = 25;
+                    $progressStyle = 'danger';
+
+                    if ($model->state == SBISDocumentStatus::SAVED) {
+                        $progressValue = 50;
+                        $progressStyle = 'warning';
+                    } else if (in_array($model->state, [SBISDocumentStatus::NOT_SIGNED, SBISDocumentStatus::READY])) {
+                        $progressValue = 75;
+                        $progressStyle = 'info';
+                    }
+                }
+
+                $html = '';
+                if ($progressValue) {
+                    $html .= '<div class="progress">
+<div class="progress-bar progress-bar-' . $progressStyle . ' progress-bar-striped" role="progressbar" aria-valuenow="' . $progressValue . '" 
+aria-valuemin="0" aria-valuemax="100" style="width:' . $progressValue . '%">
+</div>
+</div>';
+                }
+
                 $external = $model->external_state_name ? : '';
                 $external = $external ? sprintf('<br /><small>(%s)</small>', $external) : '';
 
-                $html = Html::tag(
+                $linkHtml = Html::tag(
                     'span',
                     sprintf('<strong>%s</strong>%s', $model->stateName, $external),
                     ['class' => 'text-nowrap']
                 );
 
-                return Html::a($html, $model->getUrl());
+                return
+                    $html .
+                        Html::a($linkHtml, $model->getUrl());
             },
         ],
         [

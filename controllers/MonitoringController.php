@@ -14,6 +14,7 @@ use app\models\Bik;
 use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientContragent;
+use app\models\EquipmentUser;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;
 use app\models\filter\UsageVoipFilter;
@@ -26,9 +27,9 @@ use app\modules\transfer\components\services\universal\UniversalTransfer;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\TariffPeriod;
 use Yii;
 use yii\base\InvalidCallException;
-use yii\base\InvalidArgumentException;
 use yii\base\InvalidValueException;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
@@ -245,7 +246,7 @@ class MonitoringController extends BaseController
 
     public function actionSormClientsSave($accountId, $field, $value)
     {
-        Assert::isInArray($field, ['inn', 'bik', 'bank', 'pay_acc', 'contact_fio', 'contact_phone', 'address_jur']);
+        Assert::isInArray($field, ['inn', 'bik', 'bank', 'pay_acc', 'contact_fio', 'contact_phone', 'address_jur', 'address_post', 'equ']);
 
         $account = ClientAccount::findOne(['id' => $accountId]);
 
@@ -257,6 +258,11 @@ class MonitoringController extends BaseController
         switch ($field) {
             case 'inn':
                 $contragent = $account->contragent;
+
+                if ($contragent->inn == $value) {
+                    break;
+                }
+
                 $contragent->inn = $value;
                 if (!$contragent->save()) {
                     throw new ModelValidationException($contragent);
@@ -315,9 +321,16 @@ class MonitoringController extends BaseController
                 if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
                     $model = $contragent->person;
                     $model->registration_address = $value;
+                    if ($model->registration_address == $value) {
+                        break;
+                    }
                 } else {
                     $model = $contragent;
                     $model->address_jur = $value;
+
+                    if ($model->address_jur == $value) {
+                        break;
+                    }
                 }
 
                 if (!$model->save()) {
@@ -325,6 +338,28 @@ class MonitoringController extends BaseController
                 }
                 break;
 
+            case 'address_post':
+                if ($account->address_post == $value) {
+                    break;
+                }
+
+                $account->address_post = $value;
+
+                if (!$account->save()) {
+                    throw new ModelValidationException($account);
+                }
+                break;
+
+            case 'equ':
+                $equ = new EquipmentUser();
+                $equ->isStrongCheck = false;
+                $equ->client_account_id = $account->id;
+                $equ->full_name = $value;
+                $equ->birth_date = '2000-01-01';
+                if (!$equ->save()) {
+                    throw new ModelValidationException($equ);
+                }
+                break;
             default:
                 throw new NotImplementedHttpException();
         }
@@ -351,7 +386,7 @@ class MonitoringController extends BaseController
         $usageVoipIds = [];
         $accountTariffIds = [];
         if ($regionId = $filterModelSearch->region_id) {
-            $ids = SormClientFilter::getAccountTariffIds($regionId);
+            $ids = SormClientFilter::getAccountTariffIds($regionId, $filterModelSearch->is_device_empty === '' ? null : ($filterModelSearch->is_device_empty == TariffPeriod::IS_NOT_SET ? false : true));
 
             $usageVoipIds = array_filter($ids, function ($v) {
                 return $v < AccountTariff::DELTA;

@@ -1031,10 +1031,9 @@ SQL;
      */
     public static function getLinesByTypeId($bill, $typeId, $isInsert = false)
     {
-
         $clientAccount = $bill->clientAccount;
 
-        $sql = 'SELECT (SELECT coalesce(sum(pk + sum + date_from + date_to + coalesce(id_service, 0) + amount), 0) + count(*) AS cnt
+        $sql = 'SELECT (SELECT coalesce(sum(pk + sum_without_tax + sum_tax + price + sum + date_from + date_to + coalesce(id_service, 0) + amount), 0) + count(*) AS cnt
         FROM newbill_lines
         WHERE bill_no = :billNo) +
        (SELECT coalesce(sum(pk + sum + date_from + date_to + bill_correction_id + amount) + count(*), 0) AS cnt

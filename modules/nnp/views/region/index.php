@@ -61,6 +61,10 @@ $columns = [
         'indexBy' => 'code',
     ],
     [
+        'attribute' => 'iso',
+        'class' => StringColumn::class,
+    ],
+    [
         'attribute' => 'parent_id',
         'class' => RegionColumn::class,
         'countryCodes' => $filterModel->country_code,

@@ -16,7 +16,10 @@ use yii\db\ActiveQuery;
  */
 class DependecyHelper extends Singleton
 {
-    const DEFAULT_TIMELIFE = 2678400; //3600*24*30;
+    const TIMELIFE_DAY = 86400; //3600*24;
+    const TIMELIFE_MONTH = 2678400; //3600*24*30;
+
+    const DEFAULT_TIMELIFE = self::TIMELIFE_MONTH;
 
     const ALL = 'all';
 
@@ -27,6 +30,7 @@ class DependecyHelper extends Singleton
     const TAG_CALLS_RAW = 'calls_raw';
     const TAG_GRID_FOLDER = 'grid_folder';
     const TAG_BILL = 'bill';
+    const TAG_PRICELIST = 'pricelist';
 
     const LIST_TAGS = [
         self::ALL => 'Всё',
@@ -37,6 +41,7 @@ class DependecyHelper extends Singleton
         self::TAG_CALLS_RAW => 'CallsRaw',
         self::TAG_GRID_FOLDER => 'Кол-во в гриде',
         self::TAG_BILL => 'Счета',
+        self::TAG_PRICELIST => 'Прайс-лист (api тариф)',
     ];
 
     public function getKey($name, $value, $value2 = null)

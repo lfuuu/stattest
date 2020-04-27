@@ -124,7 +124,7 @@ i.uncheck:before {
 .panel-top .block-search {
     margin-top: 15px;
     height: 40px;
-    padding-left: 360px;
+    padding-left: 290px;
 }
 
 .panel-top .block-search h2 {
@@ -143,7 +143,7 @@ i.uncheck:before {
 }
 
 .panel-top .block-left {
-    width: 350px;
+    width: 300px;
 }
 
 .panel-top .block-user {

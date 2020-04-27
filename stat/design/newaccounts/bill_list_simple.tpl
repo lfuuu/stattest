@@ -204,7 +204,7 @@
                     <td colspan="4" rowspan="2">&nbsp;</td>
                     </tr>
                     <tr>
-                    <td colspan="9" class="comment">{$op.bill.comment|strip_tags}</td>
+                    <td colspan="9" class="comment">{$op.bill.comment|strip_tags} {if $op.bill.file_name}&nbsp;<a href="/?module=newaccounts&action=bill_ext_file_get&bill_no={$op.bill.bill_no|escape:"url"}" class="btn btn-warning btn-sm" style="padding: 0 3px;"><span class="glyphicon glyphicon-upload"></span> {$op.bill.file_name}</a>{/if}</td>
                 {else}
                     <td colspan="4">&nbsp;</td>
                 {/if}

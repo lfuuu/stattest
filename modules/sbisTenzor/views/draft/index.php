@@ -101,14 +101,16 @@ echo GridView::widget([
             'value'     => function (SBISGeneratedDraft $model) {
                 $client = $model->invoice->bill->clientAccount;
 
-                $text = $client->contragent->name_full;
+                $html = $client->contragent->name_full;
+                if (SBISExchangeStatus::isVerifiedById($client->exchange_status)) {
+                    $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']);
+                } else if (SBISExchangeStatus::isNotApprovedById($client->exchange_status)) {
+                    $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
+                } else if ($client->exchange_status == SBISExchangeStatus::UNKNOWN) {
+                    $html .= '&nbsp;' . Html::tag('strong', '?', ['class' => 'text-warning']);
+                }
 
-                $text .=
-                    SBISExchangeStatus::isVerifiedById($client->exchange_status) ?
-                        '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']) :
-                        '';
-
-                return Html::a($text, $client->getUrl());
+                return Html::a($html, $client->getUrl());
             },
         ],
         [

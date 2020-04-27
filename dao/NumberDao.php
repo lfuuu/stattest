@@ -232,7 +232,7 @@ class NumberDao extends Singleton
      * @param \app\models\Number $number
      * @throws ModelValidationException
      */
-    public function toRelease(\app\models\Number $number, $isWithCheck = false)
+    public function toRelease(\app\models\Number $number, $isWithCheck = false, $status = Number::STATUS_RELEASED)
     {
         if ($isWithCheck) {
             Assert::isNotInArray($number->status, [
@@ -243,18 +243,24 @@ class NumberDao extends Singleton
             ]);
         }
 
+        Assert::isInArray($status, [Number::STATUS_RELEASED, Number::STATUS_RELEASED_AND_PORTED]);
+
         $number->client_id = null;
         $number->usage_id = null;
         $number->uu_account_tariff_id = null;
         $number->hold_from = null;
         $number->hold_to = null;
 
-        $number->status = Number::STATUS_RELEASED;
+        $number->status = $status;
         if (!$number->save()) {
             throw new ModelValidationException($number);
         }
 
-        Number::dao()->log($number, NumberLog::ACTION_CREATE, 'N');
+        if ($number->status == Number::STATUS_RELEASED) {
+            Number::dao()->log($number, NumberLog::ACTION_CREATE, 'N');
+        } else { // Number::STATUS_RELEASED_AND_PORTED
+            Number::dao()->log($number, NumberLog::ACTION_CREATE, 'NP');
+        }
     }
 
     /**
