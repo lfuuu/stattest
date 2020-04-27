@@ -65,6 +65,31 @@ $attributeLabels = $packagePricelistModel->attributeLabels();
 
 $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY));
 
+$columns = [
+    [
+        'name' => 'nnp_pricelist_id',
+        'title' => $attributeLabels['nnp_pricelist_id'],
+        'type' => Editable::INPUT_SELECT2,
+        'options' => $options + [
+                'data' => $nnpPricelistList,
+            ],
+    ]
+];
+
+if ($formModel->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
+    $columns[] = [
+        'name' => 'bytes_amount',
+        'title' => $attributeLabels['bytes_amount'],
+        'type' => Editable::INPUT_TEXT,
+        'options' => $options,
+    ];
+}
+
+$columns[] = [
+    'name' => 'id', // чтобы идентифицировать модель
+    'type' => TabularColumn::TYPE_HIDDEN_INPUT,
+];
+
 ?>
 
 <div class="well package-pricelist">
@@ -76,21 +101,8 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <div>
         <?= TabularInput::widget([
                 'models' => array_values($packagePricelistModels), // ключ должен быть автоинкрементный
-                'allowEmptyList' => true,
-                'columns' => [
-                    [
-                        'name' => 'nnp_pricelist_id',
-                        'title' => $attributeLabels['nnp_pricelist_id'],
-                        'type' => Editable::INPUT_SELECT2,
-                        'options' => $options + [
-                                'data' => $nnpPricelistList,
-                            ],
-                    ],
-                    [
-                        'name' => 'id', // чтобы идентифицировать модель
-                        'type' => TabularColumn::TYPE_HIDDEN_INPUT,
-                    ],
-                ],
+                'allowEmptyList' => false,
+                'columns' => $columns,
             ]
         )
         ?>
