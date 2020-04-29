@@ -846,22 +846,22 @@ class SoapHandler{
 
         if (isset($curbill['id'])) {
             $db->Query("delete from `transaction` where bill_id='" . addcslashes($curbill['id'], "\\'") . "'");
-            if ($err |= mysqli_errno($db->_LinkId))
-                $err_msg = mysqli_error($db->_LinkId);
+//            if ($err |= mysqli_errno($db->_LinkId))
+//                $err_msg = mysqli_error($db->_LinkId);
         }
 
         $db->Query("delete from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
-        if($err |= mysqli_errno($db->_LinkId))
-            $err_msg = mysqli_error($db->_LinkId);
+//        if($err |= mysqli_errno($db->_LinkId))
+//            $err_msg = mysqli_error($db->_LinkId);
 
         $db->Query("delete from g_serials where bill_no='".addcslashes($bill_no, "\\'")."'");
-        if($err |= mysqli_errno($db->_LinkId))
-            $err_msg = mysqli_error($db->_LinkId);
+//        if($err |= mysqli_errno($db->_LinkId))
+//            $err_msg = mysqli_error($db->_LinkId);
 
         if(!$err)
             $db->Query("delete from newbill_lines where bill_no='".addcslashes($bill_no, "\\'")."'");
-        if(!$err && $err |= mysqli_errno($db->_LinkId))
-            $err_msg = mysqli_error($db->_LinkId);
+//        if(!$err && $err |= mysqli_errno($db->_LinkId))
+//            $err_msg = mysqli_error($db->_LinkId);
 
 
         if(!$err)
@@ -885,8 +885,8 @@ class SoapHandler{
                         nal = '".$curbill['nal']."',
                         price_include_vat = '" . $priceIncludeVat . "'
                         ");
-        if(!$err && $err |= mysqli_errno($db->_LinkId))
-            $err_msg = mysqli_error($db->_LinkId);
+//        if(!$err && $err |= mysqli_errno($db->_LinkId))
+//            $err_msg = mysqli_error($db->_LinkId);
 
 
         $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id," .
@@ -930,16 +930,16 @@ class SoapHandler{
         if($qSerials)
             $db->Query("insert into g_serials (bill_no, code_1c, serial) values ".implode(',',$qSerials));
 
-        if(!$err && $err |= mysqli_errno($db->_LinkId)) {
-            $err_msg = mysqli_error($db->_LinkId);
-            trigger_error2($err_msg);
-        }
+//        if(!$err && $err |= mysqli_errno($db->_LinkId)) {
+//            $err_msg = mysqli_error($db->_LinkId);
+//            trigger_error2($err_msg);
+//        }
 
         if(count($list) && $addLines){
-            if(!$err)
+//            if(!$err)
                 $db->Query(substr($q,0,-1));
-            if(!$err && $err |= mysqli_errno($db->_LinkId))
-                $err_msg = mysqli_error($db->_LinkId);
+//            if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                $err_msg = mysqli_error($db->_LinkId);
         }
 
         if(!$err && !is_null($add_info)){
@@ -1072,8 +1072,8 @@ class SoapHandler{
                 }
 
                 $db->Query($q);
-                if(!$err && $err |= mysqli_errno($db->_LinkId))
-                    $err_msg = mysqli_error($db->_LinkId);
+//                if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                    $err_msg = mysqli_error($db->_LinkId);
 
                 if(!$err){
                     unset($curts['stage_id'],$curts['date_edit']);
@@ -1090,8 +1090,8 @@ class SoapHandler{
                         )
                     );
                 }
-                if(!$err && $err |= mysqli_errno($db->_LinkId))
-                    $err_msg = mysqli_error($db->_LinkId);
+//                if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                    $err_msg = mysqli_error($db->_LinkId);
 
                 /*
                    if(!$err)
@@ -1100,10 +1100,10 @@ class SoapHandler{
                    $err_msg = mysqli_error($db->_LinkId);
                  */
 
-                if(!$err)
+//                if(!$err)
                     $db->Query("update tt_troubles set cur_stage_id=".$newts_id.",folder=".$newstate['folder']." where id=".$curtt['id']);
-                if(!$err && $err |= mysqli_errno($db->_LinkId))
-                    $err_msg = mysqli_error($db->_LinkId);
+//                if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                    $err_msg = mysqli_error($db->_LinkId);
             }
 
         }elseif(
@@ -1147,8 +1147,8 @@ class SoapHandler{
                                 : ''
                         )
                 ) . "order by oso limit 1");
-            if(!$err && $err |= mysqli_errno($db->_LinkId))
-                $err_msg = mysqli_error($db->_LinkId);
+//            if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                $err_msg = mysqli_error($db->_LinkId);
 
             if(isset($add_info_koi8r) && (!$comment || in_array($client, [OperatorOnlime::OPERATOR_CLIENT, OperatorOnlimeDevices::OPERATOR_CLIENT, OperatorOnlimeStb::OPERATOR_CLIENT]))){
                 $orig_comment = $comment;
@@ -1202,8 +1202,8 @@ class SoapHandler{
                         'bill_no'=>$bill_no,
                         'folder'=>$newstate['folder']
                     ));
-                    if(!$err && $err |= mysqli_errno($db->_LinkId))
-                        $err_msg = mysqli_error($db->_LinkId);
+//                    if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                        $err_msg = mysqli_error($db->_LinkId);
 
                     if(!$err)
                         $db->Query("insert into z_sync_admin set bill_no = '".$bill_no."'");
@@ -1223,13 +1223,13 @@ class SoapHandler{
                             'comment' => $comment
                         ));
                     }
-                    if(!$err && $err |= mysqli_errno($db->_LinkId))
-                        $err_msg = mysqli_error($db->_LinkId);
+//                    if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                        $err_msg = mysqli_error($db->_LinkId);
 
                     if(!$err)
                         $db->Query("update tt_troubles set cur_stage_id=".$tsid." where id=".$ttid);
-                    if(!$err && $err |= mysqli_errno($db->_LinkId))
-                        $err_msg = mysqli_error($db->_LinkId);
+//                    if(!$err && $err |= mysqli_errno($db->_LinkId))
+//                        $err_msg = mysqli_error($db->_LinkId);
                 }
             }
         }
@@ -1254,7 +1254,7 @@ class SoapHandler{
         $state = trr($data->{tr('Статус')});
 
         $db->Query("update newbills set state_1c='".addcslashes($state,"\\'")."' where bill_no='".addcslashes($bill_no, "\\'")."'");
-        return array('return'=>!mysqli_errno($db->_LinkId));
+        return array('return'=> true);
     }
 
     public function statSaveBrend($data)
@@ -1271,7 +1271,7 @@ class SoapHandler{
             $db->Query("insert into g_producers set id='".$code."', name='".$db->escape($name)."'
                         on duplicate key update name='".$db->escape($name)."'");
         }
-        return array('return'=>!mysqli_errno($db->_LinkId));
+        return array('return'=>true);
     }
 
     public function statSavePriceType($data)
@@ -1290,10 +1290,10 @@ class SoapHandler{
                     "name"=>$name)
             );
         }
-        $err = mysqli_errno($db->_LinkId);
-        if($err) {
-            return new \SoapFault('statSavePriceType',tr('ошибка создания типа цены: '.mysqli_error($db->_LinkId)));
-        }
+//        $err = mysqli_errno($db->_LinkId);
+//        if($err) {
+//            return new \SoapFault('statSavePriceType',tr('ошибка создания типа цены: '.mysqli_error($db->_LinkId)));
+//        }
         return array('return'=>true);
     }
 
@@ -1316,10 +1316,10 @@ class SoapHandler{
                     )
             );
         }
-        $err = mysqli_errno($db->_LinkId);
-        if($err) {
-            return new \SoapFault('statSaveUnit',tr('ошибка создания Единица Измерения: '.mysqli_error($db->_LinkId)));
-        }
+//        $err = mysqli_errno($db->_LinkId);
+//        if($err) {
+//            return new \SoapFault('statSaveUnit',tr('ошибка создания Единица Измерения: '.mysqli_error($db->_LinkId)));
+//        }
         return array('return'=>true);
     }
 
@@ -1485,9 +1485,9 @@ class SoapHandler{
             $db->Query("insert into g_good_store values ".implode(",", $s));
         }
 
-        if(mysqli_errno($db->_LinkId)) {
-            return new \SoapFault('statSaveStoreBalance', mysqli_error($db->_LinkId));
-        }
+//        if(mysqli_errno($db->_LinkId)) {
+//            return new \SoapFault('statSaveStoreBalance', mysqli_error($db->_LinkId));
+//        }
 
         return array('return'=>true);
 
@@ -1540,11 +1540,11 @@ class SoapHandler{
         $db->QueryDelete("g_bonus", array("good_id" => $d["id"]));
         $db->QueryInsert("g_goods", $d);
 
-        $err = mysqli_errno($db->_LinkId);
-        if($err)
-        {
-            return new \SoapFault('goods',tr('ошибка создания товара: '.$err));
-        }
+//        $err = mysqli_errno($db->_LinkId);
+//        if($err)
+//        {
+//            return new \SoapFault('goods',tr('ошибка создания товара: '.$err));
+//        }
 
         if(isset($data->{tr("Товар")}->{tr("СписокХарактеристик")})) {
             $hs = &$data->{tr("Товар")}->{tr("СписокХарактеристик")};
@@ -1560,11 +1560,11 @@ class SoapHandler{
                 );
 
                 $db->QueryInsert("g_good_description", $dscr);
-                $err = mysqli_errno($db->_LinkId);
-                if($err)
-                {
-                    return new \SoapFault('goods',tr('ошибка создания характеристики товара: '.mysqli_error($db->_LinkId)));
-                }
+//                $err = mysqli_errno($db->_LinkId);
+//                if($err)
+//                {
+//                    return new \SoapFault('goods',tr('ошибка создания характеристики товара: '.mysqli_error($db->_LinkId)));
+//                }
             }
         }
 
@@ -1642,7 +1642,7 @@ class SoapHandler{
         $db->Query("insert into g_groups set id='".$code."', name='".$db->escape($name)."', parent_id = '".$parentCode."'
                     on duplicate key update name='".$db->escape($name)."', parent_id = '".$parentCode."'");
 
-        return array('return'=>!mysqli_errno($db->_LinkId));
+        return array('return'=>true /*!mysqli_errno($db->_LinkId)*/);
     }
 }
 
