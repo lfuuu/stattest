@@ -495,7 +495,7 @@ class MySmarty extends SmartyStat {
 		$this->ignore=1;
 		if ($template) {
 			$this->display($template);
-			return (count($G['errors'])+count($G['notices'])?0:1);
+			return (count($G['errors'] ?? [])+count($G['notices'] ?? [])?0:1);
 		}
 	}
 
