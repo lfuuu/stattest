@@ -797,9 +797,12 @@ class CallsRawFilter extends CallsRaw
     protected function getResult(CTEQuery $query)
     {
         $dbConn = $this->dbConn;
+        // Слейв справляется с такмим задачами лучше. Все отчеты на слейв.
+        /*
         if ($this->isNewVersion && $this->isPreFetched) {
             $dbConn = Yii::$app->dbPg;
         }
+        */
 
         $queryCacheKey = CallsRaw::getCacheKey($query);
         if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {

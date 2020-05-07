@@ -682,7 +682,7 @@ class Db_map_nispd extends Db_map {
 				'clients_vip'		=> array('client','router','email','phone','important_period'),
 				'usage_voip'		=> array('client','actual_from','actual_to','tech_voip_device_id','E164','no_of_lines','tarif'),
 				);
-		$this->Db_map($keys,$links,$types,$visible_in_list,$dblecho,$variants,$hidden,$translate,$postactions,$readonly,$order);
+		parent::__construct($keys,$links,$types,$visible_in_list,$dblecho,$variants,$hidden,$translate,$postactions,$readonly,$order);
 		$this->SetErrorMode(1,0);
 	}
 }

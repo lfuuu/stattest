@@ -718,7 +718,7 @@ class SoapHandler{
         }
     }
 
-    public function statSaveOrder($data,&$bill_no=null,&$error=null, $saveIds = array(), $addLines = true)
+    public function statSaveOrder($data,$bill_no=null,&$error=null, $saveIds = array(), $addLines = true)
     {
         /*
         if(!defined("save_sql"))
@@ -892,7 +892,7 @@ class SoapHandler{
         $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id," .
                                         "tax_rate, sum_without_tax, sum_tax) values";
 
-        $qSerials = "";
+        $qSerials = [];
 
 
 
