@@ -165,8 +165,11 @@ class ClientAccount extends HistoryActiveRecord
     const VERSION_BILLER_UNIVERSAL = 5;
 
     const DEFAULT_REGION = Region::MOSCOW;
+
     const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 2000; // BIL-2081: http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=14221857
     const DEFAULT_VOIP_MN_LIMIT_DAY = 1000;
+    const MAX_DAY_LIMIT = 100000;
+
     const DEFAULT_VOIP_IS_DAY_CALC = 1;
     const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
     const DEFAULT_CREDIT = 0;
@@ -298,6 +301,7 @@ class ClientAccount extends HistoryActiveRecord
             ['country_id', 'required'],
             [['country_id', 'uu_tariff_status_id', 'exchange_group_id', 'exchange_status'], 'integer'],
             ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
+            ['voip_limit_mn_day', 'default', 'value' => self::DEFAULT_VOIP_MN_LIMIT_DAY],
             ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC],
             ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC],
             ['region', 'default', 'value' => self::DEFAULT_REGION],
@@ -993,7 +997,7 @@ class ClientAccount extends HistoryActiveRecord
     public function getOptionValue($name)
     {
         $optionQuery = $this->getOptions()->where(['option' => $name])->select('value');
-        return $optionQuery->exists() ? $optionQuery->scalar() : ClientAccountOptions::getDefaultValue($name) ;
+        return $optionQuery->exists() ? $optionQuery->scalar() : ClientAccountOptions::getDefaultValue($name);
     }
 
     /**
@@ -1271,6 +1275,7 @@ class ClientAccount extends HistoryActiveRecord
             $res['id'] = $this->id;
             $res['credit'] = $this->credit;
             $res['expenditure'] = $this->billingCounters->getAttributes();
+            $res['expenditure']['current_statement'] = \app\modules\uu\models\Bill::getUnconvertedAccountEntries($this->id)->sum('price_with_vat') ?: 0;
             $res['view_mode'] = $this->lk_balance_view_mode;
         }
 
@@ -1469,7 +1474,8 @@ class ClientAccount extends HistoryActiveRecord
     public static function getList(
         $isWithEmpty = false,
         $isWithNullAndNotNull = false
-    ) {
+    )
+    {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
@@ -1497,7 +1503,8 @@ class ClientAccount extends HistoryActiveRecord
         $indexBy = 'id',
         $orderBy = ['id' => SORT_ASC],
         $where = []
-    ) {
+    )
+    {
         $models = self::find()
             ->where($where)
             ->orderBy($orderBy)
