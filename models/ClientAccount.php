@@ -1275,7 +1275,7 @@ class ClientAccount extends HistoryActiveRecord
             $res['id'] = $this->id;
             $res['credit'] = $this->credit;
             $res['expenditure'] = $this->billingCounters->getAttributes();
-            $res['expenditure']['current_statement'] = \app\modules\uu\models\Bill::getUnconvertedAccountEntries($this->id)->sum('price_with_vat') ?: 0;
+            $res['expenditure']['current_statement'] = -\app\modules\uu\models\Bill::getUnconvertedAccountEntries($this->id)->sum('price_with_vat') ?: 0;
             $res['view_mode'] = $this->lk_balance_view_mode;
         }
 
