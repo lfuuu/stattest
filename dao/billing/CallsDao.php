@@ -135,12 +135,8 @@ class CallsDao extends Singleton
             $query->offset($offset);
         }
 
-        $query->andWhere([
-            'between',
-            'connect_time',
-            $firstDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT),
-            $lastDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)
-        ]);
+        $query->andWhere(['>=', 'connect_time', $firstDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+        $query->andWhere(['<', 'connect_time', $lastDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
 
         $query->limit($limit > self::CALLS_MAX_LIMIT ? self::CALLS_MAX_LIMIT : $limit);
         $query->orderBy('connect_time');

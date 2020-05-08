@@ -2,7 +2,6 @@
 
 namespace app\controllers\api\internal;
 
-use app\classes\api\ApiPhone;
 use app\classes\Assert;
 use app\classes\HttpClient;
 use app\exceptions\ModelValidationException;
@@ -89,6 +88,7 @@ class VoipController extends ApiInternalController
         $requestData = $this->requestData;
 
         $dateTimeRegexp = '/^(\d{4}-\d{2}-\d{2})( \d{2}:\d{2}:\d{2})?$/';
+        $dateTimeStrongRegexp = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
 
         $model = DynamicModel::validateData(
             $requestData,
@@ -115,8 +115,6 @@ class VoipController extends ApiInternalController
             throw new InvalidParamException('fields from_datetime and to_datetime must be filled');
         }
 
-        $result = [];
-
         $clientAccount = ClientAccount::findOne(['id' => $model->account_id]);
         Assert::isObject($clientAccount, 'ClientAccount#' . $model->account_id);
 
@@ -125,6 +123,18 @@ class VoipController extends ApiInternalController
         $tz = $model->is_in_utc ? $utcTz : $clientAccount->timezone;
 
         if ($model->from_datetime && $model->to_datetime) {
+
+            if (!preg_match($dateTimeStrongRegexp, $model->from_datetime)) {
+                $model->from_datetime .= ' 00:00:00';
+            }
+
+            if (!preg_match($dateTimeStrongRegexp, $model->to_datetime)) {
+                $model->to_datetime = (new \DateTimeImmutable($model->to_datetime))
+                    ->modify('+1 day')
+                    ->setTime(0, 0, 0)
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            }
+
             $firstDayOfDate = (new \DateTimeImmutable($model->from_datetime, $tz));
             $lastDayOfDate = (new \DateTimeImmutable($model->to_datetime, $tz));
 
@@ -133,8 +143,7 @@ class VoipController extends ApiInternalController
                 ->setDate($model->year, $model->month, $model->day ?: 1)
                 ->setTime(0, 0, 0);
 
-            $lastDayOfDate = $firstDayOfDate
-                ->setTime(23, 59, 59);
+            $lastDayOfDate = $firstDayOfDate->modify('+1 day');
 
             !$model->day && $lastDayOfDate = $lastDayOfDate->modify('last day of this month');
         }
