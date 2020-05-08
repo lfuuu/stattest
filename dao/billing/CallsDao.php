@@ -4,7 +4,9 @@ namespace app\dao\billing;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsAggr;
+use app\models\tariffication\Service;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
@@ -72,29 +74,28 @@ class CallsDao extends Singleton
     }
 
     /**
-     * @param int $accountId
+     * @param ClientAccount $clientAccount
      * @param string $number
-     * @param string $year
-     * @param string $month
+     * @param \DateTimeImmutable $firstDayOfDate
+     * @param \DateTimeImmutable $lastDayOfDate
      * @param int $offset
      * @param int $limit
-     * @return array
+     * @return Query
+     * @internal param string $year
+     * @internal param string $month
      */
-    public function getCalls($accountId, $number, $year, $month, $day, $offset = 0, $limit = 1000)
+    public function getCalls(ClientAccount $clientAccount, $number, \DateTimeImmutable $firstDayOfDate, \DateTimeImmutable $lastDayOfDate, $offset = 0, $limit = 1000)
     {
-        $firstDayOfDate = new DateTime;
-        $firstDayOfDate = $firstDayOfDate->setDate($year, $month, $day ?: 1);
-        $firstDayOfDate = $firstDayOfDate->setTime(0, 0, 0);
+        $tzOffest = $firstDayOfDate->getOffset();
 
-        $lastDayOfDate = clone $firstDayOfDate;
-        !$day && $lastDayOfDate = $lastDayOfDate->modify('last day of this month');
-        $lastDayOfDate = $lastDayOfDate->setTime(23, 59, 59);
+        $firstDayOfDate = $firstDayOfDate->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+        $lastDayOfDate = $lastDayOfDate->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
 
         $query = new Query;
 
         $query->select([
             'id',
-            'connect_time',
+            'connect_time' => ($tzOffest != 0 ? new Expression("connect_time + '" . $tzOffest . " second'::interval") : 'connect_time'),
             'src_number',
             'dst_number',
             new Expression("(CASE WHEN orig=false THEN 'in' ELSE 'out' END) AS direction"),
@@ -104,22 +105,7 @@ class CallsDao extends Singleton
         ]);
         $query->from(CallsRaw::tableName());
 
-        $clientAccount = ClientAccount::findOne($accountId);
-        Assert::isObject($clientAccount, 'ClientAccount#' . $accountId);
-
         $query->andWhere(['account_id' => $clientAccount->id]);
-
-        $regions = ArrayHelper::getColumn(
-            UsageVoip::find()
-                ->select('region')
-                ->client($clientAccount->client)
-                ->distinct()
-                ->all(),
-            'region'
-        );
-        if (count($regions)) {
-            $query->andWhere(['in', 'server_id', $regions]);
-        }
 
         $usageIds = UsageVoip::find()
             ->where([
@@ -135,6 +121,7 @@ class CallsDao extends Singleton
                 ->where([
                     'voip_number' => $number,
                     'client_account_id' => $clientAccount->id,
+                    'service_type_id' => ServiceType::ID_VOIP,
                 ])
                 ->select('id')
                 ->column();
@@ -158,7 +145,7 @@ class CallsDao extends Singleton
         $query->limit($limit > self::CALLS_MAX_LIMIT ? self::CALLS_MAX_LIMIT : $limit);
         $query->orderBy('connect_time');
 
-        return $query->all(CallsRaw::getDb());
+        return $query;
     }
 
 }
