@@ -300,12 +300,16 @@ class TariffPeriod extends ActiveRecord
 
         $checkCacheQuery1 = clone $activeQuery;
 
-        $key = self::tableName() . '_getList_' . md5($checkCacheQuery1->createCommand()->rawSql);
+        $key = self::tableName() . '_getList_' . md5($checkCacheQuery1->createCommand()->rawSql . implode(',', array_values($selectboxItems)));
 
         if ($firstRow = $checkCacheQuery1->one()) {
             $checkCacheQuery2 = clone $activeQuery;
 
-            $sqlDep = $checkCacheQuery2->select(new Expression('sum(tp.' . implode('+tp.', array_keys($firstRow->getAttributes())) . ')'))->createCommand()->rawSql;
+            $sqlDep = $checkCacheQuery2->select([
+                'sum' => new Expression('sum(tp.' . implode('+tp.', array_keys($firstRow->getAttributes())) . ')'),
+                'name' => new Expression('md5(group_concat(tariff.name))'),
+                'tariff_options' => new Expression('sum(period_days + count_of_validity_period + is_autoprolongation + is_charge_after_blocking + is_include_vat + tariff_status_id + tariff_person_id + coalesce(voip_group_id, 0) + is_default + is_postpaid + count_of_carry_period)'),
+            ])->createCommand()->rawSql;
 
             $dbDep = new DbDependency(['sql' => $sqlDep]);
             $tagDep = (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST]]));
@@ -314,27 +318,27 @@ class TariffPeriod extends ActiveRecord
 
         return \Yii::$app->cache->getOrSet($key, function () use ($activeQuery, $selectboxItems, $withTariffId) {
 
-                $defaultTariffPeriodId = null;
+            $defaultTariffPeriodId = null;
 
-                /** @var TariffPeriod $tariffPeriod */
-                foreach ($activeQuery->each(self::BATCH_SIZE_READ) as $tariffPeriod) {
-                    $tariff = $tariffPeriod->tariff;
-                    $status = $tariff->status; // @todo надо бы заджойнить таблицу status
+            /** @var TariffPeriod $tariffPeriod */
+            foreach ($activeQuery->each(self::BATCH_SIZE_READ) as $tariffPeriod) {
+                $tariff = $tariffPeriod->tariff;
+                $status = $tariff->status; // @todo надо бы заджойнить таблицу status
 
-                    if ($tariff->is_default && !$defaultTariffPeriodId && $status->id != TariffStatus::ID_ARCHIVE) {
-                        $defaultTariffPeriodId = $tariffPeriod->id;
-                    }
-
-                    if (!isset($selectboxItems[$status->name])) {
-                        $selectboxItems[$status->name] = [];
-                    }
-
-                    $selectboxItems[$status->name][$tariffPeriod->id] =
-                        (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') .
-                        ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName());
+                if ($tariff->is_default && !$defaultTariffPeriodId && $status->id != TariffStatus::ID_ARCHIVE) {
+                    $defaultTariffPeriodId = $tariffPeriod->id;
                 }
-                return $selectboxItems;
-            }, $chainDep ? 3600 * 24 * 30 : null, $chainDep);
+
+                if (!isset($selectboxItems[$status->name])) {
+                    $selectboxItems[$status->name] = [];
+                }
+
+                $selectboxItems[$status->name][$tariffPeriod->id] =
+                    (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') .
+                    ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName()) . ' №' . $tariffPeriod->tariff_id;
+            }
+            return $selectboxItems;
+        }, $chainDep ? 3600 * 24 * 30 : null, $chainDep);
 
     }
 
