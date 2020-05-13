@@ -7,6 +7,7 @@ use app\classes\adapters\Tele2Adapter;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
+use app\classes\api\ApiRobocall;
 use app\classes\api\ApiSipTrunk;
 use app\classes\api\ApiVpbx;
 use app\classes\api\ApiVps;
@@ -19,6 +20,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
+use app\models\important_events\ImportantEventsNames;
 use app\models\Invoice;
 use app\modules\async\classes\AsyncAdapter;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
@@ -161,8 +163,9 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
         $flags['isFreeNumberServer'] = FreeNumberAdapter::me()->isAvailable();
         $flags['isAsyncServer'] = AsyncAdapter::me()->isAvailable();
         $flags['isSipTrunkServer'] = ApiSipTrunk::me()->isAvailable();
-        $flags['isClientChangedServer'] = ClientChangedAmqAdapter::me()->isAvailable();
+//        $flags['isClientChangedServer'] = ClientChangedAmqAdapter::me()->isAvailable();
         $flags['is1CServer'] = defined('SYNC1C_UT_SOAP_URL') && SYNC1C_UT_SOAP_URL;
+        $flags['isRobocallServer'] = ApiRobocall::me()->isAvailable();
     }
 
     $isCoreServer = $flags['isCoreServer'];
@@ -178,8 +181,9 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     $isFreeNumberServer = $flags['isFreeNumberServer'];
     $isAsyncServer = $flags['isAsyncServer'];
     $isSipTrunkServer = $flags['isSipTrunkServer'];
-    $isClientChangedServer = $flags['isClientChangedServer'];
+//    $isClientChangedServer = $flags['isClientChangedServer'];
     $is1CServer = $flags['is1CServer'];
+    $isRobocallServer = $flags['isRobocallServer'];
     echo '. ';
 
 
@@ -882,6 +886,26 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         : EventQueue::API_IS_SWITCHED_OFF;
                     */
                     break;
+
+                case ImportantEventsNames::ZERO_BALANCE:
+                    $info = $isRobocallServer
+                        ? ApiRobocall::me()->addTaskByBlockAccount($param['account_id'], $param['value'])
+                        : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case ApiRobocall::EVENT_ADD_TR_CONTACT:
+                    if ($isRobocallServer) {
+                        $info = ApiRobocall::me()->addTransactionContact($param['task_id'], $param['account_id'], $param['robocall_id'], $param['phone'], $param['user_variables']);
+
+                        if (is_array($info)) {
+                            $info = print_r($info, true);
+                        }
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+
 
                 // --------------------------------------------
                 //
