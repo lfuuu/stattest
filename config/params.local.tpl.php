@@ -55,4 +55,8 @@ return [
 
     'nnpInfoServiceURL' => '', // http://reg10.mcntelecom.ru:8032/test/nnpcalc
 
+    'API_SERVER' => '', // 'https://api.mcn.ru/v2/rest',
+    'ROBOCALL_AUTH' => '', // ['method' => 'bearer', 'token' => 'xxx'],
+    'ROBOCALL_DEFAULT_PARAMS' => [], //['task_id' =>  100, 'account_id' => 10000, 'robocall_id' => 10],
+
 ];

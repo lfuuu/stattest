@@ -5,7 +5,9 @@ namespace app\classes\notification\processors;
 
 use app\classes\LkNotification;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\models\LkClientSettings;
 use app\models\LkNoticeSetting;
@@ -216,6 +218,10 @@ abstract class NotificationProcessor
                 'user_id' => \Yii::$app->user->id,
                 'is_set' => $isSet ? 1 : 0
             ] + $this->eventFields);
+
+        if ($isSet && $event == ImportantEventsNames::ZERO_BALANCE) {
+            EventQueue::go(ImportantEventsNames::ZERO_BALANCE, ['account_id' => $client->id, 'value' => $this->getValue(), 'limit' => $this->getLimit()]);
+        }
     }
 
     /**
