@@ -220,7 +220,7 @@ abstract class NotificationProcessor
             ] + $this->eventFields);
 
         if ($isSet && $event == ImportantEventsNames::ZERO_BALANCE) {
-            EventQueue::go(ImportantEventsNames::ZERO_BALANCE, ['account_id' => $client->id, 'value' => $this->getValue(), 'limit' => $this->getLimit()]);
+            EventQueue::go(ImportantEventsNames::ZERO_BALANCE, ['account_id' => $client->id, 'value' => round($this->getValue(), 2), 'limit' => $this->getLimit()]);
         }
     }
 
