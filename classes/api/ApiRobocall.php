@@ -133,7 +133,7 @@ class ApiRobocall extends Singleton
         }
 
         if (!$phone) {
-            return 'no phone';
+            return $account->contract->account_manager . ' - no phone';
         }
 
         EventQueue::go(self::EVENT_ADD_TR_CONTACT, $defaultParams + [
