@@ -422,6 +422,15 @@ class VoipController extends ApiInternalController
             $model->group_by
         );
 
-        return $query->all(DataRaw::getDb());
+        $result = [];
+        foreach ($query->each(100, DataRaw::getDb()) as $data) {
+            $data['cost'] = (double)$data['cost'];
+            $data['rate'] = (double)$data['rate'];
+
+            $result[] = $data;
+        }
+
+        return $result;
+
     }
 }
