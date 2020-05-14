@@ -107,29 +107,11 @@ class CallsDao extends Singleton
 
         $query->andWhere(['account_id' => $clientAccount->id]);
 
-        $usageIds = UsageVoip::find()
-            ->where([
-                'E164' => $number
-            ])
-            ->client($clientAccount->client)
-            ->select('id')
-            ->column();
+        $usageIds = UsageVoip::dao()->getUsageIdByNumber($number, $clientAccount);
 
-        $accountTariffIds = null;
-        if (!$usageIds) {
-            $accountTariffIds = AccountTariff::find()
-                ->where([
-                    'voip_number' => $number,
-                    'client_account_id' => $clientAccount->id,
-                    'service_type_id' => ServiceType::ID_VOIP,
-                ])
-                ->select('id')
-                ->column();
-        }
+        Assert::isTrue((bool)$usageIds, 'Number "' . $number . '" not found');
 
-        Assert::isTrue($usageIds || $accountTariffIds, 'Number "' . $number . '" not found');
-
-        $query->andWhere(['number_service_id' => $usageIds ?: $accountTariffIds]);
+        $query->andWhere(['number_service_id' => $usageIds]);
 
         if ($offset) {
             $query->offset($offset);

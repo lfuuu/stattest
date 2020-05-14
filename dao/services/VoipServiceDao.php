@@ -12,6 +12,8 @@ use app\models\UsageVoip;
 
 /**
  * Class VoipServiceDao
+ *
+ * @method static VoipServiceDao me($args = null)
  */
 class VoipServiceDao extends UsageDao
 {
@@ -52,10 +54,10 @@ class VoipServiceDao extends UsageDao
     public function getNextLineNumber()
     {
         return
-            (int) max(
+            (int)max(
                 Yii::$app->db->createCommand("SELECT MAX(CONVERT(E164,UNSIGNED INTEGER))+1 AS number FROM usage_voip WHERE LENGTH(E164) BETWEEN 4 AND 5 AND E164 NOT IN ('7495', '7499')")->queryScalar() ?: 1000,
                 Yii::$app->db->createCommand("SELECT MAX(CONVERT(voip_number,UNSIGNED INTEGER))+1 AS NUMBER FROM uu_account_tariff WHERE LENGTH(voip_number) BETWEEN 4 AND 5")->queryScalar() ?: 1000
-                );
+            );
     }
 
     /**
@@ -67,9 +69,9 @@ class VoipServiceDao extends UsageDao
     public function hasService(ClientAccount $client)
     {
         return UsageVoip::find()
-            ->client($client->client)
-            ->actual()
-            ->count() > 0;
+                ->client($client->client)
+                ->actual()
+                ->count() > 0;
     }
 
     /**
@@ -94,4 +96,34 @@ class VoipServiceDao extends UsageDao
 
     }
 
+    /**
+     * получаем список id услуг по номеру у клиента
+     *
+     * @param string $number
+     * @param ClientAccount $clientAccount
+     * @return array
+     */
+    public function getUsageIdByNumber($number, ClientAccount $clientAccount)
+    {
+        $usageIds = UsageVoip::find()
+            ->where([
+                'E164' => $number
+            ])
+            ->client($clientAccount->client)
+            ->select('id')
+            ->column();
+
+        if ($usageIds) {
+            return $usageIds;
+        }
+
+        return AccountTariff::find()
+            ->where([
+                'voip_number' => $number,
+                'client_account_id' => $clientAccount->id,
+                'service_type_id' => ServiceType::ID_VOIP,
+            ])
+            ->select('id')
+            ->column();
+    }
 }
