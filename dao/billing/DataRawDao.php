@@ -85,10 +85,11 @@ class DataRawDao extends Singleton
                     'quantity' => new Expression('SUM(quantity)'),
                 ]);
 
-                $exp->expression = $exp->expression . ', msisdn';
+                $groupExp = clone $exp;
+                $groupExp->expression .= ', msisdn';
 
-                $query->groupBy($exp);
-                $query->orderBy($exp);
+                $query->groupBy($groupExp);
+                $query->orderBy($groupExp);
             }
         }
 
