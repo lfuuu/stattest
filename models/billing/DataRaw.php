@@ -3,6 +3,7 @@
 namespace app\models\billing;
 
 use app\classes\model\ActiveRecord;
+use app\dao\billing\DataRawDao;
 use Yii;
 
 /**
@@ -58,6 +59,14 @@ class DataRaw extends ActiveRecord
             'mnc' => 'Оператор',
             'mcc' => 'Страна',
         ];
+    }
+
+    /**
+     * @return DataRawDao
+     */
+    public static function dao()
+    {
+        return DataRawDao::me();
     }
 
     /**
