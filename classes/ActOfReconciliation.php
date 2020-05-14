@@ -246,7 +246,7 @@ WHERE b.client_id = ' . $account->id . '
         $billBalanceDiff = $this->getBillBalanceDiff($account->id);
 
         if (abs($billBalanceDiff) < 0.05) {
-            $balance -= $billBalanceDiff;
+            $accountingBalance -= $billBalanceDiff;
         }
 
         $diffBalance = $accountingBalance - $balance;
