@@ -63,7 +63,7 @@ class DataRawDao extends Singleton
                 'charge_time' => ($tzOffest != 0 ? new Expression("charge_time + '" . $tzOffest . " second'::interval") : 'charge_time'),
                 'number' => 'msisdn',
                 'rate',
-                'cost' => new Exception('-cost'),
+                'cost' => new Expression('abs(cost)'),
                 'quantity',
             ]);
             $query->orderBy('charge_time');
@@ -72,7 +72,7 @@ class DataRawDao extends Singleton
             if ($group_by == 'number') {
                 $query->select([
                     'number' => 'msisdn',
-                    'cost' => new Expression('-SUM(cost)'),
+                    'cost' => new Expression('ABS(SUM(cost))'),
                     'quantity' => new Expression('SUM(quantity)'),
                 ]);
                 $query->groupBy('msisdn');
@@ -81,7 +81,7 @@ class DataRawDao extends Singleton
                 $query->addSelect([
                     'charge_time' => $exp,
                     'number' => 'msisdn',
-                    'cost' => new Expression('-SUM(cost)'),
+                    'cost' => new Expression('ABS(SUM(cost))'),
                     'quantity' => new Expression('SUM(quantity)'),
                 ]);
 
