@@ -326,12 +326,11 @@ class VoipController extends ApiInternalController
      *   summary="Мобильный интернет",
      *   operationId="Мобильный интернет",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",default=""),
-     *   @SWG\Parameter(name="__country_id",type="integer",description="идентификатор лицевого счёта",in="formData",default=""),
      *   @SWG\Parameter(name="number",type="string",description="номер телефона",in="formData",default=""),
      *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
-     *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "number", "year", "month", "day", "hour", "__country"}),
+     *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "number", "year", "month", "day", "hour"}),
      *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
      *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000",default="100"),
      *   @SWG\Response(
@@ -425,7 +424,10 @@ class VoipController extends ApiInternalController
         $result = [];
         foreach ($query->each(100, DataRaw::getDb()) as $data) {
             $data['cost'] = (double)$data['cost'];
-            $data['rate'] = (double)$data['rate'];
+
+            if (isset($data['rate'])) {
+                $data['rate'] = (double)$data['rate'];
+            }
 
             $result[] = $data;
         }
