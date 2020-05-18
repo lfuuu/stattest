@@ -311,6 +311,29 @@ class NumberRange extends ActiveRecord
         static $_cache = [];
 
         if (!isset($_cache[$countryCode][$cityId])) {
+
+            $cache = \Yii::$app->cache;
+
+            $data = $cache->get('ndcdata');
+
+            if (!$data) {
+                self::_fillNdcData();
+                $data = $cache->get('ndcdata');
+            }
+
+            if ($data) {
+                if ($cityId) {
+                    $dd = $data['with_city_id'][$countryCode][$ndcTypeId][$cityId];
+                } else {
+                    $dd = array_unique($data['without_city_id'][$countryCode][$ndcTypeId]);
+                }
+
+                if (!$dd) {
+                    $dd = [];
+                }
+                return array_combine($dd, $dd);
+            }
+
             $where = [
                 'country_code' => $countryCode,
                 'ndc_type_id' => $ndcTypeId,
@@ -329,6 +352,37 @@ class NumberRange extends ActiveRecord
         }
 
         return $_cache[$countryCode][$cityId];
+    }
+
+    private static function _fillNdcData()
+    {
+        $dataAll = [];
+        $dataWithCity = [];
+
+        $rows = NumberRange::find()
+            ->select(['country_code', 'city_id', 'ndc_type_id', 'ndc_str'])
+            ->distinct()
+            ->where(['is_active' => true/*, 'country_code' => Country::RUSSIA*/])
+            ->orderBy([
+                'country_code' => SORT_ASC,
+                'ndc_type_id' => SORT_ASC,
+                'ndc_str' => SORT_ASC,
+            ])->asArray()->all();
+
+        foreach ($rows as $row) {
+            if (!isset($dataAll[$row['country_code']][$row['ndc_type_id']])) {
+                $dataAll[$row['country_code']][$row['ndc_type_id']] = [];
+            }
+
+            $dataAll[$row['country_code']][$row['ndc_type_id']][] = $row['ndc_str'];
+
+            if ($row['city_id']) {
+                $dataWithCity[$row['country_code']][$row['ndc_type_id']][$row['city_id']][] = $row['ndc_str'];
+            }
+        }
+
+        $cache = \Yii::$app->cache;
+        $cache->set('ndcdata', ['with_city_id' => $dataWithCity, 'without_city_id' => $dataAll]);
     }
 
     /**
