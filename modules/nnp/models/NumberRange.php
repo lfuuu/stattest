@@ -165,6 +165,16 @@ class NumberRange extends ActiveRecord
     }
 
     /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
+    public static function getDbSlave()
+    {
+        return Yii::$app->dbPgNnpSlave;
+    }
+
+    /**
      * @return string
      */
     public function getUrl()
@@ -348,7 +358,7 @@ class NumberRange extends ActiveRecord
                 ->where($where)
                 ->indexBy('ndc_str')
                 ->orderBy(['ndc_str' => SORT_ASC])
-                ->column();
+                ->column(NumberRange::getDbSlave());
         }
 
         return $_cache[$countryCode][$cityId];
@@ -367,7 +377,7 @@ class NumberRange extends ActiveRecord
                 'country_code' => SORT_ASC,
                 'ndc_type_id' => SORT_ASC,
                 'ndc_str' => SORT_ASC,
-            ])->asArray()->all();
+            ])->asArray()->all(NumberRange::getDbSlave());
 
         foreach ($rows as $row) {
             if (!isset($dataAll[$row['country_code']][$row['ndc_type_id']])) {
@@ -391,12 +401,14 @@ class NumberRange extends ActiveRecord
      */
     public static function getByNumber($number)
     {
+        NumberRange::setPgTimeout(NumberRange::PG_CALCULATE_RESOURCE_TIMEOUT, NumberRange::getDbSlave());
+
         return NumberRange::find()
             ->andWhere(['is_active' => true])
             ->andWhere(['<=', 'full_number_from', $number])
             ->andWhere(['>=', 'full_number_to', $number])
             ->orderBy(new Expression('ndc IS NOT NULL DESC'))// чтобы большой диапазон по всей стране типа 0000-9999 был в конце
-            ->one();
+            ->one(NumberRange::getDbSlave());
     }
 
     /**
