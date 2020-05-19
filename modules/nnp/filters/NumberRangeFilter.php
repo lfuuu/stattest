@@ -62,7 +62,7 @@ class NumberRangeFilter extends NumberRange
         $numberRangeTableName = NumberRange::tableName();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'db' => NumberRange::getDb(),
+            'db' => NumberRange::getDbSlave(),
         ]);
 
         $this->country_code && $query->andWhere([$numberRangeTableName . '.country_code' => $this->country_code]);
