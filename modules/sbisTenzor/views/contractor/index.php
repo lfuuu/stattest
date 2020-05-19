@@ -5,7 +5,7 @@ use app\models\ClientAccount;
 use app\modules\sbisTenzor\classes\ContractorInfo;
 use app\modules\sbisTenzor\classes\EdfOperator;
 use app\modules\sbisTenzor\classes\SBISExchangeStatus;
-use app\modules\sbisTenzor\models\SBISContractor;
+use app\modules\sbisTenzor\helpers\SBISInfo;
 use yii\data\ActiveDataProvider;
 use yii\widgets\Breadcrumbs;
 use app\classes\grid\GridView;
@@ -37,12 +37,22 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
+            'label' => 'ID',
+            'value'     => function (ClientAccount $model) {
+                return $model->id;
+            },
+        ],
+        [
             'attribute' => 'contragent.name_full',
             'label' => 'Контагент',
             'format' => 'html',
             'value'     => function (ClientAccount $model) {
                 $text = $model->contragent->name_full;
-                return Html::a($text, $model->getUrl());
+                if ($branchCode = $model->getBranchCode()) {
+                    $branchCode = sprintf(' (Код филиала: "%s")', $branchCode);
+                }
+
+                return sprintf('%s, %s%s', $model->contragent->id, Html::a($text, $model->getUrl()), $branchCode);
             },
         ],
         [
@@ -93,12 +103,12 @@ echo GridView::widget([
             'label' => 'Оператор',
             'format' => 'html',
             'value'     => function (ClientAccount $model) {
-                $contractor = SBISContractor::findOne(['account_id' => $model->id]);
+                $contractor = SBISInfo::getPreparedContractor($model);
                 if (!$contractor) {
                     return '';
                 }
 
-                $code = substr($contractor->exchange_id, 0, 3);
+                $code = substr($contractor->getEdfId(), 0, 3);
                 $operator = new EdfOperator($code);
 
                 return Html::tag('a',

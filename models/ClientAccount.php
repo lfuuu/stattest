@@ -567,6 +567,14 @@ class ClientAccount extends HistoryActiveRecord
     /**
      * @return string
      */
+    public function getBranchCode()
+    {
+        return $this->contract->contragent->branch_code ? : null;
+    }
+
+    /**
+     * @return string
+     */
     public function getSigner_position()
     {
         return $this->contract->contragent->position;

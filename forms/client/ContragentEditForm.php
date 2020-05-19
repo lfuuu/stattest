@@ -43,6 +43,7 @@ class ContragentEditForm extends Form
         $inn,
         $inn_euro,
         $kpp,
+        $branch_code,
         $tax_registration_reason,
         $position,
         $fio,
@@ -86,6 +87,7 @@ class ContragentEditForm extends Form
                     'inn',
                     'inn_euro',
                     'kpp',
+                    'branch_code',
                     'tax_registration_reason',
                     'position',
                     'fio',
@@ -106,6 +108,7 @@ class ContragentEditForm extends Form
                     'inn',
                     'inn_euro',
                     'kpp',
+                    'branch_code',
                     'tax_registration_reason',
                     'position',
                     'fio',
@@ -126,6 +129,7 @@ class ContragentEditForm extends Form
                     'inn',
                     'inn_euro',
                     'kpp',
+                    'branch_code',
                     'tax_registration_reason',
                     'position',
                     'fio',
@@ -187,7 +191,9 @@ class ContragentEditForm extends Form
             [['super_id', 'country_id', 'opf_id', 'sale_channel_id'], 'integer'],
             ['lang_code', 'string'],
             [['passport_serial', 'passport_number'], PassportValuesValidator::class],
-            [['passport_serial', 'passport_number'], PassportNumberUniqValidator::class]
+            [['passport_serial', 'passport_number'], PassportNumberUniqValidator::class],
+            [['branch_code'], 'string', 'max' => 3],
+            [['branch_code'], 'default', 'value' => null],
         ];
 
         // Валидация КПП, состоящая из 9 цифр, для контрагентов юр.лиц. со страной Россия
@@ -359,6 +365,7 @@ class ContragentEditForm extends Form
         $contragent->inn = $this->inn;
         $contragent->inn_euro = $this->inn_euro;
         $contragent->kpp = $this->kpp;
+        $contragent->branch_code = $this->branch_code;
         $contragent->tax_registration_reason = $this->tax_registration_reason;
         $contragent->position = $this->position;
         $contragent->fio = $this->fio;

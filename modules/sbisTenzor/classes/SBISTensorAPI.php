@@ -390,19 +390,26 @@ class SBISTensorAPI
      *
      * @param string $inn
      * @param string $kpp
+     * @param string $branchCode
      * @return array
      * @throws BadRequestHttpException
      * @throws SBISTensorException
      * @throws \yii\base\Exception
      */
-    public function getContractorInfoLegal($inn, $kpp)
+    public function getContractorInfoLegal($inn, $kpp, $branchCode = '')
     {
+        $info = [
+            'ИНН' => $inn,
+            'КПП' => $kpp,
+        ];
+
+        if ($branchCode) {
+            $info['КодФилиала'] = strval($branchCode);
+        }
+
         $data = [
             'Участник' => [
-                'СвЮЛ' => [
-                    'ИНН' => $inn,
-                    'КПП' => $kpp,
-                ],
+                'СвЮЛ' => $info,
             ],
         ];
 
@@ -489,7 +496,7 @@ class SBISTensorAPI
                 break;
 
             case ClientContragent::LEGAL_TYPE:
-                $result = $this->getContractorInfoLegal($client->getInn(), $client->getKpp());
+                $result = $this->getContractorInfoLegal($client->getInn(), $client->getKpp(), $client->getBranchCode());
                 break;
 
             default:
@@ -539,6 +546,23 @@ class SBISTensorAPI
             ($result['СвЮЛ']['КПП'] !== $client->getKpp())
         ) {
             throw new \LogicException(sprintf('КПП ЮЛ %s не совпадает с КПП ЮЛ в системе СБИС: %s, %s', $client->getKpp(), $result['СвЮЛ']['КПП'], $result['СвЮЛ']['Название']));
+        }
+
+        // Код филиала
+        if (
+            array_key_exists('СвЮЛ', $result) &&
+            $client->getBranchCode() &&
+            ($result['СвЮЛ']['КодФилиала'] !== $client->getBranchCode())
+        ) {
+            throw new \LogicException(
+                sprintf(
+                    'Клиент #%s, %s: код филиала ЮЛ "%s" не совпадает с Кодом филиала ЮЛ в системе СБИС: "%s"',
+                    $client->id,
+                    $result['СвЮЛ']['Название'],
+                    $client->getBranchCode(),
+                    $result['СвЮЛ']['КодФилиала']
+                )
+            );
         }
 
         return $result;
@@ -716,6 +740,10 @@ class SBISTensorAPI
                 'КПП' => $document->clientAccount->contragent->kpp,
                 'Название' => strval($document->clientAccount->contragent->name_full),
             ];
+
+            if ($branchCode = $document->clientAccount->getBranchCode()) {
+                $documentData['Контрагент']['СвЮЛ']['КодФилиала'] = $branchCode;
+            }
         } else {
             $documentData['Контрагент']['СвФЛ'] = [
                 'ИНН' => $document->clientAccount->contragent->inn,
