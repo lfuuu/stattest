@@ -1076,7 +1076,7 @@ class m_stats extends IModule{
 			ON
 				`cl`.`client` = CAST(`v`.`client` AS CHAR)
 		";
-		$ret = $db->AllRecords($query,null,MYSQL_ASSOC);
+		$ret = $db->AllRecords($query,null,MYSQLI_ASSOC);
 
 		$design->assign('e164',$ret);
 		$design->AddMain('stats/voip_e164_free.tpl');
@@ -1106,7 +1106,7 @@ class m_stats extends IModule{
 		";
 		// </editor-fold>
 		$db->Query($query_clients);
-		while($row=$db->NextRecord(MYSQL_ASSOC)){
+		while($row=$db->NextRecord(MYSQLI_ASSOC)){
 			$clients[$row['client_id']] = array(
 				'client'=>$row['client'],
 				'id'=>$row['client_id'],
@@ -1141,7 +1141,7 @@ class m_stats extends IModule{
 			'rows'=>array(),
 			'total'=>0
 		);
-		while($row = $thiamis->NextRecord(MYSQL_ASSOC)){
+		while($row = $thiamis->NextRecord(MYSQLI_ASSOC)){
 			$stat['rows'][] = $row;
 			$stat['total'] += $row['count'];
 		}
@@ -1309,7 +1309,7 @@ class m_stats extends IModule{
 			'V'=>array(),
 			'C'=>array()
 		);
-		while($row=$db->NextRecord(MYSQL_ASSOC)){
+		while($row=$db->NextRecord(MYSQLI_ASSOC)){
 			if(!isset($clients[$row['id']])){
 				$clients[$row['id']] = array(
 					'id'=>$row['id'],
@@ -1574,7 +1574,7 @@ class m_stats extends IModule{
                         ORDER BY
                             `depart`,
                             `name`
-                    ", null, MYSQL_ASSOC) as $id => $d)
+                    ", null, MYSQLI_ASSOC) as $id => $d)
         {
             $dDoers[$d["id"]] = $d["name"];
             $all_doers[] = $d["id"];
@@ -1660,7 +1660,7 @@ class m_stats extends IModule{
         $sumBonus = 0;
         $count = 0;
         
-        while($row=$db->NextRecord(MYSQL_ASSOC)){
+        while($row=$db->NextRecord(MYSQLI_ASSOC)){
             if(!isset($ret[$row['date']])){
                 $ret[$row['date']] = array('rowspan'=>0,'doers'=>array());
             }
@@ -1726,11 +1726,11 @@ class m_stats extends IModule{
                             pk & 17703 #2047
                         ORDER BY
                             `name`
-                    ", null, MYSQL_ASSOC)
+                    ", null, MYSQLI_ASSOC)
                     )
             );
         
-            $design->assign('tt_states_list',$db->AllRecords('select * from tt_states','id',MYSQL_ASSOC));
+            $design->assign('tt_states_list',$db->AllRecords('select * from tt_states','id',MYSQLI_ASSOC));
         
             $design->AddMain('stats/sale_channel_report.tpl');
         }
@@ -3269,7 +3269,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 						`cr`.`depart`,
 						`cr`.`name`
 				";
-				$s['doers']=$db->AllRecords($query,null,MYSQL_ASSOC);
+				$s['doers']=$db->AllRecords($query,null,MYSQLI_ASSOC);
 			}
             }
             $design->assign("listName", $sTypes[$listType]["title"]);

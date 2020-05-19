@@ -108,7 +108,7 @@ class BalanceSimple
                 bill_date desc,
                 bill_no desc
             '.$sqlLimit.'
-        ','',MYSQL_ASSOC);
+        ','',MYSQLI_ASSOC);
 
         $R2 = $db->AllRecords($q='
             select
@@ -135,7 +135,7 @@ class BalanceSimple
             desc
                 '.$sqlLimit.'
             ',
-        '',MYSQL_ASSOC);
+        '',MYSQLI_ASSOC);
 
         $R=array();
         foreach($R1 as &$r){

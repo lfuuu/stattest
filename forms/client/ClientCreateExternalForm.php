@@ -197,7 +197,7 @@ class ClientCreateExternalForm extends Form
      */
     public function validatePartnerId($attr)
     {
-        $partnerId = $this->$attr;
+        $partnerId = $this->{$attr};
 
         if (!$partnerId) {
             return;

@@ -2,7 +2,7 @@
 
 class m_tarifs{
 
-    function m_tarifs(){
+    function __construct(){
     }
 
     function GetPanel($fixclient){

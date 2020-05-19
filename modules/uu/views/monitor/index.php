@@ -19,7 +19,7 @@ use app\modules\uu\filter\AccountLogMonitorFilter;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\monitor\AccountLogPeriodMonitor;
 use app\modules\uu\monitor\AccountLogResourceMonitor;
 use app\modules\uu\monitor\AccountLogSetupMonitor;
@@ -41,8 +41,8 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
 <?php
-/** @var Resource[][] $resourcesGroupedByServiceType */
-$resourcesGroupedByServiceType = Resource::getGroupedByServiceType();
+/** @var ResourceModel[][] $resourcesGroupedByServiceType */
+$resourcesGroupedByServiceType = ResourceModel::getGroupedByServiceType();
 
 $accountLogPeriodTableName = AccountLogPeriod::tableName();
 

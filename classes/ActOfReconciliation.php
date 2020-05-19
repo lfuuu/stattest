@@ -243,6 +243,12 @@ WHERE b.client_id = ' . $account->id . '
         $balance = $account->billingCounters->realtimeBalance;
         $accountingBalance = $account->balance;
 
+        $billBalanceDiff = $this->getBillBalanceDiff($account->id);
+
+        if (abs($billBalanceDiff) < 0.05) {
+            $accountingBalance -= $billBalanceDiff;
+        }
+
         $diffBalance = $accountingBalance - $balance;
 
         $clientTimeZone = new \DateTimeZone($account->timezone_name);
@@ -449,5 +455,14 @@ WHERE b.client_id = ' . $account->id . '
                 $db->createCommand()->batchInsert(BalanceByMonth::tableName(), ['account_id', 'year', 'month', 'balance'], $data)->execute();
             });
         }
+    }
+
+    public function getBillBalanceDiff($accountId)
+    {
+        $billSum = round(Bill::find()->where(['client_id' => $accountId])->sum('sum'), 2);
+        $uBillSum = round(\app\modules\uu\models\Bill::find()->where(['client_account_id' => $accountId])->sum('price'), 2);
+
+        return $billSum - $uBillSum;
+
     }
 }

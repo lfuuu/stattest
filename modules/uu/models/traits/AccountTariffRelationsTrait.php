@@ -17,7 +17,7 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\AccountTrouble;
 use app\modules\uu\models\helper\AccountTariffHelper;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
@@ -27,7 +27,7 @@ use yii\db\Expression;
 /**
  * @property-read ClientAccount $clientAccount
  * @property-read ServiceType $serviceType
- * @property-read Resource[] $resources
+ * @property-read ResourceModel[] $resources
  * @property-read Region $region
  * @property-read City $city
  * @property-read \app\models\Number $number
@@ -221,7 +221,7 @@ trait AccountTariffRelationsTrait
      */
     public function getResources()
     {
-        return $this->hasMany(Resource::class, ['service_type_id' => 'service_type_id'])
+        return $this->hasMany(ResourceModel::class, ['service_type_id' => 'service_type_id'])
             ->indexBy('id')
             ->orderBy(['id' => SORT_ASC]);
     }
@@ -296,7 +296,7 @@ trait AccountTariffRelationsTrait
         return $this->hasMany(AccountLogResource::class, ['account_tariff_id' => 'id'])
             ->joinWith('tariffResource')
             ->where([
-                'NOT', [TariffResource::tableName() . '.resource_id' => Resource::getReaderIds()], // только опции
+                'NOT', [TariffResource::tableName() . '.resource_id' => ResourceModel::getReaderIds()], // только опции
             ]);
     }
 
@@ -308,7 +308,7 @@ trait AccountTariffRelationsTrait
         return $this->hasMany(AccountLogResource::class, ['account_tariff_id' => 'id'])
             ->joinWith('tariffResource')
             ->where([
-                TariffResource::tableName() . '.resource_id' => Resource::getReaderIds(), // только трафик
+                TariffResource::tableName() . '.resource_id' => ResourceModel::getReaderIds(), // только трафик
             ]);
     }
 

@@ -31,7 +31,7 @@ class Db_map {
 	//variants - варианты для списков без связей
 	//hidden - скрывать
 	//translate - отображение из "таблица.поле" в человеческое название и комментарий
-	function Db_map($keys,$links,$types,$visible,$dblecho,$variants,$hidden,$translate,$postactions,$readonly,$order) {
+	function __construct($keys,$links,$types,$visible,$dblecho,$variants,$hidden,$translate,$postactions,$readonly,$order) {
 		$this->links=array();
 		foreach ($links as $v){
 			if (!preg_match('/([^.]+)\.([^.]+)/',$v[0],$m1) ||
@@ -423,7 +423,7 @@ class Db_map {
 };
 
 class Db_map_nispd extends Db_map {
-	function Db_map_nispd(){
+	function __construct(){
 		//ключевые поля. для каждой используемой таблицы обязательно указывать
 		$keys=array(
 				'usage_ip_ports'		=> 'id',
@@ -682,7 +682,7 @@ class Db_map_nispd extends Db_map {
 				'clients_vip'		=> array('client','router','email','phone','important_period'),
 				'usage_voip'		=> array('client','actual_from','actual_to','tech_voip_device_id','E164','no_of_lines','tarif'),
 				);
-		$this->Db_map($keys,$links,$types,$visible_in_list,$dblecho,$variants,$hidden,$translate,$postactions,$readonly,$order);
+		parent::__construct($keys,$links,$types,$visible_in_list,$dblecho,$variants,$hidden,$translate,$postactions,$readonly,$order);
 		$this->SetErrorMode(1,0);
 	}
 }

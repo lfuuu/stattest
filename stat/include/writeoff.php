@@ -436,7 +436,7 @@ function get_all_services($client,$client_id,$filter_connecting=0,$S = array()) 
                 group by
                     A.id
             ");
-            while($r=$db->NextRecord(MYSQL_ASSOC)){
+            while($r=$db->NextRecord(MYSQLI_ASSOC)){
                 $r['service']=$service;
                 $r['client_id']=$client_id;
                 $R[]=$r;

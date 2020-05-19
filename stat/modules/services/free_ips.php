@@ -21,11 +21,11 @@ function get_free_nets($type,$node){
             AND  actual_to>NOW()
 	    ORDER BY INET_ATON(LEFT(net, LENGTH(net)-3)), RIGHT(net,2)";
 	    
-    $res=mysql_query($query) or die("Нет коннетка с базой");
+    $res=mysqli_query($query) or die("Нет коннетка с базой");
 
-    $count=mysql_num_rows($res)-1;
+    $count=mysqli_num_rows($res)-1;
    // printdbg($count);
-    $r=mysql_fetch_array($res);
+    $r=mysqli_fetch_array($res);
     $i=0;
     $nets=array();
     while ($count>0)
@@ -45,7 +45,7 @@ function get_free_nets($type,$node){
     		$ip_finish=long2ip($ip_long_finish);
     //		printdbg($ip_finish,'ip_finish');
     		
-    		while (($r=mysql_fetch_array($res)) and (ip2long(substr($r['net'],0,strlen($r['net'])-3))<=$ip_long_finish)){
+    		while (($r=mysqli_fetch_array($res)) and (ip2long(substr($r['net'],0,strlen($r['net'])-3))<=$ip_long_finish)){
     			$net[]=$r;
     //			printdbg($r);
     			$count--;	
@@ -55,7 +55,7 @@ function get_free_nets($type,$node){
     //		printdbg($net);
     		$i++;
     	}else {
-    	 	$r=mysql_fetch_array($res);
+    	 	$r=mysqli_fetch_array($res);
     	 	$count--;
     //	 	printdbg($r);
     //	 	printdbg($count,'count');

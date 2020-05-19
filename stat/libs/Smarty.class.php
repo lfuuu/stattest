@@ -1710,11 +1710,17 @@ class SmartyStat
      */
     function _dequote($string)
     {
-        if (($string{0} == "'" || $string{0} == '"') &&
-            $string{strlen($string)-1} == $string{0})
+        if (
+            (
+                substr($string, 0, 1) == "'" ||
+                substr($string, 0, 1) == '"'
+            ) &&
+                substr($string, strlen($string)-1, 1) == substr($string, 0, 1)
+        ) {
             return substr($string, 1, -1);
-        else
-            return $string;
+        }
+
+        return $string;
     }
 
 
@@ -1872,7 +1878,6 @@ class SmartyStat
         array_unshift($this->_config, $this->_config[0]);
 
         $_smarty_compile_path = $this->_get_compile_path($params['smarty_include_tpl_file']);
-
 
         if ($this->_is_compiled($params['smarty_include_tpl_file'], $_smarty_compile_path)
             || $this->_compile_resource($params['smarty_include_tpl_file'], $_smarty_compile_path))

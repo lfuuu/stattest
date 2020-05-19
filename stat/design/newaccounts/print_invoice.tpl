@@ -272,7 +272,7 @@
       </tr>
 {foreach from=$bill_lines item=row key=key}
       <tr>
-        <td>{if $is_four_order}Предварительная оплата<br>{/if}{$row.item}</td>
+        <td>{if $is_four_order}Предварительная оплата<br>{else}{$row.item}{/if}</td>
           {if $isChanges20171001}
               <td align="center">-</td>
           {/if}

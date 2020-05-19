@@ -11,7 +11,7 @@ class m_employeers {
 					array('Курьеры',		'couriers',	''),
 				);
 
-	function m_employeers(){	
+	function __construct(){
 		
 	
 	}

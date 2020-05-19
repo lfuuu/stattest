@@ -8,7 +8,7 @@ use app\models\ClientAccount;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
@@ -173,10 +173,10 @@ trait AccountTariffBoolTrait
     /**
      * Можно ли отменить последнюю смену количества ресурса
      *
-     * @param \app\modules\uu\models\Resource $resource
+     * @param ResourceModel $resource
      * @return bool
      */
-    public function isResourceCancelable(\app\modules\uu\models\Resource $resource)
+    public function isResourceCancelable(ResourceModel $resource)
     {
         if (!$this->isEditable()) {
             // услуга нередактируемая
@@ -207,10 +207,10 @@ trait AccountTariffBoolTrait
     /**
      * Можно ли поменять количество ресурса
      *
-     * @param \app\modules\uu\models\Resource $resource
+     * @param ResourceModel $resource
      * @return bool
      */
-    public function isResourceEditable(\app\modules\uu\models\Resource $resource)
+    public function isResourceEditable(ResourceModel $resource)
     {
         if (!$this->isEditable()) {
             // услуга нередактируемая
@@ -223,12 +223,12 @@ trait AccountTariffBoolTrait
         }
 
         /** @var \app\models\Number $number */
-        if ($resource->id == Resource::ID_VOIP_FMC && ($number = $this->number) && !$number->isFmcEditable()) {
+        if ($resource->id == ResourceModel::ID_VOIP_FMC && ($number = $this->number) && !$number->isFmcEditable()) {
             // Костыль для FMC. Редактируемость этого ресурса зависит от типа телефонного номера
             return false;
         }
 
-        if ($resource->id == Resource::ID_VOIP_MOBILE_OUTBOUND && ($number = $this->number) && !$number->isMobileOutboundEditable()) {
+        if ($resource->id == ResourceModel::ID_VOIP_MOBILE_OUTBOUND && ($number = $this->number) && !$number->isMobileOutboundEditable()) {
             // Костыль для Исх.Моб.Связь. Редактируемость этого ресурса зависит от типа телефонного номера
             return false;
         }

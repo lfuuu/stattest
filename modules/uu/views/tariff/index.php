@@ -23,7 +23,7 @@ use app\modules\uu\column\TariffStatusColumn;
 use app\modules\uu\column\TariffTagColumn;
 use app\modules\uu\column\TariffVoipGroupColumn;
 use app\modules\uu\filter\TariffFilter;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
@@ -389,9 +389,9 @@ switch ($serviceType->id) {
 }
 
 // столбцы с ресурсами
-$resources = Resource::findAll(['service_type_id' => $serviceType->id]);
+$resources = ResourceModel::findAll(['service_type_id' => $serviceType->id]);
 foreach ($resources as $resource) {
-    if (in_array($resource->id, [Resource::ID_VOIP_PACKAGE_CALLS, Resource::ID_VOIP_PACKAGE_CALLS])) {
+    if (in_array($resource->id, [ResourceModel::ID_VOIP_PACKAGE_CALLS, ResourceModel::ID_VOIP_PACKAGE_CALLS])) {
         continue;
     }
 

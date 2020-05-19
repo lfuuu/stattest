@@ -11,7 +11,7 @@ use app\modules\nnp\models\NdcType;
 use app\modules\transfer\components\services\PreProcessor;
 use app\modules\transfer\components\services\Processor;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use yii\base\InvalidCallException;
 use yii\base\InvalidParamException;
@@ -118,19 +118,19 @@ class VoipServiceTransfer extends BasicServiceTransfer
         $lineResource = new AccountTariffResourceLog;
         $lineResource->setAttributes([
             'amount' => $this->getService()->no_of_lines,
-            'resource_id' => Resource::ID_VOIP_LINE,
+            'resource_id' => ResourceModel::ID_VOIP_LINE,
         ]);
 
         $fmcResource = new AccountTariffResourceLog;
         $fmcResource->setAttributes([
             'amount' => 0,
-            'resource_id' => Resource::ID_VOIP_FMC,
+            'resource_id' => ResourceModel::ID_VOIP_FMC,
         ]);
 
         $mobileOutboudResource = new AccountTariffResourceLog;
         $mobileOutboudResource->setAttributes([
             'amount' => 0,
-            'resource_id' => Resource::ID_VOIP_MOBILE_OUTBOUND,
+            'resource_id' => ResourceModel::ID_VOIP_MOBILE_OUTBOUND,
         ]);
 
         return [

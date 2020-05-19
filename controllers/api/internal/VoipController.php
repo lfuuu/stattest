@@ -2,9 +2,12 @@
 
 namespace app\controllers\api\internal;
 
-use app\classes\api\ApiPhone;
+use app\classes\Assert;
 use app\classes\HttpClient;
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
+use app\models\billing\DataRaw;
+use app\models\ClientAccount;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
@@ -46,7 +49,7 @@ class VoipController extends ApiInternalController
      *   @SWG\Property(property="rate",type="number",description="стоимость минуты разговора")
      * ),
      * @SWG\Post(
-     *   tags={"Работа со звонками"},
+     *   tags={"Статистика"},
      *   path="/internal/voip/calls/",
      *   summary="Получение списка звонков",
      *   operationId="Получение списка звонков",
@@ -58,6 +61,9 @@ class VoipController extends ApiInternalController
      *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
      *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000",default="100"),
      *   @SWG\Parameter(name="is_with_nnp_info",type="integer",description="с NNP информацией",in="formData",default="0"),
+     *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
+     *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
+     *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
      *   @SWG\Response(
      *     response=200,
      *     description="данные о клиентах партнёра",
@@ -82,15 +88,21 @@ class VoipController extends ApiInternalController
     {
         $requestData = $this->requestData;
 
+        $dateTimeRegexp = '/^(\d{4}-\d{2}-\d{2})( \d{2}:\d{2}:\d{2})?$/';
+        $dateTimeStrongRegexp = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
+
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info'], 'integer'],
+                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info', 'is_in_utc'], 'integer'],
                 ['number', 'trim'],
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
                 ['offset', 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000],
+                ['is_in_utc', 'default', 'value' => 1],
+                ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
+                ['to_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['account_id', AccountIdValidator::class],
                 ['number', UsageVoipValidator::class, 'account_id_field' => 'account_id'],
             ]
@@ -100,18 +112,60 @@ class VoipController extends ApiInternalController
             throw new ExceptionValidationForm($model);
         }
 
-        $result = [];
-        foreach (
-            CallsRaw::dao()->getCalls(
-                $model->account_id,
-                $model->number,
-                $model->year,
-                $model->month,
-                $model->day,
-                $model->offset,
-                $model->limit
-            ) as $call
-        ) {
+        if (($model->from_datetime || $model->to_datetime) && (!$model->from_datetime || !$model->to_datetime)) {
+            throw new InvalidParamException('fields from_datetime and to_datetime must be filled');
+        }
+
+        $clientAccount = ClientAccount::findOne(['id' => $model->account_id]);
+        Assert::isObject($clientAccount, 'ClientAccount#' . $model->account_id);
+
+
+        $utcTz = (new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+        $tz = $model->is_in_utc ? $utcTz : $clientAccount->timezone;
+
+        if ($model->from_datetime && $model->to_datetime) {
+
+            if (!preg_match($dateTimeStrongRegexp, $model->from_datetime)) {
+                $model->from_datetime .= ' 00:00:00';
+            }
+
+            if (!preg_match($dateTimeStrongRegexp, $model->to_datetime)) {
+                $model->to_datetime = (new \DateTimeImmutable($model->to_datetime))
+                    ->modify('+1 day')
+                    ->setTime(0, 0, 0)
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            }
+
+            $firstDayOfDate = (new \DateTimeImmutable($model->from_datetime, $tz));
+            $lastDayOfDate = (new \DateTimeImmutable($model->to_datetime, $tz));
+
+        } else {
+            $firstDayOfDate = (new \DateTimeImmutable('now', $tz))
+                ->setDate($model->year, $model->month, $model->day ?: 1)
+                ->setTime(0, 0, 0);
+
+            $lastDayOfDate = $firstDayOfDate->modify('+1 day');
+
+            !$model->day && $lastDayOfDate = $lastDayOfDate->modify('last day of this month');
+        }
+
+        $diff = $firstDayOfDate->diff($lastDayOfDate);
+
+        if ($diff->m > 0 && $diff->d > 0) {
+            throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
+        }
+
+
+        $query = CallsRaw::dao()->getCalls(
+            $clientAccount,
+            $model->number,
+            $firstDayOfDate,
+            $lastDayOfDate,
+            $model->offset,
+            $model->limit
+        );
+
+        foreach ($query->each(100, CallsRaw::getDb()) as $call) {
             $call['cost'] = (double)$call['cost'];
             $call['rate'] = (double)$call['rate'];
 
@@ -134,7 +188,7 @@ class VoipController extends ApiInternalController
 
         $redis = \Yii::$app->redis;
 
-        if ($numberInfo = $redis->get('numberInfo:'.$number)) {
+        if ($numberInfo = $redis->get('numberInfo:' . $number)) {
             return unserialize($numberInfo);
         }
 
@@ -249,5 +303,136 @@ class VoipController extends ApiInternalController
         return $query
             ->asArray()
             ->column();
+    }
+
+
+    /**
+     * @SWG\Definition(
+     *   definition="data",
+     *   type="object",
+     *   required={"id", "connect_time", "src_number", "dst_number", "direction", "length", "cost", "rate"},
+     *   @SWG\Property(property="id",type="integer",description="идентификатор звонка"),
+     *   @SWG\Property(property="connect_time",type="date",description="дата начала звонка"),
+     *   @SWG\Property(property="src_number",type="string",description="номер А"),
+     *   @SWG\Property(property="dst_number",type="string",description="номер Б"),
+     *   @SWG\Property(property="direction",type="string",description="направление"),
+     *   @SWG\Property(property="length",type="integer",description="длительность звонка"),
+     *   @SWG\Property(property="cost",type="number",description="стоимость звонка"),
+     *   @SWG\Property(property="rate",type="number",description="стоимость минуты разговора")
+     * ),
+     * @SWG\Post(
+     *   tags={"Статистика"},
+     *   path="/internal/voip/data/",
+     *   summary="Мобильный интернет",
+     *   operationId="Мобильный интернет",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",default=""),
+     *   @SWG\Parameter(name="number",type="string",description="номер телефона",in="formData",default=""),
+     *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
+     *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
+     *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
+     *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "number", "year", "month", "day", "hour"}),
+     *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
+     *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000",default="100"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="данные о клиентах партнёра",
+     *     @SWG\Schema(
+     *       type="array",
+     *       @SWG\Items(
+     *         ref="#/definitions/data"
+     *       )
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionData()
+    {
+
+        $requestData = $this->requestData;
+
+        $dateTimeRegexp = '/^(\d{4}-\d{2}-\d{2})( \d{2}:\d{2}:\d{2})?$/';
+        $dateTimeStrongRegexp = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
+
+        $model = DynamicModel::validateData(
+            $requestData,
+            [
+                [['account_id', 'offset', 'limit', 'is_in_utc'], 'integer'],
+                ['number', 'trim'],
+                ['offset', 'default', 'value' => 0],
+                ['limit', 'default', 'value' => 1000],
+                ['is_in_utc', 'default', 'value' => 1],
+                ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
+                ['to_datetime', 'match', 'pattern' => $dateTimeRegexp],
+                ['account_id', AccountIdValidator::class],
+                ['number', UsageVoipValidator::class, 'account_id_field' => 'account_id', 'skipOnEmpty' => true],
+                ['group_by', 'in', 'range' => ['', 'none', 'number', 'year', 'month', 'day', 'hour', '__country']],
+            ]
+        );
+
+        if ($model->hasErrors()) {
+            throw new ExceptionValidationForm($model);
+        }
+
+        if (($model->from_datetime || $model->to_datetime) && (!$model->from_datetime || !$model->to_datetime)) {
+            throw new \InvalidArgumentException('fields from_datetime and to_datetime must be filled');
+        }
+
+        $clientAccount = ClientAccount::findOne(['id' => $model->account_id]);
+
+        $utcTz = (new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+        $tz = $model->is_in_utc ? $utcTz : $clientAccount->timezone;
+
+
+        if (!preg_match($dateTimeStrongRegexp, $model->from_datetime)) {
+            $model->from_datetime .= ' 00:00:00';
+        }
+
+        if (!preg_match($dateTimeStrongRegexp, $model->to_datetime)) {
+            $model->to_datetime = (new \DateTimeImmutable($model->to_datetime))
+                ->modify('+1 day')
+                ->setTime(0, 0, 0)
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        }
+
+        $firstDayOfDate = (new \DateTimeImmutable($model->from_datetime, $tz));
+        $lastDayOfDate = (new \DateTimeImmutable($model->to_datetime, $tz));
+
+        $diff = $firstDayOfDate->diff($lastDayOfDate);
+
+        if ($diff->m > 0 && $diff->d > 0) {
+            throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
+        }
+
+        $query = DataRaw::dao()->getData(
+            $clientAccount,
+            $model->number,
+            $firstDayOfDate,
+            $lastDayOfDate,
+            $model->offset,
+            $model->limit,
+            $model->group_by
+        );
+
+        $result = [];
+        foreach ($query->each(100, DataRaw::getDb()) as $data) {
+            $data['cost'] = (double)$data['cost'];
+
+            if (isset($data['rate'])) {
+                $data['rate'] = (double)$data['rate'];
+            }
+
+            $result[] = $data;
+        }
+
+        return $result;
+
     }
 }

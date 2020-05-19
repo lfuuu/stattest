@@ -22,7 +22,7 @@ require_once('gd_image.inc.php');
 define('JPG_VERSION','3.5.0b1');
 
 // Minimum required PHP version
-define('MIN_PHPVERSION','5.1.0');
+define('MIN_PHPVERSION','7.1.0');
 
 // Special file name to indicate that we only want to calc
 // the image map in the call to Graph::Stroke() used
@@ -1364,7 +1364,7 @@ class Graph {
 
         // Now reconstruct any user URL argument
         reset($_GET);
-        while( list($key,$value) = each($_GET) ) {
+        foreach ($_GET as $key => $value) {
             if( is_array($value) ) {
                 foreach ( $value as $k => $v ) {
                     $urlarg .= '&amp;'.$key.'%5B'.$k.'%5D='.urlencode($v);
@@ -1379,7 +1379,7 @@ class Graph {
         // but there is little else we can do. One idea for the
         // future might be recreate the POST header in case.
         reset($_POST);
-        while( list($key,$value) = each($_POST) ) {
+        foreach ($_POST as $key => $value) {
             if( is_array($value) ) {
                 foreach ( $value as $k => $v ) {
                     $urlarg .= '&amp;'.$key.'%5B'.$k.'%5D='.urlencode($v);
@@ -5217,8 +5217,8 @@ class LinearScale {
     function __get($name) {
         $variable_name = '_' . $name; 
 
-        if (isset($this->$variable_name)) {
-            return $this->$variable_name * SUPERSAMPLING_SCALE;
+        if (isset($this->{$variable_name})) {
+            return $this->{$variable_name} * SUPERSAMPLING_SCALE;
         } else {
             JpGraphError::RaiseL('25132', $name);
         } 

@@ -6,7 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\modules\uu\models\AccountLogPeriod;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffResource;
 use DateTimeZone;
@@ -45,7 +45,7 @@ class AccountTariffVoipInternet extends Behavior
         // Пакет интернета
         /** @var TariffResource $internetTraffic */
         $tariff = $accountLogPeriod->tariffPeriod->tariff;
-        $internetTraffic = $tariff->getTariffResource(Resource::ID_VOIP_PACKAGE_INTERNET)->one(); // кол-во предоплаченных мегабайт
+        $internetTraffic = $tariff->getTariffResource(ResourceModel::ID_VOIP_PACKAGE_INTERNET)->one(); // кол-во предоплаченных мегабайт
 
         // добавить пакет сейчас
         EventQueue::go(

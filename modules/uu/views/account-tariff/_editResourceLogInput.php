@@ -12,7 +12,7 @@ use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariffResourceLog;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\TariffResource;
 use kartik\widgets\DatePicker;
 use yii\widgets\ActiveForm;
@@ -43,7 +43,7 @@ $actualTo = $accountTariff->getDefaultActualFrom();
 
 $accountTariffResourceLogTableName = AccountTariffResourceLog::tableName();
 $tariffResourceTableName = TariffResource::tableName();
-$resourceTableName = Resource::tableName();
+$resourceTableName = ResourceModel::tableName();
 ?>
 
 <div class="well tariffResources">
@@ -102,7 +102,7 @@ $resourceTableName = Resource::tableName();
     $helpConfluence = $this->render('//layouts/_helpConfluence', $accountTariff->serviceType->getHelpConfluence());
 
     $nResourceOptions = 0;
-    /** @var \app\modules\uu\models\Resource $resource */
+    /** @var ResourceModel $resource */
     foreach ($resources as $resource) :
         $nResourceOptions += (int)$resource->isOption();
         $tariffResource = isset($tariffResources[$resource->id]) ? $tariffResources[$resource->id] : null;

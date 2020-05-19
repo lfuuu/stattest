@@ -14,25 +14,25 @@ echo "\n".date("r");
         left join tarifs_sms t on (t.id = u.tarif_id)
         where u.client = c.client and cast(now() as date) >= actual_from and cast(now() as date) <= actual_to and u.`status`= 'working'");
 
-        $thiamis = mysql_connect("thiamis.mcn.ru", 'sms_stat', 'yeeg5oxGa', true);
+        $thiamis = mysqli_connect("thiamis.mcn.ru", 'sms_stat', 'yeeg5oxGa', true);
         if(!$thiamis)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
-        $res = mysql_select_db("sms2", $thiamis);
+        $res = mysqli_select_db("sms2", $thiamis);
         if (!$res)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
-        $res = mysql_query("set names utf8",$thiamis);
+        $res = mysqli_query("set names utf8",$thiamis);
         if (!$res)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
-        $res = mysql_query("start transaction",$thiamis);
+        $res = mysqli_query("start transaction",$thiamis);
         if (!$res)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
-        $res = mysql_query("delete from sms_account",$thiamis);
+        $res = mysqli_query("delete from sms_account",$thiamis);
         if (!$res)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
         $query = "insert ignore into `sms_account`(`client_id`,`tarif_name`) values (";
         $cnt = 0;
@@ -43,13 +43,13 @@ echo "\n".date("r");
         $query = substr($query,0,strlen($query)-2);
 
         echo "\n".$query;
-        $res = mysql_query($query, $thiamis);
+        $res = mysqli_query($query, $thiamis);
         if (!$res)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
-        $res = mysql_query("commit",$thiamis);
+        $res = mysqli_query("commit",$thiamis);
         if (!$res)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 }catch(Exception $e)
 {
     echo "\nError: ".$e->GetMessage();

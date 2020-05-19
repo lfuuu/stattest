@@ -29,21 +29,21 @@ $query = "select `client_id` `sender`, `smses` `count`, `date` `date_hour` from 
     echo "\n\n".$query;
 
     try {
-        $thiamis = mysql_connect("thiamis.mcn.ru", 'sms_stat', 'yeeg5oxGa', true);
+        $thiamis = mysqli_connect("thiamis.mcn.ru", 'sms_stat', 'yeeg5oxGa', true);
         if(!$thiamis)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
-        mysql_select_db("sms2", $thiamis);
+        mysqli_select_db("sms2", $thiamis);
 
-        $res = mysql_query($query,$thiamis);
+        $res = mysqli_query($query,$thiamis);
         
         if (!$res)
-            throw new Exception(mysql_error());
+            throw new Exception(mysqli_error());
 
         $query_ = "insert ignore into `sms_stat`(`sender`,`count`,`date_hour`) values (";
         $query = $query_;
         $cnt = 0;
-        while($row=mysql_fetch_assoc($res)){
+        while($row=mysqli_fetch_assoc($res)){
             $query .= $row['sender'].','.$row['count'].',"'.$row['date_hour'].'"),(';
                 $cnt ++;
                 if(($len=strlen($query))>=QUERY_PACKET_SIZE_LIMIT){

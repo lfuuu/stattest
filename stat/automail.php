@@ -26,7 +26,7 @@ define("print_sql", 1);
 	$db->Query('select * from mail_letter where letter_state="ready"');
 	
 	
-	while($r = $db->NextRecord(MYSQL_ASSOC))
+	while($r = $db->NextRecord(MYSQLI_ASSOC))
 		$R[$r['job_id']][] = $r;
 	
 	foreach($R as $job_id=>$R2){

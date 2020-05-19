@@ -14,7 +14,7 @@ class m_send {
 					array('Состояние',	'default',	''),
 				);
 
-	function m_send(){	
+	function __construct(){
 		
 	
 	}

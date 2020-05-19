@@ -66,11 +66,11 @@ abstract class AbstractRelationship implements InterfaceRelationship
 	 */
 	static protected $valid_association_options = array('class_name', 'class', 'foreign_key', 'conditions', 'select', 'readonly', 'namespace');
 
+
 	/**
-	 * Constructs a relationship.
-	 *
+	 * AbstractRelationship constructor. Constructs a relationship.
 	 * @param array $options Options for the relationship (see {@link valid_association_options})
-	 * @return mixed
+	 * @throws RelationshipException
 	 */
 	public function __construct($options=array())
 	{
@@ -109,6 +109,16 @@ abstract class AbstractRelationship implements InterfaceRelationship
 	public function is_poly()
 	{
 		return $this->poly_relationship;
+	}
+
+	protected function set_keys($model_class_name, $override=false)
+	{
+		//infer from class_name
+		if (!$this->foreign_key || $override)
+			$this->foreign_key = array(Inflector::instance()->keyify($model_class_name));
+
+		if (!$this->primary_key || $override)
+			$this->primary_key = Table::load($model_class_name)->pk;
 	}
 
 	/**
@@ -187,11 +197,11 @@ abstract class AbstractRelationship implements InterfaceRelationship
 		foreach ($models as $model)
 		{
 			$matches = 0;
-			$key_to_match = $model->$model_values_key;
+			$key_to_match = $model->{$model_values_key};
 
 			foreach ($related_models as $related)
 			{
-				if ($related->$query_key == $key_to_match)
+				if ($related->{$query_key} == $key_to_match)
 				{
 					$hash = spl_object_hash($related);
 
@@ -300,7 +310,7 @@ abstract class AbstractRelationship implements InterfaceRelationship
 
 	protected function create_conditions_from_keys(Model $model, $condition_keys=array(), $value_keys=array())
 	{
-		$condition_string = implode('_and_', $condition_keys);
+		$condition_string = implode('_and_', isset($condition_keys) ? $condition_keys : []);
 		$condition_values = array_values($model->get_values_for($value_keys));
 
 		// return null if all the foreign key values are null so that we don't try to do a query like "id is null"
@@ -447,10 +457,9 @@ class HasMany extends AbstractRelationship
 	private $through;
 
 	/**
-	 * Constructs a {@link HasMany} relationship.
-	 *
+	 * HasMany constructor. Constructs a {@link HasMany} relationship.
 	 * @param array $options Options for the association
-	 * @return HasMany
+	 * @throws RelationshipException
 	 */
 	public function __construct($options=array())
 	{
@@ -469,16 +478,6 @@ class HasMany extends AbstractRelationship
 
 		if (!$this->class_name)
 			$this->set_inferred_class_name();
-	}
-
-	protected function set_keys($model_class_name, $override=false)
-	{
-		//infer from class_name
-		if (!$this->foreign_key || $override)
-			$this->foreign_key = array(Inflector::instance()->keyify($model_class_name));
-
-		if (!$this->primary_key || $override)
-			$this->primary_key = Table::load($model_class_name)->pk;
 	}
 
 	public function load(Model $model)
@@ -637,6 +636,8 @@ class HasAndBelongsToMany extends AbstractRelationship
 {
 	public function __construct($options=array())
 	{
+		parent::__construct($options);
+
 		/* options =>
 		 *   join_table - name of the join table if not in lexical order
 		 *   foreign_key -
@@ -701,7 +702,7 @@ class BelongsTo extends AbstractRelationship
 			$this->primary_key = array(Table::load($this->class_name)->pk[0]);
 		}
 
-		return $this->$name;
+		return $this->{$name};
 	}
 
 	public function load(Model $model)

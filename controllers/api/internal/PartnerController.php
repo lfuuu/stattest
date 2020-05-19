@@ -2,10 +2,8 @@
 
 namespace app\controllers\api\internal;
 
-use Yii;
 use app\classes\ApiInternalController;
 use app\models\ClientAccount;
-use app\models\Business;
 use app\dao\PartnerDao;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;

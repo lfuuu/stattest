@@ -4,24 +4,24 @@
 class minDB
 {
     private $link = null;
-    public function minDB($host, $user, $pass, $db)
+    public function __construct($host, $user, $pass, $db)
     {
-        $this->link = mysql_connect($host, $user, $pass, true);
+        $this->link = mysqli_connect($host, $user, $pass, true);
         if(!$this->link)
             throw new Exception("Connect error");
-        mysql_select_db($db, $this->link);
+        mysqli_select_db($db, $this->link);
     }
 
 
     function Row($sql)
     {
         $q = $this->query($sql);
-        return mysql_fetch_assoc($q);
+        return mysqli_fetch_assoc($q);
     }
 
     function Value($sql)
     {
-        $q = Row($sql);
+        $q = $this->Row($sql);
         $ks = array_keys($q);
         return $q[$ks[0]];
     }
@@ -30,7 +30,7 @@ class minDB
     {
         $q = $this->query($sql);
         $r = array();
-        while($v = mysql_fetch_assoc($q))
+        while($v = mysqli_fetch_assoc($q))
         {   
             $r[]  = $v; 
         }   
@@ -42,11 +42,11 @@ class minDB
         if(defined("view_sql"))
             echo "\n".$sql;
 
-        $res = mysql_query($sql, $this->link);
+        $res = mysqli_query($sql, $this->link);
 
         if(!$res) {
 
-            $errorStr = "\n-------------------------------------\nError: \n".mysql_error()."\n------ in sql ------\n".$sql."\n";
+            $errorStr = "\n-------------------------------------\nError: \n".mysqli_error()."\n------ in sql ------\n".$sql."\n";
             try {
                 throw new Exception;
             } catch(Exception $e) {
@@ -60,12 +60,12 @@ class minDB
 
     function Param(&$s, $name, $value)
     {
-        $s = str_replace("?".$name, "\"".mysql_real_escape_string($value)."\"", $s);
+        $s = str_replace("?".$name, "\"".mysqli_real_escape_string($value)."\"", $s);
     }
 
     function escape($t)
     {
-        return mysql_real_escape_string($t);
+        return mysqli_real_escape_string($t);
     }
 
     function q($q)

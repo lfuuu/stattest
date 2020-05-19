@@ -18,7 +18,7 @@ require_once('jpgraph/jpgraph_barcode.php');
 class ParseArgs {
     var $argc,$argv;
 
-    function ParseArgs() {
+    function __construct() {
         // Get command line argument
         $this->argv = ($_SERVER['argv']);
         $this->argc = ($_SERVER['argc']);

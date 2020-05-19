@@ -119,6 +119,7 @@ return [
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,
         'dbPgNnp' => $dbPgNnp,
+        'dbPgNnpSlave' => $dbPgSlave,
         'dbPgCallTracking' => $dbPgCallTracking,
         'dbPgNfDump' => $dbPgNfDump,
         'dbPg' => $dbPg,

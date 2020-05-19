@@ -168,6 +168,7 @@ $config = [
             'url' => 'http://dbro.mcn.ru/dbro'
         ],
         'dbPgNnp' => $dbPgNnp,
+        'dbPgNnpSlave' => $dbPgSlave,
         'dbPgCallTracking' => $dbPgCallTracking,
         'urlManager' => [
             'enablePrettyUrl' => true,

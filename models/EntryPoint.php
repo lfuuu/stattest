@@ -31,6 +31,7 @@ use app\models\dictionary\PublicSite;
  * @property string $wizard_type
  * @property Country $country
  * @property User $connectTroubleUser
+ * @property PublicSite $site
  */
 class EntryPoint extends ActiveRecord
 {

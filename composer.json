@@ -1,14 +1,17 @@
 {
+  "name": "yiisoft/yii2-app-basic",
+  "description": "Yii 2 Stat Project",
+  "license": "MIT",
   "type": "project",
   "minimum-stability": "dev",
   "require": {
-    "php": ">=5.6.0",
+    "php": ">=7.4.0",
     "yiisoft/yii2": "@stable",
     "yiisoft/yii2-jui": "@stable",
     "welltime/graylog-target": "dev-master",
     "aferrandini/phpqrcode": "@stable",
     "phpoffice/phpexcel": "@stable",
-    "kartik-v/yii2-grid": "dev-master",
+    "kartik-v/yii2-grid": "@dev",
     "kartik-v/yii2-editable": "@stable",
     "kartik-v/yii2-widgets": "@stable",
     "kartik-v/yii2-mpdf": "@stable",
@@ -23,14 +26,16 @@
     "bower-asset/bootstrap-multiselect": "@stable",
     "zircote/swagger-php": "^2.0",
     "bower/swagger-ui": "dev-master",
-    "KidSysco/jquery-ui-month-picker": "dev-master",
+    "kidsysco/jquery-ui-month-picker": "dev-master",
     "yiisoft/yii2-httpclient": "^2.0@dev",
     "kartik-v/yii2-tabs-x": "^1.2",
     "bower/typeahead.js": "dev-master as 0.10.99",
     "yiisoft/yii2-gii": "dev-master",
     "wisembly/elephant.io": "dev-master",
     "wenzhixin/bootstrap-table": "^1.11",
-    "php-amqplib/php-amqplib": "^2.7@dev"
+    "php-amqplib/php-amqplib": "^2.7@dev",
+    "kartik-v/yii2-krajee-base": "@dev",
+    "ezyang/htmlpurifier": "4.12.0"
   },
   "require-dev": {
     "yiisoft/yii2-codeception": "@stable",
@@ -58,7 +63,7 @@
     {
       "type": "package",
       "package": {
-        "name": "KidSysco/jquery-ui-month-picker",
+        "name": "kidSysco/jquery-ui-month-picker",
         "version": "dev-master",
         "source": {
           "type": "git",

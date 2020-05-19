@@ -417,7 +417,7 @@ class MySmarty extends SmartyStat {
 	var $cid=0;
 	var $LINK_START;
 	var $ignore=0;
-	function MySmarty(){
+	function __construct(){
 		global $G;
         $this->Smarty();
 		$this->template_dir = DESIGN_PATH;
@@ -495,7 +495,7 @@ class MySmarty extends SmartyStat {
 		$this->ignore=1;
 		if ($template) {
 			$this->display($template);
-			return (count($G['errors'])+count($G['notices'])?0:1);
+			return (count($G['errors'] ?? [])+count($G['notices'] ?? [])?0:1);
 		}
 	}
 

@@ -101,7 +101,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \app\dao\UsageDao
+     * @return VoipServiceDao
      */
     public static function dao()
     {

@@ -578,7 +578,7 @@ class ClientCS {
     public $F = array();
     public $D;
 
-    function ClientCS ($id = null, $get_params = false) {
+    function __construct ($id = null, $get_params = false) {
         if ($id) $this->F['id']=$id;
         if ($get_params) {
             if (is_array($get_params)) {

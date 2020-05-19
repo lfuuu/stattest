@@ -8,9 +8,9 @@
 $I = new _WebTester($scenario);
 $I->wantTo('Swagger. Add partner and customer');
 
-$I->haveHttpHeader("Content-Type", "application/json");
 $I->amBearerAuthenticated(Yii::$app->params['API_SECURE_KEY']);
-$I->seeResponseIsJson();
+$I->haveHttpHeader("Content-Type", "application/json");
+//$I->seeResponseIsJson();
 
 
 $I->sendPOST("/api/internal/client/create/", [

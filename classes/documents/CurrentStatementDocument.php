@@ -6,8 +6,7 @@ use app\models\Currency;
 use app\models\Language;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill;
-use app\modules\uu\models\Resource;
-use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\ResourceModel;
 
 class CurrentStatementDocument extends DocumentReport
 {
@@ -59,7 +58,7 @@ class CurrentStatementDocument extends DocumentReport
 
         if ($diffBalance) {
             $lines[] = [
-                'item' => \Yii::t('models/' . Resource::tableName(), 'Resource #' . Resource::ID_VOIP_PACKAGE_CALLS, [], $this->getLanguage()),
+                'item' => \Yii::t('models/' . ResourceModel::tableName(), 'Resource #' . ResourceModel::ID_VOIP_PACKAGE_CALLS, [], $this->getLanguage()),
                 'date_from' => '',
                 'amount' => 1,
                 'price' => $diffBalance,

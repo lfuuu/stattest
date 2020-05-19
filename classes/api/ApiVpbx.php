@@ -9,7 +9,7 @@ use app\models\ClientAccount;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\Resource;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\base\InvalidCallException;
@@ -453,18 +453,18 @@ SQL;
         $accountTariff->setResourceSyncTime();
 
         return [
-            'num_ports' => $accountTariff->getResourceValue(Resource::ID_VPBX_ABONENT),
+            'num_ports' => $accountTariff->getResourceValue(ResourceModel::ID_VPBX_ABONENT),
             'space' => 0, // $accountTariff->getResourceValue(Resource::ID_VPBX_DISK) * 1024, // трафик устанавливается не заранее, а по факту
-            'is_record' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_RECORD),
-            'is_fax' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_FAX),
-            'ext_did' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_EXT_DID),
+            'is_record' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_RECORD),
+            'is_fax' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_FAX),
+            'ext_did' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_EXT_DID),
             'is_web_call' => 0, // "звонок-чат". Во-первых, он вообще не из ВАТС, а из отдельной услуги. Во-вторых, он всегда всем включен и не выключается.
             'region' => $accountTariff->region_id,
-            'enable_geo' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_GEO_ROUTE),
-            'enable_min_price' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_MIN_ROUTE),
-            'enable_sub_accounts' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_SUB_ACCOUNT),
-            'voice_assistant' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_VOICE_ASSISTANT),
-            'robot_controller' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_ROBOT_CONTROLLER),
+            'enable_geo' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_GEO_ROUTE),
+            'enable_min_price' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_MIN_ROUTE),
+            'enable_sub_accounts' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_SUB_ACCOUNT),
+            'voice_assistant' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_VOICE_ASSISTANT),
+            'robot_controller' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_ROBOT_CONTROLLER),
         ];
     }
 }

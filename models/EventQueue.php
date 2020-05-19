@@ -2,10 +2,12 @@
 
 namespace app\models;
 
+use app\classes\api\ApiRobocall;
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\important_events\ImportantEventsNames;
 use app\modules\async\Module as AsyncModule;
 use app\modules\atol\Module as AtolModule;
 use app\modules\freeNumber\Module as FreeNumberModule;
@@ -215,6 +217,9 @@ class EventQueue extends ActiveRecord
 
         AsyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF => 'Async. Создать УУ-услугу',
         AsyncModule::EVENT_ASYNC_PUBLISH_RESULT => 'Async. Публикация результата',
+
+        ImportantEventsNames::ZERO_BALANCE => 'Фин. блокировка',
+        ApiRobocall::EVENT_ADD_TR_CONTACT => 'Robocall. Добавление контакта',
     ];
 
     /**

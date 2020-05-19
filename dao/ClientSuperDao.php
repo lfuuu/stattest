@@ -170,6 +170,10 @@ class ClientSuperDao extends Singleton
                     'id' => $super->id,
                     'timezone' => $timezone,
                     'name' => $super->name,
+                    'shop' => [
+                        'country_id' => $super->entryPoint ? $super->entryPoint->country_id : null,
+                        'domain' => $super->entryPoint && $super->entryPoint->site_id ? $super->entryPoint->site->domain : null,
+                    ],
                     'contragents' => $resultContragents
                 ];
             }

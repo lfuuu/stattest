@@ -5,7 +5,7 @@ class FormConctructor
 
     private $map = array();
 
-    function FormConctructor($map)
+    function __construct($map)
     {
         $this->map = &$map;
     }
@@ -176,16 +176,16 @@ class FormConctructor
             {
                 if (isset($val["db"]))
                 {
-                    global $$val["db"];
+                    global ${$val["db"]};
 
-                    $dbConnector = &$$val["db"];
+                    $dbConnector = &${$val["db"]};
                 } else {
                     $dbConnector = &$db;
                 }
 
                 if ($val["type"] == "query")
                 {
-                    foreach($dbConnector->AllRecords($val["query"], "", MYSQL_BOTH) as $v)
+                    foreach($dbConnector->AllRecords($val["query"], "", MYSQLI_BOTH) as $v)
                     {
                         $curData[$v[0]]= $v[1];
                     }
