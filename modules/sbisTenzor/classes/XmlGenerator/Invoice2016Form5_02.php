@@ -51,13 +51,22 @@ class Invoice2016Form5_02 extends XmlGenerator
         $elInvoiceInfo->setAttribute('КодОКВ', $this->bill->currencyModel->code);
         $elInvoiceInfo->setAttribute('НомерСчФ', $this->invoice->number);
 
+        // Исправления (либо нет либо есть):
+        // <ИспрСчФ ДефНомИспрСчФ="-" ДефДатаИспрСчФ="-"/>
+        // либо
+        // <ИспрСчФ НомИспрСчФ="1" ДатаИспрСчФ="01.01.2020"/>
         if ($this->invoice->correction_idx >= 1) {
             $elInfoCorrection = $dom->createElement('ИспрСчФ');
             $elInfoCorrection->setAttribute('НомИспрСчФ', $this->invoice->correction_idx);
-            //$elInfoCorrection->setAttribute('ДефНомИспрСчФ', $this->invoice->correction_idx - 1);
             $elInfoCorrection->setAttribute('ДатаИспрСчФ', $this->invoiceDate->format('d.m.Y'));
-            //$elInfoCorrection->setAttribute('ДефДатаИспрСчФ', $this->invoiceDate->format('d.m.Y'));
             $elInvoiceInfo->appendChild($elInfoCorrection);
+        } else {
+            $elInfoCorrection = $dom->createElement('ИспрСчФ');
+            $elInfoCorrection->setAttribute('ДефНомИспрСчФ', '-');
+            $elInfoCorrection->setAttribute('ДефДатаИспрСчФ', '-');
+
+            // при отсутствии исправлений не добавляем
+            //$elInvoiceInfo->appendChild($elInfoCorrection);
         }
 
         $elInfoSeller = $dom->createElement('СвПрод');

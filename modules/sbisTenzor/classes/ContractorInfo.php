@@ -94,11 +94,11 @@ class ContractorInfo
             return $e->getMessage();
         }
 
-        if (!$contractor || !$contractor->exchange_id) {
+        if (!$contractor || !$contractor->getEdfId()) {
             return sprintf('Данный клиент не зарегистрирован ни в одной из систем документооборота');
         }
 
-        $this->edfId = $contractor->exchange_id;
+        $this->edfId = $contractor->getEdfId();
 
         $code = substr($this->edfId, 0, 3);
         $this->operator = new EdfOperator($code);

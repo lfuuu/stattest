@@ -114,6 +114,7 @@ class SBISDataProvider
                     ->where([
                         'tin' => $client->getInn(),
                         'iec' => $client->getKpp(),
+                        'branch_code' => $client->getBranchCode(),
                     ]);
                 break;
 

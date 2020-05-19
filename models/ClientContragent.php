@@ -24,6 +24,7 @@ use yii\db\Expression;
  * @property string $inn
  * @property string $inn_euro
  * @property string $kpp
+ * @property string $branch_code
  * @property string $tax_registration_reason
  * @property string $position
  * @property string $fio
@@ -59,8 +60,6 @@ class ClientContragent extends HistoryActiveRecord
     const TAX_REGTIME_OCH_VAT18 = 'OCH-VAT18';
     const TAX_REGTIME_YCH_VAT0 = 'YCH-VAT0';
 
-    public $cPerson = null;
-    public $historyVersionDate = null;
     public $hasChecked = false;
     public $isSimpleValidation = false; // валидация для wizarda
 
@@ -144,6 +143,7 @@ class ClientContragent extends HistoryActiveRecord
             'inn' => 'ИНН',
             'inn_euro' => 'ЕвроИНН',
             'kpp' => 'КПП',
+            'branch_code' => 'Код филиала',
             'name' => 'Название',
             'name_full' => 'Название полное',
             'address_jur' => 'Юридический адрес',

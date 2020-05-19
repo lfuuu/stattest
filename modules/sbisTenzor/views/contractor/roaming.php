@@ -37,7 +37,7 @@ echo GridView::widget([
             'label' => 'ID',
             'format' => 'html',
             'value'     => function (SBISContractor $model) {
-                return $model->id;
+                return $model->clientAccount->id;
             },
         ],
         [
@@ -51,7 +51,12 @@ echo GridView::widget([
                 }
 
                 $text = $client->contragent->name_full;
-                return Html::a($text, $client->getUrl());
+
+                if ($branchCode = $client->getBranchCode()) {
+                    $branchCode = sprintf(' (Код филиала: "%s")', $branchCode);
+                }
+
+                return sprintf('%s, %s%s', $client->contragent->id, Html::a($text, $client->getUrl()), $branchCode);
             },
         ],
         [
@@ -88,7 +93,7 @@ echo GridView::widget([
             'label' => 'Оператор',
             'format' => 'html',
             'value'     => function (SBISContractor $model) {
-                $code = substr($model->exchange_id, 0, 3);
+                $code = substr($model->getEdfId(), 0, 3);
                 $operator = new EdfOperator($code);
 
                 return Html::tag('a',

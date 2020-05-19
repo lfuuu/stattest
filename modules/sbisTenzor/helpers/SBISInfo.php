@@ -5,6 +5,7 @@ namespace app\modules\sbisTenzor\helpers;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
+use app\modules\sbisTenzor\exceptions\SBISTensorException;
 use app\modules\sbisTenzor\models\SBISContractor;
 use app\modules\sbisTenzor\classes\SBISTensorAPI;
 use app\modules\sbisTenzor\models\SBISExchangeGroup;
@@ -45,13 +46,6 @@ class SBISInfo
         $groupIds2 = [];
         switch ($client->contragent->legal_type) {
             case ClientContragent::LEGAL_TYPE:
-                $groupIds2 = [
-                    SBISExchangeGroup::ACT,
-                    SBISExchangeGroup::ACT_AND_INVOICE_2016,
-                    SBISExchangeGroup::ACT_AND_INVOICE_2019,
-                ];
-                break;
-
             case ClientContragent::IP_TYPE:
                 $groupIds2 = [
                     SBISExchangeGroup::ACT,
@@ -76,14 +70,14 @@ class SBISInfo
      * @param ClientAccount $client
      * @param bool $isForce
      * @return string|null
-     * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
+     * @throws SBISTensorException
      * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      * @throws \Exception
      */
     public static function getExchangeIntegrationId(ClientAccount $client, $isForce = false)
     {
-        return self::getPreparedContractor($client, $isForce)->exchange_id;
+        return self::getPreparedContractor($client, $isForce)->getEdfId();
     }
 
     /**
@@ -92,7 +86,7 @@ class SBISInfo
      * @param ClientAccount $client
      * @param bool $isForce
      * @return SBISContractor
-     * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
+     * @throws SBISTensorException
      * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      * @throws \Exception
@@ -108,6 +102,7 @@ class SBISInfo
 
         if ($isForce) {
             $sbisContractor->account_id = $client->id;
+            $sbisContractor->addAccountId($client->id);
 
             /** @var Module $module */
             $module = Config::getModule('sbisTenzor');
@@ -155,6 +150,9 @@ class SBISInfo
             $sbisContractor->iec = $result['СвЮЛ']['КПП'];
             $sbisContractor->country_code = $result['СвЮЛ']['КодСтраны'];
             $sbisContractor->full_name = $result['СвЮЛ']['Название'];
+            if (!empty($result['СвЮЛ']['КодФилиала'])) {
+                $sbisContractor->branch_code = $result['СвЮЛ']['КодФилиала'];
+            }
         }
 
         if (!empty($result['СвФЛ'])) {

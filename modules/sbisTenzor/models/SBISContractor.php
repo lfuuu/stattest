@@ -13,14 +13,17 @@ use yii\db\Expression;
  *
  * @property integer $id
  * @property integer $account_id
+ * @property string $accounts
  * @property string $tin     Идентификационный номер налогоплательщика (ИНН) (для ЮЛ)
  * @property string $itn     Идентификационный номер налогоплательщика (ИНН) (для ФЛ и ИП)
  * @property string $iec     Код причины постановки (КПП)
  * @property string $full_name
+ * @property string $branch_code     Код филиала
  * @property bool $is_roaming
  * @property string $email
  * @property string $phone
  * @property string $exchange_id
+ * @property string $fixed_exchange_id
  * @property string $exchange_id_is
  * @property string $exchange_id_spp
  * @property integer $country_code
@@ -58,11 +61,13 @@ class SBISContractor extends ActiveRecord
             [['itn'], 'string', 'max' => 12],
             [['iec'], 'string', 'max' => 36],
             [['full_name', 'email', 'phone', 'exchange_id_is', 'exchange_id_spp'], 'string', 'max' => 255],
-            [['exchange_id'], 'string', 'max' => 46],
+            [['exchange_id', 'fixed_exchange_id'], 'string', 'max' => 46],
+            [['branch_code'], 'string', 'max' => 3],
             [['inila'], 'string', 'max' => 15],
             [['last_name', 'first_name', 'middle_name'], 'string', 'max' => 60],
+            [['accounts'], 'string'],
             [
-                ['tin', 'itn', 'iec', 'inila'], 'unique', 'targetAttribute' => ['tin', 'itn', 'iec', 'inila'],
+                ['tin', 'itn', 'iec', 'inila', 'branch_code'], 'unique', 'targetAttribute' => ['tin', 'itn', 'iec', 'inila', 'branch_code'],
                 'message' => 'Данная комбинация реквизитов из {attributes} (поля необязательные) {values} уже закреплена за другим контрагентом!',
                 'when' => function ($model, $attribute) {
                     // убираем дублирующиеся ошибки для каждого из полей
@@ -93,14 +98,17 @@ class SBISContractor extends ActiveRecord
         return [
             'id' => 'ID',
             'account_id' => 'Клиент',
+            'accounts' => 'Клиенты',
             'tin' => 'ИНН для ЮЛ',
             'itn' => 'ИНН для ФЛ и ИП',
             'iec' => 'КПП',
             'full_name' => 'Название',
+            'branch_code' => 'Код филиала',
             'is_roaming' => 'Включён роуминг',
             'email' => 'Email',
             'phone' => 'Телефон',
             'exchange_id' => 'Идентификатор',
+            'fixed_exchange_id' => 'Идентификатор (фиксированный)',
             'exchange_id_is' => 'ИдентификаторИС',
             'exchange_id_spp' => 'ИдентификаторСПП',
             'country_code' => 'Код страны',
@@ -137,4 +145,30 @@ class SBISContractor extends ActiveRecord
     {
         return $this->hasOne(ClientAccount::class, ['id' => 'account_id']);
     }
+
+    /**
+     * Получить идентификатор ЭДО
+     *
+     * @return string
+     */
+    public function getEdfId()
+    {
+        return $this->fixed_exchange_id ? : $this->exchange_id;
+    }
+
+    /**
+     * Добавить Id клиента
+     *
+     * @param $accountId
+     */
+    public function addAccountId($accountId)
+    {
+        $accounts = json_decode($this->accounts ? : '');
+
+        $accounts = array_combine($accounts, $accounts);
+        $accounts[$accountId] = $accountId;
+
+        $this->accounts = json_encode(array_keys($accounts));
+    }
+
 }

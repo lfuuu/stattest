@@ -278,5 +278,12 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             ?>
         </div>
 
+        <div class="col-sm-3 bottom-indent right-indent">
+            <?=
+            $f->field($model, 'branch_code')
+                ->textInput()
+            ?>
+        </div>
+
     </div>
 </div>

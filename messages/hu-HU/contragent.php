@@ -28,6 +28,7 @@ return [
     'legalTypePerson' => 'Természetes személy',
 
     'sale_channel_id' => 'Sale Channel',
+    'branch_code' => 'Ágakód',
     'partner_contract_id' => 'Partner',
 
     'Last name' => 'Vezetéknév',

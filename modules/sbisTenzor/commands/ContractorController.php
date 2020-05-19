@@ -7,6 +7,7 @@ use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\modules\sbisTenzor\classes\ContractorInfo;
 use app\modules\sbisTenzor\classes\SBISTensorAPI;
+use app\modules\sbisTenzor\exceptions\SBISTensorException;
 use app\modules\sbisTenzor\helpers\SBISInfo;
 use app\modules\sbisTenzor\models\SBISDocument;
 use app\modules\sbisTenzor\models\SBISOrganization;
@@ -128,7 +129,7 @@ class ContractorController extends Controller
      * Запросить информацию по контрагенту
      *
      * @param int $clientId
-     * @throws \app\modules\sbisTenzor\exceptions\SBISTensorException
+     * @throws SBISTensorException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\web\BadRequestHttpException
@@ -170,7 +171,7 @@ class ContractorController extends Controller
 
                 case ClientContragent::LEGAL_TYPE:
                     echo 'Client kpp: ' . $client->getKpp() . PHP_EOL;
-                    $result = $api->getContractorInfoLegal($client->getInn(), $client->getKpp());
+                    $result = $api->getContractorInfoLegal($client->getInn(), $client->getKpp(), $client->getBranchCode());
                     break;
             }
         }

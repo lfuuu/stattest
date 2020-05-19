@@ -40,5 +40,6 @@ return [
     'legalTypePerson' => 'Физ. лицо',
 
     'sale_channel_id' => 'Откуда узнали о нас',
+    'branch_code' => 'Код филиала',
     'partner_contract_id' => 'Партнер',
 ];

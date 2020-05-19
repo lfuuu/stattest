@@ -105,7 +105,7 @@
                             </xs:restriction>
                           </xs:simpleType>
                         </xs:attribute>
-                        <xs:attribute name="ÄåôÍîìÈñïðÑ÷Ô" use="required">
+                        <xs:attribute name="ÄåôÍîìÈñïðÑ÷Ô" use="optional">
                           <xs:simpleType>
                             <xs:restriction base="xs:string">
                               <xs:minLength value="1"/>
@@ -126,7 +126,7 @@
                             </xs:restriction>
                           </xs:simpleType>
                         </xs:attribute>
-                        <xs:attribute name="ÄåôÄàòàÈñïðÑ÷Ô" use="required">
+                        <xs:attribute name="ÄåôÄàòàÈñïðÑ÷Ô" use="optional">
                           <xs:simpleType>
                             <xs:restriction base="xs:string">
                               <xs:minLength value="1"/>
