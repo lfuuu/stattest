@@ -173,10 +173,17 @@ class ClientCounter extends ActiveRecord
                 throw new \UnexpectedValueException('ЛС не найден');
             }
 
-            BillingCounter::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+            $billingCounterCache = \Yii::$app->cache->get('bl' . $clientAccountId);
 
-            /** @var BillingCounter $billingCounter */
-            $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);
+            if (!$billingCounterCache) {
+                BillingCounter::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+                /** @var BillingCounter $billingCounter */
+                $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);
+            } else {
+                /** @var BillingCounter $billingCounter */
+                $billingCounter = new BillingCounter();
+                $billingCounter->setAttributes($billingCounterCache, false);
+            }
 
             if (!$billingCounter) {
                 throw new \UnexpectedValueException('BillingCounter для ЛС #' . $clientAccountId . ' не найден');
@@ -187,25 +194,31 @@ class ClientCounter extends ActiveRecord
                 throw new \UnexpectedValueException('Баланс неверный.  ЛС#' . $clientAccountId . ' ' . $billingCounter->amount_date . ' != ' . $lastAccountDate . '(' . $billingCounter->amount_sum . ', ' . $localCounter->amount_sum . ')');
             }
 
-            $localCounter->amount_sum = $billingCounter->amount_sum;
-            $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
-            $localCounter->amount_mn_day_sum = $billingCounter->amount_mn_day_sum;
-            $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
+            $localCounter->amount_sum = round($billingCounter->amount_sum,2);
+            $localCounter->amount_day_sum = round($billingCounter->amount_day_sum,2);
+            $localCounter->amount_mn_day_sum = round($billingCounter->amount_mn_day_sum,2);
+            $localCounter->amount_month_sum = round($billingCounter->amount_month_sum,2);
 
-            $localCounter->sum_w_neg_rate = $billingCounter->sum_w_neg_rate;
-            $localCounter->sum_w_neg_rate_day = $billingCounter->sum_w_neg_rate_day;
-            $localCounter->sum_w_neg_rate_month = $billingCounter->sum_w_neg_rate_month;
+            $localCounter->sum_w_neg_rate = round($billingCounter->sum_w_neg_rate,2);
+            $localCounter->sum_w_neg_rate_day = round($billingCounter->sum_w_neg_rate_day,2);
+            $localCounter->sum_w_neg_rate_month = round($billingCounter->sum_w_neg_rate_month,2);
 
-            $localCounter->voice_sum_day = $billingCounter->voice_sum_day;
-            $localCounter->voice_sum_month = $billingCounter->voice_sum_month;
+            $localCounter->voice_sum_day = round($billingCounter->voice_sum_day,2);
+            $localCounter->voice_sum_month = round($billingCounter->voice_sum_month,2);
 
-            $localCounter->data_sum_day = $billingCounter->data_sum_day;
-            $localCounter->data_sum_month = $billingCounter->data_sum_month;
+            $localCounter->data_sum_day = round($billingCounter->data_sum_day,2);
+            $localCounter->data_sum_month = round($billingCounter->data_sum_month,2);
 
-            $localCounter->sms_sum_day = $billingCounter->sms_sum_day;
-            $localCounter->sms_sum_month = $billingCounter->sms_sum_month;
+            $localCounter->sms_sum_day = round($billingCounter->sms_sum_day,2);
+            $localCounter->sms_sum_month = round($billingCounter->sms_sum_month,2);
 
-            $localCounter->save();
+            $isNeedSave = false;
+            foreach($localCounter->getDirtyAttributes() as $name => $value) {
+                if ($localCounter->isAttributeChanged($name, false)) {
+                    $isNeedSave = true;
+                }
+            }
+            $isNeedSave && $localCounter->save();
 
         } catch (\UnexpectedValueException $e) {
             $localCounter->isLocal = true;
@@ -236,6 +249,8 @@ class ClientCounter extends ActiveRecord
                     ->queryAll(),
                 'client_id'
             );
+
+            self::_saveCounterInCache();
 
             static::$_localCacheFastMassLastAccountDate = ClientAccount::getListTrait(
                 $isWithEmpty = false,
@@ -315,6 +330,14 @@ class ClientCounter extends ActiveRecord
         }
 
         return $counter;
+    }
+
+    private static function _saveCounterInCache()
+    {
+        $appCache = \Yii::$app->cache;
+        foreach(static::$_localCacheFastMass as $accountId => $counter) {
+            $appCache->set('bl'.$accountId, $counter);
+        }
     }
 
 }
