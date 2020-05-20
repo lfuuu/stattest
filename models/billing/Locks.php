@@ -45,6 +45,23 @@ class Locks extends ActiveRecord
      */
     public static function getLock($clientAccountId)
     {
+        $lock = \Yii::$app->cache->get('lock' . $clientAccountId);
+
+        if ($lock) {
+            return $lock;
+        }
+
+        if (\Yii::$app->cache->exists('lockcls')) {
+            return [
+                'b_voip_auto_disabled' => false,
+                'b_voip_auto_disabled_local' => false,
+                'b_is_overran' => false,
+                'b_is_mn_overran' => false,
+                'b_is_finance_block' => false,
+                'dt_last_dt' => '',
+            ];
+        }
+
         $sql = sprintf('SELECT * FROM billing.locks_get(%d)', $clientAccountId);
         return self::getDb()->createCommand($sql)->queryOne();
     }

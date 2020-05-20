@@ -597,4 +597,42 @@ ORDER BY mn, firm_name, bs_name, currency
     {
         ActOfReconciliation::me()->saveBalances();
     }
+
+    public function actionUpdateLocks()
+    {
+        $data = \Yii::$app->dbPgSlave->createCommand(
+            'SELECT client_id, 
+sum(CASE WHEN voip_auto_disabled THEN 1 ELSE 0 END) > 0 b_voip_auto_disabled, 
+sum(CASE WHEN voip_auto_disabled_local THEN 1 ELSE 0 END) > 0 b_voip_auto_disabled_local,
+sum(CASE WHEN is_overran THEN 1 ELSE 0 END ) > 0 b_is_overran,
+sum(CASE WHEN is_mn_overran THEN 1 ELSE 0 END ) > 0 b_is_mn_overran,
+sum(CASE WHEN is_finance_block THEN 1 ELSE 0 END ) > 0 b_is_finance_block,
+(SELECT dt FROM billing.clients_locks_logs lg
+  WHERE (lg.client_id = l.client_id)
+  ORDER BY id DESC
+  LIMIT 1
+) dt_last_dt
+FROM billing.clients_locks l -- where client_id in (44200, 50935)
+GROUP BY client_id')->queryAll();
+
+        $cache = \Yii::$app->cache;
+
+        $newClients = [];
+        $clients = $cache->get('lockcls');
+        if (!$clients || !is_array($clients)) {
+            $clients = [];
+        }
+
+        foreach ($data as $row) {
+            $newClients[$row['client_id']] = 1;
+            $cache->set('lock' . $row['client_id'], $row);
+            unset($clients[$row['client_id']]);
+        }
+
+        $cache->set('lockcls', $newClients);
+
+        foreach ($clients as $clientId => $null) {
+            $cache->delete('lock' . $clientId);
+        }
+    }
 }
