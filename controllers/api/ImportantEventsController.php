@@ -149,13 +149,13 @@ class ImportantEventsController extends ApiInternalController
             $applyFilter = true;
         }
 
-        if (count($model->client_id)) {
-            $result->andWhere(['IN', 'client_id', (array)$model->client_id]);
+        if ($model->client_id) {
+            $result->andWhere(['client_id' => $model->client_id]);
             $applyFilter = true;
         }
 
-        if (count($model->event)) {
-            $result->andWhere(['IN', 'event', (array)$model->event]);
+        if ($model->event) {
+            $result->andWhere(['event' => $model->event]);
             $applyFilter = true;
         }
 

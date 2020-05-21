@@ -861,11 +861,11 @@ class ReportUsageDao extends Singleton
             }
 
             if (!$isAllFromPackage) {
-                if ($record['package_price']) {
+                if (isset($record['package_price'])) {
                     $record['package_price']['taken'] = 'all';
-                } elseif ($record['package_pricelist']) {
+                } elseif (isset($record['package_pricelist'])) {
                     $record['package_pricelist']['taken'] = 'all';
-                } elseif ($record['package_pricelist_nnp']) {
+                } elseif (isset($record['package_pricelist_nnp'])) {
                     $record['package_pricelist_nnp']['taken'] = 'all';
                 }
             }
