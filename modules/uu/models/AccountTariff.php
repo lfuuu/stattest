@@ -269,7 +269,7 @@ class AccountTariff extends ActiveRecord
 
         // по клиенту
         if (in_array($this->client_account_id, [
-            57863
+            57863, 63885, 59028, 60431
         ])) {
             return true;
         }
