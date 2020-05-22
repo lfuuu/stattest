@@ -80,6 +80,9 @@ if ($formModel->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET
     $columns[] = [
         'name' => 'bytes_amount',
         'title' => $attributeLabels['bytes_amount'],
+        'value' => function($model) {
+            return $model->bytes_amount  / 1024 / 1024;
+        },
         'type' => Editable::INPUT_TEXT,
         'options' => $options,
     ];

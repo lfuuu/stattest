@@ -26,9 +26,15 @@ class PackagePricelistNnpInternet extends PackagePricelistNnp
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-            'bytes_amount' => 'Трафик (Мб)'
+                'bytes_amount' => 'Трафик (Мб)'
             ];
 
+    }
+
+    public function beforeSave($insert)
+    {
+        $this->bytes_amount *= (1024 * 1024);
+        return parent::beforeSave($insert);
     }
 
 }
