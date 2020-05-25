@@ -184,6 +184,8 @@ class AccountTariffCheckHlr extends Behavior
         $card = $foundImsi->card;
 
 //        $transactionMs = EventQueue::getDb()->beginTransaction();
+
+        $linkedImsi = null;
         try {
             /** @var Imsi $imsi */
             foreach ($card->imsies as $imsi) {
@@ -198,6 +200,14 @@ class AccountTariffCheckHlr extends Behavior
                 if (!$imsi->save()) {
                     throw new ModelValidationException($imsi);
                 }
+
+                if ($imsi->profile_id == ImsiProfile::ID_TELE2_TEST) {
+                    $linkedImsi = $imsi;
+                }
+            }
+
+            if (!$linkedImsi) {
+                throw new \LogicException('не найдена IMSI');
             }
 
             $card->client_account_id = $accountTariff->client_account_id;
@@ -207,7 +217,7 @@ class AccountTariffCheckHlr extends Behavior
             }
 
             $number = $accountTariff->number;
-            $number->imsi = $imsi->imsi;
+            $number->imsi = $linkedImsi->imsi;
 
             if (!$number->save()) {
                 throw new ModelValidationException($number);
@@ -216,8 +226,8 @@ class AccountTariffCheckHlr extends Behavior
             EventQueue::go(EventQueue::SYNC_TELE2_LINK_IMSI, [
                 'account_tariff_id' => $accountTariff->id,
                 'voip_number' => $accountTariff->voip_number,
-                'imsi' => $imsi->imsi,
-                'iccid' => $imsi->iccid,
+                'imsi' => $linkedImsi->imsi,
+                'iccid' => $linkedImsi->iccid,
             ]);
 
             $transactionPg->commit();
