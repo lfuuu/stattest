@@ -80,7 +80,7 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
 
 <div class="well package-pricelist">
     <h2>
-        Прайслист с МГП
+        Прайс-лист с МГП
         <?= $helpConfluence ?>
     </h2>
 
@@ -105,6 +105,14 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
                         'options' => $options + [
                                 'data' => $pricelistList,
                             ],
+                    ],
+                    [
+                        'name' => 'minute',
+                        'title' => $attributeLabels['minute'] . $helpConfluence,
+                        'type' => Editable::INPUT_RANGE,
+                        'options' => [
+                            'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
+                        ],
                     ],
                     [
                         'name' => 'id', // чтобы идентифицировать модель

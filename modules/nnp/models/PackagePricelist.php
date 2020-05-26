@@ -34,6 +34,7 @@ class PackagePricelist extends ActiveRecord
             'tariff_id' => 'Тариф',
             'pricelist_id' => 'Прайслист',
             'nnp_pricelist_id' => 'Прайслист v.2',
+            'minute' => 'Кол-во минут',
         ];
     }
 
@@ -53,8 +54,8 @@ class PackagePricelist extends ActiveRecord
     public function rules()
     {
         return [
-            [['tariff_id', 'pricelist_id'], 'required'],
-            [['tariff_id', 'pricelist_id'], 'integer'],
+            [['tariff_id', 'pricelist_id', 'minute'], 'required'],
+            [['tariff_id', 'pricelist_id', 'minute'], 'integer'],
         ];
     }
 
