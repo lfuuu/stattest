@@ -182,11 +182,8 @@ class ApiPhone extends Singleton
      * @param int $isMobileOutboundEditable
      * @param int $region
      * @param string $number7800
+     * @param bool $isRobocallEnabled
      * @return array
-     * @throws \InvalidArgumentException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
      */
     public function editDid(
         $clientAccountId,
@@ -197,7 +194,8 @@ class ApiPhone extends Singleton
         $isMobileOutboundActive = null,
         $isMobileOutboundEditable = null,
         $region = null,
-        $number7800 = null
+        $number7800 = null,
+        $isRobocallEnabled = false
     ) {
         $params = [
             'client_id' => $clientAccountId,
@@ -236,6 +234,7 @@ class ApiPhone extends Singleton
                 ->scalar() ?: '';
         }
 
+        $params['is_robocall_enabled'] = (int)$isRobocallEnabled;
 
         $params = array_merge($params, NumberRange::getNumberInfo($number));
 

@@ -672,7 +672,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                             $param['is_fmc_active'],
                             $param['is_fmc_editable'],
                             $param['is_mobile_outbound_active'],
-                            $param['is_mobile_outbound_editable']
+                            $param['is_mobile_outbound_editable'],
+                            null,
+                            null,
+                            $param['is_robocall_enabled']
                         );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
