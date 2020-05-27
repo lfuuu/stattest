@@ -415,7 +415,7 @@ class NnpController extends ApiInternalController
         $offset && $query->offset($offset);
 
         $result = [];
-        foreach ($query->each() as $numberRange) {
+        foreach ($query->each(100, NumberRange::getDbSlave()) as $numberRange) {
             /** @var NumberRange $numberRange */
             $result[] = $this->_getNumberRangeRecord($numberRange);
         }
@@ -505,8 +505,8 @@ class NnpController extends ApiInternalController
             return !$filter['is_list_black'];
         }
 
-        $result = NumberRange::getDb()->createCommand(
-            NumberRange::getDb()
+        $result = NumberRange::getDbSlave()->createCommand(
+            NumberRange::getDbSlave()
                 ->getQueryBuilder()
                 ->selectExists(
                     $numberRangeQuery

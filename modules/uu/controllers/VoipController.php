@@ -245,7 +245,7 @@ class VoipController extends BaseController
             ->andWhere(['<=', 'full_number_from', $number])
             ->andWhere(['>=', 'full_number_to', $number])
             ->orderBy(new Expression('ndc IS NOT NULL DESC'))// чтобы большой диапазон по всей стране типа 0000-9999 был в конце
-            ->one();
+            ->one(NumberRange::getDbSlave());
 
         $returnArray = [];
         if ($numberRange) {
