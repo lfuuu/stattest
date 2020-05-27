@@ -14,6 +14,8 @@ use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\Module;
 use app\widgets\ConsoleProgress;
 use Yii;
@@ -81,7 +83,7 @@ SQL;
             $progress->nextStep();
 
             $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
-            $newTariffId = $row['new_tariff_period_id'];
+            $newTariffPeriodId = $row['new_tariff_period_id'];
 
             if (
                 (!$row['tariff_period_id'] && $row['new_tariff_period_id']) && // только на включение
@@ -96,13 +98,15 @@ SQL;
             $isWithTransaction && $transaction = $db->beginTransaction();
             try {
                 // тип события
-                $eventType = $this->getEventType($accountTariff, $newTariffId);
+                $eventType = $this->getEventType($accountTariff, $newTariffPeriodId);
+
+                $oldTariffPeriodId = $accountTariff->tariff_period_id;
 
                 // сменить тариф
-                $this->changeAccountTariff($accountTariff, $newTariffId, $eventType);
+                $this->changeAccountTariff($accountTariff, $newTariffPeriodId, $eventType);
 
                 // создать события
-                $this->generateEvents($accountTariff, $eventType);
+                $this->generateEvents($accountTariff, $eventType, $oldTariffPeriodId, $newTariffPeriodId);
 
                 $isWithTransaction && $transaction->commit();
 
@@ -142,17 +146,17 @@ SQL;
      * Получаем тип события для универсального тарифа (включение, выключение, смена)
      *
      * @param AccountTariff $accountTariff
-     * @param $newTariffId
+     * @param $newTariffPeriodId
      * @return string|null
      */
-    protected function getEventType(AccountTariff $accountTariff, $newTariffId)
+    protected function getEventType(AccountTariff $accountTariff, $newTariffPeriodId)
     {
         $eventType = null;
-        if ($accountTariff->tariff_period_id != $newTariffId) {
+        if ($accountTariff->tariff_period_id != $newTariffPeriodId) {
             if (!$accountTariff->tariff_period_id) {
                 // не было тарифа - включение услуги
                 $eventType = ImportantEventsNames::UU_SWITCHED_ON;
-            } elseif (!$newTariffId) {
+            } elseif (!$newTariffPeriodId) {
                 // не будет тарифа - закрытие услуги
                 $eventType = ImportantEventsNames::UU_SWITCHED_OFF;
             } else {
@@ -169,10 +173,13 @@ SQL;
     /**
      * @param AccountTariff $accountTariff
      * @param string|null $eventType
+     * @param int $oldTariffPeriodId
+     * @param int $newTariffPeriodId
      * @throws ModelValidationException
      * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
-    protected function generateEvents(AccountTariff $accountTariff, $eventType)
+    protected function generateEvents(AccountTariff $accountTariff, $eventType, $oldTariffPeriodId = null, $newTariffPeriodId = null)
     {
         if ($eventType) {
             // создать важное событие
@@ -203,12 +210,17 @@ SQL;
                     'number' => $accountTariff->voip_number,
                 ]);
 
-                $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
-                if ($isCoreServer) {
-                    if (AccountTariff::hasTrunk($accountTariff->client_account_id)) {
-                        HandlerLogger::me()->add('Мегатранк');
-                    } else {
-                        ActaulizerVoipNumbers::me()->actualizeByNumber($accountTariff->voip_number, $accountTariff->id); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
+                // is need sync tariff options
+                // только для смены тарифа. При включении - и так отработает. При выключении - не надо.
+                if ($oldTariffPeriodId && $newTariffPeriodId && $oldTariffPeriodId != $newTariffPeriodId) {
+
+                    $tariffPeriod = TariffPeriod::findOne(['id' => $oldTariffPeriodId]);
+
+                    $isNewAutoDial = $accountTariff->tariffPeriod->tariff->isAutodial();
+                    $isOldAutoDial = $tariffPeriod ? $tariffPeriod->tariff->isAutodial() : false;
+
+                    if ($isNewAutoDial != $isOldAutoDial) {
+                        SyncResourceTarificator::doSyncResources($accountTariff);
                     }
                 }
 

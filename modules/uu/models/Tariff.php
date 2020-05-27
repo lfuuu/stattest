@@ -702,4 +702,13 @@ class Tariff extends ActiveRecord
     {
         return ['confluenceId' => 25887484, 'message' => 'Тариф'];
     }
+
+    /**
+     * Тариф для автодиала
+     * @return bool
+     */
+    public function isAutodial()
+    {
+        return $this->id == self::AUTODIAL_ID;
+    }
 }
