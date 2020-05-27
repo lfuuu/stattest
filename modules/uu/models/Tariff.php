@@ -97,6 +97,7 @@ class Tariff extends ActiveRecord
     const TEST_VOIP_ID = 10005;
     const TEST_VPBX_ID = 10123;
     const START_VPBX_ID = 10143;
+    const AUTODIAL_ID = 13167;
 
     /**
      * @return array
