@@ -21,11 +21,13 @@ class SormClientFilter extends ClientAccount
     const FILTER_NOT_UPLOADED = 'not_uploaded';
     const FILTER_UPLOADED = 'uploaded';
     const FILTER_WITH_ERRORS = 'errors';
+    const FILTER_ACTIVE = 'active';
 
     public static $filterList = [
         self::FILTER_NONE => '-- Все --',
         self::FILTER_NOT_UPLOADED => 'Не выгружаемые сейчас',
         self::FILTER_UPLOADED => 'Только выгружаемые',
+        self::FILTER_ACTIVE => 'ЛС с активными услугами',
     ];
 
     const ERR_NO = '';
@@ -47,6 +49,7 @@ class SormClientFilter extends ClientAccount
         Region::KRASNOIARSK => ['date_start' => '2019-03-01'],
         Region::HABAROBSK => ['date_start' => '2018-01-01'],
         Region::NNOVGOROD => ['date_start' => '2018-01-01'],
+        Region::MOSCOW => ['date_start' => '2017-01-01'],
     ];
 
     public function attributeLabels()
@@ -65,6 +68,7 @@ class SormClientFilter extends ClientAccount
                 'account_manager' => 'Ак. менеджер',
                 'filter_by' => 'Фильтр клиентов',
                 'is_with_error' => 'Клиенты с ошибками',
+                'is_active' => 'Сейчас активен',
             ] + (new ClientContragentPerson())->attributeLabels();
     }
 
@@ -72,7 +76,7 @@ class SormClientFilter extends ClientAccount
     {
         return [
             ['region_id', 'integer'],
-            [['name_full', 'account_manager', 'filter_by', 'is_with_error'], 'string'],
+            [['name_full', 'account_manager', 'filter_by', 'is_with_error', 'is_active'], 'string'],
         ];
     }
 
@@ -100,10 +104,20 @@ class SormClientFilter extends ClientAccount
 
         $sqlUpload = 'cc.state != \'unchecked\' AND c.voip_credit_limit_day > 0 AND c.id NOT IN (44725, 51147, 54112, 52552, 52921, 46247)';
 
-        if ($this->filter_by == self::FILTER_UPLOADED) {
-            $query->andWhere($sqlUpload);
-        } elseif ($this->filter_by == self::FILTER_NOT_UPLOADED) {
-            $query->andWhere(['NOT', $sqlUpload]);
+        switch ($this->filter_by) {
+            case  self::FILTER_UPLOADED:
+                $query->andWhere($sqlUpload);
+                break;
+
+            case self::FILTER_NOT_UPLOADED:
+                $query->andWhere(['NOT', $sqlUpload]);
+                break;
+
+            case self::FILTER_ACTIVE:
+                $query->andWhere(['c.is_active' => 1]);
+
+            default:
+                break;
         }
 
         if ($this->is_with_error) {

@@ -3,6 +3,7 @@
 namespace app\models\filter;
 
 use app\models\ClientContract;
+use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\models\User;
 use yii\data\ActiveDataProvider;
@@ -11,6 +12,7 @@ class UsageVoipFilter extends UsageVoip
 {
     public $id = '';
     public $account_manager = '';
+    public $is_active_client_account = '';
 
     /**
      * @return array
@@ -18,7 +20,8 @@ class UsageVoipFilter extends UsageVoip
     public function rules()
     {
         return array_merge(parent::rules(), [
-            ['account_manager', 'string']
+            ['account_manager', 'string'],
+            ['is_active_client_account', 'integer'],
         ]);
     }
 
@@ -44,6 +47,14 @@ class UsageVoipFilter extends UsageVoip
         if ($this->account_manager) {
             $query->joinWith('clientAccount.clientContractModel');
             $query->andWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
+        }
+
+        if ($this->is_active_client_account) {
+            // if not included
+            if (!$this->account_manager) {
+                $query->joinWith('clientAccount');
+            }
+            $query->andWhere([ClientAccount::tableName().'.is_active' => 1]);
         }
 
         return $dataProvider;

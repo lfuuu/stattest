@@ -386,7 +386,11 @@ class MonitoringController extends BaseController
         $usageVoipIds = [];
         $accountTariffIds = [];
         if ($regionId = $filterModelSearch->region_id) {
-            $ids = SormClientFilter::getAccountTariffIds($regionId, $filterModelSearch->is_device_empty === '' ? null : ($filterModelSearch->is_device_empty == TariffPeriod::IS_NOT_SET ? false : true));
+            $ids = SormClientFilter::getAccountTariffIds(
+                $regionId, 
+                $filterModelSearch->is_device_empty === '' ? null : 
+                    ($filterModelSearch->is_device_empty == TariffPeriod::IS_NOT_SET ? false : true)
+                );
 
             $usageVoipIds = array_filter($ids, function ($v) {
                 return $v < AccountTariff::DELTA;
@@ -400,6 +404,9 @@ class MonitoringController extends BaseController
             $filterModel->account_manager = $account_manager;
             $filterModelOld->account_manager = $account_manager;
         }
+
+        $filterModelOld->is_active_client_account = $filterModelSearch->is_active_client_account;
+        $filterModel->is_active_client_account = $filterModelSearch->is_active_client_account;
 
         $filterModelOld->id = $usageVoipIds ? : 0;
         $filterModel->id = $accountTariffIds ? : 0;

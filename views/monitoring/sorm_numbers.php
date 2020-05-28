@@ -36,7 +36,7 @@ $form = ActiveForm::begin([
                 'data' => Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE])
             ]) ?>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <?= $form->field($filterModelSearch, 'account_manager')->widget(Select2::className(), [
                 'data' => User::getAccountManagerList(true)
             ]) ?>
@@ -46,7 +46,12 @@ $form = ActiveForm::begin([
                 'data' => \app\classes\traits\GetListTrait::getEmptyList(true, true)
             ]) ?>
         </div>
-        <div class="col-md-2" style="margin-top: 20px">
+        <div class="col-md-2">
+            <?= $form->field($filterModelSearch, 'is_active_client_account')->widget(Select2::className(), [
+                'data' => ['' => '---', '1' => 'Работает'],
+            ]) ?>
+        </div>
+        <div class="col-md-1" style="margin-top: 20px">
             <?= Html::submitButton('Фильтровать', ['class' => 'btn btn-info']) ?>
         </div>
     </div>

@@ -4,6 +4,7 @@ namespace app\modules\uu\filter;
 
 use app\classes\traits\GetListTrait;
 use app\models\ClientContract;
+use app\models\ClientAccount;
 use app\models\Number;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
@@ -28,6 +29,7 @@ class AccountTariffFilter extends AccountTariff
     public $region_id = '';
     public $city_id = '';
     public $is_active = '';
+    public $is_active_client_account = '';
 
     public $service_type_id = '';
     public $tariff_period_id = '';
@@ -103,6 +105,7 @@ class AccountTariffFilter extends AccountTariff
         return array_merge(parent::attributeLabels(), [
             'account_manager' => 'Ак. Менеджер',
             'is_device_empty' => 'Адрес устройства заполнен',
+            'is_active_client_account' => 'Статус клиента',
         ]);
     }
 
@@ -131,7 +134,7 @@ class AccountTariffFilter extends AccountTariff
         $rules[] = [['number_ndc_type_id'], 'integer'];
         $rules[] = [['tariff_period_utc_from', 'tariff_period_utc_to'], 'string'];
         $rules[] = [['account_log_period_utc_from', 'account_log_period_utc_to'], 'string'];
-        $rules[] = [['is_unzipped', 'is_device_empty'], 'integer'];
+        $rules[] = [['is_unzipped', 'is_device_empty', 'is_active_client_account'], 'integer'];
         $rules[] = [
             [
                 'account_manager_name',
@@ -200,7 +203,11 @@ class AccountTariffFilter extends AccountTariff
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
         $this->region_id !== '' && $query->andWhere([$accountTariffTableName . '.region_id' => $this->region_id]);
         $this->city_id !== '' && $query->andWhere([$accountTariffTableName . '.city_id' => $this->city_id]);
+        // ???
         $this->is_active !== '' && $query->andWhere([$accountTariffTableName . '.is_active' => $this->is_active]);
+
+        $this->is_active_client_account !== '' && $query->andWhere([ClientAccount::tableName().'.is_active' => 1]);
+
         $this->is_unzipped !== '' && $query->andWhere([$accountTariffTableName . '.is_unzipped' => $this->is_unzipped]);
 
         $this->tariff_status_id !== '' && $query->andWhere(['tariff.tariff_status_id' => $this->tariff_status_id]);
