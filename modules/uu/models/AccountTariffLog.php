@@ -111,7 +111,7 @@ class AccountTariffLog extends ActiveRecord
                 AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
                 FillAccountTariffResourceLog::class, // Создать лог ресурсов при создании услуги. Удалить при удалении
                 AccountTariffLogTimeHistory::class, // Обновление время продажи и допродажи в модели AccountTariff
-                ClientChangeNotifier::class, //оповещение о изменении ЛС
+//                ClientChangeNotifier::class, //оповещение о изменении ЛС
             ]
         );
     }
