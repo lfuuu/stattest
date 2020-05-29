@@ -6,6 +6,8 @@ use app\modules\sbisTenzor\classes\ContractorInfo;
 use app\modules\sbisTenzor\classes\EdfOperator;
 use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\helpers\SBISInfo;
+use app\modules\sbisTenzor\exceptions\SBISTensorException;
+use app\modules\sbisTenzor\helpers\SBISUtils;
 use yii\data\ActiveDataProvider;
 use yii\widgets\Breadcrumbs;
 use app\classes\grid\GridView;
@@ -52,7 +54,8 @@ echo GridView::widget([
                     $branchCode = sprintf(' (Код филиала: "%s")', $branchCode);
                 }
 
-                return sprintf('%s, %s%s', $model->contragent->id, Html::a($text, $model->getUrl()), $branchCode);
+                $info = sprintf('(ИНН / КПП: %s / %s)', $model->getInn(), $model->getKpp());
+                return sprintf('%s, %s%s<br />%s', $model->contragent->id, Html::a($text, $model->getUrl()), $branchCode, $info);
             },
         ],
         [
@@ -89,13 +92,17 @@ echo GridView::widget([
         [
             'attribute' => 'is_roaming',
             'label' => 'Доступен',
+            'format' => 'html',
             'value'     => function (ClientAccount $model) {
                 $contractorInfo = ContractorInfo::get($model);
                 if ($error = $contractorInfo->getErrorText()) {
                     return 'Нет';
                 }
 
-                return $contractorInfo->isRoamingEnabled() ? 'Да' : 'Нет роуминга';
+                return
+                    $contractorInfo->isRoamingEnabled() ?
+                        'Да' :
+                        sprintf('<strong>Нет роуминга</strong><br /><small>%s</small>', SBISUtils::getShortOrganizationName($model->organization));
             },
         ],
         [
@@ -103,12 +110,21 @@ echo GridView::widget([
             'label' => 'Оператор',
             'format' => 'html',
             'value'     => function (ClientAccount $model) {
-                $contractor = SBISInfo::getPreparedContractor($model);
+                $contractor = null;
+                try {
+                    $contractor = SBISInfo::getPreparedContractor($model);
+                } catch (SBISTensorException $e) {
+                    return 'Ошибка при запросе ИД ЭДО из СБИС';
+                } catch (\Throwable $e) {
+                    return $e->getMessage();
+                }
+
                 if (!$contractor) {
                     return '';
                 }
 
-                $code = substr($contractor->getEdfId(), 0, 3);
+                $edfId = $contractor->getEdfId();
+                $code = substr($edfId, 0, 3);
                 $operator = new EdfOperator($code);
 
                 return Html::tag('a',
@@ -116,8 +132,15 @@ echo GridView::widget([
                     [
                         'href' => $operator->getUrl(),
                         'target' => '_blank',
+                        'title' => $edfId,
                     ]
                 );
+            },
+        ],
+        [
+            'label' => 'Организация',
+            'value'     => function (ClientAccount $model) {
+                return SBISUtils::getShortOrganizationName($model->organization);
             },
         ],
     ],

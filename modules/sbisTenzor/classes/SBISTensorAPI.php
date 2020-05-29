@@ -549,20 +549,22 @@ class SBISTensorAPI
         }
 
         // Код филиала
-        if (
-            array_key_exists('СвЮЛ', $result) &&
-            $client->getBranchCode() &&
-            ($result['СвЮЛ']['КодФилиала'] !== $client->getBranchCode())
-        ) {
-            throw new \LogicException(
-                sprintf(
-                    'Клиент #%s, %s: код филиала ЮЛ "%s" не совпадает с Кодом филиала ЮЛ в системе СБИС: "%s"',
-                    $client->id,
-                    $result['СвЮЛ']['Название'],
-                    $client->getBranchCode(),
-                    $result['СвЮЛ']['КодФилиала']
-                )
-            );
+        if (array_key_exists('СвЮЛ', $result)) {
+            $branchCode = $client->getBranchCode();
+            if (is_null($branchCode)) {
+                // у нас Код филиала не заполнен - игнорируем, что пришло для целостности
+                unset($result['СвЮЛ']['КодФилиала']);
+            } else if ($result['СвЮЛ']['КодФилиала'] !== $client->getBranchCode()) {
+                throw new \LogicException(
+                    sprintf(
+                        'Клиент #%s, %s: код филиала ЮЛ "%s" не совпадает с Кодом филиала ЮЛ в системе СБИС: "%s"',
+                        $client->id,
+                        $result['СвЮЛ']['Название'],
+                        $client->getBranchCode(),
+                        $result['СвЮЛ']['КодФилиала']
+                    )
+                );
+            }
         }
 
         return $result;
