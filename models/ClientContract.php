@@ -186,7 +186,7 @@ class ClientContract extends HistoryActiveRecord
             'SetClientContractOfferDate' => SetClientContractOfferDate::class,
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
-            'ClientChangeNotifier' => ClientChangeNotifier::class,
+//            'ClientChangeNotifier' => ClientChangeNotifier::class,
         ];
     }
 

@@ -152,7 +152,7 @@ class AccountTariff extends ActiveRecord
                 AccountTariffAddDefaultPackage::class,
                 AccountTariffTransferClean::class,
                 AccountTariffCheckHlr::class,
-                ClientChangeNotifier::class,
+//                ClientChangeNotifier::class,
                 [
                     // Установить "когда создал" и "когда обновил"
                     'class' => TimestampBehavior::class,
