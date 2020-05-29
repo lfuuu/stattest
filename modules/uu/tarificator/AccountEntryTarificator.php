@@ -236,12 +236,9 @@ SQL;
                         MAX(`{$dateFieldNameTo}`) AS date_to,
                         {$costPrice} AS cost_price
                     FROM
-                        {$accountLogTableName} account_log,
-                        {$accountTariffTableName} account_tariff,
-                        {$clientAccountTableName} client_account
+                        {$accountLogTableName} account_log
                     WHERE
-                        account_log.account_tariff_id = account_tariff.id
-                        AND account_tariff.client_account_id = client_account.id
+                        TRUE
                         {$sqlAndWhere}
                     GROUP BY
                        account_log.account_entry_id
