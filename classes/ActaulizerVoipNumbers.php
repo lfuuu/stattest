@@ -8,6 +8,7 @@ use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 
 /**
  * Class ActaulizerVoipNumbers
@@ -469,6 +470,17 @@ class ActaulizerVoipNumbers extends Singleton
         // change fields
         if ($changedFields) {
 
+            /** @var AccountTariff $accountTariff */
+            $accountTariff = AccountTariff::find()
+                ->where([
+                    'service_type_id' => ServiceType::ID_VOIP,
+                    'voip_number' => $number,
+                ])
+                ->andWhere(['NOT', ['tariff_period_id' => null]])
+                ->one();
+
+            $isRobocallEnabled = $accountTariff && $accountTariff->tariffPeriod->tariff->isAutodial();
+
             $this->_getPhoneApi()->editDid(
                 (int)$new['client_id'],
                 $number,
@@ -478,7 +490,8 @@ class ActaulizerVoipNumbers extends Singleton
                 null,
                 null,
                 isset($changedFields['region']) ? (int)$changedFields['region'] : null,
-                isset($changedFields['number7800']) ? $changedFields['number7800'] : null
+                isset($changedFields['number7800']) ? $changedFields['number7800'] : null,
+                $isRobocallEnabled
             );
         }
     }
