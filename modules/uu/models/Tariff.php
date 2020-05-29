@@ -97,7 +97,7 @@ class Tariff extends ActiveRecord
     const TEST_VOIP_ID = 10005;
     const TEST_VPBX_ID = 10123;
     const START_VPBX_ID = 10143;
-    const AUTODIAL_ID = 13167;
+    const AUTODIAL_IDS = [13167, 13168];
 
     /**
      * @return array
@@ -709,6 +709,6 @@ class Tariff extends ActiveRecord
      */
     public function isAutodial()
     {
-        return $this->id == self::AUTODIAL_ID;
+        return in_array($this->id, self::AUTODIAL_IDS);
     }
 }
