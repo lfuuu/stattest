@@ -31,7 +31,9 @@ class RoamingForm extends \app\classes\Form
     {
         $query = SBISContractor::find();
 
-        $query->where(['is_roaming' => true]);
+        $query
+            ->with(['clientAccount'])
+            ->where(['is_roaming' => true]);
 
         if ($this->client) {
             $query->andWhere(['account_id' => $this->client->id]);
@@ -39,7 +41,6 @@ class RoamingForm extends \app\classes\Form
 
         return new ActiveDataProvider([
             'query' => $query,
-            'sort' => false,
         ]);
     }
 

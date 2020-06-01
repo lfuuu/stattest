@@ -39,9 +39,17 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
+            'attribute' => 'id',
             'label' => 'ID',
             'value'     => function (ClientAccount $model) {
                 return $model->id;
+            },
+        ],
+        [
+            'attribute' => 'organization.id',
+            'label' => 'Организация',
+            'value'     => function (ClientAccount $model) {
+                return SBISUtils::getShortOrganizationName($model->organization);
             },
         ],
         [
@@ -135,12 +143,6 @@ echo GridView::widget([
                         'title' => $edfId,
                     ]
                 );
-            },
-        ],
-        [
-            'label' => 'Организация',
-            'value'     => function (ClientAccount $model) {
-                return SBISUtils::getShortOrganizationName($model->organization);
             },
         ],
     ],
