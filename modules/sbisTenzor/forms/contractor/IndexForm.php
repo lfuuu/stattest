@@ -54,7 +54,6 @@ class IndexForm extends \app\classes\Form
 
         return new ActiveDataProvider([
             'query' => $query,
-            'sort' => false,
         ]);
     }
 

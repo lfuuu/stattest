@@ -129,13 +129,14 @@ class ContractorController extends Controller
      * Запросить информацию по контрагенту
      *
      * @param int $clientId
+     * @param string $branchCode
      * @throws SBISTensorException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\web\BadRequestHttpException
      * @throws \Exception
      */
-    public function actionContractorInfo($clientId = 0)
+    public function actionContractorInfo($clientId = 0, $branchCode = '')
     {
         if (!$clientId) {
             throw new InvalidArgumentException('No client');
@@ -146,6 +147,8 @@ class ContractorController extends Controller
         if (!$client) {
             throw new InvalidArgumentException('Client not found');
         }
+
+        $branchCode = $branchCode ? : $client->getBranchCode();
 
         echo '--------------------------------' . PHP_EOL;
         echo 'Client id: ' . $clientId . PHP_EOL;
@@ -171,7 +174,10 @@ class ContractorController extends Controller
 
                 case ClientContragent::LEGAL_TYPE:
                     echo 'Client kpp: ' . $client->getKpp() . PHP_EOL;
-                    $result = $api->getContractorInfoLegal($client->getInn(), $client->getKpp(), $client->getBranchCode());
+                    if ($branchCode) {
+                        echo 'Branch code: ' . $branchCode . PHP_EOL;
+                    }
+                    $result = $api->getContractorInfoLegal($client->getInn(), $client->getKpp(), $branchCode);
                     break;
             }
         }

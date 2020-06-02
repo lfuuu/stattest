@@ -2,6 +2,7 @@
 
 use app\classes\Html;
 use app\modules\sbisTenzor\classes\EdfOperator;
+use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISContractor;
 use yii\data\ActiveDataProvider;
 use yii\widgets\Breadcrumbs;
@@ -33,15 +34,14 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'attribute' => 'id',
-            'label' => 'ID',
-            'format' => 'html',
+            'attribute' => 'clientAccount.organization.name',
+            'label' => 'Организация',
             'value'     => function (SBISContractor $model) {
-                return $model->clientAccount->id;
+                return SBISUtils::getShortOrganizationName($model->clientAccount->organization);
             },
         ],
         [
-            'attribute' => 'invoice.bill.clientAccount.contragent.name_full',
+            'attribute' => 'clientAccount.contragent.name_full',
             'label' => 'Контагент',
             'format' => 'html',
             'value'     => function (SBISContractor $model) {
