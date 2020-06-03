@@ -75,6 +75,7 @@ class HistoryChanges extends Behavior
             'prev_data_json' => json_encode($prevData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ];
 
+        $params = [];
         $sql = Yii::$app->db->queryBuilder
             ->insert(
                 \app\models\HistoryChanges::tableName(),

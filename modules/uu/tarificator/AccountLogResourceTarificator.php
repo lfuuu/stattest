@@ -81,7 +81,7 @@ class AccountLogResourceTarificator extends Tarificator
             $fromId = (int)$_SERVER['argv'][2];
             $toId = (int)$_SERVER['argv'][3];
 
-            if (!$fromId || !$toId || $fromId >= $toId) {
+            if (!$fromId || !$toId || $fromId > $toId) {
                 throw new \InvalidArgumentException('Неверные аргументы');
             }
 
