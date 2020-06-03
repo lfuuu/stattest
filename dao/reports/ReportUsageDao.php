@@ -100,11 +100,13 @@ class ReportUsageDao extends Singleton
 
         $from = (new DateTime('now', new DateTimeZone($timeZone)))
             ->setTimestamp($from)
-            ->setTime(0, 0, 0);
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
 
         $to = (new DateTime('now', new DateTimeZone($timeZone)))
             ->setTimestamp($to)
-            ->setTime(23, 59, 59);
+            ->setTime(23, 59, 59)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
 
         $query = CallsRaw::find()
             ->alias('cr')
@@ -410,8 +412,8 @@ class ReportUsageDao extends Singleton
             ->andWhere([
                 'BETWEEN',
                 'cr.connect_time',
-                $from->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                $to->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
+                $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
             ])
             ->limit($limit)
             ->createCommand($db);
