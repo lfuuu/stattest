@@ -1987,7 +1987,11 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         {
             if ($stateId === null)
             {
-                $stateId = $stage->state->id;
+                if ($stage->state) {
+                    $stateId = $stage->state->id;
+                } else {
+                    return false;
+                }
             }
 
             if ($stateId != $stage->state->id)

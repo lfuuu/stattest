@@ -333,7 +333,9 @@ class UbillerController extends Controller
      */
     public function actionRealtimeBalance()
     {
+        $this->sem_start();
         $this->executeRater(RealtimeBalanceTarificator::class);
+        $this->sem_stop();
     }
 
     /**
