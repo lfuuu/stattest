@@ -93,7 +93,7 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
         ) ?>
     </div>
 
-    <div id="pricelist_v1"  class="hide">
+    <div id="pricelist_v1" class="hide">
         <?= TabularInput::widget([
                 'models' => array_values($packagePricelists), // ключ должен быть автоинкрементный
                 'allowEmptyList' => true,
@@ -110,9 +110,9 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
                         'name' => 'minute',
                         'title' => $attributeLabels['minute'] . $helpConfluence,
                         'type' => Editable::INPUT_RANGE,
-                        'options' => [
-                            'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
-                        ],
+                        'options' => $options + [
+                                'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
+                            ],
                     ],
                     [
                         'name' => 'id', // чтобы идентифицировать модель
@@ -142,9 +142,9 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
                         'name' => 'minute',
                         'title' => $attributeLabels['minute'] . $helpConfluence,
                         'type' => Editable::INPUT_RANGE,
-                        'options' => [
-                            'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
-                        ],
+                        'options' => $options + [
+                                'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
+                            ],
                     ],
                     [
                         'name' => 'id', // чтобы идентифицировать модель
