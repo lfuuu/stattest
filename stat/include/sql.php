@@ -43,18 +43,12 @@ class MySQLDatabase {
 
     function Connect() {
         if ($this->_LinkId == 0) {
-            $this->_LinkId = @mysqli_connect($this->host, $this->user, $this->pass, true);
-            if (!$this->_LinkId && $this->host !== 'thiamis.mcn.ru'){
-                $this->_Halt("connect failed.");
-                echo "can't connect mysql ".$this->host;
+            $this->_LinkId = @mysqli_connect($this->host, $this->user, $this->pass, $this->db);
+            if (mysqli_connect_error()){
+                die("connect failed. " . mysqli_connect_errno() .': ' . mysqli_connect_error());
                 exit();
             }
 
-            if (!@mysqli_select_db($this->db, $this->_LinkId) && $this->host !== 'thiamis.mcn.ru'){
-                $this->_Halt("cannot use database " . $this->db);
-                echo "can't use database";
-                exit();
-            }
             $this->Query("set names utf8");
             $this->Query("SET @@session.time_zone = '+00:00'");
 
@@ -118,7 +112,7 @@ class MySQLDatabase {
         	if ($this->_QueryId) $this->Free();
         }
 		if (DEBUG_LEVEL>=3) time_start("sql");
-        $req = @mysqli_query($query, $this->_LinkId);
+        $req = @mysqli_query($this->_LinkId, $query);
 		if (DEBUG_LEVEL>=3) trigger_error2("it took ".time_finish("sql")." seconds");
 
         /*
@@ -138,10 +132,10 @@ class MySQLDatabase {
 		}*/
 
         $this->mRow   = 0;
-        $this->mErrno = mysqli_errno();
-        $this->mError = mysqli_error();
+        $this->mErrno = mysqli_errno($this->_LinkId);
+        $this->mError = mysqli_error($this->_LinkId);
        	if (!$req) $this->_Halt("Invalid SQL: " . htmlspecialchars_($query));
-        if ($saveDefault && is_resource($req)) $this->_QueryId = $req;
+        if ($saveDefault /* && is_resource($req) */) $this->_QueryId = $req;
        	return $req;
     }
     function GetInsertId() {
@@ -153,8 +147,8 @@ class MySQLDatabase {
         if (!$this->_QueryId) return 0;
   		$R=array();
 
-       	$this->mErrno  = mysqli_errno();
-       	$this->mError  = mysqli_error();
+       	$this->mErrno  = mysqli_errno($this->_LinkId);
+       	$this->mError  = mysqli_error($this->_LinkId);
 		while ($r= @mysqli_fetch_array($this->_QueryId,$return_type)){
         	$this->mRow++;
         	if ($by_id && isset($r[$by_id])) $R[$r[$by_id]]=$r; else $R[]=$r;
