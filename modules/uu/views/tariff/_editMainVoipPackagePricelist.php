@@ -139,6 +139,14 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
                             ],
                     ],
                     [
+                        'name' => 'minute',
+                        'title' => $attributeLabels['minute'] . $helpConfluence,
+                        'type' => Editable::INPUT_RANGE,
+                        'options' => [
+                            'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
+                        ],
+                    ],
+                    [
                         'name' => 'id', // чтобы идентифицировать модель
                         'type' => TabularColumn::TYPE_HIDDEN_INPUT,
                     ],

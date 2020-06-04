@@ -10,8 +10,8 @@ class PackagePricelistNnp extends PackagePricelist
     public function rules()
     {
         return [
-            [['tariff_id', 'nnp_pricelist_id'], 'required'],
-            [['tariff_id', 'nnp_pricelist_id'], 'integer'],
+            [['tariff_id', 'nnp_pricelist_id', 'minute'], 'required'],
+            [['tariff_id', 'nnp_pricelist_id', 'minute'], 'integer'],
         ];
     }
 }
