@@ -26,13 +26,7 @@
     <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 {if $detality=='call'}
     <TD style="color:gray">{if isset($item.id)}{$item.id}{/if}</TD>
-    <TD>
-        {if $key !== 'total'} {*!is_null($item.ts1) && *}
-            {$item.tsf1|datetime_with_timezone:$timezone}
-        {else}
-            {$item.tsf1}
-        {/if}
-    </TD>
+    <TD>{$item.tsf1}</TD>
     {if $phone=='all_regions'}<TD>{$item.reg_id}</TD>{/if}
     <TD>{if isset($item.src_number)}{$item.src_number}{/if}</TD>
     <TD style="color: {if isset($item.orig) && $item.orig === false}blue;">&darr;&nbsp;входящий{elseif isset($item.orig) && $item.orig === true}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
