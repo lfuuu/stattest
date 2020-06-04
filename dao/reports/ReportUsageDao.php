@@ -100,11 +100,13 @@ class ReportUsageDao extends Singleton
 
         $from = (new DateTime('now', new DateTimeZone($timeZone)))
             ->setTimestamp($from)
-            ->setTime(0, 0, 0);
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
 
         $to = (new DateTime('now', new DateTimeZone($timeZone)))
             ->setTimestamp($to)
-            ->setTime(23, 59, 59);
+            ->setTime(23, 59, 59)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
 
         $query = CallsRaw::find()
             ->alias('cr')
@@ -133,11 +135,7 @@ class ReportUsageDao extends Singleton
             ]);
 
         if ($destination !== 'all') {
-            $destinationArr = explode('-', $destination);
-
-            $dest = $destinationArr[0];
-            $mobile = $destinationArr[1];
-            $zone = $destinationArr[2];
+            list ($dest, $mobile, $zone) = explode('-', $destination);
 
             if ((int)$dest == 0) {
                 $query->andWhere(['<=', 'cr.destination_id', (int)$dest]);
@@ -240,16 +238,14 @@ class ReportUsageDao extends Singleton
         switch ($detality) {
             case self::DETALITY_DAY:
             case self::DETALITY_MONTH:
-            case self::DETALITY_YEAR:
-            {
+            case self::DETALITY_YEAR: {
                 $groupBy = new Expression("DATE_TRUNC('" . $detality . "', cr.connect_time + '" . $offset . " second'::interval)");
                 $query->addSelect([
                     'ts1' => new Expression("DATE_TRUNC('" . $detality . "', cr.connect_time + '" . $offset . " second'::interval)"),
                 ]);
                 break;
             }
-            case self::DETALITY_CALL:
-            {
+            case self::DETALITY_CALL: {
                 $groupBy = '';
                 $query->addSelect([
                     'ts1' => new Expression("cr.connect_time + '" . $offset . " second'::interval"),
@@ -257,8 +253,7 @@ class ReportUsageDao extends Singleton
                 break;
             }
 
-            default:
-            {
+            default: {
                 throw new \LogicException('Impossible call parameter');
             }
         }
@@ -417,8 +412,8 @@ class ReportUsageDao extends Singleton
             ->andWhere([
                 'BETWEEN',
                 'cr.connect_time',
-                $from->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                $to->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
+                $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
             ])
             ->limit($limit)
             ->createCommand($db);
@@ -794,51 +789,6 @@ class ReportUsageDao extends Singleton
         return $row;
     }
 
-    private function _getCachedValue($key, $id)
-    {
-        static $c = [];
-
-        if (!$id) {
-            return null;
-        }
-
-        if (isset($c[$key][$id])) {
-            return $c[$key][$id];
-        }
-
-        $value = null;
-
-        switch ($key) {
-            case 'nnp_package_minute_id':
-                $value = PackageMinute::find()
-                    ->where(['id' => $id])
-                    ->with(['tariff', 'destination'])
-                    ->one();
-                break;
-
-            case 'nnp_package_price_id':
-                $value = PackagePrice::find()
-                    ->where(['id' => $id])
-                    ->with(['tariff', 'destination'])
-                    ->one();
-                break;
-
-            case 'nnp_package_pricelist_id':
-                $value = PackagePricelist::find()
-                    ->where(['id' => $id])
-                    ->with(['tariff', 'pricelist', 'pricelistNnp'])
-                    ->one();
-                break;
-
-            default:
-                throw new \InvalidArgumentException('Invalid key: ' . $key);
-        }
-
-        $c[$key][$id] = $value;
-
-        return $value;
-    }
-
     /**
      * Добавляет к строке детализации звонка данные по использованным пакетам
      *
@@ -847,8 +797,12 @@ class ReportUsageDao extends Singleton
     private function _admixedPackageDetails(&$record)
     {
         // Детализация универсальных пакетов.
+        $packageMinute = $record['nnp_package_minute_id'] ?
+            PackageMinute::findOne([
+                'id' => $record['nnp_package_minute_id']
+            ]) : null;
+
         /** @var PackageMinute $packageMinute */
-        $packageMinute = $this->_getCachedValue('nnp_package_minute_id', $record['nnp_package_minute_id']);
         if ($packageMinute) {
             $record['package_minute'] = [
                 'name' => $packageMinute->tariff->name,
@@ -858,8 +812,12 @@ class ReportUsageDao extends Singleton
             ];
         }
 
+        $packagePrice = $record['nnp_package_price_id'] ?
+            PackagePrice::findOne([
+                'id' => $record['nnp_package_price_id']
+            ]) : null;
+
         /** @var PackagePrice $packagePrice */
-        $packagePrice = $this->_getCachedValue('nnp_package_price_id', $record['nnp_package_price_id']);
         if ($packagePrice) {
             $record['package_price'] = [
                 'name' => $packagePrice->tariff->name,
@@ -869,8 +827,11 @@ class ReportUsageDao extends Singleton
             ];
         }
 
-        /** @var PackagePricelist $packagePriceList */
-        $packagePriceList = $this->_getCachedValue('nnp_package_pricelist_id', $record['nnp_package_pricelist_id']);
+        $packagePriceList = $record['nnp_package_pricelist_id'] ?
+            PackagePricelist::findOne([
+                'id' => $record['nnp_package_pricelist_id']
+            ]) : null;
+
         if ($packagePriceList) {
             if ($packagePriceList->pricelist_id) {
                 $record['package_pricelist'] = [
@@ -964,7 +925,7 @@ class ReportUsageDao extends Singleton
                     'client_account_id' => $account->id,
                     'service_type_id' => ServiceType::ID_VOIP
                 ])
-                ->with('number.regionModel')
+                ->with('city', 'region')
                 ->orderBy([
                     AccountTariff::tableName() . '.id' => SORT_ASC
                 ]);
@@ -972,7 +933,7 @@ class ReportUsageDao extends Singleton
             $usages = [];
 
             /** @var AccountTariff $accountTariff */
-            foreach ($accountTariffs->each(1000) as $accountTariff) {
+            foreach ($accountTariffs->each() as $accountTariff) {
                 $region = $accountTariff->number->regionModel;
                 $usages[] = [
                     'id' => $accountTariff->id,
@@ -1175,9 +1136,7 @@ class ReportUsageDao extends Singleton
     public function decodeSelected($selected)
     {
         $e = explode('_', $selected);
-        $type = $e[0];
-        $region = $e[1];
-        $value = $e[2];
+        list($type, $region, $value) = $e;
 
         $data = ['type' => $type];
 
