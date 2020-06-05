@@ -280,6 +280,12 @@ class AccountTariffFilter extends AccountTariff
             $this->number_ndc_type_id !== '' && $query->andWhere([$numberTableName . '.ndc_type_id' => $this->number_ndc_type_id]);
         }
 
+        if ($this->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS && $this->number_ndc_type_id) {
+            $query
+            ->leftJoin(Number::tableName() . ' prevNm',  'account_tariff_prev.voip_number = prevNm.number')
+            ->andWhere(['prevNm.ndc_type_id' => $this->number_ndc_type_id]);
+        }
+
         switch ($this->prev_account_tariff_tariff_id) {
             case '':
                 break;
