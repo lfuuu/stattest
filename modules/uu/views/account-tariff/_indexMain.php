@@ -348,6 +348,16 @@ if ($serviceType) {
                 'attribute' => 'city_id',
                 'class' => CityColumn::class,
             ];
+
+            $columns[] = [
+                'label' => 'Тип NDC',
+                'attribute' => 'number_ndc_type_id',
+                'class' => NdcTypeColumn::class,
+                'isWithNullAndNotNull' => false,
+                'value' => function (AccountTariff $accountTariff) {
+                    return $accountTariff->prevAccountTariff->number->ndc_type_id;
+                },
+            ];
             break;
 
         case ServiceType::ID_INFRASTRUCTURE:
