@@ -63,7 +63,7 @@ class LkController extends ApiController
     public function actionAccountInfo()
     {
         $form = DynamicModel::validateData(
-            Yii::$app->request->bodyParams,
+            Yii::$app->request->get() ?: Yii::$app->request->bodyParams,
             [
                 ['account_id', AccountIdValidator::class],
             ]
@@ -74,14 +74,17 @@ class LkController extends ApiController
         $account = ClientAccount::findOne(["id" => $form->account_id]);
         Assert::isObject($account);
 
+        $contract = $account->clientContractModel;
+        Assert::isObject($contract);
+
         $shopId = null;
         $scId = null;
         if (
             isset(\Yii::$app->params['yandex'])
-            && isset(\Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['shop_id'])
+            && isset(\Yii::$app->params['yandex']['kassa'][$contract->organization_id]['shop_id'])
         ) {
-            $shopId = \Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['shop_id'];
-            $scId = \Yii::$app->params['yandex']['kassa'][$account->contract->organization_id]['sc_id'];
+            $shopId = \Yii::$app->params['yandex']['kassa'][$contract->organization_id]['shop_id'];
+            $scId = \Yii::$app->params['yandex']['kassa'][$contract->organization_id]['sc_id'];
         }
 
         return [
@@ -93,8 +96,8 @@ class LkController extends ApiController
             'version' => $account->account_version,
             'yandex_shop_id' => $shopId,
             'yandex_sc_id' => $scId,
-            'is_only_yandex' => $account->contract->organization_id == Organization::MCN_TELECOM,
-            'organization_id' => $account->contract->organization_id,
+            'is_only_yandex' => $contract->organization_id == Organization::MCN_TELECOM,
+            'organization_id' => $contract->organization_id,
         ];
     }
 
