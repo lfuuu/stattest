@@ -3135,7 +3135,9 @@ class m_newaccounts extends IModule
                         $inv_date = (new \DateTimeImmutable($invoice->date))->getTimestamp();
                     }
 
-                    $billLines = $invoice->lines;
+                    if ($invoice->lines || $invoice->sum == 0) {
+                        $billLines = $invoice->lines;
+                    }
                 }
 
                 $design->assign('is_document_ready', $newInvoiceNumber || $bill->Get('bill_date') < Invoice::DATE_ACCOUNTING);
