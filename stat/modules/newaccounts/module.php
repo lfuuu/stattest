@@ -268,7 +268,7 @@ class m_newaccounts extends IModule
             return $R;
         }
 
-        list($R, $sum, $sw) = $R;
+        [$R, $sum, $sw] = $R;
 
         ksort($sw);
 
@@ -847,7 +847,7 @@ class m_newaccounts extends IModule
                 ->column();
         }
 
-        list($bill_akts, $bill_invoices, $bill_upd) = $this->get_bill_docs($bill, $L);
+        [$bill_akts, $bill_invoices, $bill_upd] = $this->get_bill_docs($bill, $L);
 
         if ($invoices) {
             foreach (Invoice::$types as $invoiceType) {
@@ -1846,7 +1846,7 @@ class m_newaccounts extends IModule
                 $toDelDate = false;
 
                 if ($wDate) {
-                    list($d, $m, $y) = explode(".", $wDate . "...");
+                    [$d, $m, $y] = explode(".", $wDate . "...");
 
                     $utDate = @mktime(0, 0, 0, $m, $d, $y);
 
@@ -2304,7 +2304,7 @@ class m_newaccounts extends IModule
 
         self::$object = $object;
         if ($object) {
-            list($obj, $source, $curr) = explode('-', $object . '---');
+            [$obj, $source, $curr] = explode('-', $object . '---');
         } else {
             $obj = get_param_protected("obj");
             $source = get_param_integer('source', 1);
@@ -2403,7 +2403,7 @@ class m_newaccounts extends IModule
 
             $lastDoer = $db->GetValue("SELECT name FROM tt_doers d , courier c WHERE stage_id IN (SELECT stage_id FROM tt_stages WHERE trouble_id = (SELECT id FROM `tt_troubles` WHERE bill_no ='" . $cli["bill_no"] . "')) AND d.doer_id = c.id ORDER BY d.id DESC");
 
-            list($f, $i, $o) = explode(" ", $lastDoer . "   ");
+            [$f, $i, $o] = explode(" ", $lastDoer . "   ");
             if (strlen($i) > 2) {
                 $i = $i[0] . ".";
             }
@@ -2632,10 +2632,10 @@ class m_newaccounts extends IModule
             $clientAccount = ClientAccount::findOne($clientId);
             $organization = $clientAccount->organization;
 
-            list($sum, $sum_without_tax, $sum_tax) = $clientAccount->convertSum($sum, null);
+            [$sum, $sum_without_tax, $sum_tax] = $clientAccount->convertSum($sum, null);
 
-            list($rub, $kop) = explode('.', sprintf('%.2f', $sum));
-            list($ndsRub, $ndsKop) = explode('.', sprintf('%.2f', $sum_tax));
+            [$rub, $kop] = explode('.', sprintf('%.2f', $sum));
+            [$ndsRub, $ndsKop] = explode('.', sprintf('%.2f', $sum_tax));
 
             $summary = [
                 'rub' => $rub,
@@ -2977,11 +2977,11 @@ class m_newaccounts extends IModule
                 $inv_date = $bill->GetTs();
                 $period_date = get_inv_period($inv_date);
             } else {
-                list($inv_date, $period_date) = get_inv_date($bill->GetTs(),
+                [$inv_date, $period_date] = get_inv_date($bill->GetTs(),
                     ($bill->Get('inv2to1') && ($source == BillDocument::ID_RESOURCE)) ? 1 : $source);
             }
         } else { // статовские переодичекские счета
-            list($inv_date, $period_date) = get_inv_date($bill->GetTs(),
+            [$inv_date, $period_date] = get_inv_date($bill->GetTs(),
                 ($bill->Get('inv2to1') && ($source == BillDocument::ID_RESOURCE)) ? 1 : $source);
         }
 
@@ -3272,6 +3272,7 @@ class m_newaccounts extends IModule
         }
 
         $data = [];
+        $all[] = [];
         while ($e = $d->read()) {
             if ($e != '.' && $e != '..') {
                 if (!$pattern || preg_match($pattern, $e)) {
@@ -3279,11 +3280,15 @@ class m_newaccounts extends IModule
                     if (preg_match_all("/^([^_]+)_([^_]+)(_([^_]+))?__(\d+-\d+-\d+).+/", $e, $o, PREG_SET_ORDER)) {
                         $o = $o[0];
                         $data[strtotime($o[5])][$o[2]][$o[1] . $o[3]] = $o[0];
+                        $all[] = $o[0];
                     } elseif (preg_match_all("/^(.+?)(\d+_\d+_\d+).+/", $e, $o, PREG_SET_ORDER)) {
                         $o = $o[0];
                         $co = $o[1] == "citi" ? "mcn" : ($o[1] == "ural" ? "cmc" : "mcn");
                         $acc = $o[1] == "mcn" ? "mos" : $o[1];
                         $data[strtotime(str_replace("_", "-", $o[2]))][$co][$acc] = $o[0];
+                        
+                        $all[] = $o[0];
+
                     } else {
                     }
 
@@ -3303,6 +3308,10 @@ class m_newaccounts extends IModule
         $d->close();
         sort($R);
         $design->assign('payments', $data);
+
+        if (get_param_raw('get_list')) {
+            echo implode("<br>\n", array_filter($all));
+        }
 
         $design->assign("l1", [
                 "mcn" => [
@@ -3883,8 +3892,6 @@ WHERE cg.inn = '" . $inn . "'";
 
     function getClient($clientIds)
     {
-        global $db;
-
         if (!$clientIds) {
             return false;
         }
@@ -3892,25 +3899,40 @@ WHERE cg.inn = '" . $inn . "'";
             $clientIds = [$clientIds];
         }
 
-        $clients = (new \yii\db\Query())
-            ->select(['c.id', 'c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id', 'cg.inn', 'c.pay_acc'])
-            ->from(['c' => ClientAccount::tableName()])
-            ->innerJoin(['cr' => ClientContract::tableName()], 'cr.id=c.contract_id')
-            ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id=cr.contragent_id')
-            ->where(['c.id' => $clientIds])
-            ->all();
+        static $c = [];
 
-        $organizationStore = [];
-        foreach ($clients as &$client) {
-            if (!array_key_exists($client['organization_id'], $organizationStore)) {
-                $organizationStore[$client['organization_id']] = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $diffId = array_diff($clientIds, array_keys($c));
+
+        if ($diffId) {
+            $clients = (new \yii\db\Query())
+                ->select(['c.id', 'c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id', 'cg.inn', 'c.pay_acc'])
+                ->from(['c' => ClientAccount::tableName()])
+                ->innerJoin(['cr' => ClientContract::tableName()], 'cr.id=c.contract_id')
+                ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id=cr.contragent_id')
+                ->where(['c.id' => $diffId])
+                ->all();
+
+            static $organizationStore = [];
+            foreach ($clients as $client) {
+                if (!array_key_exists($client['organization_id'], $organizationStore)) {
+                    $organizationStore[$client['organization_id']] = Organization::find()->byId($client['organization_id'])->actual()->one();
+                }
+
+                $client['organization_name'] = $organizationStore[$client['organization_id']] ?
+                    $organizationStore[$client['organization_id']]->name->value : '';
+
+                $c[$client['id']] = $client;
             }
-
-            $client['organization_name'] = $organizationStore[$client['organization_id']] ?
-                $organizationStore[$client['organization_id']]->name->value : '';
         }
 
-        return $clients;
+        $data = [];
+        foreach ($clientIds as $clientId) {
+            if ($c[$clientId]) {
+                $data[] = $c[$clientId];
+            }
+        }
+
+        return $data;
     }
 
     function getClientBills($clientIds, $billNo)
@@ -3918,6 +3940,9 @@ WHERE cg.inn = '" . $inn . "'";
         global $db;
 
         $v = [];
+
+        static $cache = [];
+
         foreach ($clientIds as $clientId) {
             if (count($clientIds) > 1) {
                 $c = $this->getClient($clientId);
@@ -3929,13 +3954,19 @@ WHERE cg.inn = '" . $inn . "'";
                 ];
             }
 
+            if (isset($cache[$clientId])) {
+                $v = array_merge($v, $cache[$clientId]);
+                continue;
+            }
+
+            $clientV = [];
+
             foreach ($db->AllRecords($q = '
                         (select bill_no, is_payed,sum,ext_bill_no as bill_no_ext,UNIX_TIMESTAMP(ext_bill_date) as bill_no_ext_date, client_id from newbills n2
                         left join newbills_external e using (bill_no)
                          where n2.client_id="' . $clientId . '" and n2.is_payed=1
-                         /* and (select if(sum(if(is_payed = 1,1,0)) = count(1),1,0) as all_payed from newbills where client_id = "' . $clientId . '")
-                         */
-                         order by n2.bill_date desc limit 1)
+
+                         order by  n2.id /* n2.bill_date */ desc limit 1)
                         union (select bill_no, is_payed,sum,ext_bill_no as bill_no_ext,UNIX_TIMESTAMP(ext_bill_date) as bill_no_ext_date, client_id 
                         from newbills 
                         left join newbills_external e using (bill_no)
@@ -3948,8 +3979,11 @@ WHERE cg.inn = '" . $inn . "'";
                         where client_id=' . $clientId . ' and is_payed!="1")
                         '
             ) as $b) {
-                $v[] = $b;
+                $clientV[] = $b;
             }
+
+            $cache[$clientId] = $clientV;
+            $v = array_merge($v, $cache[$clientId]);
         }
         return $v;
     }
@@ -4192,11 +4226,74 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
             //, array("40702810700320000882","40702810038110015462","301422002")
             return $this->importPL_citibank(PAYMENTS_FILES_PATH . $file);
         } else {
-            list($type, $payAccs, $payments) = PaymentParser::Parse(PAYMENTS_FILES_PATH . $file);
+            [$type, $payAccs, $payments] = PaymentParser::Parse(PAYMENTS_FILES_PATH . $file);
+
+            if (isset($_GET['check_payments']) && $_GET['check_payments']) {
+                $this->_checkPaymenets($payments);
+            }
+
             return $this->importPL_citibank(PAYMENTS_FILES_PATH . $file, $payAccs,
                 $this->restructPayments($payAccs, $payments));
         }
     }
+
+    private function _checkPaymenets($pays)
+    {
+        foreach ($pays as $pay) {
+            $paymentId = Payment::find()->where([
+                'payment_no' => $pay['pp'],
+                'oper_date' => DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT),
+                'sum' => $pay['sum'],
+            ])->select('id')->scalar();
+
+            if ($paymentId) {
+                if (!\app\models\PaymentInfo::find()->where(['payment_id' => $paymentId])->exists()) {
+                    $info = new \app\models\PaymentInfo();
+                    $info->payment_id = $paymentId;
+
+                    $info->payer_inn = $pay['inn'];
+                    $info->payer_bik = $pay['bik'];
+                    $info->payer_bank = $pay['a2'];
+                    $info->payer_account = $pay['account'];
+
+                    $info->getter_inn = $pay['geter_inn'];
+                    $info->getter_bik = $pay['geter_bik'];
+                    $info->getter_bank = $pay['geter_bank'];
+                    $info->getter_account = $pay['geter_acc'];
+
+                    if (!$info->save()) {
+                        throw new ModelValidationException($info);
+                    }
+                }
+            }
+
+        }
+    }
+
+    private function _savePaymentInfo(Payment $payment, $file)
+    {
+        static $c = [];
+
+        if (!isset($c[$file])) {
+            [$type, $payAccs, $payments] = PaymentParser::Parse($file);
+
+            $c[$file] = $payments;
+        } else {
+            $payments = $c[$file];
+        }
+
+        $ps = array_filter($payments, function($p) use ($payment) {
+            return $p['pp'] ==  $payment->payment_no
+                && DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $p['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT) == $payment->oper_date
+                && $p['sum'] == $payment->sum
+                ;
+        });
+
+        $this->_checkPaymenets($ps);
+
+
+    }
+
 
     function newaccounts_pi_apply($fixclient)
     {
@@ -4239,6 +4336,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
                     }
 
                     if ($b) {
+                        $transaction = \Yii::$app->db->beginTransaction();
                         $payment = new Payment();
                         $payment->client_id = $client['id'];
                         $payment->payment_no = $P['pay'];
@@ -4258,6 +4356,10 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
                         $payment->bank = $bank;
                         isset($P['is_need_check']) && $P['is_need_check'] && $payment->isNeedToSendAtol = true;
                         $payment->save();
+
+                        $this->_savePaymentInfo($payment, $file);
+                        $transaction->commit();
+
                     }
                     if ($b) {
                         echo '<br>Платеж ' . $P['pay'] . ' клиента ' . $client['client'] . ' внесён';
@@ -6509,7 +6611,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 $d = $lDB[$idx];
                 foreach (["id", "quantity", "price", "discount_set", "discount_auto"] as $f) {
                     if ($f == "id") {
-                        list($id, $descrId) = explode(":", $s[$f]);
+                        [$id, $descrId] = explode(":", $s[$f]);
                         if ($descrId == "") {
                             $descrId = "00000000-0000-0000-0000-000000000000";
                         }
@@ -6537,7 +6639,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         global $db;
 
         foreach ($pos["list"] as &$p) {
-            list($gId, $dId) = explode(":", $p["id"] . "::");
+            [$gId, $dId] = explode(":", $p["id"] . "::");
             $p["art"] = "";
             if ($gId) {
                 $g = $db->GetRow("SELECT art FROM g_goods WHERE id = '" . $gId . "'");
