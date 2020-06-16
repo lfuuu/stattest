@@ -3926,6 +3926,7 @@ WHERE cg.inn = '" . $inn . "'";
         }
 
         $data = [];
+        sort($clientIds);
         foreach ($clientIds as $clientId) {
             if ($c[$clientId]) {
                 $data[] = $c[$clientId];
