@@ -50,6 +50,16 @@ class Card extends ActiveRecord
     }
 
     /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
+    public static function getDbSalve()
+    {
+        return Yii::$app->dbPgNnpSlave;
+    }
+
+    /**
      * @return string[]
      */
     public static function primaryKey()
