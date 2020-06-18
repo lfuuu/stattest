@@ -58,6 +58,15 @@ class Imsi extends ActiveRecord
     {
         return Yii::$app->dbPgNnp;
     }
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
+    public static function getDbSlave()
+    {
+        return Yii::$app->dbPgNnpSlave;
+    }
 
     /**
      * @return string[]
