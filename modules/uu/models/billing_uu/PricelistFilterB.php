@@ -59,6 +59,7 @@ class PricelistFilterB extends ActiveRecord
                 'billing_uu.pricelist_prefix_price.*',
                 'b_number_price' => new Expression('round(billing_uu.pricelist_prefix_price.b_number_price, 6)')
             ])
+            ->andWhere('date_trunc(\'day\', now()) between date_from and date_to')
             ->orderBy('billing_uu.pricelist_prefix_price.prefix_b, billing_uu.pricelist_prefix_price.date_from');
     }
 
