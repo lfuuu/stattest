@@ -115,14 +115,14 @@ class Pricelist extends ActiveRecord
                         continue;
                     }
 
-                    $filterBText = self::getFilterName($filterB);
+                    [$filterBText, $isExcept] = self::getFilterName($filterB);
 
                     if (empty($filterBText)) {
                         continue;
                     }
 
 
-                    $data[self::getMapValue($filterBText)] = round($filterB['prefixPriceNoLimit'][0]['b_number_price'], 2);
+                    $data[self::getMapValue($filterBText)] = ['price' => round($filterB['prefixPriceNoLimit'][0]['b_number_price'], 2)] + ($isExcept ? ['is_except' => true] : []);
                     continue;
                 }
             }
@@ -130,7 +130,7 @@ class Pricelist extends ActiveRecord
 
 
         array_walk($data, function(&$item, $key){
-            $item = ['destination' => $key, 'price' => $item];
+            $item = ['destination' => $key] + $item;
         });
 
         $data = array_values($data);
@@ -142,37 +142,38 @@ class Pricelist extends ActiveRecord
 
     private static function getFilterName($filter)
     {
+        $isExcept = false;
         if (!empty($filter['description'])) {
             return trim($filter['description']);
         }
 
         if (isset($filter['nnp_ndc_type_name'])) {
             if ($filter['f_inv_nnp_ndc_type']) {
-                $filterTextArray[] = 'Except:';
+                $isExcept = true;
             }
 
             if ($filter['nnp_ndc_type_name'] != 'Geographic') {
-                return $filter['nnp_ndc_type_name'];
+                return [$filter['nnp_ndc_type_name'], $isExcept];
             }
         }
 
         if (isset($filter['nnp_city_name'])) {
-            return $filter['nnp_city_name'];
+            return [$filter['nnp_city_name'], $isExcept];
         }
 
         if (isset($filter['nnp_region_name'])) {
-            return $filter['nnp_region_name'];
+            return [$filter['nnp_region_name'], $isExcept];
         }
 
         if (isset($filter['nnp_country_name_eng'])) {
-            return $filter['nnp_country_name_eng'];
+            return [$filter['nnp_country_name_eng'], $isExcept];
         }
 
         if (isset($filter['nnp_operator_name'])) {
-            return $filter['nnp_operator_name'];
+            return [$filter['nnp_operator_name'], $isExcept];
         }
 
-        return '???';
+        return ['???', $isExcept];
     }
 
     public static function getMapValue($value)
