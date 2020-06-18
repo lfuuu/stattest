@@ -12,7 +12,7 @@ use app\modules\sim\models\Card;
 $cards = Card::find()
     ->where(['client_account_id' => $client_account_id])
     ->with(['imsies', 'imsies.number'])
-    ->all(Card::getDbSalve());
+    ->all();
 
 if (!$cards) {
     return;
