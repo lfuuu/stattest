@@ -144,7 +144,7 @@ class Pricelist extends ActiveRecord
     {
         $isExcept = false;
         if (!empty($filter['description'])) {
-            return trim($filter['description']);
+            return [trim($filter['description']), $isExcept];
         }
 
         if (isset($filter['nnp_ndc_type_name'])) {
