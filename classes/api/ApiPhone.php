@@ -121,11 +121,11 @@ class ApiPhone extends Singleton
      * @param bool $isNonumber
      * @param string $number7800
      * @param int $vpbxStatProductId
+     * @param int $isCreateUser
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
      */
     public function addDid(
         $clientAccountId,
@@ -134,7 +134,8 @@ class ApiPhone extends Singleton
         $region,
         $isNonumber,
         $number7800 = null,
-        $vpbxStatProductId = null
+        $vpbxStatProductId = null,
+        $isCreateUser = null
     ) {
         $accountClient = ClientAccount::findOne(['id' => $clientAccountId]);
 
@@ -148,7 +149,8 @@ class ApiPhone extends Singleton
             'timezone' => Region::getTimezoneByRegionId($region),
             'type' => self::TYPE_LINE,
             'sip_accounts' => (($lines == 0 || UsageTrunk::dao()->hasService($accountClient) || AccountTariff::hasTrunk($clientAccountId)) ? 0 : 1),
-            'nonumber' => $isNonumber
+            'nonumber' => $isNonumber,
+            'is_user_create' => $isCreateUser,
         ];
 
         if ($isNonumber && $number7800) {

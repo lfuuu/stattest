@@ -328,6 +328,10 @@ class ActaulizerVoipNumbers extends Singleton
                 ->where(['voip_number' => $data['number']])
                 ->andWhere(['IS NOT', 'tariff_period_id', null])
                 ->one();
+
+            if ($usage && $usage->calltracking_params) {
+                $params = json_decode($usage->calltracking_params, true) ?: [];
+            }
         }
 
         if (!$usage) {
@@ -345,7 +349,8 @@ class ActaulizerVoipNumbers extends Singleton
             (int)$data['region'],
             (bool)$this->_isNonumber($data['number']),
             $data['number7800'],
-            isset($params['vpbx_stat_product_id']) ? $params['vpbx_stat_product_id'] : null
+            isset($params['vpbx_stat_product_id']) ? $params['vpbx_stat_product_id'] : null,
+            isset($params['is_create_user']) ? $params['is_create_user'] : null
         );
     }
 

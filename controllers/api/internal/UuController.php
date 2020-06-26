@@ -1692,6 +1692,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "is_async", type = "integer", description = "Асинхронная схема", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
      *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор запроса для асинхронного ответа", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "is_create_user", type = "integer", description = "Создавать ли пользователя ЛК (при отсутствии: 1)", in = "formData", default = "1"),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
      *     @SWG\Schema(type = "integer", description = "ID")
@@ -1762,6 +1763,10 @@ class UuController extends ApiInternalController
             return ['request_id' => $requestId];
         }
 
+        !isset($post['is_create_user']) && $post['is_create_user'] = true;
+        $post['is_create_user'] = (int)(bool)$post['is_create_user'];
+        
+
         $sem = Semaphore::me();
         $sem->acquire(Semaphore::ID_UU_CALCULATOR);
 
@@ -1772,6 +1777,7 @@ class UuController extends ApiInternalController
         try {
 
             $accountTariff->setAttributes($post);
+            $accountTariff->addParam('is_create_user', $post['is_create_user']);
             if (!$accountTariff->save()) {
                 throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
             }
