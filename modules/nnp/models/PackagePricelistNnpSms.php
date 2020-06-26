@@ -11,4 +11,15 @@ class PackagePricelistNnpSms extends PackagePricelistNnp
     {
         return 'billing_uu.package_sms';
     }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['tariff_id', 'nnp_pricelist_id'], 'required'],
+            [['tariff_id', 'nnp_pricelist_id'], 'integer'],
+        ];
+    }
 }
