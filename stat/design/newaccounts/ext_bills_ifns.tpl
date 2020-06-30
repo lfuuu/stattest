@@ -146,8 +146,8 @@
     {foreach from=$data item=item name=outer}
         <tr>
             <td>{$smarty.foreach.outer.iteration}</td>
-            <td></td>
-            <td>{$item.bill_no} {$item.ext_invoice_date}</td>
+            <td>01</td>
+            <td>{$item.bill_no} от {$item.ext_invoice_date}</td>
             <td></td>
             <td></td>
             <td></td>
