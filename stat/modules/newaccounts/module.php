@@ -5420,7 +5420,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
   cg.inn,
   cg.kpp,
   cg.legal_type,
-  ex.ext_invoice_date,
+  date_format(str_to_date(ex.ext_invoice_date, '%d-%m-%Y'), '%d.%m.%Y') as ext_invoice_date,
   (ex.ext_vat+ex.ext_sum_without_vat) AS sum,
   ex.ext_vat AS vat,
   ex.ext_registration_date,
