@@ -559,7 +559,7 @@ class VirtPbx3Action
         $usageId = $usage ? $usage->id : $uuUsage->id;
         $where = ['prev_usage_id' => $usageId];
         return (bool)(UsageVirtpbx::find()->where($where)->exists() ?:
-            AccountTariff::find()->where($where)->exists());
+            AccountTariff::find()->where($where + ['service_type_id' => ServiceType::ID_VPBX])->exists());
     }
 
 }
