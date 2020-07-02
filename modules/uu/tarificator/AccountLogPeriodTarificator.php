@@ -37,8 +37,20 @@ class AccountLogPeriodTarificator extends Tarificator
         $dateTimeOffsetParams = new DateTimeOffsetParams($this);
         $utcDateTime = $dateTimeOffsetParams->getCurrentDateTime();
 
+        $fromId = $toId = null;
+        // распаралелливание обработки
+        if (isset($_SERVER['argv']) && count($_SERVER['argv']) == 4 && $_SERVER['argv'][1] == 'ubiller/period') {
+
+            $fromId = (int)$_SERVER['argv'][2];
+            $toId = (int)$_SERVER['argv'][3];
+
+            if (!$fromId || !$toId || $fromId >= $toId) {
+                throw new \InvalidArgumentException('Неверные аргументы');
+            }
+        }
+
         // в целях оптимизации удалить старые данные
-        if (!$accountTariffId) {
+        if (!$accountTariffId && !$fromId && !$toId) {
             AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
         }
 
@@ -50,18 +62,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 ['<', 'account_log_period_utc', $utcDateTime->format(DateTimeZoneHelper::DATETIME_FORMAT)] // или списана давно
             ]);
 
-        // распаралелливание обработки
-        if (isset($_SERVER['argv']) && count($_SERVER['argv']) == 4 && $_SERVER['argv'][1] == 'ubiller/period') {
-
-            $fromId = (int)$_SERVER['argv'][2];
-            $toId = (int)$_SERVER['argv'][3];
-
-            if (!$fromId || !$toId || $fromId >= $toId) {
-                throw new \InvalidArgumentException('Неверные аргументы');
-            }
-
-            $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
-        }
+        $fromId && $toId && $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
 
         $accountTariffQuery
             ->with('clientAccount')

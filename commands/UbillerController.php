@@ -374,6 +374,28 @@ class UbillerController extends Controller
         echo AccountLogResource::clearCalls('first day of this month', 'last day of this month') . ' ' . PHP_EOL;
     }
 
+    public function actionSetAndSyncTariff()
+    {
+        ini_set('memory_limit', '5G');
+
+        // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
+        // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
+        // обязательно это вызывать до транзакций (чтобы они правильно посчитали)
+        $this->actionSetCurrentTariff();
+
+        // Автоматически закрыть услугу по истечению тестового периода
+        // Обязательно после actionSetCurrentTariff (чтобы правильно учесть тариф) и до транзакций (чтобы они правильно посчитали)
+        $this->actionAutoCloseAccountTariff();
+
+        // Еще раз обновить AccountTariff.TariffPeriod на основе AccountTariffLog
+        // Второй раз вызываем после actionAutoCloseAccountTariff, чтобы сразу (фактически) закрыть УУ, которые выше решили закрыть (теоретически)
+        $this->actionSetCurrentTariff();
+
+        // Отправить измененные ресурсы на платформу и другим поставщикам услуг
+        // Обязательно после actionSetCurrentTariff, чтобы измененный тариф сам синхронизировал некоторые ресурсы
+        $this->actionSyncResource();
+    }
+
     /**
      * Запустить пересчет проводок и конвертировать счета
      */
