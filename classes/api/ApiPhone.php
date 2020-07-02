@@ -150,7 +150,7 @@ class ApiPhone extends Singleton
             'type' => self::TYPE_LINE,
             'sip_accounts' => (($lines == 0 || UsageTrunk::dao()->hasService($accountClient) || AccountTariff::hasTrunk($clientAccountId)) ? 0 : 1),
             'nonumber' => $isNonumber,
-            'is_user_create' => $isCreateUser,
+            'is_user_create' => $isCreateUser ?? 1,
         ];
 
         if ($isNonumber && $number7800) {
