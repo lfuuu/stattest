@@ -91,7 +91,7 @@ class AccountTariffCheckHlr extends Behavior
             /** @var Imsi $imsi */
             foreach ($imsis as $imsi) {
 
-                if ($imsi->partner_id = ImsiPartner::ID_TELE2) {
+                if (preg_match(self::imsiPrefixRegExp, $imsi->imsi)) {
                     $partnerTele2Imsi = $imsi;
                 }
 
@@ -108,7 +108,7 @@ class AccountTariffCheckHlr extends Behavior
             throw $e;
         }
 
-        if ($partnerTele2Imsi && preg_match(self::imsiPrefixRegExp, $partnerTele2Imsi->imsi)) {
+        if ($partnerTele2Imsi) {
             EventQueue::go(EventQueue::SYNC_TELE2_UNLINK_IMSI, [
                 'account_tariff_id' => $accountTariff->id,
                 'voip_number' => $accountTariff->voip_number,
