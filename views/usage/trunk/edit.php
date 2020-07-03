@@ -49,8 +49,10 @@ if ($isUu) {
         ->where(['prev_account_tariff_id' => $usage->id])
         ->all();
     foreach ($accountTariffs as $accountTariff) {
+        $isOff = false;
         if (!$accountTariff->isActive()) {
-            continue;
+            //continue;
+            $isOff = true;
         }
 
         $tariffPeriod = $accountTariff->tariffPeriod;
@@ -58,6 +60,12 @@ if ($isUu) {
             $tariff = $tariffPeriod->tariff;
         } else {
             $tariffLog = reset($accountTariff->accountTariffLogs);
+
+            if (!$accountTariff->tariff_period_id) {
+                $isOff = true;
+                $tariffLog = next($accountTariff->accountTariffLogs);
+            }
+
             if (!($tariffPeriod = $tariffLog->tariffPeriod)) {
                 continue;
             }
@@ -73,10 +81,10 @@ if ($isUu) {
 
         switch ($accountTariff->service_type_id) {
             case ServiceType::ID_TRUNK_PACKAGE_ORIG:
-                $origPackages[$tariff->id] = $value ?: $tariff->name;
+                $origPackages[$tariff->id] = ($isOff ? '*Отключен* ' : '') . ($value ?: $tariff->name);
                 break;
             case ServiceType::ID_TRUNK_PACKAGE_TERM:
-                $termPackages[$tariff->id] = $value ?: $tariff->name;
+                $termPackages[$tariff->id] = ($isOff ? '*Отключен* ' : '') . ($value ?: $tariff->name);
                 break;
         }
     }
