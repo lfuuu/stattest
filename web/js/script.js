@@ -390,6 +390,18 @@ function toggleButton(clickObj, divSelector) {
         $btn.text('∨');
         $btn.data('sh', true);
     }
+
+    // fix additional filters bug
+    $(".kv-thead-float").each(function(){
+        var elStyle = $(this)[0].style;
+
+        if (elStyle.removeAttribute) {
+            elStyle.removeAttribute("top");
+        } else {
+            elStyle.removeProperty("top");
+        }
+    });
+
     return false;
 }
 

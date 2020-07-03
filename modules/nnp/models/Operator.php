@@ -11,6 +11,7 @@ use yii\helpers\Url;
  * @property int $id
  * @property string $name
  * @property string $name_translit
+ * @property string $group
  * @property int $country_code
  * @property int $cnt
  * @property int $type

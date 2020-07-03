@@ -5,6 +5,8 @@ namespace app\modules\nnp\models;
 use app\classes\model\ActiveRecord;
 use app\modules\nnp\media\CountryMedia;
 use app\modules\nnp\media\ImportServiceUploaded;
+use app\modules\nnp2\media\ImportServiceUploadedNew;
+use app\modules\nnp2\models\ImportHistory;
 use Yii;
 use yii\base\InvalidParamException;
 
@@ -101,17 +103,38 @@ class CountryFile extends ActiveRecord
 
         $country = $countryFile->country;
         $mediaManager = $country->getMediaManager();
-        $importServiceUploaded = new ImportServiceUploaded([
+
+        // import v1
+        $recordOld = ImportHistory::startFile($countryFile);
+        $importOld = new ImportServiceUploaded([
             'countryCode' => $country->code,
             'url' => $mediaManager->getUnzippedFilePath($countryFile),
             'delimiter' => ';',
         ]);
-        $isOk = $importServiceUploaded->run();
-        $log = $importServiceUploaded->getLogAsString();
-        if (!$isOk) {
-            throw new \RuntimeException($log);
+        $doneOld = $importOld->run($recordOld);
+        $recordOld->finish($doneOld);
+        $logOld = $importOld->getLogAsString();
+        //
+
+        // import v2
+        $recordNew = ImportHistory::startFile($countryFile, 2);
+        $importNew = new ImportServiceUploadedNew([
+            'countryCode' => $country->code,
+            'url' => $mediaManager->getUnzippedFilePath($countryFile),
+            'delimiter' => ';',
+        ]);
+        $doneNew = $importNew->run($recordNew);
+        $recordNew->finish($doneNew);
+        $logNew = $importNew->getLogAsString();
+        //
+
+        $logNew = PHP_EOL . PHP_EOL . '******************************************'  . PHP_EOL . $logNew;
+        $logFull = $logOld . $logNew;
+
+        if (!$doneOld || !$doneNew) {
+            throw new \RuntimeException($logFull);
         }
 
-        return $log;
+        return $logFull;
     }
 }

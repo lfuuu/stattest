@@ -7,6 +7,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\nnp2\models\ImportHistory;
 use UnexpectedValueException;
 use Yii;
 use yii\base\Model;
@@ -17,6 +18,7 @@ abstract class ImportService extends Model
     const DELTA_MIN = 0.7;
 
     const CHUNK_SIZE = 1000;
+    const TABLE_TEMP = 'number_range_tmp';
 
     /** @var Connection */
     private $_db = null;
@@ -31,6 +33,10 @@ abstract class ImportService extends Model
     protected $ndcTypeList = [];
 
     public $delimiter = ',';
+    /**
+     * @var ImportHistory
+     */
+    protected ImportHistory $importHistory;
 
     /**
      * Основной метод
@@ -70,10 +76,14 @@ abstract class ImportService extends Model
     /**
      * Импортировать
      *
+     * @param ImportHistory $importHistory
      * @return bool
+     * @throws \yii\db\Exception
      */
-    public function run()
+    public function run(ImportHistory $importHistory)
     {
+        $this->importHistory = $importHistory;
+
         $this->_db = Yii::$app->dbPgNnp;
         $transaction = $this->_db->beginTransaction();
         try {
@@ -112,10 +122,10 @@ abstract class ImportService extends Model
             throw new UnexpectedValueException('Error fopen ' . $filePath);
         }
 
-        $tableName = 'number_range_tmp';
         $insertValues = [];
 
         $i = 0;
+        $processed = 0;
         while (($row = fgetcsv($handle, $rowLength = 4096, $this->delimiter)) !== false) {
 
             if (count($row) < 6) {
@@ -137,12 +147,8 @@ abstract class ImportService extends Model
             $insertValues[] = $callbackRow;
 
             if (count($insertValues) % self::CHUNK_SIZE === 0) {
-                $this->addLog('. ');
-                $this->_db->createCommand()->batchInsert(
-                    $tableName,
-                    ['ndc', 'ndc_str', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
-                    $insertValues
-                )->execute();
+                $this->batchInsertValues($insertValues);
+                $processed += count($insertValues);
                 $insertValues = [];
             }
         }
@@ -153,16 +159,38 @@ abstract class ImportService extends Model
 
         fclose($handle);
 
+        $this->batchInsertValues($insertValues, '.. ');
+        $processed += count($insertValues);
+
+        $this->addLog(PHP_EOL);
+
+        $this->importHistory->lines_load = $i;
+        $this->importHistory->lines_processed = $processed;
+        $this->importHistory->markReady();
+    }
+
+    /**
+     * @param $insertValues
+     * @param string $logComment
+     * @throws \yii\db\Exception
+     */
+    protected function batchInsertValues($insertValues, $logComment = '. ')
+    {
         if (count($insertValues)) {
-            $this->addLog('.. ');
+            $this->addLog($logComment);
             $this->_db->createCommand()->batchInsert(
-                $tableName,
-                ['ndc', 'ndc_str', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
+                self::TABLE_TEMP,
+                [
+                    'ndc', 'ndc_str', 'number_from', 'number_to',
+                    'ndc_type_id', 'operator_source',
+                    'region_source', 'city_source',
+                    'full_number_from', 'full_number_to',
+                    'date_resolution', 'detail_resolution',
+                    'status_number', 'ndc_type_source'
+                ],
                 $insertValues
             )->execute();
         }
-
-        $this->addLog(PHP_EOL);
     }
 
     /**
@@ -173,8 +201,10 @@ abstract class ImportService extends Model
      */
     private function _preImport()
     {
+        $tableTmp = self::TABLE_TEMP;
+
         $sql = <<<SQL
-CREATE TEMPORARY TABLE number_range_tmp
+CREATE TEMPORARY TABLE {$tableTmp}
 (
   ndc integer,
   ndc_str character varying(255),
@@ -207,6 +237,7 @@ SQL;
         $this->addLog(PHP_EOL);
 
         $tableName = NumberRange::tableName();
+        $tableTmp = self::TABLE_TEMP;
 
         // выключить всё, кроме больших диапазонов по всей стране
         $sql = <<<SQL
@@ -225,23 +256,23 @@ SQL;
         {$tableName} number_range
     SET
         is_active = true,
-        operator_source = number_range_tmp.operator_source,
-        region_source = number_range_tmp.region_source,
-        city_source = number_range_tmp.city_source,
-        ndc_type_id = number_range_tmp.ndc_type_id,
-        operator_id = CASE WHEN number_range.operator_source = number_range_tmp.operator_source THEN number_range.operator_id ELSE NULL END,
-        region_id = CASE WHEN number_range.region_source = number_range_tmp.region_source THEN number_range.region_id ELSE NULL END,
-        city_id = CASE WHEN number_range.city_source = number_range_tmp.city_source THEN number_range.city_id ELSE NULL END,
-        date_resolution = number_range_tmp.date_resolution,
-        detail_resolution = number_range_tmp.detail_resolution,
-        status_number = number_range_tmp.status_number,
-        ndc_type_source = number_range_tmp.ndc_type_source,
+        operator_source = {$tableTmp}.operator_source,
+        region_source = {$tableTmp}.region_source,
+        city_source = {$tableTmp}.city_source,
+        ndc_type_id = {$tableTmp}.ndc_type_id,
+        operator_id = CASE WHEN number_range.operator_source = {$tableTmp}.operator_source THEN number_range.operator_id ELSE NULL END,
+        region_id = CASE WHEN number_range.region_source = {$tableTmp}.region_source THEN number_range.region_id ELSE NULL END,
+        city_id = CASE WHEN number_range.city_source = {$tableTmp}.city_source THEN number_range.city_id ELSE NULL END,
+        date_resolution = {$tableTmp}.date_resolution,
+        detail_resolution = {$tableTmp}.detail_resolution,
+        status_number = {$tableTmp}.status_number,
+        ndc_type_source = {$tableTmp}.ndc_type_source,
         date_stop = null
     FROM
-        number_range_tmp
+        {$tableTmp}
     WHERE
-        number_range.full_number_from = number_range_tmp.full_number_from
-        AND number_range.number_to = number_range_tmp.number_to
+        number_range.full_number_from = {$tableTmp}.full_number_from
+        AND number_range.number_to = {$tableTmp}.number_to
 SQL;
         $affectedRowsUpdated = $this->_db->createCommand($sql)->execute();
         $this->addLog(sprintf('Обновлено: %d' . PHP_EOL, $affectedRowsUpdated));
@@ -249,12 +280,12 @@ SQL;
         // удалить из временной таблицы уже обработанное
         $sql = <<<SQL
     DELETE FROM
-        number_range_tmp
+        {$tableTmp}
     USING
         {$tableName} number_range
     WHERE
-        number_range.full_number_from = number_range_tmp.full_number_from
-        AND number_range.number_to = number_range_tmp.number_to
+        number_range.full_number_from = {$tableTmp}.full_number_from
+        AND number_range.number_to = {$tableTmp}.number_to
 SQL;
         $this->_db->createCommand($sql)->execute();
 
@@ -298,7 +329,7 @@ SQL;
         ndc_type_source,
         NOW()
     FROM
-        number_range_tmp
+        {$tableTmp}
 SQL;
         $affectedRowsAdded = $this->_db->createCommand($sql, [':country_code' => $this->country->code])->execute();
         $this->addLog(sprintf('Добавлено: %d' . PHP_EOL, $affectedRowsAdded));
@@ -308,13 +339,17 @@ SQL;
         $this->addLog(sprintf('Стало: %d (%.2f%%)' . PHP_EOL, $affectedRowsTotal, $affectedRowsDelta * 100));
 
         $sql = <<<SQL
-DROP TABLE number_range_tmp
+DROP TABLE {$tableTmp}
 SQL;
         $this->_db->createCommand($sql)->execute();
 
         if ($affectedRowsDelta < self::DELTA_MIN) {
             throw new \LogicException('Стало слишком мало записей');
         }
+
+        $this->importHistory->ranges_before = $affectedRowsBefore;
+        $this->importHistory->ranges_updated = $affectedRowsUpdated;
+        $this->importHistory->ranges_added = $affectedRowsAdded;
     }
 
     /**
@@ -322,6 +357,9 @@ SQL;
      */
     protected function addLog($message)
     {
+        if (trim($message, '.')) {
+            $message = 'Импорт v1. ' . $message;
+        }
         $this->log[] = $message;
     }
 

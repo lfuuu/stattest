@@ -197,6 +197,11 @@ class Navigation
             $module->getNavigation($this);
         }
 
+        /** @var \app\modules\nnp2\Module $module */
+        if ($module = Yii::$app->getModule('nnp2')) {
+            $module->getNavigation($this);
+        }
+
         /** @var \app\modules\notifier\Module $module */
         if ($module = Yii::$app->getModule('notifier')) {
             $module->getNavigation($this);

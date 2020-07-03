@@ -14,3 +14,4 @@ log.local.php
 params.local.php
 /web.local.php
 /db_pg_nnp.local.php
+/db_pg_nnp2.local.php
