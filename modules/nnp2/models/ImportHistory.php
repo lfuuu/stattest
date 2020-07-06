@@ -80,7 +80,7 @@ class ImportHistory extends ActiveRecord
         self::STATE_RELATIONS_SAVED => 'Связи сохранены',
         self::STATE_READY => 'Готов к записи',
 
-        self::STATE_OLD_UPDATED => 'Обнрвлены старые',
+        self::STATE_OLD_UPDATED => 'Обновлены старые',
         self::STATE_RELATIONS_CHECKED => 'Связи проверены',
         self::STATE_NEW_ADDED => 'Добавлены новые',
         self::STATE_UPDATED_FIXED => 'Обновленные поправлены',
@@ -157,7 +157,7 @@ class ImportHistory extends ActiveRecord
         return sprintf('%s.%s.state', __CLASS__, $this->id);
     }
 
-    public function getStateName()
+    public function getState()
     {
         $state = $this->state;
 
@@ -167,6 +167,18 @@ class ImportHistory extends ActiveRecord
         $cacheKey = $this->getCacheKey();
         if ($redis->exists($cacheKey)) {
             $state = $redis->get($cacheKey);
+        }
+
+        return $state;
+    }
+
+    public function getStateName()
+    {
+        $state = $this->getState();
+
+        $lastDigit = $state % 10;
+        if ($lastDigit) {
+            $state -= $lastDigit;
         }
 
         return self::$stateNames[$state] ?? '-';
@@ -180,7 +192,7 @@ class ImportHistory extends ActiveRecord
         /** @var yii\redis\Cache $redis */
         $redis = \Yii::$app->cache;
 
-        $redis->set($this->getCacheKey(), $state);
+        $redis->set($this->getCacheKey(), $state, 3600);
 
         $this->state = $state;
     }

@@ -89,7 +89,7 @@ if (!$model->isNewRecord) {
         <?php // Родитель ?>
         <div class="col-sm-3">
             <?php
-                $operatorsList = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, $isMainOnly = false, 0);
+                $operatorsList = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, $isMainOnly = false, true);
                 if ($model->id) {
                     unset($operatorsList[$model->id]); // убрать себя
                 }

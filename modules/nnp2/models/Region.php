@@ -199,6 +199,7 @@ class Region extends ActiveRecord
      * @param bool $isWithNullAndNotNull
      * @param int|int[] $countryCodes
      * @param bool $isMainOnly
+     * @param bool $isFormatted
      * @param int $minCnt
      * @return string[]
      */
@@ -207,9 +208,10 @@ class Region extends ActiveRecord
         $isWithNullAndNotNull = false,
         $countryCodes = null,
         $isMainOnly = true,
+        $isFormatted = false,
         $minCnt = self::MIN_CNT
     ) {
-        return self::getListTrait(
+        $list = self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'id',
@@ -223,6 +225,18 @@ class Region extends ActiveRecord
                 $minCnt ? ['>=', 'cnt', $minCnt] : []
             ]
         );
+
+        if (!$isFormatted) {
+            return $list;
+        }
+
+        foreach ($list as $id => &$item) {
+            if ($id > 0) {
+                $item = sprintf("%s (%s)", $item, $id);
+            }
+        }
+
+        return $list;
     }
 
     /**

@@ -63,7 +63,7 @@ if (!$model->isNewRecord) {
         <?php // Родитель ?>
         <div class="col-sm-2">
             <?php
-                $ndcTypeList = NdcType::getList($isWithEmpty = true);
+                $ndcTypeList = NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $isMainOnly = true, $isFormatted = true);
                 if ($model->id) {
                     unset($ndcTypeList[$model->id]); // убрать себя
                 }

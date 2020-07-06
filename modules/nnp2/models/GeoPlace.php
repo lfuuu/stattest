@@ -226,6 +226,7 @@ class GeoPlace extends ActiveRecord
      * @param int $countryCode
      * @param string $ndc
      * @param int $regionId
+     * @param bool $isFormatted
      * @param int $minCnt
      * @return \string[]
      */
@@ -235,6 +236,7 @@ class GeoPlace extends ActiveRecord
         $countryCode = null,
         $ndc = '',
         $regionId = null,
+        $isFormatted = false,
         $minCnt = self::MIN_CNT
     ) {
         $list = self::find()
@@ -255,10 +257,14 @@ class GeoPlace extends ActiveRecord
             ->indexBy($indexBy = 'id')
             ->all();
 
+        if (!$isFormatted) {
+            return $list;
+        }
+
         $ready = [];
         /** @var self $line */
         foreach ($list as $key => $line) {
-            $ready[$key] = strval($line);
+            $ready[$key] = sprintf("%s (%s)", strval($line), $key);
         }
 
         $ready = self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $ready;

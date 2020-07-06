@@ -89,7 +89,7 @@ if (!$model->isNewRecord) {
         <?php // Родитель ?>
         <div class="col-sm-2">
             <?php
-            $regionsList = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, true, 0);
+            $regionsList = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, true, true);
             if ($model->id) {
                 unset($regionsList[$model->id]); // убрать себя
             }

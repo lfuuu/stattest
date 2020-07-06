@@ -192,7 +192,8 @@ class City extends ActiveRecord
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
      * @param int|int[] $countryCode
-     * @param int|int[] $ndc
+     * @param null $regionId
+     * @param bool $isFormatted
      * @param int $minCnt
      * @return \string[]
      */
@@ -201,9 +202,10 @@ class City extends ActiveRecord
         $isWithNullAndNotNull = false,
         $countryCode = null,
         $regionId = null,
+        $isFormatted = false,
         $minCnt = self::MIN_CNT
     ) {
-        return self::getListTrait(
+        $list = self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'id',
@@ -222,6 +224,18 @@ class City extends ActiveRecord
                 $minCnt ? ['>=', 'cnt', $minCnt] : []
             ]
         );
+
+        if (!$isFormatted) {
+            return $list;
+        }
+
+        foreach ($list as $id => &$item) {
+            if ($id > 0) {
+                $item = sprintf("%s (%s)", $item, $id);
+            }
+        }
+
+        return $list;
     }
 
     /**

@@ -213,6 +213,7 @@ class Operator extends ActiveRecord
      * @param bool $isWithNullAndNotNull
      * @param int|int[] $countryCode
      * @param bool $isMainOnly
+     * @param bool $isFormatted
      * @param int $minCnt
      * @return \string[]
      */
@@ -221,9 +222,10 @@ class Operator extends ActiveRecord
         $isWithNullAndNotNull = false,
         $countryCode = null,
         $isMainOnly = true,
+        $isFormatted = false,
         $minCnt = self::MIN_CNT
     ) {
-        return self::getListTrait(
+        $list = self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'id',
@@ -237,6 +239,18 @@ class Operator extends ActiveRecord
                 $minCnt ? ['>=', 'cnt', $minCnt] : []
             ]
         );
+
+        if (!$isFormatted) {
+            return $list;
+        }
+
+        foreach ($list as $id => &$item) {
+            if ($id > 0) {
+                $item = sprintf("%s (%s)", $item, $id);
+            }
+        }
+
+        return $list;
     }
 
     /**

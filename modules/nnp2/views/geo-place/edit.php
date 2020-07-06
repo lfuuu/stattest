@@ -85,7 +85,7 @@ if (!$model->isNewRecord) {
         <?php // Родитель ?>
         <div class="col-sm-3">
             <?php
-            $geoPlacesList = GeoPlace::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, $model->ndc, $model->region_id);
+            $geoPlacesList = GeoPlace::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, $model->ndc, $model->region_id, true);
             if ($model->id) {
                 unset($geoPlacesList[$model->id]); // убрать себя
             }

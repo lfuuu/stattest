@@ -134,7 +134,13 @@ echo GridView::widget([
         [
             'attribute' => 'state',
             'value' => function (ImportHistory $model) {
-                return $model->getStateName();
+                $progressText = '';
+                $progress = $model->getState();
+                if ($progress < 100) {
+                    $progressText = sprintf(" (%s%%)", $progress);
+                }
+
+                return $model->getStateName() . $progressText;
             },
         ],
         [

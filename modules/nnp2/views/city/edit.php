@@ -88,7 +88,7 @@ if (!$model->isNewRecord) {
         <?php // Родитель ?>
         <div class="col-sm-3">
             <?php
-            $citiesList = City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, $model->region->id, 0);
+            $citiesList = City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $model->country_code, $model->region->id, true);
             if ($model->id) {
                 unset($citiesList[$model->id]); // убрать себя
             }

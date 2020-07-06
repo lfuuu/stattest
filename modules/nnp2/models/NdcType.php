@@ -173,6 +173,7 @@ class NdcType extends ActiveRecord
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
      * @param bool $isMainOnly
+     * @param bool $isFormatted
      * @param null|bool $isCityDepended null - любое, bool - только указанное
      * @return \string[]
      */
@@ -180,9 +181,10 @@ class NdcType extends ActiveRecord
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
         $isMainOnly = true,
+        $isFormatted = false,
         $isCityDepended = null
     ) {
-        return self::getListTrait(
+        $list = self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'id',
@@ -195,6 +197,18 @@ class NdcType extends ActiveRecord
                 is_null($isCityDepended) ? [] : ['is_city_dependent' => $isCityDepended],
             ]
         );
+
+        if (!$isFormatted) {
+            return $list;
+        }
+
+        foreach ($list as $id => &$item) {
+            if ($id > 0) {
+                $item = sprintf("%s (%s)", $item, $id);
+            }
+        }
+
+        return $list;
     }
 
     /**

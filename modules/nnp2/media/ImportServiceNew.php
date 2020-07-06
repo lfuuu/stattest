@@ -10,11 +10,13 @@ use app\modules\nnp2\media\related\GeoRelated;
 use app\modules\nnp2\media\related\NdcTypeRelated;
 use app\modules\nnp2\media\related\OperatorRelated;
 use app\modules\nnp2\media\related\RegionRelated;
+use app\modules\nnp2\models\City;
 use app\modules\nnp2\models\GeoPlace;
 use app\modules\nnp2\models\ImportHistory;
 use app\modules\nnp2\models\NdcType;
 use app\modules\nnp2\models\NumberRange;
 use app\modules\nnp2\models\Operator;
+use app\modules\nnp2\models\Region;
 use UnexpectedValueException;
 use Yii;
 use yii\base\Model;
@@ -684,7 +686,9 @@ SQL;
         $this->importHistory->ranges_updated = $affectedRowsUpdated;
         $this->importHistory->ranges_added = $affectedRowsAdded;
 
-        $this->updateCnt();
+        $this->updateCntOperators();
+        $this->updateCntRegions();
+        $this->updateCntCities();
     }
 
     /**
@@ -693,7 +697,7 @@ SQL;
      * @return string
      * @throws \yii\db\Exception
      */
-    protected function updateCnt()
+    protected function updateCntOperators()
     {
 
         $numberRangeTableName = NumberRange::tableName();
@@ -729,6 +733,102 @@ SQL;
                 operator_id
         ) operator_stat
     WHERE {$operatorTableName}.id = operator_stat.operator_id
+SQL;
+        $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+
+        return true;
+    }
+
+    /**
+     * Обновить столбец cnt
+     *
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    protected function updateCntRegions()
+    {
+
+        $numberRangeTableName = NumberRange::tableName();
+        $regionTableName = Region::tableName();
+        $tableGeo = GeoPlace::tableName();
+
+        // set to 0
+        $sqlClear = <<<SQL
+UPDATE {$regionTableName}
+    SET cnt = 0
+WHERE
+    country_code = :country_code
+SQL;
+        $this->db->createCommand($sqlClear, [':country_code' => $this->country->code])->execute();
+        unset($sqlClear);
+
+        $sql = <<<SQL
+    UPDATE {$regionTableName}
+        SET cnt = relation_stat.cnt
+    FROM 
+        (
+            SELECT
+                geo.region_id,
+                SUM(nr.cnt) cnt
+            FROM
+                {$numberRangeTableName} nr, {$tableGeo} geo
+            WHERE
+                geo.region_id IS NOT NULL
+                AND nr.is_active
+                AND geo.id = nr.geo_place_id
+                AND geo.country_code = :country_code
+            GROUP BY
+                region_id
+        ) relation_stat
+    WHERE {$regionTableName}.id = relation_stat.region_id
+SQL;
+        $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+
+        return true;
+    }
+
+    /**
+     * Обновить столбец cnt
+     *
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    protected function updateCntCities()
+    {
+
+        $numberRangeTableName = NumberRange::tableName();
+        $cityTableName = City::tableName();
+        $tableGeo = GeoPlace::tableName();
+
+        // set to 0
+        $sqlClear = <<<SQL
+UPDATE {$cityTableName}
+    SET cnt = 0
+WHERE
+    country_code = :country_code
+SQL;
+        $this->db->createCommand($sqlClear, [':country_code' => $this->country->code])->execute();
+        unset($sqlClear);
+
+        $sql = <<<SQL
+    UPDATE {$cityTableName}
+        SET cnt = relation_stat.cnt
+    FROM 
+        (
+            SELECT
+                geo.city_id,
+                SUM(nr.cnt) cnt
+            FROM
+                {$numberRangeTableName} nr, {$tableGeo} geo
+            WHERE
+                geo.city_id IS NOT NULL
+                AND nr.is_active
+                AND geo.id = nr.geo_place_id
+                AND geo.country_code = :country_code
+            GROUP BY
+                city_id
+        ) relation_stat
+    WHERE {$cityTableName}.id = relation_stat.city_id
 SQL;
         $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
 
