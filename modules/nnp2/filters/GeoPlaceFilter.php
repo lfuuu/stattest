@@ -48,7 +48,12 @@ class GeoPlaceFilter extends GeoPlace
         $this->region_id && $query->andWhere([$geoTableName . '.region_id' => $this->region_id]);
 
         $this->parent_id && $query->andWhere([$geoTableName . '.parent_id' => $this->parent_id]);
-        $this->is_valid !== '' && $query->andWhere([$geoTableName . '.is_valid' => $this->is_valid]);
+        if (
+            ($this->is_valid !== '')
+            && !is_null($this->is_valid)
+        ) {
+            $query->andWhere([$geoTableName . '.is_valid' => (bool)$this->is_valid]);
+        }
 
         $sort = \Yii::$app->request->get('sort');
         if (!$sort) {

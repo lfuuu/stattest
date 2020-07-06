@@ -54,7 +54,12 @@ class CityFilter extends City
         $this->cnt_to !== '' && $query->andWhere(['<=', $cityTableName . '.cnt', $this->cnt_to]);
 
         $this->parent_id && $query->andWhere([$cityTableName . '.parent_id' => $this->parent_id]);
-        $this->is_valid !== '' && $query->andWhere([$cityTableName . '.is_valid' => $this->is_valid]);
+        if (
+            ($this->is_valid !== '')
+            && !is_null($this->is_valid)
+        ) {
+            $query->andWhere([$cityTableName . '.is_valid' => (bool)$this->is_valid]);
+        }
 
         $sort = \Yii::$app->request->get('sort');
         if (!$sort) {

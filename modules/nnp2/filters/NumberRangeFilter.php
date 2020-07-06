@@ -132,8 +132,18 @@ class NumberRangeFilter extends NumberRange
             $query->andWhere([$geoTableName . '.ndc' => $this->ndc]);
         }
 
-        $this->is_active !== '' && $query->andWhere([$currentTableName . '.is_active' => (bool)$this->is_active]);
-        $this->is_valid !== '' && $query->andWhere([$currentTableName . '.is_valid' => (bool)$this->is_valid]);
+        if (
+            ($this->is_active !== '')
+            && !is_null($this->is_active)
+        ) {
+            $query->andWhere([$currentTableName . '.is_active' => (bool)$this->is_active]);
+        }
+        if (
+            ($this->is_valid !== '')
+            && !is_null($this->is_valid)
+        ) {
+            $query->andWhere([$currentTableName . '.is_valid' => (bool)$this->is_valid]);
+        }
 
         switch ($this->operator_id) {
             case '':

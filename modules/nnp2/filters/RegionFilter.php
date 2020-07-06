@@ -52,7 +52,12 @@ class RegionFilter extends Region
         $this->cnt_from !== '' && $query->andWhere(['>=', $regionTableName . '.cnt', $this->cnt_from]);
         $this->cnt_to !== '' && $query->andWhere(['<=', $regionTableName . '.cnt', $this->cnt_to]);
 
-        $this->is_valid !== '' && $query->andWhere([$regionTableName . '.is_valid' => $this->is_valid]);
+        if (
+            ($this->is_valid !== '')
+            && !is_null($this->is_valid)
+        ) {
+            $query->andWhere([$regionTableName . '.is_valid' => (bool)$this->is_valid]);
+        }
 
         $sort = \Yii::$app->request->get('sort');
         if (!$sort) {

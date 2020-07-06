@@ -55,7 +55,12 @@ class OperatorFilter extends Operator
         $this->group !== '' && $query->andWhere(["{$operatorTableName}.group" => $this->group]);
 
         $this->parent_id && $query->andWhere([$operatorTableName . '.parent_id' => $this->parent_id]);
-        $this->is_valid !== '' && $query->andWhere([$operatorTableName . '.is_valid' => $this->is_valid]);
+        if (
+            ($this->is_valid !== '')
+            && !is_null($this->is_valid)
+        ) {
+            $query->andWhere([$operatorTableName . '.is_valid' => (bool)$this->is_valid]);
+        }
 
         $sort = \Yii::$app->request->get('sort');
         if (!$sort) {

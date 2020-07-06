@@ -46,7 +46,12 @@ class NdcTypeFilter extends NdcType
         $this->is_city_dependent !== '' && $query->andWhere(['is_city_dependent' => $this->is_city_dependent]);
 
         $this->parent_id && $query->andWhere([$ndcTypeTableName . '.parent_id' => $this->parent_id]);
-        $this->is_valid !== '' && $query->andWhere(['is_valid' => $this->is_valid]);
+        if (
+            ($this->is_valid !== '')
+            && !is_null($this->is_valid)
+        ) {
+            $query->andWhere([$ndcTypeTableName . '.is_valid' => (bool)$this->is_valid]);
+        }
 
         $sort = \Yii::$app->request->get('sort');
         if (!$sort) {
