@@ -265,8 +265,8 @@ comment on column nnp2.range_short.operator_id is 'Оператор nnp2.operato
 comment on column nnp2.range_short.number_from is 'Номер от.';
 comment on column nnp2.range_short.number_to is 'Номер до.';
 
-comment on column nnp2.number_range.full_number_from is 'Полный номер от.';
-comment on column nnp2.number_range.full_number_to is 'Полный номер до.';
+comment on column nnp2.range_short.full_number_from is 'Полный номер от.';
+comment on column nnp2.range_short.full_number_to is 'Полный номер до.';
 
 comment on column nnp2.range_short.insert_time is 'Когда создал';
 comment on column nnp2.range_short.insert_user_id is 'Кто создал';

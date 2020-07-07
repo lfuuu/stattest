@@ -11,6 +11,19 @@
     </div>
 <?php endif; ?>
 
+<?php if (Yii::$app->session->hasFlash('warning')): ?>
+    <?php
+    $errorMessages = Yii::$app->session->getFlash('warning', [], true);
+    ?>
+    <div style="font-weight: bold;" class="alert alert-warning fade in text-center">
+        <?php if (is_array($errorMessages)): ?>
+            <?= implode('<br />', $errorMessages); ?>
+        <?php else: ?>
+            <?= $errorMessages; ?>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
 <?php if (Yii::$app->session->hasFlash('success')): ?>
     <?php
     $successMessages = Yii::$app->session->getFlash('success', [], true);

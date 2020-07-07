@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS nnp2.import_history;
+DROP SEQUENCE IF EXISTS nnp2.import_history_id_seq;
+
 CREATE SEQUENCE nnp2.import_history_id_seq;
 ALTER SEQUENCE nnp2.import_history_id_seq OWNER to postgres;
 

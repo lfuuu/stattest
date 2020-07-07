@@ -3,9 +3,11 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
+use app\exceptions\ModelValidationException;
 use app\models\EventQueue;
 use app\classes\Html;
 use app\modules\nnp\filters\CountryFilter;
+use app\modules\nnp\forms\import\Form;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\CountryFile;
@@ -34,7 +36,7 @@ class ImportController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'step2', 'step3', 'step4', 'unlink', 'download'],
+                        'actions' => ['index', 'step2', 'step3', 'step4', 'unlink', 'download', 'approve', 'delete'],
                         'roles' => ['nnp.write'],
                     ],
                 ],
@@ -75,13 +77,59 @@ class ImportController extends BaseController
     }
 
     /**
-     * Шаг 2. Загрузка или выбор файла
+     * Подвердить всё по стране
      *
      * @param int $countryCode
      * @return string
      * @throws \yii\db\Exception
      * @throws \InvalidArgumentException
      * @throws \yii\base\InvalidParamException
+     */
+    public function actionApprove($countryCode)
+    {
+        try {
+            /** @var Form $form */
+            $formModel = new Form(['countryCode' => $countryCode]);
+            $formModel->approve();
+
+            return $this->redirect(Url::to(['/nnp/import/step2', 'countryCode' => $formModel->getCountry()->code]));
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка: ' . $e->getMessage());
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * Удалить всё по стране
+     *
+     * @param int $countryCode
+     * @return string
+     * @throws \yii\db\Exception
+     * @throws \InvalidArgumentException
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionDelete($countryCode)
+    {
+        try {
+            /** @var Form $form */
+            $formModel = new Form(['countryCode' => $countryCode]);
+            $formModel->delete();
+
+            return $this->redirect(Url::to(['/nnp/import/step2', 'countryCode' => $formModel->getCountry()->code]));
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка: ' . $e->getMessage());
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * Шаг 2. Загрузка или выбор файла
+     *
+     * @param int $countryCode
+     * @return string
+     * @throws ModelValidationException
      */
     public function actionStep2($countryCode)
     {
