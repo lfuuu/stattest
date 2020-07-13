@@ -414,4 +414,40 @@ class AccountController extends BaseController
 
         return $this->redirect($account->getUrl());
     }
+
+    public function actionCallDirect($phone)
+    {
+        $userAbon = \Yii::$app->user->identity->phone_work;
+        Assert::isNotEmpty($userAbon);
+
+        $phone = preg_replace('/[^\d]/', '', $phone);
+
+        Call::clean();
+
+        $call = Call::findOne(['abon' => $userAbon, 'calling_number' => $phone]);
+
+        if (!$call) {
+            $call = new Call;
+            $call->abon = $userAbon;
+            $call->calling_number = $phone;
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            if (!$call->save()) {
+                throw new ModelValidationException($call);
+            }
+
+            EventQueue::go(EventQueue::MAKE_CALL, ['abon' => $userAbon, 'calling_number' => $phone]);
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+
+
+    }
 }
