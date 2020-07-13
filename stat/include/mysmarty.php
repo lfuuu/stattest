@@ -317,9 +317,9 @@ function smarty_modifier_bytesize($number, $esc_type = 'Mb')
 
 function smarty_modifier_find_urls($text)
 {
-    $text = preg_replace('#(((f|ht)tps?):\/\/([a-zA-Z0-9.\/?=&\-%_])+)#is', "<a target='_blank' href='\\1'>\\1</a>", $text);
+    $text = preg_replace('#(((f|ht)tps?):\/\/([a-zA-Z0-9.\/?=&\-%_;])+)#is', "<a target='_blank' href='\\1'>\\1</a>", $text);
     $text = preg_replace('#(([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6})#is', "<a target='_blank' href=\"http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to=\\1\">\\1</a> (<a href=\"mailto:\\1\">@</a>)", $text);
-    $text = preg_replace('#(\+(7|8)[0-9\- ()]{5,})#is', "<a target='_blank' href=\"/account/call-direct?phone=\\1\">\\1</a>", $text);
+    $text = preg_replace('#(7[0-9]{10})#is', "<a target='_blank' href=\"/account/call-direct?phone=\\1\">\\1</a>", $text);
 
     return $text;
 }

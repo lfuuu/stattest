@@ -233,7 +233,7 @@
     <tr>
         <td align="right">Проблема</td>
         <td style="border:1px solid black;background:white;">
-            {$tt_trouble.problem|escape|replace:"\\n":"\n"|replace:"\\r":""|replace:"\n\n":"\n"|replace:"\n\n":"\n"|replace:"\n":"<br>"}
+            {$tt_trouble.problem|escape|replace:"\\n":"\n"|replace:"\\r":""|replace:"\n\n":"\n"|replace:"\n\n":"\n"|replace:"\n":"<br>"|find_urls}
         </td>
     </tr>
 

@@ -384,7 +384,7 @@ class AccountController extends BaseController
         Assert::isTrue($contact->isPhone());
 
         $userAbon = \Yii::$app->user->identity->phone_work;
-        Assert::isNotEmpty($userAbon);
+        Assert::isNotEmpty($userAbon, 'Не установлен внутрениий номер пользователя');
 
         $phone = preg_replace('/[^\d]/', '', $contact->data);
 
@@ -418,7 +418,7 @@ class AccountController extends BaseController
     public function actionCallDirect($phone)
     {
         $userAbon = \Yii::$app->user->identity->phone_work;
-        Assert::isNotEmpty($userAbon);
+        Assert::isNotEmpty($userAbon, 'Не установлен внутрениий номер пользователя');
 
         $phone = preg_replace('/[^\d]/', '', $phone);
 
