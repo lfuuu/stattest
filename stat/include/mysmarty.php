@@ -319,7 +319,10 @@ function smarty_modifier_find_urls($text)
 {
     $text = preg_replace('#(((f|ht)tps?):\/\/([a-zA-Z0-9.\/?=&\-%_;])+)#is', "<a target='_blank' href='\\1'>\\1</a>", $text);
     $text = preg_replace('#(([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6})#is', "<a target='_blank' href=\"http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to=\\1\">\\1</a> (<a href=\"mailto:\\1\">@</a>)", $text);
-    $text = preg_replace('#(7[0-9]{10})#is', "<a target='_blank' href=\"/account/call-direct?phone=\\1\">\\1</a>", $text);
+    $text = preg_replace_callback('#(^|\s|\()(7[0-9]{10})(\s|$|\)|,)#m', function ($m) {
+        $s = $m[1]; $e = $m[3];
+        return $s . "<a target='_blank' href=\"/account/call-direct?phone=" . $m[2] . "\">" . $m[2] . "</a>" . $e;
+    }, $text);
 
     return $text;
 }
