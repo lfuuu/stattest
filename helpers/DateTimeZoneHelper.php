@@ -20,6 +20,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
     const ISO8601_WITHOUT_TIMEZONE = 'Y-m-d\TH:i:s';
 
     const TIMEZONE_UTC = 'UTC';
+    const TIMEZONE_LONDON = 'Europe/London';
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
     const TIMEZONE_DEFAULT = self::TIMEZONE_UTC;
 

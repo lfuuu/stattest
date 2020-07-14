@@ -104,7 +104,7 @@ class Region extends ActiveRecord
             $isWithNullAndNotNull = false,
             $indexBy = 'timezone_name',
             $select = new \yii\db\Expression('DISTINCT timezone_name'),
-            $orderBy = [],
+            $orderBy = ['timezone_name' => SORT_ASC],
             $where = []
         ) + [DateTimeZoneHelper::TIMEZONE_UTC => DateTimeZoneHelper::TIMEZONE_UTC];
     }
