@@ -112,11 +112,14 @@ class ApiVpbx extends Singleton
             throw new InvalidCallException('bad tariff');
         }
 
+        $account = ClientAccount::findOne(['id' => $clientId]);
+
+
         return $this->_exec(
             'create',
             [
                 'client_id' => (int)$clientId,
-                'account_version' => ClientAccount::findOne(['id' => $clientId])->account_version,
+                'account_version' => $account->account_version,
                 'stat_product_id' => (int)$usageId,
                 'numbers' => [],
                 'phones' => (int) $tariff['num_ports'],
@@ -125,7 +128,7 @@ class ApiVpbx extends Singleton
                 'record' => (bool)$tariff['is_record'],
                 'enable_web_call' => (bool)$tariff['is_web_call'],
                 'disk_space' => (int)$tariff['space'],
-                'timezone' => ClientAccount::findOne($clientId)->timezone_name,
+                'timezone' => $account->timezone_name == DateTimeZoneHelper::TIMEZONE_UTC ? DateTimeZoneHelper::TIMEZONE_LONDON : $account->timezone_name,
                 'region' => $tariff['region'],
                 'enable_geo' => $tariff['enable_geo'],
                 'enable_min_price' => $tariff['enable_min_price'],
