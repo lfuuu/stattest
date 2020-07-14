@@ -402,16 +402,38 @@ WHERE b.client_id = ' . $account->id . '
         $date = (new \DateTimeImmutable())
             ->setTime(0, 0, 0)
             ->setDate($mBalance->year, $mBalance->month, 1)
-            ->modify('+1 month')
+//            ->modify('+1 month')
             ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $result = array_reverse($result);
 
         $diffBalance = 0;
+
+        $isStart = false;
+        $r = [];
+        $submitted = 0;
+        $currentBalance = null;
         foreach ($result as $value) {
             if ($value['type'] == 'month' && $value['date'] == $date) {
                 $diffBalance = round($value['balance'] - $mBalance->balance, 2);
-                break;
+                $isStart = true;
+                continue;
+//                break;
+            }
+
+            if ($isStart && in_array($value['type'], ['act', 'payment'])) {
+                if (isset($value['outcome_sum']) && abs($value['outcome_sum']) > 0) {
+                    $submitted += $value['outcome_sum'];
+                }
+                if (isset($value['income_sum']) && abs($value['income_sum']) > 0) {
+                    $submitted += $value['income_sum'];
+                }
+
+                $r[] = $value;
+            }
+
+            if ($value['type'] == 'current_balance') {
+                $currentBalance = $value['balance'];
             }
         }
 
@@ -423,7 +445,16 @@ WHERE b.client_id = ' . $account->id . '
             if ($value['type'] == 'month') {
                 $value['balance'] -= $diffBalance;
             } elseif ($value['type'] == 'current_statement') {
-                $value['income_sum'] -= $diffBalance;
+//                $value['income_sum'] -= $diffBalance + $d;
+                unset($value['income_sum'], $value['outcome_sum']);
+
+                $v = $mBalance->balance - $currentBalance + $submitted;
+
+                if ($v >= 0) {
+                    $value['income_sum'] = $v;
+                } else {
+                    $value['outcome_sum'] = $v;
+                }
             }
         }
 
