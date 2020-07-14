@@ -115,6 +115,7 @@ class PublicSite extends ActiveRecord
             $this->data[$index]['order'] = $publicSiteCountry->order;
             $this->data[$index]['country_code'] = $publicSiteCountry->country_code;
             $this->data[$index]['city_ids'] = ArrayHelper::getColumn($publicSiteCountry->publicSiteCities, 'city_id');
+            $this->data[$index]['ndc_type_ids'] = ArrayHelper::getColumn($publicSiteCountry->publicSiteNdcTypes, 'ndc_type_id');
         }
 
         return $this;
@@ -131,11 +132,23 @@ class PublicSite extends ActiveRecord
 
         try {
             if (parent::save($runValidation = true, $attributeNames = null)) {
+
+                $siteCountries = PublicSiteCountry::find()
+                    ->where([
+                        'site_id' => $this->id
+                    ])
+                    ->select('country_code')
+                    ->column();
+
+                $siteCountries = array_combine($siteCountries, $siteCountries);
+
                 foreach ($this->data as $row) {
                     $countryLinkWithPublicSite = PublicSiteCountry::findOne([
                         'site_id' => $this->id,
                         'country_code' => $row['country_code'],
                     ]);
+
+                    unset($siteCountries[$row['country_code']]);
 
                     if ($countryLinkWithPublicSite === null) {
                         $countryLinkWithPublicSite = new PublicSiteCountry;
@@ -161,11 +174,30 @@ class PublicSite extends ActiveRecord
                             }
                         }
                     }
+
+                    if (array_key_exists('ndc_type_ids', $row)) {
+                        PublicSiteNdcType::deleteAll(['public_site_country_id' => $countryLinkWithPublicSite->id]);
+
+                        foreach ($row['ndc_type_ids'] as $ndcTypeId) {
+                            $publicSiteNdcType = new PublicSiteNdcType();
+                            $publicSiteNdcType->public_site_country_id = $countryLinkWithPublicSite->id;
+                            $publicSiteNdcType->ndc_type_id = $ndcTypeId;
+                            if (!$publicSiteNdcType->save()) {
+                                throw new ModelValidationException($publicSiteNdcType);
+                            }
+                        }
+                    }
+                }
+
+
+                if ($siteCountries) {
+                    PublicSiteCountry::deleteAll(['site_id' => $this->id, 'country_code' => $siteCountries]);
                 }
 
                 $transaction->commit();
             }
         } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
             $transaction->rollBack();
             \Yii::error($e);
             return false;
@@ -200,7 +232,8 @@ class PublicSite extends ActiveRecord
     public static function getList(
         $isWithEmpty = false,
         $indexBy = 'id'
-    ) {
+    )
+    {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull = false,

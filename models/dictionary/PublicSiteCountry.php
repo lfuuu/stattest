@@ -12,6 +12,7 @@ use app\models\Country;
  * @property int $order
  *
  * @property-read PublicSiteCity[] $publicSiteCities
+ * @property-read PublicSiteNdcTypes[] $publicSiteNdcTypes
  * @property-read Country $country
  */
 class PublicSiteCountry extends ActiveRecord
@@ -31,6 +32,14 @@ class PublicSiteCountry extends ActiveRecord
     public function getPublicSiteCities()
     {
         return $this->hasMany(PublicSiteCity::class, ['public_site_country_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPublicSiteNdcTypes()
+    {
+        return $this->hasMany(PublicSiteNdcType::class, ['public_site_country_id' => 'id']);
     }
 
     /**

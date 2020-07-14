@@ -3,6 +3,7 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\helpers\ArrayHelper;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\models\City;
@@ -216,14 +217,18 @@ class CountriesController extends ApiInternalController
             throw new BadRequestHttpException;
         }
 
-        $publicSite = PublicSite::findOne(['domain' => $domain]);
+        /** @var PublicSite $publicSite */
+        $publicSite = PublicSite::find()
+            ->where(['domain' => $domain])
+            ->with(['publicSiteCountries.country', 'publicSiteCountries.publicSiteNdcTypes', 'publicSiteCountries.country'])
+            ->one();
         if (!$publicSite) {
             throw new BadRequestHttpException;
         }
 
         $result = [];
         foreach ($publicSite->publicSiteCountries as $publicSiteCountry) {
-            $result[] = $this->_countryInfo($publicSiteCountry->country);
+            $result[] = $this->_countryInfo($publicSiteCountry->country) + ['ndc_type_ids' => ArrayHelper::getColumn($publicSiteCountry->publicSiteNdcTypes, 'ndc_type_id')];
         }
 
         return $result;
@@ -268,10 +273,7 @@ class CountriesController extends ApiInternalController
      */
     private function _countryInfo(Country $country)
     {
-        $regions = Region::find()
-            ->select('id')
-            ->where(['country_id' => $country->code])
-            ->column();
+        $regions = $country->getRegions()->select('id')->column();
 
         return [
             'country_code' => $country->code,

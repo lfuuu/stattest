@@ -29,6 +29,7 @@ use yii\helpers\Url;
  * @property-read Currency $currency
  * @property-read Language $language
  * @property-read PublicSiteCountry[] $publicSiteCountries
+ * @property-read Region[] $regions
  */
 class Country extends ActiveRecord
 {
@@ -120,6 +121,14 @@ class Country extends ActiveRecord
     public function getLanguage()
     {
         return $this->hasOne(Language::class, ['code' => 'lang']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRegions()
+    {
+        return $this->hasMany(Region::class, ['country_id' => 'code']);
     }
 
     /**
