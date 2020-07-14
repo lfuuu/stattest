@@ -68,7 +68,8 @@ if (!$model->isNewRecord) {
                     'colgroup' => [
                         '5%',
                         '25%',
-                        '70%',
+                        '45%',
+                        '25%',
                     ],
                     'columns' => [
                         [
@@ -90,6 +91,17 @@ if (!$model->isNewRecord) {
                             'type' => Editable::INPUT_SELECT2,
                             'options' => [
                                 'data' => City::getList(),
+                                'options' => [
+                                    'multiple' => true,
+                                ],
+                            ],
+                        ],
+                        [
+                            'name' => 'ndc_type_ids',
+                            'title' => 'NDC',
+                            'type' => Editable::INPUT_SELECT2,
+                            'options' => [
+                                'data' => \app\modules\nnp\models\NdcType::getList(),
                                 'options' => [
                                     'multiple' => true,
                                 ],
