@@ -20,6 +20,7 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
+use app\models\Timezone;
 use app\modules\sbisTenzor\classes\ContractorInfo;
 use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use yii\base\Exception;
@@ -209,7 +210,7 @@ class AccountEditForm extends Form
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
             ['price_type', 'in', 'range' => array_keys(GoodPriceType::getList())],
-            ['timezone_name', 'in', 'range' => array_keys(Region::getTimezoneList())],
+            ['timezone_name', 'in', 'range' => array_keys(Timezone::getList())],
             ['status', 'in', 'range' => array_keys(ClientAccount::$statuses)],
             ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],
             ['bill_rename1', 'in', 'range' => ['no', 'yes']],

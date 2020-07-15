@@ -1,18 +1,20 @@
 <?php
 
 use app\classes\Html;
+use app\forms\client\AccountEditForm;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
+use app\models\Timezone;
 use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\models\SBISExchangeGroup;
 use app\modules\uu\models\TariffStatus;
 use kartik\widgets\ActiveForm;
 
 /** @var ActiveForm $f */
-/** @var \app\forms\client\AccountEditForm $model */
+/** @var AccountEditForm $model */
 ?>
 
 <div class="max-screen">
@@ -21,7 +23,7 @@ use kartik\widgets\ActiveForm;
             <?= $f->field($model, 'region')->dropDownList(Region::getList(), ['class' => 'select2']) ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'timezone_name')->dropDownList(Region::getTimezoneList()) ?>
+            <?= $f->field($model, 'timezone_name')->dropDownList(Timezone::getList()) ?>
         </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'is_postpaid')->checkbox()->label('') ?>

@@ -1,22 +1,25 @@
 <?php
 
+use app\classes\BaseView;
 use app\dao\OrganizationDao;
+use app\models\Business;
+use app\models\BusinessProcess;
 use app\models\BusinessProcessStatus;
 use app\models\Country;
 use app\models\Currency;
 use app\models\dictionary\PublicSite;
+use app\models\EntryPoint;
 use app\models\LkWizardState;
 use app\models\Region;
 use app\classes\Html;
+use app\models\Timezone;
 use kartik\widgets\ActiveForm;
-use yii\helpers\ArrayHelper;
 use yii\widgets\Breadcrumbs;
-use yii\helpers\Url;
 use app\models\ClientAccount;
 
-/** @var \app\models\EntryPoint $model */
+/** @var EntryPoint $model */
 /** @var ActiveForm $form */
-/** @var \app\classes\BaseView $this */
+/** @var BaseView $this */
 
 $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
@@ -108,7 +111,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'client_contract_business_id')
-                    ->dropDownList(\app\models\Business::getList())
+                    ->dropDownList(Business::getList())
                 ?>
             </div>
 
@@ -140,7 +143,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 <?= $form
                     ->field($model, 'client_contract_business_process_id')
                     ->dropDownList(
-                        \app\models\BusinessProcess::find()
+                        BusinessProcess::find()
                             ->where(['business_id' => $model->client_contract_business_id])
                             ->andWhere(['show_as_status' => '1'])
                             ->indexBy('id')
@@ -200,7 +203,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'timezone_name')
-                    ->dropDownList(Region::getTimezoneList())
+                    ->dropDownList(Timezone::getList())
                 ?>
             </div>
         </div>

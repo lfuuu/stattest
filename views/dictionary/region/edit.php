@@ -2,12 +2,14 @@
 /**
  * Создание/редактирование региона
  *
- * @var \app\classes\BaseView $this
+ * @var BaseView $this
  * @var RegionForm $formModel
  */
 
+use app\classes\BaseView;
 use app\classes\dictionary\forms\RegionForm;
 use app\models\Country;
+use app\models\Timezone;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -59,7 +61,7 @@ if (!$region->isNewRecord) {
 
         <?php // Часовой пояс ?>
         <div class="col-sm-3">
-            <?= $form->field($region, 'timezone_name')->textInput() ?>
+            <?= $form->field($region, 'timezone_name')->dropDownList(Timezone::getList()) ?>
         </div>
 
         <div class="col-sm-3">

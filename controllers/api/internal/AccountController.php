@@ -15,7 +15,7 @@ use app\models\Business;
 use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientContract;
-use app\models\Region;
+use app\models\Timezone;
 use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
 
@@ -174,7 +174,7 @@ class AccountController extends ApiInternalController
     {
         $timeZones = [];
 
-        foreach (Region::getTimezoneList() as $timeZone) {
+        foreach (Timezone::getList() as $timeZone => $devNull) {
 
             try {
                 $clientDate = new \DateTime('now', new \DateTimeZone($timeZone));
@@ -357,7 +357,7 @@ class AccountController extends ApiInternalController
             throw new BadRequestHttpException(reset($errors));
         }
 
-        list(, $numbers) = ClientContact::dao()->getE164($number);
+        [, $numbers] = ClientContact::dao()->getE164($number);
 
         if (!$numbers) {
             return [

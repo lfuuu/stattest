@@ -26,6 +26,7 @@ use app\models\LogTarif;
 use app\models\Organization;
 use app\models\Region;
 use app\models\TariffVirtpbx;
+use app\models\Timezone;
 use app\models\Trouble;
 use app\models\TroubleRoistatStore;
 use app\models\usages\UsageInterface;
@@ -158,7 +159,7 @@ class ClientCreateExternalForm extends Form
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
-            ['timezone', 'in', 'range' => (Region::getTimezoneList() + [""])],
+            ['timezone', 'in', 'range' => (array_keys(Timezone::getList()) + [""])],
             ['country_id', 'default', 'value' => Country::RUSSIA],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
