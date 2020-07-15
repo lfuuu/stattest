@@ -16,6 +16,7 @@ use yii\helpers\Url;
 
 /**
  * @property int $id
+ * @property int $country_code
  * @property int $geo_place_id
  * @property int $ndc_type_id
  * @property int $operator_id
@@ -60,15 +61,6 @@ class NumberRange extends ActiveRecord
     use GetInsertUserTrait;
     use GetUpdateUserTrait;
 
-    const DEFAULT_MOSCOW_NDC = 495;
-
-    private static $_triggerTables = [
-        'nnp.country',
-        'nnp.number_range',
-        'nnp.operator',
-        'nnp.region',
-    ];
-
     /**
      * Имена полей
      *
@@ -79,6 +71,7 @@ class NumberRange extends ActiveRecord
         return [
             'id' => 'ID',
 
+            'country_code' => 'Страна',
             'geo_place_id' => 'Гео',
             'ndc_type_id' => 'Тип NDC',
             'operator_id' => 'Оператор',
@@ -156,7 +149,7 @@ class NumberRange extends ActiveRecord
     {
         return [
             [['is_active', 'is_valid'], 'boolean'],
-            [['geo_place_id', 'ndc_type_id', 'operator_id', 'range_short_old_id', 'range_short_id'], 'integer'],
+            [['country_code', 'geo_place_id', 'ndc_type_id', 'operator_id', 'range_short_old_id', 'range_short_id'], 'integer'],
         ];
     }
 
@@ -200,7 +193,7 @@ class NumberRange extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->geoPlace->getCountry();
+        return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
     /**

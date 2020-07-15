@@ -48,6 +48,9 @@ class NumberRangeController extends BaseController
     public function actionIndex()
     {
         $filterModel = new NumberRangeFilter();
+        if ($sort = \Yii::$app->request->get('sort')) {
+            $filterModel->sort = $sort;
+        }
 
         $get = Yii::$app->request->get();
         if (!isset($get['NumberRangeFilter'])) {
@@ -81,7 +84,7 @@ class NumberRangeController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index', 'NumberRangeFilter[country_code]' => $formModel->numberRange->geoPlace->country_code, 'NumberRangeFilter[is_active]' => 1]);
+            return $this->redirect(['index', 'NumberRangeFilter[country_code]' => $formModel->numberRange->country_code, 'NumberRangeFilter[is_active]' => 1]);
         }
 
         return $this->render('edit', [

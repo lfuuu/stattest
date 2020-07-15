@@ -39,6 +39,11 @@ class Country extends ActiveRecord
 
     public static $primaryField = 'code';
 
+    // custom flags
+    public static $flagsMap = [
+        //self::SLOVAKIA => 'si',
+    ];
+
     private $_prefixes = null;
 
     /**
@@ -189,5 +194,17 @@ class Country extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(Operator::class, ['id' => 'default_operator']);
+    }
+
+    /**
+     * Вернуть код флага
+     *
+     * @return string
+     */
+    public function getFlagCode()
+    {
+        return !empty(self::$flagsMap[$this->code]) ?
+            self::$flagsMap[$this->code] :
+            strtolower(substr($this->alpha_2, 0, 2));
     }
 }

@@ -18,6 +18,8 @@ class GeoPlaceFilter extends GeoPlace
     public $parent_id = '';
     public $is_valid = '';
 
+    public $sort;
+
     /**
      * @return array
      */
@@ -55,8 +57,7 @@ class GeoPlaceFilter extends GeoPlace
             $query->andWhere([$geoTableName . '.is_valid' => (bool)$this->is_valid]);
         }
 
-        $sort = \Yii::$app->request->get('sort');
-        if (!$sort) {
+        if (!$this->sort) {
             $query->addOrderBy(['id' => SORT_ASC]);
         }
 

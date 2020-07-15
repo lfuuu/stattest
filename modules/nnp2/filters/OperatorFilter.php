@@ -20,6 +20,8 @@ class OperatorFilter extends Operator
     public $parent_id = '';
     public $is_valid = '';
 
+    public $sort;
+
     /**
      * @return array
      */
@@ -49,8 +51,12 @@ class OperatorFilter extends Operator
         $this->id && $query->andWhere([$operatorTableName . '.id' => $this->id]);
         $this->country_code && $query->andWhere([$operatorTableName . '.country_code' => $this->country_code]);
 
-        $this->cnt_from !== '' && $query->andWhere(['>=', $operatorTableName . '.cnt', $this->cnt_from]);
-        $this->cnt_to !== '' && $query->andWhere(['<=', $operatorTableName . '.cnt', $this->cnt_to]);
+        if (is_int($this->cnt_from)) {
+            $query->andWhere(['>=', $operatorTableName . '.cnt', $this->cnt_from]);
+        }
+        if (is_int($this->cnt_to)) {
+            $query->andWhere(['<=', $operatorTableName . '.cnt', $this->cnt_to]);
+        }
 
         $this->group !== '' && $query->andWhere(["{$operatorTableName}.group" => $this->group]);
 
@@ -62,8 +68,7 @@ class OperatorFilter extends Operator
             $query->andWhere([$operatorTableName . '.is_valid' => (bool)$this->is_valid]);
         }
 
-        $sort = \Yii::$app->request->get('sort');
-        if (!$sort) {
+        if (!$this->sort) {
             $query->addOrderBy(['id' => SORT_ASC]);
         }
 

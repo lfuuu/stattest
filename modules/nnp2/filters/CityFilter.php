@@ -20,6 +20,8 @@ class CityFilter extends City
     public $parent_id = '';
     public $is_valid = '';
 
+    public $sort;
+
     /**
      * @return array
      */
@@ -50,8 +52,12 @@ class CityFilter extends City
         $this->country_code && $query->andWhere([$cityTableName . '.country_code' => $this->country_code]);
         $this->region_id && $query->andWhere([$cityTableName . '.region_id' => $this->region_id]);
 
-        $this->cnt_from !== '' && $query->andWhere(['>=', $cityTableName . '.cnt', $this->cnt_from]);
-        $this->cnt_to !== '' && $query->andWhere(['<=', $cityTableName . '.cnt', $this->cnt_to]);
+        if (is_int($this->cnt_from)) {
+            $query->andWhere(['>=', $cityTableName . '.cnt', $this->cnt_from]);
+        }
+        if (is_int($this->cnt_to)) {
+            $query->andWhere(['<=', $cityTableName . '.cnt', $this->cnt_to]);
+        }
 
         $this->parent_id && $query->andWhere([$cityTableName . '.parent_id' => $this->parent_id]);
         if (
@@ -61,8 +67,7 @@ class CityFilter extends City
             $query->andWhere([$cityTableName . '.is_valid' => (bool)$this->is_valid]);
         }
 
-        $sort = \Yii::$app->request->get('sort');
-        if (!$sort) {
+        if (!$this->sort) {
             $query->addOrderBy(['id' => SORT_ASC]);
         }
 

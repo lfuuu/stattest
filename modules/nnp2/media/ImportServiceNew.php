@@ -68,6 +68,8 @@ abstract class ImportServiceNew extends Model
      */
     protected ImportHistory $importHistory;
 
+    protected $tableNameByCountry;
+
     /**
      * Основной метод
      * Вызывается после _pre и перед _post
@@ -260,6 +262,7 @@ abstract class ImportServiceNew extends Model
             $this->db->createCommand()->batchInsert(
                 $this->tmpTableName,
                 [
+                    'country_code',
                     'geo_place_id',
                     'ndc_type_id', 'operator_id',
 
@@ -283,6 +286,23 @@ abstract class ImportServiceNew extends Model
     }
 
     /**
+     * @param bool $refresh
+     * @return string
+     */
+    protected function getTableNameByCountry($refresh = false)
+    {
+        if ($refresh || is_null($this->tableNameByCountry)) {
+            $this->tableNameByCountry = sprintf("%s_%s", NumberRange::tableName(), $this->country->code);
+
+            if ($this->db->getTableSchema($this->tableNameByCountry, true) === null) {
+                $this->tableNameByCountry = '';
+            }
+        }
+
+        return $this->tableNameByCountry;
+    }
+
+    /**
      * Перед импортом
      * Создать временную таблицу для записи в нее всех новых значений
      *
@@ -301,6 +321,7 @@ $this->db->createCommand($sql)->execute();
 --CREATE TEMPORARY TABLE {$tableTmp}
 CREATE TABLE {$tableTmp}
 (
+  country_code integer,
   geo_place_id integer,
   ndc_type_id integer,
   operator_id integer,
@@ -333,12 +354,14 @@ SQL;
      * После импорта
      * Из временной таблицы перенести в постоянную
      *
+     * @throws \app\exceptions\ModelValidationException
      * @throws \yii\db\Exception
-     * @throws \LogicException
      */
     protected function postImport()
     {
         $tableName = NumberRange::tableName();
+        $tableNameByCountry = $this->getTableNameByCountry();
+
         $tableNdcType = NdcType::tableName();
         $tableOperator = Operator::tableName();
         $tableGeo = GeoPlace::tableName();
@@ -349,14 +372,12 @@ SQL;
         // выключить всё, кроме больших диапазонов по всей стране
         $sql = <<<SQL
     UPDATE
-        {$tableName} number_range
+        {$tableName}
     SET
         is_active = false,
         stop_time = now()
-    FROM {$tableGeo} geo
-    WHERE number_range.is_active
-        AND geo.id = number_range.geo_place_id
-        AND geo.country_code = :country_code
+    WHERE is_active
+        AND country_code = :country_code
 SQL;
         $affectedRowsBefore = $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
         $this->addLog(sprintf('Было: %d' . PHP_EOL, $affectedRowsBefore));
@@ -364,12 +385,12 @@ SQL;
         $this->importHistory->markOldUpdated();
 
         $affectedRowsUpdated = 0;
-        if ($affectedRowsBefore) {
+        if ($tableNameByCountry) {
             // *****
-            // обновить (старых) и проставим им активность
+            // обновить (старые) - проставим им активность
             $sql = <<<SQL
     UPDATE
-        {$tableName} number_range
+        {$tableNameByCountry} number_range
     SET
         is_active = true,
         --is_active = tmp.is_valid,
@@ -407,12 +428,12 @@ SQL;
             $this->addLog(sprintf('Обновлено: %d' . PHP_EOL, $affectedRowsUpdated));
 
             // *****
-            // удалить из временной таблицы уже обработанное (старых)
+            // удалить из временной таблицы уже обработанное (старые)
             $sql = <<<SQL
     DELETE FROM
         {$tableTmp} tmp
     USING
-        {$tableName} number_range
+        {$tableNameByCountry} number_range
     WHERE
         number_range.full_number_from = tmp.full_number_from
         AND number_range.number_to = tmp.number_to
@@ -434,7 +455,7 @@ SQL;
         }
 
         // *****
-        // проверки
+        // проверки на валидность
         // проверка ndc_type
         $sql = <<<SQL
 UPDATE
@@ -477,7 +498,7 @@ SQL;
 
 
 
-        if ($affectedRowsBefore) {
+        if ($tableNameByCountry) {
             // *****
             // сохраняем историю
             // изменились связанные сущности
@@ -487,17 +508,13 @@ SQL;
     SET
         previous_id = number_range.id
     FROM
-        {$tableName} number_range, {$tableGeo} geo
+        {$tableNameByCountry} number_range
     WHERE
-        TRUE
-        AND geo.id = number_range.geo_place_id
-        AND geo.country_code = :country_code
-        AND number_range.is_active IS FALSE
-        --tmp.is_valid IS FALSE
+        number_range.is_active IS FALSE
         AND number_range.full_number_from = tmp.full_number_from
         AND number_range.number_to = tmp.number_to
 SQL;
-            $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+            $this->db->createCommand($sql)->execute();
 
             // изменились правые границы
             $sql = <<<SQL
@@ -506,18 +523,14 @@ SQL;
     SET
         previous_id = number_range.id
     FROM
-        {$tableName} number_range, {$tableGeo} geo
+        {$tableNameByCountry} number_range
     WHERE
-        TRUE
-        AND geo.id = number_range.geo_place_id
-        AND geo.country_code = :country_code
-        AND number_range.is_active IS FALSE
-        --tmp.is_valid IS FALSE
+        number_range.is_active IS FALSE
         AND tmp.previous_id IS NULL
         AND number_range.full_number_from = tmp.full_number_from
         AND number_range.number_to > tmp.number_to
 SQL;
-            $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+            $this->db->createCommand($sql)->execute();
 
             // изменились левые границы
             $sql = <<<SQL
@@ -526,18 +539,14 @@ SQL;
     SET
         previous_id = number_range.id
     FROM
-        {$tableName} number_range, {$tableGeo} geo
+        {$tableNameByCountry} number_range
     WHERE
-        TRUE
-        AND geo.id = number_range.geo_place_id
-        AND geo.country_code = :country_code
-        AND number_range.is_active IS FALSE
-        --tmp.is_valid IS FALSE
+        number_range.is_active IS FALSE
         AND tmp.previous_id IS NULL
         AND number_range.full_number_to = tmp.full_number_to
         AND number_range.number_from < tmp.number_from
 SQL;
-            $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+            $this->db->createCommand($sql)->execute();
 
             // изменились границы
             $sql = <<<SQL
@@ -546,18 +555,14 @@ SQL;
     SET
         previous_id = number_range.id
     FROM
-        {$tableName} number_range, {$tableGeo} geo
+        {$tableNameByCountry} number_range
     WHERE
-        TRUE
-        AND geo.id = number_range.geo_place_id
-        AND geo.country_code = :country_code
-        AND number_range.is_active IS FALSE
-        --tmp.is_valid IS FALSE
+        number_range.is_active IS FALSE
         AND tmp.previous_id IS NULL
         AND number_range.full_number_from < tmp.full_number_from
         AND number_range.full_number_to > tmp.full_number_to
 SQL;
-            $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+            $this->db->createCommand($sql)->execute();
         }
 
 
@@ -568,6 +573,7 @@ SQL;
     INSERT INTO
         {$tableName}
     (
+        country_code,
         geo_place_id,
         
         ndc_type_id,
@@ -593,6 +599,7 @@ SQL;
         insert_time
     )
     SELECT 
+        country_code,
         geo_place_id,
         
         ndc_type_id,
@@ -620,52 +627,55 @@ SQL;
         {$tableTmp}
 SQL;
         $affectedRowsAdded = $this->db->createCommand($sql)->execute();
-        $this->addLog(sprintf('Добавлено: %d' . PHP_EOL, $affectedRowsAdded));
+        if ($affectedRowsAdded == 0) {
+            // при добавлении в партицию возвращает пустой результат
+            $affectedRowsAdded = $this->db->createCommand("select count(*) from {$tableTmp}")->queryScalar();
+        }
+
+        $this->addLog(sprintf('Добавлено всего: %d' . PHP_EOL, $affectedRowsAdded));
 
         $this->importHistory->markNewAdded();
 
-        // fix duplicates
-        $sql = <<<SQL
+        if ($affectedRowsAdded) {
+            // убираем дубликаты из новых
+            $tableNameByCountry = $this->getTableNameByCountry(true);
+
+            $sql = <<<SQL
     UPDATE
-        {$tableName} nr
+        {$tableNameByCountry} nr
     SET
         is_active = false
     FROM
-         {$tableGeo} geo,
          (
              SELECT
-                 max(nr1.id) id,
+                 max(id) id,
                  number_from,
                  full_number_to
              FROM
-                 {$tableName} nr1,
-                 {$tableGeo} geo1
+                 {$tableNameByCountry}
              WHERE
-                geo1.id = nr1.geo_place_id
-                AND geo1.country_code = :country_code
-                AND is_active
+                is_active
              GROUP BY number_from, full_number_to
          ) nr_stat
     WHERE
-        geo.id = nr.geo_place_id
-        AND geo.country_code = :country_code
-        AND nr.is_active
+        nr.is_active
         AND nr.number_from = nr_stat.number_from
         AND nr.full_number_to = nr_stat.full_number_to
         AND nr.id <> nr_stat.id
 SQL;
-        $affectedRowsUpdatedOld = $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+            $affectedRowsDuplicates = $this->db->createCommand($sql)->execute();
+
+            if ($affectedRowsDuplicates) {
+                // вычитаем из новых
+                $affectedRowsAdded -= $affectedRowsDuplicates;
+
+                $this->addLog(sprintf('Дубликатов: %d' . PHP_EOL, $affectedRowsDuplicates));
+            }
+
+            $this->importHistory->ranges_duplicates = $affectedRowsDuplicates;
+        }
 
         $this->importHistory->markUpdatedFixed();
-
-        // fix updated
-        if ($affectedRowsUpdatedOld) {
-            if ($affectedRowsUpdated) {
-                $affectedRowsUpdated -= $affectedRowsUpdatedOld;
-            } else if ($affectedRowsAdded) {
-                $affectedRowsAdded -= $affectedRowsUpdatedOld;
-            }
-        }
 
         $affectedRowsTotal = $affectedRowsUpdated + $affectedRowsAdded;
         $affectedRowsDelta = $affectedRowsBefore ? $affectedRowsTotal / $affectedRowsBefore : 1;
@@ -684,7 +694,7 @@ SQL;
 
         $this->importHistory->ranges_before = $affectedRowsBefore;
         $this->importHistory->ranges_updated = $affectedRowsUpdated;
-        $this->importHistory->ranges_added = $affectedRowsAdded;
+        $this->importHistory->ranges_new = $affectedRowsAdded;
 
         $this->updateCntOperators();
         $this->updateCntRegions();
@@ -699,10 +709,12 @@ SQL;
      */
     protected function updateCntOperators()
     {
+        $tableNameByCountry = $this->getTableNameByCountry();
+        if (!$tableNameByCountry) {
+            return true;
+        }
 
-        $numberRangeTableName = NumberRange::tableName();
         $operatorTableName = Operator::tableName();
-        $tableGeo = GeoPlace::tableName();
 
         // set to 0
         $sqlClear = <<<SQL
@@ -720,21 +732,19 @@ SQL;
     FROM 
         (
             SELECT
-                nr.operator_id,
-                SUM(nr.cnt) cnt
+                operator_id,
+                SUM(cnt) cnt
             FROM
-                {$numberRangeTableName} nr, {$tableGeo} geo
+                {$tableNameByCountry}
             WHERE
-                nr.operator_id IS NOT NULL
-                AND nr.is_active
-                AND geo.id = nr.geo_place_id
-                AND geo.country_code = :country_code
+                operator_id IS NOT NULL
+                AND is_active
             GROUP BY
                 operator_id
         ) operator_stat
     WHERE {$operatorTableName}.id = operator_stat.operator_id
 SQL;
-        $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+        $this->db->createCommand($sql)->execute();
 
         return true;
     }
@@ -747,8 +757,11 @@ SQL;
      */
     protected function updateCntRegions()
     {
+        $tableNameByCountry = $this->getTableNameByCountry();
+        if (!$tableNameByCountry) {
+            return true;
+        }
 
-        $numberRangeTableName = NumberRange::tableName();
         $regionTableName = Region::tableName();
         $tableGeo = GeoPlace::tableName();
 
@@ -771,18 +784,17 @@ SQL;
                 geo.region_id,
                 SUM(nr.cnt) cnt
             FROM
-                {$numberRangeTableName} nr, {$tableGeo} geo
+                {$tableNameByCountry} nr, {$tableGeo} geo
             WHERE
                 geo.region_id IS NOT NULL
                 AND nr.is_active
                 AND geo.id = nr.geo_place_id
-                AND geo.country_code = :country_code
             GROUP BY
                 region_id
         ) relation_stat
     WHERE {$regionTableName}.id = relation_stat.region_id
 SQL;
-        $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+        $this->db->createCommand($sql)->execute();
 
         return true;
     }
@@ -795,8 +807,11 @@ SQL;
      */
     protected function updateCntCities()
     {
+        $tableNameByCountry = $this->getTableNameByCountry();
+        if (!$tableNameByCountry) {
+            return true;
+        }
 
-        $numberRangeTableName = NumberRange::tableName();
         $cityTableName = City::tableName();
         $tableGeo = GeoPlace::tableName();
 
@@ -819,18 +834,17 @@ SQL;
                 geo.city_id,
                 SUM(nr.cnt) cnt
             FROM
-                {$numberRangeTableName} nr, {$tableGeo} geo
+                {$tableNameByCountry} nr, {$tableGeo} geo
             WHERE
                 geo.city_id IS NOT NULL
                 AND nr.is_active
                 AND geo.id = nr.geo_place_id
-                AND geo.country_code = :country_code
             GROUP BY
                 city_id
         ) relation_stat
     WHERE {$cityTableName}.id = relation_stat.city_id
 SQL;
-        $this->db->createCommand($sql, [':country_code' => $this->country->code])->execute();
+        $this->db->createCommand($sql)->execute();
 
         return true;
     }

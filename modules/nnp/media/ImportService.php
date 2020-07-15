@@ -349,7 +349,7 @@ SQL;
 
         $this->importHistory->ranges_before = $affectedRowsBefore;
         $this->importHistory->ranges_updated = $affectedRowsUpdated;
-        $this->importHistory->ranges_added = $affectedRowsAdded;
+        $this->importHistory->ranges_new = $affectedRowsAdded;
     }
 
     /**

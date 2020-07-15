@@ -8,13 +8,14 @@ use app\modules\nnp2\models\GeoPlace;
 use app\modules\nnp2\models\NumberRange;
 use Yii;
 use yii\caching\Cache;
+use yii\db\ActiveQuery;
 
 /**
  * Фильтрация для NumberRange
  */
 class NumberRangeFilter extends NumberRange
 {
-    public $country_code = '';
+    //public $country_code = '';
     //public $ndc;
     public $ndc_str = '';
     //public $full_number_from = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это full_number
@@ -26,6 +27,8 @@ class NumberRangeFilter extends NumberRange
     //public $insert_time = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это месяц добавления (insert_time) ИЛИ выключения (allocation_date_stop)
     public $allocation_date_start_from = '';
     public $allocation_date_start_to = '';
+
+    public $sort;
 
     /**
      * @return array
@@ -66,6 +69,93 @@ class NumberRangeFilter extends NumberRange
         }
     }
 
+    protected function getSortParams(ActiveQuery $query)
+    {
+        if ($this->sort) {
+            $sortField = ltrim($this->sort, '-');
+
+            if (in_array($sortField, ['ndc_str', 'geo_place_id', 'geoPlace.parent_id'])) {
+                $query->joinWith('geoPlace');
+            }
+
+            if ($sortField == 'region_id') {
+                $query->joinWith('geoPlace.region');
+            }
+
+            if ($sortField == 'city_id') {
+                $query->joinWith('geoPlace.city');
+            }
+
+            if ($sortField == 'geo_place_id') {
+                $query->joinWith('geoPlace.region');
+                $query->joinWith('geoPlace.city');
+            }
+        } else {
+            $query->addOrderBy(['id' => SORT_ASC]);
+        }
+
+        return [
+            'attributes' => [
+                'full_number_from',
+                'geo_place_id' => [
+                    'asc' => [
+                        'geo_place.ndc' => SORT_ASC,
+                        'region.name' => SORT_ASC,
+                        'city.name' => SORT_ASC,
+                    ],
+                    'desc' => [
+                        'geo_place.ndc' => SORT_DESC,
+                        'region.name' => SORT_DESC,
+                        'city.name' => SORT_DESC,
+                    ],
+                ],
+                'geoPlace.parent_id' => [
+                    'asc' => [
+                        'geo_place.parent_id' => SORT_ASC,
+                    ],
+                    'desc' => [
+                        'geo_place.parent_id' => SORT_DESC,
+                    ],
+                ],
+                'country_code',
+                'ndc_str' => [
+                    'asc' => [
+                        'geo_place.ndc' => SORT_ASC,
+                    ],
+                    'desc' => [
+                        'geo_place.ndc' => SORT_DESC,
+                    ],
+                ],
+                'region_id' => [
+                    'asc' => [
+                        'region.name' => SORT_ASC,
+                        'region.id' => SORT_ASC,
+                    ],
+                    'desc' => [
+                        'region.name' => SORT_DESC,
+                        'region.id' => SORT_DESC,
+                    ],
+                ],
+                'city_id' => [
+                    'asc' => [
+                        'city.name' => SORT_ASC,
+                        'city.id' => SORT_ASC,
+                    ],
+                    'desc' => [
+                        'city.name' => SORT_DESC,
+                        'city.id' => SORT_DESC,
+                    ],
+                ],
+                'ndc_type_id',
+                'operator_id',
+                'is_active',
+                'is_valid',
+                'allocation_date_start',
+                'insert_time',
+            ]
+        ];
+    }
+
     /**
      * Фильтровать
      *
@@ -80,47 +170,14 @@ class NumberRangeFilter extends NumberRange
         $currentTableName = self::tableName();
         $geoTableName = GeoPlace::tableName();
 
+        $sortParams = $this->getSortParams($query);
         $dataProvider = new ActiveDataProvider([
-            'query' => $query->joinWith('geoPlace'),
+            'query' => $query,
             'db' => self::getDb(),
-            'sort' => [
-                'attributes' => [
-                    'full_number_from',
-                    'geo_place_id',
-                    'geoPlace.parent_id' => [
-                        'asc' => ['geo_place.parent_id' => SORT_ASC],
-                        'desc' => ['geo_place.parent_id' => SORT_DESC],
-                    ],
-                    'country_code' => [
-                        'asc' => ['geo_place.country_code' => SORT_ASC],
-                        'desc' => ['geo_place.country_code' => SORT_DESC],
-                    ],
-                    'ndc_str' => [
-                        'asc' => ['geo_place.ndc' => SORT_ASC],
-                        'desc' => ['geo_place.ndc' => SORT_DESC],
-                    ],
-                    'region_id' => [
-                        'asc' => ['geo_place.region_id' => SORT_ASC],
-                        'desc' => ['geo_place.region_id' => SORT_DESC],
-                    ],
-                    'city_id' => [
-                        'asc' => ['geo_place.city_id' => SORT_ASC],
-                        'desc' => ['geo_place.city_id' => SORT_DESC],
-                    ],
-                    'ndc_type_id',
-                    'operator_id',
-                    'is_active',
-                    'is_valid',
-                    'allocation_date_start',
-                    'insert_time',
-                ]
-            ]
+            'sort' => $sortParams,
         ]);
 
-        if ($this->country_code) {
-            $query->joinWith('geoPlace');
-            $query->andWhere([$geoTableName . '.country_code' => $this->country_code]);
-        }
+        $this->country_code && $query->andWhere([$currentTableName . '.country_code' => $this->country_code]);
 
         if ($this->ndc_str) {
             $query->joinWith('geoPlace');
@@ -224,11 +281,6 @@ class NumberRangeFilter extends NumberRange
 
         $this->allocation_date_start_from && $query->andWhere(['>=', $currentTableName . '.allocation_date_start', $this->allocation_date_start_from]);
         $this->allocation_date_start_to && $query->andWhere(['<=', $currentTableName . '.allocation_date_start', $this->allocation_date_start_to]);
-
-        $sort = \Yii::$app->request->get('sort');
-        if (!$sort) {
-            $query->addOrderBy(['id' => SORT_ASC]);
-        }
 
         return $dataProvider;
     }

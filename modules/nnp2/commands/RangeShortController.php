@@ -13,7 +13,7 @@ class RangeShortController extends Controller
      */
     public function actionRenew()
     {
-        $time0 = microtime(true);;
+        $time0 = microtime(true);
         echo 'Status: ' .  Yii::$app->dbPgNnp2
             ->createCommand("select nnp2.range_short_renew();")
             ->queryScalar() . PHP_EOL;

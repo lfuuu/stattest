@@ -42,6 +42,9 @@ class RangeShortController extends BaseController
     public function actionIndex()
     {
         $filterModel = new RangeShortFilter();
+        if ($sort = \Yii::$app->request->get('sort')) {
+            $filterModel->sort = $sort;
+        }
 
         $get = Yii::$app->request->get();
         if (!isset($get['RangeShortFilter'])) {

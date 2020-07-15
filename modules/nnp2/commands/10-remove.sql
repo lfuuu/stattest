@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS nnp2.number_range;
+DROP TABLE IF EXISTS nnp2.number_range CASCADE;
 DROP SEQUENCE IF EXISTS nnp2.number_range_id_seq;
 
 

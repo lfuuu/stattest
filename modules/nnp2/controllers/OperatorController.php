@@ -46,6 +46,9 @@ class OperatorController extends BaseController
     public function actionIndex()
     {
         $filterModel = new OperatorFilter();
+        if ($sort = \Yii::$app->request->get('sort')) {
+            $filterModel->sort = $sort;
+        }
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [

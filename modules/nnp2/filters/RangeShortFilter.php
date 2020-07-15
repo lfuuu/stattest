@@ -21,6 +21,8 @@ class RangeShortFilter extends RangeShort
     public $allocation_date_start_from = '';
     public $allocation_date_start_to = '';
 
+    public $sort;
+
     /**
      * @return array
      */
@@ -135,8 +137,7 @@ class RangeShortFilter extends RangeShort
         $this->allocation_date_start_from && $query->andWhere(['>=', $currentTableName . '.allocation_date_start', $this->allocation_date_start_from]);
         $this->allocation_date_start_to && $query->andWhere(['<=', $currentTableName . '.allocation_date_start', $this->allocation_date_start_to]);
 
-        $sort = \Yii::$app->request->get('sort');
-        if (!$sort) {
+        if (!$this->sort) {
             $query->addOrderBy(['id' => SORT_ASC]);
         }
 

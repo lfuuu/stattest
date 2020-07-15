@@ -1,23 +1,22 @@
 <?php
 
-namespace app\modules\nnp\forms\import;
+namespace app\modules\nnp2\forms\import;
 
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\CountryFile;
+use app\modules\nnp2\classes\NumberRangeMassUpdater;
 use app\modules\nnp2\models\City;
 use app\modules\nnp2\models\GeoPlace;
 use app\modules\nnp2\models\ImportHistory;
+use app\modules\nnp2\models\NdcType;
 use app\modules\nnp2\models\NumberRange;
 use app\modules\nnp2\models\Operator;
-use app\modules\nnp2\models\RangeShort;
 use app\modules\nnp2\models\Region;
 use Yii;
 use yii\base\InvalidParamException;
 
 class Form extends \app\classes\Form
 {
-    const CHUNK_SIZE_DELETE = 5000;
-
     public $countryCode;
 
     /** @var Country */
@@ -63,6 +62,43 @@ class Form extends \app\classes\Form
             Region::updateAll(['is_valid' => true], ['country_code' => $country->code]);
             GeoPlace::updateAll(['is_valid' => true], ['country_code' => $country->code]);
             Operator::updateAll(['is_valid' => true], ['country_code' => $country->code]);
+
+            // ndc type
+            $tableName = NumberRange::tableName();
+            $tableNdcType = NdcType::tableName();
+            $sql = <<<SQL
+UPDATE
+    {$tableNdcType}
+SET
+    is_valid = true
+WHERE id NOT IN (
+    SELECT
+        ndc_type_id
+    FROM
+        {$tableName}
+    WHERE
+        country_code <> :country_code
+    GROUP BY
+        ndc_type_id
+)
+SQL;
+            $affectedNdcTypeRows = $db->createCommand($sql, [':country_code' => $country->code])->execute();
+
+            // number ranges
+            //NumberRange::updateAll(['is_valid' => true], ['country_code' => $country->code]);
+            if ($affectedNdcTypeRows) {
+                $ids = NumberRange::find()
+                    ->from(NumberRange::tableName() . ' nr')
+                    ->select('nr.ndc_type_id')
+                    ->joinWith('ndcType ndc')
+                    ->where(['nr.country_code' => $country->code])
+                    ->where(['ndc.is_valid' => true])
+                    ->groupBy('nr.ndc_type_id')
+                    ->column();
+
+                NumberRangeMassUpdater::me()->update(null, $ids, null, $country->code);
+            }
+
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -88,28 +124,58 @@ class Form extends \app\classes\Form
             ->where(['country_code' => $country->code])
             ->column();
 
-        // number ranges
-        $nrIds = NumberRange::find()
-            ->from(NumberRange::tableName() . ' nr')
-            ->joinWith('geoPlace g', false)
-            ->select('nr.id')
-            ->where(['g.country_code' => $country->code])
-            ->column();
-
         $db = Yii::$app->dbPgNnp2;
         $transaction = $db->beginTransaction();
         try {
+            $tableNameByCountry = sprintf("%s_%s", NumberRange::tableName(), $country->code);
+            if ($db->getTableSchema($tableNameByCountry, true) !== null) {
+                // if exists
+                $db->createCommand()->truncateTable($tableNameByCountry)->execute();
+            }
+
+            GeoPlace::deleteAll(['country_code' => $country->code]);
             City::deleteAll(['country_code' => $country->code]);
             Region::deleteAll(['country_code' => $country->code]);
-            GeoPlace::deleteAll(['country_code' => $country->code]);
             Operator::deleteAll(['country_code' => $country->code]);
 
-            //RangeShort::deleteAll(['country_code' => $country->code]);
-            if ($nrIds) {
-                foreach (array_chunk($nrIds, self::CHUNK_SIZE_DELETE) as $chunk) {
-                    NumberRange::deleteAll(['id' => $chunk]);
-                }
-            }
+            // ndc type
+            $tableName = NumberRange::tableName();
+            $tableNdcType = NdcType::tableName();
+            $sqlChild = <<<SQL
+DELETE
+FROM
+    {$tableNdcType}
+WHERE id NOT IN (
+    SELECT
+        ndc_type_id
+    FROM
+        {$tableName}
+    WHERE
+        country_code <> :country_code
+    GROUP BY
+        ndc_type_id
+)
+AND parent_id IS NOT NULL;
+SQL;
+            $db->createCommand($sqlChild, [':country_code' => $country->code])->execute();
+
+            $sqlParents = <<<SQL
+DELETE
+FROM
+    {$tableNdcType}
+WHERE id NOT IN (
+    SELECT
+        ndc_type_id
+    FROM
+        {$tableName}
+    WHERE
+        country_code <> :country_code
+    GROUP BY
+        ndc_type_id
+)
+AND parent_id IS NULL;
+SQL;
+            $db->createCommand($sqlParents, [':country_code' => $country->code])->execute();
 
             // clear history
             ImportHistory::deleteAll(['country_file_id' => $countryFileIds]);

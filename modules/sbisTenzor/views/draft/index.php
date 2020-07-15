@@ -209,7 +209,7 @@ echo GridView::widget([
 
                 if ($document = $model->document) {
                     $html = sprintf('%s от %s', $document->comment, $document->date);
-                    $html = Html::a($html, $document->getUrl());;
+                    $html = Html::a($html, $document->getUrl());
                 }
 
                 return $html;

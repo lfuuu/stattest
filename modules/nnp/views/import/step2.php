@@ -16,6 +16,7 @@ use yii\widgets\Breadcrumbs;
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
         ['label' => 'Импорт', 'url' => '/nnp/import/'],
+        ['label' => $country->name_rus, 'url' => Url::to(['/nnp/import/step2/', 'countryCode' => $country->code])],
         ['label' => $this->title = $country->name_rus . '. Загрузить или выбрать файл (шаг 2/3)'],
     ],
 ]) ?>

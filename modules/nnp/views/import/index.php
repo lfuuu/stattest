@@ -79,7 +79,15 @@ echo GridView::widget([
             'value' => function (ImportHistory $model) {
                 return
                     Html::a(
-                        $model->country->name,
+                        $model->country->name_rus .
+                        ( $model->version ? Html::tag(
+                            'div', '',
+                            [
+                                'title' => $model->country->name,
+                                'class' => 'flag flag-' . $model->country->getFlagCode(),
+                                'style' => 'outline: 1px solid #e3e3e3',
+                            ]
+                        ) : ''),
                         Url::to([
                             '/nnp/import/step2',
                             'countryCode' => $model->country->code,
@@ -123,11 +131,12 @@ echo GridView::widget([
             'format' => 'html',
             'value' => function (ImportHistory $model) {
                 return sprintf(
-                    "Было: %s<br />Выключено: %s<br />Обновлено: %s<br />Добавлено: %s",
+                    "Было: %s<br />Выключено: %s<br />Обновлено: %s<br />Дубликатов: %s<br />Новых: %s",
                     $model->ranges_before,
                     ($model->ranges_before - $model->ranges_updated),
                     $model->ranges_updated,
-                    $model->ranges_added
+                    is_null($model->ranges_duplicates) ? '-' : $model->ranges_duplicates,
+                    $model->ranges_new
                 );
             },
         ],

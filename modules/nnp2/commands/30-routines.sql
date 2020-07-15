@@ -1,4 +1,4 @@
-CREATE FUNCTION nnp2.range_short_renew() RETURNS void
+CREATE OR REPLACE FUNCTION nnp2.range_short_renew() RETURNS void
     LANGUAGE plpgsql
     AS $$
  BEGIN
@@ -136,3 +136,72 @@ CREATE FUNCTION nnp2.range_short_renew() RETURNS void
 
 
 ALTER FUNCTION nnp2.range_short_renew() OWNER TO postgres;
+
+
+
+
+
+CREATE OR REPLACE function nnp2.create_number_range_partition(country_code integer) returns boolean
+    security definer
+    language plpgsql
+as
+$$
+declare
+        relname varchar;
+        rel_exists text;
+        suffix varchar;
+BEGIN
+        suffix := country_code;
+        relname := 'nnp2.number_range_' || suffix;
+        EXECUTE 'SELECT to_regclass('|| quote_literal(relname) ||');' INTO rel_exists;
+
+        IF rel_exists IS NULL OR rel_exists = ''
+        THEN
+                EXECUTE 'CREATE TABLE ' || relname || ' (LIKE nnp2.number_range INCLUDING ALL) INHERITS (nnp2.number_range) WITH (OIDS=FALSE)';
+                EXECUTE 'ALTER TABLE ' || relname || ' ADD CONSTRAINT number_range_' || suffix || '_country_code_check CHECK (' ||
+                        'country_code = ' || country_code || ')';
+
+                EXECUTE 'ALTER TABLE ' || relname || ' OWNER TO postgres';
+                EXECUTE 'GRANT ALL ON TABLE ' || relname || ' TO postgres';
+
+--                 EXECUTE 'GRANT SELECT, INSERT, DELETE ON TABLE ' || relname || ' TO g_bill_daemon_remote';
+--                 EXECUTE 'GRANT SELECT, INSERT, DELETE ON TABLE ' || relname || ' TO g_stat';
+--                 EXECUTE 'GRANT SELECT ON TABLE ' || relname || ' TO g_readonly';
+
+        END IF;
+        return true;
+END;
+$$;
+
+alter function nnp2.create_number_range_partition(integer) owner to postgres;
+
+
+
+
+
+
+
+CREATE OR REPLACE function nnp2.tr_partitioning() returns trigger
+    language plpgsql
+as
+$$
+declare
+	relname varchar;
+	rel_exists text;
+	suffix varchar;
+begin
+	suffix := new.country_code;
+	relname := 'nnp2.number_range_' || suffix;
+	EXECUTE 'SELECT to_regclass('|| quote_literal(relname) ||');' INTO rel_exists;
+
+	IF rel_exists IS NULL OR rel_exists = ''
+	THEN
+		EXECUTE 'select nnp2.create_number_range_partition(' || suffix || ')';
+	END IF;
+
+        EXECUTE format('INSERT INTO ' || relname || ' SELECT ($1).*') USING NEW;
+	return null;
+end;
+$$;
+
+alter function nnp2.tr_partitioning() owner to postgres;

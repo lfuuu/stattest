@@ -19,6 +19,8 @@ class RegionFilter extends Region
     public $cnt_to = '';
     public $is_valid = '';
 
+    public $sort;
+
     /**
      * @return array
      */
@@ -49,8 +51,12 @@ class RegionFilter extends Region
         $this->country_code && $query->andWhere([$regionTableName . '.country_code' => $this->country_code]);
         $this->parent_id && $query->andWhere([$regionTableName . '.parent_id' => $this->parent_id]);
 
-        $this->cnt_from !== '' && $query->andWhere(['>=', $regionTableName . '.cnt', $this->cnt_from]);
-        $this->cnt_to !== '' && $query->andWhere(['<=', $regionTableName . '.cnt', $this->cnt_to]);
+        if (is_int($this->cnt_from)) {
+            $query->andWhere(['>=', $regionTableName . '.cnt', $this->cnt_from]);
+        }
+        if (is_int($this->cnt_to)) {
+            $query->andWhere(['<=', $regionTableName . '.cnt', $this->cnt_to]);
+        }
 
         if (
             ($this->is_valid !== '')
@@ -59,8 +65,7 @@ class RegionFilter extends Region
             $query->andWhere([$regionTableName . '.is_valid' => (bool)$this->is_valid]);
         }
 
-        $sort = \Yii::$app->request->get('sort');
-        if (!$sort) {
+        if (!$this->sort) {
             $query->addOrderBy(['id' => SORT_ASC]);
         }
 

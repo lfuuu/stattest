@@ -10,7 +10,6 @@
 
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
-use app\modules\nnp\models\NumberRange;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -51,6 +50,26 @@ $alreadyRead = [];
 
 $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 $isButtonShown = false;
+
+$useCache = true;
+$cached = [];
+
+/** @var yii\redis\Cache $redis */
+$redis = \Yii::$app->cache;
+
+$cacheKey = 'import_preview_' . $countryFile->id;
+if ($useCache) {
+    if ($cached = $redis->get($cacheKey)) {
+        $cached = json_decode($cached, true);
+        $isFileOK = $cached['isFileOK'];
+        $errorLines = $cached['errorLines'];
+        $warningLines = $cached['warningLines'];
+
+        $cached = $cached['records'];
+    }
+} else {
+    $redis->delete($cacheKey);
+}
 ?>
 
 <?php ob_start() ?>
@@ -59,20 +78,38 @@ $isButtonShown = false;
 
         <?= $this->render('_step3_th') ?>
 
-        <?php while (($row = fgetcsv($handle, $rowLength = 4096, $delimiter = ';')) !== false) : ?>
-
-            <?php
-            $rowNumber++;
-
+        <?php /**
+         * @param int $rowNumber
+         * @param array|null $row
+         * @param ImportServiceUploaded $importServiceUploaded
+         * @param array $errorLines
+         * @param array $warningLines
+         * @param array $alreadyRead
+         * @param int $countryCode
+         * @param int $countryFileId
+         * @return array
+         */
+        function checkIfValid(int $rowNumber, array $row, ImportServiceUploaded $importServiceUploaded, array $errorLines, array $warningLines, array $alreadyRead, $countryCode, $countryFileId, $isFileOK): array
+        {
             if (!($rowNumber == 1 && !is_numeric($row[0]))) {
                 $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
                 $rowStatus = $importServiceUploaded->getRowHasError($numberRangeImport);
 
-                $key = $numberRangeImport->number_from . '-' . $numberRangeImport->ndc . $numberRangeImport->number_to;
                 $key = sprintf("%s %s - %s %s", $numberRangeImport->ndc, $numberRangeImport->number_from, $numberRangeImport->ndc, $numberRangeImport->number_to);
-                if ($numberRangeImport->getErrors()) {
+                if ($errors = $numberRangeImport->getErrors()) {
                     $isFileOK = false;
-                    $errorLines[] = $rowNumber;
+
+                    $text = '';
+                    foreach ($errors as $key => $errorList) {
+                        foreach ($errorList as $value) {
+                            $text .= sprintf("%s: %s", $key, $value) . PHP_EOL;
+                        }
+                    }
+                    $errorLines[$rowNumber] = $text;
+                } elseif (empty($numberRangeImport->ndc)) {
+                    $warningLines[$rowNumber] = 'Пустой NDC - диапазон не будет загружен';
+                } elseif ($numberRangeImport->ndc_type_id == 6) {
+                    $warningLines[$rowNumber] = 'Короткий номер - диапазон не будет загружен';
                 } elseif (isset($alreadyRead[$key])) {
                     $oldLine = $alreadyRead[$key];
 
@@ -80,15 +117,35 @@ $isButtonShown = false;
                             'строке ' . $oldLine,
                             Url::to([
                                 '/nnp/import/step3',
-                                'countryCode' => $country->code,
-                                'fileId' => $countryFile->id,
+                                'countryCode' => $countryCode,
+                                'fileId' => $countryFileId,
                                 'offset' => $oldLine,
-                                'limit' => $limit,
-                            ])
+                                'limit' => min($rowNumber - $oldLine, 100)
+                            ]) . '#line' . $oldLine
                         );
                 }
 
                 $alreadyRead[$key] = $rowNumber;
+            }
+
+            return array($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead);
+        }
+
+        $records = [];
+        while (($row = fgetcsv($handle, $rowLength = 4096, $delimiter = ';')) !== false) : ?>
+
+            <?php
+            $rowNumber++;
+
+            if ($cached) {
+                $rowStatus = $cached[$rowNumber][0];
+                $oldLine = $cached[$rowNumber][1];
+            } else {
+                list($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead) = checkIfValid($rowNumber, $row, $importServiceUploaded, $errorLines, $warningLines, $alreadyRead, $country->code, $countryFile->id, $isFileOK);
+                $records[$rowNumber] = [
+                    $rowStatus,
+                    $oldLine,
+                ];
             }
 
             if ($rowNumber < $offset) :
@@ -140,10 +197,14 @@ $isButtonShown = false;
             ?>
             <tr>
                 <?php
-//                $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
-//                $rowStatus = $importServiceUploaded->getRowHasError($numberRangeImport);
-
-                echo Html::tag('td', $rowNumber, []);
+                echo Html::tag(
+                    'td',
+                    $rowNumber .
+                        '<a name="line' . $rowNumber . '" style="position: relative;top: -85px;"></a>',
+                    [
+                        'class' => isset($warningLines[$rowNumber]) ? 'warning' : ''
+                    ]
+                );
                 foreach ($row as $columnIndex => $cellValue) {
                     echo Html::tag('td', $cellValue, ['class' => $rowStatus[$columnIndex] ? 'danger' : 'success']);
                     if ($rowStatus[$columnIndex]) {
@@ -154,6 +215,19 @@ $isButtonShown = false;
             </tr>
         <?php endwhile ?>
 
+        <?php
+            if ($useCache && !$cached && $records) {
+                $data = [
+                    'isFileOK' => $isFileOK,
+                    'records' => $records,
+                    'errorLines' => $errorLines,
+                    'warningLines' => $warningLines,
+                ];
+
+                $redis->set($cacheKey, json_encode($data), 3600 * 24);
+            }
+        ?>
+
     </table>
 
 <?php
@@ -162,7 +236,7 @@ $content = ob_get_clean();
 
 if ($isFileOK) {
     if ($warningLines) {
-        echo Html::tag('div', 'Обратите внимание:', ['class' => 'alert alert-warning']);
+        echo Html::tag('div', 'Предупреждения (' . count($warningLines) . '):', ['class' => 'alert alert-warning']);
         echo "<ul>";
         foreach ($warningLines as $line => $text) {
             echo Html::tag(
@@ -201,10 +275,10 @@ if ($isFileOK) {
         ]);
 //    }
 } else {
-    echo Html::tag('div', 'Импорт невозможен, потому что файл содержит ошибки. Исправьте ошибки в файле и загрузите его заново.', ['class' => 'alert alert-danger']);
+    echo Html::tag('div', 'Импорт невозможен, потому что файл содержит ошибки (' . count($errorLines) . '). Исправьте ошибки в файле и загрузите его заново.', ['class' => 'alert alert-danger']);
     if ($errorLines) {
         echo "<ul>";
-        foreach ($errorLines as $line) {
+        foreach ($errorLines as $line => $text) {
             echo Html::tag(
                 'li',
                 Html::a(
@@ -215,8 +289,8 @@ if ($isFileOK) {
                         'fileId' => $countryFile->id,
                         'offset' => $line,
                         'limit' => $limit,
-                    ])
-                ),
+                    ]) . '#line' . $oldLine
+                ) . ': ' . nl2br($text),
                 ['class' => 'alert alert-danger']
             );
         }

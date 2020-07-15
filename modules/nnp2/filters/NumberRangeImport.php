@@ -20,10 +20,14 @@ class NumberRangeImport extends NumberRange
      */
     public function setCountryPrefix($value, Country $country)
     {
+        $this->country_code = $country->code;
+
+        $errorMessage = 'Не числовое значение';
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false)
             && ($prefixes = $country->getPrefixes())
         ) {
+            $errorMessage = 'Неизвестное значение';
             foreach ($prefixes as $prefix) {
                 if (strpos($prefix, (string)$value) === 0) {
                     $this->country_prefix = $value;
@@ -32,7 +36,7 @@ class NumberRangeImport extends NumberRange
             }
         }
 
-        $this->addError('country_prefix');
+        $this->addError('country_prefix', $errorMessage);
         return false;
     }
 
@@ -47,6 +51,7 @@ class NumberRangeImport extends NumberRange
      */
     public function setGeoPlaceId($ndc, $region, $city, $geoPlacesList)
     {
+        $errorMessage = 'Местоположение не найдено';
         if (
             isset($geoPlacesList[$ndc][$region][$city])
         ) {
@@ -55,7 +60,7 @@ class NumberRangeImport extends NumberRange
             return true;
         }
 
-        $this->addError('geo_place_id');
+        $this->addError('geo_place_id', $errorMessage);
         return false;
     }
 
@@ -68,6 +73,7 @@ class NumberRangeImport extends NumberRange
      */
     public function setNdcTypeId($value, $ndcTypeList)
     {
+        $errorMessage = 'Неизвестный тип NDC';
         if (
             $this->_checkString($value)
             && isset($ndcTypeList[$value])
@@ -76,7 +82,7 @@ class NumberRangeImport extends NumberRange
             return true;
         }
 
-        $this->addError('ndc_type_id');
+        $this->addError('ndc_type_id', $errorMessage);
         return false;
     }
 
@@ -109,6 +115,7 @@ class NumberRangeImport extends NumberRange
      */
     public function setNumberFrom($value)
     {
+        $errorMessage = 'Не числовое значение';
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
             && strlen($value) >= 2
@@ -117,7 +124,7 @@ class NumberRangeImport extends NumberRange
             return true;
         }
 
-        $this->addError('number_from');
+        $this->addError('number_from', $errorMessage);
         return false;
     }
 
@@ -129,6 +136,7 @@ class NumberRangeImport extends NumberRange
      */
     public function setNumberTo($value)
     {
+        $errorMessage = 'Не числовое значение';
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
             && strlen($this->number_from) === strlen($value)
@@ -137,7 +145,7 @@ class NumberRangeImport extends NumberRange
             return true;
         }
 
-        $this->addError('number_to');
+        $this->addError('number_to', $errorMessage);
         return false;
     }
 
@@ -158,7 +166,8 @@ class NumberRangeImport extends NumberRange
         $value = str_replace('.', '-', $value); // ГГГГ.ММ.ДД преобразовать в ГГГГ-ММ-ДД. Остальные форматы strtotime распознает сам
         $dateTime = strtotime($value);
         if (!$dateTime) {
-            $this->addError('allocation_date_start');
+            $errorMessage = 'Несуществующая дата';
+            $this->addError('allocation_date_start', $errorMessage);
             return false;
         }
 
@@ -174,12 +183,13 @@ class NumberRangeImport extends NumberRange
      */
     public function setAllocationReason($value)
     {
+        $errorMessage = 'Не текстовое значение';
         if ($this->_checkString($value)) {
             $this->allocation_reason = $value;
             return true;
         }
 
-        $this->addError('allocation_reason');
+        $this->addError('allocation_reason', $errorMessage);
         return false;
     }
 
@@ -192,12 +202,13 @@ class NumberRangeImport extends NumberRange
      */
     public function setComment($value)
     {
+        $errorMessage = 'Не текстовое значение';
         if ($this->_checkString($value)) {
             $this->comment = $value;
             return true;
         }
 
-        $this->addError('comment');
+        $this->addError('comment', $errorMessage);
         return false;
     }
 
@@ -249,6 +260,7 @@ class NumberRangeImport extends NumberRange
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         return [
+            $this->country_code,
             $this->geo_place_id,
             $this->ndc_type_id,
             $this->operator_id,

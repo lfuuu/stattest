@@ -52,6 +52,7 @@ class ImportServiceUploadedNew extends ImportServiceNew
 
 
         }
+
         return $nr->getSqlData();
     }
 

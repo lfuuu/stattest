@@ -22,7 +22,8 @@ use yii\helpers\Url;
  *
  * @property int $ranges_before
  * @property int $ranges_updated
- * @property int $ranges_added
+ * @property int $ranges_duplicates
+ * @property int $ranges_new
  *
  * @property int $state
  *
@@ -64,7 +65,8 @@ class ImportHistory extends ActiveRecord
 
             'ranges_before' => 'Диапазонов было',
             'ranges_updated' => 'Диапазонов обновлено',
-            'ranges_added' => 'Диапазонов добавлено',
+            'ranges_duplicates' => 'Дубликатов',
+            'ranges_new' => 'Диапазонов новых',
 
             'state' => 'Статус',
 
@@ -105,7 +107,7 @@ class ImportHistory extends ActiveRecord
     public function rules()
     {
         return [
-            [['version', 'country_file_id', 'lines_load', 'lines_processed', 'ranges_before', 'ranges_updated', 'ranges_added', 'state'], 'integer'],
+            [['version', 'country_file_id', 'lines_load', 'lines_processed', 'ranges_before', 'ranges_updated', 'ranges_duplicates', 'ranges_new', 'state'], 'integer'],
         ];
     }
 

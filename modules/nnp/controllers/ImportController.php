@@ -7,7 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\models\EventQueue;
 use app\classes\Html;
 use app\modules\nnp\filters\CountryFilter;
-use app\modules\nnp\forms\import\Form;
+use app\modules\nnp2\forms\import\Form;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\CountryFile;

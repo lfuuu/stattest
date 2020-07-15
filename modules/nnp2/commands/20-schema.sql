@@ -335,6 +335,7 @@ create table nnp2.number_range
     id                    integer default nextval('nnp2.number_range_id_seq'::regclass) not null
         constraint number_range_pkey
             primary key,
+    country_code  integer                                                    not null,
     geo_place_id          integer
         constraint number_range_geo_place_id_fkey
             references nnp2.geo_place
@@ -385,6 +386,7 @@ create table nnp2.number_range
                (floor(log((full_number_to)::double precision)) = floor(log((full_number_from)::double precision))))
 );
 
+comment on column nnp2.number_range.country_code is 'Код страны.';
 comment on column nnp2.number_range.geo_place_id is 'Местоположение.';
 comment on column nnp2.range_short.ndc_type_id is 'Тип NDC.';
 comment on column nnp2.range_short.operator_id is 'Оператор.';
@@ -422,6 +424,9 @@ create index "idx-nnp_number_range-full_number_from"
 create index "idx-nnp_number_range-full_number_to"
     on nnp2.number_range (full_number_to);
 
+create index "idx-nnp_number_range-country_code"
+    on nnp2.number_range (country_code);
+
 create index "idx-nnp_number_range-geo_place_id"
     on nnp2.number_range (geo_place_id);
 
@@ -430,3 +435,9 @@ create index "idx-nnp_number_range-ndc_type_id"
 
 create index "idx-nnp_number_range-operator_id"
     on nnp2.number_range (operator_id);
+
+create trigger partitioning
+    before insert
+    on nnp2.number_range
+    for each row
+execute procedure nnp2.tr_partitioning();

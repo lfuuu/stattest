@@ -324,15 +324,15 @@ class GeoPlace extends ActiveRecord
      */
     public function save($runValidation = true, $attributeNames = null)
     {
-        /** @var Connection $dbPgNnp */
-        $dbPgNnp = self::getDb();
-        $transaction = $dbPgNnp->beginTransaction();
+        /** @var Connection $db */
+        $db = self::getDb();
+        $transaction = $db->beginTransaction();
         try {
 
             $oldIsValid = $this->getOldAttribute('is_valid');
             parent::save($runValidation, $attributeNames);
             if ($this->is_valid !== $oldIsValid) {
-                NumberRangeMassUpdater::me()->update($this->id);
+                NumberRangeMassUpdater::me()->update($this->id, null, null, $this->country_code);
             }
 
             if (!$this->parent_id) {

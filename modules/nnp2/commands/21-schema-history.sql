@@ -18,7 +18,8 @@ create table nnp2.import_history
     lines_processed   integer,
     ranges_before     integer,
     ranges_updated    integer,
-    ranges_added      integer,
+    ranges_duplicates integer,
+    ranges_new        integer,
     state             integer default 0 not null,
     started_at        timestamp(0) not null,
     finished_at       timestamp(0)

@@ -20,10 +20,11 @@ class NumberRangeMassUpdater extends Singleton
      * @param int|null $geoPlaceId
      * @param int|null $ndcTypeId
      * @param int|null $operatorId
+     * @param int|null $countryCode
      * @return bool
      * @throws \yii\db\Exception
      */
-    public function update($geoPlaceId = null, $ndcTypeId = null, $operatorId = null)
+    public function update($geoPlaceId = null, $ndcTypeId = null, $operatorId = null, $countryCode = null)
     {
         /** @var Connection $dbPgNnp2 */
         $dbPgNnp2 = NumberRange::getDb();
@@ -37,8 +38,12 @@ class NumberRangeMassUpdater extends Singleton
         if ($geoPlaceId && is_int($geoPlaceId)) {
             $condition .= '    AND "nr"."geo_place_id" = ' . $geoPlaceId;
         }
-        if ($ndcTypeId && is_int($ndcTypeId)) {
-            $condition .= '    AND "nr"."ndc_type_id" = ' . $ndcTypeId;
+        if ($ndcTypeId) {
+            if (is_array($ndcTypeId)) {
+                $condition .= '    AND "nr"."ndc_type_id" IN (' . implode(',', $ndcTypeId) . ')';
+            } elseif (is_int($ndcTypeId)) {
+                $condition .= '    AND "nr"."ndc_type_id" = ' . $ndcTypeId;
+            }
         }
         if ($operatorId && is_int($operatorId)) {
             $condition .= '    AND "nr"."operator_id" = ' . $operatorId;
@@ -46,6 +51,10 @@ class NumberRangeMassUpdater extends Singleton
 
         if (!$condition) {
             return false;
+        }
+
+        if ($countryCode && is_int($countryCode)) {
+            $condition .= '    AND "nr"."country_code" = ' . $countryCode;
         }
 
         $sql = <<<SQL

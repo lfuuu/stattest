@@ -219,7 +219,7 @@ if ($previous = $numberRange->previous) {
 
         <?php // Страна ?>
         <div class="col-sm-3">
-            <label><?= $numberRange->getAttributeLabel('geoPlace.country_code') ?></label>
+            <label><?= $numberRange->getAttributeLabel('country_code') ?></label>
             <div><?= $numberRange->country ? $numberRange->country->name_rus : '' ?></div>
         </div>
 

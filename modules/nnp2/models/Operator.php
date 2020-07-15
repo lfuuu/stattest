@@ -269,7 +269,7 @@ class Operator extends ActiveRecord
             $oldIsValid = $this->getOldAttribute('is_valid');
             parent::save($runValidation, $attributeNames);
             if ($this->is_valid !== $oldIsValid) {
-                NumberRangeMassUpdater::me()->update(null, null, $this->id);
+                NumberRangeMassUpdater::me()->update(null, null, $this->id, $this->country_code);
             }
 
             if (!$this->parent_id) {
