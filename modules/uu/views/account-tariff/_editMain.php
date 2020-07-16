@@ -101,11 +101,13 @@ if (!$serviceType) {
 
     <div class="row">
 
-        <?php // регион ?>
+        <?php // регион
+        $regionList = Region::getList(true, null, $accountTariff->isNewRecord && $serviceType->id == ServiceType::ID_VPBX ? Region::TYPE_NODE : null, $serviceType->id == ServiceType::ID_SIPTRUNK ? 1 : null);
+        ?>
         <div class="col-sm-2">
             <?= $form->field($accountTariff, 'region_id')
                 ->widget(Select2::class, [
-                    'data' => Region::getList(true, null, null, $serviceType->id == ServiceType::ID_SIPTRUNK ? 1 : null),
+                    'data' => $regionList,
                 ])
                 ->label($accountTariff->getAttributeLabel('region_id') . $helpConfluence)
             ?>
