@@ -39,6 +39,7 @@ class DocumentReportFactory extends Singleton
             CurrentStatementHuDocument::class,
             CurrentStatementEnDocument::class,
             CurrentStatementDeDocument::class,
+            CurrentStatementSkDocument::class,
         ];
     }
 

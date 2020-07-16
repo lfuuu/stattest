@@ -41,10 +41,12 @@ $payerCompany = $document->getPayer();
     <tr>
         <td>
             <?php
-            echo Yii::$app->view->renderFile($document->getHeaderTemplate() . '.php', [
+            echo !$isCurrentStatement
+                ? Yii::$app->view->renderFile($document->getHeaderTemplate() . '.php', [
                 'organization' => $organization,
                 'payer_company' => $payerCompany,
-            ]);
+            ])
+                : '';
             ?>
         </td>
         <td align="right">

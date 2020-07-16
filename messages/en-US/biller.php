@@ -47,4 +47,5 @@ return [
     'beznal' => 'transfer',
 
     'correct_sum' => 'Correction sum',
+    'Current statement' => 'Current statement',
 ];

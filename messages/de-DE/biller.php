@@ -19,4 +19,5 @@ return ArrayHelper::merge(include(realpath(__DIR__ . '/../' . Language::LANGUAGE
 
     'nal' => 'bargeld',
     'beznal' => 'überweisung',
+    'Current statement' => 'AKTUELLER AUSZUG',
 ]);
