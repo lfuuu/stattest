@@ -166,3 +166,26 @@ i.uncheck:before {
 .layout_left .block-empty {
     height: 100px;
 }
+
+.nav > li.handed > a {
+    color: #a48;
+}
+
+.nav-pills > li.handed > a, .nav-pills > li.handed > a:focus {
+    color: #43657d;
+    background-color: lightgoldenrodyellow;
+}
+
+.nav-pills > li.handed > a:hover {
+    color: #43657d;
+    background-color: #eee;
+}
+
+.nav-pills > li.activehanded > a, .nav-pills > li.activehanded > a:focus {
+    color: #fff;
+    background-color: #337ab7;
+}
+
+.nav-pills > li.activehanded > a:hover {
+    background-color: #2e6da4;
+}

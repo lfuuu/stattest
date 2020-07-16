@@ -19,6 +19,8 @@ class AutoBlockInternetFolder extends AccountGridFolder
 {
     public $block_date;
 
+    public $_isGenericFolder = false;
+
     /**
      * @return string
      */

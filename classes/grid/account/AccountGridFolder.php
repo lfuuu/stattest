@@ -56,6 +56,8 @@ abstract class AccountGridFolder extends Model
 
     private $_organizationList = [];
 
+    public $_isGenericFolder = true;
+
     /**
      * @return string
      */
@@ -835,5 +837,10 @@ abstract class AccountGridFolder extends Model
     public function hasServiceSignature($signature)
     {
         return strpos($this->service, $signature) === 0;
+    }
+
+    public function isGenericFolder()
+    {
+        return $this->_isGenericFolder;
     }
 }

@@ -12,6 +12,8 @@ use yii\db\Query;
  */
 class DisconnectedDebtFolder extends AccountGridFolder
 {
+    public $_isGenericFolder = false;
+
     /**
      * @return string
      */
