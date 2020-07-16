@@ -4,6 +4,7 @@
  *
  * @var app\classes\BaseView $this
  * @var CountryFile $countryFile
+ * @var bool $clear
  * @var int $offset
  * @var int $limit
  */
@@ -51,7 +52,7 @@ $alreadyRead = [];
 $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 $isButtonShown = false;
 
-$useCache = true;
+$useCache = true && !$clear;
 $cached = [];
 
 /** @var yii\redis\Cache $redis */
@@ -71,6 +72,25 @@ if ($useCache) {
     $redis->delete($cacheKey);
 }
 ?>
+
+<div class="row">
+    <div class="col-sm-4">
+<?php
+if ($cached) {
+    echo 'Превью файла закэшировано. ' .
+        Html::a(
+            'сбросить кэш',
+            Url::to([
+                '/nnp/import/step3',
+                'countryCode' => $country->code,
+                'fileId' => $countryFile->id,
+                'clear' => 1,
+            ])
+        );
+}
+?>
+    </div>
+</div>
 
 <?php ob_start() ?>
 

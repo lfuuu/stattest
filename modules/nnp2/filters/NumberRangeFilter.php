@@ -43,32 +43,6 @@ class NumberRangeFilter extends NumberRange
         ];
     }
 
-    /**
-     * Сбрасывает кэш Yii (общее поличество элементов в GridView)
-     *
-     * @param string $id
-     * @throws \Exception
-     */
-    public function actionClearCache($id='cache')
-    {
-        Yii::$app->db->schema->refresh();
-
-        if (!isset(Yii::$app->{$id}) || !(Yii::$app->{$id} instanceof Cache)) {
-            $msg = Yii::t('Invalid cache to flush: {cache}', ['cache'=>$id]);
-            throw new \Exception($msg);
-        }
-
-        /* @var $cache \yii\caching\Cache */
-        $cache = Yii::$app->{$id};
-        if ($cache->flush()) {
-            $msg = Yii::t('app', 'Successfully flushed cache `{cache}`', ['cache'=>$id]);
-            //Yii::$app->session->setFlash('success', $msg);
-        } else {
-            $msg = Yii::t('app', 'Problem while flushing cache `{cache}`', ['cache'=>$id]);
-            //Yii::$app->session->setFlash('danger', $msg);
-        }
-    }
-
     protected function getSortParams(ActiveQuery $query)
     {
         if ($this->sort) {
@@ -163,8 +137,6 @@ class NumberRangeFilter extends NumberRange
      */
     public function search()
     {
-        $this->actionClearCache();
-
         $query = self::find();
 
         $currentTableName = self::tableName();

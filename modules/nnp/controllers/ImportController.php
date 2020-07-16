@@ -202,6 +202,7 @@ class ImportController extends BaseController
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
         return $this->render('step3', [
             'countryFile' => $countryFile,
+            'clear' => boolval(Yii::$app->request->get('clear')),
             'offset' => $offset,
             'limit' => $limit,
         ]);
