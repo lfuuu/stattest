@@ -9,6 +9,8 @@ use yii\db\Query;
 
 class DisconnectedDebtFolder extends AccountGridFolder
 {
+    public $_isGenericFolder = false;
+
     public function getName()
     {
         return 'Отключенные за долги';

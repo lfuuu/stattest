@@ -9,6 +9,8 @@ use yii\db\Query;
 
 class ActingFolder extends AccountGridFolder
 {
+    public $_isGenericFolder = false;
+
     public function getName()
     {
         return 'Действующий';

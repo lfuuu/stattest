@@ -21,6 +21,8 @@ class GenericFolder extends AccountGridFolder
 	 */
     private $columns = [];
 
+    public $_isGenericFolder = true;
+
 	/**
 	 * @param BusinessProcessStatus $status
 	 * @param array $columns
