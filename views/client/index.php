@@ -1,5 +1,9 @@
 <?php
 
+use app\classes\grid\account\operator\operators\GenericFolder;
+use app\classes\helpers\DependecyHelper;
+use yii\caching\TagDependency;
+use yii\helpers\Url;
 use yii\web\View;
 use yii\widgets\Breadcrumbs;
 use app\classes\Html;
@@ -29,8 +33,8 @@ echo Breadcrumbs::widget([
         <ul class="nav nav-pills">
             <?php foreach ($activeFolder->grid->getFolders() as $folder): ?>
                 <?php $isActive = $activeFolder->getId() === $folder->getId(); ?>
-                <li class="<?= $isActive ? 'active' : '' ?>">
-                    <a href="<?= \yii\helpers\Url::toRoute([
+                <li class="<?= ($isActive ? 'active' : '') . (!$folder->isGenericFolder() ? 'handed' : '') ?>">
+                    <a href="<?= Url::toRoute([
                             'client/grid', 'folderId' => $folder->getId(), 'businessProcessId' => $urlParams['businessProcessId']
                     ]) ?>">
                         <?php
@@ -39,14 +43,14 @@ echo Breadcrumbs::widget([
                             if ($isActive) {
                                 $count = $folder->getCount();
                                 $cacheKey = 'grid.folder.' . $activeFolder->getId() . '.count';
-                                Yii::$app->cache->set($cacheKey, $count,null,(new \yii\caching\TagDependency(['tags' => \app\classes\helpers\DependecyHelper::TAG_GRID_FOLDER])));
+                                Yii::$app->cache->set($cacheKey, $count,null,(new TagDependency(['tags' => DependecyHelper::TAG_GRID_FOLDER])));
                             } else {
                                 $cacheKey = 'grid.folder.' . $folder->getId() . '.count';
                                 $count = Yii::$app->cache->get($cacheKey);
 
                                 if ($count === false) {
                                     $count = $folder->getCount();
-                                    Yii::$app->cache->set($cacheKey, $count,null,(new \yii\caching\TagDependency(['tags' => \app\classes\helpers\DependecyHelper::TAG_GRID_FOLDER])));
+                                    Yii::$app->cache->set($cacheKey, $count,null,(new TagDependency(['tags' => DependecyHelper::TAG_GRID_FOLDER])));
                                 }
                             }
                             if (is_numeric($count)) {
