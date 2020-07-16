@@ -10,6 +10,7 @@ use app\classes\grid\column\universal\ConstructColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\TimeZoneColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\models\filter\RegionFilter;
@@ -68,7 +69,7 @@ $columns = [
     ],
     [
         'attribute' => 'timezone_name',
-        'class' => StringColumn::class,
+        'class' => TimeZoneColumn::class,
     ],
     [
         'attribute' => 'country_id',

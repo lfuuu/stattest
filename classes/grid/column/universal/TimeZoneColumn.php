@@ -4,8 +4,7 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\helpers\DateTimeZoneHelper;
-use app\models\Region;
+use app\models\Timezone;
 use kartik\grid\GridView;
 
 
@@ -20,7 +19,7 @@ class TimeZoneColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Region::getTimezoneList();
+        $this->filter = Timezone::getList($this->isWithEmptyText);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' region-column';
     }
