@@ -8,4 +8,5 @@ return ArrayHelper::merge(include("../en-US/biller.php"), [
 
     'nal' => 'hotovosť',
     'beznal' => 'prevod',
+    'Current statement' => 'AKTUÁLNY VÝPIS',
 ]);

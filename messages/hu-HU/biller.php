@@ -45,4 +45,5 @@ return [
     'beznal' => 'átutalás',
 
     'correct_sum' => 'Correction sum',
+    'Current statement' => 'Aktuális kivonat',
 ];

@@ -26,7 +26,7 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
 <head>
-    <title><?= $isCurrentStatement ? 'Current statement' : 'Invoice No' . $document->bill->bill_no; ?></title>
+    <title><?= $isCurrentStatement ? \Yii::t('biller', 'Current statement', [], $document->getLanguage()) : 'Invoice No' . $document->bill->bill_no; ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <?php if ($inline_img) : ?>
         <style type="text/css">
@@ -41,54 +41,56 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
 <table width="100%">
     <tr>
         <td width="50%">
-            <table>
-                <tr>
-                    <td>Ship To:</td>
-                    <td><?= $organization->setLanguage(Language::LANGUAGE_ENGLISH)->name ?></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><?= $organization->legal_address ?></td>
-                </tr>
-                <tr>
-                    <td>Beneficiary Account Number:</td>
-                    <td><?php
-                        $ibanProperties = $organizationIban->getProperties()->asArray()->all();
+            <?php if (!$isCurrentStatement): ?>
+                <table>
+                    <tr>
+                        <td>Ship To:</td>
+                        <td><?= $organization->setLanguage(Language::LANGUAGE_ENGLISH)->name ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><?= $organization->legal_address ?></td>
+                    </tr>
+                    <tr>
+                        <td>Beneficiary Account Number:</td>
+                        <td><?php
+                            $ibanProperties = $organizationIban->getProperties()->asArray()->all();
 
-                        $data = [];
+                            $data = [];
 
-                        foreach ([Currency::EUR, Currency::USD] as $_currency) {
-                            if (
-                                isset($ibanProperties['bank_account_' . $_currency])
-                                && isset($ibanProperties['bank_account_' . $_currency]['value'])
-                                && trim($ibanProperties['bank_account_' . $_currency]['value'])
-                            ) {
-                                $data[] = $ibanProperties['bank_account_' . $_currency]['value'] . ' (' . $_currency . ')';
+                            foreach ([Currency::EUR, Currency::USD] as $_currency) {
+                                if (
+                                    isset($ibanProperties['bank_account_' . $_currency])
+                                    && isset($ibanProperties['bank_account_' . $_currency]['value'])
+                                    && trim($ibanProperties['bank_account_' . $_currency]['value'])
+                                ) {
+                                    $data[] = $ibanProperties['bank_account_' . $_currency]['value'] . ' (' . $_currency . ')';
+                                }
                             }
-                        }
 
-                        echo implode("</br>", $data);
+                            echo implode("</br>", $data);
 
-                        ?></td>
-                </tr>
-                <tr>
-                    <td>SWIFT:</td>
-                    <td><?= $organizationSwift->bank_bik ?></td>
-                </tr>
-                <tr>
-                    <td>VAT Number:</td>
-                    <td><?= $organization->tax_registration_id ?></td>
-                </tr>
-                <tr>
-                    <td>Beneficiary’s Bank:</td>
-                    <td><?= $organizationSwift->bank_name ?></td>
-                </tr>
+                            ?></td>
+                    </tr>
+                    <tr>
+                        <td>SWIFT:</td>
+                        <td><?= $organizationSwift->bank_bik ?></td>
+                    </tr>
+                    <tr>
+                        <td>VAT Number:</td>
+                        <td><?= $organization->tax_registration_id ?></td>
+                    </tr>
+                    <tr>
+                        <td>Beneficiary’s Bank:</td>
+                        <td><?= $organizationSwift->bank_name ?></td>
+                    </tr>
 
-                <tr>
-                    <td>Beneficiary’s Bank Address::</td>
-                    <td><?= $organizationSwift->bank_address ?></td>
-                </tr>
+                    <tr>
+                        <td>Beneficiary’s Bank Address::</td>
+                        <td><?= $organizationSwift->bank_address ?></td>
+                    </tr>
 
-            </table>
+                </table>
+            <?php endif; ?>
         </td>
         <td align="right" width="50%">
             <div style="width: 110px;text-align: center;padding-right: 10px;">
@@ -135,10 +137,11 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
     </tr>
 </table>
 
-<h1><?= $isCurrentStatement ? 'Current statement' : 'Invoice No' . $bill->bill_no ?></h1>
+<h1><?= $isCurrentStatement ? \Yii::t('biller', 'Current statement', [], $document->getLanguage()) : 'Invoice No' . $bill->bill_no ?></h1>
 <h2>Date: <?= $hDate($bill->bill_date) ?></h2>
-<h2>Invoice Time Zone: +00:00</h2>
-
+<?php if (!$isCurrentStatement): ?>
+    <h2>Invoice Time Zone: +00:00</h2>
+<?php endif; ?>
 <br>
 <br>
 <br>
@@ -190,8 +193,8 @@ VAT Number: <?= $contragent->inn_euro ?>
         <td colspan="<?= $isOperatorBill ? 3 : 4 ?>" align="right"><b>Total Amount Due:</b></td>
         <td align="center"><?= number_format($total['amount'], 2, '.', '') ?></td>
         <?php if (!$isCurrentStatement): ?>
-        <td align="center">&nbsp;</td>
-        <td align="center"><?= number_format($total['tax'], 2, '.', '') ?></td>
+            <td align="center">&nbsp;</td>
+            <td align="center"><?= number_format($total['tax'], 2, '.', '') ?></td>
         <?php endif; ?>
         <td align="center"><?= number_format($total['sum'], 2, '.', '') ?></td>
     </tr>
