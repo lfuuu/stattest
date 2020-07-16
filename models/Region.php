@@ -160,7 +160,7 @@ class Region extends ActiveRecord
                 'AND',
                 [
                     'AND',
-                    ['type_id' => $typeId?:array_keys(self::$typeNames)],
+                    ['type_id' => isset($typeId) ? $typeId : array_keys(self::$typeNames)],
                     $countryId ? ['country_id' => $countryId] : []
                 ],
                 isset($isUseSipTrunk) ? ['is_use_sip_trunk' => $isUseSipTrunk] : []

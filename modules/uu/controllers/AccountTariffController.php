@@ -109,7 +109,7 @@ class AccountTariffController extends BaseController
         $formModel = new AccountTariffAddForm([
             'serviceTypeId' => $serviceTypeId,
             'clientAccountId' => $clientAccount ? $clientAccount->id : null,
-            'cityId' => $cityId,
+            'cityId' => in_array($serviceTypeId, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS]) ? $cityId : null,
             'ndcTypeId' => $cityId ? NdcType::ID_GEOGRAPHIC : NdcType::ID_FREEPHONE,
         ]);
 
