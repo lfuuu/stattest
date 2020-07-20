@@ -8,10 +8,14 @@ use app\exceptions\api\SberbankApiException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\Currency;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use app\models\media\ClientFiles;
 use app\models\Organization;
 use app\models\Payment;
 use app\models\SberbankOrder;
+use app\models\Trouble;
 use app\models\UsageVoip;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
@@ -254,6 +258,23 @@ class LkController extends ApiController
         );
 
         if ($file) {
+            ImportantEvents::create(
+                ImportantEventsNames::DOCUMENT_UPLOADED_LK,
+                ImportantEventsSources::SOURCE_STAT, [
+                'client_id' => $account->id,
+                'file_id' => $file->id,
+                'file_name' => $file->name
+            ]);
+
+            Trouble::dao()->createTrouble(
+                $account->id,
+                Trouble::TYPE_CONNECT,
+                Trouble::SUBTYPE_CONNECT,
+                'Клиент загрузил файл: ' . $file->name . ' ( ' . \Yii::$app->params['SITE_URL'] . 'file/get-file?model=clients&id=' . $file->id . ' )',
+                null,
+                $account->contract->account_manager
+            );
+
             return [
                 "file_name" => $file->name,
                 "file_id" => $file->id,
