@@ -60,4 +60,5 @@ return [
         'exchangeResponse' => 'tele2response',
         'queueResponse' => 'tele2ApiResponse'
     ],
+    'CALLTRACKING_SERVER' => '',
 ];

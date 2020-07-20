@@ -22,9 +22,12 @@ use app\models\EventQueue;
 use app\models\EventQueueIndicator;
 use app\models\important_events\ImportantEventsNames;
 use app\models\Invoice;
+use app\models\Number;
 use app\modules\async\classes\AsyncAdapter;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\modules\atol\Module as AtolModule;
+use app\modules\callTracking\classes\api\ApiCalltracking;
+use app\modules\callTracking\models\VoipNumber;
 use app\modules\callTracking\Module as CallTrackingModule;
 use app\modules\freeNumber\classes\FreeNumberAdapter;
 use app\modules\freeNumber\Module as FreeNumberModule;
@@ -38,6 +41,7 @@ use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\models\NumberExample;
 use app\modules\nnp\Module as NnpModule;
+use app\modules\notifier\Module;
 use app\modules\sbisTenzor\helpers\SBISDataProvider;
 use app\modules\socket\classes\Socket;
 use app\modules\uu\behaviors\AccountTariffBiller;
@@ -49,6 +53,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\Module as UuModule;
 use app\modules\webhook\classes\ApiWebCall;
 use yii\console\ExitCode;
+use yii\db\ActiveQuery;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -142,7 +147,7 @@ echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
 /**
  * Выполнить запланированное
  *
- * @param \yii\db\ActiveQuery $eventQueueQuery
+ * @param ActiveQuery $eventQueueQuery
  * @param array $uuSyncEvents
  */
 function doEvents($eventQueueQuery, $uuSyncEvents)
@@ -321,7 +326,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case EventQueue::LK_SETTINGS_TO_MAILER:
-                    /** @var \app\modules\notifier\Module $notifier */
+                    /** @var Module $notifier */
                     $notifier = Yii::$app->getModule('notifier');
                     $notifier->actions->applySchemePersonalSubscribe($param);
                     break;
@@ -361,7 +366,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case EventQueue::ACTUALIZE_NUMBER:
-                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
+                    Number::dao()->actualizeStatusByE164($param['number']);
                     if ($isCoreServer) {
                         ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
                     } else {
@@ -487,7 +492,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::SYNC_1C_CLIENT:
                     if ($is1CServer) {
-                        if (($Client = \Sync1C::getClient()) !== false) {
+                        if (($Client = Sync1C::getClient()) !== false) {
                             $Client->saveClientCards($param['client_id']);
                         } else {
                             throw new Exception('Ошибка синхронизации с 1С.');
@@ -621,7 +626,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case UuModule::EVENT_VOIP_CALLS:
                     // УУ. Услуга телефонии
-                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
+                    Number::dao()->actualizeStatusByE164($param['number']);
 
                     if ($isCoreServer) {
                         if (AccountTariff::hasTrunk($param['client_account_id'])) {
@@ -874,13 +879,34 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case CallTrackingModule::EVENT_EXPORT_VOIP_NUMBER:
                     if ($isCallTrackingServer) {
-                        \app\modules\callTracking\models\VoipNumber::setActive(
+                        VoipNumber::setActive(
                             $param['voip_number'], $param['is_active']
                         );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
+
+                case CallTrackingModule::EVENT_CALLTRACKING_CREATE:
+                    if ($isCallTrackingServer) {
+                        ApiCalltracking::me()->create(
+                            $param['account_id'], $param['stat_product_id']
+                        );
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+                case CallTrackingModule::EVENT_CALLTRACKING_DELETE:
+                    if ($isCallTrackingServer) {
+                        ApiCalltracking::me()->delete(
+                            $param['account_id'], $param['stat_product_id']
+                        );
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
 
                 case ClientChangedAmqAdapter::EVENT:
                     /*
