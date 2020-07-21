@@ -3,6 +3,7 @@
 namespace app\modules\callTracking;
 
 use app\classes\helpers\ArrayHelper;
+use app\modules\callTracking\classes\api\ApiCalltracking;
 use app\modules\callTracking\models\AccountTariff;
 use Yii;
 
@@ -13,6 +14,9 @@ class Module extends \yii\base\Module
 {
     const EVENT_EXPORT_ACCOUNT_TARIFF = 'calltracking_at';
     const EVENT_EXPORT_VOIP_NUMBER = 'calltracking_number';
+
+    const EVENT_CALLTRACKING_CREATE = 'caltracking_create';
+    const EVENT_CALLTRACKING_DELETE = 'caltracking_delete';
 
     /**
      * @inheritdoc
@@ -46,6 +50,6 @@ class Module extends \yii\base\Module
      */
     public static function isAvailable()
     {
-        return strpos(AccountTariff::getDb()->username, 'readonly') === false;
+        return ApiCalltracking::me()->isAvailable();
     }
 }

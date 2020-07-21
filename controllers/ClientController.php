@@ -289,6 +289,7 @@ class ClientController extends BaseController
         $accountGrid = GridFactory::me()->getAccountGridByBusinessProcessId($businessProcessId);
         $gridFolder = $accountGrid->getFolder($folderId);
         $gridFolder->setAttributes(Yii::$app->request->get());
+        $gridFolder->initExtraValues();
         $dataProvider = $gridFolder->spawnDataProvider();
 
         return $this->render('index',
