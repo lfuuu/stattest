@@ -324,6 +324,9 @@ class EventQueue extends ActiveRecord
     public function setOk($info = '')
     {
         if ($info) {
+            if (!is_string($info)) {
+                $info = json_encode($info);
+            }
             $this->log_error = $info . PHP_EOL . $this->log_error;
         }
 

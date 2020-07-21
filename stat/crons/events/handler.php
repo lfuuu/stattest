@@ -115,6 +115,7 @@ $stopTimeFrom = $stopTimeFrom->modify('-' . ((int)$stopTimeFrom->format('s') + 5
 $stopTimeTo = $stopTimeFrom->modify('+5 second');
 
 $countShift = 0;
+
 do {
     $activeQuery = EventQueue::getPlannedQuery();
     foreach ($map[$consoleParam] as $where) {
@@ -888,23 +889,15 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case CallTrackingModule::EVENT_CALLTRACKING_CREATE:
-                    if ($isCallTrackingServer) {
-                        ApiCalltracking::me()->create(
-                            $param['account_id'], $param['stat_product_id']
-                        );
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info = $isCallTrackingServer
+                        ? ApiCalltracking::me()->create($param['account_id'], $param['stat_product_id'])
+                        : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
                 case CallTrackingModule::EVENT_CALLTRACKING_DELETE:
-                    if ($isCallTrackingServer) {
-                        ApiCalltracking::me()->delete(
-                            $param['account_id'], $param['stat_product_id']
-                        );
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info = $isCallTrackingServer
+                        ? ApiCalltracking::me()->delete($param['account_id'], $param['stat_product_id'])
+                        : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
 
