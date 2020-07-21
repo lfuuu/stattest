@@ -28,6 +28,7 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ContractType;
 use app\models\Organization;
+use yii\helpers\Json;
 
 abstract class AccountGridFolder extends Model
 {
@@ -57,6 +58,8 @@ abstract class AccountGridFolder extends Model
     private $_organizationList = [];
 
     public $_isGenericFolder = true;
+
+    public $is_group_by_contract = true;
 
     /**
      * @return string
@@ -210,7 +213,7 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'sale_channels_old sh', 'sh.id = c.sale_channel');
         $query->join('LEFT JOIN', 'client_document doc',
             'doc.id = (select max(id) from client_document where contract_id = cr.id and is_active = 1 and type ="contract")');
-        $query->groupBy('c.id');
+        $query->groupBy(($this->is_group_by_contract && $this->isGenericFolder() ? 'cr' : 'c') . '.id');
     }
 
     /**
@@ -843,4 +846,15 @@ abstract class AccountGridFolder extends Model
     {
         return $this->_isGenericFolder;
     }
+    public function initExtraValues()
+    {
+        if (isset($_COOKIE['Form' . $this->formName() . 'Data'])) {
+            $data = Json::decode($_COOKIE['Form' . $this->formName() . 'Data']);
+
+            if (isset($data['is_group_by_contract'])) {
+                $this->is_group_by_contract = $data['is_group_by_contract'];
+            }
+        }
+    }
+
 }
