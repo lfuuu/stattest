@@ -61,6 +61,11 @@ if (file_exists($file = __DIR__ . '/db_pg_nnp.local.php')) {
     $dbPgNnp = ArrayHelper::merge($dbPgNnp, require($file));
 }
 
+$dbPgNnp2 = require(__DIR__ . '/db_pg_nnp2.php');
+if (file_exists($file = __DIR__ . '/db_pg_nnp2.local.php')) {
+    $dbPgNnp2 = ArrayHelper::merge($dbPgNnp2, require($file));
+}
+
 $dbPgCallTracking = require(__DIR__ . '/db_pg_call_tracking.php');
 if (file_exists($file = __DIR__ . '/db_pg_call_tracking.local.php')) {
     $dbPgCallTracking = ArrayHelper::merge($dbPgNnp, require($file));
@@ -119,6 +124,7 @@ return [
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,
         'dbPgNnp' => $dbPgNnp,
+        'dbPgNnp2' => $dbPgNnp2,
         'dbPgNnpSlave' => $dbPgSlave,
         'dbPgCallTracking' => $dbPgCallTracking,
         'dbPgNfDump' => $dbPgNfDump,
@@ -148,6 +154,7 @@ return [
     'modules' => [
         'glpi' => ['class' => 'app\modules\glpi\Module'],
         'nnp' => ['class' => 'app\modules\nnp\Module'],
+        'nnp2' => ['class' => 'app\modules\nnp2\Module'],
         'callTracking' => ['class' => 'app\modules\callTracking\Module'],
         'uu' => ['class' => 'app\modules\uu\Module'],
         'socket' => ['class' => 'app\modules\socket\Module'],

@@ -3,18 +3,22 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
+use app\exceptions\ModelValidationException;
 use app\models\EventQueue;
 use app\classes\Html;
 use app\modules\nnp\filters\CountryFilter;
+use app\modules\nnp2\forms\import\Form;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\CountryFile;
-use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\Module;
+use app\modules\nnp2\media\ImportServiceUploadedNew;
+use app\modules\nnp2\models\ImportHistory;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
+use yii\data\ActiveDataProvider;
 
 /**
  * Импорт
@@ -32,7 +36,7 @@ class ImportController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'step2', 'step3', 'step4', 'unlink', 'download'],
+                        'actions' => ['index', 'step2', 'step3', 'step4', 'unlink', 'download', 'approve', 'delete'],
                         'roles' => ['nnp.write'],
                     ],
                 ],
@@ -60,7 +64,64 @@ class ImportController extends BaseController
 //            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
 //        }
 
-        return $this->render('index', ['country' => $country]);
+        $query = ImportHistory::find()->orderBy(['id' => SORT_DESC]);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'sort' => false,
+        ]);
+
+        return $this->render('index', [
+            'country' => $country,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * Подвердить всё по стране
+     *
+     * @param int $countryCode
+     * @return string
+     * @throws \yii\db\Exception
+     * @throws \InvalidArgumentException
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionApprove($countryCode)
+    {
+        try {
+            /** @var Form $form */
+            $formModel = new Form(['countryCode' => $countryCode]);
+            $formModel->approve();
+
+            return $this->redirect(Url::to(['/nnp/import/step2', 'countryCode' => $formModel->getCountry()->code]));
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка: ' . $e->getMessage());
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * Удалить всё по стране
+     *
+     * @param int $countryCode
+     * @return string
+     * @throws \yii\db\Exception
+     * @throws \InvalidArgumentException
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionDelete($countryCode)
+    {
+        try {
+            /** @var Form $form */
+            $formModel = new Form(['countryCode' => $countryCode]);
+            $formModel->delete();
+
+            return $this->redirect(Url::to(['/nnp/import/step2', 'countryCode' => $formModel->getCountry()->code]));
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка: ' . $e->getMessage());
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
@@ -68,9 +129,7 @@ class ImportController extends BaseController
      *
      * @param int $countryCode
      * @return string
-     * @throws \yii\db\Exception
-     * @throws \InvalidArgumentException
-     * @throws \yii\base\InvalidParamException
+     * @throws ModelValidationException
      */
     public function actionStep2($countryCode)
     {
@@ -143,6 +202,7 @@ class ImportController extends BaseController
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
         return $this->render('step3', [
             'countryFile' => $countryFile,
+            'clear' => boolval(Yii::$app->request->get('clear')),
             'offset' => $offset,
             'limit' => $limit,
         ]);
@@ -204,9 +264,8 @@ class ImportController extends BaseController
      * @param int $fileId
      * @return string
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\Exception
      * @throws \yii\db\Exception
-     * @throws \InvalidArgumentException
-     * @throws \yii\base\InvalidParamException
      */
     public function actionStep4($countryCode, $fileId)
     {
@@ -220,34 +279,63 @@ class ImportController extends BaseController
         $country = $countryFile->country;
         $mediaManager = $country->getMediaManager();
         if ($mediaManager->isSmall($countryFile)) {
-
             // файл маленький - загрузить сразу
-            $importServiceUploaded = new ImportServiceUploaded([
+
+            // import version 1
+            $recordOld = ImportHistory::startFile($countryFile);
+            $importOld = new ImportServiceUploaded([
                 'countryCode' => $countryCode,
                 'url' => $mediaManager->getUnzippedFilePath($countryFile),
                 'delimiter' => ';',
             ]);
-            $isOk = $importServiceUploaded->run();
-            $log = $importServiceUploaded->getLogAsString();
-            if ($isOk) {
-                $log .= PHP_EOL . PHP_EOL . Html::a(
-                        'Посмотреть диапазоны номеров',
+            $doneOld = $importOld->run($recordOld);
+            $recordOld->finish($doneOld);
+            $logOld = $importOld->getLogAsString();
+
+            if ($doneOld) {
+                $logOld .= PHP_EOL . PHP_EOL . Html::a(
+                        'Посмотреть диапазоны номеров v1',
                         ['/nnp/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
                         ['target' => '_blank']
-                    );
+                    ) . PHP_EOL;
 
                 // поставить в очередь для пересчета операторов, регионов и городов
                 $eventQueue = EventQueue::go(Module::EVENT_LINKER, [
                     'notified_user_id' => Yii::$app->user->id,
                 ]);
-                Yii::$app->session->addFlash('success', 'Файл успешно импортирован.' . nl2br(PHP_EOL . $log) .
-                    'Пересчет опереаторов, регионов, городов будет через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
+                Yii::$app->session->addFlash('success', 'Файл успешно импортирован v1.' . nl2br(PHP_EOL . $logOld) .
+                    'Пересчет операторов, регионов и городов будет через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
 
             } else {
-                Yii::$app->session->addFlash('error', 'Ошибка импорта файла.' . nl2br(PHP_EOL . $log));
+                Yii::$app->session->addFlash('error', 'Ошибка импорта v1 файла.' . nl2br(PHP_EOL . $logOld));
+            }
+
+            // import version 2
+            $recordNew = ImportHistory::startFile($countryFile, 2);
+            $importNew = new ImportServiceUploadedNew([
+                'countryCode' => $countryCode,
+                'url' => $mediaManager->getUnzippedFilePath($countryFile),
+                'delimiter' => ';',
+            ]);
+
+            $doneNew = $importNew->run($recordNew);
+            $recordNew->finish($doneNew);
+            $logNew = $importNew->getLogAsString();
+            $logNew = PHP_EOL . PHP_EOL . '******************************************'  . PHP_EOL . $logNew;
+
+            if ($doneNew) {
+                $logNew .= PHP_EOL . PHP_EOL . Html::a(
+                        'Посмотреть диапазоны номеров v2',
+                        ['/nnp2/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
+                        ['target' => '_blank']
+                    );
+
+                Yii::$app->session->addFlash('success', 'Файл успешно импортирован v2.' . nl2br(PHP_EOL . $logNew));
+
+            } else {
+                Yii::$app->session->addFlash('error', 'Ошибка импорта v2 файла.' . nl2br(PHP_EOL . $logNew));
             }
         } else {
-
             // файл большой - поставить в очередь
             $eventQueue = EventQueue::go(Module::EVENT_IMPORT, ['fileId' => $fileId]);
             Yii::$app->session->setFlash('success', 'Файл поставлен в очередь на загрузку. ' . Html::a('Проверить', $eventQueue->getUrl()));

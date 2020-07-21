@@ -9,13 +9,23 @@
 use app\models\User;
 use app\modules\nnp\models\Country;
 use yii\helpers\Url;
+use app\classes\Html;
 
 $files = $country->getMediaManager()->getFiles();
 
 if ($files) :
     ?>
 
-    <h2>Выбрать из ранее загруженных файлов</h2>
+    <h2>Выбрать из ранее загруженных файлов по стране <u><?=$country->name_rus?></u> <?=
+        Html::tag(
+            'div', '',
+            [
+                'title' => $country->name,
+                'class' => 'flag flag-' . $country->getFlagCode(),
+                'style' => 'outline: 1px solid #e3e3e3',
+            ]
+        )
+        ?></h2>
     <div class="well">
         <table class="table">
             <?php

@@ -367,6 +367,17 @@ HTML;
                     $(".kv-grid-table").floatThead({ top:' . $top . ', floatTableClass:"kv-table-float", floatContainerClass:"kv-thead-float" });
                 }
             });
+
+            // fix additional filters bug
+            $(".kv-thead-float").each(function(){
+                var elStyle = $(this)[0].style;
+                
+                if (elStyle.removeAttribute) {
+                    elStyle.removeAttribute("top");
+                } else {
+                    elStyle.removeProperty("top");
+                }                
+            });
         });');
 
         return Html::button('',

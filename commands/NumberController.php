@@ -414,6 +414,8 @@ class NumberController extends Controller
     private function _redisGetAndSet(ActiveQuery $query, $prefix, $id = 'id', $name = 'name')
     {
         echo PHP_EOL . $prefix;
+
+        /** @var yii\redis\Cache $redis */
         $redis = \Yii::$app->redis;
 
         foreach ($query->each() as $o) {

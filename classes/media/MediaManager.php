@@ -242,12 +242,22 @@ abstract class MediaManager
     }
 
     /**
+     * Получить путь к хранилищу
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return rtrim(Yii::$app->params['STORE_PATH'], '/') . '/' . static::getFolder();
+    }
+
+    /**
      * @param ActiveRecord $fileModel
      * @return string
      */
     public function getFilePath(ActiveRecord $fileModel)
     {
-        return implode('/', [Yii::$app->params['STORE_PATH'], static::getFolder(), $fileModel->id]);
+        return implode('/', [static::getBasePath(), $fileModel->id]);
     }
 
     /**

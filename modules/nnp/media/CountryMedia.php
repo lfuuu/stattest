@@ -60,10 +60,9 @@ class CountryMedia extends MediaManager
 
     /**
      * @param ActiveRecord $countryFile
-     * @throws \Symfony\Component\Finder\Exception\AccessDeniedException
-     * @throws \Exception
+     * @throws ModelValidationException
+     * @throws \Throwable
      * @throws \yii\db\StaleObjectException
-     * @throws \app\exceptions\ModelValidationException
      */
     protected function deleteFileModel(ActiveRecord $countryFile)
     {

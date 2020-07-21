@@ -124,7 +124,12 @@ class NumberRangeImport extends NumberRange
             && strlen($this->number_from) === strlen($value)
         ) {
             $this->number_to = $value;
-            return true;
+
+            if ($this->number_from <= $this->number_to) {
+                return true;
+            } else {
+                $this->addError('number_from');
+            }
         }
 
         $this->addError('number_to');
@@ -225,7 +230,8 @@ class NumberRangeImport extends NumberRange
     }
 
     /**
-     * Статус номера. Можно пустое. Можно этот и последующие столбцы вообще не указывать. Сохраняется, но не используется. Например, Зарезервировано для спецслужб
+     * Статус номера. Можно пустое. Можно этот и последующие столбцы вообще не указывать.
+     * Сохраняется, но не используется. Например, Зарезервировано для спецслужб
      *
      * @param string|int|null $value
      * @return bool

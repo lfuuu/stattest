@@ -13,7 +13,7 @@ class NumberExampleController extends Controller
      */
     public function actionRenew()
     {
-        $time0 = microtime(true);;
+        $time0 = microtime(true);
         echo 'Status: ' .  Yii::$app->dbPg
             ->createCommand("select nnp.number_example_renew();")
             ->queryScalar() . PHP_EOL;

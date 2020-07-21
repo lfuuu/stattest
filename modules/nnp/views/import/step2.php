@@ -16,6 +16,7 @@ use yii\widgets\Breadcrumbs;
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
         ['label' => 'Импорт', 'url' => '/nnp/import/'],
+        ['label' => $country->name_rus, 'url' => Url::to(['/nnp/import/step2/', 'countryCode' => $country->code])],
         ['label' => $this->title = $country->name_rus . '. Загрузить или выбрать файл (шаг 2/3)'],
     ],
 ]) ?>
@@ -93,5 +94,39 @@ use yii\widgets\Breadcrumbs;
     </div>
     <div class="col-sm-8">
         <?= $this->render('_step2_select_file', ['country' => $country]) ?>
+    </div>
+</div>
+
+<div class="row">
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+</div>
+
+<div class="row">
+    <div class="col-sm-2">
+        <?= $this->render('//layouts/_link', [
+            'url' => Url::to(['/nnp/import/approve', 'countryCode' => $country->code]),
+            'text' => 'Подтвердить всё по стране',
+            'glyphicon' => 'glyphicon-ok',
+            'params' => [
+                'onClick' => 'return confirm("' . 'Подтвердить всё по стране ' . $country->name_rus . '?")',
+                'class' => 'btn btn-success',
+            ],
+        ]); ?>
+        <br />
+    </div>
+    <div class="col-sm-2">
+        <?= $this->render('//layouts/_link', [
+            'url' => Url::to(['/nnp/import/delete', 'countryCode' => $country->code]),
+            'text' => 'Удалить всё по стране',
+            'glyphicon' => 'glyphicon-remove',
+            'params' => [
+                'onClick' => 'return confirm("' . 'Удалить всё по стране ' . $country->name_rus . '?")',
+                'class' => 'btn btn-warning',
+            ],
+        ]); ?>
     </div>
 </div>

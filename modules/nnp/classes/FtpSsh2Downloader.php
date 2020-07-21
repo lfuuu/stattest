@@ -2,7 +2,6 @@
 
 namespace app\modules\nnp\classes;
 
-
 use kartik\base\Config;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -29,6 +28,7 @@ class FtpSsh2Downloader extends Component
      */
     public function init()
     {
+        /** @var \app\modules\nnp\Module $module */
         $module = Config::getModule('nnp');
         $params = $module->params;
 
