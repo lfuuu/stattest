@@ -104,6 +104,8 @@ class ImportantEventsNames extends ActiveRecord
     const SBIS_DOCUMENT_ACCEPTED = 'sbis_document_accepted';
     const SBIS_DOCUMENT_EVENT = 'sbis_document_event';
 
+    const DOCUMENT_UPLOADED_LK = 'document_uploaded_lk';
+
     /**
      * @return string
      */
