@@ -495,6 +495,7 @@ class Invoice extends ActiveRecord
 
             $newLine->setAttributes($data, false);
             $newLine->invoice_id = $this->id;
+            $newLine->line_id = $line->pk;
 
             if ($this->is_reversal) {
                 $newLine->price = -$newLine->price;

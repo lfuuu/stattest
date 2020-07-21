@@ -22,8 +22,10 @@ use app\helpers\DateTimeZoneHelper;
  * @property integer $tax_rate
  * @property float $sum_without_tax
  * @property float $sum_tax
+ * @property integer $line_id
  *
  * @property-read Invoice $invoice
+ * @property-read BillLine $line
  */
 class InvoiceLine extends ActiveRecord
 {
@@ -50,6 +52,14 @@ class InvoiceLine extends ActiveRecord
     public function getInvoice()
     {
         return $this->hasOne(Invoice::class, ['id' => 'invoice_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLine()
+    {
+        return $this->hasOne(BillLine::class, ['pk' => 'line_id']);
     }
 
     /**
@@ -176,6 +186,10 @@ class InvoiceLine extends ActiveRecord
             return null;
         }
 
+        if ($this->line_id) {
+            return $this->line->gtd;
+        }
+
         return $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select('gtd')->scalar();
     }
 
@@ -187,6 +201,10 @@ class InvoiceLine extends ActiveRecord
 
         if (!$this->invoice || !$this->invoice->bill) {
             return null;
+        }
+
+        if ($this->line_id) {
+            return $this->line->country_id;
         }
 
         return $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select('country_id')->scalar();
@@ -202,7 +220,12 @@ class InvoiceLine extends ActiveRecord
             return null;
         }
 
-        $row = $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select(['contry_maker', 'country_id'] )->asArray()->one();
+
+        if ($this->line_id) {
+            $row = $this->line->getAttributes(['contry_maker', 'country_id']);
+        } else {
+            $row = $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select(['contry_maker', 'country_id'])->asArray()->one();
+        }
 
         if (!$row) {
             return null;
