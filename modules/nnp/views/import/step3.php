@@ -7,15 +7,21 @@
  * @var bool $clear
  * @var int $offset
  * @var int $limit
+ * @var Form $formModel
  */
 
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
+use app\modules\nnp2\forms\import\Form;
+use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
 $country = $countryFile->country;
+
+$form = ActiveForm::begin();
 ?>
 
 <?= Breadcrumbs::widget([
@@ -281,14 +287,35 @@ if ($isFileOK) {
 //    if (!NumberRange::isTriggerEnabled()) {
         $params = [
             'class' => 'btn btn-success',
+            'id' => 'btnSubmit',
         ];
 
         if ($warningLines) {
             $params['onClick'] = 'return confirm("Вы уверены?")';
         }
 
-        echo $this->render('//layouts/_link', [
-            'url' => Url::to(['/nnp/import/step4', 'countryCode' => $country->code, 'fileId' => $countryFile->id]),
+?>
+<div class="row">
+    <div class="col-sm-2">
+<?php
+    echo $form->field($formModel, 'version')->widget(Select2::class, [
+        'data' => $formModel->getVersions(),
+        'pluginEvents' => [
+            'change' => 'function() { 
+                $("#btnSubmit").attr(
+                    "href",
+                    "' . Url::to(['/nnp/import/step4', 'countryCode' => $country->code, 'fileId' => $countryFile->id]) . '&version=" + $(this).val()
+                );
+            }',
+        ],
+    ])->label('Версия импорта: ');
+?>
+    </div>
+</div>
+<?php
+
+    echo $this->render('//layouts/_link', [
+            'url' => Url::to(['/nnp/import/step4', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'version' => $formModel->version]),
             'text' => 'Импортировать файл',
             'glyphicon' => 'glyphicon-fast-forward',
             'params' => $params,
@@ -317,5 +344,7 @@ if ($isFileOK) {
         echo "</ul>";
     }
 }
+
+ActiveForm::end();
 
 echo $content;

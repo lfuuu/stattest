@@ -88,13 +88,13 @@ class CountryFile extends ActiveRecord
      * Импортировать файл
      *
      * @param int $countryFileId
+     * @param bool $old
+     * @param bool $new
      * @return string Лог
-     * @throws \yii\base\InvalidParamException
-     * @throws \LogicException
-     * @throws \RuntimeException
+     * @throws \app\exceptions\ModelValidationException
      * @throws \yii\db\Exception
      */
-    public static function importById($countryFileId)
+    public static function importById($countryFileId, $old = true, $new = true)
     {
         $countryFile = CountryFile::findOne(['id' => $countryFileId]);
         if (!$countryFile) {
@@ -105,32 +105,42 @@ class CountryFile extends ActiveRecord
         $mediaManager = $country->getMediaManager();
 
         // import v1
-        $recordOld = ImportHistory::startFile($countryFile);
-        $importOld = new ImportServiceUploaded([
-            'countryCode' => $country->code,
-            'url' => $mediaManager->getUnzippedFilePath($countryFile),
-            'delimiter' => ';',
-        ]);
-        $doneOld = $importOld->run($recordOld);
-        $recordOld->finish($doneOld);
-        $logOld = $importOld->getLogAsString();
+        $logOld = '';
+        $doneOld = true;
+        if ($old) {
+            $recordOld = ImportHistory::startFile($countryFile);
+            $importOld = new ImportServiceUploaded([
+                'countryCode' => $country->code,
+                'url' => $mediaManager->getUnzippedFilePath($countryFile),
+                'delimiter' => ';',
+            ]);
+            $doneOld = $importOld->run($recordOld);
+            $recordOld->finish($doneOld);
+            $logOld = $importOld->getLogAsString();
+        }
         //
 
         // import v2
-        $recordNew = ImportHistory::startFile($countryFile, 2);
-        $importNew = new ImportServiceUploadedNew([
-            'countryCode' => $country->code,
-            'url' => $mediaManager->getUnzippedFilePath($countryFile),
-            'delimiter' => ';',
-        ]);
-        $doneNew = $importNew->run($recordNew);
-        $recordNew->finish($doneNew);
-        $logNew = $importNew->getLogAsString();
+        $logNew = '';
+        $doneNew = true;
+        if ($new) {
+            if ($logOld) {
+                $logOld .= PHP_EOL . PHP_EOL . '******************************************' . PHP_EOL;
+            }
+
+            $recordNew = ImportHistory::startFile($countryFile, 2);
+            $importNew = new ImportServiceUploadedNew([
+                'countryCode' => $country->code,
+                'url' => $mediaManager->getUnzippedFilePath($countryFile),
+                'delimiter' => ';',
+            ]);
+            $doneNew = $importNew->run($recordNew);
+            $recordNew->finish($doneNew);
+            $logNew = $importNew->getLogAsString();
+        }
         //
 
-        $logNew = PHP_EOL . PHP_EOL . '******************************************'  . PHP_EOL . $logNew;
         $logFull = $logOld . $logNew;
-
         if (!$doneOld || !$doneNew) {
             throw new \RuntimeException($logFull);
         }

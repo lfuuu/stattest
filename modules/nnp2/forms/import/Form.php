@@ -17,10 +17,22 @@ use yii\base\InvalidParamException;
 
 class Form extends \app\classes\Form
 {
+    const VERSION_V1 = 10;
+    const VERSION_V2 = 20;
+    const VERSION_V1_AND_V2 = 100;
+
     public $countryCode;
 
     /** @var Country */
     public $country;
+
+    public $version = self::VERSION_V2;
+
+    protected static $versionNames = [
+        self::VERSION_V1 => 'Импорт v1',
+        self::VERSION_V2 => 'Импорт v2',
+        self::VERSION_V1_AND_V2 => 'Импорт v1 + v2',
+    ];
 
     /**
      * Конструктор
@@ -46,6 +58,39 @@ class Form extends \app\classes\Form
     public function getCountry()
     {
         return $this->country;
+    }
+
+    public function getVersions()
+    {
+        return self::$versionNames;
+    }
+
+    /**
+     * @param int $version
+     * @return bool
+     */
+    public function isProcessedOld($version)
+    {
+        return
+            is_numeric($version) && (
+                $version == self::VERSION_V1 ||
+                $version == self::VERSION_V1_AND_V2
+            )
+        ;
+    }
+
+    /**
+     * @param int $version
+     * @return bool
+     */
+    public function isProcessedNew($version)
+    {
+        return
+            is_numeric($version) && (
+                $version == self::VERSION_V2 ||
+                $version == self::VERSION_V1_AND_V2
+            )
+        ;
     }
 
     /**
