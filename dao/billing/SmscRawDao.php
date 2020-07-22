@@ -58,7 +58,7 @@ class SmscRawDao extends Singleton
             ]);
             $query->orderBy('setup_time');
         } else {
-            $groupExp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "setup_time + '" . $offset . " second'::interval" : "setup_time") . ")");
+            $groupExp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "setup_time + '" . $tzOffest . " second'::interval" : "setup_time") . ")");
             $query->addSelect([
                 'setup_time' => $groupExp,
                 'cost' => new Expression('ABS(SUM(cost))'),

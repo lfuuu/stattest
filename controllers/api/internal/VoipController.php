@@ -9,6 +9,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\billing\DataRaw;
 use app\models\billing\SmscRaw;
 use app\models\ClientAccount;
+use app\models\filter\SmsFilter;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
@@ -487,70 +488,16 @@ class VoipController extends ApiInternalController
      */
     public function actionSms()
     {
-
         $requestData = $this->requestData;
 
-        $dateTimeRegexp = '/^(\d{4}-\d{2}-\d{2})( \d{2}:\d{2}:\d{2})?$/';
-        $dateTimeStrongRegexp = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
+        $searchModel = new SmsFilter();
+        $searchModel->load($requestData, '') && $searchModel->validate();
 
-        $model = DynamicModel::validateData(
-            $requestData,
-            [
-                [['account_id', 'offset', 'limit', 'is_in_utc'], 'integer'],
-                ['number', 'trim'],
-                ['offset', 'default', 'value' => 0],
-                ['limit', 'default', 'value' => 1000],
-                ['is_in_utc', 'default', 'value' => 1],
-                ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
-                ['to_datetime', 'match', 'pattern' => $dateTimeRegexp],
-                ['account_id', AccountIdValidator::class],
-                ['group_by', 'in', 'range' => ['', 'none', 'year', 'month', 'day', 'hour']],
-            ]
-        );
-
-        if ($model->hasErrors()) {
-            throw new ExceptionValidationForm($model);
+        if ($searchModel->hasErrors()) {
+            throw new ExceptionValidationForm($searchModel);
         }
 
-        if (($model->from_datetime || $model->to_datetime) && (!$model->from_datetime || !$model->to_datetime)) {
-            throw new \InvalidArgumentException('fields from_datetime and to_datetime must be filled');
-        }
-
-        $clientAccount = ClientAccount::findOne(['id' => $model->account_id]);
-
-        $utcTz = (new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
-        $tz = $model->is_in_utc ? $utcTz : $clientAccount->timezone;
-
-
-        if (!preg_match($dateTimeStrongRegexp, $model->from_datetime)) {
-            $model->from_datetime .= ' 00:00:00';
-        }
-
-        if (!preg_match($dateTimeStrongRegexp, $model->to_datetime)) {
-            $model->to_datetime = (new \DateTimeImmutable($model->to_datetime))
-                ->modify('+1 day')
-                ->setTime(0, 0, 0)
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        }
-
-        $firstDayOfDate = (new \DateTimeImmutable($model->from_datetime, $tz));
-        $lastDayOfDate = (new \DateTimeImmutable($model->to_datetime, $tz));
-
-        $diff = $firstDayOfDate->diff($lastDayOfDate);
-
-        if ($diff->m > 0 && $diff->d > 1) {
-            throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
-        }
-
-        $query = SmscRaw::dao()->getData(
-            $clientAccount,
-            $model->number,
-            $firstDayOfDate,
-            $lastDayOfDate,
-            $model->offset,
-            $model->limit,
-            $model->group_by
-        );
+        $query = $searchModel->search();
 
         $result = [];
         foreach ($query->each(100, SmscRaw::getDb()) as $data) {
@@ -564,6 +511,5 @@ class VoipController extends ApiInternalController
         }
 
         return $result;
-
     }
 }
