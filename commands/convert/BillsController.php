@@ -8,6 +8,7 @@ use app\models\BillDocument;
 use app\models\BillLine;
 use app\models\EventQueue;
 use app\models\Invoice;
+use app\models\InvoiceLine;
 use app\models\Payment;
 use app\models\PaymentOrder;
 use yii\console\Controller;
@@ -184,6 +185,32 @@ class BillsController extends Controller
                 EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_ACT]);
             }
 
+        }
+    }
+
+    public function actionFillLinkInvoceLine()
+    {
+        $query = InvoiceLine::find()->andWhere(['line_id' => null])->orderBy(['pk' => SORT_ASC])->with('invoice');
+
+        /** @var InvoiceLine $iLine */
+        foreach ($query->each() as $iLine) {
+            echo ' .';
+            /** @var BillLine $line */
+            $linePk = BillLine::find()->where([
+                'bill_no' => $iLine->invoice->bill_no,
+                'item' => $iLine->item,
+                'price' => $iLine->price
+            ])->select('pk')->scalar();
+
+            if (!$linePk) {
+                continue;
+            }
+            echo '+';
+
+            $iLine->line_id = $linePk;
+            if (!$iLine->save()) {
+                throw new ModelValidationException($iLine);
+            }
         }
     }
 }
