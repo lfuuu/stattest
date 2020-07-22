@@ -738,7 +738,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case NnpModule::EVENT_IMPORT:
                     // ННП. Импорт страны
                     if ($isNnpServer) {
-                        $info = CountryFile::importById($param['fileId']);
+                        $info = CountryFile::importById($param['fileId'], $param['old'], $param['new']);
 
                         // поставить в очередь для пересчета операторов, регионов и городов
                         EventQueue::go(NnpModule::EVENT_LINKER);

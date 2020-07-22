@@ -73,7 +73,11 @@ CREATE OR REPLACE FUNCTION nnp2.range_short_renew() RETURNS void
          nr.update_user_id
      FROM
          nnp2.number_range nr
-             LEFT JOIN nnp2.geo_place geo ON geo.id = nr.geo_place_id;
+     LEFT JOIN nnp2.geo_place geo ON geo.id = nr.geo_place_id
+     WHERE
+        nr.is_active
+        AND nr.is_valid
+     ;
 
 
      -- log insert

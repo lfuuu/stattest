@@ -199,12 +199,20 @@ class ImportController extends BaseController
 //            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
 //        }
 
+        try {
+            /** @var Form $form */
+            $formModel = new Form(['countryCode' => $countryCode]);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка: ' . $e->getMessage());
+        }
+
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
         return $this->render('step3', [
             'countryFile' => $countryFile,
             'clear' => boolval(Yii::$app->request->get('clear')),
             'offset' => $offset,
             'limit' => $limit,
+            'formModel' => $formModel,
         ]);
     }
 
@@ -262,14 +270,31 @@ class ImportController extends BaseController
      *
      * @param int $countryCode
      * @param int $fileId
+     * @param int|null $version
      * @return string
      * @throws \app\exceptions\ModelValidationException
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
-    public function actionStep4($countryCode, $fileId)
+    public function actionStep4($countryCode, $fileId, $version = null)
     {
+        try {
+            /** @var Form $form */
+            $formModel = new Form(['countryCode' => $countryCode]);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', 'Ошибка: ' . $e->getMessage());
+            return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryCode, 'fileId' => $fileId]));
+        }
+
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
+
+        if (is_null($version)) {
+            Yii::$app->session->addFlash('error', 'Не выбрана версия импорта');
+            return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryFile->country->code, 'fileId' => $countryFile->id]));
+        }
+
+        $isProcessedOld = $formModel->isProcessedOld($version);
+        $isProcessedNew = $formModel->isProcessedNew($version);
 
 //        if (NumberRange::isTriggerEnabled()) {
 //            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
@@ -282,62 +307,87 @@ class ImportController extends BaseController
             // файл маленький - загрузить сразу
 
             // import version 1
-            $recordOld = ImportHistory::startFile($countryFile);
-            $importOld = new ImportServiceUploaded([
-                'countryCode' => $countryCode,
-                'url' => $mediaManager->getUnzippedFilePath($countryFile),
-                'delimiter' => ';',
-            ]);
-            $doneOld = $importOld->run($recordOld);
-            $recordOld->finish($doneOld);
-            $logOld = $importOld->getLogAsString();
-
-            if ($doneOld) {
-                $logOld .= PHP_EOL . PHP_EOL . Html::a(
-                        'Посмотреть диапазоны номеров v1',
-                        ['/nnp/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
-                        ['target' => '_blank']
-                    ) . PHP_EOL;
-
-                // поставить в очередь для пересчета операторов, регионов и городов
-                $eventQueue = EventQueue::go(Module::EVENT_LINKER, [
-                    'notified_user_id' => Yii::$app->user->id,
+            if ($isProcessedOld) {
+                $recordOld = ImportHistory::startFile($countryFile);
+                $importOld = new ImportServiceUploaded([
+                    'countryCode' => $countryCode,
+                    'url' => $mediaManager->getUnzippedFilePath($countryFile),
+                    'delimiter' => ';',
                 ]);
-                Yii::$app->session->addFlash('success', 'Файл успешно импортирован v1.' . nl2br(PHP_EOL . $logOld) .
-                    'Пересчет операторов, регионов и городов будет через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
+                $doneOld = $importOld->run($recordOld);
+                $recordOld->finish($doneOld);
+                $logOld = $importOld->getLogAsString();
 
-            } else {
-                Yii::$app->session->addFlash('error', 'Ошибка импорта v1 файла.' . nl2br(PHP_EOL . $logOld));
+                if ($doneOld) {
+                    $logOld .= PHP_EOL . PHP_EOL . Html::a(
+                            'Посмотреть диапазоны номеров v1',
+                            ['/nnp/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
+                            ['target' => '_blank']
+                        ) . PHP_EOL;
+
+                    // поставить в очередь для пересчета операторов, регионов и городов
+                    $eventQueue = EventQueue::go(Module::EVENT_LINKER, [
+                        'notified_user_id' => Yii::$app->user->id,
+                    ]);
+                    Yii::$app->session->addFlash('success', 'Файл успешно импортирован v1.' . nl2br(PHP_EOL . $logOld) .
+                        'Пересчет операторов, регионов и городов будет через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
+
+                } else {
+                    Yii::$app->session->addFlash('error', 'Ошибка импорта v1 файла.' . nl2br(PHP_EOL . $logOld));
+                }
             }
 
             // import version 2
-            $recordNew = ImportHistory::startFile($countryFile, 2);
-            $importNew = new ImportServiceUploadedNew([
-                'countryCode' => $countryCode,
-                'url' => $mediaManager->getUnzippedFilePath($countryFile),
-                'delimiter' => ';',
-            ]);
+            if ($isProcessedNew) {
+                $recordNew = ImportHistory::startFile($countryFile, 2);
+                $importNew = new ImportServiceUploadedNew([
+                    'countryCode' => $countryCode,
+                    'url' => $mediaManager->getUnzippedFilePath($countryFile),
+                    'delimiter' => ';',
+                ]);
 
-            $doneNew = $importNew->run($recordNew);
-            $recordNew->finish($doneNew);
-            $logNew = $importNew->getLogAsString();
-            $logNew = PHP_EOL . PHP_EOL . '******************************************'  . PHP_EOL . $logNew;
+                $doneNew = $importNew->run($recordNew);
+                $recordNew->finish($doneNew);
+                $logNew = $importNew->getLogAsString();
+                $logNew = PHP_EOL . PHP_EOL . '******************************************' . PHP_EOL . $logNew;
 
-            if ($doneNew) {
-                $logNew .= PHP_EOL . PHP_EOL . Html::a(
-                        'Посмотреть диапазоны номеров v2',
-                        ['/nnp2/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
-                        ['target' => '_blank']
-                    );
+                if ($doneNew) {
+                    $logNew .= PHP_EOL . PHP_EOL . Html::a(
+                            'Посмотреть диапазоны номеров v2',
+                            ['/nnp2/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
+                            ['target' => '_blank']
+                        );
 
-                Yii::$app->session->addFlash('success', 'Файл успешно импортирован v2.' . nl2br(PHP_EOL . $logNew));
+                    Yii::$app->session->addFlash('success', 'Файл ' . Html::a(
+                            $countryFile->country->name_rus,
+                            Url::to([
+                                '/nnp/import/step2',
+                                'countryCode' => $countryFile->country_code,
+                            ])
+                        ) . ' / ' .
+                        Html::a(
+                            $countryFile->name,
+                            Url::to([
+                                '/nnp/import/step3',
+                                'countryCode' => $countryFile->country_code,
+                                'fileId' => $countryFile->id,
+                            ])
+                        ) . ' успешно импортирован v2.' . nl2br(PHP_EOL . $logNew));
 
-            } else {
-                Yii::$app->session->addFlash('error', 'Ошибка импорта v2 файла.' . nl2br(PHP_EOL . $logNew));
+                } else {
+                    Yii::$app->session->addFlash('error', 'Ошибка импорта v2 файла ' . Html::a(
+                            $countryFile->name,
+                            Url::to([
+                                '/nnp/import/step3',
+                                'countryCode' => $countryFile->country_code,
+                                'fileId' => $countryFile->id,
+                            ])
+                        ) . '.' . nl2br(PHP_EOL . $logNew));
+                }
             }
         } else {
             // файл большой - поставить в очередь
-            $eventQueue = EventQueue::go(Module::EVENT_IMPORT, ['fileId' => $fileId]);
+            $eventQueue = EventQueue::go(Module::EVENT_IMPORT, ['fileId' => $fileId, 'old' => $isProcessedOld, 'new' => $isProcessedNew]);
             Yii::$app->session->setFlash('success', 'Файл поставлен в очередь на загрузку. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 
