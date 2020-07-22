@@ -9,7 +9,7 @@ use app\modules\sim\models\Card;
 use yii\base\Behavior;
 use yii\base\Event;
 
-class CardBehavior extends Behavior
+class CardStatusBehavior extends Behavior
 {
     /**
      * @return array

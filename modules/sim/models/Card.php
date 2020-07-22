@@ -78,7 +78,7 @@ class Card extends ActiveRecord
             parent::behaviors(),
             [
                 \app\classes\behaviors\HistoryChanges::class,
-                \app\modules\sim\behaviors\CardBehavior::class,
+                \app\modules\sim\behaviors\CardStatusBehavior::class,
             ]
         );
     }
