@@ -58,6 +58,12 @@ $alreadyRead = [];
 $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 $isButtonShown = false;
 
+$checkFull = false;
+$mediaManager = $country->getMediaManager();
+if ($mediaManager->isSmall($countryFile)) {
+    $checkFull = true;
+}
+
 $useCache = true && !$clear;
 $cached = [];
 
@@ -73,6 +79,8 @@ if ($useCache) {
         $warningLines = $cached['warningLines'];
 
         $cached = $cached['records'];
+
+        $checkFull = true;
     }
 } else {
     $redis->delete($cacheKey);
@@ -167,6 +175,16 @@ if ($cached) {
                 $rowStatus = $cached[$rowNumber][0];
                 $oldLine = $cached[$rowNumber][1];
             } else {
+                if (
+                    !$checkFull &&
+                    (
+                        ($rowNumber < $offset) ||
+                        ($rowNumber > $offset + $limit)
+                    )
+                ) {
+                    continue;
+                }
+
                 list($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead) = checkIfValid($rowNumber, $row, $importServiceUploaded, $errorLines, $warningLines, $alreadyRead, $country->code, $countryFile->id, $isFileOK);
                 $records[$rowNumber] = [
                     $rowStatus,
@@ -314,9 +332,15 @@ if ($isFileOK) {
 </div>
 <?php
 
+    $buttonText = 'Импортировать файл';
+    if (!$checkFull) {
+        $buttonText = 'Импортировать непроверенный файл';
+        $params['class'] = 'btn btn-warning';
+        $params['onClick'] = 'return confirm("Файл не проверен полностью.\nВозможны ошибки при импорте!\nПродолжить?")';
+    }
     echo $this->render('//layouts/_link', [
             'url' => Url::to(['/nnp/import/step4', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'version' => $formModel->version]),
-            'text' => 'Импортировать файл',
+            'text' => $buttonText,
             'glyphicon' => 'glyphicon-fast-forward',
             'params' => $params,
         ]);

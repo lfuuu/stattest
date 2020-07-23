@@ -161,6 +161,13 @@ abstract class ImportServiceNew extends Model
             throw new UnexpectedValueException('Error fopen ' . $filePath);
         }
 
+        // count lines in file
+        $total = 1;
+        try {
+            $total = intval(exec('wc -l ' . escapeshellarg($this->url) . ' 2>/dev/null'));
+        } catch (\Throwable $e) {}
+        $this->importHistory->lines_load = $total;
+
         $i = 0;
         $this->rows = [];
         while (($row = fgetcsv($handle, $rowLength = 4096, $this->delimiter)) !== false) {
@@ -181,6 +188,7 @@ abstract class ImportServiceNew extends Model
             $row += array_fill(count($row), 11, null);
 
             $this->rows[] = $row;
+            $this->importHistory->markReading($i, $total);
         }
 
         if (!feof($handle)) {
@@ -190,7 +198,7 @@ abstract class ImportServiceNew extends Model
         fclose($handle);
 
         $this->importHistory->lines_load = $i;
-        $this->importHistory->markRead();
+        $this->importHistory->markReading();
     }
 
     /**
@@ -213,6 +221,7 @@ abstract class ImportServiceNew extends Model
 
         $this->errorRows = [];
 
+        $total = count($this->rows);
         $insertValues = [];
         foreach ($this->rows as $i => $row) {
             // Преобразовать строчку файла в фиксированный массив данных
@@ -222,11 +231,14 @@ abstract class ImportServiceNew extends Model
             }
 
             $insertValues[] = $callbackRow;
+
+            $this->importHistory->markGettingReady($i + 1, $total);
         }
         $this->importHistory->lines_processed = count($insertValues);
-        $this->importHistory->markReady();
+        $this->importHistory->markGettingReady();
 
         $this->processInsertValues($insertValues);
+        $this->importHistory->markInserting();
 
         $this->addLog(PHP_EOL);
     }
@@ -238,7 +250,7 @@ abstract class ImportServiceNew extends Model
     protected function processInsertValues($insertValues)
     {
         $total = count($insertValues);
-        if (!count($insertValues)) {
+        if (!$total) {
             return;
         }
 
@@ -281,7 +293,7 @@ abstract class ImportServiceNew extends Model
                 $insertValues
             )->execute();
 
-            $this->importHistory->markInserted($i, $total);
+            $this->importHistory->markInserting($i, $total);
         }
     }
 
