@@ -36,14 +36,18 @@ use yii\helpers\Url;
 class ImportHistory extends ActiveRecord
 {
     const STATE_NEW = 0;
+    const STATE_READING = 1;
     const STATE_READ = 10;
     const STATE_PREPARED = 20;
     const STATE_RELATIONS_SAVED = 30;
+    const STATE_GETTING_READY = 31;
     const STATE_READY = 40;
-    const STATE_OLD_UPDATED = 50;
-    const STATE_RELATIONS_CHECKED = 60;
-    const STATE_NEW_ADDED = 70;
-    const STATE_UPDATED_FIXED = 80;
+    const STATE_INSERTING = 41;
+    const STATE_INSERTED = 50;
+    const STATE_OLD_UPDATED = 60;
+    const STATE_RELATIONS_CHECKED = 70;
+    const STATE_NEW_ADDED = 80;
+    const STATE_UPDATED_FIXED = 90;
     const STATE_FINISH = 100;
     const STATE_ERROR = 200;
 
@@ -77,10 +81,18 @@ class ImportHistory extends ActiveRecord
 
     protected static array $stateNames = [
         self::STATE_NEW => 'Новый',
+
+        self::STATE_READING => 'Читается',
         self::STATE_READ => 'Прочитан',
+
         self::STATE_PREPARED => 'Подготовлен',
         self::STATE_RELATIONS_SAVED => 'Связи сохранены',
+
+        self::STATE_GETTING_READY => 'Готовится',
         self::STATE_READY => 'Готов к записи',
+
+        self::STATE_INSERTING => 'Наполнение (вр.табл.)',
+        self::STATE_INSERTED => 'Наполнен (вр.табл.)',
 
         self::STATE_OLD_UPDATED => 'Обновлены старые',
         self::STATE_RELATIONS_CHECKED => 'Связи проверены',
@@ -154,11 +166,17 @@ class ImportHistory extends ActiveRecord
         return $this->countryFile->getCountry();
     }
 
+    /**
+     * @return string
+     */
     public function getCacheKey()
     {
         return sprintf('%s.%s.state', __CLASS__, $this->id);
     }
 
+    /**
+     * @return int
+     */
     public function getState()
     {
         $state = $this->state;
@@ -174,6 +192,9 @@ class ImportHistory extends ActiveRecord
         return $state;
     }
 
+    /**
+     * @return mixed|string
+     */
     public function getStateName()
     {
         $state = $this->getState();
@@ -181,6 +202,10 @@ class ImportHistory extends ActiveRecord
         $lastDigit = $state % 10;
         if ($lastDigit) {
             $state -= $lastDigit;
+
+            if (isset(self::$stateNames[$state+1])) {
+                $state = $state + 1;
+            }
         }
 
         return self::$stateNames[$state] ?? '-';
@@ -226,9 +251,19 @@ class ImportHistory extends ActiveRecord
         return $importHistory;
     }
 
-    public function markRead()
+    /**
+     * @param $i int
+     * @param $total int
+     * @return $this
+     * @throws ModelValidationException
+     */
+    public function markReading($i = 1, $total = 1)
     {
-        $this->setState(self::STATE_READ);
+        $diff = self::STATE_READ - self::STATE_NEW;
+        $progress = intval(floor($i*$diff/$total));
+
+        $state = self::STATE_NEW + $progress;
+        $this->setState($state);
 
         if (!$this->save()) {
             throw new ModelValidationException($this);
@@ -252,25 +287,13 @@ class ImportHistory extends ActiveRecord
         return $this;
     }
 
-
-    public function markRelations()
-    {
-        $this->setState(self::STATE_RELATIONS_SAVED);
-
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
-        }
-
-        return $this;
-    }
-
     /**
      * @return $this
      * @throws ModelValidationException
      */
-    public function markReady()
+    public function markRelations()
     {
-        $this->setState(self::STATE_READY);
+        $this->setState(self::STATE_RELATIONS_SAVED);
 
         if (!$this->save()) {
             throw new ModelValidationException($this);
@@ -285,9 +308,31 @@ class ImportHistory extends ActiveRecord
      * @return $this
      * @throws ModelValidationException
      */
-    public function markInserted($i, $total)
+    public function markGettingReady($i = 1, $total = 1)
     {
-        $progress = intval(floor($i*10/$total));
+        $diff = self::STATE_READY - self::STATE_RELATIONS_SAVED;
+        $progress = intval(floor($i*$diff/$total));
+
+        $state = self::STATE_RELATIONS_SAVED + $progress;
+        $this->setState($state);
+
+        if (!$this->save()) {
+            throw new ModelValidationException($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $i int
+     * @param $total int
+     * @return $this
+     * @throws ModelValidationException
+     */
+    public function markInserting($i = 1, $total = 1)
+    {
+        $diff = self::STATE_INSERTED - self::STATE_READY;
+        $progress = intval(floor($i*$diff/$total));
 
         $state = self::STATE_READY + $progress;
         $this->setState($state);
@@ -299,6 +344,10 @@ class ImportHistory extends ActiveRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     * @throws ModelValidationException
+     */
     public function markOldUpdated()
     {
         $this->setState(self::STATE_OLD_UPDATED);
@@ -310,6 +359,10 @@ class ImportHistory extends ActiveRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     * @throws ModelValidationException
+     */
     public function markRelationsChecked()
     {
         $this->setState(self::STATE_RELATIONS_CHECKED);
@@ -321,6 +374,10 @@ class ImportHistory extends ActiveRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     * @throws ModelValidationException
+     */
     public function markNewAdded()
     {
         $this->setState(self::STATE_NEW_ADDED);
@@ -332,6 +389,10 @@ class ImportHistory extends ActiveRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     * @throws ModelValidationException
+     */
     public function markUpdatedFixed()
     {
         $this->setState(self::STATE_UPDATED_FIXED);
@@ -343,6 +404,11 @@ class ImportHistory extends ActiveRecord
         return $this;
     }
 
+    /**
+     * @param bool $isOk
+     * @return $this
+     * @throws ModelValidationException
+     */
     public function finish($isOk = false)
     {
         $this->setState($isOk ? self::STATE_FINISH : self::STATE_ERROR);
