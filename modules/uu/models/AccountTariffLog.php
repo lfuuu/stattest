@@ -694,7 +694,11 @@ class AccountTariffLog extends ActiveRecord
                     ->andWhere(['!=', 'id', (int)$this->account_tariff_id])// кроме себя же
                     ->all();
                 foreach ($accountTariffSiblings as $accountTariffSibling) {
-                    if (!$accountTariffSibling->tariffPeriod->tariff->getPackageMinutes()->count()) {
+                    if (
+                        (
+                            $accountTariffSibling->tariffPeriod->tariff->getPackageMinutes()->count()
+                            + $accountTariffSibling->tariffPeriod->tariff->getPackagePricelistsNnp()->andWhere(['>', 'minute', 0])->count()
+                        ) == 0) {
                         // пакет с минутами подключать повторно можно (минуты суммируются), а все остальное нельзя (не имеет смысла, ибо дешевый прайслист и так действует)
                         $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
                         $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
