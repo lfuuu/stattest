@@ -11,7 +11,8 @@ class ExceptionValidationForm extends \app\exceptions\ModelValidationException
 
     private $exceptions = [
         'AccountId' => ['client_id', 'account_id', 'client_account_id'],
-        'UsageVoip' => ['number']
+        'UsageVoip' => ['number'],
+        'DateRange' => ['from_datetime', 'to_datetime'],
     ];
 
     public function __construct(Model $model)

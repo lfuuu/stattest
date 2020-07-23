@@ -14,6 +14,7 @@ abstract class ExceptionFactory
         return [
             'ValidationAccountId' => new ExceptionValidationAccountId,
             'ValidationUsageVoip' => new ExceptionValidationUsageVoip,
+            'ValidationDateRange' => new ExceptionValidationDateRange,
         ];
     }
 
