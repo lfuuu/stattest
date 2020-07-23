@@ -100,6 +100,7 @@ class SimController extends ApiInternalController
      *
      * @SWG\Get(tags = {"SIM-card"}, path = "/internal/sim/get-cards", summary = "Список SIM-карт ЛС", operationId = "GetCards",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "iccid", type = "string", description = "ICCID", in = "query", required = false, default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список SIM-карт ЛС",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/simCardRecord"))
@@ -112,11 +113,14 @@ class SimController extends ApiInternalController
      * @param int $client_account_id
      * @return array
      */
-    public function actionGetCards($client_account_id)
+    public function actionGetCards($client_account_id, $iccid = null)
     {
         $query = Card::find()
             ->where(['client_account_id' => $client_account_id])
             ->with('status', 'imsies', 'imsies.profile', 'imsies.status');
+
+        $iccid && $query->andWhere(['iccid' => $iccid]);
+
         $result = [];
         foreach ($query->each() as $model) {
             $result[] = $this->_simCardRecord($model);
@@ -207,6 +211,7 @@ class SimController extends ApiInternalController
         $imsiObject = $imsies[$imsi];
 
         $transaction = Yii::$app->db->beginTransaction();
+        $transactionSim = Card::getDb()->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 
@@ -222,9 +227,11 @@ class SimController extends ApiInternalController
             }
 
             $transaction->commit();
+            $transactionSim->commit();
             return true;
         } catch (Exception $e) {
             $transaction->rollBack();
+            $transactionSim->rollBack();
             \Yii::error($e);
             throw $e;
         }
