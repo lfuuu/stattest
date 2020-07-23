@@ -2,6 +2,7 @@
 
 namespace app\dao;
 
+use app\classes\HttpClient;
 use app\classes\Singleton;
 
 /**
@@ -90,5 +91,44 @@ class ClientContactDao extends Singleton
         $phone = trim($phone);
 
         return [$phone, $e164Phones];
+    }
+
+    /**
+     * Проверить номер на присутствие в ННП
+     * @param string $number
+     * @return bool|mixed|string
+     * @throws \Exception
+     */
+    public function validateNnp($number)
+    {
+        $number = preg_replace('/[^\d]+/', '', $number);
+
+
+        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
+
+        try {
+            $numberInfo = (new HttpClient())
+                ->get($url, [
+                    'cmd' => 'getNumberRangeByNum',
+                    'num' => $number])
+                ->getResponseDataWithCheck();
+        } catch (\Exception $e) {
+            \Yii::error($e);
+            return false;
+        }
+
+        if (!is_array($numberInfo)) {
+            return false;
+        }
+
+        if (!isset($numberInfo['is_active']) || !$numberInfo['is_active']) {
+            return false;
+        }
+
+        if (isset($numberInfo['id']) && $numberInfo['id'] > 0) {
+            return $numberInfo;
+        }
+
+        return false;
     }
 }
