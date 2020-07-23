@@ -62,7 +62,7 @@ class CardController extends BaseController
     {
         $account = $this->getFixClient();
 
-        $getData = Yii::$app->request->post();
+        $getData = \Yii::$app->request->isPost ? Yii::$app->request->post() : Yii::$app->request->get();
 
         if ($account && Yii::$app->request->isGet) {
             if (!isset($getData['CardFilter']['client_account_id']) || !$getData['CardFilter']['client_account_id']) {
@@ -72,6 +72,11 @@ class CardController extends BaseController
 
         $filterModel = new CardFilter();
         $filterModel->load($getData);
+
+        // for true pagination vendor/kartik-v/yii2-grid/GridView.php#741
+        if (\Yii::$app->request->isPost) {
+            $_GET = ['CardFilter' => $getData['CardFilter']];
+        }
 
         $cardIccids = [];
         if (isset($getData['cardIccids']) && $getData['cardIccids'] && is_array($getData['cardIccids'])) {
