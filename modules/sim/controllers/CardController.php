@@ -64,7 +64,7 @@ class CardController extends BaseController
 
         $getData = \Yii::$app->request->isPost ? Yii::$app->request->post() : Yii::$app->request->get();
 
-        if ($account && Yii::$app->request->isGet) {
+        if ($account && Yii::$app->request->isGet && !isset($getData['CardFilter'])) {
             if (!isset($getData['CardFilter']['client_account_id']) || !$getData['CardFilter']['client_account_id']) {
                 $getData['CardFilter']['client_account_id'] = $account->id;
             }
