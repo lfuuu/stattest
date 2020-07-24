@@ -106,7 +106,7 @@ class AccountTariffCheckHlr extends Behavior
 
             throw $e;
         }
-
+/*
         if ($partnerTele2Imsi) {
             EventQueue::go(EventQueue::SYNC_TELE2_UNLINK_IMSI, [
                 'account_tariff_id' => $accountTariff->id,
@@ -115,6 +115,7 @@ class AccountTariffCheckHlr extends Behavior
                 'iccid' => $partnerTele2Imsi->iccid,
             ]);
         }
+*/
     }
 
     /**
@@ -221,14 +222,14 @@ class AccountTariffCheckHlr extends Behavior
             if (!$number->save()) {
                 throw new ModelValidationException($number);
             }
-
+/*
             EventQueue::go(EventQueue::SYNC_TELE2_LINK_IMSI, [
                 'account_tariff_id' => $accountTariff->id,
                 'voip_number' => $accountTariff->voip_number,
                 'imsi' => $linkedImsi->imsi,
                 'iccid' => $linkedImsi->iccid,
             ]);
-
+*/
             $transactionPg->commit();
 //            $transactionMs->commit();
         } catch (\Exception $e) {

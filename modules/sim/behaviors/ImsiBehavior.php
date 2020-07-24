@@ -99,7 +99,7 @@ class ImsiBehavior extends Behavior
             ->andWhere('imsi::varchar like \'25042%\'')
             ->one();
 
-        if ($foundedImsi->is_active) {
+        if ($foundedImsi && $foundedImsi->is_active) {
             $foundedImsi->is_active = 0;
 
             if (!$foundedImsi->save()) {
