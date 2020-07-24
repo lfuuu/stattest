@@ -46,6 +46,8 @@ class Imsi extends ActiveRecord
 
     const PARTNER_MTT = 1;
 
+    const imsiPrefixRegExp = '/^25037/'; // Tele2 imsi prefix
+
     /**
      * @return string
      */
