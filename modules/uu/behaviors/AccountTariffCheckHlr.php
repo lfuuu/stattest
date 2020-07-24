@@ -19,7 +19,6 @@ use yii\db\AfterSaveEvent;
 
 class AccountTariffCheckHlr extends Behavior
 {
-    const imsiPrefixRegExp = '/^25037/'; // Tele2 imsi prefix
     /**
      * @return array
      */
@@ -91,7 +90,7 @@ class AccountTariffCheckHlr extends Behavior
             /** @var Imsi $imsi */
             foreach ($imsis as $imsi) {
 
-                if (preg_match(self::imsiPrefixRegExp, $imsi->imsi)) {
+                if (preg_match(Imsi::imsiPrefixRegExp, $imsi->imsi)) {
                     $partnerTele2Imsi = $imsi;
                 }
 

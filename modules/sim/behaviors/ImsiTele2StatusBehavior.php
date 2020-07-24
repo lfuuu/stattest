@@ -39,6 +39,10 @@ class ImsiTele2StatusBehavior extends Behavior
             return;
         }
 
+        if (!preg_match(Imsi::imsiPrefixRegExp, $model->imsi)) {
+            return;
+        }
+
         $oldMsisdn = $event->changedAttributes['msisdn'];
         $newMsisdn = $model->msisdn;
 
