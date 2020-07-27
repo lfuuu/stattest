@@ -325,7 +325,8 @@ abstract class ImportServiceNew extends Model
         $tableTmp = $this->tmpTableName;
 
 $sql = <<<SQL
-DROP TABLE IF EXISTS {$tableTmp};
+-- DROP TABLE IF EXISTS {$tableTmp};
+TRUNCATE {$tableTmp};
 SQL;
 $this->db->createCommand($sql)->execute();
 
