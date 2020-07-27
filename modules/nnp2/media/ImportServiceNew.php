@@ -360,7 +360,7 @@ CREATE TABLE {$tableTmp}
   insert_time date
 )
 SQL;
-        $this->db->createCommand($sql)->execute();
+//        $this->db->createCommand($sql)->execute();
     }
 
     /**
