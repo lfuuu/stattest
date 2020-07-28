@@ -393,6 +393,16 @@ class AccountTariffController extends BaseController
                     }
                 }
 
+                // записать в лог тарифа
+                $accountTariffLog = new AccountTariffLog;
+                $accountTariffLog->account_tariff_id = $accountTariff->id;
+                $accountTariffLog->tariff_period_id = $tariffPeriodIdNew;
+                $accountTariffLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT, $actualFromTimestamp);
+                if (!$accountTariffLog->save()) {
+                    throw new ModelValidationException($accountTariffLog);
+                }
+
+
                 if ($accountTariff->tariff_period_id && in_array($accountTariff->service_type_id, [ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
                     // дополнительно добавить этот пакет транка в маршрутизацию "логического транка"
                     //
@@ -402,36 +412,39 @@ class AccountTariffController extends BaseController
 
                     $usageTrunkSettings = UsageTrunkSettings::findOne([
                         'usage_id' => $accountTariff->prev_account_tariff_id,
-                        'package_id' => $accountTariff->id,
+                        'package_id' => $accountTariff->tariffPeriod->tariff_id,
+                        'account_package_id' => $accountTariff->id,
                         'type' => $type,
                     ]);
 
-                    if (!$usageTrunkSettings) {
-                        $maxOrder = UsageTrunkSettings::find()
-                            ->andWhere([
-                                'usage_id' => $accountTariff->prev_account_tariff_id,
-                                'type' => $type,
-                            ])
-                            ->max('`order`');
+                    if ($tariffPeriodIdNew) {
+                        if (!$usageTrunkSettings) {
+                            $maxOrder = UsageTrunkSettings::find()
+                                ->andWhere([
+                                    'usage_id' => $accountTariff->prev_account_tariff_id,
+                                    'type' => $type,
+                                ])
+                                ->max('`order`');
 
-                        $usageTrunkSettings = new UsageTrunkSettings;
-                        $usageTrunkSettings->usage_id = $accountTariff->prev_account_tariff_id;
-                        $usageTrunkSettings->package_id = $accountTariff->tariffPeriod->tariff_id;
-                        $usageTrunkSettings->type = $type;
-                        $usageTrunkSettings->order = $maxOrder + 1;
-                        if (!$usageTrunkSettings->save()) {
-                            throw new ModelValidationException($usageTrunkSettings);
+                            $usageTrunkSettings = new UsageTrunkSettings;
+                            $usageTrunkSettings->account_package_id = $accountTariff->id;
+                            $usageTrunkSettings->usage_id = $accountTariff->prev_account_tariff_id;
+                            $usageTrunkSettings->package_id = $accountTariff->tariffPeriod->tariff_id;
+                            $usageTrunkSettings->activation_dt = $accountTariffLog->actual_from_utc;
+                            $usageTrunkSettings->type = $type;
+                            $usageTrunkSettings->order = $maxOrder + 1;
+                            if (!$usageTrunkSettings->save()) {
+                                throw new ModelValidationException($usageTrunkSettings);
+                            }
+                        }
+                    } else {
+                        if ($usageTrunkSettings) {
+                            $usageTrunkSettings->expire_dt = $accountTariffLog->actual_from_utc;
+                            if (!$usageTrunkSettings->save()) {
+                                throw new ModelValidationException($usageTrunkSettings);
+                            }
                         }
                     }
-                }
-
-                // записать в лог тарифа
-                $accountTariffLog = new AccountTariffLog;
-                $accountTariffLog->account_tariff_id = $accountTariff->id;
-                $accountTariffLog->tariff_period_id = $tariffPeriodIdNew;
-                $accountTariffLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT, $actualFromTimestamp);
-                if (!$accountTariffLog->save()) {
-                    throw new ModelValidationException($accountTariffLog);
                 }
             }
 
@@ -850,7 +863,7 @@ class AccountTariffController extends BaseController
                     }
 
                     $isAlreadyAdded = false;
-                    foreach($accountTariff->nextAccountTariffs as $package) {
+                    foreach ($accountTariff->nextAccountTariffs as $package) {
 
                         if ($package->tariff_period_id == $tariffPeriodIdAdd) {
                             $isAlreadyAdded = true;

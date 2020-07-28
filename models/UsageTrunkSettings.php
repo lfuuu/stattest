@@ -18,6 +18,9 @@ use app\modules\uu\models\Tariff;
  * @property int $minimum_cost
  * @property float $minimum_margin
  * @property int $minimum_margin_type
+ * @property string $activation_dt
+ * @property string $expire_dt
+ * @property string $account_package_id
  *
  * @property-read UsageTrunk $usage
  * @property-read Tariff $package
