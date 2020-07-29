@@ -55,6 +55,7 @@ class ResourceModel extends ActiveRecord
     const ID_VOIP_LINE = 7; // Телефония. Линия
     const ID_VOIP_FMC = 38; // Телефония. FMC
     const ID_VOIP_MOBILE_OUTBOUND = 43; // Телефония. "Исх. моб. связь"
+    const ID_VOIP_ROBOCALL = 53; // Робокол
 
     const ID_VOIP_PACKAGE_CALLS = 40; // Пакеты телефонии. Звонки
     const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
