@@ -3,9 +3,12 @@
 namespace app\commands\convert;
 
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTrunkSettings;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Tariff;
 use yii\console\Controller;
 
 
@@ -94,6 +97,66 @@ class UsagesController extends Controller
         }
 
         return $data;
+    }
+
+    public function actionAddResource($serviceTypeId, $resourceId)
+    {
+        $tariffQuery = Tariff::find()->where([
+            'service_type_id' => $serviceTypeId,
+        ]);
+
+        $tariffPeriods = [];
+        /** @var Tariff $tariff */
+        foreach ($tariffQuery->each() as $tariff) {
+            $tariffPeriods = array_merge($tariffPeriods, array_map(
+                function ($tariffPeriod) {
+                    return $tariffPeriod->id;
+                },
+                $tariff->tariffPeriods
+            ));
+        }
+
+        $accountTariffQuery = AccountTariff::find()
+            ->where([
+                'service_type_id' => $serviceTypeId,
+                'tariff_period_id' => $tariffPeriods
+            ]);
+
+        /** @var AccountTariff $accountTariff */
+        foreach ($accountTariffQuery->each() as $accountTariff) {
+            $transaction = AccountTariff::getDb()->beginTransaction();
+            try {
+                if ($accountTariff->getAccountTariffResourceLogsAll()->where(['resource_id' => $resourceId])->exists()) {
+                    echo ' -';
+                    continue;
+                }
+
+                echo ' +';
+
+                $actualFromStr = $accountTariff->getAccountTariffResourceLogs()->min('actual_from_utc');
+
+                if (!$actualFromStr) {
+                    $actualFromStr = $accountTariff->getAccountTariffLogs()->min('actual_from_utc');
+                }
+
+                $atResourceLog = new AccountTariffResourceLog();
+                $atResourceLog->isAllowSavingInPast = true;
+                $atResourceLog->account_tariff_id = $accountTariff->id;
+                $atResourceLog->resource_id = $resourceId;
+                $atResourceLog->amount = 0;
+                $atResourceLog->actual_from_utc = $actualFromStr;
+                $atResourceLog->sync_time = DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+                if (!$atResourceLog->save()) {
+                    throw new ModelValidationException($atResourceLog);
+                }
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                echo PHP_EOL . '[code=' . $e->getCode() . ']' . $e->getMessage();
+            }
+        }
+
     }
 }
 
