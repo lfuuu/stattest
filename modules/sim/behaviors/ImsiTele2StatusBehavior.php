@@ -4,6 +4,7 @@ namespace app\modules\sim\behaviors;
 
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\models\Number;
 use app\modules\sim\models\Card;
@@ -59,11 +60,16 @@ class ImsiTele2StatusBehavior extends Behavior
         }
 
         if ($newMsisdn) {
-            EventQueue::go(EventQueue::SYNC_TELE2_LINK_IMSI, [
-                'voip_number' => $newMsisdn,
-                'imsi' => $model->imsi,
-                'iccid' => $model->iccid,
-            ]);
+            EventQueue::go(
+                EventQueue::SYNC_TELE2_LINK_IMSI,
+                [
+                    'voip_number' => $newMsisdn,
+                    'imsi' => $model->imsi,
+                    'iccid' => $model->iccid,
+                ],
+                false,
+                $oldMsisdn ? DateTimeZoneHelper::getUtcDateTime()->modify('+5 second')->format(DateTimeZoneHelper::DATETIME_FORMAT) : null
+            );
         }
     }
 }
