@@ -184,6 +184,7 @@ SQL;
             Operator::deleteAll(['country_code' => $country->code]);
 
             // ndc type
+            $maxFixedId = NdcType::getMaxFixed();
             $tableName = NumberRange::tableName();
             $tableNdcType = NdcType::tableName();
             $sqlChild = <<<SQL
@@ -200,6 +201,7 @@ WHERE id NOT IN (
     GROUP BY
         ndc_type_id
 )
+AND id > {$maxFixedId}
 AND parent_id IS NOT NULL;
 SQL;
             $db->createCommand($sqlChild, [':country_code' => $country->code])->execute();
@@ -218,6 +220,7 @@ WHERE id NOT IN (
     GROUP BY
         ndc_type_id
 )
+AND id > {$maxFixedId}
 AND parent_id IS NULL;
 SQL;
             $db->createCommand($sqlParents, [':country_code' => $country->code])->execute();

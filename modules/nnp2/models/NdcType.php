@@ -33,12 +33,31 @@ class NdcType extends ActiveRecord
     const ID_PREMIUM = 5;
     const ID_SHORT_CODE = 6;
     const ID_REST = 7;
+    const ID_PERSONAL = 8;
+    const ID_SATELLITE = 9;
+    const ID_M2M = 10;
     const ID_MCN_LINE = 11;
+    const ID_CORPORATE_PRIVATE = 12;
 
     const DEFAULT_HOLD = '6 month';
 
     private static $_holdList = [
         self::ID_FREEPHONE => '1 day',
+    ];
+
+    protected static $names = [
+        self::ID_GEOGRAPHIC => 'Geographic`',
+        self::ID_MOBILE => 'Mobile`',
+        self::ID_NOMADIC => 'Nomadic`',
+        self::ID_FREEPHONE => 'Freephone`',
+        self::ID_PREMIUM => 'Premium`',
+        self::ID_SHORT_CODE => 'Short Code`',
+        self::ID_REST => 'Rest`',
+        self::ID_PERSONAL => 'Personal`',
+        self::ID_SATELLITE => 'Satellite`',
+        self::ID_M2M => 'M2M`',
+        self::ID_MCN_LINE => 'MCN Line`',
+        self::ID_CORPORATE_PRIVATE => 'Corporate/Private`',
     ];
 
     /**
@@ -87,6 +106,14 @@ class NdcType extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgNnp2;
+    }
+
+    /**
+     * @return int
+     */
+    public static function getMaxFixed()
+    {
+        return max(array_keys(self::$names));
     }
 
     /**

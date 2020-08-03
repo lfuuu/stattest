@@ -1,0 +1,13 @@
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (1, 'Geographic', true, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (2, 'Mobile', true, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (3, 'Nomadic', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (4, 'Freephone', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (5, 'Premium', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (6, 'Short Code', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (7, 'Rest', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (8, 'Personal', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (9, 'Satellite', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (10, 'M2M', false, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (11, 'MCN Line', true, null, true);
+INSERT INTO nnp2.ndc_type (id, name, is_city_dependent, parent_id, is_valid) VALUES (12, 'Corporate/Private', false, null, true);
+SELECT setval('nnp2.ndc_type_id_seq', max(id)+1) FROM nnp2.ndc_type;
