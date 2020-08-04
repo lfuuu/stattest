@@ -426,7 +426,7 @@ WHERE b.client_id = ' . $account->id . '
                     $submitted += $value['outcome_sum'];
                 }
                 if (isset($value['income_sum']) && abs($value['income_sum']) > 0) {
-                    $submitted += $value['income_sum'];
+                    $submitted -= $value['income_sum'];
                 }
 
                 $r[] = $value;
