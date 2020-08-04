@@ -44,6 +44,6 @@ return [
     'nal' => 'készpénz',
     'beznal' => 'átutalás',
 
-    'correct_sum' => 'Correction sum',
+    'correct_sum' => 'Fogyasztás előző periódusra',
     'Current statement' => 'Aktuális kivonat',
 ];

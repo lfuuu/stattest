@@ -46,6 +46,6 @@ return [
     'nal' => 'cash',
     'beznal' => 'transfer',
 
-    'correct_sum' => 'Correction sum',
+    'correct_sum' => 'Consumption for previous period',
     'Current statement' => 'Current statement',
 ];
