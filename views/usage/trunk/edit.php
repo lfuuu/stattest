@@ -48,6 +48,7 @@ if ($isUu) {
     $accountTariffs = AccountTariff::find()
         ->where(['prev_account_tariff_id' => $usage->id])
         ->all();
+
     foreach ($accountTariffs as $accountTariff) {
         $isOff = false;
         if (!$accountTariff->isActive()) {
@@ -55,29 +56,23 @@ if ($isUu) {
             $isOff = true;
         }
 
-        $tariffPeriod = $accountTariff->tariffPeriod;
-        if ($tariffPeriod) {
-            $tariff = $tariffPeriod->tariff;
+        $startLog = $accountTariff->getOnAccountTariffLog();
+        $endLog = $accountTariff->getOffAccountTariffLog();
+
+        if (!$accountTariff->tariff_period_id) {
+            $tariff = $accountTariff->getLastOnAccountTariffLog()->tariffPeriod->tariff;
         } else {
-            $tariffLog = reset($accountTariff->accountTariffLogs);
-
-            if (!$accountTariff->tariff_period_id) {
-                $isOff = true;
-                $tariffLog = next($accountTariff->accountTariffLogs);
-            }
-
-            if (!($tariffPeriod = $tariffLog->tariffPeriod)) {
-                continue;
-            }
-            $tariff = $tariffPeriod->tariff;
+            $tariff = $accountTariff->tariffPeriod->tariff;
         }
 
-        // Дата подключения пакета
-        $accountTariffLog = reset($accountTariff->accountTariffLogs);
-        if ($accountTariffLog) {
-            $accountTariffLogActualFrom = Yii::$app->formatter->asDate($accountTariffLog->actual_from, DateTimeZoneHelper::HUMAN_DATE_FORMAT);
-            $value = sprintf('%s с (%s)', $tariff->name, $accountTariffLogActualFrom);
+        $accountTariffLogActualFrom = Yii::$app->formatter->asDate($startLog->actual_from, DateTimeZoneHelper::HUMAN_DATE_FORMAT);
+        $value = sprintf('%s с (%s', $tariff->name, $accountTariffLogActualFrom);
+
+        if ($endLog) {
+            $value .= ' ' . sprintf(' по %s', Yii::$app->formatter->asDate($endLog->actual_from, DateTimeZoneHelper::HUMAN_DATE_FORMAT));
         }
+
+        $value .= ')';
 
         switch ($accountTariff->service_type_id) {
             case ServiceType::ID_TRUNK_PACKAGE_ORIG:
