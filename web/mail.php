@@ -68,7 +68,7 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
 
             if ($bill->clientAccount->organization->country_id != \app\models\Country::RUSSIA) {
                 /** @var \app\models\Invoice $invoice */
-                $invoice = \app\models\Invoice::find()->where(['bill_no' => $bill->bill_no, 'is_invoice' => 1])->one();
+                $invoice = \app\models\Invoice::find()->where(['bill_no' => $bill->bill_no, 'type_id' => $R['source']])->one();
                 $path = $invoice->getFilePath('invoice');
 
                 $info = pathinfo($path);
