@@ -47,6 +47,8 @@ class MailJob {
 		}
 		$this->client['company_full'] = $fullName;
 		$this->emails = array();
+		$this->files = [];
+
 		if(!$this->client)
 			return;
 		$R = $db->AllRecords('
@@ -318,10 +320,12 @@ class MailJob {
                 $msg .= "\n******************\n";
             }
 
-            $b_sf[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'invoice');
-            $b_sf[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'invoice');
-            $b_akt[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'act');
-            $b_akt[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'act');
+            $this->files = [];
+
+            $b_sf[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'invoice') && $this->_isInvoice = true;
+            $b_sf[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'invoice') && $this->_isInvoice = true;
+            $b_akt[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'act') && $this->_isInvoice = true;
+            $b_akt[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'act') && $this->_isInvoice = true;
         }
 
         $msg && $this->_isInvoice = true;
@@ -338,9 +342,10 @@ class MailJob {
         $path = $invoice->getFilePath($document);
         $info = pathinfo($path);
         if (!file_exists($path)) {
-            return;
+            return false;
         }
         $this->files[] = ['name' => $info['basename'], 'type' => 'application/pdf', 'path' => $path];
+        return true;
 	}
 
 
