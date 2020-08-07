@@ -21,4 +21,5 @@ return ArrayHelper::merge(include(realpath(__DIR__ . '/../' . Language::LANGUAGE
     'beznal' => 'überweisung',
     'correct_sum' => 'Verbrauch für Vorperiode',
     'Current statement' => 'AKTUELLER AUSZUG',
+    'invoice' => 'Rechnung',
 ]);

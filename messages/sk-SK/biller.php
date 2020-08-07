@@ -10,4 +10,5 @@ return ArrayHelper::merge(include("../en-US/biller.php"), [
     'beznal' => 'prevod',
     'correct_sum' => 'Spotreba za predchádzajúce obdobie',
     'Current statement' => 'AKTUÁLNY VÝPIS',
+    'invoice' => 'Faktúra',
 ]);
