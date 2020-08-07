@@ -48,4 +48,7 @@ return [
 
     'correct_sum' => 'Consumption for previous period',
     'Current statement' => 'Current statement',
+    'invoice' => 'Invoice',
+    'act' => 'Act',
+    'upd' => 'Invoice',
 ];

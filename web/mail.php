@@ -1,4 +1,5 @@
 <?php
+
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\classes\documents\DocumentReportFactory;
@@ -12,7 +13,7 @@ include PATH_TO_ROOT . "conf_yii.php";
 $o = MailJob::GetObjectP();
 
 
-if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"], array(
+if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"], [
         "bill",
         "assignment",
         "order",
@@ -27,14 +28,14 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
         "sogl_mcn_service",
         "sogl_mcn_telekom",
         "sogl_mcn_telekom_to_service"
-    ))
+    ])
 ) {
     $db->Query('update mail_object set view_count=view_count+1, view_ts = IF(view_ts=0,NOW(),view_ts) where object_id=' . $o['object_id']);
 
     if ($o["object_type"] == "assignment" && $o["source"] == 2) {
         $o["source"] = 4;
     }
-    $R = array();
+    $R = [];
 
     $R['bill'] = $o['object_param'];
     $R['obj'] = $o["object_type"];
@@ -51,21 +52,39 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
             exit();
         }
 
-        echo  $report->render();
+        echo $report->render();
     } else {
         if (
-        (isset($R['obect_type']) && in_array($R['object_type'], ['sogl_mcn_service', 'sogl_mcn_telekom_to_service']))
-        || (isset($R['obj']) && in_array($R['obj'], ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service']))
+            (isset($R['obect_type']) && in_array($R['object_type'], ['sogl_mcn_service', 'sogl_mcn_telekom_to_service']))
+            || (isset($R['obj']) && in_array($R['obj'], ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service']))
         ) {
             $bill = Bill::find()->where(['client_id' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
             header('Content-Type: application/pdf');
             echo $report->renderAsPDF();
         } else {
-            $design->assign('emailed', 1);
-            $_GET = $R;
-            \app\classes\StatModule::newaccounts()->newaccounts_bill_print('', ['is_pdf' => $o['is_pdf']]);
-            $design->Process();
+            /** @var Bill $bill */
+            $bill = Bill::find()->where(['bill_no' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
+
+            if ($bill->clientAccount->organization->country_id != \app\models\Country::RUSSIA) {
+                /** @var \app\models\Invoice $invoice */
+                $invoice = \app\models\Invoice::find()->where(['bill_no' => $bill->bill_no, 'is_invoice' => 1])->one();
+                $path = $invoice->getFilePath('invoice');
+
+                $info = pathinfo($path);
+                header('Content-Type: application/pdf');
+                header('Content-disposition: inline; filename="' . $info['basename'] . '"');
+
+                if (file_exists($path)) {
+                    echo file_get_contents($path);
+                }
+                exit();
+            } else {
+                $design->assign('emailed', 1);
+                $_GET = $R;
+                \app\classes\StatModule::newaccounts()->newaccounts_bill_print('', ['is_pdf' => $o['is_pdf']]);
+                $design->Process();
+            }
         }
     }
 }

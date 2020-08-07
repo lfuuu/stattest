@@ -174,12 +174,14 @@ class m_mail{
 
     private function _getFromEmails()
     {
-        return [
-            'info@mcn.ru' => 'info@mcn.ru',
-            'bill@wellsystems.ru' => 'bill@wellsystems.ru',
-            'info@mcntele.com' => 'info@mcntele.com',
-            'invoice@mcntele.com' => 'invoice@mcntele.com',
+        $from =  [
+            'МСН Телеком <info@mcn.ru>',
+            'MCN <bill@wellsystems.ru>',
+            'MCNtelecom <info@mcntele.com>',
+            'MCNtelecom <invoice@mcntele.com>',
         ];
+
+        return array_combine($from, $from);
     }
 
 	function mail_remove(){

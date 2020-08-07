@@ -46,4 +46,5 @@ return [
 
     'correct_sum' => 'Fogyasztás előző periódusra',
     'Current statement' => 'Aktuális kivonat',
+    'invoice' => 'Számla',
 ];

@@ -7,6 +7,10 @@ class MailJob {
 	public $client = array();
 	public $encoding = 'utf-8';
 	public $emails = array();
+	public $files = [];
+
+	public $lang = 'ru-RU';
+	public $countryId = \app\models\Country::RUSSIA;
 
 	private $_isInvoice = null;
 
@@ -38,6 +42,8 @@ class MailJob {
 		$fullName = '';
 		if ($this->client && ($accountClient = \app\models\ClientAccount::findOne(['id' => $this->client['id']]))) {
 			$fullName = $accountClient->contragent->name_full;
+			$this->lang = $accountClient->organization->lang_code;
+			$this->countryId = $accountClient->organization->country_id;
 		}
 		$this->client['company_full'] = $fullName;
 		$this->emails = array();
@@ -278,6 +284,7 @@ class MailJob {
                 $dateEnd->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT),
             ]);
 
+
         $msg = '';
         /** @var \app\models\Bill $bill */
         foreach ($billQuery->each() as $bill) {
@@ -287,26 +294,56 @@ class MailJob {
                 continue;
             }
 
-            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs_static($bill->bill_no);
-
             isset($invoices[1]) && $invoice1 = $invoices[1];
             isset($invoices[2]) && $invoice2 = $invoices[2];
 
-            $b_sf[1] && $invoice1 && $msg .= "\nСчет-фактура " . $invoice1->number . ": " . $this->get_object_link('invoice', $invoice1->bill_no, 1, $isPdf);
-            $b_sf[2] && $invoice2 && $msg .= "\nСчет-фактура " . $invoice2->number . ": " . $this->get_object_link('invoice', $invoice2->bill_no, 2, $isPdf);
-            $b_akt[1] && $invoice1 && $msg .= "\nАкт " . $invoice1->number . ": " . $this->get_object_link('akt', $invoice1->bill_no, 1, $isPdf);
-            $b_akt[2] && $invoice2 && $msg .= "\nАкт " . $invoice2->number . ": " . $this->get_object_link('akt', $invoice2->bill_no, 2, $isPdf);
-            $b_upd[1] && $invoice1 && $msg .= "\nУПД " . $invoice1->number . ": " . $this->get_object_link('upd', $invoice1->bill_no, 1, $isPdf);
-            $b_upd[2] && $invoice2 && $msg .= "\nУПД " . $invoice2->number . ": " . $this->get_object_link('upd', $invoice2->bill_no, 2, $isPdf);
 
+            if ($this->countryId == \app\models\Country::RUSSIA) {
+                [$b_akt, $b_sf, $b_upd] = m_newaccounts::get_bill_docs_static($bill->bill_no);
+            } else {
+                $b_akt = $b_sf = $b_upd = [null, false, false];
+                $b_sf[1] = true;
+                $b_sf[2] = true;
+            }
+
+            if (isset($_GET) && isset($_GET['action']) && $_GET['action'] == 'preview') {
+
+                $msg .= "******************\nК документы будут прикреплены документы: ";
+                $b_sf[1] && $invoice1 && $msg .= "\n" . Yii::t('biller', 'invoice', [], $this->lang) . " " . $invoice1->number . ": " . $this->get_object_link('invoice', $invoice1->bill_no, 1, $isPdf);
+                $b_sf[2] && $invoice2 && $msg .= "\n" . Yii::t('biller', 'invoice', [], $this->lang) . " " . $invoice2->number . ": " . $this->get_object_link('invoice', $invoice2->bill_no, 2, $isPdf);
+                $b_akt[1] && $invoice1 && $msg .= "\n" . Yii::t('biller', 'act', [], $this->lang) . " " . $invoice1->number . ": " . $this->get_object_link('akt', $invoice1->bill_no, 1, $isPdf);
+                $b_akt[2] && $invoice2 && $msg .= "\n" . Yii::t('biller', 'act', [], $this->lang) . " " . $invoice2->number . ": " . $this->get_object_link('akt', $invoice2->bill_no, 2, $isPdf);
+                $b_upd[1] && $invoice1 && $msg .= "\n" . Yii::t('biller', 'upd', [], $this->lang) . " " . $invoice1->number . ": " . $this->get_object_link('upd', $invoice1->bill_no, 1, $isPdf);
+                $b_upd[2] && $invoice2 && $msg .= "\n" . Yii::t('biller', 'upd', [], $this->lang) . " " . $invoice2->number . ": " . $this->get_object_link('upd', $invoice2->bill_no, 2, $isPdf);
+                $msg .= "\n******************\n";
+            }
+
+            $b_sf[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'invoice');
+            $b_sf[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'invoice');
+            $b_akt[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'act');
+            $b_akt[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'act');
         }
 
         $msg && $this->_isInvoice = true;
 
         return $msg;
 	}
-	
-	
+
+    public function _get_file_by_invoice($invoice, $document)
+    {
+        if (!$invoice) {
+            return;
+        }
+
+        $path = $invoice->getFilePath($document);
+        $info = pathinfo($path);
+        if (!file_exists($path)) {
+            return;
+        }
+        $this->files[] = ['name' => $info['basename'], 'type' => 'application/pdf', 'path' => $path];
+	}
+
+
 	public function Template($str,$format = 'text')
     {
         $this->_isInvoice = null;
@@ -357,27 +394,38 @@ class MailJob {
 		$Mail = new PHPMailer();
 		$Mail->SetLanguage("ru","include/");
 		$Mail->CharSet = $this->encoding;
-		$Mail->From = $this->data['from_email'];;
-		$Mail->FromName="MCN";
+
+        if(preg_match("/\s*([^<]+)\s*<\s*([^>]+)\s*>\s*/", $this->data['from_email'], $match)) {
+            $fromEmail = trim($match[2]);
+            $fromName = trim($match[1]);
+        } else {
+            $fromEmail = 'info@mcn.ru';
+            $fromName = 'MCN';
+        }
+
+        $Mail->FromName = $fromName;
+        $Mail->From = $fromEmail;
 		$Mail->Mailer='smtp';
 		$Mail->Host=SMTP_SERVER;
-		foreach($emails as $adr)
-			if($adr)
-				$Mail->AddAddress($adr);
+		foreach($emails as $adr) {
+            if ($adr) {
+                $Mail->AddAddress($adr);
+            }
+        }
 		$Mail->ContentType='text/plain';
-		
-		$Files = new mailFiles($this->data['job_id']);
-		$files = $Files->getFiles(true);
-		if (!empty($files))
-		{
-			foreach ($files as $v)
-			{
-                $Mail->AddAttachment($v['path'], "=?utf-8?B?".base64_encode($v['name'])."?=", "base64", $v['type']);
-			}
-		}
-		
+
 		$Mail->Subject = $this->Template('template_subject');
 		$Mail->Body = $this->Template('template_body');
+
+		// run before parsing template
+        $Files = new mailFiles($this->data['job_id']);
+        $files = array_merge($Files->getFiles(true), $this->files);
+        if (!empty($files)) {
+            foreach ($files as $v) {
+                $Mail->AddAttachment($v['path'], "=?utf-8?B?" . base64_encode($v['name']) . "?=", "base64", $v['type']);
+            }
+        }
+
 
         $r = ['job_id' => $this->data['job_id'], 'client' => $this->client['client']];
 
@@ -401,7 +449,7 @@ class MailJob {
 	{
 	    global $db;
 	    $res = $db->GetValue('select job_state from mail_job where job_id='.$this->data['job_id']);
-	    
+
 	    return $res;
 	}
 
