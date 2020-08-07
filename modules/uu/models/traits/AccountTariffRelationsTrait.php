@@ -407,4 +407,49 @@ trait AccountTariffRelationsTrait
     {
         return implode(', ', $this->accountTroubles);
     }
+
+    /**
+     * Лог включения
+     * @return AccountTariffLog
+     */
+    public function getOnAccountTariffLog()
+    {
+        $logs = array_reverse($this->accountTariffLogs);
+        $log = reset($logs);
+
+        return $log;
+    }
+
+
+    /**
+     * Лог отключения
+     * @return AccountTariffLog
+     */
+    public function getOffAccountTariffLog()
+    {
+        $logs = $this->accountTariffLogs;
+        $log = reset($logs);
+
+        if ($log->tariff_period_id) {
+            return false;
+        }
+
+        return $log;
+    }
+
+    /**
+     * Лог последнего включенного тарифа
+     * @return AccountTariffLog
+     */
+    public function getLastOnAccountTariffLog()
+    {
+        $logs = array_filter($this->accountTariffLogs, function (AccountTariffLog $log){
+            return (bool)$log->tariff_period_id;
+        });
+
+        $log = reset($logs);
+
+        return $log;
+    }
+
 }
