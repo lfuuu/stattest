@@ -3,7 +3,7 @@
 namespace app\modules\uu\resourceReader;
 
 use app\helpers\DateTimeZoneHelper;
-use app\models\mtt_raw\MttRaw;
+use app\models\billing\SmscRaw;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use DateTimeImmutable;
@@ -18,8 +18,6 @@ use yii\base\BaseObject;
  */
 class SmsResourceReader extends BaseObject implements ResourceReaderInterface
 {
-    const COST_AMOUNT = 0.47; // Себестоимость MTT без НДС, руб
-
     protected $accountTariffId = null;
 
     /**
@@ -47,7 +45,7 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
         $amount = array_key_exists($dateTimeFormat, $this->cache) ?
             $this->cache[$dateTimeFormat] : 0;
 
-        return new Amounts($amount, $amount * self::COST_AMOUNT);
+        return new Amounts($amount, 0);
     }
 
     /**
@@ -77,16 +75,15 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
 
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
-        $this->cache = MttRaw::find()
+        $this->cache = SmscRaw::find()
             ->select([
-                'cnt' => 'SUM(chargedqty)',
-                'aggr_date' => sprintf("TO_CHAR(connect_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
+                'sum' => 'SUM(cost)',
+                'aggr_date' => sprintf("TO_CHAR(setup_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
             ])
             ->where([
-                'number_service_id' => $accountTariff->prev_account_tariff_id,
-                'serviceid' => MttRaw::SERVICE_ID_SMS
+                'src_number' => $accountTariff->prevAccountTariff->voip_number,
             ])
-            ->andWhere(['>=', 'connect_time', $dateTimeUtc->format(DATE_ATOM)])
+            ->andWhere(['>=', 'setup_time', $dateTimeUtc->format(DATE_ATOM)])
             ->groupBy(['aggr_date'])
             ->asArray()
             ->indexBy('aggr_date')

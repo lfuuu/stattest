@@ -98,7 +98,7 @@ class ResourceModel extends ActiveRecord
         // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
         self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::class,
 
-        // Смс по пакетам телефонии. Берется из mtt_raw
+        // Смс по пакетам телефонии. Берется из smsc_raw
         self::ID_VOIP_PACKAGE_SMS => SmsResourceReader::class,
 
         // Интернет-трафик по пакетам телефонии (Мб, float). Не важно, сколько потрачено
