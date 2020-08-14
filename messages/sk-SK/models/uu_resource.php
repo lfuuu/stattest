@@ -17,7 +17,7 @@ return [
     'Resource #9' => 'Internetová prevádzka',
     'Resource #10' => 'Prevádzka',
     'Resource #13' => 'VPN prevádzka',
-    'Resource #14' => 'СМС',
+    'Resource #14' => 'SMS',
     'Resource #15' => 'Procesor',
     'Resource #16' => 'Trvalá pamäť',
     'Resource #17' => 'Operatívna pamäť',

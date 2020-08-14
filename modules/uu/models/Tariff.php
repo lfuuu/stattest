@@ -572,27 +572,30 @@ class Tariff extends ActiveRecord
                 $tariffTableName . '.is_include_vat' => $isIncludeVat,
             ]);
 
-        if ($cityId && $this->service_type_id == ServiceType::ID_VOIP) {
-            $query->joinWith('voipCities')
-                ->andWhere(['OR',
-                    [TariffVoipCity::tableName() . '.city_id' => $cityId],
-                    [TariffVoipCity::tableName() . '.city_id' => null]
-                ]);
-        }
+        if ($this->service_type_id == ServiceType::ID_VOIP) {
+            if ($cityId) {
+                $query->joinWith('voipCities')
+                    ->andWhere(['OR',
+                        [TariffVoipCity::tableName() . '.city_id' => $cityId],
+                        [TariffVoipCity::tableName() . '.city_id' => null]
+                    ]);
+            }
 
-        if ($voipCountryId && $this->service_type_id == ServiceType::ID_VOIP) {
-            $query->joinWith('tariffVoipCountries')
-                ->andWhere(['OR',
-                    [TariffVoipCountry::tableName() . '.country_id' => $voipCountryId],
-                    [TariffVoipCountry::tableName() . '.country_id' => null]
-                ]);
-        }
+            if ($voipCountryId) {
+                $query->joinWith('tariffVoipCountries')
+                    ->andWhere(['OR',
+                        [TariffVoipCountry::tableName() . '.country_id' => $voipCountryId],
+                        [TariffVoipCountry::tableName() . '.country_id' => null]
+                    ]);
+            }
 
-        if ($ndcTypeId) {
-            $query->joinWith('voipNdcTypes')
-                ->andWhere([
-                    TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId,
-                ]);
+            if ($ndcTypeId) {
+                $query->joinWith('voipNdcTypes')
+                    ->andWhere(['OR',
+                        [TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId],
+                        [TariffVoipNdcType::tableName() . '.ndc_type_id' => null],
+                    ]);
+            }
         }
 
         return $query->all();
