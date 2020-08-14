@@ -8,6 +8,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\Semaphore;
 use app\models\ClientAccount;
 use app\models\DidGroup;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -114,6 +115,10 @@ trait AccountTariffPackageTrait
             $countryId = null;
         }
 
+        if ($number && $number->ndc_type_id == NdcType::ID_MOBILE) {
+            $packageType = [$packageType, ServiceType::ID_VOIP_PACKAGE_SMS, ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY];
+        }
+
         $defaultPackages = $tariffPeriod->tariff->findDefaultPackages(
             $countryId,
             $this->city_id,
@@ -140,7 +145,7 @@ trait AccountTariffPackageTrait
             // подключить базовый пакет
             $accountTariffPackage = new AccountTariff();
             $accountTariffPackage->client_account_id = $this->client_account_id;
-            $accountTariffPackage->service_type_id = $packageType;
+            $accountTariffPackage->service_type_id = $defaultPackage->service_type_id;
             $accountTariffPackage->region_id = $this->region_id;
             $accountTariffPackage->city_id = $this->city_id;
             $accountTariffPackage->prev_account_tariff_id = $this->id;
