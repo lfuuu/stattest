@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePricelist;
 use Yii;
 
 /**
@@ -52,6 +53,7 @@ class StatsAccount extends ActiveRecord
         $accountTariffLightTableName = AccountTariffLight::tableName();
         $packageTableName = Package::tableName();
         $packageMinuteTableName = PackageMinute::tableName();
+        $packagePricelistTableName = PackagePricelist::tableName();
 
         $sql = <<<SQL
 SELECT
@@ -78,15 +80,45 @@ WHERE
 	at.account_client_id = :account_client_id
 	AND at.deactivate_from > NOW()
 SQL;
+
+        $sql2 = <<<SQL
+SELECT
+	at.id,
+	at.account_tariff_id,
+	at.account_package_id,
+	p.name,
+	COALESCE(stat.used_seconds, 0) AS used_seconds,
+	TRUNC(at.coefficient * pm.minute * 60) AS total_seconds
+FROM
+	{$accountTariffLightTableName} at
+INNER JOIN
+	{$packageTableName} p
+	ON at.tariff_id = p.tariff_id
+INNER JOIN
+	{$packagePricelistTableName} pm
+	ON p.tariff_id = pm.tariff_id
+LEFT JOIN
+	billing.stats_nnp_package_pricelist_minute stat
+	ON stat.nnp_account_tariff_light_id = at.id
+	AND stat.nnp_package_pricelist_id = pm.id
+
+WHERE
+	at.account_client_id = :account_client_id
+	AND at.deactivate_from > NOW()
+SQL;
+
         $params = ['account_client_id' => $clientAccountId];
 
         if ($accountTariffId) {
             $sql .= ' AND at.account_tariff_id = :account_tariff_id';
+            $sql2 .= ' AND at.account_tariff_id = :account_tariff_id';
             $params['account_tariff_id'] = $accountTariffId;
         }
 
+        $mainSql = $sql . ' UNION ' . $sql2;
+
         return self::getDb()
-            ->createCommand($sql, $params)
+            ->createCommand($mainSql, $params)
             ->queryAll();
 
     }
