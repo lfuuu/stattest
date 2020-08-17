@@ -156,6 +156,13 @@ $allTariffResources = [
         'resource_id' => ResourceModel::ID_VOIP_MOBILE_OUTBOUND,
         'tariff_id' => Tariff::DELTA + 4,
     ],
+    [
+        'amount' => 1,
+        'price_per_unit' => 99,
+        'price_min' => 0,
+        'resource_id' => ResourceModel::ID_VOIP_ROBOCALL,
+        'tariff_id' => Tariff::DELTA + 4,
+    ],
 
     // Тариф 6
     [
@@ -347,6 +354,12 @@ $voipBaseResources = [
         'price_per_unit' => 27,
         'price_min' => 0,
         'resource_id' => ResourceModel::ID_VOIP_MOBILE_OUTBOUND,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 28,
+        'price_min' => 0,
+        'resource_id' => ResourceModel::ID_VOIP_ROBOCALL,
     ],
 ];
 
