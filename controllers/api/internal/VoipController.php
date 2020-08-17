@@ -4,6 +4,7 @@ namespace app\controllers\api\internal;
 
 use app\classes\Assert;
 use app\classes\HttpClient;
+use app\dao\billing\CallsDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\DataRaw;
@@ -24,6 +25,7 @@ use app\classes\validators\UsageVoipValidator;
 use app\models\billing\CallsRaw;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
+use yii\db\Expression;
 
 class VoipController extends ApiInternalController
 {
@@ -66,6 +68,7 @@ class VoipController extends ApiInternalController
      *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
+     *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
      *   @SWG\Response(
      *     response=200,
      *     description="данные о клиентах партнёра",
@@ -96,13 +99,14 @@ class VoipController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info', 'is_in_utc'], 'integer'],
+                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info', 'is_in_utc', 'is_with_general_info'], 'integer'],
                 ['number', 'trim'],
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
                 ['offset', 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000],
                 ['is_in_utc', 'default', 'value' => 1],
+                ['is_with_general_info', 'default', 'value' => 0],
                 ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['to_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['account_id', AccountIdValidator::class],
@@ -120,6 +124,16 @@ class VoipController extends ApiInternalController
 
         $clientAccount = ClientAccount::findOne(['id' => $model->account_id]);
         Assert::isObject($clientAccount, 'ClientAccount#' . $model->account_id);
+
+        if (!$model->offset || $model->offset < 0) {
+            $model->offset = 0;
+        }
+        $model->offset = (int)$model->offset;
+
+        if ($model->limit && $model->limit < 0) {
+            $model->limit = 0;
+        }
+        $model->limit = (int)$model->limit;
 
 
         $utcTz = (new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
@@ -153,7 +167,7 @@ class VoipController extends ApiInternalController
 
         $diff = $firstDayOfDate->diff($lastDayOfDate);
 
-        if ($diff->m > 0 && $diff->d > 0) {
+        if ($diff->m > 2 && $diff->d > 0) {
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
 
@@ -162,10 +176,34 @@ class VoipController extends ApiInternalController
             $clientAccount,
             $model->number,
             $firstDayOfDate,
-            $lastDayOfDate,
-            $model->offset,
-            $model->limit
+            $lastDayOfDate
         );
+
+        $generalInfo = [];
+
+        if ($model->is_with_general_info) {
+            $sumQuery = clone $query;
+            $sumQuery->select([
+                'sum' => new Expression('SUM(-cost)::decimal(12,2)'),
+                'count' => new Expression('COUNT(*)')
+            ]);
+            $sumQuery->orderBy(null);
+
+            $generalInfo = $sumQuery->one(CallsRaw::getDb());
+
+            $generalInfo['sum'] = (float)$generalInfo['sum'];
+        }
+
+        if ($model->offset) {
+            $query->offset($model->offset);
+        }
+
+        $limit = $model->limit > CallsDao::CALLS_MAX_LIMIT ? CallsDao::CALLS_MAX_LIMIT : $model->limit;
+
+        $generalInfo['offset'] = $model->offset;
+        $generalInfo['limit'] = $limit;
+
+        $query->limit($limit);
 
         foreach ($query->each(100, CallsRaw::getDb()) as $call) {
             $call['cost'] = (double)$call['cost'];
@@ -179,7 +217,9 @@ class VoipController extends ApiInternalController
             $result[] = $call;
         }
 
-        return $result;
+        $result = $result ? $result : [];
+
+        return $model->is_with_general_info ? ['info' => $generalInfo, 'calls' => $result] : $result;
     }
 
     private function _getNnpInfo($number)
