@@ -67,6 +67,8 @@ class VersionController extends BaseController
             }
         }
 
+        $versionsQuery->orderBy(['date' => SORT_ASC]);
+
         $versions = $versionsQuery->all();
         HistoryVersion::generateDifferencesFor($versions);
         // Переупаковка данных
