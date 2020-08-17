@@ -30,7 +30,7 @@ class m200724_091518_rename_res_43 extends Migration
             \app\models\Currency::HUF => 0,
             \app\models\Currency::EUR => 0,
             \app\models\Currency::USD => 0,
-        ], false); // + convert/usages/add-resource 2 53
+        ]); // + convert/usages/add-resource 2 53
     }
 
     /**
