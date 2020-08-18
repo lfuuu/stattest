@@ -81,7 +81,7 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
                 'aggr_date' => sprintf("TO_CHAR(setup_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
             ])
             ->where([
-                'src_number' => $accountTariff->prevAccountTariff->voip_number,
+                'src_number' => (string)$accountTariff->prevAccountTariff->voip_number,
             ])
             ->andWhere(['>=', 'setup_time', $dateTimeUtc->format(DATE_ATOM)])
             ->groupBy(['aggr_date'])
