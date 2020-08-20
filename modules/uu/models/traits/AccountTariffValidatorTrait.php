@@ -127,11 +127,16 @@ trait AccountTariffValidatorTrait
     public function validatorVoipNumber($attribute, $params)
     {
         /** @var \app\models\Number $number */
-        if (!$this->voip_number || !($number = $this->number)) {
+        if ($this->service_type_id != ServiceType::ID_VOIP) {
             return;
         }
 
-        if ($this->isNewRecord && $number->status != Number::STATUS_INSTOCK) {
+        if (
+            $this->isNewRecord && (
+                !$this->voip_number
+                || !($number = $this->number)
+                || $number->status != Number::STATUS_INSTOCK
+            )) {
             $this->addError($attribute, 'Этот телефонный номер нельзя подключить');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK;
             return;
