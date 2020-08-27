@@ -267,6 +267,8 @@ class AccountTariff extends ActiveRecord
             }
         }
 
+        return true;
+        /*
         // по клиенту
         if (in_array($this->client_account_id, [
             57863, 63885, 59028, 60431
@@ -275,5 +277,6 @@ class AccountTariff extends ActiveRecord
         }
 
         return false;
+        */
     }
 }
