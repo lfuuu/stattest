@@ -387,10 +387,9 @@ class MonitoringController extends BaseController
         $accountTariffIds = [];
         if ($regionId = $filterModelSearch->region_id) {
             $ids = SormClientFilter::getAccountTariffIds(
-                $regionId, 
-                $filterModelSearch->is_device_empty === '' ? null : 
-                    ($filterModelSearch->is_device_empty == TariffPeriod::IS_NOT_SET ? false : true)
-                );
+                $regionId,
+                $filterModelSearch->is_device_empty === '' ? null : ($filterModelSearch->is_device_empty == TariffPeriod::IS_NOT_SET ? false : true)
+            );
 
             $usageVoipIds = array_filter($ids, function ($v) {
                 return $v < AccountTariff::DELTA;
@@ -408,8 +407,8 @@ class MonitoringController extends BaseController
         $filterModelOld->is_active_client_account = $filterModelSearch->is_active_client_account;
         $filterModel->is_active_client_account = $filterModelSearch->is_active_client_account;
 
-        $filterModelOld->id = $usageVoipIds ? : 0;
-        $filterModel->id = $accountTariffIds ? : 0;
+        $filterModelOld->id = $usageVoipIds ?: 0;
+        $filterModel->id = $accountTariffIds ?: 0;
 
         return $this->render('sorm_numbers', [
             'filterModelSearch' => $filterModelSearch,
@@ -447,5 +446,22 @@ class MonitoringController extends BaseController
         if (!$accountTariff->save()) {
             throw new ModelValidationException($accountTariff);
         }
+    }
+
+    public function actionChangedBills()
+    {
+        $month = $_GET['month'] ?: 'current';
+
+        $startDate = new \DateTimeImmutable('now');
+        $startDate = $startDate->modify('first day of this month');
+
+        if ($month != 'current') {
+            $startDate = $startDate->modify('first day of previous month');
+        }
+
+
+
+        $data = \app\classes\monitoring\ChangedBillsMonitor::me()->getData($startDate);
+        return $this->render('changed_bills', ['data' => $data, 'month' => $month]);
     }
 }

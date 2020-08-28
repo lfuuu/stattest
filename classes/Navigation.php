@@ -96,6 +96,8 @@ class Navigation
                 ->addItem('Монитор "здоровья"', 'http://eridanus.mcn.ru/health/health.html', [])
                 ->addItem('СОРМ: Клиенты', ['/monitoring/sorm-clients'], ['clients.edit'])
                 ->addItem('СОРМ: Номера', ['/monitoring/sorm-numbers'], ['clients.edit'])
+                ->addItem('Изменившиеся счета', ['/monitoring/changed-bills'], ['clients.edit'])
+                
         );
 
         $this->addBlock(
