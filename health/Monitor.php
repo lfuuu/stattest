@@ -55,7 +55,6 @@ abstract class Monitor extends Component
             Monitor1cTroubles::class,
             MonitorSorm_Habarovsk::class,
             MonitorSorm_Krasnoiarsk::class,
-            MonitorVoipDelayOnPackages::class,
             MonitorMultipleEnabledNumbers::class,
         ];
     }
@@ -75,6 +74,8 @@ abstract class Monitor extends Component
             MonitorTariffsWithoutLogs::class,
             MonitorWrongNumberRegion::class,
             MonitorTariffSync::class,
+            MonitorDoublePayment::class,
+            MonitorVoipDelayOnPackages::class,
         ];
     }
 }
