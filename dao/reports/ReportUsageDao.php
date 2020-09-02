@@ -307,7 +307,10 @@ class ReportUsageDao extends Singleton
         $decimals = in_array($this->_account->currency, [Currency::USD, Currency::EUR]) ? 6 : 2;
 
         $callBackProcessRecord = function ($record) use ($isWithPackageDetail, $decimals, &$result, &$rt) {
-            $record['geo'] = $record['geo_name'] . ($record['ndc_type_id'] != NdcType::ID_GEOGRAPHIC && $record['ndc_type_name'] ? ' (' . $record['ndc_type_name'] . ')' : '');
+            $record['geo'] = '';
+            if (isset($record['geo_name']) && isset($record['ndc_type_id'])) {
+                $record['geo'] = $record['geo_name'] . ($record['ndc_type_id'] != NdcType::ID_GEOGRAPHIC && $record['ndc_type_name'] ? ' (' . $record['ndc_type_name'] . ')' : '');
+            }
             unset($record['geo_name'], $record['ndc_type_name'], $record['ndc_type_id']);
 
             $ts = new DateTime($record['ts1']);

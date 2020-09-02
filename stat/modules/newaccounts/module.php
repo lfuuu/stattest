@@ -3910,6 +3910,7 @@ WHERE cg.inn = '" . $inn . "'";
                 ->innerJoin(['cr' => ClientContract::tableName()], 'cr.id=c.contract_id')
                 ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id=cr.contragent_id')
                 ->where(['c.id' => $diffId])
+                ->orderBy(['c.id' => SORT_ASC])
                 ->all();
 
             static $organizationStore = [];
@@ -3943,6 +3944,8 @@ WHERE cg.inn = '" . $inn . "'";
         $v = [];
 
         static $cache = [];
+
+        sort($clientIds);
 
         foreach ($clientIds as $clientId) {
             if (count($clientIds) > 1) {
@@ -3978,6 +3981,7 @@ WHERE cg.inn = '" . $inn . "'";
                         left join newbills_external e using (bill_no)
                         
                         where client_id=' . $clientId . ' and is_payed!="1")
+                        ORDER BY client_id
                         '
             ) as $b) {
                 $clientV[] = $b;
