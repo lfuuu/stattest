@@ -600,7 +600,7 @@ ORDER BY mn, firm_name, bs_name, currency
 
     public function actionUpdateLocks()
     {
-        $data = \Yii::$app->dbPgSlave->createCommand(
+        $data = \Yii::$app->dbPg->createCommand(
             'SELECT client_id, 
 sum(CASE WHEN voip_auto_disabled THEN 1 ELSE 0 END) > 0 b_voip_auto_disabled, 
 sum(CASE WHEN voip_auto_disabled_local THEN 1 ELSE 0 END) > 0 b_voip_auto_disabled_local,
@@ -625,7 +625,7 @@ GROUP BY client_id')->queryAll();
 
         foreach ($data as $row) {
             $newClients[$row['client_id']] = 1;
-            $cache->set('lock' . $row['client_id'], $row);
+            $cache->set('lock' . $row['client_id'], $row, 3 * 60); // установим на 3 минуты. Обновление каждую минуту. Если обнолвения не будет - брать из базы.
             unset($clients[$row['client_id']]);
         }
 

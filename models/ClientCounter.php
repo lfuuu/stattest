@@ -98,29 +98,38 @@ class ClientCounter extends ActiveRecord
             'balance'
         );
 
+        $rtBalance = $this->clientAccount->credit > -1 ?
+            $this->clientAccount->balance + $this->amount_sum :
+            $this->clientAccount->balance;
+
+        $cKey = 'rtb' . $this->client_id;
+        $cache = \Yii::$app->cache;
+
+        // сохраняем последний правильный баланс
+        if ($this->isLocal) {
+            if ($cache->exists($cKey)) {
+                $rtBalance = $cache->get('rtb' . $this->client_id);
+            }
+        } else {
+            $cache->set($cKey, $rtBalance);
+        }
+
+        Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный (выдаем: ' . $rtBalance . ')' : '') . ' ЛС# ' . $this->clientAccount->id . ' '
+            . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
+
 
         switch ($this->clientAccount->account_version) {
 
             case ClientAccount::VERSION_BILLER_USAGE:
                 // старый (текущий) биллинг
 
-                Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный' : '') . ' ЛС# ' . $this->clientAccount->id . ' '
-                    . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
-
-                return
-                    $this->clientAccount->credit > -1 ?
-                        $this->clientAccount->balance + $this->amount_sum :
-                        $this->clientAccount->balance;
-
+                return $rtBalance;
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг
                 // пересчитывается в RealtimeBalanceTarificator
 
-                Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный' : '') . ' УЛС# ' . $this->clientAccount->id . ' '
-                    . ($this->clientAccount->balance + $this->getDaySummary()) . ' = ' . $this->clientAccount->balance . ' + ' . $this->getDaySummary() . ' / ' . $this->amount_sum);
-
-                return $this->clientAccount->balance + $this->amount_sum;
+                return $rtBalance;
 
             default:
                 throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);
@@ -381,7 +390,7 @@ class ClientCounter extends ActiveRecord
     {
         $appCache = \Yii::$app->cache;
         foreach (static::$_localCacheFastMass as $accountId => $counter) {
-            $appCache->set('bl' . $accountId, $counter);
+            $appCache->set('bl' . $accountId, $counter, 60 * 7 /* 7 minute (2 * 3)+ */);
         }
     }
 
