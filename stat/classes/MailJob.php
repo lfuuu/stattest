@@ -30,7 +30,10 @@ class MailJob {
 	}
 	public static function GetObject($object_id,$key){
 		global $db;
-		$v = $db->GetRow('select * from mail_object where object_id='.$object_id);
+		if (!$object_id || !$key) {
+		    return null;
+        }
+		$v = $db->GetRow('select * from mail_object where object_id='.$db->escape($object_id));
 		$key1 = self::get_object_key($v);
 		if($key1==$key)
 			return $v;
