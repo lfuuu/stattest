@@ -12,7 +12,8 @@ class MailJob {
 	public $lang = 'ru-RU';
 	public $countryId = \app\models\Country::RUSSIA;
 
-	private $_isInvoice = null;
+    private $_isInvoice = null;
+    public $errorMsg = '';
 
 	private static $prepared = 0;
 
@@ -90,6 +91,11 @@ class MailJob {
 	}
 	public function get_object_link($object_type,$object_param, $source = 2, $isPDF = false){
 		global $db;
+
+        if ($object_type == 'act') {
+            $object_type = 'akt'; // :facepalm:
+        }
+
 		$v = array();
 		$v['job_id'] = $this->data['job_id'];
 		$v['client_id'] = $this->client['id'];
@@ -272,6 +278,8 @@ class MailJob {
     public function _get_invoices($mathes)
     {
         $this->_isInvoice = false;
+        $this->errorMsg = '';
+
         $isPdf = (bool)$mathes[1];
 
         $dateStart = (new DateTimeImmutable($mathes[3].'-01'));
@@ -288,6 +296,9 @@ class MailJob {
 
 
         $msg = '';
+        $this->files = [];
+        $count = 0;
+
         /** @var \app\models\Bill $bill */
         foreach ($billQuery->each() as $bill) {
             $invoices = $bill->invoices;
@@ -309,23 +320,27 @@ class MailJob {
             }
 
             if (isset($_GET) && isset($_GET['action']) && $_GET['action'] == 'preview') {
-
-                $msg .= "******************\nК документы будут прикреплены документы: ";
-                $b_sf[1] && $invoice1 && $msg .= "\n" . Yii::t('biller', 'invoice', [], $this->lang) . " " . $invoice1->number . ": " . $this->get_object_link('invoice', $invoice1->bill_no, 1, $isPdf);
-                $b_sf[2] && $invoice2 && $msg .= "\n" . Yii::t('biller', 'invoice', [], $this->lang) . " " . $invoice2->number . ": " . $this->get_object_link('invoice', $invoice2->bill_no, 2, $isPdf);
-                $b_akt[1] && $invoice1 && $msg .= "\n" . Yii::t('biller', 'act', [], $this->lang) . " " . $invoice1->number . ": " . $this->get_object_link('akt', $invoice1->bill_no, 1, $isPdf);
-                $b_akt[2] && $invoice2 && $msg .= "\n" . Yii::t('biller', 'act', [], $this->lang) . " " . $invoice2->number . ": " . $this->get_object_link('akt', $invoice2->bill_no, 2, $isPdf);
-                $b_upd[1] && $invoice1 && $msg .= "\n" . Yii::t('biller', 'upd', [], $this->lang) . " " . $invoice1->number . ": " . $this->get_object_link('upd', $invoice1->bill_no, 1, $isPdf);
-                $b_upd[2] && $invoice2 && $msg .= "\n" . Yii::t('biller', 'upd', [], $this->lang) . " " . $invoice2->number . ": " . $this->get_object_link('upd', $invoice2->bill_no, 2, $isPdf);
+                $msg .= "******************\nБудут прикреплены следующие документы: ";
+                $b_sf[1] && $invoice1 && $msg .= $this->_getMsgline($invoice1, 'invoice', 1, $isPdf);
+                $b_sf[2] && $invoice2 && $msg .= $this->_getMsgline($invoice2, 'invoice', 2, $isPdf);
+                $b_akt[1] && $invoice1 && $msg .= $this->_getMsgline($invoice1, 'act', 1, $isPdf);
+                $b_akt[2] && $invoice2 && $msg .= $this->_getMsgline($invoice2, 'act', 2, $isPdf);
+                $b_upd[1] && $invoice1 && $msg .= $this->_getMsgline($invoice1, 'upd', 1, $isPdf);
+                $b_upd[2] && $invoice2 && $msg .= $this->_getMsgline($invoice2, 'upd', 2, $isPdf);
                 $msg .= "\n******************\n";
             }
 
-            $this->files = [];
+            $b_sf[1] && $invoice1 && ++$count && $this->_get_file_by_invoice($invoice1, 'invoice') && $this->_isInvoice = true;
+            $b_sf[2] && $invoice2 && ++$count && $this->_get_file_by_invoice($invoice2, 'invoice') && $this->_isInvoice = true;
+            $b_akt[1] && $invoice1 && ++$count && $this->_get_file_by_invoice($invoice1, 'act') && $this->_isInvoice = true;
+            $b_akt[2] && $invoice2 && ++$count && $this->_get_file_by_invoice($invoice2, 'act') && $this->_isInvoice = true;
+        }
 
-            $b_sf[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'invoice') && $this->_isInvoice = true;
-            $b_sf[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'invoice') && $this->_isInvoice = true;
-            $b_akt[1] && $invoice1 && $this->_get_file_by_invoice($invoice1, 'act') && $this->_isInvoice = true;
-            $b_akt[2] && $invoice2 && $this->_get_file_by_invoice($invoice2, 'act') && $this->_isInvoice = true;
+        if (!$this->_isInvoice) {
+            $this->errorMsg = 'Нет документов для отправки';
+        } elseif ($count != count($this->files)) {
+            $this->errorMsg = sprintf('Не все документы сформированы (%s/%s)', count($this->files), $count);
+            $this->_isInvoice = false;
         }
 
         $msg && $this->_isInvoice = true;
@@ -333,10 +348,24 @@ class MailJob {
         return $msg;
 	}
 
+    /**
+     * @param \app\models\Invoice $invoice
+     * @param string $type
+     * @param integer $typeId
+     * @param boolean $isPdf
+     * @return string
+     */
+    private function _getMsgline($invoice, $type, $typeId, $isPdf)
+    {
+        return "\n" . Yii::t('biller', $type, [], $this->lang) . " " . $invoice->number . ": " . $this->get_object_link($type, $invoice->bill_no, $typeId, $isPdf) .
+            ($this->_get_file_by_invoice($invoice, $type) ? ' - OK' : ' - нет печатной версии документа');
+	}
+
+
     public function _get_file_by_invoice($invoice, $document)
     {
         if (!$invoice) {
-            return;
+            return false;
         }
 
         $path = $invoice->getFilePath($document);
@@ -435,7 +464,7 @@ class MailJob {
         $r = ['job_id' => $this->data['job_id'], 'client' => $this->client['client']];
 
         if ($this->isRejectedByInvoice()) {
-            $ret = $r['send_message'] = 'Нет документов для отправки';
+            $ret = $r['send_message'] = $this->errorMsg;
             $r['letter_state'] = 'error';
         } elseif (!(@$Mail->Send())) {
             $ret = $r['send_message'] = $Mail->ErrorInfo;

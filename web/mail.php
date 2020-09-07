@@ -66,10 +66,11 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
             /** @var Bill $bill */
             $bill = Bill::find()->where(['bill_no' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
 
-            if ($bill->clientAccount->organization->country_id != \app\models\Country::RUSSIA) {
+//            if ($bill->clientAccount->organization->country_id != \app\models\Country::RUSSIA) {
                 /** @var \app\models\Invoice $invoice */
                 $invoice = \app\models\Invoice::find()->where(['bill_no' => $bill->bill_no, 'type_id' => $R['source']])->one();
-                $path = $invoice->getFilePath('invoice');
+                $documentStr = $bill->clientAccount->organization->country_id != \app\models\Country::RUSSIA ? 'invoice' : ($invoice->is_act ? 'act' : 'invoice');
+                $path = $invoice->getFilePath($documentStr);
 
                 $info = pathinfo($path);
                 header('Content-Type: application/pdf');
@@ -77,14 +78,20 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
 
                 if (file_exists($path)) {
                     echo file_get_contents($path);
+                } else {
+                    if ($invoice->generatePdfFile($documentStr)) {
+                        if (file_exists($path)) {
+                            echo file_get_contents($path);
+                        }
+                    }
                 }
                 exit();
-            } else {
-                $design->assign('emailed', 1);
-                $_GET = $R;
-                \app\classes\StatModule::newaccounts()->newaccounts_bill_print('', ['is_pdf' => $o['is_pdf']]);
-                $design->Process();
-            }
+//            } else {
+//                $design->assign('emailed', 1);
+//                $_GET = $R;
+//                \app\classes\StatModule::newaccounts()->newaccounts_bill_print('', ['is_pdf' => $o['is_pdf']]);
+//                $design->Process();
+//            }
         }
     }
 }
