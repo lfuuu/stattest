@@ -30,6 +30,7 @@ use yii\web\NotFoundHttpException;
  */
 class PortedHungaryController extends PortedController
 {
+    /*
     private array $_operators = [
         '602' => 'GREENCOM (602)',
         '605' => 'H1 KOMM (605)',
@@ -337,8 +338,9 @@ class PortedHungaryController extends PortedController
         '988' => 'ALL INFO EUROPA (988)',
         '992' => 'EURO21 (992)',
     ];
+    */
 
-    /*
+    /**/
     private $_operators = [
         841 => 'ACE TELECOM Telekommunikációs és Informatikai Szolgáltató Kft. ',
         702 => 'ACN Communications Hungary Kft. ',
@@ -632,14 +634,14 @@ class PortedHungaryController extends PortedController
         905 => '4VOICE Távközlési Kft. ',
         791 => '42NETMedia Szolgáltató Kft. ',
 
-        615 => 'id615',
-        616 => 'id616',
-        617 => 'id617',
-        618 => 'id618',
-        621 => 'id621',
-        622 => 'id622',
+        615 => 'DIALOGA SERVICIOS INTERACTIVOS, S.A.',
+        616 => 'Medveczky Cégcsoport Kft.',
+        617 => 'Netfone Telecom Távközlési és Szolgáltató Kft.',
+        618 => 'Kis Fal Kft.',
+        621 => 'United Telecom Zrt.',
+        622 => 'Copy-Data Kereskedelmi és Szolgáltató Kft.',
     ];
-*/
+/**/
     /**
      * @inheritdoc
      * @throws \yii\base\InvalidParamException
