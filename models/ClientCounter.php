@@ -105,13 +105,20 @@ class ClientCounter extends ActiveRecord
         $cKey = 'rtb' . $this->client_id;
         $cache = \Yii::$app->cache;
 
+        $rtBalanceCached = null;
+        if ($cache->exists($cKey)) {
+            $rtBalanceCached = $cache->get($cKey);
+        }
+
         // сохраняем последний правильный баланс
         if ($this->isLocal) {
-            if ($cache->exists($cKey)) {
-                $rtBalance = $cache->get('rtb' . $this->client_id);
+            if ($rtBalanceCached !== null) {
+                $rtBalance = $rtBalanceCached;
             }
         } else {
-            $cache->set($cKey, $rtBalance);
+            if ($rtBalanceCached === null || $rtBalanceCached != $rtBalance) {
+                $cache->set($cKey, $rtBalance);
+            }
         }
 
         Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный (выдаем: ' . $rtBalance . ')' : '') . ' ЛС# ' . $this->clientAccount->id . ' '
