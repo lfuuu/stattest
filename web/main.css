@@ -475,8 +475,22 @@ div.disallowed {
 	color: #c40000;
 }
 
-table.price .sum_column {
+table.price .sum_column_correct {
 	width: 100px;
+}
+
+table.price .sum_column {
+	width: 150px;
+	white-space: nowrap;
+}
+
+table.price .bill_no_column {
+	width: 120px;
+	white-space: nowrap;
+}
+table.price .bill_date_column {
+	width: 80px;
+	white-space: nowrap;
 }
 
 table.price .payment_info_column {

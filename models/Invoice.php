@@ -391,7 +391,7 @@ class Invoice extends ActiveRecord
      * @return array|bool
      * @throws \yii\base\Exception
      */
-    public function getInfoByType(Bill $bill, $typeId)
+    public static function getInfoByType(Bill $bill, $typeId)
     {
         $lines = $bill->getLinesByTypeId($typeId);
 

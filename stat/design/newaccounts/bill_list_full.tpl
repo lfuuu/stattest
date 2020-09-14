@@ -1,21 +1,45 @@
-<h2>
-    Бухгалтерия {$fixclient_data.id} &nbsp;&nbsp;&nbsp;
-    <span style="font-size: 10px;">
+<table border="0" width="100%">
+    <tr>
+        <td>
+            <h2>
+                Бухгалтерия {$fixclient_data.id} &nbsp;&nbsp;&nbsp;
+                <span style="font-size: 10px;">
         (
             <a href="?module=newaccounts&simple=1">попроще</a>
-            {if $fixclient_data.id_all4net} | <a href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}
-            {if $fixclient_data.type == 'multi'}
-                |
-                <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">
+            {if $fixclient_data.id_all4net} | <a
+                    href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}
+                    {if $fixclient_data.type == 'multi'}
+                        |
+                        <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">
                     {if $view_canceled}Скрыть{else}Показать{/if} отказные счета
                 </a>
-            {/if}
+                    {/if}
         )
     </span>
-</h2>
+            </h2>
 
-<a href="{$LINK_START}module=newaccounts&action=bill_create">Создать счёт</a> /
-<a href="{$LINK_START}module=newaccounts&action=bill_balance">Обновить баланс</a><br /><br />
+            <a href="{$LINK_START}module=newaccounts&action=bill_create">Создать счёт</a> /
+            <a href="{$LINK_START}module=newaccounts&action=bill_balance">Обновить баланс</a><br/><br/>
+        </td>
+        <td style="text-align: right">
+            {if $bill_list_filter_income}
+                <div class="btn-group btn-group-sm">
+                    <a href="./?module=newaccounts&action=bill_list_filter&value=full"
+                       class="btn btn-sm btn-{if $bill_list_filter_income == 'full'}primary{else}info{/if}">Полный
+                        баланс</a>&nbsp;
+                    <a href="./?module=newaccounts&action=bill_list_filter&value=income"
+                       class="btn btn-sm btn-{if $bill_list_filter_income == 'income'}warning{else}info{/if}">Только
+                        доходный</a>&nbsp;
+                    <a href="./?module=newaccounts&action=bill_list_filter&value=expense"
+                       class="btn btn-sm btn-{if $bill_list_filter_income == 'expense'}warning{else}info{/if}">Только
+                        расходный</a>
+                </div>
+            {else}
+                &nbsp;
+            {/if}
+        </td>
+    </tr>
+</table>
 
 <span title="Клиент должен нам">Входящее сальдо</span>:
 <form style="display: inline;" action="?" method="POST" onSubmit="return optools.bills.checkSubmitSetSaldo();">
@@ -51,28 +75,38 @@
     <tr>
         <td valign="top" width="50%">
             <table width="100%" border="0">
+                <tr>
+                    <td></td>
+                    <td align="right" style="padding-right: 20px;">{if $bill_list_filter_income}Счет{/if}</td>
+                    <td align="right" style="padding-right: 20px; width: 100px;">{if $bill_list_filter_income}С/ф{/if}</td>
+                    <td></td>
+                    <td align="right"></td>
+                </tr>
                 <tr style="background-color: #eaeaea;">
                     <td>Всего залогов:</td>
-                    <td align="right"> <b>{$sum_l.zalog.RUB|money:'RUB'}</b> </td>
+                    <td align="right"> <b>{$sum_l.zalog.RUB|money:$currency}</b> </td>
+                    <td></td>
                     <td></td>
                     <td align="right"> <b>{$sum_l.zalog.USD|money:'USD'}</b> </td>
                 </tr>
                 <tr>
                     <td>Всего платежей:</td>
-                    <td align="right"> <b>{$sum_l.payments|default:'0.00'|money:'RUB'}</b></td>
+                    <td align="right"> <b>{$sum_l.payments|default:'0.00'|money:$currency}</b></td>
+                    <td align="right">{if $bill_list_filter_income} <b>{$sum_l.payments|default:'0.00'|money:$currency}</b>{/if}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr style="background-color: #eaeaea;">
                     <td>Общая сумма оказанных услуг:</td>
-                    <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum.RUB.bill|money:'RUB'}{else}{$sum_cur.bill|money:'RUB'}{/if}</b></td>
+                    <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum.RUB.bill|money:'RUB'}{else}{$sum_cur.bill|money:$currency}{/if}</b></td>
+                    <td align="right">{if $bill_list_filter_income}<b>{$sum_cur.invoice|money:$currency}</b>{/if}</td>
                     <td></td>
                     <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|money:'USD'}{else}{$sum.USD.bill|money:'USD'}{/if}</b></td>
                 </tr>
                 {if $fixclient_data.status == 'distr' or $fixclient_data.status == 'operator'}
                     <tr>
                         <td>По счетам:</td>
-                        <td align="right" colspan="3"> <b>+{$bill_total_add.p} / {$bill_total_add.n} = {$bill_total_add.t}</b>
+                        <td align="right" colspan="4"> <b>+{$bill_total_add.p} / {$bill_total_add.n} = {$bill_total_add.t}</b>
                     </tr>
                 {/if}
                 <tr  style="background-color: #eaeaea;">
@@ -80,11 +114,18 @@
                     <td align="right">
                         <b>
                             {if $fixclient_data.currency!='USD'}
-                                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:'RUB'}{else}{$sum_cur.delta|money:'RUB'}{/if}
+                                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:$currency}{else}{$sum_cur.delta|money:$currency}{/if}
                             {else}
-                                {if isset($sum.RUB.saldo)}{$sum.RUB.delta+$sum.RUB.saldo|money:'RUB'}{else}{$sum.RUB.delta|money:'RUB'}{/if}
+                                {if isset($sum.RUB.saldo)}{$sum.RUB.delta+$sum.RUB.saldo|money:$currency}{else}{$sum.RUB.delta|money:$currency}{/if}
                             {/if}
                         </b>
+                    </td>
+                    <td align="right">
+                        {if $bill_list_filter_income}
+                            <b>
+                                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:$currency}{else}{$sum_cur.invoice-$sum_l.payments|money:$currency}{/if}
+                            </b>
+                        {/if}
                     </td>
                     <td></td>
                     <td align="right">
@@ -110,7 +151,7 @@
                             Расход за день: <b>{$counters.amount_day_sum}</b><br/>
                             Расход за день МН: <b>{$counters.amount_mn_day_sum}</b><br/>
                             Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
-                            Текущий баланс: <b>{$realtime_balance} {$fixclient_data.currency}</b><br/>
+                            Текущий баланс: <b>{$realtime_balance|money:$currency}</b><br/>
                         </td>
                     </tr>
                 </table>
@@ -131,11 +172,12 @@
         <td class="header" valign="bottom" rowspan="2">Документы</td>
     </tr>
     <tr>
-        <td class="header" valign="bottom">Дата</td>
-        <td class="header" valign="bottom">Номер</td>
-        <td class="header" valign="bottom">Дата оплаты счета</td>
-        <td class="header sum_column" valign="bottom">Сумма</td>
-        <td class="header sum_column" valign="bottom">Исправленная сумма</td>
+        <td class="header bill_date_column" valign="bottom">Дата</td>
+        <td class="header bill_no_column" valign="bottom">Номер</td>
+        <td class="header bill_date_column" valign="bottom">Дата оплаты счета</td>
+        <td class="header " valign="bottom">Сумма</td>
+        <td class="header " valign="bottom"></td>
+        <td class="header sum_column_correct" valign="bottom">Исправленная сумма</td>
         <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
         {*<td class="header sum_column" valign="bottom">Тип операции</td>*}
         <td class="header sum_column" valign="bottom">Сумма</td>
@@ -159,12 +201,13 @@
                     <a href="{$LINK_START}module=newaccounts&action=bill_view&{if $op.bill.type == "income_order"}income_order_id={$op.bill.bill_id}{else}bill={$op.bill.bill_no}{/if}">{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br />({$op.bill.bill_no_ext}){/if}</a>
                 </td>
                 <td rowspan="{$rowspan}">{$op.bill.payment_date}</td>
-                <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
+                <td rowspan="{$rowspan}" align="right" nowrap>{$op.bill.sum|money:$op.bill.currency}</td>
+                <td rowspan="{$rowspan}" align="right" nowrap>{if $op.bill.invoice_sum != null} <span style="font-size: 8pt; color: {if $op.bill.sum == $op.bill.invoice_sum}#ccc{else}#c40000{/if};">({$op.bill.invoice_sum|money:$op.bill.currency})</span>{/if}</td>
                 <td rowspan="{$rowspan}" align="right">{if $op.bill.sum_correction}{$op.bill.sum_correction|money:$op.bill.currency}{/if}</td>
             {else}
                 <td colspan="3" rowspan="{$rowspan}">&nbsp;</td>
             {/if}
-            <td rowspan="{$rowspan}" align="right">
+            <td rowspan="{$rowspan}" align="right" nowrap>
                 {if $fixclient_data.currency == $op.bill.currency}
                     {objCurrency op=$op obj='delta' currency=$fixclient_data.currency}
                 {/if}
@@ -202,7 +245,7 @@
                         <td colspan="3">&nbsp;</td>
                     {/if}
                     {if $smarty.foreach.inner.iteration==1}
-                        <td rowspan="{$rowspan}" align="right">{objCurrency op=$op obj='delta2' currency=$fixclient_data.currency}</td>
+                        <td rowspan="{$rowspan}" align="right" nowrap>{objCurrency op=$op obj='delta2' currency=$fixclient_data.currency}</td>
                     {/if}
 
                     {if isset($op.bill.bill_no) && isset($pay.bill_no) && $pay.bill_no==$op.bill.bill_no}
@@ -211,7 +254,7 @@
                             <td style="font-size: 85%;{if $pay.p_bill_no!=$pay.bill_no}background: #e0e0ff;{/if}">&#8470;{$pay.payment_id}</td>
                         {else}
                             <td style="{if $pay.p_bill_no!=$pay.bill_no}background: #e0e0ff;{/if}">{objCurrency op=$op obj='pay2' pay=$pay currency=$fixclient_data.currency}</td>
-                            <td style="font-size: 85%;{if $pay.p_bill_no!=$pay.bill_no}background: #e0e0ff;{/if}">
+                            <td style="font-size: 85%;{if $pay.p_bill_no!=$pay.bill_no}background: #e0e0ff;{/if}">{if false}
                                 {$pay.payment_date} - &#8470;{$pay.payment_no} /
                                 {if $pay.type=='bank'}b({$pay.bank})
                                 {elseif $pay.type=='prov'}p
@@ -220,6 +263,7 @@
                                 {elseif $pay.type=='yandex'}y
                                 {else}{$pay.type}{/if}
                                 {if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}
+                                {/if}
                             </td>
                         {/if}
                     {else}
@@ -254,16 +298,14 @@
                     {if $pay.comment}
                         </tr>
                         <tr class="{$class}">
-                            <td colspan="4" class="comment">{$pay.comment|escape:"html"}</td>
+                            <td colspan="6" class="comment">{$pay.comment|escape:"html"}</td>
                             <td colspan="2">&nbsp;</td>
                     {/if}
                 {/foreach}
                 {if $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="4" class="comment">{$op.bill.comment|strip_tags}</td>
-                        <td colspan="5">&nbsp;</td>
-                        <td colspan="2">&nbsp;</td>
+                        <td colspan="16" class="comment">{$op.bill.comment|strip_tags}</td>
                 {/if}
             {else}
                 <td colspan="8" rowspan="1">&nbsp;</td>
@@ -278,7 +320,7 @@
                 {if isset($op.bill.comment) && $op.bill.comment}
                     </tr>
                     <tr class="{$class}">
-                        <td colspan="7" class="comment">{$op.bill.comment|strip_tags} {if $op.bill.file_name}&nbsp;<a href="/?module=newaccounts&action=bill_ext_file_get&bill_no={$op.bill.bill_no|escape:"url"}" class="btn btn-warning btn-sm" style="padding: 0 3px;"><span class="glyphicon glyphicon-upload"></span> {$op.bill.file_name}</a>{/if}</td>
+                        <td colspan="16" class="comment">{$op.bill.comment|strip_tags} {if $op.bill.file_name}&nbsp;<a href="/?module=newaccounts&action=bill_ext_file_get&bill_no={$op.bill.bill_no|escape:"url"}" class="btn btn-warning btn-sm" style="padding: 0 3px;"><span class="glyphicon glyphicon-upload"></span> {$op.bill.file_name}</a>{/if}</td>
                 {/if}
             {/if}
         </tr>

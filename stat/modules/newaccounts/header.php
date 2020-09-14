@@ -63,6 +63,7 @@ class m_newaccounts_head extends IModuleHead{
 					'doc_file'			=> array('newaccounts_bills','read'),
 	                'doc_file_delete'	=> array('newaccounts_bills','del_docs'),
 	                'show_income_goods'	=> array('newaccounts_bills','read'),
+	                'bill_list_filter'	=> array('newaccounts_bills','read'),
 	                'ext_bills'	        => array('newaccounts_bills','read'),
 		            'ext_bills_ifns'    => array('newaccounts_bills','read'),
 		            'bill_ext_file_get' => array('newaccounts_bills','read'),

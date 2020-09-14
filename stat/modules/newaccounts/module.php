@@ -329,6 +329,20 @@ class m_newaccounts extends IModule
         exit();
     }
 
+    function newaccounts_bill_list_filter()
+    {
+        $value = get_param_raw('value', 'full');
+
+        if (!in_array($value, ['full','income', 'expense'])) {
+            $value = 'full';
+        }
+
+        $_SESSION['bill_list_filter_income'] = $value;
+
+        header("Location: ./?module=newaccounts&action=bill_list");
+        exit();
+    }
+
     function newaccounts_bill_list_full($get_sum = false)
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
@@ -402,6 +416,14 @@ class m_newaccounts extends IModule
         $get_income_goods_on_bill_list = get_param_integer('get_income_goods_on_bill_list', false);
         $design->assign('get_income_goods_on_bill_list', $get_income_goods_on_bill_list);
 
+        $billListFilter = get_param_raw('bill_list_filter_income', null);
+        if ($billListFilter && $clientAccount->contract->financial_type != ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE) {
+            $billListFilter = null;
+        }
+        $design->assign('bill_list_filter_income', $billListFilter);
+
+        $design->assign('currency', $clientAccount->currency);
+
         $R1 = $db->AllRecords($q = '
                 SELECT * FROM (
             SELECT
@@ -417,7 +439,11 @@ class m_newaccounts extends IModule
             ) . ' AS in_sum, 
                 sum_correction,
                 P.operation_type_id,
-                bf.name as file_name
+                bf.name as file_name,
+                ' . ($billListFilter ? 'ifnull(
+                    (SELECT sum(sum) FROM invoice i WHERE i.bill_no = P.bill_no GROUP BY P.bill_no),
+                    (SELECT -sum(ext_sum_without_vat) FROM `newbills_external` e where e.bill_no = P.bill_no GROUP BY P.bill_no)
+                )' : 'P.sum') . ' AS invoice_sum
             FROM
                 newbills P
                 LEFT JOIN newbills_external USING (bill_no)
@@ -427,6 +453,7 @@ class m_newaccounts extends IModule
             WHERE
                 client_id=' . $fixclient_data['id'] . '
                 ' . ($isMulty && !$isViewCanceled ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
+                ' . ($billListFilter && $billListFilter != 'full' ? 'AND ' . ($billListFilter == 'income' ? 'P.sum > 0' : 'P.sum < 0') : '') . '
                 ) bills  ' .
             (($get_income_goods_on_bill_list) ? 'union
                 (
@@ -568,11 +595,11 @@ class m_newaccounts extends IModule
             $R1[$k]['v'] = $v;
         }
 
-
         foreach ($R1 as $r) {
             $v = $r['v'];
             if ($r['in_sum']) {
                 $sum[$r['currency']]['bill'] += $r['sum'];
+                $sum[$r['currency']]['invoice'] += $r['invoice_sum'];
                 $sum[$r['currency']]['delta'] -= $v['delta'];
             }
             $result[$r['bill_no'] . '-' . $r['bill_date']] = $v;
