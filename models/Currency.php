@@ -27,8 +27,8 @@ class Currency extends ActiveRecord
     private static $_symbols = [
         self::RUB => 'руб.',
         self::USD => '$',
-        self::HUF => 'HUF',
-        self::EUR => 'EUR',
+        self::HUF => 'Ft',
+        self::EUR => '€',
     ];
 
     private static $_currencyByCountry = [
