@@ -417,10 +417,19 @@ class m_newaccounts extends IModule
         $design->assign('get_income_goods_on_bill_list', $get_income_goods_on_bill_list);
 
         $billListFilter = get_param_raw('bill_list_filter_income', null);
-        if ($billListFilter && $clientAccount->contract->financial_type != ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE) {
+
+        $isIncomeExpense = $clientAccount->contract->financial_type == ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE;
+
+        if ($billListFilter && !$isIncomeExpense) {
             $billListFilter = null;
         }
+
+        if (!$billListFilter && $isIncomeExpense) {
+            $billListFilter = 'full';
+        }
+
         $design->assign('bill_list_filter_income', $billListFilter);
+        $design->assign('is_bill_list_filter', $isIncomeExpense);
 
         $design->assign('currency', $clientAccount->currency);
 
@@ -440,7 +449,7 @@ class m_newaccounts extends IModule
                 sum_correction,
                 P.operation_type_id,
                 bf.name as file_name,
-                ' . ($billListFilter ? 'ifnull(
+                ' . ($isIncomeExpense && $billListFilter ? 'ifnull(
                     (SELECT sum(sum) FROM invoice i WHERE i.bill_no = P.bill_no GROUP BY P.bill_no),
                     (SELECT -sum(ext_sum_without_vat) FROM `newbills_external` e where e.bill_no = P.bill_no GROUP BY P.bill_no)
                 )' : 'P.sum') . ' AS invoice_sum

@@ -22,7 +22,7 @@
             <a href="{$LINK_START}module=newaccounts&action=bill_balance">Обновить баланс</a><br/><br/>
         </td>
         <td style="text-align: right">
-            {if $bill_list_filter_income}
+            {if $is_bill_list_filter}
                 <div class="btn-group btn-group-sm">
                     <a href="./?module=newaccounts&action=bill_list_filter&value=full"
                        class="btn btn-sm btn-{if $bill_list_filter_income == 'full'}primary{else}info{/if}">Полный
@@ -164,8 +164,8 @@
 
 <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
     <tr>
-        <td class="header" valign="bottom" colspan="5"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
-        <td class="header" valign="bottom">&nbsp;</td>
+        <td class="header" valign="bottom" colspan="4"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
+        <td class="header" valign="bottom" colspan="2">Сумма</td>
         <td class="header" valign="bottom" colspan="3"><b>Платёж</b></td>
         <td class="header" valign="bottom" colspan="3"><b>Разбивка оплаты</b></td>
         <td class="header" valign="bottom" rowspan="2">Привязка</td>
@@ -175,8 +175,8 @@
         <td class="header bill_date_column" valign="bottom">Дата</td>
         <td class="header bill_no_column" valign="bottom">Номер</td>
         <td class="header bill_date_column" valign="bottom">Дата оплаты счета</td>
-        <td class="header " valign="bottom">Сумма</td>
-        <td class="header " valign="bottom"></td>
+        <td class="header " valign="bottom">Счет</td>
+        <td class="header " valign="bottom">с/ф</td>
         <td class="header sum_column_correct" valign="bottom">Исправленная сумма</td>
         <td class="header" valign="bottom" title="положительные числа - мы должны клиенту, отрицательные - клиент нам">разница</td>
         {*<td class="header sum_column" valign="bottom">Тип операции</td>*}
