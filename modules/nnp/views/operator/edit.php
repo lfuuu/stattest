@@ -90,6 +90,11 @@ if (!$operator->isNewRecord) {
                 'data' => ['' => '- Все -'] + Operator::$groups,
             ]) ?>
         </div>
+
+        <?php // partner code ?>
+        <div class="col-sm-2">
+            <?= $form->field($operator, 'partner_code')->textInput() ?>
+        </div>
     </div>
 
     <?php // кнопки ?>

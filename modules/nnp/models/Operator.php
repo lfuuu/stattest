@@ -81,6 +81,7 @@ class Operator extends ActiveRecord
             'country_code' => 'Страна',
             'cnt' => 'Кол-во номеров',
             'group' => 'Группа оператора',
+            'partner_code' => 'Код партнера',
         ];
     }
 
@@ -100,7 +101,7 @@ class Operator extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'name_translit'], 'string'],
+            [['name', 'name_translit', 'partner_code'], 'string'],
             [['country_code', 'group'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
