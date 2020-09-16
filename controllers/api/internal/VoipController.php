@@ -69,6 +69,7 @@ class VoipController extends ApiInternalController
      *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
      *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
+     *   @SWG\Parameter(name="is_with_nnp_info",type="string",description="Добавить ННП информацию",in="formData",default="0"),
      *   @SWG\Response(
      *     response=200,
      *     description="данные о клиентах партнёра",
@@ -99,7 +100,7 @@ class VoipController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info', 'is_in_utc', 'is_with_general_info'], 'integer'],
+                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info', 'is_in_utc', 'is_with_general_info', 'is_with_nnp_info'], 'integer'],
                 ['number', 'trim'],
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
@@ -237,7 +238,7 @@ class VoipController extends ApiInternalController
         $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
 
         if (!$url) {
-            throw new InvalidConfigException();
+            throw new InvalidConfigException('nnpInfoServiceURL not set');
         }
 
 
