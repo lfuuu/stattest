@@ -3,8 +3,10 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\Assert;
 use app\dao\ClientSuperDao;
 use app\exceptions\api\internal\PartnerNotFoundException;
+use app\exceptions\ModelValidationException;
 use app\exceptions\web\BadRequestHttpException;
 use app\forms\client\ClientCreateExternalForm;
 use app\helpers\DateTimeZoneHelper;
@@ -16,6 +18,7 @@ use app\models\ClientContragent;
 use app\models\ClientSuper;
 use app\models\Business;
 use app\models\BusinessProcess;
+use app\models\EntryPoint;
 use Exception;
 use Yii;
 
@@ -626,5 +629,113 @@ class ClientController extends ApiInternalController
             ])
             ->asArray()
             ->all();
+    }
+
+    /**
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/form-ported-number/", summary="Форма с сайта: портированный номер", operationId="Форма с сайта: портированный номер",
+     *   @SWG\Parameter(name="name", type="string", description="ФИО клиента", in="formData", default="Иванов Иван Иванович"),
+     *   @SWG\Parameter(name="doc_args", type="string", description="Реквизиты паспорта (серия и номер)", in="formData", default=""),
+     *   @SWG\Parameter(name="doc_issue", type="integer", description="Кем выдан паспорт", in="formData", default=""),
+     *   @SWG\Parameter(name="doc_issue_date", type="string", description="Когда выдан паспорт", in="formData", default=""),
+     *   @SWG\Parameter(name="birth", type="string", description="Дата рождения", in="formData", default=""),
+     *   @SWG\Parameter(name="address", type="string", description="Адрес регистрации", in="formData", default=""),
+     *   @SWG\Parameter(name="email", type="string", description="Email", in="formData", default="", required=true),
+     *   @SWG\Parameter(name="phone", type="string", description="Контактный номер", in="formData", default=""),
+     *   @SWG\Parameter(name="phone_port", type="string", description="Номера телефонов для портирования", in="formData", default=""),
+     *   @SWG\Parameter(name="__client_account_id", type="integer", description="ЛС, не заполняется!", in="formData", default=""),
+     *
+     *   @SWG\Response(response=200, description="данные о созданном клиенте",
+     *     @SWG\Schema(type="object", required={"id","name","contragents"},
+     *       @SWG\Property(property="account_id", type="integer", description="Идентификатор ЛС-клиента"),
+     *       @SWG\Property(property="is_created", type="boolean", description="Создан ли клиент")
+     *     )
+     *   ),
+     *   @SWG\Response(response="default", description="Ошибки",
+     *     @SWG\Schema(ref="#/definitions/error_result")
+     *   )
+     * )
+     */
+
+    /**
+     * name ФИО
+     * doc_args Реквизиты паспорта (серия и номер)
+     * doc_issue Кем выдан паспорт
+     * doc_issue_date Когда выдан паспорт
+     * birth Дата рождения
+     * address Адрес регистрации
+     * email E-mail
+     * phone Контактный номер
+     * phone_port Номера телефонов для портирования
+     */
+    public function actionFormPortedNumber()
+    {
+        $params = [];
+
+        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', '__client_account_id'] as $value) {
+            $params[$value] = isset($this->requestData[$value]) ?
+                preg_replace('/\s{2,}/',' ', htmlspecialchars(trim(strip_tags($this->requestData[$value])), ENT_NOQUOTES | ENT_HTML401)) :
+                null;
+        }
+
+        $params['doc_args'] = preg_replace("/\D/", '', $params['doc_args']);
+        $isCreate = false;
+        $accountId = null;
+        if (!$params['__client_account_id']) {
+            $form = new ClientCreateExternalForm;
+            $form->setAttributes([
+                'entry_point_id' => EntryPoint::MNP_RU_DANYCOM,
+                'company' => $params['name'],
+                'address' => $params['address'],
+                'contact_phone' => $params['phone'],
+                'fio' => $params['name'],
+                'email' => $params['email'],
+                'comment' => 'Порировать номер: ' . $params['phone_port'],
+            ]);
+
+            if ($form->validate()) {
+                $isCreate = $form->create();
+                $accountId = $form->account_id;
+            } else {
+                $fields = array_keys($form->errors);
+                throw new Exception($form->errors[$fields[0]][0], 400);
+            }
+        } else {
+            $accountId = $params['__client_account_id'];
+        }
+
+        $account = ClientAccount::findOne(['id' => $accountId]);
+        Assert::isObject($account, 'Account not found');
+
+        $contragent = $account->contragent;
+        $contragent->legal_type = ClientContragent::PERSON_TYPE;
+        $contragent->name = $account->contragent->name_full = $params['name'];
+        if (!$contragent->save()) {
+            throw new ModelValidationException($contragent);
+        }
+
+        $person = $account->contragent->person;
+
+        $person->registration_address = $params['address'];
+        $person->birthday = $params['birth'];
+        $person->passport_serial = substr($params['doc_args'], 0, 4);
+        $person->passport_number = substr($params['doc_args'], 4);;
+        $person->passport_issued = $params['doc_issue'];
+        $person->passport_date_issued = $params['doc_issue_date'];
+        $fio = explode(' ', $params['name']);
+
+        if ($fio) {
+            isset($fio) && isset($fio[0]) && $person->last_name = $fio[0];
+            isset($fio) && isset($fio[1]) && $person->first_name = $fio[1];
+            isset($fio) && isset($fio[2]) && $person->middle_name = $fio[2];
+        }
+
+        if (!$person->save()) {
+            throw new ModelValidationException($person);
+        }
+
+        return [
+            'client_id' => $accountId,
+            'is_created' => $isCreate,
+        ];
     }
 }
