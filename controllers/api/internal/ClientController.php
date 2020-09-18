@@ -671,10 +671,20 @@ class ClientController extends ApiInternalController
     {
         $params = [];
 
+        $data = $this->requestData;;
+
         foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', '__client_account_id'] as $value) {
-            $params[$value] = isset($this->requestData[$value]) ?
-                preg_replace('/\s{2,}/',' ', htmlspecialchars(trim(strip_tags($this->requestData[$value])), ENT_NOQUOTES | ENT_HTML401)) :
-                null;
+            if (isset($data[$value])) {
+                $params[$value] = preg_replace('/\s+/',' ', htmlspecialchars(trim(strip_tags($data[$value])), ENT_NOQUOTES | ENT_HTML401));
+                unset($data[$value]);
+            } else {
+                $params[$value] = null;
+            }
+        }
+
+        $comment = '';
+        foreach($data as $k => $v) {
+            $comment .= "\n" . $k.': ' . $v;
         }
 
         $params['doc_args'] = preg_replace("/\D/", '', $params['doc_args']);
@@ -689,7 +699,7 @@ class ClientController extends ApiInternalController
                 'contact_phone' => $params['phone'],
                 'fio' => $params['name'],
                 'email' => $params['email'],
-                'comment' => 'Порировать номер: ' . $params['phone_port'],
+                'comment' => 'Порировать номер: ' . $params['phone_port'] . $comment,
             ]);
 
             if ($form->validate()) {
