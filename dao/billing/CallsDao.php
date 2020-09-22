@@ -109,9 +109,8 @@ class CallsDao extends Singleton
 
         $usageIds = UsageVoip::dao()->getUsageIdByNumber($number, $clientAccount);
 
-        Assert::isTrue((bool)$usageIds, 'Number "' . $number . '" not found');
-
-        $query->andWhere(['number_service_id' => $usageIds]);
+//        Assert::isTrue((bool)$usageIds, 'Number "' . $number . '" not found');
+        $usageIds && $query->andWhere(['number_service_id' => $usageIds]);
 
         $query->andWhere(['>=', 'connect_time', $firstDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         $query->andWhere(['<', 'connect_time', $lastDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
