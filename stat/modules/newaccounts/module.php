@@ -487,7 +487,8 @@ class m_newaccounts extends IModule
 
                     null as sum_correction,
                     1 as operation_type_id,
-                    null as file_name
+                    null as file_name,
+                    0 AS invoice_sum
 
                     FROM `g_income_order` g
                         LEFT JOIN tt_troubles t ON (g.id = t.bill_id)

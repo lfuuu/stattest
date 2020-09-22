@@ -40,6 +40,7 @@ class BusinessProcessStatus extends ActiveRecord
     const TELEKOM_MAINTENANCE_DUPLICATE = 29; // Дубликат
     const TELEKOM_MAINTENANCE_WLINNONET = 152; // WL_Innonet
     const TELEKOM_MAINTENANCE_EXCEPTION_FROM_BOOK_OF_PROD = 157; // Исключения из Книги Прод.
+    const TELEKOM_MAINTENANCE_PORTING_REQUEST_ACCEPTED = 169; // Заявка на портирование принята
 
     // Статусы, в которых можно получать платежи с внешних систем
     const PAY_AVAILABLE_STATUSES_TELEKOM_MAINTENANCE = [

@@ -86,7 +86,11 @@ class ClientSuperDao extends Singleton
                     foreach ($accounts[$contract['id']] as $account) {
                         $resultAccount = [
                             'id' => $account['id'],
-                            'is_disabled' => $contract['business_process_status_id'] != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                            'is_disabled' => !in_array($contract['business_process_status_id'], [
+                                BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
+                                BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                                BusinessProcessStatus::TELEKOM_MAINTENANCE_PORTING_REQUEST_ACCEPTED
+                            ]),
                             'is_blocked' => (bool)$account['is_blocked'],
                             'is_finance_block' => null,
                             'is_overran_block' => null,
