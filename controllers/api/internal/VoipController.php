@@ -111,7 +111,7 @@ class VoipController extends ApiInternalController
                 ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['to_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['account_id', AccountIdValidator::class],
-                ['number', UsageVoipValidator::class, 'account_id_field' => 'account_id'],
+                ['number', UsageVoipValidator::class, 'account_id_field' => 'account_id', 'skipOnEmpty' => true],
             ]
         );
 
