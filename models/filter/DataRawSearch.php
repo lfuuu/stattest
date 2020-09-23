@@ -148,9 +148,10 @@ class DataRawSearch extends ActiveRecord
         }
 
         $queryClone = clone $query;
+        $queryClone->groupBy(null)->orderBy(null);
         $arr = $queryClone->select(['sum(cost) as all_cost', 'sum(quantity) as all_quantity'])->asArray()->one();
-        $this->allCost = $arr['all_cost'];
-        $this->allQuantity = $arr['all_quantity'];
+        $this->allCost = round($arr['all_cost'],2);
+        $this->allQuantity = round($arr['all_quantity'], 2);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query
