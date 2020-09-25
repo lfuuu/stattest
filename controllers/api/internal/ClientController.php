@@ -13,6 +13,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Locks;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientSuper;
@@ -20,6 +21,7 @@ use app\models\Business;
 use app\models\BusinessProcess;
 use app\models\EntryPoint;
 use Exception;
+use Psr\Log\InvalidArgumentException;
 use Yii;
 
 class ClientController extends ApiInternalController
@@ -675,7 +677,7 @@ class ClientController extends ApiInternalController
 
         foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', '__client_account_id'] as $value) {
             if (isset($data[$value])) {
-                $params[$value] = preg_replace('/\s+/',' ', htmlspecialchars(trim(strip_tags($data[$value])), ENT_NOQUOTES | ENT_HTML401));
+                $params[$value] = preg_replace('/\s+/', ' ', htmlspecialchars(trim(strip_tags($data[$value])), ENT_NOQUOTES | ENT_HTML401));
                 unset($data[$value]);
             } else {
                 $params[$value] = null;
@@ -683,8 +685,8 @@ class ClientController extends ApiInternalController
         }
 
         $comment = '';
-        foreach($data as $k => $v) {
-            $comment .= "\n" . $k.': ' . $v;
+        foreach ($data as $k => $v) {
+            $comment .= "\n" . $k . ': ' . $v;
         }
 
         $params['doc_args'] = preg_replace("/\D/", '', $params['doc_args']);
@@ -747,5 +749,152 @@ class ClientController extends ApiInternalController
             'client_id' => $accountId,
             'is_created' => $isCreate,
         ];
+    }
+
+
+    /**
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/form-gosuslugi/", summary="Форма заполнения данных с ГосУслуг", operationId="Форма заполнения данных с ГосУслуг",
+     *   @SWG\Parameter(name="data",type="array",items="#/definitions/step1",description="информация по первому шагу",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="информация по визарду",
+     *     @SWG\Schema(
+     *       ref="#/definitions/wizard_data"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    public function actionFormGosuslugi()
+    {
+        $data = Yii::$app->request->bodyParams;
+
+        if (!$data) {
+            throw new InvalidArgumentException('Data not recognized');
+        }
+
+        isset($data['data']) && $data['data'] && $data = $data['data'];
+
+        if (!$data || !($data = json_decode($data, true))) {
+            throw new InvalidArgumentException('Data not recognized');
+        }
+
+/*
+        $data = [
+            'account_id' => 69911,
+            'email' => 'zzz@zzz.ru',
+            'emailVerified' => true,
+            'phone' => '+79252111111',
+            'phoneVerified' => false,
+            'name' => 'Тестеров Тест тестерович оглы первый',
+            'birthDate' => '09.11.1981',
+            'birthPlace' => 'Родился там-то',
+            'gender' => 'M',
+            'citizenship' => 'RUS',
+            'inn' => '470322313839',
+            'address' => [
+                'addressStr' => 'тут адрес',
+                'countryId' => 'RUS',
+                'house' => '123',
+                'zipCode' => '123123',
+                'city' => 'город',
+                'street' => 'улица',
+                'region' => 'регион'
+            ],
+            'identity' => [
+                'type' => 'RF_PASSPORT',
+                'series' => '1234',
+                'number' => '123456',
+                'issueDate' => '30.01.1972',
+                'issueId' => 'код подразделения',
+                'issuedBy' => 'тут кем выдан',
+                'vrfStu' => 'VERIFIED'
+            ],
+            'trusted' => true
+        ];
+*/
+
+        /** @var ClientAccount $account */
+        $account = null;
+        if (!isset($data['account_id']) || !$data['account_id'] || !($account = ClientAccount::findOne(['id' => $data['account_id']]))) {
+            throw new \InvalidArgumentException('account not found');
+        }
+
+        if ($account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) {
+            throw new \InvalidArgumentException('BPStatus check failed');
+        }
+
+        foreach ([ClientContact::TYPE_EMAIL, ClientContact::TYPE_PHONE] as $contactType) {
+            if (!$account->getContacts()->where([
+                'type' => $contactType,
+                'data' => $data[$contactType]
+            ])->exists()) {
+                $contact = new ClientContact(['client_id' => $account->id]);
+                $contact->addContact($contactType, $data[$contactType]);
+                $contact->is_official = 1;
+
+                if (!$contact->save()) {
+                    throw new ModelValidationException($contact);
+                }
+            }
+        }
+
+        $contragent = $account->contragent;
+        $contragent->comment = json_encode($data);
+        $contragent->inn = $data['inn'];
+        $contragent->legal_type = ClientContragent::PERSON_TYPE;
+
+        if (!$contragent->save()) {
+            throw new ModelValidationException($contragent);
+        }
+
+        $person = $contragent->person;
+
+        $fio = explode(' ', $data['name']);
+
+        if ($fio) {
+            $person->middle_name = '';
+
+            $count = 0;
+            while (count($fio)) {
+                $value = array_shift($fio);
+                switch ($count) {
+                    case 0:
+                        $person->last_name = $value;
+                        break;
+
+                    case 1:
+                        $person->first_name = $value;
+                        break;
+
+                    default:
+                        $person->middle_name .= ($person->middle_name ? ' ' : '') . $value;
+                }
+                $count++;
+            }
+        }
+
+        $person->birthday = \DateTimeImmutable::createFromFormat('d.m.Y', $data['birthDate'])->format(DateTimeZoneHelper::DATE_FORMAT);
+        $person->birthplace = $data['birthPlace'];
+
+        $person->registration_address = $data['address']['addressStr'];
+
+        $idt = $data['identity'];
+        $person->passport_serial = $idt['series'];
+        $person->passport_number = $idt['number'];
+        $person->passport_date_issued =  \DateTimeImmutable::createFromFormat('d.m.Y', $idt['issueDate'])->format(DateTimeZoneHelper::DATE_FORMAT);
+        $person->passport_issued = $idt['issuedBy'] . ' Код подразделения: ' . $idt['issueId'];
+
+        if (!$person->save()) {
+            throw new ModelValidationException($person);
+        }
+
+        return ['is_saved' => true];
     }
 }
