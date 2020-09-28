@@ -526,7 +526,10 @@ class Tele2Adapter extends Singleton
 
         if (
             $response['status'] != self::STATUS_OK
-            && strpos(json_encode($response['result']), 'IMSI ALREADY DEFINED') === false
+//            && (
+//                strpos(json_encode($response['result']), 'IMSI ALREADY DEFINED') === false
+//                || strpos(json_encode($response['result']), 'Subscriber want been found') === false
+//            )
         ) {
             echo 'Error. Неправильный статус.';
             $event && $event->status = EventQueue::STATUS_ERROR;
