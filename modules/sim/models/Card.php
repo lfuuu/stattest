@@ -64,7 +64,7 @@ class Card extends ActiveRecord
     {
         return [
             [['iccid'], 'required'],
-            [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id'], 'integer'],
+            [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id', 'entry_point_id'], 'integer'],
             ['client_account_id', 'exist', 'skipOnError' => true, 'targetClass' => ClientAccount::class, 'targetAttribute' => ['client_account_id' => 'id'], 'filter' => ['account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]],
         ];
     }
@@ -163,5 +163,10 @@ class Card extends ActiveRecord
         }
 
         return $value;
+    }
+
+    public function getEntry_point_id()
+    {
+        return $this->clientAccount->superClient->entry_point_id;
     }
 }

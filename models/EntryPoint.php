@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetListTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\dictionary\PublicSite;
+use http\Url;
 
 /**
  * @property int $id
@@ -220,5 +221,10 @@ class EntryPoint extends ActiveRecord
         }
 
         return $entryPoint;
+    }
+
+    public static function getUrlById($id)
+    {
+        return \yii\helpers\Url::toRoute(['/dictionary/entry-point/edit', 'id' => $id]);
     }
 }
