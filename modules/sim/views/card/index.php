@@ -157,7 +157,7 @@ $columns = [
     ],
 
     [
-        'label' => 'Profile name',
+        'label' => 'Профиль',
         'attribute' => 'profile_id',
         'format' => 'raw',
         'filterOptions' => ['style' => 'width: 150px'],
@@ -191,6 +191,11 @@ $columns = [
                 ($card->clientAccount ? $card->clientAccount->getLink() : $card->client_account_id) :
                 Yii::t('common', '(not set)');
         },
+    ],
+    [
+        'attribute' => 'entry_point_id',
+        'class' => \app\modules\sim\columns\EntryPointColumn::class,
+        'format' => 'html',
     ],
     [
         'class' => ActionColumn::class,

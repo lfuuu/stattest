@@ -8,6 +8,7 @@ use app\models\Number;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Imsi;
+use http\Client;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -26,6 +27,7 @@ class CardFilter extends Card
     public $did = '';
     public $imsi_partner = '';
     public $profile_id = '';
+    public $entry_point_id = '';
 
     /**
      * @return array
@@ -33,7 +35,7 @@ class CardFilter extends Card
     public function rules()
     {
         return [
-            [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id', 'profile_id'], 'integer'], // card
+            [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id', 'profile_id', 'entry_point_id'], 'integer'], // card
             [['imsi', 'msisdn', 'did', 'imsi_partner'], 'integer'], // imsi
         ];
     }
@@ -76,6 +78,14 @@ class CardFilter extends Card
         $this->did && $query->andWhere([$imsiTableName . '.did' => $this->did]);
         $this->imsi_partner && $query->andWhere([$imsiTableName . '.partner_id' => $this->imsi_partner]);
         $this->profile_id && $query->andWhere([$imsiTableName . '.profile_id' => $this->profile_id]);
+
+        if ($this->entry_point_id) {
+            $queryAccount = clone $query;
+            $accountIds = $queryAccount->select('client_account_id')->distinct()->column();
+
+            $accountIds = ClientAccount::find()->alias('c')->joinWith('superClient')->where(['c.id' => $accountIds, 'entry_point_id' => $this->entry_point_id])->column();
+            $query->andWhere([$cardTableName . '.client_account_id' => $accountIds]);
+        }
 
         return $dataProvider;
     }
