@@ -18,7 +18,7 @@ class VoipPackageCallsResourceReader extends PackageCallsResourceReader
             'calls_price.number_service_id' => $accountTariff->prev_account_tariff_id, // основная услуга
         ]);
 
-        $query->andWhere(['<', 'calls_price.cost', 0]);
+//        $query->andWhere(['<', 'calls_price.cost', 0]);
     }
 
     /**
