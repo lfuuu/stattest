@@ -12,6 +12,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
+use app\modules\sim\columns\EntryPointColumn;
 use app\modules\sim\columns\ImsiProfileColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -41,7 +42,7 @@ use yii\helpers\Url;
 <?php
 
 $form = ActiveForm::begin(['method' => 'post', 'id' => 'setStatusForm']);
-if (\Yii::$app->user->can('sim.write') || \Yii::$app->user->can('sim.link')) {
+if (Yii::$app->user->can('sim.write') || Yii::$app->user->can('sim.link')) {
     echo "<div>";
     echo "<div class=well style='width: 400px; float: left;'>";
     echo Html::tag('b', 'Изменить статус на') . '<br>';
@@ -193,8 +194,9 @@ $columns = [
         },
     ],
     [
+        'label' => 'Точка подклчюения',
         'attribute' => 'entry_point_id',
-        'class' => \app\modules\sim\columns\EntryPointColumn::class,
+        'class' => EntryPointColumn::class,
         'format' => 'html',
     ],
     [
