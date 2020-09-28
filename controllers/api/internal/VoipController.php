@@ -12,8 +12,10 @@ use app\models\billing\SmscRaw;
 use app\models\ClientAccount;
 use app\models\filter\SmsFilter;
 use app\models\Number;
+use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\uu\models\Tariff;
 use Yii;
 use DateTime;
 use app\exceptions\web\NotImplementedHttpException;
@@ -70,6 +72,7 @@ class VoipController extends ApiInternalController
      *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
      *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
      *   @SWG\Parameter(name="is_with_nnp_info",type="string",description="Добавить ННП информацию",in="formData",default="0"),
+     *   @SWG\Parameter(name="is_with_tariff_info",type="string",description="Добавить информацию о тарифе",in="formData",default="0"),
      *   @SWG\Response(
      *     response=200,
      *     description="данные о клиентах партнёра",
@@ -100,7 +103,7 @@ class VoipController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info', 'is_in_utc', 'is_with_general_info', 'is_with_nnp_info'], 'integer'],
+                [['account_id', 'offset', 'limit', 'year', 'month', 'day', 'is_with_nnp_info', 'is_in_utc', 'is_with_general_info', 'is_with_nnp_info', 'is_with_tariff_info'], 'integer'],
                 ['number', 'trim'],
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
@@ -108,6 +111,7 @@ class VoipController extends ApiInternalController
                 ['limit', 'default', 'value' => 1000],
                 ['is_in_utc', 'default', 'value' => 1],
                 ['is_with_general_info', 'default', 'value' => 0],
+                ['is_with_tariff_info', 'default', 'value' => 0],
                 ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['to_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['account_id', AccountIdValidator::class],
@@ -180,6 +184,11 @@ class VoipController extends ApiInternalController
             $lastDayOfDate
         );
 
+        if ($model->is_with_tariff_info) {
+            $query->leftJoin(['l' => AccountTariffLight::tableName()], 'l.id = cr.account_tariff_light_id');
+            $query->addSelect(['l.tariff_id']);
+        }
+
         $generalInfo = [];
 
         if ($model->is_with_general_info) {
@@ -206,6 +215,8 @@ class VoipController extends ApiInternalController
 
         $query->limit($limit);
 
+        static $cTariff = [];
+
         foreach ($query->each(100, CallsRaw::getDb()) as $call) {
             $call['cost'] = (double)$call['cost'];
             $call['rate'] = (double)$call['rate'];
@@ -213,6 +224,21 @@ class VoipController extends ApiInternalController
             if ($model->is_with_nnp_info) {
                 $call['nnp']['src'] = $this->_getNnpInfo($call['src_number']);
                 $call['nnp']['dst'] = $this->_getNnpInfo($call['dst_number']);
+            }
+
+            if ($model->is_with_tariff_info) {
+                $tariffName = null;
+                if ($call['tariff_id']) {
+                    if (isset($cTariff[$call['tariff_id']])) {
+                        $tariffName = $cTariff[$call['tariff_id']];
+                    } else {
+                        $tariffName = Tariff::find()->where(['id' => $call['tariff_id']])->select(['name'])->scalar();
+                        $cTariff[$call['tariff_id']] = $tariffName;
+                    }
+                }
+
+                $call['tariff_name'] = $tariffName;
+                unset($call['tariff_id']);
             }
 
             $result[] = $call;

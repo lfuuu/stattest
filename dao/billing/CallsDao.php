@@ -94,7 +94,7 @@ class CallsDao extends Singleton
         $query = new Query;
 
         $query->select([
-            'id',
+            'cr.id',
             'connect_time' => ($tzOffest != 0 ? new Expression("connect_time + '" . $tzOffest . " second'::interval") : 'connect_time'),
             'src_number',
             'dst_number',
@@ -103,9 +103,9 @@ class CallsDao extends Singleton
             'abs(cost) as cost',
             'rate',
         ]);
-        $query->from(CallsRaw::tableName());
+        $query->from(['cr' => CallsRaw::tableName()]);
 
-        $query->andWhere(['account_id' => $clientAccount->id]);
+        $query->andWhere(['cr.account_id' => $clientAccount->id]);
 
         $usageIds = UsageVoip::dao()->getUsageIdByNumber($number, $clientAccount);
 
