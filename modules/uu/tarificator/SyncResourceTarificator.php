@@ -99,7 +99,7 @@ class SyncResourceTarificator extends Tarificator
             'is_fmc_editable' => ($number ? $number->isFmcEditable() : null),
             'is_mobile_outbound_active' => ($number ? ($number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(ResourceModel::ID_VOIP_MOBILE_OUTBOUND))) : null),
             'is_mobile_outbound_editable' => ($number ? $number->isMobileOutboundEditable() : null),
-            'is_robocall_enabled' => $accountTariff->tariffPeriod->tariff->isAutodial() || $accountTariff->getResourceValue(ResourceModel::ID_VOIP_ROBOCALL),
+            'is_robocall_enabled' => ($accountTariff->tariff_period_id && $accountTariff->tariffPeriod->tariff->isAutodial()) || $accountTariff->getResourceValue(ResourceModel::ID_VOIP_ROBOCALL),
         ]);
     }
 }

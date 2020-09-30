@@ -484,7 +484,7 @@ class ActaulizerVoipNumbers extends Singleton
                 ->andWhere(['NOT', ['tariff_period_id' => null]])
                 ->one();
 
-            $isRobocallEnabled = $accountTariff && $accountTariff->tariffPeriod->tariff->isAutodial();
+            $isRobocallEnabled = $accountTariff && $accountTariff->tariff_period_id && $accountTariff->tariffPeriod->tariff->isAutodial();
 
             $this->_getPhoneApi()->editDid(
                 (int)$new['client_id'],
