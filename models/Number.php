@@ -453,7 +453,7 @@ class Number extends ActiveRecord
      */
     public function isFmcEditable()
     {
-        return $this->ndc_type_id == NdcType::ID_MOBILE && !$this->is_ported;
+        return $this->ndc_type_id == NdcType::ID_MOBILE /* && !$this->is_ported */;
     }
 
     /**
