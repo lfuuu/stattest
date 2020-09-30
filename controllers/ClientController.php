@@ -18,6 +18,7 @@ use app\models\ClientBlockedComment;
 use app\models\ClientContact;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
+use app\models\EntryPoint;
 use app\models\EventQueue;
 use app\models\Number;
 use app\models\Saldo;
@@ -213,6 +214,7 @@ class ClientController extends BaseController
                     'services' => $services,
                     'uuFilterModel' => $uuFilterModel,
                     'contacts' => $contacts,
+                    'isDanycom' => $client->entry_point_id == EntryPoint::ID_MNP_RU_DANYCOM,
                 ]
             );
     }

@@ -40,6 +40,8 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
     </div>
 </div>
 
+<?= ($isDanycom ? $this->render('block/danycom', ['account' => $account]) : '') ?>
+
 <?= $this->render('block/trouble', ['troubles' => $troubles, 'serverTroubles' => $serverTroubles]); ?>
 
 <?= $this->render('block/service', ['account' => $account, 'services' => $services]); ?>

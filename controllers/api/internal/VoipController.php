@@ -108,7 +108,7 @@ class VoipController extends ApiInternalController
                 ['year', 'default', 'value' => (new DateTime())->format('Y')],
                 ['month', 'default', 'value' => (new DateTime())->format('m')],
                 ['offset', 'default', 'value' => 0],
-                ['limit', 'default', 'value' => 1000],
+                ['limit', 'default', 'value' => 1000000],
                 ['is_in_utc', 'default', 'value' => 1],
                 ['is_with_general_info', 'default', 'value' => 0],
                 ['is_with_tariff_info', 'default', 'value' => 0],

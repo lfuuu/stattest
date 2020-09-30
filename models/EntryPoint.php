@@ -43,6 +43,7 @@ class EntryPoint extends ActiveRecord
 
     const RF_CRM = 'RF_CRM';
     const MNP_RU_DANYCOM = 'MNP_RU_DANYCOM';
+    const ID_MNP_RU_DANYCOM = 17;
 
     public function __construct(array $config = [])
     {
