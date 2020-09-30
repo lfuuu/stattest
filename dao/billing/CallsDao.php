@@ -23,7 +23,7 @@ use yii\helpers\ArrayHelper;
 class CallsDao extends Singleton
 {
 
-    const CALLS_MAX_LIMIT = 10000;
+    const CALLS_MAX_LIMIT = 1000000;
 
     public static function calcByDest(UsageVoip $usage, DateTime $from, DateTime $to)
     {

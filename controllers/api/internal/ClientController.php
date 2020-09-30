@@ -4,6 +4,7 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\Assert;
+use app\classes\HttpClient;
 use app\dao\ClientSuperDao;
 use app\exceptions\api\internal\PartnerNotFoundException;
 use app\exceptions\ModelValidationException;
@@ -19,10 +20,14 @@ use app\models\ClientContragent;
 use app\models\ClientSuper;
 use app\models\Business;
 use app\models\BusinessProcess;
+use app\models\danycom\Address;
+use app\models\danycom\Info;
+use app\models\danycom\Number;
 use app\models\EntryPoint;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
+use yii\base\InvalidConfigException;
 
 class ClientController extends ApiInternalController
 {
@@ -671,11 +676,17 @@ class ClientController extends ApiInternalController
      */
     public function actionFormPortedNumber()
     {
+        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
+
+        if (!$url) {
+            throw new InvalidConfigException('nnpInfoServiceURL not set');
+        }
+
         $params = [];
 
         $data = $this->requestData;;
 
-        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', '__client_account_id'] as $value) {
+        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', 'temp', 'tariff', 'delivery', 'delivery_address', '__client_account_id'] as $value) {
             if (isset($data[$value])) {
                 $params[$value] = preg_replace('/\s+/', ' ', htmlspecialchars(trim(strip_tags($data[$value])), ENT_NOQUOTES | ENT_HTML401));
                 unset($data[$value]);
@@ -717,6 +728,66 @@ class ClientController extends ApiInternalController
 
         $account = ClientAccount::findOne(['id' => $accountId]);
         Assert::isObject($account, 'Account not found');
+
+        $numbers = [];
+        if (preg_match_all("/\+(\d{11})/", $params['phone_port'], $m)) {
+            $numbers = array_unique($m[1]);
+        }
+
+        foreach ($numbers as $number) {
+            if (!($numberModel = Number::find()->where(['account_id' => $accountId, 'number' => $number])->one())) {
+                $numberModel = new Number;
+                $numberModel->account_id = $accountId;
+                $numberModel->number = $number;
+            }
+
+            $numberInfo = ['nnp_operator_id' => 0, 'nnp_region_id' => 0];
+
+            try {
+                $numberInfo = (new HttpClient())
+                    ->get($url, [
+                        'cmd' => 'getNumberRangeByNum',
+                        'num' => $number])
+                    ->getResponseDataWithCheck();
+            } catch (\Exception $e) {
+                Yii::error($e);
+            }
+
+            $redis = \Yii::$app->redis;
+
+            $numberModel->operator = $redis->get('operator:' . $numberInfo['nnp_operator_id']) ?: 'unknown';
+            $numberModel->region = $redis->get('region:' . $numberInfo['nnp_region_id']) ?: 'unknown';
+
+            if (!$numberModel->save()) {
+                throw new ModelValidationException($numberModel);
+            }
+        }
+
+        /** @var Info $infoModel */
+        if (!($infoModel = Info::find()->where(['account_id' => $accountId])->one())) {
+            $infoModel = new Info;
+            $infoModel->account_id = $accountId;
+        }
+
+        $infoModel->temp = $params['temp'];
+        $infoModel->tariff = $params['tariff'];
+        $infoModel->delivery_type = $params['delivery'];
+
+        if (!$infoModel->save()) {
+            throw new ModelValidationException($infoModel);
+        }
+
+        /** @var Info $infoModel */
+        if (!($addressModel = Address::find()->where(['account_id' => $accountId])->one())) {
+            $addressModel = new Address;
+            $addressModel->account_id = $accountId;
+        }
+
+        $addressModel->address = $params['delivery_address'];
+
+        if (!$addressModel->save()) {
+            throw new ModelValidationException($addressModel);
+        }
 
         $contragent = $account->contragent;
         $contragent->legal_type = ClientContragent::PERSON_TYPE;
