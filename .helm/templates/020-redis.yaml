@@ -1,0 +1,42 @@
+{{- if (eq .Values.global.env "prod") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.redis_prod.host }}
+spec:
+  selector:
+    matchLabels:
+      service: {{ .Values.redis_prod.host }}
+  revisionHistoryLimit: 3
+#  strategy:
+#    type: RollingUpdate
+  replicas: 1
+  serviceName: {{ .Values.redis_prod.host }}
+  template:
+    metadata:
+      labels:
+        service: {{ .Values.redis_prod.host }}
+    spec:
+      containers:
+        - name: redis-prod
+{{ tuple "redis-prod" . | werf_container_image | indent 10 }}
+          command: ['redis-server']
+          ports:
+            - containerPort: {{ .Values.redis_prod.port }}
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.redis_prod.host }}
+  labels:
+    service: {{ .Values.redis_prod.host }}
+spec:
+  ports:
+    - name: "6379"
+      port: 6379
+  selector:
+    service: {{ .Values.redis_prod.host }}
+{{- else }}
+
+{{- end }}

@@ -1,0 +1,51 @@
+{{- if (eq .Values.use_ngnix_virtualserver "yes") }}
+
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: {{ .Chart.Name }}-frontend
+spec:
+  host: {{ .Values.ci_url | quote }}
+  policies:
+    - name: webapp-internal-policy
+      namespace: kube-system
+  tls:
+    redirect:
+      enable: true
+  server-snippets: |
+    listen 443 ssl;
+    ssl_certificate /etc/nginx/secrets/wildcard;
+    ssl_certificate_key /etc/nginx/secrets/wildcard;
+  upstreams:
+    - name: upstream-{{ .Chart.Name }}-backend-prod
+      service: {{ .Chart.Name }}-backend-prod
+      port: 80
+  routes:
+    - path: /
+      action:
+        pass: upstream-{{ .Chart.Name }}-backend-prod
+
+  {{- else }}
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Chart.Name }}-frontend
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: {{ .Values.ci_url | quote }}
+      http:
+        paths:
+          - path: /
+            backend:
+{{- if (eq .Values.global.env "dev") }}
+              serviceName: {{ .Chart.Name }}-backend-dev
+{{- else }}
+              serviceName: {{ .Chart.Name }}-backend-prod
+{{- end }}
+              servicePort: 80
+{{- end }}

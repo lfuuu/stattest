@@ -1,0 +1,346 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config-files
+data:
+  .pgpass: |
+{{ .Files.Get ".werf/tmp/.pgpass" | indent 8 }}
+  php.ini: |
+    [PHP]
+    output_buffering = {{ .Values.php_prod.output_buffering }}
+
+    expose_php = {{ .Values.php_prod.expose_php }}
+
+    max_execution_time = {{ .Values.php_prod.max_execution_time }}
+    max_input_time = {{ .Values.php_prod.max_input_time }}
+    memory_limit = {{ .Values.php_prod.memory_limit }}
+    post_max_size = {{ .Values.php_prod.post_max_size }}
+    upload_max_filesize = {{ .Values.php_prod.upload_max_filesize }}
+
+    serialize_precision = {{ .Values.php_prod.serialize_precision }}
+
+    short_open_tag = {{ .Values.php_prod.short_open_tag }}
+
+    error_reporting = {{ .Values.php_prod.error_reporting }}
+    display_errors = {{ .Values.php_prod.display_errors }}
+    display_startup_errors = {{ .Values.php_prod.display_startup_errors }}
+
+    enable_dl = {{ .Values.php_prod.enable_dl }}
+
+    log_errors = {{ .Values.php_prod.log_errors }}
+    error_log = {{ .Values.php_prod.error_log }}
+
+    report_memleaks = {{ .Values.php_prod.report_memleaks }}
+
+    variables_order = {{ .Values.php_prod.variables_order | quote }}
+    request_order = {{ .Values.php_prod.request_order | quote }}
+    date.timezone = {{ .Values.php_prod.date.timezone | quote }}
+
+    [Session]
+    session.save_path = {{ .Values.php_prod.session.save_path }}
+    session.gc_maxlifetime = {{ .Values.php_prod.session.gc_maxlifetime }}
+    session.gc_probability = {{ .Values.php_prod.session.gc_probability }}
+
+  php-fpm.www.conf: |
+    [www]
+    listen = {{ .Values.php_fpm_prod.listen.to }}
+    listen.allowed_clients = {{ .Values.php_fpm_prod.listen.allowed_clients }}
+    listen.owner = {{ .Values.php_fpm_prod.listen.owner }}
+    listen.group = {{ .Values.php_fpm_prod.listen.group }}
+    ;listen.mode = {{ .Values.php_fpm_prod.listen.mode }}
+
+    user = {{ .Values.php_fpm_prod.user }}
+    group = {{ .Values.php_fpm_prod.group }}
+
+    pm = {{ .Values.php_fpm_prod.pm.type }}
+    pm.max_children = {{ .Values.php_fpm_prod.pm.max_children }}
+    pm.start_servers = {{ .Values.php_fpm_prod.pm.start_servers }}
+    pm.min_spare_servers = {{ .Values.php_fpm_prod.pm.min_spare_servers }}
+    pm.max_spare_servers = {{ .Values.php_fpm_prod.pm.max_spare_servers }}
+    ;pm.max_requests = {{ .Values.php_fpm_prod.pm.max_requests }}
+  nginx.conf: |
+    user  nginx;
+    worker_processes  1;
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+
+    events {
+        worker_connections  1024;
+    }
+
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        keepalive_timeout  65;
+
+        #gzip  on;
+
+        include /etc/nginx/conf.d/*.conf;
+    }
+  nginx.default.conf: |
+    server {
+        listen 80;
+
+        root        /opt/stat_rep/stat/web/;
+        index       index.php;
+
+        location / {
+            try_files $uri $uri/ /index.php?$args;
+        }
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+            fastcgi_pass   127.0.0.1:9000;
+            #fastcgi_pass unix:/var/run/php5-fpm.sock;
+            fastcgi_read_timeout 8h;
+            try_files $uri =404;
+        }
+    }
+
+
+    server {
+        listen 8080;
+
+        root        /opt/stat_rep/stat/web/;
+        index       index-test.php;
+
+        location / {
+            try_files $uri $uri/ /index-test.php?$args;
+        }
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+            fastcgi_pass   127.0.0.1:9000;
+            #fastcgi_pass unix:/var/run/php5-fpm.sock;
+            fastcgi_read_timeout 8h;
+            try_files $uri =404;
+        }
+    }
+
+
+    server {
+        listen 81;
+
+        root        /opt/stat_rep/mailer/web/;
+        index       index.php;
+
+        location / {
+            try_files $uri $uri/ /index.php?$args;
+        }
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+            fastcgi_pass   127.0.0.1:9000;
+            #fastcgi_pass unix:/var/run/php5-fpm.sock;
+            fastcgi_read_timeout 8h;
+            try_files $uri =404;
+        }
+    }
+
+
+    server {
+        listen 8081;
+
+        root        /opt/stat_rep/mailer/web/;
+        index       index-test.php;
+
+        location / {
+            try_files $uri $uri/ /index-test.php?$args;
+        }
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+            fastcgi_pass   127.0.0.1:9000;
+            #fastcgi_pass unix:/var/run/php5-fpm.sock;
+            fastcgi_read_timeout 8h;
+            try_files $uri =404;
+        }
+    }
+  params.local.php: |
+    <?php
+
+    return [
+        'adminEmail' => 'info@mcn.ru',
+        'API_SECURE_KEY' => '{{ .Values.params_prod.api_secure_key }}',
+        'CORE_SERVER' => 'lk.mcn.ru',
+        'PHONE_SERVER' => 'vpbx.mcn.ru',
+        'VPBX_SERVER' => 'vpbx.mcn.ru',
+        'VIRTPBX_URL' => 'https://[address]/vpbx/api/[action]',
+        'VPBX_API_AUTHORIZATION' => [
+            'method' => 'bearer',
+            'token' => '{{ .Values.params_prod.token }}',
+        ],
+        'LK_PATH' => 'https://lk.mcn.ru/lk/',
+        'FEEDBACK_SERVER' => 'feedback.mcn.ru',
+        'FEEDBACK_API_KEY' => '{{ .Values.params_prod.feedback_api_key }}',
+        'MAILER' => [
+            'url' => 'http://mailer.local/',
+            'auth' => [
+                'method' => 'basic',
+                'user' => '{{ .Values.params_prod.mailer_user }}',
+                'passwd' => '{{ .Values.params_prod.mailer_password }}',
+                'token' => '',
+            ],
+        ],
+        'NOTIFICATION_TOKEN' => '{{ .Values.params_prod.notification_token }}',
+        'sms_client' => '{{ .Values.params_prod.sms_client }}',
+        'sms_password' => '{{ .Values.params_prod.sms_password }}',
+        'sms_server' => 'http://thiamis.mcn.ru/sms/gateway.php',
+
+        'monitoring_email' => '{{ .Values.params_prod.monitoring_email }}',
+        'vps' => [
+            'url' => 'https://ngtvm.mcn.ru:1500/vmmgr',
+            'authinfo' => '{{ .Values.params_prod.vps_authinfo }}',
+        ],
+        'SberbankApi' => [
+            \app\models\Organization::MCN_TELECOM => [
+                'user' => '{{ .Values.params_prod.sberbank_api_sberbank_telecom_user }}',
+                'password' => '{{ .Values.params_prod.sberbank_api_sberbank_telecom_password }}',
+            ],
+            \app\models\Organization::MCN_TELECOM_RETAIL => [
+                'user' => '{{ .Values.params_prod.sberbank_api_sberbank_retail_user }}',
+                'password' => '{{ .Values.params_prod.sberbank_api_sberbank_retail_password }}',
+            ],
+            \app\models\Organization::MCN_TELECOM_SERVICE => [
+                'user' => '{{ .Values.params_prod.sberbank_api_sberbank_service_password }}',
+                'password' => '{{ .Values.params_prod.sberbank_api_sberbank_service_password }}',
+            ]
+        ],
+
+        'Cyberplat' => [
+            'public_key' => 'cyberplat_public.key',
+            'mcn_private_key' => 'mcn_telecom__private.key',
+            'mcn_public_key' => 'mcn_telecom__public.key',
+            'mcn_passhare' => 'mcn_telecom__passhare.key'
+            //'mcn_private_key' => 'mcn_telecom_retail__private.key',
+            //'mcn_public_key' => 'mcn_telecom_retail__public.key',
+            //'mcn_passhare' => 'mcn_telecom_retail__passhare.key'
+        ],
+        'PayPal' => [
+            'default' => [ // TEL2TEL_KFT || TEL2TEL_LTD
+                'user' => '{{ .Values.params_prod.paypal_default_user }}',
+                'password' => '{{ .Values.params_prod.paypal_default_password }}',
+                'signature' => '{{ .Values.params_prod.paypal_default_signature }}',
+            ],
+            \app\models\Organization::TEL2TEL_GMBH => [
+                'user' => '{{ .Values.params_prod.paypal_tel2tel_user }}',
+                'password' => '{{ .Values.params_prod.paypal_tel2tel_password }}',
+                'signature' => '{{ .Values.params_prod.paypal_tel2tel_signature }}',
+            ]
+        ],
+
+        'yandex' => [
+            'kassa' => [
+                \app\models\Organization::MCN_TELECOM_RETAIL => [
+                    'shop_id' => {{ .Values.params_prod.yandex_kassa_retail_shop_id }},
+                    'sc_id' => {{ .Values.params_prod.yandex_kassa_retail_sc_id }},
+                    'password' => '{{ .Values.params_prod.yandex_kassa_retail_password }}',
+                ],
+                \app\models\Organization::MCN_TELECOM => [
+                    'shop_id' => {{ .Values.params_prod.yandex_kassa_telecom_shop_id }},
+                    'sc_id' => {{ .Values.params_prod.yandex_kassa_telecom_sc_id }},
+                    'password' => '{{ .Values.params_prod.yandex_kassa_telecom_password }}',
+                ],
+                \app\models\Organization::MCN_TELECOM_SERVICE => [
+                    'shop_id' => {{ .Values.params_prod.yandex_kassa_service_shop_id }},
+                    'sc_id' => {{ .Values.params_prod.yandex_kassa_service_sc_id }},
+                    'password' => '{{ .Values.params_prod.yandex_kassa_service_password }}',
+                ],
+            ]
+        ],
+
+
+        'health' => [
+            'externalUrls' => [
+                'main' => [
+                    // eridanus
+                    'Синхронизатор. Ошибки' => 'http://eridanus.mcn.ru/health/healthSyncLog.json',
+                    'Синхронизатор. Не запущен' => 'http://eridanus.mcn.ru/health/healthSyncProcess.json',
+                    'Синхронизатор. Не все синхронизировано' => 'http://eridanus.mcn.ru/health/healthFullSync.json',
+                    'sormSync' => 'http://eridanus.mcn.ru/health/healthSormSync.json',
+                    //'sormImport' => 'http://eridanus.mcn.ru/health/healthSormImport.json',
+                    'sormUpload' => 'http://eridanus.mcn.ru/health/healthSormUpload.json',
+                    'SMS Errors' => 'http://thiamis.mcn.ru/sms/health/error.json',
+                    'SMS Errors2' => 'http://thiamis.mcn.ru/sms/health/error2.json',
+
+                    // stat heavy
+                    // 'UuAccountEntry' => '@app/web/export/health/UuAccountEntry.json',
+                    'UuBill' => '@app/web/export/health/UuBill.json',
+
+                    // stat sh
+                    'loadAverage' => '@app/web/export/health/loadAverage.json',
+                    'apiFreeNumbers495' => '@app/web/export/health/apiFreeNumbers495.json',
+                    'apiFreeNumbers499' => '@app/web/export/health/apiFreeNumbers499.json',
+                    'apiFreeNumbersSilver' => '@app/web/export/health/apiFreeNumbersSilver.json',
+                    'apiFreeNumbersAccount' => '@app/web/export/health/apiFreeNumbersAccount.json',
+                    'ubillerLog' => '@app/web/export/health/ubillerLog.json',
+                    'nnpPortedNumberLog' => '@app/web/export/health/nnpPortedNumberLog.json',
+                    //'uuApiLog' => '@app/web/export/health/uuApiLog.json',
+                    'mttLog' => '@app/web/export/health/mttLog.json',
+                    'mttProcess' => '@app/web/export/health/mttProcess.json',
+                    'tele2Log' => '@app/web/export/health/tele2Log.json',
+                    'tele2Process' => '@app/web/export/health/tele2Process.json',
+                    'portedNumberLog' => '@app/web/export/health/numberPortedLog.json',
+                    'mailerLog' => '@app/web/export/health/mailerLog.json',
+                    'mailerProcess' => '@app/web/export/health/mailerProcess.json',
+                    'socketApi' => '@app/web/export/health/socketApi.json',
+                    #'nnpPortedApi' => '@app/web/export/health/nnpPortedApi.json',
+                    'handlerProcess' => '@app/web/export/health/handlerProcess.json',
+                    'exportFreeNumbers' => '@app/web/export/health/exportFreeNumbers.json',
+                    'DoublePayment' => '@app/web/export/health/DoublePayment.json',
+                    'VoipDelayOnPackages' => '@app/web/export/health/VoipDelayOnPackages.json',
+                    //'WrongNumberRegion' => '@app/web/export/health/WrongNumberRegion.json',
+                    //'billerCleanMinEntry' => '@app/web/export/health/billerCleanMinEntry.json',
+                ],
+                'for_managers' => [
+                    'SMS balance' => 'http://thiamis.mcn.ru/sms/health/balance.json',
+                    'UuTestTariff' => '@app/web/export/health/UuTestTariff.json',
+                    'UuShiftTariff' => '@app/web/export/health/UuShiftTariff.json',
+                    //'SormClientsReg97' => '@app/web/export/health/SormClientsReg97.json',
+                ]
+            ],
+            'export' => [
+                'for_managers' => '@app/web/export/health/health_for_managers.json',
+            ],
+        ],
+        'eventQueueIsUnderTheHighLoad' => false,
+        'sormRegions' => [
+            ['region_id' => 88, 'operator_id' => 15, 'number_prefix' => '7831235', 'datacenter_id' => 14],
+            ['region_id' => 97, 'operator_id' => 3, 'number_prefix' => '7861', 'datacenter_id' => 5],
+        ],
+        'rocket_chat_token' => '{{ .Values.params_prod.rocket_chat_token }}',
+        'nnpInfoServiceURL' => '{{ .Values.params_prod.nnp_info_service_url }}',
+        'clientChangedAmqSettings' => [
+            'host' => '{{ .Values.params_prod.client_changed_amq_settings_host }}',
+            'user' => '{{ .Values.params_prod.client_changed_amq_settings_user }}',
+            'pass' => '{{ .Values.params_prod.client_changed_amq_settings_pass }}',
+        ],
+        'Tele2AmqSettings' => [
+            'host' => '{{ .Values.params_prod.tele2_amq_settings_host }}',
+            'user' => '{{ .Values.params_prod.tele2_amq_settings_user }}',
+            'pass' => '{{ .Values.params_prod.tele2_amq_settings_pass }}',
+        ],
+        'API_SERVER' => 'https://api.mcn.ru/v2/rest',
+        'ROBOCALL_AUTH' => ['method' => 'bearer', 'token' => '{{ .Values.params_prod.robocall_auth_token }}'],
+        'ROBOCALL_DEFAULT_PARAMS' => ['task_id' =>  253, 'account_id' => 47197, 'robocall_id' => 9],
+        'CALLTRACKING_SERVER' => 'feedback.mcn.ru',
+    ];
+
+

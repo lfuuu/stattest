@@ -1,0 +1,96 @@
+{{- if (eq .Values.global.env "prod") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-backend-prod
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+        app: {{ .Chart.Name }}-backend-prod
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-backend-prod
+    spec:
+#      initContainers:
+#          - name: wait-redis
+#            image: alpine:3.6
+#            command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.redis_prod.host }}; do sleep 1; done']
+      containers:
+      - name: backend-prod
+{{ tuple "stat-prod" . | werf_container_image | indent 8 }}
+#        livenessProbe:
+#          httpGet:
+#            path: /
+#            port: 80
+#            scheme: HTTP
+#        readinessProbe:
+#          httpGet:
+#            path: /
+#            port: 80
+#            scheme: HTTP
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - name: config-volume
+          subPath: params.local.php
+          mountPath: /opt/stat_rep/stat/config/params.local.php
+        - name: config-volume
+          subPath: nginx.conf
+          mountPath: /etc/nginx/nginx.conf
+        - name: config-volume
+          subPath: nginx.default.conf
+          mountPath: /etc/nginx/conf.d/default.conf
+        - name: config-volume
+          subPath: php.ini
+          mountPath: /etc/php.d/php.ini
+        - name: config-volume
+          subPath: php-fpm.www.conf
+          mountPath: /etc/php-fpm.d/www2.conf
+        env:
+        - name: MYSQL_DB
+          value: {{ .Values.mysql_prod.db }}
+        - name: MYSQL_HOST
+          value: {{ .Values.mysql_prod.host }}
+        - name: MYSQL_USER
+          value: {{ .Values.mysql_prod.user }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.mysql_prod.password }}
+        - name: POSTGRES_DB
+          value: {{ .Values.postgres_prod.db }}
+        - name: POSTGRES_HOST
+          value: {{ .Values.postgres_prod.host }}
+        - name: POSTGRES_HOST_SLAVE
+          value: {{ .Values.postgres_prod.host_slave }}
+        - name: POSTGRES_USER
+          value: {{ .Values.postgres_prod.user }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.postgres_prod.password }}
+        - name: REDIS_HOST
+          value: {{ .Values.redis_prod.host }}
+{{ tuple . | werf_container_env | indent 8 }}
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .Chart.Name }}-config-files
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-backend-prod
+  labels:
+    app: {{ .Chart.Name }}-backend-prod
+spec:
+  clusterIP: None
+  selector:
+    app: {{ .Chart.Name }}-backend-prod
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+{{- else }}
+
+{{- end }}

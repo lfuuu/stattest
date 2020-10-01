@@ -1,0 +1,171 @@
+project: stat
+configVersion: 1
+
+---
+image: stat-prod
+from: centos/systemd
+
+docker:
+  WORKDIR: /opt
+  USER: root
+  ENV:
+    MYSQL_DB: nispd
+    MYSQL_HOST: mysql
+    MYSQL_USER: stat
+    MYSQL_PASSWORD: stat
+    POSTGRES_DB: nispd
+    POSTGRES_HOST: postgres
+    POSTGRES_HOST_SLAVE: postgres
+    POSTGRES_USER: stat
+    POSTGRES_PASSWORD: stat
+    REDIS_HOST: redis
+    API_SECURE_KEY: 123
+  # LC_ALL: en_US.UTF-8
+  ENTRYPOINT: ["/opt/stat_rep/stat/ENTRYPOINT.sh"]
+  #CMD: ["/bin/sleep","infinity"]
+  EXPOSE: "80 8080"
+
+git:
+- add: /
+  to: /opt/stat_rep/stat
+  stageDependencies:
+    setup:
+      - "*"
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        yum install -y epel-release
+        yum install -y wget vim
+        yum install -y telnet
+        yum install -y unzip net-tools mc
+        yum install -y nano
+        yum -y install curl
+        yum -y update
+        yum install -y nginx cronie
+        yum -y update && yum -y upgrade
+        yum install -y mysql
+        yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+        yum -y update && yum -y upgrade
+        yum-config-manager --enable remi-php74
+        yum install -y php php-fpm php-cli php-curl php-gd php-json php-mcrypt php-mysqlnd php-pgsql php-readline php-xmlrpc php-intl php-mbstring php-bcmath php-xmlwriter php-process php-pecl-redis php-pecl-amqp php-pecl-ssh2 php-soap
+        yum clean all
+        mkdir /run/php-fpm/
+        touch /run/php-fpm/php-fpm.pid
+        mkdir -p /var/lib/php/session
+        chmod 777 /var/lib/php/session
+  install:
+    - name: 2
+      shell: |
+        curl -sS https://getcomposer.org/installer | php
+        mv composer.phar /usr/local/bin/composer 
+        composer global require "fxp/composer-asset-plugin"
+        cd /opt/stat_rep/stat
+        composer install
+        cd /opt/stat_rep/stat
+        chmod -R 777 runtime
+        chmod 777 web/assets
+        chmod a+x ENTRYPOINT.sh
+        mkdir stat/design_c
+        chmod 777 stat/design_c
+      args:
+        chdir: /opt/stat_rep/stat
+  setup:
+    - name: 3
+      shell: |
+        cd /opt/stat_rep/stat
+        cp stat/local.conf.php.tpl stat/local.conf.php
+      args:
+        chdir: /opt/stat_rep/stat
+
+---
+image: redis-prod
+from: quay.io/continuouspipe/redis3:latest
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        apt-get update
+        apt-get install -y --no-install-recommends htop iputils-ping net-tools
+
+docker:
+  #CMD: ["redis-server"]
+  CMD: ["/bin/sleep","infinity"]
+  EXPOSE: "6379"
+---
+image: pgdb-prod
+from: postgres:12.3
+#git:
+#  - add: /install/db/SQL/init.sql
+#    to: /docker-entrypoint-initdb.d/init.sql
+---
+image: stat-dev
+from: centos/systemd
+
+docker:
+  WORKDIR: /root
+  USER: root
+  ENV:
+    MYSQL_DB: nispd
+    MYSQL_HOST: mysql
+    MYSQL_USER: stat
+    MYSQL_PASSWORD: stat
+    POSTGRES_DB: nispd
+    POSTGRES_HOST: postgres
+    POSTGRES_USER: stat
+    POSTGRES_PASSWORD: stat
+  # LC_ALL: en_US.UTF-8
+  CMD: ["/usr/sbin/init"]
+  EXPOSE: "80 8080"
+
+git:
+  - add: /
+    to: /home/httpd/stat.mcn.ru/stat
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        yum install -y epel-release
+        yum install -y wget vim
+        yum install -y telnet
+        yum install -y unzip net-tools mc
+        yum install -y nano
+        yum -y install curl
+        yum -y update
+        yum install -y nginx cronie
+        yum -y update && yum -y upgrade
+        yum install -y mysql
+        yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+        yum -y update && yum -y upgrade
+        yum-config-manager --enable remi-php74
+        yum install -y php php-fpm php-cli php-curl php-gd php-json php-mcrypt php-mysqlnd php-pgsql php-readline php-xmlrpc php-intl php-mbstring php-bcmath php-xmlwriter php-process php-pecl-redis php-pecl-amqp php-pecl-xdebug php-pecl-ssh2 php-soap
+        yum clean all
+        mkdir /run/php-fpm/
+        touch /run/php-fpm/php-fpm.pid
+        mkdir -p /var/lib/php/session
+        chmod 777 /var/lib/php/session
+  install:
+    - name: 2
+      shell: |
+        curl -sS https://getcomposer.org/installer | php
+        mv composer.phar /usr/local/bin/composer
+        composer global require "fxp/composer-asset-plugin"
+        cd /home/httpd/stat.mcn.ru/stat
+        composer install
+        cd /home/httpd/stat.mcn.ru/stat
+        chmod -R 777 runtime
+        chmod 777 web/assets
+        mkdir stat/design_c
+        chmod 777 stat/design_c
+      args:
+        chdir: /home/httpd/stat.mcn.ru/stat
+  setup:
+    - name: 3
+      shell: |
+        cd /home/httpd/stat.mcn.ru/stat
+        cp stat/local.conf.php.tpl stat/local.conf.php
+      args:
+        chdir: /home/httpd/stat.mcn.ru/stat

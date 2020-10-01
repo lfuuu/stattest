@@ -1,0 +1,66 @@
+#app:
+#  url:
+#    _default: {{ .Chart.Name }}-{{ .Values.global.env }}.local
+#    production: stat.mcn.ru
+#    stage: stat.ks8.mcn.local
+
+php_prod:
+  output_buffering: 4096
+  expose_php: Off
+  max_execution_time: 36000
+  max_input_time: 300
+  memory_limit: 4G
+  post_max_size: 900M
+  upload_max_filesize: 500M
+  serialize_precision: 100
+  short_open_tag: On
+  error_reporting: 22517
+  display_errors: On
+  display_startup_errors: On
+  enable_dl: Off
+  log_errors: On
+  error_log: /var/log/php.error.log
+  report_memleaks: On
+  variables_order: GPCS
+  request_order: GP
+  date:
+    timezone: Europe/Moscow
+  session:
+    save_path: /var/lib/php/session
+    gc_maxlifetime: 14400
+    gc_probability: 1
+
+php_fpm_prod:
+  test: 111
+  listen:
+    to: 127.0.0.1:9000
+    allowed_clients: 127.0.0.1
+    owner: nginx
+    group: nginx
+    mode: 0660
+  user: nginx
+  group: nginx
+  pm:
+    type: dynamic
+    max_children: 50
+    start_servers: 5
+    min_spare_servers: 5
+    max_spare_servers: 35
+    max_requests: 500
+
+postgres_dev:
+  host: db
+  port: 5432
+  db: nispd
+  adminuser: postgres
+  user: stat
+  password: stat
+
+redis_prod:
+  host: redis-prod
+  port: 6379
+
+ci_url: stat.ks8.mcn.local
+
+use_ngnix_virtualserver: "no"
+use_network_polices: "no"
