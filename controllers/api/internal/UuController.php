@@ -1449,6 +1449,13 @@ class UuController extends ApiInternalController
             $isMobileOutboundEditable = $isMobileOutboundActive = null;
         }
 
+        /** @var AccountTariffLog $firstTariff */
+        $firstLog = reset($accountTariff->accountTariffLogs);
+        $isDefaultTariff = true;
+        if ($firstLog && $firstLog->tariff_period_id) {
+            $isDefaultTariff = $firstLog->tariffPeriod->tariff->is_default;
+        }
+
         $record = [
             'id' => $accountTariff->id,
             'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
@@ -1470,6 +1477,7 @@ class UuController extends ApiInternalController
             'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],
+            'account_light_tariff_ids' => !$isDefaultTariff ? $this->_getAccountTariffLights($accountTariff->id) : [],
         ];
 
 
@@ -1482,6 +1490,16 @@ class UuController extends ApiInternalController
         }
 
         return $record;
+    }
+
+    public function _getAccountTariffLights($accountTariffId)
+    {
+        return AccountLogPeriod::find()
+            ->where(['account_tariff_id' => $accountTariffId])
+            ->select(['id', 'date_from', 'date_to'])
+            ->orderBy(['date_from' => SORT_ASC])
+            ->asArray()
+            ->all();
     }
 
     /**
