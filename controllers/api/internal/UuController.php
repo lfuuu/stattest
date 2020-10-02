@@ -1477,7 +1477,7 @@ class UuController extends ApiInternalController
             'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],
-            'account_light_tariff_ids' => !$isDefaultTariff ? $this->_getAccountTariffLights($accountTariff->id) : [],
+            'account_tariff_light_ids' => !$isDefaultTariff ? $this->_getAccountTariffLights($accountTariff->id) : [],
         ];
 
 
