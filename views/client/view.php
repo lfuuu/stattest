@@ -53,7 +53,7 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
         <?= $this->render('/../modules/uu/views/account-tariff/_indexVoipLight', ['filterModel' => $uuFilterModel]) ?>
     <?php endif ?>
 
-    <?= $this->render('/../modules/sim/views/card/_listByClient', ['client_account_id' => $account->id]); ?>
+    <?= $this->render('/../modules/sim/views/card/_listByClient', ['account' => $account]); ?>
 </div>
 
 <?= $this->render('block/style'); ?>

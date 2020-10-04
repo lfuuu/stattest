@@ -8,6 +8,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\modules\nnp\models\NdcType;
+use app\modules\sim\models\Card;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\ImsiPartner;
 use app\modules\sim\models\ImsiProfile;
@@ -162,10 +163,6 @@ class AccountTariffCheckHlr extends Behavior
 
     public static function reservImsi($params)
     {
-        if (!$params['voip_numbers_warehouse_status']) {
-            throw new \LogicException('Склад не установлен');
-        }
-
         $accountTariff = AccountTariff::findOne(['id' => $params['account_tariff_id']]);
 
         if (!$accountTariff) {
@@ -174,14 +171,25 @@ class AccountTariffCheckHlr extends Behavior
 
         $transactionPg = Imsi::getDb()->beginTransaction();
 
-        /** @var Imsi $foundImsi */
-        $foundImsi = self::getNextImsi($params['voip_numbers_warehouse_status']);
+        if (isset($params['card'])) {
+            if (!($params['card'] instanceof Card)) {
+                throw new \InvalidArgumentException('Card not Card model');
+            }
+            $card = $params['card'];
+        } else {
+            if (!$params['voip_numbers_warehouse_status']) {
+                throw new \LogicException('Склад не установлен');
+            }
 
-        if (!$foundImsi) {
-            throw new \LogicException('IMSI не найдена');
+            /** @var Imsi $foundImsi */
+            $foundImsi = self::getNextImsi($params['voip_numbers_warehouse_status']);
+
+            if (!$foundImsi) {
+                throw new \LogicException('IMSI не найдена');
+            }
+
+            $card = $foundImsi->card;
         }
-
-        $card = $foundImsi->card;
 
 //        $transactionMs = EventQueue::getDb()->beginTransaction();
 

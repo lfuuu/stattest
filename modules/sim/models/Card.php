@@ -169,4 +169,9 @@ class Card extends ActiveRecord
     {
         return $this->clientAccount->superClient->entry_point_id;
     }
+
+    public function __toString()
+    {
+        return (string)$this->iccid;
+    }
 }
