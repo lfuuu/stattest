@@ -4,6 +4,7 @@ namespace app\modules\sim\controllers;
 
 use app\classes\BaseController;
 use app\exceptions\ModelValidationException;
+use app\models\ClientAccount;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
 use app\modules\sim\classes\workers\MsisdnsWorker;
@@ -14,6 +15,7 @@ use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Dsm;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\VirtualCard;
+use app\modules\uu\behaviors\AccountTariffCheckHlr;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
@@ -37,7 +39,7 @@ class CardController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'edit'],
+                        'actions' => ['index', 'edit', 'link'],
                         'roles' => ['sim.read'],
                     ],
                     [
@@ -427,5 +429,28 @@ class CardController extends BaseController
             throw new InvalidParamException(sprintf('OriginImsi %s не найдена', $virtualImsiParam));
         }
         return ['origin' => $originImsi, 'virtual' => $virtualImsi,];
+    }
+
+    public function actionLink()
+    {
+        $getData = \Yii::$app->request->get();
+
+        foreach (['link_iccid_and_number', 'account_id', 'connect_iccid', 'connect_account_tariff_id'] as $field)
+        if (!isset($getData[$field])) {
+            throw new \InvalidArgumentException('Не все параметры поступили');
+        }
+
+        $accountId = $getData['account_id'];
+        $iccid = $getData['connect_iccid'];
+        $accountTariffId = $getData['connect_account_tariff_id'];
+
+        $info = AccountTariffCheckHlr::reservImsi([
+            'account_tariff_id' => $accountTariffId,
+            'card' => Card::findOne(['iccid' => $iccid]),
+        ]);
+
+        \Yii::$app->session->addFlash('success', $info);
+
+        return \Yii::$app->response->redirect(ClientAccount::findOne(['id' => $accountId])->getUrl());
     }
 }

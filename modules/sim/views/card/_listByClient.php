@@ -3,14 +3,14 @@
  * SIM-карты. Список у клиента
  *
  * @var \app\classes\BaseView $this
- * @var int $client_account_id
+ * @var \app\models\ClientAccount $account
  */
 
 use app\classes\Html;
 use app\modules\sim\models\Card;
 
 $cards = Card::find()
-    ->where(['client_account_id' => $client_account_id])
+    ->where(['client_account_id' => $account->id])
     ->with(['imsies', 'imsies.number'])
     ->all();
 
@@ -20,7 +20,6 @@ if (!$cards) {
 ?>
 
 <div class="col-sm-4">
-
     <div class="panel panel-danger">
         <div class="panel-heading">
             <h2 class="panel-title">SIM-карты</h2>
@@ -30,12 +29,13 @@ if (!$cards) {
             <?php
             /** @var Card $card */
             foreach ($cards as $card) {
-                echo $card->getLink() ;
+                echo $card->getLink();
 
                 $cnt = 0;
 
-                if(!($imsies = $card->imsies)) {
+                if (!($imsies = $card->imsies)) {
                     echo ' ';
+
                     continue;
                 }
 
@@ -63,5 +63,47 @@ if (!$cards) {
             ?>
         </div>
     </div>
-
 </div>
+<?php
+if ($account->superClient->entry_point_id != \app\models\EntryPoint::ID_MNP_RU_DANYCOM) {
+    return;
+}
+?>
+<form action="/sim/card/link">
+    <input type="hidden" name="account_id" value="<?= $account->id ?>">
+    <div class="col-sm-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">SIM-карты. Управление. Деником</h2>
+            </div>
+
+            <div class="panel-body">
+                <div class="row">
+                    <?php
+                    [$cards, $accountTariffs] = \app\modules\sim\classes\Linker::me()->getDataByAccountId($account->id);
+                    ?>
+                    <?php if ($cards && $accountTariffs) : ?>
+                        <div class="col-sm-4">ICCID:</div>
+                        <div class="col-sm-8">
+                            <?= \yii\helpers\Html::dropDownList('connect_iccid', $cards ? reset(array_keys($cards)) : null, $cards, ['class' => 'select2']) ?>
+                        </div>
+                        <div class="col-sm-4">Номер:</div>
+                        <div class="col-sm-8">
+                            <?= \yii\helpers\Html::dropDownList('connect_account_tariff_id', $accountTariffs ? reset(array_keys($accountTariffs)) : null, $accountTariffs, ['class' => 'select2']) ?>
+                        </div>
+                        <div class="col-sm-6"></div>
+                        <div class="col-sm-4">
+                            <button type="subimt" name="link_iccid_and_number" class="btn btn-warning">Соединить
+                            </button>
+                        </div>
+                        <div class="col-sm-2"></div>
+                    <?php elseif ($cards || $accountTariffs) :?>
+                        <div class="text-danger"  style="text-align: center;">Не полные данные!!! <?=count($accountTariffs)?>/<?=count($cards)?></div>
+                    <?php else :?>
+                        <div class="text-info" style="text-align: center;">Не требуется действий</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
