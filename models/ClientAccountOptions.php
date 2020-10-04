@@ -29,6 +29,9 @@ class ClientAccountOptions extends ActiveRecord
     const SETTINGS_ADVANCE_1_AND_15 = '1_and_15';
     const SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY = 'every_week_on_monday';
 
+    const OPTION_ORIGINAL_SUPER_ID = 'original_super_id';
+    const OPTION_ORIGINAL_CONTRACT_ID = 'original_contract_id';
+
     const OPTION_UPLOAD_TO_SALES_BOOK = 'upload_to_sales_book'; // default = 1
 
     public static $settingsAdvance = [

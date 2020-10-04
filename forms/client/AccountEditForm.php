@@ -18,11 +18,14 @@ use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Currency;
+use app\models\EntryPoint;
 use app\models\GoodPriceType;
 use app\models\Region;
 use app\models\Timezone;
 use app\modules\sbisTenzor\classes\ContractorInfo;
 use app\modules\sbisTenzor\classes\SBISExchangeStatus;
+use http\Client;
+use Yii;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
@@ -97,7 +100,8 @@ class AccountEditForm extends Form
         $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS,
         $exchange_group_id,
         $exchange_status = SBISExchangeStatus::UNKNOWN,
-        $transfer_params_from = 0;
+        $transfer_params_from = 0,
+        $transfer_contract_id = 0;
 
     protected $contractorInfo;
 
@@ -184,6 +188,7 @@ class AccountEditForm extends Form
                     'upload_to_sales_book',
                     'show_in_lk',
                     'transfer_params_from',
+                    'transfer_contract_id',
                 ],
                 'integer'
             ],
@@ -245,6 +250,7 @@ class AccountEditForm extends Form
             [
                 'admin_email' => 'Email администратора',
                 'transfer_params_from' => 'Перенести Реквизиты и Контакты с ЛС',
+                'transfer_contract_id' => 'Перенести ЛС на договор',
             ]
         );
     }
@@ -364,9 +370,13 @@ class AccountEditForm extends Form
      */
     public function save()
     {
-        $transaction = \Yii::$app->db->beginTransaction();
+        $transaction = Yii::$app->db->beginTransaction();
 
         try {
+
+            if ($this->transfer_contract_id) {
+                $this->_transferToContractId($this->transfer_contract_id);
+            }
 
             if ($this->transfer_params_from) {
                 $this->_saveFromAccount();
@@ -414,6 +424,27 @@ class AccountEditForm extends Form
         $this->id && $query->andWhere(['NOT', ['id' => $this->id]]);
 
         return GetListTrait::getEmptyList(true) + $query->column();
+    }
+
+    public function getNearContracts()
+    {
+        if ($this->contract_id == ClientContract::ID_DANYCOM_TRASH) {
+            $data = [];
+            $option = ClientAccountOptions::findOne(['client_account_id' => $this->id, 'option' => ClientAccountOptions::OPTION_ORIGINAL_CONTRACT_ID]);
+            if ($option) {
+                $data = [$option->value => $option->value . ' (восставновить)'];
+            }
+
+            return GetListTrait::getEmptyList(true) + $data;
+        }
+        $query = ClientContract::find()
+            ->select(['id'])
+            ->where(['super_id' => $this->super_id])
+            ->indexBy('id')
+            ->orderBy(['id' => SORT_ASC]);
+
+        $this->id && $query->andWhere(['NOT', ['id' => $this->contract_id]]);
+        return GetListTrait::getEmptyList(true) + $query->column() + [ClientContract::ID_DANYCOM_TRASH => 'Удалить'];
     }
 
     /**
@@ -667,7 +698,71 @@ class AccountEditForm extends Form
         }
 
         $optionsSaveForm->save();
-
     }
 
+    private function _transferToContractId($toContractId)
+    {
+        $account = ClientAccount::findOne(['id' => $this->id]);
+        Assert::isObject($account);
+
+        $contract = ClientContract::findOne(['id' => $toContractId]);
+        Assert::isObject($contract);
+
+        if ($account->super_id != $contract->super_id) {
+
+            if ($account->contract_id == ClientContract::ID_DANYCOM_TRASH) {
+                $option = ClientAccountOptions::findOne([
+                    'client_account_id' => $account->id,
+                    'option' => ClientAccountOptions::OPTION_ORIGINAL_SUPER_ID
+                ]);
+                if ($option) {
+                    $account->super_id = $option->value;
+                }
+            } else {
+                $option = ClientAccountOptions::findOne([
+                    'client_account_id' => $account->id,
+                    'option' => ClientAccountOptions::OPTION_ORIGINAL_SUPER_ID
+                ]);
+                if (!$option) {
+                    $option = new ClientAccountOptions();
+                    $option->client_account_id = $account->id;
+                    $option->option = ClientAccountOptions::OPTION_ORIGINAL_SUPER_ID;
+                }
+
+                $option->value = (string)$account->super_id;
+                if (!$option->save()) {
+                    throw new ModelValidationException($option);
+                }
+
+                $option = ClientAccountOptions::findOne([
+                    'client_account_id' => $account->id,
+                    'option' => ClientAccountOptions::OPTION_ORIGINAL_CONTRACT_ID
+                ]);
+                if (!$option) {
+                    $option = new ClientAccountOptions();
+                    $option->client_account_id = $account->id;
+                    $option->option = ClientAccountOptions::OPTION_ORIGINAL_CONTRACT_ID;
+                }
+
+                $option->value = (string)$account->contract_id;
+                if (!$option->save()) {
+                    throw new ModelValidationException($option);
+                }
+
+                $account->super_id = $contract->super_id;
+            }
+        }
+
+        $account->contract_id = $toContractId;
+
+        if (!$account->save()) {
+            throw new ModelValidationException($account);
+        }
+    }
+
+    public function isShowTransferContract()
+    {
+        return $this->contract_id == ClientContract::ID_DANYCOM_TRASH
+        || ($this->clientM->superClient && $this->clientM->superClient->entry_point_id == EntryPoint::ID_MNP_RU_DANYCOM);
+    }
 }

@@ -300,4 +300,15 @@ use kartik\widgets\ActiveForm;
             ?>
         </div>
     </div>
+    <?php if ($model->isShowTransferContract()) : ?>
+        <div class="row">
+            <div class="col-sm-6"></div>
+            <div class="col-sm-6">
+                <?= $f
+                    ->field($model, 'transfer_contract_id')
+                    ->dropDownList($model->getNearContracts())
+                ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
