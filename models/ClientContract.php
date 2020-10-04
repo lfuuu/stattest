@@ -80,6 +80,8 @@ class ClientContract extends HistoryActiveRecord
 
     const TRIGGER_RESET_TAX_VOIP = 'trigger_reset_tax_voip';
 
+    const ID_DANYCOM_TRASH = 100000;
+
     public $newClient = null;
 
     public $isSetVoipWithTax = null;

@@ -50,8 +50,9 @@ class ClientAccountOptionsSaveModel extends Component
     {
         $transaction = ClientAccountOptions::getDb()->beginTransaction();
         try {
-            ClientAccountOptions::deleteAll(['client_account_id' => $this->_clientAccountId]);
             $rows = $this->_data;
+            ClientAccountOptions::deleteAll(['client_account_id' => $this->_clientAccountId, 'option' => array_keys($rows)]);
+
             array_walk($rows,
                 function (&$value, $key) {
                     $value = [$this->_clientAccountId, $key, $value];
