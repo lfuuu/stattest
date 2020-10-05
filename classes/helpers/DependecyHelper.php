@@ -33,7 +33,6 @@ class DependecyHelper extends Singleton
     const TAG_PRICELIST = 'pricelist';
 
     const LIST_TAGS = [
-        self::ALL => 'Всё',
         self::TAG_USAGE  => 'Список услуг',
         self::TAG_USAGE_VOIP  => 'Список услуг по телефонии',
         self::TAG_UU_SERVICE_LIST => 'Список УУ-услуг',
