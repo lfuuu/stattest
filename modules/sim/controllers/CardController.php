@@ -5,6 +5,7 @@ namespace app\modules\sim\controllers;
 use app\classes\BaseController;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
+use app\models\EntryPoint;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
 use app\modules\sim\classes\workers\MsisdnsWorker;
@@ -16,8 +17,10 @@ use app\modules\sim\models\Dsm;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\VirtualCard;
 use app\modules\uu\behaviors\AccountTariffCheckHlr;
+use app\modules\uu\models\AccountTariff;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -39,7 +42,7 @@ class CardController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'edit', 'link'],
+                        'actions' => ['index', 'edit', 'link', 'mass-link-danycom'],
                         'roles' => ['sim.read'],
                     ],
                     [
@@ -436,9 +439,9 @@ class CardController extends BaseController
         $getData = \Yii::$app->request->get();
 
         foreach (['link_iccid_and_number', 'account_id', 'connect_iccid', 'connect_account_tariff_id'] as $field)
-        if (!isset($getData[$field])) {
-            throw new \InvalidArgumentException('Не все параметры поступили');
-        }
+            if (!isset($getData[$field])) {
+                throw new \InvalidArgumentException('Не все параметры поступили');
+            }
 
         $accountId = $getData['account_id'];
         $iccid = $getData['connect_iccid'];
@@ -449,8 +452,48 @@ class CardController extends BaseController
             'card' => Card::findOne(['iccid' => $iccid]),
         ]);
 
-        \Yii::$app->session->addFlash('success', $info);
+        \Yii::$app->session->addFlash('success', 'ICCID ' . $info . ' присоединен');
 
         return \Yii::$app->response->redirect(ClientAccount::findOne(['id' => $accountId])->getUrl());
+    }
+
+    public function actionMassLinkDanycom()
+    {
+        $count = 0;
+        $data = ClientAccount::find()
+            ->alias('c')
+            ->joinWith('superClient sp', true, 'INNER JOIN')
+            ->where(['entry_point_id' => EntryPoint::ID_MNP_RU_DANYCOM])
+            ->select('c.id');
+
+
+        $return = '';
+        foreach ($data->column() as $accountId) {
+            [$cards, $accountTariffs] = \app\modules\sim\classes\Linker::me()->getDataByAccountId($accountId);
+
+
+            $dataCards = array_keys($cards);
+            $dataAccountTariffs = array_keys($accountTariffs);
+
+            foreach ($dataAccountTariffs as $idx => $accountTariffId) {
+                if (!isset($dataCards[$idx])) {
+                    break;
+                }
+
+                $iccid = $dataCards[$idx];
+
+                $return .= "<br>(" . (++$count) . ") " . $accountId . ': ' . $iccid . ' => ' . $accountTariffId . ': ' . $accountTariffs[$accountTariffId];
+
+                if ($count > 100) {
+                    break 2;
+                }
+
+                AccountTariffCheckHlr::reservImsi([
+                    'account_tariff_id' => $accountTariffId,
+                    'card' => Card::findOne(['iccid' => $iccid]),
+                ]);
+            }
+        }
+        return $return;
     }
 }
