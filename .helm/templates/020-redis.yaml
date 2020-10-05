@@ -15,6 +15,8 @@ spec:
   template:
     metadata:
       labels:
+        ingressInternal: "yes"
+        ingressExternal: "no"
         service: {{ .Values.redis_prod.host }}
     spec:
       containers:
