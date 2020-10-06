@@ -686,7 +686,7 @@ class ClientController extends ApiInternalController
 
         $data = $this->requestData;;
 
-        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', 'temp', 'tariff', 'delivery', 'delivery_address', '__client_account_id'] as $value) {
+        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', 'temp', 'tariff', 'delivery', 'delivery_address', 'file_link', '__client_account_id'] as $value) {
             if (isset($data[$value])) {
                 $params[$value] = preg_replace('/\s+/', ' ', htmlspecialchars(trim(strip_tags($data[$value])), ENT_NOQUOTES | ENT_HTML401));
                 unset($data[$value]);
@@ -772,6 +772,7 @@ class ClientController extends ApiInternalController
         $infoModel->temp = $params['temp'];
         $infoModel->tariff = $params['tariff'];
         $infoModel->delivery_type = $params['delivery'];
+        $infoModel->file_link = $params['file_link'];
 
         if (!$infoModel->save()) {
             throw new ModelValidationException($infoModel);

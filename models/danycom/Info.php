@@ -11,6 +11,7 @@ use app\dao\ActualNumberDao;
  * @property string $tariff
  * @property string $temp
  * @property string $delivery_type
+ * @property string $file_link
  */
 class Info extends ActiveRecord
 {
