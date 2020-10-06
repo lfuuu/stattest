@@ -16,6 +16,16 @@
                 Временный номер: <?= $info->temp ?><br>
                 Тариф: <?= $info->tariff ?><br>
                 Доставка: <?= $info->delivery_type ?><br>
+            <?php
+                if($info->file_link) {
+                    $fileName = $info->file_link;
+                    $urlInfo = parse_url($info->file_link);
+                    if ($urlInfo) {
+                        $e = explode('/', $urlInfo['path']);
+                        $fileName = $e[count($e)-1];;
+                    }
+                    echo \app\classes\Html::a($fileName, $info->file_link);
+                } ?>
             <?php endif; ?>
         </td>
         <td valign="top">
