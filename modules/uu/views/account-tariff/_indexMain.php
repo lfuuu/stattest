@@ -444,5 +444,6 @@ echo $this->render('_indexMainGroupAction', [
 if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY, ServiceType::ID_VOIP_PACKAGE_SMS])) {
     echo $this->render('_addPackage', [
         'filterModel' => $filterModel,
+        'service_type_id' => $serviceType->id
     ]);
 }

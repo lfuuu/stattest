@@ -5,6 +5,7 @@
 
 namespace app\modules\uu\controllers;
 
+use app\classes\Assert;
 use app\classes\BaseController;
 use app\classes\Html;
 use app\classes\traits\AddClientAccountFilterTraits;
@@ -846,6 +847,18 @@ class AccountTariffController extends BaseController
             return false;
         }
 
+        $tariffPeriodIdAdd = false;
+        $serviceTypeId = null;
+        if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) {
+            $tariffPeriodIdAdd = $post['AccountTariffLogAdd']['tariff_period_id'];
+            $tariffPeriodAdd = TariffPeriod::findOne(['id' => $tariffPeriodIdAdd]);
+            Assert::isObject($tariffPeriodAdd);
+            $serviceTypeId = $tariffPeriodAdd->tariff->service_type_id;
+        }
+
+        Assert::isNotNull($serviceTypeId);
+        Assert::isGreater($serviceTypeId, 0);
+
         /** @var ActiveQuery $query */
         $query = $filterModel->search()->query;
         /** @var AccountTariff $accountTariff */
@@ -853,10 +866,7 @@ class AccountTariffController extends BaseController
             $transaction = \Yii::$app->db->beginTransaction();
 
             try {
-
                 if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) { // add
-
-                    $tariffPeriodIdAdd = $post['AccountTariffLogAdd']['tariff_period_id'];
 
                     if ($accountTariff->prev_account_tariff_id) {
                         $accountTariff = $accountTariff->prevAccountTariff;
@@ -883,7 +893,7 @@ class AccountTariffController extends BaseController
                         // подключить базовый пакет
                         $accountTariffPackage = new AccountTariff();
                         $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
-                        $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE_CALLS;
+                        $accountTariffPackage->service_type_id = $serviceTypeId;
                         $accountTariffPackage->region_id = $accountTariff->region_id;
                         $accountTariffPackage->city_id = $accountTariff->city_id;
                         $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
