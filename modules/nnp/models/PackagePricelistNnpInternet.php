@@ -1,7 +1,10 @@
 <?php
 
 namespace app\modules\nnp\models;
-
+/**
+ * Class PackagePricelistNnpInternet
+ * @property integer bytes_amount
+ */
 class PackagePricelistNnpInternet extends PackagePricelistNnp
 {
     /**
@@ -19,7 +22,8 @@ class PackagePricelistNnpInternet extends PackagePricelistNnp
     {
         return [
             [['tariff_id', 'nnp_pricelist_id', 'bytes_amount'], 'required'],
-            [['tariff_id', 'nnp_pricelist_id', 'bytes_amount'], 'integer'],
+            [['tariff_id', 'nnp_pricelist_id'], 'integer'],
+            [['bytes_amount'], 'number'],
         ];
     }
 
@@ -34,7 +38,10 @@ class PackagePricelistNnpInternet extends PackagePricelistNnp
     public function beforeSave($insert)
     {
         $this->bytes_amount *= (1024 * 1024);
-        return parent::beforeSave($insert);
+        $result = parent::beforeSave($insert);
+        $this->bytes_amount /= (1024 * 1024);
+
+        return $result;
     }
 
 }
