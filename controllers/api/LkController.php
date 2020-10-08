@@ -8,6 +8,8 @@ use app\exceptions\api\SberbankApiException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\Currency;
+use app\models\danycom\PhoneHistory;
+use app\models\EntryPoint;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
@@ -28,6 +30,7 @@ use app\classes\validators\AccountIdValidator;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use yii\base\InvalidParamException;
+use yii\db\Expression;
 
 /**
  * Class LkController
@@ -75,7 +78,7 @@ class LkController extends ApiController
 
         $form->validateWithException();
 
-        $account = ClientAccount::findOne(["id" => $form->account_id]);
+        $account = ClientAccount::find()->where(["id" => $form->account_id])->with(['clientContractModel', 'superClient'])->one();
         Assert::isObject($account);
 
         $contract = $account->clientContractModel;
@@ -91,6 +94,40 @@ class LkController extends ApiController
             $scId = \Yii::$app->params['yandex']['kassa'][$contract->organization_id]['sc_id'];
         }
 
+        $danycomData = [];
+        if ($account->superClient->entry_point_id == EntryPoint::ID_MNP_RU_DANYCOM) {
+            $numbers = AccountTariff::find()->where(['client_account_id' => $account->id, 'service_type_id' => ServiceType::ID_VOIP])->select('voip_number')->column();
+
+            /** @TODO: привести номера в e164 */
+            array_walk($numbers, function(&$number){
+                $number = substr($number, 1);
+            });
+
+            $numberAndPosition = PhoneHistory::find()->select(['number' => new Expression('max(number)')])
+                ->where(['phone_contact' => $numbers])
+                ->groupBy('phone_contact')
+                ->indexBy('phone_contact')
+                ->column();
+
+            $history = PhoneHistory::find();
+            foreach($numberAndPosition as $number => $position) {
+                $history->orWhere(['phone_contact' => $number, 'number' => $position]);
+            }
+
+            $danycomData['phones'] = $history
+                ->select(['process_id', 'region'])
+                ->addSelect([
+                    'status' => 'state',
+                    'date_start' => 'date_request',
+                    'date_end' => 'date_ported',
+                    'from_operator' => 'from',
+                    'number' => new Expression('concat(\'7\', phone_contact)')
+                ])
+                ->orderBy(['phone_contact' =>SORT_ASC])
+                ->asArray()
+                ->all();
+        }
+
         return [
             'id' => $account->id,
             'country_id' => $account->country_id,
@@ -102,7 +139,7 @@ class LkController extends ApiController
             'yandex_sc_id' => $scId,
             'is_only_yandex' => $contract->organization_id == Organization::MCN_TELECOM,
             'organization_id' => $contract->organization_id,
-        ];
+        ] + ($danycomData ? ['danycom' => $danycomData] : []);
     }
 
     /**
