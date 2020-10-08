@@ -26,6 +26,7 @@ use app\models\Number;
 use app\models\voip\Registry;
 use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\nnp\column\OperatorColumn;
+use app\modules\sim\columns\ImsiPartnerColumn;
 use kartik\grid\ActionColumn;
 use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
@@ -85,9 +86,6 @@ if (Yii::$app->user->can('voip.change-number-status')) {
         echo "</div>";
 
         echo "<div style='clear: both;'></div>";
-
-
-
     } else {
         echo Html::tag('small', 'Слишком много номеров для измнения статуса (>10000)', ['class' => 'text-muted']);
     }
@@ -108,13 +106,13 @@ $columns = [
         'class' => ActionColumn::class,
         'template' => '{update}', // {delete}
         'buttons' => [
-            'update' => function ($url, \app\models\Number $model, $key) use ($baseView) {
+            'update' => function ($url, Number $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
                         'url' => $model->getUrl(),
                     ]
                 );
             },
-            'delete' => function ($url, \app\models\Number $model, $key) use ($baseView) {
+            'delete' => function ($url, Number $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionDrop', [
                         'url' => $model->getUrl(),
                     ]
@@ -141,7 +139,7 @@ $columns = [
         'attribute' => 'country_id',
         'format' => 'html',
         'class' => CountryColumn::class,
-        'value' => function (\app\models\Number $number) {
+        'value' => function (Number $number) {
             return $number->country_code ?
                 $number->country->getLink()
                 : Yii::t('common', '(not set)');
@@ -168,7 +166,7 @@ $columns = [
         'class' => IntegerColumn::class,
         'isNullAndNotNull' => true,
         'format' => 'html',
-        'value' => function (\app\models\Number $number) {
+        'value' => function (Number $number) {
             return $number->client_id ?
                 $number->clientAccount->getLink() :
                 Yii::t('common', '(not set)');
@@ -193,7 +191,7 @@ $columns = [
         'attribute' => 'usage_id',
         'class' => IsNullAndNotNullColumn::class,
         'format' => 'html',
-        'value' => function (\app\models\Number $number) {
+        'value' => function (Number $number) {
             return $number->usage_id ?
                 $number->usage ?
                     Html::a(
@@ -282,6 +280,12 @@ $columns = [
         'class' => SourceColumn::class,
     ],
     [
+        'label' => 'MVNO-партнер',
+        'attribute' => 'mvno_partner_id',
+        'class' => ImsiPartnerColumn::class,
+        'isWithNullAndNotNull' => true,
+    ],
+    [
         'attribute' => 'nnp_operator_id',
         'class' => OperatorColumn::class,
     ],
@@ -292,14 +296,14 @@ $columns = [
     [
         'attribute' => 'iccid',
         'format' => 'raw',
-        'value' => function (\app\models\Number $number) {
+        'value' => function (Number $number) {
             return $number->imsi && $number->imsiModel ? $number->imsiModel->getLink() : '';
         },
     ],
     [
         'attribute' => 'did_group_id',
         'class' => DidGroupColumn::class,
-        'value' => function (\app\models\Number $number) {
+        'value' => function (Number $number) {
             $didGroup = $number->didGroup;
             return Html::a($didGroup->name, $didGroup->getUrl());
         },

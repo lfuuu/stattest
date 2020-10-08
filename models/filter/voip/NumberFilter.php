@@ -49,6 +49,7 @@ class NumberFilter extends Number
     public $numbers_count_to = '';
     public $registry_number_from = '';
     public $registry_id = '';
+    public $mvno_partner_id = '';
 
     /**
      * @return array
@@ -58,7 +59,7 @@ class NumberFilter extends Number
         return [
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
             [['imsi', 'registry_id'], 'integer'],
-            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
+            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
@@ -73,7 +74,8 @@ class NumberFilter extends Number
      */
     public function search()
     {
-        $query = Number::find();
+        $query = Number::find()
+            ->alias('n');
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
@@ -86,7 +88,7 @@ class NumberFilter extends Number
 
         $query->with('registry')->with('didGroup')->with('country');
 
-        $query->joinWith('registry');
+        $query->joinWith('registry r');
 
         if ($this->number && !$this->number_from) {
             $this->number_from = $this->number;
@@ -96,9 +98,13 @@ class NumberFilter extends Number
 
         if ($this->number_from) {
             if ($this->number_to === '') {
-                $query->andWhere(['LIKE', $numberTableName . '.number', $this->number_from]);
+                if (Number::find()->where(['number' => $this->number_from])->exists()) {
+                    $query->andWhere(['n.number' => $this->number_from]);
+                } else {
+                    $query->andWhere(['LIKE', 'n.number', $this->number_from]);
+                }
             } else {
-                $query->andWhere(['between', 'number', $this->number_from, $this->number_to]);
+                $query->andWhere(['between', 'n.number', $this->number_from, $this->number_to]);
             }
         }
 
@@ -153,36 +159,53 @@ class NumberFilter extends Number
                 break;
         }
 
-        $this->status !== '' && $query->andWhere([$numberTableName . '.status' => $this->status]);
-        $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
-        $this->original_beauty_level !== '' && $query->andWhere([$numberTableName . '.original_beauty_level' => $this->original_beauty_level]);
-        $this->did_group_id !== '' && $query->andWhere([$numberTableName . '.did_group_id' => $this->did_group_id]);
-        $this->ndc_type_id !== '' && $query->andWhere([$numberTableName . '.ndc_type_id' => $this->ndc_type_id]);
-        $this->number_tech !== '' && $query->andWhere([$numberTableName . '.number_tech' => $this->number_tech]);
+        switch ($this->mvno_partner_id) {
+            case '':
+                break;
 
-        $this->calls_per_month_2_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_2', $this->calls_per_month_2_from]);
-        $this->calls_per_month_2_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_2', $this->calls_per_month_2_to]);
+            case GetListTrait::$isNull:
+                $query->andWhere(['n.mvno_partner_id' => null]);
+                break;
 
-        $this->calls_per_month_1_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_1', $this->calls_per_month_1_from]);
-        $this->calls_per_month_1_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_1', $this->calls_per_month_1_to]);
+            case GetListTrait::$isNotNull:
+                $query->andWhere(['IS NOT', 'n.mvno_partner_id', null]);
+                break;
 
-        $this->calls_per_month_0_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_from]);
-        $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_to]);
+            default:
+                $query->andWhere(['n.mvno_partner_id' => $this->mvno_partner_id]);
+                break;
+        }
+
+        $this->status !== '' && $query->andWhere(['n.status' => $this->status]);
+        $this->beauty_level !== '' && $query->andWhere(['n.beauty_level' => $this->beauty_level]);
+        $this->original_beauty_level !== '' && $query->andWhere(['n.original_beauty_level' => $this->original_beauty_level]);
+        $this->did_group_id !== '' && $query->andWhere(['n.did_group_id' => $this->did_group_id]);
+        $this->ndc_type_id !== '' && $query->andWhere(['n.ndc_type_id' => $this->ndc_type_id]);
+        $this->number_tech !== '' && $query->andWhere(['n.number_tech' => $this->number_tech]);
+
+        $this->calls_per_month_2_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_2', $this->calls_per_month_2_from]);
+        $this->calls_per_month_2_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_2', $this->calls_per_month_2_to]);
+
+        $this->calls_per_month_1_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_1', $this->calls_per_month_1_from]);
+        $this->calls_per_month_1_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_1', $this->calls_per_month_1_to]);
+
+        $this->calls_per_month_0_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_0', $this->calls_per_month_0_from]);
+        $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_0', $this->calls_per_month_0_to]);
 
         $this->solution_number !== '' && $query->andWhere([$registryTableName . '.solution_number' => $this->solution_number]);
 
         $this->registry_number_from !== '' && $query->andWhere([$registryTableName . '.number_full_from' => $this->registry_number_from]);
         $this->solution_date !== '' && $query->andWhere([$registryTableName . '.solution_date' => $this->solution_date]);
 
-        $this->country_id !== '' && $query->andWhere([$numberTableName . '.country_code' => $this->country_id]);
-        $query->andFilterWhere([$numberTableName . '.source' => $this->source]);
+        $this->country_id !== '' && $query->andWhere(['n.country_code' => $this->country_id]);
+        $query->andFilterWhere(['n.source' => $this->source]);
 
         switch ($this->imsi) {
             case GetListTrait::$isNull:
-                $query->andWhere($numberTableName . '.imsi IS NULL');
+                $query->andWhere('n.imsi IS NULL');
                 break;
             case GetListTrait::$isNotNull:
-                $query->andWhere($numberTableName . '.imsi IS NOT NULL');
+                $query->andWhere('n.imsi IS NOT NULL');
                 break;
             default:
                 break;
@@ -190,10 +213,10 @@ class NumberFilter extends Number
 
         switch ($this->usage_id) {
             case GetListTrait::$isNull:
-                $query->andWhere($numberTableName . '.usage_id IS NULL');
+                $query->andWhere('n.usage_id IS NULL');
                 break;
             case GetListTrait::$isNotNull:
-                $query->andWhere($numberTableName . '.usage_id IS NOT NULL');
+                $query->andWhere('n.usage_id IS NOT NULL');
                 break;
             default:
                 break;
@@ -203,13 +226,13 @@ class NumberFilter extends Number
             case '':
                 break;
             case GetListTrait::$isNull:
-                $query->andWhere($numberTableName . '.client_id IS NULL');
+                $query->andWhere('n.client_id IS NULL');
                 break;
             case GetListTrait::$isNotNull:
-                $query->andWhere($numberTableName . '.client_id IS NOT NULL');
+                $query->andWhere('n.client_id IS NOT NULL');
                 break;
             default:
-                $query->andWhere([$numberTableName . '.client_id' => $this->client_id]);
+                $query->andWhere(['n.client_id' => $this->client_id]);
                 break;
         }
 
