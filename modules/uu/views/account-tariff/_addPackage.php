@@ -15,6 +15,15 @@ if (
     return '';
 }
 
+$serviceTypeMap = [
+        ServiceType::ID_VOIP => ServiceType::ID_VOIP_PACKAGE_CALLS,
+        ServiceType::ID_VOIP_PACKAGE_CALLS => ServiceType::ID_VOIP_PACKAGE_CALLS,
+        ServiceType::ID_VOIP_PACKAGE_SMS => ServiceType::ID_VOIP_PACKAGE_SMS,
+        ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY,
+];
+
+$serviceTypePackageId = $serviceTypeMap[$service_type_id];
+
 $accountTariffLog = new AccountTariffLogAdd();
 $accountTariffLog->actual_from = $accountTariffFirst->getDefaultActualFrom();
 
@@ -40,7 +49,7 @@ $id = mt_rand(0, 1000000);
                 ->widget(\kartik\select2\Select2::class, [
                     'data' => TariffPeriod::getList(
                         $defaultTariffPeriodId,
-                        ServiceType::ID_VOIP_PACKAGE_CALLS,
+                        $serviceTypePackageId,
                         $clientAccount->currency,
                         $countryId,
                         $voipCountryIdTmp = null,
