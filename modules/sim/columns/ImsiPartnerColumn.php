@@ -6,6 +6,7 @@ use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\ImsiPartner;
 use kartik\grid\GridView;
@@ -29,5 +30,15 @@ class ImsiPartnerColumn extends DataColumn
         $this->filter = ImsiPartner::getList($this->isWithEmpty, $this->isWithNullAndNotNull);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' sim-imsi-partner-column';
+    }
+
+    protected function renderDataCellContent($model, $key, $index)
+    {
+        $value = $this->getDataCellValue($model, $key, $index);
+        if (is_null($value)) {
+            return Yii::t('common', '(not set)');
+        } else {
+            return $this->filter[$value];
+        }
     }
 }

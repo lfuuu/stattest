@@ -195,7 +195,7 @@ $readonlyOptions = [
             ];
         }
 
-        if ($model->source == VoipRegistrySourceEnum::REGULATOR) {
+        if ($model->source == VoipRegistrySourceEnum::REGULATOR || $model->source == VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE) {
             $line3Attributes['mvno_partner_id'] = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => app\modules\sim\models\ImsiPartner::getList($isWithEmpty = true),
