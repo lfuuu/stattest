@@ -151,16 +151,6 @@ class NumberRangeFilter extends NumberRange
 
         $this->country_code && $query->andWhere([$currentTableName . '.country_code' => $this->country_code]);
 
-        if ($this->ndc_str) {
-            $query->joinWith('geoPlace');
-            $query->andWhere([$geoTableName . '.ndc' => $this->ndc_str]);
-        }
-
-        if ($this->ndc) {
-            $query->joinWith('geoPlace');
-            $query->andWhere([$geoTableName . '.ndc' => $this->ndc]);
-        }
-
         if (
             ($this->is_active !== '')
             && !is_null($this->is_active)
@@ -200,6 +190,23 @@ class NumberRangeFilter extends NumberRange
             default:
                 $query->andWhere([$currentTableName . '.ndc_type_id' => $this->ndc_type_id]);
                 break;
+        }
+
+        if (
+            $this->region_id
+            || $this->city_id
+            || $this->ndc
+            || $this->ndc_str
+        ) {
+            $query->joinWith('geoPlace');
+        }
+
+        if ($this->ndc) {
+            $query->andWhere([$geoTableName . '.ndc' => $this->ndc]);
+        }
+
+        if ($this->ndc_str) {
+            $query->andWhere([$geoTableName . '.ndc' => $this->ndc_str]);
         }
 
         switch ($this->region_id) {
