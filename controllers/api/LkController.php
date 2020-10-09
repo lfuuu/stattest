@@ -141,6 +141,7 @@ class LkController extends ApiController
             'yandex_sc_id' => $scId,
             'is_only_yandex' => $contract->organization_id == Organization::MCN_TELECOM,
             'organization_id' => $contract->organization_id,
+            'legal_type' => $contract->clientContragent->legal_type,
         ] + ($danycomData ? ['danycom' => $danycomData] : []);
     }
 
