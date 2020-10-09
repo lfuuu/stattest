@@ -180,6 +180,7 @@ class VoipRegistryDao extends Singleton
      * @param string $addNumber
      * @throws InvalidConfigException
      * @throws ModelValidationException
+     * @return Number
      */
     private function _addNumber(Registry $registry, $addNumber)
     {
@@ -216,6 +217,12 @@ class VoipRegistryDao extends Singleton
         $registry->mvno_trunk_id && $number->mvno_trunk_id = $registry->mvno_trunk_id;
         $registry->mvno_partner_id && $number->mvno_partner_id = $registry->mvno_partner_id;
         $registry->nnp_operator_id && $number->nnp_operator_id = $registry->nnp_operator_id;
+
+        $numberInfo = Number::getNnpInfo($number->number);
+
+        $number->nnp_region_id = $numberInfo['nnp_region_id'] ?? 0;
+        $number->nnp_city_id = $numberInfo['nnp_city_id'] ?? 0;
+        $number->nnp_operator_id = $numberInfo['nnp_operator_id'] ?? 0;
 
         $didGroupId = DidGroup::dao()->getIdByNumber($number);
 
@@ -262,6 +269,8 @@ class VoipRegistryDao extends Singleton
         }
 
         $transaction->commit();
+
+        return $number;
     }
 
     /**

@@ -676,12 +676,6 @@ class ClientController extends ApiInternalController
      */
     public function actionFormPortedNumber()
     {
-        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
-
-        if (!$url) {
-            throw new InvalidConfigException('nnpInfoServiceURL not set');
-        }
-
         $params = [];
 
         $data = $this->requestData;;
@@ -744,11 +738,7 @@ class ClientController extends ApiInternalController
             $numberInfo = ['nnp_operator_id' => 0, 'nnp_region_id' => 0];
 
             try {
-                $numberInfo = (new HttpClient())
-                    ->get($url, [
-                        'cmd' => 'getNumberRangeByNum',
-                        'num' => $number])
-                    ->getResponseDataWithCheck();
+                $numberInfo = \app\models\Number::getNnpInfo($number);
             } catch (\Exception $e) {
                 Yii::error($e);
             }
