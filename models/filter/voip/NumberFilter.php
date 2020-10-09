@@ -83,9 +83,6 @@ class NumberFilter extends Number
             ],
         ]);
 
-        $numberTableName = Number::tableName();
-        $registryTableName = Registry::tableName();
-
         $query->with('registry')->with('didGroup')->with('country');
 
         $query->joinWith('registry r');
@@ -113,15 +110,15 @@ class NumberFilter extends Number
                 break;
 
             case GetListTrait::$isNull:
-                $query->andWhere(['city_id' => null]);
+                $query->andWhere(['n.city_id' => null]);
                 break;
 
             case GetListTrait::$isNotNull:
-                $query->andWhere(['IS NOT', 'city_id', null]);
+                $query->andWhere(['IS NOT', 'n.city_id', null]);
                 break;
 
             default:
-                $query->andWhere([$numberTableName . '.city_id' => $this->city_id]);
+                $query->andWhere(['n.city_id' => $this->city_id]);
                 break;
         }
 
@@ -130,15 +127,15 @@ class NumberFilter extends Number
                 break;
 
             case GetListTrait::$isNull:
-                $query->andWhere(['region' => null]);
+                $query->andWhere(['n.region' => null]);
                 break;
 
             case GetListTrait::$isNotNull:
-                $query->andWhere(['IS NOT', 'region', null]);
+                $query->andWhere(['IS NOT', 'n.region', null]);
                 break;
 
             default:
-                $query->andWhere([$numberTableName . '.region' => $this->region]);
+                $query->andWhere(['n.region' => $this->region]);
                 break;
         }
 
@@ -192,10 +189,10 @@ class NumberFilter extends Number
         $this->calls_per_month_0_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_0', $this->calls_per_month_0_from]);
         $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_0', $this->calls_per_month_0_to]);
 
-        $this->solution_number !== '' && $query->andWhere([$registryTableName . '.solution_number' => $this->solution_number]);
+        $this->solution_number !== '' && $query->andWhere(['r.solution_number' => $this->solution_number]);
 
-        $this->registry_number_from !== '' && $query->andWhere([$registryTableName . '.number_full_from' => $this->registry_number_from]);
-        $this->solution_date !== '' && $query->andWhere([$registryTableName . '.solution_date' => $this->solution_date]);
+        $this->registry_number_from !== '' && $query->andWhere(['r.number_full_from' => $this->registry_number_from]);
+        $this->solution_date !== '' && $query->andWhere(['r.solution_date' => $this->solution_date]);
 
         $this->country_id !== '' && $query->andWhere(['n.country_code' => $this->country_id]);
         $query->andFilterWhere(['n.source' => $this->source]);
