@@ -856,9 +856,6 @@ class AccountTariffController extends BaseController
             $serviceTypeId = $tariffPeriodAdd->tariff->service_type_id;
         }
 
-        Assert::isNotNull($serviceTypeId);
-        Assert::isGreater($serviceTypeId, 0);
-
         /** @var ActiveQuery $query */
         $query = $filterModel->search()->query;
         /** @var AccountTariff $accountTariff */
@@ -867,6 +864,8 @@ class AccountTariffController extends BaseController
 
             try {
                 if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) { // add
+                    Assert::isNotNull($serviceTypeId);
+                    Assert::isGreater($serviceTypeId, 0);
 
                     if ($accountTariff->prev_account_tariff_id) {
                         $accountTariff = $accountTariff->prevAccountTariff;
