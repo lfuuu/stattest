@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\Html;
+use app\classes\HttpClient;
 use app\classes\model\ActiveRecord;
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
@@ -11,6 +12,7 @@ use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Operator;
 use app\modules\sim\models\Imsi;
 use app\modules\uu\models\AccountTariff;
+use yii\base\InvalidConfigException;
 use yii\helpers\Url;
 
 /**
@@ -57,6 +59,8 @@ use yii\helpers\Url;
  * @property string $source
  * @property integer $numbers_count
  * @property string $solution_date
+ * @property integer $nnp_city_id
+ * @property integer $nnp_region_id
  *
  * @property-read City $city
  * @property-read Country $country
@@ -537,6 +541,21 @@ class Number extends ActiveRecord
     {
         $numberLenth = strlen($number);
         return $numberLenth >= 4 && $numberLenth <= 5;
+    }
+
+    public static function getNnpInfo($number)
+    {
+        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
+
+        if (!$url) {
+            throw new InvalidConfigException('nnpInfoServiceURL not set');
+        }
+
+        return (new HttpClient())
+            ->get($url, [
+                'cmd' => 'getNumberRangeByNum',
+                'num' => $number])
+            ->getResponseDataWithCheck();
     }
 
     /**

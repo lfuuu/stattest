@@ -3,10 +3,12 @@
 namespace app\commands\convert;
 
 use app\classes\enum\VoipRegistrySourceEnum;
+use app\classes\HttpClient;
 use app\models\Number;
 use app\models\voip\Registry;
 use app\modules\nnp\models\NumberRange;
 use app\widgets\ConsoleProgress;
+use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use app\exceptions\ModelValidationException;
 use yii\db\Expression;
@@ -80,6 +82,45 @@ class NumberController extends Controller
                 if (!$number->save()) {
                     throw new ModelValidationException($number);
                 }
+            }
+        }
+    }
+
+    public function actionFillRegion()
+    {
+        $numbers = Number::find()->where(['nnp_region_id' => null])
+            ->orWhere(['nnp_city_id' => null])
+            ->orWhere(['nnp_operator_id' => null])
+            ->select(['nnp_region_id', 'nnp_city_id', 'nnp_operator_id', 'number'])
+            ->asArray()
+            ->all();
+        ;
+
+        /** @var Number $number */
+        foreach ($numbers as $number) {
+            echo ' .';
+            try {
+                $numberInfo = Number::getNnpInfo($number['number']);
+            } catch (\Exception $e) {
+                echo PHP_EOL . 'ERROR: ' . $e->getMessage();
+                continue;
+            }
+
+            $update = [];
+            if (!$number['nnp_city_id']) {
+                $update['nnp_city_id'] = $numberInfo['nnp_city_id'];
+            }
+
+            if (!$number['nnp_region_id']) {
+                $update['nnp_region_id'] = $numberInfo['nnp_region_id'];
+            }
+
+            if (!$number['nnp_operator_id']) {
+                $update['nnp_operator_id'] = $numberInfo['nnp_operator_id'];
+            }
+
+            if($update) {
+                Number::updateAll($update, ['number' => $number['number']]);
             }
         }
     }
