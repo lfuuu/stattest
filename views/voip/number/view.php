@@ -56,11 +56,27 @@ echo \yii\widgets\Breadcrumbs::widget([
                     </th>
                 </tr>
                 <tr>
-                    <td>ННП-оператор</td>
+                    <td>ННП Оператор</td>
                     <th><?php if ($nnpOperator = $number->nnpOperator) {
                             echo Html::a($nnpOperator->name, $nnpOperator->getUrl());
                         }
                         ?></th>
+                </tr>
+                <tr>
+                    <td>ННП Регион</td>
+                    <th><?php if ($nnpRegion = $number->nnpRegion) {
+                            echo Html::a($nnpRegion->name, $nnpRegion->getUrl());
+                        }
+                        ?></th>
+
+                </tr>                <tr>
+                    <td>ННП Город</td>
+                    <th><?php if ($nnpCity = $number->nnpCity) {
+                            echo Html::a($nnpCity->name, $nnpCity->getUrl());
+                        }
+                        ?></th>
+
+                </tr>
                     <?php if ($number->imsi && $imsi = Imsi::findOne(['imsi' => $number->imsi])) : ?>
                 <tr>
                     <td>Привязка к сим-карте</td>
