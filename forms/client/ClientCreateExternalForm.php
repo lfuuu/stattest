@@ -373,6 +373,7 @@ class ClientCreateExternalForm extends Form
             $account->currency = $this->entryPoint->currency_id;
             $account->is_postpaid = $this->entryPoint->is_postpaid;
             $account->account_version = $this->entryPoint->account_version;
+            $account->price_level = $this->entryPoint->price_level;
             $account->credit = $this->entryPoint->credit;
             $account->voip_credit_limit_day = $this->entryPoint->voip_credit_limit_day;
             $account->voip_limit_mn_day = $this->entryPoint->voip_limit_mn_day;

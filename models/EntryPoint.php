@@ -29,6 +29,8 @@ use http\Url;
  * @property int $region_id
  * @property int $site_id
  * @property int $connect_trouble_user_id
+ * @property int $price_level
+ *
  * @property string $wizard_type
  * @property Country $country
  * @property User $connectTroubleUser
@@ -61,6 +63,7 @@ class EntryPoint extends ActiveRecord
         $this->country_id = Country::RUSSIA;
         $this->timezone_name = DateTimeZoneHelper::TIMEZONE_MOSCOW;
         $this->is_postpaid = 1;
+        $this->price_level = ClientAccount::DEFAULT_PRICE_LEVEL;
 
         $this->client_contract_business_id = Business::TELEKOM;
         $this->client_contract_business_process_id = BusinessProcess::TELECOM_MAINTENANCE;
@@ -127,7 +130,8 @@ class EntryPoint extends ActiveRecord
                 [
                     'client_contract_business_id',
                     'client_contract_business_process_id',
-                    'client_contract_business_process_status_id'
+                    'client_contract_business_process_status_id',
+                    'price_level'
                 ],
                 'integer'
             ],
@@ -161,6 +165,7 @@ class EntryPoint extends ActiveRecord
             'connect_trouble_user_id' => 'Пользовтель, для создания траблы на подключение',
             'wizard_type' => "Тип Wizard'а",
             'site_id' => "Сайт для обслуживания",
+            'price_level' => "Уровень цен",
         ];
     }
 
