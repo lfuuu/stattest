@@ -73,6 +73,8 @@ use yii\helpers\Url;
  * @property-read Imsi $imsiModel
  * @property-read Registry $registry
  * @property-read Operator $nnpOperator
+ * @property-read \app\modules\nnp\models\Region $nnpRegion
+ * @property-read \app\modules\nnp\models\City $nnpCity
  * @property-read string $link
  * @property-read Url $url
  *
@@ -290,6 +292,16 @@ class Number extends ActiveRecord
     public function getNnpOperator()
     {
         return $this->hasOne(Operator::class, ['id' => 'nnp_operator_id']);
+    }
+
+    public function getNnpRegion()
+    {
+        return $this->hasOne(\app\modules\nnp\models\Region::class, ['id' => 'nnp_region_id']);
+    }
+
+    public function getNnpCity()
+    {
+        return $this->hasOne(\app\modules\nnp\models\City::class, ['id' => 'nnp_city_id']);
     }
 
     /**
