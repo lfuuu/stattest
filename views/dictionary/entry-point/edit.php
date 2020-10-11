@@ -152,9 +152,16 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 ?>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'voip_credit_limit_day')
+                ?>
+            </div>
+
+            <div class="col-sm-2">
+                <?= $form
+                    ->field($model, 'price_level')
+                    ->dropDownList(ClientAccount::getPriceLevels())
                 ?>
             </div>
 
