@@ -14,11 +14,14 @@ class DidGroupColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
+    public $country_id = null;
+    public $city_id = null;
+    public $ndc_type_id = null;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = DidGroup::getList($isWithEmpty = true);
+        $this->filter = $this->country_id && $this->ndc_type_id ? DidGroup::getList($isWithEmpty = true, $this->country_id, $this->city_id, $this->ndc_type_id) : DidGroup::getEmptyList($isWithEmpty = true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' did-group-column';
     }
