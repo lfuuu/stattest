@@ -68,6 +68,7 @@ if (Yii::$app->user->can('voip.change-number-status')) {
         echo Html::hiddenInput('numbers', json_encode($numbers));
         echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-status']);
         echo Html::dropDownList('status', null,
+            DidGroup::getEmptyList(true) +
             [
                 Number::STATUS_NOTSALE => 'Не продается',
                 Number::STATUS_INSTOCK => 'Свободен',
@@ -80,7 +81,18 @@ if (Yii::$app->user->can('voip.change-number-status')) {
         echo Html::tag('b', 'Изменить степень красивости') . '<br>';
         echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-beauty-level']);
         echo Html::dropDownList('beauty-level', null,
-            DidGroup::$beautyLevelNames + ['original' => 'Изначальный'], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+            DidGroup::getEmptyList(true) + DidGroup::$beautyLevelNames + ['original' => 'Изначальный'], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+        echo "</div>";
+
+        echo "<div class=well style='width: 400px; float: left; margin-left: 10px;'>";
+        echo Html::tag('b', 'Изменить DID-группу') . '<br>';
+        if (!$filterModel->ndc_type_id) {
+            echo Html::tag('span', 'Для получения списка DID-групп необходимов выбрать "Страну" и "Тип номера"', ['class' => 'text-info']);
+        } else {
+            echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-did-group']);
+            echo Html::dropDownList('did_group_id', null,
+                DidGroup::getList($isWithEmpty = true, $filterModel->country_id, $filterModel->city_id, $filterModel->ndc_type_id), ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+        }
         echo "</div>";
         echo Html::endForm();
         echo "</div>";
@@ -160,6 +172,17 @@ $columns = [
     [
         'attribute' => 'ndc_type_id',
         'class' => NdcTypeColumn::class
+    ],
+    [
+        'attribute' => 'did_group_id',
+        'class' => DidGroupColumn::class,
+        'country_id' => $filterModel->country_id,
+        'city_id' => $filterModel->city_id,
+        'ndc_type_id' => $filterModel->ndc_type_id,
+        'value' => function (Number $number) {
+            $didGroup = $number->didGroup;
+            return Html::a($didGroup->name, $didGroup->getUrl());
+        },
     ],
     [
         'attribute' => 'client_id',
@@ -298,14 +321,6 @@ $columns = [
         'format' => 'raw',
         'value' => function (Number $number) {
             return $number->imsi && $number->imsiModel ? $number->imsiModel->getLink() : '';
-        },
-    ],
-    [
-        'attribute' => 'did_group_id',
-        'class' => DidGroupColumn::class,
-        'value' => function (Number $number) {
-            $didGroup = $number->didGroup;
-            return Html::a($didGroup->name, $didGroup->getUrl());
         },
     ],
     [

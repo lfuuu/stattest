@@ -171,21 +171,42 @@ class NumberController extends BaseController
     {
         $post = Yii::$app->request->post();
 
-        $numbers = isset($post['numbers']) ? json_decode($post['numbers']) : [];
-        $status = isset($post['status']) ? $post['status'] : null;
-        $beautyLevel = isset($post['beauty-level']) ? $post['beauty-level'] : null;
-        $isSetStatus = isset($post['set-status']);
+        $whoStrMap = [
+            '' => '',
+            'set-status' => 'Статус',
+            'set-beauty-level' => 'Степень красивости',
+            'set-did-group' => 'DID-группа',
+        ];
 
-        $whoStr = $isSetStatus ? 'Статус' : 'Степень красивости';
+        $numbers = isset($post['numbers']) ? json_decode($post['numbers']) : [];
+        $status = $post['status'] ??  null;
+        $beautyLevel = $post['beauty-level'] ??  null;
+        $didGroupId = $post['did_group_id'] ??  null;
+
+        $action = '';
+        foreach ([NumberFilter::ACTION_SET_STATUS, NumberFilter::ACTION_SET_BEAUTY_LEVEL, NumberFilter::ACTION_SET_DID_GROUP] as $action) {
+            if (isset($post[$action])) {
+                break;
+            }
+        }
+
+        if (!$action) {
+            return $this->redirect(Yii::$app->request->referrer);
+        }
+
+        $whoStr = $whoStrMap[$action];
 
         $transaction = Yii::$app->db->beginTransaction();
 
         $number = null;
+
         try {
-            if ($isSetStatus && !in_array($status, array_keys(Number::$statusList))) {
+            if ($action == NumberFilter::ACTION_SET_STATUS && !in_array($status, array_keys(Number::$statusList))) {
                 throw new InvalidArgumentException('Неизвестный статус');
-            } elseif (!$isSetStatus && !in_array($beautyLevel, array_keys(DidGroup::$beautyLevelNames + ['original' => '']))) {
+            } elseif ($action == NumberFilter::ACTION_SET_BEAUTY_LEVEL && !array_key_exists($beautyLevel, DidGroup::$beautyLevelNames + ['original' => ''])) {
                 throw new InvalidArgumentException('Неизвестная степень красивости');
+            } elseif ($action == NumberFilter::ACTION_SET_DID_GROUP && !array_key_exists($didGroupId, DidGroup::getList())) {
+                throw new InvalidArgumentException('Неизвестная DID-группа');
             }
 
             $numbersQuery = Number::find()
@@ -201,7 +222,7 @@ class NumberController extends BaseController
             $count = 0;
             /** @var Number $number */
             foreach ($numbersQuery->each() as $number) {
-                if ($isSetStatus) {
+                if ($action == NumberFilter::ACTION_SET_STATUS) {
                     switch ($status) {
                         case Number::STATUS_INSTOCK:
                             NumberDao::me()->toInstock($number, true);
@@ -219,7 +240,7 @@ class NumberController extends BaseController
                         default:
                             throw new \LogicException('Неправильный статус');
                     }
-                } else {
+                } elseif ($action == NumberFilter::ACTION_SET_BEAUTY_LEVEL) {
                     // set beauty level
                     /** @var \app\models\Number $number */
                     $newBeautyLevel = $beautyLevel == 'original' ? $number->original_beauty_level : $beautyLevel;
@@ -275,6 +296,14 @@ class NumberController extends BaseController
                     if (!$number->save()) {
                         throw new ModelValidationException($numbers);
                     }
+                } elseif ($action == NumberFilter::ACTION_SET_DID_GROUP) {
+                    /** @var \app\models\Number $number */
+                    $number->did_group_id = $didGroupId;
+
+                    if (!$number->save()) {
+                        throw new ModelValidationException($numbers);
+                    }
+
                 }
 
                 $count++;

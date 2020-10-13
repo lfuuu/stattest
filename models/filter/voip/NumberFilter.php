@@ -15,6 +15,10 @@ class NumberFilter extends Number
 {
     const ROWS_PER_PAGE = 100;
 
+    const ACTION_SET_STATUS = 'set-status';
+    const ACTION_SET_BEAUTY_LEVEL = 'set-beauty-level';
+    const ACTION_SET_DID_GROUP = 'set-did-group';
+
     public $number = '';
     public $number_from = '';
     public $number_to = '';
@@ -59,7 +63,7 @@ class NumberFilter extends Number
         return [
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
             [['imsi', 'registry_id'], 'integer'],
-            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id'], 'integer'], // , 'did_group_id'
+            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id'], 'integer'],
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
