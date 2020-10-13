@@ -138,6 +138,7 @@ class ClientSuperDao extends Singleton
                         'name' => $contragent['name'],
                         'country' => $countries && isset($countries[$contragent['country_id']]) ? $countries[$contragent['country_id']]->alpha_3 : '',
                         'country_id' => $contragent['country_id'],
+                        'legal_type' => $contragent['legal_type'],
                         'language' => $contragent['lang_code'],
                         'contracts' => $resultContracts
                     ];
@@ -175,6 +176,7 @@ class ClientSuperDao extends Singleton
                     'timezone' => $timezone,
                     'name' => $super->name,
                     'shop' => [
+                        'entry_point_id' => $super->entry_point_id,
                         'country_id' => $super->entryPoint ? $super->entryPoint->country_id : null,
                         'domain' => $super->entryPoint && $super->entryPoint->site_id ? $super->entryPoint->site->domain : null,
                     ],
