@@ -412,7 +412,7 @@
                                           class=textarea>{if isset($stage.comment)}{$stage.comment}{/if}</textarea></td>
                         </tr>
 
-                        {if $tt_write}
+                        {if $tt_write || (isset($item.user_main) && $item.user_main == 'mnp_danycom')}
                             <tr>
                                 <td>Новый ответственный:</td>
                                 <td>
