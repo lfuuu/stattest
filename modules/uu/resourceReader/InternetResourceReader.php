@@ -19,6 +19,12 @@ use yii\db\Expression;
  */
 class InternetResourceReader extends BaseObject implements ResourceReaderInterface
 {
+    protected $data = [];
+
+    protected $accountTariffId = null;
+    protected $minDateTime = null;
+
+
     /**
      * Вернуть количество потребленного ресурса
      *
@@ -29,6 +35,23 @@ class InternetResourceReader extends BaseObject implements ResourceReaderInterfa
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
+        // сменилась основная услуга у пакета, или дата получаемых данных раньше, чем сохраннено в кеше
+        if ($this->accountTariffId !== $accountTariff->prev_account_tariff_id || ($this->minDateTime && ($dateTime < $this->minDateTime))) {
+            echo($this->accountTariffId !== $accountTariff->prev_account_tariff_id ? 'Z ' : 'DateChangedSame ');
+            $this->setDateToValue($accountTariff, $dateTime);
+        }
+
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        return new Amounts($this->data[$date][$accountTariff->id][$tariffPeriod->tariff_id] ?? 0, 0);
+    }
+
+    protected function setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
+    {
+        $this->accountTariffId = $accountTariff->prev_account_tariff_id;
+        $this->minDateTime = $dateTime;
+        $this->data = [];
+
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
         $utcDateTimeZone = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
         $hoursDelta = (int)(
@@ -42,29 +65,43 @@ class InternetResourceReader extends BaseObject implements ResourceReaderInterfa
             $dateTimeUtc = $dateTime->modify('+' . abs($hoursDelta) . ' hours');
         }
 
+        // ресурсы ограничиваем концом сегоднящнего дня
+        $maxDateTime = (new DateTimeImmutable('now'))->setTime(0, 0, 0)->modify('+ 1 day');
 
         $dataQuery = DataRaw::find()
+            ->alias('d')
+            ->joinWith('accountTariffLight l', true, 'INNER JOIN')
             ->select([
-                'price' => new Expression('SUM(cost)'),
-                'qty' => new Expression('((SUM(quantity)::float)/1024/1024)')
+                'account_package_id' => 'l.account_package_id',
+                'tariff_id' => 'l.tariff_id',
+                'price' => new Expression('round(-sum(cost)::numeric, 2)'),
+                'aggr_date' => sprintf("TO_CHAR(d.charge_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
             ])
             ->where([
                 'account_id' => $accountTariff->client_account_id,
                 'number_service_id' => $accountTariff->prev_account_tariff_id,
             ])
             ->andWhere(['>=', 'charge_time', $dateTimeUtc->format(DateTimeZoneHelper::DATETIME_FORMAT)])
-            ->andWhere(['<', 'charge_time', $dateTimeUtc->modify('+1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT)])
-            ->groupBy(['number_service_id']);
+            ->andWhere(['<', 'charge_time', $maxDateTime->format(DateTimeZoneHelper::DATETIME_FORMAT)])
+            ->groupBy(['account_package_id', 'aggr_date', 'tariff_id'])
+            ->orderBy(['aggr_date' => SORT_ASC, 'account_package_id'  => SORT_ASC, 'tariff_id' => SORT_ASC]);
 
-        $data = $dataQuery->asArray()->one();
+        $data = $dataQuery->createCommand(DataRaw::getDb())->queryAll();
+            foreach ($data as $row) {
+                $date = $row['aggr_date'];;
+                $accountPackageId = $row['account_package_id'];
+                $tariffId = $row['tariff_id'];
 
-        if (!$data) {
-            // нет данных
-            return new Amounts(0, 0);
-        }
+                if (!isset($this->data[$date])) {
+                    $this->data[$date] = [];
+                }
 
+                if (!isset($this->data[$date][$accountPackageId])) {
+                    $this->data[$date][$accountPackageId] = [];
+                }
 
-        return new Amounts(abs($data['price']), 0);
+                $this->data[$date][$accountPackageId][$tariffId] = $row['price'];
+            }
     }
 
     /**

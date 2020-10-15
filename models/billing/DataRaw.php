@@ -4,6 +4,7 @@ namespace app\models\billing;
 
 use app\classes\model\ActiveRecord;
 use app\dao\billing\DataRawDao;
+use app\modules\nnp\models\AccountTariffLight;
 use Yii;
 
 /**
@@ -97,6 +98,11 @@ class DataRaw extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
+    }
+
+    public function getAccountTariffLight()
+    {
+        return $this->hasOne(AccountTariffLight::class, ['id' => 'account_tariff_light_id']);
     }
 
     /**
