@@ -3168,9 +3168,9 @@ class m_newaccounts extends IModule
                 if ($invoice = Invoice::find()->where($where)->orderBy(['id' => SORT_DESC])->one()) {
                     $newInvoiceNumber = $invoice->number;
 
-                    if ($is_four_order) {
+                    // if ($is_four_order) {
                         $inv_date = (new \DateTimeImmutable($invoice->date))->getTimestamp();
-                    }
+                    // }
 
                     if ($invoice->lines || $invoice->sum == 0) {
                         $billLines = $invoice->lines;
@@ -3178,7 +3178,6 @@ class m_newaccounts extends IModule
                 }
 
                 $design->assign('is_document_ready', $newInvoiceNumber || $bill->Get('bill_date') < Invoice::DATE_ACCOUNTING);
-
 
                 $design->assign('inv_number', $newInvoiceNumber);
                 $design->assign('invoice', $invoice);
