@@ -20,4 +20,7 @@ return [
     'insert_user_id' => 'Insert user',
     'update_time' => 'Update time',
     'update_user_id' => 'Update user',
+
+    'is_one_active' => 'Only one active',
+    'is_proportionately' => 'Write off proportionally (otherwise completely at once)',
 ];

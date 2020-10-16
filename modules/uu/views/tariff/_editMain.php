@@ -170,6 +170,15 @@ $viewParams = [
                 ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
                     ['label' => $tariff->getAttributeLabel('is_charge_after_blocking') . $helpConfluence])
             ?>
+            <?= $form->field($tariff, 'is_one_active')
+                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                    ['label' => $tariff->getAttributeLabel('is_one_active') . $helpConfluence])
+            ?>
+            <?= $form->field($tariff, 'is_proportionately')
+                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                    ['label' => $tariff->getAttributeLabel('is_proportionately') . $helpConfluence])
+            ?>
+
         </div>
 
     </div>
