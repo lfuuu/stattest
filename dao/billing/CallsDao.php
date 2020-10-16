@@ -100,8 +100,9 @@ class CallsDao extends Singleton
             'dst_number',
             new Expression("(CASE WHEN orig=false THEN 'in' ELSE 'out' END) AS direction"),
             'billed_time AS length',
-            'abs(cost) as cost',
+            'cost' => new Expression('-cost'),
             'rate',
+            'leg_type',
         ]);
         $query->from(['cr' => CallsRaw::tableName()]);
 
