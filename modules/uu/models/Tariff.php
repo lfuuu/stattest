@@ -39,6 +39,8 @@ use yii\helpers\Url;
  * @property integer $is_postpaid
  * @property integer $tag_id
  * @property integer $count_of_carry_period
+ * @property integer $is_one_active
+ * @property integer $is_proportionately
  *
  * @property-read Currency $currency
  * @property-read TariffResource[] $tariffResources
@@ -155,6 +157,9 @@ class Tariff extends ActiveRecord
                     'count_of_carry_period',
                     'vm_id',
                     'tag_id',
+                    'is_one_active',
+                    'is_proportionately',
+
                 ],
                 'integer'
             ],

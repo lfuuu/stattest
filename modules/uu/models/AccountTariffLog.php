@@ -80,6 +80,7 @@ class AccountTariffLog extends ActiveRecord
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
             ['tariff_period_id', 'validatorNdcType'],
+            ['tariff_period_id', 'validatorOneActive'],
             ['user_info', 'string'],
         ];
     }
@@ -811,6 +812,55 @@ class AccountTariffLog extends ActiveRecord
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
             return;
         }
+    }
+
+    public function validatorOneActive($attribute, $params)
+    {
+        // закртытие или тариф можно подключить болле 1 раза.
+        if (!$this->tariff_period_id || !$this->tariffPeriod->tariff->is_one_active) {
+            return;
+        }
+
+        $accountTariff = $this->accountTariff;
+        // поиск уже включенных
+
+        $query = AccountTariff::find()
+            ->where([
+                'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                'tariff_period_id' => $this->tariff_period_id
+            ])->andWhere(['not', ['id' => $accountTariff->id]]);
+
+        if ($query->count()) {
+            $this->addError($attribute, 'Тариф нельзя включить более одного раза');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DEFAULT;
+            return;
+        }
+
+        $accountTariffTableName = AccountTariff::tableName();
+        $accountTariffLogTableName = AccountTariffLog::tableName();
+        if (AccountTariffLog::find()
+            ->joinWith('accountTariff')
+            ->where(
+                [
+                    $accountTariffTableName . '.service_type_id' => $accountTariff->service_type_id,
+                    $accountTariffTableName . '.prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                    $accountTariffLogTableName . '.tariff_period_id' => $this->tariff_period_id,
+                ]
+            )
+            ->andWhere(
+                [
+                    '>=',
+                    $accountTariffLogTableName . '.actual_from_utc',
+                    (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT) // "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
+                ]
+            )
+            ->count()
+        ) {
+            $this->addError($attribute, 'Тариф нельзя включить более одного раза.');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DEFAULT;
+            return;
+        }
+
     }
 
     /**
