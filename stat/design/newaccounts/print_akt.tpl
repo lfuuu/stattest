@@ -18,7 +18,7 @@
                     {/if}
 
                     Продавец: <strong>{$organization.name}</strong><br />
-                    Адрес: <strong>{$organization.post_address}</strong><br />
+                    Адрес: <strong>{$organization.legal_address}</strong><br />
                     ИНН/КПП продавца: <strong>{$organization.tax_registration_id}&nbsp;/&nbsp;{$organization.tax_registration_reason}</strong><br />
 
                     {if $organization.id == 7} {*all4geo*}
