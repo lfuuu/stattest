@@ -86,6 +86,20 @@ class BillDao extends Singleton
 
         $suffix = $lastBillNumber ? 1 + intval(substr($lastBillNumber, strlen($billNoPrefix) + strlen($organizationPrefix))) : 1;
 
+        if ($suffix == 10000 && $organizationId == Organization::MCN_TELECOM) {
+            $organizationPrefix = sprintf('%02d', $organizationId + 1);
+
+            $lastBillNumber = Bill::find()
+                ->select('bill_no')
+                ->where(['LIKE', 'bill_no', $billNoPrefix . $organizationPrefix . '____', $isEscape = false])
+                ->orderBy(['bill_no' => SORT_DESC])
+                ->limit(1)
+                ->scalar();
+
+            $suffix = $lastBillNumber ? 1 + intval(substr($lastBillNumber, strlen($billNoPrefix) + strlen($organizationPrefix))) : 1;
+
+        }
+
         return $billNoPrefix . $organizationPrefix . sprintf("%04d", $suffix);
     }
 
