@@ -43,9 +43,9 @@ $payerCompany = $document->getPayer();
             <?php
             echo !$isCurrentStatement
                 ? Yii::$app->view->renderFile($document->getHeaderTemplate() . '.php', [
-                'organization' => $organization,
-                'payer_company' => $payerCompany,
-            ])
+                    'organization' => $organization,
+                    'payer_company' => $payerCompany,
+                ])
                 : '';
             ?>
         </td>
@@ -133,19 +133,24 @@ $payerCompany = $document->getPayer();
     <tr>
         <td align="center"><b> п/п</b></td>
         <td align="center"><b>Предмет счета</b></td>
-        <td align="center"><b>Количество</b></td>
-        <td align="center"><b>Единица измерения</b></td>
-        <td align="center"><b>Стоимость,&nbsp;<?= $currencyWithoutValue; ?></b></td>
-        <?php if ($organization->isNotSimpleTaxSystem()): ?>
-            <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
-        <?php endif; ?>
-        <?php if ($hasDiscount): ?>
-            <td align="center"><b>Скидка</b></td>
-        <?php endif; ?>
+        <?php if (!$isCurrentStatement) : ?>
+            <td align="center"><b>Количество</b></td>
+            <td align="center"><b>Единица измерения</b></td>
+            <td align="center"><b>Стоимость,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+            <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+            <?php endif; ?>
+            <?php if ($hasDiscount): ?>
+                <td align="center"><b>Скидка</b></td>
+            <?php endif; ?>
 
-        <?php if ($organization->isNotSimpleTaxSystem()): ?>
-            <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
-            <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+
+            <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
+                <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+            <?php else: ?>
+                <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+            <?php endif; ?>
         <?php else: ?>
             <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
         <?php endif; ?>
@@ -155,36 +160,38 @@ $payerCompany = $document->getPayer();
         <tr>
             <td align="right"><?= ($position + 1); ?></td>
             <td><?= $line['item']; ?></td>
-            <td align="center"><?= Utils::mround($line['amount'], 4, 4); ?></td>
-            <td align="center">
-                <?php
-                if (isset($line['okei_name']))
-                    echo $line['okei_name'];
-                else {
-                    if ($line['type'] == 'service')
-                        echo '-';
-                    else
-                        echo 'шт.';
-                }
-                ?>
-            </td>
-            <?php if ($organization->isNotSimpleTaxSystem()): ?>
-                <td align="center"><?= Utils::round(round($line['sum_without_tax'] / $line['amount'], 2), 2); ?></td>
-                <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-            <?php else: ?>
-                <td align="center"><?= Utils::round($line['price'], 2); ?></td>
-            <?php endif; ?>
+            <?php if (!$isCurrentStatement) : ?>
+                <td align="center"><?= Utils::mround($line['amount'], 4, 4); ?></td>
+                <td align="center">
+                    <?php
+                    if (isset($line['okei_name']))
+                        echo $line['okei_name'];
+                    else {
+                        if ($line['type'] == 'service')
+                            echo '-';
+                        else
+                            echo 'шт.';
+                    }
+                    ?>
+                </td>
+                <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                    <td align="center"><?= Utils::round(round($line['sum_without_tax'] / $line['amount'], 2), 2); ?></td>
+                    <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
+                <?php else: ?>
+                    <td align="center"><?= Utils::round($line['price'], 2); ?></td>
+                <?php endif; ?>
 
 
+                <?php if ($hasDiscount): ?>
+                    <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
+                <?php endif; ?>
 
-
-            <?php if ($hasDiscount): ?>
-                <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
-            <?php endif; ?>
-
-            <?php if ($organization->isNotSimpleTaxSystem()): ?>
-                <td align="center"><?= ($document->bill->clientAccount->getTaxRate() ? Utils::round($line['sum_tax'], 2) : 'без НДС'); ?></td>
-                <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                    <td align="center"><?= ($document->bill->clientAccount->getTaxRate() ? Utils::round($line['sum_tax'], 2) : 'без НДС'); ?></td>
+                    <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                <?php else: ?>
+                    <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
+                <?php endif; ?>
             <?php else: ?>
                 <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
             <?php endif; ?>
@@ -193,22 +200,26 @@ $payerCompany = $document->getPayer();
 
     <tr>
 
-        <td colspan="<?= $hasDiscount ? '6' : '5' ?>" align="right">
+        <td colspan="<?= $isCurrentStatement ? '2' : ($hasDiscount ? '6' : '5') ?>" align="right">
             <div style="padding-top: 3px; height: 15px;">
                 <b>Итого:</b>
             </div>
         </td>
 
-        <?php if ($organization->isNotSimpleTaxSystem()): ?>
-            <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
-            <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
-            <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+        <?php if (!$isCurrentStatement) : ?>
+            <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
+                <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
+                <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+            <?php else: ?>
+                <td align="center"><?= Utils::round($document->sum, 2); ?></td>
+            <?php endif; ?>
         <?php else: ?>
             <td align="center"><?= Utils::round($document->sum, 2); ?></td>
         <?php endif; ?>
     </tr>
 
-    <?php if (!$organization->isNotSimpleTaxSystem()): ?>
+    <?php if (!$isCurrentStatement && !$organization->isNotSimpleTaxSystem()): ?>
         <tr>
             <td colspan="<?= $hasDiscount ? '6' : '5' ?>" align="right">
                 <div style="padding-top: 3px; height: 15px;">

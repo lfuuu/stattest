@@ -66,7 +66,7 @@ class CurrentStatementDocument extends DocumentReport
 
         if ($diffBalance) {
             $lines[] = [
-                'item' => \Yii::t('models/' . ResourceModel::tableName(), 'Resource #' . ResourceModel::ID_VOIP_PACKAGE_CALLS, [], $this->getLanguage()),
+                'item' => \Yii::t('models/' . ResourceModel::tableName(), 'Resource #' . ResourceModel::ID_RESOURCES_WITHOUT_ENTRY, [], $this->getLanguage()),
                 'date_from' => '',
                 'amount' => 1,
                 'price' => $diffBalance,

@@ -40,6 +40,7 @@ class ResourceModel extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    const ID_RESOURCES_WITHOUT_ENTRY = 0; // Ресурсы не внесенные в тразакции
     const ID_VPBX_DISK = 1; // ВАТС. Дисковое пространство
     const ID_VPBX_ABONENT = 2; // ВАТС. Абоненты
     const ID_VPBX_EXT_DID = 3; // ВАТС. Подключение номера другого оператора
