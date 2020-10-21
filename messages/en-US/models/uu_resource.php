@@ -7,6 +7,7 @@ return [
     'service_type_id' => 'Service type',
     'unit' => 'Unit',
 
+    'Resource #0' => 'Resources (Calls, Internet, SMS)',
     'Resource #1' => 'Disk space',
     'Resource #2' => 'Subscribers',
     'Resource #3' => 'Other operator number\'s connection',

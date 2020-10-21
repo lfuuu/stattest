@@ -1,5 +1,6 @@
 <?php
 return [
+    'Resource #0' => 'Erőforrások (hívások, Internet, SMS)',
     'Resource #1' => 'Tárhely',
     'Resource #2' => 'Előfizetők',
     'Resource #3' => 'Másik operátori telefonszám használat',
