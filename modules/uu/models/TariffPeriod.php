@@ -296,8 +296,6 @@ class TariffPeriod extends ActiveRecord
         }
 
 
-        $chainDep = null;
-
         $checkCacheQuery1 = clone $activeQuery;
 
         $key = self::tableName() . '_getList_' . md5($checkCacheQuery1->createCommand()->rawSql . implode(',', array_values($selectboxItems)));
@@ -344,7 +342,7 @@ class TariffPeriod extends ActiveRecord
                     ($withTariffId ? $tariffPeriod->getNameWithTariffId() : $tariffPeriod->getName()) . ' №' . $tariffPeriod->tariff_id;
             }
             return $selectboxItems;
-        }, $chainDep ? 3600 * 24 * 30 : null, $chainDep);
+        }, 3600 * 24 * 30, $chainDep);
 
     }
 

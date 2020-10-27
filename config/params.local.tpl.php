@@ -54,6 +54,7 @@ return [
     ],
 
     'nnpInfoServiceURL' => '', // http://reg10.mcntelecom.ru:8032/test/nnpcalc
+    'billerApiURL' => '', // http://reg99.mcntelecom.ru:8101/api/
 
     'API_SERVER' => '', // 'https://api.mcn.ru/v2/rest',
     'ROBOCALL_AUTH' => '', // ['method' => 'bearer', 'token' => 'xxx'],
