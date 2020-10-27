@@ -114,7 +114,7 @@ if (!$serviceType) {
         </div>
 
         <?php // основная услуга ?>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <label><?= $accountTariff->getAttributeLabel('prev_account_tariff_id') . $helpConfluence ?></label>
             <div><?= $accountTariff->prevAccountTariff ?
                     Html::a(
@@ -125,9 +125,16 @@ if (!$serviceType) {
         </div>
 
         <?php // пакеты ?>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
             <label><?= Yii::t('tariff', 'Packages') . $helpConfluence ?></label>
             <div><?= $accountTariff->getNextAccountTariffsAsString() ?></div>
+        </div>
+
+        <?php // Стаститика ?>
+        <div class="col-sm-4">
+            <?= $this->render('_editMainStatistic', [
+                'accountTariff' => $accountTariff,
+            ])?>
         </div>
 
     </div>

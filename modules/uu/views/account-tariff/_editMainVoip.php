@@ -50,58 +50,44 @@ $helpConfluenceInternet = $this->render('//layouts/_helpConfluence', ServiceType
 
     <?php if ($number && $number->isMobileMcn()) : ?>
 
-        <?php // баланс MTT ?>
-        <div class="col-sm-2">
-            <label><?= $accountTariff->getAttributeLabel('mtt_balance') . $helpConfluenceInternet ?></label>
-            <div>
-                <?php if ($accountTariff->mtt_balance) : ?>
-                    <?= sprintf('%.2f', $accountTariff->mtt_balance) ?> руб.<br>
-                    <?= sprintf('%.2f', $accountTariff->mtt_balance / \app\modules\mtt\Module::MEGABYTE_COST) ?> МБ
-                <?php endif ?>
-                <?= $this->render('//layouts/_buttonLink', [
-                    'url' => Url::toRoute(['/uu/mtt/update-balance', 'accountTariffId' => $accountTariff->id]),
-                    'text' => '',
-                    'title' => 'Обновить баланс МТТ',
-                    'glyphicon' => 'glyphicon-refresh',
-                ]) ?>
-            </div>
-        </div>
-
-        <?php // номер MTT ?>
         <div class="col-sm-3">
-            <label><?= $accountTariff->getAttributeLabel('mtt_number') . $helpConfluenceInternet ?></label>
-            <div>
-                <?= $accountTariff->mtt_number ?>
-                <?= $this->render('//layouts/_buttonLink', [
-                    'url' => Url::toRoute(['/uu/mtt/update-number', 'accountTariffId' => $accountTariff->id]),
-                    'text' => '',
-                    'title' => 'Обновить номер МТТ',
-                    'glyphicon' => 'glyphicon-refresh',
-                ]) ?>
-            </div>
-        </div>
-
-        <!-- MTT статистика Internet -->
-        <div class="col-sm-3">
-            <label>Статистика MTT <?= $helpConfluenceInternet ?></label>
+            <label>Статистика <?= $helpConfluenceInternet ?></label>
             <div>
                 <?= $this->render('//layouts/_buttonLink', [
                     'url' => Url::toRoute([
-                        '/uu/mtt/',
-                        'MttRawFilter[number_service_id]' => $accountTariff->id,
-                        'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK,
-                        'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_SMS_IN_ROAMING,
+                        '',
+                        'module' => 'stats',
+                        'action' => 'voip',
+                        'phone' => 'usage_' . $accountTariff->number->region . '_' . $accountTariff->voip_number,
+                        'date_from' => (new DateTime('now'))->modify('first day of this month')->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT_EUROPE),
+                        'date_to' => (new DateTime('now'))->modify('last day of this month')->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT_EUROPE),
+                        'timezone' => 'Europe/Moscow',
+                        'detality' => 'day',
+                        'destination' => 'all',
+                        'tariff_id' => '',
+                        'direction' => 'both',
+                    ]),
+                    'text' => 'Телефония',
+                ]) ?>
+                <?= $this->render('//layouts/_buttonLink', [
+                    'url' => Url::toRoute([
+                        '/voip/sms',
+                        'SmsFilter[from_datetime]' => (new DateTime('now'))->modify('first day of this month')->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT),
+                        'SmsFilter[to_datetime]' => (new DateTime('now'))->modify('last day of this month')->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT),
+                        'SmsFilter[group_by]' => 'day',
+                        'SmsFilter[number]' => $accountTariff->voip_number,
                     ]),
                     'text' => 'SMS',
                 ]) ?>
                 <?= $this->render('//layouts/_buttonLink', [
                     'url' => Url::toRoute([
-                        '/uu/mtt/',
-                        'MttRawFilter[number_service_id]' => $accountTariff->id,
-                        'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_INET_IN_HOMENETWORK,
-                        'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_INET_IN_ROAMING,
+                        '/voip/data-raw',
+                        'number_service_id' => $accountTariff->id,
+                        'fromDate' => (new DateTime('now'))->modify('first day of this month')->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT),
+                        'toDate' => (new DateTime('now'))->modify('last day of this month')->format(\app\helpers\DateTimeZoneHelper::DATE_FORMAT),
+                        'groupBy' => 'day'
                     ]),
-                    'text' => 'Интернет',
+                    'text' => 'Мобильный интернет',
                 ]) ?>
             </div>
         </div>
@@ -116,28 +102,5 @@ $helpConfluenceInternet = $this->render('//layouts/_helpConfluence', ServiceType
             ->textInput()
             ->label($accountTariff->getAttributeLabel('device_address') . $helpConfluenceVoip)
         ?>
-    </div>
-
-    <div class="col-sm-3">
-        <label>
-            Остатки секунд по пакетам
-            <?= $helpConfluenceCalls ?>
-        </label>
-        <div>
-            <?php
-            try {
-                StatsAccount::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
-                $statsNnpPackageMinutes = StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id, $accountTariff->id);
-                foreach ($statsNnpPackageMinutes as $statsNnpPackageMinute) : ?>
-                    <div>
-                        <b><?= $statsNnpPackageMinute['name'] ?></b>:
-                        <?= round($statsNnpPackageMinute['used_seconds'] / 60, 2) . ' / ' . round($statsNnpPackageMinute['total_seconds'] / 60, 2) ?>
-                    </div>
-                <?php
-                endforeach;
-            } catch (\Exception $e) {
-            }
-            ?>
-        </div>
     </div>
 </div>

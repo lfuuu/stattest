@@ -2,6 +2,7 @@
 
 namespace app\models\billing;
 
+use app\classes\HttpClient;
 use app\classes\model\ActiveRecord;
 use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\Package;
@@ -121,5 +122,27 @@ SQL;
             ->createCommand($mainSql, $params)
             ->queryAll();
 
+    }
+
+    public static function getStatInternet($number)
+    {
+        $url = isset(\Yii::$app->params['billerApiURL']) && \Yii::$app->params['billerApiURL'] ? \Yii::$app->params['billerApiURL'] : false;
+
+        if (!$url) {
+            return [];
+        }
+
+        try {
+            $numberInfo = (new HttpClient())
+                ->get($url . 'get.data_package', [
+                    'did' => $number
+                ])
+                ->getResponseDataWithCheck();
+        } catch (\Exception $e) {
+            \Yii::error($e);
+            return [];
+        }
+
+        return $numberInfo;
     }
 }
