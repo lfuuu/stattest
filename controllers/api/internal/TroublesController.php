@@ -4,6 +4,9 @@ namespace app\controllers\api\internal;
 
 use ActiveRecord\RecordNotFound;
 use app\classes\ApiInternalController;
+use app\classes\DynamicModel;
+use app\classes\validators\AccountIdValidator;
+use app\classes\validators\FormFieldValidator;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
@@ -210,5 +213,50 @@ class TroublesController extends ApiInternalController
             throw new ModelValidationException($troubleRoistat);
         }
         return null;
+    }
+
+    /**
+    * @SWG\Get(tags = {"Troubles"}, path = "/internal/troubles/create", summary = "Создать заявку", operationId = "TroubleCreate",
+    *   @SWG\Parameter(name = "account_id", type = "integer", description = "ЛС", in = "query", required = true, default = ""),
+    *   @SWG\Parameter(name = "type", type = "string", description = "Тип заявки (connect, task, trouble)", in = "query", required = true, default = ""),
+    *   @SWG\Parameter(name = "text", type = "string", description = "Текст заявки", in = "query", required = true, default = ""),
+    *   @SWG\Parameter(name = "user_id", type = "integer", description = "Текст заявки", in = "query", required = true, default = ""),
+    *   @SWG\Response(response = "default", description = "Ошибки",
+    *     @SWG\Schema(ref = "#/definitions/error_result")
+    *   )
+    * )
+    */
+    public function actionCreate()
+    {
+        $form = DynamicModel::validateData(
+            \Yii::$app->request->get(),
+            [
+                [['account_id', 'type', 'text', 'user_id'], 'required'],
+                ['account_id', AccountIdValidator::class],
+                [['type', 'text'], 'string'],
+                ['text', FormFieldValidator::class],
+                ['type', 'in', 'range' => array_keys(Trouble::$types)],
+                ['user_id', 'exist', 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            ]
+        );
+
+        if ($form->hasErrors()) {
+            throw new InvalidArgumentException(reset($form->getFirstErrors()));
+        }
+
+        $user = User::find()->where(['id' => $form->user_id, 'enabled' => new \yii\db\Expression('\'yes\'')])->one();
+
+        if (!$user) {
+            throw new InvalidArgumentException('user not found');
+        }
+
+        return Trouble::dao()->createTrouble(
+            $form->account_id,
+            $form->type,
+            $form->type,
+            $form->text,
+            User::SYSTEM_USER,
+            $user->user,
+        );
     }
 }
