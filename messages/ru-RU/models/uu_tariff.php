@@ -6,6 +6,7 @@ return [
     'service_type_id' => 'Тип услуги',
     'is_autoprolongation' => 'Автопролонгация',
     'is_charge_after_blocking' => 'Списывать после блокировки',
+    'is_charge_after_blocking_package' => 'Безусловное продление',
     'is_include_vat' => 'Включая НДС',
     'is_default' => 'По умолчанию',
     'is_postpaid' => 'Постоплата',
