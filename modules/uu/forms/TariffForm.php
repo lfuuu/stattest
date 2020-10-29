@@ -152,7 +152,7 @@ abstract class TariffForm extends \app\classes\Form
                 ];
             }
 
-            unset($post['TariffPeriod'], $post['TariffResource'], $post['Package']);
+            unset($post['TariffPeriod']/*, $post['TariffResource']*/, $post['Package']);
         }
 
         $this->tariffOrganizations = $this->getTariffOrganizations();

@@ -13,6 +13,7 @@ use app\classes\model\ActiveRecord;
  * @property float $price_min
  * @property integer $resource_id
  * @property integer $tariff_id
+ * @property integer $is_can_manage
  *
  * @property-read ResourceModel $resource
  * @property-read Tariff $tariff
@@ -55,9 +56,9 @@ class TariffResource extends ActiveRecord
     public function rules()
     {
         return [
-            [['amount', 'price_per_unit', 'price_min'], 'number'],
+            [['amount', 'price_per_unit', 'price_min', 'is_can_manage'], 'number'],
             [['resource_id', 'tariff_id'], 'integer'],
-            [['resource_id', 'amount', 'price_per_unit', 'price_min'], 'required'],
+            [['resource_id', 'amount', 'price_per_unit', 'price_min', 'is_can_manage'], 'required'],
             ['resource_id', 'validateServiceType'],
         ];
     }
