@@ -66,6 +66,12 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     <?= $helpConfluence ?>
                 </label>
             </div>
+            <div class="col-sm-1">
+                <label>
+                    <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'is_can_manage')) ?>
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
         </div>
 
         <?php
@@ -121,6 +127,10 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
                 <div class="col-sm-1">
                     <?= $form->field($tariffResource, "[{$i}]price_min")->textInput($options)->label(false) ?>
+                </div>
+
+                <div class="col-sm-1">
+                    <?= $form->field($tariffResource, "[{$i}]is_can_manage")->checkbox([]/*$options*/, false)->label(false) ?>
                 </div>
 
             </div>

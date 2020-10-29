@@ -168,7 +168,11 @@ $viewParams = [
         <div class="col-sm-4">
             <?= $form->field($tariff, 'is_charge_after_blocking')
                 ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
-                    ['label' => $tariff->getAttributeLabel('is_charge_after_blocking') . $helpConfluence])
+                    ['label' =>
+                        (isset(ServiceType::$packages[$tariff->service_type_id])
+                            ? \Yii::t('models/' . Tariff::tableName(), 'is_charge_after_blocking_package')
+                            : $tariff->getAttributeLabel('is_charge_after_blocking')) . $helpConfluence ])
+
             ?>
             <?= $form->field($tariff, 'is_one_active')
                 ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
