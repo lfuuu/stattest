@@ -9,6 +9,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
 use app\models\Bill;
 use app\models\ClientAccountOptions;
+use app\models\EntryPoint;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
@@ -170,6 +171,7 @@ class BillerController extends Controller
         $offset = 0;
         while ($count >= $partSize) {
             $clientAccounts = ClientAccount::find()
+                ->with('superClient')
                 ->andWhere(['NOT IN', 'status', [
                     ClientAccount::STATUS_CLOSED,
                     ClientAccount::STATUS_DENY,
@@ -182,6 +184,11 @@ class BillerController extends Controller
                 ->all();
 
             foreach ($clientAccounts as $clientAccount) {
+
+                if ($clientAccount->superClient->entry_point_id == EntryPoint::ID_MNP_RU_DANYCOM) {
+                    echo '- ';
+                    continue;
+                }
 
                 echo '. ';
                 $offset++;
