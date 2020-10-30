@@ -13,7 +13,7 @@
                         {if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
                     {/if}
                     <br /><br />
-                    {if $to_client == "true" && ($bill_client.firma == 'mcn' || $bill_client.firma == 'mcn_telekom')}
+                    {if $to_client == "true" && ($bill_client.firma == 'mcn' || $bill_client.firma == 'mcn_telekom' || $bill_client.firma == 'mcn_telekom_ser')}
                         <b>Обращаем Ваше Внимание!</b> Этот экземпляр Акта, просьба с подписью и печатью направить в наш адрес: {$organization.post_address}, {$organization.name}<br /><br />
                     {/if}
 
