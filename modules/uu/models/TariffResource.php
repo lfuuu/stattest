@@ -58,7 +58,7 @@ class TariffResource extends ActiveRecord
         return [
             [['amount', 'price_per_unit', 'price_min', 'is_can_manage'], 'number'],
             [['resource_id', 'tariff_id'], 'integer'],
-            [['resource_id', 'amount', 'price_per_unit', 'price_min', 'is_can_manage'], 'required'],
+            [['resource_id', 'amount', 'price_per_unit', 'price_min'], 'required'],
             ['resource_id', 'validateServiceType'],
         ];
     }
