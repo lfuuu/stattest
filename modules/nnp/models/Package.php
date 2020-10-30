@@ -39,6 +39,7 @@ class Package extends ActiveRecord
     const LOCATION_GUEST = 2;
     const LOCATION_FOREIGN = 3;
     const LOCATION_MVNO = 4;
+    const LOCATION_IGNORE = 5;
 
     /**
      * Имена полей
@@ -188,6 +189,7 @@ class Package extends ActiveRecord
             self::LOCATION_GUEST => 'Гостевой регион',
             self::LOCATION_FOREIGN => 'Зарубежный роуминг',
             self::LOCATION_MVNO => 'MVNO',
+            self::LOCATION_IGNORE => '*Не учитывать',
         ];
 
         if ($isWithEmpty) {
