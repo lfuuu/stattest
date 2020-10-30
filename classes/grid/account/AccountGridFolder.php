@@ -289,7 +289,7 @@ abstract class AccountGridFolder extends Model
 
         if ($this->createdDate && !empty($this->createdDate)) {
             $createdDates = preg_split('/[\s+]\-[\s+]/', $this->createdDate);
-            $query->andWhere(['between', 'c.created', $createdDates[0], $createdDates[1]]);
+            $query->andWhere(['between', 'c.created', $createdDates[0] . ' 00:00:00', $createdDates[1] . ' 23:59:59']);
         }
 
         if ($this->contract_created && !empty($this->contract_created)) {
