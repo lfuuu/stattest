@@ -37,6 +37,7 @@ use yii\db\ActiveQuery;
  * @property-read ClientAccount $client
  * @property-read User $addUser
  * @property-read PaymentAtol $paymentAtol
+ * @property-read PaymentStripe $paymentStripe
  */
 class Payment extends ActiveRecord
 {
@@ -192,6 +193,14 @@ class Payment extends ActiveRecord
     public function getPaymentAtol()
     {
         return $this->hasOne(PaymentAtol::class, ['id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPaymentStripe()
+    {
+        return $this->hasOne(PaymentStripe::class, ['payment_id' => 'id']);
     }
 
     /**

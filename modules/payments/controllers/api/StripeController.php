@@ -128,7 +128,14 @@ class StripeController extends ApiController
                 throw new ModelValidationException($payment);
             }
 
-            $paymentData = $this->_sendRequest($tokenData['id'], $amount, $currency, $bill->lines[0]->item);
+            $paymentData = $this->_sendRequest(
+                $accountId,
+                $bill->clientAccountModel->contract->organization->name,
+                $tokenData['id'],
+                $amount,
+                $currency,
+                $bill->lines[0]->item
+            );
 
             $paymentStripe = new PaymentStripe();
             $paymentStripe->account_id = $accountId;
@@ -158,13 +165,15 @@ class StripeController extends ApiController
     /**
      * Отправляем запрос на списание с карты
      *
+     * @param int $accountId
+     * @param string $organizationName
      * @param string $tokenId
      * @param float $amount
      * @param string $currency
      * @param string $description
      * @return array
      */
-    private function _sendRequest($tokenId, $amount, $currency, $description)
+    private function _sendRequest($accountId, $organizationName, $tokenId, $amount, $currency, $description)
     {
         $req = (new HttpClient())
             ->createRequest()
@@ -176,6 +185,8 @@ class StripeController extends ApiController
                 'passwd' => ''
             ])
             ->setData([
+                'customer_id' => $accountId,
+                'customer_description' => $organizationName,
                 'amount' => round($amount * 100),
                 'currency' => $currency,
                 'description' => $description,
