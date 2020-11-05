@@ -124,7 +124,9 @@ class LkController extends ApiController
                         'from_operator' => 'from',
                         'number' => new Expression('concat(\'7\', phone_contact)')
                     ])
-                    ->orderBy(['phone_contact' => SORT_ASC])
+                    ->addOrderBy(['created_at' => SORT_DESC])
+                    ->addOrderBy(['phone_contact' => SORT_ASC])
+                    ->limit(1)
                 ->asArray()
                 ->all();
             }
