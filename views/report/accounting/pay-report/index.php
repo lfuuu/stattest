@@ -120,9 +120,11 @@ $columns = [
         'format' => 'raw',
         'class' => StringColumn::class,
         'value' => function (Payment $payment) {
-            return $payment->payment_no ?
-                Html::tag('small', $payment->payment_no) :
-                '';
+            return Html::tag('small',
+                $payment->type == Payment::TYPE_ECASH && $payment->ecash_operator == Payment::ECASH_STRIPE
+                    ? $payment->getPaymentStripe()->select('token_id')->scalar()
+                    : $payment->payment_no
+            );
         },
     ],
 
