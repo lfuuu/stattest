@@ -188,7 +188,6 @@ class StripeController extends ApiController
                 'metadata' => [
                     'customer' => $accountId . '|' . $organizationName,
                 ],
-                'customer_id' => $accountId,
                 'customer_description' => $organizationName,
                 'amount' => round($amount * 100),
                 'currency' => $currency,
