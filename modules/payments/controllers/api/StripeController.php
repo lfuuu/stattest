@@ -185,6 +185,9 @@ class StripeController extends ApiController
                 'passwd' => ''
             ])
             ->setData([
+                'metadata' => [
+                    'customer' => $accountId . '|' . $organizationName,
+                ],
                 'customer_id' => $accountId,
                 'customer_description' => $organizationName,
                 'amount' => round($amount * 100),
