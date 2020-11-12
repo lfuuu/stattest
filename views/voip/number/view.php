@@ -158,7 +158,6 @@ echo \yii\widgets\Breadcrumbs::widget([
                     break;
 
                 case Number::STATUS_RELEASED:
-                case Number::STATUS_RELEASED_AND_PORTED:
                     echo Html::button('Вернуть открепленный номер', ['class' => 'btn btn-default col-sm-12', 'onclick' => "numberSubmitForm('unRelease')"]);
                     break;
             }
