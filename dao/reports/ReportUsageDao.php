@@ -11,6 +11,7 @@ use app\modules\nnp\models\City;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\nnp\models\Package;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
@@ -275,7 +276,8 @@ class ReportUsageDao extends Singleton
                 'cr.nnp_is_mob',
                 'cr.dst_number',
                 'cr.orig',
-                'cr.nnp_number_range_id'
+                'cr.nnp_number_range_id',
+                'location_id',
             ]);
         }
 
@@ -336,6 +338,13 @@ class ReportUsageDao extends Singleton
             if ($isWithPackageDetail) {
                 $this->_admixedPackageDetails($record);
             }
+
+            $record['location_name'] = '';
+            if (isset($record['location_id']) && $record['location_id']) {
+                $locationList = Package::getListLocation(false);
+                $record['location_name'] = $locationList[$record['location_id']] ?? '' ;
+            }
+            unset($record['location_id']);
 
             $result[] = $record;
         };

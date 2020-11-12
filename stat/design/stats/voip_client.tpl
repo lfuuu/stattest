@@ -14,6 +14,7 @@
           <TD class=header vAlign=bottom>Стоимость{if !$price_include_vat} (без НДС){/if}</TD>
           <TD class=header vAlign=bottom>Назначение</TD>
           <TD class=header vAlign=bottom>Детализация</TD>
+          <TD class=header vAlign=bottom>Местоположение</TD>
 {else}
           <TD class=header vAlign=bottom>Дата/время</TD>
           <TD class=header vAlign=bottom>Число звонков</TD>
@@ -59,6 +60,7 @@
                 )</span>{/if}
         </small>
     </td>
+    <TD>{$item.location_name}</TD>
 {else}
     <TD>{if isset($item.account_package_id)}<a href="/uu/account-tariff/edit?id={$item.account_package_id}" target="_blank">{$item.tsf1}</a>{else}{$item.tsf1}{/if}</TD>
     <TD>{$item.cnt}</TD>

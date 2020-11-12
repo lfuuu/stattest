@@ -103,6 +103,7 @@ class CallsDao extends Singleton
             'cost' => new Expression('-cost'),
             'rate',
             'leg_type',
+            'location_id',
         ]);
         $query->from(['cr' => CallsRaw::tableName()]);
 
