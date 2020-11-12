@@ -243,7 +243,7 @@ class NumberDao extends Singleton
             ]);
         }
 
-        Assert::isInArray($status, [Number::STATUS_RELEASED, Number::STATUS_RELEASED_AND_PORTED]);
+        Assert::isInArray($status, [Number::STATUS_RELEASED]);
 
         $number->client_id = null;
         $number->usage_id = null;
