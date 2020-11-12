@@ -73,7 +73,6 @@ if (Yii::$app->user->can('voip.change-number-status')) {
                 Number::STATUS_NOTSALE => 'Не продается',
                 Number::STATUS_INSTOCK => 'Свободен',
                 Number::STATUS_RELEASED => 'Откреплен',
-                Number::STATUS_RELEASED_AND_PORTED => 'Откреплен и портирован',
             ], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
         echo "</div>";
 

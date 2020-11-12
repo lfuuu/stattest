@@ -121,7 +121,6 @@ class Number extends ActiveRecord
         self::STATUS_NOTACTIVE_RESERVED => 'В резерве',
         self::STATUS_NOTACTIVE_HOLD => 'В отстойнике',
         self::STATUS_RELEASED => 'Откреплен',
-        self::STATUS_RELEASED_AND_PORTED => 'Откреплен и портирован',
     ];
 
     public static $statusGroup = [
