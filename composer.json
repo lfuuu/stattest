@@ -36,7 +36,7 @@
     "kartik-v/yii2-tabs-x": "^1.2",
     "bower/typeahead.js": "dev-master as 0.10.99",
     "yiisoft/yii2-gii": "dev-master",
-    "wisembly/elephant.io": "dev-master",
+    "wisembly/elephant.io": "3.3.1",
     "wenzhixin/bootstrap-table": "^1.11",
     "php-amqplib/php-amqplib": "^2.7@dev",
     "kartik-v/yii2-krajee-base": "@dev",

@@ -64,3 +64,8 @@ ci_url: stat.ks8.mcn.local
 
 use_ngnix_virtualserver: "no"
 use_network_polices: "no"
+
+node_comet_prod:
+  host: node-comet-prod
+  port: 3000
+  logLevel: 200

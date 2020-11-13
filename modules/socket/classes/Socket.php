@@ -6,7 +6,7 @@ use app\classes\BaseView;
 use app\classes\Singleton;
 use app\models\User;
 use ElephantIO\Client;
-use ElephantIO\Engine\SocketIO\Version1X;
+use ElephantIO\Engine\SocketIO\Version2X;
 use kartik\base\Config;
 use Yii;
 use yii\web\JsExpression;
@@ -56,7 +56,7 @@ class Socket extends Singleton
             self::HANDSHAKE_USER_ID => $user->id,
         ];
 
-        $url = $this->_getUrl($handshakeData);
+        $url = $this->getUrl($handshakeData);
         if (!$url) {
             return false;
         }
@@ -92,12 +92,13 @@ class Socket extends Singleton
             self::HANDSHAKE_USER => User::SYSTEM_USER,
             self::HANDSHAKE_USER_ID => User::SYSTEM_USER_ID,
         ];
-        $url = $this->_getUrl($handshakeData);
+
+        $url = $this->getUrl($handshakeData, true);
         if (!$url) {
             return false;
         }
 
-        $engine = new Version1X($url);
+        $engine = new Version2X($url);
         $client = new Client($engine);
         $client->initialize();
         $client->emit(self::EVENT, $params);
@@ -110,9 +111,10 @@ class Socket extends Singleton
      * Вернуть URL сокет-сервера
      *
      * @param array $handshakeData Должны быть ключи user и user_id
+     * @param bool $removePath
      * @return string
      */
-    private function _getUrl($handshakeData)
+    protected function getUrl($handshakeData, $removePath = false)
     {
         $params = $this->module->params;
         $url = $params['url'];
@@ -121,9 +123,30 @@ class Socket extends Singleton
             return '';
         }
 
-        $handshakeData[self::HANDSHAKE_SIG] = $this->_generateSig($handshakeData, $secretKey); // подписать
+        // TODO: add frontend_url and backend_url in config/params.php
+        if ($removePath) {
+            $parsed = parse_url($url);
+            if (!empty($parsed['host'])) {
+                $url = strtr(
+                    $url,
+                    [
+                        $parsed['host'] => 'localhost',
+                    ]
+                );
+            }
+            if (!empty($parsed['path'])) {
+                $url = strtr(
+                    $url,
+                    [
+                        $parsed['path'] => '',
+                    ]
+                );
+            }
+        }
 
+        $handshakeData[self::HANDSHAKE_SIG] = $this->_generateSig($handshakeData, $secretKey); // подписать
         $url .= '/?' . http_build_query($handshakeData, null, $arg_separator = '&', $enc_type = PHP_QUERY_RFC3986 /* node.js вместо пробела хочет "%20", а не "+" */);
+
         return $url;
     }
 

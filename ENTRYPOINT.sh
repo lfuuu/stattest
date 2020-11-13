@@ -1,6 +1,9 @@
 #!/bin/sh
 
-cd /opt/stat_rep/stat/config/
+DIR_HOME="/opt/stat_rep"
+DIR_STAT="$DIR_HOME/stat"
+
+cd $DIR_STAT/config/
 
 #mysql
 cp db_stat.php db_stat.local.php
@@ -38,34 +41,48 @@ sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_nnp
 cp cache_redis.local.tpl.php cache_redis.local.php
 sed -i "s/'hostname' => 'localhost'/'hostname' => '$REDIS_HOST'/" cache_redis.local.php
 
+# Modules
+
+# Socket
+cd $DIR_STAT/modules/socket/config/
+cp params.php params.local.php
+sed -i "s/'url' => ''/'url' => '$SOCKET_URL'/" params.local.php
+sed -i "s/'secretKey' => ''/'secretKey' => '$SOCKET_SECRET'/" params.local.php
+
+# WebHook
+cd $DIR_STAT/modules/webhook/config/
+cp params.php params.local.php
+sed -i "s/'secretKey' => ''/'secretKey' => '$WEB_HOOK_SECRET'/" params.local.php
+sed -i "s/'token' => ''/'token' => '$WEB_HOOK_TOKEN'/" params.local.php
+sed -i "s/'account_id' => ''/'account_id' => '$WEB_HOOK_ACCOUNT_ID'/" params.local.php
+sed -i "s/'vpbx_id' => ''/'vpbx_id' => '$WEB_HOOK_VPBX_ID'/" params.local.php
+
+# Payments
+cd $DIR_STAT/modules/payments/config/
+cp params.php params.local.php
+sed -i "s/'user' => ''/'user' => '$PAYMENTS_USER'/" params.local.php
+sed -i "s/'password' => ''/'password' => '$PAYMENTS_PASSWORD'/" params.local.php
+sed -i "s/'publishable_key' => ''/'publishable_key' => '$PAYMENTS_PUBLISHABLE_KEY'/" params.local.php
+sed -i "s/'secret_key' => ''/'secret_key' => '$PAYMENTS_SECRET'/" params.local.php
+
+# NNP
+cd $DIR_STAT/modules/nnp/config/
+cp params.php params.local.php
+sed -i "s/'numlex_user' => ''/'numlex_user' => '$NNP_NUMLEX_USER'/" params.local.php
+sed -i "s/'numlex_pass' => ''/'numlex_pass' => '$NNP_NUMLEX_PASS'/" params.local.php
+
+# SBIS
+cd $DIR_STAT/modules/sbisTenzor/config/
+cp params.php params.local.php
+sed -i "s/'login' => ''/'login' => '$SBIS_LOGIN'/" params.local.php
+sed -i "s/'password' => ''/'password' => '$SBIS_PASSWORD'/" params.local.php
+
 # local conf
-cd /opt/stat_rep/stat/stat/
+cd $DIR_STAT/stat/
 sed -i "s/\"AUTOCREATE_VPBX\" => 0/\"AUTOCREATE_VPBX\" => 1/" local.conf.php
 
 #migrations
-cd /opt/stat_rep/stat/
-#php yii migrate
+cd $DIR_STAT
+php yii migrate
 
-/usr/sbin/init
-
-echo "##########"
-echo "Запуск сервисов"
-
-if [ -f /var/run/crond.pid ]; then
-    rm /var/run/crond.pid
-fi
-/usr/sbin/crond
-
-if [ -f /var/run/nginx.pid ]; then
-    rm /var/run/nginx.pid
-fi
-/usr/sbin/nginx
-
-if [ -f /var/run/php-fpm/php-fpm.pid ]; then
-    rm /var/run/php-fpm/php-fpm.pid
-fi
-/usr/sbin/php-fpm
-
-echo "Сервисы запущены!"
-
-/bin/sleep infinity
+echo "Configs are ready!"

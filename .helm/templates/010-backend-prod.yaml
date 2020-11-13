@@ -20,8 +20,8 @@ spec:
 #            image: alpine:3.6
 #            command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.redis_prod.host }}; do sleep 1; done']
       containers:
-      - name: backend-prod
-{{ tuple "stat-prod" . | werf_container_image | indent 8 }}
+      - name: nginx
+{{ tuple "stat-nginx-prod" . | werf_container_image | indent 8 }}
 #        livenessProbe:
 #          httpGet:
 #            path: /
@@ -38,20 +38,36 @@ spec:
           protocol: TCP
         volumeMounts:
         - name: config-volume
-          subPath: params.local.php
-          mountPath: /opt/stat_rep/stat/config/params.local.php
-        - name: config-volume
           subPath: nginx.conf
           mountPath: /etc/nginx/nginx.conf
         - name: config-volume
           subPath: nginx.default.conf
           mountPath: /etc/nginx/conf.d/default.conf
+        - name: store
+          mountPath: /opt/stat_rep/store
+        - name: assets
+          mountPath: /opt/stat_rep/stat/web/assets
+
+      - name: php-fpm
+{{ tuple "stat-php-fpm-prod" . | werf_container_image | indent 8 }}
+        ports:
+        - containerPort: 9000
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - name: config-volume
+          subPath: params.local.php
+          mountPath: /opt/stat_rep/stat/config/params.local.php
         - name: config-volume
           subPath: php.ini
           mountPath: /etc/php.d/php.ini
         - name: config-volume
           subPath: php-fpm.www.conf
           mountPath: /etc/php-fpm.d/www2.conf
+        - name: store
+          mountPath: /opt/stat_rep/store
+        - name: assets
+          mountPath: /opt/stat_rep/stat/web/assets
         env:
         - name: MYSQL_DB
           value: {{ .Values.mysql_prod.db }}
@@ -73,11 +89,70 @@ spec:
           value: {{ .Values.postgres_prod.password }}
         - name: REDIS_HOST
           value: {{ .Values.redis_prod.host }}
+        - name: SOCKET_URL
+          value: http:\/\/{{ .Values.ci_url }}\/comet
+        - name: SOCKET_SECRET
+          value: {{ .Values.node_comet_prod.secret_key }}
+        - name: WEB_HOOK_SECRET
+          value: {{ .Values.web_hook_prod.secret_key }}
+        - name: WEB_HOOK_TOKEN
+          value: {{ .Values.web_hook_prod.token }}
+        - name: WEB_HOOK_ACCOUNT_ID
+          value: {{ .Values.web_hook_prod.account_id | quote }}
+        - name: WEB_HOOK_VPBX_ID
+          value: {{ .Values.web_hook_prod.vpbx_id | quote }}
+        - name: PAYMENTS_USER
+          value: {{ .Values.payments_prod.user }}
+        - name: PAYMENTS_PASSWORD
+          value: {{ .Values.payments_prod.password }}
+        - name: PAYMENTS_PUBLISHABLE_KEY
+          value: {{ .Values.payments_prod.publishable_key }}
+        - name: PAYMENTS_SECRET
+          value: {{ .Values.payments_prod.secret_key }}
+        - name: NNP_NUMLEX_USER
+          value: {{ .Values.nnp_prod.numlex_user }}
+        - name: NNP_NUMLEX_PASS
+          value: {{ .Values.nnp_prod.numlex_pass }}
+        - name: SBIS_LOGIN
+          value: {{ .Values.sbis_tenzor_prod.login }}
+        - name: SBIS_PASSWORD
+          value: {{ .Values.sbis_tenzor_prod.password }}
 {{ tuple . | werf_container_env | indent 8 }}
       volumes:
       - name: config-volume
         configMap:
           name: {{ .Chart.Name }}-config-files
+      - name: store
+        persistentVolumeClaim:
+          claimName: nfs-pvc-teststat2-store
+      - name: assets
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nfs-pvc-teststat2-store
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-teststat2-store
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 85.94.48.46
+    path: /var/www/html/stat/stat/store
 ---
 apiVersion: v1
 kind: Service

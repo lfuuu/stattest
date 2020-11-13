@@ -62,7 +62,7 @@ data:
     user  nginx;
     worker_processes  1;
 
-    error_log  /var/log/nginx/error.log warn;
+    error_log  /dev/stderr;
     pid        /var/run/nginx.pid;
 
 
@@ -79,7 +79,7 @@ data:
                           '$status $body_bytes_sent "$http_referer" '
                           '"$http_user_agent" "$http_x_forwarded_for"';
 
-        access_log  /var/log/nginx/access.log  main;
+        access_log  /dev/stdout;
 
         sendfile        on;
         #tcp_nopush     on;
@@ -108,6 +108,30 @@ data:
             #fastcgi_pass unix:/var/run/php5-fpm.sock;
             fastcgi_read_timeout 8h;
             try_files $uri =404;
+        }
+        location /comet/ {
+            rewrite    /comet/(.*) /$1 break; #used to send request to base url
+            proxy_set_header Host $host;
+            proxy_pass http://{{ .Values.node_comet_prod.host }}:{{ .Values.node_comet_prod.port }};
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+        location /socket.io/ {
+            #rewrite  /comet/socket.io/(.*)  /$1 break; #used to send request to base url
+            #rewrite  /socket.io/(.*)  /$1 break; #used to send request to base url
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            #proxy_set_header X-Forwarded-Host $host;
+            #proxy_set_header X-Forwarded-Server $host;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-NginX-Proxy false;
+            #proxy_set_header X-NginX-Proxy true;
+            proxy_pass http://{{ .Values.node_comet_prod.host }}:{{ .Values.node_comet_prod.port }};
+            proxy_redirect off;
+            #proxy_pass_request_headers on;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
         }
     }
 
@@ -343,4 +367,9 @@ data:
         'CALLTRACKING_SERVER' => 'feedback.mcn.ru',
     ];
 
-
+  node-comet-config.json: |
+    {
+      "port": {{ .Values.node_comet_prod.port }},
+      "logLevel": {{ .Values.node_comet_prod.logLevel }},
+      "secretKey": {{ .Values.node_comet_prod.secret_key | quote }}
+    }

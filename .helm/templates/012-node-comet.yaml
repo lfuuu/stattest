@@ -1,0 +1,54 @@
+{{- if (eq .Values.global.env "prod") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.node_comet_prod.host }}
+spec:
+  selector:
+    matchLabels:
+      service: {{ .Values.node_comet_prod.host }}
+  revisionHistoryLimit: 3
+#  strategy:
+#    type: RollingUpdate
+  replicas: 1
+  serviceName: {{ .Values.node_comet_prod.host }}
+  template:
+    metadata:
+      labels:
+        ingressInternal: "yes"
+        ingressExternal: "no"
+        service: {{ .Values.node_comet_prod.host }}
+    spec:
+      containers:
+      - name: node-comet
+{{ tuple "node-comet-prod" . | werf_container_image | indent 8 }}
+        #command: ['redis-server']
+        ports:
+          - containerPort: {{ .Values.node_comet_prod.port }}
+            name: http
+            protocol: TCP
+        volumeMounts:
+          - name: config-volume
+            subPath: node-comet-config.json
+            mountPath: /opt/stat_rep/stat/comet-server/config.json
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .Chart.Name }}-config-files
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.node_comet_prod.host }}
+  labels:
+    service: {{ .Values.node_comet_prod.host }}
+spec:
+  ports:
+    - name: {{ .Values.node_comet_prod.port | quote }}
+      port: {{ .Values.node_comet_prod.port }}
+  selector:
+    service: {{ .Values.node_comet_prod.host }}
+{{- else }}
+
+{{- end }}
