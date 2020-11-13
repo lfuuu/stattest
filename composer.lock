@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae2334440423634e86c035f51bec65e0",
+    "content-hash": "cae84f216f33a2bcfbb6a0bd31c071cb",
     "packages": [
         {
             "name": "KidSysco/jquery-ui-month-picker",
@@ -428,7 +428,7 @@
                 "reference": "master"
             },
             "type": "library",
-            "time": "2020-01-30T15:25:54+00:00"
+            "time": "2020-11-05T14:41:47+00:00"
         },
         {
             "name": "cebe/markdown",
@@ -2451,6 +2451,76 @@
             "time": "2014-11-09T19:54:17+00:00"
         },
         {
+            "name": "php-amqplib/php-amqplib",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-amqplib/php-amqplib.git",
+                "reference": "01c61e98e9dba55c64ad2e56ca904145c927448b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/01c61e98e9dba55c64ad2e56ca904145c927448b",
+                "reference": "01c61e98e9dba55c64ad2e56ca904145c927448b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.3.0"
+            },
+            "replace": {
+                "videlalvaro/php-amqplib": "self.version"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "scrutinizer/ocular": "^1.1",
+                "squizlabs/php_codesniffer": "^2.5"
+            },
+            "suggest": {
+                "ext-sockets": "Use AMQPSocketConnection"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpAmqpLib\\": "PhpAmqpLib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Alvaro Videla",
+                    "role": "Original Maintainer"
+                },
+                {
+                    "name": "John Kelly",
+                    "email": "johnmkelly86@gmail.com",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Ra??l Araya",
+                    "email": "nubeiro@gmail.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Formerly videlalvaro/php-amqplib.  This library is a pure PHP implementation of the AMQP protocol. It's been tested against RabbitMQ.",
+            "homepage": "https://github.com/php-amqplib/php-amqplib/",
+            "keywords": [
+                "message",
+                "queue",
+                "rabbitmq"
+            ],
+            "time": "2017-09-21T15:45:12+00:00"
+        },
+        {
             "name": "phpoffice/phpexcel",
             "version": "1.8.2",
             "source": {
@@ -2978,16 +3048,16 @@
         },
         {
             "name": "wisembly/elephant.io",
-            "version": "dev-master",
+            "version": "v3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wisembly/elephant.io.git",
-                "reference": "e08dfbf261b759e76ebe403aeed0e4a50b613c7e"
+                "reference": "9d56f409fe231a906af87005f83a135565632d3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wisembly/elephant.io/zipball/e08dfbf261b759e76ebe403aeed0e4a50b613c7e",
-                "reference": "e08dfbf261b759e76ebe403aeed0e4a50b613c7e",
+                "url": "https://api.github.com/repos/Wisembly/elephant.io/zipball/9d56f409fe231a906af87005f83a135565632d3f",
+                "reference": "9d56f409fe231a906af87005f83a135565632d3f",
                 "shasum": ""
             },
             "require": {
@@ -3040,7 +3110,7 @@
                 "real time",
                 "websocket"
             ],
-            "time": "2016-10-25T07:52:01+00:00"
+            "time": "2017-09-10T20:38:38+00:00"
         },
         {
             "name": "yiisoft/yii2",
@@ -3658,76 +3728,6 @@
             "time": "2016-06-01T11:19:16+00:00"
         },
         {
-            "name": "php-amqplib/php-amqplib",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-amqplib/php-amqplib.git",
-                "reference": "01c61e98e9dba55c64ad2e56ca904145c927448b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/01c61e98e9dba55c64ad2e56ca904145c927448b",
-                "reference": "01c61e98e9dba55c64ad2e56ca904145c927448b",
-                "shasum": ""
-            },
-            "require": {
-                "ext-bcmath": "*",
-                "ext-mbstring": "*",
-                "php": ">=5.3.0"
-            },
-            "replace": {
-                "videlalvaro/php-amqplib": "self.version"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "scrutinizer/ocular": "^1.1",
-                "squizlabs/php_codesniffer": "^2.5"
-            },
-            "suggest": {
-                "ext-sockets": "Use AMQPSocketConnection"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.7-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "PhpAmqpLib\\": "PhpAmqpLib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-2.1"
-            ],
-            "authors": [
-                {
-                    "name": "Alvaro Videla",
-                    "role": "Original Maintainer"
-                },
-                {
-                    "name": "John Kelly",
-                    "email": "johnmkelly86@gmail.com",
-                    "role": "Maintainer"
-                },
-                {
-                    "name": "Ra??l Araya",
-                    "email": "nubeiro@gmail.com",
-                    "role": "Maintainer"
-                }
-            ],
-            "description": "Formerly videlalvaro/php-amqplib.  This library is a pure PHP implementation of the AMQP protocol. It's been tested against RabbitMQ.",
-            "homepage": "https://github.com/php-amqplib/php-amqplib/",
-            "keywords": [
-                "message",
-                "queue",
-                "rabbitmq"
-            ],
-            "time": "2017-09-21T15:45:12+00:00"
-        },
-        {
             "name": "yiisoft/yii2-codeception",
             "version": "2.0.6",
             "source": {
@@ -3853,7 +3853,7 @@
         "yiisoft/yii2-httpclient": 20,
         "bower/typeahead.js": 20,
         "yiisoft/yii2-gii": 20,
-        "wisembly/elephant.io": 20,
+        "php-amqplib/php-amqplib": 20,
         "kartik-v/yii2-krajee-base": 20,
         "yiisoft/yii2-codeception": 0,
         "yiisoft/yii2-faker": 0
@@ -3861,7 +3861,14 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.3.0"
+        "php": ">=7.4.0",
+        "ext-pdo": "*",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "ext-mysqli": "*",
+        "ext-sysvsem": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
