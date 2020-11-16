@@ -71,6 +71,56 @@ cp params.php params.local.php
 sed -i "s/'numlex_user' => ''/'numlex_user' => '$NNP_NUMLEX_USER'/" params.local.php
 sed -i "s/'numlex_pass' => ''/'numlex_pass' => '$NNP_NUMLEX_PASS'/" params.local.php
 
+# SIM
+cd $DIR_STAT/modules/sim/config/
+cp params.php params.local.php
+sed -i "s/'authorization' => ''/'authorization' => '$SIM_AUTHORIZATION'/" params.local.php
+sed -i "s/'transfer_msisdn' => ''/'transfer_msisdn' => '$SIM_TRANSFER_MSISDN'/" params.local.php
+
+# Notifier
+cd $DIR_STAT/modules/notifier/
+cp config.local.tpl.php config.local.php
+sed -i "s%'uri' => ''%'uri' => '$NOTIFIER_URI'%" config.local.php
+sed -i "s/'user' => ''/'user' => '$NOTIFIER_USER'/" config.local.php
+sed -i "s/'passwd' => ''/'passwd' => '$NOTIFIER_PASSWD'/" config.local.php
+
+# Atol
+cd $DIR_STAT/modules/atol/config/
+cp params.php params.local.php
+sed -i "s%'callbackUrl' => ''%'callbackUrl' => '$ATOL_CALL_BACK_URL'%" params.local.php
+#
+sed -i "s/'password' => 'password_1'/'password' => '$ATOL_ACCESS_MCN_TELECOM_PASSWORD'/" params.local.php
+sed -i "s/'login' => 'login_1'/'login' => '$ATOL_ACCESS_MCN_TELECOM_LOGIN'/" params.local.php
+sed -i "s/'groupCode' => 'group_code_1'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_GROUP_CODE'/" params.local.php
+sed -i "s/'inn' => 'inn_1'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_INN'/" params.local.php
+#
+sed -i "s/'password' => 'password_11'/'password' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_PASSWORD'/" params.local.php
+sed -i "s/'login' => 'login_11'/'login' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_LOGIN'/" params.local.php
+sed -i "s/'groupCode' => 'group_code_11'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_GROUP_CODE'/" params.local.php
+sed -i "s/'inn' => 'inn_11'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_INN'/" params.local.php
+#
+sed -i "s/'password' => 'password_21'/'password' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_PASSWORD'/" params.local.php
+sed -i "s/'login' => 'login_21'/'login' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_LOGIN'/" params.local.php
+sed -i "s/'groupCode' => 'group_code_21'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_GROUP_CODE'/" params.local.php
+sed -i "s/'inn' => 'inn_21'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_INN'/" params.local.php
+#
+sed -i "s/'paymentAddress' => ''/'paymentAddress' => '$ATOL_BUY_OR_SELL_PAYMENT_ADDRESS'/" params.local.php
+sed -i "s/'sno' => ''/'sno' => '$ATOL_BUY_OR_SELL_SNO'/" params.local.php
+sed -i "s/'itemName' => ''/'itemName' => '$ATOL_BUY_OR_SELL_ITEM_NAME'/" params.local.php
+sed -i "s/'tax' => ''/'tax' => '$ATOL_BUY_OR_SELL_TAX'/" params.local.php
+
+# mchs
+cd $DIR_STAT/modules/mchs/config/
+cp params.php params.local.php
+sed -i "s/'api_key' => ''/'api_key' => '$MCHS_API_KEY'/" params.local.php
+
+# Async
+cd $DIR_STAT/modules/async/config/
+cp params.php params.local.php
+sed -i "s/'host' => ''/'host' => '$ASYNC_HOST'/" params.local.php
+sed -i "s/'user' => ''/'user' => '$ASYNC_USER'/" params.local.php
+sed -i "s/'pass' => ''/'pass' => '$ASYNC_PASS'/" params.local.php
+
 # SBIS
 cd $DIR_STAT/modules/sbisTenzor/config/
 cp params.php params.local.php
@@ -81,8 +131,12 @@ sed -i "s/'password' => ''/'password' => '$SBIS_PASSWORD'/" params.local.php
 cd $DIR_STAT/stat/
 sed -i "s/\"AUTOCREATE_VPBX\" => 0/\"AUTOCREATE_VPBX\" => 1/" local.conf.php
 
+echo "Configs are ready!"
+
 #migrations
 cd $DIR_STAT
 php yii migrate
 
-echo "Configs are ready!"
+echo "Migrations applied!"
+
+#/bin/sleep infinity

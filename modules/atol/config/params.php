@@ -10,11 +10,25 @@ return [
         'callbackUrl' => '', // @todo надо указать в params.local.php
 
         'access' => [
+            'organization_' . \app\models\Organization::MCN_TELECOM => [
+                'password' => 'password_1',
+                'login' => 'login_1',
+                'groupCode' => 'group_code_1',
+                'inn' => 'inn_1',
+                'sno' => 'osn',
+                'tax' => 'vat20',
+            ],
             'organization_' . \app\models\Organization::MCN_TELECOM_RETAIL => [
-                'password' => '',
-                'login' => '',
-                'groupCode' => '',
-                'inn' => '',
+                'password' => 'password_11',
+                'login' => 'login_11',
+                'groupCode' => 'group_code_11',
+                'inn' => 'inn_11',
+            ],
+            'organization_' . \app\models\Organization::MCN_TELECOM_SERVICE => [
+                'password' => 'password_21',
+                'login' => 'login_21',
+                'groupCode' => 'group_code_21',
+                'inn' => 'inn_21',
             ],
         ],
 

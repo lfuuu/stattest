@@ -50,6 +50,7 @@ spec:
 
       - name: php-fpm
 {{ tuple "stat-php-fpm-prod" . | werf_container_image | indent 8 }}
+        command: ['/bin/sh','/opt/stat_rep/stat/ENTRYPOINT.sh']
         ports:
         - containerPort: 9000
           name: http
@@ -113,6 +114,63 @@ spec:
           value: {{ .Values.nnp_prod.numlex_user }}
         - name: NNP_NUMLEX_PASS
           value: {{ .Values.nnp_prod.numlex_pass }}
+        - name: SIM_AUTHORIZATION
+          value: {{ .Values.sim_prod.authorization }}
+        - name: SIM_TRANSFER_MSISDN
+          value: {{ .Values.sim_prod.transfer_msisdn | quote }}
+        - name: NOTIFIER_URI
+          value: {{ .Values.notifier_prod.uri }}
+        - name: NOTIFIER_USER
+          value: {{ .Values.notifier_prod.user }}
+        - name: NOTIFIER_PASSWD
+          value: {{ .Values.notifier_prod.passwd }}
+        - name: ATOL_CALL_BACK_URL
+          value: {{ .Values.atol_prod.call_back_url }}
+        #
+        - name: ATOL_ACCESS_MCN_TELECOM_PASSWORD
+          value: {{ .Values.atol_prod.access.mcn_telecom.password }}
+        - name: ATOL_ACCESS_MCN_TELECOM_LOGIN
+          value: {{ .Values.atol_prod.access.mcn_telecom.login }}
+        - name: ATOL_ACCESS_MCN_TELECOM_GROUP_CODE
+          value: {{ .Values.atol_prod.access.mcn_telecom.group_code }}
+        - name: ATOL_ACCESS_MCN_TELECOM_INN
+          value: {{ .Values.atol_prod.access.mcn_telecom.inn | quote }}
+        #
+        - name: ATOL_ACCESS_MCN_TELECOM_RETAIL_PASSWORD
+          value: {{ .Values.atol_prod.access.mcn_telecom_retail.password }}
+        - name: ATOL_ACCESS_MCN_TELECOM_RETAIL_LOGIN
+          value: {{ .Values.atol_prod.access.mcn_telecom_retail.login }}
+        - name: ATOL_ACCESS_MCN_TELECOM_RETAIL_GROUP_CODE
+          value: {{ .Values.atol_prod.access.mcn_telecom_retail.group_code }}
+        - name: ATOL_ACCESS_MCN_TELECOM_RETAIL_INN
+          value: {{ .Values.atol_prod.access.mcn_telecom_retail.inn | quote }}
+        #
+        - name: ATOL_ACCESS_MCN_TELECOM_SERVICE_PASSWORD
+          value: {{ .Values.atol_prod.access.mcn_telecom_service.password }}
+        - name: ATOL_ACCESS_MCN_TELECOM_SERVICE_LOGIN
+          value: {{ .Values.atol_prod.access.mcn_telecom_service.login }}
+        - name: ATOL_ACCESS_MCN_TELECOM_SERVICE_GROUP_CODE
+          value: {{ .Values.atol_prod.access.mcn_telecom_service.group_code }}
+        - name: ATOL_ACCESS_MCN_TELECOM_SERVICE_INN
+          value: {{ .Values.atol_prod.access.mcn_telecom_service.inn | quote }}
+        #
+        - name: ATOL_BUY_OR_SELL_PAYMENT_ADDRESS
+          value: {{ .Values.atol_prod.buy_or_sell.payment_address }}
+        - name: ATOL_BUY_OR_SELL_SNO
+          value: {{ .Values.atol_prod.buy_or_sell.sno }}
+        - name: ATOL_BUY_OR_SELL_ITEM_NAME
+          value: {{ .Values.atol_prod.buy_or_sell.item_name }}
+        - name: ATOL_BUY_OR_SELL_TAX
+          value: {{ .Values.atol_prod.buy_or_sell.tax }}
+        #
+        - name: MCHS_API_KEY
+          value: {{ .Values.mchs_prod.api_key }}
+        - name: ASYNC_HOST
+          value: {{ .Values.async_prod.host }}
+        - name: ASYNC_USER
+          value: {{ .Values.async_prod.user }}
+        - name: ASYNC_PASS
+          value: {{ .Values.async_prod.pass }}
         - name: SBIS_LOGIN
           value: {{ .Values.sbis_tenzor_prod.login }}
         - name: SBIS_PASSWORD

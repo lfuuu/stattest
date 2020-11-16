@@ -62,6 +62,8 @@ docker:
     REDIS_HOST: redis
     API_SECURE_KEY: 123
   EXPOSE: "9000"
+  #ENTRYPOINT: ["/opt/stat_rep/stat/ENTRYPOINT.sh"]
+  #CMD: ["/bin/sh","/opt/stat_rep/stat/ENTRYPOINT.sh"]
 
 git:
   - add: /
@@ -159,7 +161,6 @@ ansible:
         cp stat/local.conf.php.tpl stat/local.conf.php
         # configs
         chmod a+x ENTRYPOINT.sh
-        ./ENTRYPOINT.sh
       args:
         chdir: /opt/stat_rep/stat
 

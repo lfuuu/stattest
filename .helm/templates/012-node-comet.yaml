@@ -22,7 +22,6 @@ spec:
       containers:
       - name: node-comet
 {{ tuple "node-comet-prod" . | werf_container_image | indent 8 }}
-        #command: ['redis-server']
         ports:
           - containerPort: {{ .Values.node_comet_prod.port }}
             name: http
