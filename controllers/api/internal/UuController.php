@@ -731,6 +731,7 @@ class UuController extends ApiInternalController
             return [
                 'id' => $model->id,
                 'is_checkable' => $isCheckable,
+                'is_editable' => (bool)$model->is_can_manage,
                 'is_checked' => $isCheckable ? (bool)$model->amount : null,
                 'amount' => $isCheckable ? null : $model->amount,
                 'price_per_unit' => $model->price_per_unit,
