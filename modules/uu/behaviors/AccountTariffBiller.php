@@ -72,17 +72,20 @@ class AccountTariffBiller extends Behavior
      * Билинговать
      *
      * @param array $params [accountTariffId, clientAccountId]
+     * @param array $isIntegrated
      * @throws \Throwable
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
-    public static function recalc(array $params)
+    public static function recalc(array $params, $isIntegrated = false)
     {
-        if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
-            throw new \LogicException('Error. AccountTariff::recalc not started');
-        }
+        if (!$isIntegrated) {
+            if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
+                throw new \LogicException('Error. AccountTariff::recalc not started');
+            }
 
-        ob_start();
+            ob_start();
+        }
 
         $accountTariffId = $params['account_tariff_id'];
         $clientAccountId = $params['client_account_id'];
@@ -101,7 +104,7 @@ class AccountTariffBiller extends Behavior
         $tarificator->isNeedRecalc && $isNeedRecalc = true;
 
         $tarificator = (new AccountLogResourceTarificator);
-        $tarificator->tarificate($accountTariffId);
+        $tarificator->tarificate($accountTariffId, $isIntegrated);
         $tarificator->isNeedRecalc && $isNeedRecalc = true;
 
         $tarificator = (new AccountLogMinTarificator);
@@ -116,9 +119,11 @@ class AccountTariffBiller extends Behavior
 
         (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
 
-        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+        if (!$isIntegrated) {
+            Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
 
-        HandlerLogger::me()->add(ob_get_clean());
+            HandlerLogger::me()->add(ob_get_clean());
+        }
 
         return $isNeedRecalc ? '+' : '-';
     }

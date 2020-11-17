@@ -7124,5 +7124,74 @@ SELECT cr.manager, cr.account_manager FROM clients c
         }
         return $r;
     }
+
+    function newaccounts_recalc_entry($fixclient)
+    {
+        global $fixclient_data;
+
+        if (!$fixclient_data || !$fixclient_data->id) {
+            trigger_error2('Выберите клиента');
+            return;
+        }
+
+        /** @var ClientAccount $account */
+        $account = $fixclient_data;
+
+        $accountTariffIds = \app\modules\uu\models\AccountTariff::find()->where(['client_account_id' => $account->id])->select('id')->column();
+        $date = (new DateTime('now'))->modify('first day of this month')->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        set_time_limit(0);
+        session_write_close();
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        echo '<pre>';
+
+        $params = [];
+        $query = \Yii::$app->db->queryBuilder->delete(\app\modules\uu\models\AccountLogResource::tableName(), [
+            'AND',
+            ['account_tariff_id' => $accountTariffIds],
+            ['>=', 'date_from', $date]
+        ], $params);
+        echo PHP_EOL . 'AccountLogResource: ' . Yii::$app->db->createCommand($query, $params)->execute() .' row deleted';
+        ob_flush();
+
+
+        $params = [];
+        $query = 'DELETE FROM ' . \app\modules\uu\models\AccountEntry::tableName() . ' WHERE ' . \app\modules\uu\models\AccountEntry::getDb()->queryBuilder->buildCondition([
+                'AND',
+                ['account_tariff_id' => $accountTariffIds],
+                ['>', 'type_id', 0],
+                ['>=', 'date', $date]
+            ], $params);
+
+
+        echo PHP_EOL . 'AccountEntry: ' . Yii::$app->db->createCommand($query, $params)->execute() .' row deleted';
+        ob_flush();
+
+
+        $accountTariffs = \app\modules\uu\models\AccountTariff::findAll(['id' => $accountTariffIds]);
+
+        foreach($accountTariffs as $accountTariff) {
+            $accountTariff->account_log_resource_utc = null;
+            if (!$accountTariff->save()) {
+                throw new ModelValidationException($accountTariff);
+            }
+
+            echo PHP_EOL . $accountTariff->getName() . \app\modules\uu\behaviors\AccountTariffBiller::recalc([
+                'account_tariff_id' => $accountTariff->id,
+                'client_account_id' => $accountTariff->client_account_id,
+            ], true);
+            ob_flush();
+        }
+
+
+
+        echo '</pre>';
+
+        exit();
+    }
 }
 
