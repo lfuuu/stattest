@@ -44,10 +44,11 @@ class AccountLogResourceTarificator extends Tarificator
      * Рассчитать плату всех услуг
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @param bool $isForceTarifficationTraffic Принудительный пересчет ресурсов
      * @throws \Throwable
      * @throws \yii\db\Exception
      */
-    public function tarificate($accountTariffId = null)
+    public function tarificate($accountTariffId = null, $isForceTarifficationTraffic = false)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         $minSetupDatetime = AccountTariff::getMinSetupDatetime();
@@ -126,7 +127,7 @@ class AccountLogResourceTarificator extends Tarificator
                 $this->tarificateAccountTariffOption($accountTariff);
 
                 // ресурсы-трафик
-                if ($accountTariffId) {
+                if ($accountTariffId && !$isForceTarifficationTraffic) {
                     $isOk = false;
                 } else {
                     // только по крону

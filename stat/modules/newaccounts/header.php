@@ -67,6 +67,7 @@ class m_newaccounts_head extends IModuleHead{
 	                'ext_bills'	        => array('newaccounts_bills','read'),
 		            'ext_bills_ifns'    => array('newaccounts_bills','read'),
 		            'bill_ext_file_get' => array('newaccounts_bills','read'),
+		            'recalc_entry'      => array('newaccounts_bills','edit'),
 
 				);
 	public $menu;
