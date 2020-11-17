@@ -350,3 +350,11 @@
         $( '#date').datepicker({dateFormat: 'yy-mm-dd'});
     {/literal}
 </script>
+
+{if access('newaccounts_bills','edit')}
+    <div style="float: right;">
+        <a href="/?module=newaccounts&action=recalc_entry" class="btn btn-info btn-sm" role="button">
+            Пересчитать проводки за этот месяц
+        </a>
+    </div>
+{/if}
