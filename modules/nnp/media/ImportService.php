@@ -166,7 +166,7 @@ abstract class ImportService extends Model
 
         $this->importHistory->lines_load = $i;
         $this->importHistory->lines_processed = $processed;
-        $this->importHistory->markGettingReady();
+        $this->importHistory->markGettingReady($processed);
     }
 
     /**

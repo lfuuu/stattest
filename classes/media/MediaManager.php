@@ -270,7 +270,7 @@ abstract class MediaManager
     {
         $filePath = $this->getFilePath($fileModel);
         $info = pathinfo($fileModel->name);
-        if (strtolower($info['extension']) === 'zip') {
+        if (!empty($info['extension']) && strtolower($info['extension']) === 'zip') {
             return 'zip://' . $filePath . '#' . $info['filename'];
         }
 

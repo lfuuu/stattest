@@ -79,20 +79,26 @@ class NumberRangeImport extends NumberRange
      */
     public function setNdcTypeId($value, $ndcTypeList)
     {
-        if (
-            $this->_checkNatural($value, $isEmptyAllowed = false)
-            && isset($ndcTypeList[$value])
-        ) {
-            $this->ndc_type_id = $value;
-            return true;
+        $message = 'Не натуральное число';
+        if ($this->_checkNatural($value, $isEmptyAllowed = false)) {
+            $message = sprintf(
+                'Неизвестный id: %s. Возможные значения: %s',
+                $value,
+                $ndcTypeList ? implode(',', array_keys($ndcTypeList)) : '-'
+            );
+            if (isset($ndcTypeList[$value])) {
+                $this->ndc_type_id = $value;
+                return true;
+            }
         }
 
-        $this->addError('ndc_type_id');
+        $this->addError('ndc_type_id', $message);
         return false;
     }
 
     /**
-     * Диапазон с. Непустое. Строка (не число, чтобы не потерять ведущие нули!). Не должно быть букв, пробелов или другого форматирования разрядов. Например, 0000000
+     * Диапазон с. Непустое. Строка (не число, чтобы не потерять ведущие нули!).
+     * Не должно быть букв, пробелов или другого форматирования разрядов. Например, 0000000
      *
      * @param string|int|null $value
      * @return bool
@@ -183,7 +189,7 @@ class NumberRangeImport extends NumberRange
             return true;
         }
 
-        $this->addError('operator_source');
+        $this->addError('operator_source', 'Не является строкой: ' . $value);
         return false;
     }
 

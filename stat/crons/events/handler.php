@@ -97,14 +97,30 @@ $map = [
     'no_nnp' => [['NOT', $nnpEvents]], //для служебного пользования
 ];
 
+$memoryLimitMap = [
+    'nnp' => '16G',
+];
+
 // @TODO ordering? UuModule::EVENT_ADD_LIGHT in first
 
 $consoleParam = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null;
 
+echo PHP_EOL . sprintf("%s, handler started: %s", date(DateTimeZoneHelper::DATETIME_FORMAT), $consoleParam);
 if (!$consoleParam || !isset($map[$consoleParam])) {
     echo PHP_EOL . 'Не задан параметр очереди: [' . implode(', ', array_keys($map)) . ']';
     echo PHP_EOL;
     return ExitCode::UNSPECIFIED_ERROR;
+}
+
+if (!empty($memoryLimitMap[$consoleParam])) {
+    $memoryLimit = $memoryLimitMap[$consoleParam];
+
+    ini_set('memory_limit', $memoryLimit);
+    echo 'Memory: ' . sprintf(
+            '%4.2f MB (%4.2f MB in peak)',
+            memory_get_usage(true) / 1048576,
+            memory_get_peak_usage(true) / 1048576
+        ) . PHP_EOL;
 }
 
 
@@ -115,7 +131,6 @@ $stopTimeFrom = $stopTimeFrom->modify('-' . ((int)$stopTimeFrom->format('s') + 5
 $stopTimeTo = $stopTimeFrom->modify('+5 second');
 
 $countShift = 0;
-
 do {
     $activeQuery = EventQueue::getPlannedQuery();
     foreach ($map[$consoleParam] as $where) {
@@ -740,8 +755,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     if ($isNnpServer) {
                         $info = CountryFile::importById($param['fileId'], $param['old'], $param['new']);
 
-                        // поставить в очередь для пересчета операторов, регионов и городов
-                        EventQueue::go(NnpModule::EVENT_LINKER);
+                        if ($param['old']) {
+                            // поставить в очередь для пересчета операторов, регионов и городов
+                            EventQueue::go(NnpModule::EVENT_LINKER);
+                        }
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }

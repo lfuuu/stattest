@@ -8,8 +8,25 @@ use app\modules\nnp2\models\NumberRange;
 
 class NumberRangeImport extends NumberRange
 {
+    public static $nowString = null;
+
     public $ndc = null;
     public $country_prefix = null;
+
+    public static function resetNowString()
+    {
+        self::$nowString = null;
+    }
+
+    protected function getNowString()
+    {
+        if (!self::$nowString) {
+            self::$nowString = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        }
+
+        return self::$nowString;
+    }
 
     /**
      * Код (префикс) страны. Непустое. Целое число. Например, 7
@@ -24,7 +41,7 @@ class NumberRangeImport extends NumberRange
 
         $errorMessage = 'Не числовое значение';
         if (
-            $this->_checkNatural($value, $isEmptyAllowed = false)
+            $this->checkNatural($value, $isEmptyAllowed = false)
             && ($prefixes = $country->getPrefixes())
         ) {
             $errorMessage = 'Неизвестное значение';
@@ -75,7 +92,7 @@ class NumberRangeImport extends NumberRange
     {
         $errorMessage = 'Неизвестный тип NDC';
         if (
-            $this->_checkString($value)
+            $this->checkString($value)
             && isset($ndcTypeList[$value])
         ) {
             $this->ndc_type_id = $ndcTypeList[$value];
@@ -96,7 +113,7 @@ class NumberRangeImport extends NumberRange
     public function setOperatorId($value, $operatorList)
     {
         if (
-            $this->_checkString($value)
+            $this->checkString($value)
             && isset($operatorList[$value])
         ) {
             $this->operator_id = $operatorList[$value];
@@ -117,7 +134,7 @@ class NumberRangeImport extends NumberRange
     {
         $errorMessage = 'Не числовое значение';
         if (
-            $this->_checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
+            $this->checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
             && strlen($value) >= 2
         ) {
             $this->number_from = $value;
@@ -138,7 +155,7 @@ class NumberRangeImport extends NumberRange
     {
         $errorMessage = 'Не числовое значение';
         if (
-            $this->_checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
+            $this->checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
             && strlen($this->number_from) === strlen($value)
         ) {
             $this->number_to = $value;
@@ -184,7 +201,7 @@ class NumberRangeImport extends NumberRange
     public function setAllocationReason($value)
     {
         $errorMessage = 'Не текстовое значение';
-        if ($this->_checkString($value)) {
+        if ($this->checkString($value)) {
             $this->allocation_reason = $value;
             return true;
         }
@@ -203,7 +220,7 @@ class NumberRangeImport extends NumberRange
     public function setComment($value)
     {
         $errorMessage = 'Не текстовое значение';
-        if ($this->_checkString($value)) {
+        if ($this->checkString($value)) {
             $this->comment = $value;
             return true;
         }
@@ -220,7 +237,7 @@ class NumberRangeImport extends NumberRange
      * @param bool $isConvertToInt
      * @return bool
      */
-    private function _checkNatural(&$value, $isEmptyAllowed, $isConvertToInt = true)
+    protected function checkNatural(&$value, $isEmptyAllowed, $isConvertToInt = true)
     {
         $value = trim($value);
         if (!$value) {
@@ -245,7 +262,7 @@ class NumberRangeImport extends NumberRange
      * @param string $value
      * @return bool
      */
-    private function _checkString(&$value)
+    protected function checkString(&$value)
     {
         $value = trim($value);
         return $value === '' || !is_numeric($value);
@@ -256,9 +273,6 @@ class NumberRangeImport extends NumberRange
      */
     public function getSqlData()
     {
-        $nowString = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
-            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-
         return [
             $this->country_code,
             $this->geo_place_id,
@@ -273,7 +287,7 @@ class NumberRangeImport extends NumberRange
             $this->allocation_reason,
             $this->allocation_date_start,
             $this->comment,
-            $nowString,
+            $this->getNowString(),
         ];
 
     }

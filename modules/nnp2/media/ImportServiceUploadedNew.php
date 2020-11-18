@@ -11,11 +11,10 @@ class ImportServiceUploadedNew extends ImportServiceNew
     /**
      * Основной метод
      * Вызывается после _pre и перед _post
-     * Внутри себя должен вызвать _importFromTxt
+     * Внутри себя должен вызвать readFromTxt и importData
      *
-     * @throws \UnexpectedValueException
+     * @throws \app\exceptions\ModelValidationException
      * @throws \yii\db\Exception
-     * @throws \LogicException
      */
     protected function callbackMethod()
     {
@@ -46,11 +45,6 @@ class ImportServiceUploadedNew extends ImportServiceNew
             if ($realNdc == 6) {
                 return [];
             }
-
-            $attrs[] = ($i+1) . ': ' . implode('/', array_keys($errors)) . sprintf(' (%s)', $realNdc);
-            $this->errorRows[] = implode(', ', $attrs);
-
-
         }
 
         return $nr->getSqlData();

@@ -50,6 +50,7 @@ class CountryMedia extends MediaManager
         $countryFile->name = $name;
         $countryFile->comment = $comment;
         $countryFile->user_id = Yii::$app->user->getId();
+        $countryFile->is_active = 1;
 
         if (!$countryFile->save()) {
             throw new ModelValidationException($countryFile);
@@ -71,7 +72,8 @@ class CountryMedia extends MediaManager
             throw new AccessDeniedException();
         }
 
-        if (!$countryFile->delete()) {
+        $countryFile->is_active = 0;
+        if (!$countryFile->save()) {
             throw new ModelValidationException($countryFile);
         }
     }
@@ -82,7 +84,10 @@ class CountryMedia extends MediaManager
     protected function getFileModels()
     {
         return CountryFile::find()
-            ->where(['country_code' => $this->_country->code])
+            ->where([
+                'country_code' => $this->_country->code,
+                'is_active' => 1,
+            ])
             ->orderBy(['id' => SORT_DESC])
             ->indexBy('id')
             ->all();
