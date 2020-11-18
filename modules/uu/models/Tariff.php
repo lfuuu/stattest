@@ -49,7 +49,8 @@ use yii\helpers\Url;
  * @property-read TariffStatus $status
  * @property-read TariffPerson $person
  * @property-read TariffPeriod[] $tariffPeriods
- * @property-read TariffTag $tag
+ * @property-read Tag $tag
+ * @property-read TariffTag[] $tariffTags
  *
  * VOIP && VOIP package only!
  * @property integer $voip_group_id
@@ -75,6 +76,7 @@ use yii\helpers\Url;
  * @property-read TariffVoipGroup $voipGroup
  * @property-read TariffVoipCity[] $voipCities
  * @property-read TariffOrganization[] $organizations
+ * @property-read TariffTags[] $tags
  * @property-read TariffVoipNdcType[] $voipNdcTypes
  * @property-read boolean $isTest
  *
@@ -369,7 +371,15 @@ class Tariff extends ActiveRecord
      */
     public function getTag()
     {
-        return $this->hasOne(TariffTag::class, ['id' => 'tag_id']);
+        return $this->hasOne(Tag::class, ['id' => 'tag_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTariffTags()
+    {
+        return $this->hasMany(TariffTags::class, ['tariff_id' => 'id']);
     }
 
     /**
@@ -424,6 +434,16 @@ class Tariff extends ActiveRecord
         return $this->hasMany(TariffOrganization::class, ['tariff_id' => 'id'])
             ->orderBy(['id' => SORT_DESC])
             ->indexBy('organization_id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTags()
+    {
+        return $this->hasMany(TariffTags::class, ['tariff_id' => 'id'])
+            ->orderBy(['id' => SORT_DESC])
+            ->indexBy('tag_id');
     }
 
     /**
@@ -630,7 +650,7 @@ class Tariff extends ActiveRecord
                 break;
 
             case 'tag_id':
-                if ($tariffTag = TariffTag::findOne(['id' => $value])) {
+                if ($tariffTag = Tag::findOne(['id' => $value])) {
                     return $tariffTag->name;
                 }
                 break;

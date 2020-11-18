@@ -4,7 +4,7 @@ namespace app\modules\uu\column;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\modules\uu\models\TariffTag;
+use app\modules\uu\models\Tag;
 use kartik\grid\GridView;
 
 
@@ -18,7 +18,7 @@ class TariffTagColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = TariffTag::getList(true);
+        $this->filter = Tag::getList(true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' tariff-tag-column';
     }

@@ -12,6 +12,7 @@ use app\models\ClientContragent;
 use app\models\Country;
 use app\models\Organization;
 use app\modules\nnp\models\FilterQuery;
+use app\modules\uu\models\Tag;
 use app\modules\uu\models\Tariff;
 use ReflectionClass;
 use ReflectionProperty;
@@ -392,6 +393,20 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 case 'contragent_id':
                     if ($contragent = ClientContragent::findOne(['id' => $value])) {
                         $data[$key] = $contragent->name;
+                    }
+                    break;
+                case 'tag_id':
+                    if ($tag = Tag::findOne(['id' => $value])) {
+                        $data[$key] = $tag;
+                    } else {
+                        $data[$key] = '???#'.$value;
+                    }
+                    break;
+                case 'tariff_id':
+                    if ($tariff = Tariff::findOne(['id' => $value])) {
+                        $data[$key] = $tariff;
+                    } else {
+                        $data[$key] = '???#'.$value;
                     }
                     break;
             }

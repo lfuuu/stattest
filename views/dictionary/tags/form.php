@@ -18,7 +18,7 @@ echo Html::formLabel('Редактирование метки');
 echo Breadcrumbs::widget([
     'links' => [
         'Словари',
-        ['label' => 'Метки', 'url' => $cancelUrl = Url::toRoute(['/dictionary/tags'])],
+        ['label' => 'Метки договоров', 'url' => $cancelUrl = Url::toRoute(['/dictionary/tags'])],
         $currentStep,
     ],
 ]);

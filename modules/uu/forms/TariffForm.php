@@ -13,11 +13,13 @@ use app\modules\nnp\models\PackagePricelistNnpInternet;
 use app\modules\nnp\models\PackagePricelistNnpSms;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tag;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
+use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
@@ -50,6 +52,9 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffOrganization[] */
     public $tariffOrganizations;
 
+    /** @var TariffTags[] */
+    public $tariffTags;
+
     /** @var PackageApi */
     public $packageApi;
 
@@ -77,6 +82,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return TariffOrganization[]
      */
     abstract public function getTariffOrganizations();
+
+    /**
+     * @return TariffTags[]
+     */
+    abstract public function getTariffTags();
 
     /**
      * @return TariffCountry[]
@@ -156,6 +166,7 @@ abstract class TariffForm extends \app\classes\Form
         }
 
         $this->tariffOrganizations = $this->getTariffOrganizations();
+        $this->tariffTags = $this->getTariffTags();
         $this->tariffCountries = $this->getTariffCountries();
 
         switch ($this->tariff->service_type_id) {
@@ -219,6 +230,10 @@ abstract class TariffForm extends \app\classes\Form
                 $tariffOrganization = new TariffOrganization();
                 $tariffOrganization->tariff_id = $this->id;
                 $this->tariffOrganizations = $this->crudMultipleSelect2($this->tariffOrganizations, $post, $tariffOrganization, 'organization_id');
+
+                $tariffTag = new TariffTags();
+                $tariffTag->tariff_id = $this->id;
+                $this->tariffTags = $this->crudMultipleSelect2($this->tariffTags, $post, $tariffTag, 'tag_id');
 
                 $tariffCountries = new TariffCountry();
                 $tariffCountries->tariff_id = $this->id;

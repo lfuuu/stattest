@@ -17,6 +17,7 @@ use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffPerson;
+use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\Module as uuModule;
@@ -109,6 +110,7 @@ class Dao extends Singleton
             $tariffStatusIdTmp = null,
             $tariffPersonIdTmp = null,
             $tariffTagIdTmp = null,
+            $tariffTagsIdTmp = null,
             $voipGroupIdTmp = null,
             $voipCityIdTmp = null,
             $voipNdcTypeIdTmp = null,
@@ -139,6 +141,7 @@ class Dao extends Singleton
         $tariff_status_id = null,
         $tariff_person_id = null,
         $tariff_tag_id = null,
+        $tariff_tags_id = null,
         $voip_group_id = null,
         $voip_city_id = null,
         $voip_ndc_type_id = null,
@@ -161,6 +164,7 @@ class Dao extends Singleton
                 $tariff_status_id,
                 $tariff_person_id,
                 $tariff_tag_id,
+                $tariff_tags_id,
                 $voip_group_id,
                 $voip_city_id,
                 $voip_ndc_type_id,
@@ -178,6 +182,10 @@ class Dao extends Singleton
         $tariff_status_id = (int)$tariff_status_id;
         $tariff_person_id = (int)$tariff_person_id;
         $tariff_tag_id = (int)$tariff_tag_id;
+        if (!is_numeric($tariff_tags_id) && !is_array($tariff_tags_id)) {
+            $tariff_tags_id = preg_split('/\D+/', $tariff_tags_id);
+        }
+
         $voip_group_id = (int)$voip_group_id;
         $voip_city_id = (int)$voip_city_id;
         $voip_ndc_type_id = (int)$voip_ndc_type_id;
@@ -275,6 +283,10 @@ class Dao extends Singleton
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariff_person_id]]);
         $tariff_tag_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_tag_id' => $tariff_tag_id]);
+        if ($tariff_tags_id) {
+            $tariffQuery->joinWith('tariffTags')
+                ->andWhere([TariffTags::tableName() . '.tag_id' => $tariff_tags_id]);
+        }
         $voip_group_id && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int)$voip_group_id]);
 
         if ($country_id) {
@@ -321,6 +333,7 @@ class Dao extends Singleton
                     $tariff_status_id,
                     $tariff_person_id,
                     $tariff_tag_id_tmp = null,
+                    $tariff_tags_id_tmp = null,
                     $voip_group_id,
                     $voip_city_id,
                     $voip_ndc_type_id,

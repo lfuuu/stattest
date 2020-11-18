@@ -16,7 +16,7 @@ echo Html::formLabel('Метки');
 echo Breadcrumbs::widget([
     'links' => [
         'Словари',
-        ['label' => 'Метки', 'url' => Url::toRoute(['/dictionary/tags/'])],
+        ['label' => 'Метки договоров', 'url' => Url::toRoute(['/dictionary/tags/'])],
     ],
 ]);
 
@@ -49,10 +49,6 @@ echo GridView::widget([
                 return $form->resourcesMap($model->resourceNames);
             },
             'width' => '30%',
-        ],
-        [
-            'attribute' => 'used_times',
-            'width' => '10%',
         ],
     ],
     'floatHeader' => false,
