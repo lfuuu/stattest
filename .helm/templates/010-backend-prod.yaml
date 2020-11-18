@@ -92,6 +92,8 @@ spec:
           value: {{ .Values.redis_prod.host }}
         - name: SOCKET_URL
           value: http:\/\/{{ .Values.ci_url }}\/comet
+        - name: SOCKET_BACKEND_URL
+          value: {{ .Values.node_comet_prod.backend_url }}
         - name: SOCKET_SECRET
           value: {{ .Values.node_comet_prod.secret_key }}
         - name: WEB_HOOK_SECRET

@@ -111,37 +111,22 @@ class Socket extends Singleton
      * Вернуть URL сокет-сервера
      *
      * @param array $handshakeData Должны быть ключи user и user_id
-     * @param bool $removePath
+     * @param bool $isBackEnd получить url для бэка
      * @return string
      */
-    protected function getUrl($handshakeData, $removePath = false)
+    protected function getUrl($handshakeData, $isBackEnd = false)
     {
         $params = $this->module->params;
+
         $url = $params['url'];
-        $secretKey = $params['secretKey'];
-        if (!$url || !$secretKey) {
-            return '';
+        if ($isBackEnd && !empty($params['backend_url'])) {
+            $url = $params['backend_url'];
         }
 
-        // TODO: add frontend_url and backend_url in config/params.php
-        if ($removePath) {
-            $parsed = parse_url($url);
-            if (!empty($parsed['host'])) {
-                $url = strtr(
-                    $url,
-                    [
-                        $parsed['host'] => 'localhost',
-                    ]
-                );
-            }
-            if (!empty($parsed['path'])) {
-                $url = strtr(
-                    $url,
-                    [
-                        $parsed['path'] => '',
-                    ]
-                );
-            }
+        $secretKey = $params['secretKey'];
+
+        if (!$url || !$secretKey) {
+            return '';
         }
 
         $handshakeData[self::HANDSHAKE_SIG] = $this->_generateSig($handshakeData, $secretKey); // подписать
