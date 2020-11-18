@@ -5,6 +5,7 @@ namespace app\modules\nnp2\media;
 use app\classes\Connection;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\Country;
+use app\modules\nnp2\filters\NumberRangeImport;
 use app\modules\nnp2\media\related\CityRelated;
 use app\modules\nnp2\media\related\GeoRelated;
 use app\modules\nnp2\media\related\NdcTypeRelated;
@@ -62,7 +63,6 @@ abstract class ImportServiceNew extends Model
      */
     protected $rows = [];
 
-    protected $errorRows = [];
     /**
      * @var ImportHistory
      */
@@ -170,6 +170,8 @@ abstract class ImportServiceNew extends Model
 
         $i = 0;
         $this->rows = [];
+
+        $this->importHistory->logMemory();
         while (($row = fgetcsv($handle, $rowLength = 4096, $this->delimiter)) !== false) {
             if (!$i++ && !is_numeric($row[0])) {
                 // Шапка (первая строчка с названиями полей) - пропустить
@@ -199,6 +201,8 @@ abstract class ImportServiceNew extends Model
 
         $this->importHistory->lines_load = $i;
         $this->importHistory->markReading();
+
+        $this->importHistory->logMemory('Have been read');
     }
 
     /**
@@ -210,17 +214,19 @@ abstract class ImportServiceNew extends Model
     protected function importData()
     {
         $this->prepareAll();
-        $this->importHistory->markPrepared();
 
+        $total = count($this->rows);
         foreach ($this->rows as $i => $row) {
             $this->checkRelated($row);
+
+            $this->importHistory->markRelations($i + 1, $total);
         }
 
         $this->createRelated();
+        $this->importHistory->lines_processed = 0;
         $this->importHistory->markRelations();
 
-        $this->errorRows = [];
-
+        NumberRangeImport::resetNowString();
         $total = count($this->rows);
         $insertValues = [];
         foreach ($this->rows as $i => $row) {
@@ -232,10 +238,10 @@ abstract class ImportServiceNew extends Model
 
             $insertValues[] = $callbackRow;
 
-            $this->importHistory->markGettingReady($i + 1, $total);
+            $this->importHistory->markGettingReady(count($insertValues), $i + 1, $total);
         }
         $this->importHistory->lines_processed = count($insertValues);
-        $this->importHistory->markGettingReady();
+        $this->importHistory->markGettingReady(count($insertValues));
 
         $this->processInsertValues($insertValues);
         $this->importHistory->markInserting();
@@ -938,11 +944,13 @@ SQL;
     }
 
     /**
+     * @throws \app\exceptions\ModelValidationException
      * @throws \yii\db\Exception
      */
     protected function prepareAll()
     {
         $rows = [];
+        $total = count($this->rows);
         foreach ($this->rows as $i => $row) {
             $ndcTypeId = $row[3]; // parent_id
             if (!$ndcTypeId) {
@@ -975,7 +983,10 @@ SQL;
 
             $rows[] = $row;
             $this->geoRelated->commitAdd();
+
+            $this->importHistory->markPrepared($i, $total);
         }
+
         $this->rows = $rows;
 
         //
@@ -990,6 +1001,8 @@ SQL;
 
         $this->geoRelated->loadNew();
         $this->geoRelated->addNew();
+
+        $this->importHistory->markPrepared();
     }
 
     /**

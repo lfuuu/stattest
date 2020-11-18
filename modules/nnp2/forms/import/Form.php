@@ -83,7 +83,7 @@ class Form extends \app\classes\Form
      * @param int $version
      * @return bool
      */
-    public function isProcessedNew($version)
+    public function isProcessed($version)
     {
         return
             is_numeric($version) && (

@@ -122,7 +122,12 @@ echo GridView::widget([
             'label' => 'Строки',
             'format' => 'html',
             'value' => function (ImportHistory $model) {
-                return sprintf("Строк загружено: %s<br />Строк обработано: %s", $model->lines_load, $model->lines_processed);
+                return
+                    sprintf(
+                        "Строк загружено: %s<br />Строк обработано: %s",
+                            $model->getLinesLoad(),
+                            $model->getLinesProcessed()
+                    );
             },
         ],
         [

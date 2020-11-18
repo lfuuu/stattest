@@ -7,6 +7,8 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\CountryFile;
+use app\modules\nnp2\Module;
+use kartik\base\Config;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -38,7 +40,9 @@ class ImportHistory extends ActiveRecord
     const STATE_NEW = 0;
     const STATE_READING = 1;
     const STATE_READ = 10;
+    const STATE_PREPARING = 11;
     const STATE_PREPARED = 20;
+    const STATE_RELATIONS_SAVING = 21;
     const STATE_RELATIONS_SAVED = 30;
     const STATE_GETTING_READY = 31;
     const STATE_READY = 40;
@@ -50,6 +54,44 @@ class ImportHistory extends ActiveRecord
     const STATE_UPDATED_FIXED = 90;
     const STATE_FINISH = 100;
     const STATE_ERROR = 200;
+
+    const AMOUNT_TO_LOG = 100000;
+
+    protected static array $stateNames = [
+        self::STATE_NEW => 'Новый',
+
+        self::STATE_READING => 'Читается',
+        self::STATE_READ => 'Прочитан',
+
+        self::STATE_PREPARING => 'Подготавливается',
+        self::STATE_PREPARED => 'Подготовлен',
+
+        self::STATE_RELATIONS_SAVING => 'Связи сохраняются',
+        self::STATE_RELATIONS_SAVED => 'Связи сохранены',
+
+        self::STATE_GETTING_READY => 'Готовится',
+        self::STATE_READY => 'Готов к записи',
+
+        self::STATE_INSERTING => 'Наполнение (вр.табл.)',
+        self::STATE_INSERTED => 'Наполнен (вр.табл.)',
+
+        self::STATE_OLD_UPDATED => 'Обновлены старые',
+        self::STATE_RELATIONS_CHECKED => 'Связи проверены',
+        self::STATE_NEW_ADDED => 'Добавлены новые',
+        self::STATE_UPDATED_FIXED => 'Обновленные поправлены',
+
+        self::STATE_FINISH => 'Завершён',
+        self::STATE_ERROR => 'Ошибка',
+    ];
+
+    protected static array $cachedProperties = [
+        'state',
+        'lines_load',
+        'lines_processed',
+    ];
+
+    protected bool $removeCached = false;
+    public bool $isLogMemory = false;
 
     /**
      * Имена полей
@@ -78,30 +120,6 @@ class ImportHistory extends ActiveRecord
             'finished_at' => 'Завершён',
         ];
     }
-
-    protected static array $stateNames = [
-        self::STATE_NEW => 'Новый',
-
-        self::STATE_READING => 'Читается',
-        self::STATE_READ => 'Прочитан',
-
-        self::STATE_PREPARED => 'Подготовлен',
-        self::STATE_RELATIONS_SAVED => 'Связи сохранены',
-
-        self::STATE_GETTING_READY => 'Готовится',
-        self::STATE_READY => 'Готов к записи',
-
-        self::STATE_INSERTING => 'Наполнение (вр.табл.)',
-        self::STATE_INSERTED => 'Наполнен (вр.табл.)',
-
-        self::STATE_OLD_UPDATED => 'Обновлены старые',
-        self::STATE_RELATIONS_CHECKED => 'Связи проверены',
-        self::STATE_NEW_ADDED => 'Добавлены новые',
-        self::STATE_UPDATED_FIXED => 'Обновленные поправлены',
-
-        self::STATE_FINISH => 'Завершён',
-        self::STATE_ERROR => 'Ошибка',
-    ];
 
     /**
      * Имя таблицы
@@ -167,11 +185,12 @@ class ImportHistory extends ActiveRecord
     }
 
     /**
+     * @param string $property
      * @return string
      */
-    public function getCacheKey()
+    protected function getCacheKey($property)
     {
-        return sprintf('%s.%s.state', __CLASS__, $this->id);
+        return sprintf('%s.%s.%s', __CLASS__, $this->id, $property);
     }
 
     /**
@@ -179,17 +198,86 @@ class ImportHistory extends ActiveRecord
      */
     public function getState()
     {
-        $state = $this->state;
+        return $this->getCachedPropertyValue('state');
+    }
+
+    /**
+     * @return int
+     */
+    public function getLinesLoad()
+    {
+        return $this->getCachedPropertyValue('lines_load');
+    }
+
+    /**
+     * @return int
+     */
+    public function getLinesProcessed()
+    {
+        return $this->getCachedPropertyValue('lines_processed');
+    }
+
+    /**
+     * @param string $property
+     * @param bool $isToDelete
+     */
+    protected function setCachedPropertyValue($property, $isToDelete = false)
+    {
+        if (!$this->hasAttribute($property)) {
+            return;
+        }
 
         /** @var yii\redis\Cache $redis */
         $redis = \Yii::$app->cache;
 
-        $cacheKey = $this->getCacheKey();
-        if ($redis->exists($cacheKey)) {
-            $state = $redis->get($cacheKey);
+        if ($isToDelete) {
+            $redis->delete($this->getCacheKey($property));
+            return;
         }
 
-        return $state;
+        if ($value = $this->{$property}) {
+            $redis->set($this->getCacheKey($property), $value, 3600);
+        }
+    }
+
+    /**
+     * @param string $property
+     * @return mixed
+     */
+    protected function getCachedPropertyValue($property)
+    {
+        if (!$this->hasAttribute($property)) {
+            return '';
+        }
+
+        $value = $this->{$property};
+
+        /** @var yii\redis\Cache $redis */
+        $redis = \Yii::$app->cache;
+
+        $cacheKey = $this->getCacheKey($property);
+        if ($redis->exists($cacheKey)) {
+            $value = $redis->get($cacheKey);
+        }
+
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        foreach (self::$cachedProperties as $property) {
+            $this->setCachedPropertyValue($property, $this->removeCached);
+        }
+
+        if ($this->removeCached && $this->countryFile) {
+            // clear preview cache
+            $this->countryFile->removeCachedPreviewData();
+        }
+
+        return parent::save($runValidation, $attributeNames);
     }
 
     /**
@@ -213,26 +301,44 @@ class ImportHistory extends ActiveRecord
 
     /**
      * @param int $state
+     * @return bool
      */
-    public function setState($state)
+    public function tryToSetState($state)
     {
-        /** @var yii\redis\Cache $redis */
-        $redis = \Yii::$app->cache;
+        if ($state != $this->state) {
+            $this->state = $state;
 
-        $redis->set($this->getCacheKey(), $state, 3600);
+            return true;
+        }
 
-        $this->state = $state;
+        return false;
     }
 
     /**
      * @param CountryFile $countryFile
+     * @param bool|null $isLogMemory
      * @param int|null $version
      * @return ImportHistory
      * @throws ModelValidationException
+     * @throws \yii\base\InvalidConfigException
      */
-    public static function startFile(CountryFile $countryFile, $version = null)
+    public static function startFile(CountryFile $countryFile, $isLogMemory = null, $version = null)
     {
-        $importHistory = new self();
+        if (is_null($isLogMemory)) {
+            $country = $countryFile->country;
+            $mediaManager = $country->getMediaManager();
+            if ($mediaManager->isSmall($countryFile)) {
+                $isLogMemory = false;
+            } else {
+                /** @var Module $module */
+                $module = Config::getModule('nnp2');
+                $isLogMemory = $module->isLogMemory();
+            }
+        }
+
+        $importHistory = new self([
+            'isLogMemory' => $isLogMemory,
+        ]);
         $importHistory->country_file_id = $countryFile->id;
         $importHistory->populateRelation('countryFile', $countryFile);
         if ($version) {
@@ -254,6 +360,42 @@ class ImportHistory extends ActiveRecord
     /**
      * @param $i int
      * @param $total int
+     * @param string $message
+     */
+    public function logProgress($i, $total, $message = '')
+    {
+        if (!$this->isLogMemory) {
+            return;
+        }
+
+        $message .= sprintf("%s of %s", $i, $total);
+
+        $this->logMemory($message);
+    }
+
+    /**
+     * @param string $message
+     */
+    public function logMemory($message = '')
+    {
+        if (!$this->isLogMemory) {
+            return;
+        }
+
+        echo date(DateTimeZoneHelper::DATETIME_FORMAT) . ', ';
+        if ($message) {
+            echo $message . '. ';
+        }
+        echo 'Memory: ' . sprintf(
+                '%4.2f MB (%4.2f MB in peak)',
+                memory_get_usage(true) / 1048576,
+                memory_get_peak_usage(true) / 1048576
+            ) . PHP_EOL;
+    }
+
+    /**
+     * @param $i int
+     * @param $total int
      * @return $this
      * @throws ModelValidationException
      */
@@ -263,10 +405,14 @@ class ImportHistory extends ActiveRecord
         $progress = intval(floor($i*$diff/$total));
 
         $state = self::STATE_NEW + $progress;
-        $this->setState($state);
+        if ($this->tryToSetState($state)) {
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+        }
 
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
+        if(($i % self::AMOUNT_TO_LOG) == 0) {
+            $this->logProgress($i, $total, 'Step 1. Reading: ');
         }
 
         return $this;
@@ -276,12 +422,20 @@ class ImportHistory extends ActiveRecord
      * @return $this
      * @throws ModelValidationException
      */
-    public function markPrepared()
+    public function markPrepared($i = 1, $total = 1)
     {
-        $this->setState(self::STATE_PREPARED);
+        $diff = self::STATE_PREPARED - self::STATE_READ;
+        $progress = intval(floor($i*$diff/$total));
 
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
+        $state = self::STATE_READ + $progress;
+        if ($this->tryToSetState($state)) {
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+        }
+
+        if(($i % self::AMOUNT_TO_LOG) == 0) {
+            $this->logProgress($i, $total, 'Step 2. Preparing: ');
         }
 
         return $this;
@@ -291,33 +445,48 @@ class ImportHistory extends ActiveRecord
      * @return $this
      * @throws ModelValidationException
      */
-    public function markRelations()
+    public function markRelations($i = 1, $total = 1)
     {
-        $this->setState(self::STATE_RELATIONS_SAVED);
+        $diff = self::STATE_RELATIONS_SAVED - self::STATE_PREPARED;
+        $progress = intval(floor($i*$diff/$total));
 
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
+        $state = self::STATE_PREPARED + $progress;
+        if ($this->tryToSetState($state)) {
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+        }
+
+        if(($i % self::AMOUNT_TO_LOG) == 0) {
+            $this->logProgress($i, $total, 'Step 3. Checking relations: ');
         }
 
         return $this;
     }
 
     /**
+     * @param $linesProcessed int
      * @param $i int
      * @param $total int
      * @return $this
      * @throws ModelValidationException
      */
-    public function markGettingReady($i = 1, $total = 1)
+    public function markGettingReady($linesProcessed, $i = 1, $total = 1)
     {
         $diff = self::STATE_READY - self::STATE_RELATIONS_SAVED;
         $progress = intval(floor($i*$diff/$total));
 
         $state = self::STATE_RELATIONS_SAVED + $progress;
-        $this->setState($state);
+        if ($this->tryToSetState($state)) {
+            $this->lines_processed = $linesProcessed;
 
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+        }
+
+        if(($i % self::AMOUNT_TO_LOG) == 0) {
+            $this->logProgress($i, $total, 'Step 4. Getting ready: ');
         }
 
         return $this;
@@ -335,10 +504,14 @@ class ImportHistory extends ActiveRecord
         $progress = intval(floor($i*$diff/$total));
 
         $state = self::STATE_READY + $progress;
-        $this->setState($state);
+        if ($this->tryToSetState($state)) {
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+        }
 
-        if (!$this->save()) {
-            throw new ModelValidationException($this);
+        if(($i % self::AMOUNT_TO_LOG) == 0) {
+            $this->logProgress($i, $total, 'Step 5. Inserting: ');
         }
 
         return $this;
@@ -350,7 +523,7 @@ class ImportHistory extends ActiveRecord
      */
     public function markOldUpdated()
     {
-        $this->setState(self::STATE_OLD_UPDATED);
+        $this->tryToSetState(self::STATE_OLD_UPDATED);
 
         if (!$this->save()) {
             throw new ModelValidationException($this);
@@ -365,7 +538,7 @@ class ImportHistory extends ActiveRecord
      */
     public function markRelationsChecked()
     {
-        $this->setState(self::STATE_RELATIONS_CHECKED);
+        $this->tryToSetState(self::STATE_RELATIONS_CHECKED);
 
         if (!$this->save()) {
             throw new ModelValidationException($this);
@@ -380,7 +553,7 @@ class ImportHistory extends ActiveRecord
      */
     public function markNewAdded()
     {
-        $this->setState(self::STATE_NEW_ADDED);
+        $this->tryToSetState(self::STATE_NEW_ADDED);
 
         if (!$this->save()) {
             throw new ModelValidationException($this);
@@ -395,7 +568,7 @@ class ImportHistory extends ActiveRecord
      */
     public function markUpdatedFixed()
     {
-        $this->setState(self::STATE_UPDATED_FIXED);
+        $this->tryToSetState(self::STATE_UPDATED_FIXED);
 
         if (!$this->save()) {
             throw new ModelValidationException($this);
@@ -411,14 +584,12 @@ class ImportHistory extends ActiveRecord
      */
     public function finish($isOk = false)
     {
-        $this->setState($isOk ? self::STATE_FINISH : self::STATE_ERROR);
+        $this->tryToSetState($isOk ? self::STATE_FINISH : self::STATE_ERROR);
 
         $this->finished_at = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        /** @var yii\redis\Cache $redis */
-        $redis = \Yii::$app->cache;
-        $redis->delete($this->getCacheKey());
+        $this->removeCached = true;
 
         if (!$this->save()) {
             throw new ModelValidationException($this);

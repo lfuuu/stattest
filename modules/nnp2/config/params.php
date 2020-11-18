@@ -2,5 +2,6 @@
 
 return [
     'params' => [
+        'isLogMemory' => true,
     ],
 ];

@@ -103,7 +103,6 @@ class CityRelated extends Related
 
     protected function syncLists()
     {
-
         foreach ($this->list as $regionName => $regionData) {
             foreach ($regionData as $cityName => $id) {
                 if (isset($this->toAdd[$regionName][$cityName])) {
@@ -111,6 +110,7 @@ class CityRelated extends Related
                 }
             }
         }
+
         $this->toAdd = array_filter($this->toAdd);
     }
 

@@ -5,6 +5,7 @@
  * @var app\classes\BaseView $this
  * @var CountryFile $countryFile
  * @var bool $clear
+ * @var bool $checkFull
  * @var int $offset
  * @var int $limit
  * @var Form $formModel
@@ -58,40 +59,30 @@ $alreadyRead = [];
 $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 $isButtonShown = false;
 
-$checkFull = false;
-$mediaManager = $country->getMediaManager();
-if ($mediaManager->isSmall($countryFile)) {
-    $checkFull = true;
-}
-
-$useCache = true && !$clear;
-$cached = [];
-
-/** @var yii\redis\Cache $redis */
-$redis = \Yii::$app->cache;
-
-$cacheKey = 'import_preview_' . $countryFile->id;
+$useCache = !$clear;
+$cachedRecords = [];
 if ($useCache) {
-    if ($cached = $redis->get($cacheKey)) {
-        $cached = json_decode($cached, true);
-        $isFileOK = $cached['isFileOK'];
-        $errorLines = $cached['errorLines'];
-        $warningLines = $cached['warningLines'];
+    if ($cachedData = $countryFile->getCachedPreviewData()) {
+        $cachedData = json_decode($cachedData, true);
+        $checkFull = $checkFull && empty($cachedRecords['checked']);
+        if (!$checkFull) {
+            $isFileOK = $cachedData['isFileOK'];
+            $errorLines = $cachedData['errorLines'];
+            $warningLines = $cachedData['warningLines'];
 
-        $cached = $cached['records'];
-
-        $checkFull = true;
+            $cachedRecords = $cachedData['records'];
+        }
     }
 } else {
-    $redis->delete($cacheKey);
+    $countryFile->removeCachedPreviewData();
 }
 ?>
 
+<?php if ($cachedRecords): ?>
 <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-6">
 <?php
-if ($cached) {
-    echo 'Превью файла закэшировано. ' .
+    echo 'Превью файла прочитано из кэша. ' .
         Html::a(
             'сбросить кэш',
             Url::to([
@@ -101,10 +92,29 @@ if ($cached) {
                 'clear' => 1,
             ])
         );
-}
 ?>
     </div>
 </div>
+<?php endif ?>
+
+<?php if (!$checkFull): ?>
+<div class="row">
+    <div class="col-sm-6">
+<?php
+    echo 'Проверка файла произведена лишь частично. ' .
+        Html::a(
+            'проверить полностью',
+            Url::to([
+                '/nnp/import/step3',
+                'countryCode' => $country->code,
+                'fileId' => $countryFile->id,
+                'check' => 1,
+            ])
+        );
+?>
+    </div>
+</div>
+<?php endif ?>
 
 <?php ob_start() ?>
 
@@ -113,7 +123,7 @@ if ($cached) {
         <?= $this->render('_step3_th') ?>
 
         <?php /**
-         * @param int $rowNumber
+         * @param int $lineNumber
          * @param array|null $row
          * @param ImportServiceUploaded $importServiceUploaded
          * @param array $errorLines
@@ -123,9 +133,9 @@ if ($cached) {
          * @param int $countryFileId
          * @return array
          */
-        function checkIfValid(int $rowNumber, array $row, ImportServiceUploaded $importServiceUploaded, array $errorLines, array $warningLines, array $alreadyRead, $countryCode, $countryFileId, $isFileOK): array
+        function checkIfValid(int $lineNumber, array $row, ImportServiceUploaded $importServiceUploaded, array $errorLines, array $warningLines, array $alreadyRead, $countryCode, $countryFileId, $isFileOK): array
         {
-            if (!($rowNumber == 1 && !is_numeric($row[0]))) {
+            if (!($lineNumber == 1 && !is_numeric($row[0]))) {
                 $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
                 $rowStatus = $importServiceUploaded->getRowHasError($numberRangeImport);
 
@@ -139,41 +149,44 @@ if ($cached) {
                             $text .= sprintf("%s: %s", $key, $value) . PHP_EOL;
                         }
                     }
-                    $errorLines[$rowNumber] = $text;
+                    $errorLines[$lineNumber] = $text;
                 } elseif (empty($numberRangeImport->ndc)) {
-                    $warningLines[$rowNumber] = 'Пустой NDC - диапазон не будет загружен';
+                    $warningLines[$lineNumber] = 'Пустой NDC - диапазон не будет загружен';
                 } elseif ($numberRangeImport->ndc_type_id == 6) {
-                    $warningLines[$rowNumber] = 'Короткий номер - диапазон не будет загружен';
+                    $warningLines[$lineNumber] = 'Короткий номер - диапазон не будет загружен';
                 } elseif (isset($alreadyRead[$key])) {
                     $oldLine = $alreadyRead[$key];
 
-                    $warningLines[$rowNumber] = "Диапазон $key уже добавлен в " . Html::a(
+                    $warningLines[$lineNumber] = "Диапазон $key уже добавлен в " . Html::a(
                             'строке ' . $oldLine,
                             Url::to([
                                 '/nnp/import/step3',
                                 'countryCode' => $countryCode,
                                 'fileId' => $countryFileId,
                                 'offset' => $oldLine,
-                                'limit' => min($rowNumber - $oldLine, 100)
+                                'limit' => min($lineNumber - $oldLine, 100)
                             ]) . '#line' . $oldLine
                         );
                 }
 
-                $alreadyRead[$key] = $rowNumber;
+                $alreadyRead[$key] = $lineNumber;
             }
 
             return array($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead);
         }
 
+        // ############################################
+        // ### Start reading
+        // ############################################
         $records = [];
         while (($row = fgetcsv($handle, $rowLength = 4096, $delimiter = ';')) !== false) : ?>
 
             <?php
             $rowNumber++;
 
-            if ($cached) {
-                $rowStatus = $cached[$rowNumber][0];
-                $oldLine = $cached[$rowNumber][1];
+            if ($cachedRecords) {
+                $rowStatus = $cachedRecords[$rowNumber][0];
+                $oldLine = $cachedRecords[$rowNumber][1];
             } else {
                 if (
                     !$checkFull &&
@@ -230,7 +243,9 @@ if ($cached) {
                     <?php
                     $isButtonShown = true;
                 }
-                //break;
+                if (!$checkFull) {
+                    break;
+                }
                 continue;
             endif;
 
@@ -260,15 +275,15 @@ if ($cached) {
         <?php endwhile ?>
 
         <?php
-            if ($useCache && !$cached && $records) {
+            if ($useCache && !$cachedRecords && $records) {
                 $data = [
                     'isFileOK' => $isFileOK,
                     'records' => $records,
                     'errorLines' => $errorLines,
                     'warningLines' => $warningLines,
+                    'checked' => $checkFull,
                 ];
-
-                $redis->set($cacheKey, json_encode($data), 3600 * 24);
+                $countryFile->setCachedPreviewData(json_encode($data));
             }
         ?>
 

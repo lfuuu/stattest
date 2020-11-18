@@ -169,7 +169,10 @@ class ImportController extends BaseController
      */
     private function _getCountryFile($countryCode, $fileId)
     {
-        $countryFile = CountryFile::findOne(['id' => $fileId]);
+        $countryFile = CountryFile::findOne([
+            'id' => $fileId,
+            'is_active' => 1,
+        ]);
         if (!$countryFile) {
             throw new InvalidParamException('Неправильный файл');
         }
@@ -207,9 +210,18 @@ class ImportController extends BaseController
         }
 
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
+
+        $checkFull = boolval(Yii::$app->request->get('check'));
+        if (!$checkFull) {
+            $country = $countryFile->country;
+            $mediaManager = $country->getMediaManager();
+            $checkFull = $mediaManager->isSmall($countryFile);
+        }
+
         return $this->render('step3', [
             'countryFile' => $countryFile,
             'clear' => boolval(Yii::$app->request->get('clear')),
+            'checkFull' => $checkFull,
             'offset' => $offset,
             'limit' => $limit,
             'formModel' => $formModel,
@@ -294,7 +306,7 @@ class ImportController extends BaseController
         }
 
         $isProcessedOld = $formModel->isProcessedOld($version);
-        $isProcessedNew = $formModel->isProcessedNew($version);
+        $isProcessed = $formModel->isProcessed($version);
 
 //        if (NumberRange::isTriggerEnabled()) {
 //            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
@@ -308,14 +320,14 @@ class ImportController extends BaseController
 
             // import version 1
             if ($isProcessedOld) {
-                $recordOld = ImportHistory::startFile($countryFile);
+                $importHistoryOld = ImportHistory::startFile($countryFile, false);
                 $importOld = new ImportServiceUploaded([
                     'countryCode' => $countryCode,
                     'url' => $mediaManager->getUnzippedFilePath($countryFile),
                     'delimiter' => ';',
                 ]);
-                $doneOld = $importOld->run($recordOld);
-                $recordOld->finish($doneOld);
+                $doneOld = $importOld->run($importHistoryOld);
+                $importHistoryOld->finish($doneOld);
                 $logOld = $importOld->getLogAsString();
 
                 if ($doneOld) {
@@ -338,21 +350,21 @@ class ImportController extends BaseController
             }
 
             // import version 2
-            if ($isProcessedNew) {
-                $recordNew = ImportHistory::startFile($countryFile, 2);
-                $importNew = new ImportServiceUploadedNew([
+            if ($isProcessed) {
+                $importHistory = ImportHistory::startFile($countryFile, false, 2);
+                $import = new ImportServiceUploadedNew([
                     'countryCode' => $countryCode,
                     'url' => $mediaManager->getUnzippedFilePath($countryFile),
                     'delimiter' => ';',
                 ]);
 
-                $doneNew = $importNew->run($recordNew);
-                $recordNew->finish($doneNew);
-                $logNew = $importNew->getLogAsString();
-                $logNew = PHP_EOL . PHP_EOL . '******************************************' . PHP_EOL . $logNew;
+                $done = $import->run($importHistory);
+                $importHistory->finish($done);
+                $log = $import->getLogAsString();
+                $log = PHP_EOL . PHP_EOL . '******************************************' . PHP_EOL . $log;
 
-                if ($doneNew) {
-                    $logNew .= PHP_EOL . PHP_EOL . Html::a(
+                if ($done) {
+                    $log .= PHP_EOL . PHP_EOL . Html::a(
                             'Посмотреть диапазоны номеров v2',
                             ['/nnp2/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
                             ['target' => '_blank']
@@ -372,7 +384,7 @@ class ImportController extends BaseController
                                 'countryCode' => $countryFile->country_code,
                                 'fileId' => $countryFile->id,
                             ])
-                        ) . ' успешно импортирован v2.' . nl2br(PHP_EOL . $logNew));
+                        ) . ' успешно импортирован v2.' . nl2br(PHP_EOL . $log));
 
                 } else {
                     Yii::$app->session->addFlash('error', 'Ошибка импорта v2 файла ' . Html::a(
@@ -382,12 +394,12 @@ class ImportController extends BaseController
                                 'countryCode' => $countryFile->country_code,
                                 'fileId' => $countryFile->id,
                             ])
-                        ) . '.' . nl2br(PHP_EOL . $logNew));
+                        ) . '.' . nl2br(PHP_EOL . $log));
                 }
             }
         } else {
             // файл большой - поставить в очередь
-            $eventQueue = EventQueue::go(Module::EVENT_IMPORT, ['fileId' => $fileId, 'old' => $isProcessedOld, 'new' => $isProcessedNew]);
+            $eventQueue = EventQueue::go(Module::EVENT_IMPORT, ['fileId' => $fileId, 'old' => $isProcessedOld, 'new' => $isProcessed]);
             Yii::$app->session->setFlash('success', 'Файл поставлен в очередь на загрузку. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 

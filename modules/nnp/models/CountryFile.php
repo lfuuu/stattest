@@ -17,6 +17,7 @@ use yii\base\InvalidParamException;
  * @property string $comment
  * @property int $user_id
  * @property string $ts
+ * @property int $is_active
  *
  * @property-read Country $country
  * @property-read CountryMedia $mediaManager
@@ -45,6 +46,7 @@ class CountryFile extends ActiveRecord
             'comment' => 'Комментарий',
             'user_id' => 'Кто',
             'ts' => 'Когда',
+            'is_active' => 'Активен',
         ];
     }
 
@@ -92,11 +94,15 @@ class CountryFile extends ActiveRecord
      * @param bool $new
      * @return string Лог
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */
     public static function importById($countryFileId, $old = true, $new = true)
     {
-        $countryFile = CountryFile::findOne(['id' => $countryFileId]);
+        $countryFile = CountryFile::findOne([
+            'id' => $countryFileId,
+            'is_active' => 1,
+        ]);
         if (!$countryFile) {
             throw new InvalidParamException('Неправильный файл');
         }
@@ -108,43 +114,82 @@ class CountryFile extends ActiveRecord
         $logOld = '';
         $doneOld = true;
         if ($old) {
-            $recordOld = ImportHistory::startFile($countryFile);
+            $importHistoryOld = ImportHistory::startFile($countryFile);
             $importOld = new ImportServiceUploaded([
                 'countryCode' => $country->code,
                 'url' => $mediaManager->getUnzippedFilePath($countryFile),
                 'delimiter' => ';',
             ]);
-            $doneOld = $importOld->run($recordOld);
-            $recordOld->finish($doneOld);
+            $doneOld = $importOld->run($importHistoryOld);
+            $importHistoryOld->finish($doneOld);
             $logOld = $importOld->getLogAsString();
         }
         //
 
         // import v2
-        $logNew = '';
-        $doneNew = true;
+        $log = '';
+        $done = true;
         if ($new) {
             if ($logOld) {
                 $logOld .= PHP_EOL . PHP_EOL . '******************************************' . PHP_EOL;
             }
 
-            $recordNew = ImportHistory::startFile($countryFile, 2);
-            $importNew = new ImportServiceUploadedNew([
+            $importHistory = ImportHistory::startFile($countryFile, null, 2);
+            $import = new ImportServiceUploadedNew([
                 'countryCode' => $country->code,
                 'url' => $mediaManager->getUnzippedFilePath($countryFile),
                 'delimiter' => ';',
             ]);
-            $doneNew = $importNew->run($recordNew);
-            $recordNew->finish($doneNew);
-            $logNew = $importNew->getLogAsString();
+            $done = $import->run($importHistory);
+            $importHistory->finish($done);
+            $log = $import->getLogAsString();
         }
         //
 
-        $logFull = $logOld . $logNew;
-        if (!$doneOld || !$doneNew) {
+        $logFull = $logOld . $log;
+        if (!$doneOld || !$done) {
             throw new \RuntimeException($logFull);
         }
 
         return $logFull;
     }
+
+    /**
+     * @return string
+     */
+    protected function getPreviewCacheKey()
+    {
+        return sprintf('nnp_import_preview_%s', $this->id);
+    }
+
+    public function getCachedPreviewData()
+    {
+        /** @var yii\redis\Cache $redis */
+        $redis = \Yii::$app->cache;
+
+        return $redis->get($this->getPreviewCacheKey());
+    }
+
+    /**
+     * @param string $data
+     */
+    public function setCachedPreviewData($data = '')
+    {
+        /** @var yii\redis\Cache $redis */
+        $redis = \Yii::$app->cache;
+
+        $redis->set($this->getPreviewCacheKey(), $data, 3600 * 24);
+    }
+
+    /**
+     *
+     */
+    public function removeCachedPreviewData()
+    {
+        /** @var yii\redis\Cache $redis */
+        $redis = \Yii::$app->cache;
+
+        $redis->delete($this->getPreviewCacheKey());
+    }
+
 }

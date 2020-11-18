@@ -8,6 +8,7 @@ use app\classes\Navigation;
 use app\classes\NavigationBlock;
 use app\modules\nnp2\models\NumberRange;
 use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * Национальные номерные планы 2.0
@@ -39,6 +40,19 @@ class Module extends \yii\base\Module
         }
 
         Yii::configure($this, $params);
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function isLogMemory()
+    {
+        if (!array_key_exists('isLogMemory', $this->params)) {
+            throw new InvalidConfigException('Не настроен isLogMemory');
+        }
+
+        return boolval($this->params['isLogMemory']);
     }
 
     /**
