@@ -105,13 +105,13 @@ $memoryLimitMap = [
 
 $consoleParam = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null;
 
-echo PHP_EOL . sprintf("%s, handler started: %s", date(DateTimeZoneHelper::DATETIME_FORMAT), $consoleParam);
 if (!$consoleParam || !isset($map[$consoleParam])) {
     echo PHP_EOL . 'Не задан параметр очереди: [' . implode(', ', array_keys($map)) . ']';
     echo PHP_EOL;
     return ExitCode::UNSPECIFIED_ERROR;
 }
 
+echo PHP_EOL . sprintf("%s, handler started: %s", date(DateTimeZoneHelper::DATETIME_FORMAT), $consoleParam);
 if (!empty($memoryLimitMap[$consoleParam])) {
     $memoryLimit = $memoryLimitMap[$consoleParam];
 
