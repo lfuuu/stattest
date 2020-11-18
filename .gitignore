@@ -1,7 +1,7 @@
 .idea
 .vscode
 .vagrant
-tags
+/tags
 *~
 web/noc
 web/tst
