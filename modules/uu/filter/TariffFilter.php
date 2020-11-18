@@ -8,6 +8,7 @@ use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffStatus;
+use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
@@ -165,29 +166,47 @@ class TariffFilter extends Tariff
      * @param int $voipCountryId
      * @return \yii\db\ActiveQuery
      */
-    public static function getListQuery($id, $serviceTypeId, $countryId, $currencyId, $isDefault, $isPostPaid, $tariffStatusId, $tariffPersonId, $tariffTagId, $voipGroupId, $voipCityId, $voipNdcTypeId, $organizationId, $isIncludeVat, $voipCountryId)
-    {
+    public static function getListQuery(
+        $id,
+        $serviceTypeId,
+        $countryId,
+        $currencyId,
+        $isDefault,
+        $isPostPaid,
+        $tariffStatusId,
+        $tariffPersonId,
+        $tariffTagId,
+        $tariffTagsId,
+        $voipGroupId,
+        $voipCityId,
+        $voipNdcTypeId,
+        $organizationId,
+        $isIncludeVat,
+        $voipCountryId
+    ) {
         $query = Tariff::find();
         $tariffTable = Tariff::tableName();
 
         $query
             ->with('tariffPeriods')
-//            ->with('tariffPeriods.chargePeriod')
-//            ->with('tariffCountries')
-//            ->with('tariffVoipCountries.country')
-//            ->with('package')
-//            ->with('serviceType')
-//            ->with('status')
-//            ->with('person')
-//            ->with('tag')
-//            ->with('tariffResources.resource.serviceType')
-//            ->with('voipGroup')
-//            ->with('voipCities.city')
-//            ->with('voipNdcTypes.ndcType')
-//            ->with('organizations.organization')
+            ->with('tariffPeriods.chargePeriod')
+            ->with('tariffCountries')
+            ->with('tariffVoipCountries.country')
+            ->with('package')
+            ->with('serviceType')
+            ->with('status')
+            ->with('person')
+            ->with('tag')
+            ->with('tariffResources.resource.serviceType')
+            ->with('voipGroup')
+            ->with('voipCities.city')
+            ->with('voipNdcTypes.ndcType')
+            ->with('organizations.organization')
             ->with('packageMinutes.destination')
-//            ->with('packagePrices.destination')
-//            ->with('packagePricelists.pricelist')
+            ->with('packagePrices.destination')
+            ->with('packagePricelists.pricelist')
+            ->with('tariffTags')
+            ->with('tariffTags.tag')
 ;
 
         $id && $query->andWhere(["{$tariffTable}.id" => $id]);
@@ -200,6 +219,11 @@ class TariffFilter extends Tariff
         $tariffPersonId && $query->andWhere(["{$tariffTable}.tariff_person_id" => [TariffPerson::ID_ALL, $tariffPersonId]]);
         $tariffTagId && $query->andWhere(["{$tariffTable}.tariff_tag_id" => $tariffTagId]);
         $voipGroupId && $query->andWhere(["{$tariffTable}.voip_group_id" => (int)$voipGroupId]);
+
+        if ($tariffTagsId) {
+            $query->joinWith('tariffTags')
+                ->andWhere([TariffTags::tableName() . '.tag_id' => $tariffTagsId]);
+        }
 
         if ($countryId) {
             $query

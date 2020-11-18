@@ -115,6 +115,7 @@ class Module extends \yii\base\Module
                 ->addItem('СМС', ['/uu/mtt?MttRawFilter[serviceid][0]=' . MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK . '&MttRawFilter[serviceid][1]=' . MttRaw::SERVICE_ID_SMS_IN_ROAMING], ['services_voip.r'])
                 ->addItem('Моб. Интернет', ['/uu/mtt?MttRawFilter[serviceid][0]=' . MttRaw::SERVICE_ID_INET_IN_HOMENETWORK . '&MttRawFilter[serviceid][1]=' . MttRaw::SERVICE_ID_INET_IN_ROAMING], ['services_voip.r'])
                 ->addItem('CallTracking', ['/callTracking/log'], ['services_voip.r'])
+                ->addItem('Метки тарифов', ['/uu/tags/'], ['dictionary.read'])
         );
     }
 }

@@ -38,7 +38,7 @@ use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
-use app\modules\uu\models\TariffTag;
+use app\modules\uu\models\Tag;
 use app\modules\uu\models\TariffVoipGroup;
 use app\modules\uu\Module;
 use app\modules\async\Module as asyncModule;
@@ -284,7 +284,7 @@ class UuController extends ApiInternalController
      */
     public function actionGetTariffTags()
     {
-        $query = TariffTag::find();
+        $query = Tag::find();
         $result = [];
         foreach ($query->each() as $model) {
             $result[] = $this->_getIdNameRecord($model);
@@ -370,6 +370,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "tariff_status", type = "object", description = "Статус (публичный, специальный, архивный и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_person", type = "object", description = "Для кого действует тариф (для всех, физиков, юриков)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_tag", type = "object", description = "Тэг (хит продаж)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "tariff_tags", type = "object", description = "Тэги тарифа", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_resources", type = "array", description = "Ресурсы (дисковое пространство, абоненты, линии и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffResourceRecord")),
      *   @SWG\Property(property = "tariff_periods", type = "array", description = "Периоды (посуточно, помесячно и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
      *   @SWG\Property(property = "is_termination", type = "integer", description = "Телефония. Плата за входящие звонки?"),
@@ -398,6 +399,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_tag_id", type = "integer", description = "ID тега (хит продаж)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "tariff_tags_id", type = "string", description = "Теги тарифа", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_city_id", type = "integer", description = "ID города телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_ndc_type_id", type = "integer", description = "ID типа NDC телефонии", in = "query", default = ""),
@@ -426,6 +428,7 @@ class UuController extends ApiInternalController
      * @param int $tariff_status_id
      * @param int $tariff_person_id
      * @param int $tariff_tag_id
+     * @param int $tariff_tags_id
      * @param int $voip_group_id
      * @param int $voip_city_id
      * @param int $voip_ndc_type_id
@@ -448,6 +451,7 @@ class UuController extends ApiInternalController
         $tariff_status_id = null,
         $tariff_person_id = null,
         $tariff_tag_id = null,
+        $tariff_tags_id = null,
         $voip_group_id = null,
         $voip_city_id = null,
         $voip_ndc_type_id = null,
@@ -472,6 +476,7 @@ class UuController extends ApiInternalController
                 $tariff_status_id,
                 $tariff_person_id,
                 $tariff_tag_id,
+                $tariff_tags_id,
                 $voip_group_id,
                 $voip_city_id,
                 $voip_ndc_type_id,
@@ -498,6 +503,9 @@ class UuController extends ApiInternalController
         $tariff_status_id = (int)$tariff_status_id;
         $tariff_person_id = (int)$tariff_person_id;
         $tariff_tag_id = (int)$tariff_tag_id;
+        if (!is_numeric($tariff_tags_id) && !is_array($tariff_tags_id)) {
+            $tariff_tags_id = preg_split('/\D+/', $tariff_tags_id);
+        }
         $voip_group_id = (int)$voip_group_id;
         $voip_city_id = (int)$voip_city_id;
         $voip_ndc_type_id = (int)$voip_ndc_type_id;
@@ -605,7 +613,7 @@ class UuController extends ApiInternalController
 
         // @todo надо ли только статус "публичный" для ватс?
 
-        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
+        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
 
         $result = [];
         $defaultPackageRecordsFetched = null;
@@ -626,6 +634,7 @@ class UuController extends ApiInternalController
                         $tariff_status_id,
                         $tariff_person_id,
                         $tariff_tag_id_tmp = null,
+                        $tariff_tags_id_tmp = null,
                         $voip_group_id,
                         $voip_city_id,
                         $voip_ndc_type_id,
@@ -662,7 +671,7 @@ class UuController extends ApiInternalController
 
         $cacheKey = 'uuapitariff' . $tariff->id;
 
-        if (!($data = \Yii::$app->cache->get($cacheKey))) {
+        if (!(false && $data = \Yii::$app->cache->get($cacheKey))) {
 
             $package = $tariff->package;
             $tariffVoipCountries = $tariff->tariffVoipCountries;
@@ -686,6 +695,7 @@ class UuController extends ApiInternalController
                 'tariff_status' => $this->_getIdNameRecord($tariff->status),
                 'tariff_person' => $this->_getIdNameRecord($tariff->person),
                 'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
+                'tariff_tags' => $this->_getIdNameRecord($tariff->tariffTags),
                 'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
                 'tariff_periods' => null, //$this->_getTariffPeriodRecord($tariffPeriod),
                 'is_termination' => $package ? $package->is_termination : null,

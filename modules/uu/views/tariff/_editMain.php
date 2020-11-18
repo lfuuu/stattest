@@ -17,7 +17,7 @@ use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffStatus;
-use app\modules\uu\models\TariffTag;
+use app\modules\uu\models\Tag;
 use kartik\select2\Select2;
 
 $tariff = $formModel->tariff;
@@ -144,7 +144,7 @@ $viewParams = [
         </div>
 
         <div class="col-sm-2"><?= $form->field($tariff, 'tag_id')->widget(Select2::class, [
-                'data' => TariffTag::getList(true),
+                'data' => Tag::getList(true),
             ])
                 ->label($tariff->getAttributeLabel('tag_id') . $helpConfluence)
             ?>
@@ -191,5 +191,6 @@ $viewParams = [
         <?= $this->render('//layouts/_showHistory', ['model' => $tariff]) ?>
     <?php endif; ?>
 
+    <?= $this->render('_editMainTags', $viewParams) ?>
     <?= $this->render('_editMainOrganization', $viewParams) ?>
 </div>

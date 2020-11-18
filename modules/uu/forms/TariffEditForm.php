@@ -8,6 +8,7 @@ use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
+use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
@@ -84,6 +85,14 @@ class TariffEditForm extends TariffForm
     public function getTariffOrganizations()
     {
         return $this->tariff->organizations;
+    }
+
+    /**
+     * @return TariffTags[]
+     */
+    public function getTariffTags()
+    {
+        return $this->tariff->tags;
     }
 
     /**
