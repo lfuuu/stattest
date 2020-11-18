@@ -317,8 +317,6 @@ class Dao extends Singleton
                 ->andWhere([TariffOrganization::tableName() . '.organization_id' => $organization_id]);
         }
 
-        return $tariffQuery->createCommand()->rawSql;
-
         $result = [];
         /** @var Tariff $tariff */
         foreach ($tariffQuery->each() as $tariff) {

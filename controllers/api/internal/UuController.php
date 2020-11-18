@@ -671,7 +671,7 @@ class UuController extends ApiInternalController
 
         $cacheKey = 'uuapitariff' . $tariff->id;
 
-        if (!(false && $data = \Yii::$app->cache->get($cacheKey))) {
+        if (!($data = \Yii::$app->cache->get($cacheKey))) {
 
             $package = $tariff->package;
             $tariffVoipCountries = $tariff->tariffVoipCountries;

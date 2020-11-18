@@ -7,7 +7,6 @@ use app\classes\model\ActiveRecord;
 /**
  * Тэги тарифа
  *
- * @property int $id
  * @property int $tariff_id
  * @property int $tag_id
  *
@@ -35,6 +34,33 @@ class TariffTags extends ActiveRecord
         return [
             [['tariff_id', 'tag_id'], 'integer'],
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return array_merge(
+            parent::behaviors(),
+            [
+                \app\classes\behaviors\HistoryChanges::class,
+            ]
+        );
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'id' => '№',
+            'tariff_id' => 'Тариф',
+            'tag_id' => 'Тэг',
+        ];
+    }
+
+    public function getParentId()
+    {
+        return $this->tariff_id;
     }
 
     public function getTariff()
