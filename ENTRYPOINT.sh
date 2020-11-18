@@ -140,4 +140,4 @@ php yii migrate
 
 echo "Migrations applied!"
 
-#/bin/sleep infinity
+/bin/sleep infinity
