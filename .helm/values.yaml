@@ -67,5 +67,6 @@ use_network_polices: "no"
 
 node_comet_prod:
   host: node-comet-prod
+  path: /comet
   port: 3000
   logLevel: 200

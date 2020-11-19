@@ -46,7 +46,7 @@ sed -i "s/'hostname' => 'localhost'/'hostname' => '$REDIS_HOST'/" cache_redis.lo
 # Socket
 cd $DIR_STAT/modules/socket/config/
 cp params.php params.local.php
-sed -i "s/'url' => ''/'url' => '$SOCKET_URL'/" params.local.php
+sed -i "s%'url' => ''%'url' => '$SOCKET_URL'%" params.local.php
 sed -i "s%'backend_url' => ''%'backend_url' => '$SOCKET_BACKEND_URL'%" params.local.php
 sed -i "s/'secretKey' => ''/'secretKey' => '$SOCKET_SECRET'/" params.local.php
 

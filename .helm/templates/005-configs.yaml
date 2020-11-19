@@ -109,7 +109,7 @@ data:
             fastcgi_read_timeout 8h;
             try_files $uri =404;
         }
-        location /comet/ {
+        location {{ .Values.node_comet_prod.path }}/ {
             rewrite    /comet/(.*) /$1 break; #used to send request to base url
             proxy_set_header Host $host;
             proxy_pass http://{{ .Values.node_comet_prod.host }}:{{ .Values.node_comet_prod.port }};

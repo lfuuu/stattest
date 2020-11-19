@@ -61,10 +61,10 @@ spec:
           mountPath: /opt/stat_rep/stat/config/params.local.php
         - name: config-volume
           subPath: php.ini
-          mountPath: /etc/php.d/php.ini
+          mountPath: /usr/local/etc/php/conf.d/php.ini
         - name: config-volume
           subPath: php-fpm.www.conf
-          mountPath: /etc/php-fpm.d/www2.conf
+          mountPath: /usr/local/etc/php-fpm.d/www2.conf
         - name: store
           mountPath: /opt/stat_rep/store
         - name: assets
@@ -90,10 +90,12 @@ spec:
           value: {{ .Values.postgres_prod.password }}
         - name: REDIS_HOST
           value: {{ .Values.redis_prod.host }}
+        - name: SOCKET_URL_INFO
+          value: https://{{ .Values.ci_url }}{{ .Values.node_comet_prod.path }}
         - name: SOCKET_URL
-          value: http:\/\/{{ .Values.ci_url }}\/comet
+          value: https://{{ .Values.ci_url }}
         - name: SOCKET_BACKEND_URL
-          value: {{ .Values.node_comet_prod.backend_url }}
+          value: http://{{ .Values.node_comet_prod.host }}:{{ .Values.node_comet_prod.port }}
         - name: SOCKET_SECRET
           value: {{ .Values.node_comet_prod.secret_key }}
         - name: WEB_HOOK_SECRET
