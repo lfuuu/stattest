@@ -649,7 +649,12 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="email", type="string", description="Email", in="formData", default="", required=true),
      *   @SWG\Parameter(name="phone", type="string", description="Контактный номер", in="formData", default=""),
      *   @SWG\Parameter(name="phone_port", type="string", description="Номера телефонов для портирования", in="formData", default=""),
-     *   @SWG\Parameter(name="__client_account_id", type="integer", description="ЛС, не заполняется!", in="formData", default=""),
+     *   @SWG\Parameter(name="temp", type="string", description="Временный номер (Да/Нет)", in="formData", default=""),
+     *   @SWG\Parameter(name="tariff", type="string", description="Тариф", in="formData", default=""),
+     *   @SWG\Parameter(name="delivery", type="string", description="Варинат доставки", in="formData", default=""),
+     *   @SWG\Parameter(name="delivery_address", type="string", description="Адрес доставки", in="formData", default=""),
+     *   @SWG\Parameter(name="file_link", type="string", description="Ссылка на PDF-заявление", in="formData", default=""),
+     *   @SWG\Parameter(name="__client_account_id", type="integer", description="ЛС !!! не заполняется - техническое поле", in="formData", default=""),
      *
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},
