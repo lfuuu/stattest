@@ -26,6 +26,8 @@ class SberbankOrder extends ActiveRecord
     const STATUS_REGISTERED = 1;
     const STATUS_PAYED = 2;
 
+    const ID_SEMAFOR = 1020;
+
     /**
      * Название таблицы
      *
@@ -66,8 +68,14 @@ class SberbankOrder extends ActiveRecord
      */
     public function makePayment($info)
     {
-
         $transaction = \Yii::$app->db->beginTransaction();
+
+        $semResource = sem_get(self::ID_SEMAFOR);
+
+        if ($semResource) {
+            sem_acquire($semResource);
+        }
+
         try {
             $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)));
 
@@ -99,12 +107,12 @@ class SberbankOrder extends ActiveRecord
             }
 
             $transaction->commit();
+            $semResource && sem_release($semResource);
         } catch (\Exception $e) {
             $transaction->rollBack();
+            $semResource && sem_release($semResource);
             \Yii::error($e);
             throw $e;
         }
-
-
     }
 }
