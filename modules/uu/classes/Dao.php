@@ -182,7 +182,7 @@ class Dao extends Singleton
         $tariff_status_id = (int)$tariff_status_id;
         $tariff_person_id = (int)$tariff_person_id;
         $tariff_tag_id = (int)$tariff_tag_id;
-        if (!is_numeric($tariff_tags_id) && !is_array($tariff_tags_id)) {
+        if ($tariff_tags_id && !is_numeric($tariff_tags_id) && !is_array($tariff_tags_id)) {
             $tariff_tags_id = preg_split('/\D+/', $tariff_tags_id);
         }
 
