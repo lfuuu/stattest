@@ -143,6 +143,6 @@ echo "Migrations applied!"
 if [ -f /var/run/php-fpm/php-fpm.pid ]; then
     rm /var/run/php-fpm/php-fpm.pid
 fi
-/usr/local/sbin/php-fpm
+/usr/local/sbin/php-fpm -R
 
 #/bin/sleep infinity
