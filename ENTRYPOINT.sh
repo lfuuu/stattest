@@ -140,4 +140,9 @@ php yii migrate
 
 echo "Migrations applied!"
 
-/bin/sleep infinity
+if [ -f /var/run/php-fpm/php-fpm.pid ]; then
+    rm /var/run/php-fpm/php-fpm.pid
+fi
+/usr/local/sbin/php-fpm
+
+#/bin/sleep infinity
