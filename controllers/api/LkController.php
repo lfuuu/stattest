@@ -111,9 +111,6 @@ class LkController extends ApiController
 
             if ($numberAndPosition) {
                 $history = PhoneHistory::find();
-                foreach ($numberAndPosition as $number => $position) {
-                    $history->orWhere(['phone_contact' => $number, 'number' => $position]);
-                }
 
                 $danycomData['phones'] = $history
                     ->select(['process_id', 'region'])
@@ -122,9 +119,16 @@ class LkController extends ApiController
                         'date_start' => 'date_request',
                         'date_end' => 'date_ported',
                         'from_operator' => 'from',
-                        'number' => new Expression('concat(\'7\', phone_contact)')
+                        'number' => new Expression('concat(\'7\', phone_ported)')
                     ])
-                    ->orderBy(['phone_contact' => SORT_ASC])
+                    ->andWhere([
+                        'id' =>
+                            PhoneHistory::find()
+                                ->where(['phone_contact' => $numbers])
+                                ->andWhere(new Expression('phone_contact = phone_ported'))
+                                ->select(new Expression('max(id)'))->groupBy('phone_ported'),
+                    ])
+                    ->addOrderBy(['phone_ported' => SORT_ASC])
                 ->asArray()
                 ->all();
             }
