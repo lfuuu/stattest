@@ -2284,6 +2284,7 @@ class UuController extends ApiInternalController
             $tariffStatusIdTmp = null,
             $tariffPersonIdTmp = null,
             $tariffTagIdTmp = null,
+            $tariffTagsIdTmp = null,
             $voipGroupIdTmp = null,
             $voipCityIdTmp = null,
             $voipNdcTypeIdTmp = null,
