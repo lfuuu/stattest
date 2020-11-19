@@ -31,15 +31,15 @@ php_prod:
     gc_probability: 1
 
 php_fpm_prod:
-  test: 111
   listen:
-    to: 127.0.0.1:9000
-    allowed_clients: 127.0.0.1
-    owner: nginx
-    group: nginx
+    #to: 0.0.0.0:9000
+    to: 9000
+    allowed_clients: any
+    owner: root
+    group: root
     mode: 0660
-  user: nginx
-  group: nginx
+  user: root
+  group: root
   pm:
     type: dynamic
     max_children: 50
