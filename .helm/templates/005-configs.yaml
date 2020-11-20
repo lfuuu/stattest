@@ -44,7 +44,7 @@ data:
   php-fpm.www.conf: |
     [www]
     listen = {{ .Values.php_fpm_prod.listen.to }}
-    listen.allowed_clients = {{ .Values.php_fpm_prod.listen.allowed_clients }}
+    ;listen.allowed_clients = {{ .Values.php_fpm_prod.listen.allowed_clients }}
     listen.owner = {{ .Values.php_fpm_prod.listen.owner }}
     listen.group = {{ .Values.php_fpm_prod.listen.group }}
     ;listen.mode = {{ .Values.php_fpm_prod.listen.mode }}

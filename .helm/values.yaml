@@ -34,7 +34,7 @@ php_fpm_prod:
   listen:
     #to: 0.0.0.0:9000
     to: 9000
-    allowed_clients: any
+    allowed_clients: 127.0.0.1
     owner: root
     group: root
     mode: 0660
