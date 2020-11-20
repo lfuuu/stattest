@@ -1,3 +1,4 @@
+session.local.php
 cache_redis.local.php
 db_stat.local.php
 db_ats.local.php

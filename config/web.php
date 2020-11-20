@@ -5,6 +5,11 @@ use yii\web\Response;
 
 Yii::setAlias('@app', dirname(__DIR__));
 
+$session = require(__DIR__ . '/session.php');
+if (file_exists($file = __DIR__ . '/session.local.php')) {
+    $session = ArrayHelper::merge($session, require($file));
+}
+
 $cacheRedis = require(__DIR__ . '/cache_redis.php');
 if (file_exists($file = __DIR__ . '/cache_redis.local.php')) {
     $cacheRedis = ArrayHelper::merge($cacheRedis, require($file));
@@ -104,6 +109,7 @@ $config = [
     'language' => 'ru-RU',
     'timeZone' => 'UTC',
     'components' => [
+        'session' => $session,
         'view' => [
             'title' => 'stat - MCN Телеком',
             'class' => 'app\classes\BaseView',
