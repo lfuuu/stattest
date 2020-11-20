@@ -11,6 +11,7 @@ use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
+use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
@@ -110,6 +111,14 @@ class TariffAddForm extends TariffForm
     public function getTariffVoipCountries()
     {
         return [new TariffVoipCountry()];
+    }
+
+    /**
+     * @return TariffTags[]
+     */
+    public function getTariffTags()
+    {
+        return [new TariffTags()];
     }
 
     /**
