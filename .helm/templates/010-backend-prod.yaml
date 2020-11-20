@@ -15,10 +15,13 @@ spec:
         ingressExternal: "no"
         app: {{ .Chart.Name }}-backend-prod
     spec:
-#      initContainers:
-#          - name: wait-redis
-#            image: alpine:3.6
-#            command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.redis_prod.host }}; do sleep 1; done']
+      initContainers:
+      - name: wait-redis
+        image: alpine:3.6
+        command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.redis_prod.host }}; do echo waiting for redis; sleep 2; done']
+      - name: wait-comet
+        image: alpine:3.6
+        command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.node_comet_prod.host }}; do echo waiting for comet; sleep 2; done']
       containers:
       - name: nginx
 {{ tuple "stat-nginx-prod" . | werf_container_image | indent 8 }}
