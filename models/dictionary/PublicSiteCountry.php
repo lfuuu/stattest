@@ -39,7 +39,8 @@ class PublicSiteCountry extends ActiveRecord
      */
     public function getPublicSiteNdcTypes()
     {
-        return $this->hasMany(PublicSiteNdcType::class, ['public_site_country_id' => 'id']);
+        return $this->hasMany(PublicSiteNdcType::class, ['public_site_country_id' => 'id'])
+            ->orderBy(['ndc_type_id' => SORT_ASC]);
     }
 
     /**
