@@ -104,6 +104,10 @@ $config = [
     'language' => 'ru-RU',
     'timeZone' => 'UTC',
     'components' => [
+        'session' => [
+            'class' => 'yii\web\DbSession',
+            'cookieParams' => ['lifetime' => 40 * 60 * 60]
+        ],
         'view' => [
             'title' => 'stat - MCN Телеком',
             'class' => 'app\classes\BaseView',
