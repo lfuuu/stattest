@@ -211,7 +211,6 @@ ansible:
     - name: "Comet-server 2"
       shell: |
         cd /opt/stat_rep/stat/comet-server
-        rm -rf config.json
         sed -i "s/\"socket.io\": \"\*\"/\"socket.io\": \"^2.3.0\"/" package.json
         npm -g install coffee-script -y
         npm i
@@ -242,7 +241,7 @@ docker:
   CMD: ["/bin/sleep","infinity"]
   EXPOSE: "6379"
 ---
-image: pgdb-prod
+image: pgdb-dev
 from: postgres:12.3
 #git:
 #  - add: /install/db/SQL/init.sql
@@ -299,7 +298,7 @@ ansible:
       shell: |
         curl -sS https://getcomposer.org/installer | php
         mv composer.phar /usr/local/bin/composer
-        # composer self-update --1
+        composer self-update --1
         composer global require "fxp/composer-asset-plugin"
         cd /home/httpd/stat.mcn.ru/stat
         composer install
