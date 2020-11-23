@@ -19,6 +19,8 @@ use app\models\Business;
 
 class OTTMaintenance extends AccountGrid
 {
+    use GenericFolderTrait;
+
     /**
      * @return int
      */
@@ -38,6 +40,7 @@ class OTTMaintenance extends AccountGrid
     /**
      * @return array
      */
+    /*
     public function getFolders()
     {
         return [
@@ -45,14 +48,32 @@ class OTTMaintenance extends AccountGrid
             ConnectingFolder::create($this),
             WorkFolder::create($this),
             DisconnectedFolder::create($this),
+
             DisconnectedDebtFolder::create($this),
             AutoBlockCreditFolder::create($this),
             AutoBlockDayLimitFolder::create($this),
             AutoBlock800Folder::create($this),
+
             TrashFolder::create($this),
             TechFailureFolder::create($this),
             FailureFolder::create($this),
             DuplicateFolder::create($this),
+        ];
+    }
+    */
+    public function getColumns()
+    {
+        return [
+            'status',
+            'id',
+            'company',
+            'created',
+            'currency',
+            'sale_channel',
+            'manager',
+            'account_manager',
+            'region',
+            'legal_entity',
         ];
     }
 

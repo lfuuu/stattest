@@ -19,6 +19,8 @@ use Yii;
 
 class OperatorClients extends AccountGrid
 {
+    use GenericFolderTrait;
+
     public function getBusiness()
     {
         return Business::OPERATOR;
@@ -28,7 +30,7 @@ class OperatorClients extends AccountGrid
     {
         return BusinessProcess::OPERATOR_CLIENTS;
     }
-
+/*
     public function getFolders()
     {
         return [
@@ -45,5 +47,23 @@ class OperatorClients extends AccountGrid
             TrashFolder::create($this),
         ];
     }
+*/
 
+    public function getColumns()
+    {
+        return [
+            'status',
+            'id',
+            'company',
+            'contractNo',
+            'contract_created',
+            'currency',
+            'manager',
+            'account_manager',
+            'region',
+            'federal_district',
+            'contract_type',
+            'financial_type'
+        ];
+    }
 }
