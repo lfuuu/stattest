@@ -40,6 +40,18 @@ abstract class AccountGrid implements AccountGridInterface
             '\telecom\maintenance\AutoBlock800Folder',
             '\telecom\maintenance\AutoBlockInternetFolder',
         ],
+        BusinessProcess::OTT_MAINTENANCE => [
+            '\ott\maintenance\DisconnectedDebtFolder',
+            '\ott\maintenance\AutoBlockCreditFolder',
+            '\ott\maintenance\AutoBlockDayLimitFolder',
+            '\ott\maintenance\AutoBlock800Folder',
+        ],
+
+        BusinessProcess::OPERATOR_CLIENTS => [
+            '\operator\clients\AutoBlockedFolder',
+        ]
+
+
     ];
 
     protected function getDefaultFolder()
