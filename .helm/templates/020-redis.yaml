@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: redis-prod
-{{ tuple "redis-prod" . | werf_container_image | indent 10 }}
+          image: quay.io/continuouspipe/redis3:latest
           command: ['redis-server']
           ports:
             - containerPort: {{ .Values.redis_prod.port }}

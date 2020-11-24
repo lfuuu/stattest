@@ -8,6 +8,8 @@ spec:
   selector:
       matchLabels:
         app: {{ .Chart.Name }}-backend-prod
+  strategy:
+    type: RollingUpdate
   template:
     metadata:
       labels:
