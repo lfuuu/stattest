@@ -944,6 +944,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
                     break;
 
+                case EventQueue::PORTED_NUMBER_ADD:
+                    $info = \app\models\voip\Registry::dao()->addPortedNumber($param['account_id'], $param['number']);
+                    break;
+
 
 
                 // --------------------------------------------

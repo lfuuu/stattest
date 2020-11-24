@@ -199,6 +199,8 @@ class ClientAccount extends HistoryActiveRecord
 
     const UNIVERSAL_BILL_RENAME1_DATE = '2019-04-01';
 
+    const ID_PORTED = 99999;
+
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
         'testing' => ['name' => 'тестируемый', 'color' => '#6DCFF6'],

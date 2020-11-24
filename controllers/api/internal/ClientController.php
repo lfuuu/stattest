@@ -24,6 +24,8 @@ use app\models\danycom\Address;
 use app\models\danycom\Info;
 use app\models\danycom\Number;
 use app\models\EntryPoint;
+use app\models\EventQueue;
+use app\models\voip\Registry;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
@@ -728,13 +730,17 @@ class ClientController extends ApiInternalController
         $account = ClientAccount::findOne(['id' => $accountId]);
         Assert::isObject($account, 'Account not found');
 
-        $numbers = [];
-        if (preg_match_all("/\+(\d{11})/", $params['phone_port'], $m)) {
+        if (preg_match_all("/\+?(79\d{9})/", $params['phone_port'], $m)) {
             $numbers = array_unique($m[1]);
+        } else {
+            throw new \LogicException('Bad number');
         }
 
         foreach ($numbers as $number) {
-            if (!($numberModel = Number::find()->where(['account_id' => $accountId, 'number' => $number])->one())) {
+            if (!($numberModel = Number::find()->where([
+                'account_id' => $accountId,
+                'number' => $number
+            ])->one())) {
                 $numberModel = new Number;
                 $numberModel->account_id = $accountId;
                 $numberModel->number = $number;
@@ -756,6 +762,11 @@ class ClientController extends ApiInternalController
             if (!$numberModel->save()) {
                 throw new ModelValidationException($numberModel);
             }
+
+            EventQueue::go(EventQueue::PORTED_NUMBER_ADD, [
+                'account_id' => $accountId,
+                'number' => $number
+            ]);
         }
 
         /** @var Info $infoModel */

@@ -114,6 +114,7 @@ class EventQueue extends ActiveRecord
     const SYNC_TELE2_LINK_IMSI = 'sync_tele2_link_imsi';
     const SYNC_TELE2_UNSET_IMSI = 'sync_tele2_unset_imsi';
     const SYNC_TELE2_UNLINK_IMSI = 'sync_tele2_unlink_imsi';
+    const PORTED_NUMBER_ADD = 'ported_number_add';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
@@ -177,6 +178,7 @@ class EventQueue extends ActiveRecord
         self::SYNC_TELE2_LINK_IMSI => 'Теле2. Прикрепить номер к IMSI',
         self::SYNC_TELE2_UNSET_IMSI => 'Теле2. очистить IMSI',
         self::SYNC_TELE2_UNLINK_IMSI => 'Теле2. Открепить номер от IMSI',
+        self::PORTED_NUMBER_ADD => 'Добавить портированный номер',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',
