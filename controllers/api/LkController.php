@@ -421,6 +421,31 @@ class LkController extends ApiController
 
         $form->validateWithException();
 
+        $account = ClientAccount::findOne(['id' => $form->account_id]);
+
+        $organizationId = $account->contract->organization_id;
+        if ($organizationId != Organization::MCN_TELECOM) {
+            $shopId = $scId = null;
+            if (
+                isset(\Yii::$app->params['yandex'])
+                && isset(\Yii::$app->params['yandex']['kassa'][$organizationId]['shop_id'])
+            ) {
+                $shopId = \Yii::$app->params['yandex']['kassa'][$organizationId]['shop_id'];
+                $scId = \Yii::$app->params['yandex']['kassa'][$organizationId]['sc_id'];
+            }
+
+            if (!$shopId || !$scId) {
+                throw new \Exception('Config error (c'.$organizationId.')');
+            }
+
+            return [
+                'provider' => 'yandex',
+                'yandex_shop_id' => $shopId,
+                'yandex_sc_id' => $scId,
+                'account_id' => $account->id
+            ];
+        }
+
         $bill = Bill::dao()->getPrepayedBillOnSum($form->account_id, $form->sum, Currency::RUB, $isForceCreate = true);
 
         $sbOrder = SberbankOrder::findOne(['bill_no' => $bill->bill_no]);
@@ -458,6 +483,7 @@ class LkController extends ApiController
         $sbOrder->save();
 
         return [
+            'provider' => 'sber',
             'order_url' => $sbOrder->order_url
         ];
     }
