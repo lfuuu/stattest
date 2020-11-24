@@ -27,6 +27,22 @@ class Region extends ActiveRecord
         getList as getListTrait;
     }
 
+    const nnpRegionToStatCity = [
+        54 => \app\models\City::MOSCOW,
+        5 => \app\models\City::MOSCOW,
+        11 => \app\models\City::MOSCOW,
+        89 => 7812, // СПб
+        57 => 7812,
+        58 => 7861,
+        3 => 7342, // Пермь
+        47 => 101027, // Калуга
+        43 => 7473, // Свердловская обл.
+        26594 => 7343,
+        27 => 7343,
+        2 => 7343,
+        46 => 74832, // Брянск
+    ];
+
     const MIN_CNT = 1000;
 
     /**

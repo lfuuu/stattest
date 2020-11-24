@@ -92,7 +92,7 @@ class ChangeBeautyLevelsController extends Controller
 
             /**
              * Изменение DID-группы
-             * @see VoipRegistryDao::_addNumber
+             * @see VoipRegistryDao::addNumber
              */
             $didGroupId = DidGroup::dao()->getIdByNumber($number);
             if (!$didGroupId) {

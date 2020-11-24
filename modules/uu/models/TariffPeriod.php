@@ -42,6 +42,8 @@ class TariffPeriod extends ActiveRecord
     const TEST_VPBX_ID = 5670;
     const START_VPBX_ID = 5694;
 
+    const PORTED_ID = 9665;
+
     // size for getList()
     const BATCH_SIZE_READ = 500;
 

@@ -2,15 +2,20 @@
 
 namespace app\dao;
 
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\Country;
 use app\models\DidGroup;
 use app\models\Number;
 use app\models\NumberLog;
 use app\models\voip\Registry;
 use app\modules\nnp\models\NdcType;
+use app\modules\nnp\models\Region;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\TariffPeriod;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
 use yii\db\Query;
@@ -167,7 +172,7 @@ class VoipRegistryDao extends Singleton
         foreach ($registry->getPassMap() as $part) {
             if ($part['filling'] == 'pass') {
                 for ($i = $part['start']; $i <= $part['end']; $i++) {
-                    $this->_addNumber($registry, $i);
+                    $this->addNumber($registry, $i);
                 }
             }
         }
@@ -182,7 +187,7 @@ class VoipRegistryDao extends Singleton
      * @throws ModelValidationException
      * @return Number
      */
-    private function _addNumber(Registry $registry, $addNumber)
+    public function addNumber(Registry $registry, $addNumber)
     {
         if ($registry->isSourcePotability() || $registry->ndc_type_id == NdcType::ID_FREEPHONE) {
             $beautyLevel = DidGroup::BEAUTY_LEVEL_STANDART;
@@ -356,5 +361,94 @@ class VoipRegistryDao extends Singleton
             throw $e;
         }
 
+    }
+
+    public function addPortedNumber($accountId, $numberStr)
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+
+        $info = '';
+
+        try {
+            // add number to reestr
+            $number = Number::findOne(['number' => $numberStr]);
+            if (!$number) {
+                $numberInfo = Number::getNnpInfo($numberStr);
+
+                if (!$numberInfo) {
+                    throw new \LogicException('numberInfo empty');
+                }
+
+                $nnpRegionId = $numberInfo['nnp_region_id'] ?? 0;
+
+                if (!$nnpRegionId) {
+                    throw new \LogicException('NNP Region empty');
+                }
+
+                if (!isset(Region::nnpRegionToStatCity[$nnpRegionId])) {
+                    throw new \LogicException('ННП Регион (' . $nnpRegionId . ') не привязан к городу');
+                }
+
+                $cityId = Region::nnpRegionToStatCity[$nnpRegionId];
+
+                $registry = new Registry();
+                $registry->id = null;
+                $registry->ndc_type_id = NdcType::ID_MOBILE;
+                $registry->city_id = $cityId;
+                $registry->country_id = Country::RUSSIA;
+                $registry->account_id = ClientAccount::ID_PORTED;
+                $registry->source = VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE;
+                $registry->ndc = substr($numberStr, 1, 3);
+                $registry->mvno_partner_id = 5;
+                $registry->mvno_trunk_id = 1231;
+
+                $number = Registry::dao()->addNumber($registry, $numberStr);
+                $number->client_id = $accountId;
+
+                if (!$number->save()) {
+                    throw new ModelValidationException($number);
+                }
+                $info .= 'Number created';
+            }
+            $transaction->commit();
+            $transaction = null;
+
+            if (!AccountTariff::find()->where(['voip_number' => $numberStr])->exists()) {
+
+                Number::dao()->toInstock($number);
+                $tariffPeriodId = TariffPeriod::PORTED_ID;
+                $apiKey = \Yii::$app->params['API_SECURE_KEY'];
+                $siteUrl = \Yii::$app->params['SITE_URL'];
+                $q = "curl -s -X PUT --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: application/json' --header 'Authorization: Bearer {$apiKey}' -d 'client_account_id={$accountId}&service_type_id=2&tariff_period_id={$tariffPeriodId}&voip_number={$number->number}&is_async=0&is_create_user=1' '{$siteUrl}api/internal/uu/add-account-tariff'";
+
+                @ob_start();
+                system($q);
+                $result = ob_get_clean();
+
+                $result = json_decode($result, true);
+
+                if (!$result) {
+                    sleep(3);
+                    $number->refresh();
+
+                    if ($number->status == Number::STATUS_INSTOCK) {
+                        Number::dao()->startNotSell($number);
+                    }
+                } else {
+                    if (isset($result['status']) && $result['status'] == 'ERROR') {
+                        Number::dao()->startReserve($number, $number->clientAccount);
+                    }
+                }
+                $info .= PHP_EOL . 'Service created' . PHP_EOL . json_encode($result) . PHP_EOL;
+
+                return $info;
+            }
+
+
+        } catch (\Exception $e) {
+            $transaction && $transaction->rollBack();
+
+            throw $e;
+        }
     }
 }
