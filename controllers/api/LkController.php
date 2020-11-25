@@ -424,7 +424,7 @@ class LkController extends ApiController
         $account = ClientAccount::findOne(['id' => $form->account_id]);
 
         $organizationId = $account->contract->organization_id;
-        if ($organizationId != Organization::MCN_TELECOM) {
+        if ($organizationId == Organization::MCN_TELECOM) {
             $shopId = $scId = null;
             if (
                 isset(\Yii::$app->params['yandex'])
