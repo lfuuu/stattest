@@ -27,7 +27,7 @@ class VoipRegistrySourceEnum extends Enum
     ];
 
     public static $service = [
-        self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
+//        self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
         self::PORTABILITY_INNONET => 'Portability (Innonet)',
         self::OPERATOR_NOT_FOR_SALE => 'Operator (Not for sale)'
     ];
