@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: node-comet
-{{ tuple "node-comet-prod" . | werf_container_image | indent 8 }}
+{{ tuple (printf "%s-%s" .Chart.Name "node-comet-prod") . | werf_container_image | indent 8 }}
         ports:
           - containerPort: {{ .Values.node_comet_prod.port }}
             name: http
@@ -29,7 +29,7 @@ spec:
         volumeMounts:
           - name: config-volume
             subPath: node-comet-config.json
-            mountPath: /opt/stat_rep/stat/comet-server/config.json
+            mountPath: {{ .Values.ci_dir_home }}/stat/comet-server/config.json
       volumes:
       - name: config-volume
         configMap:

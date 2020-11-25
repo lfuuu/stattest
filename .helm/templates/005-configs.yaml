@@ -94,7 +94,7 @@ data:
     server {
         listen 80;
 
-        root        /opt/stat_rep/stat/web/;
+        root        {{ .Values.ci_dir_home }}/stat/web/;
         index       index.php;
 
         location / {
@@ -136,67 +136,67 @@ data:
     }
 
 
-    server {
-        listen 8080;
-
-        root        /opt/stat_rep/stat/web/;
-        index       index-test.php;
-
-        location / {
-            try_files $uri $uri/ /index-test.php?$args;
-        }
-
-        location ~ \.php$ {
-            include fastcgi_params;
-            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
-            fastcgi_pass   127.0.0.1:9000;
-            #fastcgi_pass unix:/var/run/php5-fpm.sock;
-            fastcgi_read_timeout 8h;
-            try_files $uri =404;
-        }
-    }
-
-
-    server {
-        listen 81;
-
-        root        /opt/stat_rep/mailer/web/;
-        index       index.php;
-
-        location / {
-            try_files $uri $uri/ /index.php?$args;
-        }
-
-        location ~ \.php$ {
-            include fastcgi_params;
-            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
-            fastcgi_pass   127.0.0.1:9000;
-            #fastcgi_pass unix:/var/run/php5-fpm.sock;
-            fastcgi_read_timeout 8h;
-            try_files $uri =404;
-        }
-    }
-
-
-    server {
-        listen 8081;
-
-        root        /opt/stat_rep/mailer/web/;
-        index       index-test.php;
-
-        location / {
-            try_files $uri $uri/ /index-test.php?$args;
-        }
-
-        location ~ \.php$ {
-            include fastcgi_params;
-            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
-            fastcgi_pass   127.0.0.1:9000;
-            #fastcgi_pass unix:/var/run/php5-fpm.sock;
-            fastcgi_read_timeout 8h;
-            try_files $uri =404;
-        }
-    }
+#    server {
+#        listen 8080;
+#
+#        root        {{ .Values.ci_dir_home }}/stat/web/;
+#        index       index-test.php;
+#
+#        location / {
+#            try_files $uri $uri/ /index-test.php?$args;
+#        }
+#
+#        location ~ \.php$ {
+#            include fastcgi_params;
+#            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+#            fastcgi_pass   127.0.0.1:9000;
+#            #fastcgi_pass unix:/var/run/php5-fpm.sock;
+#            fastcgi_read_timeout 8h;
+#            try_files $uri =404;
+#        }
+#    }
+#
+#
+#    server {
+#        listen 81;
+#
+#        root        {{ .Values.ci_dir_home }}/mailer/web/;
+#        index       index.php;
+#
+#        location / {
+#            try_files $uri $uri/ /index.php?$args;
+#        }
+#
+#        location ~ \.php$ {
+#            include fastcgi_params;
+#            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+#            fastcgi_pass   127.0.0.1:9000;
+#            #fastcgi_pass unix:/var/run/php5-fpm.sock;
+#            fastcgi_read_timeout 8h;
+#            try_files $uri =404;
+#        }
+#    }
+#
+#
+#    server {
+#        listen 8081;
+#
+#        root        {{ .Values.ci_dir_home }}/mailer/web/;
+#        index       index-test.php;
+#
+#        location / {
+#            try_files $uri $uri/ /index-test.php?$args;
+#        }
+#
+#        location ~ \.php$ {
+#            include fastcgi_params;
+#            fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+#            fastcgi_pass   127.0.0.1:9000;
+#            #fastcgi_pass unix:/var/run/php5-fpm.sock;
+#            fastcgi_read_timeout 8h;
+#            try_files $uri =404;
+#        }
+#    }
   params.local.php: |
     <?php
 

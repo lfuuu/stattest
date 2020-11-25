@@ -61,6 +61,7 @@ redis_prod:
   port: 6379
 
 ci_url: stat.ks8.mcn.local
+ci_dir_home: /home/httpd/stat.mcn.ru
 
 use_ngnix_virtualserver: "no"
 use_network_polices: "no"

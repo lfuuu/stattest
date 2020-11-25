@@ -1,6 +1,5 @@
 #!/bin/sh
 
-DIR_HOME="/opt/stat_rep"
 DIR_STAT="$DIR_HOME/stat"
 
 cd $DIR_STAT/config/
