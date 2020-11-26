@@ -28,7 +28,7 @@ class PhoneHistoryFilter extends PhoneHistory
     public function rules()
     {
         return [
-            [['id', 'phone_ported', '111', '111', '111', '111'], 'integer'],
+            [['id', 'phone_ported'], 'integer'],
             [['state', 'date_sent', 'created_at', 'date'], 'string'],
         ];
     }

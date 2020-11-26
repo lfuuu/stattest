@@ -178,7 +178,7 @@ class Form extends \app\classes\Form
 
             $rowData = array_map(
                 function($item){
-                    return preg_replace('/(\n|\r\n|\n\r)/','', trim($item));
+                    return preg_replace('/(\n|\r)/','', trim($item));
                 },
                 $rowData
             );
@@ -239,15 +239,7 @@ class Form extends \app\classes\Form
                 $errors[$i+1][$this->headers[$position]] = 'Неверный статус: ' . $state;
             }
 
-            // adding quotes for query
-            $item = array_map(
-                function($field){
-                    $field = trim($field);
-                    return $field ? "'" . trim($field) . "'" : 'null';
-                },
-                $item
-            );
-            $inserts[] = "INSERT INTO dc_phones_history (`process_id`, `date_request`, `phone_contact`, `number`, `phone_ported`, `process_type`, `from`, `to`, `state`, `state_current`, `region`, `date_ported`, `last_message`, `date_sent`, `last_sender`, `code`, `created_at`) VALUES (" . implode(',', $item) . ");";
+            $inserts[] = $item;
         }
 
         $this->warningLines = $errors;
@@ -258,9 +250,28 @@ class Form extends \app\classes\Form
 
     protected function processInserts()
     {
-        foreach ($this->inserts as $insert) {
-            Yii::$app->db->createCommand($insert)->execute();
-        }
+        PhoneHistory::getDb()->createCommand()->batchInsert(
+            PhoneHistory::tableName(),
+            [
+                'process_id',
+                'date_request',
+                'phone_contact',
+                'number', 'phone_ported',
+                'process_type',
+                'from',
+                'to',
+                'state',
+                'state_current',
+                'region',
+                'date_ported',
+                'last_message',
+                'date_sent',
+                'last_sender',
+                'code',
+                'created_at'
+            ],
+            $this->inserts
+        )->execute();
     }
 
     protected function renameUploadedFile()
