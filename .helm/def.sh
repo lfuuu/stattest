@@ -3,28 +3,28 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.172
+TAG=1.178
 
 function dev()
 {
-	ENVNAME=dev
+	export ENVNAME=dev
 	CI_URL="$APPNAME-$ENVNAME.local"
   PGADMIN_IN_DEV="yes"
-  CI_DIR_HOME="/opt/stat_rep"
+  export CI_DIR_HOME="/opt/stat_rep"
 }
 
 function stage()
 {
-	ENVNAME=stage
+	export ENVNAME=stage
 	CI_URL="$APPNAME-$ENVNAME.local"
-	CI_DIR_HOME="/home/httpd/stat.mcn.local"
+	export CI_DIR_HOME="/home/httpd/stat.mcn.local"
 }
 
 function prod()
 {
-	ENVNAME=prod
+	export ENVNAME=prod
 	#CI_URL="stat.mcnhost.ru"
 	CI_URL="stat2.mcn.ru"
-	CI_DIR_HOME="/home/httpd/stat.mcn.ru"
+	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 }
 

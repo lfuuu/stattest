@@ -1,11 +1,13 @@
 {{ $_ := set . "project" "stat" }}
-{{ $_ := set . "ci_dir_home" "/home/httpd/stat.mcn.ru" }}
+{{ $_ := env "CI_DIR_HOME" | set . "ci_dir_home" }}
 
 
 project: {{ .project }}
 configVersion: 1
 
 ################################## PRODUCTION ###########################################################
+{{ $_ := env "ENVNAME" | set . "env" }}
+{{- if or (eq .env "prod") (eq .env "stage") }}
 
 ---
 image: {{ .project }}-nginx-prod
@@ -76,11 +78,11 @@ git:
     to: {{ .ci_dir_home }}/stat
     stageDependencies:
       setup:
-        - "*"
+        - "**/composer.*"
 
 ansible:
   beforeInstall:
-    - name: "Php-fpm 1"
+    - name: "Php-fpm: 1. Utils"
       shell: |
         apk update && apk upgrade
         apk add wget
@@ -128,7 +130,7 @@ ansible:
         mkdir -p /var/lib/php/session
         chmod 777 /var/lib/php/session
   install:
-    - name: "Php-fpm 2"
+    - name: "Php-fpm: 2. Configs"
       shell: |
         apk add libssh2-dev
         cd /tmp/
@@ -145,28 +147,28 @@ ansible:
         install-php-extensions amqp igbinary mcrypt msgpack redis ssh2
         # install xdebug extension
         # install-php-extensions xdebug
-        # #
-        # install composer
-        curl -sS https://getcomposer.org/installer | php
-        mv composer.phar /usr/local/bin/composer
-        composer self-update --1
-        composer global require "fxp/composer-asset-plugin"
-        cd {{ .ci_dir_home }}/stat
-        composer install
+        # permissions
         cd {{ .ci_dir_home }}/stat
         chmod -R 777 runtime
         chmod 777 web/assets
         mkdir stat/design_c
         chmod 777 stat/design_c
+        # configs
+        cp stat/local.conf.php.tpl stat/local.conf.php
+        chmod a+x ENTRYPOINT.sh
       args:
         chdir: {{ .ci_dir_home }}/stat
   setup:
-    - name: "Php-fpm 3"
+    - name: "Php-fpm: 3. Install dependencies"
       shell: |
-        cd {{ .ci_dir_home }}/stat
-        cp stat/local.conf.php.tpl stat/local.conf.php
-        # configs
-        chmod a+x ENTRYPOINT.sh
+        # install composer
+        curl -sS https://getcomposer.org/installer | php
+        mv composer.phar /usr/local/bin/composer
+        composer self-update --1
+        composer global require "fxp/composer-asset-plugin"
+        # vendors
+        composer install
+        composer clear-cache
       args:
         chdir: {{ .ci_dir_home }}/stat
 
@@ -192,11 +194,11 @@ git:
     to: {{ .ci_dir_home }}/stat/comet-server
     stageDependencies:
       setup:
-        - "*"
+        - "**/package.*"
 
 ansible:
   beforeInstall:
-    - name: "Comet-server 1"
+    - name: "Comet-server: 1. Utils"
       shell: |
         apt-get update
         apt-get install -y \
@@ -214,21 +216,22 @@ ansible:
                     curl \
                     htop
   install:
-    - name: "Comet-server 2"
+    - name: "Comet-server: 2. Configs"
       shell: |
         cd {{ .ci_dir_home }}/stat/comet-server
         sed -i "s/\"socket.io\": \"\*\"/\"socket.io\": \"^2.3.0\"/" package.json
-        npm -g install coffee-script -y
-        npm i
-      args:
-        chdir: {{ .ci_dir_home }}/stat/comet-server
-  setup:
-    - name: "Comet-server 3"
-      shell: |
+        # configs
         cd {{ .ci_dir_home }}/stat
         # cp config.json comet-server/config.json
         cd {{ .ci_dir_home }}/stat/comet-server
         chmod a+x *.sh
+      args:
+        chdir: {{ .ci_dir_home }}/stat/comet-server
+  setup:
+    - name: "Comet-server: 3. Install packages"
+      shell: |
+        npm -g install coffee-script -y
+        npm i
       args:
         chdir: {{ .ci_dir_home }}/stat/comet-server
 ---
@@ -248,6 +251,7 @@ docker:
   EXPOSE: "6379"
 
 ################################## DEV ENVIRONMENT ###########################################################
+{{- else if (eq .env "dev") }}
 
 ---
 image: {{ .project }}-pgdb-dev
@@ -278,6 +282,9 @@ docker:
 git:
   - add: /
     to: {{ .ci_dir_home }}/stat
+    stageDependencies:
+      setup:
+        - "**/composer.*"
 
 ansible:
   beforeInstall:
@@ -310,8 +317,7 @@ ansible:
         composer self-update --1
         composer global require "fxp/composer-asset-plugin"
         cd {{ .ci_dir_home }}/stat
-        composer install
-        cd {{ .ci_dir_home }}/stat
+        cp stat/local.conf.php.tpl stat/local.conf.php
         chmod -R 777 runtime
         chmod 777 web/assets
         mkdir stat/design_c
@@ -321,7 +327,9 @@ ansible:
   setup:
     - name: 3
       shell: |
-        cd {{ .ci_dir_home }}/stat
-        cp stat/local.conf.php.tpl stat/local.conf.php
+        composer install
+        composer clear-cache
       args:
         chdir: {{ .ci_dir_home }}/stat
+
+{{ end }}

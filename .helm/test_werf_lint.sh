@@ -2,8 +2,9 @@
 
 . $(multiwerf use 1.1 stable --as-file)
 
-ENVNAME="prod"
+ENVNAME=prod
 CI_URL="stat.mcnhost.ru"
+CI_DIR_HOME="/home/httpd/stat.mcn.loc"
 USE_NGNIX_VIRTUALSERVER="no"
 TAG=1.01
 
