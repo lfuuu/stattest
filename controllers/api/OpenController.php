@@ -57,6 +57,12 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "call_price_local", type = "float", description = "Цена звонков на местные за минуту"),
      * ),
      *
+     * @SWG\Definition(definition = "voipCallsPerMonthRecord", type = "object",
+     *   @SWG\Property(property = "11", type = "integer", description = "Кол-во звонков за этот месяц"),
+     *   @SWG\Property(property = "10", type = "integer", description = "Кол-во звонков за предыдущий месяц"),
+     *   @SWG\Property(property = "09", type = "integer", description = "Кол-во звонков за месяц перед предыдущим месяц"),
+     * ),
+     *
      * @SWG\Definition(definition = "freeNumberRecord", type = "object",
      *   @SWG\Property(property = "number", type = "string", description = "Номер"),
      *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красивости (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
@@ -73,7 +79,8 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "number_subscriber", type = "integer", description = "Номер без префикса и NDC"),
      *   @SWG\Property(property = "common_ndc", type = "integer", description = "Общепринятый NDC"),
      *   @SWG\Property(property = "common_number_subscriber", type = "integer", description = "Общепринятый местный номер"),
-     *   @SWG\Property(property = "default_tariff", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipDefaultPackageRecord")
+     *   @SWG\Property(property = "default_tariff", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipDefaultPackageRecord"),
+     *   @SWG\Property(property = "calls_per_month", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipCallsPerMonthRecord")
      * ),
      *
      * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers", summary = "Список свободных номеров", operationId = "getFreeNumbers",
