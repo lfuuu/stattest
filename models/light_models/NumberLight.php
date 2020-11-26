@@ -53,19 +53,6 @@ class NumberLight extends Model
      */
     public function setPrices(\app\models\Number $number, $currency = Currency::RUB, $clientAccount = null)
     {
-        static $monthNumbers = [];
-
-        if (!$monthNumbers) {
-            $date = new \DateTimeImmutable('now');
-            $monthNumbers[] = $date->format('m');
-
-            $date = $date->modify('previous month');
-            $monthNumbers[] = $date->format('m');
-
-            $date = $date->modify('previous month');
-            $monthNumbers[] = $date->format('m');
-        }
-
         $actualPriceWithCurrency = $number->getPriceWithCurrency($currency, $clientAccount);
         $originPriceWithCurrency = $number->getOriginPriceWithCurrency($clientAccount);
 
@@ -77,12 +64,6 @@ class NumberLight extends Model
         if (!$clientAccount) {
             $this->price2 = $number->getOriginPrice(null, ClientAccount::PRICE_LEVEL2);
         }
-
-        $this->calls_per_month = array_combine($monthNumbers, [
-            $number->calls_per_month_0,
-            $number->calls_per_month_1,
-            $number->calls_per_month_2,
-        ]);
     }
 
     public function setCallsStatistic(\app\models\Number $number)

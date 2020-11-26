@@ -523,7 +523,9 @@ class FreeNumberFilter extends Number
      * @param \app\models\Number $number
      * @param string $currency
      * @param ClientAccount $clientAccount
+     * @param bool $isWithStatistic
      * @return NumberLight
+     * @throws \Exception
      */
     public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB, $clientAccount = null, $isWithStatistic = true)
     {
