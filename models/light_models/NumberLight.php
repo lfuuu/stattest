@@ -4,6 +4,7 @@ namespace app\models\light_models;
 
 use app\models\ClientAccount;
 use app\models\Currency;
+use app\models\Number;
 use yii\base\Model;
 
 /**
@@ -61,6 +62,28 @@ class NumberLight extends Model
         if (!$clientAccount) {
             $this->price2 = $number->getOriginPrice(null, ClientAccount::PRICE_LEVEL2);
         }
+    }
+
+    public function setCallsStatistic(\app\models\Number $number)
+    {
+        static $monthNumbers = [];
+
+        if (!$monthNumbers) {
+            $date = new \DateTimeImmutable('now');
+            $monthNumbers[] = $date->format('m');
+
+            $date = $date->modify('previous month');
+            $monthNumbers[] = $date->format('m');
+
+            $date = $date->modify('previous month');
+            $monthNumbers[] = $date->format('m');
+        }
+
+        $this->calls_per_month = array_combine($monthNumbers, [
+            $number->calls_per_month_0,
+            $number->calls_per_month_1,
+            $number->calls_per_month_2,
+        ]);
     }
 
     /**
