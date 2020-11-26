@@ -967,8 +967,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $message . ' in ' . $e->getFile() . ' +' . $e->getLine();
 
-            // завершение задачи, в зависимости от ошибки
-            if (
+            // stop events
+            if ($event->status == EventQueue::PORTED_NUMBER_ADD) {
+                $event->setError($e, true);
+            } else if ( // завершение задачи, в зависимости от ошибки
                 ($event->event == AtolModule::EVENT_SEND && strpos($message, 'Не указаны контакты клиента') !== false)
                 || ($event->event == EventQueue::CORE_CREATE_OWNER && $e->getCode() == 503 /* Пользователь с таким email существует */)
                 || ($event->event == EventQueue::INVOICE_GENERATE_PDF && strpos($message, 'Content is not PDF') !== false)
