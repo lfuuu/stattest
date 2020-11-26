@@ -525,13 +525,16 @@ class FreeNumberFilter extends Number
      * @param ClientAccount $clientAccount
      * @return NumberLight
      */
-    public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB, $clientAccount = null)
+    public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB, $clientAccount = null, $isWithStatistic = true)
     {
         $formattedResult = new NumberLight;
         $formattedResult->setAttributes($number->getAttributes());
         $formattedResult->setPrices($number, $currency, $clientAccount);
         $formattedResult->country_prefix = $number->country_code ? $number->getCachedCountry()->prefix : null;
         $formattedResult->setCommon($number);
+        if ($isWithStatistic) {
+            $formattedResult->setCallsStatistic($number);
+        }
 
         return $formattedResult;
     }

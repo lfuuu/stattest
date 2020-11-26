@@ -504,7 +504,7 @@ final class OpenController extends Controller
 
             // создать новую группу
             // для reuse берем другой метод и выкидываем ненужное
-            $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount);
+            $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount, false);
             $tariffStatusId = $clientAccount ?
                 $didGroup->{'tariff_status_main' . $priceLevel} :
                 TariffStatus::ID_TEST;
