@@ -380,6 +380,7 @@ SQL;
     {
         $tableName = NumberRange::tableName();
         $tableNameByCountry = $this->getTableNameByCountry();
+        $tableNameExisted = $tableNameByCountry ? : $tableName;
 
         $tableNdcType = NdcType::tableName();
         $tableOperator = Operator::tableName();
@@ -590,7 +591,7 @@ SQL;
         // добавить в основную таблицу всё оставшееся из временной
         $sql = <<<SQL
     INSERT INTO
-        {$tableName}
+        {$tableNameExisted}
     (
         country_code,
         geo_place_id,
