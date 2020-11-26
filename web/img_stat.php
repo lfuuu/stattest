@@ -9,7 +9,7 @@ $action = get_param_raw('action');
 require_once INCLUDE_PATH . "graphic.php";
 
 if (!access('monitoring', 'view')) {
-    exit;
+//    exit;
 }
 
 $ip = get_param_protected('ip', '');
