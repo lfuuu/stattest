@@ -76,18 +76,22 @@ class AccountLogResourceTarificator extends Tarificator
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffQuery = AccountTariff::find()
-            ->where([
-                'OR',
-                // незакрытые
-                ['IS NOT', 'tariff_period_id', null],
-                // или недавно произошла смена тарифа (если вчера закрыли, то деньги все равно надо списать)
-                ['>=', 'tariff_period_utc', $minSetupDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)],
-            ])
             ->andWhere([
                 'OR',
                 ['account_log_resource_utc' => null], // ресурсы не списаны
                 ['<', 'account_log_resource_utc', $utcDateTime->format(DateTimeZoneHelper::DATE_FORMAT)] // или списаны давно
             ]);
+
+        if (!$isForceTarifficationTraffic) {
+            $accountTariffQuery->andWhere([
+                'OR',
+                // незакрытые
+                ['IS NOT', 'tariff_period_id', null],
+                // или недавно произошла смена тарифа (если вчера закрыли, то деньги все равно надо списать)
+                ['>=', 'tariff_period_utc', $minSetupDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)],
+            ]);
+        }
+
 
         $fromId && $toId && $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
 
