@@ -186,7 +186,10 @@ if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'modules.php');
 
     if (!defined('NO_WEB')){
-        Yii::$app->getSession()->open();
+        if (Yii::$app->has('session')) {
+            $session = Yii::$app->getSession();
+            $session->open();
+        }
 
         require_once(INCLUDE_PATH.'mysmarty.php');
 
