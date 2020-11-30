@@ -185,13 +185,15 @@ class BillerController extends Controller
 
             foreach ($clientAccounts as $clientAccount) {
 
+                $offset++;
+
                 if ($clientAccount->superClient->entry_point_id == EntryPoint::ID_MNP_RU_DANYCOM) {
-                    echo '- ';
+                    echo '- ' . $clientAccount->id;
                     continue;
                 }
 
-                echo '. ';
-                $offset++;
+                echo '. ' . $clientAccount->id;
+                continue;
 
                 Yii::info("Прогнозирование. $offset. Лицевой счет: " . $clientAccount->id);
 
