@@ -6,6 +6,7 @@ use app\classes\documents\DocumentReport;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
 use app\models\Bill;
+use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Country;
 use app\models\Invoice;
@@ -163,6 +164,12 @@ WHERE b.client_id = ' . $account->id . '
                     : 'Оплата' . ' (' . $date . ', №' . $item['number'] . ')'
                 );
 
+            if ($item['type'] == 'bill') {
+                // select count(*) from newbill_lines where bill_no = '202012-018854' and id_service is not null
+                $isServiceBill = BillLine::find()->where(['bill_no' => $item['number']])->andWhere(['NOT', ['id_service' => null]])->exists();
+                $isInvoiceCreated = Invoice::find()->where(['bill_no' => $item['number']])->exists();
+            }
+
             $result[] = [
                     'id' => $item['id'],
                     'type' => $item['payment_type'] == 'creditnote' ? 'creditnote' : $item['type'],
@@ -172,7 +179,8 @@ WHERE b.client_id = ' . $account->id . '
                     'description' => $description,
                     'income_sum' => $sum > 0 ? $sum : '',
                     'outcome_sum' => $sum < 0 ? -$sum : '',
-                ] + ($isInvoice ? ['correction_idx' => $item['correction_idx']] : ['add_datetime' => $item['add_datetime']]);
+                ] + ($isInvoice ? ['correction_idx' => $item['correction_idx']] : ['add_datetime' => $item['add_datetime']])
+            + ($item['type'] == 'bill' ? ['is_invoice_created' => $isServiceBill && $isInvoiceCreated] : []);
 
             $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
         }
@@ -260,6 +268,15 @@ WHERE b.client_id = ' . $account->id . '
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         };
 
+        $d = array_filter($data, function ($d) {
+            return $d['type'] == 'bill' && !$d['is_invoice_created'];
+        });
+
+        $sumNotInInvoice = 0;
+        array_walk($d, function($v) use (&$sumNotInInvoice) {
+            $sumNotInInvoice += (float)$v['outcome_sum'] - (float)$v['income_sum'];
+        });
+
         $result[] = [
             'type' => 'current_balance',
             'date' => date(DateTimeZoneHelper::DATE_FORMAT),
@@ -273,7 +290,7 @@ WHERE b.client_id = ' . $account->id . '
             $currentStatementSum = uuBill::getUnconvertedAccountEntries($account->id)->sum('price_with_vat') ?: 0;
         }
 
-        $currentStatementSum += $diffBalance;
+        $currentStatementSum += $diffBalance + $sumNotInInvoice;
 
         $result[] = [
             'type' => 'current_statement',
@@ -321,6 +338,9 @@ WHERE b.client_id = ' . $account->id . '
                     'invoice_id' => $row['id']
                 ]);
             } elseif ($row['type'] == 'bill' && !$isNotRussia) {
+                if (!$row['is_invoice_created']) {
+                    $row['outcome_sum'] = 0;
+                }
                 $row['link'] = Encrypt::encodeArray([
                     'bill' => $row['number'],
                     'object' => 'bill-2-RUB',
