@@ -16,6 +16,7 @@ LayoutMainAsset::register($this);
 
 $user = Yii::$app->user->identity;
 $myTroublesCount = $this->context->getMyTroublesCount();
+$version = $this->context->getVersion();
 
 /** @var ClientAccount|null $activeClient */
 $activeClient = isset($fixclient_data['id']) ?
@@ -106,7 +107,11 @@ $activeClient = isset($fixclient_data['id']) ?
                         <a href="http://www.mcn.ru/">
                             <img height="16" src="/images/logo_msn_s.gif" width="58" border="0" />
                         </a><br />
-                        <span>©<?=date('Y')?> MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
+                        <span>
+                            ©<?=date('Y')?> MCN. тел. (495) 105–9999 (отдел продаж),
+                            (495) 105–9995 (техподдержка).
+                            Версия: <?=$version ?>
+                        </span>
                     </div>
                 </div>
             </div>

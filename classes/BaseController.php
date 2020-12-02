@@ -100,6 +100,33 @@ class BaseController extends Controller
     }
 
     /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        $version = 0;
+        try {
+            $handle = fopen("../.helm/def.sh", "r");
+            if ($handle) {
+                $version = 1;
+                while (($line = fgets($handle)) !== false) {
+                    if (strpos($line, 'TAG=') !== false) {
+                        $version = trim(substr($line, 4));
+                        break;
+                    }
+                }
+                fclose($handle);
+            } else {
+                $version = 2;
+            }
+        } catch (\Exception $e) {
+            $version = 3;
+        }
+
+        return $version;
+    }
+
+    /**
      * @return array
      */
     public function getSearchData()
