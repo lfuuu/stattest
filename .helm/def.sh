@@ -3,7 +3,7 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.184
+TAG=1.186
 
 function dev()
 {
@@ -24,7 +24,7 @@ function prod()
 {
 	export ENVNAME=prod
 	#CI_URL="stat.mcnhost.ru"
-	CI_URL="stat2.mcn.ru"
+	CI_URL="stat.mcn.ru"
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 }
 
