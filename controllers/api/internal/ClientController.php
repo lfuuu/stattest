@@ -656,7 +656,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="delivery", type="string", description="Варинат доставки", in="formData", default=""),
      *   @SWG\Parameter(name="delivery_address", type="string", description="Адрес доставки", in="formData", default=""),
      *   @SWG\Parameter(name="file_link", type="string", description="Ссылка на PDF-заявление", in="formData", default=""),
-     *   @SWG\Parameter(name="__client_account_id", type="integer", description="ЛС !!! не заполняется - техническое поле", in="formData", default=""),
+     *   @SWG\Parameter(name="client_account_id", type="integer", description="ЛС", in="formData", default=""),
      *
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},
@@ -687,7 +687,7 @@ class ClientController extends ApiInternalController
 
         $data = $this->requestData;;
 
-        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', 'temp', 'tariff', 'delivery', 'delivery_address', 'file_link', '__client_account_id'] as $value) {
+        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', 'temp', 'tariff', 'delivery', 'delivery_address', 'file_link', 'client_account_id'] as $value) {
             if (isset($data[$value])) {
                 $params[$value] = preg_replace('/\s+/', ' ', htmlspecialchars(trim(strip_tags($data[$value])), ENT_NOQUOTES | ENT_HTML401));
                 unset($data[$value]);
@@ -704,7 +704,7 @@ class ClientController extends ApiInternalController
         $params['doc_args'] = preg_replace("/\D/", '', $params['doc_args']);
         $isCreate = false;
         $accountId = null;
-        if (!$params['__client_account_id']) {
+        if (!$params['client_account_id']) {
             $form = new ClientCreateExternalForm;
             $form->setAttributes([
                 'entry_point_id' => EntryPoint::MNP_RU_DANYCOM,
@@ -724,7 +724,7 @@ class ClientController extends ApiInternalController
                 throw new Exception($form->errors[$fields[0]][0], 400);
             }
         } else {
-            $accountId = $params['__client_account_id'];
+            $accountId = $params['client_account_id'];
         }
 
         $account = ClientAccount::findOne(['id' => $accountId]);
