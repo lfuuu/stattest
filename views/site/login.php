@@ -5,6 +5,8 @@ use app\assets\AppAsset;
 /* @var $this app\classes\BaseView */
 /* @var $content string */
 AppAsset::register($this);
+
+$version = $this->context->getVersion();
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -25,7 +27,7 @@ AppAsset::register($this);
                 <div class="account-wall">
                     <div class="text-center site_caption">
                         <a href="/" class="logo"></a>
-                        <div class="message">Сервер статистики</div>
+                        <div class="message">Сервер статистики v.<?=$version ?></div>
                     </div>
 
                     <?php
