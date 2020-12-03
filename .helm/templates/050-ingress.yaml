@@ -16,16 +16,24 @@ spec:
     listen 443 ssl;
     ssl_certificate /etc/nginx/secrets/wildcard;
     ssl_certificate_key /etc/nginx/secrets/wildcard;
+    client_max_body_size    0;
+    proxy_connect_timeout   6000s;
+    proxy_send_timeout      18000s;
+    proxy_read_timeout      18000s;
   upstreams:
     - name: upstream-{{ .Chart.Name }}-backend-prod
       service: {{ .Chart.Name }}-backend-prod
       port: 80
+      client-max-body-size: 0
+      connect-timeout: 6000s
+      read-timeout: 18000s
+      send-timeout: 18000s
   routes:
     - path: /
       action:
         pass: upstream-{{ .Chart.Name }}-backend-prod
 
-  {{- else }}
+{{- else }}
 
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
@@ -35,6 +43,10 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: 0
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: 6000
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 18000
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 18000
 spec:
   rules:
     - host: {{ .Values.ci_url | quote }}

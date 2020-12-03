@@ -155,7 +155,7 @@ ansible:
         chmod 777 stat/design_c
         # configs
         cp stat/local.conf.php.tpl stat/local.conf.php
-        chmod a+x ENTRYPOINT.sh
+        chmod a+x *.sh
       args:
         chdir: {{ .ci_dir_home }}/stat
   setup:

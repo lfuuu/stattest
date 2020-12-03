@@ -52,6 +52,8 @@ spec:
           mountPath: {{ .Values.ci_dir_home }}/store
         - name: assets
           mountPath: {{ .Values.ci_dir_home }}/stat/web/assets
+        - name: health
+          mountPath: {{ .Values.ci_dir_home }}/stat/web/export/health
 
       - name: php-fpm
 {{ tuple (printf "%s-%s" .Chart.Name "php-fpm-prod") . | werf_container_image | indent 8 }}
@@ -75,6 +77,8 @@ spec:
           mountPath: {{ .Values.ci_dir_home }}/store
         - name: assets
           mountPath: {{ .Values.ci_dir_home }}/stat/web/assets
+        - name: health
+          mountPath: {{ .Values.ci_dir_home }}/stat/web/export/health
         env:
         - name: DIR_HOME
           value: {{ .Values.ci_dir_home }}
@@ -196,6 +200,7 @@ spec:
         persistentVolumeClaim:
           claimName: nfs-pvc-teststat2-store
       - name: assets
+      - name: health
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -224,7 +229,7 @@ spec:
     #server: 85.94.48.46
     #path: /var/www/html/stat/stat/store
     server: tiberis.mcn.ru
-    path: /home/httpd/stat.mcn.ru/stat/stat/store
+    path: /home/httpd/stat.mcn.ru/store
 ---
 apiVersion: v1
 kind: Service
