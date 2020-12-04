@@ -7,6 +7,9 @@ configVersion: 1
 
 ################################## PRODUCTION ###########################################################
 {{ $_ := env "ENVNAME" | set . "env" }}
+# for lint
+#{{ $_ := set . "env" "prod" }}
+
 {{- if or (eq .env "prod") (eq .env "stage") }}
 
 ---

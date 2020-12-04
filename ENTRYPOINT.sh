@@ -4,6 +4,13 @@ DIR_STAT="$DIR_HOME/stat"
 
 cd $DIR_STAT/config/
 
+#session
+cp session.local.tpl.php session.local.php
+#for minikube only
+if [ $USE_MINIKUBE -ne 0 ]; then
+    sed -i "s%//'class' =>%'class' =>%" session.local.php
+fi
+
 #mysql
 cp db_stat.php db_stat.local.php
 sed -i "s/host=127.0.0.1/host=$MYSQL_HOST/" db_stat.local.php

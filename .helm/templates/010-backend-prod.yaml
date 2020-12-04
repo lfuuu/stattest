@@ -27,16 +27,16 @@ spec:
       containers:
       - name: nginx
 {{ tuple (printf "%s-%s" .Chart.Name "nginx-prod") . | werf_container_image | indent 8 }}
-#        livenessProbe:
-#          httpGet:
-#            path: /
-#            port: 80
-#            scheme: HTTP
-#        readinessProbe:
-#          httpGet:
-#            path: /
-#            port: 80
-#            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
         ports:
         - containerPort: 80
           name: http
@@ -63,6 +63,16 @@ spec:
         - containerPort: 9000
           name: http
           protocol: TCP
+#        livenessProbe:
+#          httpGet:
+#            path: /
+#            port: 9000
+#            scheme: HTTP
+#        readinessProbe:
+#          httpGet:
+#            path: /
+#            port: 9000
+#            scheme: HTTP
         volumeMounts:
         - name: config-volume
           subPath: params.local.php
@@ -82,24 +92,45 @@ spec:
         env:
         - name: DIR_HOME
           value: {{ .Values.ci_dir_home }}
+{{- if (eq .Values.use_minikube "yes") }}
+        - name: USE_MINIKUBE
+          value: "1"
+{{- else }}
+        - name: USE_MINIKUBE
+          value: "0"
+{{- end }}
         - name: MYSQL_DB
           value: {{ .Values.mysql_prod.db }}
         - name: MYSQL_HOST
           value: {{ .Values.mysql_prod.host }}
+{{- if (eq .Values.use_minikube "yes") }}
+        - name: MYSQL_USER
+          value: {{ .Values.mysql_prod.user_read_only }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.mysql_prod.password_read_only }}
+{{- else }}
         - name: MYSQL_USER
           value: {{ .Values.mysql_prod.user }}
         - name: MYSQL_PASSWORD
           value: {{ .Values.mysql_prod.password }}
+{{- end }}
         - name: POSTGRES_DB
           value: {{ .Values.postgres_prod.db }}
         - name: POSTGRES_HOST
           value: {{ .Values.postgres_prod.host }}
         - name: POSTGRES_HOST_SLAVE
           value: {{ .Values.postgres_prod.host_slave }}
+{{- if (eq .Values.use_minikube "yes") }}
+        - name: POSTGRES_USER
+          value: {{ .Values.postgres_prod.user_read_only }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.postgres_prod.password_read_only }}
+{{- else }}
         - name: POSTGRES_USER
           value: {{ .Values.postgres_prod.user }}
         - name: POSTGRES_PASSWORD
           value: {{ .Values.postgres_prod.password }}
+{{- end }}
         - name: REDIS_HOST
           value: {{ .Values.redis_prod.host }}
         - name: SOCKET_URL_INFO
