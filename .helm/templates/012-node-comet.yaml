@@ -29,7 +29,7 @@ spec:
         volumeMounts:
           - name: config-volume
             subPath: node-comet-config.json
-            mountPath: {{ .Values.ci_dir_home }}/stat/comet-server/config.json
+            mountPath: {{ .Values.ci_dir_home }}/comet-server/config.json
       volumes:
       - name: config-volume
         configMap:

@@ -72,3 +72,9 @@ node_comet_prod:
   path: /comet
   port: 3000
   logLevel: 200
+
+node_nnp_ported_prod:
+  host: node-nnp-ported-prod
+  path: /nnp-ported
+  port: 3001
+  logLevel: 200

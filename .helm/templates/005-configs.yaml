@@ -157,7 +157,7 @@ data:
             try_files $uri =404;
         }
         location {{ .Values.node_comet_prod.path }}/ {
-            rewrite    /comet/(.*) /$1 break; #used to send request to base url
+            rewrite    {{ .Values.node_comet_prod.path }}/(.*) /$1 break; #used to send request to base url
             proxy_set_header Host $host;
             proxy_pass http://{{ .Values.node_comet_prod.host }}:{{ .Values.node_comet_prod.port }};
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -179,6 +179,13 @@ data:
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
+        }
+        location {{ .Values.node_nnp_ported_prod.path }}/ {
+            rewrite    {{ .Values.node_nnp_ported_prod.path }}/(.*) /$1 break; #used to send request to base url
+            proxy_set_header Host $host;
+            proxy_pass http://{{ .Values.node_nnp_ported_prod.host }}:{{ .Values.node_nnp_ported_prod.port }};
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Real-IP $remote_addr;
         }
     }
 
@@ -419,4 +426,12 @@ data:
       "port": {{ .Values.node_comet_prod.port }},
       "logLevel": {{ .Values.node_comet_prod.logLevel }},
       "secretKey": {{ .Values.node_comet_prod.secret_key | quote }}
+    }
+
+  node-nnp-ported-config.json: |
+    {
+      "port": {{ .Values.node_nnp_ported_prod.port }},
+      "logLevel": {{ .Values.node_nnp_ported_prod.logLevel }},
+      "connectionString": {{ .Values.node_nnp_ported_prod.connection_string | quote }},
+      "getNumberRangeUrl": {{ .Values.node_nnp_ported_prod.get_url | quote }}
     }

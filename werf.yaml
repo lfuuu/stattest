@@ -179,7 +179,7 @@ ansible:
 image: {{ .project }}-node-comet-prod
 from: node:9.11.2
 docker:
-  WORKDIR: {{ .ci_dir_home }}/stat/comet-server
+  WORKDIR: {{ .ci_dir_home }}/comet-server
   USER: root
   EXPOSE: "3000"
   ENV:
@@ -187,14 +187,14 @@ docker:
     TERM: xterm
     COLORTERM: truecolor
   #CMD: ["/bin/sleep","infinity"]
-  CMD: ["node","{{ .ci_dir_home }}/stat/comet-server/index.js"]
+  CMD: ["node","{{ .ci_dir_home }}/comet-server/index.js"]
 
 git:
   - url: git@github.com:welltime/comet-server.git
     branch: master
     herebyIAdmitThatBranchMightBreakReproducibility: true
     add: /
-    to: {{ .ci_dir_home }}/stat/comet-server
+    to: {{ .ci_dir_home }}/comet-server
     stageDependencies:
       setup:
         - "**/package.*"
@@ -221,22 +221,77 @@ ansible:
   install:
     - name: "Comet-server: 2. Configs"
       shell: |
-        cd {{ .ci_dir_home }}/stat/comet-server
+        cd {{ .ci_dir_home }}/comet-server
+        # fix package
         sed -i "s/\"socket.io\": \"\*\"/\"socket.io\": \"^2.3.0\"/" package.json
-        # configs
-        cd {{ .ci_dir_home }}/stat
-        # cp config.json comet-server/config.json
-        cd {{ .ci_dir_home }}/stat/comet-server
+        cd {{ .ci_dir_home }}/comet-server
         chmod a+x *.sh
       args:
-        chdir: {{ .ci_dir_home }}/stat/comet-server
+        chdir: {{ .ci_dir_home }}/comet-server
   setup:
     - name: "Comet-server: 3. Install packages"
       shell: |
         npm -g install coffee-script -y
         npm i
       args:
-        chdir: {{ .ci_dir_home }}/stat/comet-server
+        chdir: {{ .ci_dir_home }}/comet-server
+---
+image: {{ .project }}-node-nnp-ported-prod
+from: node:9.11.2
+docker:
+  WORKDIR: {{ .ci_dir_home }}/nnp-ported
+  USER: root
+  EXPOSE: "3001"
+  ENV:
+    LC_ALL: en_US.UTF-8
+    TERM: xterm
+    COLORTERM: truecolor
+  #CMD: ["/bin/sleep","infinity"]
+  CMD: ["node","{{ .ci_dir_home }}/nnp-ported/index.js"]
+
+git:
+  - url: git@github.com:welltime/nnp-ported.git
+    branch: master
+    herebyIAdmitThatBranchMightBreakReproducibility: true
+    add: /
+    to: {{ .ci_dir_home }}/nnp-ported
+    stageDependencies:
+      setup:
+        - "**/package.*"
+
+ansible:
+  beforeInstall:
+    - name: "NNP-ported: 1. Utils"
+      shell: |
+        apt-get update
+        apt-get install -y \
+                    tmux \
+                    unzip \
+                    net-tools \
+                    mc \
+                    zip \
+                    procps \
+                    telnet \
+                    iputils-ping \
+                    wget \
+                    vim \
+                    nano \
+                    curl \
+                    htop
+  install:
+    - name: "NNP-ported: 2. Configs"
+      shell: |
+        cd {{ .ci_dir_home }}/nnp-ported
+        chmod a+x *.sh
+      args:
+        chdir: {{ .ci_dir_home }}/nnp-ported
+  setup:
+    - name: "NNP-ported: 3. Install packages"
+      shell: |
+        npm -g install coffee-script -y
+        npm i
+      args:
+        chdir: {{ .ci_dir_home }}/nnp-ported
 ---
 image: {{ .project }}-redis-prod
 from: quay.io/continuouspipe/redis3:latest
