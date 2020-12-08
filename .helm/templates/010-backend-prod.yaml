@@ -57,8 +57,6 @@ spec:
           mountPath: {{ .Values.ci_dir_home }}/store
         - name: assets
           mountPath: {{ .Values.ci_dir_home }}/stat/web/assets
-        - name: health
-          mountPath: {{ .Values.ci_dir_home }}/stat/web/export/health
 
       - name: php-fpm
 {{ tuple (printf "%s-%s" .Chart.Name "php-fpm-prod") . | werf_container_image | indent 8 }}
@@ -92,8 +90,6 @@ spec:
           mountPath: {{ .Values.ci_dir_home }}/store
         - name: assets
           mountPath: {{ .Values.ci_dir_home }}/stat/web/assets
-        - name: health
-          mountPath: {{ .Values.ci_dir_home }}/stat/web/export/health
         env:
         - name: DIR_HOME
           value: {{ .Values.ci_dir_home }}

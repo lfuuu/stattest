@@ -5,6 +5,7 @@
 *~
 web/noc
 web/tst
+web/export
 web/images/graphs
 web/info.php
 web/check.php

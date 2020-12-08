@@ -45,6 +45,8 @@ ansible:
         chmod 777 web/assets
         mkdir stat/design_c
         chmod 777 stat/design_c
+        #export dir
+        ln -Tfs {{ .ci_dir_home }}/store/web/export {{ .ci_dir_home }}/stat/web/export
       args:
         chdir: {{ .ci_dir_home }}/stat
   setup:
@@ -87,6 +89,12 @@ ansible:
   beforeInstall:
     - name: "Php-fpm: 1. Utils"
       shell: |
+        echo "http://dl-3.alpinelinux.org/alpine/v3.12/main/" >> /etc/apk/repositories
+        echo "http://dl-3.alpinelinux.org/alpine/v3.12/community/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.12/main/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.12/community/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.12/main/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.12/community/" >> /etc/apk/repositories
         apk update && apk upgrade
         apk add wget
         apk add unzip
@@ -159,6 +167,12 @@ ansible:
         # configs
         cp stat/local.conf.php.tpl stat/local.conf.php
         chmod a+x *.sh
+        #export dir
+        ln -Tfs {{ .ci_dir_home }}/store/web/export {{ .ci_dir_home }}/stat/web/export
+        #add wkhtmltopdf
+        apk add qt5-qtbase-dev
+        apk add wkhtmltopdf
+        ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
       args:
         chdir: {{ .ci_dir_home }}/stat
   setup:

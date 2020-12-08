@@ -116,6 +116,8 @@ data:
         root        {{ .Values.ci_dir_home }}/stat/web/;
         index       index.php;
 
+        disable_symlinks off;
+
         # old stat
         client_max_body_size 0;
         #proxy_connect_timeout 180s;
@@ -433,5 +435,8 @@ data:
       "port": {{ .Values.node_nnp_ported_prod.port }},
       "logLevel": {{ .Values.node_nnp_ported_prod.logLevel }},
       "connectionString": {{ .Values.node_nnp_ported_prod.connection_string | quote }},
-      "getNumberRangeUrl": {{ .Values.node_nnp_ported_prod.get_url | quote }}
+      "getNumberRangeUrl": {{ .Values.node_nnp_ported_prod.get_url | quote }},
+      "redisOptions": {
+        "host": {{ .Values.redis_prod.host | quote }}
+      }
     }
