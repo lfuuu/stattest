@@ -78,6 +78,7 @@ class LkController extends ApiController
 
         $form->validateWithException();
 
+        /** @var ClientAccount $account */
         $account = ClientAccount::find()->where(["id" => $form->account_id])->with(['clientContractModel', 'superClient'])->one();
         Assert::isObject($account);
 
@@ -146,6 +147,7 @@ class LkController extends ApiController
             'is_only_yandex' => $contract->organization_id == Organization::MCN_TELECOM,
             'organization_id' => $contract->organization_id,
             'legal_type' => $contract->clientContragent->legal_type,
+            'price_level' => $account->price_level,
         ] + ($danycomData ? ['danycom' => $danycomData] : []);
     }
 
