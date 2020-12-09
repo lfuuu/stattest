@@ -24,7 +24,7 @@ class FillAccountTariffResourceLog extends Behavior
     }
 
     /**
-     * Создать лог ресурсов при создании услуги
+     * Создать лог ресурсов при создании услуги и смене тариффа
      *
      * @param Event $event
      * @throws \app\exceptions\ModelValidationException
@@ -41,10 +41,14 @@ class FillAccountTariffResourceLog extends Behavior
 
         $accountTariff = $accountTariffLog->accountTariff;
         unset($accountTariff->accountTariffLogs); // сбросить relation, чтобы он заново построился
+        /*
         if (count($accountTariff->accountTariffLogs) != 1) {
             // это не создание услуги, а смена тарифа
             return;
         }
+        */
+
+        $mapAccountTariffResources = $accountTariff->getResourceMap();
 
         /** @var \app\models\Number $number */
         $number = $number = $accountTariff->number;
@@ -77,8 +81,13 @@ class FillAccountTariffResourceLog extends Behavior
                 $accountTariffResourceLog->amount = $tariffResource->amount;
             }
 
-            if (!$accountTariffResourceLog->save()) {
-                throw new ModelValidationException($accountTariffResourceLog);
+            if (
+                !isset($mapAccountTariffResources[$accountTariffResourceLog->resource_id])
+                || $mapAccountTariffResources[$accountTariffResourceLog->resource_id] != $accountTariffResourceLog->amount
+            ) {
+                if (!$accountTariffResourceLog->save()) {
+                    throw new ModelValidationException($accountTariffResourceLog);
+                }
             }
         }
     }
@@ -99,6 +108,17 @@ class FillAccountTariffResourceLog extends Behavior
 
         if (count($accountTariff->accountTariffLogs)) {
             // это не удаление услуги, а удаление смены тарифа
+
+            // удаляем только те логи ресурсов, которые в это же время или позже сделаны чем удаляемый лог смены тарифа
+            $accountTariffResourceLogs = $accountTariff->accountTariffResourceLogsAll;
+            foreach ($accountTariffResourceLogs as $accountTariffResourceLog) {
+                if ($accountTariffResourceLog->actual_from_utc >= $accountTariffLog->actual_from_utc) {
+                    if (!$accountTariffResourceLog->delete()) {
+                        throw new ModelValidationException($accountTariffResourceLog);
+                    }
+                }
+            }
+
             return;
         }
 
