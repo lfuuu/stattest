@@ -7,7 +7,7 @@ return [
     'service_type_id' => 'Тyp služby',
     'unit' => 'Jednotka',
 
-    'Resource #0' => 'Zdroje (hovory, internet, SMS)',
+    'Resource #0' => 'Zdroje pre aktuálny deň',
     'Resource #1' => 'Diskový priestor',
     'Resource #2' => 'Účastníki',
     'Resource #3' => 'Pripojenie telefónneho čísla iného operátora',

@@ -7,7 +7,7 @@ return [
     'service_type_id' => 'Service type',
     'unit' => 'Unit',
 
-    'Resource #0' => 'Ressourcen (Anrufe, Internet, SMS)',
+    'Resource #0' => 'Ressourcen für den aktuellen Tag',
     'Resource #1' => 'Speicherplatz',
     'Resource #2' => 'Abonnenten',
     'Resource #3' => 'Verbindung von Nummern anderer Operatoren',
