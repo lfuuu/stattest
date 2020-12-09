@@ -37,6 +37,12 @@ ansible:
         apk add nano
         apk add curl
         apk update
+        # nginx:nginx -> 509:509
+        # as jenkins:jenkins on tiberis
+        apk --no-cache add shadow && usermod
+        groupmod -g 509 nginx
+        usermod -u 509 -g 509 nginx
+        # id nginx
   install:
     - name: "Nginx 2"
       shell: |
