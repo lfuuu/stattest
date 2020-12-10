@@ -5,10 +5,12 @@ namespace app\commands\convert;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTrunkSettings;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffResource;
 use yii\console\Controller;
 
 
@@ -156,7 +158,87 @@ class UsagesController extends Controller
                 echo PHP_EOL . '[code=' . $e->getCode() . ']' . $e->getMessage();
             }
         }
+    }
 
+    public function actionCheckResources()
+    {
+        $query = AccountTariff::find()
+            ->where(['NOT', ['tariff_period_id' => null]])
+//            ->andWhere(['id' => 1000203])
+            ->orderBy(['id' => SORT_ASC])
+            ->with('accountTariffLogs')
+            ->with('tariffPeriod')
+            ->with('tariffPeriod.tariff')
+            ->with('tariffPeriod.tariff.tariffResourcesIndexedByResourceId')
+            ->with('tariffPeriod.tariff.tariffResourcesIndexedByResourceId.resource')
+        ;
+
+        /** @var AccountTariff $accountTariff */
+        foreach ($query->each() as $accountTariff) {
+
+            if (count($accountTariff->accountTariffLogs) <= 1) {
+                echo ' .';
+                continue;
+            }
+
+            echo PHP_EOL . $accountTariff->id;
+
+            $logs = $accountTariff->accountTariffLogs;
+            $log = reset($logs);
+
+            if (!$log->tariff_period_id) {
+                echo ', ';
+                continue;
+            }
+
+            if (
+                !$accountTariff->tariffPeriod
+                || !($tariff = $accountTariff->tariffPeriod->tariff)
+                || !($tariffMap = $accountTariff->tariffPeriod->tariff->tariffResourcesIndexedByResourceId)
+            ) {
+                continue;
+            }
+
+            $resourceMap = $accountTariff->getResourceMap();
+
+            print_r($resourceMap);
+            $tariffR = [];
+            /** @var TariffResource $tr */
+            foreach ($tariffMap as $tr) {
+//                print_r($tr->getAttributes());
+                if (!$tr->is_can_manage && $tr->resource->isOption() && !$tr->resource->isNumber()) {
+                    $tariffR[$tr->resource_id] = $tr->amount;
+                }
+            };
+
+            if (!$tariffR) {
+                echo ' n';
+                continue;
+            }
+
+            echo 'tariffR: ';
+            print_r($tariffR);
+
+            foreach ($tariffR as $a => $v) {
+                if (isset($resourceMap[$a]) && $resourceMap[$a] != $v) {
+                    echo ' ' . $a . ': ' . $resourceMap[$a] . ' => ' . $v;
+
+                    $accountTariffResourceLog = new AccountTariffResourceLog;
+                    $accountTariffResourceLog->account_tariff_id = $log->account_tariff_id;
+                    $accountTariffResourceLog->actual_from_utc = DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT);//$log->actual_from_utc;
+                    $accountTariffResourceLog->resource_id = $a;
+                    $accountTariffResourceLog->amount = $v;
+
+//                    print_r($accountTariffResourceLog->getAttributes());
+
+                    if (!$accountTariffResourceLog->save()) {
+                        throw new ModelValidationException($accountTariffResourceLog);
+                    }
+                }
+            }
+
+            echo "+++";
+        }
     }
 }
 
