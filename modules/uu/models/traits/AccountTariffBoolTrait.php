@@ -438,4 +438,17 @@ trait AccountTariffBoolTrait
             ->andWhere(['IS NOT', 'tariff_period_id', null])
             ->exists();
     }
+
+    public function getResourceMap()
+    {
+        $mapAccountTariffResources = [];
+        foreach ($this->accountTariffResourceLogsAll as $accountTariffResourceLog) {
+            // массив инвертирован. последние значение - первые
+            if (!isset($mapAccountTariffResources[$accountTariffResourceLog->resource_id])) {
+                $mapAccountTariffResources[$accountTariffResourceLog->resource_id] = $accountTariffResourceLog->amount;
+            }
+        }
+
+        return $mapAccountTariffResources;
+    }
 }
