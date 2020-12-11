@@ -105,7 +105,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     if ($isNumber) {
                         echo $form->field($tariffResource, "[{$i}]amount")->textInput($options)->label(false);
                     } else {
-                        echo $form->field($tariffResource, "[{$i}]amount")->checkbox($options, false)->label(false);
+                        echo $form->field($tariffResource, "[{$i}]amount")->checkbox(/*$options*/[], false)->label(false);
                     }
                     ?>
                 </div>
