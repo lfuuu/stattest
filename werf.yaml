@@ -64,7 +64,8 @@ ansible:
         chdir: {{ .ci_dir_home }}/stat
 ---
 image: {{ .project }}-php-fpm-prod
-from: php:7.4.11-fpm-alpine3.12
+#from: php:7.4.11-fpm-alpine3.12
+from: php:7.4-fpm-alpine3.10
 docker:
   WORKDIR: {{ .ci_dir_home }}/stat
   USER: root
@@ -95,12 +96,12 @@ ansible:
   beforeInstall:
     - name: "Php-fpm: 1. Utils"
       shell: |
-        echo "http://dl-3.alpinelinux.org/alpine/v3.12/main/" >> /etc/apk/repositories
-        echo "http://dl-3.alpinelinux.org/alpine/v3.12/community/" >> /etc/apk/repositories
-        echo "http://dl-4.alpinelinux.org/alpine/v3.12/main/" >> /etc/apk/repositories
-        echo "http://dl-4.alpinelinux.org/alpine/v3.12/community/" >> /etc/apk/repositories
-        echo "http://dl-5.alpinelinux.org/alpine/v3.12/main/" >> /etc/apk/repositories
-        echo "http://dl-5.alpinelinux.org/alpine/v3.12/community/" >> /etc/apk/repositories
+        echo "http://dl-3.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-3.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
         apk update && apk upgrade
         apk add wget
         apk add unzip

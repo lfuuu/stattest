@@ -299,7 +299,7 @@ data:
                 'password' => '{{ .Values.params_prod.sberbank_api_sberbank_retail_password }}',
             ],
             \app\models\Organization::MCN_TELECOM_SERVICE => [
-                'user' => '{{ .Values.params_prod.sberbank_api_sberbank_service_password }}',
+                'user' => '{{ .Values.params_prod.sberbank_api_sberbank_service_user }}',
                 'password' => '{{ .Values.params_prod.sberbank_api_sberbank_service_password }}',
             ]
         ],

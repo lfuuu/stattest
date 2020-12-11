@@ -408,6 +408,8 @@ class LkController extends ApiController
     }
 
     /**
+     * POST /api/lk/make-sberbank-order
+     *
      * Создание счета на оплату и регистрация его в Сбербанк.
      */
     public function actionMakeSberbankOrder()
