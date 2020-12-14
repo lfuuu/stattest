@@ -24,7 +24,12 @@ class DataController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'save'],
+                        'actions' => ['index'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['save'],
                         'roles' => ['dictionary.read'],
                     ],
                 ],
