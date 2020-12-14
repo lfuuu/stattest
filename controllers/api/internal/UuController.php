@@ -695,7 +695,7 @@ class UuController extends ApiInternalController
                 'tariff_status' => $this->_getIdNameRecord($tariff->status),
                 'tariff_person' => $this->_getIdNameRecord($tariff->person),
                 'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
-                'tariff_tags' => $this->_getIdNameRecord($tariff->tariffTags),
+                'tariff_tags' => $this->_getIdNameRecord($tariff->tariffTags, 'tag_id'),
                 'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
                 'tariff_periods' => null, //$this->_getTariffPeriodRecord($tariffPeriod),
                 'is_termination' => $package ? $package->is_termination : null,
