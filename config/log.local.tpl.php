@@ -1,14 +1,34 @@
 <?php
 
+use welltime\graylog\GraylogTarget;
+use yii\log\FileTarget;
+
+/*
+return [
+    'traceLevel' => 5,
+    'flushInterval' => 1000,
+    'targets' => [
+        'file' => [
+            'class' => FileTarget::class,
+            'levels' => ['error', 'warning', 'info'], // 'error', 'warning', 'info', 'trace'
+            'categories' => ['atol'],
+        ],
+    ],
+];
+*/
+
+//return [];
+
+
 $debugLogging = false;
-$graylogHost = '85.94.32.204';
+$graylogHost = 'glogstat.mcn.ru';
 $source = 'developer_stat';
 
 if ($debugLogging) {
     return [
         'targets' => [
             [
-                'class' => 'welltime\graylog\GraylogTarget',
+                'class' => GraylogTarget::class,
                 'levels' => ['error', 'warning', 'info', 'trace'],
                 'host' => $graylogHost,
                 'source' => $source,
@@ -19,18 +39,32 @@ if ($debugLogging) {
     return [
         'targets' => [
             [
-                'class' => 'welltime\graylog\GraylogTarget',
+                'class' => GraylogTarget::class,
                 'levels' => ['error', 'warning'],
                 'host' => $graylogHost,
                 'source' => $source,
             ],
             [
-                'class' => 'welltime\graylog\GraylogTarget',
-                'levels' => ['info', 'trace'],
-                'categories' => ['application', 'request', 'sbis'],
+                'class' => GraylogTarget::class,
+                'levels' => ['info'], // 'trace'
+                'categories' => ['application', 'request', 'health', 'sbis'],
                 'host' => $graylogHost,
                 'source' => $source,
             ],
+            [
+                'class' => FileTarget::class,
+                'levels' => ['error'], // 'error', 'warning', 'info', 'trace'
+                'categories' => ['uu_api'],
+                'logFile' => '@runtime/logs/uu_api.log',
+            ],
+            /*
+            [
+                'class' => FileTarget::class,
+                'levels' => ['info'], // 'trace'
+                'categories' => ['application', 'request', 'health'],
+                'logFile' => '@runtime/logs/info.log',
+            ],
+            */
         ],
     ];
 }

@@ -351,12 +351,12 @@ data:
             'externalUrls' => [
                 'main' => [
                     // eridanus
-                    'Синхронизатор. Ошибки' => 'http://eridanus.mcn.ru/health/healthSyncLog.json',
-                    'Синхронизатор. Не запущен' => 'http://eridanus.mcn.ru/health/healthSyncProcess.json',
-                    'Синхронизатор. Не все синхронизировано' => 'http://eridanus.mcn.ru/health/healthFullSync.json',
-                    'sormSync' => 'http://eridanus.mcn.ru/health/healthSormSync.json',
-                    //'sormImport' => 'http://eridanus.mcn.ru/health/healthSormImport.json',
-                    'sormUpload' => 'http://eridanus.mcn.ru/health/healthSormUpload.json',
+                    //'Синхронизатор. Ошибки' => 'http://eridanus.mcn.ru/health/healthSyncLog.json',
+                    //'Синхронизатор. Не запущен' => 'http://eridanus.mcn.ru/health/healthSyncProcess.json',
+                    //'Синхронизатор. Не все синхронизировано' => 'http://eridanus.mcn.ru/health/healthFullSync.json',
+                    //'sormSync' => 'http://eridanus.mcn.ru/health/healthSormSync.json',
+                    ////'sormImport' => 'http://eridanus.mcn.ru/health/healthSormImport.json',
+                    //'sormUpload' => 'http://eridanus.mcn.ru/health/healthSormUpload.json',
                     'SMS Errors' => 'http://thiamis.mcn.ru/sms/health/error.json',
                     'SMS Errors2' => 'http://thiamis.mcn.ru/sms/health/error2.json',
 
@@ -407,6 +407,7 @@ data:
         ],
         'rocket_chat_token' => '{{ .Values.params_prod.rocket_chat_token }}',
         'nnpInfoServiceURL' => '{{ .Values.params_prod.nnp_info_service_url }}',
+        'billerApiURL' => '{{ .Values.params_prod.biller_api_url }}',
         'clientChangedAmqSettings' => [
             'host' => '{{ .Values.params_prod.client_changed_amq_settings_host }}',
             'user' => '{{ .Values.params_prod.client_changed_amq_settings_user }}',

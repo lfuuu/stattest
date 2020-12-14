@@ -76,7 +76,7 @@ docker:
     MYSQL_PASSWORD: stat
     POSTGRES_DB: nispd
     POSTGRES_HOST: postgres
-    POSTGRES_HOST_SLAVE: postgres
+    POSTGRES_SLAVE_HOST: postgres
     POSTGRES_USER: stat
     POSTGRES_PASSWORD: stat
     REDIS_HOST: redis
@@ -142,11 +142,20 @@ ansible:
             iputils-ping \
             vim \
             htop
+        # www-data:www-data -> 509:509
+        # as jenkins:jenkins on tiberis
+        # and as nginx:nginx on nginx container in the POD
+        apk --no-cache add shadow && usermod
+        groupmod -g 509 www-data
+        usermod -u 509 -g 509 www-data
+        # id www-data
         # dirs
         mkdir /run/php-fpm/
         touch /run/php-fpm/php-fpm.pid
+        chown -R www-data:www-data /run/php-fpm/
         mkdir -p /var/lib/php/session
-        chmod 777 /var/lib/php/session
+        #chmod 777 /var/lib/php/session
+        chown -R www-data:www-data /var/lib/php/session
   install:
     - name: "Php-fpm: 2. Configs"
       shell: |

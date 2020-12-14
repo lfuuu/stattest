@@ -25,11 +25,31 @@ sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pgsql.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pgsql.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pgsql.local.php
 
+cp db_pg_cache.local.tpl.php db_pg_cache.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_cache.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_cache.local.php
+sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_cache.local.php
+sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_cache.local.php
+
 cp db_pg_slave.local.tpl.php db_pg_slave.local.php
+#sed -i "s/host=127.0.0.1/host=$POSTGRES_SLAVE_HOST/" db_pg_slave_cache.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_slave.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_slave.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_slave.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_slave.local.php
+
+cp db_pg_slave_cache.local.tpl.php db_pg_slave_cache.local.php
+#sed -i "s/host=127.0.0.1/host=$POSTGRES_SLAVE_HOST/" db_pg_slave_cache.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_slave.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_slave_cache.local.php
+sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_slave_cache.local.php
+sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_slave_cache.local.php
+
+cp db_pg_calllegs.local.tpl.php db_pg_calllegs.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_LEGS_HOST/" db_pg_calllegs.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_calllegs.local.php
+sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_LEGS_USER'/" db_pg_calllegs.local.php
+sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_LEGS_PASSWORD'/" db_pg_calllegs.local.php
 
 cp db_pg_nnp.local.tpl.php db_pg_nnp.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_nnp.local.php
@@ -43,9 +63,25 @@ sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_nnp2.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_nnp2.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_nnp2.local.php
 
+cp db_pgsql_nfdump.local.tpl.php db_pgsql_nfdump.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pgsql_nfdump.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pgsql_nfdump.local.php
+sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pgsql_nfdump.local.php
+sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pgsql_nfdump.local.php
+
+cp db_pg_statistic.local.tpl.php db_pg_statistic.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_STATISTICS_HOST/" db_pg_statistic.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_statistic.local.php
+sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_statistic.local.php
+sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_statistic.local.php
+
 # Redis
 cp cache_redis.local.tpl.php cache_redis.local.php
 sed -i "s/'hostname' => 'localhost'/'hostname' => '$REDIS_HOST'/" cache_redis.local.php
+
+# Logger
+cp log.local.tpl.php log.local.php
+sed -i "s/source = 'developer_stat';/source = '$LOG_SOURCE';/" cache_redis.local.php
 
 # Modules
 
@@ -149,6 +185,10 @@ echo "Migrations applied!"
 if [ -f /var/run/php-fpm/php-fpm.pid ]; then
     rm /var/run/php-fpm/php-fpm.pid
 fi
-/usr/local/sbin/php-fpm -R
+
+# by root
+#/usr/local/sbin/php-fpm -R
+
+/usr/local/sbin/php-fpm
 
 #/bin/sleep infinity
