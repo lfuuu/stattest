@@ -47,10 +47,8 @@ ansible:
     - name: "Nginx 2"
       shell: |
         cd {{ .ci_dir_home }}/stat
-        chmod -R 777 runtime
-        chmod 777 web/assets
         mkdir stat/design_c
-        chmod 777 stat/design_c
+        chown -R nginx:nginx {{ .ci_dir_home }}/stat
         #export dir
         ln -Tfs {{ .ci_dir_home }}/store/web/export {{ .ci_dir_home }}/stat/web/export
       args:
@@ -154,7 +152,6 @@ ansible:
         touch /run/php-fpm/php-fpm.pid
         chown -R www-data:www-data /run/php-fpm/
         mkdir -p /var/lib/php/session
-        #chmod 777 /var/lib/php/session
         chown -R www-data:www-data /var/lib/php/session
   install:
     - name: "Php-fpm: 2. Configs"
@@ -176,10 +173,8 @@ ansible:
         # install-php-extensions xdebug
         # permissions
         cd {{ .ci_dir_home }}/stat
-        chmod -R 777 runtime
-        chmod 777 web/assets
         mkdir stat/design_c
-        chmod 777 stat/design_c
+        chown -R www-data:www-data {{ .ci_dir_home }}/stat
         # configs
         cp stat/local.conf.php.tpl stat/local.conf.php
         chmod a+x *.sh
@@ -202,6 +197,9 @@ ansible:
         # vendors
         composer install
         composer clear-cache
+        # rights
+        chown -R www-data:www-data {{ .ci_dir_home }}/stat/vendor
+        chown www-data:www-data {{ .ci_dir_home }}/stat/composer*
       args:
         chdir: {{ .ci_dir_home }}/stat
 
