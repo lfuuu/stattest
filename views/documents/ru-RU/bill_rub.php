@@ -1,12 +1,12 @@
 <?php
 
-use app\assets\AppAsset;
 use app\classes\Utils;
 use app\classes\Wordifier;
 use app\classes\Html;
 use app\helpers\MediaFileHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
+/** @var $inline_img bool */
 
 $isCurrentStatement = isset($isCurrentStatement) ? $isCurrentStatement : false;
 

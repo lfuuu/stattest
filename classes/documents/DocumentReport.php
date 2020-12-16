@@ -50,8 +50,6 @@ abstract class DocumentReport extends BaseObject
         $sum_with_tax,
         $sum_discount = 0;
 
-    protected $optionsPDF = ' --quiet -L 10 -R 10 -T 10 -B 10';
-
     /**
      * @return ActiveRecord
      */

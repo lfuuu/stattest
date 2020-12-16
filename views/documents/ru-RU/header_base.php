@@ -1,6 +1,5 @@
 <?php
 use app\models\ClientContact;
-use yii\helpers\ArrayHelper;
 
 $contacts = ClientContact::find()->andWhere([
     'client_id' => $payer_company->id,

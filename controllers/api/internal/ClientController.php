@@ -4,14 +4,12 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\Assert;
-use app\classes\HttpClient;
 use app\dao\ClientSuperDao;
 use app\exceptions\api\internal\PartnerNotFoundException;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\BadRequestHttpException;
 use app\forms\client\ClientCreateExternalForm;
 use app\helpers\DateTimeZoneHelper;
-use app\models\billing\Locks;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\ClientContact;
@@ -25,11 +23,9 @@ use app\models\danycom\Info;
 use app\models\danycom\Number;
 use app\models\EntryPoint;
 use app\models\EventQueue;
-use app\models\voip\Registry;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
-use yii\base\InvalidConfigException;
 
 class ClientController extends ApiInternalController
 {

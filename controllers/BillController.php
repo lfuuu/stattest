@@ -12,10 +12,10 @@ use app\classes\Assert;
 use app\classes\documents\DocumentReportFactory;
 use app\models\Bill;
 use yii\base\Model;
+use yii\web\Response;
 
 class BillController extends BaseController
 {
-
     /**
      * @param string $billNo
      * @param string $docType
@@ -33,7 +33,15 @@ class BillController extends BaseController
         $sendEmail = Yii::$app->request->get('emailed') == 1;
         $report = DocumentReportFactory::me()->getReport($bill, $docType, $sendEmail);
 
-        return $isPdf ? $report->renderAsPDF() : $report->render();
+        if ($isPdf) {
+            $response = Yii::$app->response;
+            $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
+            $response->content = $report->renderAsPDF();
+            $response->format = Response::FORMAT_RAW;
+            Yii::$app->end();
+        }
+
+        return $report->render();
     }
 
     /**

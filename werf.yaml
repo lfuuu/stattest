@@ -184,6 +184,20 @@ ansible:
         apk add qt5-qtbase-dev
         apk add wkhtmltopdf
         ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
+        # fonts
+        apk add --update --no-cache \
+            xvfb \
+            fontconfig \
+            dbus \
+            exiftool \
+            tzdata \
+            ca-certificates
+        apk add --update --no-cache \
+            libgcc libstdc++ libx11 glib libxrender libxext libintl \
+            libcrypto1.0 libssl1.0 \
+            ttf-dejavu ttf-droid ttf-freefont ttf-liberation ttf-ubuntu-font-family
+        apk add libwmf
+        fc-cache -f
       args:
         chdir: {{ .ci_dir_home }}/stat
   setup:
