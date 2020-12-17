@@ -854,6 +854,7 @@ class AccountTariffLog extends ActiveRecord
                     (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT) // "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
                 ]
             )
+            ->andWhere(['not', [$accountTariffLogTableName . '.id' => $this->id]])
             ->count()
         ) {
             $this->addError($attribute, 'Тариф нельзя включить более одного раза.');
