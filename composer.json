@@ -12,6 +12,7 @@
     "ext-openssl": "*",
     "ext-mysqli": "*",
     "ext-sysvsem": "*",
+    "ext-soap": "*",
     "yiisoft/yii2": "@stable",
     "yiisoft/yii2-jui": "@stable",
     "welltime/graylog-target": "dev-master",

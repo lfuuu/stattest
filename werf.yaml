@@ -57,7 +57,7 @@ ansible:
     - name: "Nginx 3"
       shell: |
         cd {{ .ci_dir_home }}/stat
-        cp stat/local.conf.php.tpl stat/local.conf.php
+        #cp stat/local.conf.php.tpl stat/local.conf.php
       args:
         chdir: {{ .ci_dir_home }}/stat
 ---
@@ -176,7 +176,7 @@ ansible:
         mkdir stat/design_c
         chown -R www-data:www-data {{ .ci_dir_home }}/stat
         # configs
-        cp stat/local.conf.php.tpl stat/local.conf.php
+        #cp stat/local.conf.php.tpl stat/local.conf.php
         chmod a+x *.sh
         #export dir
         ln -Tfs {{ .ci_dir_home }}/store/web/export {{ .ci_dir_home }}/stat/web/export

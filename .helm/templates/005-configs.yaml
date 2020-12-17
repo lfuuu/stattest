@@ -439,6 +439,73 @@ data:
         'CALLTRACKING_SERVER' => 'feedback.mcn.ru',
     ];
 
+  local.conf.php: |
+    <?php
+
+    return array(
+            'WEB_PATH'            =>    '/',
+            'WEB_ADDRESS'        => 'https://stat.mcn.ru/',
+            'USE_MD5'        => 1, //использование md5-хеширование для паролей
+
+            /* voip regions db */
+            'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
+            'R_CALLS_USER'		=>	'{{ .Values.params_local.db_voip_regions_r_calls_user }}',
+            'R_CALLS_PASS'		=>	'{{ .Values.params_local.db_voip_regions_r_calls_pass }}',
+            'R_CALLS_DB'		=>	'nispd[region]',
+
+            /* voip moscow db */
+            'R_CALLS_99_HOST'		=>	'85.94.32.237',
+            'R_CALLS_99_USER'		=>	'{{ .Values.params_local.db_voip_moscow_r_calls_99_user }}',
+            'R_CALLS_99_PASS'		=>	'{{ .Values.params_local.db_voip_moscow_r_calls_99_pass }}',
+            'R_CALLS_99_DB'		=>	'nispd',
+
+
+            /* welltime db */
+            'EXT_SQL_HOST'		=>  'thiamis.mcn.ru',
+            'EXT_SQL_USER'		=>  '{{ .Values.params_local.db_welltime_ext_sql_user }}',
+            'EXT_SQL_PASS'		=>  '{{ .Values.params_local.db_welltime_ext_sql_pass }}',
+            'EXT_SQL_DB'		=>  'welltone_new3',
+            'EXT_GROUP_ID'		=>  6,
+
+            /* sync with lk */
+            'MONGO_HOST' => 'lk.mcn.ru',
+            'MONGO_USER' => '{{ .Values.params_local.sync_with_lk_mongo_user }}',
+            'MONGO_PASS' => '{{ .Values.params_local.sync_with_lk_mongo_pass }}',
+            'MONGO_DB' => 'lkmcn',
+
+            /* sync with 1c */
+            'SYNC1C_UT_SOAP_URL'  => 'http://stat.ws.dionis.mcn.ru/ws/ws/stat',
+            'SYNC1C_UT_LOGIN'     => '{{ .Values.params_local.sync1c_ut_login }}',
+            'SYNC1C_UT_PASSWORD'  => '{{ .Values.params_local.sync1c_ut_password }}',
+            'SYNC1C_STAT_TOKEN'   => '{{ .Values.params_local.sync1c_stat_token }}',
+
+            "LOG_DIR"           => "/var/log/nispd/",
+            "SCAN_DOC_DIR"      => "/var/log/skanpdf/",
+
+            "CORE_API_URL"      => "https://lk.mcn.ru/core/api/",
+            "CORE_SERVER"      => "lk.mcn.ru",
+            "PHONE_SERVER"      => "vpbx.mcn.ru",
+
+            "VIRTPBX_TEST_ADDRESS" => "vpbx.mcn.ru",
+            "VIRTPBX_URL" => "https://[address]/vpbx/api/[action]",
+            //'API__print_bill_url' => 'https://lk.mcn.ru/lk/docs/?bill=', //'https://lk.mcn.ru/print?bill='
+            'API__print_bill_url' => '/lk/docs/?bill=', //'https://lk.mcn.ru/print?bill='
+
+            "LK_PATH" => "https://lk.mcn.ru/lk/",
+            "AUTOCREATE_SIP_ACCOUNT" => 1, //автоматическое создание учеток при заведении номера
+            "AUTOCREATE_VPBX" => 1,// автоматическое создание vpbx после включения услуги
+            "ADMIN_EMAIL" => "{{ .Values.params_local.admin_email }}",
+            "ADMIN_PHONE" => "{{ .Values.params_local.admin_phone }}",
+            "MONITORING_EMAIL" => "{{ .Values.params_local.monitoring_email }}",
+
+            "TEST_NOTICE" => 1, //тестирование отправки оповещений
+
+            "use_ats3" => 1,
+
+              'WELLTIME_INTEGRATION' => true
+
+            );
+
   node-comet-config.json: |
     {
       "port": {{ .Values.node_comet_prod.port }},

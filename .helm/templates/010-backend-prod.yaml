@@ -81,6 +81,9 @@ spec:
           subPath: params.local.php
           mountPath: {{ .Values.ci_dir_home }}/stat/config/params.local.php
         - name: config-volume
+          subPath: local.conf.php
+          mountPath: {{ .Values.ci_dir_home }}/stat/stat/local.conf.php
+        - name: config-volume
           subPath: php.ini
           mountPath: /usr/local/etc/php/conf.d/php.ini
         - name: config-volume

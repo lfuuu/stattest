@@ -170,10 +170,6 @@ cp params.php params.local.php
 sed -i "s/'login' => ''/'login' => '$SBIS_LOGIN'/" params.local.php
 sed -i "s/'password' => ''/'password' => '$SBIS_PASSWORD'/" params.local.php
 
-# local conf
-cd $DIR_STAT/stat/
-sed -i "s/\"AUTOCREATE_VPBX\" => 0/\"AUTOCREATE_VPBX\" => 1/" local.conf.php
-
 echo "Configs are ready!"
 
 #migrations

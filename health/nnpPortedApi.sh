@@ -1,7 +1,7 @@
 #!/bin/bash
 # Проверить, что nnp-ported отвечает по API
 
-if wget https://stat.mcn.ru:3001 -q -O /dev/null
+if wget https://stat.mcn.ru/nnp-ported -q -O /dev/null
 then
     itemVal=0
 else
