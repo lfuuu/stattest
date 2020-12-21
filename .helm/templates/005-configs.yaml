@@ -9,6 +9,9 @@ data:
 {{- end }}
   php.ini: |
     [PHP]
+    SMTP = mail.mcn.ru
+    sendmail_path = /usr/sbin/sendmail -S mail.mcn.ru -t -i -f root@tiberis.mcn.ru
+
     output_buffering = {{ .Values.php_prod.output_buffering }}
 
     expose_php = {{ .Values.php_prod.expose_php }}

@@ -140,6 +140,7 @@ ansible:
             iputils-ping \
             vim \
             htop
+        apk add busybox-extras
         # www-data:www-data -> 509:509
         # as jenkins:jenkins on tiberis
         # and as nginx:nginx on nginx container in the POD
