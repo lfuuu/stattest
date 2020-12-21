@@ -480,7 +480,7 @@ data:
             'SYNC1C_STAT_TOKEN'   => '{{ .Values.params_local.sync1c_stat_token }}',
 
             "LOG_DIR"           => "/var/log/nispd/",
-            "SCAN_DOC_DIR"      => "/var/log/skanpdf/",
+            "SCAN_DOC_DIR"      => realpath(\Yii::getAlias('@app') . '/../store/skanpdf') . '/',
 
             "CORE_API_URL"      => "https://lk.mcn.ru/core/api/",
             "CORE_SERVER"      => "lk.mcn.ru",
