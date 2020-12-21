@@ -67,5 +67,25 @@ class TroubleController extends Controller
             }
         }
     }
+
+    public function actionCloseKim()
+    {
+        $sql = <<<SQL
+SELECT t.id FROM `tt_troubles` t
+inner join tt_stages s on t.cur_stage_id = s.stage_id
+where date_creation < '2020-12-01 00:00:00' 
+and /**/ t.id = 597834 and/**/  !is_closed
+and trouble_type = 'connect'
+and user_author = 'AutoLK'
+SQL;
+
+        $troubles = \Yii::$app->db->createCommand($sql)->queryColumn();
+
+        foreach ($troubles as $troubleId) {
+            $trouble = Trouble::findOne(['id' => $troubleId]);
+            $trouble->addStage(61, '(автозакрытие)', null, 60);
+        }
+
+    }
 }
 

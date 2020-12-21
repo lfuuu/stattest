@@ -26,7 +26,7 @@ class InnKppValidator extends Validator
      * @param ClientContragent $model
      * @param null $attributes
      */
-    public function validateAttributes(ClientContragent $model, $attributes = null)
+    public function validateAttributes($model, $attributes = null)
     {
         $attributes = [];
         // валидациия ИНН только в России и Венгрии
