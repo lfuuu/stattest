@@ -42,9 +42,10 @@ class InvoiceDocument extends DocumentReport
     /**
      * Получение контента как есть
      *
+     * @param bool $inline_img
      * @return string
      */
-    public function render()
+    public function render($inline_img = true)
     {
         if ($this->_invoice) {
             return $this->_invoice->render();
