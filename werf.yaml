@@ -404,7 +404,7 @@ ansible:
         yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
         yum -y update && yum -y upgrade
         yum-config-manager --enable remi-php74
-        yum install -y php php-fpm php-cli php-curl php-gd php-json php-mcrypt php-mysqlnd php-pgsql php-readline php-xmlrpc php-intl php-mbstring php-bcmath php-xmlwriter php-process php-pecl-redis php-pecl-amqp php-pecl-xdebug php-pecl-ssh2 php-soap
+        yum install -y php php-fpm php-cli php-curl php-gd php-json php-zip php-mcrypt php-mysqlnd php-pgsql php-readline php-xmlrpc php-intl php-mbstring php-bcmath php-xmlwriter php-process php-pecl-redis php-pecl-amqp php-pecl-xdebug php-pecl-ssh2 php-soap
         yum clean all
         mkdir /run/php-fpm/
         touch /run/php-fpm/php-fpm.pid

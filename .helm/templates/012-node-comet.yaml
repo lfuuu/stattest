@@ -8,8 +8,8 @@ spec:
     matchLabels:
       service: {{ .Values.node_comet_prod.host }}
   revisionHistoryLimit: 3
-#  strategy:
-#    type: RollingUpdate
+  strategy:
+    type: RollingUpdate
   replicas: 1
   serviceName: {{ .Values.node_comet_prod.host }}
   template:
