@@ -3,7 +3,6 @@
 namespace app\models\danycom;
 
 use app\classes\model\ActiveRecord;
-use app\dao\ActualNumberDao;
 
 /**
  * Class Number
@@ -11,6 +10,7 @@ use app\dao\ActualNumberDao;
  * @property string $number
  * @property string $region
  * @property string $operator
+ * @property string $date_ported
  */
 class Number extends ActiveRecord
 {
@@ -19,4 +19,5 @@ class Number extends ActiveRecord
     {
         return 'dc_number';
     }
+
 }

@@ -27,6 +27,7 @@ use yii\helpers\Url;
  * @property int $status_id
  * @property int $partner_id
  * @property int $is_default
+ * @property int $profile_id
  * @property string $actual_from
  * @property string $actual_to
  *

@@ -18,6 +18,7 @@ use yii\helpers\Url;
  * @property int $client_account_id
  * @property int $is_active
  * @property int $status_id
+ * @property int $region_id
  *
  * @property-read ClientAccount $clientAccount
  * @property-read Imsi[] $imsies

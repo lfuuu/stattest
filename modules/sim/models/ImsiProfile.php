@@ -17,13 +17,13 @@ use yii\helpers\Url;
  */
 class ImsiProfile extends ActiveRecord
 {
-    const ID_TELE2_TEST = 6;
+    const ID_MSN_RUS = 6;
 
-    const ID_MCN = 1;
+    const ID_MTT = 1;
     const ID_S1 = 2;
     const ID_S2 = 3;
 
-    const IDS_OWN = [self::ID_TELE2_TEST, self::ID_S1, self::ID_S2];
+    const IDS_OWN = [self::ID_MSN_RUS, self::ID_S1, self::ID_S2];
 
 
     // Определяет getList (список для selectbox) и __toString
