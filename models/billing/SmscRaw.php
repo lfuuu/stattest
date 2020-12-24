@@ -4,6 +4,7 @@ namespace app\models\billing;
 
 use app\classes\model\ActiveRecord;
 use app\dao\billing\SmscRawDao;
+use app\modules\nnp\models\AccountTariffLight;
 use Yii;
 
 /**
@@ -75,4 +76,8 @@ class SmscRaw extends ActiveRecord
         return Yii::$app->dbPgSlave;
     }
 
+    public function getAccountTariffLight()
+    {
+        return $this->hasOne(AccountTariffLight::class, ['id' => 'account_tariff_light_id']);
+    }
 }

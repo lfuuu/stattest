@@ -76,14 +76,18 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
         $this->cache = SmscRaw::find()
+            ->alias('c')
+            ->innerJoinWith('accountTariffLight l')
             ->select([
-                'sum' => 'SUM(cost)',
-                'aggr_date' => sprintf("TO_CHAR(setup_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
+                'sum' => 'SUM(c.cost)',
+                'aggr_date' => sprintf("TO_CHAR(c.setup_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
             ])
             ->where([
-                'src_number' => (string)$accountTariff->prevAccountTariff->voip_number,
+                'c.src_number' => (string)$accountTariff->prevAccountTariff->voip_number,
+                'c.account_id' => $accountTariff->client_account_id,
+                'l.account_package_id' => $accountTariff->id
             ])
-            ->andWhere(['>=', 'setup_time', $dateTimeUtc->format(DATE_ATOM)])
+            ->andWhere(['>=', 'c.setup_time', $dateTimeUtc->format(DATE_ATOM)])
             ->groupBy(['aggr_date'])
             ->asArray()
             ->indexBy('aggr_date')
