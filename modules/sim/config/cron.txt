@@ -1,0 +1,1 @@
+* * * * * flock -w 3 /tmp/yii-sim-registry-process /home/httpd/stat.mcn.ru/stat/yii sim/registry/process >> /var/log/sim/registry.log

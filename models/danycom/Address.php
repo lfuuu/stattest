@@ -3,7 +3,6 @@
 namespace app\models\danycom;
 
 use app\classes\model\ActiveRecord;
-use app\dao\ActualNumberDao;
 
 /**
  * Class Address

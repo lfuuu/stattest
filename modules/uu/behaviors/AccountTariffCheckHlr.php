@@ -209,7 +209,7 @@ class AccountTariffCheckHlr extends Behavior
                     throw new ModelValidationException($imsi);
                 }
 
-                if ($imsi->profile_id == ImsiProfile::ID_TELE2_TEST) {
+                if ($imsi->profile_id == ImsiProfile::ID_MSN_RUS) {
                     $linkedImsi = $imsi;
                 }
             }
@@ -258,7 +258,7 @@ class AccountTariffCheckHlr extends Behavior
         return Imsi::find()->alias('i')
             ->joinWith('card c')
             ->andWhere([
-                'i.profile_id' => ImsiProfile::ID_TELE2_TEST,
+                'i.profile_id' => ImsiProfile::ID_MSN_RUS,
                 'i.partner_id' => ImsiPartner::ID_TELE2,
                 'c.status_id' => $statusId,
                 'c.is_active' => 1,
