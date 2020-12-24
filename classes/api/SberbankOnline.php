@@ -41,7 +41,7 @@ class SberbankOnline
                 throw new \InvalidArgumentException('command error');
             }
 
-            if (!isset($data['account'])) {
+            if (!isset($data['account']) || !preg_match('/^\d+$/', $data['account'])) {
                 $this->resultCode = 4; // Неверный формат идентификатора Плательщика
                 throw new \InvalidArgumentException('Invalid format of the Payer\'s identifier');
             }
