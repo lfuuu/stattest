@@ -31,6 +31,7 @@ class RegistryController extends Controller
             ->limit(self::LIMIT_PER_PROCESS)
             ->all();
     }
+
     /**
      * @param $message
      * @param bool $lineBreak
@@ -47,13 +48,15 @@ class RegistryController extends Controller
     {
         foreach (self::getImportsToProcess() as $regionSimHistory) {
             $this->logLine('--------------------------------------------------');
-            $this->logLine('Got import #' . $regionSimHistory->id);
+            $this->logLine(sprintf('Got import: id %s, region: %s, count: %s.', $regionSimHistory->id, $regionSimHistory->regionSettings->getRegionFullName(), $regionSimHistory->count));
 
-            //$result = Form::process($regionSimHistory);
             $form = new CommandForm(['registry' => $regionSimHistory]);
             $result = $form->process();
 
-                $this->logLine($result ? 'Success!' : 'Error!');
+            if ($result) {
+                $this->logLine(sprintf('ICCIDS: %s, IMSI: %s have been added for region %s.', $form->countICCIDs, $form->countIMSIs, $regionSimHistory->regionSettings->getRegionFullName()));
+            }
+            $this->logLine($result ? 'Success!' : 'Error: ' . $form->errorText);
         }
     }
 }
