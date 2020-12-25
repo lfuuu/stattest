@@ -9,7 +9,7 @@ use Yii;
 use yii\filters\AccessControl;
 
 /**
- * Реест сим-карт
+ * Реест SIM-карт
  */
 class RegistryController extends BaseController
 {
@@ -60,7 +60,7 @@ class RegistryController extends BaseController
     }
 
     /**
-     * Заливка
+     * Добавление заливки
      *
      * @return string
      * @throws \yii\base\InvalidParamException

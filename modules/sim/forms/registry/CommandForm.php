@@ -15,6 +15,12 @@ use yii\base\InvalidArgumentException;
 
 class CommandForm extends Form
 {
+    public int $countICCIDs = 0;
+
+    public int $countIMSIs = 0;
+
+    public string $errorText = '';
+
     /** @var Registry */
     public $registry = null;
 
@@ -61,6 +67,8 @@ class CommandForm extends Form
             if ($transaction->isActive) {
                 $transaction->rollBack();
             }
+
+            $this->errorText = $e->getMessage();
 
             $model->state = RegistryState::ERROR;
             $errorText = sprintf(
@@ -161,6 +169,9 @@ class CommandForm extends Form
             $this->batchInsertCard($batchInsertICCIDs);
             $this->batchInsertIMSI($batchInsertIMSIs);
 
+            $this->countICCIDs = count($batchInsertICCIDs);
+            $this->countIMSIs = count($batchInsertIMSIs);
+
             $rs = $model->regionSettings;
             $rs->iccid_last_used = $model->iccid_to;
             $rs->save();
@@ -175,6 +186,7 @@ class CommandForm extends Form
     {
         if (count($batchInsertValues)) {
             $fields = array_keys(current($batchInsertValues));
+
             Imsi::getDb()->createCommand()->batchInsert(
                 Imsi::tableName(),
                 $fields,
@@ -191,6 +203,7 @@ class CommandForm extends Form
     {
         if (count($batchInsertValues)) {
             $fields = array_keys(current($batchInsertValues));
+
             Card::getDb()->createCommand()->batchInsert(
                 Card::tableName(),
                 $fields,

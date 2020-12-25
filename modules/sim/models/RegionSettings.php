@@ -77,6 +77,40 @@ class RegionSettings extends ActiveRecord
     }
 
     /**
+     * @param int $regionId
+     * @return self
+     */
+    public static function findByRegionId($regionId)
+    {
+        return static::findOne(['region_id' => $regionId]);
+    }
+
+    /**
+     * @param int $sourceId
+     * @param int $destinationId
+     * @return bool
+     */
+    public static function checkIfRegionsEqual($sourceId, $destinationId)
+    {
+        if (empty($sourceId) || empty($destinationId)) {
+            return false;
+        }
+
+        if ($sourceId == $destinationId) {
+            return true;
+        }
+
+        $source = self::findByRegionId($sourceId);
+        $destination = self::findByRegionId($destinationId);
+
+        if (!$source || !$destination) {
+            return false;
+        }
+
+        return $source->getMainParent()->region_id == $destination->getMainParent()->region_id;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getRegion()

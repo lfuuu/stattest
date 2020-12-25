@@ -5,10 +5,12 @@ namespace app\controllers\api\internal;
 use app\classes\ApiInternalController;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
+use app\models\Number;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\ImsiStatus;
+use app\modules\sim\models\RegionSettings;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
@@ -123,7 +125,7 @@ class SimController extends ApiInternalController
 
         $result = [];
         foreach ($query->each() as $model) {
-            $result[] = $this->_simCardRecord($model);
+            $result[] = $this->simCardRecord($model);
         }
 
         return $result;
@@ -133,14 +135,15 @@ class SimController extends ApiInternalController
      * @param Card $card
      * @return array
      */
-    private function _simCardRecord(Card $card)
+    protected function simCardRecord(Card $card)
     {
         return [
             'iccid' => (string)$card->iccid,
             'imei' => (string)$card->imei,
             'is_active' => $card->is_active,
+            'region' => $this->regionRecord($card->region_id),
             'status' => $this->_getIdNameRecord($card->status),
-            'imsies' => $this->_simImsiesRecord($card->imsies),
+            'imsies' => $this->simImsiesRecord($card->imsies),
         ];
     }
 
@@ -148,7 +151,7 @@ class SimController extends ApiInternalController
      * @param Imsi[] $imsies
      * @return array
      */
-    private function _simImsiesRecord($imsies)
+    protected function simImsiesRecord($imsies)
     {
         $records = [];
         foreach ($imsies as $imsi) {
@@ -167,6 +170,24 @@ class SimController extends ApiInternalController
         }
 
         return $records;
+    }
+
+    /**
+     * @param int $regionId
+     * @return array
+     */
+    protected function regionRecord($regionId)
+    {
+        $record = [];
+
+        if ($regionSettings = RegionSettings::findByRegionId($regionId)) {
+            $record = [
+                'id' => $regionSettings->region_id,
+                'name' => $regionSettings->getRegionFullName(),
+            ];
+        }
+
+        return $record;
     }
 
     /**
@@ -208,20 +229,30 @@ class SimController extends ApiInternalController
             throw new InvalidParamException('Неправильные параметры imsi');
         }
 
+        $post = Yii::$app->request->post();
+        $post = array_map(function ($value) {
+            return
+                $value === 'NULL' || $value === '' ?
+                    NULL :
+                    (is_bool($value) ? (int)$value : $value);
+        }, $post);
+
+        if (!empty($post['did'])) {
+            $number = Number::findOne(['number' => $post['did']]);
+            if (!$number) {
+                throw new InvalidParamException('Неверный did');
+            }
+
+            if (!RegionSettings::checkIfRegionsEqual($number->region, $card->region_id)) {
+                throw new InvalidParamException('Регион номера и регион SIM-карты не совметимы');
+            }
+        }
+
         $imsiObject = $imsies[$imsi];
 
         $transaction = Yii::$app->db->beginTransaction();
         $transactionSim = Card::getDb()->beginTransaction();
         try {
-            $post = Yii::$app->request->post();
-
-            $post = array_map(function ($value) {
-                return
-                    $value === 'NULL' || $value === '' ?
-                        NULL :
-                        (is_bool($value) ? (int)$value : $value);
-            }, $post);
-
             $imsiObject->setAttributes($post);
             if (!$imsiObject->save()) {
                 throw new ModelValidationException($imsiObject);
@@ -231,8 +262,12 @@ class SimController extends ApiInternalController
             $transactionSim->commit();
             return true;
         } catch (Exception $e) {
-            $transaction->rollBack();
             $transactionSim->rollBack();
+
+            if ($transaction->isActive) {
+                $transaction->rollBack();
+            }
+
             \Yii::error($e);
             throw $e;
         }
