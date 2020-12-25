@@ -42,6 +42,7 @@ class Form extends \app\classes\Form
     public function rules()
     {
         return [
+            [['region_sim_settings_id', 'iccid_from', 'iccid_to', 'imsi_from', 'imsi_to'], 'required'],
             [['id', 'region_sim_settings_id'], 'integer'],
             [['iccid_from', 'iccid_to'], 'string', 'max' => 16],
             [['imsi_from', 'imsi_to'], 'string', 'max' => 16],
@@ -66,11 +67,11 @@ class Form extends \app\classes\Form
             'imsi_from' => 'IMSI с',
             'imsi_to' => 'IMSI по',
 
-            'imsi_s1_from' => 'IMSI S1 с',
-            'imsi_s1_to' => 'IMSI S1 по',
+            'imsi_s1_from' => 'IMSI S1 с (15 символов)',
+            'imsi_s1_to' => 'IMSI S1 по (15 символов)',
 
-            'imsi_s2_from' => 'IMSI S2 с',
-            'imsi_s2_to' => 'IMSI S2 по',
+            'imsi_s2_from' => 'IMSI S2 с (15 символов)',
+            'imsi_s2_to' => 'IMSI S2 по (15 символов)',
         ];
     }
 

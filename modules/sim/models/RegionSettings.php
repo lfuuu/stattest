@@ -10,7 +10,7 @@ use app\models\Region;
  * @property string $region_name
  * @property string $region_code
  * @property int $iccid_prefix
- * @property int $iccid_region_code
+ * @property string $iccid_region_code
  * @property int $iccid_vendor_code
  * @property int $iccid_range_length
  * @property int $iccid_last_used
@@ -44,11 +44,11 @@ class RegionSettings extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'iccid_prefix', 'iccid_region_code', 'iccid_vendor_code', 'iccid_range_length'], 'integer'],
+            [['id', 'iccid_prefix', 'iccid_vendor_code', 'iccid_range_length'], 'integer'],
             [['iccid_last_used'], 'integer'],
             [['imsi_prefix', 'imsi_region_code', 'imsi_range_length'], 'integer'],
             [['region_id', 'parent_id'], 'integer'],
-            [['region_name', 'region_code'], 'string'],
+            [['region_name', 'region_code', 'iccid_region_code'], 'string'],
         ];
     }
 
@@ -191,5 +191,25 @@ class RegionSettings extends ActiveRecord
         }
 
         return $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getICCIDPrefix()
+    {
+        $settings = $this->getMainParent();
+
+        return sprintf('%s %s %s', $settings->iccid_prefix, $settings->iccid_region_code, $settings->iccid_vendor_code);
+    }
+
+    /**
+     * @return string
+     */
+    public function getIMSIPrefix()
+    {
+        $settings = $this->getMainParent();
+
+        return sprintf('%s %s', $settings->imsi_prefix, $settings->imsi_region_code);
     }
 }
