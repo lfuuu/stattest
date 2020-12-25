@@ -443,11 +443,24 @@ class LkController extends ApiController
             }
 
             return [
+                'provider' => 'sber',
+                'order_url' => 'https://money.yandex.ru/eshop.xml?' . http_build_query([
+                        'scid' => $scId,
+                        'ShopID' => $shopId,
+                        'Sum' => $form->sum,
+                        'CustomerNumber' => $account->id,
+                        'paymentType' => 'AC',
+                    ])
+            ];
+
+            /*
+            return [
                 'provider' => 'yandex',
                 'yandex_shop_id' => $shopId,
                 'yandex_sc_id' => $scId,
                 'account_id' => $account->id
             ];
+            */
         }
 
         $bill = Bill::dao()->getPrepayedBillOnSum($form->account_id, $form->sum, Currency::RUB, $isForceCreate = true);
