@@ -82,18 +82,4 @@ class DidGroupController extends BaseController
 
         return $this->render('edit', ['formModel' => $formModel]);
     }
-
-    /**
-     * Назаначение DID-групп к номерам
-     *
-     * @throws \Exception
-     */
-    public function actionApply()
-    {
-        DidGroup::dao()->applyDidGroupToNumbers();
-
-        Yii::$app->session->addFlash('success', \Yii::t('number', 'The DID-group scheme is applied to the numbers'));
-        return $this->redirect('/tariff/did-group/');
-    }
-
 }
