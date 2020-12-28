@@ -5,8 +5,10 @@ namespace app\modules\sim\controllers;
 use app\classes\BaseController;
 use app\modules\sim\filters\RegistryFilter;
 use app\modules\sim\forms\registry\Form;
+use app\modules\sim\models\RegionSettings;
 use Yii;
 use yii\filters\AccessControl;
+use yii\web\Response;
 
 /**
  * Реест SIM-карт
@@ -29,7 +31,7 @@ class RegistryController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'start', 'cancel', 'restore'],
+                        'actions' => ['add', 'get-region-setting', 'start', 'cancel', 'restore'],
                         'roles' => ['sim.write'],
                     ],
                 ],
@@ -83,6 +85,30 @@ class RegistryController extends BaseController
         return $this->render('add', [
             'model' => $addForm,
         ]);
+    }
+
+    /**
+     * Получение настроек для SIN по региону
+     *
+     * @param $regionSettingsId
+     * @return string
+     */
+    public function actionGetRegionSetting($regionSettingsId)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $result = [];
+        if ($regionSettings = RegionSettings::findOne(['id' => $regionSettingsId])) {
+            $result = [
+                'id' => $regionSettings->id,
+                'iccid_prefix' => $regionSettings->getICCIDPrefix(),
+                'iccid_length' => $regionSettings->iccid_range_length,
+                'imsi_prefix' => $regionSettings->getIMSIPrefix(),
+                'imsi_length' => $regionSettings->imsi_range_length,
+            ];
+        }
+
+        return json_encode($result);
     }
 
     /**

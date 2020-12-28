@@ -237,10 +237,10 @@ class SimController extends ApiInternalController
                     (is_bool($value) ? (int)$value : $value);
         }, $post);
 
-        if (!empty($post['did'])) {
-            $number = Number::findOne(['number' => $post['did']]);
+        if (!empty($post['msisdn'])) {
+            $number = Number::findOne(['number' => $post['msisdn']]);
             if (!$number) {
-                throw new InvalidParamException('Неверный did');
+                throw new InvalidParamException('Неверный msisdn');
             }
 
             if (!RegionSettings::checkIfRegionsEqual($number->region, $card->region_id)) {
