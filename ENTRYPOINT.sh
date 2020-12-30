@@ -65,7 +65,7 @@ sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_nnp
 
 cp db_pgsql_nfdump.local.tpl.php db_pgsql_nfdump.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pgsql_nfdump.local.php
-sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pgsql_nfdump.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_NFDUMP_DB/" db_pgsql_nfdump.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pgsql_nfdump.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pgsql_nfdump.local.php
 

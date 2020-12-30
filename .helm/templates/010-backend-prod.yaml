@@ -128,6 +128,8 @@ spec:
           value: {{ .Values.postgres_prod.host_statistics }}
         - name: POSTGRES_LEGS_HOST
           value: {{ .Values.postgres_prod.host_legs }}
+        - name: POSTGRES_NFDUMP_DB
+          value: {{ .Values.postgres_prod.db_nfdump }}
 {{- if (eq .Values.use_minikube "yes") }}
         - name: POSTGRES_USER
           value: {{ .Values.postgres_prod.user_read_only }}
