@@ -60,6 +60,12 @@ redis_prod:
   host: redis-prod
   port: 6379
 
+graphql_prod:
+  host: graphql-prod
+  path: /graphql-hasura
+  port: 8080
+  enable_console: "true"
+
 logger:
   source: stat
 

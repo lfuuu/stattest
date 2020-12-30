@@ -7,7 +7,7 @@ configVersion: 1
 
 ################################## PRODUCTION ###########################################################
 {{ $_ := env "ENVNAME" | set . "env" }}
-# for lint
+## for lint
 #{{ $_ := set . "env" "prod" }}
 
 {{- if or (eq .env "prod") (eq .env "stage") }}
@@ -350,6 +350,20 @@ docker:
   #CMD: ["redis-server"]
   CMD: ["/bin/sleep","infinity"]
   EXPOSE: "6379"
+---
+image: {{ .project }}-graphql-prod
+from: hasura/graphql-engine:latest
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        pwd
+
+docker:
+  #CMD: ["graphql-engine" "serve"]
+  CMD: ["/bin/sleep","infinity"]
+  EXPOSE: "8080"
 
 ################################## DEV ENVIRONMENT ###########################################################
 {{- else if (eq .env "dev") }}

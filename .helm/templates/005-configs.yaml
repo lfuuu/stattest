@@ -192,6 +192,13 @@ data:
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Real-IP $remote_addr;
         }
+        location {{ .Values.graphql_prod.path }}/ {
+            rewrite    {{ .Values.graphql_prod.path }}/(.*) /$1 break; #used to send request to base url
+            proxy_set_header Host $host;
+            proxy_pass http://{{ .Values.graphql_prod.host }}:{{ .Values.graphql_prod.port }};
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
         # temporary redirect to old stat for ESIA
         location /api/internal/crypto/crypto-pro-sign-message {
             proxy_buffering off; # For performance

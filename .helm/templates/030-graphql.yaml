@@ -1,0 +1,53 @@
+{{- if (eq .Values.global.env "prod") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.graphql_prod.host }}
+spec:
+  selector:
+    matchLabels:
+      service: {{ .Values.graphql_prod.host }}
+  revisionHistoryLimit: 3
+#  strategy:
+#    type: RollingUpdate
+  replicas: 1
+  serviceName: {{ .Values.graphql_prod.host }}
+  template:
+    metadata:
+      labels:
+        ingressInternal: "yes"
+        ingressExternal: "no"
+        service: {{ .Values.graphql_prod.host }}
+    spec:
+      containers:
+        - name: graphql-prod
+          #image: hasura/graphql-engine:latest
+{{ tuple (printf "%s-%s" .Chart.Name "graphql-prod") . | werf_container_image | indent 10 }}
+          command: ["graphql-engine", "serve"]
+          #command: ["/bin/sleep","infinity"]
+          env:
+          - name: HASURA_GRAPHQL_DATABASE_URL
+            value: postgres://{{ .Values.graphql_prod.user }}:{{ .Values.graphql_prod.password }}@{{ .Values.postgres_prod.host }}:{{ .Values.postgres_prod.port }}/{{ .Values.postgres_prod.db }}
+          - name: HASURA_GRAPHQL_ENABLE_CONSOLE
+            value: {{ .Values.graphql_prod.enable_console |quote }}
+          - name: HASURA_GRAPHQL_ADMIN_SECRET
+            value: {{ .Values.graphql_prod.adminpass }}
+          ports:
+          - containerPort: {{ .Values.graphql_prod.port }}
+            protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.graphql_prod.host }}
+  labels:
+    service: {{ .Values.graphql_prod.host }}
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+  selector:
+    service: {{ .Values.graphql_prod.host }}
+{{- else }}
+
+{{- end }}
