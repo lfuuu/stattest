@@ -140,10 +140,6 @@ class AccountLogPeriodTarificator extends Tarificator
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
             $maxDateTo = max($maxDateTo, $accountLogPeriod->date_to);
 
-            echo PHP_EOL . $this->mode;
-            echo PHP_EOL . $accountLogPeriod->accountTariff->tariff_period_id;
-            echo PHP_EOL . '(' . $availBalance . ' - ' .$accountLogPeriod->price.')'.PHP_EOL;
-
             if (
                 $this->mode == 2
                 && $accountLogPeriod->accountTariff
@@ -151,6 +147,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 && ($availBalance - $accountLogPeriod->price) < 0
             ) {
                 echo 'D' . $accountTariff->id;
+                echo PHP_EOL . '(' . $availBalance . ' - ' . $accountLogPeriod->price . ')';
                 // close accountTariff
                 $accountTariff->setClosed();
                 return;
