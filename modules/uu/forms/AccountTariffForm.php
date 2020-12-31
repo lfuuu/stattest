@@ -86,9 +86,9 @@ abstract class AccountTariffForm extends Form
         }
 
         // Обработать submit (создать, редактировать, удалить)
-        Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
+//        Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR);
         $this->loadFromInput($post);
-        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
+//        Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
     }
 
     /**

@@ -99,34 +99,34 @@ class UbillerController extends Controller
         $this->actionSetup();
         $this->actionPeriod();
         $this->actionResource();
-        $this->actionMin();
 
-        $this->sem_start();
+        $this->actionMin();
+//        $this->sem_start();
 
         // проводки
         $this->actionEntry();
 
-        $this->sem_restart();
+//        $this->sem_restart();
 
 		// Не списывать абонентку и минималку (обнулять транзакции) за ВТОРОЙ и последующие периоды при финансовой блокировке
 		// Должно идти после actionEntry (чтобы проводки уже были), но до actionBill (чтобы проводки правильно учлись в счете)
         $this->actionFreePeriodInFinanceBlock();
 
-        $this->sem_restart();
+//        $this->sem_restart();
 
         // счета
         $this->actionBill();
 
-        $this->sem_restart();
+//        $this->sem_restart();
         // Конвертировать счета в старую бухгалтерию
         $this->actionBillConverter();
 
-        $this->sem_restart();
+//        $this->sem_restart();
 
         // пересчитать realtimeBalance
         $this->actionRealtimeBalance();
 
-        $this->sem_stop();
+//        $this->sem_stop();
 
         // Месячную финансовую блокировку заменить на постоянную
         // $this->actionFinanceBlock();
