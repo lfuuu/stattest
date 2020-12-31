@@ -19,6 +19,8 @@ use Yii;
  */
 class AccountLogPeriodTarificator extends Tarificator
 {
+    public $mode = 1; // 1 - main process, without price package, 2 - only price package
+
     const DAYS_IN_MONTH = 30.42; // в среднем по всем месяцам (365 / 12)
     const BATCH_READ_SIZE = 500;
 
@@ -83,6 +85,13 @@ class AccountLogPeriodTarificator extends Tarificator
             /** @var AccountTariff $accountTariff */
             $progress->nextStep();
 
+            if (
+                $accountTariff->isPricePackage()
+                && $this->mode == 1 // обработка платных пакетов только в mode=2
+            ) {
+                continue;
+            }
+
             $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
                 $this->tarificateAccountTariff($accountTariff, $dateTimeOffsetParams);
@@ -111,27 +120,53 @@ class AccountLogPeriodTarificator extends Tarificator
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff, DateTimeOffsetParams $dateTimeOffsetParams = null)
     {
+        static $balances = [];
         $maxDateTo = 0;
 
         $accountTariff->setDateOffsetParams($dateTimeOffsetParams);
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods();
         $accountTariff->setDateOffsetParams(null);
 
-//        $modelsToSave = [];
+        if (!$untarificatedPeriods) {
+            return;
+        }
+
+        if (!isset($balances[$accountTariff->client_account_id])) {
+            $balances[$accountTariff->client_account_id] = $accountTariff->clientAccount->balance + $accountTariff->clientAccount->credit;
+        }
+
+        $availBalance = $balances[$accountTariff->client_account_id];
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
             $maxDateTo = max($maxDateTo, $accountLogPeriod->date_to);
-//            $modelsToSave[] = $accountLogPeriod;
+
+            echo PHP_EOL . $this->mode;
+            echo PHP_EOL . $accountLogPeriod->accountTariff->tariff_period_id;
+            echo PHP_EOL . '(' . $availBalance . ' - ' .$accountLogPeriod->price.')'.PHP_EOL;
+
+            if (
+                $this->mode == 2
+                && $accountLogPeriod->accountTariff
+                && $accountLogPeriod->accountTariff->tariff_period_id
+                && ($availBalance - $accountLogPeriod->price) < 0
+            ) {
+                echo 'D' . $accountTariff->id;
+                // close accountTariff
+                $accountTariff->setClosed();
+                return;
+            }
+
             if (!$accountLogPeriod->save()) {
                 throw new ModelValidationException($accountLogPeriod);
             }
 
             if (abs($accountLogPeriod->price) >= 0.01) {
+                $availBalance -= $accountLogPeriod->price;
+                $balances[$accountTariff->client_account_id] -= $accountLogPeriod->price;
+
                 $this->isNeedRecalc = true;
             }
-
         }
-//        ActiveRecord::batchInsertModels($modelsToSave);
 
         if ($maxDateTo) {
             // обновить дату, до которой списана абонентка

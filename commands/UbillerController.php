@@ -11,6 +11,7 @@ use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\tarificator\AccountEntryTarificator;
 use app\modules\uu\tarificator\AccountLogMinTarificator;
+use app\modules\uu\tarificator\AccountLogPeriodPackageTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
@@ -127,6 +128,8 @@ class UbillerController extends Controller
         $this->actionRealtimeBalance();
 
 //        $this->sem_stop();
+
+        $this->actionPeriodPackage();
 
         // Месячную финансовую блокировку заменить на постоянную
         // $this->actionFinanceBlock();
@@ -254,6 +257,14 @@ class UbillerController extends Controller
     public function actionPeriod()
     {
         $this->executeRater(AccountLogPeriodTarificator::class);
+    }
+
+    /**
+     * Создать транзакции абоненской платы. В платных пакетах. hot 40 секунд / cold 13 минут
+     */
+    public function actionPeriodPackage()
+    {
+        $this->executeRater(AccountLogPeriodPackageTarificator::class);
     }
 
     /**
@@ -533,6 +544,14 @@ SQL;
             $transaction->rollBack();
             throw $e;
         }
-
     }
+
+    public function actionRecalc()
+    {
+        AccountTariffBiller::recalc([
+            'account_tariff_id' => 1009085,
+            'client_account_id' => 108936,
+        ]);
+    }
+
 }
