@@ -11,6 +11,7 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\tarificator\AccountEntryTarificator;
 use app\modules\uu\tarificator\AccountLogMinTarificator;
+use app\modules\uu\tarificator\AccountLogPeriodPackageTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
@@ -118,6 +119,11 @@ class AccountTariffBiller extends Behavior
         }
 
         (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
+
+        $tarificator = (new AccountLogPeriodPackageTarificator());
+        $tarificator->tarificate($accountTariffId);
+        $tarificator->isNeedRecalc && $isNeedRecalc = true;
+
 
         if (!$isIntegrated) {
             Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);

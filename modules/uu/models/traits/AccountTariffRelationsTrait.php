@@ -452,4 +452,16 @@ trait AccountTariffRelationsTrait
         return $log;
     }
 
+    /**
+     * Это пакет телефонии, без продления, если нет денег
+     */
+    public function isPricePackage()
+    {
+        return $this->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS
+        && $this->tariff_period_id
+        && ($this->tariffPeriod->price_per_period > 0
+            || $this->tariffPeriod->price_min > 0)
+        && !$this->tariffPeriod->tariff->is_charge_after_blocking;
+    }
+
 }
