@@ -144,6 +144,8 @@ class AccountLogPeriodTarificator extends Tarificator
                 $this->mode == 2
                 && $accountLogPeriod->accountTariff
                 && $accountLogPeriod->accountTariff->tariff_period_id
+                && $accountLogPeriod->accountTariff->isPricePackage()
+                && $accountLogPeriod->accountTariff->isLogEditable()
                 && ($availBalance - $accountLogPeriod->price) < 0
             ) {
                 echo 'D' . $accountTariff->id;
