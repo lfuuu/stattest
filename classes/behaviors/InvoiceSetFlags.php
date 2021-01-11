@@ -33,6 +33,11 @@ class InvoiceSetFlags extends Behavior
         $invoice->is_invoice = (bool)BillDocument::dao()->me()->_isSF($invoice->bill->client_id, BillDocument::TYPE_INVOICE, $invoiceDate->getTimestamp(), $invoice->type_id);
         $invoice->is_act = (bool)BillDocument::dao()->me()->_isSF($invoice->bill->client_id, BillDocument::TYPE_AKT, $invoiceDate->getTimestamp());
 
+        // за пределами России - только инвойсы
+        if ($invoice->bill->clientAccount->contragent->country_id != Country::RUSSIA) {
+            $invoice->is_invoice = $invoice->is_invoice || $invoice->is_act;
+            $invoice->is_act = false;
+        }
 
         if (!$invoice->pay_bill_until) {
             // для "не россйских" с/ф и при наличии зарегистрированных, дата вычисляется
