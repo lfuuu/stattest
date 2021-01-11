@@ -17,6 +17,7 @@ data:
     expose_php = {{ .Values.php_prod.expose_php }}
 
     max_execution_time = {{ .Values.php_prod.max_execution_time }}
+    max_input_vars=10000
     max_input_time = {{ .Values.php_prod.max_input_time }}
     memory_limit = {{ .Values.php_prod.memory_limit }}
     post_max_size = {{ .Values.php_prod.post_max_size }}
