@@ -148,10 +148,10 @@ class AccountLogPeriodTarificator extends Tarificator
                 && $accountLogPeriod->accountTariff->isLogEditable()
                 && ($availBalance - $accountLogPeriod->price) < 0
             ) {
-                echo 'D' . $accountTariff->id;
-                echo PHP_EOL . '(' . $availBalance . ' - ' . $accountLogPeriod->price . ')';
+                echo PHP_EOL . 'DP' . $accountTariff->id;
+                echo ' (' . $availBalance . ' - ' . $accountLogPeriod->price . ') ';
                 // close accountTariff
-                $accountTariff->setClosed();
+//                $accountTariff->setClosed();
                 return;
             }
 
