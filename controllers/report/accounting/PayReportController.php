@@ -7,6 +7,8 @@ use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\media\ClientFiles;
+use app\exceptions\ModelValidationException;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\models\filter\PayReportFilter;
 use Yii;
@@ -153,6 +155,24 @@ class PayReportController extends BaseController
                 $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
                 $response->content = $this->renderAsPDF('revise', $viewParams);
                 $response->format = Response::FORMAT_RAW;
+
+                // Save file
+                $clientFilesAttr = [
+                    'name' => str_replace(['"'], "",
+                        $contragent->name_full) . ' Акт сверки (на ' . $dateTo . ').pdf',
+                    'ts' => $account->getDatetimeWithTimezone()->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                    'contract_id' => $account->contract_id,
+                    'comment' => $contragent->name_full . ' Акт сверки (на ' . $dateTo . ')',
+                    'user_id' => \Yii::$app->user->identity->id
+                ];
+
+                $clientFiles = new ClientFiles();
+                $clientFiles->setAttributes($clientFilesAttr, false);
+                if (!$clientFiles->save()) {
+                    throw new ModelValidationException($clientFiles);
+                }
+                file_put_contents(Yii::$app->params['STORE_PATH'] . 'files/' . $clientFiles->id, $response->content);
+
                 Yii::$app->end();
 
                 break;
