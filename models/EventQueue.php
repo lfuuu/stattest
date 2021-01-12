@@ -200,6 +200,7 @@ class EventQueue extends ActiveRecord
         UuModule::EVENT_DELETE_LIGHT => 'УУ. Удалить пакет телефонии',
         UuModule::EVENT_CLOSE_LIGHT => 'УУ. Закрыть пакет телефонии',
         UuModule::EVENT_UU_SWITCHED_ON => 'УУ включена',
+        UuModule::EVENT_SIPTRUNK_SYNC => 'SIP-транк. Синхронизация',
 
         NnpModule::EVENT_IMPORT => 'ННП. Импорт страны',
         NnpModule::EVENT_LINKER => 'ННП. Линковка исходных к ID',
