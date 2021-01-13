@@ -6,6 +6,7 @@ use app\classes\HttpClient;
 use app\modules\uu\models\AccountTariff;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
+use yii\db\Query;
 
 class ClientSearch extends ClientAccount
 {
@@ -139,15 +140,41 @@ class ClientSearch extends ClientAccount
 
         if ($this->voip) {
 
-            $query->leftJoin(['base_voip' => UsageVoip::tableName()], 'base_voip.client = client.client');
-            $query->leftJoin(['uu_voip' => AccountTariff::tableName()], 'uu_voip.client_account_id = client.id');
+            // search direct number
+            $isDirect = AccountTariff::find()->where(['voip_number' => $this->voip])->exists();
+            if (!$isDirect) {
+                $isDirect = UsageVoip::find()->where(['e164' => $this->voip])->exists();
+            }
 
-            $query->andFilterWhere(['OR',
-                ['LIKE', 'base_voip.e164', $this->voip],
-                ['LIKE', 'uu_voip.voip_number', $this->voip]
-            ]);
+            if ($isDirect) {
+                $queryNumbers = UsageVoip::find()
+                    ->alias('uv')
+                    ->where(['uv.e164' => $this->voip])
+                    ->select([
+                        'client_id' => 'c.id',
+                        'actual_from',
+                    ])
+                    ->joinWith('clientAccount c', true, 'INNER JOIN')
+                    ->union(
+                        AccountTariff::find()
+                            ->where(['voip_number' => $this->voip])
+                            ->select([
+                                'client_id' => 'client_account_id',
+                                'actual_from' => 'insert_time',
+                            ])
+                    );
+                $query->innerJoin(['a' => $queryNumbers], 'a.client_id = client.id');
+            } else {
+                $query->leftJoin(['base_voip' => UsageVoip::tableName()], 'base_voip.client = client.client');
+                $query->leftJoin(['uu_voip' => AccountTariff::tableName()], 'uu_voip.client_account_id = client.id');
 
-            $query->orderBy(new Expression('coalesce(base_voip.actual_from, uu_voip.insert_time) desc'));
+                $query->andFilterWhere(['OR',
+                    ['LIKE', 'base_voip.e164', $this->voip],
+                    ['LIKE', 'uu_voip.voip_number', $this->voip]
+                ]);
+
+                $query->orderBy(new Expression('coalesce(base_voip.actual_from, uu_voip.insert_time) desc'));
+            }
         }
 
         if ($this->ip) {
