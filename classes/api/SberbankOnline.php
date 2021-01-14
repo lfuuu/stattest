@@ -8,6 +8,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Payment;
+use app\modules\uu\models\AccountTariff;
 use yii\web\Response;
 
 class SberbankOnline
@@ -96,8 +97,20 @@ class SberbankOnline
          * sum=1.00        – сумма к зачислению на лицевой счет Плательщика
          */
 
+        $voipAccountId = AccountTariff::find()
+            ->where(['voip_number' => ($data['account'] ?? 0)])
+            ->andWhere(['NOT', ['tariff_period_id' => null]])
+            ->select('client_account_id')
+            ->scalar();
+
+        $account = ClientAccount::find()
+            ->where([
+                'id' => ($voipAccountId ? $voipAccountId : $data['account'] ?? 0)
+            ])
+            ->one();
+
         /** @var ClientAccount $account */
-        if ($account = ClientAccount::find()->where(['id' => ($data['account'] ?? 0)])->one()) {
+        if ($account) {
             $data['account_obj'] = $account;
             return [
                 'txn_id' => $data['txn_id'],
