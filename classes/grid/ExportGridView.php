@@ -155,7 +155,7 @@ class ExportGridView extends GridView
      */
     public static function getPath()
     {
-        $path = Yii::getAlias('@runtime/reports/');
+        $path = Yii::$app->params['STORE_PATH'] . 'reports/';
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
         }
