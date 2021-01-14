@@ -213,118 +213,119 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета
-//        foreach ($R2 as $kp => $r) {
-//            if ($r['sum'] < 0.01) {
-//                continue;
-//            }
-//
-//            if ($r['bill_no'] == '') {
-//                continue;
-//            }
-//
-//            $bill_no = $r['bill_no'];
-//
-//            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
-//                if ($this->_sumMore($r['sum'], $R1[$bill_no]['sum'])) {
-//                    $sum = round($R1[$bill_no]['sum'], 2);
-//
-//                    $paymentsOrders[] = [
-//                        'payment_id' => $r['id'],
-//                        'bill_no' => $bill_no,
-//                        'sum' => $sum,
-//                    ];
-//
-//
-//                    $R2[$kp]['sum'] -= $sum;
-//
-//                    if ($R2[$kp]['sum'] < 0.01) {
-//                        $R2[$kp]['sum'] = 0;
-//                    }
-//
-//                    $R1[$bill_no]['new_is_payed'] = 1;
-//                    $R1[$bill_no]['sum'] = 0;
-//
-//                } elseif ($r['sum'] >= 0.01) {
-//
-//                    $sum = $r['sum'];
-//
-//                    $paymentsOrders[] = [
-//                        'payment_id' => $r['id'],
-//                        'bill_no' => $bill_no,
-//                        'sum' => $sum,
-//                    ];
-//
-//                    $R2[$kp]['sum'] = 0;
-//
-//                    $R1[$bill_no]['new_is_payed'] = 2;
-//                    $R1[$bill_no]['sum'] -= $sum;
-//
-//                    if ($R1[$bill_no]['sum'] < 0.01) {
-//                        $R1[$bill_no]['sum'] = 0;
-//                        $R1[$bill_no]['new_is_payed'] = 1;
-//                    }
-//                }
-//            }
-//        }
+        // в магазине оплата привязывается с счету, у всех остальных - привязки нет - оплата размазывается
+        if ($clientAccount->contract->business_id == Business::INTERNET_SHOP) { // магазин
+            // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета
+            foreach ($R2 as $kp => $r) {
+                if ($r['sum'] < 0.01) {
+                    continue;
+                }
 
-        // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета ПРИВЯЗКИ.
-        // Новых счетов с привязкой не будет. Нужно для совместимости
-//        foreach ($R2 as $kp => $r) {
-//            if ($r['sum'] < 0.01) {
-//                continue;
-//            }
-//
-//            $bill_no = $r['bill_vis_no'];
-//
-//            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
-//                if ($this->_sumMore($r['sum'], $R1[$bill_no]['sum'])) {
-//                    $sum = round($R1[$bill_no]['sum'], 2);
-//
-//                    if (abs($sum) >= 0.01) {
-//                        $paymentsOrders[] = [
-//                            'payment_id' => $r['id'],
-//                            'bill_no' => $bill_no,
-//                            'sum' => $sum,
-//                        ];
-//                    }
-//
-//
-//                    $R2[$kp]['sum'] -= $sum;
-//
-//                    if ($R2[$kp]['sum'] < 0.01) {
-//                        $R2[$kp]['sum'] = 0;
-//                    }
-//
-//
-//                    $R1[$bill_no]['new_is_payed'] = 1;
-//                    $R1[$bill_no]['sum'] = 0;
-//
-//                } elseif ($r['sum'] >= 0.01) {
-//                    $sum = $r['sum'];
-//
-//                    if (abs($sum) >= 0.01) {
-//                        $paymentsOrders[] = [
-//                            'payment_id' => $r['id'],
-//                            'bill_no' => $bill_no,
-//                            'sum' => $sum,
-//                        ];
-//                    }
-//
-//                    $R2[$kp]['sum'] = 0;
-//
-//                    $R1[$bill_no]['new_is_payed'] = 2;
-//                    $R1[$bill_no]['sum'] -= $sum;
-//
-//                    if ($R1[$bill_no]['sum'] < 0.01) {
-//                        $R1[$bill_no]['sum'] = 0;
-//                        $R1[$bill_no]['new_is_payed'] = 1;
-//                    }
-//                }
-//            }
-//        }
+                if ($r['bill_no'] == '') {
+                    continue;
+                }
 
-        if ($clientAccount->contract->business_id != Business::INTERNET_SHOP) { // не магазин
+                $bill_no = $r['bill_no'];
+
+                if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
+                    if ($this->_sumMore($r['sum'], $R1[$bill_no]['sum'])) {
+                        $sum = round($R1[$bill_no]['sum'], 2);
+
+                        $paymentsOrders[] = [
+                            'payment_id' => $r['id'],
+                            'bill_no' => $bill_no,
+                            'sum' => $sum,
+                        ];
+
+
+                        $R2[$kp]['sum'] -= $sum;
+
+                        if ($R2[$kp]['sum'] < 0.01) {
+                            $R2[$kp]['sum'] = 0;
+                        }
+
+                        $R1[$bill_no]['new_is_payed'] = 1;
+                        $R1[$bill_no]['sum'] = 0;
+
+                    } elseif ($r['sum'] >= 0.01) {
+
+                        $sum = $r['sum'];
+
+                        $paymentsOrders[] = [
+                            'payment_id' => $r['id'],
+                            'bill_no' => $bill_no,
+                            'sum' => $sum,
+                        ];
+
+                        $R2[$kp]['sum'] = 0;
+
+                        $R1[$bill_no]['new_is_payed'] = 2;
+                        $R1[$bill_no]['sum'] -= $sum;
+
+                        if ($R1[$bill_no]['sum'] < 0.01) {
+                            $R1[$bill_no]['sum'] = 0;
+                            $R1[$bill_no]['new_is_payed'] = 1;
+                        }
+                    }
+                }
+            }
+
+            // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета ПРИВЯЗКИ.
+            // Новых счетов с привязкой не будет. Нужно для совместимости
+            foreach ($R2 as $kp => $r) {
+                if ($r['sum'] < 0.01) {
+                    continue;
+                }
+
+                $bill_no = $r['bill_vis_no'];
+
+                if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
+                    if ($this->_sumMore($r['sum'], $R1[$bill_no]['sum'])) {
+                        $sum = round($R1[$bill_no]['sum'], 2);
+
+                        if (abs($sum) >= 0.01) {
+                            $paymentsOrders[] = [
+                                'payment_id' => $r['id'],
+                                'bill_no' => $bill_no,
+                                'sum' => $sum,
+                            ];
+                        }
+
+
+                        $R2[$kp]['sum'] -= $sum;
+
+                        if ($R2[$kp]['sum'] < 0.01) {
+                            $R2[$kp]['sum'] = 0;
+                        }
+
+
+                        $R1[$bill_no]['new_is_payed'] = 1;
+                        $R1[$bill_no]['sum'] = 0;
+
+                    } elseif ($r['sum'] >= 0.01) {
+                        $sum = $r['sum'];
+
+                        if (abs($sum) >= 0.01) {
+                            $paymentsOrders[] = [
+                                'payment_id' => $r['id'],
+                                'bill_no' => $bill_no,
+                                'sum' => $sum,
+                            ];
+                        }
+
+                        $R2[$kp]['sum'] = 0;
+
+                        $R1[$bill_no]['new_is_payed'] = 2;
+                        $R1[$bill_no]['sum'] -= $sum;
+
+                        if ($R1[$bill_no]['sum'] < 0.01) {
+                            $R1[$bill_no]['sum'] = 0;
+                            $R1[$bill_no]['new_is_payed'] = 1;
+                        }
+                    }
+                }
+            }
+        } else { // не магазин
 
             // Раскидываем остатки оплаты по неоплаченным счетам
             foreach ($R2 as $kp => $r) {
