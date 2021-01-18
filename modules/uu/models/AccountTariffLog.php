@@ -237,6 +237,7 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
+        /*
         if (!$this->tariff_period_id
             && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())
             // менеджеру в Стате разрешено отключать услуги раньше срока
@@ -246,6 +247,7 @@ class AccountTariffLog extends ActiveRecord
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
             return;
         }
+        */
 
         Yii::trace('AccountTariffLog. After validatorFuture', 'uu');
     }
