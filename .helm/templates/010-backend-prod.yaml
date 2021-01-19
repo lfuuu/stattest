@@ -251,6 +251,8 @@ spec:
           value: {{ .Values.sbis_tenzor_prod.login }}
         - name: SBIS_PASSWORD
           value: {{ .Values.sbis_tenzor_prod.password }}
+        - name: CRYPTOPRO_HOST
+          value: {{ .Values.cryptopro_prod.host }}
 {{ tuple . | werf_container_env | indent 8 }}
       volumes:
       - name: config-volume

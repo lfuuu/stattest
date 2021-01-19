@@ -15,7 +15,7 @@ use Yii;
 class CryptoController extends ApiInternalController
 {
     const STORE_PATH = 'files/crypto/messages';
-    const CRYPTO_PRO_SIGN_COMMAND = 'ssh root@cryptopro-prod /opt/cprocsp/bin/amd64/cryptcp -signf -dir "{fileDir}" -der -strict -cert -detached -thumbprint "{thumbprint}" -pin "{pin}" "{file}"';
+    const CRYPTO_PRO_SIGN_COMMAND = 'ssh root@cryptopro-prod /opt/cprocsp/bin/amd64/cryptcp -signf -dir {fileDir} -der -strict -cert -detached -thumbprint {thumbprint} {pin} {file}';
 
     /**
      * Получить путь к хранилищу
@@ -85,7 +85,9 @@ class CryptoController extends ApiInternalController
         $message = $this->requestData['message'] ?? '';
 
         $thumbprint = $this->requestData['thumbprint'] ?? '';
-        $privateKeyPassword = $this->requestData['private_key_password'] ?? '';
+        if ($privateKeyPassword = $this->requestData['private_key_password'] ?? '') {
+            $privateKeyPassword = sprintf('-pin %s', $privateKeyPassword);
+        }
 
         if (!$message || !$thumbprint) {
             throw new BadRequestHttpException;
