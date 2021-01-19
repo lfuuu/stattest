@@ -534,3 +534,36 @@ data:
         "host": {{ .Values.redis_prod.host | quote }}
       }
     }
+
+  cryptopro-start.sh: |
+    #!/bin/bash
+
+    # Установка Лицензии МСН Телеком на программу КриптоПро
+    # Просмотр лицензии /opt/cprocsp/sbin/amd64/cpconfig -license -view
+    /opt/cprocsp/sbin/amd64/cpconfig -license -set {{ .Values.cryptopro_prod.license }}
+
+    # Экспорт сертификатов из конфигмап Кубернейтиса.
+    # Просмотр командой /opt/cprocsp/bin/amd64/certmgr -list
+    wget --user={{ .Values.cryptopro_prod.remote_crt_user }} --password={{ .Values.cryptopro_prod.remote_crt_password }} {{ .Values.cryptopro_prod.remote_crt_url }}
+    tar xf crt.tar.gz crt/
+    cp -rp /root/crt/* /var/opt/cprocsp/keys/root/
+    echo 1|/opt/cprocsp/bin/amd64/cryptcp -CSPcert
+    echo 2|/opt/cprocsp/bin/amd64/cryptcp -CSPcert
+
+    mkdir /root/.ssh
+
+    cp -rp /root/id_rsa.pub /root/.ssh/authorized_keys
+    cp -rp /root/id_rsa /etc/ssh/ssh_host_rsa_key
+
+    chmod 600 /etc/ssh/ssh_host_rsa_key /root/.ssh/authorized_keys
+
+    /usr/sbin/sshd -D
+
+  cryptopro-id_rsa: |
+{{ .Values.cryptopro_prod.id_rsa | indent 4 }}
+
+  php-fpm-cryptopro-id_rsa.pub: |
+    {{ .Values.cryptopro_prod.id_rsa_pub }}
+
+  php-fpm-cryptopro-known_hosts: |
+    {{ .Values.cryptopro_prod.known_hosts }}

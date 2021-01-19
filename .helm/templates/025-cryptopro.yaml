@@ -1,0 +1,93 @@
+{{- if (eq .Values.global.env "prod") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.cryptopro_prod.host }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{ .Values.cryptopro_prod.host }}
+  revisionHistoryLimit: 3
+  template:
+    metadata:
+      labels:
+        ingressInternal: "yes"
+        ingressExternal: "no"
+        service: {{ .Values.cryptopro_prod.host }}
+    spec:
+      containers:
+      - name: cryptopro-prod
+{{ tuple (printf "%s-%s" .Chart.Name "cryptopro-prod") . | werf_container_image | indent 8 }}
+        command: ["sh","-c","cp /root/start.sh /root/run.sh && chmod a+x /root/run.sh && /root/run.sh"]
+        #command: ["/bin/sleep","infinity"]
+        env:
+          - name: container
+            value: docker
+        ports:
+          - containerPort: {{ .Values.cryptopro_prod.port }}
+            protocol: TCP
+        volumeMounts:
+          - name: config-volume
+            subPath: cryptopro-start.sh
+            mountPath: /root/start.sh
+          - name: config-volume
+            subPath: cryptopro-id_rsa
+            mountPath: /root/id_rsa
+          - name: config-volume
+            subPath: php-fpm-cryptopro-id_rsa.pub
+            mountPath: /root/id_rsa.pub
+          - name: store-cryptopro
+            mountPath: {{ .Values.ci_dir_home }}/store
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .Chart.Name }}-config-files
+      - name: store-cryptopro
+        persistentVolumeClaim:
+          claimName: nfs-pvc-cryptopro-store
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nfs-pvc-cryptopro-store
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-cryptopro-store
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: tiberis.mcn.ru
+    path: /home/httpd/stat.mcn.ru/store
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.cryptopro_prod.host }}
+  labels:
+    service: {{ .Values.cryptopro_prod.host }}
+spec:
+  ports:
+    - name: {{ .Values.cryptopro_prod.port | quote}}
+      port: {{ .Values.cryptopro_prod.port }}
+  selector:
+    service: {{ .Values.cryptopro_prod.host }}
+{{- else }}
+
+{{- end }}

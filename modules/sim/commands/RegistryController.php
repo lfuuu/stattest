@@ -151,7 +151,7 @@ class RegistryController extends Controller
 
         if ($statistic = $simCardsUnknownQuery->column()) {
             $this->logLine('***');
-            $this->logLine('!!! UNKOWN SIM CARDS !!!');
+            $this->logLine('!!! UNKNOWN SIM CARDS !!!');
             foreach ($simCardsUnknownQuery->column() as $iccidPrefix => $count) {
                 $this->logLine(
                     sprintf(

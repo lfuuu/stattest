@@ -66,6 +66,10 @@ graphql_prod:
   port: 8080
   enable_console: "true"
 
+cryptopro_prod:
+  host: cryptopro-prod
+  port: 22
+
 logger:
   source: stat
 

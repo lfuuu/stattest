@@ -244,7 +244,7 @@ class SimController extends ApiInternalController
             }
 
             if (!RegionSettings::checkIfRegionsEqual($number->region, $card->region_id)) {
-                throw new InvalidParamException('Регион номера и регион SIM-карты не совметимы');
+                throw new InvalidParamException('Регион номера и регион SIM-карты не совместимы');
             }
         }
 

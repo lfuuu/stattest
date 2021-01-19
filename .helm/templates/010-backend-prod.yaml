@@ -6,8 +6,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-      matchLabels:
-        app: {{ .Chart.Name }}-backend-prod
+    matchLabels:
+      app: {{ .Chart.Name }}-backend-prod
   strategy:
     type: RollingUpdate
   template:
@@ -92,6 +92,12 @@ spec:
         - name: config-volume
           subPath: php-fpm.www.conf
           mountPath: /usr/local/etc/php-fpm.d/www2.conf
+        - name: config-volume
+          subPath: cryptopro-id_rsa
+          mountPath: /root/id_rsa
+        - name: config-volume
+          subPath: php-fpm-cryptopro-known_hosts
+          mountPath: /root/known_hosts
         - name: store
           mountPath: {{ .Values.ci_dir_home }}/store
         - name: assets

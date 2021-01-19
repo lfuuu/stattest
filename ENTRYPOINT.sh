@@ -1,5 +1,24 @@
 #!/bin/sh
 
+# ssh for cryptopro, root
+cp -rp /root/id_rsa /root/.ssh
+cp -rp /root/known_hosts /root/.ssh
+chmod 0600 /root/.ssh/id_rsa
+chmod u+w /root/.ssh/known_hosts
+
+# first run to test with root
+ssh cryptopro-prod "/opt/cprocsp/sbin/amd64/cpconfig -license -view"
+
+# ssh for cryptopro, www-data
+cp -rp /root/id_rsa /home/www-data/.ssh
+cp -rp /root/known_hosts /home/www-data/.ssh
+chmod 0600 /home/www-data/.ssh/id_rsa
+chmod u+w /home/www-data/.ssh/known_hosts
+chown -R www-data:www-data /home/www-data/.ssh/
+
+# first run to test with www-data
+#ssh root@cryptopro-prod "/opt/cprocsp/sbin/amd64/cpconfig -license -view"
+
 DIR_STAT="$DIR_HOME/stat"
 
 cd $DIR_STAT/config/

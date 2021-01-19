@@ -154,6 +154,10 @@ ansible:
         chown -R www-data:www-data /run/php-fpm/
         mkdir -p /var/lib/php/session
         chown -R www-data:www-data /var/lib/php/session
+        # ssh for cryptopro
+        mkdir /root/.ssh/
+        mkdir /home/www-data/.ssh/
+        apk add openssh-client
   install:
     - name: "Php-fpm: 2. Configs"
       shell: |
@@ -364,6 +368,40 @@ docker:
   #CMD: ["graphql-engine" "serve"]
   CMD: ["/bin/sleep","infinity"]
   EXPOSE: "8080"
+---
+image: {{ .project }}-cryptopro-prod
+from: centos:7
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        yum install -y wget nano
+        ENV container docker
+        cd /lib/systemd/system/sysinit.target.wants
+        for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done
+        rm -f /lib/systemd/system/multi-user.target.wants/*
+        rm -f /etc/systemd/system/*.wants/*
+        rm -f /lib/systemd/system/local-fs.target.wants/*
+        rm -f /lib/systemd/system/sockets.target.wants/*udev*
+        rm -f /lib/systemd/system/sockets.target.wants/*initctl*
+        rm -f /lib/systemd/system/basic.target.wants/*
+        rm -f /lib/systemd/system/anaconda.target.wants/*
+        yum install lsb-core-noarch openssh-server openssh -y
+        # Установка Cryptopro
+        cd /root
+        wget http://ngtbackup.mcn.ru/cprocsp-pki-2.0.0-amd64-cades.rpm
+        wget http://ngtbackup.mcn.ru/linux-amd64_deb.tgz
+        tar xf linux-amd64_deb.tgz
+        cd /root/linux-amd64
+        ./install.sh
+
+docker:
+  USER: root
+  WORKDIR: /root
+  CMD: ["/root/start.sh"]
+  #CMD: ["/bin/sleep","infinity"]
+  EXPOSE: "22"
 
 ################################## DEV ENVIRONMENT ###########################################################
 {{- else if (eq .env "dev") }}
