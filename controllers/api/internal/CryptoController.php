@@ -129,10 +129,4 @@ class CryptoController extends ApiInternalController
             'signature' => $signature,
         ];
     }
-
-    // temporary for test
-    public function actionCryptoProSignTest()
-    {
-        return $this->actionCryptoProSignMessage();
-    }
 }
