@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\classes\Assert;
+use app\classes\voip\EmptyNumberFiller;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsRaw;
@@ -504,5 +505,27 @@ class NumberController extends Controller
                 echo PHP_EOL . $number;
             }
         }
+    }
+
+    public function actionFillNonUsedNumbers()
+    {
+        $e = new EmptyNumberFiller();
+
+        \Yii::$app->db->createCommand('truncate voip_service_empty')->execute();
+
+        $all = $e->get();
+        array_walk($all, function (&$a) {
+            $a = [$a['number'], $a['client_id'], $a['activation_dt'], $a['expire_dt'] ?: null];
+        });
+
+        \Yii::$app->db
+            ->createCommand()
+            ->batchInsert('voip_service_empty', [
+                'number',
+                'client_id',
+                'activation_dt',
+                'expire_dt'
+            ], $all)
+            ->execute();
     }
 }
