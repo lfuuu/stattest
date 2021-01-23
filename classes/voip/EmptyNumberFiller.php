@@ -20,7 +20,7 @@ class EmptyNumberFiller
 
             for ($phone = $range['from']; $phone <= $range['to']; $phone++) {
 
-//                if ($phone != 74992130104) {
+//                if ($phone != 74997060065) {
 //                    continue;
 //                }
 
@@ -35,23 +35,22 @@ class EmptyNumberFiller
                         'client_id' => 47197,
                         'number' => $phone,
                         'activation_dt' => $date,
-                        'expire_dt' => ''
+                        'expire_dt' => '',
+                        'type' => 'start',
                     ];
                     continue;
                 }
 
-                $numberUsages = $usages[$phone];
+                $numberUsages = $this->fm($usages[$phone]);
 
-                $numberUsages = $this->fm($numberUsages);
-
-                $first = reset($numberUsages);
-
+                $first = reset($usages[$phone]);
                 if ($first['activation_dt'] > $date) {
                     $data[] = [
                         'client_id' => 47197,
                         'number' => $phone,
                         'activation_dt' => $date,
-                        'expire_dt' => (new \DateTimeImmutable($first['activation_dt']))->modify('-1 second')->format('Y-m-d H:i:s')
+                        'expire_dt' => (new \DateTimeImmutable($first['activation_dt']))->modify('-1 second')->format('Y-m-d H:i:s'),
+                        'type' => 'first',
                     ];
                 }
 
@@ -64,7 +63,8 @@ class EmptyNumberFiller
                         'client_id' => 47197,
                         'number' => $phone,
                         'activation_dt' => (new \DateTimeImmutable($last['expire_dt']))->modify('+1 second')->format('Y-m-d H:i:s'),
-                        'expire_dt' => ''
+                        'expire_dt' => '',
+                        'type' => 'end',
                     ];
                 }
             }
@@ -77,7 +77,7 @@ class EmptyNumberFiller
     {
         $data = [];
         foreach ($numberUsages as $idx => $usage) {
-            $data[] = $usage;
+//            $data[] = $usage;
 
             if (isset($numberUsages[$idx+1])) {
                 $dtExp1 = new \DateTimeImmutable($usage['expire_dt']);
@@ -89,6 +89,7 @@ class EmptyNumberFiller
                         'number' => $usage['number'],
                         'activation_dt' => ($dtExp1)->modify('+1 second')->format('Y-m-d H:i:s'),
                         'expire_dt' => ($dtAct2)->modify('-1 second')->format('Y-m-d H:i:s'),
+                        'type' => 'middle',
                     ];
                 }
             }
@@ -210,7 +211,7 @@ SQL;
 
         $data = [];
         foreach ($all as $v) {
-//            if ($v['number'] != 74992130104) {
+//            if ($v['number'] != 74997060065) {
 //                continue;
 //            }
 
