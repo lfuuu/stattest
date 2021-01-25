@@ -164,8 +164,8 @@ FROM (
            AND u.voip_number = v.number
            AND c.id = u.client_account_id
            AND service_type_id = 2
-         HAVING activation_dt IS NULL
-             OR activation_dt > '2017-12-01 00:00:00'
+         HAVING expire_dt IS NULL
+             OR expire_dt > '2017-12-01 00:00:00'
      ) a
 SQL;
 
