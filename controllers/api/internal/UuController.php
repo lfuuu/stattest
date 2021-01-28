@@ -709,6 +709,7 @@ class UuController extends ApiInternalController
                 'organizations' => $this->_getIdNameRecord($tariff->organizations, 'organization_id'),
                 'voip_package_minute' => null, //$this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic),
                 'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices, $tariff->id) ?: $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp),
+                'voip_package_price_prices' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp, true),
                 'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
             ];
 
@@ -845,9 +846,10 @@ class UuController extends ApiInternalController
 
     /**
      * @param PackagePricelistNnp[] $packagePriceLists
+     * @param bool $isNames - только имена и id прайс-листов
      * @return array
      */
-    private function _getVoipPackagePriceV2Record($packagePriceLists)
+    private function _getVoipPackagePriceV2Record($packagePriceLists, $isNames = false)
     {
         if (!$packagePriceLists) {
             return null;
@@ -855,7 +857,11 @@ class UuController extends ApiInternalController
 
         $result = [];
         foreach ($packagePriceLists as $packagePriceList) {
-            $result = array_merge($result, Pricelist::getVoipPackagePriceV2Record($packagePriceList->nnp_pricelist_id));
+            if ($isNames) {
+                $result[] = $this->_getIdNameRecord($packagePriceList->pricelistNnp);
+            } else {
+                $result = array_merge($result, Pricelist::getVoipPackagePriceV2Record($packagePriceList->nnp_pricelist_id));
+            }
         }
 
         return $result;
@@ -1795,7 +1801,7 @@ class UuController extends ApiInternalController
 
         !isset($post['is_create_user']) && $post['is_create_user'] = true;
         $post['is_create_user'] = (int)(bool)$post['is_create_user'];
-        
+
 
         $sem = Semaphore::me();
         $sem->acquire(Semaphore::ID_UU_CALCULATOR);
