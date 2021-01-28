@@ -154,7 +154,7 @@ class SberbankOnline
                 'oper_date' => $paymentDate->format(DateTimeZoneHelper::DATE_FORMAT),
                 'payment_rate' => 1,
                 'type' => Payment::TYPE_ECASH,
-                'ecash_operator' => Payment::ECASH_SBERBANK_ONLINE,
+                'ecash_operator' => Payment::ECASH_SBERBANK_ONLINE_MOBILE,
                 'sum' => $data['sum'],
                 'currency' => $bill->currency,
                 'original_sum' => $data['sum'],
