@@ -65,6 +65,8 @@ class ServiceType extends ActiveRecord
     const ID_BILLING_API = 32; //Билинг API
     const ID_BILLING_API_MAIN_PACKAGE = 33; // Билинг API. Основной пакет.
 
+    const ID_CHAT_BOT = 34;
+
     const CLOSE_AFTER_DAYS = 60;
 
     public static $packages = [

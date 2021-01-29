@@ -179,9 +179,9 @@ class NumberController extends BaseController
         ];
 
         $numbers = isset($post['numbers']) ? json_decode($post['numbers']) : [];
-        $status = $post['status'] ??  null;
-        $beautyLevel = $post['beauty-level'] ??  null;
-        $didGroupId = $post['did_group_id'] ??  null;
+        $status = $post['status'] ?? null;
+        $beautyLevel = $post['beauty-level'] ?? null;
+        $didGroupId = $post['did_group_id'] ?? null;
 
         $action = '';
         foreach ([NumberFilter::ACTION_SET_STATUS, NumberFilter::ACTION_SET_BEAUTY_LEVEL, NumberFilter::ACTION_SET_DID_GROUP] as $action) {

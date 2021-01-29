@@ -350,6 +350,32 @@ SQL;
                     'is_delete' => $isDelete,
                 ]);
                 break;
+
+
+            case ServiceType::ID_CHAT_BOT:
+                // call chat
+                switch ($eventType) {
+                    case ImportantEventsNames::UU_SWITCHED_ON:
+                        // создать
+                        EventQueue::go(\app\modules\uu\Module::EVENT_CHAT_BOT_CREATE, [
+                            'client_account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
+
+                    case ImportantEventsNames::UU_SWITCHED_OFF:
+                        // удалить
+                        EventQueue::go(\app\modules\uu\Module::EVENT_CHAT_BOT_REMOVE. [
+                            'client_account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
+
+                    default:
+                        // сменить тариф - не обрабатывается
+                        break;
+                }
+                break;
         }
     }
 
