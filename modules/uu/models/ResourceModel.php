@@ -85,6 +85,8 @@ class ResourceModel extends ActiveRecord
     const ID_CALLLIMIT = 46;
     const ID_ALLOW_DIVERSION = 47;
 
+    const ID_BOT = 54;
+
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
 
