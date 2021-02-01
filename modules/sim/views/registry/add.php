@@ -117,6 +117,7 @@ echo Html::formLabel($this->title);
                     Html::tag('span', '-',['class'=>'label_iccid_length'])
             ),
             'options' => [
+                'id' => 'registry_add_iccid_from',
                 'class' => 'formReloadOnLostFocus',
                 'style'=>'width:150px',
             ],
@@ -132,6 +133,7 @@ echo Html::formLabel($this->title);
                 Html::tag('span', '-',['class'=>'label_iccid_length'])
             ),
             'options' => [
+                'id' => 'registry_add_iccid_to',
                 'class' => 'formReloadOnLostFocus',
                 'style'=>'width:150px',
             ],
@@ -157,6 +159,7 @@ echo Html::formLabel($this->title);
                 Html::tag('span', '-',['class'=>'label_imsi_length'])
             ),
             'options' => [
+                'id' => 'registry_add_imsi_from',
                 'class' => 'formReloadOnLostFocus',
                 'style'=>'width:150px',
             ],
@@ -172,6 +175,7 @@ echo Html::formLabel($this->title);
                 Html::tag('span', '-',['class'=>'label_imsi_length'])
             ),
             'options' => [
+                'id' => 'registry_add_imsi_to',
                 'class' => 'formReloadOnLostFocus',
                 'style'=>'width:150px',
             ],

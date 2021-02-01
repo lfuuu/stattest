@@ -19,6 +19,13 @@ class SimController extends ApiInternalController
 {
     const DEFAULT_LIMIT = 50;
     const MAX_LIMIT = 100;
+    const EDIT_CARD_ERROR_CODE_WRONG_CARD = 1;
+    const EDIT_CARD_ERROR_CODE_WRONG_IMSI = 2;
+    const EDIT_CARD_ERROR_CODE_NUMBER_NOT_FOUND = 3;
+    const EDIT_CARD_ERROR_CODE_WRONG_REGION = 4;
+    const EDIT_CARD_ERROR_CODE_NUMBER_NOT_MCN = 5;
+    const EDIT_CARD_ERROR_CODE_NUMBER_NO_DATA = 6;
+    const EDIT_CARD_ERROR_CODE_NUMBER_OCCUPIED = 7;
 
     use IdNameRecordTrait;
 
@@ -221,12 +228,12 @@ class SimController extends ApiInternalController
     {
         $card = Card::findOne(['iccid' => $iccid, 'client_account_id' => $client_account_id]);
         if (!$card) {
-            throw new InvalidParamException('Неправильные параметры iccid / client_account_id');
+            throw new InvalidParamException('Не найдена карта по iccid и client_account_id', self::EDIT_CARD_ERROR_CODE_WRONG_CARD);
         }
 
         $imsies = $card->imsies;
         if (!isset($imsies[$imsi])) {
-            throw new InvalidParamException('Неправильные параметры imsi');
+            throw new InvalidParamException('Неправильные параметры imsi - нет такой imsi для данного iccid', self::EDIT_CARD_ERROR_CODE_WRONG_IMSI);
         }
 
         $post = Yii::$app->request->post();
@@ -238,13 +245,30 @@ class SimController extends ApiInternalController
         }, $post);
 
         if (!empty($post['msisdn'])) {
-            $number = Number::findOne(['number' => $post['msisdn']]);
+            $msisdn = $post['msisdn'];
+
+            $number = Number::findOne(['number' => $msisdn]);
             if (!$number) {
-                throw new InvalidParamException('Неверный msisdn');
+                throw new InvalidParamException('Неверный msisdn, не найден в voip_numbers', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_FOUND);
             }
 
             if (!RegionSettings::checkIfRegionsEqual($number->region, $card->region_id)) {
-                throw new InvalidParamException('Регион номера и регион SIM-карты не совместимы');
+                throw new InvalidParamException('Регион номера и регион SIM-карты не совместимы', self::EDIT_CARD_ERROR_CODE_WRONG_REGION);
+            }
+
+            try {
+                $isMcnNumber = $number->isMcnNumber();
+            } catch (Exception $e) {
+                throw new InvalidParamException('Не удалось получить данные по номеру', self::EDIT_CARD_ERROR_CODE_NUMBER_NO_DATA);
+            }
+
+            if (!$isMcnNumber) {
+                throw new InvalidParamException('Выбранный номер не принадлежит МСН Телеком', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_MCN);
+            }
+
+            $imsiExists = Imsi::findOne(['msisdn' => $msisdn]);
+            if ($imsiExists) {
+                throw new InvalidParamException('Данный номер уже связан с другой SIM картой', self::EDIT_CARD_ERROR_CODE_NUMBER_OCCUPIED);
             }
         }
 

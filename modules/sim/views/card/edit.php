@@ -1,16 +1,17 @@
 <?php
-/**
- * SIM-карты. Карточка
- *
- * @var \app\classes\BaseView $this
- * @var Dsm $dsm
- */
 use app\modules\sim\models\CardStatus;
 use app\classes\Html;
 use app\modules\sim\models\Dsm;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
+
+/**
+ * SIM-карты. Карточка
+ *
+ * @var \app\classes\BaseView $this
+ * @var Dsm $dsm
+ */
 ?>
 
 <?= Breadcrumbs::widget([
@@ -23,6 +24,7 @@ use yii\widgets\Breadcrumbs;
 <div class="well">
     <?= $this->render('forms/_edit', [
         'card' => $dsm->origin,
+        'regionName' => $dsm->regionName,
         'activeFormId' => 'origin_card',
         'submitButtonId' => 'submitButtonOriginCard',
     ]) ?>

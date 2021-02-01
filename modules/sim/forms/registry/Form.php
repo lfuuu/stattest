@@ -31,8 +31,12 @@ class Form extends \app\classes\Form
      */
     public function init()
     {
-        if ( $this->id && !( $this->registry = Registry::findOne(['id' => $this->id]) )) {
-            throw new InvalidArgumentException('Неверная заливка');
+        if ($this->id) {
+            if (!( $this->registry = Registry::findOne(['id' => $this->id]))) {
+                throw new InvalidArgumentException('Неверная заливка');
+            }
+        } else {
+            $this->region_sim_settings_id = RegionSettings::getDefaultId();
         }
     }
 

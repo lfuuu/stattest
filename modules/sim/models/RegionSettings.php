@@ -17,6 +17,7 @@ use app\models\Region;
  * @property int $imsi_prefix
  * @property int $imsi_region_code
  * @property int $imsi_range_length
+ * @property int $imsi_last_used
  * @property int $region_id
  * @property int $parent_id
  *
@@ -45,7 +46,7 @@ class RegionSettings extends ActiveRecord
     {
         return [
             [['id', 'iccid_prefix', 'iccid_vendor_code', 'iccid_range_length'], 'integer'],
-            [['iccid_last_used'], 'integer'],
+            [['iccid_last_used', 'imsi_last_used'], 'integer'],
             [['imsi_prefix', 'imsi_region_code', 'imsi_range_length'], 'integer'],
             [['region_id', 'parent_id'], 'integer'],
             [['region_name', 'region_code', 'iccid_region_code'], 'string'],
@@ -71,12 +72,29 @@ class RegionSettings extends ActiveRecord
             'imsi_prefix' => 'IMSI префикс',
             'imsi_region_code' => 'IMSI код региона',
             'imsi_range_length' => 'Длина диапазона IMSI',
+            'imsi_last_used' => 'Последний использованный IMSI',
             'region_id' => 'Регион (точка подключения)',
             'parent_id' => 'Регион-родитель',
         ];
     }
 
     /**
+     * Получить дефолтный id
+     *
+     * @return int
+     */
+    public static function getDefaultId()
+    {
+        if ($regionSettings = static::findOne(['region_id' => Region::MOSCOW])) {
+            return $regionSettings->id;
+        }
+
+        return null;
+    }
+
+    /**
+     * Найти по региону
+     *
      * @param int $regionId
      * @return self
      */
@@ -86,6 +104,8 @@ class RegionSettings extends ActiveRecord
     }
 
     /**
+     * Регионы совпадают?
+     *
      * @param int $sourceId
      * @param int $destinationId
      * @return bool
@@ -211,5 +231,25 @@ class RegionSettings extends ActiveRecord
         $settings = $this->getMainParent();
 
         return sprintf('%s %s', $settings->imsi_prefix, $settings->imsi_region_code);
+    }
+
+    /**
+     * Первый доступный ICCID
+     *
+     * @return int
+     */
+    public function getFirstICCIDAvailable()
+    {
+        return $this->iccid_last_used + 1;
+    }
+
+    /**
+     * Первый доступный IMSI
+     *
+     * @return int
+     */
+    public function getFirstIMSIAvailable()
+    {
+        return $this->imsi_last_used + 1;
     }
 }

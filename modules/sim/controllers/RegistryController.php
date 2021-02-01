@@ -103,6 +103,8 @@ class RegistryController extends BaseController
                 'id' => $regionSettings->id,
                 'iccid_prefix' => $regionSettings->getICCIDPrefix(),
                 'iccid_length' => $regionSettings->iccid_range_length,
+                'iccid_last_used' => $regionSettings->getFirstICCIDAvailable(),
+                'imsi_last_used' => $regionSettings->getFirstIMSIAvailable(),
                 'imsi_prefix' => $regionSettings->getIMSIPrefix(),
                 'imsi_length' => $regionSettings->imsi_range_length,
             ];

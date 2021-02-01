@@ -554,6 +554,13 @@ class Number extends ActiveRecord
         return $numberLenth >= 4 && $numberLenth <= 5;
     }
 
+    /**
+     * Получить nnp-информацию по номеру
+     *
+     * @param $number
+     * @return array
+     * @throws InvalidConfigException
+     */
     public static function getNnpInfo($number)
     {
         $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
@@ -567,6 +574,38 @@ class Number extends ActiveRecord
                 'cmd' => 'getNumberRangeByNum',
                 'num' => $number])
             ->getResponseDataWithCheck();
+    }
+
+    /**
+     * Получить nnp-информацию по текущему номеру
+     *
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getNnpInfoData()
+    {
+        return self::getNnpInfo($this->number);
+    }
+
+    /**
+     * Принадлежит ли номер MCN Телеком
+     *
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function isMcnNumber()
+    {
+        $operatorId = \Yii::$app->params['nnpMCNOperatorId'] ?? null;
+        if (empty($operatorId)) {
+            return false;
+        }
+
+        $data = $this->getNnpInfoData();
+        if (empty($data['nnp_operator_id'])) {
+            return false;
+        }
+
+        return $data['nnp_operator_id'] === $operatorId;
     }
 
     /**
