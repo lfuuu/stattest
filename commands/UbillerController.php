@@ -7,6 +7,7 @@ use app\helpers\Semaphore;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\classes\QueryCounterTarget;
 use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\tarificator\AccountEntryTarificator;
@@ -516,12 +517,15 @@ SQL;
                 foreach ($entry->accountLogMins as $logMin) {
                     echo PHP_EOL . '(-) AccountLogMins[id=' . $logMin->id . ']';
                     !$isTest && $logMin->delete();
+
+                    $logPeriod = AccountLogPeriod::findOne(['id' => $logMin->id]);
+
+                    if ($logPeriod) {
+                        echo PHP_EOL . '(-) AccountLogPeriods[id=' . $logPeriod->id . ']';
+                        !$isTest && $logPeriod->delete();
+                    }
+
                 }
-                // @TODO - find by id from min log
-//                foreach ($entry->accountLogPeriods as $logPeriod) {
-//                    echo PHP_EOL . '(-) accountLogPeriods[id=' . $logPeriod->id . ']';
-//                    !$isTest && $logPeriod->delete();
-//                }
 
                 /** @var \app\modules\uu\models\Bill $bill */
                 $bill = $entry->bill;
