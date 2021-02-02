@@ -115,6 +115,7 @@ class ActOfReconciliation extends Singleton
             ])
             ->andWhere(['!=', 'i.sum', 0])
             ->andWhere(['NOT', ['i.number' => null]])
+            ->andWhere(['NOT', ['i.type_id' => Invoice::TYPE_PREPAID]])
             ->andWhere(['between', 'date', $dateFrom, $dateTo])
             ->union('SELECT
   b.id,
