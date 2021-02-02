@@ -61,4 +61,6 @@ return [
     'ROBOCALL_AUTH' => '', // ['method' => 'bearer', 'token' => 'xxx'],
     'ROBOCALL_DEFAULT_PARAMS' => [], //['task_id' =>  100, 'account_id' => 10000, 'robocall_id' => 10],
 
+    'CHAT_BOT_SERVER' => '',
+
 ];

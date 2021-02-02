@@ -4,6 +4,7 @@ use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\adapters\ClientChangedAmqAdapter;
 use app\classes\adapters\Tele2Adapter;
+use app\classes\api\ApiChatBot;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
@@ -23,6 +24,7 @@ use app\models\EventQueueIndicator;
 use app\models\important_events\ImportantEventsNames;
 use app\models\Invoice;
 use app\models\Number;
+use app\models\voip\Registry;
 use app\modules\async\classes\AsyncAdapter;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\modules\atol\Module as AtolModule;
@@ -171,10 +173,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     static $flags = [];
 
     if (!$flags) {
-        $flags['isCoreServer'] = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
+        $flags['isCoreServer'] = (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER']);
         $flags['isVpbxServer'] = ApiVpbx::me()->isAvailable();
         $flags['isVmServer'] = ApiVps::me()->isAvailable();
         $flags['isFeedbackServer'] = ApiFeedback::isAvailable();
+        $flags['isChatBotServer'] = ApiChatBot::isAvailable();
         $flags['isAccountTariffLightServer'] = SyncAccountTariffLight::isAvailable();
         $flags['isNnpServer'] = NnpModule::isAvailable();
         $flags['isCallTrackingServer'] = CallTrackingModule::isAvailable();
@@ -193,6 +196,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     $isVpbxServer = $flags['isVpbxServer'];
     $isVmServer = $flags['isVmServer'];
     $isFeedbackServer = $flags['isFeedbackServer'];
+    $isChatBotServer = $flags['isChatBotServer'];
     $isAccountTariffLightServer = $flags['isAccountTariffLightServer'];
     $isNnpServer = $flags['isNnpServer'];
     $isCallTrackingServer = $flags['isCallTrackingServer'];
@@ -681,6 +685,25 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
                     break;
 
+
+                case UuModule::EVENT_CHAT_BOT_CREATE:
+                    if ($isChatBotServer) {
+                        ApiChatBot::createChatBot($param['client_account_id'], $param['account_tariff_id']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+                case UuModule::EVENT_CHAT_BOT_REMOVE:
+                    if ($isChatBotServer) {
+                        ApiChatBot::removeChatBot($param['account_tariff_id']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+
+
                 case UuModule::EVENT_RESOURCE_VOIP:
                     // УУ. Отправить измененные ресурсы телефонии на платформу
                     if (AccountTariff::hasTrunk($param['client_account_id'])) {
@@ -945,7 +968,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case EventQueue::PORTED_NUMBER_ADD:
-                    $info = \app\models\voip\Registry::dao()->addPortedNumber($param['account_id'], $param['number']);
+                    $info = Registry::dao()->addPortedNumber($param['account_id'], $param['number']);
                     break;
 
 
