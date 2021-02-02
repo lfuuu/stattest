@@ -1457,6 +1457,11 @@ class ClientAccount extends HistoryActiveRecord
             }
         }
 
+        for ($i = 0; $i < 3; $i++) {
+            $priceLevels[($i * 2) + 19] = 'ОТТ ' . ($i + 9);
+            $priceLevels[($i * 2) + 20] = 'ОТТ ' . ($i + 9) . 'z';
+        }
+
         return $priceLevels;
     }
 
