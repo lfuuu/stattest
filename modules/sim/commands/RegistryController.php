@@ -172,13 +172,13 @@ class RegistryController extends Controller
 
     /**
      * @param Command $command
-     * @param int $process
+     * @param int $isProcess
      * @return int
      * @throws \yii\db\Exception
      */
-    protected function execCommandOrPrint(Command $command, $process = 0)
+    protected function execCommandOrPrint(Command $command, $isProcess = 0)
     {
-        if ($process) {
+        if ($isProcess) {
             return $command->execute();
         }
 
@@ -192,10 +192,10 @@ class RegistryController extends Controller
     /**
      * Обновление последних использованных ICCID и IMSI
      *
-     * @param int $process обработать
+     * @param int $isProcess обработать
      * @throws \yii\db\Exception
      */
-    public function actionRemove($process = 0)
+    public function actionRemove($isProcess = 0)
     {
         $table = Imsi::tableName();
         $sqlImsi = <<<SQL
@@ -216,10 +216,10 @@ SQL;
         $db = Card::getDb();
         $transaction = $db->beginTransaction();
         try {
-            $count = $this->execCommandOrPrint($commandImsi, $process);
+            $count = $this->execCommandOrPrint($commandImsi, $isProcess);
             $this->logLine('Imsis deleted: ' . $count);
 
-            $count = $this->execCommandOrPrint($commandCards, $process);
+            $count = $this->execCommandOrPrint($commandCards, $isProcess);
             $this->logLine('Cards deleted: ' . $count);
 
             $transaction->commit();
@@ -235,10 +235,10 @@ SQL;
     /**
      * Обновление последних использованных ICCID и IMSI
      *
-     * @param int $process обработать
+     * @param int $isProcess обработать
      * @throws \yii\db\Exception
      */
-    public function actionUpdateLastUsed($process = 0)
+    public function actionUpdateLastUsed($isProcess = 0)
     {
         $this->logLine('--------------------------------------------------');
 
@@ -315,12 +315,12 @@ SQL;
         $transaction = $db->beginTransaction();
         try {
             if ($iccidUpdates) {
-                $count = $this->execCommandOrPrint($commandIccid, $process);
+                $count = $this->execCommandOrPrint($commandIccid, $isProcess);
                 $this->logLine('Last ICCIDs updated: ' . $count);
             }
 
             if ($imsiUpdates) {
-                $count = $this->execCommandOrPrint($commandImsi, $process);
+                $count = $this->execCommandOrPrint($commandImsi, $isProcess);
                 $this->logLine('Last IMSIs updated: ' . $count);
             }
 
