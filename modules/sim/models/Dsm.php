@@ -20,6 +20,11 @@ class Dsm
     public $origin;
 
     /**
+     * @var string
+     */
+    public $regionName;
+
+    /**
      * @var VirtualCard
      */
     public $virtual;

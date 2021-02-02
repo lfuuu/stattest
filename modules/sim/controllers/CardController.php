@@ -7,7 +7,9 @@ use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\EntryPoint;
 use app\models\Number;
+use app\models\Region;
 use app\modules\nnp\models\NdcType;
+use app\modules\sim\classes\Linker;
 use app\modules\sim\classes\workers\MsisdnsWorker;
 use app\modules\sim\classes\workers\UnassignedNumberWorker;
 use app\modules\sim\filters\CardFilter;
@@ -17,10 +19,8 @@ use app\modules\sim\models\Dsm;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\VirtualCard;
 use app\modules\uu\behaviors\AccountTariffCheckHlr;
-use app\modules\uu\models\AccountTariff;
 use Yii;
 use yii\base\InvalidParamException;
-use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -163,6 +163,8 @@ class CardController extends BaseController
         // Создание Data State Model
         $dsm = new Dsm;
         $dsm->origin = $originCard;
+        $region = Region::findOne(['id' => $originCard->region_id]);
+        $dsm->regionName = $region ? $region->name : '';
 
         // Формирование DSM по приоритету: номер - склад
         if ($isAllowEdit && $request->isPost) {
@@ -469,7 +471,7 @@ class CardController extends BaseController
 
         $return = '';
         foreach ($data->column() as $accountId) {
-            [$cards, $accountTariffs] = \app\modules\sim\classes\Linker::me()->getDataByAccountId($accountId);
+            [$cards, $accountTariffs] = Linker::me()->getDataByAccountId($accountId);
 
 
             $dataCards = array_keys($cards);

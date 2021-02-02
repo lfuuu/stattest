@@ -418,6 +418,7 @@ data:
         ],
         'rocket_chat_token' => '{{ .Values.params_prod.rocket_chat_token }}',
         'nnpInfoServiceURL' => '{{ .Values.params_prod.nnp_info_service_url }}',
+        'nnpMCNOperatorId' => 6720,
         'billerApiURL' => '{{ .Values.params_prod.biller_api_url }}',
         'clientChangedAmqSettings' => [
             'host' => '{{ .Values.params_prod.client_changed_amq_settings_host }}',

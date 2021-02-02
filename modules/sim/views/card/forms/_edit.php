@@ -1,18 +1,20 @@
 <?php
-/**
- * SIM-карты. Карточка
- *
- * @var \app\classes\BaseView $this
- * @var Card $card
- * @var string $activeFormId
- * @var string $submitButtonId
- */
 
 use app\classes\Html;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\CardStatus;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
+
+/**
+ * SIM-карты. Карточка
+ *
+ * @var \app\classes\BaseView $this
+ * @var Card $card
+ * @var string $regionName
+ * @var string $activeFormId
+ * @var string $submitButtonId
+ */
 
 ?>
 
@@ -45,6 +47,23 @@ $optionDisable = $isAllowEdit ? [] : ['disabled' => true];
 
     <div class="col-sm-1">
         <?= $form->field($card, 'is_active')->checkbox($optionDisable) ?>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-sm-8 text-right">
+
+    </div>
+
+    <div class="col-sm-2 text-left">
+        <?= $form->field($card, 'region_id')->textInput([
+            'disabled' => true,
+            'value' => $regionName ?? Yii::t('common', '(not set)'),
+        ]) ?>
+    </div>
+
+    <div class="col-sm-2">
+
     </div>
 </div>
 
