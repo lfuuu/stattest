@@ -129,6 +129,12 @@ metadata:
       194.54.14.0/24
 
 spec:
+{{- if (eq .Values.global.env "prod") }}
+  tls:
+    - hosts:
+        - {{ .Values.ci_url | quote }}
+      secretName: mcn-tls-secret
+{{- end }}
   rules:
     - host: {{ .Values.ci_url | quote }}
       http:
