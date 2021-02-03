@@ -7,6 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\ClientAccount;
+use app\models\Organization;
 use app\models\Payment;
 use app\modules\uu\models\AccountTariff;
 use yii\web\Response;
@@ -104,8 +105,11 @@ class SberbankOnline
             ->scalar();
 
         $account = ClientAccount::find()
+            ->alias('c')
+            ->joinWith('clientContractModel co')
             ->where([
-                'id' => ($voipAccountId ? $voipAccountId : $data['account'] ?? 0)
+                'c.id' => ($voipAccountId ? $voipAccountId : $data['account'] ?? 0),
+                'co.organization_id' => Organization::MCN_TELECOM,
             ])
             ->one();
 
