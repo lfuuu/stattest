@@ -16,8 +16,8 @@ class m210204_122143_sorm_redirects extends \app\classes\Migration
             'did' => $this->char(11)->notNull(),
             'type' => "enum ('noanswer', 'unavail', 'uncond', 'busy') not null",
             'redirect_number' => $this->char(20)->notNull(),
-            'insert_time' => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
-            'delete_time' => $this->dateTime()
+            'insert_time' => $this->timestamp()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
+            'delete_time' => $this->timestamp()->defaultValue(null),
         ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8'
         );
 
