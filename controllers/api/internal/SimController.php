@@ -263,10 +263,14 @@ class SimController extends ApiInternalController
             }
 
             if (!$isMcnNumber) {
-                throw new InvalidParamException('Выбранный номер не принадлежит МСН Телеком', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_MCN);
+                // временно отключаем, так как данные о переезде к нам приходят с запозданием из БДПН (первоисточник)
+                //throw new InvalidParamException('Выбранный номер не принадлежит МСН Телеком', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_MCN);
             }
 
-            $imsiExists = Imsi::findOne(['msisdn' => $msisdn]);
+            $imsiExists = Imsi::find()
+                ->andWhere(['msisdn' => $msisdn])
+                ->andWhere('iccid != ' . $iccid)
+                ->one();
             if ($imsiExists) {
                 throw new InvalidParamException('Данный номер уже связан с другой SIM картой', self::EDIT_CARD_ERROR_CODE_NUMBER_OCCUPIED);
             }

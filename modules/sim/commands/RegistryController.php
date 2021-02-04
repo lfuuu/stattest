@@ -271,7 +271,7 @@ SQL;
             ->innerJoin(['c' => Card::tableName()], 'c.iccid = i.iccid')
             ->select(['MAX(i.imsi)', 'c.region_id'])
             ->andWhere('c.region_id IS NOT NULL')
-            ->andWhere(['i.profile_id' => ImsiProfile::ID_S1])
+            ->andWhere(['i.profile_id' => ImsiProfile::ID_MSN_RUS])
             ->groupBy('c.region_id')
             ->indexBy('region_id')
             ->column();
@@ -288,7 +288,7 @@ SQL;
             $this->logLine($maxIMSI . ': ' . $rs->imsi_last_used . ' -> ' . $lastUsed);
 
             $prefix = strtr($rs->getIMSIPrefix(), [' '=>'']);
-            $isPrefixOk = $prefix == substr($maxICCID, 0, strlen($prefix));
+            $isPrefixOk = $prefix == substr($maxIMSI, 0, strlen($prefix));
             $this->logLine($prefix . ($isPrefixOk ? '' : ' - IMSI prefix does not match!!!'));
             echo PHP_EOL;
         }
