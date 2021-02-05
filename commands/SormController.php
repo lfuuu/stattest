@@ -3,6 +3,9 @@
 namespace app\commands;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use yii\console\Controller;
 use yii\helpers\ArrayHelper;
 
@@ -12,41 +15,66 @@ class SormController extends Controller
     public function actionExportRedirects()
     {
         $geted = $this->getGetedRedirects();
-
         $saved = $this->getSavedRedirects();
 
         $toAdd = array_diff_key($geted, $saved);
         $toDel = array_diff_key($saved, $geted);
 
-        if ($toAdd) {
-            \Yii::$app->db->createCommand()->batchInsert(
-                'sorm_redirects',
-                ['account_id', 'did', 'type', 'redirect_number'],
-                array_map(function ($row) {
-
-                    echo PHP_EOL . date('r') . ' add:';
-                    array_walk($row, function ($r, $key) {
-                        echo ' ' . $key . ' => ' . $r;
-                    });
-
-                    return array_values($row);
-                }, $toAdd))->execute();
+        $transaction = null;
+        if ($toAdd || $toDel) {
+            $transaction = \Yii::$app->db->beginTransaction();
         }
 
-        if ($toDel) {
-            \Yii::$app->db->createCommand()->update(
-                'sorm_redirects',
-                ['delete_time' => (new \DateTimeImmutable('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT)],
-                ['id' => array_values(array_map(function ($row) use ($saved) {
+        try {
+            if ($toAdd) {
 
-                    echo PHP_EOL . date('r') . ': del:';
-                    array_walk($row, function ($r, $key) {
-                        echo ' ' . $key . ' => ' . $r;
-                    });
+                \Yii::$app->db->createCommand()->batchInsert(
+                    'sorm_redirects',
+                    ['client_id', 'usage_id', 'did', 'type', 'redirect_number'],
+                    array_map(function ($row) {
 
-                    return $row['id'];
-                }, $toDel))]
-            )->execute();
+                        echo PHP_EOL . date('r') . ' add: ';
+                        array_walk($row, function ($r, $key) {
+                            echo $key . ' => ' . $r . '; ';
+                        });
+
+                        $v = [];
+                        foreach (['client_id', 'usage_id', 'did', 'type', 'redirect_number'] as $f) {
+                            $v[] = $row[$f];
+                        }
+
+                        ImportantEvents::create(ImportantEventsNames::REDIRECT_ADD, ImportantEventsSources::SOURCE_STAT, $row);
+
+                        return array_values($v);
+                    }, $toAdd))->execute();
+            }
+
+            if ($toDel) {
+                \Yii::$app->db->createCommand()->update(
+                    'sorm_redirects',
+                    ['delete_time' => (new \DateTimeImmutable('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT)],
+                    ['id' => array_values(array_map(function ($row) use ($saved) {
+
+                        echo PHP_EOL . date('r') . ': del:';
+                        array_walk($row, function ($r, $key) {
+                            echo ' ' . $key . ' => ' . $r;
+                        });
+
+                        ImportantEvents::create(ImportantEventsNames::REDIRECT_DELETE, ImportantEventsSources::SOURCE_STAT, $row);
+
+                        return $row['id'];
+                    }, $toDel))]
+                )->execute();
+            }
+
+            if ($toAdd || $toDel) {
+                $transaction->commit();
+//                $transaction->rollBack();
+            }
+
+        } catch (\Exception $e) {
+            $transaction && $transaction->rollBack();
+            throw $e;
         }
     }
 
@@ -55,10 +83,15 @@ class SormController extends Controller
         $data = [];
 
         $numberAccounts = $this->getVoipAccounts();
+
         foreach ($this->getRedirects() as $rd) {
+//            if ($rd['did'] != 74992133145) {
+//                continue;
+//            }
+
             if (isset($numberAccounts[$rd['did']])) {
-                $rd['account_id'] = $numberAccounts[$rd['did']];
-                $md5 = md5($rd['account_id'] . '|' . $rd['did'] . '|' . $rd['type'] . '|' . $rd['redirect_number']);
+                $rd['usage_id'] = $numberAccounts[$rd['did']]['usage_id'];
+                $md5 = md5($rd['client_id'] . '|' . $rd['did'] . '|' . $rd['type'] . '|' . $rd['redirect_number']);
                 $data[$md5] = $rd;
             }
         }
@@ -69,14 +102,23 @@ class SormController extends Controller
     private function getVoipAccounts()
     {
         $data = \Yii::$app->db->createCommand('
-            select e164 as number, id as account_id from usage_voip where cast(now() as date) between actual_from and actual_to
-            union 
-            select voip_number as number, id as account_id from uu_account_tariff where tariff_period_id is not null
+            select e164 as number, v.id as usage_id, c.id as client_id
+            from usage_voip v, clients c
+            where cast(now() as date) between v.actual_from and v.actual_to
+            and c.client = v.client
             
+            union
+             
+            select voip_number as number, id as usage_id, client_account_id as client_id 
+            from uu_account_tariff 
+            where tariff_period_id is not null
             having number like \'749%\'
         ')->queryAll();
 
-        $data = ArrayHelper::map($data, 'number', 'account_id');
+        $data = ArrayHelper::index($data, 'number');
+
+//        $d = [];
+//        $d['74992133145'] = $data['74992133145'];
 
         return $data;
     }
@@ -93,7 +135,7 @@ class SormController extends Controller
         $data = \Yii::$app->db->createCommand('select * from sorm_redirects where delete_time is null')->queryAll();
 
         return ArrayHelper::index($data, function ($row) {
-            return md5($row['account_id'] . '|' . $row['did'] . '|' . $row['type'] . '|' . $row['redirect_number']);
+            return md5($row['client_id'] . '|' . $row['did'] . '|' . $row['type'] . '|' . $row['redirect_number']);
         });
     }
 
