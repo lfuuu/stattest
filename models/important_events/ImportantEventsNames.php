@@ -43,6 +43,10 @@ class ImportantEventsNames extends ActiveRecord
     const PAYMENT_ADD = 'payment_add';
     const PAYMENT_DELETE = 'payment_del';
 
+    // redirects
+    const REDIRECT_ADD = 'redirect_add';
+    const REDIRECT_DELETE = 'redirect_del';
+
     // ClientAccount
     const NEW_ACCOUNT = 'new_account';
     const ACCOUNT_CHANGED = 'account_changed';
