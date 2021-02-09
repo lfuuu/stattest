@@ -33,9 +33,9 @@ class SormController extends Controller
                     ['client_id', 'usage_id', 'did', 'type', 'redirect_number'],
                     array_map(function ($row) {
 
-                        echo PHP_EOL . date('r') . ' add: ';
+                        echo PHP_EOL . date('r') . ': add:';
                         array_walk($row, function ($r, $key) {
-                            echo $key . ' => ' . $r . '; ';
+                            echo ' ' . $key . ' => ' . $r . ';';
                         });
 
                         $v = [];
@@ -57,12 +57,15 @@ class SormController extends Controller
 
                         echo PHP_EOL . date('r') . ': del:';
                         array_walk($row, function ($r, $key) {
-                            echo ' ' . $key . ' => ' . $r;
+                            echo ' ' . $key . ' => ' . $r . ';';
                         });
+
+                        $id = $row['id'];
+                        unset($row['id']);
 
                         ImportantEvents::create(ImportantEventsNames::REDIRECT_DELETE, ImportantEventsSources::SOURCE_STAT, $row);
 
-                        return $row['id'];
+                        return $id;
                     }, $toDel))]
                 )->execute();
             }
@@ -139,4 +142,200 @@ class SormController extends Controller
         });
     }
 
+    private function getRedirectsRanges()
+    {
+        $sql = <<<SQL
+                select * from (
+                  select 'add' as action, insert_time as time, r.usage_id, did, redirect_number, type, id
+                  from sorm_redirects r
+                  union
+                  select 'del' as action, delete_time as time, r.usage_id, did, redirect_number, type, id
+                  from sorm_redirects r
+                  where delete_time is not null
+              ) a order by time, id
+SQL;
+
+        $rs = \Yii::$app->db->createCommand($sql)->queryAll();
+
+        $da = [];
+        foreach ($rs as $r) {
+            unset($r['id']);
+
+            if (!isset($da[$r['usage_id']])) {
+                $da[$r['usage_id']] = [];
+            }
+
+            if (!isset($da[$r['usage_id']][$r['did']])) {
+                $da[$r['usage_id']][$r['did']] = [];
+            }
+
+            if (!isset($da[$r['usage_id']][$r['did']][$r['type']])) {
+                $da[$r['usage_id']][$r['did']][$r['type']] = [];
+            }
+
+
+            $d = &$da[$r['usage_id']][$r['did']][$r['type']];
+
+
+            if ($r['action'] == 'add') {
+                if (isset($d[$r['time']])) {
+                    $d[$r['time']]['numbers'][] = $r['redirect_number'];
+                    continue;
+                }
+
+                $numbers = [];
+
+                if ($d) {
+                    $keys = array_keys($d);
+                    $lastD = &$d[array_pop($keys)];
+                    if (!$lastD['close_time']) {
+                        $lastD['close_time'] = (new \DateTime($r['time']))->modify('-1 second')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                        $numbers = $lastD['numbers'];
+                        unset($lastD);
+                    }
+                }
+
+                $d[$r['time']] = [
+                    'usage_id' => $r['usage_id'],
+                    'did' => $r['did'],
+                    'type' => $r['type'],
+                    'numbers' => array_merge($numbers, [$r['redirect_number']]),
+                    'open_time' => $r['time'],
+                    'close_time' => null,
+                ];
+
+            } else { // action == del
+
+                if (!$d) {
+                    continue;
+                }
+
+                $keys = array_keys($d);
+                $lastD = &$d[array_pop($keys)];
+
+                if (!in_array($r['redirect_number'], $lastD['numbers'])) {
+                    continue;
+                }
+
+                $numbers = $lastD['numbers'];
+                unset($numbers[array_search($r['redirect_number'], $numbers)]);
+
+                if ($lastD['open_time'] == $r['time']) {
+                    $lastD['numbers'] = array_values($numbers);
+                    continue;
+                }
+
+                $lastD['close_time'] = (new \DateTime($r['time']))->modify('-1 second')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                unset($lastD);
+
+                if ($numbers) {
+                    $d[$r['time']] = [
+                        'usage_id' => $r['usage_id'],
+                        'did' => $r['did'],
+                        'type' => $r['type'],
+                        'numbers' => $numbers,
+                        'open_time' => $r['time'],
+                        'close_time' => null
+                    ];
+                }
+            }
+        }
+
+        $data = [];
+        foreach ($da as $a3) {
+            foreach ($a3 as $a2) {
+                foreach ($a2 as $a1) {
+                    foreach ($a1 as $l) {
+                        $l['numbers'] = implode(', ', $l['numbers']);
+                        $data[] = $l;
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    public function actionGroup()
+    {
+        $loaded = $this->getRedirectsRanges();
+
+        $loadData = [];
+        $loadDk = [];
+        foreach ($loaded as $item) {
+            $key = md5($item['usage_id'] . '|' . $item['did'] . '|' . $item['type'] . '|' . $item['open_time']);
+            $loadData[$key] = $item;
+            $loadDk[$key] = md5($item['numbers'] . '|' . $item['close_time']);
+        }
+
+        $saved = \Yii::$app->db->createCommand("select r.*, 
+            md5(concat(usage_id, '|', did, '|', type, '|', open_time)) as pk_key,
+            md5(concat(numbers, '|', coalesce(close_time, ''))) as data_key
+        from sorm_redirect_ranges r
+        ")->queryAll();
+
+        $savedData = [];
+        $savedDk = [];
+        foreach ($saved as $item) {
+            $savedData[$item['pk_key']] = $item;
+            $savedDk[$item['pk_key']] = $item['data_key'];
+        }
+
+        $toAdd = array_diff_key($loadData, $savedData);
+        $toChange = array_diff($savedDk, $loadDk);
+
+        if ($toAdd) {
+            \Yii::$app->db->createCommand()->batchInsert(
+                'sorm_redirect_ranges',
+                ['usage_id', 'did', 'type', 'numbers', 'open_time', 'close_time'],
+                array_map(function ($row) {
+
+                    echo PHP_EOL . date('r') . ': add:';
+                    array_walk($row, function ($r, $key) {
+                        echo ' ' . $key . ' => ' . $r . ';';
+                    });
+
+                    $v = [];
+                    foreach (['usage_id', 'did', 'type', 'numbers', 'open_time', 'close_time'] as $f) {
+                        $v[] = $row[$f];
+                    }
+
+                    return $v;
+                }, $toAdd))->execute();
+        }
+
+
+        if ($toChange) {
+            foreach ($toChange as $k => $c) {
+                if (!isset($savedData[$k]) || !isset($loadData[$k])) {
+                    continue;
+                }
+
+                $s = $savedData[$k];
+                $l = $loadData[$k];
+
+                $diff = [];
+                foreach(['numbers', 'open_time', 'close_time'] as $f) {
+                    if ($s[$f] != $l[$f]) {
+                        $diff[$f] = $l[$f];
+                    }
+                }
+
+                $cond = [
+                    'usage_id' => $s['usage_id'],
+                    'did' => $s['did'],
+                    'type' => $s['type'],
+                ];
+
+                echo PHP_EOL . date('r') . ': upd:';
+                $all = $cond + $diff;
+                array_walk($all, function ($r, $key) {
+                    echo ' ' . $key . ' => ' . $r . ';';
+                });
+
+                \Yii::$app->db->createCommand()->update('sorm_redirect_ranges', $diff, $cond)->execute();
+
+            }
+        }
+    }
 }

@@ -226,7 +226,7 @@ DROP TABLE IF EXISTS `bik`;
 CREATE TABLE `bik` (
   `bik` varchar(9) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `corr_acc` varchar(20) NOT NULL DEFAULT '',
-  `bank_name` varchar(50) NOT NULL DEFAULT '',
+  `bank_name` varchar(128) NOT NULL DEFAULT '',
   `bank_city` varchar(50) NOT NULL DEFAULT '',
   `bank_address` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`bik`)
