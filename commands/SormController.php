@@ -283,6 +283,9 @@ SQL;
 
         $toAdd = array_diff_key($loadData, $savedData);
         $toChange = array_diff($savedDk, $loadDk);
+        $toChange2 = array_diff($loadDk, $savedDk);
+
+        $toChange = array_merge($toChange, $toChange2);
 
         if ($toAdd) {
             \Yii::$app->db->createCommand()->batchInsert(
