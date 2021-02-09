@@ -315,7 +315,7 @@ SQL;
                 $l = $loadData[$k];
 
                 $diff = [];
-                foreach(['numbers', 'open_time', 'close_time'] as $f) {
+                foreach(['numbers', 'close_time'] as $f) {
                     if ($s[$f] != $l[$f]) {
                         $diff[$f] = $l[$f];
                     }
@@ -325,6 +325,7 @@ SQL;
                     'usage_id' => $s['usage_id'],
                     'did' => $s['did'],
                     'type' => $s['type'],
+                    'open_time' => $s['open_time'],
                 ];
 
                 echo PHP_EOL . date('r') . ': upd:';
