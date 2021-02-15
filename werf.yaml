@@ -186,7 +186,7 @@ ansible:
         #export dir
         ln -Tfs {{ .ci_dir_home }}/store/web/export {{ .ci_dir_home }}/stat/web/export
         #add wkhtmltopdf
-        apk add qt5-qtbase-dev wkhtmltopdf zbar
+        apk add qt5-qtbase-dev wkhtmltopdf imagemagick zbar
         ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
         # fonts
         apk add --update --no-cache \
