@@ -26,7 +26,7 @@ return [
         'authinfo' => '',
         'createVpsParams' => [
             'family' => '89.235.184.128/25',
-            'vmi' => 'ISPsystem__CentOS-7-amd64',
+            'vmi' => 'isp-latest__CentOS-7-amd64',
         ],
     ],
 
