@@ -588,6 +588,16 @@ class Number extends ActiveRecord
     }
 
     /**
+     *
+     *
+     * @return mixed|null
+     */
+    public static function getMCNOperatorId()
+    {
+        return \Yii::$app->params['nnpMCNOperatorId'] ?? null;
+    }
+
+    /**
      * Принадлежит ли номер MCN Телеком
      *
      * @return bool
@@ -595,7 +605,7 @@ class Number extends ActiveRecord
      */
     public function isMcnNumber()
     {
-        $operatorId = \Yii::$app->params['nnpMCNOperatorId'] ?? null;
+        $operatorId = self::getMCNOperatorId();
         if (empty($operatorId)) {
             return false;
         }

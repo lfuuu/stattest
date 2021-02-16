@@ -75,6 +75,10 @@ class NumberDao extends Singleton
     ) {
 
         if ($usage) {
+            $fieldsEqual =
+                $number->usage_id == $usage->id &&
+                $number->client_id == $usage->clientAccount->id;
+
             $number->usage_id = $usage->id;
             $number->client_id = $usage->clientAccount->id;
             if (!$isInFuture) {
@@ -82,6 +86,10 @@ class NumberDao extends Singleton
             }
         } else {
             // uuUsage
+            $fieldsEqual =
+                $number->uu_account_tariff_id == $uuUsage->id &&
+                $number->client_id == $uuUsage->client_account_id;
+
             $number->uu_account_tariff_id = $uuUsage->id;
             $number->client_id = $uuUsage->client_account_id;
             if (!$isInFuture) {
@@ -96,7 +104,7 @@ class NumberDao extends Singleton
                 Number::STATUS_ACTIVE_COMMERCIAL
             );
 
-        if ($newStatus == $number->status) {
+        if ($fieldsEqual && $newStatus == $number->status) {
             return;
         }
 
