@@ -94,7 +94,7 @@ class SmsFilter extends Form
 
         $diff = $this->firstDayOfDate->diff($this->lastDayOfDate);
 
-        if ($diff->m > 0 && $diff->d > 1 && !$this->group_by && $this->group_by != 'hour') {
+        if (($diff->y > 0 || $diff->m > 2 || ($diff->m > 1 && $diff->d > 2)) && !$this->group_by && $this->group_by != 'hour') {
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
     }

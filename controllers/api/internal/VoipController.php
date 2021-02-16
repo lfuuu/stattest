@@ -172,7 +172,7 @@ class VoipController extends ApiInternalController
 
         $diff = $firstDayOfDate->diff($lastDayOfDate);
 
-        if ($diff->m > 2 && $diff->d > 0) {
+        if ($diff->y > 0 || $diff->m > 2 || ($diff->m > 1 && $diff->d > 2)){
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
 
@@ -476,7 +476,7 @@ class VoipController extends ApiInternalController
 
         $diff = $firstDayOfDate->diff($lastDayOfDate);
 
-        if ($diff->m > 0 && $diff->d > 0) {
+        if ($diff->y > 0 || $diff->m > 2 || ($diff->m > 1 && $diff->d > 2)){
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
 
