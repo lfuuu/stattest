@@ -134,7 +134,6 @@ class CurrencyController extends Controller
             }
 
             return true;
-
         } catch (Exception $e) {
             Yii::error('CurrencyImport: error ' . $e->getMessage());
         }
@@ -142,4 +141,84 @@ class CurrencyController extends Controller
         return false;
     }
 
+    public function actionBik($replace = 0)
+    {
+        $isReplace = (bool)$replace;
+
+        //проверка ссылки
+        $url = "https://cbr.ru/s/newbik";
+        if (!$file = file_get_contents($url)) {
+            throw new \RuntimeException("link is broken " . $url);
+        }
+
+        //достаем файл из ЦБ и скачиваем zip в /tmp
+        $tempZip = tempnam(sys_get_temp_dir(), "newbik.zip");
+        if (!is_writable($tempZip)) {
+            throw new \RuntimeException("can't write to file " . $tempZip);
+        }
+        file_put_contents($tempZip, $file);
+
+        //разархивируем  и достаем файл
+        $zip = new \ZipArchive;
+        $zip->open($tempZip);
+        $xmlName = $zip->getNameIndex(0);
+        $path = 'zip://' . $tempZip . '#' . $xmlName;
+        $xml = file_get_contents($path);
+        $xmlOpen = simplexml_load_string($xml);
+
+
+        //вытаскиваем информацию из xml файла
+        foreach ($xmlOpen as $node) {
+            $newAccount = '';
+            if ($newAccount == '') {
+                $newAccount = $node->Accounts['Account'];
+            }
+
+            //2 массива со старыми данными из БД и новыми данными из XML 
+            $newInfo = [
+                'bik' => $node['BIC'],
+                'corr_acc' => $newAccount,
+                'bank_city' => $node->ParticipantInfo['Nnp'],
+                'bank_address' => $node->ParticipantInfo['Adr'],
+                'bank_name' => $node->ParticipantInfo['NameP']
+            ];
+            $oldInfo = Yii::$app->db->createCommand("select * from bik where bik = :bik", [':bik' => $newInfo['bik']])->queryOne();
+
+            //смотрим если запись отсутствует
+            $isAdded = false;
+            if (!$oldInfo) {
+                echo "BIK " . $newInfo['bik'] . ": (+)";
+                $isAdded = true;
+                
+                //добавляем новую запись в базу
+                if ($isAdded && $isReplace) {
+                    Yii::$app->db->createCommand()->insert('bik', [
+                        'bik' => $newInfo['bik'],
+                        'corr_acc' => $newInfo['corr_acc'],
+                        'bank_name' => $newInfo['bank_name'],
+                        'bank_city' => $newInfo['bank_city'],
+                        'bank_address' => $newInfo['bank_address'],
+                    ])->execute();
+                }
+            } else { // если запись имеется
+                $changeArray = [];
+                foreach (['bik', 'corr_acc', 'bank_name', 'bank_city', 'bank_address'] as $param) {
+                    if ($oldInfo[$param] != $newInfo[$param]) {
+                        echo PHP_EOL . "BIK " . $oldInfo['bik'] . ": (*) " . $param . ' ' . $oldInfo[$param] . '=>' . $newInfo[$param];
+                        $changeArray[$param] = $newInfo[$param];
+                    }
+                }
+
+                //вносим изменения
+                if ($changeArray && $isReplace) {
+                    Yii::$app->db->createCommand()
+                        ->update('bik', $changeArray, 'bik = :bik')
+                        ->bindValue(':bik', $newInfo['bik'])
+                        ->execute();
+                }
+            }
+        }
+
+        return true;
+    }
 }
