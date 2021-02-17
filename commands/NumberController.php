@@ -579,14 +579,14 @@ class NumberController extends Controller
     }
 
     /**
-     * Актуализация данных в таблице номеров voip_numbers.
+     * Шаг 1. Актуализация данных в таблице номеров voip_numbers.
      * Проставляем всем мобильным номерам МСН Телеком
      * с источником = 'operaror', источник 'regulator' и MVNO-партнер Теле2.
      *
      * @param int $isProcess обработать
      * @throws \yii\db\Exception
      */
-    public function actionActualizeStep01($isProcess = 0)
+    public function actionActualizeSourceOperator($isProcess = 0)
     {
         if ($operatorId = Number::getMCNOperatorId()) {
             $attributes = [
@@ -610,7 +610,7 @@ class NumberController extends Controller
     }
 
     /**
-     * Прогоняем все мобильные номера ДЭНИ КОЛЛ через API проверки оператора
+     * Шаг 2. Прогоняем все мобильные номера ДЭНИ КОЛЛ через API проверки оператора
      * и если оператор МСН - обновляем поле nnp_operator_id.
      *
      * @param int $isProcess обработать
@@ -619,12 +619,12 @@ class NumberController extends Controller
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */
-    public function actionActualizeStep02($isProcess = 0, $offset = 0, $limit = 0)
+    public function actionActualizeDeniCall($isProcess = 0, $offset = 0, $limit = 0)
     {
         if ($operatorId = Number::getMCNOperatorId()) {
             $condition = [
                 'ndc_type_id' => NdcType::ID_MOBILE,
-                'nnp_operator_id' => Operator::ID_DENI_KOLL,
+                'nnp_operator_id' => Operator::ID_DENI_CALL,
             ];
 
             $numbers = Number::find()
@@ -685,16 +685,16 @@ class NumberController extends Controller
     }
 
     /**
-     * Удаляем все мобильные номера, оставшиеся после проверки принадлежащими ДЭНИ КОЛЛ.
+     * Шаг 3. Удаляем все мобильные номера, оставшиеся после проверки принадлежащими ДЭНИ КОЛЛ.
      *
      * @param int $isProcess обработать
      * @throws \yii\db\Exception
      */
-    public function actionActualizeStep03($isProcess = 0)
+    public function actionDeleteDeniCall($isProcess = 0)
     {
         $condition = [
             'ndc_type_id' => NdcType::ID_MOBILE,
-            'nnp_operator_id' => Operator::ID_DENI_KOLL,
+            'nnp_operator_id' => Operator::ID_DENI_CALL,
         ];
 
         $command = Number::getDb()->createCommand();
@@ -707,14 +707,14 @@ class NumberController extends Controller
     }
 
     /**
-     * Для всех номеров, у которых не совпадает client_id
+     * Шаг 4. Для всех номеров, у которых не совпадает client_id
      * со значением client_account_id активной записи из uu_account_tariff,
      * обновляем client_id и uu_account_tariff_id.
      *
      * @param int $isProcess обработать
      * @throws \yii\db\Exception
      */
-    public function actionActualizeStep04($isProcess = 0)
+    public function actionActualizeForeignKeys($isProcess = 0)
     {
         $numbersUuUsage = Number::find()
             ->from(Number::tableName() . ' v')
@@ -767,7 +767,7 @@ class NumberController extends Controller
     }
 
     /**
-     * Проверяем все мобильные номера в статусе 'Откреплен' через API проверки оператора
+     * Шаг 5. Проверяем все мобильные номера в статусе 'Откреплен' через API проверки оператора
      * и если изменился оператор - обновляем поле nnp_operator_id и генерим важное событие
      *
      * @param int $isProcess обработать

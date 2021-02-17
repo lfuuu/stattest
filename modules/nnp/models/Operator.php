@@ -28,7 +28,7 @@ class Operator extends ActiveRecord
     const MIN_CNT = 0;
 
     // temporary constants ;)
-    const ID_DENI_KOLL = 5090;
+    const ID_DENI_CALL = 5090;
 
     /*
      * Группа оператора:
