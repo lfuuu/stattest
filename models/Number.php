@@ -63,6 +63,7 @@ use yii\helpers\Url;
  * @property integer $nnp_region_id
  *
  * @property-read City $city
+ * @property-read AccountTariff $accountTariff
  * @property-read Country $country
  * @property-read DidGroup $didGroup
  * @property-read UsageVoip $usage
