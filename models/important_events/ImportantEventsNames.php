@@ -108,6 +108,10 @@ class ImportantEventsNames extends ActiveRecord
     const SBIS_DOCUMENT_ACCEPTED = 'sbis_document_accepted';
     const SBIS_DOCUMENT_EVENT = 'sbis_document_event';
 
+    // Porting
+    const PORTING_FROM_MCN = 'porting_from_mcn';
+    const PORTING_TO_MCN = 'porting_to_mcn';
+
     const DOCUMENT_UPLOADED_LK = 'document_uploaded_lk';
 
     /**

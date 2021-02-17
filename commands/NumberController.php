@@ -3,11 +3,17 @@
 namespace app\commands;
 
 use app\classes\Assert;
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\voip\EmptyNumberFiller;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsRaw;
+use app\models\ClientAccount;
 use app\models\CounterInteropTrunk;
+use app\models\EventQueue;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use app\models\LogTarif;
 use app\models\Number;
 use app\models\Region;
@@ -18,18 +24,21 @@ use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region as nnpRegion;
+use app\modules\sim\models\ImsiPartner;
+use app\modules\uu\models\AccountTariff;
 use DateTime;
 use DateTimeImmutable;
 use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use yii\db\ActiveQuery;
-use yii\db\Expression;
+use yii\db\Command;
 use yii\helpers\ArrayHelper;
-
 
 class NumberController extends Controller
 {
+    const CHUNK_SIZE_UPDATE = 500;
+
     public function actionReleaseFromHold()
     {
         $numbers =
@@ -527,5 +536,396 @@ class NumberController extends Controller
                 'expire_dt'
             ], $all)
             ->execute();
+    }
+
+    /**
+     * @param Command $command
+     * @param int $isProcess
+     * @return int
+     * @throws \yii\db\Exception
+     */
+    protected function execCommandOrPrint(Command $command, $isProcess = 0)
+    {
+        if ($isProcess) {
+            return $command->execute();
+        }
+
+        echo '---' .PHP_EOL;
+        echo $command->getRawSql() .PHP_EOL;
+        echo '---' .PHP_EOL;
+
+        return 0;
+    }
+
+    /**
+     * Генерит sql для массового UPDATE'а
+     *
+     * @param $table string table name
+     * @param $key string conditional primary key, see the case in switch
+     * @param $val string modify the primary key
+     * @param $data array $key and the data carrier corresponding to the $val primary key
+     * @return string batch update SQL
+     */
+    protected function getBatchUpdateSql($table, $key, $val, $data){
+        $ids = implode(",", array_column($data, $key));
+
+        $condition = " ";
+        foreach ($data as $v){
+            $condition .= "WHEN {$v[$key]} THEN {$v[$val]} ";
+        }
+        $sql = "UPDATE `{$table}` SET  {$val} = (CASE {$key} {$condition} END) WHERE {$key} IN ({$ids})";
+
+        return $sql;
+    }
+
+    /**
+     * Шаг 1. Актуализация данных в таблице номеров voip_numbers.
+     * Проставляем всем мобильным номерам МСН Телеком
+     * с источником = 'operaror', источник 'regulator' и MVNO-партнер Теле2.
+     *
+     * @param int $isProcess обработать
+     * @throws \yii\db\Exception
+     */
+    public function actionActualizeSourceOperator($isProcess = 0)
+    {
+        if ($operatorId = Number::getMCNOperatorId()) {
+            $attributes = [
+                'source' => VoipRegistrySourceEnum::REGULATOR,
+                'mvno_partner_id' => ImsiPartner::ID_TELE2,
+            ];
+            $condition = [
+                'ndc_type_id' => NdcType::ID_MOBILE,
+                'nnp_operator_id' => $operatorId,
+                'source' => VoipRegistrySourceEnum::OPERATOR,
+            ];
+
+            $command = Number::getDb()->createCommand();
+            $command->update(Number::tableName(), $attributes, $condition);
+
+            $count = $this->execCommandOrPrint($command, $isProcess);
+            echo('Numbers updated: ' . $count) . PHP_EOL;
+        }
+
+        echo 'Done!' . PHP_EOL;
+    }
+
+    /**
+     * Шаг 2. Прогоняем все мобильные номера ДЭНИ КОЛЛ через API проверки оператора
+     * и если оператор МСН - обновляем поле nnp_operator_id.
+     *
+     * @param int $isProcess обработать
+     * @param int $offset
+     * @param int $limit
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function actionActualizeDeniCall($isProcess = 0, $offset = 0, $limit = 0)
+    {
+        if ($operatorId = Number::getMCNOperatorId()) {
+            $condition = [
+                'ndc_type_id' => NdcType::ID_MOBILE,
+                'nnp_operator_id' => Operator::ID_DENI_CALL,
+            ];
+
+            $numbers = Number::find()
+                ->andWhere($condition)
+                ->orderBy('number');
+
+            if ($offset) {
+                $numbers->offset($offset);
+            }
+
+            if ($limit) {
+                $numbers->limit($limit);
+            }
+
+            $updates = [];
+            $total = $numbers->count();
+            echo ('Found numbers to check: ' . $total) . PHP_EOL;
+
+            $total = $limit ?? $total;
+            $i = $offset;
+            foreach ($numbers->each() as $number) {
+                /** @var Number $number */
+                $percent = intval(100*$i / $total);
+                echo sprintf("Fetching number %s: %s of %s-%s (%s%%)... ", $number->number, ++$i, $offset, $offset + $total, $percent);
+
+                try {
+                    $isMcnNumber = $number->isMcnNumber();
+                } catch (\Exception $e) {
+                    echo 'error: ' . $e->getMessage(). ', sleeping 5 sec... ';
+                    sleep(5);
+                    $isMcnNumber = $number->isMcnNumber();
+                }
+
+                if ($isMcnNumber) {
+                    $updates[] = [
+                        'number' => $number->number,
+                        'nnp_operator_id' => $operatorId
+                    ];
+                    echo 'has been ported to MCN!';
+                }
+                echo PHP_EOL;
+            }
+        }
+
+        if ($updates) {
+            echo('Numbers ported found: ' . count($updates)) . PHP_EOL;
+
+            foreach (array_chunk($updates, static::CHUNK_SIZE_UPDATE) as $chunk) {
+                $sql = $this->getBatchUpdateSql(Number::tableName(), 'number', 'nnp_operator_id', $chunk);
+                $commandPorted = Number::getDb()->createCommand($sql);
+
+                $count = $this->execCommandOrPrint($commandPorted, $isProcess);
+                echo ('Numbers updated: ' . $count) . PHP_EOL;
+            }
+        }
+
+        echo 'Done!' . PHP_EOL;
+    }
+
+    /**
+     * Шаг 3. Удаляем все мобильные номера, оставшиеся после проверки принадлежащими ДЭНИ КОЛЛ.
+     *
+     * @param int $isProcess обработать
+     * @throws \yii\db\Exception
+     */
+    public function actionDeleteDeniCall($isProcess = 0)
+    {
+        $condition = [
+            'ndc_type_id' => NdcType::ID_MOBILE,
+            'nnp_operator_id' => Operator::ID_DENI_CALL,
+        ];
+
+        $command = Number::getDb()->createCommand();
+        $command->delete(Number::tableName(), $condition);
+
+        $count = $this->execCommandOrPrint($command, $isProcess);
+        echo('Numbers deleted: ' . $count) . PHP_EOL;
+
+        echo 'Done!' . PHP_EOL;
+    }
+
+    /**
+     * Шаг 4. Для всех номеров, у которых не совпадает client_id
+     * со значением client_account_id активной записи из uu_account_tariff,
+     * обновляем client_id и uu_account_tariff_id.
+     *
+     * @param int $isProcess обработать
+     * @throws \yii\db\Exception
+     */
+    public function actionActualizeForeignKeys($isProcess = 0)
+    {
+        $numbersUuUsage = Number::find()
+            ->from(Number::tableName() . ' v')
+            ->innerJoin(['u' => AccountTariff::tableName()], 'u.voip_number = v.number')
+            ->select('v.number')
+            ->andWhere('v.number is not null')
+            ->andWhere('v.client_id != u.client_account_id OR u.id != v.uu_account_tariff_id')
+            ->andWhere('u.tariff_period_id is not null IS NOT NULL')
+            ->column();
+
+        $numbersUsageVoip = Number::find()
+            ->from(Number::tableName() . ' v')
+            ->innerJoin(['uv' => UsageVoip::tableName()], 'uv.id = v.usage_id')
+            ->innerJoin(['c' => ClientAccount::tableName()], 'c.client = uv.client')
+            ->select('v.number')
+            ->andWhere('v.number is not null')
+            ->andWhere('v.usage_id is not null')
+            ->andWhere('c.id != v.client_id')
+            ->column();
+
+        $numbers = array_merge($numbersUuUsage, $numbersUsageVoip);
+        $numbers = array_unique($numbers);
+        if ($numbers) {
+            sort($numbers);
+            $count = 0;
+            $i = 0;
+
+            $transaction = Number::getDb()->beginTransaction();
+            try {
+                foreach ($numbers as $number) {
+                    echo sprintf('Creating actualizing event, number %s: %s of %s', $number, ++$i, count($numbers)) . PHP_EOL;
+
+                    if ($isProcess) {
+                        EventQueue::go(EventQueue::ACTUALIZE_NUMBER, ['number' => $number]);
+                    }
+                }
+
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                $errorText = $e->getMessage();
+
+                echo ('Error occurred while actualizing: ' . $errorText) . PHP_EOL;
+            }
+
+            echo ('Total numbers actualized: ' . $count) . PHP_EOL;
+        }
+
+        echo 'Done!' . PHP_EOL;
+    }
+
+    /**
+     * Шаг 5. Проверяем все мобильные номера в статусе 'Откреплен' через API проверки оператора
+     * и если изменился оператор - обновляем поле nnp_operator_id и генерим важное событие
+     *
+     * @param int $isProcess обработать
+     * @throws \yii\db\Exception
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionActualizeReleased($isProcess = 0)
+    {
+        if ($operatorId = Number::getMCNOperatorId()) {
+            $condition = [
+                'ndc_type_id' => NdcType::ID_MOBILE,
+                'status' => Number::STATUS_RELEASED,
+            ];
+            $operator = Operator::findOne(['id' => $operatorId]);
+            $operatorName = $operator ? $operator->name : '';
+
+            $dateTime = new \DateTime();
+            $date = $dateTime->format('d.m.Y');
+
+            $numbers = Number::find()
+                ->andWhere($condition)
+                ->orderBy('number');
+
+            $updates = [];
+            $allOperatorIds = [];
+            $eventsFrom = [];
+            $eventsTo = [];
+
+            $total = $numbers->count();
+            $i = 0;
+            foreach ($numbers->each() as $number) {
+                /** @var Number $number */
+                $percent = intval(100*$i / $total);
+                echo sprintf("Fetching number %s: %s of %s (%s%%)... ", $number->number, ++$i, $total, $percent);
+
+                try {
+                    $data = $number->getNnpInfoData();
+                } catch (\Exception $e) {
+                    echo 'error: ' . $e->getMessage(). ', sleeping 5 sec... ';
+                    sleep(5);
+                    $data = $number->getNnpInfoData();
+                }
+
+                if (!empty($data['nnp_operator_id'])) {
+                    $newOperatorId = $data['nnp_operator_id'];
+                    if ($number->nnp_operator_id != $newOperatorId) {
+                        $updates[] = [
+                            'number' => $number->number,
+                            'nnp_operator_id' => $newOperatorId
+                        ];
+                        echo sprintf('operator been changed %s -> %s! ', $number->nnp_operator_id, $newOperatorId);
+
+                        if ($newOperatorId == $operatorId) {
+                            echo 'Ported to MCN!';
+
+                            $eventsTo[] = [
+                                'date' => $date,
+                                'client_id' => $number->client_id,
+                                'operator_from_id' => $number->nnp_operator_id,
+                                'operator_from_name' => '',
+                                'operator_to_id' => $operatorId,
+                                'operator_to_name' => $operatorName,
+                            ];
+                            $allOperatorIds[$number->nnp_operator_id] = $number->nnp_operator_id;
+                        } else if ($number->nnp_operator_id == $operatorId) {
+                            echo 'Ported from MCN!';
+
+                            $eventsFrom[] = [
+                                'date' => $date,
+                                'client_id' => $number->client_id,
+                                'operator_from_id' => $operatorId,
+                                'operator_from_name' => $operatorName,
+                                'operator_to_id' => $newOperatorId,
+                                'operator_to_name' => '',
+                            ];
+                            $allOperatorIds[$newOperatorId] = $newOperatorId;
+                        }
+                    }
+                }
+                echo PHP_EOL;
+            }
+
+            $this->processReleasedAndPorted($updates, $allOperatorIds, $eventsFrom, $eventsTo, $isProcess);
+        }
+
+        echo 'Done!' . PHP_EOL;
+    }
+
+    /**
+     * @param array $updates
+     * @param array $allOperatorIds
+     * @param array $eventsFrom
+     * @param array $eventsTo
+     * @param bool $isProcess
+     * @return bool
+     * @throws \yii\db\Exception
+     */
+    protected function processReleasedAndPorted(array $updates, array $allOperatorIds, array $eventsFrom, array $eventsTo, $isProcess)
+    {
+        if (empty($updates)) {
+            return true;
+        }
+
+        $operators = [];
+        $allOperatorIds = array_filter($allOperatorIds);
+        if ($allOperatorIds) {
+            $operators = Operator::find()
+                ->andWhere(['id' => $allOperatorIds])
+                ->indexBy('id')
+                ->all();
+        }
+
+        $transaction = Number::getDb()->beginTransaction();
+        try {
+            echo ('Found numbers with operator changed: ' . count($updates)) . PHP_EOL;
+
+            foreach (array_chunk($updates, static::CHUNK_SIZE_UPDATE) as $chunk) {
+                $sql = $this->getBatchUpdateSql(Number::tableName(), 'number', 'nnp_operator_id', $chunk);
+                $commandPorted = Number::getDb()->createCommand($sql);
+
+                $count = $this->execCommandOrPrint($commandPorted, $isProcess);
+                echo ('Numbers updated: ' . $count) . PHP_EOL;
+            }
+
+            foreach ($eventsFrom as $data) {
+                $operatorId = $data['operator_to_id'];
+                $data['operator_from_name'] = !empty($operators[$operatorId]) ? $operators[$operatorId]->name : '';
+
+                if ($isProcess) {
+                    ImportantEvents::create(
+                        ImportantEventsNames::PORTING_FROM_MCN,
+                        ImportantEventsSources::SOURCE_STAT,
+                        $data
+                    );
+                }
+            }
+
+            foreach ($eventsTo as $data) {
+                $operatorId = $data['operator_from_id'];
+                $data['operator_from_name'] = !empty($operators[$operatorId]) ? $operators[$operatorId]->name : '';
+
+                if ($isProcess) {
+                    ImportantEvents::create(
+                        ImportantEventsNames::PORTING_TO_MCN,
+                        ImportantEventsSources::SOURCE_STAT,
+                        $data
+                    );
+                }
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            $errorText = $e->getMessage();
+
+            echo ('Error occurred while updating: ' . $errorText) . PHP_EOL;
+        }
+
+        return true;
     }
 }

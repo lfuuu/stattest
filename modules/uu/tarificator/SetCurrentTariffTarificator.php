@@ -203,6 +203,8 @@ SQL;
 
             case ServiceType::ID_VOIP:
                 // Телефония
+                EventQueue::go(EventQueue::ACTUALIZE_NUMBER, ['number' => $accountTariff->voip_number]);
+
                 // \app\dao\ActualNumberDao::collectFromUsages ресурс "линии" всегда передает 1. Надо дополнительно отправить запрос про ресурсы
                 EventQueue::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
                     'client_account_id' => $accountTariff->client_account_id,
