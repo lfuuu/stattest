@@ -196,6 +196,7 @@ class PayReportFilter extends Payment
             self::TYPE_ECASH . '_' . self::ECASH_SBERBANK => 'ЭлСбербанк',
             self::TYPE_ECASH . '_' . self::ECASH_PAYPAL => 'ЭлPayPall',
             self::TYPE_ECASH . '_' . self::ECASH_CYBERPLAT => 'ЭлCyberplat',
+            self::TYPE_ECASH . '_' . self::ECASH_SBERBANK_ONLINE_MOBILE => 'ЭлSberOnlineMob',
             self::TYPE_ECASH . '_' . self::ECASH_QIWI => 'ЭлQiwi',
             self::TYPE_ECASH . '_' . self::ECASH_STRIPE => 'ЭлStripe',
         ];
