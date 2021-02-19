@@ -4,7 +4,6 @@ namespace app\models;
 
 use app\classes\model\ActiveRecord;
 
-
 /**
  * @property int $pk
  * @property string $e164
@@ -38,7 +37,7 @@ class NumberLog extends ActiveRecord
     const ACTION_SALE = 'sale';
     const ACTION_NOTSALE = 'notsale';
     const ACTION_UNRELEASE = 'unrelease';
-
+    const ACTION_MOVE_TO_RELEASED = 'moveToReleased';
 
     /**
      * @return string

@@ -1,7 +1,5 @@
 <?php
 
-/* @var $this \yii\web\View */
-
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -9,6 +7,7 @@ use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
+/* @var $this \yii\web\View */
 /* @var $info array */
 ?>
 <?= \yii\widgets\Breadcrumbs::widget([

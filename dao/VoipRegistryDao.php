@@ -15,6 +15,7 @@ use app\models\voip\Registry;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Region;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
@@ -368,9 +369,8 @@ class VoipRegistryDao extends Singleton
         $transaction = \Yii::$app->db->beginTransaction();
 
         $info = '';
-
         try {
-            // add number to reestr
+            // add number to registry
             $number = Number::findOne(['number' => $numberStr]);
             if (!$number) {
                 $numberInfo = Number::getNnpInfo($numberStr);
@@ -403,52 +403,85 @@ class VoipRegistryDao extends Singleton
                 $registry->mvno_trunk_id = 1231;
 
                 $number = Registry::dao()->addNumber($registry, $numberStr);
+                $info .= 'Number created';
+
                 $number->client_id = $accountId;
+                $number->status = Number::STATUS_RELEASED;
 
                 if (!$number->save()) {
                     throw new ModelValidationException($number);
                 }
-                $info .= 'Number created';
+                Number::dao()->log($number, NumberLog::ACTION_MOVE_TO_RELEASED, "Y");
+                $info .= PHP_EOL . 'Number moved to released status';
             }
+
             $transaction->commit();
-            $transaction = null;
 
-            if (!AccountTariff::find()->where(['voip_number' => $numberStr])->exists()) {
-
-                Number::dao()->toInstock($number);
-                $tariffPeriodId = TariffPeriod::PORTED_ID;
-                $apiKey = \Yii::$app->params['API_SECURE_KEY'];
-                $siteUrl = \Yii::$app->params['SITE_URL'];
-                $q = "curl -s -X PUT --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: application/json' --header 'Authorization: Bearer {$apiKey}' -d 'client_account_id={$accountId}&service_type_id=2&tariff_period_id={$tariffPeriodId}&voip_number={$number->number}&is_async=0&is_create_user=1' '{$siteUrl}api/internal/uu/add-account-tariff'";
-
-                @ob_start();
-                system($q);
-                $result = ob_get_clean();
-
-                $result = json_decode($result, true);
-
-                if (!$result) {
-                    sleep(3);
-                    $number->refresh();
-
-                    if ($number->status == Number::STATUS_INSTOCK) {
-                        Number::dao()->startNotSell($number);
-                    }
-                } else {
-                    if (isset($result['status']) && $result['status'] == 'ERROR') {
-                        Number::dao()->startReserve($number, $number->clientAccount);
-                    }
-                }
-                $info .= PHP_EOL . 'Service created' . PHP_EOL . json_encode($result) . PHP_EOL;
-
-                return $info;
-            }
-
-
+            return $info;
         } catch (\Exception $e) {
             $transaction && $transaction->rollBack();
 
             throw $e;
         }
+    }
+
+    /**
+     * При фактическом переезде номера к МСН Телеком у регулятора
+     * создаём услугу
+     *
+     * @param string $numberStr
+     * @return string
+     * @throws ModelValidationException
+     */
+    public function createAccountTariffForPortedNumber($numberStr)
+    {
+        $info = '';
+
+        $number = Number::findOne(['number' => $numberStr]);
+        if (!$number) {
+            $info .= 'Number not found ' . $numberStr;
+
+            return $info;
+        }
+
+        if (!AccountTariff::find()->where(['voip_number' => $number->number])->exists()) {
+            $accountId = $number->client_id;
+
+            Number::dao()->toInstock($number);
+            $apiKey = \Yii::$app->params['API_SECURE_KEY'];
+            $siteUrl = \Yii::$app->params['SITE_URL'];
+            $queryString = http_build_query([
+                'client_account_id' => $accountId,
+                'service_type_id' => ServiceType::ID_VOIP,
+                'tariff_period_id' => TariffPeriod::PORTED_ID,
+                'voip_number' => $number->number,
+                'is_async' => 0,
+                'is_create_user' => 1,
+            ]);
+            $command = "curl -s -X PUT --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: application/json' --header 'Authorization: Bearer {$apiKey}' -d '{$queryString}' '{$siteUrl}api/internal/uu/add-account-tariff'";
+
+            @ob_start();
+            system($command);
+            $result = ob_get_clean();
+
+            $result = json_decode($result, true);
+            if (!$result) {
+                sleep(3);
+                $number->refresh();
+
+                if ($number->status == Number::STATUS_INSTOCK) {
+                    Number::dao()->startNotSell($number);
+                }
+            } else {
+                if (isset($result['status']) && $result['status'] == 'ERROR') {
+                    Number::dao()->startReserve($number, $number->clientAccount);
+                }
+            }
+            $info .= 'Service created' . PHP_EOL . json_encode($result) . PHP_EOL;
+        } else {
+            $info .= 'Service already exists for number' . $number->number;
+        }
+
+        return $info;
     }
 }
