@@ -215,9 +215,16 @@ class Migration extends \yii\db\Migration
 
         $query = AccountTariff::find()->where([
             'service_type_id' => $serviceTypeId,
-            'tariff_period_id' => $tariffPeriods
+            'tariff_period_id' => $tariffPeriods,
         ]);
 
+        $count = $query->count();
+        echo PHP_EOL . 'count: ' . $query->count();
+        echo PHP_EOL;
+
+        $cnt = 0;
+        $now = (new \DateTime('now'));
+        $rc = null;
         /** @var AccountTariff $accountTariff */
         foreach ($query->each() as $accountTariff) {
             if ($accountTariff->getAccountTariffResourceLogsAll()->where(['resource_id' => $resourceId])->exists()) {
@@ -241,6 +248,35 @@ class Migration extends \yii\db\Migration
             if (!$atResourceLog->save()) {
                 throw new ModelValidationException($atResourceLog);
             }
+
+            if ($count <= 10) {
+                continue;
+            }
+
+            $pcn = round((++$cnt / round($count / 100)), 2);
+            $lenCount = strlen((string)$count);
+
+            echo "\r" . $count . ' / ' . str_pad($cnt, $lenCount, ' ', STR_PAD_RIGHT) . ' ' . str_pad($pcn . ' %', 9);
+            echo '[';
+            echo str_pad(str_repeat('=', (int)$pcn + 1) . '>', 100);
+            echo '] ';
+
+            if ($pcn * 100 % 5 == 0) {
+                $diff = (new \DateTime())->getTimestamp() - $now->getTimestamp();
+                if ($diff > 0 && $pcn > 0) {
+                    $rc = (new \DateTime())
+                        ->setTime(0, 0, 0)
+                        ->modify('+' . round((($diff * 100) / $pcn)) . ' second')
+                        ->format('H:i:s');
+
+                    $rc .= ' / ' . (new \DateTime())
+                            ->setTime(0, 0, 0)
+                            ->modify('+' . $diff . ' second')
+                            ->format('H:i:s');
+                }
+            }
+
+            echo $rc;
         }
     }
 
