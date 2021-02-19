@@ -63,7 +63,7 @@ class Payment extends ActiveRecord
     const ECASH_SBERBANK = 'sberbank';
     const ECASH_QIWI = 'qiwi';
     const ECASH_STRIPE = 'stripe';
-    const ECASH_SBERBANK_ONLINE_MOBILE = 'sber_online_mob';
+    const ECASH_SBERBANK_ONLINE_MOBILE = 'sberOnlineMob';
 
     public static $types = [
         self::TYPE_PROV => 'Check',
@@ -92,7 +92,7 @@ class Payment extends ActiveRecord
         self::ECASH_SBERBANK => 'Sberbank',
         self::ECASH_QIWI => 'Qiwi',
         self::ECASH_STRIPE => 'Stripe',
-        self::ECASH_SBERBANK_ONLINE_MOBILE => 'SberOnlineMob',
+        self::ECASH_SBERBANK_ONLINE_MOBILE => 'sberOnlineMob',
     ];
 
     public $isNeedToSendAtol = false;
