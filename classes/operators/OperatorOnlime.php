@@ -169,6 +169,24 @@ class OperatorOnlime extends Operators
             'nameFull' => '(Onlime) Приставка, IPTV Sercomm STB 122A STB Android',
             'id_1c' => 'c820ca61-d075-11e9-87a0-00155d881200',
         ],
+        'count_58' => [
+            'id' => 19099,
+            'name' => 'Умная колонка Prestigio Smartvoice (темно серый)',
+            'nameFull' => '(Onlime) -- Умная колонка Prestigio Smartvoice (темно серый)',
+            'id_1c' => '880bc818-6d0a-11eb-a10f-00155d881200',
+        ],
+        'count_59' => [
+            'id' => 19100,
+            'name' => 'Умная колонка Prestigio Smartvoice (светло серый)',
+            'nameFull' => '(Onlime) Умная колонка Prestigio Smartvoice (светло серый)',
+            'id_1c' => '9d4d0228-6d0a-11eb-a10f-00155d881200',
+        ],
+        'count_60' => [
+            'id' => 19082,
+            'name' => 'Систем мониторинга Колонка капсула Mail.ru дляголосового управления WINK (Черная)',
+            'nameFull' => '(Onlime) Систем мониторинга объекта Колонка капсула Mail.ru дляголосового управления WINK (Черная)',
+            'id_1c' => 'b487d662-89ea-11ea-80a4-00155d881200',
+        ],
     ];
 
     public static $requestModes = [
