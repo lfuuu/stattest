@@ -274,6 +274,11 @@ echo \yii\widgets\Breadcrumbs::widget([
                                         echo '<b>Номер вернули из открепленных</b>';
 
                                         break;
+
+                                    case NumberLog::ACTION_MOVE_TO_RELEASED:
+                                        echo '<b>Номер переведен в статус Откреплен</b>';
+
+                                        break;
                                         ?>
                                     <?php } ?>
                             </td>

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Html;
 use app\classes\HttpClient;
 use app\classes\model\ActiveRecord;
@@ -617,6 +618,16 @@ class Number extends ActiveRecord
         }
 
         return $data['nnp_operator_id'] === $operatorId;
+    }
+
+    /**
+     * Номер был портирован к нам
+     *
+     * @return bool
+     */
+    public function isPorted()
+    {
+        return $this->source == VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE;
     }
 
     /**

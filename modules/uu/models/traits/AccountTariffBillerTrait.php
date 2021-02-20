@@ -256,18 +256,18 @@ trait AccountTariffBillerTrait
     /**
      * Закрыть услугу
      *
-     * @param null $actual_from_utc
+     * @param null $actualFromUtc
      * @throws \yii\db\Exception
      */
-    public function setClosed($actual_from_utc = null)
+    public function setClosed($actualFromUtc = null)
     {
         $transaction = \Yii::$app->db->beginTransaction();
         $nextAccountTariffLog = new AccountTariffLog();
-        $actual_from_utc = $actual_from_utc ?: (new Query)->select(new Expression('UTC_TIMESTAMP()'))->scalar();
+        $actualFromUtc = $actualFromUtc ?: (new Query)->select(new Expression('UTC_TIMESTAMP()'))->scalar();
         try {
             $nextAccountTariffLog->account_tariff_id = $this->id;
             $nextAccountTariffLog->tariff_period_id = null;
-            $nextAccountTariffLog->actual_from_utc = $actual_from_utc;
+            $nextAccountTariffLog->actual_from_utc = $actualFromUtc;
             if (!$nextAccountTariffLog->save()) {
                 throw new ModelValidationException($nextAccountTariffLog);
             }

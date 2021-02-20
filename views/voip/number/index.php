@@ -1,10 +1,6 @@
 <?php
 /**
  * Список номеров
- *
- * @var app\classes\BaseView $this
- * @var NumberFilter $filterModel
- * @var int $currentClientAccountId
  */
 
 use app\classes\grid\column\universal\BeautyLevelColumn;
@@ -32,6 +28,12 @@ use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
+
+/**
+ * @var app\classes\BaseView $this
+ * @var NumberFilter $filterModel
+ * @var int $currentClientAccountId
+ */
 
 ?>
 
@@ -100,8 +102,6 @@ if (Yii::$app->user->can('voip.change-number-status')) {
     } else {
         echo Html::tag('small', 'Слишком много номеров для измнения статуса (>10000)', ['class' => 'text-muted']);
     }
-
-
 }
 
 ?>

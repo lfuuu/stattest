@@ -21,7 +21,6 @@ use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
-
 /**
  * @property int $id
  * @property string $event
@@ -115,6 +114,7 @@ class EventQueue extends ActiveRecord
     const SYNC_TELE2_UNSET_IMSI = 'sync_tele2_unset_imsi';
     const SYNC_TELE2_UNLINK_IMSI = 'sync_tele2_unlink_imsi';
     const PORTED_NUMBER_ADD = 'ported_number_add';
+    const NUMBER_HAS_BEEN_PORTED = 'number_has_been_ported';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
@@ -179,6 +179,7 @@ class EventQueue extends ActiveRecord
         self::SYNC_TELE2_UNSET_IMSI => 'Теле2. очистить IMSI',
         self::SYNC_TELE2_UNLINK_IMSI => 'Теле2. Открепить номер от IMSI',
         self::PORTED_NUMBER_ADD => 'Добавить портированный номер',
+        self::NUMBER_HAS_BEEN_PORTED => 'Номер портирован к МСН Телеком',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',

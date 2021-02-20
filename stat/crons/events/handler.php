@@ -971,6 +971,12 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = Registry::dao()->addPortedNumber($param['account_id'], $param['number']);
                     break;
 
+                case EventQueue::NUMBER_HAS_BEEN_PORTED:
+                    $number = $param['number'];
+                    $info = Registry::dao()->createAccountTariffForPortedNumber($number);
+                    EventQueue::go(EventQueue::ACTUALIZE_NUMBER, ['number' => $number]);
+                    break;
+
 
 
                 // --------------------------------------------

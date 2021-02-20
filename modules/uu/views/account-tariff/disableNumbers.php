@@ -1,9 +1,9 @@
 <?php
 
-/* @var $this \yii\web\View */
-
 use app\classes\Html;
 use yii\widgets\ActiveForm;
+
+/* @var $this \yii\web\View */
 
 echo \yii\widgets\Breadcrumbs::widget([
     'links' => [
