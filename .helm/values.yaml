@@ -5,15 +5,6 @@
 #    stage: stat.ks8.mcn.local
 
 php_prod:
-  output_buffering: 4096
-  expose_php: Off
-  max_execution_time: 36000
-  max_input_time: 300
-  memory_limit: 4G
-  post_max_size: 900M
-  upload_max_filesize: 500M
-  serialize_precision: 100
-  short_open_tag: On
   error_reporting: 22517
   display_errors: On
   display_startup_errors: On

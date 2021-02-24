@@ -38,10 +38,8 @@ class PackagePricelistNnpInternet extends PackagePricelistNnp
     public function beforeSave($insert)
     {
         $this->bytes_amount *= (1024 * 1024);
-        $result = parent::beforeSave($insert);
-        $this->bytes_amount /= (1024 * 1024);
 
-        return $result;
+        return parent::beforeSave($insert);
     }
 
 }

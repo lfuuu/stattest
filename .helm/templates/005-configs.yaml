@@ -12,20 +12,16 @@ data:
     SMTP = mail.mcn.ru
     sendmail_path = /usr/sbin/sendmail -S mail.mcn.ru -t -i -f root@tiberis.mcn.ru
 
-    output_buffering = {{ .Values.php_prod.output_buffering }}
-
-    expose_php = {{ .Values.php_prod.expose_php }}
-
-    max_execution_time = {{ .Values.php_prod.max_execution_time }}
-    max_input_vars=100000
-    max_input_time = {{ .Values.php_prod.max_input_time }}
-    memory_limit = {{ .Values.php_prod.memory_limit }}
-    post_max_size = {{ .Values.php_prod.post_max_size }}
-    upload_max_filesize = {{ .Values.php_prod.upload_max_filesize }}
-
-    serialize_precision = {{ .Values.php_prod.serialize_precision }}
-
-    short_open_tag = {{ .Values.php_prod.short_open_tag }}
+    output_buffering = 4096
+    expose_php = Off
+    max_execution_time = 36000
+    max_input_time = 36000
+    max_input_vars = 100000
+    memory_limit = 4G
+    post_max_size = 900M
+    upload_max_filesize = 500M
+    serialize_precision = 100
+    short_open_tag = On
 
     error_reporting = {{ .Values.php_prod.error_reporting }}
     display_errors = {{ .Values.php_prod.display_errors }}

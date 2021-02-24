@@ -130,6 +130,7 @@ class UsagesController extends Controller
             try {
                 if ($accountTariff->getAccountTariffResourceLogsAll()->where(['resource_id' => $resourceId])->exists()) {
                     echo ' -';
+                    $transaction->rollBack();
                     continue;
                 }
 
