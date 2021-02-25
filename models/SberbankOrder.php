@@ -68,6 +68,13 @@ class SberbankOrder extends ActiveRecord
      */
     public function makePayment($info)
     {
+
+        if (isset($info['orderNumber'])) {
+            if (Payment::find()->where(['bill_no' => $info['orderNumber']])->exists()) {
+                return;
+            }
+        }
+
         $transaction = \Yii::$app->db->beginTransaction();
 
         $semResource = sem_get(self::ID_SEMAFOR);
@@ -83,6 +90,9 @@ class SberbankOrder extends ActiveRecord
 
             $bill = $this->bill;
 
+
+
+            $payment->payment_no = $info['authRefNum'];
             $payment->client_id = $bill->client_id;
             $payment->bill_no = $payment->bill_vis_no = $bill->bill_no;
             $payment->add_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
