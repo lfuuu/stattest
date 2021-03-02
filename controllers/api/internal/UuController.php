@@ -1546,7 +1546,7 @@ class UuController extends ApiInternalController
                 'free_amount' => $tariffResource ? $tariffResource->amount : null,
                 'price_per_unit' => $tariffResource ? $tariffResource->price_per_unit : null,
                 'price_min' => $tariffResource ? $tariffResource->price_min : null,
-                'log' => $this->_getAccountTariffResourceLogLightRecord($accountTariffResourceLogs),
+                'log' => $this->_getAccountTariffResourceLogLightRecord($accountTariffResourceLogs, $tariffResourcesIndexedByResourceId[$resource->id]->is_can_manage),
             ];
         }
 
@@ -1555,9 +1555,10 @@ class UuController extends ApiInternalController
 
     /**
      * @param AccountTariffResourceLog[] $models
+     * @param bool $isCanManage
      * @return array
      */
-    private function _getAccountTariffResourceLogLightRecord($models)
+    private function _getAccountTariffResourceLogLightRecord($models, $isCanManage = false)
     {
         $result = [];
 
@@ -1600,7 +1601,7 @@ class UuController extends ApiInternalController
                 'activate_past_date' => $modelLast->actual_from,
                 'activate_future_date' => null,
                 'is_cancelable' => false,
-                'is_editable' => true, // @todo
+                'is_editable' => (bool)$isCanManage,
             ];
 
         }
