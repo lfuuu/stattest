@@ -7,7 +7,15 @@ import requests
 import simplejson as json
 import sys
 
-# mysqlCursor, clickhouseClient
+
+def pprint(d, indent=0):
+   for key, value in d.items():
+      print('\t' * indent + str(key))
+      if isinstance(value, dict):
+         pretty(value, indent+1)
+      else:
+         print('\t' * (indent+1) + str(value))
+
 def copy(mysqlCursor, clickhouse):
    mysqlCursor.execute('SELECT max(id) mid FROM important_events')
 
@@ -19,7 +27,11 @@ def copy(mysqlCursor, clickhouse):
    if mysqlMaxId <= clickhouseMaxId :
        return False
 
-   mysqlCursor.execute("SELECT id, date, client_id, event, source_id, from_ip, comment, context from important_events where id > %d  order by id limit 1000" % clickhouseMaxId)
+   cacheEvent = dict()
+   cacheSource = dict()
+   cacheClient = dict()
+
+   mysqlCursor.execute("SELECT id, event, date, client_id, source_id, from_ip, comment, context from important_events where id > %d  order by id limit 1000" % clickhouseMaxId)
    data = [ row for row in mysqlCursor]
 
    # ip address conversion
@@ -35,7 +47,34 @@ def copy(mysqlCursor, clickhouse):
    clickhouse.execute("INSERT INTO mcn.important_events (id, date, client_id, event, source_id, from_ip, comment, context) VALUES", data, types_check=True)
 
    for row in data:
-       row['date'] = row['date'].isoformat(' ')
+       if row['event'] not in cacheEvent:
+           mysqlCursor.execute("select value from important_events_names where code = %s", (row['event']))
+           eventNameObj = mysqlCursor.fetchone()
+           cacheEvent[row['event']] = eventNameObj['value'] if eventNameObj is not None else '???'
+
+       row['event_name'] = cacheEvent[row['event']]
+
+       if row['source_id'] not in cacheSource:
+           mysqlCursor.execute("select title from important_events_sources where id = %s", (row['source_id']))
+           eventSourceObj = mysqlCursor.fetchone()
+           cacheSource[row['source_id']] = eventSourceObj['title'] if eventSourceObj is not None else '???'
+
+       row['source_name'] = cacheSource[row['source_id']]
+
+       if row['client_id'] not in cacheClient:
+           mysqlCursor.execute("select cg.name from clients c, client_contract cc, client_contragent cg where c.id = %s and c.contract_id=cc.id and cg.id = cc.contragent_id", (row['client_id']))
+           clientObj = mysqlCursor.fetchone()
+           cacheClient[row['client_id']] = clientObj['name'] if clientObj is not None else '???'
+
+       row['client_name'] = cacheClient[row['client_id']]
+
+       context = json.loads(row['context'])
+       row.update(context)
+       del row['context']
+
+       row['date'] = row['date'].isoformat()
+#        print(row)
+#        pprint(row)
        requests.post("http://tiberis.mcn.ru:8888/stat", data={'json':json.dumps(row)})
 
    return True
