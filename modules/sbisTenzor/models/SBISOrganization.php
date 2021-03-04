@@ -180,6 +180,7 @@ class SBISOrganization extends ActiveRecord
                         'shvedov@mcn.ru' => 'Ilya',
                         'adima@mcn.ru' => 'Dima',
                         'mak@mcn.ru' => 'Alexander',
+                        'vma@mcn.ru' => 'Mikhail',
                     ])
                     ->setSubject('SBIS signature is gonna be expired')
                     ->send();
