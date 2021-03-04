@@ -31,7 +31,7 @@ class CallsRawFilter extends CallsRaw
     use \app\classes\traits\CallsRawSlowReport;
 
     const UNATTAINABLE_SESSION_TIME = 2592000;
-    const EXACT_COUNT_LIMIT = 5000;
+    const MAX_RAW_DATA_LIMIT = 100000;
 
     protected $requiredValues;
 
@@ -583,10 +583,10 @@ class CallsRawFilter extends CallsRaw
     public function getGroupKeyParts($groupKey)
     {
         $groupKeys = [
-            'sale' => 'round(sale::numeric, 4)',
-            'cost_price' => 'round(cost_price::numeric, 4)',
-            'orig_rate' => 'round(orig_rate::numeric, 4)',
-            'term_rate' => 'round(term_rate::numeric, 4)',
+            'sale' => 'round(sale::numeric, 6)',
+            'cost_price' => 'round(cost_price::numeric, 6)',
+            'orig_rate' => 'round(orig_rate::numeric, 6)',
+            'term_rate' => 'round(term_rate::numeric, 6)',
         ];
 
         return isset($groupKeys[$groupKey]) ?
@@ -803,6 +803,27 @@ class CallsRawFilter extends CallsRaw
             $dbConn = Yii::$app->dbPg;
         }
         */
+
+        if (!$this->group && !$this->aggr) {
+            $count = $query->rowCount();
+            if ($count > self::MAX_RAW_DATA_LIMIT) {
+                $this->addError(
+                    'id',
+                    sprintf(
+                        'Полный результат содержит более %s строк (%s). Скорректируйте запрос.',
+                        number_format(self::MAX_RAW_DATA_LIMIT, 0, '.', ' '),
+                        number_format($count, 0, '.', ' ')
+                    )
+                );
+
+                return [];
+            }
+
+            if ($count == 0) {
+                return [];
+            }
+        }
+        //echo ($query->createCommand($dbConn)->rawSql);
 
         $queryCacheKey = CallsRaw::getCacheKey($query);
         if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {

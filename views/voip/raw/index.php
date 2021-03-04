@@ -31,18 +31,18 @@ if ($filterModel->isPreFetched) {
 }
 
 $aggrDigitCount = [
-    'sale_sum' => 4,
-    'sale_avg' => 4,
-    'sale_min' => 4,
-    'sale_max' => 4,
-    'cost_price_sum' => 4,
-    'cost_price_avg' => 4,
-    'cost_price_min' => 4,
-    'cost_price_max' => 4,
-    'margin_sum' => 4,
-    'margin_avg' => 4,
-    'margin_min' => 4,
-    'margin_max' => 4,
+    'sale_sum' => 6,
+    'sale_avg' => 6,
+    'sale_min' => 6,
+    'sale_max' => 6,
+    'cost_price_sum' => 6,
+    'cost_price_avg' => 6,
+    'cost_price_min' => 6,
+    'cost_price_max' => 6,
+    'margin_sum' => 6,
+    'margin_avg' => 6,
+    'margin_min' => 6,
+    'margin_max' => 6,
     'margin_percent' => 2,
 ];
 

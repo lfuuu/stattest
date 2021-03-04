@@ -997,7 +997,14 @@ EOL;
 
             echo sprintf('accountTariff id#%s, number %s: %s of %s... ', $accountTariff->id, $accountTariff->voip_number, ++$i, $total);
             if ($this->isProcess) {
-                $accountTariff->setClosed();
+                try {
+                    $accountTariff->setClosed();
+                } catch (\Exception $e) {
+                    $errorText = $e->getMessage();
+
+                    echo ('Error occurred while setting closed account tariff: ' . $errorText) . PHP_EOL;
+                }
+
 
                 echo 'has been processed!' . PHP_EOL;
             } else {
