@@ -72,7 +72,7 @@ def copy(mysqlCursor, clickhouse):
        row.update(context)
        del row['context']
 
-       row['date'] = row['date'].isoformat()
+       row['doc_date'] = row['date'].isoformat()
 #        print(row)
 #        pprint(row)
        requests.post("http://tiberis.mcn.ru:8888/stat", data={'json':json.dumps(row)})
