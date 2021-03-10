@@ -68,9 +68,18 @@ class SberbankOrder extends ActiveRecord
      */
     public function makePayment($info)
     {
-
         if (isset($info['orderNumber'])) {
-            if (Payment::find()->where(['bill_no' => $info['orderNumber']])->exists()) {
+            if (
+                Payment::find()->where(['bill_no' => $info['orderNumber']])->exists()
+                || (
+                    isset($info['authRefNum'])
+                    && $info['authRefNum']
+                    && Payment::find()->where([
+                        'payment_no' => $info['authRefNum'],
+                        'client_id' => $this->bill->client_id
+                    ])->exists()
+                )
+            ) {
                 return;
             }
         }
@@ -89,7 +98,6 @@ class SberbankOrder extends ActiveRecord
             $payment = new Payment();
 
             $bill = $this->bill;
-
 
 
             $payment->payment_no = $info['authRefNum'];
