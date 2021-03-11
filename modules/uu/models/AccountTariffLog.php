@@ -829,7 +829,8 @@ class AccountTariffLog extends ActiveRecord
         $query = AccountTariff::find()
             ->where([
                 'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
-                'tariff_period_id' => $this->tariff_period_id
+                'tariff_period_id' => $this->tariff_period_id,
+                'client_account_id' => $accountTariff->id,
             ])->andWhere(['not', ['id' => $accountTariff->id]]);
 
         if ($query->count()) {
@@ -844,6 +845,7 @@ class AccountTariffLog extends ActiveRecord
             ->joinWith('accountTariff')
             ->where(
                 [
+                    $accountTariffTableName . '.client_account_id' => $accountTariff->client_account_id,
                     $accountTariffTableName . '.service_type_id' => $accountTariff->service_type_id,
                     $accountTariffTableName . '.prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
                     $accountTariffLogTableName . '.tariff_period_id' => $this->tariff_period_id,
