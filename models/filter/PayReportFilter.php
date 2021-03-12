@@ -6,6 +6,7 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Payment;
+use app\models\PaymentApiChannel;
 use app\models\PaymentAtol;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
@@ -99,7 +100,7 @@ class PayReportFilter extends Payment
                 'bill_date' => 'Дата счета',
                 'uuid' => 'ID в онлайн-кассе',
                 'uuid_status' => 'Статус отправки в онлайн-кассу',
-                'uuid_log' => 'Лог отправки в онлайн-кассу',
+                'uuid_log' => 'Лог отправки в онлайн-кассу / API Payment Info',
             ];
     }
 
@@ -113,7 +114,9 @@ class PayReportFilter extends Payment
         $query = Payment::find()
             ->alias('p')
             ->joinWith('bill b')
-            ->joinWith('paymentAtol');
+            ->joinWith('paymentAtol')
+            ->joinWith('apiInfo')
+        ;
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -185,21 +188,35 @@ class PayReportFilter extends Payment
      */
     public function getTypeList()
     {
+        $pcList = PaymentApiChannel::getList();
+
+        $keys = array_keys($pcList);
+        array_walk($keys, function (&$k) {
+            $k = Payment::TYPE_API . '_' . $k;
+        });
+
+        $values = array_values($pcList);
+        array_walk($values, function (&$v) {
+            $v = ucfirst(Payment::TYPE_API) .' ' . ucfirst($v);
+        });
+
+        $pcList = array_combine($keys, $values);
+
         return [
-            '' => '----',
-            self::TYPE_BANK => 'Банк',
-            self::TYPE_PROV => 'Кассовый чек',
-            self::TYPE_NEPROV => 'Наличка',
-            self::TYPE_CREDITNOTE => 'Credit Note',
-            self::TYPE_TERMINAL => 'Терминал',
-            self::TYPE_ECASH . '_' . self::ECASH_YANDEX => 'ЭлЯндексДеньги',
-            self::TYPE_ECASH . '_' . self::ECASH_SBERBANK => 'ЭлСбербанк',
-            self::TYPE_ECASH . '_' . self::ECASH_PAYPAL => 'ЭлPayPall',
-            self::TYPE_ECASH . '_' . self::ECASH_CYBERPLAT => 'ЭлCyberplat',
-            self::TYPE_ECASH . '_' . self::ECASH_SBERBANK_ONLINE_MOBILE => 'ЭлSberOnlineMob',
-            self::TYPE_ECASH . '_' . self::ECASH_QIWI => 'ЭлQiwi',
-            self::TYPE_ECASH . '_' . self::ECASH_STRIPE => 'ЭлStripe',
-        ];
+                '' => '----',
+                self::TYPE_BANK => 'Банк',
+                self::TYPE_PROV => 'Кассовый чек',
+                self::TYPE_NEPROV => 'Наличка',
+                self::TYPE_CREDITNOTE => 'Credit Note',
+                self::TYPE_TERMINAL => 'Терминал',
+                self::TYPE_ECASH . '_' . self::ECASH_YANDEX => 'ЭлЯндексДеньги',
+                self::TYPE_ECASH . '_' . self::ECASH_SBERBANK => 'ЭлСбербанк',
+                self::TYPE_ECASH . '_' . self::ECASH_PAYPAL => 'ЭлPayPall',
+                self::TYPE_ECASH . '_' . self::ECASH_CYBERPLAT => 'ЭлCyberplat',
+                self::TYPE_ECASH . '_' . self::ECASH_SBERBANK_ONLINE_MOBILE => 'ЭлSberOnlineMob',
+                self::TYPE_ECASH . '_' . self::ECASH_QIWI => 'ЭлQiwi',
+                self::TYPE_ECASH . '_' . self::ECASH_STRIPE => 'ЭлStripe',
+            ] + $pcList;
     }
 
     /**
@@ -220,6 +237,7 @@ class PayReportFilter extends Payment
      */
     private function _getTypeAndSubtype($mixType)
     {
-        return explode('_', $mixType . '_');
+        $pos = strpos($mixType, '_');
+        return [substr($mixType, 0, $pos), substr($mixType, $pos + 1)];
     }
 }

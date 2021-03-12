@@ -81,7 +81,9 @@ $columns = [
         'attribute' => 'bill_date',
         'label' => $filterModel->getAttributeLabel('bill_date'),
         'class' => DateRangeDoubleColumn::class,
-        'value' => function(Payment $payment) {return $payment->bill ? $payment->bill->bill_date : '';},
+        'value' => function (Payment $payment) {
+            return $payment->bill ? $payment->bill->bill_date : '';
+        },
     ],
 
     [
@@ -110,7 +112,7 @@ $columns = [
         'class' => DropdownColumn::class,
         'filter' => $filterModel->getTypeList(),
         'value' => function (Payment $payment) {
-            return $payment->type == Payment::TYPE_ECASH ? Payment::TYPE_ECASH . '_' . $payment->ecash_operator : $payment->type;
+            return $payment->ecash_operator ? $payment->type . '_' . $payment->ecash_operator : $payment->type;
         },
         'headerOptions' => ['style' => 'min-width: 100px'],
     ],
@@ -133,7 +135,17 @@ $columns = [
         'format' => 'raw',
         'class' => StringColumn::class,
         'value' => function (Payment $payment) {
-            return Html::tag('small', $payment->comment);
+            $apiInfo = $payment->apiInfo ? json_decode($payment->apiInfo->request, true) : [];
+            return Html::tag('small', $payment->comment . ($apiInfo ? "<br>" .
+                    Html::tag('i', $apiInfo['description'], [
+                        'class' => 'btn btn-xs btn-default event-queue-log-param-button text-overflow-ellipsis',
+                        'aria-hidden' => 'true',
+                        'data-toggle' => 'popover',
+                        'data-html' => 'true',
+                        'data-placement' => 'bottom',
+                        'data-content' => nl2br(htmlspecialchars($apiInfo['description'])),
+                    ])
+                    : ''));
         },
     ],
 
@@ -218,6 +230,27 @@ $columns = [
         'value' => function (Payment $payment) {
             $paymentAtol = $payment->paymentAtol;
             if (!$paymentAtol) {
+
+                if ($payment->apiInfo && $payment->apiInfo->info_json) {
+                    try {
+                        $logArray = Json::decode($payment->apiInfo->info_json, true);
+                    } catch (\Exception $e) {
+                        $logArray = $payment->apiInfo->info_json . '<br>' . $e->getMessage();
+                    }
+                    $logString = substr(print_r($logArray, true), 0, 10240);
+                    return Html::tag(
+                        'button',
+                        $logString,
+                        [
+                            'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
+                            'data-toggle' => 'popover',
+                            'data-html' => 'true',
+                            'data-placement' => 'bottom',
+                            'data-content' => nl2br(htmlspecialchars($logString)),
+                        ]
+                    );
+                }
+
                 return Yii::t('common', '(not set)');
             }
 

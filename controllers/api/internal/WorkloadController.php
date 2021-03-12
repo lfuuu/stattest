@@ -23,7 +23,7 @@ class WorkloadController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Нагрузка на номер"}, path = "/internal/workload/get-number-workload", summary = "Услуги телефонии", operationId = "Услуги телефонии",
+     * @SWG\Get(tags = {"Numbers"}, path = "/internal/workload/get-number-workload", summary = "Нагрузка на номер за период времени", operationId = "Нагрузка на номер за период времени",
      *     @SWG\Parameter(name = "date", type = "string", description = "Interval of workload calculation", in = "query", default = ""),
      *     @SWG\Parameter(name = "number", type = "string", description = "Phone number to calculation workload", in = "query", default = ""),
      *     @SWG\Parameter(name = "period", type = "string", description = "Calculation interval", in = "query", default = "hour"),

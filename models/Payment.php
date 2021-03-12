@@ -38,6 +38,7 @@ use yii\db\ActiveQuery;
  * @property-read User $addUser
  * @property-read PaymentAtol $paymentAtol
  * @property-read PaymentStripe $paymentStripe
+ * @property-read PaymentApiInfo $apiInfo
  */
 class Payment extends ActiveRecord
 {
@@ -47,6 +48,7 @@ class Payment extends ActiveRecord
     const TYPE_ECASH = 'ecash';
     const TYPE_CREDITNOTE = 'creditnote';
     const TYPE_TERMINAL = 'terminal';
+    const TYPE_API = 'api';
 
     const BANK_CITI = 'citi';
     const BANK_MOS = 'mos';
@@ -72,6 +74,7 @@ class Payment extends ActiveRecord
         self::TYPE_BANK => 'Bank transfer',
         self::TYPE_ECASH => 'Electronic money',
         self::TYPE_CREDITNOTE => 'Credit Note',
+        self::TYPE_API => 'API',
     ];
 
     public static $banks = [
@@ -195,6 +198,14 @@ class Payment extends ActiveRecord
     public function getPaymentAtol()
     {
         return $this->hasOne(PaymentAtol::class, ['id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getApiInfo()
+    {
+        return $this->hasOne(PaymentApiInfo::class, ['payment_id' => 'id']);
     }
 
     /**

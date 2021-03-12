@@ -122,6 +122,17 @@ class Utils
         return substr($pass, 0, $len);
     }
 
+    public static function gen_password($length = 6)
+    {
+        $chars = 'qazxswedcvfrtgbnhyujmkiolp1234567890QAZXSWEDCVFRTGBNHYUJMKIOLP~!@#$%^*()_+={}[];';
+        $size = strlen($chars) - 1;
+        $password = '';
+        while($length--) {
+            $password .= $chars[random_int(0, $size)];
+        }
+        return $password;
+    }
+
     /**
      * Проверяет, заблокирован ли файл
      *
