@@ -178,6 +178,7 @@ class Navigation
                 ->addItem('Статусы бизнес процессов', ['/dictionary/business-process-status'], ['dictionary-statuses.read'])
                 ->addItem('Общие настройки', ['/settings/'], ['dictionary.read'])
                 ->addItem('Roistat. Настройки номеров.', ['/dictionary/roistat-number-fields'])
+                ->addItem('API Каналы платежей', ['/dictionary/' . \app\models\PaymentApiChannel::NAVIGATION])
         );
 
         $this->addBlock(

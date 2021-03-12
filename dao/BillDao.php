@@ -848,6 +848,7 @@ SQL;
         $bill->is_approved = 1;
         $bill->price_include_vat = $isForcePriceIncludeVat === null ? $clientAccount->price_include_vat : (int)(bool)$isForcePriceIncludeVat;
         $bill->biller_version = $clientAccount->account_version;
+        $bill->comment = '';
         $bill->save();
 
         $bill->refresh();
