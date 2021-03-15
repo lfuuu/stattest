@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\models\Task;
+use app\models\User;
 use yii\console\Controller;
 
 class TaskController extends Controller
@@ -20,6 +21,8 @@ class TaskController extends Controller
         if (!$task) {
             return;
         }
+
+        \Yii::$app->user->setIdentity(User::findOne(['id' => $task->user_id]));
 
         $filter = new $task->filter_class;
         $filter->setAttributes(json_decode($task->filter_data_json, true), false);

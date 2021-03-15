@@ -20,6 +20,7 @@ use yii\helpers\Url;
  * @property string $progress
  * @property integer $count_all
  * @property integer $count_done
+ * @property integer $user_id
  */
 class Task extends ActiveRecord
 {
