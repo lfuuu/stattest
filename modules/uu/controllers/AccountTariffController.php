@@ -853,6 +853,7 @@ class AccountTariffController extends BaseController
         $task->filter_data_json = json_encode($filterModel->getAttributes());
         unset($post['_csrf']);
         $task->params_json = json_encode($post);
+        $task->user_id = \Yii::$app->user->getId();
         if (!$task->save()) {
             throw new ModelValidationException($task);
         }

@@ -113,6 +113,9 @@ return [
             'enableSession' => false,
             'enableAutoLogin' => false,
         ],
+        'authManager' => [
+            'class' => 'app\classes\AuthManager',
+        ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
