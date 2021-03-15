@@ -34,6 +34,10 @@ $serviceType = $filterModel->getServiceType();
     ],
 ]) ?>
 
+<?php if ($taskid = \Yii::$app->request->get('task_id')) {
+    echo $this->render('task', ['taskId' => $taskid]);
+} ?>
+
 <?= $this->render(
     ($serviceType && $isPersonalForm) ? '_indexVoip' : '_indexMain',
     [
