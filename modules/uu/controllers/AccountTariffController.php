@@ -11,6 +11,7 @@ use app\classes\Html;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Task;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\models\UsageTrunkSettings;
@@ -84,8 +85,8 @@ class AccountTariffController extends BaseController
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->_addClientAccountFilter($filterModel);
 
-        if ($this->_groupAction($filterModel)) {
-            return $this->redirect(Yii::$app->request->url);
+        if ($taskId = $this->_groupAction($filterModel)) {
+            return $this->redirect(Yii::$app->request->url . '&task_id=' . $taskId);
         }
 
         return $this->render('index', [
@@ -847,100 +848,16 @@ class AccountTariffController extends BaseController
             return false;
         }
 
-        $tariffPeriodIdAdd = false;
-        $serviceTypeId = null;
-        if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) {
-            $tariffPeriodIdAdd = $post['AccountTariffLogAdd']['tariff_period_id'];
-            $tariffPeriodAdd = TariffPeriod::findOne(['id' => $tariffPeriodIdAdd]);
-            Assert::isObject($tariffPeriodAdd);
-            $serviceTypeId = $tariffPeriodAdd->tariff->service_type_id;
+        $task = new Task();
+        $task->filter_class = get_class($filterModel);
+        $task->filter_data_json = json_encode($filterModel->getAttributes());
+        unset($post['_csrf']);
+        $task->params_json = json_encode($post);
+        if (!$task->save()) {
+            throw new ModelValidationException($task);
         }
 
-        /** @var ActiveQuery $query */
-        $query = $filterModel->search()->query;
-        /** @var AccountTariff $accountTariff */
-        foreach ($query->each() as $accountTariff) {
-            $transaction = \Yii::$app->db->beginTransaction();
-
-            try {
-                if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) { // add
-                    Assert::isNotNull($serviceTypeId);
-                    Assert::isGreater($serviceTypeId, 0);
-
-                    if ($accountTariff->prev_account_tariff_id) {
-                        $accountTariff = $accountTariff->prevAccountTariff;
-                    }
-
-                    $isAlreadyAdded = false;
-                    foreach ($accountTariff->nextAccountTariffs as $package) {
-
-                        if ($package->tariff_period_id == $tariffPeriodIdAdd) {
-                            $isAlreadyAdded = true;
-                            break;
-                        }
-
-                        // в будущем
-                        $logs = $package->accountTariffLogs;
-                        $log = reset($logs);
-                        if ($log->tariff_period_id == $tariffPeriodIdAdd) {
-                            $isAlreadyAdded = true;
-                            break;
-                        }
-                    }
-
-                    if (!$isAlreadyAdded) {
-                        // подключить базовый пакет
-                        $accountTariffPackage = new AccountTariff();
-                        $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
-                        $accountTariffPackage->service_type_id = $serviceTypeId;
-                        $accountTariffPackage->region_id = $accountTariff->region_id;
-                        $accountTariffPackage->city_id = $accountTariff->city_id;
-                        $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
-                        if (!$accountTariffPackage->save()) {
-                            throw new ModelValidationException($accountTariffPackage);
-                        }
-
-                        $accountTariffPackageLog = new AccountTariffLogAdd();
-                        $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
-
-                        if (!$accountTariffPackageLog->load($post)) {
-                            throw new LogicException('данные для добавления не получены');
-                        }
-
-                        if (!$accountTariffPackageLog->save()) {
-                            throw new ModelValidationException($accountTariffPackageLog);
-                        }
-                        Yii::$app->session->addFlash('success', 'К ' . $accountTariff->getLink() . ' подключен пакет-тариф: ' .
-                            Html::a(Html::encode($accountTariffPackage->getName(false)), $accountTariffPackage->getUrl()));
-                    } else {
-                        Yii::$app->session->addFlash('success', 'Подключаемый тариф-пакет уже включен: ' . $accountTariff->getLink());
-                    }
-                } else { // change && close
-
-                    $accountTariffLog = new AccountTariffLog;
-                    $accountTariffLog->account_tariff_id = $accountTariff->id;
-
-                    $accountTariffLog->load($post);
-
-                    // Отключение услуги
-                    if (isset($post['closeTariff'])) {
-                        $accountTariffLog->tariff_period_id = null;
-                    }
-
-                    if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
-                        throw new ModelValidationException($accountTariffLog);
-                    }
-                    Yii::$app->session->addFlash('success', $accountTariff->getLink() . ' обновлена');
-                }
-
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                Yii::$app->session->addFlash('error', $accountTariff->getLink() . ":\n" . $e->getMessage());
-            }
-        }
-
-        return true;
+        return $task->id;
     }
 
     public function actionDisableAll()

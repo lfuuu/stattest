@@ -2,13 +2,19 @@
 
 namespace app\modules\uu\filter;
 
+use app\classes\Assert;
+use app\classes\Html;
 use app\classes\traits\GetListTrait;
+use app\exceptions\ModelValidationException;
 use app\models\ClientContract;
 use app\models\ClientAccount;
 use app\models\Number;
+use app\models\Task;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffHeap;
+use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffLogAdd;
 use app\modules\uu\models\AccountTrouble;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
@@ -16,6 +22,7 @@ use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
@@ -81,7 +88,7 @@ class AccountTariffFilter extends AccountTariff
     /**
      * @param int $serviceTypeId
      */
-    public function __construct($serviceTypeId)
+    public function __construct($serviceTypeId = 0)
     {
         $this->service_type_id = $serviceTypeId;
         parent::__construct();
@@ -506,5 +513,122 @@ class AccountTariffFilter extends AccountTariff
             ]);
 
         return $query;
+    }
+
+    public function doTask(\app\models\Task $task, $post)
+    {
+        $tariffPeriodIdAdd = false;
+        $serviceTypeId = null;
+        if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) {
+            $tariffPeriodIdAdd = $post['AccountTariffLogAdd']['tariff_period_id'];
+            $tariffPeriodAdd = TariffPeriod::findOne(['id' => $tariffPeriodIdAdd]);
+            Assert::isObject($tariffPeriodAdd);
+            $serviceTypeId = $tariffPeriodAdd->tariff->service_type_id;
+        }
+
+        /** @var ActiveQuery $query */
+        $query = $this->search()->query;
+        /** @var AccountTariff $accountTariff */
+
+        $count = 0;
+
+        $task->setStatus('run');
+        $task->setCountAll($query->count());
+        $task->setCount($count);
+
+        foreach ($query->each() as $accountTariff) {
+            $transaction = \Yii::$app->db->beginTransaction();
+
+            $task->setCount($count++);
+
+            try {
+                if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) { // add
+                    Assert::isNotNull($serviceTypeId);
+                    Assert::isGreater($serviceTypeId, 0);
+
+                    if ($accountTariff->prev_account_tariff_id) {
+                        $accountTariff = $accountTariff->prevAccountTariff;
+                    }
+
+                    $isAlreadyAdded = false;
+                    foreach ($accountTariff->nextAccountTariffs as $package) {
+
+                        if ($package->tariff_period_id == $tariffPeriodIdAdd) {
+                            $isAlreadyAdded = true;
+                            break;
+                        }
+
+                        // в будущем
+                        $logs = $package->accountTariffLogs;
+                        $log = reset($logs);
+                        if ($log->tariff_period_id == $tariffPeriodIdAdd) {
+                            $isAlreadyAdded = true;
+                            break;
+                        }
+                    }
+
+                    if (!$isAlreadyAdded) {
+                        // подключить базовый пакет
+                        $accountTariffPackage = new AccountTariff();
+                        $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
+                        $accountTariffPackage->service_type_id = $serviceTypeId;
+                        $accountTariffPackage->region_id = $accountTariff->region_id;
+                        $accountTariffPackage->city_id = $accountTariff->city_id;
+                        $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
+                        if (!$accountTariffPackage->save()) {
+                            throw new ModelValidationException($accountTariffPackage);
+                        }
+
+                        $accountTariffPackageLog = new AccountTariffLogAdd();
+                        $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
+
+                        if (!$accountTariffPackageLog->load($post)) {
+                            throw new \LogicException('данные для добавления не получены');
+                        }
+
+                        if (!$accountTariffPackageLog->save()) {
+                            throw new ModelValidationException($accountTariffPackageLog);
+                        }
+
+                        $task->log($count . ': success: К ' . $accountTariff->getLink() . ' подключен пакет-тариф: ' .
+                            Html::a(Html::encode($accountTariffPackage->getName(false)), $accountTariffPackage->getUrl()));
+
+//                        \Yii::$app->session->addFlash('success', 'К ' . $accountTariff->getLink() . ' подключен пакет-тариф: ' .
+//                            Html::a(Html::encode($accountTariffPackage->getName(false)), $accountTariffPackage->getUrl()));
+                    } else {
+                        $task->log($count . ': success: Подключаемый тариф-пакет уже включен: ' . $accountTariff->getLink());
+//                        \Yii::$app->session->addFlash('success', 'Подключаемый тариф-пакет уже включен: ' . $accountTariff->getLink());
+                    }
+                } else { // change && close
+
+                    $accountTariffLog = new AccountTariffLog;
+                    $accountTariffLog->account_tariff_id = $accountTariff->id;
+
+                    $accountTariffLog->load($post);
+
+                    // Отключение услуги
+                    if (isset($post['closeTariff'])) {
+                        $accountTariffLog->tariff_period_id = null;
+                    }
+
+                    if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
+                        throw new ModelValidationException($accountTariffLog);
+                    }
+                    $task->log($count . ': success: ' . $accountTariff->getLink() . ' обновлена');
+//                    \Yii::$app->session->addFlash('success', $accountTariff->getLink() . ' обновлена');
+                }
+
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                $task->log($count . '; error: ' . $accountTariff->getLink() . ":\n" . $e->getMessage());
+//                \Yii::$app->session->addFlash('error', $accountTariff->getLink() . ":\n" . $e->getMessage());
+            }
+        }
+
+        $task->setCount($count);
+        $task->setStatus('done');
+
+        return true;
     }
 }
