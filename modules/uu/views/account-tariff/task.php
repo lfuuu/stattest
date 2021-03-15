@@ -16,7 +16,7 @@
             '</div>');
         $('#task_cont').html(d.progress
             .replace(/(success)/g, '<b style=\'color: green;\'>Выполнено</b>')
-            .replace(/(error)/g, '<b style=\'color: c40000;\'>Ошибка</b>')
+            .replace(/(error)/g, '<b style=\'color: #c40000;\'>Ошибка</b>')
         );
         $('#task_cont')[0].scrollTop = $('#task_cont')[0].scrollHeight;
     }

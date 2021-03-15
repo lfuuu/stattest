@@ -2,13 +2,15 @@
 /**
  * Список универсальных тарифов
  *
- * @var \app\classes\BaseView $this
+ * @var BaseView $this
  * @var TariffFilter $filterModel
  */
 
+use app\classes\BaseView;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
+use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\OrganizationColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
@@ -35,11 +37,12 @@ use app\modules\uu\models\TariffVoipNdcType;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\helpers\Url;
+use yii\web\JsExpression;
 use yii\widgets\Breadcrumbs;
 
 $serviceType = $filterModel->getServiceType();
 if (!$serviceType) {
-    Yii::$app->session->setFlash('error', \Yii::t('common', 'Wrong ID'));
+    Yii::$app->session->setFlash('error', Yii::t('common', 'Wrong ID'));
     return;
 }
 ?>
@@ -84,6 +87,10 @@ $columns = [
             },
         ],
         'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
+        'attribute' => 'id',
+        'class' => IntegerColumn::class,
     ],
     [
         'attribute' => 'name',
@@ -428,7 +435,7 @@ $isShowArchiveHtml = Html::beginTag('label') .
 
 
 $this->registerJs(
-    new \yii\web\JsExpression(
+    new JsExpression(
         '$("body").on("click", "#is_show_archive", function() {
                     var name = "Form' . $filterModel->formName() . 'Data";
                     var data = Cookies.get(name);
