@@ -20,6 +20,7 @@ use yii\helpers\Json;
  */
 class TariffFilter extends Tariff
 {
+    public $id = '';
     public $name = '';
     public $tariff_status_id = '';
     public $tariff_person_id = '';
@@ -50,7 +51,7 @@ class TariffFilter extends Tariff
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['country_id', 'voip_country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
+        $rules[] = [['id', 'country_id', 'voip_country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
         return $rules;
     }
 
@@ -102,6 +103,7 @@ class TariffFilter extends Tariff
 
         $tariffTableName = Tariff::tableName();
 
+        $this->id !== '' && $query->andWhere([$tariffTableName . '.id' => $this->id]);
         $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
         $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_person_id !== '' && $query->andWhere([$tariffTableName . '.tariff_person_id' => $this->tariff_person_id]);
@@ -183,7 +185,8 @@ class TariffFilter extends Tariff
         $organizationId,
         $isIncludeVat,
         $voipCountryId
-    ) {
+    )
+    {
         $query = Tariff::find();
         $tariffTable = Tariff::tableName();
 
@@ -206,8 +209,7 @@ class TariffFilter extends Tariff
             ->with('packagePrices.destination')
             ->with('packagePricelists.pricelist')
             ->with('tariffTags')
-            ->with('tariffTags.tag')
-;
+            ->with('tariffTags.tag');
 
         $id && $query->andWhere(["{$tariffTable}.id" => $id]);
         $serviceTypeId && $query->andWhere(["{$tariffTable}.service_type_id" => (int)$serviceTypeId]);
