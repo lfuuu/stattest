@@ -69,8 +69,15 @@ $nnpPricelistList = nnpPricelist::getList($isWithEmpty = true, $isWithNullAndNot
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = ['disabled' => 'disabled'];
+    $btnOptions = ['class' => 'hide'];
 } else {
-    $options = [];
+    $btnOptions = $options = [];
+}
+
+$optionsPricelist = $options;
+
+if (\Yii::$app->user->can('tarifs.priceEdit')) {
+    $optionsPricelist = $btnOptions = [];
 }
 
 $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
@@ -97,6 +104,9 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
         <?= TabularInput::widget([
                 'models' => array_values($packagePricelists), // ключ должен быть автоинкрементный
                 'allowEmptyList' => true,
+                'addButtonOptions' => $btnOptions,
+                'removeButtonOptions' => $btnOptions,
+
                 'columns' => [
                     [
                         'name' => 'pricelist_id',
@@ -129,12 +139,15 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
         <?= TabularInput::widget([
                 'models' => array_values($packagePricelistsNnp), // ключ должен быть автоинкрементный
                 'allowEmptyList' => true,
+                'addButtonOptions' => $btnOptions,
+                'removeButtonOptions' => $btnOptions,
+
                 'columns' => [
                     [
                         'name' => 'nnp_pricelist_id',
                         'title' => $attributeLabels['nnp_pricelist_id'],
                         'type' => Editable::INPUT_SELECT2,
-                        'options' => $options + [
+                        'options' => $optionsPricelist + [
                                 'data' => $nnpPricelistList,
                             ],
                     ],
@@ -142,7 +155,7 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
                         'name' => 'minute',
                         'title' => $attributeLabels['minute'] . $helpConfluence,
                         'type' => Editable::INPUT_RANGE,
-                        'options' => $options + [
+                        'options' => $optionsPricelist + [
                                 'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
                             ],
                     ],
@@ -158,7 +171,7 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
     </div>
 
     <script>
-      $('#is_pricelist_v2').on('change',)
+        $('#is_pricelist_v2').on('change',)
     </script>
 
 </div>
