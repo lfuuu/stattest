@@ -739,8 +739,9 @@ class UuController extends ApiInternalController
 
         if ($model) {
             $isCheckable = !$model->resource->isNumber();
-            return [
+            $value = [
                 'id' => $model->id,
+                'is_show_resource' => (bool)$model->is_show_resource,
                 'is_checkable' => $isCheckable,
                 'is_editable' => (bool)$model->is_can_manage,
                 'is_checked' => $isCheckable ? (bool)$model->amount : null,
@@ -749,6 +750,8 @@ class UuController extends ApiInternalController
                 'price_min' => $model->price_min,
                 'resource' => $this->_getResourceRecord($model->resource),
             ];
+
+            return $value;
         }
 
         return null;
@@ -1534,6 +1537,11 @@ class UuController extends ApiInternalController
 
         foreach ($accountTariff->serviceType->resources as $resource) {
             $tariffResource = isset($tariffResourcesIndexedByResourceId[$resource->id]) ? $tariffResourcesIndexedByResourceId[$resource->id] : null;
+
+            if (!$tariffResource->is_show_resource) {
+                continue;
+            }
+
             $accountTariffResourceLogs = [];
             foreach ($accountTariff->accountTariffResourceLogsAll as $accountTariffResourceLog) {
                 if ($accountTariffResourceLog->resource_id == $resource->id) {

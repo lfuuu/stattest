@@ -30,7 +30,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
     <div class="well tariffResources">
         <h2>Ресурсы тарифа <?= $helpConfluence = $this->render('//layouts/_helpConfluence', AccountLogResource::getHelpConfluence()) ?></h2>
         <div class="row">
-            <div class="col-sm-3 col-sm-offset-3">
+            <div class="col-sm-2 col-sm-offset-3">
                 <label>
                     История изменений
                     <?= $helpConfluence ?>
@@ -72,6 +72,12 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     <?= $helpConfluence ?>
                 </label>
             </div>
+            <div class="col-sm-1">
+                <label>
+                    <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'is_show_resource')) ?>
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
         </div>
 
         <?php
@@ -89,7 +95,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     <label for="resourcetariff-<?= $i ?>-amount"><?= Html::encode($resource->name) ?> <?= $helpConfluence ?></label>
                 </div>
 
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <?= $tariffResource->isNewRecord ? '' : $this->render('//layouts/_showHistory', ['model' => $tariffResource]) ?>
                 </div>
 
@@ -131,6 +137,10 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
                 <div class="col-sm-1">
                     <?= $form->field($tariffResource, "[{$i}]is_can_manage")->checkbox([]/*$options*/, false)->label(false) ?>
+                </div>
+
+                <div class="col-sm-1">
+                    <?= $form->field($tariffResource, "[{$i}]is_show_resource")->checkbox([]/*$options*/, false)->label(false) ?>
                 </div>
 
             </div>
