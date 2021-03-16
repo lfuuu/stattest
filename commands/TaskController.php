@@ -25,7 +25,8 @@ class TaskController extends Controller
         \Yii::$app->user->setIdentity(User::findOne(['id' => $task->user_id]));
 
         $filter = new $task->filter_class;
-        $filter->setAttributes(json_decode($task->filter_data_json, true), false);
+//        $filter->setAttributes(json_decode($task->filter_data_json, true), false);
+        $filter->load(json_decode($task->filter_data_json, true));
         $filter->doTask($task, json_decode($task->params_json, true));
     }
 }

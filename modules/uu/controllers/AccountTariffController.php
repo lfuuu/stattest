@@ -848,9 +848,12 @@ class AccountTariffController extends BaseController
             return false;
         }
 
+        $get = Yii::$app->request->get();
+        $get['AccountTariffFilter']['service_type_id'] = $get['serviceTypeId'];
+
         $task = new Task();
         $task->filter_class = get_class($filterModel);
-        $task->filter_data_json = json_encode($filterModel->getAttributes());
+        $task->filter_data_json = json_encode($get);
         unset($post['_csrf']);
         $task->params_json = json_encode($post);
         $task->user_id = \Yii::$app->user->getId();
