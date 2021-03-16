@@ -49,7 +49,7 @@ $resourceTableName = ResourceModel::tableName();
 <div class="well tariffResources">
     <h2>Ресурс <?= $helpConfluence = $this->render('//layouts/_helpConfluence', AccountLogResource::getHelpConfluence()) ?></h2>
     <div class="row">
-        <div class="col-sm-2 col-sm-offset-2">
+        <div class="col-sm-1 col-sm-offset-2">
             <label>
                 Лог
                 <?= $helpConfluence ?>
@@ -102,6 +102,12 @@ $resourceTableName = ResourceModel::tableName();
                 <?= $helpConfluence ?>
             </label>
         </div>
+        <div class="col-sm-1">
+            <label>
+                <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'is_show_resource')) ?>
+                <?= $helpConfluence ?>
+            </label>
+        </div>
     </div>
 
     <?php
@@ -120,7 +126,7 @@ $resourceTableName = ResourceModel::tableName();
                 <label for="accounttariffresourcelog-<?= $resource->id ?>-amount"><?= Html::encode($resource->name) ?> <?= $helpConfluence ?></label>
             </div>
 
-            <div class="col-sm-2">
+            <div class="col-sm-1">
                 <?= $this->render('_editResourceLogGrid', ['accountTariff' => $accountTariff, 'resource' => $resource]) ?>
             </div>
 
@@ -184,6 +190,10 @@ $resourceTableName = ResourceModel::tableName();
 
             <div class="col-sm-1">
                 <?= $tariffResource ? \Yii::t('common', $tariffResource->is_can_manage ? 'Yes' : 'No') : '-' ?>
+            </div>
+
+            <div class="col-sm-1">
+                <?= $tariffResource ? \Yii::t('common', $tariffResource->is_show_resource ? 'Yes' : 'No') : '-' ?>
             </div>
 
         </div>

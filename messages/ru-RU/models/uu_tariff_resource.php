@@ -7,4 +7,5 @@ return [
     'resource_id' => 'Ресурс',
     'tariff_id' => 'Тариф',
     'is_can_manage' => 'Можно управлять?',
+    'is_show_resource' => 'Показывать?',
 ];

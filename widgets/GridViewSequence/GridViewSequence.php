@@ -55,9 +55,9 @@ class GridViewSequence extends GridView
             $result = $modelClass->gridSort((int)$actionRequest['moved_element_id'], (int)$actionRequest['next_element_id']);
 
             if ($result === true) {
-                echo Json::encode(['result' => 'success']);
+                \Yii::$app->response->content = Json::encode(['result' => 'success']);
             } else {
-                echo Json::encode(['result' => $result]);
+                \Yii::$app->response->content = Json::encode(['result' => $result]);
             }
 
             Yii::$app->end();

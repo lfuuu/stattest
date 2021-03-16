@@ -3,7 +3,7 @@
 
     $(function () {
         // если ресурс может быть выключен/включен, то при его включении цену указывать нет смысла, потому что она входит в абонентку
-        $('.tariffResources input[type=checkbox]')
+        $('.tariffResources input[type=checkbox][name*=amount]')
             .on('change', function () {
                 var $checkbox = $(this);
                 var $priceDiv = $checkbox.parent().parent().next();
