@@ -9,7 +9,6 @@ use app\exceptions\ModelValidationException;
 use app\models\ClientContract;
 use app\models\ClientAccount;
 use app\models\Number;
-use app\models\Task;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffHeap;
@@ -537,9 +536,9 @@ class AccountTariffFilter extends AccountTariff
         $task->setCount($count);
 
         foreach ($query->each() as $accountTariff) {
-            $transaction = \Yii::$app->db->beginTransaction();
-
             $task->setCount($count++);
+
+            $transaction = \Yii::$app->db->beginTransaction();
 
             try {
                 if (isset($post['AddPackageButton']) && isset($post['AccountTariffLogAdd']['tariff_period_id'])) { // add

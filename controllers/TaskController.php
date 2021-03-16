@@ -19,26 +19,12 @@ class TaskController extends BaseController
     {
         \Yii::$app->response->format = Response::FORMAT_JSON;
 
-        return Task::find()
+        $task = Task::find()
             ->where(['id' => $id])
             ->select(['progress', 'count_all', 'count_done', 'status'])
             ->createCommand()
             ->queryOne();
+
+        return $task;
     }
-
-    public function actionIdx($filter_class)
-    {
-        \Yii::$app->response->format = Response::FORMAT_JSON;
-
-        return ['last_task_id' => Task::find()
-            ->where([
-//                'filter_class' => $filter_class,
-//                'status' => 'run'
-            ])
-//            ->andWhere(['NOT', ['status' => ['done', 'stoped']]])
-            ->select(['id'])
-            ->max('id')
-            ];
-    }
-
 }
