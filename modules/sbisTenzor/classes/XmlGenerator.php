@@ -412,6 +412,7 @@ abstract class XmlGenerator// extends SBISExchangeForm
             '"' => '',
         ]);
         $fullName = trim($fullName, " .\t");
+        $fullName = preg_replace('/\s+/', ' ', $fullName);
 
         $parts = explode(' ', $fullName);
         if (
