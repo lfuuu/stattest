@@ -9,7 +9,7 @@
 use app\classes\Html;
 use app\forms\tariff\DidGroupForm;
 use app\models\City;
-use app\models\ClientAccount;
+use app\models\PriceLevel;
 use app\models\Country;
 use app\models\DidGroup;
 use app\modules\nnp\models\NdcType;
@@ -17,6 +17,7 @@ use app\modules\uu\models\TariffStatus;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
+
 
 $didGroup = $formModel->didGroup;
 
@@ -129,7 +130,7 @@ if (!$didGroup->isNewRecord) {
     </div>
 
     <?php
-    $priceLevels = ClientAccount::getPriceLevels();
+    $priceLevels = PriceLevel::getList();
     foreach ($priceLevels as $i => $priceLevel) :
         ?>
         <div class="row">

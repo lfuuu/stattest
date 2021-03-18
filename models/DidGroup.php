@@ -131,7 +131,7 @@ class DidGroup extends ActiveRecord
             'is_service' => 'Служебная группа',
         ];
 
-        $priceLevels = ClientAccount::getPriceLevels();
+        $priceLevels = PriceLevel::getList();
         foreach ($priceLevels as $i => $priceLevel) {
             $labels['price' . $i] = 'Цена ' . $priceLevel;
             $labels['tariff_status_main' . $i] = 'Тариф ' . $priceLevel;
@@ -154,7 +154,7 @@ class DidGroup extends ActiveRecord
             ['tariff_status_beauty', 'number'],
         ];
 
-        $priceLevels = ClientAccount::getPriceLevels();
+        $priceLevels = PriceLevel::getList();
         foreach ($priceLevels as $i => $priceLevel) {
             $rules[] = ['price' . $i, 'number'];
 
