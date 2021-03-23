@@ -689,7 +689,8 @@ class ReportUsageDao extends Singleton
         $delta = 0;
         $total_row = [
             'is_total' => true,
-            'tsf1' => 'Итого'
+            'tsf1' => 'Итого',
+            'price' => $price,
         ];
 
         if ($len >= 24 * 60 * 60) {
