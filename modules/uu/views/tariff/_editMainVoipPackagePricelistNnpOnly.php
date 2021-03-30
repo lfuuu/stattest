@@ -54,12 +54,17 @@ if (!$packagePricelistModels) {
 
 $this->registerJsVariable('isRemovePackagePricelistsV2', $isRemovePackagePricelistsV2);
 
-
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = ['disabled' => 'disabled'];
+    $btnOptions = ['class' => 'hide'];
 } else {
-    $options = [];
+    $btnOptions = $options = [];
 }
+
+if (\Yii::$app->user->can('tarifs.priceEdit')) {
+    $options = $btnOptions = [];
+}
+
 
 $attributeLabels = $packagePricelistModel->attributeLabels();
 
@@ -105,6 +110,9 @@ $columns[] = [
         <?= TabularInput::widget([
                 'models' => array_values($packagePricelistModels), // ключ должен быть автоинкрементный
                 'allowEmptyList' => false,
+                'addButtonOptions' => $btnOptions,
+                'removeButtonOptions' => $btnOptions,
+
                 'columns' => $columns,
             ]
         )
