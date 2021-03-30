@@ -150,15 +150,14 @@ class AccountTariffCheckHlr extends Behavior
             return;
         }
 
-        if ($accountTariff->number->imsi) {
-            throw new \LogicException('IMSI уже прописан у номера ' . $accountTariff->voip_number);
+        // проставляем IMSI если его нет.
+        if ($accountTariff->number && !$accountTariff->number->imsi) {
+            EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
+                'account_tariff_id' => $accountTariff->id,
+                'voip_number' => $accountTariff->voip_number,
+                'voip_numbers_warehouse_status' => $accountTariff->voip_numbers_warehouse_status,
+            ]);
         }
-
-        EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
-            'account_tariff_id' => $accountTariff->id,
-            'voip_number' => $accountTariff->voip_number,
-            'voip_numbers_warehouse_status' => $accountTariff->voip_numbers_warehouse_status,
-        ]);
     }
 
     public static function reservImsi($params)
