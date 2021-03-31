@@ -7,6 +7,7 @@ use app\classes\behaviors\SetTaxVoip;
 use app\health\MonitorVoipDelayOnPackages;
 use app\models\EventQueue;
 use app\models\Trouble;
+use app\modules\transfer\forms\services\BaseForm;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use app\exceptions\ModelValidationException;
@@ -21,6 +22,7 @@ use app\models\UsageVoip;
 use app\models\LogTarif;
 use app\models\TariffVoip;
 use app\modules\uu\Module as uuModule;
+use kartik\base\Config;
 use Yii;
 use DateTime;
 use app\models\ClientAccount;
@@ -554,5 +556,94 @@ FROM
 
         echo PHP_EOL;
         return ExitCode::OK;
+    }
+
+    /**
+     * Консольная реализация переноса услуг
+     * 
+     * @throws ModelValidationException
+     * @throws \yii\db\Exception
+     */
+    public function actionTransfer()
+    {
+        $fromAccountId = 55140;
+        $toAccountId = 64680;
+
+        $d = new \Datetime();
+        $d->modify('first day of next month');
+        $date = $d->format('Y-m-d');
+
+        $numbers = $this->_getNumbersForTransfer();
+
+        $data = [
+            "clientAccountId" => $fromAccountId,
+            "targetClientAccountId" => $toAccountId,
+            "processedFromDate" => $date,
+        ];
+
+        $data['services']['usage_voip'] = array_map(function($number) use ($fromAccountId, $toAccountId) {
+
+            if (AccountTariff::find()
+                ->where([
+                    'client_account_id' => $toAccountId,
+                    'voip_number' => $number
+                ])
+                ->andWhere(['NOT', ['tariff_period_id' => null]])->exists()) {
+                return false;
+            }
+
+
+            return AccountTariff::find()
+                ->where([
+                    'client_account_id' => $fromAccountId,
+                    'voip_number' => $number
+                ])
+                ->andWhere(['NOT', ['tariff_period_id' => null]])
+                ->select('id')
+                ->scalar();
+        }, $numbers);
+
+        $data['services']['usage_voip'] = array_filter($data['services']['usage_voip']);
+
+        $data['fromDate']['usage_voip'] = array_combine(array_keys($data['services']['usage_voip']), array_fill(0, count($data['services']['usage_voip']), $date));
+
+        print_r($data);
+
+        $post = $data;
+
+        $clientAccount = ClientAccount::findOne(['id' => $fromAccountId]);
+        /** @var \app\modules\transfer\Module $module */
+        $module = Config::getModule('transfer');
+        /** @var BaseForm $form */
+        $form = $module
+            ->getServiceProcessor($clientAccount->account_version)
+            ->getForm($clientAccount);
+
+        $form->process($post);
+
+        foreach ($form->processLog as $record) {
+            /** @var PreProcessor $object */
+            $object = $record['object'];
+
+            if ($record['type'] === 'error') {
+                echo PHP_EOL . "Error: " . $record['message'];
+            } else {
+                $source = $object->sourceServiceHandler->getServiceDecorator($object->sourceServiceHandler->getService());
+                $target = $object->targetServiceHandler->getServiceDecorator($object->targetServiceHandler->getService());
+
+                echo PHP_EOL . 'OK: ' . strip_tags($source->description . ' / ' . $target->description . ' / ' . $object->activationDate);
+            }
+        }
+    }
+
+    private function _getNumbersForTransfer()
+    {
+        $a = <<<AAA
+...
+AAA;
+
+        $n = array_filter(explode("\n", $a));
+        sort($n);
+        return array_slice($n, 0, 500);
     }
 }
