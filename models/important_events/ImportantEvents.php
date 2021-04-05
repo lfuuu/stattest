@@ -154,13 +154,13 @@ class ImportantEvents extends ActiveRecord
             $data['balance'] = $event->getBalance();
         }
 
+        if (isset($data['REMOTE_ADDR']) && $data['REMOTE_ADDR']) {
+            $event->remote_ip = $data['REMOTE_ADDR'];
+        }
+
         if ($eventType == ImportantEventsNames::CLIENT_LOGGED_IN && isset($data['is_support']) && !$data['is_support']) {
             if (isset($data['login']) && $data['login']) {
                 $event->login = $data['login'];
-            }
-
-            if (isset($data['REMOTE_ADDR']) && $data['REMOTE_ADDR']) {
-                $event->remote_ip = $data['REMOTE_ADDR'];
             }
         }
 
