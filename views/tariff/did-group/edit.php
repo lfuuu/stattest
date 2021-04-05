@@ -1,23 +1,24 @@
 <?php
+
 /**
  * Создание/редактирование DID-группы
  *
  * @var \app\classes\BaseView $this
  * @var DidGroupForm $formModel
+ * @var DidGroupPriceLevel $didGroupPriceLevelModel
  */
 
 use app\classes\Html;
 use app\forms\tariff\DidGroupForm;
+use app\forms\tariff\DidGroupPriceLevelFormEdit;
+use app\models\DidGroupPriceLevel;
 use app\models\City;
-use app\models\PriceLevel;
 use app\models\Country;
 use app\models\DidGroup;
 use app\modules\nnp\models\NdcType;
-use app\modules\uu\models\TariffStatus;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
-
 
 $didGroup = $formModel->didGroup;
 
@@ -44,8 +45,10 @@ if (!$didGroup->isNewRecord) {
 
     $viewParams = [
         'formModel' => $formModel,
+        'didGroupPriceLevelModel' => $didGroupPriceLevelModel,
         'form' => $form,
     ];
+
     ?>
 
     <?= Html::hiddenInput('isFake', '0', ['id' => 'isFake']) ?>
@@ -59,7 +62,8 @@ if (!$didGroup->isNewRecord) {
 
     <div class="row">
 
-        <?php // Страна ?>
+        <?php // Страна 
+        ?>
         <div class="col-sm-<?= (NdcType::isCityDependent($didGroup->ndc_type_id) && !$didGroup->is_service ? 3 : 6) ?>">
             <?= $form->field($didGroup, 'country_code')
                 ->widget(Select2::class, [
@@ -71,7 +75,8 @@ if (!$didGroup->isNewRecord) {
         </div>
 
         <?php if (NdcType::isCityDependent($didGroup->ndc_type_id) && !$didGroup->is_service) : ?>
-            <?php // Город ?>
+            <?php // Город 
+            ?>
             <div class="col-sm-3">
                 <?= $form->field($didGroup, 'city_id')
                     ->widget(Select2::class, [
@@ -80,7 +85,8 @@ if (!$didGroup->isNewRecord) {
             </div>
         <?php endif; ?>
 
-        <?php // Красивость ?>
+        <?php // Красивость 
+        ?>
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'beauty_level')
                 ->widget(Select2::class, [
@@ -88,7 +94,8 @@ if (!$didGroup->isNewRecord) {
                 ]) ?>
         </div>
 
-        <?php // Тип номера ?>
+        <?php // Тип номера 
+        ?>
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'ndc_type_id')
                 ->widget(Select2::class, [
@@ -103,17 +110,20 @@ if (!$didGroup->isNewRecord) {
 
     <div class="row">
 
-        <?php // Название ?>
+        <?php // Название 
+        ?>
         <div class="col-sm-6">
             <?= $form->field($didGroup, 'name')->textInput() ?>
         </div>
 
-        <?php // Комментарий ?>
+        <?php // Комментарий 
+        ?>
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'comment') ?>
         </div>
 
-        <?php // Служебная группа? ?>
+        <?php // Служебная группа? 
+        ?>
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'is_service')->checkbox([
                 'class' => 'formReload'
@@ -122,55 +132,13 @@ if (!$didGroup->isNewRecord) {
 
     </div>
 
-    <div class="row">
-        <div class="col-sm-2 col-sm-offset-1"><label>Подключение, ¤</label></div>
-        <div class="col-sm-3"><label>Тариф</label></div>
-        <div class="col-sm-3"><label>Пакет</label></div>
-        <div class="col-sm-3"><label>Пакет за красивость</label></div>
-    </div>
+    <?= $this->render('_editDidGroupPriceLevel', $viewParams) ?>
 
-    <?php
-    $priceLevels = PriceLevel::getList();
-    foreach ($priceLevels as $i => $priceLevel) :
-        ?>
-        <div class="row">
-            <div class="col-sm-1">
-                <?= $priceLevel ?>
-            </div>
-            <div class="col-sm-2">
-                <?= $form->field($didGroup, 'price' . $i)->input('number', ['step' => 0.01])->label(false) ?>
-            </div>
-            <div class="col-sm-3">
-                <?= $form->field($didGroup, 'tariff_status_main' . $i)
-                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = false))
-                    ->label(false) ?>
-            </div>
-            <div class="col-sm-3">
-                <?= $form->field($didGroup, 'tariff_status_package' . $i)
-                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = false))
-                    ->label(false) ?>
-            </div>
-            <div class="col-sm-3">
-                <?php
-                if ($i < DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
-                    echo '-';
-                } elseif ($i === DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
-                    echo $form->field($didGroup, 'tariff_status_beauty')
-                        ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
-                        ->label(false);
-                } else {
-                    echo '—«—';
-                }
-                ?>
-            </div>
-        </div>
-    <?php endforeach; ?>
-
-
-    <?php // кнопки ?>
+    <?php // кнопки 
+    ?>
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?= $this->render('//layouts/_submitButton' . ($didGroup->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_submitButton' . ($didGroup->isNewRecord ? 'Create' : 'Save'), $viewParams) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

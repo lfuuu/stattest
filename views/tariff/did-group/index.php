@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Список DID групп
  *
@@ -6,11 +7,11 @@
  * @var DidGroupFilter $filterModel
  */
 
+use yii\helpers\Url;
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
-use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -38,14 +39,22 @@ $columns = [
         'template' => '{update} {delete}',
         'buttons' => [
             'update' => function ($url, DidGroup $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
+                return $baseView->render(
+                    '//layouts/_actionEdit',
+                    [
                         'url' => $model->getUrl(),
                     ]
                 );
             },
             'delete' => function ($url, DidGroup $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
+                return $baseView->render(
+                    '//layouts/_actionDrop',
+                    [
+                        'url' => Url::toRoute([
+                            '/tariff/did-group/delete',
+                            'id' => $model->id,
+                        ]),
+
                     ]
                 );
             },
@@ -82,13 +91,6 @@ $columns = [
         'class' => YesNoColumn::class
     ],
 ];
-
-for ($i = 1; $i <= 9; $i++) {
-    $columns[] = [
-        'attribute' => 'price' . $i,
-        'class' => IntegerRangeColumn::class
-    ];
-}
 
 $linkAdd = ['url' => ['/tariff/did-group/new']];
 if ($filterModel->country_code) {

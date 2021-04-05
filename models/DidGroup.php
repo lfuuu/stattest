@@ -10,78 +10,21 @@ use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
+ * Class DidGroup
  * @property int $id
  * @property string $name
+ * @property int $city_id
  * @property int $beauty_level
  * @property int $country_code
- * @property int $city_id
- * @property int $ndc_type_id
- * @property int $is_service
- *
- * @property float $price1 // Клиент i. Подробнее см. \app\models\ClientAccount::getPriceLevels
- * @property float $price2
- * @property float $price3 // ОТТ i-2
- * @property int $price4
- * @property int $price5
- * @property int $price6
- * @property int $price7
- * @property int $price8
- * @property int $price9
- * @property int $price10
- * @property int $price11 // ОТТz i-10
- * @property int $price12
- * @property int $price13
- * @property int $price14
- * @property int $price15
- * @property int $price16
- * @property int $price17
- * @property int $price18
- *
- * @property int $tariff_status_main1 // Клиент i. Подробнее см. \app\models\ClientAccount::getPriceLevels
- * @property int $tariff_status_main2
- * @property int $tariff_status_main3 // ОТТ i-2
- * @property int $tariff_status_main4
- * @property int $tariff_status_main5
- * @property int $tariff_status_main6
- * @property int $tariff_status_main7
- * @property int $tariff_status_main8
- * @property int $tariff_status_main9
- * @property int $tariff_status_main10
- * @property int $tariff_status_main11 // ОТТz i-10
- * @property int $tariff_status_main12
- * @property int $tariff_status_main13
- * @property int $tariff_status_main14
- * @property int $tariff_status_main15
- * @property int $tariff_status_main16
- * @property int $tariff_status_main17
- * @property int $tariff_status_main18
- *
- * @property int $tariff_status_package1 // Клиент i. Подробнее см. \app\models\ClientAccount::getPriceLevels
- * @property int $tariff_status_package2
- * @property int $tariff_status_package3 // ОТТ i-2
- * @property int $tariff_status_package4
- * @property int $tariff_status_package5
- * @property int $tariff_status_package6
- * @property int $tariff_status_package7
- * @property int $tariff_status_package8
- * @property int $tariff_status_package9
- * @property int $tariff_status_package10
- * @property int $tariff_status_package11 // ОТТz i-10
- * @property int $tariff_status_package12
- * @property int $tariff_status_package13
- * @property int $tariff_status_package14
- * @property int $tariff_status_package15
- * @property int $tariff_status_package16
- * @property int $tariff_status_package17
- * @property int $tariff_status_package18
- *
- * @property int tariff_status_beauty
- *
  * @property string $comment
- *
+ * @property int $ndc_type_id
+ * @property int $tariff_status_beauty
+ * @property int $is_service
  * @property-read City $city
  * @property-read Country $country
+ * @property-read DidGroupPriceLevel[] $didGroupPriceLevels
  */
+
 class DidGroup extends ActiveRecord
 {
     // Определяет getList (список для selectbox)
@@ -119,7 +62,7 @@ class DidGroup extends ActiveRecord
      */
     public function attributeLabels()
     {
-        $labels = [
+        return [
             'id' => 'ID',
             'country_code' => 'Страна',
             'city_id' => 'Город',
@@ -130,15 +73,6 @@ class DidGroup extends ActiveRecord
             'tariff_status_beauty' => 'Пакет за красивость',
             'is_service' => 'Служебная группа',
         ];
-
-        $priceLevels = PriceLevel::getList();
-        foreach ($priceLevels as $i => $priceLevel) {
-            $labels['price' . $i] = 'Цена ' . $priceLevel;
-            $labels['tariff_status_main' . $i] = 'Тариф ' . $priceLevel;
-            $labels['tariff_status_package' . $i] = 'Пакет ' . $priceLevel;
-        }
-
-        return $labels;
     }
 
     /**
@@ -146,26 +80,13 @@ class DidGroup extends ActiveRecord
      */
     public function rules()
     {
-        $rules = [
+        return [
             [['name', 'comment'], 'string'],
             [['beauty_level', 'city_id', 'ndc_type_id', 'country_code'], 'integer'],
             [['name', 'beauty_level', 'country_code', 'ndc_type_id', 'is_service'], 'required'],
             ['is_service', 'boolean'],
             ['tariff_status_beauty', 'number'],
         ];
-
-        $priceLevels = PriceLevel::getList();
-        foreach ($priceLevels as $i => $priceLevel) {
-            $rules[] = ['price' . $i, 'number'];
-
-            $rules[] = ['tariff_status_main' . $i, 'number'];
-            $rules[] = ['tariff_status_main' . $i, 'required'];
-
-            $rules[] = ['tariff_status_package' . $i, 'number'];
-            $rules[] = ['tariff_status_package' . $i, 'required'];
-        }
-
-        return $rules;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace app\forms\tariff;
 
 use app\models\DidGroup;
+use app\models\DidGroupPriceLevel;
 
 class DidGroupFormEdit extends DidGroupForm
 {
@@ -24,5 +25,13 @@ class DidGroupFormEdit extends DidGroupForm
     public function getDidGroupModel()
     {
         return DidGroup::findOne($this->id);
+    }
+
+    /**
+     * @return DidGroupPriceLevel[]
+     */
+    public function getDidGroupPriceLevels()
+    {
+        return DidGroupPriceLevel::findAll(['did_group_id' => $this->id]);
     }
 }
