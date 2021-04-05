@@ -179,6 +179,7 @@ class Navigation
                 ->addItem('Общие настройки', ['/settings/'], ['dictionary.read'])
                 ->addItem('Roistat. Настройки номеров.', ['/dictionary/roistat-number-fields'])
                 ->addItem('API Каналы платежей', ['/dictionary/' . \app\models\PaymentApiChannel::NAVIGATION])
+                ->addItem('Уровни цен', ['/dictionary/price-level'], ['dictionary.read'])
         );
 
         $this->addBlock(

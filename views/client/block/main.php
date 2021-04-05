@@ -8,13 +8,14 @@ use app\models\billing\Locks;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientSuper;
+use app\models\PriceLevel;
 use app\models\EventQueueIndicator;
 use yii\helpers\Url;
 
 /** @var ClientSuper $client */
 /** @var \app\models\ClientAccount $account */
 
-$priceLevels = ClientAccount::getPriceLevels();
+$priceLevels = PriceLevel::getList();
 ?>
 
 <div class="main-client">
