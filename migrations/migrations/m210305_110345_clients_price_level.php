@@ -2,7 +2,6 @@
 
 use app\models\ClientAccount;
 use app\models\PriceLevel;
-
 /**
  * Class m210305_110345_clients_price_level
  */
@@ -21,9 +20,9 @@ class m210305_110345_clients_price_level extends \app\classes\Migration
 
         $priceLevelList = ClientAccount::getPriceLevels();
         $i = 1;
-        foreach ($priceLevelList as $priceLevel) {
+        foreach ($priceLevelList as $index => $priceLevel) {
             $this->insert(PriceLevel::tableName(), [
-                'id' => $i,
+                'id' => $index,
                 'name' => $priceLevel,
                 'order' => $i,
             ]);
