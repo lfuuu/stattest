@@ -88,74 +88,8 @@ $bill_date = Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:Y
     <body>
     <div id="page_1">
         <div class="dclr"></div>
-        <div id="id_1">
-            <P class="p0 ft0"><?= $isCurrentStatement ? 'Jelenlegi nyilatkozat' : 'Számviteli bizonylat' ?></P>
-        </div>
-        <div id="id_2">
-            <div id="id_2_1">
-                <p class="p1 ft1">&nbsp;</p>
-                <p class="p2 ft2"><?= $organization->name; ?></p>
-                <p class="p3 ft3"><?= $organization->post_address; ?></p>
-                <table cellpadding="0" cellspacing="0" class="t0">
-                    <tr>
-                        <td class="tr0 td0"><P class="p4 ft1">Adószám</P></td>
-                        <td class="tr0 td1"><P class="p5 ft1"><?= $organization->tax_registration_id; ?></P></td>
-                    </tr>
-                    <tr>
-                        <td class="tr1 td0"><P class="p4 ft1">Bank</P></td>
-                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->settlementAccount->bank_name; ?></p></td>
-                    </tr>
-                    <tr>
-                        <td class="tr1 td0"><p class="p4 ft1">Számlaszám</p></td>
-                        <td class="tr1 td1"><P class="p5 ft4"><nobr><?= nl2br($organization->settlementAccount->bank_account); ?></nobr></p></td>
-                    </tr>
-                    <tr>
-                        <td class="tr1 td0"><p class="p4 ft1">Telefon</p></td>
-                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_phone; ?></p></td>
-                    </tr>
-                    <tr>
-                        <td class="tr1 td0"><p class="p4 ft1">Fax</p></td>
-                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_fax; ?></p></td>
-                    </tr>
-                    <tr>
-                        <td class="tr1 td0"><P class="p4 ft1">Email</P></td>
-                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_email; ?></p></td>
-                    </tr>
-                    <tr>
-                        <td class="tr1 td0"><p class="p4 ft1">Weboldal</p></td>
-                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->contact_site; ?></p></td>
-                    </tr>
-                </table>
-            </div>
-            <div id="id_2_2">
-                <p class="p0 ft5">Vevő</p>
-                <p class="p6 ft3"><?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></p>
-                <p class="p7 ft3"><?= $payer_company['address_post']; ?></p>
-                <p class="p8 ft4">Ügyfélazonosító: <?= $payer_company['id']; ?></p>
-            </div>
-        </div>
         <div id="id_3">
             <table cellpadding="0" cellspacing="0" class="t1">
-                <tr>
-                    <td class="tr0 td2"><p class="p9 ft6">Fizetés módja</p></td>
-                    <td class="tr0 td3"><p class="p10 ft6">Kelt</p></td>
-                    <td class="tr0 td4"><p class="p11 ft6">Teljesítés dátuma</p></td>
-                    <td class="tr0 td5"><p class="p10 ft6">Fizetési határidő</p></td>
-                    <td class="tr0 td6"><p class="p4 ft6">Sorszám</p></td>
-                </tr>
-                <tr>
-                    <td class="tr2 td2"><p class="p9 ft1">Átutalás</p></td>
-                    <td class="tr2 td3"><p class="p10 ft1"><?= $bill_date; ?></p></td>
-                    <td class="tr2 td4"><p class="p12 ft1"><?= $bill_date; ?></p></td>
-                    <td class="tr2 td5"><p class="p10 ft1"><?= $bill_date; ?></p></td>
-                    <td class="tr2 td6"><P class="p4 ft1"><nobr><?= $document->bill->bill_no; ?></nobr></p></td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="tr3 td7 p4 ft8">&nbsp;</td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="tr4 td7 p4 ft9">&nbsp;</td>
-                </tr>
                 <tr>
                     <td class="tr5 td2 p13 ft6">Megnevezés</td>
                     <td class="tr5 td3 p14 ft6">M.e.</td>
