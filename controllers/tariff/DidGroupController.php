@@ -116,9 +116,6 @@ class DidGroupController extends BaseController
             }
             $transaction->commit();
             Yii::$app->session->addFlash('success', 'Успешно удалено');
-        } catch (ModelValidationException $e) {
-            $transaction->rollBack();
-            Yii::$app->session->setFlash('error', $e->getMessage());
         } catch (Exception $e) {
             $transaction->rollBack();
             Yii::$app->session->setFlash('error', $e->getMessage());

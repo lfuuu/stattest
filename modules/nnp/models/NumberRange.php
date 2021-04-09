@@ -7,6 +7,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\billing\InstanceSettings;
+use app\models\Number;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -407,7 +408,7 @@ class NumberRange extends ActiveRecord
             ->andWhere(['is_active' => true])
             ->andWhere(['<=', 'full_number_from', $number])
             ->andWhere(['>=', 'full_number_to', $number])
-            ->orderBy(new Expression('ndc IS NOT NULL DESC'))// чтобы большой диапазон по всей стране типа 0000-9999 был в конце
+            ->orderBy(new Expression('ndc IS NOT NULL DESC')) // чтобы большой диапазон по всей стране типа 0000-9999 был в конце
             ->one(NumberRange::getDbSlave());
     }
 
@@ -420,42 +421,45 @@ class NumberRange extends ActiveRecord
     public static function getNumberInfo($number)
     {
         $numberModel = $number;
-
         if (!($number instanceof \app\models\Number)) {
             $numberModel = \app\models\Number::findOne(['number' => $number]);
         }
-
         if (!$numberModel) {
             return [];
         }
 
-        $nnpNumberRange = self::getByNumber($numberModel->number);
-        $nnpOperator = $nnpNumberRange ? $nnpNumberRange->operator : null;
-        $nnpCountry = $nnpNumberRange ? $nnpNumberRange->country : null;
-        $nnpRegion = $nnpNumberRange ? $nnpNumberRange->region : null;
-        $nnpCity = $nnpNumberRange ? $nnpNumberRange->city : null;
-
-        $country = $numberModel->country;
-        $regionModel = $numberModel->regionModel;
-        $city = $numberModel->city;
-
-        if ($nnpCountry) {
-            $countryName = ($nnpCountry->code == \app\modules\nnp\models\Country::RUSSIA) ? $nnpCountry->name_rus : $nnpCountry->name_eng;
-        } elseif ($country) {
-            $countryName = ($country->code == \app\models\Country::RUSSIA) ? $country->name_rus : $country->name;
+        $toReturn = [];
+        $billerInfo = Number::getNnpInfo($number);
+        if (!isset($billerInfo)) {
+            $nnpNumberRange = self::getByNumber($numberModel->number);
         } else {
-            $countryName = '';
+            $nnpNumberRange = new NumberRange();
+            $nnpNumberRange->setAttributes([
+                'ndc' => $billerInfo['ndc'],
+                'ndc_type_id' => $billerInfo['ndc_type_id'],
+                'country_prefix' => $billerInfo['country_prefix'],
+                'operator_id' => $billerInfo['nnp_operator_id'],
+                'region_id' => (string)$billerInfo['nnp_region_id'],
+                'city_id' => $billerInfo['nnp_city_id'],
+                'country_code' => $billerInfo['country_code'],
+            ], false);
         }
 
-        return [
-            'ndc' => $nnpNumberRange ? $nnpNumberRange->ndc_str : (string)$numberModel->ndc,
-            'ndc_type' => (int)$numberModel->ndc_type_id,
-            'country_name' => $countryName,
-            'country_prefix' => $nnpCountry ? $nnpCountry->prefix : null,
-            'region_name' => $nnpRegion ? $nnpRegion->name : ($regionModel ? $regionModel->name : null),
-            'city_name' => $nnpCity ? $nnpCity->name : ($city ? $city->name : null),
-            'operator_name' => $nnpOperator ? $nnpOperator->name : null,
-            'number_length' => $city ? (int)$city->postfix_length : null,
-        ];
+        if (!isset($nnpNumberRange->ndc)) {
+            $toReturn['ndc'] = (string)$numberModel->ndc;
+            $toReturn['ndc_type'] = (int)$numberModel->ndc_type_id;
+        } else {
+            $toReturn['ndc'] = (string)$nnpNumberRange->ndc;
+            $toReturn['ndc_type'] = (int)$nnpNumberRange->ndc_type_id;
+        }
+
+        $toReturn['country_name'] = $nnpNumberRange->country->name_eng;
+        $toReturn['country_prefix'] = $nnpNumberRange->country->prefix;
+        $toReturn['region_name'] = $nnpNumberRange->region->name;
+        $toReturn['operator'] = $nnpNumberRange->operator->name;
+        $toReturn['city_name'] = $nnpNumberRange->city->name;
+        $toReturn['number_length'] = $numberModel->city->postfix_length;
+
+        return $toReturn;
     }
 }

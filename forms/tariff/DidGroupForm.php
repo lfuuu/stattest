@@ -49,14 +49,7 @@ abstract class DidGroupForm extends Form
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
-
-            // название
-            if (isset($post['dropButton'])) {
-
-                $this->didGroup->delete();
-                $this->id = null;
-                $this->isSaved = true;
-            } elseif ($this->didGroup->load($post) && DidGroupPriceLevel::loadMultiple($this->didGroupPriceLevels, $post)) {
+            if ($this->didGroup->load($post) && DidGroupPriceLevel::loadMultiple($this->didGroupPriceLevels, $post)) {
                 if (isset($post['isFake']) && $post['isFake']) {
                     // установили значения и хватит
                 } else {
@@ -113,9 +106,7 @@ abstract class DidGroupForm extends Form
                 $model['did_group_id'] = $this->id;
             }
             if ($model['price'] != null) {
-                if (!$model->save()) {
-                    throw new \Exception();
-                }
+                $model->save();
             } else {
                 if ($model['id'] != null) {
                     if (!$model->delete()) {
