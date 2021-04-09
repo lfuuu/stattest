@@ -1,5 +1,4 @@
 <script type="text/javascript" src="js/trouble_list.js"></script>
-
 {if !isset($hide_tt_list) || $hide_tt_list == 0}
     {if !isset($hide_tts)}
         {if !isset($tt_wo_explain) && $tt_design=='full'}
@@ -34,6 +33,10 @@
         {/if}
     {/if}
 {/if}
+Выбрать все:
+Трабл <input class ='select-type' type="checkbox" name="checkAll" data-trouble_type = 'trouble' onclick = "disableTrouble();">
+Подключение <input class ='select-type' type="checkbox" name="checkAll" data-trouble_type = 'connect' onclick = "disableTrouble(); ">
+Задание <input class ='select-type' type="checkbox" name="checkAll" data-trouble_type = 'task' onclick = "disableTrouble();">
 <form action="/trouble/add-stage" method="post">
 <table class="table table-condensed table-bordered table-striped table-hover" width="{if $tt_design=='service'}700px{else}100%{/if}">
 {if $tt_design == "full"}
@@ -48,7 +51,7 @@
     </tr>
     <tr style="display: none"><th colspan="5"></th></tr>
     <tr>
-        <th style="width: 10px"></th>
+        <th>
         <th nowrap>Тип заявки</th>
         <th></th>
         <th>в работе</th>
