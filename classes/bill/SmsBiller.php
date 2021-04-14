@@ -1,8 +1,8 @@
 <?php
+
 namespace app\classes\bill;
 
 use app\helpers\DateTimeZoneHelper;
-use Yii;
 
 class SmsBiller extends Biller
 {
@@ -10,13 +10,11 @@ class SmsBiller extends Biller
     protected function processPeriodical()
     {
         $tariff = $this->usage->tariff;
-
         if ($tariff->per_month_price > 0) {
             $template = 'sms_monthly_fee';
             $template_data = [
                 'tariff' => $tariff->description
             ];
-
             $this->addPackage(
                 BillerPackagePeriodical::create($this)
                     ->setPeriodType($tariff->period)
@@ -32,7 +30,6 @@ class SmsBiller extends Biller
     protected function processResource()
     {
         $tariff = $this->usage->tariff;
-
         $smsCount = $this->getSmsCount();
         if ($smsCount > 0 && $tariff->per_sms_price > 0) {
             $template = 'sms_service';
@@ -48,25 +45,24 @@ class SmsBiller extends Biller
                     ->setTemplate($template)
                     ->setTemplateData($template_data)
             );
-
         }
     }
 
     private function getSmsCount()
     {
-        return
-            Yii::$app->db->createCommand('
-                SELECT sum(`count`)
+        return 
+            \Yii::$app->db->createCommand('
+                SELECT sum(count)
                 FROM `sms_stat`
                 where sender = :clientAccountId
-                      and date_hour between :dateFromPrev and :dateFromTo
-                ',
-                [
-                    ':clientAccountId' => $this->clientAccount->id,
-                    ':dateFromPrev' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                    ':dateFromTo' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)
-                ]
-            )->queryScalar();
-    }
+                    and date_hour between :dateFromPrev and :dateFromTo
+            ')
+            ->bindValues([
+                ':clientAccountId' => $this->clientAccount->id,
+                ':dateFromPrev' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                ':dateFromTo' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            ])->queryScalar();
 
+        
+    }
 }
