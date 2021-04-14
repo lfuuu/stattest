@@ -74,6 +74,15 @@
 				</select>
 			</td>
 		</tr>
+		<tr>
+			<td>Количество заявок на страницу</td>
+			<td>
+				<select class="select2" style="width: 200px" name='item_limit'>
+					{html_options options=$items_limit selected=$filter.item_limit}
+				</select>
+			</td>
+		</tr>
+		<tr>
 	</table>
 </form>
 </div>

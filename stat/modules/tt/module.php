@@ -1018,6 +1018,10 @@ where c.client="'.$trouble['client_orig'].'"')
             }else
                 $owner = false;
 
+            if(isset($_REQUEST['item_limit'])){
+                $item_limit = $_REQUEST['item_limit'];
+            }else
+                $item_limit = false;
 
             if(isset($_REQUEST['subtype']) && $_REQUEST['subtype'] !== '---'){
                 $subtype = $_REQUEST['subtype'];
@@ -1070,11 +1074,11 @@ where c.client="'.$trouble['client_orig'].'"')
             $filter = [
                 "owner" => $owner,
                 "resp" => $resp,
+                "item_limit" => $item_limit,
                 "edit" => $editor,
                 "subtype" => $subtype
             ];
             $ons = $dates["on"];
-
             $_SESSION["trouble_filter"] = [
                 "time_set" => time(),
                 "date" => $dates,
@@ -1333,14 +1337,12 @@ where c.client="'.$trouble['client_orig'].'"')
         if($client)
             $W[]='cl.id='.$client;
 
+        $design->assign("items_limit", ['100' => 100, '200' => 200, '500' => 500, '1000' => 1000]);
         $page = get_param_integer("page", 1);
-        if(!$page) $page = 1;
-        $recInPage = 50;
-
+        if (!$page) $page = 1;
+        $recInPage = $filter['item_limit'] ?? 50;
         if(isset($_SESSION["_mcn_user_login_stat.mcn.ru"]) && in_array($_SESSION["_mcn_user_login_stat.mcn.ru"], array("drupov", "vinokurov")))
             $recInPage = 300;
-
-
         $R = $db->AllRecords($q='
             SELECT sql_calc_found_rows
                 T.*,
@@ -3141,4 +3143,3 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         exit();
     }
 }
-
