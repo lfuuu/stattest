@@ -26,7 +26,48 @@ spec:
           ports:
             - containerPort: {{ .Values.redis_prod.port }}
               protocol: TCP
+          volumeMounts:
+            - name: store-redis
+              mountPath: /data
+
+      volumes:
+        - name: store-redis
+          persistentVolumeClaim:
+            claimName: pvc-redis-store
+
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-redis-store
+spec:
+{{- if (eq .Values.use_minikube "yes") }}
+  storageClassName: redis-storage-{{ .Chart.Name }}
+{{- else }}
+  storageClassName: csi-rbd-sc
+{{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+{{- if (eq .Values.use_minikube "yes") }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-redis-store
+spec:
+  storageClassName: redis-storage-{{ .Chart.Name }}
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: '/tmp/pv-redis'
+---
+{{- end }}
 apiVersion: v1
 kind: Service
 metadata:
