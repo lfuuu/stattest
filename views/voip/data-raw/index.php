@@ -139,11 +139,17 @@ echo GridView::widget([
             ]),
         ],
         'rate',
-        'cost',
+        [
+            'attribute' => 'cost',
+            'value' => function ($data)
+            {   
+                return number_format($data['cost'], 6);
+            }
+        ],
         [
             'attribute' => 'quantity',
             'value' => function ($data)
-            {
+            {   
                 return $data->getFormattedQuantity();
             }
         ],
