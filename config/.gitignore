@@ -1,6 +1,7 @@
 session.local.php
 cache_redis.local.php
 db_stat.local.php
+db_sms.local.php
 db_ats.local.php
 db_ats2.local.php
 db_pg_ats.local.php
