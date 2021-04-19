@@ -20,6 +20,11 @@ if (file_exists($file = __DIR__ . '/db_stat.local.php')) {
     $db = ArrayHelper::merge($db, require($file));
 }
 
+$dbSms = require(__DIR__ . '/db_sms.php');
+if (file_exists($file = __DIR__ . '/db_sms.local.php')) {
+    $dbSms = ArrayHelper::merge($dbSms, require($file));
+}
+
 $dbPg = require(__DIR__ . '/db_pgsql.php');
 if (file_exists($file = __DIR__ . '/db_pgsql.local.php')) {
     $dbPg = ArrayHelper::merge($dbPg, require($file));
@@ -164,6 +169,7 @@ $config = [
         ],
         'log' => $log,
         'db' => $db,
+        'dbSms' => $dbSms,
         'dbPg' => $dbPg,
         'dbPgSlave' => $dbPgSlave,
         'dbPgSlaveCache' => $dbPgSlaveCache,

@@ -1,6 +1,7 @@
 <?php
 
 namespace app\models;
+use Yii;
 
 use app\classes\model\ActiveRecord;
 
@@ -18,4 +19,24 @@ class SmsStat extends ActiveRecord
     {
         return 'sms_stat';
     }
+
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
+    public static function getDb()
+    {
+        return Yii::$app->db;
+    }
+
+
+    public static function getSmsByClientDate($clientId, $dateFrom, $dateTo) 
+    {
+        return self::find()
+            ->andWhere(['sender' => $clientId])
+            ->andWhere(['between', 'date_hour', $dateFrom, $dateTo])
+            ->all();
+    }
+
 }

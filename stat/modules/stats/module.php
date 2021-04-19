@@ -10,6 +10,7 @@ use app\models\StatVoipFreeCache;
 use app\classes\BaseView;
 use app\models\UsageIpPorts;
 use app\models\UsageIpRoutes;
+use app\models\SmsStat;
 
 class m_stats extends IModule{
     private $_inheritances = array();
@@ -1120,31 +1121,16 @@ class m_stats extends IModule{
 		}
 		$design->assign('clients',$clients);
 
-		$thiamis = new MySQLDatabase('thiamis.mcn.ru','sms_stat','yeeg5oxGa','sms2');
-
-		// <editor-fold defaultstate="collapsed" desc="stat_query">
-		$query_stat = "
-			select
-				`client_id` `sender`,
-				`smses` `count`,
-				`date` `date_hour`
-			from
-				`sms_send_byday`
-			where
-				`client_id` = ".$curc."
-			and
-				`date` between '".$date_from."' and '".$date_for."'
-		";
-		// </editor-fold>
-		$thiamis->Query($query_stat);
-		$stat = array(
+        $sms = SmsStat::getSmsByClientDate($curc, $date_from, $date_for);
+        $stat = [];
+        $stat = array(
 			'rows'=>array(),
 			'total'=>0
 		);
-		while($row = $thiamis->NextRecord(MYSQLI_ASSOC)){
-			$stat['rows'][] = $row;
-			$stat['total'] += $row['count'];
-		}
+        foreach($sms as $index => $row){
+            $stat['rows'][] = $row;
+            $stat['total'] += $row['count'];
+        }
 		$design->assign('stat',$stat);
 		$design->AddMain('stats/sms_gate.tpl');
 	}
