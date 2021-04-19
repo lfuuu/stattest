@@ -20,15 +20,15 @@ class SmsController extends Controller
         $todayDate = new DateTime;
         $fromDate = clone $todayDate;
         $todayDate = $todayDate->format('Y-m-d');
-        $fromDate = $fromDate->modify("-".$days.' day')->format('Y-m-d');
-        
+        $fromDate = $fromDate->modify("-" . $days . ' day')->format('Y-m-d');
+
         $transaction = Yii::$app->getDb()->beginTransaction();
         try {
             $data = (new Query())->from('sms_send_byday')
                 ->where('date between :dateStart and :dateFinish', [
                     ':dateStart' => $fromDate,
                     ':dateFinish' => $todayDate,
-                    ])
+                ])
                 ->all(\Yii::$app->dbSms);
 
             foreach ($data as $index => $info) {
