@@ -60,9 +60,7 @@ foreach ($rows as $hash => $row) {
             \Yii::error('CACHEDOUBLE C ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
             $value = false;
         }
-    }
 
-    if ($value !== false) {
         ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
         $params = [
             'accountTariffFirst' => $accountTariffFirst,

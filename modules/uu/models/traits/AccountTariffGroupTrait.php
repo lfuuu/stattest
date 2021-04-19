@@ -67,7 +67,7 @@ FROM (
          IF(a.tariff_period_id IS NULL, -1000, a.tariff_period_id) AS                              a3,
          IF(prev_account_tariff_id IS NULL, id,
             prev_account_tariff_id)                                                                account_tariff_group_id,
-         a.city_id,
+         if (a.service_type_id = 22, a.region_id, a.city_id) as city_id,
          a.client_account_id,
          service_type_id,
          a.id
