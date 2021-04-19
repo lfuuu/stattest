@@ -1,4 +1,3 @@
-{{- if (eq .Values.global.env "prod") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -105,18 +104,17 @@ spec:
         env:
         - name: DIR_HOME
           value: {{ .Values.ci_dir_home }}
-{{- if (eq .Values.use_minikube "yes") }}
         - name: USE_MINIKUBE
+{{- if (eq .Values.global.env "dev") }}
           value: "1"
 {{- else }}
-        - name: USE_MINIKUBE
           value: "0"
 {{- end }}
         - name: MYSQL_DB
           value: {{ .Values.mysql_prod.db }}
         - name: MYSQL_HOST
           value: {{ .Values.mysql_prod.host }}
-{{- if (eq .Values.use_minikube "yes") }}
+{{- if (eq .Values.global.env "dev") }}
         - name: MYSQL_USER
           value: {{ .Values.mysql_prod.user_read_only }}
         - name: MYSQL_PASSWORD
@@ -139,7 +137,7 @@ spec:
           value: {{ .Values.postgres_prod.host_legs }}
         - name: POSTGRES_NFDUMP_DB
           value: {{ .Values.postgres_prod.db_nfdump }}
-{{- if (eq .Values.use_minikube "yes") }}
+{{- if (eq .Values.global.env "dev") }}
         - name: POSTGRES_USER
           value: {{ .Values.postgres_prod.user_read_only }}
         - name: POSTGRES_PASSWORD
@@ -307,6 +305,3 @@ spec:
   - name: http
     port: 80
     protocol: TCP
-{{- else }}
-
-{{- end }}

@@ -8,9 +8,9 @@ TAG=1.316
 function dev()
 {
 	export ENVNAME=dev
-	CI_URL="$APPNAME-$ENVNAME.local"
+	CI_URL="stat.mcn.loc"
   PGADMIN_IN_DEV="yes"
-  export CI_DIR_HOME="/opt/stat_rep"
+  export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 }
 
 function stage()
@@ -23,7 +23,6 @@ function stage()
 function prod()
 {
 	export ENVNAME=prod
-	#CI_URL="stat.mcnhost.ru"
 	CI_URL="stat.mcn.ru"
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 }

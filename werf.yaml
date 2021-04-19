@@ -8,9 +8,9 @@ configVersion: 1
 ################################## PRODUCTION ###########################################################
 {{ $_ := env "ENVNAME" | set . "env" }}
 ## for lint
-#{{ $_ := set . "env" "prod" }}
+#
 
-{{- if or (eq .env "prod") (eq .env "stage") }}
+{{- if or (eq .env "prod") (eq .env "dev") }}
 
 ---
 image: {{ .project }}-nginx-prod
@@ -403,7 +403,7 @@ docker:
   EXPOSE: "22"
 
 ################################## DEV ENVIRONMENT ###########################################################
-{{- else if (eq .env "dev") }}
+{{- else if (eq .env "dev-disabled") }}
 
 ---
 image: {{ .project }}-pgdb-dev

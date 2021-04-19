@@ -142,10 +142,6 @@ spec:
         paths:
           - path: /
             backend:
-{{- if (eq .Values.global.env "dev") }}
-              serviceName: {{ .Chart.Name }}-backend-dev
-{{- else }}
               serviceName: {{ .Chart.Name }}-backend-prod
-{{- end }}
               servicePort: 80
 {{- end }}

@@ -69,7 +69,7 @@ ci_dir_home: /home/httpd/stat.mcn.ru
 
 use_ngnix_virtualserver: "no"
 use_network_polices: "no"
-use_minikube: "no"
+use_minikube: "yes"
 
 node_comet_prod:
   host: node-comet-prod
