@@ -45,6 +45,8 @@ trait AccountTariffGroupTrait
      */
     public function getHash()
     {
+        $onlyRegionIds = implode(", ", ServiceType::$onlyRegionGroup);
+
         // не так красиво, но быстро
         $sql = <<<SQL
 SELECT MD5(CONCAT(
@@ -67,7 +69,7 @@ FROM (
          IF(a.tariff_period_id IS NULL, -1000, a.tariff_period_id) AS                              a3,
          IF(prev_account_tariff_id IS NULL, id,
             prev_account_tariff_id)                                                                account_tariff_group_id,
-         if (a.service_type_id = 22, a.region_id, a.city_id) as city_id,
+         if (a.service_type_id in ({$onlyRegionIds}), a.region_id, a.city_id) as city_id,
          a.client_account_id,
          service_type_id,
          a.id
@@ -176,7 +178,7 @@ SQL;
     {
         $hashes = [];
         $hashes[] = $this->service_type_id;
-        $hashes[] = $this->service_type_id == ServiceType::ID_SIPTRUNK ? $this->region_id : $this->city_id;
+        $hashes[] = in_array($this->service_type_id, ServiceType::$onlyRegionGroup) ? $this->region_id : $this->city_id;
         $hashes[] = $this->tariff_period_id;
 
         return md5(implode('_', $hashes));
