@@ -50,7 +50,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                     ]) :
                     '' ?>
                 <?= $accountTariffFirst->region ? ' (' . $accountTariffFirst->region->name . ')' : '' ?>
-                <?= $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
+                <?= !in_array($accountTariffFirst->service_type_id, ServiceType::$onlyRegionGroup) && $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
 
                 <?= $accountTariffFirst->isActive() ?
                     '' :

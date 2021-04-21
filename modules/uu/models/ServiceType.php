@@ -98,6 +98,11 @@ class ServiceType extends ActiveRecord
         self::ID_TRUNK_PACKAGE_TERM => 'usage_trunk', // пакет терм-транк
     ];
 
+    public static $onlyRegionGroup = [
+        self::ID_TRUNK,
+        self::ID_SIPTRUNK,
+    ];
+
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 

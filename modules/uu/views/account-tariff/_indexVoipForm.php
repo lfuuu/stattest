@@ -49,7 +49,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 
                 <?= $accountTariffFirst->serviceType ? $accountTariffFirst->serviceType->name : '' ?>
                 <?= $accountTariffFirst->region ? ' (' . $accountTariffFirst->region->name . ')' : '' ?>
-                <?= $accountTariffFirst->city && $accountTariffFirst->service_type_id != ServiceType::ID_TRUNK ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
+                <?= !in_array($accountTariffFirst->service_type_id, ServiceType::$onlyRegionGroup) && $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
 
                 <?= $accountTariffFirst->isActive() ?
                     $this->render('//layouts/_buttonCancel', ['url' => '#', 'class' => 'collapse']) :
