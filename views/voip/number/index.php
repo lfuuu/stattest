@@ -17,6 +17,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\DidGroup;
+use app\modules\nnp\models\Operator;
 use app\models\filter\voip\NumberFilter;
 use app\models\Number;
 use app\models\voip\Registry;
@@ -180,6 +181,7 @@ $columns = [
         'ndc_type_id' => $filterModel->ndc_type_id,
         'value' => function (Number $number) {
             $didGroup = $number->didGroup;
+            
             return Html::a($didGroup->name, $didGroup->getUrl());
         },
     ],
@@ -309,7 +311,11 @@ $columns = [
     ],
     [
         'attribute' => 'nnp_operator_id',
-        'class' => OperatorColumn::class,
+        'filter' => Select2::widget([
+            'model' => $filterModel,
+            'data' => Operator::getList(false, false, $filterModel->country_id),
+            'attribute' => 'nnp_operator_id'
+        ]),
     ],
     [
         'attribute' => 'imsi',
