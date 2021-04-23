@@ -313,9 +313,17 @@ $columns = [
         'attribute' => 'nnp_operator_id',
         'filter' => Select2::widget([
             'model' => $filterModel,
-            'data' => Operator::getList(false, false, $filterModel->country_id),
-            'attribute' => 'nnp_operator_id'
+            'data' => Operator::getList(true, false, $filterModel->country_id),
+            'attribute' => 'nnp_operator_id',
         ]),
+        'value' => function (Number $model) {
+            /** @var Number $model */
+            if ($model->nnpOperator) {
+                return $model->nnpOperator->name;
+            }
+            return '(не задано)';
+        },
+        
     ],
     [
         'attribute' => 'imsi',

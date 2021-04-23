@@ -7,6 +7,7 @@ use app\models\Number;
 use app\models\voip\Registry;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
+use app\modules\nnp\models\Operator;
 
 /**
  * Фильтрация для Number
@@ -34,6 +35,7 @@ class NumberFilter extends Number
     public $country_id = '';
     public $ndc_type_id = '';
     public $imsi = '';
+    public $nnp_operator_id = '';
 
     public $calls_per_month_2_from = '';
     public $calls_per_month_2_to = '';
@@ -63,7 +65,7 @@ class NumberFilter extends Number
         return [
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
             [['imsi', 'registry_id'], 'integer'],
-            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id'], 'integer'],
+            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id', 'nnp_operator_id'], 'integer'],
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
@@ -200,6 +202,8 @@ class NumberFilter extends Number
 
         $this->country_id !== '' && $query->andWhere(['n.country_code' => $this->country_id]);
         $query->andFilterWhere(['n.source' => $this->source]);
+
+        $this->nnp_operator_id !== '' && $query->andWhere(['n.nnp_operator_id' => $this->nnp_operator_id]);
 
         switch ($this->imsi) {
             case GetListTrait::$isNull:
