@@ -4,6 +4,7 @@ namespace app\models\billing\api;
 
 use app\classes\model\ActiveRecord;
 use app\models\billing\api\ApiMethod;
+use app\dao\billing\ApiRawDao;
 use Yii;
 
 /**
@@ -45,8 +46,7 @@ class ApiRaw extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgNnp;
-    }
-
+    }   
 
     /**
      * Навзание полей
@@ -62,6 +62,15 @@ class ApiRaw extends ActiveRecord
             'cost' => 'Стоимость',
             'api_weight' => '\'Вес\' вызова',
         ];
+    }
+
+    /**
+     * @return ApiRawDao
+     * @throws \yii\base\Exception
+     */
+    public static function dao()
+    {
+        return ApiRawDao::me();
     }
 
     public function getMethod()
