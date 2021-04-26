@@ -492,7 +492,6 @@ class UuController extends ApiInternalController
             ], true),
             \app\modules\uu\Module::LOG_CATEGORY_API
         );
-
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
         $is_one_active = (int)$is_one_active;
@@ -619,8 +618,7 @@ class UuController extends ApiInternalController
 
         // @todo надо ли только статус "публичный" для ватс?
 
-        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $is_one_active, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
-
+        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $is_one_active, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);        
         $result = [];
         $defaultPackageRecordsFetched = null;
 
@@ -2304,6 +2302,7 @@ class UuController extends ApiInternalController
             $currencyIdTmp = null,
             $isDefaultTmp = null,
             $isPostpaidTmp = null,
+            $is_one_active = null,
             $tariffStatusIdTmp = null,
             $tariffPersonIdTmp = null,
             $tariffTagIdTmp = null,

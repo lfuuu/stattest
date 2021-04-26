@@ -107,6 +107,7 @@ class Dao extends Singleton
             $currencyIdTmp = null,
             $isDefaultTmp = null,
             $isPostpaidTmp = null,
+            $isOneActiveTmp = null,
             $tariffStatusIdTmp = null,
             $tariffPersonIdTmp = null,
             $tariffTagIdTmp = null,
@@ -138,6 +139,7 @@ class Dao extends Singleton
         $currency_id = null,
         $is_default = null,
         $is_postpaid = null,
+        $is_one_active = null,
         $tariff_status_id = null,
         $tariff_person_id = null,
         $tariff_tag_id = null,
@@ -160,6 +162,7 @@ class Dao extends Singleton
                 $client_account_id,
                 $currency_id,
                 $is_default,
+                $is_one_active,
                 $is_postpaid,
                 $tariff_status_id,
                 $tariff_person_id,
@@ -177,6 +180,8 @@ class Dao extends Singleton
 
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
+        $is_one_active = (int)$is_one_active;
+
         $country_id = (int)$country_id;
         $client_account_id = (int)$client_account_id;
         $tariff_status_id = (int)$tariff_status_id;
@@ -279,6 +284,7 @@ class Dao extends Singleton
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
         !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
         !is_null($is_postpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
+        !is_null($is_one_active) && $tariffQuery->andWhere([$tariffTableName . 'is_one_active' => (int)$is_one_active]);
         !is_null($is_include_vat) && $tariffQuery->andWhere([$tariffTableName . '.is_include_vat' => (int)$is_include_vat]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariff_person_id]]);
@@ -330,6 +336,7 @@ class Dao extends Singleton
                     $currency_id,
                     $is_default_tmp = 1,
                     $is_postpaid_tmp = null,
+                    $is_one_active,
                     $tariff_status_id,
                     $tariff_person_id,
                     $tariff_tag_id_tmp = null,

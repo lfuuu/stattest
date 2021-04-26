@@ -106,7 +106,7 @@ class TariffFilter extends Tariff
 
         $this->id !== '' && $query->andWhere([$tariffTableName . '.id' => $this->id]);
         $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
-        $this->is_one_active !== '' && $query->andWhere(['like', $tariffTableName . '.is_one_active', $this->is_one_active]);
+        
         $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_person_id !== '' && $query->andWhere([$tariffTableName . '.tariff_person_id' => $this->tariff_person_id]);
         $this->tag_id !== '' && $query->andWhere([$tariffTableName . '.tag_id' => $this->tag_id]);
