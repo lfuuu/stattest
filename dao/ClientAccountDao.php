@@ -772,6 +772,7 @@ class ClientAccountDao extends Singleton
         $now = new \DateTime();
 
         $hasUsage = Yii::$app->db->createCommand('
+            SELECT EXISTS (
             select id
             from usage_extra u
             where u.client = :client and u.actual_to >= :date
@@ -818,6 +819,7 @@ class ClientAccountDao extends Singleton
             from uu_account_tariff u
             where u.client_account_id = :client_account_id and tariff_period_id is not null 
             and prev_account_tariff_id is null
+            ) isex
         ', [
             ':client' => $clientAccount->client,
             ':client_account_id' => $clientAccount->id,
@@ -825,7 +827,7 @@ class ClientAccountDao extends Singleton
         ])
             ->queryOne();
 
-        $newIsActive = $hasUsage ? 1 : 0;
+        $newIsActive = $hasUsage && $hasUsage['isex'] ? 1 : 0;
         if ($clientAccount->is_active != $newIsActive) {
             $clientAccount->is_active = $newIsActive;
             if (!$clientAccount->save()) {

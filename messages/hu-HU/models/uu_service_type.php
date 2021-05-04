@@ -34,9 +34,13 @@ return [
     'Type #23' => 'Trönk', // Orig trönk csomag
     'Type #24' => 'Trönk', // Term trönk csomag
     'Type #25' => 'Mobil internet',
-    'Type #26' => '', // Infrastruktúra
+    'Type #26' => ' ', // Infrastruktúra
     'Type #27' => 'NNP hozzáférés',
     'Type #28' => 'VPS. Additional Service',
+    'Type #29' => 'CallTracking',
     'Type #30' => 'SIP-trunk',
     'Type #31' => 'Mobil internet',
+    'Type #32' => 'Számlázási API',
+    'Type #33' => 'Számlázási API',
+    'Type #34' => 'Chat bot',
 ];

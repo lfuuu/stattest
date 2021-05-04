@@ -30,9 +30,13 @@ return [
     'Type #23' => 'Trunk', // Orig trunk package
     'Type #24' => 'Trunk', // Term trunk package
     'Type #25' => 'Mobile internet',
-    'Type #26' => '', // Infrastructure
+    'Type #26' => ' ', // Infrastructure
     'Type #27' => 'NNP access',
     'Type #28' => 'VPS. Additional Service',
+    'Type #29' => 'CallTracking',
     'Type #30' => 'SIP-trunk',
     'Type #31' => 'Mobile Internet',
+    'Type #32' => 'Billing API',
+    'Type #33' => 'Billing API',
+    'Type #34' => 'Chat bot',
 ];

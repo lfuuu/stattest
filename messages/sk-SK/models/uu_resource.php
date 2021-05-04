@@ -51,6 +51,9 @@ return [
     'Resource #46' => 'Call limit',
     'Resource #48' => 'Prevádzka kvót',
     'Resource #49' => 'Volania (prichádzajúce)',
+    'Resource #50' => 'Volanie metódy API',
+    'Resource #51' => 'Hlasový asistent',
+    'Resource #52' => 'Ovládač robota',
 
     'Gb' => 'Gb',
     'Unit' => 'jednotka',

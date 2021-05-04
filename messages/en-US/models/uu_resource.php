@@ -52,6 +52,10 @@ return [
     'Resource #46' => 'Call limit',
     'Resource #48' => 'Quota traffic',
     'Resource #49' => 'Calls (incoming)',
+    'Resource #50' => 'API method call',
+    'Resource #51' => 'Voice assistant',
+    'Resource #52' => 'Robot controller',
+
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
 ];

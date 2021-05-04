@@ -44,6 +44,8 @@ return [
     'Resource #46' => 'Call limit',
     'Resource #48' => 'Kvóta forgalom',
     'Resource #49' => 'Hívások (bejövő)',
+    'Resource #51' => 'Hangsegéd',
+    'Resource #52' => 'Robotvezérlő',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

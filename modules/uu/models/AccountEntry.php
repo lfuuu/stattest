@@ -227,7 +227,7 @@ class AccountEntry extends ActiveRecord
         // Кроме "Разовая услуга" - там нужен только комментарий менеджера
         if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_ONE_TIME])) {
             $serviceType = $accountTariff->serviceType;
-            $serviceTypeName = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
+            $serviceTypeName = trim(Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode));
         } else {
             $serviceTypeName = '';
         }
