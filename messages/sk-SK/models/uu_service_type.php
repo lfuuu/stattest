@@ -30,9 +30,13 @@ return [
     'Type #23' => 'Тrank', // Orig trank balik
     'Type #24' => 'Тrank', // Term trank balik
     'Type #25' => 'Mobilný internet',
-    'Type #26' => '', // Infraštruktúra
+    'Type #26' => ' ', // Infraštruktúra
     'Type #27' => 'Prístup k NNP',
     'Type #28' => 'VPS. Additional Service',
+    'Type #29' => 'CallTracking',
     'Type #30' => 'SIP-trunk',
     'Type #31' => 'Mobilný internet',
+    'Type #32' => 'Billing API',
+    'Type #33' => 'Billing API',
+    'Type #34' => 'Chat bot',
 ];

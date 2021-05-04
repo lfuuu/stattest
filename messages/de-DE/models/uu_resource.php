@@ -51,6 +51,10 @@ return [
     'Resource #46' => 'Call limit',
     'Resource #48' => 'Quotenverkehr',
     'Resource #49' => 'Anrufe (eingehend)',
+    'Resource #50' => 'API-Methodenaufruf',
+    'Resource #51' => 'Sprachassistent',
+    'Resource #52' => 'Robotersteuerung',
+
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];
