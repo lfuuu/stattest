@@ -41,7 +41,6 @@ class TariffFilter extends Tariff
     public $is_include_vat = '';
     public $is_default = '';
     public $is_postpaid = '';
-    public $is_one_active = '';
 
     public $is_show_archive = false;
 
@@ -106,7 +105,6 @@ class TariffFilter extends Tariff
 
         $this->id !== '' && $query->andWhere([$tariffTableName . '.id' => $this->id]);
         $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
-        
         $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_person_id !== '' && $query->andWhere([$tariffTableName . '.tariff_person_id' => $this->tariff_person_id]);
         $this->tag_id !== '' && $query->andWhere([$tariffTableName . '.tag_id' => $this->tag_id]);
@@ -117,7 +115,6 @@ class TariffFilter extends Tariff
         $this->is_include_vat !== '' && $query->andWhere([$tariffTableName . '.is_include_vat' => (int)$this->is_include_vat]);
         $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
         $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
-        $this->is_one_active !== '' && $query->andWhere([$tariffTableName . '.is_one_active' => (int)$this->is_one_active]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
 
         !$this->is_show_archive && $query->andWhere(['NOT', ['tariff_status_id' => TariffStatus::ARCHIVE_LIST]]);
@@ -160,7 +157,6 @@ class TariffFilter extends Tariff
      * @param int $currencyId
      * @param int $isDefault
      * @param int $isPostPaid
-     * @param int $isOneActive
      * @param int $tariffStatusId
      * @param int $tariffPersonId
      * @param int $tariffTagId
@@ -179,7 +175,6 @@ class TariffFilter extends Tariff
         $currencyId,
         $isDefault,
         $isPostPaid,
-        $isOneActive,
         $tariffStatusId,
         $tariffPersonId,
         $tariffTagId,
@@ -221,7 +216,6 @@ class TariffFilter extends Tariff
         $currencyId && $query->andWhere(["{$tariffTable}.currency_id" => $currencyId]);
         null !== $isDefault && $query->andWhere(["{$tariffTable}.is_default" => (int)$isDefault]);
         null !== $isPostPaid && $query->andWhere(["{$tariffTable}.is_postpaid" => (int)$isPostPaid]);
-        null !== $isOneActive && $query->andWhere(["{$tariffTable}.is_one_active" => (int)$isOneActive]);
         null !== $isIncludeVat && $query->andWhere(["{$tariffTable}.is_include_vat" => (int)$isIncludeVat]);
         $tariffStatusId && $query->andWhere(["{$tariffTable}.tariff_status_id" => (int)$tariffStatusId]);
         $tariffPersonId && $query->andWhere(["{$tariffTable}.tariff_person_id" => [TariffPerson::ID_ALL, $tariffPersonId]]);
