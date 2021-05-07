@@ -180,7 +180,7 @@ class AccountEntry extends ActiveRecord
             if ($accountTariff->service_type_id == ServiceType::ID_VOIP) {
                 // телефония
                 $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->voip_number], $langCode);
-            } elseif (in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_VOIP_PACKAGE_INTERNET, ServiceType::ID_VOIP_PACKAGE_SMS])) {
+            } elseif (in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY, ServiceType::ID_VOIP_PACKAGE_INTERNET, ServiceType::ID_VOIP_PACKAGE_SMS])) {
                 // пакет телефонии. Номер взять от телефонии
                 $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->prevAccountTariff->voip_number], $langCode);
             }
