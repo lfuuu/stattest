@@ -100,11 +100,10 @@ class SaleBookFilter extends Invoice
             ->where([
                 'inv.organization_id' => $this->organization_id,
             ])
-            ->andWhere([
-                'between',
-                'inv.date',
-                $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            ->andWhere(['between',
+                        $this->is_euro_format ? 'bill.bill_date' : 'inv.date',
+                        $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                        $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
             ])
             ->andWhere(['NOT', ['number' => null]])
             ->orderBy([
