@@ -451,9 +451,9 @@ class EventQueue extends ActiveRecord
     {
         self::deleteAll([
             '<=',
-            'insert_time',
+            'next_start',
             (new \DateTime())
-                ->modify('-3 month')
+                ->modify('-7 day')
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT)
         ]);
     }
