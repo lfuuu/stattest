@@ -79,7 +79,7 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
             ->alias('c')
             ->innerJoinWith('accountTariffLight l')
             ->select([
-                'sum' => 'SUM(c.cost)',
+                'sum' => 'SUM(ABS(c.cost))',
                 'aggr_date' => sprintf("TO_CHAR(c.setup_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
             ])
             ->where([

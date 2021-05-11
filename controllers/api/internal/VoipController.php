@@ -568,10 +568,10 @@ class VoipController extends ApiInternalController
 
         $result = [];
         foreach ($query->each(100, SmscRaw::getDb()) as $data) {
-            $data['cost'] = (double)$data['cost'];
+            $data['cost'] = abs((double)$data['cost']);
 
             if (isset($data['rate'])) {
-                $data['rate'] = (double)$data['rate'];
+                $data['rate'] = abs((double)$data['rate']);
             }
 
             $result[] = $data;

@@ -134,7 +134,7 @@ class SmsFilter extends Form
 
         $queryClone = clone $query;
         $queryClone->groupBy = $queryClone->limit = $queryClone->offset = $queryClone->orderBy = null;
-        $this->allData = $queryClone->select(['count(*) as count', 'sum(cost) as cost', 'sum(count) as parts'])->createCommand(SmscRaw::getDb())->queryOne();
+        $this->allData = $queryClone->select(['count(*) as count', 'sum(abs(cost)) as cost', 'sum(count) as parts'])->createCommand(SmscRaw::getDb())->queryOne();
 
         return new ActiveDataProvider([
             'db' => SmscRaw::getDb(),
