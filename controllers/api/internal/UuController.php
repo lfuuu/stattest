@@ -711,6 +711,8 @@ class UuController extends ApiInternalController
                 'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices, $tariff->id) ?: $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp),
                 'voip_package_price_prices' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp, true),
                 'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
+                'voip_package_price_internet' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpInternet, true),
+                'voip_package_price_sms' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, true),
             ];
 
             Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
