@@ -341,13 +341,9 @@ data:
                     'password' => '{{ .Values.params_prod.yandex_kassa_retail_password }}',
                 ],
                 \app\models\Organization::MCN_TELECOM => [
-                    //'shop_id' => {{ .Values.params_prod.yandex_kassa_telecom_shop_id }},
-                    //'sc_id' => {{ .Values.params_prod.yandex_kassa_telecom_sc_id }},
-                    //'password' => '{{ .Values.params_prod.yandex_kassa_telecom_password }}',
-                    'shop_id' => {{ .Values.params_prod.yandex_kassa_service_shop_id }},
-                    'sc_id' => {{ .Values.params_prod.yandex_kassa_service_sc_id }},
-                    'password' => '{{ .Values.params_prod.yandex_kassa_service_password }}',
-
+                    'shop_id' => {{ .Values.params_prod.yandex_kassa_telecom_shop_id }},
+                    'sc_id' => {{ .Values.params_prod.yandex_kassa_telecom_sc_id }},
+                    'password' => '{{ .Values.params_prod.yandex_kassa_telecom_password }}',
                 ],
                 \app\models\Organization::MCN_TELECOM_SERVICE => [
                     'shop_id' => {{ .Values.params_prod.yandex_kassa_service_shop_id }},
