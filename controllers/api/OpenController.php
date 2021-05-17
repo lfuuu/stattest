@@ -228,13 +228,13 @@ final class OpenController extends Controller
 
             $tariffStatusId =
                 // для покупки номеров 7800 надо правильно найти тариф.
-                ($freeNumber->ndc_type_id == NdcType::ID_FREEPHONE
+                /* ($freeNumber->ndc_type_id == NdcType::ID_FREEPHONE
                     ? TariffStatus::ID_VOIP_8800_TEST
-                    : ($clientAccount
+                    : */($clientAccount
                         ? $didGroup->{'tariff_status_main' . $priceLevel}
                         : TariffStatus::ID_TEST
                     )
-                );
+                /*)*/;
 
             $packageStatusIds = [
                 $didGroup->{'tariff_status_main' . $priceLevel}
