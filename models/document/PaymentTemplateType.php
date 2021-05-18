@@ -31,6 +31,10 @@ class PaymentTemplateType extends ActiveRecord
         getList as getListTrait;
     }
 
+    const TYPE_INVOICE = 1;
+    const TYPE_INVOICE_STORNO = 2;
+    const TYPE_INVOICE_RF = 3;
+
     /**
      * @inheritdoc
      */

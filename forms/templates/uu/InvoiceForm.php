@@ -6,7 +6,14 @@ use Yii;
 use app\classes\Form;
 use app\classes\Smarty;
 use app\models\Language;
+use app\models\Country;
 use yii\web\UploadedFile;
+use app\models\document\PaymentTemplate;
+use app\models\Bill;
+use app\models\document\PaymentTemplateType;
+use Exception;
+use InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 class InvoiceForm extends Form
 {
@@ -44,8 +51,22 @@ class InvoiceForm extends Form
      * @return string
      */
     public function getFileName()
-    {
-        return self::getPath() . $this->_langCode . ($this->_invoice && $this->_invoice->is_reversal ? '-storno' : '') . '.' . self::TEMPLATE_EXTENSION;
+    {   
+        if ($this->_invoice && $this->_invoice->is_reversal) {
+            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, $this->_invoice->bill->clientAccount->contragent->country_id);
+            
+            if (!$template) {
+                if ($this->_invoice->bill->clientAccount->country_id == Country::RUSSIA){
+                    throw new InvalidArgumentException('Шаблон не найден, либо не включен по-умолчанию.');
+                }
+                
+                throw new InvalidArgumentException('Template either not found or not selected as default.');
+            }
+
+            return  PaymentForm::getPath() . PaymentForm::getFileName($template->type_id, $template->country->alpha_3, $template->version, self::TEMPLATE_EXTENSION);
+        }
+
+        return self::getPath() . $this->_langCode . '.' . self::TEMPLATE_EXTENSION;
     }
 
     /**
