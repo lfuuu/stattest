@@ -97,6 +97,7 @@ class ClientSuperDao extends Singleton
                             'is_bill_pay_overdue' => (bool)$account['is_bill_pay_overdue'],
                             'is_postpaid' => (bool)$account['is_postpaid'],
                             'is_show_in_lk' => ClientAccount::isShowInLk($account['show_in_lk'], $account['is_active']),
+                            'price_level' => $account['price_level'],
                             'credit' => (int)$account['credit'],
                             'version' => $account['account_version'],
                             'applications' => $this->_getPlatformaServicesCleaned($account)
