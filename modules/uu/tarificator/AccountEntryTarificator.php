@@ -275,7 +275,7 @@ SQL;
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @throws \yii\db\Exception
      */
-    protected function calculateVat($accountTariffId)
+    public function calculateVat($accountTariffId)
     {
         /** @var Connection $db */
         $db = Yii::$app->db;
@@ -294,7 +294,8 @@ SQL;
         SELECT
             account_entry.id as account_entry_id, 
             account_entry.date_from as date, 
-            account_tariff.client_account_id
+            account_tariff.client_account_id,
+            account_tariff.tariff_period_id
         FROM
             {$accountEntryTableName} account_entry,
             {$accountTariffTableName} account_tariff
@@ -303,24 +304,30 @@ SQL;
             AND account_entry.vat_rate IS NULL
             {$sqlAndWhere}
 SQL;
+        $tariffRates = $this->getTariffTaxRates();
+
         $query = $db->createCommand($selectSql)->query();
         $clientCache = []; // [client_account_id => ClientAccount]
         $clientDateVatCache = []; // [{client_account_id}_{date} => VAT]
         foreach ($query as $row) {
 
-            $clientKey = $row['client_account_id'];
-            $clientDateVatKey = $row['client_account_id'] . '_' . $row['date'];
-            if (!array_key_exists($clientDateVatKey, $clientDateVatCache)) { // isset() быстрее, но нам надо учитывать значение null
-                // Посчитать НДС и записать в кэш
+            if (isset($tariffRates[$row['tariff_period_id']])) {
+                $vatRate = $tariffRates[$row['tariff_period_id']];
+            } else {
+                $clientKey = $row['client_account_id'];
+                $clientDateVatKey = $row['client_account_id'] . '_' . $row['date'];
+                if (!array_key_exists($clientDateVatKey, $clientDateVatCache)) { // isset() быстрее, но нам надо учитывать значение null
+                    // Посчитать НДС и записать в кэш
 
-                $clientAccount = isset($clientCache[$clientKey]) ?
-                    $clientCache[$clientKey] :
-                    ClientAccount::findOne(['id' => $row['client_account_id']]);
+                    $clientAccount = isset($clientCache[$clientKey]) ?
+                        $clientCache[$clientKey] :
+                        ClientAccount::findOne(['id' => $row['client_account_id']]);
 
-                $contract = $clientAccount->getContract($row['date']);
-                $clientDateVatCache[$clientDateVatKey] = ClientContract::dao()->getEffectiveVATRate($contract, $row['date']);
+                    $contract = $clientAccount->getContract($row['date']);
+                    $clientDateVatCache[$clientDateVatKey] = ClientContract::dao()->getEffectiveVATRate($contract, $row['date']);
+                }
+                $vatRate = $clientDateVatCache[$clientDateVatKey];
             }
-            $vatRate = $clientDateVatCache[$clientDateVatKey];
 
             $updateSql = <<<SQL
         UPDATE {$accountEntryTableName}
@@ -398,5 +405,28 @@ SQL;
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);
+    }
+
+    /**
+     * Получаем карту tariffPeriod и ставки НДС по нему
+     * @return array
+     */
+    private function getTariffTaxRates()
+    {
+        static $res = [];
+
+        if ($res) {
+            return $res;
+        }
+
+        $res = Tariff::find()
+            ->alias('t')
+            ->innerJoinWith('tariffPeriods tp')
+            ->where(['not', ['t.tax_rate' => null]])
+            ->select(['t.tax_rate', 'tp.id'])
+            ->indexBy('id')
+            ->column();
+
+        return $res;
     }
 }
