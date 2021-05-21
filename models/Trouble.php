@@ -54,6 +54,7 @@ class Trouble extends ActiveRecord
     const DEFAULT_SUPPORT_TECHNICAL =  User::USER_KOSHELEV;
     const DEFAULT_VPS_SUPPORT =  User::USER_VOSTROKNUTOV;
     const DEFAULT_API_AUTHOR = 'AutoLK';
+    const DEFAULT_ADD_ACCOUNT_TARIFF_USER = 'virt_user';
     const DEFAULT_SUPPORT_FOLDER = 257;
     const DEFAULT_SUPPORT_STATE = 1;
     const DEFAULT_CONNECT_FOLDER = 137438953473;

@@ -395,7 +395,17 @@ class TroubleDao extends Singleton
      */
     public function notificateCreateAccountTariff(AccountTariff $accountTariff, AccountTariffLog $accountTariffLog, $post = [], $options = [])
     {
-        $user = User::findOne(['user' => Trouble::DEFAULT_SUPPORT_SALES]);
+        $userUser = Trouble::DEFAULT_ADD_ACCOUNT_TARIFF_USER;
+
+        if (
+            $accountTariff->client_account_id
+            && $accountTariff->clientAccount->contract
+            && $accountTariff->clientAccount->contract->account_manager
+        ) {
+            $userUser = $accountTariff->clientAccount->contract->account_manager;
+        }
+
+        $user = User::findOne(['user' => $userUser]);
 
         $troubleTexts = [];
 
