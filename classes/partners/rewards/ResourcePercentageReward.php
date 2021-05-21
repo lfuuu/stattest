@@ -31,7 +31,7 @@ abstract class ResourcePercentageReward implements Reward
             return false;
         }
 
-        if($line->isResource()) {
+        if($line->isResource() && !$line->isResourceCalls()) {
             $reward->percentage_of_over = $settings[self::getField()] * $line->sum / 100;
         }
 

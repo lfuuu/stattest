@@ -6,6 +6,7 @@ use app\classes\helpers\DependecyHelper;
 use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ResourceModel;
 use yii\caching\TagDependency;
 
 /**
@@ -150,6 +151,15 @@ class BillLine extends ActiveRecord
         }
 
         return $this->bill->bill_date > $this->date_to;
+    }
+
+    public function isResourceCalls()
+    {
+        if (!$this->isResource()) {
+            return false;
+        }
+
+        return in_array($this->accountEntry->tariffResource->resource_id, array_keys(ResourceModel::$calls));
     }
 
     /**
