@@ -75,6 +75,7 @@ abstract class Monitor extends Component
             MonitorWrongNumberRegion::class,
             MonitorTariffSync::class,
             MonitorDoublePayment::class,
+            MonitorMultiAccountService::class,
             MonitorVoipDelayOnPackages::class,
         ];
     }
