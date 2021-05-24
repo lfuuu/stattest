@@ -101,9 +101,9 @@ class ActOfReconciliation extends Singleton
                 'i.id',
                 'i.sum',
                 'type' => new Expression('"invoice"'),
-                'payment_type' => new Expression('""'),
+                'payment_type' => 'type_id',
                 'i.date',
-                'number',
+                'number' => new Expression('if (i.type_id = 3, i.bill_no, i.number)'),
                 'correction_idx',
                 'bill_date',
                 'add_datetime' => 'add_date',
@@ -158,7 +158,7 @@ WHERE b.client_id = ' . $account->id . '
             $sum = $isInvoice ? $item['sum'] : -$item['sum'];
 
             $description = $isInvoice
-                ? 'Акт' . ' (' . $date . ', №' . $item['number'] . ')'
+                ? ($item['payment_type'] == Invoice::TYPE_GOOD ? 'Накладная' : 'Акт') . ' (' . $date . ', №' . $item['number'] . ')'
                 : (
                 ($item['payment_type'] == 'creditnote')
                     ? 'Кредит-нота от ' . $date
