@@ -36,7 +36,7 @@ class UserGroupsDao extends Singleton
             if (substr($name, 0, 1) == '*') {
                 $isForwardS = true;
             }
-            $res[$user['comment']][$user['id']] = ($user['enabled'] != 'yes' ? '**' . ($isForwardS ? '' : "*") : '') . $user['name'] . ' (' . $user['user'] . ')';
+            $res[$user['comment']][$user['user']] = ($user['enabled'] != 'yes' ? '**' . ($isForwardS ? '' : "*") : '') . $user['name'] . ' (' . $user['user'] . ')';
         }
 
         return $res;
