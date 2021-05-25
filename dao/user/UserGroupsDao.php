@@ -14,13 +14,16 @@ class UserGroupsDao extends Singleton
     /**
      * @return array
      */
-    public function getListWithUsers()
+    public function getListWithUsers($key='id')
     {
+        echo $key;
         static $res = [];
 
-        if ($res) {
-            return $res;
+        if ($res[$key]) {
+            return $res[$key];
         }
+
+        $res[$key] = [];
 
         $users = User::find()
             ->alias('u')
@@ -36,9 +39,9 @@ class UserGroupsDao extends Singleton
             if (substr($name, 0, 1) == '*') {
                 $isForwardS = true;
             }
-            $res[$user['comment']][$user['user']] = ($user['enabled'] != 'yes' ? '**' . ($isForwardS ? '' : "*") : '') . $user['name'] . ' (' . $user['user'] . ')';
+            $res[$key][$user['comment']][$user[$key]] = ($user['enabled'] != 'yes' ? '**' . ($isForwardS ? '' : "*") : '') . $user['name'] . ' (' . $user['user'] . ')';
         }
 
-        return $res;
+        return $res[$key];
     }
 }
