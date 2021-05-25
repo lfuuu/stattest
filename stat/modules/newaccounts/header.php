@@ -6,7 +6,9 @@ class m_newaccounts_head extends IModuleHead{
 
 	public $actions=array(
 					'bill_list'			=> array('newaccounts_bills','read'),
-					'bill_create'		=> array('newaccounts_bills','edit'),
+					'bill_create_income'		=> array('newaccounts_bills','edit'),
+					'bill_create_outcome'		=> array('newaccounts_bills','edit'),
+					'bill_create_correction'		=> array('newaccounts_bills','edit'),
 					'bill_view'			=> array('newaccounts_bills','read'),
 					'bill_edit'			=> array('newaccounts_bills','edit'),
 					'bill_add'			=> array('newaccounts_bills','edit'),	//добавление чего-нибудь в счета, типа там "всех подключений" или "абонплата" или "залог"

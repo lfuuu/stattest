@@ -1,5 +1,6 @@
 <?php
 
+use ActiveRecord\ModelException;
 use app\classes\bill\ClientAccountBiller;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
@@ -9,6 +10,7 @@ use app\classes\StatModule;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\BillOutcomeCorrection;
 use app\models\BillCorrection;
 use app\models\BillDocument;
 use app\models\BillExternal;
@@ -32,6 +34,7 @@ use app\models\PaymentSberOnline;
 use app\models\Store;
 use app\models\Transaction;
 use app\models\User;
+use app\models\ClientContarct;
 use yii\db\Expression;
 
 class m_newaccounts extends IModule
@@ -155,6 +158,9 @@ class m_newaccounts extends IModule
         set_time_limit(60);
 
         $_SESSION['clients_client'] = $fixclient;
+        
+        $clientType = $fixclient_data->contract->financial_type;
+        $design->assign('fin_type', $clientType);
 
         $t = get_param_raw('simple', null);
         if ($t !== null) {
@@ -199,9 +205,9 @@ class m_newaccounts extends IModule
 
 
         if ($user->Flag('balance_simple')) {
-            return $this->newaccounts_bill_list_simple($get_sum);
+            return $this->newaccounts_bill_list_simple($get_sum, $clientType);
         } else {
-            return $this->newaccounts_bill_list_full($get_sum);
+            return $this->newaccounts_bill_list_full($get_sum, $clientType);
         }
     }
 
@@ -231,7 +237,7 @@ class m_newaccounts extends IModule
         return $result;
     }
 
-    function newaccounts_bill_list_simple($get_sum = false)
+    function newaccounts_bill_list_simple($get_sum = false, $clientType = null)
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
@@ -259,7 +265,6 @@ class m_newaccounts extends IModule
             "is_view_canceled" => $isViewCanceled,
             "get_sum" => $get_sum,
             'is_with_file_name' => true,
-
         ];
 
         $R = BalanceSimple::get($params);
@@ -292,7 +297,6 @@ class m_newaccounts extends IModule
         }
 
         #krsort($R);
-
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
@@ -343,7 +347,7 @@ class m_newaccounts extends IModule
         exit();
     }
 
-    function newaccounts_bill_list_full($get_sum = false)
+    function newaccounts_bill_list_full($get_sum = false, $clientType = null)
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
 
@@ -688,6 +692,14 @@ class m_newaccounts extends IModule
             $qrsDate[$q["bill_no"]][$q["doc_type"]] = $q["date"];
         }
 
+        if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
+            foreach ($result as $bill) {
+                $b = BillExternal::find()->where(['bill_no' => $bill['bill']['bill_no']])->one();
+                $result[$b['bill_no']. '-' . $bill['date']]['ext_sum'] = $b['ext_vat'] + $b['ext_sum_without_vat'];
+            }
+        }
+
+        $design->assign('client_type', $clientType);
         $design->assign("qrs", $qrs);
         $design->assign("qrs_date", $qrsDate);
         $bill_total_add['t'] = $bill_total_add['n'] + $bill_total_add['p'];
@@ -720,7 +732,7 @@ class m_newaccounts extends IModule
         $design->AddMain('newaccounts/bill_list_full.tpl');
     }
 
-    function newaccounts_bill_create($fixclient)
+    function newaccounts_bill_create_income($fixclient)
     {
         global $design, $db, $user, $fixclient_data;
         if (!$fixclient) {
@@ -728,7 +740,7 @@ class m_newaccounts extends IModule
         }
         $currency = get_param_raw('currency');
 
-        $bill = new \Bill(null, $fixclient_data, time(), 0, $currency);
+        $bill = new \Bill(null, $fixclient_data, time(), 0, $currency, OperationType::ID_PRICE);
         $no = $bill->GetNo();
         unset($bill);
 
@@ -737,6 +749,50 @@ class m_newaccounts extends IModule
             exit();
         }
     }
+
+    function newaccounts_bill_create_outcome($fixclient)
+    {
+        global $design, $db, $user, $fixclient_data;
+        if (!$fixclient) {
+            return;
+        }
+        
+        $currency = get_param_raw('currency');
+
+        $bill = new \Bill(null, $fixclient_data, time(), 0, $currency, OperationType::ID_COST);
+
+        $no = $bill->GetNo();
+        unset($bill);
+
+        $design->assign('billl', $no);
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_view&bill=" . $no);
+            exit();
+        }
+    }
+
+    function newaccounts_bill_create_correction($fixclient)
+    {
+        global $design, $db, $user, $fixclient_data;
+
+        if (!$fixclient) {
+            return;
+        }
+
+        $origBill = $_GET['orig_bill'];
+        $currency = get_param_raw('currency');
+ 
+        $bill = new \Bill(null, $fixclient_data, time(), 0, $currency, OperationType::ID_COST);
+        
+        $no = $bill->GetNo();
+        unset($bill);
+        
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_edit&bill=" . $no . '&orig_bill=' . $origBill);
+            exit();
+        }
+    }
+
 
     function newaccounts_bill_view($fixclient)
     {
@@ -802,11 +858,11 @@ class m_newaccounts extends IModule
         } else {
             die("Неизвестный тип документа");
         }
-
         $bill_no = get_param_protected("bill");
         if (!$bill_no) {
             return;
         }
+
         $bill = new \Bill($bill_no);
         /** @var Bill $newbill */
         $newbill = Bill::findOne(['bill_no' => $bill_no]);
@@ -817,6 +873,22 @@ class m_newaccounts extends IModule
             $design->assign('all4net_order_number', $match[1]);
         } else {
             $design->assign('all4net_order_number', false);
+        }
+
+        $connectedBillsList = BillOutcomeCorrection::find()->where(['original_bill_no' => $bill_no])->asArray()->all();
+        $originalBill = BillOutcomeCorrection::find()->where(['bill_no' => $bill_no])->one();        
+
+        if (isset($originalBill)) {
+            $design->assign('orig_bill', $originalBill);
+        }
+
+        if (isset($connectedBillsList)) {
+            foreach($connectedBillsList as $i => $connection){
+                $billExternal = BillExternal::find()->where(['bill_no' => $connection['bill_no']])->one();
+                $connectedBillsList[$i]['sum'] = $billExternal['ext_vat'] +  $billExternal['ext_sum_without_vat'];  
+            }
+
+            $design->assign('connected_bills', $connectedBillsList);
         }
 
         $adminNum = false;
@@ -838,16 +910,22 @@ class m_newaccounts extends IModule
             ->all()
         );
 
+        $client = ClientAccount::find()->where(['id' => $fixclient])->one();
+        $clientType = $client->contract->financial_type;
+        
+        $L = [];
+        if ($clientType != ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
+            $L = $bill->GetLines();
+        }
+
+        $design->assign('bill_lines', $L);
         $design->assign('invoice2_info', Invoice::getInfo($bill->GetNo()));
-
-
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_ext', $bill->GetExt());
         $design->assign('bill_extends_info', $newbill->extendsInfo);
         $design->assign('bill_manager', getUserName(Bill::dao()->getManager($bill->GetNo())));
         $design->assign('bill_comment', $bill->GetStaticComment());
         $design->assign('bill_courier', $bill->GetCourier());
-        $design->assign('bill_lines', $L = $bill->GetLines());
         $design->assign('bill_bonus', $this->getBillBonus($bill->GetNo()));
         $design->assign('bill_file_name', $newbill->getExtFile()->select('name')->scalar());
         $design->assign('bill_is_new_company', [
@@ -883,7 +961,6 @@ class m_newaccounts extends IModule
                 ->asArray()
                 ->column();
         }
-
         [$bill_akts, $bill_invoices, $bill_upd] = $this->get_bill_docs($bill, $L);
 
         if ($invoices) {
@@ -1045,7 +1122,7 @@ class m_newaccounts extends IModule
         return [$bill_akts, $bill_invoices, $bill_upd];
     }
 
-    function newaccounts_bill_courier_comment()
+    function newaccounts_bill_courier_comment($comment = '')
     {
         $doerId = get_param_raw("doer_id", "0");
         $billNo = get_param_raw("bill", "");
@@ -1091,11 +1168,27 @@ class m_newaccounts extends IModule
             exit();
         }
 
-
         $bill = new \Bill($bill_no);
         if ($bill->IsClosed()) {
             header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
+        }
+        
+        $isCorrection = false;
+        if (isset($_GET['orig_bill'])){
+            $orig_bill = $_GET['orig_bill'];
+            $billCorrection = BillOutcomeCorrection::findOne(['bill_no' => $bill_no, 'original_bill_no' => $orig_bill]);
+            if(!$billCorrection){
+                $billCorrection = new BillOutcomeCorrection();
+                $billCorrection->bill_no = $bill_no;
+                $billCorrection->original_bill_no = $orig_bill;
+
+                if (!$billCorrection->save()) {
+                    throw new ModelException('Ошибка сохранения');
+                }
+            }
+
+            $isCorrection = true;
         }
 
         $billModel = Bill::findOne(['bill_no' => $bill_no]);
@@ -1114,7 +1207,18 @@ class m_newaccounts extends IModule
         if (!$bill->CheckForAdmin()) {
             return;
         }
+        
+        $billCorrection = BillOutcomeCorrection::find()->where(['bill_no' => $bill_no])->one();
+        if($billCorrection){
+            $design->assign('corr_bill',  date('d-m-Y', strtotime($billCorrection->GetDate())));
+            $design->assign('corr_number', (string)$billCorrection->correction_number);
+            $billModel->comment = 'правка от ' . $billCorrection->original_bill_no;
+            if (!$billModel->save()) {
+                throw new ModelException('Ошибка сохранения');
+            }
+        }
 
+        $design->assign('is_correction', $isCorrection);
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], ['distr', 'operator']));
         $design->assign('clientAccountVersion', $fixclient_data['account_version']);
         $design->assign('bill', $bill->GetBill());
@@ -1193,6 +1297,7 @@ class m_newaccounts extends IModule
         $_SESSION['clients_client'] = get_param_integer("client_id", 0);
 
         $bill_no = get_param_protected("bill");
+        $bill_corr = BillOutcomeCorrection::find()->where(['bill_no' => $bill_no])->one();
         if (!$bill_no) {
             return;
         }
@@ -1203,7 +1308,8 @@ class m_newaccounts extends IModule
             return;
         }
 
-
+        $bill_corr_date = get_param_raw('date_created');
+        $bill_corr_num = get_param_raw('corr_number');
         $bill_nal = get_param_raw("nal");
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
@@ -1238,8 +1344,31 @@ class m_newaccounts extends IModule
                 header("Location: ?module=newaccounts&action=bill_edit&bill=" . $bill_no);
                 exit();
             }
+        }  
+        
+        if($bill_corr_date){
+            $bill_corr->date_created = date('Y-m-d', strtotime($bill_corr_date));
+        }
+        
+        if($bill_corr_num){
+            $bill_corr->correction_number = (int)$bill_corr_num;
         }
 
+        $clientType = $fixclient_data->contract->financial_type;
+
+        if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
+
+            $lines = $bill->GetLines();
+            if ($lines) {
+                foreach ($lines as $k => $line) {
+                    $bill->EditLine($k, 'расход', 1, (($ext_sum_without_vat + $vat_ext) * - 1), 'service');
+                }
+            } else {
+                $bill->AddLine('расход', 1, (($ext_sum_without_vat + $vat_ext) * - 1), 'service', '', '', '', '');
+            }
+            $bill->Save();
+        }
+        
         $bill->Set('bill_date', $bill_date->getSqlDay());
         $billPayBillUntil = new DatePickerValues('pay_bill_until', $bill->Get('pay_bill_until'));
         $bill->Set('pay_bill_until', $billPayBillUntil->getSqlDay());
@@ -1257,6 +1386,11 @@ class m_newaccounts extends IModule
         $bill->SetSumWithoutVatExt($ext_sum_without_vat);
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
+        if($bill_corr_date && $bill_corr_num) {
+            if (!$bill_corr->save()) {
+                throw new ModelException('Ошибка сохранения');
+            }
+        }   
 
         if ($ext_file) {
             (new \app\classes\media\BillExtMedia($billModel))->addFile($ext_file, $ext_file_comment);
@@ -1266,10 +1400,9 @@ class m_newaccounts extends IModule
         $amount = get_param_raw("amount");
         $price = get_param_raw("price");
         $type = get_param_raw("type");
-        $del = get_param_raw("del", []);
+        $del = get_param_raw("del", []);  
 
-        if (!$item || !$amount || !$price || !$type) { // Сохранение только "шапки" счета
-
+        if (!$item || !$amount || !$price || !$type) { // Сохранение только "шапки" счета     
             $bill->Save();
             header("Location: ?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
@@ -1291,7 +1424,6 @@ class m_newaccounts extends IModule
                     $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '');
                 }
             }
-
             $bill->Save();
 
             // если есть зарегистрированная с/ф, то обновить.
@@ -1303,7 +1435,6 @@ class m_newaccounts extends IModule
             $transaction->rollBack();
             throw $e;
         }
-
 
         ClientAccount::dao()->updateBalance($bill->Client('id'), false);
         unset($bill);
@@ -2293,6 +2424,7 @@ class m_newaccounts extends IModule
 
         /** @var Bill $bill */
         $bill = Bill::find()->andWhere(['bill_no' => $bill_no])->one();
+        $billConnection = BillOutcomeCorrection::find()->where(['bill_no' => $bill_no])->one();
 
         if ($bill->isClosed()) {
             header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
@@ -2305,6 +2437,11 @@ class m_newaccounts extends IModule
                 throw new ModelValidationException($bill);
             }
 
+            if($billConnection){
+                if (!$billConnection->delete()) {
+                    throw new ModelValidationException($billConnection);
+                }
+            }
             ClientAccount::dao()->updateBalance($clientAccountId, false);
         } catch (Exception $e) {
             \Yii::$app->session->addFlash('error', $e->getMessage());
@@ -5455,6 +5592,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
 
         $sql = "SELECT
   ex.ext_invoice_no as bill_no,
+  b.bill_no as newbills_bill_no,
   b.bill_date,
   cg.name_full,
   cg.inn,
@@ -5483,11 +5621,19 @@ ORDER BY " . $dateField . ", sum DESC";
                 ':date_to' => $dateTo->getSqlDay(),
                 ':organization_id' => $organizationId
             ]+ $whereParam);
-
         $data = $query->queryAll();
 
         $total = [];
-        foreach ($data as $row) {
+        foreach ($data as  $i => $row) {
+
+            $billCorrDate = BillOutcomeCorrection::find()
+            ->where(['bill_no' => $row['newbills_bill_no']])
+            ->one();
+           
+            if ($billCorrDate['correction_number'] != null) {
+                $data[$i]['correction_number'] = $billCorrDate['correction_number'];
+                $data[$i]['correction_date'] = date('d.m.Y', strtotime($billCorrDate['date_created']));
+            }
 
             if (!isset($total[$row['currency']])) {
                 $total[$row['currency']] = [

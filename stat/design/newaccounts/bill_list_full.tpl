@@ -17,8 +17,17 @@
         )
     </span>
             </h2>
-
-            <a href="{$LINK_START}module=newaccounts&action=bill_create">Создать счёт</a> /
+            {if $fin_type=='' || $fin_type == 'profitable'}
+                <a href="{$LINK_START}module=newaccounts&action=bill_create_income">Создать доходный счёт</a> /
+            {/if}
+            {if $fin_type == 'consumables'}
+                <a href="{$LINK_START}module=newaccounts&action=bill_create_outcome">Создать расходный счёт</a> /
+                
+            {/if}
+            {if $fin_type == 'yield-consumable'}
+                <a href="{$LINK_START}module=newaccounts&action=bill_create_income">Создать доходный счёт</a> /
+                <a href="{$LINK_START}module=newaccounts&action=bill_create_outcome">Создать расходный счёт</a> /
+            {/if}
             <a href="{$LINK_START}module=newaccounts&action=bill_balance">Обновить баланс</a><br/><br/>
         </td>
         <td style="text-align: right">
@@ -165,8 +174,11 @@
 <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
     <tr>
         <td class="header" valign="bottom" colspan="4"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
-        <td class="header" valign="bottom" colspan="2">Сумма</td>
-        <td class="header" valign="bottom" colspan="3"><b>Платёж</b></td>
+        {* <td class="header" valign="bottom" colspan="2">Сумма</td> *}
+        <td></td>
+        <td></td>
+        <td></td>
+        <td style="align-left:30px;" class="header" valign="bottom" colspan="3"><b>Платёж</b></td>
         <td class="header" valign="bottom" colspan="3"><b>Разбивка оплаты</b></td>
         <td class="header" valign="bottom" rowspan="2">Привязка</td>
         <td class="header" valign="bottom" rowspan="2">Документы</td>
