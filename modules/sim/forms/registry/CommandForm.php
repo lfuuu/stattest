@@ -174,6 +174,7 @@ class CommandForm extends Form
 
             $rs = $model->regionSettings;
             $rs->iccid_last_used = $model->iccid_to;
+            $rs->imsi_last_used = $model->imsi_to;
             $rs->save();
         }
     }

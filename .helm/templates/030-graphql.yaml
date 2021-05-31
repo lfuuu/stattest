@@ -19,21 +19,32 @@ spec:
         service: {{ .Values.graphql_prod.host }}
     spec:
       containers:
-        - name: graphql-prod
-          #image: hasura/graphql-engine:latest
-{{ tuple (printf "%s-%s" .Chart.Name "graphql-prod") . | werf_container_image | indent 10 }}
-          command: ["graphql-engine", "serve"]
-          #command: ["/bin/sleep","infinity"]
-          env:
-          - name: HASURA_GRAPHQL_DATABASE_URL
-            value: postgres://{{ .Values.graphql_prod.user }}:{{ .Values.graphql_prod.password }}@{{ .Values.postgres_prod.host }}:{{ .Values.postgres_prod.port }}/{{ .Values.postgres_prod.db }}
-          - name: HASURA_GRAPHQL_ENABLE_CONSOLE
-            value: {{ .Values.graphql_prod.enable_console |quote }}
-          - name: HASURA_GRAPHQL_ADMIN_SECRET
-            value: {{ .Values.graphql_prod.adminpass }}
-          ports:
-          - containerPort: {{ .Values.graphql_prod.port }}
-            protocol: TCP
+      - name: graphql-prod
+        #image: hasura/graphql-engine:latest
+{{ tuple (printf "%s-%s" .Chart.Name "graphql-prod") . | werf_container_image | indent 8 }}
+        command: ["sh","-c","cp /root/start.sh /root/run.sh && chmod a+x /root/run.sh && /root/run.sh"]
+        #command: ["graphql-engine", "serve"]
+        #command: ["/bin/sleep","infinity"]
+        env:
+        - name: HASURA_GRAPHQL_DATABASE_URL
+          value: postgres://{{ .Values.graphql_prod.user }}:{{ .Values.graphql_prod.password }}@{{ .Values.postgres_prod.host }}:{{ .Values.postgres_prod.port }}/{{ .Values.postgres_prod.db }}
+        - name: HASURA_GRAPHQL_ENABLE_CONSOLE
+          value: {{ .Values.graphql_prod.enable_console |quote }}
+        - name: HASURA_GRAPHQL_ADMIN_SECRET
+          value: {{ .Values.graphql_prod.adminpass }}
+        - name: HASURA_GRAPHQL_JWT_SECRET
+          value: {{ .Values.graphql_prod.jwt_secret }}
+        ports:
+        - containerPort: {{ .Values.graphql_prod.port }}
+          protocol: TCP
+        volumeMounts:
+        - name: config-volume
+          subPath: graphql-engine.sh
+          mountPath: /root/start.sh
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .Chart.Name }}-config-files
 ---
 apiVersion: v1
 kind: Service

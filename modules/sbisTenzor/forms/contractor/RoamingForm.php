@@ -33,7 +33,15 @@ class RoamingForm extends \app\classes\Form
 
         $query
             ->with(['clientAccount'])
-            ->where(['is_roaming' => true]);
+            ->where(['is_roaming' => true])
+            ->andWhere(['IS NOT', 'account_id', null])
+            ->orderBy([
+                'full_name' => SORT_ASC,
+                'account_id' => SORT_ASC,
+                'branch_code' => SORT_ASC,
+                'exchange_id' => SORT_ASC,
+            ])
+        ;
 
         if ($this->client) {
             $query->andWhere(['account_id' => $this->client->id]);
