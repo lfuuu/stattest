@@ -33,7 +33,7 @@ spec:
         - name: HASURA_GRAPHQL_ADMIN_SECRET
           value: {{ .Values.graphql_prod.adminpass }}
         - name: HASURA_GRAPHQL_JWT_SECRET
-          value: {{ .Values.graphql_prod.jwt_secret }}
+          value: {{ .Values.graphql_prod.jwt_secret | squote }}
         ports:
         - containerPort: {{ .Values.graphql_prod.port }}
           protocol: TCP
