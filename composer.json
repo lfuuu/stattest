@@ -15,6 +15,7 @@
     "ext-soap": "*",
     "ext-dom": "*",
     "ext-libxml": "*",
+    "ext-amqp": "*",
     "yiisoft/yii2": "@stable",
     "yiisoft/yii2-jui": "@stable",
     "welltime/graylog-target": "dev-master",
