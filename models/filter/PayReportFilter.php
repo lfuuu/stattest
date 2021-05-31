@@ -238,6 +238,10 @@ class PayReportFilter extends Payment
     private function _getTypeAndSubtype($mixType)
     {
         $pos = strpos($mixType, '_');
+        if ($pos === false) {
+            return [$mixType, false];
+        }
+
         return [substr($mixType, 0, $pos), substr($mixType, $pos + 1)];
     }
 }
