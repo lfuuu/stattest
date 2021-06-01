@@ -71,15 +71,13 @@ echo Breadcrumbs::widget([
         $tabs = [];
         foreach (PublicSite::getAllWithCountries() as $publicSite) {
             /** @var Country $country */
-            $country = $publicSite->countryFirst;
-
+            $country = $publicSite->getCountryFirst();
             $isActive = false;
             $formTemplateModel = new PaymentForm($model->type_id, $country->code);
             if ($country->code == $activeCountry) {
                 $isActive = true;
                 $formTemplateModel->id = $model->id;
             }
-
             $tabs[] = [
                 'label' =>
                     Html::tag(

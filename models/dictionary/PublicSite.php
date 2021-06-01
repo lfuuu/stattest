@@ -85,8 +85,8 @@ class PublicSite extends ActiveRecord
     {
         return
             $this->entryPoints ?
-                $this->entryPoints[0]->country :
-                Country::findOne([Country::$primaryField => Country::UNITED_KINGDOM]);
+            $this->entryPoints[0]->country :
+            Country::findOne([Country::$primaryField => Country::UNITED_KINGDOM]);
     }
 
     /**
@@ -94,13 +94,10 @@ class PublicSite extends ActiveRecord
      */
     public static function getAllWithCountries()
     {
-        $countryTable = Country::tableName();
 
         return self::find()
             ->from(PublicSite::tableName())
-            ->joinWith('entryPoints.country ' . $countryTable)
             ->orderBy(['id' => SORT_ASC])
-            ->groupBy([$countryTable . '.code'])
             ->all();
     }
 
@@ -232,8 +229,7 @@ class PublicSite extends ActiveRecord
     public static function getList(
         $isWithEmpty = false,
         $indexBy = 'id'
-    )
-    {
+    ) {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull = false,
