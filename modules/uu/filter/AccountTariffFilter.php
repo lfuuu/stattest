@@ -84,6 +84,8 @@ class AccountTariffFilter extends AccountTariff
 
     public $is_device_empty = '';
 
+    public $price_level = '';
+
     /**
      * @param int $serviceTypeId
      */
@@ -137,7 +139,7 @@ class AccountTariffFilter extends AccountTariff
             'integer'
         ];
         $rules[] = [['tariff_currency_id'], 'string'];
-        $rules[] = [['number_ndc_type_id'], 'integer'];
+        $rules[] = [['number_ndc_type_id', 'price_level'], 'integer'];
         $rules[] = [['tariff_period_utc_from', 'tariff_period_utc_to'], 'string'];
         $rules[] = [['account_log_period_utc_from', 'account_log_period_utc_to'], 'string'];
         $rules[] = [['is_unzipped', 'is_device_empty', 'is_active_client_account'], 'integer'];
@@ -325,6 +327,7 @@ class AccountTariffFilter extends AccountTariff
         $this->account_log_period_utc_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.account_log_period_utc', $this->account_log_period_utc_to]);
 
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
+        $this->price_level !== '' && $query->andWhere([ClientAccount::tableName() . '.price_level' => $this->price_level]);
 
         $this->trouble_id !== '' && $query->andWhere(['at.trouble_id' => $this->trouble_id]);
 
