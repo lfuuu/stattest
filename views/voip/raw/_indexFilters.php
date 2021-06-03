@@ -158,6 +158,24 @@ $filters = [
         'isWithNullAndNotNull' => true,
     ],
     [
+        'attribute' => 'src_number_type_ids',
+        'class' => NdcTypeColumn::class,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
+    ],
+    [
+        'attribute' => 'dst_number_type_ids',
+        'class' => NdcTypeColumn::class,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
+    ],
+    [
         'attribute' => 'src_logical_trunks_ids',
         'class' => ServiceTrunkColumn::class,
         'filterByServerIds' => $filterModel->server_ids,
@@ -177,24 +195,7 @@ $filters = [
             'multiple' => true,
         ],
     ],
-    [
-        'attribute' => 'src_countries_ids',
-        'class' => CountryColumn::class,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'attribute' => 'dst_countries_ids',
-        'class' => CountryColumn::class,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
+    
     [
         'attribute' => 'src_contracts_ids',
         'class' => ContractColumn::class,
@@ -238,6 +239,19 @@ $filters = [
         'isWithNullAndNotNull' => true,
     ],
     [
+        'attribute' => 'src_countries_ids',
+        'class' => CountryColumn::class,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
+    ],
+    [
+        'attribute' => 'src_exclude_country',
+        'class' => CheckboxColumn::class,
+    ],
+    [
         'attribute' => 'src_cities_ids',
         'class' => CityColumn::class,
         'label' => $filterModel->getAttributeLabel('src_cities_ids') . '**',
@@ -278,29 +292,16 @@ $filters = [
         'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'src_number_type_ids',
-        'class' => NdcTypeColumn::class,
+        'attribute' => 'dst_countries_ids',
+        'class' => CountryColumn::class,
         'filterInputOptions' => [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
-        'isWithNullAndNotNull' => false,
-    ],
+        'isWithNullAndNotNull' => true,
+    ], 
     [
-        'attribute' => 'dst_number_type_ids',
-        'class' => NdcTypeColumn::class,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => false,
-    ],
-    [
-        'attribute' => 'is_exclude_internal_trunk_term',
-        'class' => CheckboxColumn::class,
-    ],
-    [
-        'attribute' => 'is_exclude_internal_trunk_orig',
+        'attribute' => 'dst_exclude_country',
         'class' => CheckboxColumn::class,
     ],
     [
@@ -364,6 +365,14 @@ $filters = [
         ],
         'filter' => $filterModel->getAggrGroups(),
         'isWithEmpty' => false,
+    ],
+    [
+        'attribute' => 'is_exclude_internal_trunk_term',
+        'class' => CheckboxColumn::class,
+    ],
+    [
+        'attribute' => 'is_exclude_internal_trunk_orig',
+        'class' => CheckboxColumn::class,
     ],
 ];
 

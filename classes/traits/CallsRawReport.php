@@ -686,10 +686,19 @@ trait CallsRawReport
 
             ->reportCondition($aliasResolverFunc('nnp_city_id_a'), $this->src_cities_ids)
             ->reportCondition($aliasResolverFunc('nnp_city_id_b'), $this->dst_cities_ids)
-
-            ->reportCondition($aliasResolverFunc('nnp_country_code_a'), $this->src_countries_ids)
-            ->reportCondition($aliasResolverFunc('nnp_country_code_b'), $this->dst_countries_ids)
         ;
+         
+        $condition = [$aliasResolverFunc('nnp_country_code_a') => $this->src_countries_ids];
+        if ($this->src_exclude_country) {
+            $condition =  ['NOT', $condition];
+        }
+        $this->src_countries_ids && $query->andWhere($condition);
+
+        $condition = [$aliasResolverFunc('nnp_country_code_b') => $this->dst_countries_ids];
+        if ($this->dst_exclude_country) {
+            $condition = ['NOT', $condition];
+        } 
+        $this->dst_countries_ids && $query->andWhere($condition);
 
         // Исключаем лишнее
 //        if ($exceptGroupFields = $this->getExceptGroupFields()) {
