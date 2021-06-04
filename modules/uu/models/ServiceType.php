@@ -66,6 +66,8 @@ class ServiceType extends ActiveRecord
     const ID_BILLING_API_MAIN_PACKAGE = 33; // Билинг API. Основной пакет.
 
     const ID_CHAT_BOT = 34;
+    const ID_A2P = 35;
+    const ID_A2P_PACKAGE = 36;
 
     const CLOSE_AFTER_DAYS = 60;
 
@@ -77,11 +79,13 @@ class ServiceType extends ActiveRecord
         self::ID_TRUNK_PACKAGE_ORIG => self::ID_TRUNK,
         self::ID_TRUNK_PACKAGE_TERM => self::ID_TRUNK,
         self::ID_BILLING_API_MAIN_PACKAGE => self::ID_BILLING_API,
+        self::ID_A2P_PACKAGE => self::ID_A2P,
     ];
 
     public static $serviceToPackage = [
         self::ID_VOIP => self::ID_VOIP_PACKAGE_CALLS,
         self::ID_BILLING_API => self::ID_BILLING_API_MAIN_PACKAGE,
+        self::ID_A2P => self::ID_A2P_PACKAGE,
     ];
 
     // Соответствие неуниверсальной услуги
