@@ -134,6 +134,8 @@ class ResourceModel extends ActiveRecord
 
         //билингация вызовов API
         self::ID_API_CALL => ApiResourceReader::class,
+
+        self::ID_A2P_SMS => ZeroResourceReader::class,
     ];
 
     public static $calls = [
