@@ -99,6 +99,12 @@ sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_statistic.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_statistic.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_statistic.local.php
 
+cp db_pg_history.local.tpl.php db_pg_history.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_HISTORY_HOST/" db_pg_history.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_HISTORY_DB/" db_pg_history.local.php
+sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_HISTORY_USER'/" db_pg_history.local.php
+sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_HISTORY_PASSWORD'/" db_pg_history.local.php
+
 # Redis
 cp cache_redis.local.tpl.php cache_redis.local.php
 sed -i "s/'hostname' => 'localhost'/'hostname' => '$REDIS_HOST'/" cache_redis.local.php

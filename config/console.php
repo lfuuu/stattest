@@ -83,6 +83,13 @@ if (file_exists($file = __DIR__ . '/db_pg_statistic.local.php')) {
     $dbStatistic = $dbPg;
 }
 
+$dbHistory = require(__DIR__ . '/db_pgsql.php');
+if (file_exists($file = __DIR__ . '/db_pg_history.local.php')) {
+    $dbHistory = ArrayHelper::merge($dbHistory, require($file));
+} else {
+    $dbHistory = $dbPg;
+}
+
 $log = require(__DIR__ . '/log.php');
 if (file_exists($file = __DIR__ . '/log.local.php')) {
     $log = ArrayHelper::merge($log, require($file));
@@ -142,6 +149,7 @@ return [
         'dbPgSlaveCache' => $dbPgSlaveCache,
         'dbPgCache' => $dbPgCache,
         'dbPgStatistic' => $dbStatistic,
+        'dbHistory' => $dbHistory,
         'i18n' => [
             'translations' => [
                 '*' => [

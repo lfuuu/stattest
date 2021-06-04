@@ -60,7 +60,12 @@ class HistoryChanges extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'history_changes';
+        return 'history_changes.history_changes';
+    }
+
+    public static function getDb()
+    {
+        return \Yii::$app->dbHistory;
     }
 
     /**
