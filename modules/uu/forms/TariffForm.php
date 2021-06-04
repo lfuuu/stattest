@@ -253,6 +253,7 @@ abstract class TariffForm extends \app\classes\Form
                         // no break;
 
                     case ServiceType::ID_VOIP_PACKAGE_SMS:
+                    case ServiceType::ID_A2P_PACKAGE:
                     case ServiceType::ID_TRUNK_PACKAGE_ORIG:
                     case ServiceType::ID_TRUNK_PACKAGE_TERM:
                     case ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY:
@@ -314,7 +315,10 @@ abstract class TariffForm extends \app\classes\Form
                             $this->crudMultiple($this->tariff->packagePricelistsNnpInternet, $post, $packageInternet);
                         }
 
-                        if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS) {
+                        if (
+                            $this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS
+                            || $this->tariff->service_type_id == ServiceType::ID_A2P_PACKAGE
+                        ) {
                             $packageSms = new PackagePricelistNnpSms();
                             $packageSms->tariff_id = $this->id;
                             $this->crudMultiple($this->tariff->packagePricelistsNnpSms, $post, $packageSms);
