@@ -75,15 +75,16 @@ class HistoryChanges extends Behavior
             'prev_data_json' => json_encode($prevData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ];
 
-        $params = [];
-        $sql = Yii::$app->db->queryBuilder
-            ->insert(
-                \app\models\HistoryChanges::tableName(),
-                $queryData,
-                $params
-            );
-        Yii::$app->db->createCommand($sql, $params)->execute();
-
+        if (isset($_SERVER['USE_MINIKUBE']) && $_SERVER['USE_MINIKUBE'] == 0) {
+            $params = [];
+            $sql = \app\models\HistoryChanges::getDb()->queryBuilder
+                ->insert(
+                    \app\models\HistoryChanges::tableName(),
+                    $queryData,
+                    $params
+                );
+            \app\models\HistoryChanges::getDb()->createCommand($sql, $params)->execute();
+        }
     }
 
     /**

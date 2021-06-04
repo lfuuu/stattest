@@ -137,6 +137,22 @@ spec:
           value: {{ .Values.postgres_prod.host_legs }}
         - name: POSTGRES_NFDUMP_DB
           value: {{ .Values.postgres_prod.db_nfdump }}
+        - name: POSTGRES_HISTORY_HOST
+          value: {{ .Values.postgres_history.host }}
+        - name: POSTGRES_HISTORY_DB
+          value: {{ .Values.postgres_history.db }}
+{{- if (eq .Values.global.env "dev") }}
+        - name: POSTGRES_HISTORY_USER
+          value: {{ .Values.postgres_history.user_read_only }}
+        - name: POSTGRES_HISTORY_PASSWORD
+          value: {{ .Values.postgres_history.password_read_only }}
+{{- else }}
+        - name: POSTGRES_HISTORY_USER
+          value: {{ .Values.postgres_history.user }}
+        - name: POSTGRES_HISTORY_PASSWORD
+          value: {{ .Values.postgres_history.password }}
+{{- end }}
+
 {{- if (eq .Values.global.env "dev") }}
         - name: POSTGRES_USER
           value: {{ .Values.postgres_prod.user_read_only }}
