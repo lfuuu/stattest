@@ -47,7 +47,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: 6000
     nginx.ingress.kubernetes.io/proxy-read-timeout: 18000
     nginx.ingress.kubernetes.io/proxy-send-timeout: 18000
-    nginx.ingress.kubernetes.io/enable-cors: 'true'
+#    NNPLK-5: Сделать так, чтобы работали одновременно nnp и apigw
+#    nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/whitelist-source-range: >-
       127.0.0.1/24,85.94.32.0/24,172.16.0.0/16,192.168.0.0/16,10.0.0.0/8,178.48.22.33/32,
       185.18.110.250/32,89.235.184.126/32,95.165.175.49/32,194.29.62.164,91.219.7.98,
@@ -127,7 +128,8 @@ metadata:
       89.235.136.19/32,
       89.235.136.18/32,
       194.186.207.0/24,
-      194.54.14.0/24
+      194.54.14.0/24,
+      127.0.0.0/24
 
 spec:
 {{- if (eq .Values.global.env "prod") }}

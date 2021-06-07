@@ -1617,7 +1617,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
             // фильтр по этапам
             $sql_select_users = " select `user` from user_users order by enabled, `user` ";
-            $design->assign('users',$db->AllRecordsAssoc($sql_select_users, 'user', 'user'));
+            $design->assign('users',\app\models\UserGroups::dao()->getListWithUsers('user'));
         }
 
         if ($mode == 6 && !$R) return false; // не показываем секцию с страблами если их нет

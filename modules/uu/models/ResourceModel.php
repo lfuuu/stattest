@@ -90,6 +90,10 @@ class ResourceModel extends ActiveRecord
 
     const ID_BOT = 54;
 
+    // A2P
+    const ID_A2P_ALFA_NUMBERS = 58;
+    const ID_A2P_SMS = 59;
+
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
 
@@ -130,6 +134,8 @@ class ResourceModel extends ActiveRecord
 
         //билингация вызовов API
         self::ID_API_CALL => ApiResourceReader::class,
+
+        self::ID_A2P_SMS => ZeroResourceReader::class,
     ];
 
     public static $calls = [

@@ -418,6 +418,7 @@ class NumberController extends Controller
         $this->_redisGetAndSet(Operator::find()->asArray(), 'operatorEn', 'id', 'name_translit');
         $this->_redisGetAndSet(Country::find()->asArray(), 'countryEn', 'code', 'name_eng');
         $this->_redisGetAndSet(City::find()->asArray(), 'cityEn', 'id', 'name_translit');
+        $this->_redisGetAndSet(nnpRegion::find()->asArray(), 'regionEn', 'id', 'name_translit');
     }
 
     private function _redisGetAndSet(ActiveQuery $query, $prefix, $id = 'id', $name = 'name')

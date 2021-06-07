@@ -3,6 +3,7 @@
 namespace app\modules\sbisTenzor\forms\draft;
 
 use app\exceptions\ModelValidationException;
+use app\models\Bill;
 use app\models\ClientAccount;
 use app\modules\sbisTenzor\classes\SBISExchangeStatus;
 use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
@@ -40,10 +41,10 @@ class IndexForm extends \app\classes\Form
         $query = SBISGeneratedDraft::find();
 
         if ($state) {
-            $query->where(['=', 'state', $state]);
+            $query->andWhere(['=', 'state', $state]);
         } else {
             $query
-                ->where(['state' => [SBISGeneratedDraftStatus::DRAFT, SBISGeneratedDraftStatus::PROCESSING]]);
+                ->andWhere(['state' => [SBISGeneratedDraftStatus::DRAFT, SBISGeneratedDraftStatus::PROCESSING]]);
         }
 
         if ($this->client) {
@@ -268,6 +269,9 @@ class IndexForm extends \app\classes\Form
         $query
             ->where(['=', 'state', SBISGeneratedDraftStatus::DRAFT])
             ->joinWith('invoice.bill.clientAccountModel as c1', $eagerLoading);
+
+        $query
+            ->andWhere(['IS NOT', Bill::tableName() . '.id', null]);
 
         if ($isForAll) {
             $query->andWhere(['c1.exchange_status' => SBISExchangeStatus::$verified]);

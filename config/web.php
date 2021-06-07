@@ -92,6 +92,13 @@ if (file_exists($file = __DIR__ . '/db_pg_statistic.local.php')) {
     $dbStatistic = $dbPg;
 }
 
+$dbHistory = require(__DIR__ . '/db_pgsql.php');
+if (file_exists($file = __DIR__ . '/db_pg_history.local.php')) {
+    $dbHistory = ArrayHelper::merge($dbHistory, require($file));
+} else {
+    $dbHistory = $dbPg;
+}
+
 $log = require(__DIR__ . '/log.php');
 if (file_exists($file = __DIR__ . '/log.local.php')) {
     $log = ArrayHelper::merge($log, require($file));
@@ -188,6 +195,7 @@ $config = [
         'dbPgNnp2' => $dbPgNnp2,
         'dbPgNnpSlave' => $dbPgSlave,
         'dbPgCallTracking' => $dbPgCallTracking,
+        'dbHistory' => $dbHistory,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

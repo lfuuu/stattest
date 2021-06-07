@@ -26,6 +26,7 @@ use app\modules\uu\column\InfrastructureLevelColumn;
 use app\modules\uu\column\InfrastructureProjectColumn;
 use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\column\TariffStatusColumn;
+use app\modules\uu\column\PriceLevelColumn;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTrouble;
@@ -255,6 +256,14 @@ $columns = array_merge($columns, [
             return $tariffPeriod ?
                 $tariffPeriod->tariff->tariff_status_id :
                 null;
+        },
+    ],
+    [
+        'label' => 'Уровень цен',
+        'attribute' => 'price_level',
+        'class' => PriceLevelColumn::class,
+        'value' => function (AccountTariff $accountTariff) {
+            return $accountTariff->clientAccount->price_level;
         },
     ],
     [

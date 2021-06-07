@@ -3,6 +3,7 @@
 namespace app\dao\user;
 
 use app\classes\Singleton;
+use app\models\User;
 use app\models\UserGroups;
 
 /**
@@ -13,16 +14,34 @@ class UserGroupsDao extends Singleton
     /**
      * @return array
      */
-    public function getListWithUsers()
+    public function getListWithUsers($key='id')
     {
-        $res = [];
-        $groups = UserGroups::find()->innerJoinWith('users')->asArray()->all();
-        foreach ($groups as $group) {
-            foreach ($group['users'] as $user) {
-                $res[$group['comment']][$user['id']] = $user['name'];
-            }
+        echo $key;
+        static $res = [];
+
+        if ($res[$key]) {
+            return $res[$key];
         }
 
-        return $res;
+        $res[$key] = [];
+
+        $users = User::find()
+            ->alias('u')
+            ->select(['u.id', 'u.user', 'u.name', 'g.comment', 'u.enabled'])
+            ->innerJoinWith('group g')
+            ->orderBy(['g.comment' => SORT_ASC, 'u.enabled' => SORT_ASC ,'u.name' => SORT_ASC])
+            ->asArray()
+            ->all();
+
+        foreach ($users as $user) {
+            $name = trim($user['name']);
+            $isForwardS = false;
+            if (substr($name, 0, 1) == '*') {
+                $isForwardS = true;
+            }
+            $res[$key][$user['comment']][$user[$key]] = ($user['enabled'] != 'yes' ? '**' . ($isForwardS ? '' : "*") : '') . $user['name'] . ' (' . $user['user'] . ')';
+        }
+
+        return $res[$key];
     }
 }

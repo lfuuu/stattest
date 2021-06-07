@@ -292,7 +292,7 @@ class Migration extends \yii\db\Migration
                 'resource_id' => $resourceId
             ]);
 
-            $this->delete(Resource::tableName(), [
+            $this->delete(ResourceModel::tableName(), [
                 'id' => $resourceId
             ]);
             $transaction->commit();

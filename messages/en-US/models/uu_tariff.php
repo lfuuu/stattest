@@ -23,4 +23,5 @@ return [
 
     'is_one_active' => 'Only one active',
     'is_proportionately' => 'Write off proportionally (otherwise completely at once)',
+    'tax_rate' => 'Tax rate',
 ];

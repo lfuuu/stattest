@@ -135,7 +135,9 @@ class CallsRawFilter extends CallsRaw
     public $dst_trunk_group_ids = null;
     public $is_exclude_internal_trunk_term = null;
     public $is_exclude_internal_trunk_orig = null;
-
+    public $src_exclude_country = null;
+    public $dst_exclude_country = null;
+    
     /** @var Connection */
     public $dbConn = null;
 
@@ -168,6 +170,8 @@ class CallsRawFilter extends CallsRaw
                     'calls_with_duration',
                     'is_exclude_internal_trunk_term',
                     'is_exclude_internal_trunk_orig',
+                    'src_exclude_country',
+                    'dst_exclude_country',
                 ],
                 'integer'
             ],
@@ -309,6 +313,8 @@ class CallsRawFilter extends CallsRaw
                 'currency' => 'Валюта расчетов',
                 'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
                 'is_exclude_internal_trunk_orig' => 'Исключить внутренние транки Оригинационные',
+                'src_exclude_country' => 'Кроме для стран номера A',
+                'dst_exclude_country' => 'Кроме для стран номера B',
                 'aggr' => 'Что считать',
             ];
     }
@@ -803,6 +809,7 @@ class CallsRawFilter extends CallsRaw
             $dbConn = Yii::$app->dbPg;
         }
         */
+
 
         if (!$this->group && !$this->aggr) {
             $count = $query->rowCount();

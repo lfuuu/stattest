@@ -91,6 +91,10 @@ if (!$serviceType) {
             echo $this->render('_editMainVoipSms', $viewParams);
             break;
 
+        case ServiceType::ID_A2P_PACKAGE:
+            echo $this->render('_editMainVoipPackagePricelistNnpOnly', $viewParams);
+            break;
+
         case ServiceType::ID_VOIP_PACKAGE_INTERNET:
             echo $this->render('_editMainVoipInternet', $viewParams);
             break;

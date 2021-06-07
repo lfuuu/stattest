@@ -99,6 +99,13 @@ echo GridView::widget([
             'label' => 'Контагент',
             'format' => 'html',
             'value'     => function (SBISGeneratedDraft $model) {
+                if (!$model->invoice->bill) {
+                    return 'Не найден счёт.';
+                }
+                if (!$model->invoice->bill->clientAccount) {
+                    return 'Не найден клиент для данного счёта.';
+                }
+
                 $client = $model->invoice->bill->clientAccount;
 
                 $html = $client->contragent->name_full;
@@ -117,6 +124,13 @@ echo GridView::widget([
             'label' => 'Файлы',
             'format' => 'html',
             'value'     => function (SBISGeneratedDraft $model) {
+                if (!$model->invoice->bill) {
+                    return 'Не найден счёт.';
+                }
+                if (!$model->invoice->bill->clientAccount) {
+                    return 'Не найден клиент для данного счёта.';
+                }
+
                 $client = $model->invoice->bill->clientAccount;
 
                 $html = '';
@@ -170,6 +184,9 @@ echo GridView::widget([
             'attribute' => 'invoice_id',
             'format' => 'html',
             'value'     => function (SBISGeneratedDraft $model) {
+                if (!$model->invoice->bill) {
+                    return 'Не найден счёт.';
+                }
                 $invoice = $model->invoice;
 
                 $html = Html::tag(
@@ -220,6 +237,13 @@ echo GridView::widget([
             'label' => 'Информация',
             'format' => 'html',
             'value'     => function (SBISGeneratedDraft $model) {
+                if (!$model->invoice->bill) {
+                    return 'Не найден счёт.';
+                }
+                if (!$model->invoice->bill->clientAccount) {
+                    return 'Не найден клиент для данного счёта.';
+                }
+
                 $html = '';
 
                 $model->checkForWarnings(true);
@@ -250,6 +274,13 @@ echo GridView::widget([
             'template' => '{cancel} {save}',
             'buttons' => [
                 'cancel' => function ($url, SBISGeneratedDraft $model) use ($baseView) {
+                    if (!$model->invoice->bill) {
+                        return '';
+                    }
+                    if (!$model->invoice->bill->clientAccount) {
+                        return '';
+                    }
+
                     if ($model->state == SBISGeneratedDraftStatus::DRAFT) {
                         return $baseView->render('//layouts/_actionDisable', [
                             'url' => '/sbisTenzor/draft/cancel?id=' . $model->id,
@@ -265,6 +296,13 @@ echo GridView::widget([
                 },
                 'save' => function ($url, SBISGeneratedDraft $model) use ($baseView) {
                     if ($model->state == SBISGeneratedDraftStatus::DRAFT) {
+                        if (!$model->invoice->bill) {
+                            return '';
+                        }
+                        if (!$model->invoice->bill->clientAccount) {
+                            return '';
+                        }
+
                         return $baseView->render('//layouts/_link', [
                             'url' => '/sbisTenzor/draft/save?id=' . $model->id,
                             'glyphicon' => 'glyphicon-play text-success',

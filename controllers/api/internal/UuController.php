@@ -363,7 +363,6 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включая НДС"),
      *   @SWG\Property(property = "is_default", type = "integer", description = "0 - только не по умолчанию, 1 - только по умолчанию, не указано - все"),
      *   @SWG\Property(property = "is_postpaid", type = "integer", description = "0 - только предоплата, 1 - только постоплата, не указано - все"),
-     *   @SWG\Property(property = "is_one_active", type = "integer", description = "Только один активный"),
      *   @SWG\Property(property = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)"),
      *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "country", type = "object", description = "Страна клиента", ref = "#/definitions/idNameRecord"),
@@ -394,7 +393,6 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "is_default", type = "integer", description = "По умолчанию (0 / 1)", in = "query", default = ""),
      *   @SWG\Parameter(name = "is_postpaid", type = "integer", description = "0 - предоплата, 1 - постоплата", in = "query", default = ""),
-     *   @SWG\Parameter(name = "is_one_active", type = "integer", description = "0 - активен, 1 - неактивен", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны телефонии. Поле правильнее переименовать в voip_country_id", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
@@ -427,7 +425,6 @@ class UuController extends ApiInternalController
      * @param string $currency_id
      * @param int $is_default
      * @param int $is_postpaid
-     * @param int $is_one_active
      * @param int $tariff_status_id
      * @param int $tariff_person_id
      * @param int $tariff_tag_id
@@ -451,7 +448,6 @@ class UuController extends ApiInternalController
         $currency_id = null,
         $is_default = null,
         $is_postpaid = null,
-        $is_one_active = null,
         $tariff_status_id = null,
         $tariff_person_id = null,
         $tariff_tag_id = null,
@@ -477,7 +473,6 @@ class UuController extends ApiInternalController
                 $currency_id,
                 $is_default,
                 $is_postpaid,
-                $is_one_active,
                 $tariff_status_id,
                 $tariff_person_id,
                 $tariff_tag_id,
@@ -492,9 +487,9 @@ class UuController extends ApiInternalController
             ], true),
             \app\modules\uu\Module::LOG_CATEGORY_API
         );
+
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
-        $is_one_active = (int)$is_one_active;
 
         // "сначала намечались торжества. Потом аресты. Потом решили совместить" (С) К/ф "Тот самый Мюнхгаузен"
 //        $origCountryId = $country_id;
@@ -617,6 +612,7 @@ class UuController extends ApiInternalController
 //        }
 
         // @todo надо ли только статус "публичный" для ватс?
+
          $params = [
              'id' => $id,
              'service_type_id' => $service_type_id,
@@ -655,7 +651,6 @@ class UuController extends ApiInternalController
                         $currency_id,
                         $is_default_tmp = 1,
                         $is_postpaid_tmp = null,
-                        $is_one_active,
                         $tariff_status_id,
                         $tariff_person_id,
                         $tariff_tag_id_tmp = null,
@@ -712,7 +707,6 @@ class UuController extends ApiInternalController
                 'is_include_vat' => $tariff->is_include_vat,
                 'is_default' => $tariff->is_default,
                 'is_postpaid' => $tariff->is_postpaid,
-                'is_one_active' => $tariff->is_one_active,
                 'currency' => $tariff->currency_id,
                 'service_type' => $this->_getIdNameRecord($tariff->serviceType),
                 'country' => $this->_getIdNameRecord($tariffVoipCountry ? $tariffVoipCountry->country : null, 'code'), // @todo multi и переименовать в voip_countries
@@ -737,6 +731,8 @@ class UuController extends ApiInternalController
                 'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices, $tariff->id) ?: $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp),
                 'voip_package_price_prices' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp, true),
                 'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
+                'voip_package_price_internet' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpInternet, true),
+                'voip_package_price_sms' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, true),
             ];
 
             Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
@@ -2320,7 +2316,6 @@ class UuController extends ApiInternalController
             $currencyIdTmp = null,
             $isDefaultTmp = null,
             $isPostpaidTmp = null,
-            $is_one_active = null,
             $tariffStatusIdTmp = null,
             $tariffPersonIdTmp = null,
             $tariffTagIdTmp = null,

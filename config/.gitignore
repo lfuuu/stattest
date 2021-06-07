@@ -12,6 +12,7 @@ db_pg_calllegs.local.php
 db_pg_cache.local.php
 db_pg_slave_cache.local.php
 db_pg_statistic.local.php
+db_pg_history.local.php
 log.local.php
 params.local.php
 /web.local.php

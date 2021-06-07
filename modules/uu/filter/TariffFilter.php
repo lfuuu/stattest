@@ -41,7 +41,6 @@ class TariffFilter extends Tariff
     public $is_include_vat = '';
     public $is_default = '';
     public $is_postpaid = '';
-    public $is_one_active = '';
 
     public $is_show_archive = false;
 
@@ -106,7 +105,6 @@ class TariffFilter extends Tariff
 
         $this->id !== '' && $query->andWhere([$tariffTableName . '.id' => $this->id]);
         $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
-        
         $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_person_id !== '' && $query->andWhere([$tariffTableName . '.tariff_person_id' => $this->tariff_person_id]);
         $this->tag_id !== '' && $query->andWhere([$tariffTableName . '.tag_id' => $this->tag_id]);
@@ -117,7 +115,6 @@ class TariffFilter extends Tariff
         $this->is_include_vat !== '' && $query->andWhere([$tariffTableName . '.is_include_vat' => (int)$this->is_include_vat]);
         $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
         $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
-        $this->is_one_active !== '' && $query->andWhere([$tariffTableName . '.is_one_active' => (int)$this->is_one_active]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
 
         !$this->is_show_archive && $query->andWhere(['NOT', ['tariff_status_id' => TariffStatus::ARCHIVE_LIST]]);
@@ -200,7 +197,7 @@ class TariffFilter extends Tariff
             ->with('packagePricelists.pricelist')
             ->with('tariffTags')
             ->with('tariffTags.tag');
-
+      
         $params['id'] && $query->andWhere(["{$tariffTable}.id" => $params['id']]);
         $params['service_type_id'] && $query->andWhere(["{$tariffTable}.service_type_id" => (int)$params['service_type_id']]);
         $params['currency_id'] && $query->andWhere(["{$tariffTable}.currency_id" => $params['currency_id']]);

@@ -18,7 +18,7 @@
                     });
                 }
 
-                if (json && json.iccid_last_used) {
+                if (json && json.iccid_last_used >= 0) {
                     $("#registry_add_iccid_from").each(function() {
                         $(this).val(json.iccid_last_used);
                     });
@@ -37,7 +37,7 @@
                     });
                 }
 
-                if (json && json.imsi_last_used) {
+                if (json && json.imsi_last_used >= 0) {
                     $("#registry_add_imsi_from").each(function() {
                         $(this).val(json.imsi_last_used);
                     });

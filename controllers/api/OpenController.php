@@ -226,18 +226,10 @@ final class OpenController extends Controller
 
             $didGroup = $freeNumber->getCachedDidGroup();
 
-            $tariffStatusId =
-                // для покупки номеров 7800 надо правильно найти тариф.
-                ($freeNumber->ndc_type_id == NdcType::ID_FREEPHONE
-                    ? TariffStatus::ID_VOIP_8800_TEST
-                    : ($clientAccount
-                        ? $didGroup->{'tariff_status_main' . $priceLevel}
-                        : TariffStatus::ID_TEST
-                    )
-                );
+            $tariffStatusId = $clientAccount ? $didGroup->{'tariff_status_main' . $priceLevel} : TariffStatus::ID_TEST;
 
             $packageStatusIds = [
-                $didGroup->{'tariff_status_main' . $priceLevel}
+                $didGroup->{'tariff_status_package' . $priceLevel}
             ];
 
             if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
@@ -737,11 +729,10 @@ final class OpenController extends Controller
             ->joinWith('tariffVoipCountries')
             ->where([
                 $tariffTableName . '.service_type_id' => array_keys(ServiceType::$packages),
-                TariffVoipCountry::tableName() . '.country_id' => $voipCountryId,
                 $tariffTableName . '.currency_id' => $tariff->currency_id,
                 $tariffTableName . '.is_default' => 1,
                 $tariffTableName . '.tariff_status_id' => $packageStatusIds,
-                $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, TariffPerson::ID_NATURAL_PERSON],
+                $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariffPersonId],
                 TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId,
             ]);
 
