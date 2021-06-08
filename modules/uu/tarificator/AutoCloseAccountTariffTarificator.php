@@ -138,7 +138,7 @@ SQL;
                     'data_json' => json_encode($accountTariffLogFields, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                     'prev_data_json' => json_encode(null, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 ];
-                Yii::$app->db->createCommand()
+                Yii::$app->dbHistory->createCommand()
                     ->insert($historyChangesTableName, $queryData)
                     ->execute();
 
