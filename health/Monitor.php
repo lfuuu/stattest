@@ -66,7 +66,7 @@ abstract class Monitor extends Component
     {
         return [
             MonitorUuBill::class,
-            MonitorUuShiftTariff::class,
+            // MonitorUuShiftTariff::class,
             // MonitorUuAccountEntry::class, // обычно работает долю секунды, но иногда лочится надолго
             MonitorUuTestTariff::class,
             // MonitorSormClientsReg97::class, // до введения СОРМа в Краснодаре, отключим монитор. Что бы Борис не расстраивался.
