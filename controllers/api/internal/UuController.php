@@ -613,28 +613,8 @@ class UuController extends ApiInternalController
 
         // @todo надо ли только статус "публичный" для ватс?
 
-         $params = [
-             'id' => $id,
-             'service_type_id' => $service_type_id,
-             'country_id' => $country_id,
-             'currency_id' =>$currency_id,
-             'is_default' =>$is_default,
-             'is_postpaid' => $is_postpaid,
-             'is_one_active' =>$is_one_active,
-             'tariff_status_id' =>$tariff_status_id,
-             'tariff_person_id' =>$tariff_person_id,
-             'tariff_tag_id' =>$tariff_tag_id,
-             'tariff_tags_id' =>$tariff_tags_id,
-             'voip_group_id' => $voip_group_id,
-             'voip_city_id' => $voip_city_id,
-             'voip_ndc_type_id' =>$voip_ndc_type_id,
-             'organization_id' =>$organization_id,
-             'is_include_vat' => $is_include_vat,
-             'voip_country_id' =>$voip_country_id,
-         ];
+        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
 
-//        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $is_one_active, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
-        $tariffQuery = TariffFilter::getListQuery($params);
         $result = [];
         $defaultPackageRecordsFetched = null;
 
@@ -1863,6 +1843,7 @@ class UuController extends ApiInternalController
             }
 
             $this->_checkTariff($accountTariff, $accountTariffLog);
+
             Trouble::dao()->notificateCreateAccountTariff(
                 $accountTariff,
                 $accountTariffLog,
@@ -1872,6 +1853,7 @@ class UuController extends ApiInternalController
                     [Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT => true]
                 )
             );
+
             $transaction->commit();
             $sem->release(Semaphore::ID_UU_CALCULATOR);
             return $accountTariff->id;

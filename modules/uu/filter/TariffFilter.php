@@ -151,27 +151,40 @@ class TariffFilter extends Tariff
     /**
      * Получить запрос для списка
      *
-     * @param array $params
-//     * @param int $id
-//     * @param int $serviceTypeId
-//     * @param int $countryId
-//     * @param int $currencyId
-//     * @param int $isDefault
-//     * @param int $isPostPaid
-//     * @param int $isOneActive
-//     * @param int $tariffStatusId
-//     * @param int $tariffPersonId
-//     * @param int $tariffTagId
-//     * @param int $voipGroupId
-//     * @param int $voipCityId
-//     * @param int $voipNdcTypeId
-//     * @param int $organizationId
-//     * @param int $isIncludeVat
-//     * @param int $voipCountryId
+     * @param int $id
+     * @param int $serviceTypeId
+     * @param int $countryId
+     * @param int $currencyId
+     * @param int $isDefault
+     * @param int $isPostPaid
+     * @param int $tariffStatusId
+     * @param int $tariffPersonId
+     * @param int $tariffTagId
+     * @param int $voipGroupId
+     * @param int $voipCityId
+     * @param int $voipNdcTypeId
+     * @param int $organizationId
+     * @param int $isIncludeVat
+     * @param int $voipCountryId
      * @return \yii\db\ActiveQuery
      */
     public static function getListQuery(
-       array $params
+        $id,
+        $serviceTypeId,
+        $countryId,
+        $currencyId,
+        $isDefault,
+        $isPostPaid,
+        $tariffStatusId,
+        $tariffPersonId,
+        $tariffTagId,
+        $tariffTagsId,
+        $voipGroupId,
+        $voipCityId,
+        $voipNdcTypeId,
+        $organizationId,
+        $isIncludeVat,
+        $voipCountryId
     )
     {
         $query = Tariff::find();
@@ -197,60 +210,59 @@ class TariffFilter extends Tariff
             ->with('packagePricelists.pricelist')
             ->with('tariffTags')
             ->with('tariffTags.tag');
-      
-        $params['id'] && $query->andWhere(["{$tariffTable}.id" => $params['id']]);
-        $params['service_type_id'] && $query->andWhere(["{$tariffTable}.service_type_id" => (int)$params['service_type_id']]);
-        $params['currency_id'] && $query->andWhere(["{$tariffTable}.currency_id" => $params['currency_id']]);
-        null !== $params['is_default'] && $query->andWhere(["{$tariffTable}.is_default" => (int)$params['is_default']]);
-        null !== $params['is_postpaid'] && $query->andWhere(["{$tariffTable}.is_postpaid" => (int)$params['is_postpaid'] ]);
-        null !== $params['is_one_active'] && $query->andWhere(["{$tariffTable}.is_one_active" => (int)$params['is_one_active'] ]);
-        null !== $params['is_include_vat'] && $query->andWhere(["{$tariffTable}.is_include_vat" => (int)$params['is_include_vat']]);
-        $params['tariff_status_id'] && $query->andWhere(["{$tariffTable}.tariff_status_id" => (int)$params['tariff_status_id']]);
-        $params['tariff_person_id'] && $query->andWhere(["{$tariffTable}.tariff_person_id" => [TariffPerson::ID_ALL, $params['tariff_person_id'] ]]);
-        $params['tariff_tag_id'] && $query->andWhere(["{$tariffTable}.tariff_tag_id" => $params['tariff_tag_id'] ]);
-        $params['voip_group_id'] && $query->andWhere(["{$tariffTable}.voip_group_id" => (int)$params['voip_group_id']]);
 
-        if ($params['tariff_tags_id']) {
+        $id && $query->andWhere(["{$tariffTable}.id" => $id]);
+        $serviceTypeId && $query->andWhere(["{$tariffTable}.service_type_id" => (int)$serviceTypeId]);
+        $currencyId && $query->andWhere(["{$tariffTable}.currency_id" => $currencyId]);
+        null !== $isDefault && $query->andWhere(["{$tariffTable}.is_default" => (int)$isDefault]);
+        null !== $isPostPaid && $query->andWhere(["{$tariffTable}.is_postpaid" => (int)$isPostPaid]);
+        null !== $isIncludeVat && $query->andWhere(["{$tariffTable}.is_include_vat" => (int)$isIncludeVat]);
+        $tariffStatusId && $query->andWhere(["{$tariffTable}.tariff_status_id" => (int)$tariffStatusId]);
+        $tariffPersonId && $query->andWhere(["{$tariffTable}.tariff_person_id" => [TariffPerson::ID_ALL, $tariffPersonId]]);
+        $tariffTagId && $query->andWhere(["{$tariffTable}.tariff_tag_id" => $tariffTagId]);
+        $voipGroupId && $query->andWhere(["{$tariffTable}.voip_group_id" => (int)$voipGroupId]);
+
+        if ($tariffTagsId) {
             $query->joinWith('tariffTags')
-                ->andWhere([TariffTags::tableName() . '.tag_id' => $params['tariff_tags_id']]);
+                ->andWhere([TariffTags::tableName() . '.tag_id' => $tariffTagsId]);
         }
 
-        if ($params['country_id']) {
+        if ($countryId) {
             $query
                 ->joinWith('tariffCountries')
-                ->andWhere([TariffCountry::tableName() . '.country_id' => $params['country_id']]);
+                ->andWhere([TariffCountry::tableName() . '.country_id' => $countryId]);
         }
 
-        if ($params['voip_country_id']) {
+        if ($voipCountryId) {
             $query
                 ->joinWith('tariffVoipCountries')
                 ->andWhere([
                     'OR',
-                    [TariffVoipCountry::tableName() . '.country_id' => $params['voip_country_id']],
+                    [TariffVoipCountry::tableName() . '.country_id' => $voipCountryId],
                     [TariffVoipCountry::tableName() . '.country_id' => null]
                 ]);
         }
 
-        if ($params['voip_city_id']) {
+        if ($voipCityId) {
             $query
                 ->joinWith('voipCities')
                 ->andWhere([
                     'OR',
-                    [TariffVoipCity::tableName() . '.city_id' => $params['voip_city_id']], // если в тарифе хоть один город, то надо только точное соотвествие
+                    [TariffVoipCity::tableName() . '.city_id' => $voipCityId], // если в тарифе хоть один город, то надо только точное соотвествие
                     [TariffVoipCity::tableName() . '.city_id' => null] // если в тарифе ни одного города нет, то это означает "любой город этой страны"
                 ]);
         }
 
-        if ($params['voip_ndc_type_id']) {
+        if ($voipNdcTypeId) {
             $query
                 ->joinWith('voipNdcTypes')
-                ->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $params['voip_ndc_type_id']]);
+                ->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $voipNdcTypeId]);
         }
 
-        if ($params['organization_id']) {
+        if ($organizationId) {
             $query
                 ->joinWith('organizations')
-                ->andWhere([TariffOrganization::tableName() . '.organization_id' => $params['organization_id']]);
+                ->andWhere([TariffOrganization::tableName() . '.organization_id' => $organizationId]);
         }
 
         return $query;
