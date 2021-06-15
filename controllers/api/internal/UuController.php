@@ -363,6 +363,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включая НДС"),
      *   @SWG\Property(property = "is_default", type = "integer", description = "0 - только не по умолчанию, 1 - только по умолчанию, не указано - все"),
      *   @SWG\Property(property = "is_postpaid", type = "integer", description = "0 - только предоплата, 1 - только постоплата, не указано - все"),
+     *   @SWG\Property(property = "is_one_active", type = "integer", description = "Только один активный"),
      *   @SWG\Property(property = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)"),
      *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "country", type = "object", description = "Страна клиента", ref = "#/definitions/idNameRecord"),
@@ -393,6 +394,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "is_default", type = "integer", description = "По умолчанию (0 / 1)", in = "query", default = ""),
      *   @SWG\Parameter(name = "is_postpaid", type = "integer", description = "0 - предоплата, 1 - постоплата", in = "query", default = ""),
+     *   @SWG\Parameter(name = "is_one_active", type = "integer", description = "0 - активен, 1 - неактивен", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны телефонии. Поле правильнее переименовать в voip_country_id", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
@@ -425,6 +427,7 @@ class UuController extends ApiInternalController
      * @param string $currency_id
      * @param int $is_default
      * @param int $is_postpaid
+     * @param int $is_one_active
      * @param int $tariff_status_id
      * @param int $tariff_person_id
      * @param int $tariff_tag_id
@@ -448,6 +451,7 @@ class UuController extends ApiInternalController
         $currency_id = null,
         $is_default = null,
         $is_postpaid = null,
+        $is_one_active = null,
         $tariff_status_id = null,
         $tariff_person_id = null,
         $tariff_tag_id = null,
@@ -473,6 +477,7 @@ class UuController extends ApiInternalController
                 $currency_id,
                 $is_default,
                 $is_postpaid,
+                $is_one_active,
                 $tariff_status_id,
                 $tariff_person_id,
                 $tariff_tag_id,
@@ -613,8 +618,28 @@ class UuController extends ApiInternalController
 
         // @todo надо ли только статус "публичный" для ватс?
 
-        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
+         $params = [
+             'id' => $id,
+             'service_type_id' => $service_type_id,
+             'country_id' => $country_id,
+             'currency_id' => $currency_id,
+             'is_default' => $is_default,
+             'is_postpaid' => $is_postpaid,
+             'is_one_active' => $is_one_active,
+             'tariff_status_id' => $tariff_status_id,
+             'tariff_person_id' => $tariff_person_id,
+             'tariff_tag_id' => $tariff_tag_id,
+             'tariff_tags_id' => $tariff_tags_id,
+             'voip_group_id' => $voip_group_id,
+             'voip_city_id' => $voip_city_id,
+             'voip_ndc_type_id' => $voip_ndc_type_id,
+             'organization_id' => $organization_id,
+             'is_include_vat' => $is_include_vat,
+             'voip_country_id' =>$voip_country_id,
+         ];
 
+//        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_postpaid, $is_one_active, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
+        $tariffQuery = TariffFilter::getListQuery($params);
         $result = [];
         $defaultPackageRecordsFetched = null;
 
@@ -630,6 +655,7 @@ class UuController extends ApiInternalController
                         $client_account_id,
                         $currency_id,
                         $is_default_tmp = 1,
+                        $is_one_active_tmp = 1,
                         $is_postpaid_tmp = null,
                         $tariff_status_id,
                         $tariff_person_id,
@@ -687,6 +713,7 @@ class UuController extends ApiInternalController
                 'is_include_vat' => $tariff->is_include_vat,
                 'is_default' => $tariff->is_default,
                 'is_postpaid' => $tariff->is_postpaid,
+                'is_one_active' => $tariff->is_one_active,
                 'currency' => $tariff->currency_id,
                 'service_type' => $this->_getIdNameRecord($tariff->serviceType),
                 'country' => $this->_getIdNameRecord($tariffVoipCountry ? $tariffVoipCountry->country : null, 'code'), // @todo multi и переименовать в voip_countries
@@ -1843,7 +1870,6 @@ class UuController extends ApiInternalController
             }
 
             $this->_checkTariff($accountTariff, $accountTariffLog);
-
             Trouble::dao()->notificateCreateAccountTariff(
                 $accountTariff,
                 $accountTariffLog,
@@ -1853,7 +1879,6 @@ class UuController extends ApiInternalController
                     [Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT => true]
                 )
             );
-
             $transaction->commit();
             $sem->release(Semaphore::ID_UU_CALCULATOR);
             return $accountTariff->id;
@@ -2298,6 +2323,7 @@ class UuController extends ApiInternalController
             $currencyIdTmp = null,
             $isDefaultTmp = null,
             $isPostpaidTmp = null,
+            $is_one_active = null,
             $tariffStatusIdTmp = null,
             $tariffPersonIdTmp = null,
             $tariffTagIdTmp = null,
