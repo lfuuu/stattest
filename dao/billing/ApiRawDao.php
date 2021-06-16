@@ -63,6 +63,7 @@ class ApiRawDao extends Singleton
             $query->addSelect([
                 'connect_time' => $groupExp,
                 'cost' => new Expression('abs(sum(cost))'),
+                'amount' => new Expression('count(id)'),
             ]);
 
             $query->groupBy($groupExp);
