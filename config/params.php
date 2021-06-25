@@ -2,12 +2,13 @@
 
 $rights = require(__DIR__ . '/rights.php');
 
+
 return [
     'SITE_URL' => 'https://stat.mcn.ru/',
     'rights' => $rights,
     'adminEmail' => 'admin@example.com',
     'STORE_PATH' => realpath(\Yii::getAlias('@app') . '/../store') . '/',
-    'SMARTY_COMPILE_DIR' => \Yii::getAlias('@app') . '/stat/design_c/',
+    'SMARTY_COMPILE_DIR' => realpath(\Yii::getAlias('@app')) . '/runtime/design_c/',
     'SMARTY_TEMPLATE_DIR' => \Yii::getAlias('@app') . '/stat/design/',
     'API_SECURE_KEY' => '',
     'SIGNATURE_DIR' => '/images/signature/',
