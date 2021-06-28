@@ -19,40 +19,12 @@ class DidGroupFilter extends DidGroup
     public $ndc_type_id = '';
     public $is_service = '';
 
-    public $price1_from = '';
-    public $price1_to = '';
-
-    public $price2_from = '';
-    public $price2_to = '';
-
-    public $price3_from = '';
-    public $price3_to = '';
-
-    public $price4_from = '';
-    public $price4_to = '';
-
-    public $price5_from = '';
-    public $price5_to = '';
-
-    public $price6_from = '';
-    public $price6_to = '';
-
-    public $price7_from = '';
-    public $price7_to = '';
-
-    public $price8_from = '';
-    public $price8_to = '';
-
-    public $price9_from = '';
-    public $price9_to = '';
-
-
     /**
      * Правила
      */
     public function rules()
     {
-        $rules = [
+        return [
             [['id'], 'integer'],
             [['country_code'], 'integer'],
             [['city_id'], 'integer'],
@@ -60,13 +32,8 @@ class DidGroupFilter extends DidGroup
             [['beauty_level'], 'integer'],
             [['ndc_type_id', 'is_service'], 'integer'],
         ];
-
-        for ($i = 1; $i <= 9; $i++) {
-            $rules[] = [['price' . $i . '_from', 'price' . $i . '_to'], 'number'];
-        }
-
-        return $rules;
     }
+
 
     /**
      * Фильтровать
@@ -106,11 +73,6 @@ class DidGroupFilter extends DidGroup
         $this->beauty_level !== '' && $query->andWhere([$didGroupTableName . '.beauty_level' => $this->beauty_level]);
         $this->ndc_type_id !== '' && $query->andWhere([$didGroupTableName . '.ndc_type_id' => $this->ndc_type_id]);
         $this->is_service !== '' && $query->andWhere(['is_service' => $this->is_service]);
-
-        for ($i = 1; $i <= 9; $i++) {
-            $this->{'price' . $i . '_from'} !== '' && $query->andWhere(['>=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_from'}]);
-            $this->{'price' . $i . '_to'} !== '' && $query->andWhere(['<=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_to'}]);
-        }
 
         return $dataProvider;
     }
