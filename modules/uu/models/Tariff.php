@@ -173,7 +173,7 @@ class Tariff extends ActiveRecord
             [['currency_id'], 'string', 'max' => 3],
             [['name'], 'required'],
             ['vm_id', 'validatorVm', 'skipOnEmpty' => false],
-            [['count_of_validity_period', 'count_of_carry_period'], 'integer', 'min' => 0, 'max' => 30],
+            [['count_of_validity_period', 'count_of_carry_period'], 'integer', 'min' => 0, 'max' => 365],
             ['count_of_validity_period', 'validatorTest', 'skipOnEmpty' => false],
             ['count_of_carry_period', 'validatorBurnInternet'],
         ];
