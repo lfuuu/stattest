@@ -11,7 +11,6 @@
 use app\controllers\DidGroupController;
 use app\models\DidGroup;
 use app\models\PriceLevel;
-use app\models\DidGroupPriceLevel;
 use app\modules\uu\models\TariffStatus;
 
 $didGroup = $formModel->didGroup;

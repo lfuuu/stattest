@@ -30,7 +30,7 @@ use app\classes\Html;
             ?>
             <?= is_null($price) ?
                 'Договорная' :
-                ($price ? $currency->format($price) : 'Бесплатно')
+                (is_null($price) ? 'Не установленна' : ($price ? $currency->format($price) : 'Бесплатно'))
             ?>
         </div>
         <?php

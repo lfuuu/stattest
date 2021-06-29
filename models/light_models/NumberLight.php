@@ -56,9 +56,9 @@ class NumberLight extends Model
         $actualPriceWithCurrency = $number->getPriceWithCurrency($currency, $clientAccount);
         $originPriceWithCurrency = $number->getOriginPriceWithCurrency($clientAccount);
 
-        $this->price = (float)$actualPriceWithCurrency->formattedPrice;
+        $this->price = $actualPriceWithCurrency->formattedPrice;
         $this->currency = $actualPriceWithCurrency->currency;
-        $this->origin_price = (float)$originPriceWithCurrency->formattedPrice;
+        $this->origin_price = $originPriceWithCurrency->formattedPrice;
         $this->origin_currency = $originPriceWithCurrency->currency;
 
         if (!$clientAccount) {

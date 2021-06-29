@@ -301,7 +301,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
                 $universalClientAccountFirst->price_level :
                 ClientAccount::DEFAULT_PRICE_LEVEL;
             // Get tariff status
-            $statusId = $didGroup->{'tariff_status_main' . $priceLevel};
+            $statusId = $didGroup->getTariffStatusMain($priceLevel);
         }
 
         // Get tariffs

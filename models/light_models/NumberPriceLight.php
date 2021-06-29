@@ -31,7 +31,7 @@ class NumberPriceLight extends Model
      */
     public function getFormattedPrice()
     {
-        return sprintf('%.2f', $this->price);
+        return is_null($this->price) ? $this->price : (float)sprintf('%.2f', $this->price);
     }
 
 }

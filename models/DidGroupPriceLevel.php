@@ -12,8 +12,6 @@ use app\classes\model\ActiveRecord;
  * @property int $price
  * @property int $tariff_status_main_id
  * @property int $tariff_status_package_id
- * 
- *
  */
 class DidGroupPriceLevel extends ActiveRecord
 {

@@ -24,19 +24,12 @@ class m210405_101538_did_group_price_level extends \app\classes\Migration
             'tariff_status_package_id' => $this->integer(),
         ]);
 
-        $this->createIndex(
-            'idx-' . DidGroupPriceLevel::tableName() . '-id',
-            DidGroupPriceLevel::tableName(),
-            'id',
-        );
-
         $this->addForeignKey(
             'fk-' . DidGroupPriceLevel::tableName() . '-price_level',
             DidGroupPriceLevel::tableName(),
             'price_level_id',
             PriceLevel::tableName(),
             'id',
-
         );
 
         $this->addForeignKey(
@@ -48,7 +41,7 @@ class m210405_101538_did_group_price_level extends \app\classes\Migration
         );
 
         $this->addForeignKey(
-            'fk-' . DidGroupPriceLevel::tableName() . '-uu_tariff_status_package',
+            'fk-' . DidGroupPriceLevel::tableName() . '-tariff_status_package',
             DidGroupPriceLevel::tableName(),
             'tariff_status_package_id',
             TariffStatus::tableName(),
@@ -56,7 +49,7 @@ class m210405_101538_did_group_price_level extends \app\classes\Migration
         );
 
         $this->addForeignKey(
-            'fk-' . DidGroupPriceLevel::tableName() . '-uu_tariff_status',
+            'fk-' . DidGroupPriceLevel::tableName() . '-tariff_status_main',
             DidGroupPriceLevel::tableName(),
             'tariff_status_main_id',
             TariffStatus::tableName(),

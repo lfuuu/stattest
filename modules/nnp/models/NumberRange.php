@@ -3,6 +3,7 @@
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
+use app\classes\helpers\DependecyHelper;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
@@ -393,7 +394,7 @@ class NumberRange extends ActiveRecord
         }
 
         $cache = \Yii::$app->cache;
-        $cache->set('ndcdata', ['with_city_id' => $dataWithCity, 'without_city_id' => $dataAll]);
+        $cache->set('ndcdata', ['with_city_id' => $dataWithCity, 'without_city_id' => $dataAll], DependecyHelper::TIMELIFE_DAY);
     }
 
     /**

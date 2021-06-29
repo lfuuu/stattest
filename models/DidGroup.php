@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\dao\DidGroupDao;
+use app\modules\uu\models\TariffStatus;
 use InvalidArgumentException;
 use yii\db\Expression;
 use yii\helpers\Url;
@@ -22,9 +23,9 @@ use yii\helpers\Url;
  * @property int $is_service
  * @property-read City $city
  * @property-read Country $country
- * @property-read DidGroupPriceLevel[] $didGroupPriceLevels
+ * @property-read DidGroupPriceLevel[] $didGroupPriceLevel
+ * @property-read DidGroupPriceLevel $priceLevel
  */
-
 class DidGroup extends ActiveRecord
 {
     // Определяет getList (список для selectbox)
@@ -135,6 +136,60 @@ class DidGroup extends ActiveRecord
         return $cache[$this->country_code];
     }
 
+    public function getDidGroupPriceLevel()
+    {
+        return $this->hasMany(DidGroupPriceLevel::class, ['did_group_id' => 'id']);
+    }
+
+    /**
+     * @param $priceLevelId
+     * @return DidGroupPriceLevel
+     */
+    public function getPriceLevel($priceLevelId)
+    {
+        static $_cache = [];
+
+        $key = $this->id . '-' . $priceLevelId;
+        if (!array_key_exists($key, $_cache)) {
+            $_cache[$key] = DidGroupPriceLevel::find()->where([
+                'did_group_id' => $this->id,
+                'price_level_id' => $priceLevelId,
+            ])->one();
+        }
+
+        return $_cache[$key];
+    }
+
+    public function getTariffStatusMain($priceLevelId = ClientAccount::DEFAULT_PRICE_LEVEL)
+    {
+        $didGroupPriceLevel = $this->getPriceLevel($priceLevelId);
+
+        if (!$didGroupPriceLevel) {
+            return TariffStatus::ID_TEST;
+        }
+        return $didGroupPriceLevel->tariff_status_main_id;
+    }
+
+    public function getTariffStatusPackage($priceLevelId = ClientAccount::DEFAULT_PRICE_LEVEL)
+    {
+        $didGroupPriceLevel = $this->getPriceLevel($priceLevelId);
+
+        if (!$didGroupPriceLevel) {
+            return TariffStatus::ID_PUBLIC;
+        }
+        return $didGroupPriceLevel->tariff_status_package_id;
+    }
+
+    public function getPrice($priceLevelId = ClientAccount::DEFAULT_PRICE_LEVEL)
+    {
+        $didGroupPriceLevel = $this->getPriceLevel($priceLevelId);
+
+        if (!$didGroupPriceLevel) {
+            return null;
+        }
+        return $didGroupPriceLevel->price;
+    }
+
     /**
      * Вернуть список всех доступных значений
      *
@@ -151,7 +206,8 @@ class DidGroup extends ActiveRecord
         $countryId = null,
         $cityId = null,
         $ndcTypeId = null
-    ) {
+    )
+    {
 
         $where = [];
         $ndcTypeId && $where['ndc_type_id'] = $ndcTypeId;

@@ -226,10 +226,9 @@ final class OpenController extends Controller
 
             $didGroup = $freeNumber->getCachedDidGroup();
 
-            $tariffStatusId = $clientAccount ? $didGroup->{'tariff_status_main' . $priceLevel} : TariffStatus::ID_TEST;
-
+            $tariffStatusId = $didGroup->getTariffStatusMain($priceLevel);
             $packageStatusIds = [
-                $didGroup->{'tariff_status_package' . $priceLevel}
+                $didGroup->getTariffStatusPackage($priceLevel)
             ];
 
             if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
@@ -490,20 +489,26 @@ final class OpenController extends Controller
                 continue;
             }
 
-            $freeNumber = Number::findOne(['number' => $_freeNumber]);
+            $freeNumber = Number::findOne(['number' => $_freeNumber['number']]);
 
-            $didGroup = $freeNumber->getCachedDidGroup();
+            $tariffStatusId = TariffStatus::ID_TEST;
+            $packageStatusIds = [
+                TariffStatus::ID_PUBLIC,
+            ];
 
             // создать новую группу
             // для reuse берем другой метод и выкидываем ненужное
             $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount, false);
-            $tariffStatusId = $clientAccount ?
-                $didGroup->{'tariff_status_main' . $priceLevel} :
-                TariffStatus::ID_TEST;
 
-            $packageStatusIds = [
-                $didGroup->{'tariff_status_main' . $priceLevel}
-            ];
+            if ($clientAccount) {
+                /** @var DidGroup $didGroup */
+                $didGroup = $freeNumber->getCachedDidGroup();
+
+                $tariffStatusId = $didGroup->getTariffStatusMain($priceLevel);
+                $packageStatusIds = [
+                    $didGroup->getTariffStatusPackage($priceLevel),
+                ];
+            }
 
             if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
                 // только для ОТТ (см. ClientAccount::getPriceLevels)

@@ -551,7 +551,7 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount->price_level);
+        $priceLevel =  max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount->price_level);
 
         $cities = array_merge(
             [['id' => Number::TYPE_7800, 'name' => '800']],
@@ -574,12 +574,11 @@ class ApiLk
         /** @var DidGroup $didGroup */
         foreach ($didGroupsByCity as $cityId => $cityData) {
             foreach ($cityData as $didGroup) {
-
                 $didGroupsByCityId[$cityId][] = [
                     'id' => $didGroup->id,
                     'code' => 'group_' . $didGroup->beauty_level,
                     'comment' => $didGroup->comment,
-                    'activation_fee' => (float)$didGroup->{$priceField},
+                    'activation_fee' => $didGroup->getPrice($priceLevel),
                     'currency_id' => $didGroup->country->currency_id,
                     'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
                 ];
