@@ -16,7 +16,6 @@ class UserGroupsDao extends Singleton
      */
     public function getListWithUsers($key='id')
     {
-        echo $key;
         static $res = [];
 
         if ($res[$key]) {

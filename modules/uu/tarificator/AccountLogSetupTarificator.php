@@ -114,7 +114,7 @@ class AccountLogSetupTarificator extends Tarificator
             // Телефонный номер (не телефонная линия).
             // Только первое подключение (при смене тарифа не считать).
             // При переносе не считать.
-            $accountLogSetup->price_number = $accountTariff->number
+            $accountLogSetup->price_number = (float)$accountTariff->number
                 ->getPrice($tariffPeriod->tariff->currency_id, $accountTariff->clientAccount);
 
             if (is_null($accountLogSetup->price_number)) {

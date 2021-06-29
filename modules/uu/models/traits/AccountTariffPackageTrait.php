@@ -173,27 +173,27 @@ trait AccountTariffPackageTrait
             return [TariffStatus::ID_PUBLIC];
         }
 
-        $tarifStatuses = [];
+        $tariffStatuses = [];
 
         /** @var \app\models\Number $number */
         $number = $this->number;
         if (!$number) {
             // возможно, линия
-            return $tarifStatuses;
+            return $tariffStatuses;
         }
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = $this->clientAccount;
         $priceLevel = $clientAccount->price_level;
         $didGroup = $number->didGroup;
-        $tarifStatuses[] = $didGroup->{'tariff_status_package' . $priceLevel}; // пакет с учетом уровня цен
-        $clientAccount->uu_tariff_status_id && $tarifStatuses[] = $clientAccount->uu_tariff_status_id; // пакет персонально клиенту
+        $tariffStatuses[] = $didGroup->getTariffStatusPackage($priceLevel); // пакет с учетом уровня цен
+        $clientAccount->uu_tariff_status_id && $tariffStatuses[] = $clientAccount->uu_tariff_status_id; // пакет персонально клиенту
         if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
             // только для ОТТ (см. ClientAccount::getPriceLevels)
-            $tarifStatuses[] = $didGroup->tariff_status_beauty; // пакет за красивость
+            $tariffStatuses[] = $didGroup->tariff_status_beauty; // пакет за красивость
         }
 
-        return $tarifStatuses;
+        return $tariffStatuses;
     }
 
     /**

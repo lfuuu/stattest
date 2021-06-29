@@ -315,6 +315,10 @@ class Number extends ActiveRecord
     {
         try {
             $price = $this->getOriginPrice($clientAccount);
+
+            if (is_null($price)) {
+                return $price;
+            }
         } catch (\Exception $e) {
             return null;
         }
@@ -358,8 +362,7 @@ class Number extends ActiveRecord
             $priceLevel = max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
         }
 
-        $priceField = 'price' . $priceLevel;
-        return (float)$this->getCachedDidGroup()->{$priceField};
+        return $this->getCachedDidGroup()->getPrice($priceLevel);
     }
 
     /**

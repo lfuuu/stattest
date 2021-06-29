@@ -246,8 +246,7 @@ class Dao extends Singleton
                         throw new HttpException(ModelValidationException::STATUS_CODE, 'Телефонный номер уже занят', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
                     }
 
-                    $priceLevelField = 'tariff_status_main' . $clientAccount->price_level;
-                    $tariff_status_id = $number->didGroup->{$priceLevelField};
+                    $tariff_status_id = $number->didGroup->getTariffStatusMain($clientAccount->price_level);
                     $voip_ndc_type_id = $number->ndc_type_id;
                     break;
 
@@ -262,8 +261,7 @@ class Dao extends Singleton
                         throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_NUMBER_NOT_FOUND);
                     }
 
-                    $priceLevelField = 'tariff_status_package' . $clientAccount->price_level;
-                    $tariff_status_id = $number->didGroup->{$priceLevelField};
+                    $tariff_status_id = $number->didGroup->getTariffStatusPackage($clientAccount->price_level);
                     $voip_ndc_type_id = $number->ndc_type_id;
                     break;
             }
