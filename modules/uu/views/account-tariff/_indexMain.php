@@ -21,6 +21,7 @@ use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\nnp\column\NdcTypeColumn;
+use app\modules\uu\column\ContragentColumn;
 use app\modules\uu\column\DatacenterColumn;
 use app\modules\uu\column\InfrastructureLevelColumn;
 use app\modules\uu\column\InfrastructureProjectColumn;
@@ -164,6 +165,14 @@ $columns = array_merge($columns, [
 
             return $tariff ? $tariff->is_include_vat : null;
         }
+    ],
+    [
+        'label' => 'Контрагент',
+        'attribute' => 'contragent_type',
+        'class' => ContragentColumn::class,
+        'value' => function (AccountTariff $accountTariff) {
+            return $accountTariff->clientAccount->contract->contragent->legal_type;
+        },
     ],
     [
         'label' => 'Постоплата',

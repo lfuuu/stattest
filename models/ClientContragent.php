@@ -69,6 +69,12 @@ class ClientContragent extends HistoryActiveRecord
         self::TAX_REGTIME_YCH_VAT0 => 'Упрощенная система налогообложения (УСН)',
     ];
 
+    public static $names = [
+        self::LEGAL_TYPE => 'Юр. лицо',
+        self::PERSON_TYPE => 'Физ. лицо',
+        self::IP_TYPE => 'ИП'
+    ];
+
     public static $defaultOrganization = [
         self::LEGAL_TYPE => Organization::MCN_TELECOM,
         self::PERSON_TYPE => Organization::MCN_TELECOM_SERVICE,
