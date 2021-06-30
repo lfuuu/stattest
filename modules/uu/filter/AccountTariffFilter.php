@@ -6,7 +6,6 @@ use app\classes\Assert;
 use app\classes\Html;
 use app\classes\traits\GetListTrait;
 use app\exceptions\ModelValidationException;
-use app\models\ClientContract;
 use app\models\ClientAccount;
 use app\models\Number;
 use app\models\User;
@@ -20,6 +19,8 @@ use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
+use app\models\ClientContragent;
+use app\models\ClientContract;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
@@ -85,6 +86,9 @@ class AccountTariffFilter extends AccountTariff
     public $is_device_empty = '';
 
     public $price_level = '';
+    
+    // Поиск по контрагенту
+    public $contragent_type = '';
 
     /**
      * @param int $serviceTypeId
@@ -135,6 +139,7 @@ class AccountTariffFilter extends AccountTariff
                 'tariff_organization_id',
                 'tariff_is_default',
                 'trouble_id',
+                'contragent_type',
             ],
             'integer'
         ];
@@ -279,6 +284,15 @@ class AccountTariffFilter extends AccountTariff
                 'tariff_organization.tariff_id = tariff.id'
             )
                 ->andWhere(['tariff_organization.organization_id' => $this->tariff_organization_id]);
+        }
+
+        if ($this->contragent_type) {
+            $clientContractTableName = ClientContract::tableName();
+            $clientContragentTableName = ClientContragent::tableName();
+            $query
+                ->innerJoin($clientContractTableName, "clients.contract_id = {$clientContractTableName}.id")
+                ->innerJoin($clientContragentTableName, "{$clientContractTableName}.contragent_id = {$clientContragentTableName}.id")
+                ->andWhere([$clientContragentTableName . '.legal_type' => $this->contragent_type]);
         }
 
         if ($this->service_type_id == ServiceType::ID_VOIP) {
