@@ -11,6 +11,7 @@ use app\modules\callTracking\Module;
 use app\modules\uu\models\AccountTariff;
 use yii\base\Behavior;
 use yii\base\Event;
+use yii;
 
 
 class AccountTariffImportantEvents extends Behavior
@@ -61,6 +62,7 @@ class AccountTariffImportantEvents extends Behavior
                 'account_tariff_id' => $accountTariff->id,
                 'service_type_id' => $accountTariff->service_type_id,
                 'client_id' => $accountTariff->client_account_id,
+                'user_id' => Yii::$app->user->id,
             ]);
     }
 
