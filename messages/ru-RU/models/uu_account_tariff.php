@@ -9,6 +9,7 @@ return [
     'comment' => 'Технические данные',
     'voip_number' => 'Номер',
     'vm_elid_id' => 'ID VPS',
+    'route_name' => 'Route Name',
     'trunk_id' => 'Транк',
     'tariff_period_id' => 'Тариф / период',
     'prev_usage_id' => 'Перенесено из',
