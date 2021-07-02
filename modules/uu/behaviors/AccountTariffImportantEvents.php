@@ -61,6 +61,7 @@ class AccountTariffImportantEvents extends Behavior
                 'account_tariff_id' => $accountTariff->id,
                 'service_type_id' => $accountTariff->service_type_id,
                 'client_id' => $accountTariff->client_account_id,
+                'user_id' => Yii::$app->user->id,
             ]);
     }
 
