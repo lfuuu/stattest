@@ -25,6 +25,7 @@ use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\UsageVoipValidator;
 use app\models\billing\CallsRaw;
+use DateTimeImmutable;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\db\Expression;
@@ -176,7 +177,34 @@ class VoipController extends ApiInternalController
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
 
+        $treshHold = (new DateTimeImmutable())->setTime(0,0,0)->modify('-4 months');
+        if ($firstDayOfDate < $treshHold && $lastDayOfDate < $treshHold) {
+            $data = $this->_getCallData($clientAccount, $model, $firstDayOfDate, $lastDayOfDate, true);
 
+        } else if ($firstDayOfDate > $treshHold && $lastDayOfDate > $treshHold) {
+            $data = $this->_getCallData($clientAccount, $model, $firstDayOfDate, $lastDayOfDate);
+            
+        } else {
+            $firstDayOfDateAdjusted = $treshHold;
+            $lastDayOfDateAdjusted = (new DateTimeImmutable())->setTime(0,0,0)->modify('-4 months')->modify('-1 day');
+
+            $dataCurrent = $this->_getCallData($clientAccount, $model, $firstDayOfDateAdjusted, $lastDayOfDate);
+            $dataArchive = $this->_getCallData($clientAccount, $model, $firstDayOfDate, $lastDayOfDateAdjusted, true);
+
+            $data['result'] = array_merge($dataArchive['result'], $dataCurrent['result']);
+            $data['generalInfo']['sum'] = $dataArchive['generalInfo']['sum'] + $dataCurrent['generalInfo']['sum'];
+            $data['generalInfo']['count'] = $dataArchive['generalInfo']['count'] + $dataCurrent['generalInfo']['count'];
+            $data['generalInfo']['offset'] = $dataArchive['generalInfo']['offset'] + $dataCurrent['generalInfo']['offset'];
+            $data['generalInfo']['limit'] = $dataArchive['generalInfo']['limit'] + $dataCurrent['generalInfo']['limit'];
+        }
+
+        return $model->is_with_general_info ? ['info' => $data['generalInfo'], 'calls' => $data['result']] : $data['result'];
+    }
+
+    private function _getCallData($clientAccount, $model, $firstDayOfDate, $lastDayOfDate, $flag = false)
+    {
+        $db = $flag ? CallsRaw::getDbArchive() : CallsRaw::getDb();
+        
         $query = CallsRaw::dao()->getCalls(
             $clientAccount,
             $model->number,
@@ -199,8 +227,7 @@ class VoipController extends ApiInternalController
             ]);
             $sumQuery->orderBy(null);
 
-            $generalInfo = $sumQuery->one(CallsRaw::getDb());
-
+            $generalInfo = $sumQuery->one($db);
             $generalInfo['sum'] = (float)$generalInfo['sum'];
         }
 
@@ -217,7 +244,7 @@ class VoipController extends ApiInternalController
 
         static $cTariff = [];
 
-        foreach ($query->each(100, CallsRaw::getDb()) as $call) {
+        foreach ($query->each(100, $db) as $call) {
             $call['cost'] = (double)$call['cost'];
             $call['rate'] = (double)$call['rate'];
 
@@ -246,7 +273,10 @@ class VoipController extends ApiInternalController
 
         $result = $result ? $result : [];
 
-        return $model->is_with_general_info ? ['info' => $generalInfo, 'calls' => $result] : $result;
+        $data['result'] = $result;
+        $data['generalInfo'] = $generalInfo;
+        
+        return $data;
     }
 
     private function _getNnpInfo($number)

@@ -31,6 +31,11 @@ if (file_exists($file = __DIR__ . '/db_pg_slave.local.php')) {
     $dbPgSlave = ArrayHelper::merge($dbPgSlave, require($file));
 }
 
+$dbPgSlaveArchive= require(__DIR__ . '/db_pg_slave_archive.php');
+if (file_exists($file = __DIR__ . '/db_pg_slave_archive.local.php')) {
+    $dbPgSlaveArchive = ArrayHelper::merge($dbPgSlaveArchive, require($file));
+}
+
 $dbPgSlaveCache = require(__DIR__ . '/db_pg_slave_cache.php');
 if (file_exists($file = __DIR__ . '/db_pg_slave_cache.local.php')) {
     $dbPgSlaveCache = ArrayHelper::merge($dbPgSlaveCache, require($file));
@@ -146,6 +151,7 @@ return [
         'dbPgNfDump' => $dbPgNfDump,
         'dbPg' => $dbPg,
         'dbPgSlave' => $dbPgSlave,
+        'dbPgSlaveArchive' => $dbPgSlaveArchive,
         'dbPgSlaveCache' => $dbPgSlaveCache,
         'dbPgCache' => $dbPgCache,
         'dbPgStatistic' => $dbStatistic,

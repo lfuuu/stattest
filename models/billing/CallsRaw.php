@@ -181,6 +181,16 @@ class CallsRaw extends ActiveRecord
     }
 
     /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
+    public static function getDbArchive()
+    {
+        return Yii::$app->dbPgSlaveArchive;
+    }
+
+    /**
      * @return CallsDao
      * @throws \yii\base\Exception
      */
