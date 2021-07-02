@@ -287,10 +287,14 @@ class AccountTariffFilter extends AccountTariff
         }
 
         if ($this->contragent_type) {
-            $clientContractTableName = ClientContract::tableName();
             $clientContragentTableName = ClientContragent::tableName();
+            
+            if (!isset($clientContractTableName)) {
+                $clientContractTableName = ClientContract::tableName();
+                $query->innerJoin($clientContractTableName, "clients.contract_id = {$clientContractTableName}.id");
+            }
+            
             $query
-                ->innerJoin($clientContractTableName, "clients.contract_id = {$clientContractTableName}.id")
                 ->innerJoin($clientContragentTableName, "{$clientContractTableName}.contragent_id = {$clientContragentTableName}.id")
                 ->andWhere([$clientContragentTableName . '.legal_type' => $this->contragent_type]);
         }
