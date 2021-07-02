@@ -31,6 +31,7 @@ class DependecyHelper extends Singleton
     const TAG_GRID_FOLDER = 'grid_folder';
     const TAG_BILL = 'bill';
     const TAG_PRICELIST = 'pricelist';
+    const TAG_NUMBER_INFO = 'number_info';
 
     const LIST_TAGS = [
         self::TAG_USAGE  => 'Список услуг',
@@ -41,6 +42,7 @@ class DependecyHelper extends Singleton
         self::TAG_GRID_FOLDER => 'Кол-во в гриде',
         self::TAG_BILL => 'Счета',
         self::TAG_PRICELIST => 'Прайс-лист (api тариф)',
+        self::TAG_NUMBER_INFO => 'Информация по номерам',
     ];
 
     public function getKey($name, $value, $value2 = null)

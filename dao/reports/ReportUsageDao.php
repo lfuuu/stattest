@@ -31,6 +31,7 @@ use app\models\UsageVoipPackage;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
+use DateTimeImmutable;
 use yii\db\Query;
 
 /**
@@ -99,11 +100,11 @@ class ReportUsageDao extends Singleton
 
         !$timeZone && $timeZone = $this->_account->timezone_name;
 
-        $from = (new DateTime('now', new DateTimeZone($timeZone)))
+        $from = (new DateTimeImmutable('now', new DateTimeZone($timeZone)))
             ->setTimestamp($from)
             ->setTime(0, 0, 0);
 
-        $to = (new DateTime('now', new DateTimeZone($timeZone)))
+        $to = (new DateTimeImmutable('now', new DateTimeZone($timeZone)))
             ->setTimestamp($to)
             ->setTime(23, 59, 59);
 
@@ -208,8 +209,8 @@ class ReportUsageDao extends Singleton
      * Вспомогательная функция статистики по телефонии
      *
      * @param ActiveQuery $query
-     * @param DateTime $from
-     * @param DateTime $to
+     * @param DateTimeImmutable $from
+     * @param DateTimeImmutable $to
      * @param array $packages
      * @param string $detality
      * @param int $paidOnly
@@ -219,8 +220,8 @@ class ReportUsageDao extends Singleton
      */
     private function _voipStatistic(
         ActiveQuery $query,
-        DateTime $from,
-        DateTime $to,
+        DateTimeImmutable $from,
+        DateTimeImmutable $to,
         $packages = [],
         $detality = '',
         $paidOnly = 0,
@@ -389,8 +390,8 @@ class ReportUsageDao extends Singleton
      * Создаем Reader
      *
      * @param Query $queryOrig
-     * @param DateTime $from
-     * @param DateTime $to
+     * @param DateTimeImmutable $from
+     * @param DateTimeImmutable $to
      * @param integer $connectId
      * @param integer $inCount
      * @param boolean $isByCalls
@@ -398,8 +399,8 @@ class ReportUsageDao extends Singleton
      */
     public function _makeReader(
         Query $queryOrig,
-        DateTime $from,
-        DateTime $to,
+        DateTimeImmutable $from,
+        DateTimeImmutable $to,
         $connectId,
         &$inCount,
         $isByCalls
@@ -453,36 +454,34 @@ class ReportUsageDao extends Singleton
     /**
      * Получение даты разделения статистики
      *
-     * @return DateTime
+     * @return DateTimeImmutable
      */
-    private function _getSeparationDate()
+    public static function _getSeparationDate()
     {
-        $query = Yii::$app->dbPgStatistic
-            ->createCommand('SELECT tablename FROM pg_tables WHERE (tablename LIKE \'calls_raw_20%\') ORDER BY tablename DESC LIMIT 1')
+        $query = CallsRaw::getDb()
+            ->createCommand('SELECT tablename FROM pg_tables WHERE (tablename LIKE \'calls_raw_20%\') ORDER BY tablename ASC LIMIT 1')
             ->queryScalar();
 
         if (!$query || !preg_match('/calls_raw_(\d{4})(\d{2})/', $query, $matches)) {
-            throw new \LogicException('Невозможно получить данные с сервера статистики');
+            throw new \LogicException('Невозможно получить данные с основного сервера');
         }
 
+        return (new DateTimeImmutable(
+                $matches[1] . '-' . $matches[2] . '-01 00:00:00',
+                new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
+        ));
 
-        return (
-        new DateTime($matches[1] . '-' . $matches[2] . '-01 00:00:00',
-            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
-        )
-        )->modify("+1 month"); // данные в последней таблица есть за весь месяц
     }
-
 
     /**
      * Получение, разбивка и обработка данных статистики
      *
      * @param Query $query
-     * @param DateTime $from
-     * @param DateTime $to
+     * @param DateTimeImmutable $from
+     * @param DateTimeImmutable $to
      * @param callable $callBackRecordProcessor
      */
-    private function _processRecords(Query $query, DateTime $from, DateTime $to, $callBackRecordProcessor, $detality)
+    private function _processRecords(Query $query, DateTimeImmutable $from, DateTimeImmutable $to, $callBackRecordProcessor, $detality)
     {
         $isByCalls = $detality == self::DETALITY_CALL;
 
