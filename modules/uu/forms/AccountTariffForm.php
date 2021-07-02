@@ -176,6 +176,10 @@ abstract class AccountTariffForm extends Form
                     ]);
                 }
 
+                if ($this->accountTariff->service_type_id == ServiceType::ID_A2P) {
+                    $this->accountTariff->route_name = $post['AccountTariff']['route_name'];
+                }
+
                 // услуга
                 if ($this->accountTariff->save()) {
                     $this->id = $this->accountTariff->id;

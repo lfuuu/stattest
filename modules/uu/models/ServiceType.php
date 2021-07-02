@@ -69,6 +69,9 @@ class ServiceType extends ActiveRecord
     const ID_A2P = 35;
     const ID_A2P_PACKAGE = 36;
 
+    const ID_A2P = 35;
+    const ID_A2P_PACKAGE = 36;
+
     const CLOSE_AFTER_DAYS = 60;
 
     public static $packages = [

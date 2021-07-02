@@ -182,6 +182,10 @@ if (!$serviceType) {
             echo $this->render('_editMainVps', $viewParams);
             break;
 
+        case ServiceType::ID_A2P:
+            echo $this->render('_editMainA2p', $viewParams);
+            break;
+
         case ServiceType::ID_CALLTRACKING:
             echo $this->render('_editMainCalltrackingParams', $viewParams);
             break;

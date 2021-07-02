@@ -9,6 +9,7 @@ return [
     'comment' => 'Tech data',
     'voip_number' => 'Number',
     'vm_elid_id' => 'ID VPS',
+    'route_name' => 'Route Name',
     'trunk_id' => 'Trunk',
     'trunk_type_id' => 'Mega/multi trunk',
     'infrastructure_project' => 'Project', // Инфраструктура

@@ -464,4 +464,25 @@ trait AccountTariffRelationsTrait
         && !$this->tariffPeriod->tariff->is_charge_after_blocking;
     }
 
+    public function getRoute_name_default()
+    {
+        return 'API_' . $this->client_account_id;
+    }
+
+    public function getRoute_name()
+    {
+        $defaultRouteName = $this->route_name_default;
+
+        if (!$this->calltracking_params) {
+            return $defaultRouteName;
+        }
+
+        return $this->getParam('route_name', $defaultRouteName);
+    }
+
+    public function setRoute_name($routeName)
+    {
+        return $this->addParam('route_name', $routeName);
+    }
+
 }
