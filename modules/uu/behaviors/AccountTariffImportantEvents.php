@@ -11,6 +11,7 @@ use app\modules\callTracking\Module;
 use app\modules\uu\models\AccountTariff;
 use yii\base\Behavior;
 use yii\base\Event;
+use yii;
 
 
 class AccountTariffImportantEvents extends Behavior
