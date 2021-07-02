@@ -88,6 +88,9 @@ foreach ($rows as $hash => $row) {
         case ServiceType::ID_TRUNK:
             $packageServiceTypeIds = [ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM];
             break;
+        case ServiceType::ID_A2P:
+            $packageServiceTypeIds = [ServiceType::ID_A2P_PACKAGE];
+            break;
         default:
             $packageServiceTypeIds = [];
             break;
