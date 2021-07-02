@@ -91,8 +91,8 @@ class UsageDao extends Singleton
         switch ($this->_account->contract->business_id) {
             case Business::OPERATOR:
                 return $this->_returnValue(
-                    in_array($serviceTypeId, [ServiceType::ID_TRUNK, ServiceType::ID_INFRASTRUCTURE]),
-                    'Для ЛС с подразделением Межоператорка можно добавить только транки или инфраструктуру'
+                    in_array($serviceTypeId, [ServiceType::ID_TRUNK, ServiceType::ID_INFRASTRUCTURE, ServiceType::ID_A2P]),
+                    'Для ЛС с подразделением Межоператорка можно добавить только транки, A2P или инфраструктуру'
                 );
 
             default:
