@@ -50,7 +50,8 @@ class Migration extends \yii\db\Migration
      */
     public function executeSqlFile($fileName)
     {
-        if (!preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', $this->db->dsn, $matches)) {
+        if (!preg_match_all('/host=([\w\.\-]+);dbname=(\w+)/i', $this->db->dsn, $matches)) {
+            #mysql:host=mysql-db;dbname=nispd
             throw new Exception("Bad database configuration {$this->db->dsn}");
         }
 

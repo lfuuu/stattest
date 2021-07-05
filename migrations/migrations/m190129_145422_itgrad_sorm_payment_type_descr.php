@@ -16,6 +16,8 @@ class m190129_145422_itgrad_sorm_payment_type_descr extends \app\classes\Migrati
 CREATE FUNCTION `get_payment_type_description`(type       VARCHAR(32), ecash_operator VARCHAR(32), bank VARCHAR(32),
                                                payment_no VARCHAR(32), payment_date VARCHAR(32), comment VARCHAR(256))
   RETURNS VARCHAR(1024)
+  DETERMINISTIC
+  READS SQL DATA
   BEGIN
     DECLARE _bank VARCHAR(64) DEFAULT '';
     DECLARE _ecashPaymentNo VARCHAR(64) DEFAULT '';

@@ -39,14 +39,6 @@ php_fpm_prod:
     max_spare_servers: 35
     max_requests: 500
 
-postgres_dev:
-  host: db
-  port: 5432
-  db: nispd
-  adminuser: postgres
-  user: stat
-  password: stat
-
 redis_prod:
   host: redis-prod
   port: 6379
@@ -82,3 +74,19 @@ node_nnp_ported_prod:
   path: /nnp-ported
   port: 3001
   logLevel: 200
+
+mysql_dev:
+  host: mysqldb
+  port: 3306
+  user: root
+  password: stat
+  db: nispd
+
+postgres_dev:
+  host: history-db
+  port: 5432
+  user: postgres
+  password: qwe123
+  app_user: stat
+  app_password: stat
+  dbname: stat
