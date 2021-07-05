@@ -355,6 +355,17 @@ docker:
   CMD: ["/bin/sleep","infinity"]
   EXPOSE: "6379"
 ---
+#image: {{ .project }}-mysql-dev
+#from: mysql:8
+#
+#git:
+#  - add: /migrations/migrations/data/m100000_000001_init/nispd.sql
+#    to: /docker-entrypoint-initdb.d/init-db.sql
+#
+#docker:
+#  CMD: ["/bin/sleep","infinity"]
+#  EXPOSE: "3306"
+---
 image: {{ .project }}-graphql-prod
 from: hasura/graphql-engine:latest
 

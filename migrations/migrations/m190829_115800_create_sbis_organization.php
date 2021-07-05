@@ -37,7 +37,7 @@ class m190829_115800_create_sbis_organization extends \app\classes\Migration
 
             'last_event_id' => $this->string(36),
             'previous_event_id' => $this->string(36),
-            'created_at' => $this->dateTime()->notNull(),
+            'created_at' => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
             'updated_at' => $this->dateTime(),
             'last_fetched_at' => $this->dateTime(),
             'updated_by' => $this->integer(11),

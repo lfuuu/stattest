@@ -26,6 +26,14 @@ spec:
       - name: wait-hasura
         image: alpine:3.6
         command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.graphql_prod.host }}; do echo waiting for hasura; sleep 2; done']
+{{- if (eq .Values.global.env "dev") }}
+      - name: wait-history-pgdb
+        image: alpine:3.6
+        command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.postgres_history.host }}; do echo waiting for history-pgdb; sleep 2; done']
+      - name: wait-mysql-db
+        image: alpine:3.6
+        command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.mysql_dev.host }}; do echo waiting for mysql-db; sleep 2; done']
+{{- end }}
       containers:
       - name: nginx
 {{ tuple (printf "%s-%s" .Chart.Name "nginx-prod") . | werf_container_image | indent 8 }}
@@ -112,14 +120,18 @@ spec:
 {{- end }}
         - name: MYSQL_DB
           value: {{ .Values.mysql_prod.db }}
+{{- if (eq .Values.global.env "dev") }}
         - name: MYSQL_HOST
           value: {{ .Values.mysql_prod.host }}
-{{- if (eq .Values.global.env "dev") }}
         - name: MYSQL_USER
+#          value: {{ .Values.mysql_dev.user }}
           value: {{ .Values.mysql_prod.user_read_only }}
         - name: MYSQL_PASSWORD
+#          value: {{ .Values.mysql_dev.password }}
           value: {{ .Values.mysql_prod.password_read_only }}
 {{- else }}
+        - name: MYSQL_HOST
+          value: {{ .Values.mysql_prod.host }}
         - name: MYSQL_USER
           value: {{ .Values.mysql_prod.user }}
         - name: MYSQL_PASSWORD
@@ -137,16 +149,18 @@ spec:
           value: {{ .Values.postgres_prod.host_legs }}
         - name: POSTGRES_NFDUMP_DB
           value: {{ .Values.postgres_prod.db_nfdump }}
-        - name: POSTGRES_HISTORY_HOST
-          value: {{ .Values.postgres_history.host }}
         - name: POSTGRES_HISTORY_DB
           value: {{ .Values.postgres_history.db }}
 {{- if (eq .Values.global.env "dev") }}
+        - name: POSTGRES_HISTORY_HOST
+          value: {{ .Values.postgres_history.dev_host }}
         - name: POSTGRES_HISTORY_USER
-          value: {{ .Values.postgres_history.user_read_only }}
+          value: {{ .Values.postgres_history.dev_user }}
         - name: POSTGRES_HISTORY_PASSWORD
-          value: {{ .Values.postgres_history.password_read_only }}
+          value: {{ .Values.postgres_history.dev_password }}
 {{- else }}
+        - name: POSTGRES_HISTORY_HOST
+          value: {{ .Values.postgres_history.host }}
         - name: POSTGRES_HISTORY_USER
           value: {{ .Values.postgres_history.user }}
         - name: POSTGRES_HISTORY_PASSWORD

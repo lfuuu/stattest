@@ -1,0 +1,158 @@
+{{- if (eq .Values.global.env "dev") }}
+
+{{ $_ := set . "pg_host" .Values.postgres_dev.host }}
+{{ $_ := set . "pg_user" .Values.postgres_dev.user }}
+{{ $_ := set . "pg_app_user" .Values.postgres_dev.app_user }}
+{{ $_ := set . "pg_app_password" .Values.postgres_dev.app_password }}
+{{ $_ := set . "pg_password" .Values.postgres_dev.password }}
+{{ $_ := set . "pg_dbname" .Values.postgres_dev.dbname }}
+{{ $_ := set . "pg_port" .Values.postgres_dev.port }}
+{{ $_ := set . "pg_repl_user" .Values.postgres_dev.repl_user }}
+{{ $_ := set . "pg_repl_password" .Values.postgres_dev.repl_password }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-dbconfig
+data:
+  init-user-db.sh: |
+    #!/bin/bash
+    set -e
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" {{ .pg_dbname }} <<-EOFSQL
+        CREATE USER {{ .pg_app_user }} PASSWORD '{{ .pg_app_password }}';
+
+        GRANT ALL PRIVILEGES ON DATABASE {{ .pg_dbname }} TO {{ .pg_app_user }};
+
+        CREATE SCHEMA history_changes;
+        GRANT ALL ON SCHEMA history_changes TO {{ .pg_app_user }};
+
+        CREATE TYPE history_changes.request_state AS ENUM ('insert', 'update', 'delete');
+
+        CREATE TABLE IF NOT EXISTS history_changes.history_changes
+        (
+            id serial,
+            model character varying(50) COLLATE pg_catalog."default" NOT NULL,
+            model_id bigint,
+            user_id integer,
+            created_at timestamp without time zone NOT NULL,
+            action history_changes.request_state NOT NULL,
+            data_json text COLLATE pg_catalog."default" NOT NULL,
+            prev_data_json text COLLATE pg_catalog."default" NOT NULL,
+            parent_model_id bigint
+        );
+
+        ALTER TABLE history_changes.history_changes OWNER to {{ .pg_app_user }};
+        GRANT ALL ON TABLE history_changes.history_changes TO {{ .pg_app_user }};
+
+
+        CREATE FUNCTION history_changes.tr_partitioning()
+            RETURNS trigger
+            LANGUAGE 'plpgsql'
+            COST 100
+            VOLATILE NOT LEAKPROOF
+        AS \$BODY\$
+        declare
+            relname varchar;
+            rel_exists text;
+            suffix varchar;
+            this_mon timestamp;
+            next_mon timestamp;
+            rec_exists boolean;
+        begin
+            suffix := lower(replace(replace(new.model, 'app\', ''), '\', '_'));
+            relname := 'history_changes.hc_' || suffix;
+            EXECUTE 'SELECT to_regclass('|| quote_literal(relname) ||');' INTO rel_exists;
+
+            IF rel_exists IS NULL OR rel_exists = ''
+            THEN
+                EXECUTE 'CREATE TABLE history_changes.hc_' || suffix ||
+                        ' (CONSTRAINT hc_' || suffix || '_pkey PRIMARY KEY (id),' ||
+                        ' CONSTRAINT hc_' || suffix || '_model CHECK (' ||
+                        'model = ' || quote_literal(new.model) || ')' ||
+                        ') INHERITS (history_changes.history_changes) WITH (OIDS=FALSE)';
+
+                EXECUTE format('CREATE INDEX hc_' || suffix || '_model_id ON history_changes.hc_' || suffix || ' USING btree (model_id);');
+                EXECUTE 'GRANT ALL ON TABLE ' || relname || ' TO postgres';
+                EXECUTE 'GRANT SELECT ON TABLE ' || relname || ' TO g_readonly';
+                EXECUTE 'GRANT ALL ON TABLE ' || relname || ' TO g_stat';
+            END IF;
+            EXECUTE format('insert into ' || relname ||
+                           '(id,model,model_id,user_id,created_at,action,data_json,prev_data_json,parent_model_id) ' ||
+                           'values ($1,$2,$3,$4,$5,$6,$7,$8,$9)')
+                USING new.id, new.model, new.model_id, new.user_id, new.created_at, new.action, new.data_json, new.prev_data_json, new.parent_model_id;
+            return null;
+        end;
+        \$BODY\$;
+
+        ALTER FUNCTION history_changes.tr_partitioning() OWNER TO postgres;
+
+        CREATE TRIGGER partitioning
+            BEFORE INSERT
+            ON history_changes.history_changes
+            FOR EACH ROW
+            EXECUTE FUNCTION history_changes.tr_partitioning();
+    EOFSQL
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.postgres_dev.host }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      tier: postgres
+  replicas: 1
+  serviceName: {{ .Values.postgres_dev.host }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        tier: postgres
+    spec:
+      containers:
+        - name: stat-pgdb
+          image: postgres:13
+          env:
+            - name: POSTGRES_APP_USER
+              value: {{ .pg_app_user }}
+            - name: POSTGRES_USER
+              value: {{ .pg_user }}
+            - name: POSTGRES_DB
+              value: {{ .pg_dbname }}
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+          ports:
+            - containerPort: {{ .Values.postgres_dev.port }}
+          volumeMounts:
+            # - mountPath: /var/lib/postgresql/data
+            #   name: pg-data
+            - name: dbconfig-volume
+              mountPath: /docker-entrypoint-initdb.d/init-user-db.sh
+              subPath: init-user-db.sh
+      volumes:
+        - name: pg-data
+          hostPath:
+            path: /.volumes/pgsqldb_{{ .Chart.Name }}_{{ .Values.global.env }}
+        - name: dbconfig-volume
+          configMap:
+            name: {{ .Chart.Name }}-dbconfig
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.postgres_dev.host }}
+  labels:
+    app: {{ .Chart.Name }}
+    tier: postgres
+spec:
+  ports:
+    - name: "postgres-port"
+      port: {{ .Values.postgres_dev.port }}
+  selector:
+    app: {{ .Chart.Name }}
+    tier: postgres
+{{- else }}
+
+{{- end }}

@@ -1,0 +1,121 @@
+{{- if (eq .Values.global.env "dev") }}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-mysqldbconfig
+data:
+  00-init-db.sh: |
+    #!/bin/bash
+    set -e
+    mysql mysql -e "CREATE DATABASE {{ .Values.mysql_dev.db }} DEFAULT CHARACTER SET utf8;"
+    mysql <<-EOF
+      DROP TABLE IF EXISTS user_users;
+      CREATE TABLE user_users (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      user varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+      pass varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
+      usergroup varchar(50) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'client',
+      name varchar(100) NOT NULL DEFAULT '',
+      color varchar(7) NOT NULL DEFAULT '',
+      trouble_redirect varchar(50) DEFAULT NULL,
+      email varchar(64) DEFAULT NULL,
+      rocket_nick varchar(20) DEFAULT NULL,
+      photo varchar(4) DEFAULT NULL,
+      data_panel text,
+      phone_work varchar(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+      phone_mobile varchar(100) DEFAULT NULL,
+      data_flags text NOT NULL,
+      depart_id int(10) unsigned DEFAULT NULL,
+      enabled enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'yes',
+      courier_id int(4) NOT NULL DEFAULT '0',
+      show_troubles_on_every_page tinyint(4) NOT NULL DEFAULT '0',
+      restriction_client_id int(11) DEFAULT NULL,
+      timezone_name varchar(50) NOT NULL DEFAULT 'Europe/Moscow',
+      language varchar(5) NOT NULL DEFAULT 'ru-RU',
+      city_id int(10) DEFAULT NULL,
+      incoming_phone varchar(255) NOT NULL DEFAULT '',
+      PRIMARY KEY (id)
+      );
+
+      INSERT INTO user_users VALUES (60,'system','1882a5efe473e3d2c889aa311d8c0b03','virtual','Системный пользователь','',NULL,NULL,'',NULL,'',NULL,NULL,'',NULL,'yes',0,0,NULL,'Europe//
+      Moscow','ru-RU',NULL,'');
+    EOF
+  01-set-000001-migration.sh: |
+    #!/bin/bash
+    set -e
+    mysql -e "INSERT INTO migration (version, apply_time) VALUES ('m100000_000001_init', 1422529005);"
+  mysql.cnf: |
+    [mysql]
+    user={{ .Values.mysql_dev.user }}
+    password={{ .Values.mysql_dev.password }}
+    database={{ .Values.mysql_dev.db }}
+  mysqld.cnf: |
+    [mysqld]
+    sql_mode=
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.mysql_dev.host }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      tier: mysql
+  replicas: 1
+  serviceName: {{ .Values.mysql_dev.host }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        tier: mysql
+    spec:
+      containers:
+        - name: stat-mysqldb
+          image: mysql:8
+#          command: ['/bin/sh', '-c', 'apt update && apt -y install vim mc']
+  {{/* tuple (printf "%s-%s" .Chart.Name "mysql-dev") . | werf_container_image | indent 8 */}}
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.mysql_dev.password }}
+          ports:
+            - containerPort: {{ .Values.mysql_dev.port }}
+          volumeMounts:
+            - name: mysqldbconfig-volume
+              mountPath: /root/00-init-db.sh
+              subPath: 00-init-db.sh
+            - name: mysqldbconfig-volume
+              mountPath: /root/01-set-000001-migration.sh
+              subPath: 01-set-000001-migration.sh
+            - name: mysqldbconfig-volume
+              mountPath: /root/.my.cnf
+              subPath: mysql.cnf
+            - name: mysqldbconfig-volume
+              mountPath: /etc/mysql/conf.d/mysqld.cnf
+              subPath: mysqld.cnf
+
+      volumes:
+        - name: mysqldbconfig-volume
+          configMap:
+            name: {{ .Chart.Name }}-mysqldbconfig
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.mysql_dev.host }}
+  labels:
+    app: {{ .Chart.Name }}
+    tier: mysql
+spec:
+  ports:
+    - name: "mysql-port"
+      port: {{ .Values.mysql_dev.port }}
+  selector:
+    app: {{ .Chart.Name }}
+    tier: mysql
+{{- else }}
+
+{{- end }}
