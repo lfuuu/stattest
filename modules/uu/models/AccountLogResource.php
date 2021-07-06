@@ -58,6 +58,7 @@ class AccountLogResource extends ActiveRecord
     {
         return [
             [['id', 'tariff_period_id', 'account_tariff_id', 'tariff_resource_id', 'coefficient'], 'integer'],
+            ['insert_time', 'default', 'value' => DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT)],
             [['price', 'cost_price'], 'double'],
             [['cost_price'], 'default', 'value' => 0.0],
             [['date_from', 'date_to'], 'string', 'max' => 10],
