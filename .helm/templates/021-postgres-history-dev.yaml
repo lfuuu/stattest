@@ -73,8 +73,8 @@ data:
 
                 EXECUTE format('CREATE INDEX hc_' || suffix || '_model_id ON history_changes.hc_' || suffix || ' USING btree (model_id);');
                 EXECUTE 'GRANT ALL ON TABLE ' || relname || ' TO postgres';
-                EXECUTE 'GRANT SELECT ON TABLE ' || relname || ' TO g_readonly';
-                EXECUTE 'GRANT ALL ON TABLE ' || relname || ' TO g_stat';
+                --- EXECUTE 'GRANT SELECT ON TABLE ' || relname || ' TO g_readonly';
+                --- EXECUTE 'GRANT ALL ON TABLE ' || relname || ' TO g_stat';
             END IF;
             EXECUTE format('insert into ' || relname ||
                            '(id,model,model_id,user_id,created_at,action,data_json,prev_data_json,parent_model_id) ' ||
