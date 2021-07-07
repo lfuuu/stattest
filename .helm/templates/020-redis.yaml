@@ -49,7 +49,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: 10Gi
 ---
 {{- if (eq .Values.global.env "dev") }}
 apiVersion: v1
@@ -59,7 +59,7 @@ metadata:
 spec:
   storageClassName: redis-storage-{{ .Chart.Name }}
   capacity:
-    storage: 3Gi
+    storage: 10Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
