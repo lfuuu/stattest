@@ -148,7 +148,7 @@
             <td>{$smarty.foreach.outer.iteration}</td>
             <td>01</td>
             <td>{$item.bill_no} от {$item.ext_invoice_date}</td>
-            <td></td>
+            <td>{if $item.correction_number} {$item.correction_number} от </br> {$item.correction_date} {/if}</td>
             <td></td>
             <td></td>
             <td></td>

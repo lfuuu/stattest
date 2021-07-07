@@ -21,7 +21,7 @@
     <input type=hidden name=bill value={$bill.bill_no}>
     <input type=hidden name=action value=bill_apply>
     <input type=hidden name=client_id value={$bill.client_id}>
-
+    
     <div class="well">
         <div class="row">
             <div class="col-sm-4">
@@ -53,10 +53,31 @@
                             <input class="form-control input-sm"
                                    id=date_from type=text name=bill_no_ext_date
                                    value="{$bill_ext.ext_bill_date}">
-
                         </div>
                     </div>
                 </div>
+                {if $is_correction}
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label>Дата правки:</label>
+                            <div class="form-group ">
+                                <input class="form-control input-sm"
+                                    id=date_created type=text name=date_created
+                                    value="{$corr_bill}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label>Номер правки:</label>
+                            <div class="form-group ">
+                                <input class="form-control input-sm"
+                                    id=corr_number type=text name=corr_number
+                                    value="{$corr_number}">
+                            </div>
+                        </div>
+                    </div>
+                {/if}
             {else}
                 <div class="col-sm-4">&nbsp;</div>
             {/if}
@@ -213,6 +234,7 @@
         </div>
     </div>
 
+{if $bill.operation_type_id == 1}   {* operation_type_id = 1 - расходный документ *}
     {assign var="isDisabledLines" value=false}
     {if $bill.uu_bill_id}
         {assign var="isDisabledLines" value=true}
@@ -266,6 +288,7 @@
     <div style="text-align: center">
         <input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if $isDisabledLines} disabled{/if}>
     </div>
+{/if}
 </form>
 {$_showHistoryLines}
 <script>
@@ -304,6 +327,10 @@
     });
 
     $('#registration_date_fix').datepicker({
+      dateFormat: 'dd-mm-yy',
+    });
+
+    $('#date_created').datepicker({
       dateFormat: 'dd-mm-yy',
     });
 

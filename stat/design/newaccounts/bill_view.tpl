@@ -11,7 +11,6 @@
             </a>
             {assign var="isClosed" value="0"}
             {if isset($tt_trouble) && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
-
             {if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}{if $bill.sum >= 0}Заказ{else}{$operationType}{/if}{/if}
             {if $bill.is_rollback}-<b><u>возврат</u></b>{/if}
             <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill_ext.ext_bill_no)} ({$bill_ext.ext_bill_no}){/if}</b>
@@ -21,6 +20,7 @@
             {/if}
             {if !$all4net_order_number && !$1c_bill_flag}
                 {if !$isClosed}
+                <br>
                     <a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a>
                     /
                     {if !$bill.uu_bill_id}
@@ -40,7 +40,6 @@
                     /
                 {/if}
             {/if}
-            <br>
             {* //@TODO выпилить *}
             {if false && !$1c_bill_flag}
                 {if $bill_invoices[1]}
@@ -67,9 +66,12 @@
                 {/if}
             {/if}
 
-
             <a href="/custom-print/print-bill?bill_no={$bill.bill_no}" onClick="return ImmediatelyPrint(this)">распечатать</a>
         </td>
+        <b style ="font-size:30px; text-align:center;">{if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}
+                                                      {else} {if $orig_bill} {$operationType} {if $orig_bill.correction_number} правка {else} сторно {/if} 
+                                                       (от <a href="/?module=newaccounts&action=bill_view&bill={$orig_bill.original_bill_no}">{$orig_bill.original_bill_no}</a>)  
+                                                      {else} {$operationType} {/if}{/if}</b>
         <td>&nbsp;</td>
         <td width="33%">
             {if !$bill.is_approved}Cчет не проведен{else}Счет проведен{/if}
@@ -78,7 +80,6 @@
                 Счет опубликован{else}
                 <br>
             <a href="/bill/publish/bill?bill_no={$bill.bill_no}">Опубликовать счет </a>{/if}
-
             {if $bill_ext.ext_bill_no}<br>Номер внешнего счета: {$bill_ext.ext_bill_no}{/if}
             {if $bill_ext.ext_bill_date}<br>Дата внешнего счета: {$bill_ext.ext_bill_date}{/if}
             {if $bill_ext.ext_akt_no}<br>Номер внешнего акта: {$bill_ext.ext_akt_no}{/if}
@@ -159,9 +160,7 @@
         </tr>
     {/if}
 </table>
-
 <br/>
-
 <div>
     {if $bill_extends_info.acc_no}
         <span style="background-color: #F0F0F0;">
@@ -207,6 +206,7 @@
 {/foreach}
 <table class="table table-condensed table-hover table-striped">
     <tr class=even style='font-weight:bold'>
+    {if $bill.operation_type_id == 1} {* operation_type_id = 1 - расходный документ *}
         <th>&#8470;</th>
         <th width="1%">Артикул</th>
         <th>Наименование</th>
@@ -229,6 +229,11 @@
         {/if}
         <th style="text-align: right">Тип</th>
         <th style="text-align: right">Маржа (без НДС)</th>
+    {else}
+        <th style="text-align: left">Цена без НДС</th>
+        <th style="text-align: left">НДС</th>
+        <th style="text-align: left">Сумма</th>
+    {/if}
     </tr>
     {assign var="bonus_sum" value=0}
     {foreach from=$bill_lines item=item key=key name=outer}
@@ -239,20 +244,15 @@
                 {if $item.type == "good"}
                     {if $item.store == "yes"}
                         <b style="color: green;">Склад</b>
-
 {elseif $item.store == "no"}
-
                         <b style="color: blue;">Заказ</b>
-
 {elseif $item.store == "remote"}
-
                         <b style="color: #c40000;">ДалСклад</b>
                     {/if}
                 {/if}
             </span>
             </td>
             <td>
-
                 {if $item.service && $item.service != '1C'}
                     <a target="_blank" href="{$item.service|usage_link:$item.id_service}">
                         {$item.item}
@@ -297,23 +297,29 @@
             <td align=right{if $item.cost_price != 0} title="Сумма:{$item.sum} - НДС:{$item.sum_tax} - Себестоимость:{$item.cost_price}"{/if}>{if $item.cost_price != 0}{assign var="margin" value=`$item.sum-$item.sum_tax-$item.cost_price`}{$margin|round:2}{else}-{/if}</td>
         </tr>
     {/foreach}
-    <tr>
-        <th colspan=6 style="text-align: right">Итого:</th>
-        {if $discount != 0}
-            <td style="text-align: right">{$discount}</td>
-        {/if}
-        {if $bill.price_include_vat == 0}
-            <th style="text-align: right">{$sum_without_tax|round:2}</th>
-            <td style="text-align: right">{if $bill.sum != 0}{$bill.sum-$sum_without_tax|round:2}{else}---{/if}</td>
-            <th style="text-align: right">{$bill.sum|round:2}</th>
+    <tr> 
+        {if $bill.operation_type_id == 1} {* operation_type_id = 1 - расходный документ *}
+            <th colspan=6 style="text-align: left">Итого:</th>
+            {if $discount != 0}
+                <td style="text-align: right">{$discount}</td>
+            {/if}
+                {if $bill.price_include_vat == 0}
+                    <th style="text-align: right">{$sum_without_tax|round:2}</th>
+                    <td style="text-align: right">{if $bill.sum != 0}{$bill.sum-$sum_without_tax|round:2}{else}---{/if}</td>
+                    <th style="text-align: right">{$bill.sum|round:2}</th>
+                {else}
+                    <th style="text-align: right">{if $bill.sum_correction}<strike>{$bill.sum|round:2}</strike>
+                            <br>
+                            {$bill.sum_correction|round:2}{else}{$bill.sum|round:2}{/if}</th>
+                    <td style="text-align: right">в т.ч. {$sum_tax|round:2} </td>
+                {/if}
+            {if $bill_bonus}
+                <td style="text-align: right">{$bonus_sum|round:2}</td>
+            {/if}
         {else}
-            <th style="text-align: right">{if $bill.sum_correction}<strike>{$bill.sum|round:2}</strike>
-                    <br>
-                    {$bill.sum_correction|round:2}{else}{$bill.sum|round:2}{/if}</th>
-            <td style="text-align: right">в т.ч. {$sum_tax|round:2}</td>
-        {/if}
-        {if $bill_bonus}
-            <td style="text-align: right">{$bonus_sum|round:2}</td>
+            <th style="text-align: left">{$bill_ext.ext_sum_without_vat}</th>
+                <th style="text-align: left">{$bill_ext.ext_vat}</th>
+                <th style="text-align: left">{assign var="c" value=$bill_ext.ext_sum_without_vat+$bill_ext.ext_vat} {$c|round:2}</th>
         {/if}
         <td colspan="2" style="text-align: right">&nbsp;</td>
     </tr>
@@ -580,6 +586,20 @@
             <div class="flag flag-us"></div>
             Счет операторский #{$bill.bill_no}</a>
 
+        <a href='#'> 
+    </div>
+    <div style="width:300px; float: left; margin-top:100px; ">
+         <a href="{$LINK_START}module=newaccounts&action=bill_create_correction&orig_bill={$bill.bill_no}">Внести правки</a>
+         </br></br>
+
+         {if $connected_bills}
+            {foreach from=$connected_bills key=id item=item}
+                <a href="/?module=newaccounts&action=bill_view&bill={$item.bill_no}">{$id+1}. {if $item.correction_number} Правка {else} Сторно {/if} {$bill_ext.ext_invoice_no}</a> 
+                <b style="font-weight: bold;"> ({$item.sum}) </b>
+                <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$item.bill_no}'>(X)</a> 
+                </br>
+            {/foreach}
+         {/if}
 
     </div>
 

@@ -8,6 +8,7 @@ use app\models\ClientAccount;
 use app\models\Courier;
 use app\models\Country;
 use app\models\BillDocument;
+use app\models\ClientContract;
 
 class Bill {
     public $client_id;
@@ -55,12 +56,13 @@ class Bill {
      * @param string $bill_date
      * @param int $is_auto
      * @param string $currency
+     * @param int $operation_type_id
      * @param bool $isShowInLk
      * @param bool $isUserPrepay
      * @param int $isForcePriceIncludeVat
      * @throws ModelValidationException
      */
-    public function __construct($bill_no, $client_id = '', $bill_date = '', $is_auto = 1, $currency = null, $isShowInLk = true, $isUserPrepay = false, $isForcePriceIncludeVat = null)
+    public function __construct($bill_no, $client_id = '', $bill_date = '', $is_auto = 1, $currency = null, $operation_type_id = null, $isShowInLk = true, $isUserPrepay = false, $isForcePriceIncludeVat = null)
     {
         global $db;
         if ($bill_no){
@@ -85,7 +87,9 @@ class Bill {
 
             $this->bill_no = BillDao::me()->spawnBillNumber($bill_date, $this->Client()->contract->organization_id);
 
+           
             $bill = new \app\models\Bill();
+            $bill->operation_type_id = $operation_type_id;
             $bill->client_id = $this->client_id;
             $bill->currency = $this->Client()->currency;
             $bill->bill_no = $this->bill_no;
@@ -161,6 +165,7 @@ class Bill {
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->client_id);
+        $clientType = $clientAccount->contract->financial_type;
         $clientAccount->loadVersionOnDate($this->bill['bill_date']);
 
         if ($type == 'zadatok') {
@@ -183,7 +188,11 @@ class Bill {
         $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
         $line->price = $price;
         $line->cost_price = $costPrice;
-        $line->calculateSum($this->bill['price_include_vat']);
+        if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
+            $line->sum =  $price;
+        } else {
+            $line->calculateSum($this->bill['price_include_vat']);
+        }
         $line->save();
 
         return true;
@@ -284,6 +293,7 @@ class Bill {
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($this->client_id);
+        $clientType = $clientAccount->contract->financial_type;
         $clientAccount->loadVersionOnDate($this->bill['bill_date']);
 
         /** @var BillLine $line */
@@ -294,7 +304,11 @@ class Bill {
             $line->price = $price;
             $line->type = $type;
             $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
-            $line->calculateSum($this->bill['price_include_vat']);
+            if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
+                $line->sum = $line->sum = $price;
+            } else {
+                $line->calculateSum($this->bill['price_include_vat']);
+            }
             $line->save();
         }
     }
