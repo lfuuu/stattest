@@ -142,6 +142,11 @@ class BillDocumentDao extends Singleton
         }
 
         $l = reset($lines);
+
+        if ($l['date_from'] == '0000-00-00') {
+            return $billTs;
+        }
+
         return strtotime($l['date_from']) ?: $billTs;
     }
 
