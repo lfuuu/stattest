@@ -160,6 +160,7 @@ abstract class TariffForm extends \app\classes\Form
                     'is_proportionately' => $post['Tariff']['is_proportionately'],
                     'tax_rate' => $post['Tariff']['tax_rate'],
                     'voip_group_id' => $post['Tariff']['voip_group_id'],
+                    'overview' => $post['Tariff']['overview']
                 ];
             }
 

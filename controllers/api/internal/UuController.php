@@ -740,6 +740,10 @@ class UuController extends ApiInternalController
                 'voip_package_price_sms' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, true),
             ];
 
+            if ($tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
+                $data['overview'] = $this->_getOverview($tariff->overview);
+            }
+
             Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
         }
 
@@ -747,6 +751,50 @@ class UuController extends ApiInternalController
         $data['voip_package_minute'] = $this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic);
 
         return $data;
+    }
+
+    private function _getOverview($overview)
+    {
+        $toRet = [];
+        $lines = explode("\n", $overview);
+
+        foreach ($lines as $line) {
+            $line = str_replace("\r", '', $line);
+            if (strlen($line) > 1) {
+                
+                if ($pos = strpos($line, '=')) {
+                    $type = 'price';
+                    $column = 'price';
+                    
+                } elseif ($pos = strpos($line, '#')) {
+                    $type = 'pricelist_link';
+                    $column = 'pricelist_id';
+                } elseif ($pos = strpos($line, '|')) {
+                    $type = 'link';
+                    $column = 'link';
+                } else {
+                    $type = 'text';
+                }
+
+                $beforePos = substr($line, 0, $pos);
+                $afterPos = trim(substr($line, $pos+1, strlen($line)));
+    
+                $json = [
+                    'type' => trim($type),
+                    'text' => $beforePos ? trim($beforePos) : trim($line),
+                    
+                ];
+                $column ? $json[$column] = $afterPos : null;
+
+                unset($col);
+                unset($beforePos);
+                unset($afterPos);
+                unset($line);
+
+                $toRet[] = $json;   
+            }
+        }
+        return $toRet;
     }
 
     /**
