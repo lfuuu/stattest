@@ -226,7 +226,7 @@ final class OpenController extends Controller
 
             $didGroup = $freeNumber->getCachedDidGroup();
 
-            $tariffStatusId = $didGroup->getTariffStatusMain($priceLevel);
+            $tariffStatusId = $clientAccount ? $didGroup->getTariffStatusMain($priceLevel) : TariffStatus::ID_TEST;
             $packageStatusIds = [
                 $didGroup->getTariffStatusPackage($priceLevel)
             ];
