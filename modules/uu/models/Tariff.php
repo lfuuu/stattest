@@ -176,6 +176,7 @@ class Tariff extends ActiveRecord
             [['count_of_validity_period', 'count_of_carry_period'], 'integer', 'min' => 0, 'max' => 30],
             ['count_of_validity_period', 'validatorTest', 'skipOnEmpty' => false],
             ['count_of_carry_period', 'validatorBurnInternet'],
+            [['overview'], 'string'],
         ];
     }
 

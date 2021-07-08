@@ -125,6 +125,9 @@ if (!$serviceType) {
     <?php // свойства тарифа (ресурсы) ?>
     <?= $this->render('_editResource', $viewParams) ?>
 
+    <?php // Описание тарифа ?>
+    <?= $this->render('_editOverview', $viewParams) ?>
+
     <?php // кнопка сохранения ?>
     <?= $this->render('_editSubmit', $viewParams) ?>
 
