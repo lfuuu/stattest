@@ -149,9 +149,10 @@
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$firm.name}</strong><br>
     <strong>{$firm.address}</strong><br>{/if}
 {/if}
-    Грузополучатель и его адрес: {if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}<strong>{$bill_client.consignee}</strong><br>{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
+    Грузополучатель и его адрес: {if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}<strong>{$bill_client.consignee}</strong><br>{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="42" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
     <strong>{$bill_client.address_post}</strong><br>{/if}{/if}
 К платежно-расчетному документу{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}<br>
+    {if $inv_is_new7}Документ об отгрузке № п/п {section loop="43" name="mysec"}&nbsp;{/section}------<br>{/if}
     Покупатель: <strong>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</strong><br>
     Адрес: <strong>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</strong><br>
     ИНН/КПП покупателя: <strong>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</strong><br>
@@ -164,11 +165,12 @@
     <small>    Приложение N1<br>
     {if $inv_is_new3}к постановлению Правительства<br>Российской Федерации<br>
 		от 26 декабря 2011 г. N 1137
-        {if $isChanges20171001}
-            <br/>
+        <br/>
+        {if $inv_is_new7}
+            (в ред. Постановления Правительства РФ от 02.04.2021 № 534)
+        {elseif $isChanges20171001}
             (в ред. Постановления Правительства РФ от 19.08.2017 № 981)
         {elseif 1498867200 <= $inv_date}
-            <br>
             <small class="sm">(в ред. Постановления Правительства РФ от 25.05.2017 N625):</small>
         {/if}
 
@@ -198,6 +200,7 @@
 {*if !$inv_is_new3}Наименование и код валюты: руб. (643){/if*}
     <div align="center"><center><table border="1" cellpadding="3" cellspacing="0" width="100%">
       <tr>
+          {if $inv_is_new7}<th rowspan="2" nowrap="nowrap">№<br>п/п</th>{/if}
         <th{if $inv_is_new3} rowspan=2{/if}>Наименование<br>товара<br>(описание выполненных работ, оказанных услуг){if $inv_is_new},<br>имущественного права{/if}</th>
           {if $isChanges20171001}<th rowspan=2>Код<br/> вида<br/> товара</th>{/if}
         {if !$inv_is_new3}<th>Еди-<br>ница<br>изме-<br>рения</th>{else}<th colspan=2>Единица<br>измерения</th>{/if}
@@ -245,17 +248,28 @@
             {else}
                 Номер<br> тамо-<br> женной<br> декла-<br> рации
             {/if}</th>
-      </tr>
+          {if $inv_is_new7}
+            <th colspan="2">Количественная единица<br> измерения товара,<br> используемая в целях<br> осуществления<br> прослеживаемости</th>
+            <th rowspan="2">Количество товара,<br> подлежащего<br> прослеживаемости, в<br> количественной единице<br> измерения товара,<br> используемой в целях<br> осуществления<br> прослеживаемости</th>
+          {/if}
       {if $inv_is_new3}<tr>
       	<th>к<br>о<br>д</th>
       	<th>условное<br>обозначение<br>(национальное)</th>
       	<th>цифровой<br>код</th>
       	<th>краткое<br>наимено-<br>вание</th>
+        {if $inv_is_new7}
+            <th>код</th>
+            <th>условное<br> обозначение</th>
+        {/if}
       </tr>{/if}
+
       <tr>
-        <td align="center">1</td>
+          {if $inv_is_new7}
+            <td align="center">1</td>
+          {/if}
+        <td align="center">{if $inv_is_new7}1а{else}1{/if}</td>
         {if $isChanges20171001}
-          <td align="center">1а</td>
+          <td align="center">1{if $inv_is_new7}б{else}а{/if}</td>
         {/if}
         <td align="center">2</td>
         {if $inv_is_new3}<td align="center">2а</td>{/if}
@@ -269,9 +283,15 @@
         <td align="center">10</td>
         {if $inv_is_new3}<td align="center">10а</td>{/if}
         <td align="center">11</td>
+          {if $inv_is_new7}
+            <td align="center">12</td>
+            <td align="center">12а</td>
+            <td align="center">13</td>
+          {/if}
       </tr>
-{foreach from=$bill_lines item=row key=key}
+{foreach from=$bill_lines item=row key=key name=lines}
       <tr>
+          {if $inv_is_new7}<td align="center">{$smarty.foreach.lines.iteration}</td>{/if}
         <td>{if $is_four_order}Предварительная оплата<br>{else}{$row.item}{/if}</td>
           {if $isChanges20171001}
               <td align="center">-</td>
@@ -402,11 +422,16 @@
         {if $inv_is_new3}<td align="center">{if !isset($row.country_id) || $row.country_id == 0}-{else}{$row.country_id}{/if}</td>{/if}
         <td align="center">{if isset($row.country_name)}{$row.country_name|default:"-"}{else}-{/if}</td>
         <td align="center">{if isset($row.gtd)}{$row.gtd|default:"-"}{else}-{/if}</td>
+          {if $inv_is_new7}
+              <td align="center">-</td>
+              <td align="center">-</td>
+              <td align="center">-</td>
+          {/if}
       </tr>
 {/foreach}
      <tr>
      	{if $inv_is_new4}
-     	<td colspan={if $isChanges20171001}6{else}{if $inv_is_new3}5{else}4{/if}{/if}><b>Всего к оплате<b></td>
+     	<td {if $inv_is_new7}style="" {/if}colspan={if $inv_is_new7}7{else}{if $isChanges20171001}6{else}{if $inv_is_new3}5{else}4{/if}{/if}{/if}><b>Всего к оплате{if $inv_is_new7} (9){/if}<b></td>
      	<td align="center">{if $is_four_order}-{else}{$bill.sum_without_tax|round:2}{/if}</td>
      	<td align="center">-</td>
         <td align="center">-</td>
@@ -422,6 +447,11 @@
         </td>
         <td align="center">{$bill.sum|round:2}</td>
         <td colspan={if $inv_is_new3}3{else}2{/if}>&nbsp;</td>
+         {if $inv_is_new7}
+             <td></td>
+             <td></td>
+             <td></td>
+         {/if}
       </tr>
 
     </table>

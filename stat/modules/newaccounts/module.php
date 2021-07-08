@@ -3325,10 +3325,9 @@ class m_newaccounts extends IModule
                 $design->assign('inv_is_new2', ($inv_date >= mktime(0, 0, 0, 6, 1, 2009)));
                 $design->assign('inv_is_new3', ($inv_date >= mktime(0, 0, 0, 1, 24, 2012)));
                 $design->assign('inv_is_new4', ($inv_date >= mktime(0, 0, 0, 2, 13, 2012)));
-                $design->assign('inv_is_new5', ($inv_date >= mktime(0, 0, 0, 10, 1,
-                        2012))); // доработки в акте и сф, собственные (акциз, шт => -) + увеличен шрифт в шапке
-                $design->assign('inv_is_new6', ($inv_date >= mktime(0, 0, 0, 1, 1,
-                        2013))); // 3 (объем), 5 всего, 6 сумма, 8 предъявлен покупателю, 8 всего
+                $design->assign('inv_is_new5', ($inv_date >= mktime(0, 0, 0, 10, 1, 2012))); // доработки в акте и сф, собственные (акциз, шт => -) + увеличен шрифт в шапке
+                $design->assign('inv_is_new6', ($inv_date >= mktime(0, 0, 0, 1, 1, 2013))); // 3 (объем), 5 всего, 6 сумма, 8 предъявлен покупателю, 8 всего
+                $design->assign('inv_is_new7', ($inv_date >= mktime(0, 0, 0, 7, 1, 2021)));
             }
 
             $bdata["sum"] = 0;
