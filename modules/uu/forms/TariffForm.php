@@ -214,6 +214,9 @@ abstract class TariffForm extends \app\classes\Form
                     throw new ModelValidationException($this->tariff);
                 }
 
+                $cacheKey = 'uuapitariff' . $this->tariff->id;
+                \Yii::$app->cache->delete($cacheKey);
+
                 $this->id = $this->tariff->id;
                 $this->isSaved = true;
 
