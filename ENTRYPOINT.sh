@@ -205,6 +205,7 @@ echo "Configs are ready!"
 #migrations
 cd $DIR_STAT
 php yii migrate --interactive=0
+php yii migrate/flush-schema
 
 echo "Migrations applied!"
 
