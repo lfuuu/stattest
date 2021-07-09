@@ -5,6 +5,7 @@ use Yii;
 use yii\console\Exception;
 use yii\console\ExitCode;
 use yii\db\Connection;
+use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
 class MigrateController extends \yii\console\controllers\MigrateController
@@ -139,6 +140,30 @@ class MigrateController extends \yii\console\controllers\MigrateController
         }
 
         return array_reverse($foundFixtures);
+    }
+
+    public function actionFlushSchema($db = 'db')
+    {
+        $connection = Yii::$app->get($db, false);
+        if ($connection === null) {
+            $this->stdout("Unknown component \"$db\".\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        if (!$connection instanceof \yii\db\Connection) {
+            $this->stdout("\"$db\" component doesn't inherit \\yii\\db\\Connection.\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+//        } elseif (!$this->confirm("Flush cache schema for \"$db\" connection?")) {
+//            return ExitCode::OK;
+        }
+
+        try {
+            $schema = $connection->getSchema();
+            $schema->refresh();
+            $this->stdout("Schema cache for component \"$db\", was flushed.\n\n", Console::FG_GREEN);
+        } catch (\Exception $e) {
+            $this->stdout($e->getMessage() . "\n\n", Console::FG_RED);
+        }
     }
 
 }
