@@ -936,7 +936,7 @@
                 </center>
             </div>
             <br>
-            {if $inv_is_new3}
+            {if $inv_is_new3 && !$inv_is_new7}
                 Итого: {$bill.sum|wordify:'RUB'}
             {/if}
             <div style="text-align:center;">
