@@ -740,7 +740,7 @@ class UuController extends ApiInternalController
                 'voip_package_price_sms' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, true),
             ];
 
-            if ($tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
+            if (array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
                 $data['overview'] = $this->_getOverview($tariff->overview);
             }
 
