@@ -5,13 +5,17 @@
  * @var \app\classes\BaseView $this
  * @var \app\modules\uu\forms\serviceTypeForm $formModel
  */
-
+use yii\helpers\Html;
 use app\modules\uu\models\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
+
 $serviceType = $formModel->serviceType;
+$serviceTypeResources = $formModel->serviceTypeResources;
+$serviceTypeActive = $formModel->serviceTypeActive;
+
 $this->title = $serviceType->isNewRecord ? Yii::t('common', 'Create') : $serviceType->name;
 ?>
 
@@ -42,8 +46,25 @@ $this->title = $serviceType->isNewRecord ? Yii::t('common', 'Create') : $service
         <div class="col-sm-4">
             <?= $form->field($serviceType, 'close_after_days')->textInput() ?>
         </div>
+        <div class="col-sm-4">
+            <?= Html::activeCheckBox($serviceTypeActive, 'is_active',[
+                    'onclick'=>'$(this).is(":checked")? $("#resources").show() : $("#resources").hide();', 
+                    'label' => 'Вознаграждение'
+                ]);
+            ?>
+        </div>
     </div>
-
+    
+    <?php if ($serviceTypeActive->is_active) : ?>
+        <div id="resources" style ="display: block;">
+    <?php else : ?>
+        <div id="resources" style ="display: none;">
+    <?php endif; ?>
+        <?php if ($serviceTypeResources) : ?>
+            <?= $this->render('_editServiceTypeResources', $viewParams) ?>
+        <? endif; ?>
+    </div>
+    
     <?php // кнопки ?>
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
