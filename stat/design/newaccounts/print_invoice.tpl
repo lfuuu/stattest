@@ -25,12 +25,20 @@
             font-size: 9pt;
         }
 
+        .head_table td strong {
+            font-size: 7pt;
+        }
+
         .hst {
             width: 100%
         }
 
         .hst td {
             font-size: 9pt;
+        }
+
+        .head_table .hst td {
+            font-size: 7pt;
         }
 
         .hst .ff {
@@ -41,7 +49,7 @@
         }
 
         .fs {
-            font-size: 11pt !important;
+            font-size: {/literal}{if $inv_is_new7}9{else}11{/if}{literal}pt !important;
         }
 
         .hst .f {
@@ -57,6 +65,10 @@
 
         .hst .l {
             width: 10px;
+        }
+
+        #main_table th {
+            font-size: 5pt;
         }
 
         {/literal}
@@ -78,7 +90,7 @@
 {/if}
 
 {if $negative_balance}<h2 style="color:red">Внимание! Не достаточно средств для проведения авансовых платежей!</h2>{/if}
-<table border="0" cellpadding="0" cellspacing="15">
+<table border="0" cellpadding="0" cellspacing="1{if !$inv_is_new7}5{/if}">
     {if $inv_is_new3}
         <tr>
         <td colspan="2"><p style="text-align:center;">
@@ -100,7 +112,7 @@
         {/if}
     {/if}
     <tr>
-        <td valign="top" width="55%" class="ht">
+        <td valign="top" width="55%" class="ht{if $inv_is_new7} head_table{/if}">
             {if !$inv_is_new7}
                 {if $bill_client.firma=='all4geo'}
                     Продавец:
@@ -553,6 +565,7 @@
     <tr>
 
         <td colspan="2">
+            {if $inv_is_new7}<br />{/if}
             {if !$inv_is_new3}<p style="text-align:center;"><strong>СЧЕТ-ФАКТУРА
                     N&nbsp;{if !$inv_number}{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
                     {if !$without_date_date}
@@ -570,12 +583,12 @@
             {*if !$inv_is_new3}Наименование и код валюты: руб. (643){/if*}
             <div style="text-align:center;">
                 <center>
-                    <table border="1" cellpadding="3" cellspacing="0" width="100%">
+                    <table border="1" cellpadding="3" cellspacing="0" width="100%"{if $inv_is_new7} id="main_table"{/if}>
                         <tr>
                             {if $inv_is_new7}
                                 <th rowspan="2" nowrap="nowrap">№<br>п/п</th>
                             {/if}
-                            <th{if $inv_is_new3} rowspan=2{/if}>Наименование<br>товара<br>(описание выполненных
+                            <th{if $inv_is_new3} rowspan=2{/if}{if $inv_is_new7} style="min-width: 220px;"{/if}>Наименование<br>товара<br>(описание выполненных
                                 работ, оказанных услуг){if $inv_is_new},<br>имущественного права{/if}</th>
                             {if $isChanges20171001}
                                 <th rowspan=2>Код<br/> вида<br/> товара</th>
@@ -939,6 +952,7 @@
             {if $inv_is_new3 && !$inv_is_new7}
                 Итого: {$bill.sum|wordify:'RUB'}
             {/if}
+            {if $inv_is_new7}<br />{/if}
             <div style="text-align:center;">
                 <table border="0" cellpadding="0" cellspacing="5" align="left">
                     <tr>
