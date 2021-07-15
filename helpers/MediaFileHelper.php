@@ -10,7 +10,7 @@ class MediaFileHelper extends \yii\helpers\FileHelper
 
     public static function getLocalPath()
     {
-        return realpath('../') . '/web';
+        return \Yii::getAlias('@app') . '/web';
     }
 
     /**
