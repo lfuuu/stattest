@@ -15,10 +15,4 @@ class RewardsServiceTypeResource extends ActiveRecord
     {
         return 'rewards_service_type_resource';
     }
-
-    public function getResourceName()
-    {
-        return (ResourceModel::findOne(['id' => $this->resource_id]))->name;
-    }
-
 }

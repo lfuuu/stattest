@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 
 class RewardsServiceTypeActive extends ActiveRecord
 {
+    const ACTIVE = 1;
     
     public function rules()
     {
