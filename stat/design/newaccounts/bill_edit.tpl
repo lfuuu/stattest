@@ -234,7 +234,7 @@
         </div>
     </div>
 
-{if $bill.operation_type_id == 1}   {* operation_type_id = 1 - расходный документ *}
+{* {if $bill.operation_type_id == 1}   operation_type_id = 1 - расходный документ *}
     {assign var="isDisabledLines" value=false}
     {if $bill.uu_bill_id}
         {assign var="isDisabledLines" value=true}
@@ -288,7 +288,7 @@
     <div style="text-align: center">
         <input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if $isDisabledLines} disabled{/if}>
     </div>
-{/if}
+{* {/if} *}
 </form>
 {$_showHistoryLines}
 <script>

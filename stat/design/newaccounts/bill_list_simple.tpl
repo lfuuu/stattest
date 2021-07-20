@@ -168,13 +168,15 @@
                     <a href="{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}">{$op.bill.bill_no}</a>
                 </td>
                 <td rowspan="{$rowspan}">{$op.bill.payment_date}</td>
-                <td rowspan="{$rowspan}" align="right">{$op.bill.sum|money:$op.bill.currency}</td>
+                <td rowspan="{$rowspan}" align="right">{if $op.ext_sum} -{$op.ext_sum|money:$op.bill.currency} {else} {$op.bill.sum|money:$op.bill.currency} {/if}</td>
             {else}
                 <td colspan="3" rowspan="{$rowspan}">&nbsp;</td>
             {/if}
             <td rowspan="{$rowspan}" align="right">
-                {if $fixclient_data.currency == $op.bill.currency}
-                    {objCurrency op=$op obj='delta' currency=$fixclient_data.currency simple=1}
+                {if $client_type == 'yield-consumable' && $op.bill.operation_type_id == 2}
+                    {$op.ext_sum|money:$op.bill.currency}
+                {elseif $fixclient_data.currency == $op.bill.currency}
+                    {objCurrency op=$op obj='delta' currency=$fixclient_data.currency}
                 {/if}
             </td>
             {if count($op.pays)}

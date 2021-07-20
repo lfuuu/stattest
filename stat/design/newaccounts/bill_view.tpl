@@ -206,36 +206,37 @@
 {/foreach}
 <table class="table table-condensed table-hover table-striped">
     <tr class=even style='font-weight:bold'>
-    {if $bill.operation_type_id == 1} {* operation_type_id = 1 - расходный документ *}
-        <th>&#8470;</th>
-        <th width="1%">Артикул</th>
-        <th>Наименование</th>
-        <th>Период</th>
-        <th>Количество{if isset($cur_state) && $cur_state == 17}/Отгружено{/if}</th>
-        <th style="text-align: right">Цена ({if $bill.price_include_vat > 0}вкл. НДС{else}без НДС{/if})</th>
-        {if $discount != 0}
-            <th style="text-align: right">Скидка</th>
-        {/if}
-        {if $bill.price_include_vat == 0}
-            <th style="text-align: right">Сумма</th>
-            <th style="text-align: right">Сумма НДС</th>
-            <th style="text-align: right">Сумма с НДС</th>
-        {else}
-            <th style="text-align: right">Сумма</th>
-            <th style="text-align: right">Сумма НДС</th>
-        {/if}
-        {if $bill_bonus}
-            <th style="text-align: right">Бонус</th>
-        {/if}
-        <th style="text-align: right">Тип</th>
-        <th style="text-align: right">Маржа (без НДС)</th>
-    {else}
-        <th style="text-align: left">Цена без НДС</th>
-        <th style="text-align: left">НДС</th>
-        <th style="text-align: left">Сумма</th>
-    {/if}
+        {* {if $bill.operation_type_id == 1 || $is_automatic} operation_type_id = 1 - доходный документ *}
+            <th>&#8470;</th>
+            <th width="1%">Артикул</th>
+            <th>Наименование</th>
+            <th>Период</th>
+            <th>Количество{if isset($cur_state) && $cur_state == 17}/Отгружено{/if}</th>
+            <th style="text-align: right">Цена ({if $bill.price_include_vat > 0}вкл. НДС{else}без НДС{/if})</th>
+            {if $discount != 0}
+                <th style="text-align: right">Скидка</th>
+            {/if}
+            {if $bill.price_include_vat == 0}
+                <th style="text-align: right">Сумма</th>
+                <th style="text-align: right">Сумма НДС</th>
+                <th style="text-align: right">Сумма с НДС</th>
+            {else}
+                <th style="text-align: right">Сумма</th>
+                <th style="text-align: right">Сумма НДС</th>
+            {/if}
+            {if $bill_bonus}
+                <th style="text-align: right">Бонус</th>
+            {/if}
+            <th style="text-align: right">Тип</th>
+            <th style="text-align: right">Маржа (без НДС)</th>
+        {* {else}
+            <th style="text-align: left">Цена без НДС</th>
+            <th style="text-align: left">НДС</th>
+            <th style="text-align: left">Сумма</th>
+        {/if} *}
     </tr>
     {assign var="bonus_sum" value=0}
+    {* {if $bill.operation_type_id == 1 || $is_automatic} operation_type_id = 1 - доходный документ *}
     {foreach from=$bill_lines item=item key=key name=outer}
         <tr class='{cycle values="odd,even"}'>
             <td>{$smarty.foreach.outer.iteration}.</td>
@@ -244,9 +245,9 @@
                 {if $item.type == "good"}
                     {if $item.store == "yes"}
                         <b style="color: green;">Склад</b>
-{elseif $item.store == "no"}
+                    {elseif $item.store == "no"}
                         <b style="color: blue;">Заказ</b>
-{elseif $item.store == "remote"}
+                    {elseif $item.store == "remote"}
                         <b style="color: #c40000;">ДалСклад</b>
                     {/if}
                 {/if}
@@ -297,8 +298,9 @@
             <td align=right{if $item.cost_price != 0} title="Сумма:{$item.sum} - НДС:{$item.sum_tax} - Себестоимость:{$item.cost_price}"{/if}>{if $item.cost_price != 0}{assign var="margin" value=`$item.sum-$item.sum_tax-$item.cost_price`}{$margin|round:2}{else}-{/if}</td>
         </tr>
     {/foreach}
+    {* {/if} *}
     <tr> 
-        {if $bill.operation_type_id == 1} {* operation_type_id = 1 - расходный документ *}
+            {* {if $bill.operation_type_id == 1 || $is_automatic}  operation_type_id = 1 - доходный документ *}
             <th colspan=6 style="text-align: left">Итого:</th>
             {if $discount != 0}
                 <td style="text-align: right">{$discount}</td>
@@ -316,11 +318,11 @@
             {if $bill_bonus}
                 <td style="text-align: right">{$bonus_sum|round:2}</td>
             {/if}
-        {else}
+        {* {else}
             <th style="text-align: left">{$bill_ext.ext_sum_without_vat}</th>
                 <th style="text-align: left">{$bill_ext.ext_vat}</th>
                 <th style="text-align: left">{assign var="c" value=$bill_ext.ext_sum_without_vat+$bill_ext.ext_vat} {$c|round:2}</th>
-        {/if}
+        {/if} *}
         <td colspan="2" style="text-align: right">&nbsp;</td>
     </tr>
 </table>

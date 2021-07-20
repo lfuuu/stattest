@@ -9,6 +9,7 @@ use app\models\Courier;
 use app\models\Country;
 use app\models\BillDocument;
 use app\models\ClientContract;
+use app\models\OperationType;
 
 class Bill {
     public $client_id;
@@ -188,8 +189,8 @@ class Bill {
         $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
         $line->price = $price;
         $line->cost_price = $costPrice;
-        if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
-            $line->sum =  $price;
+        if ($this->bill['operation_type_id'] == OperationType::ID_COST) {
+            $line->sum = $price;
         } else {
             $line->calculateSum($this->bill['price_include_vat']);
         }
@@ -304,8 +305,8 @@ class Bill {
             $line->price = $price;
             $line->type = $type;
             $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
-            if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
-                $line->sum = $line->sum = $price;
+            if ($this->bill['operation_type_id'] == OperationType::ID_COST) {
+                $line->sum = $price;
             } else {
                 $line->calculateSum($this->bill['price_include_vat']);
             }

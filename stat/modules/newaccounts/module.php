@@ -296,7 +296,15 @@ class m_newaccounts extends IModule
             }
         }
 
+        foreach ($R as $bill) {     
+            if ($bill->operation_type_id != OperationType::ID_COST) { 
+                $b = BillExternal::find()->where(['bill_no' => $bill['bill']['bill_no']])->one();
+                $R[$b['bill_no']]['ext_sum'] = $b['ext_vat'] + $b['ext_sum_without_vat'];
+            }
+        }
+    
         #krsort($R);
+        $design->assign('client_type', $clientType);
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
@@ -455,7 +463,7 @@ class m_newaccounts extends IModule
                 bf.name as file_name,
                 ' . ($isIncomeExpense && $billListFilter ? 'ifnull(
                     (SELECT sum(sum) FROM invoice i WHERE i.bill_no = P.bill_no GROUP BY P.bill_no),
-                    (SELECT -sum(ext_sum_without_vat) FROM `newbills_external` e where e.bill_no = P.bill_no GROUP BY P.bill_no)
+                    (SELECT  COALESCE(-sum(ext_vat)-sum(ext_sum_without_vat), -sum(ext_sum_without_vat)) FROM `newbills_external` e where e.bill_no = P.bill_no GROUP BY P.bill_no)
                 )' : 'P.sum') . ' AS invoice_sum
             FROM
                 newbills P
@@ -692,10 +700,14 @@ class m_newaccounts extends IModule
             $qrsDate[$q["bill_no"]][$q["doc_type"]] = $q["date"];
         }
 
-        if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
-            foreach ($result as $bill) {
-                $b = BillExternal::find()->where(['bill_no' => $bill['bill']['bill_no']])->one();
-                $result[$b['bill_no']. '-' . $bill['date']]['ext_sum'] = $b['ext_vat'] + $b['ext_sum_without_vat'];
+        foreach ($result as $i => $r) {
+            foreach ($r as $j => $bill) {
+                if (isset($bill['bill_no']) && ($bill['operation_type_id'] == OperationType::ID_COST)) {
+                    $ext = BillExternal::findOne(['bill_no' => $bill['bill_no']]);
+                    if (isset($ext)) {
+                        $result[$i][$j]['invoice_sum'] = ($ext['ext_sum_without_vat'] + $ext['ext_vat']) * -1;
+                    }
+                }
             }
         }
 
@@ -866,6 +878,7 @@ class m_newaccounts extends IModule
         $bill = new \Bill($bill_no);
         /** @var Bill $newbill */
         $newbill = Bill::findOne(['bill_no' => $bill_no]);
+
         if (get_param_raw('err') == 1) {
             trigger_error2('Невозможно добавить строки из-за несовпадния валют');
         }
@@ -913,11 +926,20 @@ class m_newaccounts extends IModule
         $client = ClientAccount::find()->where(['id' => $fixclient])->one();
         $clientType = $client->contract->financial_type;
         
-        $L = [];
-        if ($clientType != ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
-            $L = $bill->GetLines();
+        $L = $bill->GetLines();
+        $isAutomatic = false;
+        if ($L) {
+            foreach ($L as $line) {
+                if ($line['service']) {
+                    $isAutomatic = true;
+                    break;
+                }
+
+            }
+            
         }
 
+        $design->assign('is_automatic', $isAutomatic);
         $design->assign('bill_lines', $L);
         $design->assign('invoice2_info', Invoice::getInfo($bill->GetNo()));
         $design->assign('bill', $bill->GetBill());
@@ -1229,9 +1251,18 @@ class m_newaccounts extends IModule
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $lines = $bill->GetLines();
-        $lines[$bill->GetMaxSort() + 1] = [];
-        $lines[$bill->GetMaxSort() + 2] = [];
-        $lines[$bill->GetMaxSort() + 3] = [];
+        
+        
+        if (!$billModel->operation_type_id == OperationType::ID_COST) { 
+            $lines[$bill->GetMaxSort() + 1] = [];
+            $lines[$bill->GetMaxSort() + 2] = [];
+            $lines[$bill->GetMaxSort() + 3] = [];
+        } else {
+            if (!$lines) {
+                $lines[$bill->GetMaxSort() + 1] = [];
+            }
+        }
+        
         $design->assign('bill_lines', $lines);
         $design->AddMain('newaccounts/bill_edit.tpl');
     }
@@ -1354,20 +1385,30 @@ class m_newaccounts extends IModule
             $bill_corr->correction_number = (int)$bill_corr_num;
         }
 
-        $clientType = $fixclient_data->contract->financial_type;
+        // $clientType = $fixclient_data->contract->financial_type;
 
-        if ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES) {
+        // $lines = $bill->GetLines();
+        // $isAutomatic = false;
+        // foreach ($lines as $line) {
+        //     if ($line['service']) {
+        //         $isAutomatic = true;
+        //         break;
+        //     }
+        // }
 
-            $lines = $bill->GetLines();
-            if ($lines) {
-                foreach ($lines as $k => $line) {
-                    $bill->EditLine($k, 'расход', 1, (($ext_sum_without_vat + $vat_ext) * - 1), 'service');
-                }
-            } else {
-                $bill->AddLine('расход', 1, (($ext_sum_without_vat + $vat_ext) * - 1), 'service', '', '', '', '');
-            }
-            $bill->Save();
-        }
+        // if (!$isAutomatic && ($clientType == ClientContract::FINANCIAL_TYPE_CONSUMABLES || $clientType == ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE)) {
+        //     $lines = $bill->GetLines();
+        //     if ($lines) {
+        //         foreach ($lines as $k => $line) {  
+        //             $bill->EditLine($k, 'расход', 1, (($ext_sum_without_vat + $vat_ext) * - 1), 'service');        
+        //         }
+        //     } else {
+        //         $bill->AddLine('расход', 1, (($ext_sum_without_vat + $vat_ext) * - 1), 'service', '', '', '', '');
+        //     }
+        //     if (!$bill->Save()) {
+        //         throw new Exception();
+        //     }
+        // }
         
         $bill->Set('bill_date', $bill_date->getSqlDay());
         $billPayBillUntil = new DatePickerValues('pay_bill_until', $bill->Get('pay_bill_until'));
@@ -7339,4 +7380,3 @@ SELECT cr.manager, cr.account_manager FROM clients c
         exit();
     }
 }
-
