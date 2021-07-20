@@ -394,7 +394,7 @@
                 <table border="0" cellpadding="0" cellspacing="0" class="hst">
                     <tr>
                         <td class="ff fs">СЧЕТ-ФАКТУРА №&nbsp;</td>
-                        <td class="n fs">{if !$inv_number}{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
+                        <td class="n fs">{capture name=invoice_name}{if !$inv_number}{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
                             {if !$without_date_date}
                                 от {if $is_four_order && isset($inv_pays)}
                                 {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}
@@ -403,7 +403,7 @@
                             {/if}
                             {else}
                                 {$without_date_date|mdate:"от d.m.Y г."}
-                            {/if}</td>
+                            {/if}{/capture}{$smarty.capture.invoice_name}</td>
                         <td class="l">(1)</td>
                     </tr>
                 </table>
@@ -480,7 +480,7 @@
                     <table border="0" cellpadding="0" cellspacing="0" class="hst">
                         <tr>
                             <td class="f">Документ об отгрузке № п/п</td>
-                            <td class="n">{section loop="43" name="mysec"}&nbsp;{/section}------</td>
+                            <td class="n">{if $shipped_date}{if $bill_lines|@count > 1}1-{$bill_lines|@count}{else}1{/if} № {$smarty.capture.invoice_name}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</td>
                             <td class="l">(5а)</td>
                         </tr>
                     </table>

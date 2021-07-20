@@ -3327,6 +3327,7 @@ class m_newaccounts extends IModule
             $design->assign('cpe', $cpe);
             $design->assign('curr', $curr);
             $invoice = null;
+            $shippedDate = null;
             if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
 
                 $newInvoiceNumber = false;
@@ -3352,6 +3353,10 @@ class m_newaccounts extends IModule
 
                     if ($invoice->lines || $invoice->sum == 0) {
                         $billLines = $invoice->lines;
+                    }
+
+                    if ($invoice->type_id == Invoice::TYPE_GOOD) {
+                        $shippedDate = Invoice::getShippedDateFromTrouble($invoice->bill);
                     }
                 }
 
@@ -3386,6 +3391,7 @@ class m_newaccounts extends IModule
             $design->assign('bill', $bdata);
             $design->assign('bill_lines', $billLines);
             $design->assign('correction_info', $correctionInfo);
+            $design->assign('shipped_date', $shippedDate ? $shippedDate->getTimestamp() : null);
             $total_amount = 0;
             foreach ($billLines as $line) {
                 $total_amount += round($line['amount'], 2);
