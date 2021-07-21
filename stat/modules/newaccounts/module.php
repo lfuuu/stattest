@@ -1238,6 +1238,7 @@ class m_newaccounts extends IModule
             if (!$billModel->save()) {
                 throw new ModelException('Ошибка сохранения');
             }
+            $isCorrection = true;
         }
 
         $design->assign('is_correction', $isCorrection);
@@ -1252,8 +1253,7 @@ class m_newaccounts extends IModule
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $lines = $bill->GetLines();
         
-        
-        if (!$billModel->operation_type_id == OperationType::ID_COST) { 
+        if ($billModel->operation_type_id != OperationType::ID_COST) { 
             $lines[$bill->GetMaxSort() + 1] = [];
             $lines[$bill->GetMaxSort() + 2] = [];
             $lines[$bill->GetMaxSort() + 3] = [];
