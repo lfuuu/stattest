@@ -121,9 +121,7 @@ class ActOfReconciliation extends Singleton
   b.id,
   -if(coalesce(ext_vat, 0) > 0,
      ext_vat + ext_sum_without_vat,
-     round(((SELECT max(tax_rate)
-             FROM newbill_lines l
-             WHERE l.bill_no = b.bill_no) + 100) * ext_sum_without_vat / 100, 2)
+     ext_vat + ext_sum_without_vat
   )                                         AS sum,
   \'invoice\'                                 AS type,
   \'\'                                        AS payment_type,
@@ -136,10 +134,8 @@ FROM newbills b
   JOIN `newbills_external` ex USING (bill_no)
 WHERE b.client_id = ' . $account->id . '
       AND b.currency = \'' . $account->currency . '\'
-      AND b.sum < 0
       AND length(trim(coalesce(ext_invoice_date))) > 0
       AND trim(coalesce(ext_invoice_no, \'\')) != \'\'
-      AND coalesce(ext_sum_without_vat, 0) > 0
       AND STR_TO_DATE(ext_invoice_date, \'%d-%m-%Y\') BETWEEN \'' . $dateFrom . '\' AND \'' . $dateTo . '\'', true);
 
         $query->union($paymentsQuery, true);
@@ -151,7 +147,7 @@ WHERE b.client_id = ' . $account->id . '
             ->from(['a' => $query])
             ->orderBy([($sortByBillDate ? 'bill_date' : 'date') => SORT_ASC, 'a.id' => SORT_ASC])
             ->all();
-
+        
         foreach ($arr as $item) {
             $isInvoice = $item['type'] == 'invoice';
             $date = (new \DateTimeImmutable($item['date']))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);

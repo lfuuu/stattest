@@ -598,7 +598,7 @@
             {foreach from=$connected_bills key=id item=item}
                 <a href="/?module=newaccounts&action=bill_view&bill={$item.bill_no}">{$id+1}. {if $item.correction_number} Правка {else} Сторно {/if} {$bill_ext.ext_invoice_no}</a> 
                 <b style="font-weight: bold;"> ({$item.sum}) </b>
-                <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$item.bill_no}'>(X)</a> 
+                <a href='/?module=newaccounts&action=bill_delete&bill={$item.bill_no}'>(X)</a> 
                 </br>
             {/foreach}
          {/if}
