@@ -759,43 +759,45 @@ class UuController extends ApiInternalController
         $lines = explode("\n", $overview);
 
         foreach ($lines as $line) {
-            $line = str_replace("\r", '', $line);
-            if (strlen($line) > 1) {
-                
-                if ($pos = strpos($line, '=')) {
-                    $type = 'price';
-                    $column = 'price';
-                    
-                } elseif ($pos = strpos($line, '#')) {
-                    $type = 'pricelist_link';
-                    $column = 'pricelist_id';
-                } elseif ($pos = strpos($line, '|')) {
-                    $type = 'link';
-                    $column = 'link';
-                } else {
-                    $type = 'text';
-                }
+            $line = trim(str_replace("\r", '', $line));
 
-                $beforePos = substr($line, 0, $pos);
-                $afterPos = trim(substr($line, $pos+1, strlen($line)));
-    
-                $json = [
-                    'type' => trim($type),
-                    'text' => $beforePos ? trim($beforePos) : trim($line),
-                    
-                ];
-                $column ? $json[$column] = $afterPos : null;
-
-                unset($col);
-                unset($beforePos);
-                unset($afterPos);
-                unset($line);
-
-                $toRet[] = $json;   
+            if (!$line) {
+                continue;
             }
+
+            $pos = false;
+            $beforePos = $line;
+            $afterPos = '';
+            $column = false;
+
+            if ($pos = strpos($line, '=')) {
+                $type = 'price';
+                $column = 'price';
+            } elseif ($pos = strpos($line, '#')) {
+                $type = 'pricelist_link';
+                $column = 'pricelist_id';
+            } elseif ($pos = strpos($line, '|')) {
+                $type = 'link';
+                $column = 'link';
+            } else {
+                $type = 'text';
+            }
+
+            if ($pos) {
+                $beforePos = trim(substr($line, 0, $pos));
+                $afterPos = trim(substr($line, $pos+1, strlen($line)));
+            }
+
+            $json = [
+                    'type' => $type,
+                    'text' => $beforePos,
+                ] + ($column ? [$column => $afterPos] : []);
+
+            $toRet[] = $json;
         }
         return $toRet;
     }
+
 
     /**
      * @param TariffResource|TariffResource[] $model
