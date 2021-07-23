@@ -10,12 +10,6 @@ $contacts = ClientContact::find()->andWhere([
 ?>
 
 <p>
-    Адрес доставки счета: <?= $payer_company['address_post']; ?><br />
-    Факс для отправки счета:
-    <?= implode('; ', $contacts); ?>
-</p>
-
-<p>
     <b>Поставщик: <?= $organization->name; ?></b><br />
     ИНН: <?= $organization->tax_registration_id; ?>;  КПП: <?= $organization->tax_registration_reason; ?><br />
     Адрес: <?= $organization->legal_address; ?><br />
