@@ -296,7 +296,7 @@ class Invoice extends ActiveRecord
      * @return bool|\DateTimeImmutable
      * @throws \yii\db\Exception
      */
-    protected static function getShippedDateFromTrouble(Bill $bill)
+    public static function getShippedDateFromTrouble(Bill $bill)
     {
         $value = \Yii::$app->db->createCommand("
                      SELECT 
