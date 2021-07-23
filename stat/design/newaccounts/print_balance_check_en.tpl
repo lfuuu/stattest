@@ -45,11 +45,11 @@
                 <td width=50% colspan=4>Based on data from {$company_full}, EUR</td>
             </tr>
             <tr>
-                <td width=4%>&#8470; п/п</td>
+                <td width=4%>&#8470;  </td>
                 <td width=36%>Operations documents</td>
                 <td width=5%>Debit</td>
                 <td width=5%>Credit</td>
-                <td width=4%>&#8470; п/п</td>
+                <td width=4%>&#8470;  </td>
                 <td width=24%>Operations documents</td>
                 <td width=11%>Debit</td>
                 <td width=11%>Credit</td>
@@ -97,7 +97,6 @@
             </table>
         {/if}
     
-        &nbsp;the indebtedness
         {if $ressaldo.sum_income>0.0001}
             the indebtedness to {$firma.name} is {$ressaldo.sum_income|money_currency:$currency}
         {elseif $ressaldo.sum_outcome>0.0001}
@@ -130,13 +129,6 @@
                 <td></td>
                 <td align="center"><small>(signature)</small></td>
               </tr>
-              <tr>
-                <td></td>
-                <td align="center">М.П.</td>
-                <td></td>
-                <td></td>
-                <td align="center">М.П.</td>
-            </tr>
         </table>
     </div>
     {if $sign == 'istomina'}
