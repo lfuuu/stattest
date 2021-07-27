@@ -335,11 +335,11 @@ data:
 
         'yandex' => [
             'kassa' => [
-                \app\models\Organization::MCN_TELECOM_RETAIL => [
-                    'shop_id' => {{ .Values.params_prod.yandex_kassa_retail_shop_id }},
-                    'sc_id' => {{ .Values.params_prod.yandex_kassa_retail_sc_id }},
-                    'password' => '{{ .Values.params_prod.yandex_kassa_retail_password }}',
-                ],
+                //\app\models\Organization::MCN_TELECOM_RETAIL => [
+                //    'shop_id' => {{ .Values.params_prod.yandex_kassa_retail_shop_id }},
+                //    'sc_id' => {{ .Values.params_prod.yandex_kassa_retail_sc_id }},
+                //    'password' => '{{ .Values.params_prod.yandex_kassa_retail_password }}',
+                //],
                 \app\models\Organization::MCN_TELECOM => [
                     'shop_id' => {{ .Values.params_prod.yandex_kassa_telecom_shop_id }},
                     'sc_id' => {{ .Values.params_prod.yandex_kassa_telecom_sc_id }},
