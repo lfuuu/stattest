@@ -67,6 +67,7 @@ use yii\helpers\Url;
  * @property-read AccountTariff $accountTariff
  * @property-read Country $country
  * @property-read DidGroup $didGroup
+ * @property-read DidGroupPriceLevel[] $didGroupPriceLevel
  * @property-read UsageVoip $usage
  * @property-read ClientAccount $clientAccount
  * @property-read NdcType $ndcType
@@ -241,6 +242,14 @@ class Number extends ActiveRecord
     public function getDidGroup()
     {
         return $this->hasOne(DidGroup::class, ['id' => 'did_group_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDidGroupPriceLevel()
+    {
+        return $this->hasMany(DidGroupPriceLevel::class, ['did_group_id' => 'did_group_id']);
     }
 
     /**

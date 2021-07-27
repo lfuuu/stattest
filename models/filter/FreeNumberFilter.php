@@ -157,8 +157,11 @@ class FreeNumberFilter extends Number
     {
         if (!is_null($minCost)) {
             $this->_query
-                ->joinWith('didGroup didGroup1')
-                ->andWhere(['>=', 'didGroup1.price1', $minCost]);
+                ->joinWith('didGroupPriceLevel didGroupPriceLevel1')
+                ->andWhere(['and',
+                    ['didGroupPriceLevel1.price_level_id' => 1],
+                    ['>=', 'didGroupPriceLevel1.price', $minCost]
+                ]);
         }
 
         return $this;
@@ -172,8 +175,11 @@ class FreeNumberFilter extends Number
     {
         if (!is_null($maxCost)) {
             $this->_query
-                ->joinWith('didGroup didGroup2')
-                ->andWhere(['<=', 'didGroup2.price1', $maxCost]);
+                ->joinWith('didGroupPriceLevel didGroupPriceLevel2')
+                ->andWhere(['and',
+                    ['didGroupPriceLevel2.price_level_id' => 1],
+                    ['<=', 'didGroupPriceLevel2.price', $maxCost]
+                ]);
         }
 
         return $this;
@@ -383,7 +389,7 @@ class FreeNumberFilter extends Number
         }
 
         $this->_totalCount = null; // будет посчитано автоматически в $this->count()
-
+        
         return $this->_query
             ->offset($this->_offset)
             ->limit($this->_limit)
