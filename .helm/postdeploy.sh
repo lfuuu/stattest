@@ -12,11 +12,11 @@ source ./def.sh
 env=$1
 $env
 
-if [ "$ENVNAME" = "dev" ]; then
+if [ "$ENVNAME" = "dev-section-off" ]; then
     NAMESPACE="$APPNAME-$ENVNAME"
-#    echo ">>> Копируем ключ ssh"
     PODNAME=$(kubectl get pods -n $NAMESPACE | grep $APPNAME | grep backend | awk '{print $1}')
 
+#    echo ">>> Копируем ключ ssh"
 #    kubectl -n $NAMESPACE wait --for=condition=ready --timeout=120s pods $PODNAME
 #    kubectl -n $NAMESPACE exec -it -c php-fpm $PODNAME -- sh /root/prepare-scripts/copy_id_rsa.sh `base64 -w 0 ~/.ssh/id_rsa`
 #    kubectl -n $NAMESPACE exec -it -c php-fpm $PODNAME -- sh /root/prepare-scripts/init-dev-env.sh
@@ -37,6 +37,7 @@ if [ "$ENVNAME" = "dev" ]; then
       kubectl exec -ti -c php-fpm -n $NAMESPACE $PODNAME -- \
         cat /home/httpd/stat.mcn.ru/stat/migrations/migrations/data/m100000_000001_init/nispd.sql > /tmp/nispd.sql
       kubectl cp -n $NAMESPACE /tmp/nispd.sql mysqldb-0:/tmp/
+      rm -rf /tmp/nispd.sql
     fi
 
     USER_TABLE_EXISTS=$(kubectl exec -ti -n $NAMESPACE mysqldb-0 -- mysql -e "show tables like 'z_sync_postgres';" | wc -l)
@@ -48,5 +49,13 @@ if [ "$ENVNAME" = "dev" ]; then
       echo 'mysql DB: apply migrations'
       kubectl exec -ti -n $NAMESPACE -c php-fpm $PODNAME -- /home/httpd/stat.mcn.ru/stat/yii migrate --interactive=0
     fi
-
 fi
+
+if [ "$ENVNAME" = "dev" ]; then
+  NAMESPACE="$APPNAME-$ENVNAME"
+  PODNAME=$(kubectl get pods -n $NAMESPACE | grep $APPNAME | grep backend | awk '{print $1}')
+
+  echo 'mysql DB: apply migrations'
+  kubectl exec -ti -n $NAMESPACE -c php-fpm $PODNAME -- /home/httpd/stat.mcn.ru/stat/yii migrate --interactive=0
+fi
+

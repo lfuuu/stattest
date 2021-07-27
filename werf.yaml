@@ -8,13 +8,13 @@ configVersion: 1
 ################################## PRODUCTION ###########################################################
 {{ $_ := env "ENVNAME" | set . "env" }}
 ## for lint
-#
-#{{ $_ := set . "env" "prod" }}
+# {{ .env }}
+# {*{ $_ := set . "env" "prod" }*}
 
 {{- if or (eq .env "prod") (eq .env "dev") }}
 
 ---
-image: {{ .project }}-nginx-prod
+image: {{ .project }}-nginx-{{ .env }}
 from: nginx:1.15.3-alpine
 docker:
   WORKDIR: {{ .ci_dir_home }}/stat
@@ -62,7 +62,7 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/stat
 ---
-image: {{ .project }}-php-fpm-prod
+image: {{ .project }}-php-fpm-{{ .env }}
 from: php:7.4-fpm-alpine3.12
 docker:
   WORKDIR: {{ .ci_dir_home }}/stat
@@ -223,7 +223,7 @@ ansible:
         chdir: {{ .ci_dir_home }}/stat
 
 ---
-image: {{ .project }}-node-comet-prod
+image: {{ .project }}-node-comet-{{ .env }}
 from: node:9.11.2
 docker:
   WORKDIR: {{ .ci_dir_home }}/comet-server
@@ -283,7 +283,7 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/comet-server
 ---
-image: {{ .project }}-node-nnp-ported-prod
+image: {{ .project }}-node-nnp-ported-{{ .env }}
 from: node:9.11.2
 docker:
   WORKDIR: {{ .ci_dir_home }}/nnp-ported
@@ -340,7 +340,7 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/nnp-ported
 ---
-image: {{ .project }}-redis-prod
+image: {{ .project }}-redis-{{ .env }}
 from: quay.io/continuouspipe/redis3:latest
 
 ansible:
@@ -355,18 +355,45 @@ docker:
   CMD: ["/bin/sleep","infinity"]
   EXPOSE: "6379"
 ---
-#image: {{ .project }}-mysql-dev
-#from: mysql:8
-#
-#git:
-#  - add: /migrations/migrations/data/m100000_000001_init/nispd.sql
-#    to: /docker-entrypoint-initdb.d/init-db.sql
-#
+image: {{ .project }}-mysql8-dev
+from: mysql:8
+
+git:
+  - add: /migrations/migrations/data/m100000_000001_init/nispd.sql
+    to: /root/nispd.sql
+
+ansible:
+  beforeInstall:
+    - name: "install utils"
+      shell: |
+        apt-get update
+        apt-get install -y \
+                    vim \
+                    mc
+  setup:
+    - name: "entrypoint"
+      shell:
+        cmd: |
+          cat > /root/entry.sh << EOF
+          #!/bin/bash
+          docker-entrypoint.sh mysqld &
+          mysqld_pid=\$!
+          until mysqlcheck -u\$MYSQLDB_USER -p\$MYSQLDB_PASSWORD mysql; do sleep 2; done;
+
+          /bin/bash /root/00-init-db.sh
+          mysql -e '\. /root/nispd.sql'
+          /bin/bash /root/01-set-000001-migration.sh
+
+          date > /tmp/healthy
+          kill -9 \$mysqld_pid
+          docker-entrypoint.sh mysqld
+          EOF
+          chmod +x /root/entry.sh
 #docker:
 #  CMD: ["/bin/sleep","infinity"]
 #  EXPOSE: "3306"
 ---
-image: {{ .project }}-graphql-prod
+image: {{ .project }}-graphql-{{ .env }}
 from: hasura/graphql-engine:latest
 
 ansible:
@@ -380,7 +407,7 @@ docker:
   CMD: ["/bin/sleep","infinity"]
   EXPOSE: "8080"
 ---
-image: {{ .project }}-cryptopro-prod
+image: {{ .project }}-cryptopro-{{ .env }}
 from: centos:7
 
 ansible:

@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.graphql_prod.host }}
+  name: graphql-{{ .Values.global.env }}
 spec:
   selector:
     matchLabels:
-      service: {{ .Values.graphql_prod.host }}
+      service: graphql-{{ .Values.global.env }}
   revisionHistoryLimit: 3
 #  strategy:
 #    type: RollingUpdate
   replicas: 1
-  serviceName: {{ .Values.graphql_prod.host }}
+  serviceName: graphql-{{ .Values.global.env }}
   template:
     metadata:
       labels:
         ingressInternal: "yes"
         ingressExternal: "no"
-        service: {{ .Values.graphql_prod.host }}
+        service: graphql-{{ .Values.global.env }}
     spec:
       containers:
-      - name: graphql-prod
+      - name: graphql-{{ .Values.global.env }}
         #image: hasura/graphql-engine:latest
-{{ tuple (printf "%s-%s" .Chart.Name "graphql-prod") . | werf_container_image | indent 8 }}
+{{ tuple (printf "%s-%s-%s" .Chart.Name "graphql" .Values.global.env) . | werf_container_image | indent 8 }}
         command: ["sh","-c","cp /root/start.sh /root/run.sh && chmod a+x /root/run.sh && /root/run.sh"]
         #command: ["graphql-engine", "serve"]
         #command: ["/bin/sleep","infinity"]
@@ -51,10 +51,10 @@ kind: Service
 metadata:
   name: {{ .Values.graphql_prod.host }}
   labels:
-    service: {{ .Values.graphql_prod.host }}
+    service: graphql-{{ .Values.global.env }}
 spec:
   ports:
     - name: "8080"
       port: 8080
   selector:
-    service: {{ .Values.graphql_prod.host }}
+    service: graphql-{{ .Values.global.env }}

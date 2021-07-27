@@ -21,8 +21,8 @@ spec:
     proxy_send_timeout      18000s;
     proxy_read_timeout      18000s;
   upstreams:
-    - name: upstream-{{ .Chart.Name }}-backend-prod
-      service: {{ .Chart.Name }}-backend-prod
+    - name: upstream-{{ .Chart.Name }}-backend-{{ .Values.global.env }}
+      service: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
       port: 80
       client-max-body-size: 0
       connect-timeout: 6000s
@@ -31,7 +31,7 @@ spec:
   routes:
     - path: /
       action:
-        pass: upstream-{{ .Chart.Name }}-backend-prod
+        pass: upstream-{{ .Chart.Name }}-backend-{{ .Values.global.env }}
 
 {{- else }}
 
@@ -145,6 +145,6 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: {{ .Chart.Name }}-backend-prod
+              serviceName: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
               servicePort: 80
 {{- end }}

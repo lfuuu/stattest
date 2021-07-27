@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.redis_prod.host }}
+  name: redis-{{ .Values.global.env }}
 spec:
   selector:
     matchLabels:
-      service: {{ .Values.redis_prod.host }}
+      service: redis-{{ .Values.global.env }}
   revisionHistoryLimit: 3
 #  strategy:
 #    type: RollingUpdate
   replicas: 1
-  serviceName: {{ .Values.redis_prod.host }}
+  serviceName: redis-{{ .Values.global.env }}
   template:
     metadata:
       labels:
         ingressInternal: "yes"
         ingressExternal: "no"
-        service: {{ .Values.redis_prod.host }}
+        service: redis-{{ .Values.global.env }}
     spec:
       containers:
-        - name: redis-prod
+        - name: redis-{{ .Values.global.env }}
           image: quay.io/continuouspipe/redis3:latest
           command: ['redis-server']
           ports:
@@ -72,10 +72,10 @@ kind: Service
 metadata:
   name: {{ .Values.redis_prod.host }}
   labels:
-    service: {{ .Values.redis_prod.host }}
+    service: redis-{{ .Values.global.env }}
 spec:
   ports:
     - name: "6379"
       port: 6379
   selector:
-    service: {{ .Values.redis_prod.host }}
+    service: redis-{{ .Values.global.env }}

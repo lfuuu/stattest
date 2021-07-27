@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}-backend-prod
+  name: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}-backend-prod
+      app: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
   strategy:
     type: RollingUpdate
   template:
@@ -14,7 +14,7 @@ spec:
       labels:
         ingressInternal: "yes"
         ingressExternal: "no"
-        app: {{ .Chart.Name }}-backend-prod
+        app: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
     spec:
       initContainers:
       - name: wait-redis
@@ -36,7 +36,7 @@ spec:
 {{- end }}
       containers:
       - name: nginx
-{{ tuple (printf "%s-%s" .Chart.Name "nginx-prod") . | werf_container_image | indent 8 }}
+{{ tuple (printf "%s-%s-%s" .Chart.Name "nginx" .Values.global.env) . | werf_container_image | indent 8 }}
         livenessProbe:
           httpGet:
             path: /
@@ -69,7 +69,7 @@ spec:
           mountPath: {{ .Values.ci_dir_home }}/stat/web/assets
 
       - name: php-fpm
-{{ tuple (printf "%s-%s" .Chart.Name "php-fpm-prod") . | werf_container_image | indent 8 }}
+{{ tuple (printf "%s-%s-%s" .Chart.Name "php-fpm" .Values.global.env ) . | werf_container_image | indent 8 }}
         command: ['/bin/sh','{{ .Values.ci_dir_home }}/stat/ENTRYPOINT.sh']
         #command: ["/bin/sleep","infinity"]
         ports:
@@ -124,11 +124,13 @@ spec:
         - name: MYSQL_HOST
           value: {{ .Values.mysql_prod.host }}
         - name: MYSQL_USER
-#          value: {{ .Values.mysql_dev.user }}
-          value: {{ .Values.mysql_prod.user_read_only }}
+          value: {{ .Values.mysql_dev.user }}
+#          value: {{ .Values.mysql_prod.user_read_only }}
         - name: MYSQL_PASSWORD
-#          value: {{ .Values.mysql_dev.password }}
-          value: {{ .Values.mysql_prod.password_read_only }}
+          value: {{ .Values.mysql_dev.password }}
+#          value: {{ .Values.mysql_prod.password_read_only }}
+        - name: MYSQL_HOST
+          value: {{ .Values.mysql_dev.host }}
 {{- else }}
         - name: MYSQL_HOST
           value: {{ .Values.mysql_prod.host }}
@@ -324,13 +326,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Chart.Name }}-backend-prod
+  name: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
   labels:
-    app: {{ .Chart.Name }}-backend-prod
+    app: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
 spec:
   clusterIP: None
   selector:
-    app: {{ .Chart.Name }}-backend-prod
+    app: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
   ports:
   - name: http
     port: 80

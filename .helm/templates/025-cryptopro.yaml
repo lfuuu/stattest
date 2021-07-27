@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.cryptopro_prod.host }}
+  name: cryptopro-{{ .Values.global.env }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: {{ .Values.cryptopro_prod.host }}
+      service: cryptopro-{{ .Values.global.env }}
   revisionHistoryLimit: 3
   template:
     metadata:
       labels:
         ingressInternal: "yes"
         ingressExternal: "no"
-        service: {{ .Values.cryptopro_prod.host }}
+        service: cryptopro-{{ .Values.global.env }}
     spec:
       containers:
-      - name: cryptopro-prod
-{{ tuple (printf "%s-%s" .Chart.Name "cryptopro-prod") . | werf_container_image | indent 8 }}
+      - name: cryptopro-{{ .Values.global.env }}
+{{ tuple (printf "%s-%s-%s" .Chart.Name "cryptopro" .Values.global.env) . | werf_container_image | indent 8 }}
         command: ["sh","-c","cp /root/start.sh /root/run.sh && chmod a+x /root/run.sh && /root/run.sh"]
         #command: ["/bin/sleep","infinity"]
         env:
@@ -80,10 +80,10 @@ kind: Service
 metadata:
   name: {{ .Values.cryptopro_prod.host }}
   labels:
-    service: {{ .Values.cryptopro_prod.host }}
+    service: cryptopro-{{ .Values.global.env }}
 spec:
   ports:
     - name: {{ .Values.cryptopro_prod.port | quote}}
       port: {{ .Values.cryptopro_prod.port }}
   selector:
-    service: {{ .Values.cryptopro_prod.host }}
+    service: cryptopro-{{ .Values.global.env }}
