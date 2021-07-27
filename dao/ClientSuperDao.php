@@ -84,25 +84,7 @@ class ClientSuperDao extends Singleton
                     }
                     /** @var ClientAccount $account */
                     foreach ($accounts[$contract['id']] as $account) {
-                        $resultAccount = [
-                            'id' => $account['id'],
-                            'is_disabled' => !in_array($contract['business_process_status_id'], [
-                                BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
-                                BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
-                                BusinessProcessStatus::TELEKOM_MAINTENANCE_PORTING_REQUEST_ACCEPTED
-                            ]),
-                            'is_blocked' => (bool)$account['is_blocked'],
-                            'is_finance_block' => null,
-                            'is_overran_block' => null,
-                            'is_bill_pay_overdue' => (bool)$account['is_bill_pay_overdue'],
-                            'is_postpaid' => (bool)$account['is_postpaid'],
-                            'is_show_in_lk' => ClientAccount::isShowInLk($account['show_in_lk'], $account['is_active']),
-                            'price_level' => $account['price_level'],
-                            'credit' => (int)$account['credit'],
-                            'version' => $account['account_version'],
-                            'applications' => $this->_getPlatformaServicesCleaned($account)
-                        ];
-
+                        $resultAccount = $this->getAccountInfo($account, $contract);
                         if ($type != self::STRUCT_CLIENT_ALL) {
                             unset($resultAccount['is_finance_block'], $resultAccount['is_overran_block']);
                         }
@@ -189,6 +171,36 @@ class ClientSuperDao extends Singleton
         $this->_setTrueTypes($fullResult);
 
         return $fullResult;
+    }
+
+    /**
+     * Получение полной информации
+     * по аккаунту
+     * 
+     * @param array $account
+     * @param array $contract
+     * @return array
+     */
+    public function getAccountInfo($account, $contract)
+    {
+        return [
+            'id' => $account['id'],
+            'is_disabled' => !in_array($contract['business_process_status_id'], [
+                BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
+                BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                BusinessProcessStatus::TELEKOM_MAINTENANCE_PORTING_REQUEST_ACCEPTED
+            ]),
+            'is_blocked' => (bool)$account['is_blocked'],
+            'is_finance_block' => null,
+            'is_overran_block' => null,
+            'is_bill_pay_overdue' => (bool)$account['is_bill_pay_overdue'],
+            'is_postpaid' => (bool)$account['is_postpaid'],
+            'is_show_in_lk' => ClientAccount::isShowInLk($account['show_in_lk'], $account['is_active']),
+            'price_level' => $account['price_level'],
+            'credit' => (int)$account['credit'],
+            'version' => $account['account_version'],
+            'applications' => $this->_getPlatformaServicesCleaned($account)
+        ];
     }
 
     /**

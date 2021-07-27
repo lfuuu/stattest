@@ -23,6 +23,7 @@ class PartnerController extends ApiInternalController
      *   summary="Получение клиентов партнёра",
      *   operationId="Получение клиентов партнёра",
      *   @SWG\Parameter(name="partner_id",type="integer",description="идентификатор партнёра",in="formData"),
+     *   @SWG\Parameter(name="is_full_client_info",type="integer",description="Расширенная информация о клиентах",in="formData"),
      *   @SWG\Response(
      *     response=200,
      *     description="данные о клиентах партнёра",
@@ -45,13 +46,14 @@ class PartnerController extends ApiInternalController
     public function actionClients()
     {
         $partnerId = isset($this->requestData['partner_id']) ? $this->requestData['partner_id'] : null;
+        $isFullClientInfo = isset($this->requestData['is_full_client_info']) ? $this->requestData['is_full_client_info'] : null;
 
         if (!$partnerId || !($account = ClientAccount::findOne(['id' => $partnerId]))) {
             throw new BadRequestHttpException;
         }
 
         if ($account->isPartner()) {
-            return PartnerDao::getClientsStructure($account);
+            return PartnerDao::getClientsStructure($account, $isFullClientInfo);
         } else {
             throw new PartnerNotFoundException;
         }
