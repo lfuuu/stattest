@@ -793,6 +793,15 @@ class ClientController extends ApiInternalController
         }
 
         $contragent = $account->contragent;
+
+        if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
+            return [
+                'client_id' => $accountId,
+                'is_created' => $isCreate,
+            ];
+        }
+
+
         $contragent->legal_type = ClientContragent::PERSON_TYPE;
         $contragent->name = $account->contragent->name_full = $params['name'];
         if (!$contragent->save()) {
