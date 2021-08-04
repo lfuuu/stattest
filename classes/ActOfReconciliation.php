@@ -119,10 +119,10 @@ class ActOfReconciliation extends Singleton
             ->andWhere(['between', 'date', $dateFrom, $dateTo])
             ->union('SELECT
   b.id,
-  -if(coalesce(ext_vat, 0) > 0,
-     ext_vat + ext_sum_without_vat,
-     ext_vat + ext_sum_without_vat
-  )                                         AS sum,
+  -if(ext_vat != 0,
+        ext_vat + ext_sum_without_vat,
+        ext_sum_without_vat      
+  )                                          AS sum,   
   \'invoice\'                                 AS type,
   \'\'                                        AS payment_type,
   STR_TO_DATE(ext_invoice_date, \'%d-%m-%Y\') AS date,
