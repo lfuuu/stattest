@@ -153,33 +153,23 @@ class WizardMcnController extends WizardBaseController
         }
 
         $content = "error";
-        $document = null;
 
         $isLegal = false;
-        $organizationId = Organization::MCN_TELECOM_SERVICE;
         if (
             isset($data['type'])
             && $data['type'] == ClientContragent::LEGAL_TYPE
             && $this->account->contragent->tax_regime != ClientContragent::TAX_REGTIME_YCH_VAT0
         ) {
             $isLegal = true;
-            $organizationId = Organization::MCN_TELECOM;
         }
 
         $template = DocumentTemplate::getWizardTemplate($this->account->contragent->lang_code, $isLegal);
         $documentId = $template ? $template->id : 0;
 
         $contract = $this->account->contract;
-
-        if ($contract->organization_id != $organizationId) {
-            $contract->organization_id = $organizationId;
-            if (!$contract->save()) {
-                throw new ModelValidationException($contract);
-            }
-        }
-
-        $this->account->contract->state = ClientContract::STATE_OFFER;
-        $this->account->contract->save();
+        $contract->state = ClientContract::STATE_OFFER;
+        $contract->save();
+        unset($contract);
 
         $contract = new ClientDocument();
         $contract->contract_id = $this->account->contract->id;
