@@ -51,15 +51,18 @@ class InvoiceForm extends Form
      * @return string
      */
     public function getFileName()
-    {   
+    {
         if ($this->_invoice && $this->_invoice->is_reversal) {
-            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, $this->_invoice->bill->clientAccount->contragent->country_id);
-            
+            if ($this->_invoice->bill->clientAccount->contragent->lang_code == Language::LANGUAGE_ENGLISH) {
+                $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, Country::UNITED_KINGDOM);
+            } else {
+                $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, $this->_invoice->bill->clientAccount->contragent->country_id);
+            }
+
             if (!$template) {
-                if ($this->_invoice->bill->clientAccount->country_id == Country::RUSSIA){
+                if ($this->_invoice->bill->clientAccount->country_id == Country::RUSSIA) {
                     throw new InvalidArgumentException('Шаблон не найден, либо не включен по-умолчанию.');
                 }
-                
                 throw new InvalidArgumentException('Template either not found or not selected as default.');
             }
 
@@ -141,5 +144,4 @@ class InvoiceForm extends Form
             }
         }
     }
-
 }
