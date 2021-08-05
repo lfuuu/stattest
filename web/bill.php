@@ -41,6 +41,29 @@ $isEmailed = get_param_raw('emailed', 1);
 
 header('Content-Type: ' . ($isPdf ? 'application/pdf' : 'text/html; charset=utf-8'));
 
+if (
+    isset($R['invoice_id'])
+    && ($invoice = Invoice::findOne(['id' => $R['invoice_id']]))
+    && ($invoice->bill->clientAccountModel->contragent->country_id == Country::RUSSIA)
+) {
+    $_GET = [
+        'module' => 'newaccounts',
+        'action' => 'bill_print',
+        'bill' => $invoice->bill_no,
+        'object' => 'invoice2',
+        'to_print' => 'true',
+        'invoice_id' => $invoice->id,
+        'is_pdf' => $isPdf
+    ];
+
+    global $design;
+    $design->assign('emailed', true);
+    \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
+
+    $design->Process();
+    exit;
+}
+
 if (isset($R['tpl1']) && $R['tpl1'] == 1) {
 
     if (!isset($R['invoice_id']) || !isset($R['client'])) {
