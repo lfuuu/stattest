@@ -1062,10 +1062,10 @@ SQL;
         $dependency = new ChainedDependency(['dependencies' => [$dbDep, $tagsDep]]);
 
         $key = 'getLineByTypeId' . str_replace(['-', '/'], ['i', 'g'], $bill->bill_no) . 't' . $typeId . 't' . $clientAccount->type_of_bill;
-
-        if (($value = \Yii::$app->cache->get($key)) !== false) {
-            return $value;
-        }
+//
+//        if (($value = \Yii::$app->cache->get($key)) !== false) {
+//            return $value;
+//        }
 
         $lines = [];
 

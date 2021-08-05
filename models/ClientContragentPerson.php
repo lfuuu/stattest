@@ -41,7 +41,7 @@ class ClientContragentPerson extends HistoryActiveRecord
             'passport_serial' => 'Паспорт серия',
             'passport_number' => 'Паспорт номер',
             'passport_issued' => 'Паспорт выдан',
-            'registration_address' => 'Дарес прописки',
+            'registration_address' => 'Адрес прописки',
             'mother_maiden_name' => 'Имя матери',
             'birthplace' => 'Место рождения',
             'birthday' => 'День рождения',
