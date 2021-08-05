@@ -175,9 +175,9 @@ class BillLine extends ActiveRecord
     {
         $cacheKey = md5(serialize($lines));
 
-        if (\Yii::$app->cache->exists($cacheKey)) {
-            return \Yii::$app->cache->get($cacheKey);
-        }
+//        if (\Yii::$app->cache->exists($cacheKey)) {
+//            return \Yii::$app->cache->get($cacheKey);
+//        }
 
         $data = [];
         $idx = [];
@@ -276,7 +276,7 @@ class BillLine extends ActiveRecord
             $data[] = $line;
         }
 
-        \Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_BILL]])));
+//        \Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_BILL]])));
 
         return $data;
     }
