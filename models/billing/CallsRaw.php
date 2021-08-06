@@ -10,6 +10,8 @@ use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\nnp\models\Region;
 use app\modules\nnp\models\City;
+use app\dao\statistics\CallsRawDao;
+use app\dao\statistics\CallsRawStatisticDao;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\Query;
@@ -187,6 +189,15 @@ class CallsRaw extends ActiveRecord
     public static function dao()
     {
         return CallsDao::me();
+    }
+
+    /**
+     * @return CallsRawDao
+     * @throws \yii\base\Exception
+     */
+    public static function statisticsDao()
+    {
+        return CallsRawStatisticDao::me();
     }
 
     /**

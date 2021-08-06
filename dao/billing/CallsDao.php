@@ -104,6 +104,10 @@ class CallsDao extends Singleton
             'rate',
             'leg_type',
             'location_id',
+            'mcn_callid',
+            'numA',
+            'numB',
+            'numC',
         ]);
         $query->from(['cr' => CallsRaw::tableName()]);
 

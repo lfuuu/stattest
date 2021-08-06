@@ -3,8 +3,6 @@
 namespace app\controllers\api\internal;
 
 use app\classes\Assert;
-use app\classes\HttpClient;
-use app\dao\billing\CallsDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\DataRaw;
@@ -12,10 +10,8 @@ use app\models\billing\SmscRaw;
 use app\models\ClientAccount;
 use app\models\filter\SmsFilter;
 use app\models\Number;
-use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
-use app\modules\uu\models\Tariff;
 use Yii;
 use DateTime;
 use app\exceptions\web\NotImplementedHttpException;
@@ -24,10 +20,9 @@ use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\UsageVoipValidator;
-use app\models\billing\CallsRaw;
-use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
-use yii\db\Expression;
+use app\dao\statistics\CallsRawDao;
+use app\models\billing\CallsRaw;
 
 class VoipController extends ApiInternalController
 {
@@ -159,7 +154,6 @@ class VoipController extends ApiInternalController
 
             $firstDayOfDate = (new \DateTimeImmutable($model->from_datetime, $tz));
             $lastDayOfDate = (new \DateTimeImmutable($model->to_datetime, $tz));
-
         } else {
             $firstDayOfDate = (new \DateTimeImmutable('now', $tz))
                 ->setDate($model->year, $model->month, $model->day ?: 1)
@@ -172,132 +166,13 @@ class VoipController extends ApiInternalController
 
         $diff = $firstDayOfDate->diff($lastDayOfDate);
 
-        if ($diff->y > 0 || $diff->m > 2 || ($diff->m > 1 && $diff->d > 2)){
+        if ($diff->y > 0 || $diff->m > 3 || ($diff->m > 1 && $diff->d > 2)) {
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
 
+        $callsData = CallsRaw::statisticsDao()->getCalls($clientAccount, $model, $firstDayOfDate, $lastDayOfDate);
 
-        $query = CallsRaw::dao()->getCalls(
-            $clientAccount,
-            $model->number,
-            $firstDayOfDate,
-            $lastDayOfDate
-        );
-
-        if ($model->is_with_tariff_info) {
-            $query->leftJoin(['l' => AccountTariffLight::tableName()], 'l.id = cr.account_tariff_light_id');
-            $query->addSelect(['l.tariff_id']);
-        }
-
-        $generalInfo = [];
-
-        if ($model->is_with_general_info) {
-            $sumQuery = clone $query;
-            $sumQuery->select([
-                'sum' => new Expression('SUM(-cost)::decimal(12,2)'),
-                'count' => new Expression('COUNT(*)')
-            ]);
-            $sumQuery->orderBy(null);
-
-            $generalInfo = $sumQuery->one(CallsRaw::getDb());
-
-            $generalInfo['sum'] = (float)$generalInfo['sum'];
-        }
-
-        if ($model->offset) {
-            $query->offset($model->offset);
-        }
-
-        $limit = $model->limit > CallsDao::CALLS_MAX_LIMIT ? CallsDao::CALLS_MAX_LIMIT : $model->limit;
-
-        $generalInfo['offset'] = $model->offset;
-        $generalInfo['limit'] = $limit;
-
-        $query->limit($limit);
-
-        static $cTariff = [];
-
-        foreach ($query->each(100, CallsRaw::getDb()) as $call) {
-            $call['cost'] = (double)$call['cost'];
-            $call['rate'] = (double)$call['rate'];
-
-            if ($model->is_with_nnp_info) {
-                $call['nnp']['src'] = $this->_getNnpInfo($call['src_number']);
-                $call['nnp']['dst'] = $this->_getNnpInfo($call['dst_number']);
-            }
-
-            if ($model->is_with_tariff_info) {
-                $tariffName = null;
-                if ($call['tariff_id']) {
-                    if (isset($cTariff[$call['tariff_id']])) {
-                        $tariffName = $cTariff[$call['tariff_id']];
-                    } else {
-                        $tariffName = Tariff::find()->where(['id' => $call['tariff_id']])->select(['name'])->scalar();
-                        $cTariff[$call['tariff_id']] = $tariffName;
-                    }
-                }
-
-                $call['tariff_name'] = $tariffName;
-                unset($call['tariff_id']);
-            }
-
-            $result[] = $call;
-        }
-
-        $result = $result ? $result : [];
-
-        return $model->is_with_general_info ? ['info' => $generalInfo, 'calls' => $result] : $result;
-    }
-
-    private function _getNnpInfo($number)
-    {
-        if (!$number) {
-            return null;
-        }
-
-        $redis = \Yii::$app->redis;
-
-        if ($numberInfo = $redis->get('numberInfo:' . $number)) {
-            return unserialize($numberInfo);
-        }
-
-        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
-
-        if (!$url) {
-            throw new InvalidConfigException('nnpInfoServiceURL not set');
-        }
-
-
-        $numberInfo = [
-            'nnp_city_id' => 0,
-            'nnp_region_id' => 0,
-            'nnp_operator_id' => 0,
-            'ndc_type_id' => 0,
-        ];
-
-        try {
-            $numberInfo = (new HttpClient())
-                ->get($url, [
-                    'cmd' => 'getNumberRangeByNum',
-                    'num' => $number])
-                ->getResponseDataWithCheck();
-        } catch (\Exception $e) {
-            Yii::error($e);
-        }
-
-        $redis = \Yii::$app->redis;
-
-        $data = [
-            'country_name' => $redis->get('country:' . $numberInfo['country_code']) ?: 'unknown',
-            'city_name' => $redis->get('city:' . $numberInfo['nnp_city_id']) ?: 'unknown',
-            'region_name' => $redis->get('region:' . $numberInfo['nnp_region_id']) ?: 'unknown',
-            'operator_name' => $redis->get('operator:' . $numberInfo['nnp_operator_id']) ?: 'unknown',
-            'ndc_type_name' => $redis->get('ndcType:' . $numberInfo['ndc_type_id']) ?: 'unknown',
-        ];
-
-        $redis->set('numberInfo:' . $number, serialize($data));
-
-        return $data;
+        return $model->is_with_general_info ? ['info' => $callsData['generalInfo'], 'calls' => $callsData['result']] : $callsData['result'];
     }
 
     /**
@@ -502,7 +377,6 @@ class VoipController extends ApiInternalController
         }
 
         return $result;
-
     }
 
 

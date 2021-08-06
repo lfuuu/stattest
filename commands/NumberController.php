@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\classes\Assert;
+use app\classes\helpers\DependecyHelper;
 use app\classes\voip\EmptyNumberFiller;
 use app\classes\voip\forms\NumberCommandForm;
 use app\exceptions\ModelValidationException;
@@ -22,6 +23,7 @@ use app\modules\nnp\models\Region as nnpRegion;
 use DateTime;
 use DateTimeImmutable;
 use Yii;
+use yii\caching\TagDependency;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use yii\db\ActiveQuery;
