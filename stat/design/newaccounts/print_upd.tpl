@@ -56,6 +56,11 @@ table.contract_table td {
     {assign var="isChanges20170819" value=0}
 {/if}
 
+{if $inv_date >= strtotime("2021-07-01")}
+    {assign var="isChanges20210701" value=1}
+{else}
+    {assign var="isChanges20210701" value=0}
+{/if}
 
 <div align="center"><center>
 {include file="newaccounts/details_for_print.tpl"}
@@ -93,18 +98,18 @@ table.contract_table td {
                                     <td style='width:100pt;'>
 										{if !$is_document_ready}<b style="color:red;">***ДОКУМЕНТ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ***</b><br>{/if}
 										<p><span>Счет-фактура N</span></p></td>
-                                    <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}</span></p></td>
+                                    <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span> {capture name=invoice_name}{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}{/capture}{$smarty.capture.invoice_name}</span></p></td>
                                     <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
                                     <td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>
-                                {if !$without_date_date}
+                               {capture name=invoice_date}{if !$without_date_date} 
                                     {if $is_four_order && isset($inv_pays)}
                                         {$inv_pays[0].payment_date_ts|mdate:"d месяца Y г."}
                                     {else}
                                         {$inv_date|mdate:"d месяца Y г."}
                                     {/if}
                                 {else} 
-                                    {$without_date_date|mdate:"d месяца Y г."}
-                                {/if}
+                                    {$without_date_date|mdate:"d месяца Y г."} 
+                                {/if} {/capture}{$smarty.capture.invoice_date}
                                     </span></p></td>
                                     <td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
                                     <td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>
@@ -155,6 +160,15 @@ table.contract_table td {
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</span></p></td>
                                     <td><p style='text-align:right'><span>(5)</span></p></td>
                                 </tr>
+
+								{if $isChanges20210701}
+								<tr>
+                                    <td><p><span>Документ об отгрузке № п/п</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $invoice_source != 3 || $shipped_date}{if $bill_lines|@count > 1}1-{$bill_lines|@count}{else}1{/if} № {$smarty.capture.invoice_name} от {$smarty.capture.invoice_date}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</span></p></td>
+                                    <td><p style='text-align:right'><span>(5а)</span></p></td>
+                                </tr>
+								{/if}
+
                                 <tr>
                                     <td><p><span><b>Покупатель:</b></span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.customer}</span></p></td>
@@ -242,6 +256,17 @@ table.contract_table td {
 		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
 			<p style='text-align:center'><span>{if $isChanges20170819}Регистраци-<br>онный номер<br>таможенной<br>декларации{else}Номер<br>таможен<br>ной<br>декла<br>рации{/if}</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td colspan="2" style='border:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>Количественная единица<br> измерения товара,<br> используемая в
+										целях<br> осуществления<br> прослеживаемости</span></p>
+			</td>
+			<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
+				<p style='text-align:center'><span>Количество товара,<br> подлежащего<br> прослеживаемости, в<br>
+										количественной<br> единице<br> измерения товара,<br> используемой в целях<br>
+										осуществления<br> прослеживаемости</span></p>
+			</td>
+		{/if}
 	</tr>
 	<tr class='tr_h50'>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
@@ -256,6 +281,14 @@ table.contract_table td {
 		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>краткое наиме-<br>нование</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;' nowrap>
+				<p style='text-align:center'><span>код</span></p>
+			</td>
+			<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>условное <br> обозначение</span></p>
+			</td>
+		{/if}
 	</tr>
 	<tr class='tr_h11'>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
@@ -308,6 +341,17 @@ table.contract_table td {
 		<td style='border:solid windowtext 1.0pt;' >
 			<p style='text-align:center'><span>11</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td style='border-bottom:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>12</span></p>
+			</td>
+			<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>12а</span></p>
+			</td>
+			<td style='border:solid windowtext 1.0pt;' >
+				<p style='text-align:center'><span>13</span></p>
+			</td>
+		{/if}
 	</tr>
 {foreach from=$bill_lines item=row key=key name='list'}
 	{if $print_upd.newPageLineIndex.$key}
@@ -450,6 +494,17 @@ table.contract_table td {
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p ><span>{if isset($row.gtd)}{$row.gtd|default:"--"}{else}--{/if}</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p ><span>--</span></p>
+			</td>
+			<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p ><span>--</span></p>
+			</td>
+			<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+				<p ><span>--</span></p>
+			</td>
+		{/if}
 	</tr>
 {/foreach}
 	<tr class='tr_h11'>
@@ -480,6 +535,17 @@ table.contract_table td {
 		<td colspan="3" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td colspan="1" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+				<p ><span>&nbsp;</span></p>
+			</td>
+			<td colspan="1" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+				<p ><span>&nbsp;</span></p>
+			</td>
+			<td colspan="1" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+				<p ><span>&nbsp;</span></p>
+			</td>
+		{/if}
 	</tr>
 	<tr>
 		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>{if $print_upd.pages == 1}1 листе{else}{$print_upd.pages} листах{/if}</span></p></td>
