@@ -435,7 +435,7 @@ class Tariff extends ActiveRecord
     public function getOrganizations()
     {
         return $this->hasMany(TariffOrganization::class, ['tariff_id' => 'id'])
-            ->orderBy(['id' => SORT_DESC])
+            ->orderBy([TariffOrganization::tableName() . '.id' => SORT_DESC])
             ->indexBy('organization_id');
     }
 
