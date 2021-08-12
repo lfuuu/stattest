@@ -8,14 +8,23 @@ use app\classes\traits\GetListTrait;
 /**
  * @property int $id
  * @property string $name
+ * @property string $route_name
  */
-class A2pRoute extends ActiveRecord
+class A2pSmsRoute extends ActiveRecord
 {
     use GetListTrait;
 
     public static function tableName()
     {
-        return 'a2p_route';
+        return 'auth.a2psms_route';
+    }
+
+    /**
+     * @return \yii\db\Connection
+     */
+    public static function getDb()
+    {
+        return \Yii::$app->dbPg;
     }
 
     /**
@@ -24,7 +33,7 @@ class A2pRoute extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'string'],
+            [['name', 'route_name'], 'string'],
         ];
     }
 }
