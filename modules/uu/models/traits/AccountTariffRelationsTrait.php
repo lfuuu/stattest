@@ -2,9 +2,11 @@
 
 namespace app\modules\uu\models\traits;
 
+use app\exceptions\ModelValidationException;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Datacenter;
+use app\models\dictionary\A2pSmsRoute;
 use app\models\Region;
 use app\models\UsageTrunk;
 use app\modules\uu\models\AccountEntry;
@@ -482,7 +484,20 @@ trait AccountTariffRelationsTrait
 
     public function setRoute_name($routeName)
     {
-        return $this->addParam('route_name', $routeName);
+        $this->addParam('route_name', $routeName);
+
+        if ($routeName) {
+            $route = A2pSmsRoute::findOne(['name' => $routeName]);
+            if (!$route) {
+                $route = new A2pSmsRoute();
+                $route->name = $routeName;
+                $route->route_name = $routeName;
+                if (!$route->save()) {
+                    throw new ModelValidationException($route);
+                }
+            }
+            $this->addParam('route_id', $route->id);
+        }
     }
 
 }
