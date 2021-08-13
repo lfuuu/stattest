@@ -836,13 +836,53 @@ class ClientController extends ApiInternalController
 
 
     /**
+     * @SWG\Definition(
+     *   definition="form-gosuslugi-address",
+     *   type="object",
+     *   @SWG\Property(property="addressStr",type="string",description="адрес"),
+     *   @SWG\Property(property="countryId",type="string",description="Страна", default="RUS"),
+     *   @SWG\Property(property="house",type="string",description="Дом"),
+     *   @SWG\Property(property="zipCode",type="string",description="Индекс"),
+     *   @SWG\Property(property="city",type="string",description="Город"),
+     *   @SWG\Property(property="street",type="string",description="Улица"),
+     *   @SWG\Property(property="region",type="string",description="Регион")
+     * ),
+     * @SWG\Definition(
+     *   definition="form-gosuslugi-identity",
+     *   type="object",
+     *   @SWG\Property(property="type",type="string",description="Тип документа", default="RF_PASSPORT"),
+     *   @SWG\Property(property="series",type="string",description="Серия документа"),
+     *   @SWG\Property(property="number",type="string",description="Номер документа"),
+     *   @SWG\Property(property="issueDate",type="string",description="дата выдачи докумена (30.01.1972)"),
+     *   @SWG\Property(property="issueId",type="string",description="код подразделения"),
+     *   @SWG\Property(property="issuedBy",type="string",description="кем выдан"),
+     *   @SWG\Property(property="vrfStu",type="string",description="VERIFIED",default="VERIFIED")
+     * ),
+     * @SWG\Definition(
+     *   definition="form-gosuslugi",
+     *   type="object",
+     *   @SWG\Property(property="account_id",type="integer",description="ЛС"),
+     *   @SWG\Property(property="email",type="string",description="emial"),
+     *   @SWG\Property(property="emailVerified",type="integer",description="email подтвержден? true/false",default=1),
+     *   @SWG\Property(property="phone",type="string",description="контакт телефоный номер"),
+     *   @SWG\Property(property="phoneVerified",type="integer",description="номер подтвержден? true/false",default=1),
+     *   @SWG\Property(property="name",type="string",description="ФИО"),
+     *   @SWG\Property(property="birthDate",type="string",description="Дата рождения (25.12.1980)"),
+     *   @SWG\Property(property="birthPlace",type="string",description="Место рождения"),
+     *   @SWG\Property(property="gender",type="string",description="Пол (М/Ж)"),
+     *   @SWG\Property(property="citizenship",type="string",description="Страна",default="RUS"),
+     *   @SWG\Property(property="inn",type="string",description="ИНН"),
+     *   @SWG\Property(property="address",type="object",description="Адрес",ref = "#/definitions/form-gosuslugi-address"),
+     *   @SWG\Property(property="identity",type="object",description="Идентификационные данные (паспорт)",ref = "#/definitions/form-gosuslugi-identity"),
+     *   @SWG\Property(property="trusted",type="integer",description="Данные подтверждены? (true/false)",default=1)
+     * )
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/form-gosuslugi/", summary="Форма заполнения данных с ГосУслуг", operationId="Форма заполнения данных с ГосУслуг",
-     *   @SWG\Parameter(name="data",type="array",items="#/definitions/step1",description="информация по первому шагу",in="formData"),
+     *   @SWG\Parameter(name="",type="object",items="#/definitions/step1",description="структура сохранения данных с ГосУслуг",in="body",@SWG\Schema(ref = "#/definitions/form-gosuslugi")),
      *   @SWG\Response(
      *     response=200,
-     *     description="информация по визарду",
+     *     description="форма персональных данным с GosUslugi",
      *     @SWG\Schema(
-     *       ref="#/definitions/wizard_data"
+     *       ref="#/definitions/form-gosuslugi"
      *     )
      *   ),
      *   @SWG\Response(
@@ -864,9 +904,16 @@ class ClientController extends ApiInternalController
 
         isset($data['data']) && $data['data'] && $data = $data['data'];
 
-        if (!$data || !($data = json_decode($data, true))) {
+        if (!$data) {
             throw new InvalidArgumentException('Data not recognized');
         }
+
+        if (!is_array($data)) {
+            if (!($data = json_decode($data, true))) {
+                throw new InvalidArgumentException('Data not recognized');
+            }
+        }
+
 
 /*
         $data = [
@@ -909,9 +956,9 @@ class ClientController extends ApiInternalController
             throw new \InvalidArgumentException('account not found');
         }
 
-        if ($account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) {
-            throw new \InvalidArgumentException('BPStatus check failed');
-        }
+//        if ($account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) {
+//            throw new \InvalidArgumentException('BPStatus check failed');
+//        }
 
         foreach ([ClientContact::TYPE_EMAIL, ClientContact::TYPE_PHONE] as $contactType) {
             if (!$account->getContacts()->where([
@@ -932,6 +979,7 @@ class ClientController extends ApiInternalController
         $contragent->comment = json_encode($data);
         $contragent->inn = $data['inn'];
         $contragent->legal_type = ClientContragent::PERSON_TYPE;
+        $contragent->name = $data['name'];
 
         if (!$contragent->save()) {
             throw new ModelValidationException($contragent);
