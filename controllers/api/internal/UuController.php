@@ -10,6 +10,7 @@ use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\helpers\Semaphore;
 use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\EventQueue;
 use app\models\Number;
@@ -45,6 +46,7 @@ use app\modules\async\Module as asyncModule;
 use DateTimeZone;
 use Exception;
 use Yii;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidParamException;
 use yii\caching\TagDependency;
 use yii\web\HttpException;
@@ -2393,6 +2395,66 @@ class UuController extends ApiInternalController
         }
 
         throw new HttpException(ModelValidationException::STATUS_CODE, 'Тариф недоступен этому ЛС', AccountTariff::ERROR_CODE_TARIFF_WRONG);
+    }
+
+    /**
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-service-types-by-contract", summary = "Список типов услуг на УЛС", operationId = "GetServiceTypesByContract",
+     *   @SWG\Parameter(name = "contract_id", type = "integer", description = "ID договора (если несколько: то массив ID, или значение через ',')", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Список типов услуг на УЛС",
+     *     @SWG\Schema(type = "array")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @param int $contract_id
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionGetServiceTypesByContract($contract_id = null)
+    {
+        if (!$contract_id) {
+            throw new InvalidArgumentException('ContractId(s) not set');
+        }
+
+        if (!is_array($contract_id)) {
+            $contract_id = explode(',', $contract_id);
+        }
+
+        $contract_id = array_filter(array_map('trim', $contract_id));
+
+        $query = ClientAccount::find()
+            ->alias('c')
+            ->joinWith('accountTariffs at', true, 'INNER JOIN')
+            ->select(['at.service_type_id', 'at.client_account_id', 'contract_id'])
+            ->distinct()
+            ->orderBy(['contract_id' => SORT_ASC, 'client_account_id' => SORT_ASC, 'service_type_id' => SORT_ASC])
+            ->asArray()
+            ->where(['contract_id' => $contract_id]);
+
+        $result = [];
+
+        foreach ($query->each() as $v) {
+            if (!isset($result[$v['contract_id']])) {
+                $result[$v['contract_id']] = [
+                    'contract_id' => $v['contract_id'],
+                    'accounts' => []
+                ];
+            }
+            if (!isset($result[$v['contract_id']]['accounts'][$v['client_account_id']])) {
+                $result[$v['contract_id']]['accounts'][$v['client_account_id']] = [
+                    'account_id' => $v['client_account_id'],
+                    'service_type_ids' => []
+                ];
+            }
+            $result[$v['contract_id']]['accounts'][$v['client_account_id']]['service_type_ids'][] = $v['service_type_id'];
+        }
+
+
+        return $result;
     }
 
 }
