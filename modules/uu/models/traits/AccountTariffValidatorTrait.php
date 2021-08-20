@@ -152,6 +152,22 @@ trait AccountTariffValidatorTrait
         }
     }
 
+    public function validateRegion($attribute, $params)
+    {
+        // только новые подключения
+        if (!$this->isNewRecord) {
+            return;
+        }
+
+        if ($this->service_type_id == ServiceType::ID_SIPTRUNK && $this->region && !$this->region->is_use_sip_trunk) {
+            $this->addError($attribute, 'Допустимы только регионы, которые используются в SIP-транках');
+        }
+
+        if ($this->service_type_id == ServiceType::ID_VPBX && $this->region && !$this->region->is_use_vpbx) {
+            $this->addError($attribute, 'Регион не используется для подключения ВАТС');
+        }
+    }
+
     /**
      * УУ-ЛС?
      *
