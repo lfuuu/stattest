@@ -217,13 +217,6 @@ class AccountTariff extends ActiveRecord
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
             [
-                'region_id', function ($attribute, $params) {
-                    if ($this->service_type_id == ServiceType::ID_SIPTRUNK && $this->region && !$this->region->is_use_sip_trunk) {
-                        $this->addError($attribute, 'Допустимы только регионы, которые используются в SIP-транках');
-                    }
-                }
-            ],
-            [
                 ['region_id'],
                 'required',
                 'when' => function (AccountTariff $accountTariff) {
@@ -231,6 +224,7 @@ class AccountTariff extends ActiveRecord
                 },
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
+            ['region_id', 'validateRegion'],
 
             [['infrastructure_project', 'infrastructure_level', 'datacenter_id'], 'integer'],
             [['price'], 'number'],

@@ -84,6 +84,10 @@ $columns = [
         'class' => YesNoColumn::class,
     ],
     [
+        'attribute' => 'is_use_vpbx',
+        'class' => YesNoColumn::class,
+    ],
+    [
         'attribute' => 'type_id',
         'class' => ConstructColumn::class,
         'filter' => Region::$typeNames,

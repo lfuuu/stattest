@@ -17,6 +17,7 @@ use yii\helpers\Url;
  * @property int $type_id
  * @property int $is_active
  * @property int $is_use_sip_trunk
+ * @property int $is_use_vpbx
  *
  * @property-read Datacenter $datacenter
  * @property-read Country $country
@@ -68,7 +69,7 @@ class Region extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'country_id', 'code', 'country_id', 'type_id', 'is_active', 'is_use_sip_trunk'], 'integer'],
+            [['id', 'country_id', 'code', 'country_id', 'type_id', 'is_active', 'is_use_sip_trunk', 'is_use_vpbx'], 'integer'],
             [['name', 'short_name', 'timezone_name'], 'string'],
         ];
     }
@@ -89,7 +90,8 @@ class Region extends ActiveRecord
             'country_id' => 'Страна',
             'type_id' => 'Тип',
             'is_active' => 'Активен',
-            'is_use_sip_trunk' => 'Используется в SIP-транках'
+            'is_use_sip_trunk' => 'Используется в SIP-транках',
+            'is_use_vpbx' => 'Наличие ВАТС',
         ];
     }
 
@@ -142,13 +144,15 @@ class Region extends ActiveRecord
      * @param int $countryId
      * @param int[] $typeId
      * @param int $isUseSipTrunk
+     * @param int $isUseVpbx
      * @return string[]
      */
     public static function getList(
         $isWithEmpty = false,
         $countryId = null,
         $typeId = null,
-        $isUseSipTrunk = null
+        $isUseSipTrunk = null,
+        $isUseVpbx = null
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -163,7 +167,8 @@ class Region extends ActiveRecord
                     ['type_id' => isset($typeId) ? $typeId : array_keys(self::$typeNames)],
                     $countryId ? ['country_id' => $countryId] : []
                 ],
-                isset($isUseSipTrunk) ? ['is_use_sip_trunk' => $isUseSipTrunk] : []
+                isset($isUseSipTrunk) ? ['OR', ['is_use_sip_trunk' => 1], ['id' => $isUseSipTrunk]] : [],
+                isset($isUseVpbx) ? ['OR', ['is_use_vpbx' => 1], ['id' => $isUseVpbx]] : [],
             ]
         );
     }

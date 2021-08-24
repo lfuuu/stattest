@@ -102,7 +102,13 @@ if (!$serviceType) {
     <div class="row">
 
         <?php // регион
-        $regionList = Region::getList(true, null, $accountTariff->isNewRecord && $serviceType->id == ServiceType::ID_VPBX ? Region::TYPE_NODE : null, $serviceType->id == ServiceType::ID_SIPTRUNK ? 1 : null);
+        $regionList = Region::getList(true, null,
+            $accountTariff->isNewRecord && $serviceType->id == ServiceType::ID_VPBX
+                ? Region::TYPE_NODE : null,
+            ($serviceType->id == ServiceType::ID_SIPTRUNK ?  ($accountTariff->isNewRecord ? 0 : $accountTariff->region_id) : null),
+            ($serviceType->id == ServiceType::ID_VPBX ? ($accountTariff->isNewRecord ? 0 : $accountTariff->region_id) : null)
+        );
+
         ?>
         <div class="col-sm-2">
             <?= $form->field($accountTariff, 'region_id')
