@@ -2,15 +2,41 @@
 
 namespace app\controllers;
 
-use app\classes\BaseController;
+use yii\filters\AccessControl;
+use yii\web\Controller;
 use Yii;
 use yii\helpers\Json;
 use yii\web\Response;
 
 define('API_HOST', Yii::$app->request->serverName);
 
-class SwaggerController extends BaseController
+class SwaggerController extends Controller
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['documentation'],
+                        'allow' => true,
+                    ],
+                    [
+                        'roles' => ['@'],
+                        'allow' => true,
+                    ],
+                    [
+                        'allow' => false,
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Базовый Swagger UI
      *
