@@ -150,7 +150,7 @@ class SormClientFilter extends ClientAccount
                         ['cgp.last_name' => null], ['cgp.last_name' => ''],
                         ['cgp.first_name' => null], ['cgp.first_name' => ''],
                         ['cgp.middle_name' => null], ['cgp.middle_name' => ''],
-                        ['cgp.passport_date_issued' => null], ['cgp.passport_date_issued' => ''], ['cgp.passport_date_issued' => '1970-01-01'],
+                        ['cgp.passport_date_issued' => null], ['cgp.passport_date_issued' => '1970-01-01'],
                         (new Expression('length(trim(coalesce(cgp.passport_serial, \'\'))) != 4')),
                         (new Expression('length(trim(coalesce(cgp.passport_number, \'\'))) != 6')),
                         ['cgp.passport_issued' => null], ['cgp.passport_issued' => ''],
