@@ -546,6 +546,11 @@ table.contract_table td {
 		<td colspan="2" valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
 			<p  align=right style='text-align:right'><span>&nbsp;</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td colspan="1" valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
+			<p  align=right style='text-align:right'><span>&nbsp;</span></p>
+		</td>
+		{/if}
 		<td colspan={if $isChanges20170819}6{else}5{/if} valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><b><span>Всего к оплате</span></b></p>
 		</td>
@@ -581,11 +586,7 @@ table.contract_table td {
 				<p ><span>&nbsp;</span></p>
 			</td>
 		{/if}
-		{if $isChanges20210701}
-			<td colspan="1" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
-				<p ><span>&nbsp;</span></p>
-			</td>
-		{/if}
+		
 	</tr>
 	<tr>
 		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>{if $print_upd.pages == 1}1 листе{else}{$print_upd.pages} листах{/if}</span></p></td>
