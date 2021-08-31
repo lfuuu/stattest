@@ -94,9 +94,13 @@ table.contract_table td {
 												{/if}
 											</span></p></td>
                                 </tr>
+								{if !$is_document_ready}
+									<tr>
+										<td colspan=6><b style="color:red;">***ДОКУМЕНТ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ***</b><br></td>
+									</tr>
+								{/if}
                                 <tr>
                                     <td style='width:100pt;'>
-										{if !$is_document_ready}<b style="color:red;">***ДОКУМЕНТ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ***</b><br>{/if}
 										<p><span>Счет-фактура N</span></p></td>
                                     <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span> {capture name=invoice_name}{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}{/capture}{$smarty.capture.invoice_name}</span></p></td>
                                     <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
@@ -113,7 +117,10 @@ table.contract_table td {
                                     </span></p></td>
                                     <td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
                                     <td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>
-												{if $isChanges20170819}
+												{if $isChanges20210701}
+													Приложение №1 к постановлению Правительства от 26 декабря 2011г. № 1113<br/>
+													(в редакции постановления Правительства Российской Федерации <br/> от 2 апреля 2021 г. №534)
+												{elseif $isChanges20170819}
 													Приложение №1 к постановлению Правительства от 26 декабря 2011г. № 1113<br/>
 													(в редакции постановления Правительства Российской Федерации <br/> от 19 августа 2017 г. №981)
 												{else}
@@ -218,6 +225,11 @@ table.contract_table td {
 		<td rowspan=2 style='border:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
 			<p style='text-align:center'><span>Код<br>товара/<br>работ,<br>услуг</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>N<br>п/п</span></p>
+			</td>
+		{/if}
 		<td rowspan=2 style='border:solid windowtext 1.0pt;mso-border-left-alt: solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права</span></p>
 		</td>
@@ -254,7 +266,7 @@ table.contract_table td {
 			<p style='text-align:center'><span>Страна<br> происхождения товара</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
-			<p style='text-align:center'><span>{if $isChanges20170819}Регистраци-<br>онный номер<br>таможенной<br>декларации{else}Номер<br>таможен<br>ной<br>декла<br>рации{/if}</span></p>
+			<p style='text-align:center'><span>{if $isChanges20210701}Регистрационный номер<br>декларации на товары или<br>регистрационный номер<br>партии товара, подлежащего<br>прослеживаемости{elseif $isChanges20170819}Регистраци-<br>онный номер<br>таможенной<br>декларации } {else}Номер<br>таможен<br>ной<br>декла<br>рации{/if}</span></p>
 		</td>
 		{if $isChanges20210701}
 			<td colspan="2" style='border:solid windowtext 1.0pt;'>
@@ -300,7 +312,23 @@ table.contract_table td {
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>1</span></p>
 		</td>
-		{if $isChanges20170819}
+		{if $isChanges20210701}
+
+			<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>1a</span></p>
+			</td>
+		{else}
+
+			<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>1</span></p>
+			</td>
+		{/if}
+		
+		{if $isChanges20210701}
+			<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>1б</span></p>
+			</td>
+		{elseif $isChanges20170819}
 			<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 				<p style='text-align:center'><span>1a</span></p>
 			</td>
@@ -360,12 +388,19 @@ table.contract_table td {
 		</tr>
 	{/if}
 	<tr class='tr_h15'>
+		
 		<td valign=top style='border:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>{$smarty.foreach.list.iteration}</span></p>
 		</td>
 		<td valign=top style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
 			<p ><span>&nbsp;</span></p>
 		</td>
+		{if $isChanges20210701}
+			<td valign=top style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
+				<p  align=right style='text-align:right'><span>{$smarty.foreach.list.iteration}</span></p>
+			</td>
+		{/if}
+		
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' class="td_item">
 			<p ><span>{$row.item}</span></p>
 		</td>
@@ -542,6 +577,11 @@ table.contract_table td {
 			<td colspan="1" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 				<p ><span>&nbsp;</span></p>
 			</td>
+			<td colspan="1" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+				<p ><span>&nbsp;</span></p>
+			</td>
+		{/if}
+		{if $isChanges20210701}
 			<td colspan="1" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 				<p ><span>&nbsp;</span></p>
 			</td>
