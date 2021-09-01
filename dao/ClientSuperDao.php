@@ -181,9 +181,9 @@ class ClientSuperDao extends Singleton
      * @param array $contract
      * @return array
      */
-    public function getAccountInfo($account, $contract)
+    public function getAccountInfo($account, $contract, $isWithApplications = true)
     {
-        return [
+        $data = [
             'id' => $account['id'],
             'is_disabled' => !in_array($contract['business_process_status_id'], [
                 BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
@@ -199,8 +199,13 @@ class ClientSuperDao extends Singleton
             'price_level' => $account['price_level'],
             'credit' => (int)$account['credit'],
             'version' => $account['account_version'],
-            'applications' => $this->_getPlatformaServicesCleaned($account)
         ];
+
+        if ($isWithApplications) {
+            $data['applications'] = $this->_getPlatformaServicesCleaned($account); 
+        }
+
+        return $data;
     }
 
     /**
