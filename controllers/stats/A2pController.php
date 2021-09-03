@@ -14,6 +14,10 @@ class A2pController extends BaseController
 
     public function actionIndex()
     {
+        if (!$this->_getCurrentClientAccountId()) {
+            \Yii::$app->session->addFlash('error','Не выбран ЛС');
+            return $this->render('//layouts/empty', ['content' => '']);
+        }
         try {
             $searchQuery = Yii::$app->request->queryParams;
             $searchModel = new A2pFilter(['isWebReport' => true]);
