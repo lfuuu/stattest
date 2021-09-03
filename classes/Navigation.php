@@ -78,6 +78,7 @@ class Navigation
                 ->addStatModuleItems('stats')
                 ->addItem('Мобильный интернет', ['/voip/data-raw'], ['stats.report'])
                 ->addItem('SMS', ['/voip/sms'], ['stats.report'])
+                ->addItem('SMS (A2P)', ['/stats/a2p'], ['stats.report'])
                 ->addItem('Отчёт по файлам', ['/file/report'], ['stats.report'])
                 ->addItem('Отчет по OnLime', ['/reports/onlime-report'], ['stats.report'])
                 ->addItem('Отчет по OnLime оборудование', ['/reports/onlime-devices-report'], ['stats.report'])

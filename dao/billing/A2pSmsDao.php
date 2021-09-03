@@ -46,6 +46,7 @@ class A2pSmsDao extends Singleton
                 'charge_time' => ($tzOffest != 0 ? new Expression("charge_time + '" . $tzOffest . " second'::interval") : 'charge_time'),
                 'src_number',
                 'dst_number',
+                'dst_route',
                 'cost',
                 'rate',
                 'count'
