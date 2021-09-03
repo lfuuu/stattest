@@ -30,7 +30,14 @@ $urlData['A2pFilter']['to_datetime'] = $prevMonthDateTime->format('Y-m-t');
 
 $previousMonthUrl = $urlData;
 
+$breadCrumbLinks = [
+    'Статистика',
+    ['label' => 'SMS (A2P)', 'url' => '/stats/a2p'],
+];
+
 ?>
+
+<?= \yii\widgets\Breadcrumbs::widget(['links' => $breadCrumbLinks]) ?>
 
 <form>
     <div class="row">
