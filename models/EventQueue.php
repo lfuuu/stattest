@@ -108,6 +108,7 @@ class EventQueue extends ActiveRecord
     const MAKE_CALL = 'make_call';
     const INVOICE_GENERATE_PDF = 'invoice_generate_pdf';
     const INVOICE_ALL_PDF_CREATED = 'invoice_all_pdf_created';
+    const INVOICE_MASS_CREATE = 'invoice_mass_create';
     const SYNC_1C_CLIENT = 'sync_1c_client';
     const SYNC_TELE2_GET_IMSI = 'sync_tele2_get_imsi';
     const SYNC_TELE2_LINK_IMSI = 'sync_tele2_link_imsi';
