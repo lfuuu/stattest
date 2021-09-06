@@ -28,6 +28,12 @@ use app\models\Region;
 <br />
 <a href="./?module=newaccounts&action=bill_publish">Опубликовать счета выставленные в этом месяце</a><br />
 <br />
+
+<a href="/bill/bill/mass-invoices">Сформировать с/ф</a><br />
+<br />
+
+
+
 <div class="well" style="width: 500px;">
     <fieldset>
         <label>Публикация счетов в регионе</label>

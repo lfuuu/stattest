@@ -2,12 +2,14 @@
 
 namespace app\dao;
 
+use app\classes\ActOfReconciliation;
 use app\classes\Assert;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillLine;
+use app\models\EventQueue;
 use app\models\Invoice;
 
 /**
@@ -174,5 +176,52 @@ class InvoiceDao extends Singleton
         $revertInvoice->setAttributes($invoice->getAttributes(null, ['id', 'add_date', 'number', 'idx', 'reversal_date']), false);
 
         $revertInvoice->setReversal(true);
+    }
+
+    public function massGenerate(EventQueue $event)
+    {
+        $query = Bill::find()
+            ->alias('b');
+
+        $now = (new \DateTimeImmutable())
+            ->setTime(0, 0, 0);
+
+        $from = $now->modify('first day of previous month');
+        $to = $now->modify('last day of this month');
+
+        $query->andWhere([
+            'between',
+            'b.bill_date',
+            $from->format(DateTimeZoneHelper::DATE_FORMAT),
+            $to->format(DateTimeZoneHelper::DATE_FORMAT)
+        ])
+            ->andWhere(['>', 'sum', 0]);
+
+        $event->log_error = 'Count all: ' . $query->count(). PHP_EOL;
+        $event->save();
+
+
+        /** @var Bill $bill */
+        $count = 0;
+        foreach ($query->each() as $bill) {
+            if ($count++ % 10 == 0) {
+                $event->log_error .= 'count: ' . $count . PHP_EOL;
+                $event->save();
+            }
+            try {
+                $bill->generateInvoices();
+            } catch (\Exception $e) {
+                $event->log_error .= 'Error';
+                $event->save();
+
+                echo PHP_EOL . $e->getMessage();
+                echo PHP_EOL;
+            }
+        }
+
+        ActOfReconciliation::me()->saveBalances();
+
+        $event->log_error .= 'Done';
+        $event->save();
     }
 }

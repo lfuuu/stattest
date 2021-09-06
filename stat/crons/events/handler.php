@@ -73,6 +73,7 @@ $nnpEvents = ['event' => [
     NnpModule::EVENT_LINKER,
     NnpModule::EVENT_EXAMPLES,
     NnpModule::EVENT_IMPORT,
+    EventQueue::INVOICE_MASS_CREATE,
     EventQueue::INVOICE_GENERATE_PDF,
     EventQueue::INVOICE_ALL_PDF_CREATED,
 ]];
@@ -508,6 +509,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::INVOICE_ALL_PDF_CREATED:
                     SBISDataProvider::checkInvoiceForExchange($param['id']);
+                    break;
+
+                case EventQueue::INVOICE_MASS_CREATE:
+                    Invoice::dao()->massGenerate($event);
                     break;
 
                 case EventQueue::SYNC_1C_CLIENT:
