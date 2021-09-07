@@ -220,7 +220,7 @@ class AccountTariff extends ActiveRecord
                 ['region_id'],
                 'required',
                 'when' => function (AccountTariff $accountTariff) {
-                    return $accountTariff->service_type_id == ServiceType::ID_VPBX;
+                    return in_array($accountTariff->service_type_id, [ServiceType::ID_VPBX, ServiceType::ID_A2P]);
                 },
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
