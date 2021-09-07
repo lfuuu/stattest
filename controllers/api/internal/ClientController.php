@@ -26,6 +26,7 @@ use app\models\EventQueue;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 class ClientController extends ApiInternalController
 {
@@ -1027,5 +1028,70 @@ class ClientController extends ApiInternalController
         }
 
         return ['is_saved' => true];
+    }
+
+    /**
+    
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-client-contract-info/", summary="Получение данных о договорах", operationId="Получение данных о договорах",
+     *   @SWG\Parameter(name = "contract_id", type = "integer", description = "ID договора (если несколько: то массив ID, или значение через ',')", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Информация об УЛС по контрактам",
+     *     @SWG\Schema(type = "array")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param string $contract_id
+     * @return array
+     */
+    public function actionGetClientContractInfo($contract_id = null)
+    {
+        if (!is_array($contract_id)) {
+            $contract_id = explode(',', $contract_id);
+        }
+
+        $contract_id = array_filter(array_map('trim', $contract_id));
+
+        $contracts = ClientContract::find()
+            ->select(['id', 'business_process_status_id'])
+            ->where(['id' => $contract_id])
+            ->indexBy('id')
+            ->asArray()
+            ->all();
+
+        $accounts = ClientAccount::find()
+            ->select([
+                'id',
+                'is_blocked',
+                'is_bill_pay_overdue',
+                'is_postpaid',
+                'show_in_lk',
+                'is_active',
+                'price_level',
+                'credit',
+                'account_version',
+                'contract_id'
+            ])
+            ->where(['contract_id' => $contract_id])
+            ->asArray()
+            ->all();
+        
+        $info = [];
+        foreach ($accounts as $account) {
+            $info[$account['contract_id']][] = ClientSuper::dao()->getAccountInfo($account, $contracts[$account['contract_id']], false);
+        }
+
+        $data = [];
+        foreach ($info as $contractId => $accounts) {
+            $data[$contractId] = [
+                'contract_id' => $contractId,
+                'accounts' => $accounts
+            ];
+        }
+        unset($info);
+
+        return $data;
     }
 }
