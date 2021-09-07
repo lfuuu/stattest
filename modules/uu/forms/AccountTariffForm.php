@@ -7,6 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\helpers\Semaphore;
 use app\models\EventQueue;
+use app\models\Region;
 use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
 use app\modules\uu\models\AccountLogResource;
@@ -78,6 +79,11 @@ abstract class AccountTariffForm extends Form
         $this->accountTariffVoip->voip_country_id = $this->accountTariff->clientAccount->country_id;
         $this->accountTariffVoip->city_id = $this->accountTariff->city_id;
         $this->accountTariffVoip->voip_ndc_type_id = $this->ndcTypeId;
+
+        // init region id for a2p
+        if ($this->serviceTypeId == ServiceType::ID_A2P && Yii::$app->request->isGet) {
+            $this->accountTariff->region_id = Region::MOSCOW;
+        }
 
         /** @var array $post */
         $post = $this->postData ?: Yii::$app->request->post();
