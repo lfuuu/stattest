@@ -45,6 +45,7 @@ use yii\db\ActiveQuery;
  * @property-read ClientContragent $contragent
  * @property-read ClientContragent clientContragent - напрямую
  * @property-read ClientAccount[] $accounts
+ * @property-read ClientAccount[] $clientAccountModels
  * @property-read Organization $organization
  * @property-read ClientMedia $mediaManager
  * @property-read ContractType $contractType
@@ -413,6 +414,14 @@ class ClientContract extends HistoryActiveRecord
     public function getClientContragent()
     {
         return $this->hasOne(ClientContragent::class, ['id' => 'contragent_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getClientAccountModels()
+    {
+        return $this->hasMany(ClientAccount::class, ['contract_id' => 'id']);
     }
 
     /**
