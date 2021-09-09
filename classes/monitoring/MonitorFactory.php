@@ -15,6 +15,7 @@ class MonitorFactory extends Singleton
     private function getMonitors()
     {
         return [
+            $this->getDisabledContractWithIncludedServices(),
             $this->getUsagesLostTariffsMonitor(),
             $this->getMissingManagerMonitor(),
             $this->getUsagesIncorrectBusinessProcessStatus(),
@@ -200,5 +201,13 @@ class MonitorFactory extends Singleton
     public function getVatsInFutureRes()
     {
         return new VatsResourceLessStatInFuture();
+    }
+
+    /**
+     * @return VatsResourceLessStat
+     */
+    public function getDisabledContractWithIncludedServices()
+    {
+        return new DisabledContractWithServices();
     }
 }
