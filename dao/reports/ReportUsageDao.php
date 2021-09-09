@@ -591,7 +591,7 @@ class ReportUsageDao extends Singleton
      * @param ActiveQuery $query
      * @return array
      */
-    private function _voipStatisticByDestination(ActiveQuery $query, DateTime $from, DateTime $to)
+    private function _voipStatisticByDestination(ActiveQuery $query, DateTimeImmutable $from, DateTimeImmutable $to)
     {
         $query->select([
             'dest' => 'cr.destination_id',
@@ -709,12 +709,12 @@ class ReportUsageDao extends Singleton
      * Вспомогательная функция. Статистика по пакетам
      *
      * @param ActiveQuery $query
-     * @param DateTime $from
-     * @param DateTime $to
+     * @param DateTimeImmutable $from
+     * @param DateTimeImmutable $to
      * @param int $tariffId
      * @return array
      */
-    private function _voipStatisticByPackage(ActiveQuery $query, DateTime $from, DateTime $to, $tariffId = null)
+    private function _voipStatisticByPackage(ActiveQuery $query, DateTimeImmutable $from, DateTimeImmutable $to, $tariffId = null)
     {
         $query->leftJoin(['l' => AccountTariffLight::tableName()], 'l.id = cr.account_tariff_light_id');
 
