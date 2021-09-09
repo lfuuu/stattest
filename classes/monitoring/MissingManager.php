@@ -2,12 +2,11 @@
 
 namespace app\classes\monitoring;
 
+use app\classes\Html;
+use app\models\BusinessProcessStatus;
+use app\models\ClientContract;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
-use app\classes\Html;
-use app\models\ClientAccount;
-use app\models\ClientContract;
-use app\models\BusinessProcessStatus;
 
 class MissingManager extends Component implements MonitoringInterface
 {
@@ -51,7 +50,7 @@ class MissingManager extends Component implements MonitoringInterface
                 'label' => 'Контрагент',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return Html::a($data->contragent->name, ['/contragent/edit', 'id' => $data->contragent->id]);
+                    return Html::a($data->contragent->name, ['/contragent/edit', 'id' => $data->contragent->id], ['target' => '_blank']);
                 },
                 'width' => '30%',
             ],
@@ -59,7 +58,7 @@ class MissingManager extends Component implements MonitoringInterface
                 'label' => '№ Договор',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return Html::a($data->number, ['/contract/edit', 'id' => $data->id]);
+                    return Html::a($data->number, ['/contract/edit', 'id' => $data->id], ['target' => '_blank']);
                 },
                 'width' => '30%',
             ],
@@ -67,10 +66,12 @@ class MissingManager extends Component implements MonitoringInterface
                 'label' => 'Лицевые счета',
                 'format' => 'raw',
                 'value' => function ($data) {
-                    $accounts = '';
-                    foreach ($data->accounts as $clientAccount) {
+                    $accounts = [];
+                    foreach ($data->clientAccountModels as $clientAccount) {
                         $accounts[] = Html::a('Л/С ' . $clientAccount->id,
-                            ['/client/view', 'id' => $clientAccount->id]);
+                            ['/client/view', 'id' => $clientAccount->id],
+                            ['target' => '_blank']
+                        );
                     }
                     return implode(', ', $accounts);
                 },
@@ -87,18 +88,16 @@ class MissingManager extends Component implements MonitoringInterface
         return new ArrayDataProvider([
             'allModels' =>
                 ClientContract::find()
-                    ->from(ClientContract::tableName() . ' cc')
-                    ->leftJoin(ClientAccount::tableName() . ' c', 'c.contract_id = cc.id')
+                    ->alias('cc')
                     ->where(['manager' => ''])
                     ->andWhere([
-                        'in',
-                        'cc.business_process_status_id',
-                        [
+                        'cc.business_process_status_id' => [
                             BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED,
                             BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                         ]
                     ])
                     ->groupBy('cc.id')
+                    ->orderBy(['cc.id' => SORT_ASC])
                     ->all(),
         ]);
     }
