@@ -93,7 +93,8 @@ if (window.jQuery)(function($) {
                                                     width: $settings.preview['width'],
                                                     height: $settings.preview['height'],
                                                     fitDirection: 'center',
-                                                    nostyle: true
+                                                    nostyle: true,
+                                                    maxEnlargement: 0.4
                                                 })
                                     )
                             )
