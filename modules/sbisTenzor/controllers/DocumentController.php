@@ -14,6 +14,7 @@ use app\modules\sbisTenzor\models\SBISDocument;
 use yii\base\InvalidArgumentException;
 use yii\filters\AccessControl;
 use Yii;
+use yii\web\NotFoundHttpException;
 
 /**
  * DocumentController controller for the `sbisTenzor` module
@@ -297,6 +298,10 @@ class DocumentController extends BaseController
     {
         if ($attachment = SBISAttachment::findOne(['id' => $id])) {
             $fileName = $attachment->getActualStoredPath();
+
+            if (!file_exists($fileName)) {
+                throw new NotFoundHttpException('Файл документа не найден');
+            }
 
             Yii::$app
                 ->response
