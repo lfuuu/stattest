@@ -150,11 +150,13 @@ class Act2016Form5_02 extends XmlGenerator
             // 796 - штука
             //$elLine->setAttribute('ОКЕИ', 796);// optional, but required if no optional1
             $elLine->setAttribute('СтоимУчНДС', $this->formatNumber($line->getPrice_with_vat()));// optional
+            $elLine->setAttribute('СтоимБезНДС', $this->formatNumber($line->getPrice_without_vat()));// optional
+            $elLine->setAttribute('Цена', $this->formatNumber($line->price));// optional
+
             if ($vatRate) {
-                $elLine->setAttribute('СтоимБезНДС', $this->formatNumber($line->getPrice_without_vat()));// optional
                 $elLine->setAttribute('СумНДС', $this->formatNumber($line->getVat()));// optional
-                $elLine->setAttribute('Цена', $this->formatNumber($line->price));// optional
             }
+            
             $elWorkList->appendChild($elLine);
 
             $elLineDesc = $dom->createElement('Описание', $this->formatText($line->getFullName()));// optional, but required if no optional1
