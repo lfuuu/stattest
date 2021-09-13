@@ -82,7 +82,7 @@ if (file_exists($file = __DIR__ . '/db_pg_nnp2.local.php')) {
 
 $dbPgCallTracking = require(__DIR__ . '/db_pg_call_tracking.php');
 if (file_exists($file = __DIR__ . '/db_pg_call_tracking.local.php')) {
-    $dbPgCallTracking = ArrayHelper::merge($dbPgNnp, require($file));
+    $dbPgCallTracking = ArrayHelper::merge($dbPgCallTracking, require($file));
 }
 
 $dbStatistic = require(__DIR__ . '/db_pgsql.php');
