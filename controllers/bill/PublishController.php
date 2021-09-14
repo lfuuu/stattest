@@ -80,7 +80,7 @@ class PublishController extends BaseController
             'regionId' => $regionId,
             'isNotificationsOff' => $isNotificationsOff,
             'isNotificationsOn' => $isNotificationsOn,
-            'isNotificationsRunning' => Utils::isFileLocked(Param::NOTIFICATIONS_LOCK_FILEPATH),
+            'isNotificationsRunning' => Param::getParam(Param::NOTIFICATIONS_SCRIPT_ON),
             'isEnabledRecalcWhenEditBill' => $isEnabledRecalcWhenEditBill,
         ]);
     }

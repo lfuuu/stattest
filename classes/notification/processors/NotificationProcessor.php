@@ -12,6 +12,8 @@ use app\models\important_events\ImportantEventsSources;
 use app\models\LkClientSettings;
 use app\models\LkNoticeSetting;
 use app\models\LkNotificationLog;
+use app\models\Param;
+use RuntimeException;
 
 abstract class NotificationProcessor
 {
@@ -148,13 +150,18 @@ abstract class NotificationProcessor
      */
     public function checkAndMakeNotifications()
     {
+        $count = 0;
         foreach ($this->clients->each() as $client) {
+            if (++$count % 1000 == 0) {
+                if (Param::find()->where(['param' => Param::NOTIFICATIONS_SWITCH_ON_DATE])->exists()) {
+                    throw new RuntimeException('[lk/check-notification][-] Оповещения отключены');
+                }
+            }
             $transaction = \Yii::$app->getDb()->beginTransaction();
             try {
                 $this->compareAndNotificationClient($client);
             } catch (\Exception $e) {
                 echo PHP_EOL . date('r') . ': (!)' . $client->id . ", " . $this->getEnterEvent() . ', error: ' . $e->getMessage();
-
                 $transaction->rollBack();
                 \Yii::error($e->getMessage());
                 continue;

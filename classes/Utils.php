@@ -132,31 +132,4 @@ class Utils
         }
         return $password;
     }
-
-    /**
-     * Проверяет, заблокирован ли файл
-     *
-     * @param string $filePath
-     * @return bool|null
-     */
-    public static function isFileLocked($filePath)
-    {
-        $result = true;
-
-        if (!file_exists($filePath)) {
-            return null;
-        }
-
-        $fp = fopen($filePath, "r+");
-
-        if (flock($fp, LOCK_EX | LOCK_NB)) {
-            flock($fp, LOCK_UN);
-            $result = false;
-        }
-
-        fclose($fp);
-
-        return $result;
-    }
-
 }

@@ -56,6 +56,7 @@ abstract class Monitor extends Component
             MonitorSorm_Habarovsk::class,
             MonitorSorm_Krasnoiarsk::class,
             MonitorMultipleEnabledNumbers::class,
+            MonitorNotificationScriptHungOn::class,
         ];
     }
 

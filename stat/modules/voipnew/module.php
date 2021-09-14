@@ -820,7 +820,7 @@ class m_voipnew extends IModule
             $isNotificationsOn = DateTimeZoneHelper::getDateTime($switchOffParam->value);
         }
         $design->assign('is_notifications_on', $isNotificationsOn);
-        $design->assign('is_notifications_running', Utils::isFileLocked(Param::NOTIFICATIONS_LOCK_FILEPATH));
+        $design->assign('is_notifications_running', Param::getParam(Param::NOTIFICATIONS_SCRIPT_ON));
 
         $design->AddMain('voipnew/calls_recalc.html');
     }

@@ -41,6 +41,7 @@ class m_newaccounts extends IModule
 {
     private static $object;
     private static $bb_c = [];
+    const SLEEPING_TIME = 3;
 
     function do_include()
     {
@@ -101,7 +102,6 @@ class m_newaccounts extends IModule
     function newaccounts_bill_balance_mass($fixclient)
     {
         global $design;
-
         $now = (new \DateTimeImmutable('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)));
 
         Param::setParam(
@@ -116,6 +116,16 @@ class m_newaccounts extends IModule
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT),
             $isRawValue = true
         );
+
+        $count = 0;
+        while (Param::getParam(Param::NOTIFICATIONS_SCRIPT_ON)) {
+            flush();
+            if (++$count > 60) {
+                throw new RuntimeException('Невозможно обновить счета, обратитесь к разработчику');
+            }
+            echo '. ';
+            sleep(self::SLEEPING_TIME);
+        }
 
         $design->ProcessEx('errors.tpl');
 
@@ -146,6 +156,14 @@ class m_newaccounts extends IModule
             echo "<br>\n";
             flush();
         }
+
+        $now = (new \DateTimeImmutable('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)));
+        Param::setParam(
+            Param::NOTIFICATIONS_SWITCH_ON_DATE,
+            $now->modify("+2 minutes")
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $isRawValue = true
+        );
     }
 
     function newaccounts_bill_list($fixclient, $get_sum = false)
