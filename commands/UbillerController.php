@@ -3,12 +3,15 @@
 namespace app\commands;
 
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\helpers\Semaphore;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\classes\QueryCounterTarget;
 use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\tarificator\AccountEntryTarificator;
 use app\modules\uu\tarificator\AccountLogMinTarificator;
@@ -79,6 +82,9 @@ class UbillerController extends Controller
     public function actionIndex()
     {
         ini_set('memory_limit', '5G');
+
+        // очистка логов проводок (uu_account_tariff_log_*)
+        $this->actionClearLogs();
 
         // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
         // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
@@ -548,6 +554,35 @@ SQL;
             $transaction->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * очистка логов проводок (uu_account_tariff_log_*)
+     *
+     * @throws \Exception
+     */
+    public function actionClearLogs()
+    {
+        $minLogDatetime = AccountTariff::getMinLogDatetime();
+        echo PHP_EOL . 'Очистка до даты: ' . $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        if (date("d") != 1) {
+            return; // time has not come
+        }
+        /** @var AccountLogPeriod $logTable */
+        foreach ([
+                     AccountLogSetup::class => 'date',
+                     AccountLogPeriod::class => 'date_to',
+                     AccountLogMin::class => 'date_to',
+                     AccountLogResource::class => 'date_from',
+                 ] as $logTable => $dateField) {
+            $timeStart = microtime(true);
+            $logTableName = explode('\\', $logTable)[4];
+            echo PHP_EOL . $logTableName . ' ... ';
+            $logTable::deleteAll(['<', $dateField, $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
+            echo 'OK (' . round(microtime(true) - $timeStart, 2) . ' sec)';
+        }
+        echo PHP_EOL;
     }
 
     public function actionRecalc()

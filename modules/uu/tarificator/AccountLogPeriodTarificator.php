@@ -34,8 +34,6 @@ class AccountLogPeriodTarificator extends Tarificator
      */
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
-        $minLogDatetime = AccountTariff::getMinLogDatetime();
-
         $dateTimeOffsetParams = new DateTimeOffsetParams($this);
         $utcDateTime = $dateTimeOffsetParams->getCurrentDateTime();
 
@@ -49,11 +47,6 @@ class AccountLogPeriodTarificator extends Tarificator
             if (!$fromId || !$toId || $fromId >= $toId) {
                 throw new \InvalidArgumentException('Неверные аргументы');
             }
-        }
-
-        // в целях оптимизации удалить старые данные
-        if (!$accountTariffId && !$fromId && !$toId) {
-            AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
         }
 
         $accountTariffQuery = AccountTariff::find()

@@ -50,7 +50,6 @@ class AccountLogResourceTarificator extends Tarificator
      */
     public function tarificate($accountTariffId = null, $isForceTarifficationTraffic = false)
     {
-        $minLogDatetime = AccountTariff::getMinLogDatetime();
         $minSetupDatetime = AccountTariff::getMinSetupDatetime();
 
         $dateTimeOffsetParams = new DateTimeOffsetParams($this);
@@ -67,11 +66,6 @@ class AccountLogResourceTarificator extends Tarificator
             if (!$fromId || !$toId || $fromId > $toId) {
                 throw new \InvalidArgumentException('Неверные аргументы');
             }
-        }
-
-        // в целях оптимизации удалить старые данные
-        if (!$accountTariffId && !$fromId && !$toId) { // не удалять, если расчет идет по услуге или идет параллельная обработка
-            AccountLogResource::deleteAll(['<', 'date_from', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
         }
 
         // рассчитать новое по каждой универсальной услуге

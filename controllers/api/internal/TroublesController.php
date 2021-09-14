@@ -195,7 +195,7 @@ class TroublesController extends ApiInternalController
         // Попытка найти Trouble, что бы проверить ее существование и вызвать связанную модель TroubleRoistat
         $trouble = Trouble::findOne(['id' => $troubleId]);
         if (!$trouble) {
-            throw new \LogicException("Couldn't find Trouble with caller:{$data['caller']} and callee:{$data['callee']} in the last hour");
+            throw new \LogicException("Couldn't find Trouble with caller:{$data['caller']} and callee:{$data['caller']} in the last hour");
         }
         // Получаем TroubleRoistat
         $troubleRoistat = $trouble->troubleRoistat;
