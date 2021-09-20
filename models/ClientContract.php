@@ -121,14 +121,8 @@ class ClientContract extends HistoryActiveRecord
         self::IS_LK_ACCESS_NO => 'Нет',
     ];
 
-    public static $offBPSids = [
-        111, 121, 122, 123, 124, 131,22, // Мусор
-        28, // Отказ
-        29, // Дубликат
-        42, // Расторгнут
-        44, // Отказ
-        //34, // Внутренний офис
-        10 // Отключенные
+    public static $neutralBPSids = [
+        16, 33, 94, 108, 125, 140, 161, 152 // Действующий // заказ магазина // Разовый // Формальные
     ];
 
     public
@@ -200,6 +194,20 @@ class ClientContract extends HistoryActiveRecord
     {
         return ClientContractDao::me();
     }
+
+    /**
+     * Получаем ID бпстатусов, считающихся закрытыми
+     *
+     * @return array
+     */
+    public static function getOffBpsIds()
+    {
+        return BusinessProcessStatus::find()
+            ->select('id')
+            ->where(['is_off_stage' => 1])
+            ->column();
+    }
+
 
     /**
      * @param bool $runValidation

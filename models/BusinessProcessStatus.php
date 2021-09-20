@@ -16,6 +16,7 @@ use yii\helpers\Url;
  * @property string $oldstatus
  * @property string $color
  * @property boolean $is_bill_send
+ * @property boolean $is_off_stage
  */
 class BusinessProcessStatus extends ActiveRecord
 {
@@ -167,7 +168,7 @@ class BusinessProcessStatus extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'business_process_id', 'is_bill_send'], 'integer'],
+            [['id', 'business_process_id', 'is_bill_send', 'is_off_stage'], 'integer'],
             [['name', 'oldstatus', 'color'], 'string'],
             [['name', 'business_process_id'], 'required'],
         ];
@@ -183,6 +184,7 @@ class BusinessProcessStatus extends ActiveRecord
             'color' => 'Подсветка ЛС',
             'oldstatus' => 'Старый статус (для совместимости)',
             'is_bill_send' => 'Отправка счета',
+            'is_off_stage' => 'Завершающий статус (ЛС считается выключеным)',
         ];
     }
 

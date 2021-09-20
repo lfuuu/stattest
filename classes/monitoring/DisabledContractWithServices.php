@@ -114,7 +114,7 @@ class DisabledContractWithServices extends Component implements MonitoringInterf
             ])
             ->where([
                 's.parent_id' => null,
-                'cc.business_process_status_id' => ClientContract::$offBPSids
+                'cc.business_process_status_id' => ClientContract::getOffBpsIds(),
             ])
             ->andWhere(['IS NOT', 'tariff_period_id', NULL])
             ->orderBy([
