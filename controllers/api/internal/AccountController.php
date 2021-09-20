@@ -373,7 +373,7 @@ class AccountController extends ApiInternalController
                 'type' => ClientContact::$phoneTypes,
                 'data' => '+' . $number,
             ])
-            ->andWhere(['NOT', ['cc.business_process_status_id' => ClientContract::$offBPSids]])
+            ->andWhere(['NOT', ['cc.business_process_status_id' => ClientContract::getOffBpsIds()]])
             ->orderBy(['client_id' => SORT_DESC])
             ->select('client_id')
             ->distinct()

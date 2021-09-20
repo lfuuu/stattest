@@ -16,6 +16,7 @@ class MonitorFactory extends Singleton
     {
         return [
             $this->getDisabledContractWithIncludedServices(),
+            $this->getDisabledAccountsWithoutActiveServices(),
             $this->getUsagesLostTariffsMonitor(),
             $this->getMissingManagerMonitor(),
             $this->getUsagesIncorrectBusinessProcessStatus(),
@@ -209,5 +210,13 @@ class MonitorFactory extends Singleton
     public function getDisabledContractWithIncludedServices()
     {
         return new DisabledContractWithServices();
+    }
+
+    /**
+     * @return DisabledAccountsWithoutActiveServices
+     */
+    public function getDisabledAccountsWithoutActiveServices()
+    {
+        return new DisabledAccountsWithoutActiveServices();
     }
 }

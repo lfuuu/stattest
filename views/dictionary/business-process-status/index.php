@@ -65,6 +65,10 @@ $columns = [
         'class' => StringColumn::class,
     ],
     [
+        'attribute' => 'is_off_stage',
+        'class' => YesNoColumn::class,
+    ],
+    [
         'attribute' => 'is_bill_send',
         'class' => YesNoColumn::class,
     ],

@@ -81,6 +81,11 @@ if (!$status->isNewRecord) {
             <?= $form->field($status, 'is_bill_send')->checkbox() ?>
         </div>
 
+        <?php // Завершающий статус ?>
+        <div class="col-sm-4">
+            <?= $form->field($status, 'is_off_stage')->checkbox() ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>
