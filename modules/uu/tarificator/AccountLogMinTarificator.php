@@ -2,8 +2,10 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
 
@@ -27,29 +29,17 @@ class AccountLogMinTarificator extends Tarificator
         $accountLogPeriodTableName = AccountLogPeriod::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
 
-        // удалить всё
-        $this->out('. ');
-        if ($accountTariffId) {
-            $truncateSQL = "DELETE FROM {$accountLogMinTableName} WHERE account_tariff_id = {$accountTariffId}";
-        } else {
-            $truncateSQL = "TRUNCATE TABLE {$accountLogMinTableName}";
-        }
-
-        $db->createCommand($truncateSQL)
-            ->execute();
-        unset($truncateSQL);
-
-        // создать заново
         $this->out('. ');
 
         $selectTmpSql = <<<SQL
             SELECT
                 #fields#
-            FROM
-               {$accountLogPeriodTableName} account_log_period,
-               {$tariffPeriodTableName} tariff_period
+            FROM {$tariffPeriodTableName} tariff_period,
+                 {$accountLogPeriodTableName} account_log_period
+            LEFT JOIN {$accountLogMinTableName} min on min.id = account_log_period.id
             WHERE
                 account_log_period.tariff_period_id = tariff_period.id
+                and min.id is null
 SQL;
 
         if ($accountTariffId) {
@@ -57,7 +47,7 @@ SQL;
 
             $selectSumSql = str_replace('#fields#', 'SUM(tariff_period.price_min * account_log_period.coefficient) as sum_price', $selectTmpSql);
 
-            $sum = $db->createCommand($selectSumSql)->queryScalar();
+            $sum = (float)$db->createCommand($selectSumSql)->queryScalar();
 
             if (abs($sum) >= 0.01) {
                 $this->isNeedRecalc = true;

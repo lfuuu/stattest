@@ -25,13 +25,7 @@ class AccountLogSetupTarificator extends Tarificator
      */
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
-        $minLogDatetime = AccountTariff::getMinLogDatetime();
         $minTarificateDatetime = AccountTariff::getMinSetupDatetime();
-
-        // в целях оптимизации удалить слишком старые данные
-        if (!$accountTariffId) {
-            AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
-        }
 
         $accountTariffQuery = AccountTariff::find()
             ->where(['>=', 'tariff_period_utc', $minTarificateDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)]); // недавно (пару дней) произошла смена тарифа
