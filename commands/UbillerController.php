@@ -84,7 +84,8 @@ class UbillerController extends Controller
         ini_set('memory_limit', '5G');
 
         // очистка логов проводок (uu_account_tariff_log_*)
-        $this->actionClearLogs();
+        // * - started manualy or by crontab
+        // $this->actionCleanUp();
 
         // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
         // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
@@ -561,14 +562,13 @@ SQL;
      *
      * @throws \Exception
      */
-    public function actionClearLogs()
+    public function actionCleanUp()
     {
-        $minLogDatetime = AccountTariff::getMinLogDatetime();
-        echo PHP_EOL . 'Очистка до даты: ' . $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT);
+        $minLogDatetimeStr = AccountTariff::getMinLogDatetime()->format(DateTimeZoneHelper::DATE_FORMAT);
+        echo PHP_EOL . 'Start: ' . date('r');
+        echo PHP_EOL . 'Clean from : ' . $minLogDatetimeStr;
+        echo PHP_EOL . '----------------------------------';
 
-        if (date("d") != 1) {
-            return; // time has not come
-        }
         /** @var AccountLogPeriod $logTable */
         foreach ([
                      AccountLogSetup::class => 'date',
@@ -579,9 +579,22 @@ SQL;
             $timeStart = microtime(true);
             $logTableName = explode('\\', $logTable)[4];
             echo PHP_EOL . $logTableName . ' ... ';
-            $logTable::deleteAll(['<', $dateField, $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
+            $logTable::deleteAll(['<', $dateField, $minLogDatetimeStr], [], 'id ASC');
             echo 'OK (' . round(microtime(true) - $timeStart, 2) . ' sec)';
         }
+
+        $where = ['AND', ['price_without_vat' => 0],  ['<', 'date', $minLogDatetimeStr]];
+        $count = AccountEntry::find()->where($where)->count();
+        echo PHP_EOL . 'Count empty account entry after min period: ' . $count;
+        // нечего удалять если ничего нет
+        if (!$count) {
+            echo PHP_EOL;
+            return;
+        }
+        $timeStart = microtime(true);
+        echo PHP_EOL . 'Deleting... ';
+        AccountEntry::deleteAll($where);
+        echo 'OK (' . round(microtime(true) - $timeStart, 2) . ' sec)';
         echo PHP_EOL;
     }
 
