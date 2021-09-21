@@ -115,7 +115,10 @@ class ActiveAccountsWithoutActiveServices extends Component implements Monitorin
         $offIds = implode(', ', array_merge(
             ClientContract::getOffBpsIds(),
             ClientContract::$neutralBPSids,
-            [8, 142], //Подключаемые,
+            [
+                8, 142, //Подключаемые
+                19, 141, 191, // Заказ услуг,
+            ],
         ));
 
         $sql = <<<SQL

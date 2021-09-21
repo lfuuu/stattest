@@ -207,6 +207,8 @@ class Migration extends \yii\db\Migration
                 'price_min' => 0,
                 'resource_id' => $resourceId,
                 'tariff_id' => $tariff->id,
+                'is_can_manage' => 0,
+                'is_show_resource' => 0,
             ]);
         }
 
