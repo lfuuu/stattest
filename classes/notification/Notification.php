@@ -10,7 +10,6 @@ use app\classes\notification\processors\MinDayLimitNotificationProcessor;
 use app\classes\notification\processors\DayLimitNotificationProcessor;
 use app\classes\notification\processors\DayMnLimitNotificationProcessor;
 
-
 class Notification extends BaseObject
 {
     /**
@@ -18,8 +17,12 @@ class Notification extends BaseObject
      */
     public function checkForNotification()
     {
-        foreach ($this->_getNotificationProcessors() as $processor) {
-            $processor->filterClients()->checkAndMakeNotifications();
+        try {
+            foreach ($this->_getNotificationProcessors() as $processor) {
+                $processor->filterClients()->checkAndMakeNotifications();
+            }
+        } catch (\Exception $e) {
+            echo PHP_EOL . '[Error]' . $e->getMessage() . PHP_EOL;
         }
     }
 

@@ -39,7 +39,20 @@ class LkController extends Controller
             }
         }
 
+        $now = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+        Param::setParam(
+            Param::NOTIFICATIONS_SCRIPT_ON,
+            $now->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $isRawValue = true
+        );
+
         (new Notification)->checkForNotification();
+
+        Param::setParam(
+            Param::NOTIFICATIONS_SCRIPT_ON, 
+            Param::IS_OFF,
+            $isRawValue = true
+        );
     }
 
     /**
