@@ -52,6 +52,8 @@ class ResourceModel extends ActiveRecord
     const ID_VPBX_VOICE_ASSISTANT = 51; // ВАТС. Голосовой помощник
     const ID_VPBX_ROBOT_CONTROLLER = 52; // ВАТС. Робот-контролер
     const ID_VPBX_RESERV = 57; // ВАТС. Резерв
+    const ID_VPBX_PROMPTER = 60; // ВАТС. Cуфлер
+    const ID_VPBX_OPERATOR_ASSESSMENT = 61; // ВАТС. Оценка оператора
 
 
     const ID_VOIP_LINE = 7; // Телефония. Линия
