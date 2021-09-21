@@ -28,6 +28,7 @@ class SearchController extends BaseController
      */
     public function actionIndex($search, $searchType)
     {
+        $search = trim($search);
         $controller = 'client';
         $action = 'search';
         $params = [];
