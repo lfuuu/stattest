@@ -85,7 +85,7 @@ class AccountTariffLogTimeHistory extends Behavior
                         ->scalar();
 
                     if($dateSale) {
-                        \Yii::$app->cache->set($cacheKey, $dateSale, 3600 * 24 * 30 * 12, (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST]])));
+                        \Yii::$app->cache->set($cacheKey, $dateSale, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_UU_SERVICE_LIST]])));
                     }
                 }
 

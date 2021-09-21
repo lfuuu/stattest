@@ -836,7 +836,7 @@ class CallsRawFilter extends CallsRaw
         if (!Yii::$app->cache->exists($queryCacheKey) || ($result = Yii::$app->cache->get($queryCacheKey)) === false) {
             $result = $query->createCommand($dbConn)->queryAll();
             if ($result) {
-                Yii::$app->cache->set($queryCacheKey, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
+                Yii::$app->cache->set($queryCacheKey, $result, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => DependecyHelper::TAG_CALLS_RAW])));
             }
         }
 

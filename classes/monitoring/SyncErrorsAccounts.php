@@ -3,6 +3,7 @@
 namespace app\classes\monitoring;
 
 use app\classes\DBROQuery;
+use app\classes\helpers\DependecyHelper;
 use app\models\ClientAccount;
 use app\models\ClientSuper;
 use app\models\usages\UsageInterface;
@@ -102,8 +103,7 @@ class SyncErrorsAccounts extends SyncErrorsUsageBase
 
         $result = [];
 
-        if (Yii::$app->request->get('page') && Yii::$app->cache->exists($cacheId))
-        {
+        if (Yii::$app->request->get('page') && Yii::$app->cache->exists($cacheId)) {
             $result = Yii::$app->cache->get($cacheId);
         } else {
 
@@ -135,7 +135,7 @@ class SyncErrorsAccounts extends SyncErrorsUsageBase
             }
 
             ksort($result);
-            Yii::$app->cache->set($cacheId, $result);
+            Yii::$app->cache->set($cacheId, $result, DependecyHelper::TIMELIFE_HOUR);
         }
 
         return new ArrayDataProvider([

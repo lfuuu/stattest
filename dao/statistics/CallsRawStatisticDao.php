@@ -190,7 +190,7 @@ class CallsRawStatisticDao extends Singleton
 
         /** @var yii\redis\Cache $redis */
         $cache = \Yii::$app->cache;
-        $cache->set('numberInfo:' . $number, serialize($data), DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_NUMBER_INFO]])));
+        $cache->set('numberInfo:' . $number, serialize($data), DependecyHelper::TIMELIFE_HALF_MONTH, (new TagDependency(['tags' => [DependecyHelper::TAG_NUMBER_INFO]])));
 
         return $data;
     }

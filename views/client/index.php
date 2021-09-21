@@ -59,14 +59,14 @@ echo Breadcrumbs::widget([
                         if ($isActive) {
                             $count = $folder->getCount();
                             $cacheKey = 'grid.folder.' . $activeFolder->getId() . '.count';
-                            Yii::$app->cache->set($cacheKey, $count, null, (new TagDependency(['tags' => DependecyHelper::TAG_GRID_FOLDER])));
+                            Yii::$app->cache->set($cacheKey, $count, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => DependecyHelper::TAG_GRID_FOLDER])));
                         } else {
                             $cacheKey = 'grid.folder.' . $folder->getId() . '.count';
                             $count = Yii::$app->cache->get($cacheKey);
 
                             if ($count === false) {
                                 $count = $folder->getCount();
-                                Yii::$app->cache->set($cacheKey, $count, null, (new TagDependency(['tags' => DependecyHelper::TAG_GRID_FOLDER])));
+                                Yii::$app->cache->set($cacheKey, $count, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => DependecyHelper::TAG_GRID_FOLDER])));
                             }
                         }
                         if (is_numeric($count)) {
