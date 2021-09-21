@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\billing\CachedCounter as BillingCounter;
@@ -117,7 +118,7 @@ class ClientCounter extends ActiveRecord
             }
         } else {
             if ($rtBalanceCached === null || $rtBalanceCached != $rtBalance) {
-                $cache->set($cKey, $rtBalance);
+                $cache->set($cKey, $rtBalance, DependecyHelper::DEFAULT_TIMELIFE);
             }
         }
 

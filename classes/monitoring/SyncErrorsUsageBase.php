@@ -2,6 +2,7 @@
 
 namespace app\classes\monitoring;
 
+use app\classes\helpers\DependecyHelper;
 use app\models\ClientAccount;
 use Yii;
 use yii\base\Component;
@@ -106,7 +107,7 @@ abstract class SyncErrorsUsageBase extends Component implements MonitoringInterf
         }
 
         ksort($result);
-        Yii::$app->cache->set($cacheId, $result);
+        Yii::$app->cache->set($cacheId, $result, DependecyHelper::TIMELIFE_HOUR);
 
         return new ArrayDataProvider([
             'allModels' => $result,

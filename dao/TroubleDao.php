@@ -527,7 +527,7 @@ ORDER BY `tf`.`order`
 
 SQL;
         $result = ArrayHelper::index(Trouble::getDb()->createCommand($sql, [':server_id' => 0, ':trouble_type' => $trouble_type, ':folder' => $folder])->queryAll(), 'pk');
-        \Yii::$app->cache->set($key, $result, 0, (new TagDependency(['tags' => DependecyHelper::TAG_TROUBLE_COUNT])));
+        \Yii::$app->cache->set($key, $result, DependecyHelper::TIMELIFE_HOUR, (new TagDependency(['tags' => DependecyHelper::TAG_TROUBLE_COUNT])));
 
         return $result;
     }

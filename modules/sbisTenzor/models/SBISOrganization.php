@@ -2,6 +2,7 @@
 
 namespace app\modules\sbisTenzor\models;
 
+use app\classes\helpers\DependecyHelper;
 use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Organization;
@@ -162,7 +163,7 @@ class SBISOrganization extends ActiveRecord
             $cacheKey = $this->getCacheCheckKey();
             if (!Yii::$app->cache->exists($cacheKey)) {
                 // отправляем 1 раз в день
-                Yii::$app->cache->set($cacheKey, 1, 3600 * 24);
+                Yii::$app->cache->set($cacheKey, 1, DependecyHelper::TIMELIFE_DAY);
 
                 Yii::$app->mailer
                     ->compose()

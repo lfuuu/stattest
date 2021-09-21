@@ -19,6 +19,7 @@ class DependecyHelper extends Singleton
     const TIMELIFE_HOUR = 3600;
     const TIMELIFE_DAY = 86400; //3600*24;
     const TIMELIFE_MONTH = 2678400; //3600*24*30;
+    const TIMELIFE_HALF_MONTH = 1339200; //3600*24*15;
 
     const DEFAULT_TIMELIFE = self::TIMELIFE_MONTH;
 

@@ -450,7 +450,7 @@ if ($has) :
                             \Yii::$app->cache->set(
                                     $keyCache,
                                     $content,
-                                    3600 * 24 * 30,
+                                DependecyHelper::DEFAULT_TIMELIFE,
                                     DependecyHelper::me()->getLsUsagesDependency($account->client));
 
                             set_number_status($content);
