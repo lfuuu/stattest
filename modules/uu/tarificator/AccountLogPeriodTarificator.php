@@ -144,7 +144,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 echo PHP_EOL . 'DP' . $accountTariff->id;
                 echo ' (' . $availBalance . ' - ' . $accountLogPeriod->price . ') ';
                 // close accountTariff
-//                $accountTariff->setClosed();
+                $accountTariff->setClosed();
                 return;
             }
 
