@@ -10,7 +10,7 @@ class m210921_140950_vats_prompter extends \app\classes\Migration
      */
     public function safeUp()
     {
-        throw new \Exception('Please start manually');
+        // throw new \Exception('Please start manually');
         $this->insertResource(
             \app\modules\uu\models\ServiceType::ID_VPBX,
             \app\modules\uu\models\ResourceModel::ID_VPBX_PROMPTER, [
