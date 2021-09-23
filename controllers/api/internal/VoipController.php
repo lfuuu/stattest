@@ -23,6 +23,7 @@ use app\classes\validators\UsageVoipValidator;
 use yii\base\InvalidParamException;
 use app\dao\statistics\CallsRawDao;
 use app\models\billing\CallsRaw;
+use yii\db\Expression;
 
 class VoipController extends ApiInternalController
 {
@@ -274,6 +275,7 @@ class VoipController extends ApiInternalController
      *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
+     *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
      *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "number", "year", "month", "day", "hour"}),
      *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
      *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000",default="100"),
@@ -313,6 +315,7 @@ class VoipController extends ApiInternalController
                 ['offset', 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000],
                 ['is_in_utc', 'default', 'value' => 1],
+                ['is_with_general_info', 'default', 'value' => 0],
                 ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['to_datetime', 'match', 'pattern' => $dateTimeRegexp],
                 ['account_id', AccountIdValidator::class],
@@ -360,10 +363,30 @@ class VoipController extends ApiInternalController
             $model->number,
             $firstDayOfDate,
             $lastDayOfDate,
-            $model->offset,
-            $model->limit,
             $model->group_by
         );
+
+        $generalInfo = [];
+        if ($model->is_with_general_info) {
+            $sumQuery = clone $query;
+            $sumQuery->select([
+                'sum' => new Expression('SUM(-cost)::decimal(12,2)'),
+                'count' => new Expression('COUNT(*)')
+            ]);
+            $sumQuery->orderBy(null);
+
+            $generalInfo = $sumQuery->one(DataRaw::getDb());
+            $generalInfo['count'] = (int)$generalInfo['count'];
+            $generalInfo['sum'] = (float)$generalInfo['sum'];
+            $generalInfo['offset'] = $model->offset;
+            $generalInfo['limit'] = $model->limit;
+        }
+        
+        if ($model->offset) {
+            $query->offset($model->offset);
+        }
+
+        $query->limit($model->limit);
 
         $result = [];
         foreach ($query->each(100, DataRaw::getDb()) as $data) {
@@ -375,8 +398,8 @@ class VoipController extends ApiInternalController
 
             $result[] = $data;
         }
-
-        return $result;
+       
+        return $model->is_with_general_info ? ['info' => $generalInfo, 'result' => $result] : $result;
     }
 
 
@@ -404,6 +427,7 @@ class VoipController extends ApiInternalController
      *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
+     *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
      *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "year", "month", "day", "hour"}),
      *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
      *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="10000",default="100"),
@@ -439,6 +463,28 @@ class VoipController extends ApiInternalController
         }
 
         $query = $searchModel->search();
+        
+        $generalInfo = [];
+        if ($searchModel->is_with_general_info) {
+            $sumQuery = clone $query;
+            $sumQuery->select([
+                'sum' => new Expression('SUM(-cost)::decimal(12,2)'),
+                'count' => new Expression('COUNT(*)')
+            ]);
+            $sumQuery->orderBy(null);
+
+            $generalInfo = $sumQuery->one(DataRaw::getDb());
+            $generalInfo['count'] = (int)$generalInfo['count'];
+            $generalInfo['sum'] = (float)$generalInfo['sum'];
+            $generalInfo['offset'] = $searchModel->offset;
+            $generalInfo['limit'] = $searchModel->limit;
+        }
+        
+        if ($searchModel->offset) {
+            $query->offset($searchModel->offset);
+        }
+
+        $searchModel->limit && $query->limit($searchModel->limit);
 
         $result = [];
         foreach ($query->each(100, SmscRaw::getDb()) as $data) {
@@ -451,6 +497,6 @@ class VoipController extends ApiInternalController
             $result[] = $data;
         }
 
-        return $result;
+        return $searchModel->is_with_general_info ? ['info' => $generalInfo, 'result' => $result] : $result;
     }
 }

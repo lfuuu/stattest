@@ -21,6 +21,7 @@ class SmsFilter extends Form
 
     public $number = '';
     public $is_in_utc = 0;
+    public $is_with_general_info = 0;
     public $from_datetime;
     public $to_datetime;
     public $group_by = '';
@@ -44,6 +45,7 @@ class SmsFilter extends Form
             ['offset', 'default', 'value' => 0],
             ['limit', 'default', 'value' => 1000],
             ['is_in_utc', 'default', 'value' => 1],
+            ['is_with_general_info', 'default', 'value' => 0],
             ['from_datetime', 'match', 'pattern' => self::dateTimeRegexp],
             ['to_datetime', 'match', 'pattern' => self::dateTimeRegexp],
             ['account_id', AccountIdValidator::class],

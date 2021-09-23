@@ -35,16 +35,9 @@ class SmscRawDao extends Singleton
         if ($number) {
             $query->andWhere(['OR', ['src_number' => $number], ['dst_number' => $number]]);
         }
-
-        if ($offset) {
-            $query->offset($offset);
-        }
-
+        
         $query->andWhere(['>=', 'setup_time', $firstDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         $query->andWhere(['<', 'setup_time', $lastDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
-
-        $limit && $query->limit($limit);
-
 
         if (!$group_by || $group_by == 'none') {
             $query->select([
