@@ -4,11 +4,13 @@ namespace app\modules\uu\forms;
 
 use app\classes\Form;
 use app\exceptions\ModelValidationException;
+use app\models\rewards\RewardClientContractService;
 use app\models\rewards\RewardsServiceTypeActive;
 use app\modules\uu\models\ServiceType;
 use app\models\rewards\RewardsServiceTypeResource;
 use app\modules\uu\models\ResourceModel;
 use InvalidArgumentException;
+use LogicException;
 
 abstract class ServiceTypeForm extends Form
 {
@@ -98,6 +100,10 @@ abstract class ServiceTypeForm extends Form
                         }
                     }
                 } else {
+                    if (RewardClientContractService::findOne(['service_type_id' => $this->serviceType->id])) {
+                        throw new LogicException('Невозможно отключить вознаграждение, данный сервис используется партнером');
+                    }
+
                     if (!$this->serviceTypeActive->delete()) {
                         throw new ModelValidationException($this->serviceTypeActive);
                     }

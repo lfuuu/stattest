@@ -9,12 +9,10 @@ use app\assets\AppAsset;
 use app\classes\Html;
 use app\classes\Language;
 use app\dao\ClientDocumentDao;
-use app\forms\client\ContractEditForm;
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContractReward;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContragent;
 use app\models\ClientDocument;
-use app\models\UserGroups;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\ArrayHelper;
@@ -42,6 +40,11 @@ if (!$model->id) {
 }
 
 $docs = $model->model->allDocuments;
+
+$viewParams = [
+    'formModel' => $model,
+];
+
 ?>
 
 <div class="row">
@@ -57,8 +60,12 @@ $docs = $model->model->allDocuments;
                 <div class="col-sm-4">
                     <div class="col-sm-12">
                         <label class="control-label" for="historyVersionStoredDate">Сохранить на</label>
-                        <?= Html::dropDownList('ContractEditForm[historyVersionStoredDate]', null, $model->getModel()->getDateList(),
-                            ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'id' => 'historyVersionStoredDate']); ?>
+                        <?= Html::dropDownList(
+                            'ContractEditForm[historyVersionStoredDate]',
+                            null,
+                            $model->getModel()->getDateList(),
+                            ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'id' => 'historyVersionStoredDate']
+                        ); ?>
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -110,15 +117,23 @@ $docs = $model->model->allDocuments;
     ]) ?>
 
     <?php if ($model->business_id == \app\models\Business::PARTNER) : ?>
-        <a name="rewards"></a>
+        <a name="rewards"></a> 
+        <div class="col-sm-12 extend-block">
+            <div class="row title">
+                <div class="col-sm-12">Параметры вознаграждения v3</div>
+            </div>
+            <?= $this->render('//rewards/reward-client-contract/view', $viewParams) ?>
+        </div>
         <div class="col-sm-12 extend-block">
             <div class="row title">
                 <div class="col-sm-12">Параметры вознаграждения</div>
+
             </div>
 
             <?php
             foreach (ClientContractReward::$usages as $usageType => $usageTitle) {
-                echo $this->render('rewards/' . $usageType,
+                echo $this->render(
+                    'rewards/' . $usageType,
                     [
                         'contract' => $model,
                         'model' => new ClientContractReward,
@@ -136,7 +151,7 @@ $docs = $model->model->allDocuments;
 </div>
 
 <script type="text/javascript">
-var
-    documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
-    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
+    var
+        documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
+        documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
 </script>
