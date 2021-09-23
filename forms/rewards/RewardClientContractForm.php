@@ -4,14 +4,12 @@ namespace app\forms\rewards;
 
 use ActiveRecord\ModelException;
 use app\classes\Form;
-use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 
 use app\models\rewards\RewardClientContractService;
 use app\models\rewards\RewardClientContractResource;
 use app\models\rewards\RewardsServiceTypeActive;
 use DateTime;
-use Exception;
 use InvalidArgumentException;
 use LogicException;
 use yii;

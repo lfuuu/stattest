@@ -34,12 +34,24 @@ use app\modules\uu\models\ServiceType;
 class RewardClientContractService extends ActiveRecord
 {
 
+    const ONCE_ONLY = 'once_only';
+    const PERCENTAGE_ONCE_ONLY = 'percentage_once_only';
+    const PERCENTAGE_OF_FEE = 'percentage_of_fee';
+    const PERCENTAGE_OF_MINIMAL = 'percentage_of_minimal';
+    
     const PERIOD_ALWAYS = 'always';
     const PERIOD_MONTH = 'month';
 
     public static $periods = [
         self::PERIOD_ALWAYS => 'Всегда',
         self::PERIOD_MONTH => 'Месяц',
+    ];
+
+    public static $rewardTypes = [
+        self::ONCE_ONLY => 'Разовое',
+        self::PERCENTAGE_ONCE_ONLY => 'От подключения',
+        self::PERCENTAGE_OF_FEE => 'От абонентки',
+        self::PERCENTAGE_OF_MINIMAL => 'От минималки',
     ];
 
     /**
@@ -92,7 +104,7 @@ class RewardClientContractService extends ActiveRecord
      */
     public function getResources()
     {
-        return $this->hasMany(RewardClientContractResource::class, ['reward_service_id' => 'id']);
+        return $this->hasMany(RewardClientContractResource::class, ['reward_service_id' => 'id'])->indexBy('resource_id');
     }
 
     /**
