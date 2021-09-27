@@ -811,59 +811,7 @@ class Bill {
      */
     public function getInvoicePayments()
     {
-        $billTable = \app\models\Bill::tableName();
-        $paymentTable = \app\models\Payment::tableName();
-        global $db;
-        $query = "SELECT
-  *,
-  UNIX_TIMESTAMP(payment_date) AS payment_date_ts
-FROM
-  {$paymentTable} as pays
-WHERE
-  payment_no <> ''
-  AND `sum` >= 0
-  AND (
-    bill_no = '" . $this->bill_no . "'
-    OR
-    bill_vis_no = '" . $this->bill_no . "'
-  )
-  AND
-  1 IN (
-    SELECT pays.payment_date
-    BETWEEN
-    ADDDATE(
-        DATE_FORMAT(bills.bill_date, '%Y-%m-01'),
-        INTERVAL -1 MONTH
-    )
-    AND
-    ADDDATE(
-        ADDDATE(
-            DATE_FORMAT(bills.bill_date, '%Y-%m-01'),
-            INTERVAL 1 MONTH
-        ),
-        INTERVAL -1 DAY
-    )
-    FROM
-      {$billTable} as bills
-    WHERE
-      bills.bill_no = IFNULL(
-          (
-            SELECT np1.bill_no
-            FROM {$paymentTable} np1
-            WHERE np1.bill_no = '" . $this->bill_no . "'
-            GROUP BY np1.bill_no
-          ),
-          (
-            SELECT np2.bill_vis_no
-            FROM {$paymentTable} np2
-            WHERE np2.bill_vis_no = '" . $this->bill_no . "'
-            GROUP BY np2.bill_vis_no
-          )
-      )
-  ) /*or bill_no = '201109/0574'*/
-            ";
-
-        return $db->AllRecords($query, null, MYSQLI_ASSOC);
+        return \app\models\Bill::dao()->getInvoicePayments($this->bill_no);
     }
 }
 ?>

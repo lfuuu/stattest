@@ -2,6 +2,7 @@
 
 namespace app\modules\sbisTenzor\classes\XmlGenerator;
 
+use ActiveRecord\DateTime;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContragent;
 use app\modules\sbisTenzor\classes\XmlGenerator;
@@ -91,6 +92,14 @@ class Invoice2016Form5_02 extends XmlGenerator
         $elInfoSellerAddressData->setAttribute('АдрТекст', $this->organizationFrom->legal_address);
         $elInfoSellerAddressData->setAttribute('КодСтр', $this->organizationFrom->country_id);
         $elInfoSellerAddress->appendChild($elInfoSellerAddressData);
+
+        // payments
+        foreach ($this->bill->getInvoicePayments() as $payment) {
+            $elPayment = $dom->createElement('СвПРД');
+            $elPayment->setAttribute('ДатаПРД', (new \DateTime())->setTimestamp($payment['payment_date_ts'])->format('d.m.Y'));
+            $elPayment->setAttribute('НомерПРД', $payment['payment_no']);
+            $elInvoiceInfo->appendChild($elPayment);
+        }
 
         $elInfoBuyer = $dom->createElement('СвПокуп');
         $elInvoiceInfo->appendChild($elInfoBuyer);

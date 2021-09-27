@@ -663,4 +663,14 @@ class Bill extends ActiveRecord
     {
         return OperationType::isCorrection($this->operation_type_id);
     }
+
+    /**
+     * К платежно-расчетному документу. Список платежей.
+     *
+     * @return array
+     */
+    public function getInvoicePayments()
+    {
+        return self::dao()->getInvoicePayments($this->bill_no);
+    }
 }
