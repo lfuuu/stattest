@@ -13,6 +13,7 @@ class m210702_134200_a2p_route extends Migration
      */
     public function safeUp()
     {
+        /*
         $this->createTable(A2pRoute::tableName(), [
             'id' => $this->primaryKey(),
             'name' => $this->string(64),
@@ -22,6 +23,7 @@ class m210702_134200_a2p_route extends Migration
         $this->insert(A2pRoute::tableName(), ['id' => 2, 'name' => 'tele2id']);
         $this->insert(A2pRoute::tableName(), ['id' => 3, 'name' => 'devinoid']);
         $this->insert(A2pRoute::tableName(), ['id' => 4, 'name' => 'API_Kannel']);
+        */
     }
 
     /**
@@ -29,6 +31,6 @@ class m210702_134200_a2p_route extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable(A2pRoute::tableName());
+        // $this->dropTable(A2pRoute::tableName());
     }
 }
