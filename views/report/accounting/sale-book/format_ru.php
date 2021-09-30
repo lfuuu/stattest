@@ -81,7 +81,7 @@
 
     $idx = 1;
 
-    $total = ['sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0,];
+    $total = ['sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0, 'sumCol16' => 0];
 
     if ($query)
         foreach ($query->each() as $invoice) : ?>
@@ -106,6 +106,9 @@
                 $sum_without_tax = $invoice->type_id != Invoice::TYPE_PREPAID ? $invoice->sum_without_tax : null;
                 $sum_tax = $invoice->sum_tax;
 
+                $linesSum16 = array_reduce($invoice->lines, function ($sum, $line) {
+                    return $sum += $line['sum_tax'] > 0 ? $line['sum'] : 0;
+                });
             } catch (Exception $e) {
                 Yii::$app->session->addFlash('error', $e->getMessage());
                 continue;
@@ -114,6 +117,7 @@
             $total['sumAll'] += $sum;
             $sum_without_tax && $total['sum' . $taxRate] += $sum_without_tax;
             $total['tax' . $taxRate] += $sum_tax;
+            $total['sumCol16'] += $linesSum16 ?: 0;  
 
             ?>
             <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
@@ -142,7 +146,7 @@
                 <td><?= $taxRate == 18 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td>&nbsp;</td>
-                <td><?= $sum_tax > 0 ? $printSum($sum) : "" ?></td>
+                <td><?= $sum_tax > 0 ? $printSum($linesSum16) : "" ?></td>
             </tr>
         <?php
         endforeach;
@@ -159,6 +163,7 @@
         <td><?= $printSum($total['tax18']) ?></td>
         <td><?= $printSum($total['tax10']) ?></td>
         <td>&nbsp;</td>
+        <td><?= $printSum($total['sumCol16']) ?></td>
     </tr>
     </tbody>
 </table>
