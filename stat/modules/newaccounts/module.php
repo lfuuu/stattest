@@ -35,6 +35,7 @@ use app\models\Store;
 use app\models\Transaction;
 use app\models\User;
 use app\models\ClientContarct;
+use app\models\rewards\RewardBill;
 use yii\db\Expression;
 
 class m_newaccounts extends IModule
@@ -957,6 +958,10 @@ class m_newaccounts extends IModule
             
         }
 
+        $b = $bill->GetBill();
+        $rewardBill = RewardBill::findOne(['bill_id' => $b['id']]);
+        $design->assign('reward_lines', $rewardBill->lines ?: []);
+        $design->assign('reward_sum', $rewardBill->sum ?: 0);
         $design->assign('is_automatic', $isAutomatic);
         $design->assign('bill_lines', $L);
         $design->assign('invoice2_info', Invoice::getInfo($bill->GetNo()));
