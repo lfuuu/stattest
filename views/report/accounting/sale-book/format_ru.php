@@ -106,9 +106,12 @@
                 $sum_without_tax = $invoice->type_id != Invoice::TYPE_PREPAID ? $invoice->sum_without_tax : null;
                 $sum_tax = $invoice->sum_tax;
 
-                $linesSum16 = array_reduce($invoice->lines, function ($sum, $line) {
-                    return $sum += $line['sum_tax'] > 0 ? $line['sum'] : 0;
-                });
+                $linesSum16 = 0;
+                $linesTax20 = 0;
+                foreach ($invoice->lines as $line) {
+                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
+                    $linesTax20 += $line['sum_tax'] > 0 ? $line['sum_without_tax'] : 0;
+                }
             } catch (Exception $e) {
                 Yii::$app->session->addFlash('error', $e->getMessage());
                 continue;
@@ -118,6 +121,7 @@
             $sum_without_tax && $total['sum' . $taxRate] += $sum_without_tax;
             $total['tax' . $taxRate] += $sum_tax;
             $total['sumCol16'] += $linesSum16 ?: 0;  
+            $total['sumTax20'] += $linesTax20 ?: 0;
 
             ?>
             <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
@@ -138,7 +142,7 @@
                 <td><?= $account->currency == 'RUB' ? ' ' : $account->currencyModel->name. ' ' . $account->currencyModel->code ?></td>
                 <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
                 <td><?= $printSum($sum) ?></td>
-                <td><?= $sum_without_tax !== null && $taxRate == 20 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
+                <td><?= $sum_without_tax !== null && $taxRate == 20 ? $printSum($linesTax20) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 0 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
@@ -155,7 +159,7 @@
         <td colspan="14" align="right">Всего:</td>
         <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
         <td><?= $printSum($total['sumAll']) ?></td>
-        <td><?= $printSum($total['sum20']) ?></td>
+        <td><?= $printSum($total['sumTax20']) ?></td>
         <td><?= $printSum($total['sum18']) ?></td>
         <td><?= $printSum($total['sum10']) ?></td>
         <td><?= $printSum($total['sum0']) ?></td>
