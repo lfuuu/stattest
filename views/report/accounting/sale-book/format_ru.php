@@ -53,6 +53,10 @@
             в рублях и
             копейках
         </td>
+        <td rowspan="2" class="s" align="center">
+            Сумма <br/>
+            С/Ф с НДС
+        </td>
     </tr>
     <td class="s" align="center">наименова-ние посред-ника</td>
     <td class="s" align="center">ИНН/КПП посредника</td>
@@ -138,6 +142,7 @@
                 <td><?= $taxRate == 18 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td>&nbsp;</td>
+                <td><?= $sum_tax > 0 ? $printSum($sum) : "" ?></td>
             </tr>
         <?php
         endforeach;
