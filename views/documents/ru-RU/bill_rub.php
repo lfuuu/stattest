@@ -101,7 +101,7 @@ $payerCompany = $document->getPayer();
         $isCompleted = true;
         if (
             $document->bill->uu_bill_id
-            && (date('d', $time) == 1 || (date('d', $time) == 2 && date('H', $time) < $hourLimit))
+            && (date('d', $time) == 1 && date('H', $time) < $hourLimit)
             && strpos($billNo, date('Ym', $time) . '-') === 0
         ) {
             $isCompleted = false;
@@ -115,7 +115,7 @@ $payerCompany = $document->getPayer();
             <br><b style="color:red; font-size: +140%;">*** Формирование счета ещё не закончено ***</b>
             <br><b style="color:red; ">
                 Планируемое время завершения:
-                <?= Yii::$app->formatter->asDatetime(date('Y-m-d', $time), 'php:2.m.Y') . ' ' . $hourLimit . ':00 (время московское)' ?></b>
+                <?= Yii::$app->formatter->asDatetime(date('Y-m-d', $time), 'php:1.m.Y') . ' ' . $hourLimit . ':00 (время московское)' ?></b>
         <?php endif; ?></h2></center>
 
 
