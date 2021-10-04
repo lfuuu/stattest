@@ -28,8 +28,6 @@ class DataRawDao extends Singleton
                             $number,
                             \DateTimeImmutable $firstDayOfDate,
                             \DateTimeImmutable $lastDayOfDate,
-                            $offset,
-                            $limit,
                             $group_by)
     {
         $tzOffest = $firstDayOfDate->getOffset();
@@ -48,15 +46,8 @@ class DataRawDao extends Singleton
             $query->andWhere(['number_service_id' => $usageIds]);
         }
 
-        if ($offset) {
-            $query->offset($offset);
-        }
-
         $query->andWhere(['>=', 'charge_time', $firstDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         $query->andWhere(['<', 'charge_time', $lastDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
-
-        $limit && $query->limit($limit);
-
 
         if (!$group_by || $group_by == 'none') {
             $query->select([
@@ -77,7 +68,7 @@ class DataRawDao extends Singleton
                 ]);
                 $query->groupBy('msisdn');
             } else {
-                $exp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "charge_time + '" . $offset . " second'::interval" : "charge_time") . ")");
+                $exp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "charge_time + '" . $tzOffest . " second'::interval" : "charge_time") . ")");
                 $query->addSelect([
                     'charge_time' => $exp,
                     'number' => 'msisdn',
