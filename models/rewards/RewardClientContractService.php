@@ -33,6 +33,15 @@ use app\modules\uu\models\ServiceType;
 
 class RewardClientContractService extends ActiveRecord
 {
+    const SERVICE_VIRTPBX = 1;
+    const SERVICE_VOIP = 2;
+    const SERVICE_TRUNK = 22;
+    const SERVICE_CALL_CHAT = 19;
+
+    const ONCE_ONLY = 'once_only';
+    const PERCENTAGE_ONCE_ONLY = 'percentage_once_only';
+    const PERCENTAGE_OF_FEE = 'percentage_of_fee';
+    const PERCENTAGE_OF_MINIMAL = 'percentage_of_minimal';
 
     const PERIOD_ALWAYS = 'always';
     const PERIOD_MONTH = 'month';
@@ -40,6 +49,13 @@ class RewardClientContractService extends ActiveRecord
     public static $periods = [
         self::PERIOD_ALWAYS => 'Всегда',
         self::PERIOD_MONTH => 'Месяц',
+    ];
+
+    public static $rewardTypes = [
+        self::ONCE_ONLY => 'Разовое',
+        self::PERCENTAGE_ONCE_ONLY => 'От подключения',
+        self::PERCENTAGE_OF_FEE => 'От абонентки',
+        self::PERCENTAGE_OF_MINIMAL => 'От минималки',
     ];
 
     /**
