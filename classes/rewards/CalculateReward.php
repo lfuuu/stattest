@@ -218,6 +218,8 @@ class CalculateReward
 
     public static function moveOldSettings()
     {
+        RewardClientContractService::deleteAll();
+        RewardClientContractResource::deleteAll();
         $oldContractSettings = ClientContractReward::find()->asArray()->all();
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -270,7 +272,7 @@ class CalculateReward
                         ->where(['service_type_id' => $newServiceSetting->service_type_id])
                         ->asArray()
                         ->all();
-                    
+                        
                     foreach ($serviceResources as $serviceResource) {
                         $resource = new RewardClientContractResource();
                         $resource->reward_service_id = $newServiceSetting->id;

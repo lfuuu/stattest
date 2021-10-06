@@ -4,25 +4,12 @@ namespace app\commands;
 
 use ActiveRecord\ModelException;
 use app\classes\rewards\CalculateReward;
-use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\ClientContract;
-use app\models\ClientContractReward;
-use app\models\rewards\RewardBill;
-use app\models\rewards\RewardBillLine;
-use app\models\rewards\RewardClientContractResource;
 use app\models\rewards\RewardClientContractService;
-use app\models\rewards\RewardsServiceTypeResource;
-use app\modules\uu\models\AccountEntry;
 use DateTime;
-use DateTimeImmutable;
-use Exception;
-use LogicException;
-use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
-use yii\helpers\ArrayHelper;
 
 class RewardController extends Controller
 {
@@ -34,7 +21,7 @@ class RewardController extends Controller
             throw new ModelException($bill);
         }
 
-        $this->_processBill($bill);
+        CalculateReward::processBill($bill);
     }
 
     public function actionCalculateAllPartners($dateFrom = 'yesterday', $dateTo = null)

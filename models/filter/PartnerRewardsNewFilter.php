@@ -5,13 +5,9 @@ namespace app\models\filter;
 use app\classes\DynamicModel;
 use app\models\Bill;
 use app\models\BillLine;
-use app\models\Business;
 use app\models\ClientAccount;
 use app\models\ClientContract;
-use app\models\ClientContractReward;
 use app\models\ClientContragent;
-use app\models\PartnerRewards;
-use app\models\PartnerRewardsPermanent;
 use app\models\rewards\RewardBillLine;
 use Yii;
 use yii\data\ArrayDataProvider;
@@ -127,6 +123,8 @@ SQL;
             $query->andWhere(['<=', new Expression('DATE_FORMAT(bills.payment_date, "%Y-%m")'), $this->payment_date_after]);
         }
 
+        $query->orderBy('contragent_name');
+
         $dataProvider = new ArrayDataProvider([
             'allModels' => $this->_prepareData($query),
             'sort' => false,
@@ -191,5 +189,17 @@ SQL;
         unset($buffer);
 
         return $data;
+    }
+
+
+    /**
+     * Функция форматирования цены, требуемая в том числе и при экспорте отчета
+     *
+     * @param $price
+     * @return string
+     */
+    public static function getNumberFormat($price)
+    {
+        return number_format($price, 2, ',', ' ');
     }
 }
