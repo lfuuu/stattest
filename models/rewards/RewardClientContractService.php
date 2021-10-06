@@ -42,11 +42,6 @@ class RewardClientContractService extends ActiveRecord
     const PERCENTAGE_ONCE_ONLY = 'percentage_once_only';
     const PERCENTAGE_OF_FEE = 'percentage_of_fee';
     const PERCENTAGE_OF_MINIMAL = 'percentage_of_minimal';
-
-    const ONCE_ONLY = 'once_only';
-    const PERCENTAGE_ONCE_ONLY = 'percentage_once_only';
-    const PERCENTAGE_OF_FEE = 'percentage_of_fee';
-    const PERCENTAGE_OF_MINIMAL = 'percentage_of_minimal';
     
     const PERIOD_ALWAYS = 'always';
     const PERIOD_MONTH = 'month';
