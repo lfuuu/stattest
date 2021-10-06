@@ -262,6 +262,7 @@ class ClientCreateExternalForm extends Form
             Yii::error($e);
             $transaction->rollBack();
 
+//            throw $e;
             return false;
         }
 
@@ -289,7 +290,9 @@ class ClientCreateExternalForm extends Form
     {
         $super = new ClientSuper();
         $super->name = $this->company ?: 'Client #';
-        $this->utm_parameters && $super->utm = is_array($this->utm_parameters) ? json_encode(array_filter($this->utm_parameters)) : $this->utm_parameters;
+        if ($this->utm_parameters) {
+            $super->utm = is_array($this->utm_parameters) ? json_encode(array_filter($this->utm_parameters)) : $this->utm_parameters;
+        }
         $super->validate();
         if (!$super->save()) {
             throw new ModelValidationException($super);
@@ -491,7 +494,12 @@ class ClientCreateExternalForm extends Form
                 'date_finish_desired' => date(DateTimeZoneHelper::DATETIME_FORMAT),
                 'problem' => 'Входящие клиент с сайта' . ($this->site_name ? ' ' . $this->site_name : '') . ': ' . $this->company,
                 'user_author' => 'system',
-                'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : ''),
+                'first_comment' => $this->comment . PHP_EOL .
+                    ($this->site_name ? "Клиент с сайта: " . $this->site_name . PHP_EOL : '') .
+                    ($this->ip ? "IP-адрес: " . $this->ip . PHP_EOL : '') .
+                    ($this->roistat_visit ? 'Roistat visit: ' . $this->roistat_visit . PHP_EOL : '') .
+                    ($this->utm_parameters ? 'UTM: ' . json_encode($this->utm_parameters) . PHP_EOL : '')
+                    ,
             ];
 
             $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);
