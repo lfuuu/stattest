@@ -550,7 +550,12 @@
                     </label>
                     <br/>
                 {/if}
-
+                {if isset($isPartnerRewardsV3) && $isPartnerRewardsV3}
+                    <input type="checkbox" value="1" name="partner_reward_2"/>
+                    <label>Отчет агента v3
+                    </label>
+                    <br/>
+                {/if}
                 {if $bill_is_credit_note}
                     <input type="checkbox" value="1" name="credit_note" id="label_credit_note"/>
                     <label for="label_credit_note">Credit Note</label>
