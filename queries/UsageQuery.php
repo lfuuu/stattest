@@ -1,6 +1,8 @@
 <?php
 namespace app\queries;
 
+use app\models\UsageEmails;
+use app\models\UsageTechCpe;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 
@@ -14,8 +16,12 @@ class UsageQuery extends ActiveQuery
      */
     public function actual()
     {
-        return $this->andWhere('now() between activation_dt and expire_dt');
-        //return $this->andWhere('CAST(NOW() AS date) BETWEEN actual_from AND actual_to');
+        if (in_array($this->modelClass, [UsageEmails::class])) {
+            return $this->andWhere('CAST(NOW() AS date) BETWEEN actual_from AND actual_to');
+        } else {
+            return $this->andWhere('now() between activation_dt and expire_dt');
+        }
+
     }
 
     /**
