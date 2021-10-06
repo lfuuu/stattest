@@ -44,8 +44,8 @@ class VirtPbx3Checker
                 FROM
                     usage_virtpbx u, clients c
                 WHERE
-                        actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') 
-                    AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
+                    # actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
+                    (now() between activation_dt and expire_dt)
                     AND u.client = c.client
                 
                 UNION 
