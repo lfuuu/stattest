@@ -35,6 +35,7 @@ use app\models\Store;
 use app\models\Transaction;
 use app\models\User;
 use app\models\ClientContarct;
+use app\models\filter\PartnerRewardsNewFilter;
 use app\models\rewards\RewardBill;
 use yii\db\Expression;
 
@@ -1114,6 +1115,7 @@ class m_newaccounts extends IModule
 
         $design->assign('isPartnerRewards', $newbill->isHavePartnerRewards());
 
+        $design->assign('isPartnerRewardsV3', $newbill->isHavePartnerRewards());
 
         $design->assign('operationType', OperationType::getNameById($newbill->operation_type_id, true));
 
@@ -2049,7 +2051,7 @@ class m_newaccounts extends IModule
         ]);
         $L = array_merge($L, ['akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3']);
         $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'credit_note']);
-        $L = array_merge($L, ['partner_reward', 'sogl_mcn_telekom_to_service', 'invoice2']);
+        $L = array_merge($L, ['partner_reward', 'partner_reward_2', 'sogl_mcn_telekom_to_service', 'invoice2']);
 
         $landscapeActions = ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4', 'upd-1', 'upd-2', 'upd-3'];
 
@@ -2604,6 +2606,29 @@ class m_newaccounts extends IModule
                 $filterModel->payment_date_after = $filterDate;
                 // Генерация контента по шаблону и создание PDF-файла
                 $html = Yii::$app->view->render('//stats/partner-rewards/template/partner_rewards_report', [
+                    'filterModel' => $filterModel,
+                ]);
+                include 'mpdf.php';
+                $mpdf = new mPDF('', 'A4-L', 9);
+                $mpdf->PDFA = true;
+                $mpdf->PDFAauto = true;
+                $mpdf->WriteHTML($html);
+                header('Content-Type: application/pdf');
+                echo $mpdf->Output();
+                exit;
+            case 'partner_reward_2':
+                // Дата за прошлый месяц для генерации отчета
+                $filterDate = (new \DateTimeImmutable($billModel->bill_date))
+                    ->modify('first day of previous month')
+                    ->format('Y-m');
+                // Создание фильтра и получение результата
+                $filterModel = (new PartnerRewardsNewFilter(true))->load();
+                // Вызов данного события обусловлен пройденной проверкой, в которой клиент счета имеет партнерское вознаграждение
+                $filterModel->partner_contract_id = $billModel->clientAccount->contract_id;
+                $filterModel->payment_date_before = $filterDate;
+                $filterModel->payment_date_after = $filterDate;
+                // Генерация контента по шаблону и создание PDF-файла
+                $html = Yii::$app->view->render('//stats/partner-rewards-new/template/partner_rewards_report', [
                     'filterModel' => $filterModel,
                 ]);
                 include 'mpdf.php';

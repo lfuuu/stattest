@@ -108,7 +108,7 @@ class RewardClientContractService extends ActiveRecord
      */
     public function getResources()
     {
-        return $this->hasMany(RewardClientContractResource::class, ['reward_service_id' => 'id']);
+        return $this->hasMany(RewardClientContractResource::class, ['reward_service_id' => 'id'])->indexBy('resource_id');
     }
 
     /**
