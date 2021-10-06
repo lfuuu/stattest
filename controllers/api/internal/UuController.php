@@ -16,6 +16,7 @@ use app\models\EventQueue;
 use app\models\Number;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
+use app\models\TroubleRoistatStore;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -1924,10 +1925,13 @@ class UuController extends ApiInternalController
                 $accountTariff,
                 $accountTariffLog,
                 [],
-                (isset($post[Trouble::OPTION_IS_FROM_LK_MCN_RU]) ?
-                    ['roistat_visit' => TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK)] :
-                    [Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT => true]
-                )
+                ['roistat_visit' => TroubleRoistatStore::getRoistatIdByAccountId($accountTariff->client_account_id) ?:
+                    TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK)
+                ],
+//                (isset($post[Trouble::OPTION_IS_FROM_LK_MCN_RU]) ?
+//                    ['roistat_visit' => TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK)] :
+//                    [Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT => true]
+//                )
             );
             $transaction->commit();
             $sem->release(Semaphore::ID_UU_CALCULATOR);

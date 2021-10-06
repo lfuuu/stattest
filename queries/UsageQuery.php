@@ -14,7 +14,8 @@ class UsageQuery extends ActiveQuery
      */
     public function actual()
     {
-        return $this->andWhere('CAST(NOW() AS date) BETWEEN actual_from AND actual_to');
+        return $this->andWhere('now() between activation_dt and expire_dt');
+        //return $this->andWhere('CAST(NOW() AS date) BETWEEN actual_from AND actual_to');
     }
 
     /**

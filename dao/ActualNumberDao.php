@@ -77,7 +77,8 @@ class ActualNumberDao extends Singleton
                         FROM
                             usage_voip u, clients c, client_contract ct
                         WHERE
-                            (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
+                            #(actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
+                            (now() between activation_dt and expire_dt)
                             AND u.client = c.client 
                             AND ct.id = c.contract_id
                             AND LENGTH(e164) > 3
