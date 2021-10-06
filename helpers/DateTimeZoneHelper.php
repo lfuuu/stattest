@@ -14,6 +14,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
     const DATETIME_FORMAT = 'Y-m-d H:i:s';
     const DATE_FORMAT = 'Y-m-d';
     const DATE_FORMAT_EUROPE = 'd-m-Y';
+    const DATE_FORMAT_US_DOTTED = 'm.d.Y';
     const DATE_FORMAT_EUROPE_DOTTED = 'd.m.Y';
     const HUMAN_DATE_FORMAT = 'd MMM y';
 
