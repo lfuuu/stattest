@@ -360,11 +360,11 @@ class TroubleDao extends Singleton
                 throw new ModelValidationException($trouble);
             }
 
-            if (isset($options[Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT])) {
-                if ($roistatVisit = TroubleRoistatStore::getRoistatIdByAccountId($clientAccount->id)) {
-                    $options['roistat_visit'] = $roistatVisit;
-                }
-            }
+//            if (isset($options[Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT])) {
+//                if ($roistatVisit = TroubleRoistatStore::getRoistatIdByAccountId($clientAccount->id)) {
+//                    $options['roistat_visit'] = $roistatVisit;
+//                }
+//            }
 
             if (isset($options['roistat_visit'])) {
                 $troubleRoistat = new TroubleRoistat();
