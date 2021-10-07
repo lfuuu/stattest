@@ -237,16 +237,16 @@ $dateToFormated = $lang == Language::LANGUAGE_RUSSIAN ? (new \DateTimeImmutable(
     </table>
 <?php endif; ?>
 
-&nbsp; <?= Yii::t('reconcilliation', 'Before debt', [], $lang); ?>
+&nbsp; <?= Yii::t('reconcilliation', 'Before debt', [], $lang); ?>&nbsp;
 <?php if ($deposit_balance > 0.0001) {
     echo Yii::t('reconcilliation', 'Debt', [
             'company_name' => $firm->name, 
-            'deposit_balance' => number_format($deposit_balance, 2, ',', ' ')
+            'deposit_balance' => number_format(abs($deposit_balance), 2, ',', ' ')
         ], $lang);
 } elseif ($deposit_balance < -0.0001) {
     echo Yii::t('reconcilliation', 'Debt', [
         'company_name' => $contragent->name_full, 
-        'deposit_balance' => number_format($deposit_balance, 2, ',', ' ')
+        'deposit_balance' => number_format(abs($deposit_balance), 2, ',', ' ')
     ], $lang);
 } else {
    echo Yii::t('reconcilliation', 'Even', [], $lang);
@@ -256,9 +256,9 @@ $dateToFormated = $lang == Language::LANGUAGE_RUSSIAN ? (new \DateTimeImmutable(
 <div>
     <table border="0" cellpadding="0" cellspacing="5">
         <tr>
-            <td colspan="3"><p><?= Yii::t('reconcilliation', 'From', [], $lang); ?><?= $firm->name->value ?></p></td>
+            <td colspan="3"><p><?= Yii::t('reconcilliation', 'From', [], $lang); ?> <?= $firm->name->value ?></p></td>
             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-            <td><p><?= Yii::t('reconcilliation', 'From', [], $lang); ?><?= $contragent->name_full ?></p></td>
+            <td><p><?= Yii::t('reconcilliation', 'From', [], $lang); ?> <?= $contragent->name_full ?></p></td>
         </tr>
         <tr>
             <td colspan="5">&nbsp;</td>
