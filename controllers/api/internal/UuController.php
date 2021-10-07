@@ -1921,17 +1921,17 @@ class UuController extends ApiInternalController
             }
 
             $this->_checkTariff($accountTariff, $accountTariffLog);
+
+            $roistatVisit = TroubleRoistatStore::getRoistatIdByAccountId($accountTariff->client_account_id);
+            if (!$roistatVisit && isset($post[Trouble::OPTION_IS_FROM_LK_MCN_RU])) {
+                $roistatVisit = TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK);
+            }
+
             Trouble::dao()->notificateCreateAccountTariff(
                 $accountTariff,
                 $accountTariffLog,
                 [],
-                ['roistat_visit' => TroubleRoistatStore::getRoistatIdByAccountId($accountTariff->client_account_id) ?:
-                    TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK)
-                ],
-//                (isset($post[Trouble::OPTION_IS_FROM_LK_MCN_RU]) ?
-//                    ['roistat_visit' => TroubleRoistat::getChannelNameById(TroubleRoistat::CHANNEL_LK)] :
-//                    [Trouble::OPTION_IS_CHECK_SAVED_ROISTAT_VISIT => true]
-//                )
+                $roistatVisit ? ['roistat_visit' => $roistatVisit] : [],
             );
             $transaction->commit();
             $sem->release(Semaphore::ID_UU_CALCULATOR);
