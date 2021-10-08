@@ -203,6 +203,7 @@ if ($isSubmit) {
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
+                    <td>&nbsp;</td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

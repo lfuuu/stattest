@@ -18,6 +18,6 @@ return [
     'MP' => 'М.П.',
     'Currency' => 'рублей',
 
-    'Head of oragnization' => 'Руководитель организации',
+    'Head of organization' => 'Руководитель организации',
     'Signature' => '(подпись)',
 ];  
