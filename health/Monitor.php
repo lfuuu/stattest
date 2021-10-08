@@ -48,7 +48,7 @@ abstract class Monitor extends Component
             MonitorQueue::class,
             MonitorQueueSwitchedOff::class,
             MonitorSuperClientStruct::class,
-//            BacklogSlaveServer::class,
+            BacklogSlaveServer::class,
             MonitorNnpPrefix::class,
             MonitorSormClientsReg88::class,
             MonitorBrokenRegionInVoip::class,
