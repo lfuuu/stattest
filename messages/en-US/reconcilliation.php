@@ -18,6 +18,6 @@ return [
     'MP' => ' ',
     'Currency' => '$',
 
-    'Head of oragnization' => 'Head of organization',
+    'Head of organization' => 'Head of organization',
     'Signature' => '(signature)',
 ];  
