@@ -4,7 +4,7 @@ return [
     'Reconcilliation act' => 'Reconcilliation Act',
     'Description' => 'Of mutual payments as of {date} <br/> between {client_name} (personal account № {account_number}) <br/> and {company_name}.',
     'According' => 'According to {name} $.',
-    'No' => '№ п/п',
+    'No' => '№ No',
     'Debit' => 'Debit',
     'Credit' => 'Credit',
     'Documents' => 'Operation type,<br>documents',
