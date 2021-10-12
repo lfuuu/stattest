@@ -91,6 +91,9 @@ foreach ($rows as $hash => $row) {
         case ServiceType::ID_A2P:
             $packageServiceTypeIds = [ServiceType::ID_A2P_PACKAGE];
             break;
+        case ServiceType::ID_BILLING_API:
+            $packageServiceTypeIds = [ServiceType::ID_BILLING_API_MAIN_PACKAGE];
+            break;
         default:
             $packageServiceTypeIds = [];
             break;
