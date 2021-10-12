@@ -35,7 +35,7 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        if ($this->accountTariffId !== $accountTariff->prev_account_tariff_id) {
+        if ($this->accountTariffId !== $accountTariff->id) {
             $this->setDateToValue($accountTariff, $dateTime);
         }
 
@@ -56,7 +56,7 @@ class SmsResourceReader extends BaseObject implements ResourceReaderInterface
      */
     protected function setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $this->accountTariffId = $accountTariff->prev_account_tariff_id;
+        $this->accountTariffId = $accountTariff->id;
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
