@@ -9,12 +9,12 @@ use app\assets\AppAsset;
 use app\classes\Html;
 use app\classes\grid\GridView;
 use app\classes\grid\column\universal\TagsColumn;
+use app\helpers\DateTimeZoneHelper;
 
 $this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::class]]);
 
 $model = new ClientFiles;
 $dataProvider = $model->search($contract->id);
-
 $baseView = $this;
 ?>
 
@@ -89,6 +89,9 @@ $baseView = $this;
         [
             'attribute' => 'ts',
             'width' => '10%',
+            'value' => function ($file) {
+                return DateTimeZoneHelper::getDateTime($file->ts);
+            },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
     ],
