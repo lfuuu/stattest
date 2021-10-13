@@ -44,6 +44,7 @@ use app\modules\uu\models\Tag;
 use app\modules\uu\models\TariffVoipGroup;
 use app\modules\uu\Module;
 use app\modules\async\Module as asyncModule;
+use app\modules\nnp\models\NdcType;
 use DateTimeZone;
 use Exception;
 use Yii;
@@ -579,6 +580,8 @@ class UuController extends ApiInternalController
                     break;
 
                 case ServiceType::ID_VOIP_PACKAGE_CALLS:
+                case ServiceType::ID_VOIP_PACKAGE_SMS:
+                case ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY:
                     if (!$voip_number) {
                         throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан телефонный номер', AccountTariff::ERROR_CODE_NUMBER_NOT_FOUND);
                     }
@@ -591,6 +594,12 @@ class UuController extends ApiInternalController
 
                     $tariff_status_id = $number->didGroup->getTariffStatusPackage($clientAccount->price_level);
                     $voip_ndc_type_id = $number->ndc_type_id;
+
+                    //если Ndc тип мобильный и сервис тип смс либо интернет - обнуляем voip_ndc_type, т.к у этих сервис типов нету ndc типа.
+                    if ($voip_ndc_type_id == NdcType::ID_MOBILE && ($service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS || $service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY)) {
+                        $voip_ndc_type_id = null;
+                    }
+                    
                     $voip_country_id = $number->country_code;
                     break;
             }
@@ -735,9 +744,6 @@ class UuController extends ApiInternalController
                 'voip_cities' => $this->_getIdNameRecord($tariff->voipCities, 'city_id'),
                 'voip_ndc_types' => $this->_getIdNameRecord($tariff->voipNdcTypes, 'ndc_type_id'),
                 'organizations' => $this->_getIdNameRecord($tariff->organizations, 'organization_id'),
-                'voip_package_minute' => null, //$this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic),
-                'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices, $tariff->id) ?: $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp),
-                'voip_package_price_prices' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp, true),
                 'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
                 'voip_package_price_internet' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpInternet, true),
                 'voip_package_price_sms' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, true),
