@@ -10,6 +10,7 @@ class VoipRegistrySourceEnum extends Enum
     const INNONET = 'innonet';
     const VOXBONE = 'voxbone';
     const G4M = 'g4m';
+    const VOICECONNECT = 'voice_connect';
     const DETACHED = 'detached';
     const PORTABILITY_NOT_FOR_SALE = 'portability_not_for_sale';
     const PORTABILITY_INNONET = 'portability_innonet';
@@ -22,6 +23,7 @@ class VoipRegistrySourceEnum extends Enum
         self::INNONET => 'Innonet',
         self::VOXBONE => 'Voxbone',
         self::G4M => 'G4M',
+        self::VOICECONNECT => 'VoiceConnect',
         self::DETACHED => 'Detached',
         self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
         self::PORTABILITY_INNONET => 'Portability (Innonet)',
