@@ -194,7 +194,7 @@ if (!$contragent) {
 $total = end($dataProvider->allModels);
 $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
 ?>
-
+</br>
 <?= Yii::t('reconcilliation', 'According to data', ['company_name' => $firm->name, 'date' => $dateToFormated], $lang) ?>
 <?php if ($deposit): ?>
     <?= Yii::t('reconcilliation', 'Deposit', [], $lang); ?>
@@ -214,23 +214,34 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
     </table>
 <?php endif; ?>
 
-&nbsp; <?= Yii::t('reconcilliation', 'Before debt', [], $lang); ?>&nbsp;
-<?php if ($deposit_balance > 0.0001) {
-    echo Yii::t('reconcilliation', 'Debt', [
-            'company_name' => $firm->name, 
-        ], $lang);
-    echo Currency::formatCurrencyLang($lang, number_format(abs($deposit_balance), 2, ',', ' '), $currency);
-    } elseif ($deposit_balance < -0.0001) {
-    echo Yii::t('reconcilliation', 'Debt', [
-        'company_name' => $contragent->name_full, 
-        ], $lang);
-    echo Currency::formatCurrencyLang($lang, number_format(abs($deposit_balance), 2, ',', ' '), $currency);
-} else {
-   echo Yii::t('reconcilliation', 'Even', [], $lang);
-}
+<?php
+    echo Yii::t('reconcilliation', 'Before debt', [], $lang);  
+    if ($deposit_balance > 0.0001) {
+        echo Yii::t('reconcilliation', 'Debt', [
+                'company_name' => $firm->name, 
+            ], $lang);
+        if ($lang == Language::LANGUAGE_RUSSIAN) {
+            echo number_format(abs($deposit_balance), 2, ',', ' ') . ' рублей.';
+        } else {
+            echo Currency::formatCurrency(abs($deposit_balance), $currency);
+        }
+        
+        } elseif ($deposit_balance < -0.0001) {
+        echo Yii::t('reconcilliation', 'Debt', [
+            'company_name' => $contragent->name_full, 
+            ], $lang);
+        if ($lang == Language::LANGUAGE_RUSSIAN) {
+            echo number_format(abs($deposit_balance), 2, ',', ' ') . ' рублей.';
+        } else {
+            echo Currency::formatCurrency(abs($deposit_balance), $currency);
+        }
+    } else {
+        echo Yii::t('reconcilliation', 'Even', [], $lang);
+    }
 ?>
     
 <div>
+    </br>
     <table border="0" cellpadding="0" cellspacing="5">
         <tr>
             <td colspan="3"><p><?= Yii::t('reconcilliation', 'From', [], $lang); ?> <?= $firm->name->value ?></p></td>
