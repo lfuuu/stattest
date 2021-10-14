@@ -135,9 +135,6 @@ ECHO;
 }
 
 $date = new DateTime($dateTo);
-if ($lang == Language::LANGUAGE_RUSSIAN) {
-    unset($currency);
-}
 if ($isSubmit) {
     ?>
     <br>
