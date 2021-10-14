@@ -5,6 +5,7 @@
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Currency;
 use app\models\Language;
 use kartik\widgets\DatePicker;
 use yii\widgets\Breadcrumbs;
@@ -134,6 +135,9 @@ ECHO;
 }
 
 $date = new DateTime($dateTo);
+if ($lang == Language::LANGUAGE_RUSSIAN) {
+    unset($currency);
+}
 if ($isSubmit) {
     ?>
     <br>
@@ -142,7 +146,7 @@ if ($isSubmit) {
             <h2><?= Yii::t('reconcilliation', 'Reconcilliation act', [], $lang) ?></h2>
             <h3 style="color: black;">
             <?= Yii::t('reconcilliation', 'Description', [
-                    'date' => $lang == Language::LANGUAGE_RUSSIAN ? $date->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : $date->format(DateTimeZoneHelper::DATE_FORMAT_US_DOTTED),
+                    'date' => $date->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                     'client_name' => $contragent->name_full,
                     'account_number' => $accountId,
                     'company_name' => $firm->name->value,
@@ -154,8 +158,8 @@ if ($isSubmit) {
         <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
             <thead>
             <tr>
-                <td width=50% colspan=4><?=Yii::t('reconcilliation', 'According', ['name' => $firm->name->value], $lang) ?></td>
-                <td width=50% colspan=4><?=Yii::t('reconcilliation', 'According', ['name' => $contragent->name_full], $lang) ?></td>
+                <td width=50% colspan=4><?=Yii::t('reconcilliation', 'According', ['name' => $firm->name->value, 'currency' => $currency], $lang) ?></td>
+                <td width=50% colspan=4><?=Yii::t('reconcilliation', 'According', ['name' => $contragent->name_full, 'currency' => $currency], $lang) ?></td>
             </tr>
             <tr>
                 <td width=4%><?= Yii::t('reconcilliation', 'No', [], $lang) ?> </td>
@@ -172,31 +176,6 @@ if ($isSubmit) {
             <?php foreach ($dataProvider->allModels as $idx => $item) : ?>
                 <tr>
                     <td><?= ($idx + 1) ?></td>
-                    <?php if ($lang != Language::LANGUAGE_RUSSIAN) : ?>
-                        <?php 
-                            $date = (new DateTime($item['date']))->format('d.m.Y');
-                            if ($item['type'] == 'saldo') {
-                                $item['description'] = 'Balance as of ' . $date;
-                            } elseif ($item['type'] == 'inv') {
-                                if ($item['inv_no'] == 3) {
-                                    $item['description'] = 'The act of transferring equipment on bail ' . $date;
-                                } else {
-                                    if ($item['inv_no'] != 4) {
-                                        $item['description'] = 'Invoice ';
-                                    } else {
-                                        $item['description'] = 'Waybill ';
-                                    }
-                                    $item['description'] .= $item['inv_no'] . ' ' . $date;
-                                }
-                            } elseif ($item['type'] == 'pay') {
-                                $item['description'] = 'Payment ' . $item['pay_no'] . ' ' . $date;
-                            } elseif ($item['type'] == 'creditnote') {
-                                $item['description'] = 'Credit note on ' . $date;
-                            } elseif ($item['type'] == 'period') {
-                                $item['description'] = 'Period transactions'; 
-                            }
-                        ?>
-                    <?php endif; ?>
                     <td><?= $item['description'] ?></td>
                     <td align=right><?= ($item['income_sum'] !== '' ? number_format($item['income_sum'], 2, ',', '&nbsp;') : '') ?></td>
                     <td align=right><?= ($item['outcome_sum'] !== '' ? number_format($item['outcome_sum'], 2, ',', '&nbsp;') : '') ?></td>
@@ -216,7 +195,7 @@ if (!$contragent) {
 }
 
 $total = end($dataProvider->allModels);
-$dateToFormated = $lang == Language::LANGUAGE_RUSSIAN ? (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::DATE_FORMAT_US_DOTTED);
+$dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
 ?>
 
 <?= Yii::t('reconcilliation', 'According to data', ['company_name' => $firm->name, 'date' => $dateToFormated], $lang) ?>
@@ -242,13 +221,13 @@ $dateToFormated = $lang == Language::LANGUAGE_RUSSIAN ? (new \DateTimeImmutable(
 <?php if ($deposit_balance > 0.0001) {
     echo Yii::t('reconcilliation', 'Debt', [
             'company_name' => $firm->name, 
-            'deposit_balance' => number_format(abs($deposit_balance), 2, ',', ' ')
         ], $lang);
-} elseif ($deposit_balance < -0.0001) {
+    echo Currency::formatCurrencyLang($lang, number_format(abs($deposit_balance), 2, ',', ' '), $currency);
+    } elseif ($deposit_balance < -0.0001) {
     echo Yii::t('reconcilliation', 'Debt', [
         'company_name' => $contragent->name_full, 
-        'deposit_balance' => number_format(abs($deposit_balance), 2, ',', ' ')
-    ], $lang);
+        ], $lang);
+    echo Currency::formatCurrencyLang($lang, number_format(abs($deposit_balance), 2, ',', ' '), $currency);
 } else {
    echo Yii::t('reconcilliation', 'Even', [], $lang);
 }

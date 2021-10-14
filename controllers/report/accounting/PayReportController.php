@@ -145,6 +145,7 @@ class PayReportController extends BaseController
             'accountId' => $accountId,
             'sign' => $sign,
             'format' => $format,
+            'currency' => $account->currency,
         ];
 
 

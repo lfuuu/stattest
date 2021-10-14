@@ -10,6 +10,7 @@ use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Country;
 use app\models\Invoice;
+use app\models\Language;
 use app\models\OperationType;
 use app\models\Payment;
 use app\modules\uu\models\Bill as uuBill;
@@ -45,11 +46,12 @@ class ActOfReconciliation extends Singleton
 
         $dateFromFormated = (new \DateTimeImmutable($dateFrom))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
         $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
+        $lang = $account->contragent->lang_code; 
 
         $result[] = [
             'type' => 'saldo',
             'date' => $dateFrom,
-            'description' => 'Сальдо на ' . $dateFromFormated,
+            'description' => $lang == Language::LANGUAGE_RUSSIAN ? 'Сальдо на ' . $dateFromFormated : 'Balance as of ' . $dateFromFormated,
             'income_sum' => -$startSaldo > 0 ? -$startSaldo : 0,
             'outcome_sum' => $startSaldo > 0 ? $startSaldo : 0
         ];
@@ -153,14 +155,24 @@ WHERE b.client_id = ' . $account->id . '
             $date = (new \DateTimeImmutable($item['date']))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
             $sum = $isInvoice ? $item['sum'] : -$item['sum'];
 
-            $description = $isInvoice
+            if ($lang == Language::LANGUAGE_RUSSIAN) {
+                $description = $isInvoice
                 ? ($item['payment_type'] == Invoice::TYPE_GOOD ? 'Накладная' : 'Акт') . ' (' . $date . ', №' . $item['number'] . ')'
                 : (
                 ($item['payment_type'] == 'creditnote')
                     ? 'Кредит-нота от ' . $date
                     : 'Оплата' . ' (' . $date . ', №' . $item['number'] . ')'
                 );
-
+            } else {
+                $description = $isInvoice
+                ? ($item['payment_type'] == Invoice::TYPE_GOOD ? 'Waybill' : 'Invoice') . ' (' . $date . ', №' . $item['number'] . ')'
+                : (
+                ($item['payment_type'] == 'creditnote')
+                    ? 'Credit note from ' . $date
+                    : 'Payment' . ' (' . $date . ', №' . $item['number'] . ')'
+                );
+            }
+            
             if ($item['type'] == 'bill') {
                 // select count(*) from newbill_lines where bill_no = '202012-018854' and id_service is not null
                 $isServiceBill = BillLine::find()->where(['bill_no' => $item['number']])->andWhere(['NOT', ['id_service' => null]])->exists();
@@ -182,12 +194,12 @@ WHERE b.client_id = ' . $account->id . '
             $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
         }
 
-        $result[] = ['type' => 'period', 'description' => 'Обороты за период'] + $period;
+        $result[] = ['type' => 'period', 'description' => $lang == Language::LANGUAGE_RUSSIAN ? 'Обороты за период' : 'Period transactions'] + $period;
         $ressaldo = $period['income_sum'] - $period['outcome_sum'] - $startSaldo;
         $result[] = [
             'type' => 'saldo',
             'date' => $dateTo,
-            'description' => 'Сальдо на ' . $dateToFormated,
+            'description' => $lang == Language::LANGUAGE_RUSSIAN ? 'Сальдо на ' . $dateToFormated : 'Balance as of ' . $dateToFormated,
             'income_sum' => $ressaldo > 0 ? $ressaldo : 0,
             'outcome_sum' => -$ressaldo > 0 ? -$ressaldo : 0
         ];
