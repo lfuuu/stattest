@@ -132,6 +132,19 @@ class Currency extends ActiveRecord
     }
 
     /**
+     * Вывести валюту с учетом языка и региональных правил форматирования
+     * @param string $lang
+     * @param float $value
+     * @param string $currency
+     * @return string
+     */
+    public static function formatCurrencyLang($lang, $value, $currency = self::RUB)
+    {
+        $fmt = new NumberFormatter($lang, NumberFormatter::CURRENCY);
+        return $fmt->formatCurrency($value, $currency);
+    }
+
+    /**
      * Получение кода валюты по Id валюты
      *
      * @param string $id
