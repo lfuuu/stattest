@@ -15,6 +15,7 @@ use yii\db\ActiveQuery;
  * @property int $id
  * @property int $tariff_id
  * @property int $pricelist_id
+ * @property int $is_inversion_mgp
  *
  * @property-read Tariff $tariff FK нет, ибо в таблица в другой БД
  * @property-read Package $package
@@ -35,6 +36,7 @@ class PackagePricelist extends ActiveRecord
             'pricelist_id' => 'Прайслист',
             'nnp_pricelist_id' => 'Прайслист v.2',
             'minute' => 'Кол-во минут',
+            'is_inversion_mgp' => 'Инвертированный МГП'
         ];
     }
 
@@ -55,7 +57,7 @@ class PackagePricelist extends ActiveRecord
     {
         return [
             [['tariff_id', 'pricelist_id', 'minute'], 'required'],
-            [['tariff_id', 'pricelist_id', 'minute'], 'integer'],
+            [['tariff_id', 'pricelist_id', 'minute', 'is_inversion_mgp'], 'integer'],
         ];
     }
 
