@@ -96,6 +96,10 @@ class ResourceModel extends ActiveRecord
     const ID_A2P_ALFA_NUMBERS = 58;
     const ID_A2P_SMS = 59;
 
+    // Voice Robot
+    const ID_VR_CHANNEL_COUNT = 62;
+    const ID_VR_CAROUSEL = 63;
+
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
 
