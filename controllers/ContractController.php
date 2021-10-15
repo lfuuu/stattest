@@ -95,20 +95,20 @@ class ContractController extends BaseController
     {
         $model = new ContractEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
 
-        $accountId = $model->getModel()->getAccounts()[0]->id;
-        if (!($this->getFixClient() && $this->getFixClient()->id == $accountId)) {
-            if ($accountId) {
-                Yii::$app->session->set('clients_client', $accountId);
-                $this->applyFixClient($accountId);
-            }
-        }
-
         if ($childId === null) {
             parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
             $params = Yii::$app->request->getQueryParams();
             $childId = $params['childId'] = ($get['childId']) ? $get['childId'] : $get['id'];
             Yii::$app->request->setQueryParams($params);
             Yii::$app->request->setUrl(Yii::$app->request->getUrl() . '&childId=' . $childId);
+        }
+
+        $accountId = $childId;
+        if (!($this->getFixClient() && $this->getFixClient()->id == $accountId)) {
+            if ($accountId) {
+                Yii::$app->session->set('clients_client', $accountId);
+                $this->applyFixClient($accountId);
+            }
         }
 
         $request = Yii::$app->request->post();
