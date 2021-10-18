@@ -423,6 +423,7 @@ abstract class TariffForm extends \app\classes\Form
         $this->_cloneTariffPackagePricelist($tariffCloned);
         $this->_cloneTariffPackagePricelistNnp($tariffCloned);
         $this->_cloneTariffPackageMinute($tariffCloned);
+        $this->_cloneTariffPackageApi($tariffCloned);
         return $tariffCloned;
     }
 
@@ -791,6 +792,32 @@ abstract class TariffForm extends \app\classes\Form
             if (!$packageMinuteCloned->save()) {
                 $this->validateErrors += $packageMinuteCloned->getFirstErrors();
                 throw new ModelValidationException($packageMinuteCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. PackageApi
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffPackageApi(Tariff $tariffCloned)
+    {
+        $packageApis = $this->tariff->packageApi;
+        $fieldNames = [
+            'api_pricelist_id',
+        ];
+        foreach ($packageApis as $packageApi) {
+            $packageApiCloned = new PackageApi();
+            $packageApiCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $packageApiCloned->$fieldName = $packageApi->$fieldName;
+            }
+
+            if (!$packageApiCloned->save()) {
+                $this->validateErrors += $packageApiCloned->getFirstErrors();
+                throw new ModelValidationException($packageApiCloned);
             }
         }
     }
