@@ -367,18 +367,10 @@ abstract class TariffForm extends \app\classes\Form
                             throw new ModelValidationException($package);
                         }
 
-                        $packageApi = $this->packageApi;
-
-                        if ($packageApi->isNewRecord) {
-                            $packageApi->tariff_id = $this->tariff->id;
-                        }
-
-                        if ($packageApi->load($post)) {
-                            if (!$packageApi->save()) {
-                                $this->validateErrors += $packageApi->getFirstErrors();
-                                throw new ModelValidationException($packageApi);
-                            }
-                        }
+                        $packageApi = new PackageApi();
+                        $packageApi->tariff_id = $this->id;
+                        $this->packageApi = $this->crudMultiple($this->packageApi, $post, $packageApi);
+                        
                         break;
 
                 }
