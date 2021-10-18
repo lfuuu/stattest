@@ -297,7 +297,7 @@ class Tariff extends ActiveRecord
      */
     public function getPackageApi()
     {
-        return $this->hasOne(PackageApi::class, ['tariff_id' => 'id']);
+        return $this->hasMany(PackageApi::class, ['tariff_id' => 'id']);
     }
 
     /**
