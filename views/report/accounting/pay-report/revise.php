@@ -208,7 +208,13 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
                 <td>    <?= date("d.m.Y", strtotime($value['bill_date'])) ?>&nbsp;</td>
                 <td> &#8470;<?= $value['inv_no'] ?>&nbsp;</td>
                 <td> (<?= $value['item'] ?>)&nbsp;</td>
-                <td>    <?= number_format($value['sum'], 2, ',', ' ') ?>&nbsp; <?= Yii::t('reconcilliation', 'Currnecy', [], $lang); ?></td>
+                <td><?php if ($lang == Language::LANGUAGE_RUSSIAN) {
+                            echo number_format(abs($value['sum']), 2, ',', ' ') . ' рублей.';
+                        } else {
+                            echo Currency::formatCurrency(abs($value['sum']), $currency);
+                        }           
+                    ?>
+                </td>
             </tr>
         <?php endforeach; ?>
     </table>
