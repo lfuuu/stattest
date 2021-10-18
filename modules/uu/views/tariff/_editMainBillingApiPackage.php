@@ -2,15 +2,20 @@
 /**
  * Биллинг API. Пакет.
  *
- * @var \app\classes\BaseView $this
- * @var \app\modules\uu\forms\TariffForm $formModel
- * @var \yii\widgets\ActiveForm $form
+ * @var BaseView $this
+ * @var TariffForm $formModel
+ * @var ActiveForm $form
  * @var int $editableType
  */
 
+use app\classes\BaseView;
 use app\modules\uu\controllers\TariffController;
+use app\modules\uu\forms\TariffForm;
 use app\modules\uu\models\billing_uu\PricelistApi;
-use kartik\select2\Select2;
+use app\widgets\TabularInput\TabularColumn;
+use app\widgets\TabularInput\TabularInput;
+use kartik\editable\Editable;
+use yii\widgets\ActiveForm;
 
 $packageApi = $formModel->packageApi;
 
@@ -21,15 +26,33 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 }
 
 ?>
-<div class="well">
-    <div class="row">
-        <div class="col-sm-4">
-            <?= $form->field($packageApi, 'api_pricelist_id')
-                ->widget(Select2::class, [
-                    'data' => PricelistApi::getList(true),
-                    'options' => $options,
-                ]) ?>
-        </div>
-    </div>
-</div>
 
+
+<div class="well package-minute">
+    <h2>
+        Pricelist API
+    </h2>
+    <?= TabularInput::widget([
+            'models' => $packageApi, // ключ должен быть автоинкрементный
+            'allowEmptyList' => true,
+            'columns' => [
+                [
+                    'name' => 'api_pricelist_id',
+                    'title' => (new PricelistApi())->attributeLabels()['api_pricelist_id'],
+                    'type' => Editable::INPUT_SELECT2,
+                    'options' => $options + [
+                            'data' => PricelistApi::getList(true),
+                        ],
+                    'headerOptions' => [
+                        'class' => 'col-sm-12',
+                    ],
+                ],
+                [
+                    'name' => 'id', // чтобы идентифицировать модель
+                    'type' => TabularColumn::TYPE_HIDDEN_INPUT,
+                ],
+            ],
+        ]
+    )
+    ?>
+</div>

@@ -55,7 +55,7 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffTags[] */
     public $tariffTags;
 
-    /** @var PackageApi */
+    /** @var PackageApi[] */
     public $packageApi;
 
     /**
@@ -254,7 +254,7 @@ abstract class TariffForm extends \app\classes\Form
                         $tariffVoipCountries = new TariffVoipCountry();
                         $tariffVoipCountries->tariff_id = $this->id;
                         $this->tariffVoipCountries = $this->crudMultipleSelect2($this->tariffVoipCountries, $post, $tariffVoipCountries, 'country_id');
-                        // no break;
+                    // no break;
 
                     case ServiceType::ID_VOIP_PACKAGE_SMS:
                     case ServiceType::ID_A2P_PACKAGE:
@@ -805,6 +805,7 @@ abstract class TariffForm extends \app\classes\Form
     private function _cloneTariffPackageApi(Tariff $tariffCloned)
     {
         $packageApis = $this->tariff->packageApi;
+
         $fieldNames = [
             'api_pricelist_id',
         ];

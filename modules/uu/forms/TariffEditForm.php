@@ -112,7 +112,7 @@ class TariffEditForm extends TariffForm
     }
 
     /**
-     * @return PackageApi
+     * @return PackageApi[]
      */
     public function getPackageApi()
     {

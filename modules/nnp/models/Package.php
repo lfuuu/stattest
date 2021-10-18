@@ -104,7 +104,7 @@ class Package extends ActiveRecord
      */
     public static function getDb()
     {
-        return Yii::$app->dbPgNnp;
+        return Yii::$app->dbPg;
     }
 
     /**

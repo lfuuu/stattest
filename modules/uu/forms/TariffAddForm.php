@@ -126,6 +126,6 @@ class TariffAddForm extends TariffForm
      */
     public function getPackageApi()
     {
-        return new PackageApi();
+        return [new PackageApi()];
     }
 }
