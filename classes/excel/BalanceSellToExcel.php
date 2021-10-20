@@ -65,6 +65,11 @@ class BalanceSellToExcel extends Excel
             $taxRate = $account->getTaxRate();
             $paymentsStr = $invoice->getPaymentsStr();
 
+            $sumTax = 0;
+            foreach($invoice->lines as $line) {
+                $sumTax += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
+            }
+
             $data[] = [
                 'code' => $invoice->type_id == Invoice::TYPE_PREPAID ? '02' : '01',
                 'sum' => $invoice->sum,
@@ -80,7 +85,8 @@ class BalanceSellToExcel extends Excel
                 'currency_id' => $currencyId,
                 'currency_name' => $currencyName,
                 'currency_code' => $currencyCode,
-                'payments_str' => $paymentsStr
+                'payments_str' => $paymentsStr,
+                'sumTax' => $sumTax,
             ];
         }
         return $data;
@@ -120,7 +126,7 @@ class BalanceSellToExcel extends Excel
                         sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(15, $line, sprintf('%0.2f', round($row['sum'], 2)));
             $worksheet->setCellValueByColumnAndRow(16, $line,
-                $row['sum_without_tax'] !== null && $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
+                $row['sum_without_tax'] !== null && $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sumTax'], 2)) : '');
             $worksheet->setCellValueByColumnAndRow(17, $line,
                 $row['taxRate'] == 18 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
             $worksheet->setCellValueByColumnAndRow(18, $line,

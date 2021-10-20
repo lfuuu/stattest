@@ -110,7 +110,7 @@
                 $linesTax20 = 0;
                 foreach ($invoice->lines as $line) {
                     $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
-                    $linesTax20 += $line['sum_tax'] > 0 ? $line['sum_without_tax'] : 0;
+                    $linesTax20 += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
                 }
             } catch (Exception $e) {
                 Yii::$app->session->addFlash('error', $e->getMessage());
