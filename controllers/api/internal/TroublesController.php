@@ -212,7 +212,11 @@ class TroublesController extends ApiInternalController
         if (!$troubleRoistat->save()) {
             throw new ModelValidationException($troubleRoistat);
         }
-        return null;
+
+        return [
+            'status' => 'ok',
+            'order_id' => $troubleRoistat->trouble_id,
+        ];
     }
 
     /**
