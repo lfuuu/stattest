@@ -152,32 +152,43 @@
 <br>
 <br>
 <div class="well" style="width: 320px;">
-
-    <button id="downloadAll" class="btn btn-warning">Скачать все закрывающие документы</button>
-
+    <button id="downloadAll" type="button" class="btn btn-warning">Скачать все закрывающие документы</button>
     <script>
+        $(document).ready(function () {
+            $('#downloadAll').click(function (e) {
+                e.preventDefault();
+                var ll = $('a[href*=invoice_id]').toArray();
 
-      $(document).ready(function () {
-        $('#downloadAll').click(function (e) {
-          e.stopPropagation();
+                downloadAll(ll);
+                async function downloadAll(elements) {
+                    var count = 0;
+                    for (var e in elements) {
+                        download(elements[e]);
+                        if (++count >= 5) {
+                            await pause(1000);
+                            count = 0;
+                        }
+                    }
+                    alert("Загружка завершена!");
+                }
 
-          var ll = $('a[href*=invoice_id]');
+                function download(url) {
+                    var a = document.createElement("a");
+                    a.setAttribute('href', url);
+                    a.setAttribute('download', '');
+                    a.click();
+                }
 
-          var link = document.createElement('a');
-
-          link.setAttribute('download', null);
-          link.style.display = 'none';
-
-          document.body.appendChild(link);
-
-          for (var i = 0; i < ll.length; i++) {
-            link.setAttribute('href', ll[i]);
-            link.click();
-          }
-
-          document.body.removeChild(link);
+                function pause(msec) {
+                    return new Promise(
+                        (resolve, reject) => {
+                            setTimeout(resolve, msec || 1000);
+                        }
+                    );
+                }
+            });
         });
-      });
     </script>
 
 </div>
+
