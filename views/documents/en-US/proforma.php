@@ -169,11 +169,10 @@ $contragent = $payerCompany->contragent;
     foreach ($document->bill->lines as $line) :
         $sumWithoutTax += $line->sum_without_tax;
         $sumTax += $line->sum_tax;
-
       ?>
     <tr>
         <td align="left"  style="background-color: #ddd;"><?= $line->item ?></td>
-        <td align="right" style="background-color: #ddd;"><?= $line->price ?></td>
+        <td align="right" style="background-color: #ddd;"><?= number_format($document->bill->price_include_vat ? $line->price - $line->sum_tax : $line->price, 4, '.', '') ?></td>
         <td align="right" style="background-color: #ddd;"><?= $line->amount ?></td>
         <td align="right" style="background-color: #ddd;"><?= $line->sum_without_tax ?></td>
         <td align="right" style="background-color: #ddd;"><?= $line->tax_rate ?> %</td>
