@@ -62,14 +62,16 @@ data:
     ;pm.max_requests = {{ .Values.php_fpm_prod.pm.max_requests }}
   nginx.conf: |
     user  nginx;
-    worker_processes  1;
+    #worker_processes  1;
+
+    worker_processes auto;
+    worker_priority -10;
 
     error_log  /dev/stderr;
     pid        /var/run/nginx.pid;
 
-
     events {
-        worker_connections  1024;
+        worker_connections  4096;
     }
 
 
