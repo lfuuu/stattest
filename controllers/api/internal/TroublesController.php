@@ -182,20 +182,20 @@ class TroublesController extends ApiInternalController
         // Попытка получения trouble_id из таблицы lead по номерам телефонов и времени звонка
         $troubleId = Lead::getDb()
             ->createCommand("
-                SELECT trouble_id FROM lead WHERE id = (
+                SELECT trouble_id FROM `lead` WHERE id in (
                   SELECT
                     MAX(id)
                   FROM
-                    lead
+                    `lead`
                   WHERE
                     created_at BETWEEN DATE_SUB(UTC_TIMESTAMP, INTERVAL 1 HOUR) AND UTC_TIMESTAMP AND did = '{$data['caller']}'
-                );
+                )
             ")
             ->queryScalar();
         // Попытка найти Trouble, что бы проверить ее существование и вызвать связанную модель TroubleRoistat
         $trouble = Trouble::findOne(['id' => $troubleId]);
         if (!$trouble) {
-            throw new \LogicException("Couldn't find Trouble with caller:{$data['caller']} and callee:{$data['caller']} in the last hour");
+            throw new \LogicException("Couldn't find Trouble with caller:{$data['caller']} and callee:{$data['callee']} in the last hour");
         }
         // Получаем TroubleRoistat
         $troubleRoistat = $trouble->troubleRoistat;
