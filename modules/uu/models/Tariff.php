@@ -66,7 +66,7 @@ use yii\helpers\Url;
  * @property-read PackagePricelistNnpSms[] $packagePricelistsNnpSms
  *
  * billing API
- * @property-read PackageApi $packageApi
+ * @property-read PackageApi[] $packageApi
  *
  * VPS only!
  * @property integer $vm_id

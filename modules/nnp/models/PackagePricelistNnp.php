@@ -11,7 +11,7 @@ class PackagePricelistNnp extends PackagePricelist
     {
         return [
             [['tariff_id', 'nnp_pricelist_id'], 'required'],
-            [['tariff_id', 'nnp_pricelist_id', 'minute','is_inversion_mgp'], 'integer'],
+            [['tariff_id', 'nnp_pricelist_id', 'minute'], 'integer'],
         ];
     }
 }

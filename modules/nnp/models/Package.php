@@ -23,6 +23,7 @@ use yii\helpers\Url;
  * @property string $name
  * @property integer $location_id
  * @property float $price_min
+ * @property int $is_inversion_mgp
  *
  * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
  * @property-read PackageMinute[] $packageMinutes
@@ -62,6 +63,7 @@ class Package extends ActiveRecord
             'name' => 'Название', // дубль из Tariff
             'location_id' => 'Местоположение',
             'price_min' => 'МГП',
+            'is_inversion_mgp' => 'Инвертированный МГП',
         ];
     }
 
@@ -82,7 +84,7 @@ class Package extends ActiveRecord
     {
         return [
             [['tariff_id'], 'required'],
-            [['is_termination', 'is_include_vat'], 'boolean'],
+            [['is_termination', 'is_include_vat', 'is_inversion_mgp'], 'boolean'],
             [
                 [
                     'tariff_id',
