@@ -160,14 +160,6 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
                             ],
                     ],
                     [
-                        'name' => 'is_inversion_mgp',
-                        'title' => $attributeLabels['is_inversion_mgp'] . $helpConfluence,
-                        'type' => Editable::INPUT_CHECKBOX,
-                        'options' => $options + [
-                                'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
-                            ],
-                    ],
-                    [
                         'name' => 'id', // чтобы идентифицировать модель
                         'type' => TabularColumn::TYPE_HIDDEN_INPUT,
                     ],
@@ -183,8 +175,3 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
     </script>
 
 </div>
-<style>
-    #pricelist_v2 .list-cell__is_inversion_mgp {
-        text-align: center;
-    }
-</style>

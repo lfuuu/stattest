@@ -666,6 +666,7 @@ abstract class TariffForm extends \app\classes\Form
             'currency_id',
             'is_include_vat',
             'name',
+            'is_inversion_mgp',
         ];
         $packageCloned = new Package();
         $packageCloned->tariff_id = $tariffCloned->id;

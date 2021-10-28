@@ -54,7 +54,15 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
 
             <div class="col-sm-3">
                 <?= $form->field($package, 'is_termination')
-                    ->checkbox(['label' => $package->getAttributeLabel('is_termination') . $helpConfluence])
+                    ->checkbox(['label' => $package->getAttributeLabel('is_termination') . $helpConfluence] + $options)
+                ?>
+            </div>
+            <div class="col-sm-3">
+                <?= $form->field($package, 'is_inversion_mgp')
+                    ->checkbox([
+                            'label' => $package->getAttributeLabel('is_inversion_mgp') . $helpConfluence,
+                        ] + $options
+                    )
                 ?>
             </div>
 
