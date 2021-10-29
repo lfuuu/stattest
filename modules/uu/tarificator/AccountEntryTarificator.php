@@ -234,7 +234,7 @@ SQL;
                         SUM(account_log.price) AS price,
                         MIN(`{$dateFieldNameFrom}`) AS date_from,
                         MAX(`{$dateFieldNameTo}`) AS date_to,
-                        {$costPrice} AS cost_price
+                        SUM({$costPrice}) AS cost_price
                     FROM
                         {$accountLogTableName} account_log
                     WHERE
