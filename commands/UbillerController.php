@@ -606,4 +606,43 @@ SQL;
         ]);
     }
 
+    /**
+     * Заполнение аггригационной таблицы
+     *
+     * @param str $from
+     * @param str $to
+     */
+    public function actionMakeAggr($from = null, $to = null)
+    {
+        // @todo clean
+        // @todo delete in the same period
+
+        $sqlStr = $from && $to ? '\'' . $from . '\',\'' . $to . '\'' : '';
+        $time0 = microtime(true);
+        echo 'make aggregate table: ' . Yii::$app->dbPg
+                ->createCommand("select calls_aggr.fill_uu_aggr({$sqlStr})")
+                ->queryScalar() . PHP_EOL;
+
+        echo 'Done in ' . round(microtime(true) - $time0, 2) . ' sec' . PHP_EOL;
+    }
+
+    /**
+     * заполнение таблицы с маржой
+     *
+     * @param str $from
+     * @param str $to
+     */
+    public function actionFillMargins($from = null, $to = null)
+    {
+        // @todo rotating or clean
+        // @todo delete in the same period
+
+        $sqlStr = $from && $to ? '\'' . $from . '\',\'' . $to . '\'' : '';
+        $time0 = microtime(true);
+        echo 'make margin table: ' . Yii::$app->dbPg
+                ->createCommand("select calls_margin.make({$sqlStr})")
+                ->queryScalar() . PHP_EOL;
+        echo 'Done in ' . round(microtime(true) - $time0, 2) . ' sec' . PHP_EOL;
+    }
+
 }

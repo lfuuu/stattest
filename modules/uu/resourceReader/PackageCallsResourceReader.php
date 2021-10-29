@@ -127,17 +127,18 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
 
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
+
+        $isAggr = false;
+
         $query = CallsRaw::find()
             ->select([
                 'sum_price' => 'SUM(-calls_price.cost)', // стоимость звонка для клиента. Сделаем ее положительной
-                // 'sum_cost_price' => 'SUM(COALESCE(calls_cost_price.cost, 0))', // себестоимость
+                'sum_cost_price' => 'SUM(COALESCE(margin, 0))', // себестоимость
                 'nnp_package_price_id' => 'calls_price.nnp_package_price_id',
                 'nnp_package_pricelist_id' => 'calls_price.nnp_package_pricelist_id',
                 'aggr_date' => sprintf("TO_CHAR(calls_price.connect_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
             ])
-            ->from(CallsRaw::tableName() . ' calls_price')// чтобы назначить алиас.
-//            ->leftJoin(CallsRaw::tableName() . ' calls_cost_price', // @todo если 2 и более предыдущих плечей, то стоимость удваивается
-//                'calls_price.peer_id = calls_cost_price.id AND calls_cost_price.connect_time >= :connectTime', [':connectTime' => $connectTime])// join себя же по peer_id. Чтобы узнать себестоимость в другом плече (терминации)
+            ->from(($isAggr ? 'calls_aggr.uu_aggr' : CallsRaw::tableName()) . ' calls_price')// чтобы назначить алиас.
             ->where([
                 'calls_price.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ])
@@ -151,13 +152,18 @@ abstract class PackageCallsResourceReader extends BaseObject implements Resource
             ->orderBy(['aggr_date' => SORT_ASC])
             ->asArray();
 
+        if (!$isAggr) {
+            $query->leftJoin('calls_margin.margin m', 'calls_price.mcn_callid = m.mcn_callid and calls_price.id = m.call_id');
+        }
+
         $this->andWhere($query, $accountTariff);
 
         $trafficParams = TrafficParamsManager::me()->getTrafficParams($accountTariff);
+
         foreach ($query->each() as $row) {
             $aggrDate = $row['aggr_date'];
             $sumPrice = $row['sum_price'];
-            $sumCostPrice = 0; // $row['sum_cost_price'];
+            $sumCostPrice = $row['sum_cost_price'];
 
             $row = $trafficParams->updateResult($row);
             if ($tariffId = $row['nnp_package_price_id']) {
