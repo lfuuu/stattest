@@ -228,7 +228,7 @@
                 <th style="text-align: right">Бонус</th>
             {/if}
             <th style="text-align: right">Тип</th>
-            <th style="text-align: right">Маржа (без НДС)</th>
+            <th style="text-align: right">Маржа</th>
             {if $reward_lines}
             <th style="text-align: right">Вознаграждение</th>
             {/if}
@@ -298,7 +298,14 @@
                 <td style="text-align: right">{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>
             {/if}
             <td align=right>{$item.type}</td>
-            <td align=right{if $item.cost_price != 0} title="Сумма:{$item.sum} - НДС:{$item.sum_tax} - Себестоимость:{$item.cost_price}"{/if}>{if $item.cost_price != 0}{assign var="margin" value=`$item.sum-$item.sum_tax-$item.cost_price`}{$margin|round:2}{else}-{/if}</td>
+            {if false}
+            <td align=right{if $item.cost_price != 0} title="Сумма:{$item.sum} - НДС:{$item.sum_tax} - Себестоимость:{$item.cost_price}"{/if}>
+                {if $item.cost_price != 0}{assign var="margin" value=`$item.sum-$item.sum_tax-$item.cost_price`}{$margin|round:2}{else}-{/if}
+            </td>
+            {/if}
+            <td align=right>
+                {if $item.cost_price != 0}{assign var="margin" value=`$item.cost_price*-1`}{$margin|round:2}{else}-{/if}
+            </td>
             {if $reward_lines}
                 <td align=right>{if isset($reward_lines[$item.pk])} {$reward_lines[$item.pk].sum|round:2} {else} {0|round:2} {/if}</td>
             {/if}
