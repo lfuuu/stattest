@@ -457,14 +457,21 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
     function routers_d_apply($fixclient){
         $dbf = new DbFormTechCPE();
         $id=get_param_integer('id','');
+        if (!$id) {
+            $formData = get_param_raw('dbform',[]);
+            if (isset($formData['id'])) {
+                $id = $formData['id'];
+            }
+        }
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
+
         if ($result=='delete') {
             header('Location: ?module=routers&action=d_list');
             exit;
-            $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'Клиентские устройства','Редактирование');
+        header('Location: /?module=routers&action=d_edit&id=' . $id);
+        exit();
     }
     function routers_d_async($fixclient) {
         global $db;
@@ -475,14 +482,15 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         $R=array();
         $R['0']='';
         if ($res=='client') {
-            if (!$client) {
-                $sql='select clients.client as id,clients.client as text from clients ';
-                $sql.=' INNER JOIN usage_ip_ports ON clients.client=usage_ip_ports.client';
-                $sql.=' WHERE clients.status="work"';
-                $sql.=' GROUP BY usage_ip_ports.client';
-                $db->Query($sql);
-                while ($r=$db->NextRecord()) $R[$r['id']]=$r['text'];
-            } else $R[$client]=$client;
+            $sql='select clients.client as id, concat(if (account_version = 5, \'У\', \'\'), \'ЛС \', clients.id) as text from clients ';
+            $sql.=' INNER JOIN usage_ip_ports ON clients.client=usage_ip_ports.client';
+            $sql.=' WHERE clients.status="work"';
+            if ($client) {
+                $sql .= " and clients.client = '{$client}'";
+            }
+            $sql.=' GROUP BY usage_ip_ports.client';
+            $db->Query($sql);
+            while ($r=$db->NextRecord()) $R[$r['id']]=$r['text'];
         } else {
             //printdbg($db->AllRecords("select * from usage_ip_ports where client='".$client."'"));
             //printdbg($db->AllRecords("select * from tech_ports where id = 7803"));

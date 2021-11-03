@@ -1677,6 +1677,7 @@ class DbFormTechCPE extends DbForm{
         $this->fields['tech_support']=array('enum'=>array('', 'mcn', 'client', 'mgts','synterra'),'default'=>'mcn');
 
         $this->fields['ast_autoconf']=array('assoc_enum'=>array('0'=>'ручной (старый) режим','1'=>'автоматический режим'),'default'=>'0');
+        $this->fields['cacti_monitor_url']=array();
         $this->includesPre = array('dbform_cpe_add.tpl');
         $this->includesPost =array('dbform_cpe_add2.tpl','dbform_changelog.tpl');
     }
@@ -2033,5 +2034,6 @@ $GLOBALS['translate_arr']=array(
     '*.moved_to' => 'Перемещен на ',
     'tarifs_virtpbx.ext_did_count' => 'Кол-во номеров сторонних операторов',
     'tarifs_virtpbx.ext_did_monthly_payment' => 'Плата за 1 номер сторонних операторов, мес.',
+    'usage_tech_cpe.cacti_monitor_url' => 'Мониторинг Cacti',
     );
 ?>
