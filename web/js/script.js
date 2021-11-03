@@ -132,6 +132,8 @@ function options_update(id, data) {
         if (opt.value == obj.getAttribute('tag')) opt.selected = 1;
         obj.appendChild(opt);
     }
+
+    $('#' + id).trigger('change.select2');
 }
 
 function options_select(id, value) {
@@ -237,7 +239,10 @@ function form_cpe_get_clients(first_load) {
 
 function form_cpe_get_services(first_load) {
     var id_modelval = document.getElementById('id_model').value;
-    var clientval = (first_load ? document.getElementById('client').getAttribute('tag') : document.getElementById('client').value);
+    var clientval = (first_load ?
+        document.getElementById('client').getAttribute('tag') :
+        document.getElementById('client').value
+    );
     options_waiting('id_service', id_modelval);
     $.getJSON('/index_lite.php?module=routers&action=d_async&res=service&id_model=' + id_modelval + '&client=' + clientval + '&id=' + document.getElementById('id_service').getAttribute('tag'))
         .done(function (data) {

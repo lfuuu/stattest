@@ -196,6 +196,9 @@ if ($has) :
                                                     src="images/icons/act.gif"
                                                     class=icon></a>
                                             (<?= $cpe->model->type ?>, id=<?= $cpe->id ?>)
+                                            <?php if ($cpe->cacti_monitor_url): ?>
+                                                <a title="Мониторинг Cacti" class="glyphicon glyphicon-dashboard" aria-hidden="true" href="<?=$cpe->cacti_monitor_url?>" target="_blank"></a>
+                                            <?php endif; ?>
                                         </td>
                                         <td><?= $renderDate($cpe->actual_from, $cpe->actual_to); ?></td>
                                         <td><?= $cpe->ip ? $ipstat($cpe->ip) : 'ip не задан' ?><?= $cpe->ip_nat ? $ipstat($cpe->ip_nat) : '' ?></td>

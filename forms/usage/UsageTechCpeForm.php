@@ -34,6 +34,7 @@ class UsageTechCpeForm extends Form
         $deposit_sumUSD,
         $deposit_sumRUB,
         $snmp,
+        $cacti_monitor_url,
         $ast_autoconf;
 
     public function rules()
@@ -56,6 +57,7 @@ class UsageTechCpeForm extends Form
                     'numbers',
                     'logins',
                     'service',
+                    'cacti_monitor_url',
                 ],
                 'string'
             ],
@@ -91,6 +93,7 @@ class UsageTechCpeForm extends Form
             'owner' => 'Владелец',
             'tech_support' => 'Тех. поддержка',
             'ast_autoconf' => 'Режим конфигурирования asteriskа',
+            'cacti_monitor_url' => 'Мониторинг Cacti',
         ];
     }
 
