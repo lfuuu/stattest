@@ -71,15 +71,11 @@ class TroubleDao extends Singleton
             Trouble::find()
                 ->select('tt.id')
                 ->from(['tt' => 'tt_troubles'])
-                ->innerJoin(['pbx' => 'server_pbx'], 'pbx.id = tt.server_id')
-                ->innerJoin(['dc' => 'datacenter'], 'dc.id = pbx.datacenter_id')
-                ->innerJoin(['c' => 'clients'], 'dc.region = c.region')
                 ->where(
                     [
                         'and',
                         ['>', 'tt.`server_id`', 0],
                         ['=', 'tt.is_closed', 0],
-                        ['=', 'c.`client`', $client->client],
                         ['=', 'tt.`client`', $client->client],
                     ]
                 )->createCommand()->queryAll();
