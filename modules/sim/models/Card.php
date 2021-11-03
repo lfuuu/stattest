@@ -4,6 +4,7 @@ namespace app\modules\sim\models;
 
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\dao\CardDao;
 use app\models\ClientAccount;
 use Yii;
 use yii\db\ActiveQuery;
@@ -82,6 +83,11 @@ class Card extends ActiveRecord
                 \app\modules\sim\behaviors\CardStatusBehavior::class,
             ]
         );
+    }
+
+    public static function dao()
+    {
+        return CardDao::me();
     }
 
     /**

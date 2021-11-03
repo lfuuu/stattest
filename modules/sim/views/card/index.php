@@ -16,6 +16,7 @@ use app\modules\sim\columns\EntryPointColumn;
 use app\modules\sim\columns\ImsiProfileColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\models\ClientAccount;
 use app\models\DidGroup;
 use app\models\Number;
 use app\modules\sim\columns\CardStatusColumn;
@@ -65,7 +66,6 @@ if (Yii::$app->user->can('sim.write') || Yii::$app->user->can('sim.link')) {
             ],
         ]);
     }
-
     echo $this->render('//layouts/_submitButton', [
         'text' => 'Отвязать',
         'glyphicon' => 'glyphicon-scissors',
@@ -76,10 +76,25 @@ if (Yii::$app->user->can('sim.write') || Yii::$app->user->can('sim.link')) {
         ],
     ]);
 
+    echo "</div>";
+    echo "<div class=well style='width: " . $width . "px; float: left; margin-left: 10px;'>";
+    echo Html::tag('b', 'Перенос на другой ЛС') . '<br>';
+    echo $this->render('//layouts/_submitButton', [
+        'text' => 'Перенести',
+        'glyphicon' => 'glyphicon-link',
+        'params' => [
+            'name' => 'set-transfer',
+            'class' => 'btn btn-primary',
+            'style' => 'margin-left: 10px;',
+        ],
+    ]);
 
+    echo Html::input('number', 'newAccountId', '' ,  ['class' => 'form-control', 'placeholder' => 'Введите ЛС для трансфера', 'style' => 'margin-left: 10px; margin-top: 10px']);
+    
     echo "</div>";
     echo "</div>";
 }
+
 echo "<div style='clear: both;'></div>";
 
 $baseView = $this;
