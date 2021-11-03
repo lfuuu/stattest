@@ -54,19 +54,11 @@ class DidGroupDao extends Singleton
                 } elseif (strpos($number->number, '7499') === 0) {
                     return DidGroup::ID_MOSCOW_STANDART_499;
                 }
-            } else {
-                $where = [
-                    'country_code' => $number->country_code,
-                    'city_id' => $number->city_id,
-                    'beauty_level' => $number->beauty_level,
-                    'ndc_type_id' => $number->ndc_type_id,
-                    'is_service' => $number->is_service,
-                ];
             }
         }
 
         $query = DidGroup::find()
-            ->where($where ?: [ // прямое условие, без исключений
+            ->where([ // прямое условие, без исключений
                 'AND',
                 [
                     'country_code' => $number->country_code,
