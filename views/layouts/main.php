@@ -37,10 +37,6 @@ $activeClient = isset($fixclient_data['id']) ?
 
         <?php $this->beginBody() ?>
 
-        <?php if (Yii::$app->user->can('monitoring.top')) : ?>
-            <iframe src="?module=monitoring&action=top" width="100%" height="17" class="monitoring-frame"></iframe>
-        <?php endif; ?>
-
         <div class="row panel-top">
             <div class="col-sm-12">
                 <div class="row pull-left block-left">
