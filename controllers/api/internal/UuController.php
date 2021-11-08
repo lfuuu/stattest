@@ -17,6 +17,7 @@ use app\models\Number;
 use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\models\TroubleRoistatStore;
+use app\models\User;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -1861,6 +1862,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "is_async", type = "integer", description = "Асинхронная схема", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
      *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор запроса для асинхронного ответа", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "is_create_user", type = "integer", description = "Создавать ли пользователя ЛК (при отсутствии: 1)", in = "formData", default = "1"),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
      *     @SWG\Schema(type = "integer", description = "ID")
@@ -1881,12 +1883,16 @@ class UuController extends ApiInternalController
         $post = Yii::$app->request->post();
 
         $post[Trouble::OPTION_IS_FROM_LK_MCN_RU] = true;
+
+        if (!\Yii::$app->user->getId()) {
+            \Yii::$app->user->setIdentity(User::findOne(['id' => User::LK_USER_ID]));
+        }
+
         return $this->_addAccountTariff($post);
     }
 
     public function _addAccountTariff($post)
     {
-
         if (isset($post['is_async']) && $post['is_async']) {
             $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
             $requestId = isset($post['request_id']) && $post['request_id'] ? $post['request_id'] : $event->id;

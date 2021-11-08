@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\models\User;
 use Yii;
 use yii\web\HttpException;
 
@@ -60,6 +61,10 @@ class ApiInternalController extends ApiController
         $this->requestData = Yii::$app->request->get();
         if (!$this->requestData) {
             $this->requestData = Yii::$app->request->bodyParams;
+        }
+
+        if ($this->requestData && isset($this->requestData['is_from_lk']) && $this->requestData['is_from_lk']) {
+            \Yii::$app->user->setIdentity(User::findOne(['id' => User::LK_USER_ID]));
         }
     }
 }
