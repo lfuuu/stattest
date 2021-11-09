@@ -19,8 +19,10 @@ use app\modules\sim\models\Dsm;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\VirtualCard;
 use app\modules\uu\behaviors\AccountTariffCheckHlr;
+use Exception;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\console\ExitCode;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -88,30 +90,44 @@ class CardController extends BaseController
             $cardIccids = $getData['cardIccids'];
         }
 
+        $newAccountId = '';
+        if (isset($getData['newAccountId']) && $getData['newAccountId']) {
+            $newAccountId = $getData['newAccountId'];
+        }
+
         if ($cardIccids) {
 
             $isEditAllow = \Yii::$app->user->can('sim.write') || \Yii::$app->user->can('sim.link');
-
             if (isset($getData['set-status']) && isset($getData['status']) && $getData['status']) {
                 if ($isEditAllow) {
-                    $filterModel->actionSetStatus($cardIccids, $getData['status']);
+                    Card::dao()->actionSetStatus($cardIccids, $getData['status']);
                 } else {
                     \Yii::$app->session->addFlash('error', 'Действие запрещено');
                 }
             } elseif (isset($getData['set-link']) && $account) {
                 if ($isEditAllow) {
-                    $filterModel->actionSetLink($cardIccids, $account->id);
+                    Card::dao()->actionSetLink($cardIccids, $account->id);
                 } else {
                     \Yii::$app->session->addFlash('error', 'Действие запрещено');
                 }
 
             } elseif (isset($getData['set-unlink'])) {
                 if ($isEditAllow) {
-                    $filterModel->actionSetUnLink($cardIccids);
+                    Card::dao()->actionSetUnLink($cardIccids);
                 } else {
                     \Yii::$app->session->addFlash('error', 'Действие запрещено');
                 }
-            }
+
+            } elseif (isset($getData['set-transfer'])) {
+                if ($isEditAllow && $newAccountId) {
+                    if (!ClientAccount::find()->where(['id' => $newAccountId])->one()) {
+                        throw new InvalidParamException('Клиент не найден');
+                    }
+                    Card::dao()->actionSetTransfer($cardIccids, $account->id, $newAccountId);
+                } else {
+                    \Yii::$app->session->addFlash('error', 'Действие запрещено');
+                }
+            } 
         }
 
 
