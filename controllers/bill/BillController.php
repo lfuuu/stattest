@@ -2,12 +2,9 @@
 
 namespace app\controllers\bill;
 
-use app\models\Bill;
 use app\models\EventQueue;
-use Yii;
 use app\classes\BaseController;
-use yii\base\Exception;
-use yii\web\Response;
+use yii\helpers\Url;
 
 
 class BillController extends BaseController
@@ -42,62 +39,63 @@ class BillController extends BaseController
 
     }
 
-    public function actionMassInvoices($eventId = 0)
+    public function actionMassInvoices($eventId = 0, $doCreate = 0)
     {
+        $event = null;
+
         if (!$eventId) {
             $event = EventQueue::find()->where(['event' => EventQueue::INVOICE_MASS_CREATE])
                 ->andWhere(['NOT', ['status' => [EventQueue::STATUS_OK]]])
                 ->one();
 
+            if ($event) {
+                return $this->redirect(Url::to(['/bill/bill/mass-invoices', 'eventId' => $event->id]));
+            }
+        }
+
+        if ($doCreate) {
             if (!$event) {
                 $event = EventQueue::go(EventQueue::INVOICE_MASS_CREATE);
             }
-
-            if (!$event) {
-                \Yii::$app->session->addFlash('error', 'Задача не найдена');
-                return $this->redirect('/bill/publish/index');
-            }
-
-            return $this->redirect('/bill/bill/mass-invoices?eventId='.$event->id);
-        } else {
-            $event = EventQueue::findOne(['id' => $eventId, 'event' => EventQueue::INVOICE_MASS_CREATE]);
-
-            if (!$event) {
-                \Yii::$app->session->addFlash('error', 'Задача не найдена');
-                return $this->redirect('/bill/publish/index');
+            return $this->redirect(Url::to(['/bill/bill/mass-invoices', 'eventId' => $event->id]));
+        }elseif (!$event) {
+            $event = EventQueue::find()->where(['event' => EventQueue::INVOICE_MASS_CREATE])->orderBy(['id' => SORT_DESC])->one();
+            if ($event && !$eventId) {
+                return $this->redirect(Url::to(['/bill/bill/mass-invoices', 'eventId' => $event->id]));
             }
         }
 
-
-        $d = explode(PHP_EOL, trim($event->log_error));
-
-        $countAll = 10000;
+        $countAll = 0;
         $count = 0;
         $error = '';
 
-        if (strpos($d[0], 'Count all: ') !== false) {
-            $progressStyle = 'info';
-            $countAll = str_replace('Count all: ', '', $d[0]);
-            if (strpos($d[count($d)-1], 'count: ') !== false) {
-                $count = str_replace('count: ', '', $d[count($d) - 1]);
+        if ($event) {
+            $d = explode(PHP_EOL, trim($event->log_error));
+
+            if (strpos($d[0], 'Count all: ') !== false) {
+                $progressStyle = 'info';
+                $countAll = str_replace('Count all: ', '', $d[0]);
+                if (strpos($d[count($d) - 1], 'count: ') !== false) {
+                    $count = str_replace('count: ', '', $d[count($d) - 1]);
+                } else {
+                    $progressStyle = 'error';
+                    $error = $d[count($d) - 1];
+                }
             } else {
                 $progressStyle = 'error';
-                $error = $d[count($d)-1];
+                $error = $d[0];
             }
-        } else {
-            $progressStyle = 'error';
-            $error = $d[0];
-        }
 
-        if ($event->status == EventQueue::STATUS_OK) {
-            $count = $countAll;
-            $progressStyle = 'success';
-            $error = '';
+            if ($event->status == EventQueue::STATUS_OK) {
+                $count = $countAll;
+                $progressStyle = 'success';
+                $error = '';
+            }
         }
 
 
         return $this->render('mass-invoices', [
-            'eventId' => $event->id,
+            'event' => $event,
             'countAll' => $countAll,
             'count' => $count,
             'progressStyle' => $progressStyle,
