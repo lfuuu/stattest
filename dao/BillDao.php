@@ -70,24 +70,19 @@ class BillDao extends Singleton
             $billDate = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
         }
 
-        $billNoPrefix = $billDate->format('Ym') . '-';
+        $billDateStr = $billDate->format('Ym');
+        $billNoPrefix = $billDateStr . '-';
 
-        $organizationPrefix = '';
-        if ($billDate >= $this->getDateAfterBillNoWithOrganization()) {
+//        $organizationPrefix = '';
+//        if ($billDate >= $this->getDateAfterBillNoWithOrganization()) {
+//            $organizationPrefix = sprintf('%02d', $organizationId);
+//        }
+
+        $cache = \Yii::$app->cache;
+
+        do {
             $organizationPrefix = sprintf('%02d', $organizationId);
-        }
-
-        $lastBillNumber = Bill::find()
-            ->select('bill_no')
-            ->where(['LIKE', 'bill_no', $billNoPrefix . $organizationPrefix . '____', $isEscape = false])
-            ->orderBy(['bill_no' => SORT_DESC])
-            ->limit(1)
-            ->scalar();
-
-        $suffix = $lastBillNumber ? 1 + intval(substr($lastBillNumber, strlen($billNoPrefix) + strlen($organizationPrefix))) : 1;
-
-        if ($suffix == 10000 && $organizationId == Organization::MCN_TELECOM) {
-            $organizationPrefix = sprintf('%02d', $organizationId + 1);
+            $key = 'bn' . $billDateStr . $organizationId;
 
             $lastBillNumber = Bill::find()
                 ->select('bill_no')
@@ -98,9 +93,31 @@ class BillDao extends Singleton
 
             $suffix = $lastBillNumber ? 1 + intval(substr($lastBillNumber, strlen($billNoPrefix) + strlen($organizationPrefix))) : 1;
 
-        }
+            $isFind = true;
+            if ($suffix % 10000 == 0) {
+                $organizationId++;
+                $isFind = false;
+            }
 
-        return $billNoPrefix . $organizationPrefix . sprintf("%04d", $suffix);
+            if ($isFind) {
+                if ($saveSuffix = $cache->get($key)) {
+                    if ($saveSuffix >= $suffix) {
+                        $suffix = $saveSuffix + 1;
+
+                        if ($suffix % 10000 == 0) {
+                            $organizationId++;
+                            $isFind = false;
+                        }
+                    }
+                }
+            }
+        } while (!$isFind);
+
+        $billNo = $billNoPrefix . $organizationPrefix . sprintf("%04d", $suffix);
+
+        $cache->set($key, $suffix, DependecyHelper::TIMELIFE_NEXT_BILL_NO);
+
+        return $billNo;
     }
 
     /**
@@ -342,9 +359,9 @@ class BillDao extends Singleton
             $bill->sum_with_unapproved = $uuBill->price;
             $bill->price_include_vat = $clientAccount->price_include_vat;
             $bill->sum = $uuBill->price;
-            $bill->bill_no = $this->spawnBillNumber($uuBillDateTime);
             $bill->biller_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
             $bill->uu_bill_id = $uuBill->id;
+            $bill->bill_no = $this->spawnBillNumber($uuBillDateTime, $clientAccount->contract->organization_id);
             if (!$bill->save()) {
                 throw new ModelValidationException($bill);
             }
