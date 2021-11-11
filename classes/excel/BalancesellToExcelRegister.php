@@ -126,10 +126,10 @@ class BalancesellToExcelRegister extends Excel
             $worksheet->setCellValueByColumnAndRow(6, $line, 'Договор');
             $worksheet->setCellValueByColumnAndRow(6, $line+1, 'Акт');
 
-            $worksheet->setCellValueByColumnAndRow(6, $line, $row['contract_number']);
-            $worksheet->setCellValueByColumnAndRow(6, $line+1, $row['inv_no']);
-            $worksheet->setCellValueByColumnAndRow(7, $line, $row['contract_date']);
-            $worksheet->setCellValueByColumnAndRow(7, $line+1, $row['inv_date']);
+            $worksheet->setCellValueByColumnAndRow(7, $line, $row['contract_number']);
+            $worksheet->setCellValueByColumnAndRow(7, $line+1, $row['inv_no']);
+            $worksheet->setCellValueByColumnAndRow(8, $line, $row['contract_date']);
+            $worksheet->setCellValueByColumnAndRow(8, $line+1, $row['inv_date']);
             $i++;
             $j++;
         }
