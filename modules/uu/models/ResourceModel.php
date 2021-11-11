@@ -90,6 +90,8 @@ class ResourceModel extends ActiveRecord
     const ID_CALLLIMIT = 46;
     const ID_ALLOW_DIVERSION = 47;
 
+    const ID_QUOTA_TRAFFIC = 48;
+
     const ID_BOT = 54;
 
     // A2P
@@ -149,6 +151,7 @@ class ResourceModel extends ActiveRecord
         self::ID_TRUNK_PACKAGE_ORIG_CALLS => self::ID_TRUNK_PACKAGE_ORIG_CALLS,
         self::ID_TRUNK_PACKAGE_TERM_CALLS => self::ID_TRUNK_PACKAGE_TERM_CALLS,
         self::ID_API_CALL => self::ID_API_CALL,
+        self::ID_QUOTA_TRAFFIC => self::ID_QUOTA_TRAFFIC,
     ];
 
     // map for operation types
