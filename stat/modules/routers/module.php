@@ -466,7 +466,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
 
-        if ($result=='delete') {
+        if (in_array($result, ['add', 'delete'])) {
             header('Location: ?module=routers&action=d_list');
             exit;
         }
@@ -483,7 +483,7 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         $R['0']='';
         if ($res=='client') {
             $sql='select clients.client as id, concat(if (account_version = 5, \'У\', \'\'), \'ЛС \', clients.id) as text from clients ';
-            $sql.=' INNER JOIN usage_ip_ports ON clients.client=usage_ip_ports.client';
+            $sql.=' LEFT JOIN usage_ip_ports ON clients.client=usage_ip_ports.client';
             $sql.=' WHERE clients.status="work"';
             if ($client) {
                 $sql .= " and clients.client = '{$client}'";
@@ -502,6 +502,8 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
                     from usage_ip_ports';
             $sql.=' LEFT JOIN tech_ports ON tech_ports.id = usage_ip_ports.port_id';
             $sql.=' WHERE usage_ip_ports.client="'.$client.'"';
+
+            $R['0']='--- Без Подключения ---';
             $db->Query($sql);
             while ($r=$db->NextRecord()) $R[$r['id']]=$r['text'];
         }
