@@ -5,6 +5,7 @@ namespace app\controllers\report\accounting;
 use app\classes\BaseController;
 use app\classes\excel\BalanceSellToExcel;
 use app\classes\excel\BalanceSellToExcelEu;
+use app\classes\excel\BalancesellToExcelRegister;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
 use app\models\filter\SaleBookFilter;
@@ -49,6 +50,9 @@ class SaleBookController extends BaseController
                 if ($filter->is_euro_format) {
                     $excel = new BalanceSellToExcelEu(['filter' => $filter]);
                     $excel->download('Sale book');
+                } elseif ($filter->is_register) {
+                    $excel = new BalancesellToExcelRegister(['filter' => $filter]);
+                    $excel->download('Реестр');
                 } else {
                     $excel = new BalanceSellToExcel(['filter' => $filter]);
                     $excel->download('Книга продаж');

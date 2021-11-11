@@ -18,6 +18,7 @@ class SaleBookFilter extends Invoice
     const FILTER_NORMAL = 'normal';
     const FILTER_REVERSAL = 'reversal';
     const FILTER_ADDITION = 'dop_list';
+    const REGISTER = 1;
 
     public static $filters = [
         self::FILTER_ALL => 'Всё',
@@ -43,7 +44,8 @@ class SaleBookFilter extends Invoice
         $dateTo = null,
         $filter = self::FILTER_NORMAL,
         $currency = Currency::RUB,
-        $is_euro_format = 0;
+        $is_euro_format = 0,
+        $is_register = 0;
 
 
     public function __construct()
@@ -59,7 +61,7 @@ class SaleBookFilter extends Invoice
     {
         return [
             [['date_from', 'date_to', 'organization_id', /*'filter', */'currency'], 'required'],
-            ['is_euro_format', 'integer'],
+            [['is_euro_format', 'is_register'], 'integer'],
             [['date_from', 'date_to'], 'date'],
             [['organization_id'], 'in', 'range' => array_keys(Organization::dao()->getList())],
 //            ['filter', 'in', 'range' => array_keys(self::$filters)],
@@ -70,6 +72,7 @@ class SaleBookFilter extends Invoice
     {
         return parent::attributeLabels() + [
                 'is_euro_format' => 'ЕвроФормат',
+                'is_register' => 'Реестр',
             ];
     }
 
