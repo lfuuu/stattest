@@ -7,6 +7,7 @@ use app\models\filter\SaleBookFilter;
 use app\models\Invoice;
 use DateTime;
 use app\models\Organization;
+use app\modules\uu\models\ServiceType;
 use DateTimeImmutable;
 use PHPExcel_RichText;
 
@@ -63,16 +64,22 @@ class BalancesellToExcelRegister extends Excel
 
             $sum16 = 0;
             foreach($invoice->lines as $line) {
-                $sum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
+                if (!($line->date_to <= (new DateTimeImmutable($this->dateTo))->format(DateTimeZoneHelper::DATE_FORMAT) && $line->date_from >= (new DateTimeImmutable($this->dateFrom))->format(DateTimeZoneHelper::DATE_FORMAT))){
+                    continue;
+                }
+                if ($line->line->id_service) {
+                    if ($line->line->accountTariff->service_type_id != ServiceType::ID_VPBX) {
+                        continue;
+                    }
+                }
+                $sum16 += abs($line['sum_tax']) > 0  ? 0 : $line['sum'];
             }
 
-            if ($sum16 < 0.05) {
+            if (abs($sum16) < 0.05) {
                 continue;
             }
 
             $contract =  $invoice->bill->clientAccount->contract;
-            $contractDate = isset($contract->document->contract_date) ? $contract->document->contract_date : $contract->offer_date;
-
             $data[] = [
                 'company_full' => trim($contragent->name_full),
                 'inn' => trim($contragent->inn),
@@ -81,7 +88,7 @@ class BalancesellToExcelRegister extends Excel
                 'inv_date' => $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED), 
                 'sum16' => $sum16,
                 'contract_number' => $contract->number,
-                'contract_date' => (new DateTimeImmutable($contractDate))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
+                'contract_date' => '01.09.2021',
             ];
         }
         return $data;
@@ -95,7 +102,7 @@ class BalancesellToExcelRegister extends Excel
 
         $data = array_values($data);
         $worksheet->insertNewRowBefore($this->insertPosition, (count($data)-1) * 2);
-
+        
         $this->setCompanyName($worksheet);
         $this->setYear($worksheet);
         $this->setInnKpp($worksheet);
@@ -110,7 +117,7 @@ class BalancesellToExcelRegister extends Excel
             $row = $data[$j];
             $line = $i + $this->insertPosition - 1;
             $companyName = str_replace(['«', '»'], '"', html_entity_decode($row['company_full']));
-
+            $sum16 = sprintf('%0.2f', round($row['sum16'], 2));
             $worksheet->mergeCellsByColumnAndRow(3, $line, 3, $line + 1);
             $worksheet->setCellValueByColumnAndRow(3, $line, $companyName);
 
@@ -121,9 +128,9 @@ class BalancesellToExcelRegister extends Excel
             $worksheet->setCellValueByColumnAndRow(5, $line, $row['kpp']);
 
             $worksheet->mergeCellsByColumnAndRow(9, $line, 9, $line + 1);
-            $worksheet->setCellValueByColumnAndRow(9, $line, $row['sum16']);
+            $worksheet->setCellValueByColumnAndRow(9, $line, $sum16);
 
-            $worksheet->setCellValueByColumnAndRow(6, $line, 'Договор');
+            $worksheet->setCellValueByColumnAndRow(6, $line, 'Лицензионное соглашение');
             $worksheet->setCellValueByColumnAndRow(6, $line+1, 'Акт');
 
             $worksheet->setCellValueByColumnAndRow(7, $line, $row['contract_number']);

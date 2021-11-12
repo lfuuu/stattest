@@ -47,6 +47,7 @@
     use app\helpers\DateTimeZoneHelper;
     use app\models\ClientContragent;
     use app\models\Invoice;
+    use app\modules\uu\models\ServiceType;
 
     $query = $filter->search();
 
@@ -76,21 +77,26 @@
                 $sum_tax = $invoice->sum_tax;
 
                 $linesSum16 = 0;
-                $linesTax20 = 0;
-                foreach ($invoice->lines as $line) {
-                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
+                foreach($invoice->lines as $line) {
+                    if (!($line->date_to <= $filter->dateTo->format(DateTimeZoneHelper::DATE_FORMAT) && $line->date_from >= $filter->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT))){
+                        continue;
+                    }
+                    if ($line->line->id_service) {
+                        if ($line->line->accountTariff->service_type_id != ServiceType::ID_VPBX) {
+                            continue;
+                        }
+                    }
+                    $linesSum16 += abs($line['sum_tax']) > 0  ? 0 : $line['sum'];
                 }
 
-                if ($linesSum16 < 0.05) {
+                if (abs($linesSum16) < 0.05) {
                     continue;
                 }
-                
+
             } catch (Exception $e) {
                 Yii::$app->session->addFlash('error', $e->getMessage());
                 continue;
             }
-
-            
             
             $total['sumAll'] += $sum;
             $total['sumCol16'] += $linesSum16 ?: 0;  
@@ -105,11 +111,10 @@
                 <td rowspan="2"><?= trim($contragent->name_full) ?></td>
                 <td rowspan="2"><?= trim($contragent->inn) ?></td>
                 <td rowspan="2"><?= $contragent->legal_type == ClientContragent::LEGAL_TYPE ? (trim($contragent->kpp) ?: '') : '' ?></td>
-                <td colspan="1">Договор</td>
+                <td colspan="1">Лицензионное соглашение</td>
                 <td colspan="1"><?= $contract->number ?></td>
-                <td colspan="1"><?= (new DateTimeImmutable($contractDate))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) ?></td>
-                <td rowspan="2" align="right"><?= $sum_tax > 0 ? $printSum($linesSum16) : ""?></td>
-                
+                <td colspan="1"><?= '01.09.2021' ?></td>
+                <td rowspan="2" align="right"><?=  $printSum($linesSum16) ?></td>
             </tr>
             <td>Акт</td>
             <td><?= $invoice->number ?></td>
@@ -118,17 +123,16 @@
         endforeach;
     ?>
     <tr class="even">
-    <td>Всего по </br> коду:</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td align="right"><?= $printSum($total['sumCol16']) ?></td>
-
+        <td>Всего по </br> коду:</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td align="right"><?= $printSum($total['sumCol16']) ?></td>
     </tr>
     </tbody>
 </table>
