@@ -406,10 +406,13 @@ foreach ($resources as $resource) {
         'label' => Html::encode($resource->name . ($resource->unit ? ', ' . $resource->unit : '')),
         'value' => function (Tariff $tariff) use ($resource) {
             /** @var TariffResource $tariffResource */
-            $tariffResource = $tariff->getTariffResource($resource->id)->one();
-            if (!$tariffResource) {
+            $tariffResources = $tariff->tariffResourcesIndexedByResourceId;
+
+            if (!isset($tariffResources[$resource->id])) {
                 return '';
             }
+
+            $tariffResource = $tariffResources[$resource->id];
 
             if ($resource->isNumber()) {
                 return strpos($tariffResource->amount, '.') !== false ?

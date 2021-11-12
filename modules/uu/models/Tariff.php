@@ -42,6 +42,7 @@ use yii\helpers\Url;
  * @property integer $is_one_active
  * @property integer $is_proportionately
  * @property integer $tax_rate
+ * @property integer $is_bundle
  *
  * @property-read Currency $currency
  * @property-read TariffResource[] $tariffResources
@@ -52,6 +53,8 @@ use yii\helpers\Url;
  * @property-read TariffPeriod[] $tariffPeriods
  * @property-read Tag $tag
  * @property-read TariffTag[] $tariffTags
+ * @property-read TariffBundle[] $bundleTariffs
+ * @property-read TariffBundle[] $bundlePackages
  *
  * VOIP && VOIP package only!
  * @property integer $voip_group_id
@@ -157,6 +160,7 @@ class Tariff extends ActiveRecord
                     'is_charge_after_blocking',
                     'is_default',
                     'is_postpaid',
+                    'is_bundle',
                     'count_of_carry_period',
                     'vm_id',
                     'tag_id',
@@ -449,6 +453,27 @@ class Tariff extends ActiveRecord
             ->indexBy('tag_id');
     }
 
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBundlePackages()
+    {
+        return $this->hasMany(TariffBundle::class, ['package_tariff_id' => 'id'])
+            ->orderBy(['tariff_id' => SORT_ASC]);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBundleTariffs()
+    {
+        return $this->hasMany(TariffBundle::class, ['tariff_id' => 'id'])
+            ->orderBy(['tariff_id' => SORT_ASC]);
+    }
+
+
+
     /**
      * Есть ли услуги
      *
@@ -477,16 +502,21 @@ class Tariff extends ActiveRecord
     public static function getList(
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
-        $serviceTypeId = null
+        $serviceTypeId = null,
+        $_where = []
     )
     {
+        $where = ($serviceTypeId ? ['service_type_id' => $serviceTypeId] : []);
+        if ($_where) {
+            $where = ['AND', $where, $_where];
+        }
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'id',
             $select = 'name',
             $orderBy = ['name' => SORT_ASC],
-            $where = ($serviceTypeId ? ['service_type_id' => $serviceTypeId] : [])
+            $where
         );
     }
 

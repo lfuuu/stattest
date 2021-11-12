@@ -15,6 +15,7 @@ use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tag;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffBundle;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
@@ -52,6 +53,9 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffOrganization[] */
     public $tariffOrganizations;
 
+    /** @var TariffBundle[] */
+    public $tariffBundles;
+
     /** @var TariffTags[] */
     public $tariffTags;
 
@@ -82,6 +86,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return TariffOrganization[]
      */
     abstract public function getTariffOrganizations();
+
+    /**
+     * @return TariffBundle[]
+     */
+    abstract public function getTariffBundles();
 
     /**
      * @return TariffTags[]
@@ -168,6 +177,7 @@ abstract class TariffForm extends \app\classes\Form
         }
 
         $this->tariffOrganizations = $this->getTariffOrganizations();
+        $this->tariffBundles = $this->getTariffBundles();
         $this->tariffTags = $this->getTariffTags();
         $this->tariffCountries = $this->getTariffCountries();
 
@@ -235,6 +245,10 @@ abstract class TariffForm extends \app\classes\Form
                 $tariffOrganization = new TariffOrganization();
                 $tariffOrganization->tariff_id = $this->id;
                 $this->tariffOrganizations = $this->crudMultipleSelect2($this->tariffOrganizations, $post, $tariffOrganization, 'organization_id');
+
+                $tariffBundle = new TariffBundle();
+                $tariffBundle->tariff_id = $this->id;
+                $this->tariffBundles = $this->crudMultipleSelect2($this->tariffBundles, $this->tariff->is_bundle ? $post : [$tariffBundle->formName() => []], $tariffBundle, 'package_tariff_id');
 
                 $tariffTag = new TariffTags();
                 $tariffTag->tariff_id = $this->id;
@@ -408,6 +422,7 @@ abstract class TariffForm extends \app\classes\Form
         $this->_cloneTariffVoipCity($tariffCloned);
         $this->_cloneTariffVoipNdcType($tariffCloned);
         $this->_cloneTariffOrganization($tariffCloned);
+        $this->_cloneTariffBundle($tariffCloned);
         $this->_cloneTariffPeriod($tariffCloned);
         $this->_cloneTariffResource($tariffCloned);
         $this->_cloneTariffPackage($tariffCloned);
@@ -581,6 +596,32 @@ abstract class TariffForm extends \app\classes\Form
             if (!$organizationCloned->save()) {
                 $this->validateErrors += $organizationCloned->getFirstErrors();
                 throw new ModelValidationException($organizationCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. TariffOrganization
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffBundle(Tariff $tariffCloned)
+    {
+        $bundleTariffs = $this->tariff->bundleTariffs;
+        $fieldNames = [
+            'package_tariff_id',
+        ];
+        foreach ($bundleTariffs as $bundleTariff) {
+            $tariffBundleCloned = new TariffBundle();
+            $tariffBundleCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $tariffBundleCloned->$fieldName = $bundleTariff->$fieldName;
+            }
+
+            if (!$tariffBundleCloned->save()) {
+                $this->validateErrors += $tariffBundleCloned->getFirstErrors();
+                throw new ModelValidationException($tariffBundleCloned);
             }
         }
     }

@@ -6,6 +6,7 @@ use app\models\Currency;
 use app\modules\nnp\models\PackageApi;
 use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffBundle;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
@@ -95,6 +96,14 @@ class TariffAddForm extends TariffForm
     public function getTariffOrganizations()
     {
         return [new TariffOrganization()];
+    }
+
+    /**
+     * @return TariffBundle[]
+     */
+    public function getTariffBundles()
+    {
+        return [new TariffBundle()];
     }
 
     /**
