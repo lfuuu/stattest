@@ -4,6 +4,7 @@ namespace app\modules\uu\forms;
 
 use app\modules\nnp\models\PackageApi;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffBundle;
 use app\modules\uu\models\TariffCountry;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
@@ -85,6 +86,14 @@ class TariffEditForm extends TariffForm
     public function getTariffOrganizations()
     {
         return $this->tariff->organizations;
+    }
+
+    /**
+     * @return TariffBundle[]
+     */
+    public function getTariffBundles()
+    {
+        return $this->tariff->bundleTariffs;
     }
 
     /**

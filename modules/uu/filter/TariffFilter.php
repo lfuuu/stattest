@@ -94,9 +94,16 @@ class TariffFilter extends Tariff
         $query = Tariff::find()
             ->joinWith('status')
             ->with('tariffPeriods')
-            ->with('tariffCountries')
+            ->with('voipNdcTypes.ndcType')
+            ->with('tariffResources')
+            ->with('tariffResources.resource')
+            ->with('tariffCountries.country')
+            ->with('tariffVoipCountries.country')
+            ->with('organizations.organization')
             ->with('tariffVoipCountries')
-            ->with('voipCities');
+            ->with('voipCities.city')
+            ->with('tariffResourcesIndexedByResourceId.resource')
+;
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

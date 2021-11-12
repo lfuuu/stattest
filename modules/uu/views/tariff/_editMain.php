@@ -130,6 +130,15 @@ $viewParams = [
                     ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_postpaid') . $helpConfluence]);
             }
             ?>
+            <?php
+            if (
+                    isset(ServiceType::$packages[$tariff->service_type_id])
+                    || array_search($tariff->service_type_id, ServiceType::$packages)
+            ) {
+                echo $form->field($tariff, 'is_bundle')
+                    ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_bundle')]);
+            }
+            ?>
         </div>
 
     </div>
@@ -197,6 +206,11 @@ $viewParams = [
         <?= $this->render('//layouts/_showHistory', ['model' => $tariff]) ?>
     <?php endif; ?>
 
+
     <?= $this->render('_editMainTags', $viewParams) ?>
     <?= $this->render('_editMainOrganization', $viewParams) ?>
+
+    <?= $tariff->is_bundle && isset(ServiceType::$packages[$tariff->service_type_id]) ? $this->render('_editMainBundleTariffEdit', $viewParams) : ''?>
+    <?= $tariff->is_bundle && array_search($tariff->service_type_id, ServiceType::$packages) ? $this->render('_editMainBundleTariffView', $viewParams) : ''?>
+
 </div>
