@@ -5,10 +5,16 @@ namespace app\models\filter;
 
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
+use app\models\BillLine;
 use app\models\BusinessProcessStatus;
 use app\models\Currency;
 use app\models\Invoice;
+use app\models\InvoiceLine;
 use app\models\Organization;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use yii\base\NotSupportedException;
 use yii\db\ActiveQuery;
 
@@ -119,6 +125,11 @@ class SaleBookFilter extends Invoice
 
         $this->currency && $query->andWhere(['bill.currency' => $this->currency]);
 
+        if ($this->is_register) {
+            $query->with('lines');
+            $query->with('lines.line');
+            $query->with('lines.line.accountTariff');
+        }
         /*
         switch ($this->filter) {
             case self::FILTER_ALL:
