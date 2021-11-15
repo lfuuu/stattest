@@ -134,7 +134,7 @@ class TroublesController extends ApiInternalController
 
             // Получение переменной roistat
             if ($troubleRoistat = $trouble->troubleRoistat) {
-                $build['roistat'] = $troubleRoistat->roistat_visit;
+                $build['roistat'] = '';
                 $build['price'] = $troubleRoistat->roistat_price;
             }
 
