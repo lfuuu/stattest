@@ -36,6 +36,8 @@ class Module extends \yii\base\Module
     const EVENT_SIPTRUNK_SYNC = 'uu_siptrunk_sync';
     const EVENT_CHAT_BOT_CREATE = 'uu_chat_bot_create';
     const EVENT_CHAT_BOT_REMOVE = 'uu_chat_bot_remove';
+    const EVENT_ROBOCALL_INTERNAL_CREATE = 'uu_robocall_create';
+    const EVENT_ROBOCALL_INTERNAL_REMOVE = 'uu_robocall_remove';
 
     const LOG_CATEGORY = 'uu';
     const LOG_CATEGORY_API = 'uu_api';

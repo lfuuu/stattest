@@ -432,6 +432,7 @@ data:
         'ROBOCALL_AUTH' => ['method' => 'bearer', 'token' => '{{ .Values.params_prod.robocall_auth_token }}'],
         'ROBOCALL_DEFAULT_PARAMS' => ['task_id' =>  253, 'account_id' => 47197, 'robocall_id' => 9],
         'CALLTRACKING_SERVER' => 'feedback.mcn.ru',
+        'ROBOCALL_INTERNAL_SERVER' => 'robocall.mcn.ru',
     ];
 
   local.conf.php: |
