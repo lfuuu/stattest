@@ -79,7 +79,6 @@ class BalancesellToExcelRegister extends Excel
                 continue;
             }
 
-            $contract =  $invoice->bill->clientAccount->contract;
             $data[] = [
                 'company_full' => trim($contragent->name_full),
                 'inn' => trim($contragent->inn),
@@ -118,17 +117,15 @@ class BalancesellToExcelRegister extends Excel
             $line = $i + $this->insertPosition - 1;
             $companyName = str_replace(['«', '»'], '"', html_entity_decode($row['company_full']));
             $sum16 = sprintf('%0.2f', round($row['sum16'], 2));
-            $worksheet->mergeCellsByColumnAndRow(3, $line, 3, $line + 1);
+
             $worksheet->setCellValueByColumnAndRow(3, $line, $companyName);
+            $worksheet->setCellValueByColumnAndRow(3, $line+1, $companyName);
 
-            $worksheet->mergeCellsByColumnAndRow(4, $line, 4, $line + 1);
             $worksheet->setCellValueByColumnAndRow(4, $line, $row['inn']);
+            $worksheet->setCellValueByColumnAndRow(4, $line+1, $row['inn']);
 
-            $worksheet->mergeCellsByColumnAndRow(5, $line, 5, $line + 1);
             $worksheet->setCellValueByColumnAndRow(5, $line, $row['kpp']);
-
-            $worksheet->mergeCellsByColumnAndRow(9, $line, 9, $line + 1);
-            $worksheet->setCellValueByColumnAndRow(9, $line, $sum16);
+            $worksheet->setCellValueByColumnAndRow(5, $line+1, $row['kpp']);
 
             $worksheet->setCellValueByColumnAndRow(6, $line, 'Лицензионное соглашение');
             $worksheet->setCellValueByColumnAndRow(6, $line+1, 'Акт');
@@ -137,6 +134,9 @@ class BalancesellToExcelRegister extends Excel
             $worksheet->setCellValueByColumnAndRow(7, $line+1, $row['inv_no']);
             $worksheet->setCellValueByColumnAndRow(8, $line, $row['contract_date']);
             $worksheet->setCellValueByColumnAndRow(8, $line+1, $row['inv_date']);
+
+            $worksheet->setCellValueByColumnAndRow(9, $line, $sum16);
+
             $i++;
             $j++;
         }
