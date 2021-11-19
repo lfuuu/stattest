@@ -54,14 +54,16 @@ class ResourceModel extends ActiveRecord
     const ID_VPBX_RESERV = 57; // ВАТС. Резерв
     const ID_VPBX_PROMPTER = 60; // ВАТС. Cуфлер
     const ID_VPBX_OPERATOR_ASSESSMENT = 61; // ВАТС. Оценка оператора
+    const ID_VPBX_GEO_REPLACE = 66; // ВАТС. Гео-Автозамена
 
-
+    // VOIP
     const ID_VOIP_LINE = 7; // Телефония. Линия
     const ID_VOIP_FMC = 38; // Телефония. FMC
     const ID_VOIP_MOBILE_OUTBOUND = 43; // Телефония. "Исх. моб. связь"
     const ID_VOIP_ROBOCALL = 53; // Робокол
     const ID_VOIP_SMS_SUBABSENT = 55; // Телефония. SMS. Если абонент не в сети
     const ID_VOIP_SMS_DUPMTSMS = 56; // Телефония. SMS. Отправка всегда
+    const ID_VOIP_GEO_REPLACE = 65; // Телефония - Гео-Автозамена
 
     const ID_VOIP_PACKAGE_CALLS = 40; // Пакеты телефонии. Звонки
     const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
@@ -93,6 +95,8 @@ class ResourceModel extends ActiveRecord
     const ID_QUOTA_TRAFFIC = 48;
 
     const ID_BOT = 54;
+    const ID_CB_ADMIN = 64; // Чат-бот - Администрирование (Да/Нет)
+
 
     // A2P
     const ID_A2P_ALFA_NUMBERS = 58;
@@ -474,5 +478,16 @@ SQL;
             throw new ModelValidationException($this);
         }
 
+    }
+
+    public static function addResourceOnAccountTariffs($serviceTypeId, $resourceId, $pricePerUnit=1)
+    {
+        $resource = self::findOne(['service_type_id' => $serviceTypeId, 'id' => $resourceId]);
+
+        if (!$resource) {
+            throw new \InvalidArgumentException('resource not found');
+        }
+
+        $resource->addTariffResource(0, $pricePerUnit);
     }
 }
