@@ -4,6 +4,7 @@ namespace app\classes;
 
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\models\UserGrantGroups;
 use app\models\UserRight;
 use app\modules\uu\models\AccountTariff;
@@ -215,6 +216,15 @@ class Migration extends \yii\db\Migration
         if (!$isOption) {
             return;
         }
+
+        EventQueue::go(EventQueue::ADD_RESOURCE_ON_ACCOUNT_TARIFFS, [
+            'service_type_id' => $serviceTypeId,
+            'resource_id' => $resourceId,
+            'prices' => $prices,
+        ]);
+
+        return;
+
 
         $query = AccountTariff::find()->where([
             'service_type_id' => $serviceTypeId,

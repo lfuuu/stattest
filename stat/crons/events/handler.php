@@ -52,6 +52,7 @@ use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\classes\SyncVps;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\Module as UuModule;
 use app\modules\webhook\classes\ApiWebCall;
 use yii\console\ExitCode;
@@ -76,6 +77,7 @@ $nnpEvents = ['event' => [
     EventQueue::INVOICE_MASS_CREATE,
     EventQueue::INVOICE_GENERATE_PDF,
     EventQueue::INVOICE_ALL_PDF_CREATED,
+    EventQueue::ADD_RESOURCE_ON_ACCOUNT_TARIFFS,
 ]];
 
 $syncEvents = ['event' => [
@@ -513,6 +515,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::INVOICE_MASS_CREATE:
                     Invoice::dao()->massGenerate($event);
+                    break;
+
+                case EventQueue::ADD_RESOURCE_ON_ACCOUNT_TARIFFS:
+                    ResourceModel::addResourceOnAccountTariffs($param['service_type_id'], $param['resource_id']);
                     break;
 
                 case EventQueue::SYNC_1C_CLIENT:
