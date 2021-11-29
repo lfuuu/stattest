@@ -93,9 +93,13 @@ echo GridView::widget([
         [
             'attribute' => 'remote_ip',
             'width' => '10%',
-        ],        [
+        ],
+        [
             'attribute' => 'login',
             'width' => '10%',
+            'value' => function ($model) {
+                return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('login_email');
+            },
         ],
         [
             'class' => TagsColumn::class,

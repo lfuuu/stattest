@@ -2,6 +2,7 @@
 
 namespace app\classes\important_events\events;
 
+use app\classes\important_events\events\properties\LoginEmailProperty;
 use yii\base\Component;
 use yii\base\Exception;
 use app\classes\Html;
@@ -21,6 +22,7 @@ class UnknownEvent extends Component
             'date' => DateProperty::class,
             'client' => ClientProperty::class,
             'ip' => IpProperty::class,
+            'login_email' => LoginEmailProperty::class,
         ];
 
     /**
