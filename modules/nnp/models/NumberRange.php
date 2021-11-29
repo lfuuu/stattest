@@ -430,7 +430,7 @@ class NumberRange extends ActiveRecord
         }
 
         $toReturn = [];
-        $billerInfo = Number::getNnpInfo($number);
+        $billerInfo = Number::getNnpInfo($numberModel->number);
         if (!isset($billerInfo)) {
             $nnpNumberRange = self::getByNumber($numberModel->number);
         } else {

@@ -57,5 +57,13 @@ if [ "$ENVNAME" = "dev" ]; then
 
   echo 'mysql DB: apply migrations'
   kubectl exec -ti -n $NAMESPACE -c php-fpm $PODNAME -- /home/httpd/stat.mcn.ru/stat/yii migrate --interactive=0
+
+  PHPADMIN_URL=$(kubectl get ingress | grep phpmyadmin | awk '{print $3}' | sed "s/[[:space:]]//")
+  PHPADMIN_IP=$(minikube ip)
+
+  sudo sed -i -e '/^.*'$PHPADMIN_URL'/d' /etc/hosts
+  echo "${PHPADMIN_IP} ${PHPADMIN_URL}" | sudo tee -a /etc/hosts
+  echo "PhpMyAdmin доступен по адресу: http://$PHPADMIN_URL"
+
 fi
 
