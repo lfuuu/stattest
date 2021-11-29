@@ -1,0 +1,86 @@
+{{ if (eq .Values.global.env "dev") }}
+
+  {{ $_ := set . "mysql_host" .Values.mysql_dev.host }}
+  {{ $_ := set . "mysql_dbname" .Values.mysql_dev.dbname }}
+  {{ $_ := set . "mysql_port" .Values.mysql_dev.port }}
+  {{ $_ := set . "mysql_root_password" .Values.mysql_dev.root_password }}
+  {{ $_ := set . "mysql_user" .Values.mysql_dev.user }}
+  {{ $_ := set . "mysql_password" .Values.mysql_dev.password }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpmyadmin
+  labels:
+    app: {{ .Chart.Name }}-{{ .Values.global.env }}
+    tyer: phpmyadmin
+spec:
+  selector:
+    app: {{ .Chart.Name }}-{{ .Values.global.env }}
+    tier: phpmyadmin
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-{{ .Values.global.env }}
+      tier: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-{{ .Values.global.env }}
+        tier: phpmyadmin
+    spec:
+      # hostAliases:
+      #   - ip: "127.0.0.1"
+      #     hostnames:
+      #       - "status.localhost"
+      containers:
+        - image: phpmyadmin
+          name: phpmyadmin
+          env:
+            - name: PMA_ARBITRARY
+              value: "yes"
+            - name: PMA_HOST
+              value: {{ .mysql_host }}
+            - name: PMA_PORT
+              value: "{{ .mysql_port }}"
+            - name: PMA_USER
+              value: "{{ .mysql_user }}"
+            - name: PMA_PASSWORD
+              value: "{{ .mysql_password }}"
+          # - name: PMA_ABSOLUTE_URI
+          #   value: "https://{{ .Values.ci_url }}/phpmyadmin/"
+      restartPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Chart.Name }}-phpmyadmin
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    # ingress.kubernetes.io/rewrite-target: /
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: phpmyadmin.mcn.loc
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: "phpmyadmin"
+                port:
+                  number: 80
+{{- else }}
+
+{{- end }}
