@@ -654,6 +654,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="delivery_address", type="string", description="Адрес доставки", in="formData", default=""),
      *   @SWG\Parameter(name="file_link", type="string", description="Ссылка на PDF-заявление", in="formData", default=""),
      *   @SWG\Parameter(name="client_account_id", type="integer", description="ЛС", in="formData", default=""),
+     *   @SWG\Parameter(name="entry_point_id", type="integer", description="Точка входа", in="formData", default="MNP_RU_DANYCOM"),
      *
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},
@@ -704,7 +705,7 @@ class ClientController extends ApiInternalController
         if (!$params['client_account_id']) {
             $form = new ClientCreateExternalForm;
             $form->setAttributes([
-                'entry_point_id' => EntryPoint::MNP_RU_DANYCOM,
+                'entry_point_id' => $data['entry_point_id'] ?? EntryPoint::MNP_RU_DANYCOM,
                 'company' => $params['name'],
                 'address' => $params['address'],
                 'contact_phone' => $params['phone'],
