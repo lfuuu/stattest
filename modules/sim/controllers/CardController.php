@@ -475,6 +475,7 @@ class CardController extends BaseController
         return \Yii::$app->response->redirect(ClientAccount::findOne(['id' => $accountId])->getUrl());
     }
 
+    /*
     public function actionMassLinkDanycom()
     {
         $count = 0;
@@ -514,4 +515,5 @@ class CardController extends BaseController
         }
         return $return;
     }
+    */
 }
