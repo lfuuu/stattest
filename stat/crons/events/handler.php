@@ -91,6 +91,8 @@ $uuSyncEvents = [
     UuModule::EVENT_ADD_LIGHT,
     UuModule::EVENT_CLOSE_LIGHT,
     UuModule::EVENT_SIPTRUNK_SYNC,
+    UuModule::EVENT_ROBOCALL_INTERNAL_CREATE,
+    UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE,
 ];
 
 $syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents);

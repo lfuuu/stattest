@@ -90,3 +90,13 @@ postgres_dev:
   app_user: stat
   app_password: stat
   dbname: stat
+
+params_prod:
+  robocall_internal_server: https://robocall.mcn.ru
+  calltracking_server: feedback.mcn.ru
+  api_mcn_server: https://api.mcn.ru/v2/rest
+
+params_dev:
+  robocall_internal_server: 
+  calltracking_server:
+  api_mcn_server:

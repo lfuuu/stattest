@@ -375,7 +375,7 @@ SQL;
                         ]);
                         break;
                     case ImportantEventsNames::UU_SWITCHED_OFF:
-                        EventQueue::go(\app\modules\uu\Module::EVENT_ROBOCALL_INTERNAL_REMOVE. [
+                        EventQueue::go(\app\modules\uu\Module::EVENT_ROBOCALL_INTERNAL_REMOVE, [
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;

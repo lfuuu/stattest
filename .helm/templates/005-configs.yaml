@@ -1,3 +1,8 @@
+{{ $_ := set . "params" .Values.params_dev }}
+
+{{- if (eq .Values.global.env "prod") }}
+  {{ $_ := set . "params" .Values.params_prod }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -428,11 +433,11 @@ data:
             'user' => '{{ .Values.params_prod.tele2_amq_settings_user }}',
             'pass' => '{{ .Values.params_prod.tele2_amq_settings_pass }}',
         ],
-        'API_SERVER' => 'https://api.mcn.ru/v2/rest',
+        'API_SERVER' => '{{ .params.api_mcn_server }}',
         'ROBOCALL_AUTH' => ['method' => 'bearer', 'token' => '{{ .Values.params_prod.robocall_auth_token }}'],
         'ROBOCALL_DEFAULT_PARAMS' => ['task_id' =>  253, 'account_id' => 47197, 'robocall_id' => 9],
-        'CALLTRACKING_SERVER' => 'feedback.mcn.ru',
-        'ROBOCALL_INTERNAL_SERVER' => 'robocall.mcn.ru',
+        'CALLTRACKING_SERVER' => '{{ .params.calltracking_server }}',
+        'ROBOCALL_INTERNAL_SERVER' => '{{ .params.robocall_internal_server }}',
     ];
 
   local.conf.php: |
