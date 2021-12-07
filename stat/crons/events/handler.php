@@ -9,6 +9,7 @@ use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiRobocall;
+use app\classes\api\ApiRobocallInternal;
 use app\classes\api\ApiSipTrunk;
 use app\classes\api\ApiVpbx;
 use app\classes\api\ApiVps;
@@ -90,6 +91,8 @@ $uuSyncEvents = [
     UuModule::EVENT_ADD_LIGHT,
     UuModule::EVENT_CLOSE_LIGHT,
     UuModule::EVENT_SIPTRUNK_SYNC,
+    UuModule::EVENT_ROBOCALL_INTERNAL_CREATE,
+    UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE,
 ];
 
 $syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents);
@@ -193,6 +196,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 //        $flags['isClientChangedServer'] = ClientChangedAmqAdapter::me()->isAvailable();
         $flags['is1CServer'] = defined('SYNC1C_UT_SOAP_URL') && SYNC1C_UT_SOAP_URL;
         $flags['isRobocallServer'] = ApiRobocall::me()->isAvailable();
+        $flags['isRobocallInternalServer'] = ApiRobocallInternal::me()->isAvailable();
     }
 
     $isCoreServer = $flags['isCoreServer'];
@@ -212,6 +216,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 //    $isClientChangedServer = $flags['isClientChangedServer'];
     $is1CServer = $flags['is1CServer'];
     $isRobocallServer = $flags['isRobocallServer'];
+    $isRobocallInternalServer = $flags['isRobocallInternalServer'];
     echo '. ';
 
 
@@ -612,7 +617,6 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
-
                 case UuModule::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
                     $info = AccountTariffBiller::recalc($param);
@@ -977,6 +981,22 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
+                
+                case UuModule::EVENT_ROBOCALL_INTERNAL_CREATE:
+                    if ($isRobocallInternalServer) {
+                        ApiRobocallInternal::me()->create($param['client_account_id'], $param['account_tariff_id']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+                    
+                case UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE:
+                    if ($isRobocallInternalServer) {
+                        ApiRobocallInternal::me()->remove($param['account_tariff_id']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
 
                 case EventQueue::PORTED_NUMBER_ADD:
                     $info = Registry::dao()->addPortedNumber($param['account_id'], $param['number']);
@@ -987,9 +1007,6 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = Registry::dao()->createAccountTariffForPortedNumber($number);
                     EventQueue::go(EventQueue::ACTUALIZE_NUMBER, ['number' => $number]);
                     break;
-
-
-
                 // --------------------------------------------
                 //
                 // --------------------------------------------
