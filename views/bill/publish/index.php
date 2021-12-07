@@ -174,6 +174,6 @@ use app\models\Region;
     </fieldset>
 </div>
 
-<div class="well text-center" style="width: 500px;">
+<!-- div class="well text-center" style="width: 500px;">
     <a class="btn btn-primary" href="/sim/card/mass-link-danycom" role="button">Denycom. Массовая привязка SIM и У-услуг номеров</a>
-</div>
+</div -->

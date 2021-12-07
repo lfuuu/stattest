@@ -80,7 +80,10 @@ class SubAccountController extends ApiInternalController
 
         // получение балансов
         $subAccountSums = SubaccountCounter::find()
-            ->where(['subaccount_id' => array_column($data, 'id')])
+            ->where([
+                'subaccount_id' => array_column($data, 'id'),
+                'client_account_id' => array_unique(array_column($data, 'account_id')),
+            ])
             ->indexBy('subaccount_id')
             ->asArray()
             ->all();
