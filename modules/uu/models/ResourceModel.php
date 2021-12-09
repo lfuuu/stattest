@@ -54,7 +54,7 @@ class ResourceModel extends ActiveRecord
     const ID_VPBX_RESERV = 57; // ВАТС. Резерв
     const ID_VPBX_PROMPTER = 60; // ВАТС. Cуфлер
     const ID_VPBX_OPERATOR_ASSESSMENT = 61; // ВАТС. Оценка оператора
-    const ID_VPBX_GEO_REPLACE = 66; // ВАТС. Гео-Автозамена
+    const ID_VPBX_TRUNK_EXT_VPBX = 66; // ВАТС. Транк для внешней АТС
 
     // VOIP
     const ID_VOIP_LINE = 7; // Телефония. Линия
