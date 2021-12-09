@@ -41,7 +41,7 @@ class m211119_122905_4_resources extends Migration
             ]);
 
         $this->insertResource(ServiceType::ID_VPBX,
-            ResourceModel::ID_VPBX_GEO_REPLACE, [
+            ResourceModel::ID_VPBX_TRUNK_EXT_VPBX, [
                 'name' => 'Гео-Автозамена',
                 'unit' => '',
                 'min_value' => 0,
@@ -62,7 +62,7 @@ class m211119_122905_4_resources extends Migration
         $this->delete(ResourceModel::tableName(), ['id' => [
             ResourceModel::ID_CB_ADMIN,
             ResourceModel::ID_VOIP_GEO_REPLACE,
-            ResourceModel::ID_VPBX_GEO_REPLACE
+            ResourceModel::ID_VPBX_TRUNK_EXT_VPBX
         ]]);
     }
 }
