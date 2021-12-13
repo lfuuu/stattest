@@ -6,8 +6,9 @@ metadata:
   name: {{ .Chart.Name }}-mysqldbconfig
 data:
   00-init-db.sh: |
-    #!/bin/bash
-    set -e
+    #!/bin/bash -xe
+
+    mysql mysql -e "DROP DATABASE IF EXISTS {{ .Values.mysql_dev.db }};"
     mysql mysql -e "CREATE DATABASE {{ .Values.mysql_dev.db }} DEFAULT CHARACTER SET utf8;"
     mysql <<-EOF
       DROP TABLE IF EXISTS user_users;
@@ -42,8 +43,15 @@ data:
       Moscow','ru-RU',NULL,'');
     EOF
   01-set-000001-migration.sh: |
-    #!/bin/bash
+    #!/bin/bash -xe
     set -e
+
+    if [ `mysql mysql -e "show databases like '{{ .Values.mysql_dev.db }}'" | wc -l` -eq '2' ]; then
+      if [ `mysql nispd -e "select * from migration where migration.version ='m100000_000001_init'" | wc -l` -eq '2' ]; then
+        exit 0;
+      fi
+    fi
+
     mysql -e "INSERT INTO migration (version, apply_time) VALUES ('m100000_000001_init', 1422529005);"
   mysql.cnf: |
     [mysql]
@@ -109,12 +117,44 @@ spec:
             - name: mysqldbconfig-volume
               mountPath: /etc/mysql/conf.d/mysqld.cnf
               subPath: mysqld.cnf
+            - name: store-mysql
+              mountPath: /var/lib/mysql
 
       volumes:
         - name: mysqldbconfig-volume
           configMap:
             name: {{ .Chart.Name }}-mysqldbconfig
+        - name: store-mysql
+          persistentVolumeClaim:
+            claimName: pvc-mysql-storage
+
       restartPolicy: Always
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-mysql-storage
+spec:
+  storageClassName: mysql-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-mysql-storage
+spec:
+  storageClassName: mysql-storage
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path:  '/.volumes/mysql_{{ .Values.global.env }}'
 ---
 apiVersion: v1
 kind: Service
@@ -124,9 +164,12 @@ metadata:
     app: {{ .Chart.Name }}
     tier: mysql
 spec:
+  type: NodePort
   ports:
     - name: "mysql-port"
       port: {{ .Values.mysql_dev.port }}
+      targetPort: {{ .Values.mysql_dev.port }}
+      nodePort: 30306
   selector:
     app: {{ .Chart.Name }}
     tier: mysql

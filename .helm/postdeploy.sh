@@ -59,11 +59,22 @@ if [ "$ENVNAME" = "dev" ]; then
   kubectl exec -ti -n $NAMESPACE -c php-fpm $PODNAME -- /home/httpd/stat.mcn.ru/stat/yii migrate --interactive=0
 
   PHPADMIN_URL=$(kubectl get ingress | grep phpmyadmin | awk '{print $3}' | sed "s/[[:space:]]//")
-  PHPADMIN_IP=$(minikube ip)
+  minikubeIp=$(minikube ip)
 
-  sudo sed -i -e '/^.*'$PHPADMIN_URL'/d' /etc/hosts
-  echo "${PHPADMIN_IP} ${PHPADMIN_URL}" | sudo tee -a /etc/hosts
-  echo "PhpMyAdmin доступен по адресу: http://$PHPADMIN_URL"
+  if [ "$PHPADMIN_URL" != "" ]; then
+    sudo sed -i -e "/^.*${PHPADMIN_URL}/d" /etc/hosts
+    echo "${minikubeIp} ${PHPADMIN_URL}" | sudo tee -a /etc/hosts
+    echo "PhpMyAdmin доступен по адресу: http://$PHPADMIN_URL"
+  else
+    echo "PhpMyAdmin не доступен"
+  fi
 
+  mysqlNodePort=$(kubectl get service -n $NAMESPACE mysqldb | grep mysqldb | awk '{print $5}' | sed -r 's/^(.*):(.*)\/.*/\2/g')
+  mysqlPassword=$(kubectl exec -t -n stat-dev mysql-dev-0 -- env | grep MYSQLDB_PASSWORD | sed 's/.*=//g')
+  mysqlUser=$(kubectl exec -t -n stat-dev mysql-dev-0 -- env | grep MYSQLDB_USER | sed 's/.*=//g')
+  mysqlDb=$(kubectl exec -t -n stat-dev mysql-dev-0 -- env | grep MYSQLDB_DB | sed 's/.*=//g')
+
+  echo "MySQL uri: mysql://${mysqlUser}:${mysqlPassword}@${minikubeIp}:${mysqlNodePort}/${mysqlDb}"
+  echo "Stat login: admin/111"
 fi
 
