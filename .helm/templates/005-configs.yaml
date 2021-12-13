@@ -273,9 +273,9 @@ data:
     return [
         'adminEmail' => 'info@mcn.ru',
         'API_SECURE_KEY' => '{{ .Values.params_prod.api_secure_key }}',
-        'CORE_SERVER' => 'lk.mcn.ru',
-        'PHONE_SERVER' => 'vpbx.mcn.ru',
-        'VPBX_SERVER' => 'vpbx.mcn.ru',
+        'CORE_SERVER' => '{{ .params.core_server }}',
+        'PHONE_SERVER' => '{{ .params.phone_server }}',
+        'VPBX_SERVER' => '{{ .params.phone_server }}',
         'VIRTPBX_URL' => 'https://[address]/vpbx/api/[action]',
         'VPBX_API_AUTHORIZATION' => [
             'method' => 'bearer',
@@ -469,13 +469,13 @@ data:
             'EXT_GROUP_ID'		=>  6,
 
             /* sync with lk */
-            'MONGO_HOST' => 'lk.mcn.ru',
+            'MONGO_HOST' => '{{ .params.phone_server }}',
             'MONGO_USER' => '{{ .Values.params_local.sync_with_lk_mongo_user }}',
             'MONGO_PASS' => '{{ .Values.params_local.sync_with_lk_mongo_pass }}',
             'MONGO_DB' => 'lkmcn',
 
             /* sync with 1c */
-            'SYNC1C_UT_SOAP_URL'  => 'http://stat.ws.dionis.mcn.ru/ws/ws/stat',
+            'SYNC1C_UT_SOAP_URL'  => '{{ .params.sync1c_ut_soap_url }}',
             'SYNC1C_UT_LOGIN'     => '{{ .Values.params_local.sync1c_ut_login }}',
             'SYNC1C_UT_PASSWORD'  => '{{ .Values.params_local.sync1c_ut_password }}',
             'SYNC1C_STAT_TOKEN'   => '{{ .Values.params_local.sync1c_stat_token }}',
@@ -483,11 +483,11 @@ data:
             "LOG_DIR"           => "/var/log/nispd/",
             "SCAN_DOC_DIR"      => realpath(\Yii::getAlias('@app') . '/../store/skanpdf') . '/',
 
-            "CORE_API_URL"      => "https://lk.mcn.ru/core/api/",
-            "CORE_SERVER"      => "lk.mcn.ru",
-            "PHONE_SERVER"      => "vpbx.mcn.ru",
+            "CORE_API_URL"      => "https://{{ .params.core_server }}/core/api/",
+            "CORE_SERVER"      => "{{ .params.core_server }}",
+            "PHONE_SERVER"      => "{{ .params.phone_server }}",
 
-            "VIRTPBX_TEST_ADDRESS" => "vpbx.mcn.ru",
+            "VIRTPBX_TEST_ADDRESS" => "{{ .params.phone_server }}",
             "VIRTPBX_URL" => "https://[address]/vpbx/api/[action]",
             //'API__print_bill_url' => 'https://lk.mcn.ru/lk/docs/?bill=', //'https://lk.mcn.ru/print?bill='
             'API__print_bill_url' => '/lk/docs/?bill=', //'https://lk.mcn.ru/print?bill='
