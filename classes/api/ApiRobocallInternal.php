@@ -74,7 +74,7 @@ class ApiRobocallInternal extends Singleton
             throw new Exception('tariff doesn\'t exist');
         }
 
-        if ($accountTariff->service_type_id != ServiceType::ID_VOICE_ROBOT) {
+        if ($accountTariff->service_type_id != ServiceType::ID_CHAT_BOT) {
             throw new Exception('Wrong service type id');
         }
         
