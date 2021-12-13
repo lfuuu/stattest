@@ -132,4 +132,10 @@ class Utils
         }
         return $password;
     }
+
+    public static function isProd()
+    {
+        $hostName = $_SERVER['HOSTNAME'] ?? '';
+        return strpos($hostName, '-dev-') === false;
+    }
 }

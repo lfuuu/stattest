@@ -2747,15 +2747,17 @@ class m_newaccounts extends IModule
                     $design->assign("client_contract",
                         BillContract::getString($billModel->clientAccount->contract_id, $bill->getTs()));
 
-                    $id = $db->QueryInsert(
-                        "log_newbills",
-                        [
-                            'bill_no' => $bill_no,
-                            'ts' => ['NOW()'],
-                            'user_id' => $user->Get('id'),
-                            'comment' => 'Печать с/ф &#8470;' . $source
-                        ]
-                    );
+                    if(\app\classes\Utils::isProd()) {
+                        $id = $db->QueryInsert(
+                            "log_newbills",
+                            [
+                                'bill_no' => $bill_no,
+                                'ts' => ['NOW()'],
+                                'user_id' => $user->Get('id'),
+                                'comment' => 'Печать с/ф &#8470;' . $source
+                            ]
+                        );
+                    }
 
                     if ($obj == "upd") {
                         $design->assign("print_upd", printUPD::getInfo(count($design->_tpl_vars["bill_lines"])));
