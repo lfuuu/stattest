@@ -90,7 +90,7 @@ class AccountTariffController extends BaseController
         }
 
         return $this->render('index', [
-            'isPersonalForm' => $serviceTypeId != ServiceType::ID_INFRASTRUCTURE && $this->_getCurrentClientAccountId(),
+            'isPersonalForm' => $serviceTypeId != ServiceType::ID_INFRASTRUCTURE && $this->_getCurrentClientAccountId() && !isset(ServiceType::$packages[$serviceTypeId]),
             'filterModel' => $filterModel,
         ]);
     }
