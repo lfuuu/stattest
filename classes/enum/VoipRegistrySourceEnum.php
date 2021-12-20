@@ -15,6 +15,7 @@ class VoipRegistrySourceEnum extends Enum
     const PORTABILITY_NOT_FOR_SALE = 'portability_not_for_sale';
     const PORTABILITY_INNONET = 'portability_innonet';
     const OPERATOR_NOT_FOR_SALE = 'operator_not_for_sale';
+    const DIDWWW = 'didwww';
 
 
     public static $names = [
@@ -27,7 +28,8 @@ class VoipRegistrySourceEnum extends Enum
         self::DETACHED => 'Detached',
         self::PORTABILITY_NOT_FOR_SALE => 'Portability (Not for sale)',
         self::PORTABILITY_INNONET => 'Portability (Innonet)',
-        self::OPERATOR_NOT_FOR_SALE => 'Operator (Not for sale)'
+        self::OPERATOR_NOT_FOR_SALE => 'Operator (Not for sale)',
+        self::DIDWWW => 'DIDWWW',
     ];
 
     public static $service = [
