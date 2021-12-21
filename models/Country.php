@@ -47,6 +47,9 @@ class Country extends ActiveRecord
     const AUSTRIA = 40;
     const CZECH = 203;
     const UNITED_KINGDOM = 826;
+    const CHINA = 156;
+
+    const DEFAULT_GOOD_COUNTRY = self::CHINA;
 
     public static $primaryField = 'code';
 
