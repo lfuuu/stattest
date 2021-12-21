@@ -106,3 +106,4 @@ params_dev:
   phone_server:
   core_server:
   sync1c_ut_soap_url:
+  api_secure_key: 111

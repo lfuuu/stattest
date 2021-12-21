@@ -247,8 +247,8 @@ abstract class TariffForm extends \app\classes\Form
                 $this->tariffOrganizations = $this->crudMultipleSelect2($this->tariffOrganizations, $post, $tariffOrganization, 'organization_id');
 
                 $tariffBundle = new TariffBundle();
-                $tariffBundle->tariff_id = $this->id;
-                $this->tariffBundles = $this->crudMultipleSelect2($this->tariffBundles, $this->tariff->is_bundle ? $post : [$tariffBundle->formName() => []], $tariffBundle, 'package_tariff_id');
+                $tariffBundle->package_tariff_id = $this->id;
+                $this->tariffBundles = $this->crudMultipleSelect2($this->tariffBundles, $this->tariff->is_bundle ? $post : [$tariffBundle->formName() => []], $tariffBundle, 'tariff_id');
 
                 $tariffTag = new TariffTags();
                 $tariffTag->tariff_id = $this->id;
@@ -457,6 +457,8 @@ abstract class TariffForm extends \app\classes\Form
             'is_postpaid',
             'voip_group_id',
             'vm_id',
+            'is_one_active',
+            'is_bundle',
         ];
         foreach ($fieldNames as $fieldName) {
             $tariffCloned->$fieldName = $this->tariff->$fieldName;
@@ -608,13 +610,25 @@ abstract class TariffForm extends \app\classes\Form
      */
     private function _cloneTariffBundle(Tariff $tariffCloned)
     {
-        $bundleTariffs = $this->tariff->bundleTariffs;
+        $isPackage = isset(ServiceType::$packages[$tariffCloned->service_type_id]);
+
+        $tariffField = 'tariff_id';
+        $tariffPackageField = 'package_tariff_id';
+        $bundleTariffs = $this->tariff->bundlePackages;
+
+        if ($isPackage) {
+            $tariffField = 'package_tariff_id';
+            $tariffPackageField = 'tariff_id';
+            $bundleTariffs = $this->tariff->bundleTariffs;
+        }
+
+
         $fieldNames = [
-            'package_tariff_id',
+            $tariffPackageField,
         ];
         foreach ($bundleTariffs as $bundleTariff) {
             $tariffBundleCloned = new TariffBundle();
-            $tariffBundleCloned->tariff_id = $tariffCloned->id;
+            $tariffBundleCloned->{$tariffField} = $tariffCloned->id;
             foreach ($fieldNames as $fieldName) {
                 $tariffBundleCloned->$fieldName = $bundleTariff->$fieldName;
             }

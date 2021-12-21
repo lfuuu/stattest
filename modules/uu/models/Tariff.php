@@ -459,8 +459,8 @@ class Tariff extends ActiveRecord
      */
     public function getBundlePackages()
     {
-        return $this->hasMany(TariffBundle::class, ['package_tariff_id' => 'id'])
-            ->orderBy(['tariff_id' => SORT_ASC]);
+        return $this->hasMany(TariffBundle::class, ['tariff_id' => 'id'])
+            ->orderBy(['package_tariff_id' => SORT_ASC]);
     }
 
     /**
@@ -468,7 +468,7 @@ class Tariff extends ActiveRecord
      */
     public function getBundleTariffs()
     {
-        return $this->hasMany(TariffBundle::class, ['tariff_id' => 'id'])
+        return $this->hasMany(TariffBundle::class, ['package_tariff_id' => 'id'])
             ->orderBy(['tariff_id' => SORT_ASC]);
     }
 

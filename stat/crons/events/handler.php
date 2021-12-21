@@ -677,6 +677,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
 
+                case UuModule::EVENT_VOIP_BUNDLE:
+                    // УУ. Добавление / изменение бандл-пакетов
+                    AccountTariff::actualizeBundlePackages($param);
+                    break;
+
                 case UuModule::EVENT_ADD_DEFAULT_PACKAGES:
                     // УУ. Добавление/выключение дефолтных пакетов телефонии
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);

@@ -30,5 +30,35 @@
 			$("#tariff-is_autoprolongation").trigger('change');
 		});
 
+		$("#tariff-is_default").on("change", function() {
+
+			let $this = $(this),
+				$bundle = $("#tariff-is_bundle");
+
+			if ($this.is(":checked")) {
+				$bundle.prop( "checked", false );
+				$bundle.prop( "disabled", true );
+				$bundle.attr('readonly', 'readonly');
+			} else {
+				$bundle.removeAttr("readonly");
+				$bundle.prop( "disabled", false );
+			}
+
+			if ($bundle.is(":checked")) {
+				$this.prop( "checked", false );
+				$this.prop( "disabled", true );
+				$this.attr('readonly', 'readonly');
+			} else {
+				$this.removeAttr("readonly");
+				$this.prop( "disabled", false );
+			}
+
+		})
+			.trigger('change');
+
+		$("#tariff-is_bundle").on("change", function () {
+			$("#tariff-is_default").trigger('change');
+		});
+
 	})
 }(jQuery);

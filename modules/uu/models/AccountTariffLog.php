@@ -206,7 +206,7 @@ class AccountTariffLog extends ActiveRecord
                 // если нельзя, но очень хочется, то базовые пакеты иногда можно
                 array_key_exists($accountTariff->service_type_id, ServiceType::$packages)
                 && $this->tariff_period_id
-                && $this->tariffPeriod->tariff->is_default
+                && ($this->tariffPeriod->tariff->is_default || $this->tariffPeriod->tariff->is_bundle)
             )
         ) {
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
