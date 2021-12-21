@@ -196,15 +196,15 @@ class InvoiceLine extends ActiveRecord
     public function getCountry_Id()
     {
         if ($this->type != BillLine::LINE_TYPE_GOOD) {
-            return null;
+            return Country::DEFAULT_GOOD_COUNTRY;
         }
 
         if (!$this->invoice || !$this->invoice->bill) {
-            return null;
+            return Country::DEFAULT_GOOD_COUNTRY;
         }
 
         if ($this->line_id) {
-            return $this->line->country_id;
+            return $this->line->country_id ?: Country::DEFAULT_GOOD_COUNTRY;
         }
 
         return $this->invoice->bill->getLines()->where(['item' => $this->item, 'price' => $this->price])->select('country_id')->scalar();
@@ -233,6 +233,10 @@ class InvoiceLine extends ActiveRecord
 
         if ($row['country_maker']) {
             return $row['country_maker'];
+        }
+
+        if (!isset($row['country_id']) || !$row['country_id']) {
+            $row['country_id'] = Country::DEFAULT_GOOD_COUNTRY;
         }
 
         if ($row['country_id']) {
