@@ -194,6 +194,7 @@ class ClientSuperDao extends Singleton
                 BusinessProcessStatus::TELEKOM_MAINTENANCE_PORTING_REQUEST_ACCEPTED
             ]),
             'is_blocked' => (bool)$account['is_blocked'],
+            'is_with_working_services' => (bool)$account['is_active'],
             'is_finance_block' => null,
             'is_overran_block' => null,
             'is_bill_pay_overdue' => (bool)$account['is_bill_pay_overdue'],
