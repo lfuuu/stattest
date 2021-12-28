@@ -182,7 +182,7 @@ abstract class AccountTariffForm extends Form
                     ]);
                 }
 
-                if ($this->accountTariff->service_type_id == ServiceType::ID_A2P) {
+                if ($this->accountTariff->service_type_id == ServiceType::ID_A2P && isset($post['AccountTariff']['route_name'])) {
                     $this->accountTariff->route_name = $post['AccountTariff']['route_name'];
                 }
 
