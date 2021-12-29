@@ -5,12 +5,14 @@ namespace app\modules\uu\models\traits;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Number;
+use app\models\Region;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use DateTime;
 use Yii;
+use yii\db\Exception;
 
 trait AccountTariffValidatorTrait
 {
@@ -165,6 +167,11 @@ trait AccountTariffValidatorTrait
 
         if ($this->service_type_id == ServiceType::ID_VPBX && $this->region && !$this->region->is_use_vpbx) {
             $this->addError($attribute, 'Регион не используется для подключения ВАТС');
+        }
+
+        if ($this->service_type_id == ServiceType::ID_A2P) {
+            !$this->region_id && $this->region_id = Region::MOSCOW;
+            !$this->getParam('route_name') && $this->route_name = $this->route_name_default;
         }
     }
 

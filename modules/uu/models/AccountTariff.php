@@ -57,6 +57,8 @@ use yii\db\Expression;
  * @property string $account_log_period_utc
  * @property string $account_log_resource_utc
  * @property string $calltracking_params
+ * @property string $route_name
+ * @property string $route_name_default
  */
 class AccountTariff extends ActiveRecord
 {
@@ -220,11 +222,11 @@ class AccountTariff extends ActiveRecord
                 ['region_id'],
                 'required',
                 'when' => function (AccountTariff $accountTariff) {
-                    return in_array($accountTariff->service_type_id, [ServiceType::ID_VPBX, ServiceType::ID_A2P]);
+                    return $accountTariff->service_type_id == ServiceType::ID_VPBX;
                 },
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
-            ['region_id', 'validateRegion'],
+            ['region_id', 'validateRegion', 'skipOnEmpty' => false],
 
             [['infrastructure_project', 'infrastructure_level', 'datacenter_id'], 'integer'],
             [['price'], 'number'],
