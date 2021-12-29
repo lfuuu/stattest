@@ -7,6 +7,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\Currency;
+use app\models\Organization;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
@@ -608,9 +609,10 @@ class Tariff extends ActiveRecord
      * @param bool $isIncludeVat
      * @param int[] $tariffStatuses
      * @param int $packageType
+     * @param int $organizationId
      * @return Tariff[]|null
      */
-    public function findDefaultPackages($countryId, $cityId, $voipCountryId, $ndcTypeId, $isIncludeVat, $tariffStatuses, $packageType)
+    public function findDefaultPackages($countryId, $cityId, $voipCountryId, $ndcTypeId, $isIncludeVat, $tariffStatuses, $packageType, $organizationId)
     {
         if ($this->service_type_id == ServiceType::ID_VOIP && !$ndcTypeId) {
             // пакеты по умолчанию только для телефонии и билнгации API. Даже для пакетов транков их нет
@@ -654,6 +656,11 @@ class Tariff extends ActiveRecord
                         [TariffVoipNdcType::tableName() . '.ndc_type_id' => null],
                     ]);
             }
+        }
+
+        if ($organizationId) {
+            $query->joinWith('organizations')
+                ->andWhere([TariffOrganization::tableName() . '.organization_id' => $organizationId]);
         }
 
         return $query->all();
