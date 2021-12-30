@@ -31,7 +31,7 @@ class NdcType extends ActiveRecord
     const DEFAULT_HOLD = '6 month';
 
     private static $_holdList = [
-        self::ID_FREEPHONE => '1 day',
+//        self::ID_FREEPHONE => '1 day',
     ];
 
     /**
@@ -113,11 +113,7 @@ class NdcType extends ActiveRecord
      */
     public function getHold()
     {
-        if (isset(self::$_holdList[$this->id])) {
-            $interval = self::$_holdList[$this->id];
-        } else {
-            $interval = self::DEFAULT_HOLD;
-        }
+        $interval = self::$_holdList[$this->id] ?? self::DEFAULT_HOLD;
 
         return \DateInterval::createFromDateString($interval);
     }
