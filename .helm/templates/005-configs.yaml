@@ -272,7 +272,7 @@ data:
 
     return [
         'adminEmail' => 'info@mcn.ru',
-        'API_SECURE_KEY' => '{{ .Values.params_prod.api_secure_key }}',
+        'API_SECURE_KEY' => '{{ .params.api_secure_key }}',
         'CORE_SERVER' => '{{ .params.core_server }}',
         'PHONE_SERVER' => '{{ .params.phone_server }}',
         'VPBX_SERVER' => '{{ .params.phone_server }}',

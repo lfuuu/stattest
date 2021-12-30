@@ -19,7 +19,7 @@ use yii\widgets\ActiveForm;
 $tariffBundles = $formModel->tariffBundles;
 $tariffs = [];
 foreach ($tariffBundles as $tariffBundle) {
-    $tariffs[] = $tariffBundle->package_tariff_id;
+    $tariffs[] = $tariffBundle->tariff_id;
 }
 
 $tariff = $formModel->tariff;

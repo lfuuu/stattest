@@ -2,7 +2,6 @@
 
 namespace app\modules\uu\tarificator;
 
-use app\classes\ActaulizerVoipNumbers;
 use app\classes\HandlerLogger;
 use app\exceptions\FinanceException;
 use app\exceptions\ModelValidationException;
@@ -14,7 +13,6 @@ use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\Module;
 use app\widgets\ConsoleProgress;
@@ -214,16 +212,33 @@ SQL;
 
                 // is need sync tariff options
                 // только для смены тарифа. При включении - и так отработает. При выключении - не надо.
+                $oldTariffPeriod = null;
+                if ($oldTariffPeriodId) {
+                    $oldTariffPeriod = TariffPeriod::findOne(['id' => $oldTariffPeriodId]);
+                }
+
                 if ($oldTariffPeriodId && $newTariffPeriodId && $oldTariffPeriodId != $newTariffPeriodId) {
 
-                    $tariffPeriod = TariffPeriod::findOne(['id' => $oldTariffPeriodId]);
-
                     $isNewAutoDial = $accountTariff->tariffPeriod->tariff->isAutodial();
-                    $isOldAutoDial = $tariffPeriod ? $tariffPeriod->tariff->isAutodial() : false;
+                    $isOldAutoDial = $oldTariffPeriod && $oldTariffPeriod->tariff->isAutodial();
 
                     if ($isNewAutoDial != $isOldAutoDial) {
                         SyncResourceTarificator::doSyncResources($accountTariff);
                     }
+                }
+
+                // Включение / смена тарифа с участием бандл-пакетов
+                // Отключение действует централизованно (см. AccountTariff::actualizeDefaultPackages)
+                if (
+                    ($oldTariffPeriod && $oldTariffPeriod->tariff->is_bundle)
+                    || ($accountTariff->tariffPeriod && $accountTariff->tariffPeriod->tariff->is_bundle)
+                ) {
+                    EventQueue::go(Module::EVENT_VOIP_BUNDLE, [
+                        'client_account_id' => $accountTariff->client_account_id,
+                        'account_tariff_id' => $accountTariff->id,
+                        'old_tariff_period_id' => $oldTariffPeriodId,
+                        'new_tariff_period_id' => $accountTariff->tariff_period_id,
+                    ]);
                 }
 
                 /** @var \app\modules\callTracking\Module $callTrackingModule */
@@ -428,12 +443,13 @@ SQL;
 
             // менять тариф, даже если нет денег
             // менять тариф, если стоит флаг "списывать после блокировки" не смотря ни на что
-            // включать пакет, если он "по-умолчанию"
+            // включать пакет, если он "по-умолчанию" или "бандл"
             $this->checkBalance(
                 $accountTariff,
                 $eventType == ImportantEventsNames::UU_UPDATED
                 || $accountTariff->tariffPeriod->tariff->is_charge_after_blocking
                 || $accountTariff->tariffPeriod->tariff->is_default
+                || $accountTariff->tariffPeriod->tariff->is_bundle
             );
         }
     }

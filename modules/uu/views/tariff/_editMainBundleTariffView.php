@@ -21,7 +21,7 @@ $tariffBundle = $formModel->tariffBundles;
 $tariff = $formModel->tariff;
 $list = [];
 foreach ($tariff->bundlePackages as $bundlePackage) {
-    $list[$bundlePackage->package_tariff_id] = '#' . $bundlePackage->package_tariff_id . ' ' . $bundlePackage->tariff;
+    $list[$bundlePackage->package_tariff_id] = '#' . $bundlePackage->package_tariff_id . ' ' . $bundlePackage->packageTariff;
 }
 
 $tariffBundleTableName = TariffBundle::tableName();

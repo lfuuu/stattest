@@ -20,7 +20,7 @@ use yii\db\Expression;
  * @property integer $package_tariff_id
  *
  * @property-read Tariff $tariff
- * @property-read Tariff $packagesTariffs
+ * @property-read Tariff $packageTariff
  *
  * @method static TariffPeriod findOne($condition)
  * @method static TariffPeriod[] findAll($condition)
@@ -73,8 +73,8 @@ class TariffBundle extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getPackagesTariffs()
+    public function getPackageTariff()
     {
-        return $this->hasMany(Tariff::class, ['id' => 'package_tariff_id']);
+        return $this->hasOne(Tariff::class, ['id' => 'package_tariff_id']);
     }
 }
