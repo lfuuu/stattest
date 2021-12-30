@@ -101,7 +101,7 @@ trait AccountTariffPackageTrait
 
         /** @var TariffPeriod $tariffPeriod */
         $tariffPeriod = $this->getNotNullTariffPeriod();
-        $tariffStatuses = $this->_getPackageTariffStatuses();
+        $tariffStatuses = $this->getPackageTariffStatuses();
         /** @var \app\models\Number $number */
         $number = $this->number;
 
@@ -126,7 +126,8 @@ trait AccountTariffPackageTrait
             $number ? $number->ndc_type_id : null,
             $tariffPeriod->tariff->is_include_vat,
             $tariffStatuses,
-            $packageType
+            $packageType,
+            $this->clientAccount->contract->organization_id
         );
 
         if (!$defaultPackages) {
@@ -167,7 +168,7 @@ trait AccountTariffPackageTrait
     /**
      * @return int[]
      */
-    private function _getPackageTariffStatuses()
+    public function getPackageTariffStatuses()
     {
         if ($this->service_type_id != ServiceType::ID_VOIP) {
             return [TariffStatus::ID_PUBLIC];
