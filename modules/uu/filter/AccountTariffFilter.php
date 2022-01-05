@@ -54,6 +54,7 @@ class AccountTariffFilter extends AccountTariff
     public $tariff_country_id = '';
     public $tariff_currency_id = '';
     public $tariff_organization_id = '';
+    public $client_organization_id = '';
     public $tariff_is_default = '';
 
     public $number_ndc_type_id = '';
@@ -137,6 +138,7 @@ class AccountTariffFilter extends AccountTariff
                 'tariff_is_postpaid',
                 'tariff_country_id',
                 'tariff_organization_id',
+                'client_organization_id',
                 'tariff_is_default',
                 'trouble_id',
                 'contragent_type',
@@ -242,9 +244,12 @@ class AccountTariffFilter extends AccountTariff
             ServiceType::ID_CALL_CHAT
         ]);
 
+        $isClientContractJoined = false;
+        $clientContractTableName = ClientContract::tableName();
+
         if ($this->account_manager_name !== '' || $isSpecialServiceType) {
-            $clientContractTableName = ClientContract::tableName();
             $query->innerJoin($clientContractTableName, "clients.contract_id = $clientContractTableName.id");
+            $isClientContractJoined = true;
 
             // Присоединение столбца "Ак. менеджер"
             if ($isEmptyAccountManagerName) {
@@ -286,12 +291,22 @@ class AccountTariffFilter extends AccountTariff
                 ->andWhere(['tariff_organization.organization_id' => $this->tariff_organization_id]);
         }
 
+        if ($this->client_organization_id !== '') {
+            if (!$isClientContractJoined) {
+                $query->innerJoin($clientContractTableName, "clients.contract_id = $clientContractTableName.id");
+                $isClientContractJoined = true;
+            }
+
+            $query->andWhere([$clientContractTableName.'.organization_id' => $this->client_organization_id]);
+        }
+
         if ($this->contragent_type) {
             $clientContragentTableName = ClientContragent::tableName();
             
-            if (!isset($clientContractTableName)) {
+            if (!$isClientContractJoined) {
                 $clientContractTableName = ClientContract::tableName();
                 $query->innerJoin($clientContractTableName, "clients.contract_id = {$clientContractTableName}.id");
+                $isClientContractJoined = true;
             }
             
             $query

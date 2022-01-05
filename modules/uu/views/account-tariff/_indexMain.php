@@ -167,7 +167,7 @@ $columns = array_merge($columns, [
         }
     ],
     [
-        'label' => 'Контрагент',
+        'label' => 'Юр. тип',
         'attribute' => 'contragent_type',
         'class' => ContragentColumn::class,
         'value' => function (AccountTariff $accountTariff) {
@@ -186,7 +186,7 @@ $columns = array_merge($columns, [
         }
     ],
     [
-        'label' => 'Страна',
+        'label' => 'Страны тарифа',
         'attribute' => 'tariff_country_id',
         'format' => 'html',
         'class' => CountryColumn::class,
@@ -229,7 +229,7 @@ $columns = array_merge($columns, [
         }
     ],
     [
-        'label' => 'Организации',
+        'label' => 'Организации тарифа',
         'attribute' => 'tariff_organization_id',
         'format' => 'html',
         'class' => OrganizationColumn::class,
@@ -241,6 +241,18 @@ $columns = array_merge($columns, [
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
 
             return $tariff ? $tariff->getOrganizationsString() : '';
+        }
+    ],
+    [
+        'label' => 'Организация клиента',
+        'attribute' => 'client_organization_id',
+        'format' => 'html',
+        'class' => OrganizationColumn::class,
+        'contentOptions' => [
+            'class' => 'nowrap',
+        ],
+        'value' => function (AccountTariff $accountTariff) {
+            return $accountTariff->clientAccount->contract->organization->name;
         }
     ],
     [
