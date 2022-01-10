@@ -74,7 +74,7 @@ class NumberForm extends Form
             } elseif ($this->scenario == 'unRelease') {
                 Number::dao()->unRelease($number);
             } elseif ($this->scenario == 'setTechNumber' && $number->ndc_type_id == NdcType::ID_FREEPHONE) {
-                $number->number_tech = $this->number_tech;
+                $number->number_tech = $this->number_tech ?: null;
                 $number->save();
                 \Yii::$app->session->addFlash('success', 'Технический номер сохранен');
             }
