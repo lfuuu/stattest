@@ -327,8 +327,6 @@ SQL;
                     'is_active' => ($eventType == ImportantEventsNames::UU_SWITCHED_ON),
                     'calltracking_params' => $accountTariff->calltracking_params,
                 ]);
-
-
                 break;
 
             case ServiceType::ID_SIPTRUNK:
@@ -380,6 +378,7 @@ SQL;
                         // сменить тариф - не обрабатывается
                         break;
                 }
+                break;
 
             case ServiceType::ID_VOICE_ROBOT:
                 switch ($eventType) {
@@ -398,6 +397,7 @@ SQL;
                         // nothing
                         break;
                 }
+                break;
         }
 
         if (
