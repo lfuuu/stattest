@@ -81,7 +81,7 @@ class UbillerController extends Controller
      */
     public function actionIndex()
     {
-        ini_set('memory_limit', '5G');
+        ini_set('memory_limit', '6G');
 
         // очистка логов проводок (uu_account_tariff_log_*)
         // * - started manualy or by crontab
