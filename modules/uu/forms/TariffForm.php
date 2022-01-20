@@ -155,7 +155,9 @@ abstract class TariffForm extends \app\classes\Form
     protected function loadFromInput()
     {
         $post = \Yii::$app->request->post();
-        if ($this->tariff->isHasAccountTariff()) {
+
+        $isInUse = $this->tariff->isHasAccountTariff();
+        if ($isInUse) {
             // На этом тарифе есть услуги. Редактировать можно только некоторые свойства.
             if (isset($post['Tariff']['name'])) {
                 // checkbox передаются даже disabled, потому что они в паре с hidden. Надо все лишнее убрать
@@ -198,6 +200,7 @@ abstract class TariffForm extends \app\classes\Form
 
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
+        $transactionPg = \Yii::$app->dbPg->beginTransaction();
         try {
             if (isset($post['cloneButton'])) {
 
@@ -360,7 +363,7 @@ abstract class TariffForm extends \app\classes\Form
                         break;
 
                     case ServiceType::ID_BILLING_API_MAIN_PACKAGE:
-                        if (!$this->id) {
+                        if (!$this->id || $isInUse) {
                             break;
                         }
 
@@ -395,13 +398,16 @@ abstract class TariffForm extends \app\classes\Form
             }
 
             $transaction->commit();
+            $transactionPg->commit();
 
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
+            $transactionPg->rollBack();
             $this->isSaved = false;
 
         } catch (\Exception $e) {
             $transaction->rollBack();
+            $transactionPg->rollBack();
             \Yii::error($e);
             $this->isSaved = false;
             $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : \Yii::t('common', 'Internal error');
