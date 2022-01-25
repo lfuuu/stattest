@@ -201,6 +201,7 @@ abstract class TariffForm extends \app\classes\Form
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
         $transactionPg = \Yii::$app->dbPg->beginTransaction();
+        $transactionPgNnp = \Yii::$app->dbPgNnp->beginTransaction();
         try {
             if (isset($post['cloneButton'])) {
 
@@ -399,15 +400,18 @@ abstract class TariffForm extends \app\classes\Form
 
             $transaction->commit();
             $transactionPg->commit();
+            $transactionPgNnp->commit();
 
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
             $transactionPg->rollBack();
+            $transactionPgNnp->rollBack();
             $this->isSaved = false;
 
         } catch (\Exception $e) {
             $transaction->rollBack();
             $transactionPg->rollBack();
+            $transactionPgNnp->rollBack();
             \Yii::error($e);
             $this->isSaved = false;
             $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : \Yii::t('common', 'Internal error');
