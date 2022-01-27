@@ -81,6 +81,9 @@ class TroublesController extends ApiInternalController
     /**
      * @SWG\Get(tags = {"Troubles"}, path = "/internal/troubles/get-changed-troubles-list-for-roistat", summary = "Список измененных заявок", operationId = "GetChangedTroublesListForRoistat",
      *   @SWG\Parameter(name = "minutes_range", type = "integer", description = "За какой интервал получить актуальные данные", in = "query", default = "30"),
+     *   @SWG\Parameter(name = "date", type = "integer", description = "UNIX-time с которого запрашиваются данные", in = "query", default = ""),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "Кол-во записей", in = "query", default = "10000"),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "Сколько записей пропускаем", in = "query", default = "0"),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
@@ -89,7 +92,7 @@ class TroublesController extends ApiInternalController
      * @param int $minutes_range
      * @return array
      */
-    public function actionGetChangedTroublesListForRoistat($minutes_range = 60)
+    public function actionGetChangedTroublesListForRoistat($minutes_range = 30, $date = '', $limit = 10000, $offset = 0)
     {
         $response = [];
         // Получение типа подключения для заявки - лида
@@ -117,13 +120,38 @@ class TroublesController extends ApiInternalController
         $minutes_range = $minutes_range > self::allowTimeMin ? self::allowTimeMin : $minutes_range;
         $minutes_range = $minutes_range < 0 ? 0 : $minutes_range;
 
-        $time = new DateTime("{$minutes_range} minutes ago", new DateTimeZone('UTC'));
+        if ($date) {
+            $time = (new DateTime('now', new DateTimeZone('UTC')))->setTimestamp($date);
+            if (!$time) {
+                throw new InvalidArgumentException('date is bad');
+            }
+        } else {
+            $time = new DateTime("{$minutes_range} minutes ago", new DateTimeZone('UTC'));
+        }
         $troubleQuery = Trouble::find()
             ->alias('t')
             ->with('account', 'stage')
             ->joinWith('troubleRoistat', true, 'INNER JOIN')
             ->where(['t.trouble_type' => $troubleTypeConnect->code])
             ->andWhere(['>', 't.updated_at', $time->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+
+        $limit = (int) $limit;
+        if ($limit < 0 or $limit > 10000) {
+            $limit = 10000;
+        }
+
+        if ($limit) {
+            $troubleQuery->limit($limit);
+        }
+
+        $offset = (int) $offset;
+        if ($offset < 0 or $offset > 1000000) {
+            $offset = 0;
+        }
+
+        if ($offset) {
+            $troubleQuery->offset($offset);
+        }
 
         foreach($troubleQuery->each() as $trouble) {
             /** @var Trouble $trouble */
