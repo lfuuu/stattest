@@ -5490,10 +5490,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             //Create file
             $V = [
                 'name' => str_replace(['"'], "",
-                        $clientData["company_full"]) . ' Акт сверки (на ' . $date_to . ').pdf',
+                        $clientData["company_full"]) . ' ' . $clientData->id . ' Акт сверки (на ' . $date_to . ').pdf',
                 'ts' => ['NOW()'],
                 'contract_id' => $fixclient_data['contract_id'],
-                'comment' => $clientData["company_full"] . ' Акт сверки (на ' . $date_to . ')',
+                'comment' => $clientData["company_full"] . ' ' . $clientData->id . ' Акт сверки (на ' . $date_to . ')',
                 'user_id' => $user->Get('id')
             ];
             $id = $db->QueryInsert('client_files', $V);
