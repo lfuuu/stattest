@@ -135,7 +135,9 @@ class ApiVpbx extends Singleton
                 'enable_sub_accounts' => $tariff['enable_sub_accounts'],
                 'voice_assistant' => $tariff['voice_assistant'] ?? 0,
                 'robot_controller' => $tariff['robot_controller'] ?? 0,
-                'is_reserv' => 0
+                'is_reserv' => $tariff['is_reserv'] ?? 0,
+                'is_operator_score' => $tariff['is_operator_score'] ?? 0,
+                'is_external_pbx' => $tariff['is_external_pbx'] ?? 0,
             ]
         );
     }
@@ -299,6 +301,8 @@ class ApiVpbx extends Singleton
                 'voice_assistant' => $tariff['voice_assistant'] ?? 0,
                 'robot_controller' => $tariff['robot_controller'] ?? 0,
                 'is_reserv' => $tariff['is_reserv'] ?? 0,
+                'is_operator_score' => $tariff['is_operator_score'] ?? 0,
+                'is_external_pbx' => $tariff['is_external_pbx'] ?? 0,
             ]
         );
     }
@@ -470,6 +474,8 @@ SQL;
             'voice_assistant' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_VOICE_ASSISTANT),
             'robot_controller' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_ROBOT_CONTROLLER),
             'is_reserv' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_RESERV),
+            'is_operator_score' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_OPERATOR_ASSESSMENT),
+            'is_external_pbx' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_TRUNK_EXT_VPBX),
         ];
     }
 }
