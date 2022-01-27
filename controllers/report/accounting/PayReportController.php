@@ -160,10 +160,10 @@ class PayReportController extends BaseController
                 // Save file
                 $clientFilesAttr = [
                     'name' => str_replace(['"'], "",
-                        $contragent->name_full) . ' Акт сверки (на ' . $dateTo . ').pdf',
+                        $contragent->name_full) . ' ' . $account->id . ' Акт сверки (на ' . $dateTo . ').pdf',
                     'ts' => $account->getDatetimeWithTimezone()->format(DateTimeZoneHelper::DATETIME_FORMAT),
                     'contract_id' => $account->contract_id,
-                    'comment' => $contragent->name_full . ' Акт сверки (на ' . $dateTo . ')',
+                    'comment' => $contragent->name_full . ' ' . $account->id . ' Акт сверки (на ' . $dateTo . ')',
                     'user_id' => \Yii::$app->user->identity->id
                 ];
 
