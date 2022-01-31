@@ -21,6 +21,7 @@ class Param extends ActiveRecord
     const NOTIFICATIONS_LOCK_FILEPATH = '/tmp/yii-check-notification'; // путь к файлу-блокировке работы системы оповещения
     const IS_NEED_RECALC_TT_COUNT = 'is_need_recalc_tt_count';
     const IS_LOG_AAA = 'is_log_aaa';
+    const RESOURCE_PARTS = 'resource_parts';
 
     const IS_OFF = 0; //скрипт (lk/check-notification) выключен
     const IS_ON = 1; //скрипт (lk/check-notification) включен
