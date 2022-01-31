@@ -5,6 +5,7 @@ namespace app\modules\uu\tarificator;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Param;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\classes\DateTimeOffsetParams;
@@ -58,10 +59,24 @@ class AccountLogResourceTarificator extends Tarificator
         $fromId = $toId = null;
 
         // распаралелливание обработки
-        if (isset($_SERVER['argv']) && count($_SERVER['argv']) == 4 && $_SERVER['argv'][1] == 'ubiller/resource') {
+        if (isset($_SERVER['argv']) and count($_SERVER['argv']) >= 3 && $_SERVER['argv'][1] == 'ubiller/resource') {
 
-            $fromId = (int)$_SERVER['argv'][2];
-            $toId = (int)$_SERVER['argv'][3];
+            if (count($_SERVER['argv']) == 4) {
+                $fromId = (int)$_SERVER['argv'][2];
+                $toId = (int)$_SERVER['argv'][3];
+            } elseif (count($_SERVER['argv']) == 3 && $_SERVER['argv'][2][0] == 'p') {
+                $part = substr($_SERVER['argv'][2], 1);
+                $partsDataStr = Param::getParam(Param::RESOURCE_PARTS, []);
+
+                if ($partsDataStr) {
+                    $partsData = json_decode($partsDataStr, true);
+                    if (isset($partsData[$part-1])) {
+                        $partData = $partsData[$part-1];
+                        $fromId = (int)$partData['min'];
+                        $toId = (int)$partData['max'];
+                    }
+                }
+            }
 
             if (!$fromId || !$toId || $fromId > $toId) {
                 throw new \InvalidArgumentException('Неверные аргументы');

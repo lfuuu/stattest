@@ -5,6 +5,7 @@ namespace app\commands;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\helpers\Semaphore;
+use app\models\Param;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\classes\QueryCounterTarget;
 use app\modules\uu\models\AccountEntry;
@@ -643,6 +644,44 @@ SQL;
                 ->createCommand("select calls_margin.make({$sqlStr})")
                 ->queryScalar() . PHP_EOL;
         echo 'Done in ' . round(microtime(true) - $time0, 2) . ' sec' . PHP_EOL;
+    }
+
+    /**
+     * Подготовка перед вычислением ресурсов. (Разбитие на равные блоки)
+     * @return void
+     */
+    public function actionPrepareResourceCalc($parts = 10)
+    {
+        $count = AccountTariff::find()->where(['not', ['tariff_period_id' => null]])->count();
+        $min = AccountTariff::find()->where(['not', ['tariff_period_id' => null]])->min('id');
+        $max = AccountTariff::find()->where(['not', ['tariff_period_id' => null]])->max('id');
+
+        echo PHP_EOL.'Count: ' . $count;
+        echo PHP_EOL.'Min/max: ' . $min . ' / ' . $max;
+        echo PHP_EOL.'Parts: ' . $parts;
+
+        $perPart = round($count / $parts);
+        $start = 0;
+
+        $sql = <<<SQL
+        with uat as (
+            select id from uu_account_tariff where tariff_period_id is not null order by id
+        )
+SQL;
+        for ($part = 0; $part < $parts ; $part++) {
+            $sql .= PHP_EOL . ($part ? ' union ' : '') . "select {$part} as id, min(id) as min, max(id) as max from (select * from uat order by id limit {$start}, {$perPart} ) a";
+            $start += $perPart;
+        }
+
+        $d = [];
+        foreach(AccountTariff::getDb()->createCommand($sql)->queryAll() as $a) {
+            $d[$a['id']] = ['min' => $a['min'], 'max' => $a['max']];
+            echo PHP_EOL . $a['id'] . ': ' . $a['min'] . ' / ' . $a['max'];
+        }
+
+        Param::setParam(Param::RESOURCE_PARTS, $d);
+
+        echo PHP_EOL;
     }
 
 }
