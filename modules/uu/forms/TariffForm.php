@@ -169,7 +169,6 @@ abstract class TariffForm extends \app\classes\Form
                     'is_charge_after_blocking' => $post['Tariff']['is_charge_after_blocking'],
                     'is_one_active' => $post['Tariff']['is_one_active'],
                     'is_proportionately' => $post['Tariff']['is_proportionately'],
-                    'tax_rate' => $post['Tariff']['tax_rate'],
                     'voip_group_id' => $post['Tariff']['voip_group_id'],
                     'overview' => $post['Tariff']['overview']
                 ];
