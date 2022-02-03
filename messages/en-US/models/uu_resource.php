@@ -55,6 +55,8 @@ return [
     'Resource #50' => 'API method call',
     'Resource #51' => 'Voice assistant',
     'Resource #52' => 'Robot controller',
+    'Resource #58' => 'Alpha numbers',
+    'Resource #59' => 'SMS',
 
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',

@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
 use app\models\OperationType;
+use app\modules\uu\resourceReader\A2pResourceReader;
 use app\modules\uu\resourceReader\ApiResourceReader;
 use app\modules\uu\resourceReader\CalltrackingResourceReader;
 use app\modules\uu\resourceReader\InternetResourceReader;
@@ -147,7 +148,7 @@ class ResourceModel extends ActiveRecord
         //билингация вызовов API
         self::ID_API_CALL => ApiResourceReader::class,
 
-        self::ID_A2P_SMS => ZeroResourceReader::class,
+        self::ID_A2P_SMS => A2pResourceReader::class,
     ];
 
     public static $calls = [
@@ -156,6 +157,7 @@ class ResourceModel extends ActiveRecord
         self::ID_TRUNK_PACKAGE_TERM_CALLS => self::ID_TRUNK_PACKAGE_TERM_CALLS,
         self::ID_API_CALL => self::ID_API_CALL,
         self::ID_QUOTA_TRAFFIC => self::ID_QUOTA_TRAFFIC,
+        self::ID_A2P_SMS => self::ID_A2P_SMS,
     ];
 
     // map for operation types

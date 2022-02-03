@@ -39,4 +39,6 @@ return [
     'Type #32' => 'Billing API',
     'Type #33' => 'Billing API',
     'Type #34' => 'Chat bot',
+    'Type #35' => 'A2P',
+    'Type #36' => 'A2P',
 ];
