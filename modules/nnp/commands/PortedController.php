@@ -3,6 +3,7 @@
 namespace app\modules\nnp\commands;
 
 use app\helpers\DateTimeZoneHelper;
+use app\modules\nnp\models\Number;
 use app\modules\nnp\models\Number as nnpNumber;
 use Yii;
 use yii\console\Controller;
@@ -177,7 +178,7 @@ SQL;
 
     public function actionNotifyEventPortedNumber()
     {
-        \Yii::$app->dbPg->createCommand("select event.notify_event_to_all('nnp_ported_number')")->execute();
+        Number::notifySync();
 
         return ExitCode::OK;
     }

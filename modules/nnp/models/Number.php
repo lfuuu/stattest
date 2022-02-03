@@ -3,6 +3,7 @@
 namespace app\modules\nnp\models;
 
 use app\classes\model\ActiveRecord;
+use app\exceptions\ModelValidationException;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -27,6 +28,9 @@ use yii\helpers\Url;
  */
 class Number extends ActiveRecord
 {
+    const MCNTELECOM_OPERATOR_ID = 6720;
+    const MCNTELECOM_OPERATOR_SOURCE = 'MSNTELECOM';
+
     /**
      * Имена полей
      *
@@ -128,5 +132,37 @@ class Number extends ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::class, ['id' => 'city_id']);
+    }
+
+    public static function forcePorting($number)
+    {
+        if (strpos((string)$number, '79') !== 0) {
+            throw new \InvalidArgumentException('Неправильный номер');
+        }
+
+        $nnpNumber = self::findOne(['full_number' => $number]);
+
+        if ($nnpNumber && $nnpNumber->operator_id == self::MCNTELECOM_OPERATOR_ID){
+            throw new \InvalidArgumentException('Номер уже портирован в МСН');
+        }
+
+        if (!$nnpNumber) {
+            $nnpNumber = new self;
+            $nnpNumber->full_number = $number;
+            $nnpNumber->country_code = \app\models\Country::RUSSIA;
+        }
+
+        $nnpNumber->operator_id = self::MCNTELECOM_OPERATOR_ID;
+        $nnpNumber->operator_source = self::MCNTELECOM_OPERATOR_SOURCE;
+
+        if (!$nnpNumber->save()) {
+            throw new ModelValidationException($nnpNumber);
+        }
+        self::notifySync();
+    }
+
+    public static function notifySync()
+    {
+        \Yii::$app->dbPg->createCommand("select event.notify_event_to_all('nnp_ported_number')")->execute();
     }
 }
