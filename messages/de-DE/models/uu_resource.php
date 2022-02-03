@@ -54,6 +54,8 @@ return [
     'Resource #50' => 'API-Methodenaufruf',
     'Resource #51' => 'Sprachassistent',
     'Resource #52' => 'Robotersteuerung',
+    'Resource #58' => 'Alpha numbers',
+    'Resource #59' => 'SMS',
 
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',

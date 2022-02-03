@@ -54,6 +54,8 @@ return [
     'Resource #50' => 'Volanie metódy API',
     'Resource #51' => 'Hlasový asistent',
     'Resource #52' => 'Ovládač robota',
+    'Resource #58' => 'Alpha numbers',
+    'Resource #59' => 'SMS',
 
     'Gb' => 'Gb',
     'Unit' => 'jednotka',
