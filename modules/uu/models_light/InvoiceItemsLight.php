@@ -59,7 +59,7 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
                 'amount' => $itemAmount,
                 'unit_code' => '-',
                 'unit' => is_array($item) ? '' : $item->getTypeUnitName($billLanguage),
-                'price_per_unit' => ($itemAmount > 0 ? round((float)$priceWithoutTax / $itemAmount, 2) : ''),
+                'price_per_unit' => ($itemAmount > 0 ? round((float)$priceWithoutTax / $itemAmount, 4) : ''),
                 'price_without_vat' => $priceWithoutTax,
                 'price_with_vat' => $priceWithTax,
                 'vat_rate' => is_array($item) ? $item['tax_rate'] : $item->vat_rate,
