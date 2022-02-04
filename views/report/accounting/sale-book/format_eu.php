@@ -64,7 +64,7 @@
             try {
                 $bill = $invoice->bill;
                 $account = $bill->clientAccount;
-                $contract = $account->contract;
+                $contract = $account->clientContractModel;
                 $contragent = $contract->contragent;
 
                 $taxRate = $account->getTaxRate($bill->bill_date);
