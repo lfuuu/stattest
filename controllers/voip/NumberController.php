@@ -136,6 +136,15 @@ class NumberController extends BaseController
             return $this->redirect($number->url);
         }
 
+        if (\Yii::$app->request->get('do') == 'forcePort' && $number->status == Number::STATUS_RELEASED) {
+            try {
+                \app\modules\nnp\models\Number::forcePorting($number->number);
+            } catch (Exception $e) {
+                \Yii::$app->session->addFlash('error', $e->getMessage());
+            }
+            return $this->redirect($number->url);
+        }
+
         // редактирование формы
         $actionForm = new NumberForm();
         $actionForm->number_tech = $number->number_tech;

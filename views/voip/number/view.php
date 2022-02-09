@@ -116,6 +116,24 @@ echo \yii\widgets\Breadcrumbs::widget([
                         </th>
                     </tr>
                 <?php endif; ?>
+                <?php if ($number->isRusMob()) :
+                $nnpPorted = $number->getNnpPorted() ;
+                ?>
+                <tr>
+                    <td>Оператор портирования</td>
+                    <th><?= ($nnpPorted ? $nnpPorted->operator : 'Нет в списке портированных') ?>
+                        <?php if (!$nnpPorted || $nnpPorted->operator_id != \app\modules\nnp\models\Number::MCNTELECOM_OPERATOR_ID) : ?>
+                        <div style="float: right">
+                            <?= Html::a(
+                                'Форсированный перенос номера в МСН',
+                                Url::current(['do' => 'forcePort']),
+                                ['class' => 'btn btn-info btn-xs']
+                            ) ?></div>
+                        <?php endif; ?>
+                    </th>
+                </tr>
+                <?php endif; ?>
+
 
             </table>
 

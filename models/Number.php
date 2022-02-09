@@ -643,6 +643,19 @@ class Number extends ActiveRecord
         return $this->source == VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE;
     }
 
+    public function isRusMob()
+    {
+        return strpos((string)$this->number, '79') === 0;
+    }
+
+    /**
+     * @return \app\modules\nnp\models\Number
+     */
+    public function getNnpPorted()
+    {
+        return \app\modules\nnp\models\Number::findOne(['full_number' => $this->number]);
+    }
+
     /**
      * @return string
      */
