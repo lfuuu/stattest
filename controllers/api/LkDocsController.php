@@ -387,6 +387,10 @@ class LkDocsController extends ApiController
                 'updated' => (new \DateTime($hist->created_at))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'new' => $this->_getHistoryRow($new),
                 'old' => $this->_getHistoryRow($old),
+                'json' => [
+                    'new' => $new,
+                    'old' => $old,
+                ]
             ];
         }
 
