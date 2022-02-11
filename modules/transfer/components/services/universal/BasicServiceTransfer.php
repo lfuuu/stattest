@@ -154,6 +154,7 @@ abstract class BasicServiceTransfer extends ServiceTransfer
         $accountTariff->scenario = 'serviceTransfer';
         $accountTariff->setAttributes($preProcessor->sourceServiceHandler->getBaseAttributes(), false);
         $accountTariff->setAttribute('client_account_id', $preProcessor->targetClientAccount->id);
+        $accountTariff->tariff_period_id = null; // новая услуга должна быть не включена
 
         $this->setService($accountTariff);
     }
@@ -195,7 +196,7 @@ abstract class BasicServiceTransfer extends ServiceTransfer
         $accountTariffLog = new AccountTariffLog;
         $accountTariffLog->setAttributes([
             'account_tariff_id' => $service->primaryKey,
-            'tariff_period_id' => $preProcessor->tariffId ?: $service->tariff_period_id,
+            'tariff_period_id' => $preProcessor->tariffId ?: $preProcessor->sourceServiceHandler->getService()->tariff_period_id,
             'actual_from' => $preProcessor->activationDate,
         ]);
 
