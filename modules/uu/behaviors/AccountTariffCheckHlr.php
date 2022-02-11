@@ -3,6 +3,7 @@
 namespace app\modules\uu\behaviors;
 
 use app\classes\adapters\Tele2Adapter;
+use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -53,6 +54,11 @@ class AccountTariffCheckHlr extends Behavior
                 && !$accountTariff->tariff_period_id
             )
         ) {
+            return;
+        }
+
+        if (AccountTariff::find()->where(['prev_usage_id' => $accountTariff->id])->exists()) {
+            HandlerLogger::me()->add('Мобильный номер установлен на перенос. Не отключаем IMSI.');
             return;
         }
 
