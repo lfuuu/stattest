@@ -17,6 +17,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use yii\base\Behavior;
 use yii\db\AfterSaveEvent;
+use yii\db\Exception;
 
 
 class AccountTariffCheckHlr extends Behavior
@@ -27,8 +28,8 @@ class AccountTariffCheckHlr extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_INSERT => 'doOn',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'doOff',
+            ActiveRecord::EVENT_AFTER_INSERT => 'doEvent',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'doEvent',
         ];
     }
 
@@ -37,26 +38,43 @@ class AccountTariffCheckHlr extends Behavior
      *
      * @param AfterSaveEvent $event
      */
-    public function doOff(AfterSaveEvent $event)
+    public function doEvent(AfterSaveEvent $event)
     {
         /** @var AccountTariff $accountTariff */
         $accountTariff = $event->sender;
 
-        if (!$this->_check($event, false)) {
-            return;
-        }
-
-        // нет изменений, или не выключили
         if (
-            !isset($event->changedAttributes['tariff_period_id']) ||
-            !(
-                $event->changedAttributes['tariff_period_id']
-                && !$accountTariff->tariff_period_id
-            )
+            $accountTariff->service_type_id != ServiceType::ID_VOIP
+            || $accountTariff->number->ndc_type_id != NdcType::ID_MOBILE
+            || !array_key_exists('tariff_period_id', $event->changedAttributes)
+            || $event->changedAttributes['tariff_period_id'] == $accountTariff->tariff_period_id
         ) {
             return;
         }
 
+        $isTurnOn = !$event->changedAttributes['tariff_period_id'] && $accountTariff->tariff_period_id; // turn On
+
+        if ($isTurnOn && !($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
+            return;
+        }
+
+        if ($isTurnOn) {
+            if ($accountTariff->prev_usage_id) {
+                $this->transferCard($accountTariff);
+            } else {
+                // проставляем IMSI если его нет.
+                if ($accountTariff->number && !$accountTariff->number->imsi) {
+                    EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
+                        'account_tariff_id' => $accountTariff->id,
+                        'voip_number' => $accountTariff->voip_number,
+                        'voip_numbers_warehouse_status' => $accountTariff->voip_numbers_warehouse_status ?: $accountTariff->getParam('voip_numbers_warehouse_status'),
+                    ]);
+                }
+            }
+            return;
+        }
+
+        // turn Off
         if (AccountTariff::find()->where(['prev_usage_id' => $accountTariff->id])->exists()) {
             HandlerLogger::me()->add('Мобильный номер установлен на перенос. Не отключаем IMSI.');
             return;
@@ -68,12 +86,30 @@ class AccountTariffCheckHlr extends Behavior
         ]);
     }
 
+    /**
+     * Затягиваем SIM-карту на ЛС с услугой
+     *
+     * @param AccountTariff $accountTariff
+     * @return void
+     * @throws ModelValidationException
+     */
+    public function transferCard(AccountTariff $accountTariff)
+    {
+        $card = $accountTariff->number->imsiModel->card;
+
+        $card->client_account_id = $accountTariff->client_account_id;
+
+        if (!$card->save()) {
+            throw new ModelValidationException($card);
+        }
+    }
+
     public static function unsetImsi($params)
     {
         $accountTariff = AccountTariff::findOne(['id' => $params['account_tariff_id']]);
 
         if (!$accountTariff) {
-            throw new \LogicException('AccountTraiff ' . $params['account_tariff_id'] . ' не найден');
+            throw new \LogicException('AccountTariff ' . $params['account_tariff_id'] . ' не найден');
         }
 
         $number = $accountTariff->number;
@@ -89,17 +125,11 @@ class AccountTariffCheckHlr extends Behavior
 
         $transaction = Imsi::getDb()->beginTransaction();
 
-        $partnerTele2Imsi = null;
-
         try {
             $imsis = Imsi::find()->where(['msisdn' => $number->number])->all();
 
             /** @var Imsi $imsi */
             foreach ($imsis as $imsi) {
-
-                if (preg_match(Imsi::imsiPrefixRegExp, $imsi->imsi)) {
-                    $partnerTele2Imsi = $imsi;
-                }
 
                 $imsi->msisdn = null;
 
@@ -123,47 +153,6 @@ class AccountTariffCheckHlr extends Behavior
             ]);
         }
 */
-    }
-
-    /**
-     * проверка - работаем ли мы с этой услугой вообше
-     *
-     * @param AfterSaveEvent $event
-     * @return bool
-     */
-    private function _check(AfterSaveEvent $event, $isWithWS = true)
-    {
-        /** @var AccountTariff $accountTariff */
-        $accountTariff = $event->sender;
-
-        if ($accountTariff->service_type_id != ServiceType::ID_VOIP || $accountTariff->number->ndc_type_id != NdcType::ID_MOBILE) {
-            return false;
-        }
-
-        if ($isWithWS && !($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function doOn(AfterSaveEvent $event)
-    {
-        /** @var AccountTariff $accountTariff */
-        $accountTariff = $event->sender;
-
-        if (!$this->_check($event)) {
-            return;
-        }
-
-        // проставляем IMSI если его нет.
-        if ($accountTariff->number && !$accountTariff->number->imsi) {
-            EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
-                'account_tariff_id' => $accountTariff->id,
-                'voip_number' => $accountTariff->voip_number,
-                'voip_numbers_warehouse_status' => $accountTariff->voip_numbers_warehouse_status,
-            ]);
-        }
     }
 
     public static function reservImsi($params)
