@@ -402,7 +402,8 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "is_one_active", type = "integer", description = "0 - активен, 1 - неактивен", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны телефонии. Поле правильнее переименовать в voip_country_id", in = "query", default = ""),
-     *   @SWG\Parameter(name = "tariff_country_id", type = "integer", description = "ID страны тарифа (витрины). Поле правильнее переименовать в country_id", in = "query", default = ""),
+     *   @SWG\Parameter(name = "tariff_country_id", type = "integer", description = "ID страны тарифа (витрины)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "voip_country_id", type = "integer", description = "ID страны номера", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
@@ -510,8 +511,8 @@ class UuController extends ApiInternalController
 //        $voip_country_id = (int)$country_id; // страна телефонного номера. Выбирается явно. Путаница с именами для обратной совместимости c API.
 //        $country_id = null; // страна клиента. Это зависит от точки входа (или организации) клиента, а не выбирается явно
 
-        if (!$voip_country_id) {
-            list($country_id, $voip_country_id) = [$tariff_country_id, $country_id];
+        if ($tariff_country_id) {
+            $country_id = $tariff_country_id;
         }
 
         $country_id = (int)$country_id;
