@@ -59,9 +59,9 @@
         foreach ($query->each() as $invoice) : ?>
             <?php /** @var \app\models\filter\SaleBookFilter $invoice */
 
-            if (!$filter->check($invoice)) {
-                continue;
-            }
+//            if (!$filter->check($invoice)) {
+//                continue;
+//            }
 
             if (!$invoice->bill || !$invoice->bill->clientAccount) {
                 Yii::$app->session->addFlash('error', 'С/ф без счета: ' . $invoice->number);
