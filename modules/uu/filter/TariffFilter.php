@@ -223,10 +223,11 @@ class TariffFilter extends Tariff
                 ->andWhere([TariffTags::tableName() . '.tag_id' => $params['tariff_tags_id']]);
         }
 
-        if ($params['country_id']) {
+        if ($params['country_id'] || $params['tariff_country_id']) {
+            $countryId = $params['country_id'] ?: $params['tariff_country_id'];
             $query
                 ->joinWith('tariffCountries')
-                ->andWhere([TariffCountry::tableName() . '.country_id' => $params['country_id']]);
+                ->andWhere([TariffCountry::tableName() . '.country_id' => $countryId]);
         }
 
         if ($params['voip_country_id']) {

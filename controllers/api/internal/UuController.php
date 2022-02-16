@@ -402,6 +402,8 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "is_one_active", type = "integer", description = "0 - активен, 1 - неактивен", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны телефонии. Поле правильнее переименовать в voip_country_id", in = "query", default = ""),
+     *   @SWG\Parameter(name = "tariff_country_id", type = "integer", description = "ID страны тарифа (витрины)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "voip_country_id", type = "integer", description = "ID страны номера", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
@@ -427,6 +429,7 @@ class UuController extends ApiInternalController
      * @param int $id
      * @param int $service_type_id
      * @param int $country_id
+     * @param int $tariff_country_id
      * @param null $voip_country_id
      * @param int $client_account_id
      * @param string $currency_id
@@ -451,6 +454,7 @@ class UuController extends ApiInternalController
         $id = null,
         $service_type_id = null,
         $country_id = null,
+        $tariff_country_id = null,
         $voip_country_id = null,
         $client_account_id = null,
         $currency_id = null,
@@ -477,6 +481,7 @@ class UuController extends ApiInternalController
                 $id,
                 $service_type_id,
                 $country_id,
+                $tariff_country_id,
                 $voip_country_id,
                 $client_account_id,
                 $currency_id,
@@ -646,6 +651,7 @@ class UuController extends ApiInternalController
              'voip_ndc_type_id' => $voip_ndc_type_id,
              'organization_id' => $organization_id,
              'is_include_vat' => $is_include_vat,
+             'tariff_country_id' => $tariff_country_id,
              'voip_country_id' =>$voip_country_id,
          ];
 
@@ -662,6 +668,7 @@ class UuController extends ApiInternalController
                         $id_tmp = null,
                         ServiceType::ID_VOIP_PACKAGE_CALLS,
                         $country_id,
+                        $tariff_country_id,
                         $voip_country_id,
                         $client_account_id,
                         $currency_id,
