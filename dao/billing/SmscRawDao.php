@@ -51,10 +51,14 @@ class SmscRawDao extends Singleton
             ]);
             $query->orderBy('setup_time');
         } else {
-            $groupExp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "setup_time + '" . $tzOffest . " second'::interval" : "setup_time") . ")");
+            if ($group_by == 'cost') {
+                $groupExp = new Expression('ABS(' . $group_by . ')');
+            } else {
+                $groupExp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "setup_time + '" . $tzOffest . " second'::interval" : "setup_time") . ")");
+            }
             $query->addSelect([
-                'setup_time' => $groupExp,
-                'cost' => new Expression('ABS(SUM(cost))'),
+                ($group_by == 'cost' ? 'cost_gr' : 'setup_time') => $groupExp,
+                'cost' => new Expression('ROUND(ABS(SUM(cost))::numeric,2)'),
                 'parts' => new Expression('SUM(count)'),
                 'count' => new Expression('COUNT(*)'),
             ]);

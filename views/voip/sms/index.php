@@ -75,7 +75,8 @@ $previousMonthUrl = $urlData;
                     'year' => 'Году',
                     'month' => 'Месяцу',
                     'day' => 'Дню',
-                    'hour' => 'Часу'
+                    'hour' => 'Часу',
+                    'cost' => 'Цене',
                 ],
                 'value' => $searchModel->group_by,
                 'options' => [
@@ -126,7 +127,7 @@ $previousMonthUrl = $urlData;
 
 <?php
 
-$columns = ['setup_time'];
+$columns = [$searchModel->group_by == 'cost' ? 'cost_gr' : 'setup_time'];
 if (!$searchModel->group_by) {
     $columns = array_merge($columns, ['src_number', 'dst_number', 'rate']);
 }

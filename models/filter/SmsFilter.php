@@ -49,7 +49,7 @@ class SmsFilter extends Form
             ['from_datetime', 'match', 'pattern' => self::dateTimeRegexp],
             ['to_datetime', 'match', 'pattern' => self::dateTimeRegexp],
             ['account_id', AccountIdValidator::class],
-            ['group_by', 'in', 'range' => ['', 'none', 'year', 'month', 'day', 'hour']],
+            ['group_by', 'in', 'range' => ['', 'none', 'year', 'month', 'day', 'hour', 'cost']],
         ];
     }
 
@@ -60,6 +60,7 @@ class SmsFilter extends Form
             'src_number' => 'Номера А',
             'dst_number' => 'Номера В',
             'cost' => 'Стоимость',
+            'cost_gr' => 'Цена',
             'rate' => 'Ставка',
             'count' => 'Кол-во',
             'parts' => 'Частей',
@@ -136,7 +137,7 @@ class SmsFilter extends Form
 
         $queryClone = clone $query;
         $queryClone->groupBy = $queryClone->limit = $queryClone->offset = $queryClone->orderBy = null;
-        $this->allData = $queryClone->select(['count(*) as count', 'sum(abs(cost)) as cost', 'sum(count) as parts'])->createCommand(SmscRaw::getDb())->queryOne();
+        $this->allData = $queryClone->select(['count(*) as count', 'round(sum(abs(cost))::numeric, 2) as cost', 'sum(count) as parts'])->createCommand(SmscRaw::getDb())->queryOne();
 
         return new ActiveDataProvider([
             'db' => SmscRaw::getDb(),

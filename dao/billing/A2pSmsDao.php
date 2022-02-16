@@ -53,9 +53,13 @@ class A2pSmsDao extends Singleton
             ]);
             $query->orderBy('charge_time');
         }else{
-            $groupExp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "charge_time + '" . $tzOffest . " second'::interval" : "charge_time") . ")");
+            if ($group_by == 'cost') {
+                $groupExp = new Expression('ABS(' . $group_by . ')');
+            } else {
+                $groupExp = new Expression("DATE_TRUNC('" . $group_by . "', " . ($tzOffest != 0 ? "charge_time + '" . $tzOffest . " second'::interval" : "charge_time") . ")");
+            }
             $query->addSelect([
-                'charge_time' => $groupExp,
+                ($group_by == 'cost' ? 'cost_gr' : 'charge_time') => $groupExp,
                 'cost' => new Expression('abs(sum(cost))'),
                 'count' => new Expression('count(id)'),
             ]);
