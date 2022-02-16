@@ -82,7 +82,8 @@ $breadCrumbLinks = [
                     'year' => 'Году',
                     'month' => 'Месяцу',
                     'day' => 'Дню',
-                    'hour' => 'Часу'
+                    'hour' => 'Часу',
+                    'cost' => 'Цене',
                 ],
                 'value' => $searchModel->group_by,
                 'options' => [
@@ -108,7 +109,7 @@ $breadCrumbLinks = [
 
 <?php
 
-$columns = ['charge_time'];
+$columns = [$searchModel->group_by == 'cost' ? 'cost_gr' : 'charge_time'];
 if (!$searchModel->group_by) {
     $columns = array_merge($columns, ['src_number', 'dst_number', 'dst_route', 'rate']);
 }

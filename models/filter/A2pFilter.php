@@ -48,7 +48,7 @@ class A2pFilter extends Form
             ['from_datetime', 'match', 'pattern' => self::dateTimeRegexp],
             ['to_datetime', 'match', 'pattern' => self::dateTimeRegexp],
             ['account_id', AccountIdValidator::class],
-            ['group_by', 'in', 'range' => ['', 'none', 'year', 'month', 'day', 'hour']],
+            ['group_by', 'in', 'range' => ['', 'none', 'year', 'month', 'day', 'hour', 'cost']],
         ];
     }
 
@@ -60,6 +60,7 @@ class A2pFilter extends Form
             'dst_number' => 'Номера В',
             'dst_route' => 'Исходящий транк',
             'cost' => 'Стоимость',
+            'cost_gr' => 'Цена',
             'rate' => 'Ставка',
             'count' => 'Кол-во частей',
         ];
@@ -134,7 +135,7 @@ class A2pFilter extends Form
 
         $queryClone = clone $query;
         $queryClone->groupBy = $queryClone->limit = $queryClone->offset = $queryClone->orderBy = null;
-        $this->allData = $queryClone->select(['count(*) as count', 'sum(abs(cost)) as cost', 'sum(count) as parts'])->createCommand(A2pSms::getDb())->queryOne();
+        $this->allData = $queryClone->select(['count(*) as count', 'round(sum(abs(cost))::numeric, 2) as cost', 'sum(count) as parts'])->createCommand(A2pSms::getDb())->queryOne();
 
         return new ActiveDataProvider([
             'db' => A2pSms::getDb(),
