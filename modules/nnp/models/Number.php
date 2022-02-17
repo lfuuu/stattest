@@ -136,7 +136,10 @@ class Number extends ActiveRecord
 
     public static function forcePorting($number)
     {
-        if (strpos((string)$number, '79') !== 0) {
+        if (
+            strpos((string)$number, '79') !== 0
+            || !\app\models\Number::find()->where(['number' => $number])->exists()
+        ) {
             throw new \InvalidArgumentException('Неправильный номер');
         }
 
