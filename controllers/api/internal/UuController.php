@@ -2392,6 +2392,8 @@ class UuController extends ApiInternalController
             $idTmp = null,
             $accountTariff->service_type_id,
             $countryIdTmp = null,
+            $tariffCountryIdTmp = null,
+            $voipCountryIdTmp = null,
             $clientAccountIdTmp = null,
             $currencyIdTmp = null,
             $isDefaultTmp = null,
@@ -2406,7 +2408,8 @@ class UuController extends ApiInternalController
             $voipNdcTypeIdTmp = null,
             $organizationIdTmp = null,
             $voipNumberTmp = null,
-            $accountTariffIdTmp = $accountTariff->id
+            $accountTariffIdTmp = $accountTariff->id,
+            $isIncludeVatsTmp = null
         );
 
         foreach ($tariffs as $tariff) {
