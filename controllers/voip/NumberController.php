@@ -136,7 +136,7 @@ class NumberController extends BaseController
             return $this->redirect($number->url);
         }
 
-        if (\Yii::$app->request->get('do') == 'forcePort' && $number->status == Number::STATUS_RELEASED) {
+        if (\Yii::$app->request->get('do') == 'forcePort') {
             try {
                 \app\modules\nnp\models\Number::forcePorting($number->number);
             } catch (Exception $e) {
