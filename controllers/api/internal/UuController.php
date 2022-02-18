@@ -757,9 +757,7 @@ class UuController extends ApiInternalController
                 'voip_package_price_sms' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, true),
             ];
 
-            if (array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
-                $data['overview'] = $this->_getOverview($tariff->overview);
-            }
+            $data['overview'] = $this->_getOverview($tariff->overview);
 
             Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
         }
