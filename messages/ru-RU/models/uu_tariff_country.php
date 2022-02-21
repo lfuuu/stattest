@@ -2,5 +2,5 @@
 return [
     'id' => 'ID',
     'tariff_id' => 'Тариф',
-    'country_id' => 'Страны тарифа',
+    'country_id' => 'Страна витрины',
 ];

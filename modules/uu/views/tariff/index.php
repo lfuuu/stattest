@@ -200,6 +200,36 @@ $columns[] = [
     }
 ];
 
+
+$columns[] = [
+    'label' => 'Страна номера',
+//    'label' => Html::encode(Yii::t('models/' . TariffCountry::tableName(), 'voip_country_id')),
+    'attribute' => 'voip_country_id',
+    'format' => 'html',
+    'class' => CountryColumn::class,
+    'isAddLink' => false,
+    'contentOptions' => [
+        'class' => 'nowrap',
+    ],
+    'value' => function (Tariff $tariff) {
+        $maxCount = 2;
+        $tariffCountries = $tariff->tariffVoipCountries;
+        $count = count($tariffCountries);
+        if ($count <= $maxCount) {
+            return implode('<br/>', $tariffCountries);
+        }
+
+        $maxCount--;
+
+        return sprintf(
+            '%s<br/><abbr title="%s">… %d…</abbr>',
+            implode('<br/>', array_slice($tariffCountries, 0, $maxCount)),
+            implode(PHP_EOL, array_slice($tariffCountries, $maxCount)),
+            $count - $maxCount
+        );
+    },
+];
+
 $cityColumn = [
     'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
     'attribute' => 'voip_city_id',
