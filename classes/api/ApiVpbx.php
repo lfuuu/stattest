@@ -138,6 +138,8 @@ class ApiVpbx extends Singleton
                 'is_reserv' => $tariff['is_reserv'] ?? 0,
                 'is_operator_score' => $tariff['is_operator_score'] ?? 0,
                 'is_external_pbx' => $tariff['is_external_pbx'] ?? 0,
+                'is_special_autocall' => $tariff['is_special_autocall'] ?? 0,
+                'is_call_end_management' => $tariff['is_call_end_management'] ?? 0,
             ]
         );
     }
@@ -303,6 +305,8 @@ class ApiVpbx extends Singleton
                 'is_reserv' => $tariff['is_reserv'] ?? 0,
                 'is_operator_score' => $tariff['is_operator_score'] ?? 0,
                 'is_external_pbx' => $tariff['is_external_pbx'] ?? 0,
+                'is_special_autocall' => $tariff['is_special_autocall'] ?? 0,
+                'is_call_end_management' => $tariff['is_call_end_management'] ?? 0,
             ]
         );
     }
@@ -476,6 +480,8 @@ SQL;
             'is_reserv' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_RESERV),
             'is_operator_score' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_OPERATOR_ASSESSMENT),
             'is_external_pbx' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_TRUNK_EXT_VPBX),
+            'is_special_autocall' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_SPECIAL_AUTOCALL),
+            'is_call_end_management' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_CALL_END_MANAGEMENT),
         ];
     }
 }
