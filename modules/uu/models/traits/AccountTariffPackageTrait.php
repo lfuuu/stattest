@@ -93,7 +93,7 @@ trait AccountTariffPackageTrait
             || $this->_hasDefaultPackage()
         ) {
             // хотя бы один базовый пакет уже подключен
-            // или улуга без пекетов
+            // или услуга без пекетов
             return;
         }
 
@@ -103,6 +103,9 @@ trait AccountTariffPackageTrait
         /** @var \app\models\Number $number */
         $number = $this->number;
 
+        $countryId = $this->clientAccount->getUuCountryId();
+
+        /*
         if ($number) {
             $countryId = $number->country_code;
         } elseif ($this->city_id) {
@@ -112,6 +115,7 @@ trait AccountTariffPackageTrait
         } else {
             $countryId = null;
         }
+        */
 
         if ($number && $number->ndc_type_id == NdcType::ID_MOBILE) {
             $packageType = [$packageType, ServiceType::ID_VOIP_PACKAGE_SMS, ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY];
