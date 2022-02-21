@@ -464,6 +464,35 @@ class TroubleDao extends Singleton
     }
 
     /**
+     * Названия отказных и мусорных статусов
+     *
+     * @return string[]
+     */
+    public function getRejectStatusesName()
+    {
+        return ['Отказ', 'Мусор'];
+    }
+
+    /**
+     * Список ID отказных и мусорных статусов этапа
+     *
+     * @return array
+     */
+    public function getRejectStatesId()
+    {
+        static $cache = null;
+
+        if (!$cache) {
+            $cache = TroubleState::find()
+                ->select('id')
+                ->where(['name' => $this->getRejectStatusesName()])
+                ->column();
+        }
+
+        return $cache;
+    }
+
+    /**
      * Установить все закрыты траблы явно
      *
      * @return int

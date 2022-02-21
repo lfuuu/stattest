@@ -3,6 +3,7 @@
 namespace app\classes;
 
 use app\classes\documents\DocumentReport;
+use app\dao\TroubleDao;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
 use app\models\Bill;
@@ -110,13 +111,14 @@ class ActOfReconciliation extends Singleton
                 'bill_date',
                 'add_datetime' => 'add_date',
             ])
-            ->joinWith('bill')
+            ->joinWith('bill b')
             ->where([
                 'client_id' => $account->id,
                 'currency' => $account->currency
             ])
             ->andWhere(['!=', 'i.sum', 0])
             ->andWhere(['NOT', ['i.number' => null]])
+            ->andWhere(['NOT', ['b.state_1c' => TroubleDao::me()->getRejectStatusesName()]])
             ->andWhere(['NOT', ['i.type_id' => Invoice::TYPE_PREPAID]])
             ->andWhere(['between', 'date', $dateFrom, $dateTo])
             ->union('SELECT
