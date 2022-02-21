@@ -7,7 +7,7 @@ use app\models\Country;
 use yii\db\ActiveQuery;
 
 /**
- * Страны тарифа
+ * Страны тарифа (витрины)
  *
  * @property integer $id
  * @property integer $tariff_id

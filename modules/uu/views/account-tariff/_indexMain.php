@@ -186,7 +186,7 @@ $columns = array_merge($columns, [
         }
     ],
     [
-        'label' => 'Страны тарифа',
+        'label' => 'Страна витрины',
         'attribute' => 'tariff_country_id',
         'format' => 'html',
         'class' => CountryColumn::class,
