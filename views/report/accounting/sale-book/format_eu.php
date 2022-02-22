@@ -96,7 +96,7 @@
             <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
                 <td><a href="./?module=newaccounts&action=bill_view&bill=<?= $invoice->bill_no ?>"
                        target="_blank"><?= $invoice->bill_no ?></a></td>
-                <td><?= (new DateTime($bill->bill_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) ?> </td>
+                <td><?= (new DateTime($invoice->date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) ?> </td>
                 <td><?= $account->id ?></td>
                 <td><?= $contragent->country->name ?></td>
                 <td><?= $contragent->legal_type ?></td>
