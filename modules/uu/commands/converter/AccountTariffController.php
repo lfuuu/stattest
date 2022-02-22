@@ -224,6 +224,14 @@ class AccountTariffController extends Controller
             if (!$troubleRoistat || !is_numeric($newPrice)) {
                 continue;
             }
+
+            $roistatPrice = round($troubleRoistat->roistat_price, 2);
+            $newPrice = round($newPrice, 2);
+
+            if ($roistatPrice == $newPrice) {
+                continue;
+            }
+
             $troubleRoistat->roistat_price = $newPrice;
             if (!$troubleRoistat->save()) {
                 throw new ModelValidationException($troubleRoistat);

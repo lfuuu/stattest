@@ -136,8 +136,8 @@ class TroublesController extends ApiInternalController
             ->andWhere(['>', 't.updated_at', $time->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
 
         $limit = (int) $limit;
-        if ($limit < 0 or $limit > 10000) {
-            $limit = 10000;
+        if ($limit < 0 or $limit > 100000) {
+            $limit = 100000;
         }
 
         if ($limit) {
