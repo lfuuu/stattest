@@ -110,7 +110,7 @@ class SaleBookFilter extends Invoice
                 'inv.organization_id' => $this->organization_id,
             ])
             ->andWhere(['between',
-                        $this->is_euro_format ? 'bill.bill_date' : 'inv.date',
+                        'inv.date',
                         $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                         $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
             ])

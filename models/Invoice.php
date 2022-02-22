@@ -221,7 +221,7 @@ class Invoice extends ActiveRecord
         if (
             in_array($typeId, [self::TYPE_1, self::TYPE_2])
             && $bill->clientAccount->contragent->country_id != Country::RUSSIA
-            && self::isHaveRegistredInvoices($bill, $typeId)
+//            && self::isHaveRegistredInvoices($bill, $typeId)
         ) {
             return (new \DateTimeImmutable('now'));
         }
