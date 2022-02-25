@@ -58,6 +58,9 @@ class AccountLogResourceTarificator extends Tarificator
 
         $fromId = $toId = null;
 
+        // check console start
+        $isConsoleScriptAndNotParamers = isset($_SERVER['argv']) && count($_SERVER['argv']) == 2 && $_SERVER['argv'][1] == 'ubiller';
+
         // распаралелливание обработки
         if (isset($_SERVER['argv']) and count($_SERVER['argv']) >= 3 && $_SERVER['argv'][1] == 'ubiller/resource') {
 
@@ -70,8 +73,8 @@ class AccountLogResourceTarificator extends Tarificator
 
                 if ($partsDataStr) {
                     $partsData = json_decode($partsDataStr, true);
-                    if (isset($partsData[$part-1])) {
-                        $partData = $partsData[$part-1];
+                    if (isset($partsData[$part - 1])) {
+                        $partData = $partsData[$part - 1];
                         $fromId = (int)$partData['min'];
                         $toId = (int)$partData['max'];
                     }
@@ -131,6 +134,16 @@ class AccountLogResourceTarificator extends Tarificator
             /** @var AccountTariff $accountTariff */
             if ($i++ % 500 === 0) {
                 $this->out(PHP_EOL . ($i - 1) . ' of ' . $all . ' account tariffs processed' . PHP_EOL);
+            }
+
+            if ($isConsoleScriptAndNotParamers && $i % 50 === 0) {
+                if (Param::getParam(Param::STOP_UBILLER_FLAG, Param::IS_OFF)) {
+                    Param::setParam(Param::STOP_UBILLER_FLAG, Param::IS_OFF);
+
+                    echo PHP_EOL . date('r') . ': Ubiller stoped';
+                    echo PHP_EOL;
+                    exit();
+                }
             }
 
             $transaction = Yii::$app->db->beginTransaction();

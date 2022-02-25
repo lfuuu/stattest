@@ -22,12 +22,29 @@ class Param extends ActiveRecord
     const IS_NEED_RECALC_TT_COUNT = 'is_need_recalc_tt_count';
     const IS_LOG_AAA = 'is_log_aaa';
     const RESOURCE_PARTS = 'resource_parts';
+    const STOP_UBILLER_FLAG = 'stop_ubiller_flag';
 
     const IS_OFF = 0; //скрипт (lk/check-notification) выключен
     const IS_ON = 1; //скрипт (lk/check-notification) включен
 
     // отключение пересчета баланса при редактировании счета
     const DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL = 'disabling_recalculation_balance_when_edit_bill';
+
+    const all = [
+        self::PI_LIST_LAST_INFO,
+        self::NOTIFICATIONS_SWITCH_OFF_DATE,
+        self::NOTIFICATIONS_SWITCH_ON_DATE,
+        self::NOTIFICATIONS_SCRIPT_ON,
+        self::NOTIFICATIONS_PERIOD_OFF_MODIFY,
+        self::NOTIFICATIONS_LOCK_FILEPATH,
+        self::IS_NEED_RECALC_TT_COUNT,
+        self::IS_LOG_AAA,
+        self::RESOURCE_PARTS,
+        self::STOP_UBILLER_FLAG,
+        self::IS_OFF,
+        self::IS_ON,
+        self::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL,
+    ];
 
 
     /**
@@ -73,13 +90,13 @@ class Param extends ActiveRecord
      */
     public static function getParam($key, $defaultValue = null)
     {
-        $param = self::findOne(['param' => $key]);
+        $param = self::find()->where(['param' => $key])->select('value')->asArray()->one();
 
         if (!$param) {
             return $defaultValue;
         }
 
-        return $param->value;
+        return $param['value'];
     }
 
     /**

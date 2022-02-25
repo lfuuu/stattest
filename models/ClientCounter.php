@@ -336,7 +336,7 @@ class ClientCounter extends ActiveRecord
 
             if ($billingLastBillingDate != $accountLastBillingDate) {
                 $billingCounter = static::_getLocalCounter($clientAccountId)->toArray();
-                Yii::warning('Баланс массовый не синхронизирован. ЛС#' . $clientAccountId . ' (' . $billingLastBillingDate . ' != ' . $accountLastBillingDate . ') ' . static::$_localCacheFastMass[$clientAccountId]['amount_sum'] . ', ' . $billingCounter['amount_sum']);
+//                Yii::warning('Баланс массовый не синхронизирован. ЛС#' . $clientAccountId . ' (' . $billingLastBillingDate . ' != ' . $accountLastBillingDate . ') ' . static::$_localCacheFastMass[$clientAccountId]['amount_sum'] . ', ' . $billingCounter['amount_sum']);
                 $isLocal = true;
             } else {
                 $billingCounter = static::$_localCacheFastMass[$clientAccountId];
