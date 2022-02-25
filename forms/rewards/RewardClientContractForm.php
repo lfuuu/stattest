@@ -113,12 +113,17 @@ abstract class RewardClientContractForm extends Form
     //сохраняем заполненые поля и удаляем пустые
     private function addValidRewardServices($post)
     {
+        $partner = ClientAccount::find()->where(['id' => $this->id])->asArray()->one();
+        $partnerCreaterdDate = new DateTime($partner['created']);
+        $dateDiffernce = (new DateTime())->diff($partnerCreaterdDate);
+        $isNewPartner = $dateDiffernce->m == 0;
+
         foreach ($this->serviceRewards as $index => $model) {
             if ($model['actual_from'] != null) {
                 $now = (new DateTime('first day of this month'))->format("Y-m-d");
                 $actualFrom = (new DateTime($model->actual_from . '-01'))->format("Y-m-d");
 
-                if ($actualFrom <= $now) {
+                if ($actualFrom <= $now && !$isNewPartner) {
                     throw new LogicException('Вознаграждениями можно управлять только со следующего месяца.');
                 }
 
