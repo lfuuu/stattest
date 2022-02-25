@@ -119,7 +119,12 @@ class NumberController extends BaseController
     public function actionView($did)
     {
         $number = Number::findOne($did);
-        Assert::isObject($number);
+        try {
+            Assert::isObject($number, 'Номер не найден');
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
+            return $this->redirect('/voip/number');
+        }
 
         // редактирование модели
         $post = Yii::$app->request->post();
@@ -131,14 +136,16 @@ class NumberController extends BaseController
             return $this->redirect(['view', 'did' => $did]);
         }
 
-        if (\Yii::$app->request->get('do') == 'checkStatus') {
+        $do = \Yii::$app->request->get('do');
+
+        if ($do == 'checkStatus') {
             Number::dao()->actualizeStatus($number);
             return $this->redirect($number->url);
         }
 
-        if (\Yii::$app->request->get('do') == 'forcePort') {
+        if (in_array($do, ['forcePort', 'forcePortAndSync'])) {
             try {
-                \app\modules\nnp\models\Number::forcePorting($number->number);
+                \app\modules\nnp\models\Number::forcePorting($number->number, $do == 'forcePortAndSync');
             } catch (Exception $e) {
                 \Yii::$app->session->addFlash('error', $e->getMessage());
             }

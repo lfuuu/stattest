@@ -134,7 +134,7 @@ class Number extends ActiveRecord
         return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
-    public static function forcePorting($number)
+    public static function forcePorting($number, $isWithSync = true)
     {
         if (
             strpos((string)$number, '79') !== 0
@@ -161,7 +161,10 @@ class Number extends ActiveRecord
         if (!$nnpNumber->save()) {
             throw new ModelValidationException($nnpNumber);
         }
-        self::notifySync();
+
+        if ($isWithSync) {
+            self::notifySync();
+        }
     }
 
     public static function notifySync()

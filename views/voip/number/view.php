@@ -123,11 +123,22 @@ echo \yii\widgets\Breadcrumbs::widget([
                     <td>Оператор портирования</td>
                     <th><?= ($nnpPorted ? $nnpPorted->operator : 'Нет в списке портированных') ?>
                         <?php if (!$nnpPorted || $nnpPorted->operator_id != \app\modules\nnp\models\Number::MCNTELECOM_OPERATOR_ID) : ?>
-                        <div style="float: right">
+                            <div style="float: right">
+                                <?= Html::a(
+                                    'Перенос и синхронизация',
+                                    Url::current(['do' => 'forcePortAndSync']),
+                                    [
+                                        'class' => 'btn btn-info btn-xs',
+                                    ]
+                                ) ?></div>
+
+                            <div style="float: right">
                             <?= Html::a(
-                                'Форсированный перенос номера в МСН',
+                                'Перенос номера в МСН',
                                 Url::current(['do' => 'forcePort']),
-                                ['class' => 'btn btn-info btn-xs']
+                                [
+                                        'class' => 'btn btn-default btn-xs',
+                                ]
                             ) ?></div>
                         <?php endif; ?>
                     </th>
