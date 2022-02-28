@@ -20,6 +20,7 @@ use app\dao\ClientSuperDao;
  * @property-read ClientContract[] $contracts
  * @property-read ClientAccount[] $accounts
  * @property-read EntryPoint $entryPoint
+ * @property-read Country $country
  */
 class ClientSuper extends ActiveRecord
 {
@@ -168,5 +169,22 @@ class ClientSuper extends ActiveRecord
             ->indexBy('id')
             ->select(['id', 'data'])
             ->all();
+    }
+
+    public function getCountry()
+    {
+        /** @var ClientAccount $account */
+        $account = $this->getAccounts()->one();
+
+        $countryId = $account->getUuCountryId();
+
+        if ($countryId) {
+            return Country::find()->where(['code' => $countryId])->one();
+        }
+
+        $country = new Country();
+        $country->name = '<не установленно>';
+
+        return $country;
     }
 }

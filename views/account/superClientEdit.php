@@ -44,6 +44,14 @@ use kartik\builder\Form;
             echo '</div>';
             ?>
 
+            <?php if (!$model->isNewRecord): ?>
+            <div class="col-sm-12">
+                <div class="form-group field-clienteditform-name">
+                    <label class="control-label" for="clienteditform-name">Страна витрины: <?= $model->country->name ?></label>
+                </div>
+            </div>
+            <?php endif; ?>
+
 
             <div class="col-sm-12 form-group">
                 <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
