@@ -135,6 +135,8 @@ class TroublesController extends ApiInternalController
             ->where(['t.trouble_type' => $troubleTypeConnect->code])
             ->andWhere(['>', 't.updated_at', $time->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
 
+        $count = $troubleQuery->count();
+
         $limit = (int) $limit;
         if ($limit < 0 or $limit > 100000) {
             $limit = 100000;
@@ -187,6 +189,10 @@ class TroublesController extends ApiInternalController
 
             // Добавляем в массив
             $response['orders'][] = $build;
+            $response['pagination'] = [
+                'total_count' => $count,
+                'limit' => $limit,
+            ];
         }
         return $response;
     }
