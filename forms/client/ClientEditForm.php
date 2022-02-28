@@ -2,7 +2,9 @@
 namespace app\forms\client;
 
 use app\classes\Form;
+use app\models\ClientAccount;
 use app\models\ClientSuper;
+use app\models\Country;
 
 class ClientEditForm extends Form
 {
@@ -69,5 +71,10 @@ class ClientEditForm extends Form
     public function getEntryPointName()
     {
         return $this->super->entryPoint ? $this->super->entryPoint->name : '';
+    }
+
+    public function getCountry()
+    {
+        return $this->super->country;
     }
 }
