@@ -1,5 +1,6 @@
 <?php
 
+### Start in crontab: */5 * * * * cd /home/httpd/stat.mcn.ru/include/stat/; flock -w 3 /tmp/automail php -c /etc/ automail.php >> /var/log/nispd/automail.log
 define("print_sql", 1);
 define('NO_WEB', 1);
 define('NUM', 35);
@@ -13,13 +14,6 @@ if (
 ) exit();
 
 $db->getRow('select * from mail_letter limit 1;');    //чтоб удостовериться, что всё работает
-$FN = PATH_TO_ROOT . "../runtime/automail.running";
-if (file_exists($FN))
-    exit;
-
-$F = fopen($FN, 'w');
-fwrite($F, date("Y-m-d H:i:s"));
-fclose($F);
 
 echo "############" . date("Y-m-d H:i:s") . "############## Was Running... \n";
 $R = [];
@@ -47,7 +41,7 @@ foreach ($R as $job_id => $R2) {
             } else {
                 echo "ok\n";
             }
-            sleep(5);
+            usleep(500);
 
             $idx++;
         }
@@ -55,5 +49,4 @@ foreach ($R as $job_id => $R2) {
 }
 
 echo "============" . date("Y-m-d H:i:s") . "============== Ok ... \n\n\n";
-unlink($FN);
 
