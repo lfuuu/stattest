@@ -40,41 +40,9 @@ class RewardController extends Controller
 
     public function actionCalculatePartner($partnerContractId, $dateFrom = null, $dateTo = null)
     {
-        $this->_calcPartner($partnerContractId, $dateFrom, $dateTo);
+        CalculateReward::calcPartner($partnerContractId, $dateFrom, $dateTo);
     }
 
-    public function _calcPartner($partnerContractIds, $dateFrom, $dateTo)
-    {
-        $referredClients = ClientContract::find()
-            ->select('c.id')
-            ->joinWith('clientAccountModels as c')
-            ->where(['partner_contract_id' => $partnerContractIds])
-            ->column();
-
-        if (!$referredClients) {
-            throw new InvalidParamException('Клиенты не найдены');
-        }
-
-        $this->_findBills($referredClients, $dateFrom, $dateTo, $partnerContractIds);
-    }
-
-    private function _findBills($referredClients, $dateFrom, $dateTo, $partnerContractIds)
-    {
-        $billQuery = Bill::find()
-            ->where(['client_id' => $referredClients])
-            ->andWhere(['is_payed' => 1])
-            ->andWhere(['>=', 'payment_date', (new DateTime($dateFrom))->format('Y-m-d')]);
-        
-        $dateTo && $billQuery->andWhere(['<', 'payment_date', $dateTo]);
-        
-        foreach ($billQuery->each() as $bill) {
-            try {
-                CalculateReward::processBill($bill, $partnerContractIds);
-            } catch (\Exception $e) {
-                echo '[ERROR] CЧЕТ ' . $bill->bill_no . ': ' . $e->getMessage() . PHP_EOL;
-            }
-        }
-    }
 
     public function actionMoveOldSettings()
     {

@@ -3,7 +3,13 @@
 namespace app\classes\rewards;
 
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
+use app\models\BillLine;
+use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\ClientContractReward;
+use app\models\OperationType;
 use app\models\rewards\RewardBill;
 use app\models\rewards\RewardBillLine;
 use app\models\rewards\RewardClientContractResource;
@@ -104,7 +110,6 @@ class CalculateReward
             if (!(isset($line->accountEntry) && isset($line->accountTariff))) {
                 continue;
             }
-
             $accountTariff = $line->accountTariff;
             $accountEntry = $line->accountEntry;
 
@@ -292,6 +297,83 @@ class CalculateReward
             $transaction->rollBack();
             echo '[EROR]' . $e->getMessage() . PHP_EOL;
         }
+    }
+
+
+    public static function calcPartner($partnerContractIds, $dateFrom, $dateTo)
+    {
+        $referredClients = ClientContract::find()
+            ->select('c.id')
+            ->joinWith('clientAccountModels as c')
+            ->where(['partner_contract_id' => $partnerContractIds])
+            ->column();
+
+        if (!$referredClients) {
+            throw new InvalidParamException('Клиенты не найдены');
+        }
+
+        self::_findBills($referredClients, $dateFrom, $dateTo, $partnerContractIds);
+    }
+
+    private static function _findBills($referredClients, $dateFrom, $dateTo, $partnerContractIds)
+    {
+        $billQuery = Bill::find()
+            ->where(['client_id' => $referredClients])
+            ->andWhere(['is_payed' => 1])
+            ->andWhere(['>=', 'payment_date', (new \DateTime($dateFrom))->format('Y-m-d')]);
+
+        $dateTo && $billQuery->andWhere(['<', 'payment_date', $dateTo]);
+
+        foreach ($billQuery->each() as $bill) {
+            try {
+                self::processBill($bill, $partnerContractIds);
+            } catch (\Exception $e) {
+                echo '[ERROR] CЧЕТ ' . $bill->bill_no . ': ' . $e->getMessage() . PHP_EOL;
+            }
+        }
+    }
+
+    public static function makeRewardBillByPartnerId(ClientAccount $account, $contractId, \DateTime $dateFrom, \DateTime $dateTo)
+    {
+        $rewards = RewardBill::find()
+            ->where(['partner_id' => $contractId])
+            ->andWhere(['>=', 'payment_date', $dateFrom->format('Y-m-d')])
+            ->andWhere(['<', 'payment_date', $dateTo->format('Y-m-d')])
+            ->andWhere(['>', 'sum', 0])
+            ->asArray()
+            ->all();
+
+        $dateTo->modify('-1 day');
+
+        if (!$rewards) {
+            throw new \InvalidArgumentException('Вознаграждений за указанный период не существует');
+        }
+
+        $sum = 0;
+        foreach ($rewards as $reward) {
+            $sum -= $reward['sum'];
+        }
+
+        $lang = $account->contragent->lang_code;
+
+        $bill = Bill::dao()->createBill($account);
+        $bill->addLine(
+            \Yii::t(
+                'biller',
+                'partner_reward', [
+                'date_range_month' => \Yii::t(
+                    'biller',
+                    'date_range_year',
+                    [$dateFrom->getTimestamp(), $dateTo->getTimestamp()],
+                    $lang)],
+                $lang),
+            1,
+            $sum,
+            BillLine::LINE_TYPE_SERVICE,
+            $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+            $dateTo->format(DateTimeZoneHelper::DATE_FORMAT),
+        );
+        Bill::dao()->recalcBill($bill);
     }
 }
 
