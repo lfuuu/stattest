@@ -230,11 +230,52 @@
             {/if}
         {/foreach}
     </table>
+    {if $is_partner}
+        <hr>
+        <h2>Пересчет партнерских вознаграждений</h2>
+        <div class="col-sm-2" style="padding-bottom: 1%">
+            <div class="form-group" >
+                <label>Рассчет с:</label>
+                <input class="form-control input-sm" autocomplete="off"
+                       id="date_from" type="text" name="date_from"
+                       value="">
+            </div>
+            <button type="submit" class="button" onclick="setAction('bill_calculate_rewards')">Посчитать вознаграждения</button>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label>Рассчет по:</label>
+                <input class="form-control input-sm" autocomplete="off"
+                       id="date_to" type="text" name="date_to"
+                       value="">
+            </div>
+        </div>
+    {/if}
 </form>
 
 <script type="text/javascript">
     {literal}
         $( '#date').datepicker({dateFormat: 'yy-mm-dd'});
+        $('#date_from').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'mm-yy',
+            onClose: function(dateText, inst) {
+                var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                $(this).datepicker('setDate', new Date(year, month, 1));
+            }
+        });
+        $('#date_to').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'mm-yy',
+            onClose: function(dateText, inst) {
+                var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                $(this).datepicker('setDate', new Date(year, month, 1));
+            }
+        });
         function selectAllCheckboxes(checked) {
             $(".checkBoxClass").prop('checked', checked);
         }
@@ -265,3 +306,10 @@
         }
     {/literal}
 </script>
+<style type="text/css">
+    {literal}
+    .ui-datepicker-calendar {
+        display: none;
+    }
+    {/literal}
+</style>

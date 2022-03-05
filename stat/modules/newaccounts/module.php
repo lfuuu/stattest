@@ -6,6 +6,7 @@ use app\classes\BillContract;
 use app\classes\BillQRCode;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\Encrypt;
+use app\classes\rewards\CalculateReward;
 use app\classes\StatModule;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -181,6 +182,8 @@ class m_newaccounts extends IModule
         
         $clientType = $fixclient_data->contract->financial_type;
         $design->assign('fin_type', $clientType);
+
+        $design->assign('is_partner', $fixclient_data->contract->business_id == Business::PARTNER);
 
         $t = get_param_raw('simple', null);
         if ($t !== null) {
@@ -1772,6 +1775,36 @@ class m_newaccounts extends IModule
         Yii::$app->session->addFlash('success', 'Опубликовано ' . $count . ' счетов');
 
         return;
+    }
+
+    function newaccounts_bill_calculate_rewards($fixclient)
+    {
+        global $design, $db, $user, $fixclient_data;
+
+        $dateFrom = get_param_raw("date_from");
+        $dateTo = get_param_raw("date_to");
+
+        if (empty($dateFrom) || empty($dateTo)) {
+            Yii::$app->session->addFlash('error', 'Выберите период вознаграждения');
+            header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");
+            exit();
+        }
+
+        $contractId = $fixclient_data->contract_id;
+        $dateFrom = (new DateTime('01-' . $dateFrom));
+        $dateTo = (new DateTime('01-' . $dateTo));
+
+        try {
+            CalculateReward::calcPartner($contractId, $dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d'));
+            CalculateReward::makeRewardBillByPartnerId($fixclient_data, $contractId, $dateFrom, $dateTo);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");
+            exit();
+        }
     }
 
     function newaccounts_bill_email($fixclient)

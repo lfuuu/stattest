@@ -24,6 +24,7 @@ class m_newaccounts_head extends IModuleHead{
 					'bill_clear'		=> array('newaccounts_bills','edit'),
 					'bill_cleared'		=> array('newaccounts_bills','edit'),
 					'bill_courier_comment'		=> array('newaccounts_bills','edit'),
+					'bill_calculate_rewards' => array('newaccounts_bills','read'),
 
 					'search'			=> array('newaccounts_bills','read'),
 
