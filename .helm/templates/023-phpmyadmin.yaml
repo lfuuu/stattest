@@ -1,4 +1,4 @@
-{{ if and (eq .Values.global.env "dev") (eq (env "is_with_phpmyadmin") "1") }}
+{{ if and (eq .Values.global.env "dev") (eq (env "IS_WITH_PHPMYADMIN") "1") }}
 
   {{ $_ := set . "mysql_host" .Values.mysql_dev.host }}
   {{ $_ := set . "mysql_dbname" .Values.mysql_dev.dbname }}

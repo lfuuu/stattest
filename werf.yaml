@@ -221,7 +221,7 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/stat
 
-{{ if eq (env "is_with_comet") "1" }}
+{{ if eq (env "IS_WITH_COMET") "1" }}
 ---
 image: {{ .project }}-node-comet-{{ .env }}
 from: node:9.11.2
@@ -301,7 +301,7 @@ docker:
   EXPOSE: "6379"
 
 ### graphql, cryptopro, nnp-ported only in prod (can be enabled if necessary.)
-{{ if eq (env "is_with_nnpported") "1" }}
+{{ if eq (env "IS_WITH_NNPPORTED") "1" }}
 ---
 image: {{ .project }}-node-nnp-ported-{{ .env }}
 from: node:9.11.2
@@ -360,7 +360,7 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/nnp-ported
 {{ end }}
-{{ if eq (env "is_with_graphql") "1" }}
+{{ if eq (env "IS_WITH_GRAPHQL") "1" }}
 ---
 image: {{ .project }}-graphql-{{ .env }}
 from: hasura/graphql-engine:latest
@@ -376,7 +376,7 @@ docker:
   CMD: ["/bin/sleep","infinity"]
   EXPOSE: "8080"
 {{ end }}
-{{ if eq (env "is_with_cryptopro") "1" }}
+{{ if eq (env "IS_WITH_CRYPTOPRO") "1" }}
 ---
 image: {{ .project }}-cryptopro-{{ .env }}
 from: centos:7

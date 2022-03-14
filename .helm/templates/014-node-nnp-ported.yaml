@@ -1,4 +1,4 @@
-{{ if eq (env "is_with_nnpported") "1" }}
+{{ if eq (env "IS_WITH_NNPPORTED") "1" }}
 
 apiVersion: apps/v1
 kind: Deployment

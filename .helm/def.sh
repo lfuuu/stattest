@@ -13,11 +13,11 @@ function dev()
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
   export COUNTRY="RUS"
 
-  export is_with_phpmyadmin=1
-  export is_with_cryptopro=1
-  export is_with_comet=1
-  export is_with_graphql=1
-  export is_with_nnpported=0
+  export IS_WITH_PHPMYADMIN=1
+  export IS_WITH_CRYPTOPRO=0
+  export IS_WITH_COMET=0
+  export IS_WITH_GRAPHQL=0
+  export IS_WITH_NNPPORTED=0
 }
 
 function dev_hun()
@@ -28,11 +28,11 @@ function dev_hun()
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
   export COUNTRY="HUN"
 
-  export is_with_phpmyadmin=1
-  export is_with_cryptopro=0
-  export is_with_comet=0
-  export is_with_graphql=0
-  export is_with_nnpported=0
+  export IS_WITH_PHPMYADMIN=1
+  export IS_WITH_CRYPTOPRO=0
+  export IS_WITH_COMET=0
+  export IS_WITH_GRAPHQL=0
+  export IS_WITH_NNPPORTED=0
 }
 
 function prod()
@@ -42,11 +42,11 @@ function prod()
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 	export COUNTRY="RUS"
 
-  export is_with_phpmyadmin=0
-  export is_with_cryptopro=1
-  export is_with_comet=1
-  export is_with_graphql=1
-  export is_with_nnpported=1
+  export IS_WITH_PHPMYADMIN=0
+  export IS_WITH_CRYPTOPRO=1
+  export IS_WITH_COMET=1
+  export IS_WITH_GRAPHQL=1
+  export IS_WITH_NNPPORTED=1
 }
 
 function prod_hun()
@@ -56,10 +56,10 @@ function prod_hun()
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 	export COUNTRY="HUN"
 
-  export is_with_phpmyadmin=0
-  export is_with_cryptopro=0
-  export is_with_comet=1
-  export is_with_graphql=0
-  export is_with_nnpported=0
+  export IS_WITH_PHPMYADMIN=0
+  export IS_WITH_CRYPTOPRO=0
+  export IS_WITH_COMET=1
+  export IS_WITH_GRAPHQL=0
+  export IS_WITH_NNPPORTED=0
 }
 

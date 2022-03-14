@@ -1,4 +1,4 @@
-{{ if eq (env "is_with_graphql") "1" }}
+{{ if eq (env "IS_WITH_GRAPHQL") "1" }}
 
 apiVersion: apps/v1
 kind: StatefulSet

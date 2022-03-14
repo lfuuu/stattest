@@ -165,7 +165,7 @@ data:
             fastcgi_read_timeout 8h;
             try_files $uri =404;
         }
-{{ if eq (env "is_with_comet") "1" }}
+{{ if eq (env "IS_WITH_COMET") "1" }}
         location {{ .Values.node_comet_prod.path }}/ {
             rewrite    {{ .Values.node_comet_prod.path }}/(.*) /$1 break; #used to send request to base url
             proxy_set_header Host $host;
@@ -191,7 +191,7 @@ data:
             proxy_set_header Connection "upgrade";
         }
 {{ end }}
-{{ if eq (env "is_with_nnpported") "1" }}
+{{ if eq (env "IS_WITH_NNPPORTED") "1" }}
         location {{ .Values.node_nnp_ported_prod.path }}/ {
             rewrite    {{ .Values.node_nnp_ported_prod.path }}/(.*) /$1 break; #used to send request to base url
             proxy_set_header Host $host;
@@ -200,7 +200,7 @@ data:
             proxy_set_header X-Real-IP $remote_addr;
         }
 {{ end }}
-{{ if eq (env "is_with_graphql") "1" }}
+{{ if eq (env "IS_WITH_GRAPHQL") "1" }}
         location {{ .Values.graphql_prod.path }}/ {
             rewrite    {{ .Values.graphql_prod.path }}/(.*) /$1 break; #used to send request to base url
             proxy_set_header Host $host;

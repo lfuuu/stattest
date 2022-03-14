@@ -20,12 +20,12 @@ spec:
       - name: wait-redis
         image: alpine:3.6
         command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.redis_prod.host }}; do echo waiting for redis; sleep 2; done']
-{{ if eq (env "is_with_comet") "1" }}
+{{ if eq (env "IS_WITH_COMET") "1" }}
       - name: wait-comet
         image: alpine:3.6
         command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.node_comet_prod.host }}; do echo waiting for comet; sleep 2; done']
 {{- end }}
-{{ if eq (env "is_with_graphql") "1" }}
+{{ if eq (env "IS_WITH_GRAPHQL") "1" }}
       - name: wait-hasura
         image: alpine:3.6
         command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.graphql_prod.host }}; do echo waiting for hasura; sleep 2; done']
