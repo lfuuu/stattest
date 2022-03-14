@@ -20,12 +20,16 @@ spec:
       - name: wait-redis
         image: alpine:3.6
         command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.redis_prod.host }}; do echo waiting for redis; sleep 2; done']
+{{ if eq (env "IS_WITH_COMET") "1" }}
       - name: wait-comet
         image: alpine:3.6
         command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.node_comet_prod.host }}; do echo waiting for comet; sleep 2; done']
+{{- end }}
+{{ if eq (env "IS_WITH_GRAPHQL") "1" }}
       - name: wait-hasura
         image: alpine:3.6
         command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.graphql_prod.host }}; do echo waiting for hasura; sleep 2; done']
+{{- end }}
 {{- if (eq .Values.global.env "dev") }}
       - name: wait-history-pgdb
         image: alpine:3.6
@@ -113,11 +117,7 @@ spec:
         - name: DIR_HOME
           value: {{ .Values.ci_dir_home }}
         - name: USE_MINIKUBE
-{{- if (eq .Values.global.env "dev") }}
-          value: "1"
-{{- else }}
-          value: "0"
-{{- end }}
+          value: {{ ternary "1" "0" (eq .Values.global.env "dev") | quote }}
         - name: MYSQL_DB
           value: {{ .Values.mysql_prod.db }}
 {{- if (eq .Values.global.env "dev") }}

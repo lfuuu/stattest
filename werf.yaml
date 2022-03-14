@@ -36,7 +36,7 @@ ansible:
         apk add telnet
         apk add unzip net-tools mc
         apk add nano
-        apk add curl
+        apk add curl vim
         apk update
         # nginx:nginx -> 509:509
         # as jenkins:jenkins on tiberis
@@ -104,11 +104,11 @@ ansible:
         apk add wget
         apk add unzip
         apk add net-tools mc
-        apk add nano
         apk add curl
         apk add cronie
         apk add mysql
         apk add git
+        apk add vim
         # libs
         apk add \
             libzip-dev \
@@ -138,7 +138,6 @@ ansible:
             procps \
             telnet \
             iputils-ping \
-            vim \
             htop
         apk add busybox-extras
         # www-data:www-data -> 509:509
@@ -222,6 +221,7 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/stat
 
+{{ if eq (env "IS_WITH_COMET") "1" }}
 ---
 image: {{ .project }}-node-comet-{{ .env }}
 from: node:9.11.2
@@ -282,6 +282,26 @@ ansible:
         npm i
       args:
         chdir: {{ .ci_dir_home }}/comet-server
+{{ end }}
+---
+image: {{ .project }}-redis-{{ .env }}
+from: quay.io/continuouspipe/redis3:latest
+#from: redis:6.2
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        apt-get update
+        apt-get install -y --no-install-recommends htop iputils-ping net-tools
+
+docker:
+  #CMD: ["redis-server"]
+  CMD: ["/bin/sleep","infinity"]
+  EXPOSE: "6379"
+
+### graphql, cryptopro, nnp-ported only in prod (can be enabled if necessary.)
+{{ if eq (env "IS_WITH_NNPPORTED") "1" }}
 ---
 image: {{ .project }}-node-nnp-ported-{{ .env }}
 from: node:9.11.2
@@ -339,21 +359,62 @@ ansible:
         npm i
       args:
         chdir: {{ .ci_dir_home }}/nnp-ported
+{{ end }}
+{{ if eq (env "IS_WITH_GRAPHQL") "1" }}
 ---
-image: {{ .project }}-redis-{{ .env }}
-from: quay.io/continuouspipe/redis3:latest
+image: {{ .project }}-graphql-{{ .env }}
+from: hasura/graphql-engine:latest
 
 ansible:
   beforeInstall:
     - name: 1
       shell: |
-        apt-get update
-        apt-get install -y --no-install-recommends htop iputils-ping net-tools
+        pwd
 
 docker:
-  #CMD: ["redis-server"]
+  #CMD: ["graphql-engine" "serve"]
   CMD: ["/bin/sleep","infinity"]
-  EXPOSE: "6379"
+  EXPOSE: "8080"
+{{ end }}
+{{ if eq (env "IS_WITH_CRYPTOPRO") "1" }}
+---
+image: {{ .project }}-cryptopro-{{ .env }}
+from: centos:7
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        yum install -y wget nano
+        ENV container docker
+        cd /lib/systemd/system/sysinit.target.wants
+        for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done
+        rm -f /lib/systemd/system/multi-user.target.wants/*
+        rm -f /etc/systemd/system/*.wants/*
+        rm -f /lib/systemd/system/local-fs.target.wants/*
+        rm -f /lib/systemd/system/sockets.target.wants/*udev*
+        rm -f /lib/systemd/system/sockets.target.wants/*initctl*
+        rm -f /lib/systemd/system/basic.target.wants/*
+        rm -f /lib/systemd/system/anaconda.target.wants/*
+        yum install lsb-core-noarch openssh-server openssh -y
+        # Установка Cryptopro
+        cd /root
+        wget http://ngtbackup.mcn.ru/cprocsp-pki-2.0.0-amd64-cades.rpm
+        wget http://ngtbackup.mcn.ru/linux-amd64_deb.tgz
+        tar xf linux-amd64_deb.tgz
+        cd /root/linux-amd64
+        ./install.sh
+
+docker:
+  USER: root
+  WORKDIR: /root
+  CMD: ["/root/start.sh"]
+  #CMD: ["/bin/sleep","infinity"]
+  EXPOSE: "22"
+{{ end }}
+{{- end }}
+################################## DEV ENVIRONMENT ###########################################################
+{{ if (eq .env "dev") }}
 ---
 image: {{ .project }}-mysql8-dev
 from: mysql:8
@@ -395,58 +456,8 @@ ansible:
 #docker:
 #  CMD: ["/bin/sleep","infinity"]
 #  EXPOSE: "3306"
----
-image: {{ .project }}-graphql-{{ .env }}
-from: hasura/graphql-engine:latest
-
-ansible:
-  beforeInstall:
-    - name: 1
-      shell: |
-        pwd
-
-docker:
-  #CMD: ["graphql-engine" "serve"]
-  CMD: ["/bin/sleep","infinity"]
-  EXPOSE: "8080"
----
-image: {{ .project }}-cryptopro-{{ .env }}
-from: centos:7
-
-ansible:
-  beforeInstall:
-    - name: 1
-      shell: |
-        yum install -y wget nano
-        ENV container docker
-        cd /lib/systemd/system/sysinit.target.wants
-        for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done
-        rm -f /lib/systemd/system/multi-user.target.wants/*
-        rm -f /etc/systemd/system/*.wants/*
-        rm -f /lib/systemd/system/local-fs.target.wants/*
-        rm -f /lib/systemd/system/sockets.target.wants/*udev*
-        rm -f /lib/systemd/system/sockets.target.wants/*initctl*
-        rm -f /lib/systemd/system/basic.target.wants/*
-        rm -f /lib/systemd/system/anaconda.target.wants/*
-        yum install lsb-core-noarch openssh-server openssh -y
-        # Установка Cryptopro
-        cd /root
-        wget http://ngtbackup.mcn.ru/cprocsp-pki-2.0.0-amd64-cades.rpm
-        wget http://ngtbackup.mcn.ru/linux-amd64_deb.tgz
-        tar xf linux-amd64_deb.tgz
-        cd /root/linux-amd64
-        ./install.sh
-
-docker:
-  USER: root
-  WORKDIR: /root
-  CMD: ["/root/start.sh"]
-  #CMD: ["/bin/sleep","infinity"]
-  EXPOSE: "22"
-
-################################## DEV ENVIRONMENT ###########################################################
-{{- else if (eq .env "dev-disabled") }}
-
+{{ end }}
+{{ if (eq .env "dev-disabled") }}
 ---
 image: {{ .project }}-pgdb-dev
 from: postgres:12.3

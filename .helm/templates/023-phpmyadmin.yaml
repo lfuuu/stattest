@@ -1,4 +1,4 @@
-{{ if (eq .Values.global.env "dev") }}
+{{ if and (eq .Values.global.env "dev") (eq (env "IS_WITH_PHPMYADMIN") "1") }}
 
   {{ $_ := set . "mysql_host" .Values.mysql_dev.host }}
   {{ $_ := set . "mysql_dbname" .Values.mysql_dev.dbname }}
@@ -81,6 +81,4 @@ spec:
                 name: "phpmyadmin"
                 port:
                   number: 80
-{{- else }}
-
 {{- end }}

@@ -11,13 +11,28 @@ function dev()
 	CI_URL="stat.mcn.loc"
   PGADMIN_IN_DEV="yes"
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
+  export COUNTRY="RUS"
+
+  export IS_WITH_PHPMYADMIN=1
+  export IS_WITH_CRYPTOPRO=0
+  export IS_WITH_COMET=0
+  export IS_WITH_GRAPHQL=0
+  export IS_WITH_NNPPORTED=0
 }
 
-function stage()
+function dev_hun()
 {
-	export ENVNAME=stage
-	CI_URL="$APPNAME-$ENVNAME.local"
-	export CI_DIR_HOME="/home/httpd/stat.mcn.local"
+	export ENVNAME=dev
+	CI_URL="stat.mcntelecom.loc"
+  PGADMIN_IN_DEV="yes"
+  export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
+  export COUNTRY="HUN"
+
+  export IS_WITH_PHPMYADMIN=1
+  export IS_WITH_CRYPTOPRO=0
+  export IS_WITH_COMET=0
+  export IS_WITH_GRAPHQL=0
+  export IS_WITH_NNPPORTED=0
 }
 
 function prod()
@@ -25,5 +40,26 @@ function prod()
 	export ENVNAME=prod
 	CI_URL="stat.mcn.ru"
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
+	export COUNTRY="RUS"
+
+  export IS_WITH_PHPMYADMIN=0
+  export IS_WITH_CRYPTOPRO=1
+  export IS_WITH_COMET=1
+  export IS_WITH_GRAPHQL=1
+  export IS_WITH_NNPPORTED=1
+}
+
+function prod_hun()
+{
+	export ENVNAME=prod
+	CI_URL="stat.mcntele.com"
+	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
+	export COUNTRY="HUN"
+
+  export IS_WITH_PHPMYADMIN=0
+  export IS_WITH_CRYPTOPRO=0
+  export IS_WITH_COMET=1
+  export IS_WITH_GRAPHQL=0
+  export IS_WITH_NNPPORTED=0
 }
 
