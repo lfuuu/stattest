@@ -31,9 +31,9 @@ cd $DIR_STAT/config/
 #session
 cp session.local.tpl.php session.local.php
 #for minikube only
-if [ $USE_MINIKUBE -ne 0 ]; then
-    sed -i "s%//'class' =>%'class' =>%" session.local.php
-fi
+#if [ $USE_MINIKUBE -ne 0 ]; then
+#    sed -i "s%//'class' =>%'class' =>%" session.local.php
+#fi
 
 #mysql
 cp db_stat.php db_stat.local.php
