@@ -15,6 +15,7 @@ use yii\helpers\Url;
  * @property int $country_code
  * @property int $cnt
  * @property int $type
+ * @property string $operator_src_code
  *
  * @property-read Country $country
  */
@@ -85,6 +86,7 @@ class Operator extends ActiveRecord
             'cnt' => 'Кол-во номеров',
             'group' => 'Группа оператора',
             'partner_code' => 'Код партнера',
+            'operator_src_code' => 'Код оператора портирования',
         ];
     }
 
@@ -104,7 +106,7 @@ class Operator extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'name_translit', 'partner_code'], 'string'],
+            [['name', 'name_translit', 'partner_code', 'operator_src_code'], 'string'],
             [['country_code', 'group'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
@@ -152,6 +154,15 @@ class Operator extends ActiveRecord
         return $this->hasOne(Country::class, ['code' => 'country_code']);
     }
 
+    public function beforeSave($isInsert)
+    {
+        if ($this->operator_src_code == '') {
+            $this->operator_src_code = null;
+        }
+
+        return parent::beforeSave($isInsert);
+    }
+
     /**
      * @return string
      */
@@ -191,7 +202,8 @@ class Operator extends ActiveRecord
         $isWithNullAndNotNull = false,
         $countryCode = null,
         $minCnt = self::MIN_CNT
-    ) {
+    )
+    {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,

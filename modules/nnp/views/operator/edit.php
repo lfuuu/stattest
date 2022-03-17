@@ -95,6 +95,12 @@ if (!$operator->isNewRecord) {
         <div class="col-sm-2">
             <?= $form->field($operator, 'partner_code')->textInput() ?>
         </div>
+
+
+        <?php // operator src code ?>
+        <div class="col-sm-2">
+            <?= $form->field($operator, 'operator_src_code')->textInput() ?>
+        </div>
     </div>
 
     <?php // кнопки ?>
