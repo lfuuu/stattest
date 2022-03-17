@@ -147,12 +147,13 @@ metadata:
     app: {{ .Chart.Name }}
     tier: postgres
 spec:
+  type: NodePort
   ports:
     - name: "postgres-port"
       port: {{ .Values.postgres_dev.port }}
+      targetPort: {{ .Values.postgres_dev.port }}
+      nodePort: 30432
   selector:
     app: {{ .Chart.Name }}
     tier: postgres
-{{- else }}
-
 {{- end }}

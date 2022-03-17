@@ -14,6 +14,7 @@ function dev()
   export COUNTRY="RUS"
 
   export IS_WITH_PHPMYADMIN=1
+  export IS_WITH_PGADMIN=1
   export IS_WITH_CRYPTOPRO=0
   export IS_WITH_COMET=0
   export IS_WITH_GRAPHQL=0
@@ -29,6 +30,7 @@ function dev_hun()
   export COUNTRY="HUN"
 
   export IS_WITH_PHPMYADMIN=1
+  export IS_WITH_PGADMIN=1
   export IS_WITH_CRYPTOPRO=0
   export IS_WITH_COMET=0
   export IS_WITH_GRAPHQL=0
@@ -43,6 +45,7 @@ function prod()
 	export COUNTRY="RUS"
 
   export IS_WITH_PHPMYADMIN=0
+  export IS_WITH_PGADMIN=0
   export IS_WITH_CRYPTOPRO=1
   export IS_WITH_COMET=1
   export IS_WITH_GRAPHQL=1
@@ -57,6 +60,7 @@ function prod_hun()
 	export COUNTRY="HUN"
 
   export IS_WITH_PHPMYADMIN=0
+  export IS_WITH_PGADMIN=0
   export IS_WITH_CRYPTOPRO=0
   export IS_WITH_COMET=1
   export IS_WITH_GRAPHQL=0
