@@ -58,6 +58,8 @@ if [ "$ENVNAME" = "dev" ]; then
   echo 'mysql DB: apply migrations'
   kubectl exec -ti -n $NAMESPACE -c php-fpm $PODNAME -- /home/httpd/stat.mcn.ru/stat/yii migrate --interactive=0
 
+
+  ### phpMyAdmin
   PHPADMIN_URL=$(kubectl get ingress | grep phpmyadmin | awk '{print $3}' | sed "s/[[:space:]]//")
   minikubeIp=$(minikube ip)
 
@@ -68,6 +70,17 @@ if [ "$ENVNAME" = "dev" ]; then
   else
     echo "PhpMyAdmin не доступен"
   fi
+
+  ### pgadmin
+  PGADMIN_URL=$(kubectl get ingress | grep pgadmin | awk '{print $3}' | sed "s/[[:space:]]//")
+  if [ "$PGADMIN_URL" != "" ]; then
+#    sudo sed -i -e "/^.*${PGADMIN_URL}/d" /etc/hosts
+#    echo "${minikubeIp} ${PGADMIN_URL}" | sudo tee -a /etc/hosts
+    echo "PgAdmin доступен по адресу: http://$PGADMIN_URL"
+  else
+    echo "PgAdmin не доступен"
+  fi
+
 
   mysqlNodePort=$(kubectl get service -n $NAMESPACE mysqldb | grep mysqldb | awk '{print $5}' | sed -r 's/^(.*):(.*)\/.*/\2/g')
   mysqlPassword=$(kubectl exec -t -n stat-dev mysql-dev-0 -- env | grep MYSQLDB_PASSWORD | sed 's/.*=//g')
