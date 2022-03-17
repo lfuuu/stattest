@@ -32,27 +32,12 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::class,
-        'template' => '{update} {delete}',
-        'buttons' => [
-            'update' => function ($url, Operator $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, Operator $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
-    ],
-    [
         'attribute' => 'id',
         'class' => IntegerColumn::class,
+        'format' => 'raw',
+        'value' => function (Operator $model) use ($baseView) {
+            return Html::a($model->id, $model->getUrl());
+        }
     ],
     [
         'attribute' => 'country_code',
@@ -72,6 +57,10 @@ $columns = [
         'class' => StringColumn::class,
     ],
     [
+        'attribute' => 'operator_src_code',
+        'class' => StringColumn::class,
+    ],
+    [
         'attribute' => 'cnt',
         'class' => IntegerRangeColumn::class,
         'format' => 'html',
@@ -87,6 +76,19 @@ $columns = [
                     Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $operator->country_code, 'NumberFilter[operator_id]' => $operator->id])
                 ) . ')';
         }
+    ],
+    [
+        'class' => ActionColumn::class,
+        'template' => '{delete}',
+        'buttons' => [
+            'delete' => function ($url, Operator $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 
