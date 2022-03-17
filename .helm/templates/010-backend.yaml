@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
 spec:
-  replicas: 2
+  replicas: {{ ternary "2" "1" (eq .Values.global.env "prod") }}
   selector:
     matchLabels:
       app: {{ .Chart.Name }}-backend-{{ .Values.global.env }}

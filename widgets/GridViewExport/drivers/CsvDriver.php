@@ -11,7 +11,6 @@ class CsvDriver extends Component implements ExportDriver
 {
 
     private static
-        $folder = '@runtime/',
         $delimiter = ';';
 
     /**
@@ -54,7 +53,7 @@ class CsvDriver extends Component implements ExportDriver
      */
     public function createHeader($key, $columns = [])
     {
-        $fileName = Yii::getAlias(self::$folder) . $key . $this->extension;
+        $fileName = $this->getBasePatch() . $key . $this->extension;
 
         if ($file = fopen($fileName, 'a+')) {
             // Append BOM to fix UTF-8 in "Microsoft Office Excel"
@@ -76,7 +75,7 @@ class CsvDriver extends Component implements ExportDriver
      */
     public function setData($key, $rows = [])
     {
-        $fileName = Yii::getAlias(self::$folder) . $key . $this->extension;
+        $fileName = $this->getBasePatch() . $key . $this->extension;
 
         if (!file_exists($fileName) || !($file = fopen($fileName, 'a+'))) {
             throw new Exception('Export file "' . $fileName . '" not found');
@@ -105,7 +104,7 @@ class CsvDriver extends Component implements ExportDriver
      */
     public function fetchFile($key, $deleteAfter = true)
     {
-        $fileName = Yii::getAlias(self::$folder) . $key . $this->extension;
+        $fileName = $this->getBasePatch() . $key . $this->extension;
         $file = file_get_contents($fileName);
 
         if ($deleteAfter) {
@@ -113,6 +112,11 @@ class CsvDriver extends Component implements ExportDriver
         }
 
         return $file;
+    }
+
+    public function getBasePatch()
+    {
+        return rtrim(Yii::$app->params['STORE_PATH'], '/') . '/runtime/';
     }
 
 }

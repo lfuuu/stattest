@@ -173,6 +173,9 @@ class Number extends ActiveRecord
             'usr_operator_id' => 'ННП-оператор пользователя',
             'source' => 'Источник',
             'original_beauty_level' => 'Степень красивости (изначальная)',
+            'calls_per_month_0' => 'Кол-во звонков за текущий месяц',
+            'calls_per_month_1' => 'Кол-во звонков за -1 месяц',
+            'calls_per_month_2' => 'Кол-во звонков за -2 месяц',
         ];
     }
 
