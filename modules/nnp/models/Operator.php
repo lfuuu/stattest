@@ -106,9 +106,10 @@ class Operator extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'name_translit', 'partner_code', 'operator_src_code'], 'string'],
+            [['name', 'name_translit', 'partner_code'], 'string'],
             [['country_code', 'group'], 'integer'],
             [['name', 'country_code'], 'required'],
+            ['operator_src_code', 'safe'],
         ];
     }
 
@@ -156,7 +157,7 @@ class Operator extends ActiveRecord
 
     public function beforeSave($isInsert)
     {
-        if ($this->operator_src_code == '') {
+        if (!$this->operator_src_code) {
             $this->operator_src_code = null;
         }
 

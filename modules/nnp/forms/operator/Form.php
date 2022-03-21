@@ -51,6 +51,10 @@ abstract class Form extends \app\classes\Form
         try {
             $post = Yii::$app->request->post();
 
+            if (isset($post['Operator']['operator_src_code']['src_code'])) {
+                $post['Operator']['operator_src_code'] = implode(',', array_filter($post['Operator']['operator_src_code']['src_code']));
+            }
+
             // название
             if (isset($post['dropButton'])) {
 
@@ -75,8 +79,8 @@ abstract class Form extends \app\classes\Form
 
                 // создать/редактировать
                 if ($this->operator->validate() && $this->operator->save()) {
-                    $this->id = $this->operator->id;
-                    $this->isSaved = true;
+                        $this->id = $this->operator->id;
+                        $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $this->operator->getFirstErrors();

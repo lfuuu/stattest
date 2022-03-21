@@ -25,8 +25,8 @@ class OperatorFilter extends Operator
     public function rules()
     {
         return [
-            [['name', 'name_translit', 'operator_src_code'], 'string'],
-            [['id', 'country_code', 'cnt_from', 'cnt_to', 'group'], 'integer'],
+            [['name', 'name_translit'], 'string'],
+            [['id', 'country_code', 'cnt_from', 'cnt_to', 'group', 'operator_src_code'], 'integer'],
         ];
     }
 

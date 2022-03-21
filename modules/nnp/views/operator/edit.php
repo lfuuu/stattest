@@ -99,7 +99,23 @@ if (!$operator->isNewRecord) {
 
         <?php // operator src code ?>
         <div class="col-sm-2">
-            <?= $form->field($operator, 'operator_src_code')->textInput() ?>
+            <?php
+
+            if (!is_array($operator->operator_src_code)) {
+                $operator->operator_src_code = explode(',', $operator->operator_src_code);
+            }
+
+            ?>
+            <?= $form->field($operator, 'operator_src_code')->widget(\unclead\multipleinput\MultipleInput::class, [
+                'min' => 1,
+                'max' => 4,
+                'columns' => [
+                    [
+                        'name' => 'src_code',
+                        'type' => \kartik\editable\Editable::INPUT_TEXT,
+                    ],
+                ],
+            ]) ?>
         </div>
     </div>
 
@@ -115,10 +131,10 @@ if (!$operator->isNewRecord) {
                 <?= $this->render('//layouts/_submitButtonDrop') ?> &nbsp;, заменив на
             </div>
             <div class="col-sm-4">
-				<?php
+                <?php
                 $operatorsList = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code, 0);
                 unset($operatorsList[$operator->id]); // убрать себя
-				?>
+                ?>
                 <?= Select2::widget([
                     'name' => 'newOperatorId',
                     'data' => $operatorsList,
