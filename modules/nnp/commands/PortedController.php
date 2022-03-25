@@ -83,7 +83,7 @@ abstract class PortedController extends Controller
      * @throws \yii\db\Exception
      * @throws \LogicException
      */
-    protected function insertValues($countryCode, &$insertValues)
+    protected function insertValues($countryCode, &$insertValues, $fields = ['full_number', 'operator_source'])
     {
         echo PHP_EOL;
 
@@ -93,15 +93,17 @@ abstract class PortedController extends Controller
             (
                 id SERIAL NOT NULL,
                 full_number BIGINT NOT NULL,
-                operator_source CHARACTER VARYING(255)
+                operator_source CHARACTER VARYING(255),
+                operator_id integer 
             )
 SQL;
         // CONSTRAINT number_tmp_pkey PRIMARY KEY (id)
+        $this->_db->createCommand('DROP TABLE IF EXISTS number_tmp')->execute();
         $this->_db->createCommand($sql)->execute();
 
         // Добавить в нее данные
         $this->_db->createCommand()
-            ->batchInsert('number_tmp', ['full_number', 'operator_source'], $insertValues)
+            ->batchInsert('number_tmp', $fields, $insertValues)
             ->execute();
         $insertValues = [];
 
@@ -122,7 +124,6 @@ SQL;
         $affectedRows = $this->_db->createCommand($sql)->execute();
         echo sprintf('Дублей: %d' . PHP_EOL, $affectedRows);
 
-
         // обновить
         $tableName = nnpNumber::tableName();
         $sql = <<<SQL
@@ -130,12 +131,19 @@ SQL;
                 {$tableName} number
             SET
                 operator_source = number_tmp.operator_source,
-                operator_id = CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE NULL END
+                operator_id =
+                    CASE WHEN number_tmp.operator_id IS NOT NULL THEN number_tmp.operator_id ELSE
+                        CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE
+                        NULL 
+                        END
+                    END
+                
             FROM
                 number_tmp
             WHERE
                 number.full_number = number_tmp.full_number
 SQL;
+//        operator_id = CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE NULL END
         $affectedRows = $this->_db->createCommand($sql)->execute();
         echo sprintf('Обновлено: %d' . PHP_EOL, $affectedRows);
 
@@ -157,13 +165,15 @@ SQL;
             (
                 country_code,
                 full_number,
-                operator_source
+                operator_source,
+                operator_id
             )
             WITH t1 AS (SELECT MAX(id) as id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
             SELECT 
                 :country_code as country_code, 
                 full_number,
-                operator_source
+                operator_source,
+                operator_id
             FROM
                 number_tmp
 SQL;

@@ -3,6 +3,9 @@
 namespace app\modules\nnp\commands;
 
 use app\modules\nnp\models\Country;
+use app\modules\nnp\models\Operator;
+use yii\console\ExitCode;
+use yii\db\Query;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -30,154 +33,10 @@ use yii\web\NotFoundHttpException;
  */
 class PortedHungaryController extends PortedController
 {
-    private $_operators = [
-        '602' => 'Greencom Hungary Kft.',
-        '605' => 'H1 Komm Kft.',
-        '606' => 'Comnica Kft.',
-        '607' => 'Raystorm Kft.',
-        '608' => 'Rebell Telecommunication Zrt.',
-        '609' => 'HBCom Kábel Nonprofit Kft.',
-        '611' => 'MCNtelecom GmbH',
-        '612' => 'Gelka Hirtech Kft.',
-        '614' => 'nfon GmbH',
-        '615' => 'Dialoga Servicios Interactivos S.A.',
-        '616' => 'Medveczky Cégcsoport Kft.',
-        '618' => 'Kis Fal Kft.',
-        '619' => 'Premium Net International S.R.L.',
-        '620' => 'KIFÜ',
-        '621' => 'United Telecom Zrt.',
-        '622' => 'Copy-Data Kft.',
-        '623' => 'MosonTelecom System Kft.',
-        '625' => 'Calliotel Kft.',
-        '626' => 'VM Telecom HU Kft.',
-        '627' => 'Invinetwork Kft.',
-        '701' => 'FCS Group Kft.',
-        '707' => 'SKAWA Innovation Kft.',
-        '708' => 'PENDOLA INVEST Kft.',
-        '709' => 'VNM Zrt.',
-        '711' => 'GERGI HÁLÓ Kft.',
-        '712' => 'DUAL-PLUS Kft.',
-        '716' => 'BORSODWEB Kft.',
-        '717' => 'R-Voice Hungary Kft.',
-        '721' => 'Rendszerinformatika Zrt.',
-        '724' => 'NISZ Zrt.',
-        '726' => 'Last-Mile Kft.',
-        '730' => 'Techno-Tel Kft.',
-        '731' => 'Virtual Communications Kft.',
-        '732' => 'CG-SYSTEMS Kft.',
-        '735' => 'HIR-SAT Kft.',
-        '737' => 'Giganet Internet Kft.',
-        '740' => 'Hungária Informatikai Kft.',
-        '741' => 'Printer-fair Kft.',
-        '742' => 'DELTAKON Kft.',
-        '743' => 'CBN Telekom Kft.',
-        '747' => 'Földesi és Társa 2002 Kft.',
-        '752' => 'NET-TV Zrt.',
-        '753' => 'Netfone Telecom Kft.',
-        '765' => 'KábelszatNet-2002 Kft.',
-        '766' => 'MVM NET Zrt.',
-        '767' => 'Inphone Kft.',
-        '768' => 'Kalásznet Kft.',
-        '769' => 'Vidékháló Kft.',
-        '770' => 'i3 Rendszerház Kft.',
-        '771' => 'TEVE TÉVÉ Kft.',
-        '774' => 'Cogitnet Kft.',
-        '776' => 'Wavecom Informatikai Kft.',
-        '778' => 'Banktel Kommunikációs Zrt.',
-        '779' => 'Calgo Kft.',
-        '781' => 'ExpertCom Kft.',
-        '782' => 'ADERTIS Kft.',
-        '783' => 'MCN telecom Kft.',
-        '784' => 'HelloVoip Kft.',
-        '786' => 'Cost Consulting Kft.',
-        '789' => 'VCC Live Hungary Kft.',
-        '791' => '42NETMedia Kft.',
-        '792' => 'Ephone Schweiz GmbH.',
-        '794' => 'PIVo Telecom Kft.',
-        '795' => 'Net-Connect Communications SRL',
-        '796' => 'Epax Kft.',
-        '798' => 'BEROTEL NETWORKS Kft.',
-        '805' => 'PICKUP Kft.',
-        '807' => 'ViDaNet Zrt.',
-        '810' => '"PÁZMÁNY-KÁBEL" Kft.',
-        '814' => 'EuroCable Magyarország Kft.',
-        '816' => 'Microsystem-Kecskemét Kft.',
-        '817' => 'Intellihome Kft.',
-        '820' => 'AMTEL Kft.',
-        '822' => 'Media Exchange Kft.',
-        '823' => 'Voxbone SA',
-        '826' => 'IP-Telekom Kft.',
-        '830' => 'SÁGHY-SAT Kft.',
-        '833' => 'Kapos-NET Kft.',
-        '834' => 'KÁBLEX Kft.',
-        '835' => 'BTM 2003 Kft.',
-        '838' => 'ZNET Telekom Zrt.',
-        '839' => 'CORVUS TELECOM Kft.',
-        '841' => 'ACE TELECOM Kft.',
-        '842' => 'Balmaz InterCOM Kft.',
-        '844' => 'COMTEST Kft.',
-        '845' => 'INVITEL Zrt.',
-        '846' => 'FONIO-VOIP Kft.',
-        '850' => 'ANTENNA HUNGÁRIA Zrt.',
-        '855' => 'NET-PORTAL Kft.',
-        '857' => 'Celldömölki Kábeltelevízió Kft.',
-        '861' => 'MICRO-WAVE Kft.',
-        '862' => 'SolarTeam Energia Kft.',
-        '863' => 'OPTICON Kft.',
-        '867' => 'DRÁVANET Zrt.',
-        '869' => '"KÁBELSAT-2000" Kft.',
-        '870' => 'ES INNOTEL Kft.',
-        '879' => 'SZAMOSNET Kft.',
-        '880' => '"TLT Telecom" Kft.',
-        '883' => 'NOVI-COM Kft.',
-        '886' => 'Magyar Telekommunikációs és Informatikai Kft.',
-        '891' => 'Elektronet Zrt.',
-        '894' => 'Satelit Kft.',
-        '896' => 'Toldinet Kft.',
-        '899' => 'NARACOM Kft.',
-        '902' => '3C Kft.',
-        '903' => 'BT Limited Magyarországi Fióktelepe',
-        '904' => 'MACROgate IPsystems Magyarország Kft.',
-        '905' => '4VOICE Kft.',
-        '916' => 'Magyar Telekom Nyrt.',
-        '917' => 'Vodafone Magyarország Zrt.',
-        '918' => 'Invitech ICT Services Kft.',
-        '923' => 'TARR Kft.',
-        '927' => 'OROS-COM Kft.',
-        '932' => 'INVITEL Zrt.',
-        '933' => 'PENDOLA TeleCom Kft.',
-        '934' => 'Magyar Telekom Nyrt.',
-        '935' => 'Biatorbágyi Kábeltévé Kft.',
-        '936' => 'Internet-X Magyarország Kft.',
-        '940' => 'Vodafone Magyarország Zrt.',
-        '941' => 'ON LINE SYSTEM Kft.',
-        '943' => 'Isis-Com Kft.',
-        '948' => 'DIGI Kft.',
-        '953' => 'PR-TELECOM Zrt.',
-        '956' => 'Magyar Telekom Nyrt.',
-        '958' => 'N-System Távközlési Kft.',
-        '961' => 'OPENNETWORKS Kft.',
-        '967' => 'Mikroháló Kft.',
-        '976' => 'ARRABONET Kft.',
-        '979' => 'ZALASZÁM Kft.',
-        '981' => 'Xyton Kft.',
-        '983' => 'VCC Live Hungary Kft.',
-        '984' => 'NORDTELEKOM Nyrt.',
-        '986' => 'TRIOTEL Kft.',
-        '989' => 'PARISAT Kft.',
-        '993' => 'RLAN Internet Kft.',
-        '603' => 'TARR Kft.',
-        '604' => 'DIGI Kft.',
-        '617' => 'Netfone Telecom Kft.',
-        '760' => 'Vodafone Magyarország Zrt.',
-        '777' => 'Netfone Telecom Kft.',
-        '919' => 'Telenor Magyarország Zrt.',
-        '926' => 'Vodafone Magyarország Zrt.',
-        '928' => 'Magyar Telekom Nyrt.',
-        '613' => 'Tiszafüredi Kábeltévé Szövetkezet ',
-        '790' => 'UPC DTH S.á.r.l. ',
-    ];
-/**/
+
+    private $_errors = [];
+
+    private $_operators = [];
     /**
      * @inheritdoc
      * @throws \yii\base\InvalidParamException
@@ -193,60 +52,136 @@ class PortedHungaryController extends PortedController
             throw new NotFoundHttpException('Ошибка чтения файла ' . $fileUrl);
         }
 
+        if (!$this->_operators) {
+            $this->loadOperators();
+        }
+
+        // check operator
+        $isFirst = true;
+        $this->_errors = [];
+        while (($row = fgets($fp)) !== false) {
+            if ($isFirst) {
+                // skip first line
+                $isFirst = false;
+                continue;
+            }
+
+            $this->getRecord($row);
+        }
+
+        if ($this->_errors) {
+            $this->printErrors();
+
+            \Yii::$app->end(ExitCode::UNSPECIFIED_ERROR);
+        }
+
+        echo PHP_EOL . 'Data completeness checked';
+
+        fseek($fp, 0);
+
         $insertValues = [];
+        $isFirst = true;
         while (($row = fgets($fp)) !== false) {
 
-//            $row = trim(str_replace(['<list_item>', '</list_item>'], '', $row));
-            $row = trim($row);
-
-            if (strpos($row, '</list>') !== false) {
-                $row = str_replace('</list>', '', $row);
-            }
-
-            if (!$row || $row == '<list>' || $row == '</list>') {
+            if ($isFirst) {
+                // skip first line
+                $isFirst = false;
                 continue;
             }
 
-            try {
-                $xml = simplexml_load_string($row);
-            } catch (\Exception $e) {
-                echo PHP_EOL . 'error: ' . $e->getMessage();
-                echo PHP_EOL . $row;
-                continue;
-            }
-
-            if (!$xml) {
-                echo 'Неправильные данные: ' . $row . PHP_EOL;
-                continue;
-            }
-
-            $number = (string)$xml->phone_number;
-            if (!$number || !is_numeric($number)) {
-                throw new \LogicException('Неправильный номер: ' . $row);
-            }
-
-            $number = Country::HUNGARY_PREFIX . $number;
-
-            $operatorName = (string)$xml->actual_provider;
-            if ($operatorName && !isset($this->_operators[$operatorName])) {
-                echo PHP_EOL . 'operator not found: ' . $operatorName;
-            }
-
-            if ($operatorName && isset($this->_operators[$operatorName]) && $this->_operators[$operatorName]) {
-                $operatorName = $this->_operators[$operatorName];
-            }
-
-            $insertValues[] = [$number, $operatorName];
+            $insertValues[] = $this->getRecord($row);;
 
             if (count($insertValues) >= self::CHUNK_SIZE) {
-                $this->insertValues(Country::HUNGARY, $insertValues);
+                $this->insertValues(Country::HUNGARY, $insertValues, ['full_number', 'operator_source', 'operator_id']);
             }
         }
 
         fclose($fp);
 
         if ($insertValues) {
-            $this->insertValues(Country::HUNGARY, $insertValues);
+            $this->insertValues(Country::HUNGARY, $insertValues, ['full_number', 'operator_source', 'operator_id']);
         }
+    }
+
+    private function loadOperators()
+    {
+        $query = (new Query())
+            ->select(['id', 'src_code' => 'operator_src_code', 'name'])
+            ->from(Operator::tableName())
+            ->where(['country_code' => \app\models\Country::HUNGARY])
+            ->andWhere(['NOT', ['operator_src_code' => null]])
+            ->createCommand(\Yii::$app->dbPgNnp)->query();
+
+        foreach ($query as $row) {
+            foreach (explode(',', $row['src_code']) as $item) {
+                $this->_operators[$item] = [
+                    'id' => $row['id'],
+                    'name' => $row['name']
+                ];
+            }
+        }
+    }
+
+    private function getRecord($row)
+    {
+        $row = trim($row);
+
+        if (!$row) {
+            return false;
+        }
+
+        $record = explode(';', $row);
+
+        if (!$record || count($record) != 6) {
+            echo 'Неправильные данные: ' . $row . PHP_EOL;
+
+            $this->addError('Неправильные данные', $row);
+            return false;
+        }
+
+        list($number, $_equipment, $_validFrom, $_validUntil, $actualProvider, $blockProvider) = $record;
+
+
+        if (!$number || !is_numeric($number)) {
+            $this->addError('Неправильный номер', $row);
+            return false;
+        }
+
+        $number = Country::HUNGARY_PREFIX . $number;
+
+        if (!isset($this->_operators[$actualProvider])) {
+            $this->addError('Operator not found: ' . $actualProvider, ' ('.$number.')');
+            return false;
+        }
+
+        $operator = $this->_operators[$actualProvider];
+
+        return [$number, $operator['name'], $operator['id']];
+    }
+
+    private function addError($errKey, $errStr)
+    {
+        if (!isset($this->_errors[$errKey])) {
+            $this->_errors[$errKey] = [];
+        }
+
+        if (count($this->_errors[$errKey]) <= 10) {
+            $this->_errors[$errKey][] = $errStr;
+        } else {
+            if (!isset($this->_errors[$errKey][12])) {
+                $this->_errors[$errKey][12] = 0;
+            }
+            $this->_errors[$errKey][12] +=1;
+        }
+    }
+
+    private function printErrors()
+    {
+        foreach ($this->_errors as $errKey => $errStrs){
+            foreach ($errStrs as $idx => $errStr) {
+                echo PHP_EOL . 'Errro: ' . $errKey . ': ' . ( $idx == 12 ? ' ...+' : '') . $errStr;
+            }
+        }
+        echo PHP_EOL;
     }
 }
