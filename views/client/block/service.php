@@ -46,15 +46,18 @@ $ipstat = function ($data) {
     }
 
     return
-        '<table cellspacing="0" cellpadding="0" border="0">' .
-            '<tr>' .
-                '<td valign=middle>' . UsageTechCpe::dao()->getCpeIpStat($R) . '</td>' .
-                '<td valign=middle' . $c . '>' .
-                    '<a href="?module=monitoring&ip=' . $R[0] . '">' . $ip . '</a>' .
-                    (isset($R[1]) ? '/<a href="?module=monitoring&ip=' . $R[1] . '">' . $m[6] . '</a>' : '') .
-                '</td>' .
-            '</tr>' .
-        '</table>';
+        '<div>' . $ip . '</div>';
+//
+//    return
+//        '<table cellspacing="0" cellpadding="0" border="0">' .
+//            '<tr>' .
+//                '<td valign=middle>' . UsageTechCpe::dao()->getCpeIpStat($R) . '</td>' .
+//                '<td valign=middle' . $c . '>' .
+//                    '<a href="?module=monitoring&ip=' . $R[0] . '">' . $ip . '</a>' .
+//                    (isset($R[1]) ? '/<a href="?module=monitoring&ip=' . $R[1] . '">' . $m[6] . '</a>' : '') .
+//                '</td>' .
+//            '</tr>' .
+//        '</table>';
 };
 
 $has = false;
