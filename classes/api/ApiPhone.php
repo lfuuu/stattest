@@ -197,7 +197,8 @@ class ApiPhone extends Singleton
         $isMobileOutboundEditable = null,
         $region = null,
         $number7800 = null,
-        $isRobocallEnabled = false
+        $isRobocallEnabled = false,
+        $isSmart = false
     ) {
         $params = [
             'client_id' => $clientAccountId,
@@ -227,6 +228,10 @@ class ApiPhone extends Singleton
 
         if ($number7800) {
             $params['nonumber_phone'] = $number7800;
+        }
+
+        if ($isSmart !== null) {
+            $params['is_smart'] = (int)$isSmart;
         }
 
         if (strpos($number, '7800') === 0) {
