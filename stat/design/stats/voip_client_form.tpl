@@ -36,8 +36,7 @@
 			<OPTION value=year{if $detality=='year'} selected{/if}>годам</OPTION>
 			<OPTION value=dest{if $detality=='dest'} selected{/if}>направлениям</OPTION>
 			<OPTION value=package{if $detality=='package'} selected{/if}>пакетам</OPTION>
-		</SELECT>
-		</TD></TR>
+			<OPTION value=filterb{if $detality=='filterb'} selected{/if}>направлениям v2<TD></TR>
 		<tr>
 			<td class="left" style="text-decoration: line-through">Направление</td>
 			<td>

@@ -13,6 +13,8 @@ use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Package;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\billing_uu\Pricelist;
+use app\modules\uu\models\billing_uu\PricelistFilterB;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use Yii;
@@ -49,6 +51,7 @@ class ReportUsageDao extends Singleton
     const DETALITY_DEST = 'dest';
     const DETALITY_PACKAGE = 'package';
     const DETALITY_CALL = 'call';
+    const DETALITY_FILTERB = 'filterb';
 
     const DETALITY_DAY = 'day';
     const DETALITY_MONTH = 'month';
@@ -179,6 +182,9 @@ class ReportUsageDao extends Singleton
             case self::DETALITY_PACKAGE:
                 return $this->_voipStatisticByPackage($query, $from, $to, $tariffId);
                 break;
+            case self::DETALITY_FILTERB:
+                return $this->_voipStatisticByFilterB($query, $from, $to, $tariffId);
+                break;
             default:
                 return $this->_voipStatistic($query, $from, $to, $packages, $detality, $paidonly, $tariffId);
                 break;
@@ -219,13 +225,13 @@ class ReportUsageDao extends Singleton
      * @throws \Exception
      */
     private function _voipStatistic(
-        ActiveQuery $query,
+        ActiveQuery       $query,
         DateTimeImmutable $from,
         DateTimeImmutable $to,
-        $packages = [],
-        $detality = '',
-        $paidOnly = 0,
-        $tariffId = null
+                          $packages = [],
+                          $detality = '',
+                          $paidOnly = 0,
+                          $tariffId = null
     )
     {
         $offset = $from->getOffset();
@@ -343,7 +349,7 @@ class ReportUsageDao extends Singleton
             $record['location_name'] = '';
             if (isset($record['location_id']) && $record['location_id']) {
                 $locationList = Package::getListLocation(false);
-                $record['location_name'] = $locationList[$record['location_id']] ?? '' ;
+                $record['location_name'] = $locationList[$record['location_id']] ?? '';
             }
             unset($record['location_id']);
 
@@ -398,12 +404,12 @@ class ReportUsageDao extends Singleton
      * @return \yii\db\DataReader
      */
     public function _makeReader(
-        Query $queryOrig,
+        Query             $queryOrig,
         DateTimeImmutable $from,
         DateTimeImmutable $to,
-        $connectId,
-        &$inCount,
-        $isByCalls
+                          $connectId,
+                          &$inCount,
+                          $isByCalls
     )
     {
         $db = $this->_getConnectingById($connectId);
@@ -467,8 +473,8 @@ class ReportUsageDao extends Singleton
         }
 
         return (new DateTimeImmutable(
-                $matches[1] . '-' . $matches[2] . '-01 00:00:00',
-                new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
+            $matches[1] . '-' . $matches[2] . '-01 00:00:00',
+            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
         ));
 
     }
@@ -744,6 +750,84 @@ class ReportUsageDao extends Singleton
         };
 
         $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_DEST);
+
+        $cnt = 0;
+        $len = 0;
+        $price = 0;
+        foreach ($result as &$data) {
+            $cnt += $data['cnt'];
+            $len += $data['len'];
+            $price += $data['price'];
+
+            $delta = 0;
+            if ($data['len'] >= 24 * 60 * 60) {
+                $delta = floor($data['len'] / (24 * 60 * 60));
+            }
+
+            $data['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s',
+                    $data['len'] - $delta * 24 * 60 * 60);
+            $data['price'] = number_format($data['price'], 2, '.', '');
+        }
+
+        $delta = 0;
+        $total_row = [
+            'is_total' => true,
+            'tsf1' => 'Итого',
+            'price' => $price,
+            'cnt' => $cnt,
+        ];
+
+        if ($len >= 24 * 60 * 60) {
+            $delta = floor($len / (24 * 60 * 60));
+        }
+
+        $total_row['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s', $len - $delta * 24 * 60 * 60);
+        $total_row = $this->_getTotalPrices($total_row);
+
+        $result['total'] = $total_row;
+
+        return $result;
+    }
+
+    /**
+     * Вспомогательная функция. Статистика по пакетам
+     *
+     * @param ActiveQuery $query
+     * @param DateTimeImmutable $from
+     * @param DateTimeImmutable $to
+     * @param int $filterId
+     * @return array
+     */
+    private function _voipStatisticByFilterB(ActiveQuery $query, DateTimeImmutable $from, DateTimeImmutable $to, $filterId = null)
+    {
+        $query->select([
+            'price' => '-SUM(cr.cost)',
+            'len' => 'SUM(cr.billed_time)',
+            'cnt' => 'SUM(1)',
+            'nnp_pricelist_filter_b_id',
+        ]);
+        $query->groupBy(['nnp_pricelist_filter_b_id']);
+        $query->orderBy(['nnp_pricelist_filter_b_id' => SORT_ASC]);
+
+        $filterId && $query->andWhere(['nnp_pricelist_filter_b_id' => $filterId]);
+
+        $result = [];
+        $callBackRecordProcessing = function ($record) use (&$result) {
+            static $cache = ['' => '--------'];
+
+            if (!isset($cache[$record['nnp_pricelist_filter_b_id']])) {
+                $cache[$record['nnp_pricelist_filter_b_id']] = PricelistFilterB::find()
+                    ->where(['id' => $record['nnp_pricelist_filter_b_id']])
+                    ->select(['description'])
+                    ->scalar() ?: '#' . $record['nnp_pricelist_filter_b_id'];
+            }
+
+            $record['tsf1'] = $cache[$record['nnp_pricelist_filter_b_id']];
+            $result[] = $record;
+        };
+
+        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_DEST);
+
 
         $cnt = 0;
         $len = 0;
