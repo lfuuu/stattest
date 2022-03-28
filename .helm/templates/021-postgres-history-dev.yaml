@@ -9,6 +9,10 @@
 {{ $_ := set . "pg_port" .Values.postgres_dev.port }}
 {{ $_ := set . "pg_repl_user" .Values.postgres_dev.repl_user }}
 {{ $_ := set . "pg_repl_password" .Values.postgres_dev.repl_password }}
+
+### pg_dump -Upgsqltest -h iberus.mcn.ru -csO --if-exists -n nnp -n nnp_ported nispd > nnp_schema.sql
+### pg_dump -Upgsqltest -h iberus.mcn.ru  -aO -n nnp -T "nnp"."number_range_prefix" -T "nnp"."number_range" -T "nnp"."number_range_destination" nispd > nnp.sql
+### pg_dump -Upgsqltest -h iberus.mcn.ru  -aO -n nnp_ported nispd > nnp_ported.sql
 ---
 apiVersion: v1
 kind: ConfigMap

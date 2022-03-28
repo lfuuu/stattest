@@ -89,5 +89,17 @@ if [ "$ENVNAME" = "dev" ]; then
 
   echo "MySQL uri: mysql://${mysqlUser}:${mysqlPassword}@${minikubeIp}:${mysqlNodePort}/${mysqlDb}"
   echo "Stat login: admin/111"
+
+  PGDB="history-db-0"
+  if [ -f $HOME/.pgpass ]; then
+    foundPgPass=$(kubectl exec -ti -n $NAMESPACE $PGDB -- bash -c "[ -f /root/.pgpass ] || echo 'Not found'")
+    if [[ $foundPgPass =~ "Not found" ]]; then
+      kubectl cp -n $NAMESPACE $HOME/.pgpass $PGDB:/root/.pgpass
+      kubectl exec -ti -n $NAMESPACE $PGDB -- bash -c "chmod 0600 /root/.pgpass"
+    fi
+  else
+    echo '~/.pgpass not found'
+  fi
+
 fi
 
