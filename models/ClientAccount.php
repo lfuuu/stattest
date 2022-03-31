@@ -1092,6 +1092,10 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function sync1C()
     {
+        if (!\Yii::$app->isRus()) {
+            return;
+        }
+
         if (!defined('PATH_TO_ROOT')) {
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
         }

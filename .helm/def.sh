@@ -3,7 +3,7 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.348
+TAG=1.350
 
 function dev()
 {
@@ -21,13 +21,13 @@ function dev()
   export IS_WITH_NNPPORTED=0
 }
 
-function dev_hun()
+function dev_eu()
 {
 	export ENVNAME=dev
 	CI_URL="stat.mcntelecom.loc"
   PGADMIN_IN_DEV="yes"
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
-  export COUNTRY="HUN"
+  export COUNTRY="EU"
 
   export IS_WITH_PHPMYADMIN=1
   export IS_WITH_PGADMIN=1
@@ -52,12 +52,12 @@ function prod()
   export IS_WITH_NNPPORTED=1
 }
 
-function prod_hun()
+function prod_eu()
 {
 	export ENVNAME=prod
 	CI_URL="stat.mcntele.com"
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
-	export COUNTRY="HUN"
+	export COUNTRY="EU"
 
   export IS_WITH_PHPMYADMIN=0
   export IS_WITH_PGADMIN=0

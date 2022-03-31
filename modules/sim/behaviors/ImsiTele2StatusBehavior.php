@@ -51,6 +51,10 @@ class ImsiTele2StatusBehavior extends Behavior
             return;
         }
 
+        if (!\Yii::$app->isRus()) {
+            return;
+        }
+
         if ($oldMsisdn) {
             EventQueue::go(EventQueue::SYNC_TELE2_UNLINK_IMSI, [
                 'voip_number' => $oldMsisdn,

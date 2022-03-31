@@ -26,6 +26,8 @@ class Navigation
     {
         global $fixclient_data;
 
+        $isRus = \Yii::$app->isRus();
+
         $this->addBlock(
             NavigationBlock::create()
                 ->setRights(['clients.read'])
@@ -41,7 +43,9 @@ class Navigation
         );
         $this->_addBlockNewClients();
 
-        $this->_addBlockForStatModule('services');
+        if ($isRus) {
+            $this->_addBlockForStatModule('services');
+        }
 
         $accountBlock = NavigationBlock::create()
             ->setTitle('Бухгалтерия')
@@ -63,14 +67,16 @@ class Navigation
         $this->addBlock($accountBlock);
 
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setTitle('Тарифы')
-                ->addItem('Телефония', ['/tariff/voip'], ['tarifs.read'])
-                ->addItem('Телефония Пакеты', ['/tariff/voip-package'], ['tarifs.read'])
-                ->addItem('Звонок_чат', ['/tariff/call-chat'], ['tarifs.read'])
-                ->addStatModuleItems('tarifs')
-        );
+        if ($isRus) {
+            $this->addBlock(
+                NavigationBlock::create()
+                    ->setTitle('Тарифы')
+                    ->addItem('Телефония', ['/tariff/voip'], ['tarifs.read'])
+                    ->addItem('Телефония Пакеты', ['/tariff/voip-package'], ['tarifs.read'])
+                    ->addItem('Звонок_чат', ['/tariff/call-chat'], ['tarifs.read'])
+                    ->addStatModuleItems('tarifs')
+            );
+        }
         $this->_addBlockForStatModule('tt');
         $this->addBlock(
             NavigationBlock::create()
@@ -85,21 +91,29 @@ class Navigation
                 ->addItem('Себестоимость звонков', ['/report/voip/cost-report'], ['stats.report'])
                 ->addItem('Статистика: Вызовы-API', ['/stats/billing-api'], ['stats.r'])
         );
-        $this->_addBlockForStatModule('routers');
+        if ($isRus) {
+            $this->_addBlockForStatModule('routers');
+        }
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setTitle('Мониторинг')
-                ->addStatModuleItems('monitoring')
-                ->addItem('Перемещаемые услуги', ['/monitoring/transfered-usages'], [])
-                ->addItem('Ключевые события', ['/monitoring'], [])
-                ->addItem('Очередь событий', ['/monitoring/event-queue'], [])
-                ->addItem('Монитор "здоровья"', 'https://voipgui.mcn.ru/health/health.html', [])
+        $monitorBlock = NavigationBlock::create()
+            ->setTitle('Мониторинг')
+            ->addStatModuleItems('monitoring')
+            ->addItem('Перемещаемые услуги', ['/monitoring/transfered-usages'], [])
+            ->addItem('Ключевые события', ['/monitoring'], [])
+            ->addItem('Очередь событий', ['/monitoring/event-queue'], []);
+
+        if ($isRus) {
+            $monitorBlock->addItem('Монитор "здоровья"', 'https://voipgui.mcn.ru/health/health.html', [])
                 ->addItem('СОРМ: Клиенты', ['/monitoring/sorm-clients'], ['clients.edit'])
-                ->addItem('СОРМ: Номера', ['/monitoring/sorm-numbers'], ['clients.edit'])
-                ->addItem('Изменившиеся счета', ['/monitoring/changed-bills'], ['clients.edit'])
-                
-        );
+                ->addItem('СОРМ: Номера', ['/monitoring/sorm-numbers'], ['clients.edit']);
+
+        } else {
+            $monitorBlock->addItem('Монитор "здоровья"', 'https://voipgui.mcntele.com/health/health.html', []);
+        }
+
+        $monitorBlock->addItem('Изменившиеся счета', ['/monitoring/changed-bills'], ['clients.edit']);
+
+        $this->addBlock($monitorBlock);
 
         $this->addBlock(
             NavigationBlock::create()
@@ -107,21 +121,29 @@ class Navigation
                 ->addItem('Операторы', ['/user/control'], ['users.r'])
                 ->addItem('Группы', ['/user/group'], ['users.r'])
                 ->addItem('Отделы', ['/user/department'], ['users.r'])
-                //->addItem('Обновить права в БД', ['/user/control/update-rights'], ['users.r'])
+        //->addItem('Обновить права в БД', ['/user/control/update-rights'], ['users.r'])
         );
-        $this->_addBlockForStatModule('send');
-        $this->_addBlockForStatModule('employeers');
+//        $this->_addBlockForStatModule('send');
+        if ($isRus) {
+            $this->_addBlockForStatModule('employeers');
+        }
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setTitle('Письма клиентам')
-                ->addStatModuleItems('mail')
-                ->addItem('Сообщение от МЧС', ['/mchs'], ['mchs.read'])
-        );
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setTitle('Телефония')
+        $mailBlock = NavigationBlock::create()
+            ->setTitle('Письма клиентам')
+            ->addStatModuleItems('mail');
+
+        if ($isRus) {
+            $mailBlock->addItem('Сообщение от МЧС', ['/mchs'], ['mchs.read']);
+        }
+
+        $this->addBlock($mailBlock);
+
+        $phonesBlock = NavigationBlock::create()
+            ->setTitle('Телефония');
+
+        if ($isRus) {
+            $phonesBlock
                 ->addStatModuleItems('voipnew')
                 ->addItem('Прайс-листы Клиент Ориг', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 1], ['voip.access'])
                 ->addItem('Прайс-листы Клиент Терм', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_CLIENT, 'orig' => 0], ['voip.access'])
@@ -130,15 +152,18 @@ class Navigation
                 ->addItem('Прайс-листы Местные Терм', ['/voip/pricelist/list', 'type' => Pricelist::TYPE_LOCAL, 'orig' => 0], ['voip.access'])
                 ->addItem('Местные Префиксы', ['/voip/network-config/list'], ['voip.access'])
                 ->addItem('Списки префиксов', ['/voip/prefixlist'], ['voip.access'])
-                ->addItem('Направления', ['/voip/destination'], ['voip.access'])
-                ->addItem('DID группы', ['/tariff/did-group/'], ['tarifs.read'])
-                ->addItem('Номера', ['/voip/number'], ['stats.report'])
-                ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
-                ->addItem('Отчет по calls_raw (старая склейка)', ['/voip/raw/old'], ['voip.access'])
-                ->addItem('Отчет по calls_raw', ['/voip/raw/with-cache'], ['voip.access'])
-                ->addItem('Отчет по calls_raw (таблица склейки)', ['/voip/raw/unite'], ['voip.access'])
-                ->addItem('Статистика (4 класс + 5 класс)', ['/voip/combined-statistics'], ['voip.access'])
-        );
+                ->addItem('Направления', ['/voip/destination'], ['voip.access']);
+        }
+        $phonesBlock->addItem('DID группы', ['/tariff/did-group/'], ['tarifs.read'])
+            ->addItem('Номера', ['/voip/number'], ['stats.report'])
+            ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
+            ->addItem('Отчет по calls_raw (старая склейка)', ['/voip/raw/old'], ['voip.access'])
+            ->addItem('Отчет по calls_raw', ['/voip/raw/with-cache'], ['voip.access'])
+            ->addItem('Отчет по calls_raw (таблица склейки)', ['/voip/raw/unite'], ['voip.access'])
+            ->addItem('Статистика (4 класс + 5 класс)', ['/voip/combined-statistics'], ['voip.access']);
+
+        $this->addBlock($phonesBlock);
+
 
         $this->addBlock(
             NavigationBlock::create()
@@ -148,9 +173,11 @@ class Navigation
         );
 
         // $this->addBlockForStatModule('voipreports');
-        $this->_addBlockForStatModule('ats');
-        $this->_addBlockForStatModule('data');
-        $this->_addBlockForStatModule('incomegoods');
+//        $this->_addBlockForStatModule('ats');
+//        $this->_addBlockForStatModule('data');
+        if ($isRus) {
+            $this->_addBlockForStatModule('incomegoods');
+        }
 
         $this->addBlock(
             NavigationBlock::create()
@@ -159,29 +186,32 @@ class Navigation
                 ->addItem('Значимые события', ['/important_events/report'])
         );
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('dictionaries')
-                ->setTitle('Словари')
-                ->addItem('Организации', ['/organization'], ['organization.read'])
-                ->addItem('Ответственные лица', ['/person'], ['person.read'])
-                ->addItem('Названия событий', ['/important_events/names'], ['dictionary-important-event.important-events-names'])
-                ->addItem('Группы событий', ['/important_events/groups'], ['dictionary-important-event.important-events-groups'])
-                ->addItem('Источники событий', ['/important_events/sources'], ['dictionary-important-event.important-events-sources'])
-                ->addItem('Страны', ['/dictionary/country/'], ['dictionary.read'])
-                ->addItem('Города', ['/dictionary/city/'], ['dictionary.read'])
-                ->addItem('Регионы (точки подключения)', ['/dictionary/region/'], ['dictionary.read'])
-                ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'], ['dictionary.read'])
-                ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'], ['dictionary.read'])
-                ->addItem('Точка входа', ['/dictionary/entry-point'], ['dictionary.read'])
-                ->addItem('Публичные сайты', ['/dictionary/public-site'], ['dictionary.read'])
-                ->addItem('Метки договоров', ['/dictionary/tags'], ['dictionary.read'])
-                ->addItem('Статусы бизнес процессов', ['/dictionary/business-process-status'], ['dictionary-statuses.read'])
-                ->addItem('Общие настройки', ['/settings/'], ['dictionary.read'])
-                ->addItem('Roistat. Настройки номеров.', ['/dictionary/roistat-number-fields'])
-                ->addItem('API Каналы платежей', ['/dictionary/' . \app\models\PaymentApiChannel::NAVIGATION])
-                ->addItem('Уровни цен', ['/dictionary/price-level'], ['dictionary.read'])
-        );
+        $dictBlock = NavigationBlock::create()
+            ->setId('dictionaries')
+            ->setTitle('Словари')
+            ->addItem('Организации', ['/organization'], ['organization.read'])
+            ->addItem('Ответственные лица', ['/person'], ['person.read'])
+            ->addItem('Названия событий', ['/important_events/names'], ['dictionary-important-event.important-events-names'])
+            ->addItem('Группы событий', ['/important_events/groups'], ['dictionary-important-event.important-events-groups'])
+            ->addItem('Источники событий', ['/important_events/sources'], ['dictionary-important-event.important-events-sources'])
+            ->addItem('Страны', ['/dictionary/country/'], ['dictionary.read'])
+            ->addItem('Города', ['/dictionary/city/'], ['dictionary.read'])
+            ->addItem('Регионы (точки подключения)', ['/dictionary/region/'], ['dictionary.read'])
+            ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'], ['dictionary.read'])
+            ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'], ['dictionary.read'])
+            ->addItem('Точка входа', ['/dictionary/entry-point'], ['dictionary.read'])
+            ->addItem('Публичные сайты', ['/dictionary/public-site'], ['dictionary.read'])
+            ->addItem('Метки договоров', ['/dictionary/tags'], ['dictionary.read'])
+            ->addItem('Статусы бизнес процессов', ['/dictionary/business-process-status'], ['dictionary-statuses.read'])
+            ->addItem('Общие настройки', ['/settings/'], ['dictionary.read'])
+            ->addItem('API Каналы платежей', ['/dictionary/' . \app\models\PaymentApiChannel::NAVIGATION])
+            ->addItem('Уровни цен', ['/dictionary/price-level'], ['dictionary.read']);
+
+        if ($isRus) {
+            $dictBlock->addItem('Roistat. Настройки номеров.', ['/dictionary/roistat-number-fields']);
+        }
+
+        $this->addBlock($dictBlock);
 
         $this->addBlock(
             NavigationBlock::create()
@@ -204,7 +234,7 @@ class Navigation
         }
 
         /** @var \app\modules\nnp2\Module $module */
-        if ($module = Yii::$app->getModule('nnp2')) {
+        if ($isRus && $module = Yii::$app->getModule('nnp2')) {
             $module->getNavigation($this);
         }
 
@@ -214,12 +244,12 @@ class Navigation
         }
 
         /** @var \app\modules\sbisTenzor\Module $module */
-        if ($module = Yii::$app->getModule('sbisTenzor')) {
+        if ($isRus && $module = Yii::$app->getModule('sbisTenzor')) {
             $module->getNavigation($this);
         }
 
         /** @var \app\modules\sim\Module $module */
-        if ($module = Yii::$app->getModule('sim')) {
+        if ($isRus && $module = Yii::$app->getModule('sim')) {
             $module->getNavigation($this);
         }
     }
