@@ -213,7 +213,7 @@ ansible:
         composer self-update --1
         composer global require "fxp/composer-asset-plugin"
         # vendors
-        composer install
+        composer install --prefer-dist
         composer clear-cache
         # rights
         chown -R www-data:www-data {{ .ci_dir_home }}/stat/vendor
@@ -532,7 +532,7 @@ ansible:
   setup:
     - name: 3
       shell: |
-        composer install
+        composer install --prefer-dist
         composer clear-cache
       args:
         chdir: {{ .ci_dir_home }}/stat
