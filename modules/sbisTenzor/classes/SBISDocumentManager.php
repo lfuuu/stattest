@@ -114,7 +114,7 @@ class SBISDocumentManager
         $document->client_account_id = $this->client->id;
         $document->populateRelation('clientAccount', $this->client);
 
-        $document->comment = 'Пакет документов для ' . $document->clientAccount->contragent->name_full;
+        $document->comment = 'Пакет документов для ' . $document->clientAccount->contragent->name;
 
         $this->document = $document;
     }
@@ -146,7 +146,7 @@ class SBISDocumentManager
         $this->document->number = $invoice->number;
         $invoiceDate = new DateTime($invoice->getInitialDate(), new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
         $this->document->date = $invoiceDate->format('Y-m-d');
-        $this->document->comment = 'Пакет закрывающих документов для ' . $this->client->contragent->name_full;
+        $this->document->comment = 'Пакет закрывающих документов для ' . $this->client->contragent->name;
 
         foreach ($this->client->exchangeGroup->getExchangeFiles() as $exchangeFile) {
             if ($exchangeFile->isXML()) {
