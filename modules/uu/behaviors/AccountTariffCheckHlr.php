@@ -40,6 +40,10 @@ class AccountTariffCheckHlr extends Behavior
      */
     public function doEvent(AfterSaveEvent $event)
     {
+        if (!\Yii::$app->isRus()) {
+            return;
+        }
+
         /** @var AccountTariff $accountTariff */
         $accountTariff = $event->sender;
 

@@ -23,7 +23,7 @@ data:
     max_input_time = 36000
     max_input_vars = 100000
     memory_limit = 4G
-    post_max_size = 900M
+    post_max_size = 90M
     upload_max_filesize = 500M
     serialize_precision = 100
     short_open_tag = On

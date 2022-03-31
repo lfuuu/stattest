@@ -85,6 +85,8 @@ spec:
           value: {{ .Values.ci_dir_home }}
         - name: USE_MINIKUBE
           value: {{ ternary "1" "0" (eq .Values.global.env "dev") | quote }}
+        - name: COUNTRY
+          value: {{ env "COUNTRY" | quote}}
         - name: MYSQL_DB
           value: {{ .Values.mysql_prod.db }}
 {{- if (eq .Values.global.env "dev") }}
