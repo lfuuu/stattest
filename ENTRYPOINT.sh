@@ -67,11 +67,11 @@ sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_slave_cache.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_slave_cache.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_slave_cache.local.php
 
-cp db_pg_calllegs.local.tpl.php db_pg_calllegs.local.php
-sed -i "s/host=127.0.0.1/host=$POSTGRES_LEGS_HOST/" db_pg_calllegs.local.php
-sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_calllegs.local.php
-sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_LEGS_USER'/" db_pg_calllegs.local.php
-sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_LEGS_PASSWORD'/" db_pg_calllegs.local.php
+#cp db_pg_calllegs.local.tpl.php db_pg_calllegs.local.php
+#sed -i "s/host=127.0.0.1/host=$POSTGRES_LEGS_HOST/" db_pg_calllegs.local.php
+#sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_calllegs.local.php
+#sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_LEGS_USER'/" db_pg_calllegs.local.php
+#sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_LEGS_PASSWORD'/" db_pg_calllegs.local.php
 
 cp db_pg_nnp.local.tpl.php db_pg_nnp.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_nnp.local.php
@@ -120,39 +120,53 @@ sed -i "s/source = 'developer_stat';/source = '$LOG_SOURCE';/" cache_redis.local
 # Modules
 
 # Socket
-cd $DIR_STAT/modules/socket/config/
-cp params.php params.local.php
-sed -i "s%'url' => ''%'url' => '$SOCKET_URL'%" params.local.php
-sed -i "s%'backend_url' => ''%'backend_url' => '$SOCKET_BACKEND_URL'%" params.local.php
-sed -i "s/'secretKey' => ''/'secretKey' => '$SOCKET_SECRET'/" params.local.php
+if [[ -n "$SOCKET_SECRET" ]]; then
+  cd $DIR_STAT/modules/socket/config/
+  cp params.php params.local.php
+  sed -i "s%'url' => ''%'url' => '$SOCKET_URL'%" params.local.php
+  sed -i "s%'backend_url' => ''%'backend_url' => '$SOCKET_BACKEND_URL'%" params.local.php
+  sed -i "s/'secretKey' => ''/'secretKey' => '$SOCKET_SECRET'/" params.local.php
+fi
 
 # WebHook
-cd $DIR_STAT/modules/webhook/config/
-cp params.php params.local.php
-sed -i "s/'secretKey' => ''/'secretKey' => '$WEB_HOOK_SECRET'/" params.local.php
-sed -i "s/'token' => ''/'token' => '$WEB_HOOK_TOKEN'/" params.local.php
-sed -i "s/'account_id' => ''/'account_id' => '$WEB_HOOK_ACCOUNT_ID'/" params.local.php
-sed -i "s/'vpbx_id' => ''/'vpbx_id' => '$WEB_HOOK_VPBX_ID'/" params.local.php
+if [[ -n "$WEB_HOOK_SECRET" ]]; then
+  cd $DIR_STAT/modules/webhook/config/
+  cp params.php params.local.php
+  sed -i "s/'secretKey' => ''/'secretKey' => '$WEB_HOOK_SECRET'/" params.local.php
+  sed -i "s/'token' => ''/'token' => '$WEB_HOOK_TOKEN'/" params.local.php
+  sed -i "s/'account_id' => ''/'account_id' => '$WEB_HOOK_ACCOUNT_ID'/" params.local.php
+  sed -i "s/'vpbx_id' => ''/'vpbx_id' => '$WEB_HOOK_VPBX_ID'/" params.local.php
+fi
 
 # Payments
-cd $DIR_STAT/modules/payments/config/
-cp params.php params.local.php
-sed -i "s/'user' => ''/'user' => '$PAYMENTS_USER'/" params.local.php
-sed -i "s/'password' => ''/'password' => '$PAYMENTS_PASSWORD'/" params.local.php
-sed -i "s/'publishable_key' => ''/'publishable_key' => '$PAYMENTS_PUBLISHABLE_KEY'/" params.local.php
-sed -i "s/'secret_key' => ''/'secret_key' => '$PAYMENTS_SECRET'/" params.local.php
+if [[ -n "$STRIPE_PUBLISHABLE_KEY" ]] || [[ -n "$QIWI_PAYMENTS_PASSWORD" ]]; then
+  cd $DIR_STAT/modules/payments/config/
+  cp params.php params.local.php
+  if [[ -n "$STRIPE_PUBLISHABLE_KEY" ]]; then
+    sed -i "s/'user' => ''/'user' => '$QIWI_PAYMENTS_USER'/" params.local.php
+    sed -i "s/'password' => ''/'password' => '$QIWI_PAYMENTS_PASSWORD'/" params.local.php
+  fi
+  if [[ -n "$QIWI_PAYMENTS_PASSWORD" ]]; then
+    sed -i "s/'publishable_key' => ''/'publishable_key' => '$STRIPE_PUBLISHABLE_KEY'/" params.local.php
+    sed -i "s/'secret_key' => ''/'secret_key' => '$STRIPE_SECRET_KEY'/" params.local.php
+  fi
+fi
 
 # NNP
-cd $DIR_STAT/modules/nnp/config/
-cp params.php params.local.php
-sed -i "s/'numlex_user' => ''/'numlex_user' => '$NNP_NUMLEX_USER'/" params.local.php
-sed -i "s/'numlex_pass' => ''/'numlex_pass' => '$NNP_NUMLEX_PASS'/" params.local.php
+if [[ -n "$NNP_NUMLEX_USER" ]]; then
+  cd $DIR_STAT/modules/nnp/config/
+  cp params.php params.local.php
+  sed -i "s/'numlex_user' => ''/'numlex_user' => '$NNP_NUMLEX_USER'/" params.local.php
+  sed -i "s/'numlex_pass' => ''/'numlex_pass' => '$NNP_NUMLEX_PASS'/" params.local.php
+fi
 
 # SIM
-cd $DIR_STAT/modules/sim/config/
-cp params.php params.local.php
-sed -i "s/'authorization' => ''/'authorization' => '$SIM_AUTHORIZATION'/" params.local.php
-sed -i "s/'transfer_msisdn' => ''/'transfer_msisdn' => '$SIM_TRANSFER_MSISDN'/" params.local.php
+if [[ -n "$SIM_AUTHORIZATION" ]]; then
+  cd $DIR_STAT/modules/sim/config/
+  cp params.php params.local.php
+  sed -i "s/'authorization' => ''/'authorization' => '$SIM_AUTHORIZATION'/" params.local.php
+  sed -i "s/'transfer_msisdn' => ''/'transfer_msisdn' => '$SIM_TRANSFER_MSISDN'/" params.local.php
+fi
 
 # Notifier
 cd $DIR_STAT/modules/notifier/
@@ -162,41 +176,51 @@ sed -i "s/'user' => ''/'user' => '$NOTIFIER_USER'/" config.local.php
 sed -i "s/'passwd' => ''/'passwd' => '$NOTIFIER_PASSWD'/" config.local.php
 
 # Atol
-cd $DIR_STAT/modules/atol/config/
-cp params.php params.local.php
-sed -i "s%'callbackUrl' => ''%'callbackUrl' => '$ATOL_CALL_BACK_URL'%" params.local.php
-#
-sed -i "s/'password' => 'password_1'/'password' => '$ATOL_ACCESS_MCN_TELECOM_PASSWORD'/" params.local.php
-sed -i "s/'login' => 'login_1'/'login' => '$ATOL_ACCESS_MCN_TELECOM_LOGIN'/" params.local.php
-sed -i "s/'groupCode' => 'group_code_1'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_GROUP_CODE'/" params.local.php
-sed -i "s/'inn' => 'inn_1'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_INN'/" params.local.php
-#
-sed -i "s/'password' => 'password_11'/'password' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_PASSWORD'/" params.local.php
-sed -i "s/'login' => 'login_11'/'login' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_LOGIN'/" params.local.php
-sed -i "s/'groupCode' => 'group_code_11'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_GROUP_CODE'/" params.local.php
-sed -i "s/'inn' => 'inn_11'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_INN'/" params.local.php
-#
-sed -i "s/'password' => 'password_21'/'password' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_PASSWORD'/" params.local.php
-sed -i "s/'login' => 'login_21'/'login' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_LOGIN'/" params.local.php
-sed -i "s/'groupCode' => 'group_code_21'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_GROUP_CODE'/" params.local.php
-sed -i "s/'inn' => 'inn_21'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_INN'/" params.local.php
-#
-sed -i "s/'paymentAddress' => ''/'paymentAddress' => '$ATOL_BUY_OR_SELL_PAYMENT_ADDRESS'/" params.local.php
-sed -i "s/'sno' => ''/'sno' => '$ATOL_BUY_OR_SELL_SNO'/" params.local.php
-sed -i "s/'itemName' => ''/'itemName' => '$ATOL_BUY_OR_SELL_ITEM_NAME'/" params.local.php
-sed -i "s/'tax' => ''/'tax' => '$ATOL_BUY_OR_SELL_TAX'/" params.local.php
+if [ "$ATOL_IS_ENABLED" -eq "1" ]; then
+  cd $DIR_STAT/modules/atol/config/
+  cp params.php params.local.php
+
+  sed -i "s%'isEnabled' => false%'isEnabled' => true%" params.local.php
+
+  sed -i "s%'callbackUrl' => ''%'callbackUrl' => '$ATOL_CALL_BACK_URL'%" params.local.php
+  #
+  sed -i "s/'password' => 'password_1'/'password' => '$ATOL_ACCESS_MCN_TELECOM_PASSWORD'/" params.local.php
+  sed -i "s/'login' => 'login_1'/'login' => '$ATOL_ACCESS_MCN_TELECOM_LOGIN'/" params.local.php
+  sed -i "s/'groupCode' => 'group_code_1'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_GROUP_CODE'/" params.local.php
+  sed -i "s/'inn' => 'inn_1'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_INN'/" params.local.php
+  #
+  sed -i "s/'password' => 'password_11'/'password' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_PASSWORD'/" params.local.php
+  sed -i "s/'login' => 'login_11'/'login' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_LOGIN'/" params.local.php
+  sed -i "s/'groupCode' => 'group_code_11'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_GROUP_CODE'/" params.local.php
+  sed -i "s/'inn' => 'inn_11'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_RETAIL_INN'/" params.local.php
+  #
+  sed -i "s/'password' => 'password_21'/'password' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_PASSWORD'/" params.local.php
+  sed -i "s/'login' => 'login_21'/'login' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_LOGIN'/" params.local.php
+  sed -i "s/'groupCode' => 'group_code_21'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_GROUP_CODE'/" params.local.php
+  sed -i "s/'inn' => 'inn_21'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_INN'/" params.local.php
+  #
+  sed -i "s/'paymentAddress' => ''/'paymentAddress' => '$ATOL_BUY_OR_SELL_PAYMENT_ADDRESS'/" params.local.php
+  sed -i "s/'sno' => ''/'sno' => '$ATOL_BUY_OR_SELL_SNO'/" params.local.php
+  sed -i "s/'itemName' => ''/'itemName' => '$ATOL_BUY_OR_SELL_ITEM_NAME'/" params.local.php
+  sed -i "s/'tax' => ''/'tax' => '$ATOL_BUY_OR_SELL_TAX'/" params.local.php
+fi
 
 # mchs
-cd $DIR_STAT/modules/mchs/config/
-cp params.php params.local.php
-sed -i "s/'api_key' => ''/'api_key' => '$MCHS_API_KEY'/" params.local.php
+if [ "$MCHS_API_KEY" -ne "" ]; then
+  cd $DIR_STAT/modules/mchs/config/
+  cp params.php params.local.php
+  sed -i "s/'api_key' => ''/'api_key' => '$MCHS_API_KEY'/" params.local.php
+fi
 
 # Async
-cd $DIR_STAT/modules/async/config/
-cp params.php params.local.php
-sed -i "s/'host' => ''/'host' => '$ASYNC_HOST'/" params.local.php
-sed -i "s/'user' => ''/'user' => '$ASYNC_USER'/" params.local.php
-sed -i "s/'pass' => ''/'pass' => '$ASYNC_PASS'/" params.local.php
+if [ "$ASYNC_IS_ENABLED" -eq "1" ]; then
+  cd $DIR_STAT/modules/async/config/
+  cp params.php params.local.php
+  sed -i "s/'host' => ''/'host' => '$ASYNC_HOST'/" params.local.php
+  sed -i "s/'user' => ''/'user' => '$ASYNC_USER'/" params.local.php
+  sed -i "s/'pass' => ''/'pass' => '$ASYNC_PASS'/" params.local.php
+fi
+
 
 # SBIS
 cd $DIR_STAT/modules/sbisTenzor/config/

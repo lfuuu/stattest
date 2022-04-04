@@ -42,6 +42,10 @@ class DefaultController extends BaseController
      */
     public function actionIndex()
     {
+        if (!$_SERVER['MCHS_API_KEY']) {
+            throw new InvalidParamException('Доступ невозможен');
+        }
+
         $message = \Yii::$app->request->post('message');
 
         $query = MchsMessage::find()

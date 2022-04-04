@@ -70,7 +70,9 @@ class Socket extends Singleton
         list($serverUrl, $siteUrl) = Yii::$app->assetManager->publish($assets);
         $baseView->registerCssFile($siteUrl . '/socket.css');
         $baseView->registerJsFile($siteUrl . '/socket.io.min.js', ['position' => BaseView::POS_END]); // $this->module->params['url'] . '/socket.io/socket.io.js'
-        $baseView->registerJsFile($siteUrl . '/socket.js', ['position' => BaseView::POS_END]);
+        if ($_SERVER['IS_WITH_COMET'] ?? false) {
+            $baseView->registerJsFile($siteUrl . '/socket.js', ['position' => BaseView::POS_END]);
+        }
 
         return true;
     }

@@ -77,10 +77,12 @@ node_nnp_ported_prod:
 
 mysql_dev:
   host: mysqldb
+  host_slave: mysqldb-slave
   port: 3306
   user: root
   password: stat
   db: nispd
+  db_nfdump: nfdump
 
 postgres_dev:
   host: history-db
@@ -91,6 +93,13 @@ postgres_dev:
   app_password: stat
   dbname: stat
 
+postgres_history_dev:
+  dev_host: history-db
+  db: stat
+  dev_user: stat
+  dev_password: stat
+
+
 params_prod:
   robocall_internal_server: https://robocall.mcn.ru
   calltracking_server: feedback.mcn.ru
@@ -98,6 +107,28 @@ params_prod:
   phone_server: vpbx.mcn.ru
   core_server: lk.mcn.ru
   sync1c_ut_soap_url: http://stat.ws.dionis.mcn.ru/ws/ws/stat
+  vps_is_enabled: "1"
+  atol_is_enabled: "1"
+  tele2_is_enabled: "1"
+  async_is_enabled: "1"
+  sberbank_api_is_enabled: "1"
+  yandex_kassa_is_enabled: "1"
+  client_changed_amq_settings: "0"
+
+params_prod_eu:
+  robocall_internal_server: https://robocall.mcntele.com
+  calltracking_server: feedback.mcntele.com
+  api_mcn_server: https://api.mcntele.com/v2/rest
+  phone_server: vpbx.mcntele.com
+  core_server: lk.mcntele.com
+  sync1c_ut_soap_url:
+  vps_is_enabled: "0"
+  atol_is_enabled: "0"
+  tele2_is_enabled: "0"
+  async_is_enabled: "0"
+  sberbank_api_is_enabled: "0"
+  yandex_kassa_is_enabled: "0"
+  client_changed_amq_settings: "0"
 
 params_dev:
   robocall_internal_server: 
@@ -107,3 +138,11 @@ params_dev:
   core_server:
   sync1c_ut_soap_url:
   api_secure_key: 111
+  vps_is_enabled: "0"
+  atol_is_enabled: "0"
+  tele2_is_enabled: "0"
+  async_is_enabled: "0"
+  sberbank_api_is_enabled: "0"
+  yandex_kassa_is_enabled: "0"
+  client_changed_amq_settings: "0"
+  mchs_api_key:

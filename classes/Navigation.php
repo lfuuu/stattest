@@ -133,7 +133,7 @@ class Navigation
             ->setTitle('Письма клиентам')
             ->addStatModuleItems('mail');
 
-        if ($isRus) {
+        if ($isRus && ($_SERVER['MCHS_API_KEY'] ?? false)) {
             $mailBlock->addItem('Сообщение от МЧС', ['/mchs'], ['mchs.read']);
         }
 
