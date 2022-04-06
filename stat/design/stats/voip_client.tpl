@@ -41,7 +41,7 @@
     {/if}
     <td>
         <small>
-            {if isset($item.package_minute)}<span
+            {if isset($item.package_minute) && $item.package_minute.minute}<span
                 class="package_taken_{$item.package_minute.taken}">{$item.package_minute.name} /
                 Минут: {$item.package_minute.minute} / {$item.package_minute.destination}</span>
                 <br/>
@@ -58,6 +58,9 @@
                 class="package_taken_{$item.package_pricelist_nnp.taken}">{$item.package_pricelist_nnp.name} /
                 Прайс-лист: {$item.package_pricelist_nnp.pricelist} (rate:{$item.package_pricelist_nnp.rate}
                 )</span>{/if}
+            {if $item.nnp_pricelist_filter_b_id }
+                <br>Направлние v2: <b>{$filtersb[$item.nnp_pricelist_filter_b_id]}</b>
+            {/if}
         </small>
     </td>
     <TD>{$item.location_name}</TD>
