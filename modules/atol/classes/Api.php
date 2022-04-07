@@ -65,6 +65,12 @@ class Api extends Singleton
      */
     public function isAvailable()
     {
+        $isEnabled = $this->_module->params['isEnabled'];
+
+        if (!$isEnabled) {
+            return false;
+        }
+
         $apiVersion = $this->_module->params['apiVersion'];
         $params = $this->_module->params['buyOrSell'];
 

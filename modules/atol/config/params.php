@@ -2,6 +2,8 @@
 
 return [
     'params' => [
+        'isEnabled' => false,
+
         // Номер версии API. Подставляется в URL
         'apiVersion' => 'v4',
 

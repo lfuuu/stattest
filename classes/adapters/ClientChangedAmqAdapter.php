@@ -36,7 +36,12 @@ class ClientChangedAmqAdapter extends Singleton
             return;
         }
 
-        if (!isset(\Yii::$app->params['clientChangedAmqSettings']) || !\Yii::$app->params['clientChangedAmqSettings']) {
+        if (
+            !isset(\Yii::$app->params['clientChangedAmqSettings'])
+            || !\Yii::$app->params['clientChangedAmqSettings']
+            || !\Yii::$app->params['clientChangedAmqSettings']['host']
+            || !\Yii::$app->params['clientChangedAmqSettings']['user']
+        ) {
             throw new InvalidConfigException(self::class . '. Не настроен конфиг');
         }
 

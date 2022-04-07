@@ -152,6 +152,10 @@ class Tele2Adapter extends Singleton
     {
         $params = $this->_settings;
 
+        if (!$params) {
+            return false;
+        }
+
         return $params
             && isset($params['host']) && $params['host']
             && isset($params['port']) && $params['port']

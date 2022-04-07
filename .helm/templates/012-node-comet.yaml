@@ -3,11 +3,11 @@
 apiVersion: apps/v1
 kind: Deployment 
 metadata:
-  name: node-comet-{{ .Values.global.env }}
+  name: node-comet-{{ (env "ENVNAME") }}
 spec:
   selector:
     matchLabels:
-      service: node-comet-{{ .Values.global.env }}
+      service: node-comet-{{ (env "ENVNAME") }}
   revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate
@@ -17,11 +17,11 @@ spec:
       labels:
         ingressInternal: "yes"
         ingressExternal: "no"
-        service: node-comet-{{ .Values.global.env }}
+        service: node-comet-{{ (env "ENVNAME") }}
     spec:
       containers:
       - name: node-comet
-{{ tuple (printf "%s-%s-%s" .Chart.Name "node-comet" .Values.global.env) . | werf_container_image | indent 8 }}
+{{ tuple (printf "%s-%s-%s" .Chart.Name "node-comet" (env "ENVNAME")) . | werf_container_image | indent 8 }}
         ports:
           - containerPort: {{ .Values.node_comet_prod.port }}
             name: http
@@ -41,12 +41,12 @@ kind: Service
 metadata:
   name: {{ .Values.node_comet_prod.host }}
   labels:
-    service: node-comet-{{ .Values.global.env }}
+    service: node-comet-{{ (env "ENVNAME") }}
 spec:
   ports:
     - name: {{ .Values.node_comet_prod.port | quote }}
       port: {{ .Values.node_comet_prod.port }}
   selector:
-    service: node-comet-{{ .Values.global.env }}
+    service: node-comet-{{ (env "ENVNAME") }}
 
 {{ end }}

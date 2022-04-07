@@ -1,25 +1,28 @@
+{{ $_ := set . "postfix_name" (printf "%s-%s-%s" .Chart.Name (env "ENVNAME" | lower) (env "COUNTRY" | lower)) }}
+{{ $_ := set . "storage_class_name" (printf "redis-storage-%s" .postfix_name) }}
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: redis-{{ .Values.global.env }}
+  name: redis-{{ .postfix_name }}
 spec:
   selector:
     matchLabels:
-      service: redis-{{ .Values.global.env }}
+      service: redis-{{ .postfix_name }}
   revisionHistoryLimit: 3
 #  strategy:
 #    type: RollingUpdate
   replicas: 1
-  serviceName: redis-{{ .Values.global.env }}
+  serviceName: redis-{{ .postfix_name }}
   template:
     metadata:
       labels:
         ingressInternal: "yes"
         ingressExternal: "no"
-        service: redis-{{ .Values.global.env }}
+        service: redis-{{ .postfix_name }}
     spec:
       containers:
-        - name: redis-{{ .Values.global.env }}
+        - name: redis-{{ .postfix_name }}
           image: quay.io/continuouspipe/redis3:latest
           command: ['redis-server']
           ports:
@@ -32,15 +35,15 @@ spec:
       volumes:
         - name: store-redis
           persistentVolumeClaim:
-            claimName: pvc-redis-store
+            claimName: pvc-redis-store-{{ .postfix_name }}
 
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: pvc-redis-store
+  name: pvc-redis-store-{{ .postfix_name }}
 spec:
-{{- if (eq .Values.global.env "dev") }}
+{{- if (eq (env "ENVNAME") "dev") }}
   storageClassName: redis-storage-{{ .Chart.Name }}
 {{- else }}
   storageClassName: csi-rbd-sc
@@ -51,11 +54,11 @@ spec:
     requests:
       storage: 30Gi
 ---
-{{- if (eq .Values.global.env "dev") }}
+{{- if (eq (env "ENVNAME") "dev") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-redis-store
+  name: pv-redis-store-{{ .postfix_name }}
 spec:
   storageClassName: redis-storage-{{ .Chart.Name }}
   capacity:
@@ -72,10 +75,10 @@ kind: Service
 metadata:
   name: {{ .Values.redis_prod.host }}
   labels:
-    service: redis-{{ .Values.global.env }}
+    service: redis-{{ .postfix_name }}
 spec:
   ports:
     - name: "6379"
       port: 6379
   selector:
-    service: redis-{{ .Values.global.env }}
+    service: redis-{{ .postfix_name }}

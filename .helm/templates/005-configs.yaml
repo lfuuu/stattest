@@ -1,14 +1,15 @@
 {{ $_ := set . "params" .Values.params_dev }}
 
-{{- if (eq .Values.global.env "prod") }}
-  {{ $_ := set . "params" .Values.params_prod }}
+{{- if (eq (env "ENVNAME") "prod") }}
+  {{ $_ := set . "params" (ternary .Values.params_prod_eu .Values.params_prod (eq (env "COUNTRY") "EU")) }}
 {{- end }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Chart.Name }}-config-files
 data:
-{{- if (eq .Values.global.env "dev") }}
+{{- if (eq (env "ENVNAME") "dev") }}
   .pgpass: |
 {{ .Files.Get ".werf/tmp/.pgpass" | indent 8 }}
 {{- end }}
@@ -300,15 +301,20 @@ data:
             ],
         ],
         'NOTIFICATION_TOKEN' => '{{ .Values.params_prod.notification_token }}',
-        'sms_client' => '{{ .Values.params_prod.sms_client }}',
-        'sms_password' => '{{ .Values.params_prod.sms_password }}',
-        'sms_server' => 'http://thiamis.mcn.ru/sms/gateway.php',
+        'sms_client' => '{{ .Values.params_prod.sms_gate.client }}',
+        'sms_password' => '{{ .Values.params_prod.sms_gate.password }}',
+        'sms_server' => '{{ .Values.params_prod.sms_gate.server }}',
 
         'monitoring_email' => '{{ .Values.params_prod.monitoring_email }}',
+    {{ if eq .params.vps_is_enabled "1" }}
         'vps' => [
             'url' => 'https://ngtvm.mcn.ru:1500/vmmgr',
             'authinfo' => '{{ .Values.params_prod.vps_authinfo }}',
         ],
+    {{ else }}
+       /* VPS disabled */
+    {{ end }}
+    {{ if eq .params.sberbank_api_is_enabled "1" }}
         'SberbankApi' => [
             \app\models\Organization::MCN_TELECOM => [
                 'user' => '{{ .Values.params_prod.sberbank_api_sberbank_telecom_user }}',
@@ -323,7 +329,8 @@ data:
                 'password' => '{{ .Values.params_prod.sberbank_api_sberbank_service_password }}',
             ]
         ],
-
+    {{ end }}
+    /*
         'Cyberplat' => [
             'public_key' => 'cyberplat_public.key',
             'mcn_private_key' => 'mcn_telecom__private.key',
@@ -333,6 +340,7 @@ data:
             //'mcn_public_key' => 'mcn_telecom_retail__public.key',
             //'mcn_passhare' => 'mcn_telecom_retail__passhare.key'
         ],
+    */
         'PayPal' => [
             'default' => [ // TEL2TEL_KFT || TEL2TEL_LTD
                 'user' => '{{ .Values.params_prod.paypal_default_user }}',
@@ -345,7 +353,8 @@ data:
                 'signature' => '{{ .Values.params_prod.paypal_tel2tel_signature }}',
             ]
         ],
-
+  
+      {{ if eq .params.yandex_kassa_is_enabled "1" }}
         'yandex' => [
             'kassa' => [
                 //\app\models\Organization::MCN_TELECOM_RETAIL => [
@@ -365,6 +374,7 @@ data:
                 ],
             ]
         ],
+      {{ end }}
 
 
         'health' => [
@@ -429,16 +439,22 @@ data:
         'nnpInfoServiceURL' => '{{ .Values.params_prod.nnp_info_service_url }}',
         'nnpMCNOperatorId' => 6720,
         'billerApiURL' => '{{ .Values.params_prod.biller_api_url }}',
+        {{ if eq .params.client_changed_amq_settings "1" }}
         'clientChangedAmqSettings' => [
             'host' => '{{ .Values.params_prod.client_changed_amq_settings_host }}',
             'user' => '{{ .Values.params_prod.client_changed_amq_settings_user }}',
             'pass' => '{{ .Values.params_prod.client_changed_amq_settings_pass }}',
         ],
+        {{ end }}
+        {{ if eq .params.tele2_is_enabled "1" }}
         'Tele2AmqSettings' => [
-            'host' => '{{ .Values.params_prod.tele2_amq_settings_host }}',
-            'user' => '{{ .Values.params_prod.tele2_amq_settings_user }}',
-            'pass' => '{{ .Values.params_prod.tele2_amq_settings_pass }}',
+            'host' => '{{ .params.tele2_amq_settings_host }}',
+            'user' => '{{ .params.tele2_amq_settings_user }}',
+            'pass' => '{{ .params.tele2_amq_settings_pass }}',
         ],
+        {{ else }}
+          /* tele2 disabled */
+        {{ end }}
         'API_SERVER' => '{{ .params.api_mcn_server }}',
         'ROBOCALL_AUTH' => ['method' => 'bearer', 'token' => '{{ .Values.params_prod.robocall_auth_token }}'],
         'ROBOCALL_DEFAULT_PARAMS' => ['task_id' =>  253, 'account_id' => 47197, 'robocall_id' => 9],
