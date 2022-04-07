@@ -349,7 +349,8 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     {{ if eq (env "COUNTRY") "EU" }}
-    server: 185.66.53.70
+    #server: 185.66.53.70
+    server: 10.250.30.39
     path: /var/nfs/store
     {{ else }}
     #server: 85.94.48.46
