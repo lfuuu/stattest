@@ -48,7 +48,7 @@ class ReportUsageDao extends Singleton
     const CONNECT_MAIN_AND_FAST = 1;
     const CONNECT_SLOW_AND_BIG = 2;
 
-    const DETALITY_DEST = 'dest';
+//    const DETALITY_DEST = 'dest';
     const DETALITY_PACKAGE = 'package';
     const DETALITY_CALL = 'call';
     const DETALITY_FILTERB = 'filterb';
@@ -95,7 +95,8 @@ class ReportUsageDao extends Singleton
         $isFull = false,
         $packages = [],
         $timeZone = null,
-        $tariffId = null
+        $tariffId = null,
+        $filterb = null
     )
     {
         $this->_account = ClientAccount::findOne(['id' => $accountId]);
@@ -121,6 +122,7 @@ class ReportUsageDao extends Singleton
         $direction !== 'both' && $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
         isset($usages) && count($usages) > 0 && $query->andWhere([($region == 'trunk' ? 'trunk_service_id' : 'number_service_id') => $usages]);
         $paidonly && $query->andWhere('ABS(cr.cost) > 0.0001');
+        $filterb && $query->andWhere(['nnp_pricelist_filter_b_id' => $filterb]);
 
         $region == 'trunk' && $query->andWhere(['number_service_id' => null]); // статистика по транкам - смотрится по транкам. Звонки по услугам могут быть привязаны к мультитранкам.
 
@@ -176,9 +178,6 @@ class ReportUsageDao extends Singleton
         }
 
         switch ($detality) {
-            case self::DETALITY_DEST:
-                return $this->_voipStatisticByDestination($query, $from, $to);
-                break;
             case self::DETALITY_PACKAGE:
                 return $this->_voipStatisticByPackage($query, $from, $to, $tariffId);
                 break;
@@ -284,6 +283,7 @@ class ReportUsageDao extends Singleton
                 'cr.dst_number',
                 'cr.orig',
                 'cr.nnp_number_range_id',
+                'cr.nnp_pricelist_filter_b_id',
                 'location_id',
             ]);
         }
@@ -592,126 +592,6 @@ class ReportUsageDao extends Singleton
 
 
     /**
-     * Вспомогательная функция. Статистика по направлениям
-     *
-     * @param ActiveQuery $query
-     * @return array
-     */
-    private function _voipStatisticByDestination(ActiveQuery $query, DateTimeImmutable $from, DateTimeImmutable $to)
-    {
-        $query->select([
-            'dest' => 'cr.destination_id',
-            'cr.mob',
-            'price' => '-SUM(cr.cost)',
-            'len' => 'SUM(cr.billed_time)',
-            'cnt' => 'SUM(1)'
-        ]);
-
-        $query->groupBy(['cr.destination_id', 'mob']);
-
-        $result = [
-            'mos_loc' => [
-                'tsf1' => 'Местные Стационарные',
-                'cnt' => 0,
-                'len' => 0,
-                'price' => 0,
-                'is_total' => false
-            ],
-            'mos_mob' => [
-                'tsf1' => 'Местные Мобильные',
-                'cnt' => 0,
-                'len' => 0,
-                'price' => 0,
-                'is_total' => false
-            ],
-            'rus_fix' => [
-                'tsf1' => 'Россия Стационарные',
-                'cnt' => 0,
-                'len' => 0,
-                'price' => 0,
-                'is_total' => false
-            ],
-            'rus_mob' => [
-                'tsf1' => 'Россия Мобильные',
-                'cnt' => 0,
-                'len' => 0,
-                'price' => 0,
-                'is_total' => false
-            ],
-            'int' => [
-                'tsf1' => 'Международка',
-                'cnt' => 0,
-                'len' => 0,
-                'price' => 0,
-                'is_total' => false
-            ],
-        ];
-
-        $callBackRecordProcessing = function ($record) use (&$result) {
-            if ($record['dest'] <= 0 && $record['mob'] === false) {
-                $result['mos_loc']['len'] += $record['len'];
-                $result['mos_loc']['price'] += $record['price'];
-                $result['mos_loc']['cnt'] += $record['cnt'];
-            } elseif ($record['dest'] <= 0 && $record['mob'] === true) {
-                $result['mos_mob']['len'] += $record['len'];
-                $result['mos_mob']['price'] += $record['price'];
-                $result['mos_mob']['cnt'] += $record['cnt'];
-            } elseif ($record['dest'] == 1 && $record['mob'] === false) {
-                $result['rus_fix']['len'] += $record['len'];
-                $result['rus_fix']['price'] += $record['price'];
-                $result['rus_fix']['cnt'] += $record['cnt'];
-            } elseif ($record['dest'] == 1 && $record['mob'] === true) {
-                $result['rus_mob']['len'] += $record['len'];
-                $result['rus_mob']['price'] += $record['price'];
-                $result['rus_mob']['cnt'] += $record['cnt'];
-            } elseif ($record['dest'] == 2 || $record['dest'] == 3) {
-                $result['int']['len'] += $record['len'];
-                $result['int']['price'] += $record['price'];
-                $result['int']['cnt'] += $record['cnt'];
-            }
-        };
-
-        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_DEST);
-
-        $cnt = 0;
-        $len = 0;
-        $price = 0;
-        foreach ($result as $destination => $data) {
-            $cnt += $data['cnt'];
-            $len += $data['len'];
-            $price += $data['price'];
-
-            $delta = 0;
-            if ($data['len'] >= 24 * 60 * 60) {
-                $delta = floor($data['len'] / (24 * 60 * 60));
-            }
-
-            $result[$destination]['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s',
-                    $data['len'] - $delta * 24 * 60 * 60);
-            $result[$destination]['price'] = number_format($data['price'], 2, '.', '');
-        }
-
-        $delta = 0;
-        $total_row = [
-            'is_total' => true,
-            'tsf1' => 'Итого',
-            'price' => $price,
-        ];
-
-        if ($len >= 24 * 60 * 60) {
-            $delta = floor($len / (24 * 60 * 60));
-        }
-
-        $total_row['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s', $len - $delta * 24 * 60 * 60);
-        $total_row = $this->_getTotalPrices($total_row);
-        $total_row['cnt'] = $cnt;
-
-        $result['total'] = $total_row;
-
-        return $result;
-    }
-
-    /**
      * Вспомогательная функция. Статистика по пакетам
      *
      * @param ActiveQuery $query
@@ -749,7 +629,7 @@ class ReportUsageDao extends Singleton
             $result[] = $record;
         };
 
-        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_DEST);
+        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_PACKAGE);
 
         $cnt = 0;
         $len = 0;
@@ -801,6 +681,7 @@ class ReportUsageDao extends Singleton
     private function _voipStatisticByFilterB(ActiveQuery $query, DateTimeImmutable $from, DateTimeImmutable $to, $filterId = null)
     {
         $query->select([
+            'nnp_pricelist_filter_b_id',
             'price' => '-SUM(cr.cost)',
             'len' => 'SUM(cr.billed_time)',
             'cnt' => 'SUM(1)',
@@ -826,7 +707,7 @@ class ReportUsageDao extends Singleton
             $result[] = $record;
         };
 
-        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_DEST);
+        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_FILTERB);
 
 
         $cnt = 0;
@@ -1327,5 +1208,27 @@ class ReportUsageDao extends Singleton
         }
 
         return [$usageIds, array_keys($regions), $isTrunk];
+    }
+
+    public function getFiltersB($account, $from, $to)
+    {
+        $filterBids = CallsRaw::find()
+            ->alias('cr')
+            ->select('nnp_pricelist_filter_b_id')
+            ->distinct()
+            ->where(['account_id'=> $account->id])
+            ->andWhere(['not', ['nnp_pricelist_filter_b_id' => null]])
+            ->andWhere([
+            'BETWEEN',
+            'cr.connect_time',
+            $from->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $to->setTime(23, 59, 59)->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
+        ])->column();
+
+        return ['' => 'Все'] + PricelistFilterB::find()
+                ->select(['descr' => new Expression("coalesce(\"description\", concat('#', id))")])
+                ->indexBy('id')
+                ->where(['id' => $filterBids])
+                ->column();
     }
 }

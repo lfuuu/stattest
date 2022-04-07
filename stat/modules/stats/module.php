@@ -263,6 +263,9 @@ class m_stats extends IModule{
         $design->assign('tariffs', ReportUsageDao::me()->getTariffs($account));
         $design->assign('tariff_id', $tariffId = get_param_raw('tariff_id', ''));
 
+        $design->assign('filtersb', ReportUsageDao::me()->getFiltersB($account, $dateFrom->getValue(), $dateTo->getValue()));
+        $design->assign('filterb', $filterb = get_param_raw('filterb', ''));
+
         list($usageIds, $regions, $isTrunk) = ReportUsageDao::me()->reportConfig($phone, $usagesData);
 
         $stats = [];
@@ -283,7 +286,8 @@ class m_stats extends IModule{
                 $isFull = false,
                 $packages = [],
                 $timezone,
-                $tariffId
+                $tariffId,
+                $filterb
             ))
             ) {
                 return;

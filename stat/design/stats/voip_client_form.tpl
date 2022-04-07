@@ -15,7 +15,7 @@
             	</SELECT>
             </div>
         <TR>
-          <TD class=left>Дата начала отчёта</TD>
+          <TD class=left>Дата начала отчёта:</TD>
           <TD>
 		<input class="datepicker-input" type=text name="date_from" value="{$date_from}" id="date_from">
 		По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
@@ -34,27 +34,19 @@
 			<OPTION value=day{if $detality=='day'} selected{/if}>дням</OPTION>
 			<OPTION value=month{if $detality=='month'} selected{/if}>месяцам</OPTION>
 			<OPTION value=year{if $detality=='year'} selected{/if}>годам</OPTION>
-			<OPTION value=dest{if $detality=='dest'} selected{/if}>направлениям</OPTION>
+			<!-- OPTION value=dest{if $detality=='dest'} selected{/if}>направлениям</OPTION -->
 			<OPTION value=package{if $detality=='package'} selected{/if}>пакетам</OPTION>
-			<OPTION value=filterb{if $detality=='filterb'} selected{/if}>направлениям v2<TD></TR>
+			<OPTION value=filterb{if $detality=='filterb'} selected{/if}>направлениям v2</OPTION>
 		<tr>
-			<td class="left" style="text-decoration: line-through">Направление</td>
+			<td class="left">Направление v2:</td>
 			<td>
-				<select name="destination">
-					<option value="all"{if $destination eq 'all'} selected='selected'{/if}>Все</option>
-					<option value="0"{if $destination eq '0'} selected='selected'{/if}>Все местные вызовы</option>
-					<option value="0-m"{if $destination eq '0-m'} selected='selected'{/if}>&nbsp;&nbsp;Местные мобильные</option>
-					<option value="0-f"{if $destination eq '0-f'} selected='selected'{/if}>&nbsp;&nbsp;Местные стационарные</option>
-					<option value="0-f-z"{if $destination eq '0-f-z'} selected='selected'{/if}>&nbsp;&nbsp;Зона - стационарные</option>
-					<option value="1"{if $destination eq '1'} selected='selected'{/if}>Россия</option>
-					<option value="1-m"{if $destination eq '1-m'} selected='selected'{/if}>&nbsp;&nbsp;Россия мобильные</option>
-					<option value="1-f"{if $destination eq '1-f'} selected='selected'{/if}>&nbsp;&nbsp;Россия стационарные</option>
-					<option value="2"{if $destination eq '2'} selected='selected'{/if}>Международные</option>
+				<select name="filterb">
+					{html_options options=$filtersb selected=$filterb}
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<td class="left">Тариф</td>
+			<td class="left">Тариф:</td>
 			<td>
 				<select name="tariff_id">
 					<option value=""{if $tariff_id eq ''} selected='selected'{/if}>Все</option>
@@ -63,7 +55,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="left">Входящие/Исходящие</td>
+			<td class="left">Входящие/Исходящие:</td>
 			<td>
 				<select name="direction">
 					<option value="both">Все</option>
