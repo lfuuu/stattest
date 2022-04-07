@@ -145,7 +145,10 @@ spec:
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
-              serviceName: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
-              servicePort: 80
+              service:
+                name: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
+                port:
+                  number: 80
 {{- end }}
