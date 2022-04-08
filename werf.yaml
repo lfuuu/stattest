@@ -15,7 +15,7 @@ configVersion: 1
 
 ---
 image: {{ .project }}-nginx-{{ .env }}
-from: nginx:1.15.3-alpine
+from: nginx:stable-alpine
 docker:
   WORKDIR: {{ .ci_dir_home }}/stat
   USER: root
