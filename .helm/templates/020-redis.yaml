@@ -43,7 +43,7 @@ apiVersion: v1
 metadata:
   name: pvc-redis-store-{{ .postfix_name }}
 spec:
-{{- if (eq (env "ENVNAME") "dev") }}
+{{- if or (eq (env "ENVNAME") "dev") (eq (env "IS_MINIKUBE") "1") }}
   storageClassName: redis-storage-{{ .Chart.Name }}
 {{- else }}
   storageClassName: csi-rbd-sc
@@ -54,7 +54,7 @@ spec:
     requests:
       storage: 30Gi
 ---
-{{- if (eq (env "ENVNAME") "dev") }}
+{{- if or (eq (env "ENVNAME") "dev") (eq (env "IS_MINIKUBE") "1") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
