@@ -91,7 +91,7 @@ postgres_dev:
   password: qwe123
   app_user: stat
   app_password: stat
-  dbname: stat
+  db: nispd
 
 postgres_history_dev:
   dev_host: history-db
