@@ -1,4 +1,5 @@
 {{ $_ := set . "params" .Values.params_dev }}
+{{ $_ := set . "postfix" (printf "%s-%s" ((env "ENVNAME") | lower) ((env "COUNTRY") | lower)) }}
 
 {{- if (eq (env "ENVNAME") "prod") }}
   {{ $_ := set . "params" (ternary .Values.params_prod_eu .Values.params_prod (eq (env "COUNTRY") "EU")) }}
@@ -8,7 +9,11 @@
 {{ $_ := set . "postgres" .Values.postgres_dev }}
 {{ $_ := set . "postgres_history" .Values.postgres_history_dev }}
 {{- if (eq (env "ENVNAME") "prod") }}
-  {{ $_ := set . "mysql" (ternary .Values.mysql_prod_eu .Values.mysql_prod (eq (env "COUNTRY") "EU")) }}
+  {{ if and (eq (env "IS_MINIKUBE") "1") (eq (env "COUNTRY") "RU") }}
+    {{ $_ := set . "mysql" .Values.mysql_prod_readonly }}
+  {{ else }}
+    {{ $_ := set . "mysql" (ternary .Values.mysql_prod_eu .Values.mysql_prod (eq (env "COUNTRY") "EU")) }}
+  {{ end }}
   {{ $_ := set . "postgres" (ternary .Values.postgres_prod_eu .Values.postgres_prod (eq (env "COUNTRY") "EU")) }}
   {{ $_ := set . "postgres_history" (ternary .Values.postgres_history_eu .Values.postgres_history (eq (env "COUNTRY") "EU")) }}
 {{- end }}
@@ -17,12 +22,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}-backend-{{ (env "ENVNAME") }}
+  name: {{ .Chart.Name }}-backend-{{ .postfix }}
 spec:
-  replicas: {{ ternary "1" "1" (eq (env "ENVNAME") "prod") }}
+  replicas: {{ ternary "2" "1" (eq (env "ENVNAME") "prod") }}
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}-backend-{{ (env "ENVNAME") }}
+      app: {{ .Chart.Name }}-backend-{{ .postfix }}
   strategy:
     type: RollingUpdate
   template:
@@ -30,7 +35,7 @@ spec:
       labels:
         ingressInternal: "yes"
         ingressExternal: "no"
-        app: {{ .Chart.Name }}-backend-{{ (env "ENVNAME") }}
+        app: {{ .Chart.Name }}-backend-{{ .postfix }}
     spec:
       initContainers:
       - name: wait-redis
@@ -173,7 +178,7 @@ spec:
           value: {{ .Values.node_comet_prod.secret_key }}
   {{ end }}
 
-  {{ if eq (env "COUNTRY") "RUS" }}
+  {{ if eq (env "COUNTRY") "RU" }}
         - name: WEB_HOOK_SECRET
           value: {{ .Values.web_hook_prod.secret_key }}
         - name: WEB_HOOK_TOKEN
@@ -186,7 +191,7 @@ spec:
 
 
   {{ if (eq (env "ENVNAME") "prod") }}
-    {{ if eq (env "COUNTRY") "RUS" }}
+    {{ if eq (env "COUNTRY") "RU" }}
         - name: QIWI_PAYMENTS_USER
           value: {{ .Values.payments_prod.qiwi.user }}
         - name: QIWI_PAYMENTS_PASSWORD
@@ -198,7 +203,7 @@ spec:
           value: {{ .Values.payments_prod.stripe.secret_key }}
   {{ end }}
 
-  {{ if eq (env "COUNTRY") "RUS" }}
+  {{ if eq (env "COUNTRY") "RU" }}
         - name: NNP_NUMLEX_USER
           value: {{ .Values.nnp_prod.numlex_user }}
         - name: NNP_NUMLEX_PASS
@@ -349,8 +354,11 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     {{ if eq (env "COUNTRY") "EU" }}
-    #server: 185.66.53.70
+      {{ if eq (env "IS_MINIKUBE") "1" }}
+    server: 185.66.53.70
+      {{ else }}
     server: 10.250.30.39
+      {{ end }}
     path: /var/nfs/store
     {{ else }}
     #server: 85.94.48.46
@@ -362,13 +370,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Chart.Name }}-backend-{{ (env "ENVNAME") }}
+  name: {{ .Chart.Name }}-backend-{{ .postfix }}
   labels:
-    app: {{ .Chart.Name }}-backend-{{ (env "ENVNAME") }}
+    app: {{ .Chart.Name }}-backend-{{ .postfix }}
 spec:
   clusterIP: None
   selector:
-    app: {{ .Chart.Name }}-backend-{{ (env "ENVNAME") }}
+    app: {{ .Chart.Name }}-backend-{{ .postfix }}
   ports:
   - name: http
     port: 80

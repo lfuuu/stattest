@@ -288,8 +288,8 @@ data:
             'method' => 'bearer',
             'token' => '{{ .Values.params_prod.token }}',
         ],
-        'LK_PATH' => 'https://lk.mcn.ru/lk/',
-        'FEEDBACK_SERVER' => 'feedback.mcn.ru',
+        'LK_PATH' => 'https://{{ .params.core_server }}/lk/',
+        'FEEDBACK_SERVER' => '{{ .params.feedback_server }}',
         'FEEDBACK_API_KEY' => '{{ .Values.params_prod.feedback_api_key }}',
         'MAILER' => [
             'url' => 'http://mailer.local/',

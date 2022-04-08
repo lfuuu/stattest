@@ -178,7 +178,7 @@ class SBISOrganization extends ActiveRecord
                     ))
                     ->setFrom(Yii::$app->params['adminEmail'])
                     ->setTo([
-                        'shvedov@mcn.ru' => 'Ilya',
+//                        'shvedov@mcn.ru' => 'Ilya',
                         'adima@mcn.ru' => 'Dima',
                         'mak@mcn.ru' => 'Alexander',
                         'vma@mcn.ru' => 'Mikhail',

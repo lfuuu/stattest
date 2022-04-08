@@ -1,40 +1,4 @@
-{{- if (eq .Values.use_ngnix_virtualserver "yes") }}
-
-apiVersion: k8s.nginx.org/v1
-kind: VirtualServer
-metadata:
-  name: {{ .Chart.Name }}-frontend
-spec:
-  host: {{ .Values.ci_url | quote }}
-  policies:
-    - name: webapp-internal-policy
-      namespace: kube-system
-  tls:
-    redirect:
-      enable: true
-  server-snippets: |
-    listen 443 ssl;
-    ssl_certificate /etc/nginx/secrets/wildcard;
-    ssl_certificate_key /etc/nginx/secrets/wildcard;
-    client_max_body_size    0;
-    proxy_connect_timeout   6000s;
-    proxy_send_timeout      18000s;
-    proxy_read_timeout      18000s;
-  upstreams:
-    - name: upstream-{{ .Chart.Name }}-backend-{{ .Values.global.env }}
-      service: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
-      port: 80
-      client-max-body-size: 0
-      connect-timeout: 6000s
-      read-timeout: 18000s
-      send-timeout: 18000s
-  routes:
-    - path: /
-      action:
-        pass: upstream-{{ .Chart.Name }}-backend-{{ .Values.global.env }}
-
-{{- else }}
-
+{{ $_ := set . "postfix" (printf "%s-%s" ((env "ENVNAME") | lower) ((env "COUNTRY") | lower)) }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -50,7 +14,10 @@ metadata:
 #    NNPLK-5: Сделать так, чтобы работали одновременно nnp и apigw
 #    nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/whitelist-source-range: >-
-      127.0.0.1/24,85.94.32.0/24,172.16.0.0/16,192.168.0.0/16,10.0.0.0/8,178.48.22.33/32,
+      172.16.0.0/16,192.168.0.0/16,10.0.0.0/8,
+      85.94.32.0/24, {{- /* msk office */}}
+      178.48.22.33, 185.66.52.41, {{- /* bdp office */}}
+      {{- if eq (env "COUNTRY") "RU" }}
       185.18.110.250/32,89.235.184.126/32,95.165.175.49/32,194.29.62.164,91.219.7.98,
       109.188.135.209/32,
       109.188.138.85/32,
@@ -131,10 +98,11 @@ metadata:
       194.54.14.0/24,
       185.16.205.115/32,
       46.228.0.5/32,
+      {{ end }}
       127.0.0.0/24
 
 spec:
-{{- if (eq .Values.global.env "prod") }}
+{{- if and (eq (env "ENVNAME") "prod") (ne (env "IS_MINIKUBE") "1") }}
   tls:
     - hosts:
         - {{ .Values.ci_url | quote }}
@@ -148,7 +116,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Chart.Name }}-backend-{{ .Values.global.env }}
+                name: {{ .Chart.Name }}-backend-{{ .postfix }}
                 port:
                   number: 80
-{{- end }}

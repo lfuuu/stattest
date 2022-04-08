@@ -3,15 +3,16 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.353
+TAG=1.354
 
 function dev()
 {
 	export ENVNAME=dev
-	CI_URL="stat.mcn.loc"
+	CI_URL="stat.mcn.local"
   PGADMIN_IN_DEV="yes"
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
-  export COUNTRY="RUS"
+  export COUNTRY="RU"
+  export IS_MINIKUBE=1
 
   export IS_WITH_PHPMYADMIN=1
   export IS_WITH_PGADMIN=1
@@ -24,10 +25,11 @@ function dev()
 function eudev()
 {
 	export ENVNAME=dev
-	CI_URL="stat.mcntelecom.loc"
+	CI_URL="stat.mcntelecom.local"
   PGADMIN_IN_DEV="yes"
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
   export COUNTRY="EU"
+  export IS_MINIKUBE=1
 
   export IS_WITH_PHPMYADMIN=1
   export IS_WITH_PGADMIN=1
@@ -42,7 +44,8 @@ function prod()
 	export ENVNAME=prod
 	CI_URL="stat.mcn.ru"
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
-	export COUNTRY="RUS"
+	export COUNTRY="RU"
+	export IS_MINIKUBE=0
 
   export IS_WITH_PHPMYADMIN=0
   export IS_WITH_PGADMIN=0
@@ -50,6 +53,10 @@ function prod()
   export IS_WITH_COMET=1
   export IS_WITH_GRAPHQL=1
   export IS_WITH_NNPPORTED=1
+
+  if [[ "$IS_MINIKUBE" == 1 ]]; then
+    CI_URL="${CI_URL}.local"
+  fi
 }
 
 function euprod()
@@ -58,6 +65,7 @@ function euprod()
 	CI_URL="stat.mcntele.com"
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 	export COUNTRY="EU"
+	export IS_MINIKUBE=0
 
   export IS_WITH_PHPMYADMIN=0
   export IS_WITH_PGADMIN=0
@@ -65,5 +73,9 @@ function euprod()
   export IS_WITH_COMET=0
   export IS_WITH_GRAPHQL=0
   export IS_WITH_NNPPORTED=0
+
+  if [[ "$IS_MINIKUBE" == 1 ]]; then
+    CI_URL="${CI_URL}.local"
+  fi
 }
 

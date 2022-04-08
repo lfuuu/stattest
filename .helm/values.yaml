@@ -103,6 +103,7 @@ postgres_history_dev:
 params_prod:
   robocall_internal_server: https://robocall.mcn.ru
   calltracking_server: feedback.mcn.ru
+  feedback_server: feedback.mcn.ru
   api_mcn_server: https://api.mcn.ru/v2/rest
   phone_server: vpbx.mcn.ru
   core_server: lk.mcn.ru
@@ -113,11 +114,13 @@ params_prod:
   async_is_enabled: "1"
   sberbank_api_is_enabled: "1"
   yandex_kassa_is_enabled: "1"
+  mchs_is_enabled: "1"
   client_changed_amq_settings: "0"
 
 params_prod_eu:
   robocall_internal_server: https://robocall.mcntele.com
   calltracking_server: feedback.mcntele.com
+  feedback_server: feedback.mcntele.com
   api_mcn_server: https://api.mcntele.com/v2/rest
   phone_server: vpbx.mcntele.com
   core_server: lk.mcntele.com
@@ -128,6 +131,7 @@ params_prod_eu:
   async_is_enabled: "0"
   sberbank_api_is_enabled: "0"
   yandex_kassa_is_enabled: "0"
+  mchs_is_enabled: "0"
   client_changed_amq_settings: "0"
 
 params_dev:
@@ -144,5 +148,7 @@ params_dev:
   async_is_enabled: "0"
   sberbank_api_is_enabled: "0"
   yandex_kassa_is_enabled: "0"
-  client_changed_amq_settings: "0"
+  mchs_is_enabled: "0"
   mchs_api_key:
+  client_changed_amq_settings: "0"
+
