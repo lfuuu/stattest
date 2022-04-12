@@ -2424,6 +2424,7 @@ class UuController extends ApiInternalController
     /**
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-service-types-by-contract", summary = "Список типов услуг на УЛС", operationId = "GetServiceTypesByContract",
      *   @SWG\Parameter(name = "contract_id", type = "integer", description = "ID договора (если несколько: то массив ID, или значение через ',')", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "is_enabled", type = "integer", description = "Только активные услуги? (0/1)", in = "query", required = false, default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список типов услуг на УЛС",
      *     @SWG\Schema(type = "array")
@@ -2435,10 +2436,11 @@ class UuController extends ApiInternalController
      */
     /**
      * @param int $contract_id
+     * @param int $is_enabled
      * @return array
      * @throws \yii\base\InvalidConfigException
      */
-    public function actionGetServiceTypesByContract($contract_id = null)
+    public function actionGetServiceTypesByContract($contract_id = null, $is_enabled = null)
     {
         if (!$contract_id) {
             throw new InvalidArgumentException('ContractId(s) not set');
@@ -2459,6 +2461,10 @@ class UuController extends ApiInternalController
             ->asArray()
             ->where(['contract_id' => $contract_id]);
 
+        if ($is_enabled) {
+            $query->andWhere(['not', ['at.tariff_period_id' => null]]);
+        }
+
         $result = [];
 
         foreach ($query->each() as $v) {
@@ -2476,7 +2482,6 @@ class UuController extends ApiInternalController
             }
             $result[$v['contract_id']]['accounts'][$v['client_account_id']]['service_type_ids'][] = $v['service_type_id'];
         }
-
 
         return $result;
     }
