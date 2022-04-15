@@ -94,10 +94,10 @@ postgres_dev:
   db: nispd
 
 postgres_history_dev:
-  dev_host: history-db
+  host: history-db
   db: stat
-  dev_user: stat
-  dev_password: stat
+  user: stat
+  password: stat
 
 
 params_prod:
