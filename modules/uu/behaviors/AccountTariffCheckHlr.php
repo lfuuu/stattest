@@ -57,6 +57,11 @@ class AccountTariffCheckHlr extends Behavior
         }
 
         $isTurnOn = !$event->changedAttributes['tariff_period_id'] && $accountTariff->tariff_period_id; // turn On
+        $isTurnOff = $event->changedAttributes['tariff_period_id'] && !$accountTariff->tariff_period_id; // turn Off
+
+        if (!$isTurnOn && !$isTurnOff) {
+            return; // nothing (change tariff)
+        }
 
         if ($isTurnOn && !($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
             return;
