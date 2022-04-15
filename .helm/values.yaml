@@ -85,13 +85,14 @@ mysql_dev:
   db_nfdump: nfdump
 
 postgres_dev:
-  host: history-db
+  host: iberus.mcn.ru
+  host_slave: iberus.mcn.ru
+  host_statistics: eridanus2.mcn.ru
   port: 5432
-  user: postgres
-  password: qwe123
   app_user: stat
   app_password: stat
   db: nispd
+  db_nfdump: nfdump
 
 postgres_history_dev:
   host: history-db

@@ -1,14 +1,11 @@
-{{ $_ := set . "params" .Values.params_dev }}
 {{ $_ := set . "postfix" (printf "%s-%s" ((env "ENVNAME") | lower) ((env "COUNTRY") | lower)) }}
 
-{{- if (eq (env "ENVNAME") "prod") }}
-  {{ $_ := set . "params" (ternary .Values.params_prod_eu .Values.params_prod (eq (env "COUNTRY") "EU")) }}
-{{- end }}
-
+{{ $_ := set . "params" .Values.params_dev }}
 {{ $_ := set . "mysql" .Values.mysql_dev }}
 {{ $_ := set . "postgres" .Values.postgres_dev }}
 {{ $_ := set . "postgres_history" .Values.postgres_history_dev }}
 {{- if (eq (env "ENVNAME") "prod") }}
+  {{ $_ := set . "params" (ternary .Values.params_prod_eu .Values.params_prod (eq (env "COUNTRY") "EU")) }}
   {{ if and (eq (env "IS_MINIKUBE") "1") (eq (env "COUNTRY") "RU") }}
     {{ $_ := set . "mysql" .Values.mysql_prod_readonly }}
   {{ else }}
@@ -18,6 +15,10 @@
   {{ $_ := set . "postgres_history" (ternary .Values.postgres_history_eu .Values.postgres_history (eq (env "COUNTRY") "EU")) }}
 {{- end }}
 
+{{ $_ := set . "postgres_user" (ternary .Values.postgres_prod.user_read_only .postgres.user (eq (env "ENVNAME") "dev")) }}
+{{ $_ := set . "postgres_password" (ternary .Values.postgres_prod.password_read_only .postgres.password (eq (env "ENVNAME") "dev")) }}
+
+{{/* fail (printf "%s-%s-%s" (env "ENVNAME") "-" .postgres_user) */}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -104,8 +105,6 @@ spec:
         env:
         - name: DIR_HOME
           value: {{ .Values.ci_dir_home }}
-        - name: USE_MINIKUBE
-          value: {{ ternary "1" "0" (eq (env "ENVNAME") "dev") | quote }}
         - name: COUNTRY
           value: {{ env "COUNTRY" | quote}}
 
@@ -118,32 +117,14 @@ spec:
         - name: MYSQL_PASSWORD
           value: {{ .mysql.password }}
 
-  {{- if (eq (env "ENVNAME") "prod") }}
         - name: POSTGRES_HOST
           value: {{ .postgres.host }}
         - name: POSTGRES_DB
           value: {{ .postgres.db }}
         - name: POSTGRES_USER
-          value: {{ .postgres.user }}
+          value: {{ .postgres_user }}
         - name: POSTGRES_PASSWORD
-          value: {{ .postgres.password }}
-  {{ else }}
-
-      {{ if eq (env "COUNTRY") "EU" }}
-        - name: POSTGRES_HOST
-          value: {{ .Values.postgres_prod_eu.host }}
-      {{ else }}
-        - name: POSTGRES_HOST
-          value: {{ .Values.postgres_prod.host }}
-      {{ end }}
-        - name: POSTGRES_DB
-          value: {{ .postgres.db }}
-        - name: POSTGRES_USER
-          value: {{ .Values.postgres_prod.user_read_only }}
-        - name: POSTGRES_PASSWORD
-          value: {{ .Values.postgres_prod.password_read_only }}
-
-  {{ end }}
+          value: {{ .postgres_password }}
 
         - name: POSTGRES_SLAVE_HOST
           value: {{ .postgres.host_slave }}
@@ -203,7 +184,7 @@ spec:
           value: {{ .Values.payments_prod.stripe.secret_key }}
   {{ end }}
 
-  {{ if eq (env "COUNTRY") "RU" }}
+  {{ if and (eq (env "COUNTRY") "RU") (eq (env "ENVNAME") "prod") }}
         - name: NNP_NUMLEX_USER
           value: {{ .Values.nnp_prod.numlex_user }}
         - name: NNP_NUMLEX_PASS
