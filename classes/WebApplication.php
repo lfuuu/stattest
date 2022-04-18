@@ -104,7 +104,7 @@ class WebApplication extends \yii\web\Application
 
     private function _getProductCountry()
     {
-        return ($_SERVER['COUNTRY'] ?? 'RUS');
+        return ($_SERVER['COUNTRY'] ?? 'RU');
     }
 
     public function isEu()
@@ -114,6 +114,6 @@ class WebApplication extends \yii\web\Application
 
     public function isRus()
     {
-        return $this->_getProductCountry() == 'RUS';
+        return $this->_getProductCountry() == 'RU';
     }
 }
