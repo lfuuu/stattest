@@ -2422,6 +2422,31 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-service-types-by-client-account-id", summary = "Список типов услуг на УЛС", operationId = "GetServiceTypesByAccountId",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (если несколько: то массив ID, или значение через ',')", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "is_enabled", type = "integer", description = "Только активные услуги? (0/1)", in = "query", required = false, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Список типов услуг на УЛС",
+     *     @SWG\Schema(type = "array")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @param int $contract_id
+     * @param int $is_enabled
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionGetServiceTypesByClientAccountId($client_account_id = null, $is_enabled = null)
+    {
+        return $this->_actionGetServiceTypesBy(null, $client_account_id, $is_enabled);
+    }
+
+
+    /**
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-service-types-by-contract", summary = "Список типов услуг на УЛС", operationId = "GetServiceTypesByContract",
      *   @SWG\Parameter(name = "contract_id", type = "integer", description = "ID договора (если несколько: то массив ID, или значение через ',')", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "is_enabled", type = "integer", description = "Только активные услуги? (0/1)", in = "query", required = false, default = ""),
@@ -2442,15 +2467,21 @@ class UuController extends ApiInternalController
      */
     public function actionGetServiceTypesByContract($contract_id = null, $is_enabled = null)
     {
-        if (!$contract_id) {
-            throw new InvalidArgumentException('ContractId(s) not set');
+        return $this->_actionGetServiceTypesBy($contract_id, null, $is_enabled);
+    }
+
+    public function _actionGetServiceTypesBy($contract_id = null, $account_id = null, $is_enabled = null)
+    {
+        $ids = $contract_id ?? $account_id;
+        if (!$ids) {
+            throw new InvalidArgumentException('Id(s) not set');
         }
 
-        if (!is_array($contract_id)) {
-            $contract_id = explode(',', $contract_id);
+        if (!is_array($ids)) {
+            $ids = explode(',', $ids);
         }
 
-        $contract_id = array_filter(array_map('trim', $contract_id));
+        $ids = array_filter(array_map('trim', $ids));
 
         $query = ClientAccount::find()
             ->alias('c')
@@ -2459,7 +2490,7 @@ class UuController extends ApiInternalController
             ->distinct()
             ->orderBy(['contract_id' => SORT_ASC, 'client_account_id' => SORT_ASC, 'service_type_id' => SORT_ASC])
             ->asArray()
-            ->where(['contract_id' => $contract_id]);
+            ->where([($contract_id ? 'contract_id' : 'client_account_id') => $ids]);
 
         if ($is_enabled) {
             $query->andWhere(['not', ['at.tariff_period_id' => null]]);
