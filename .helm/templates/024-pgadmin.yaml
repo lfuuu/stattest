@@ -15,7 +15,7 @@ data:
             "Username": {{ .Values.postgres_dev.app_user | quote }},
             "Host": {{ .Values.postgres_dev.host | quote }},
             "SSLMode": "prefer",
-            "MaintenanceDB": {{ .Values.postgres_dev.dbname | quote }}
+            "MaintenanceDB": {{ .Values.postgres_dev.db | quote }}
         }
       }
     }
@@ -80,15 +80,15 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-#    nginx.ingress.kubernetes.io/configuration-snippet: |
-#      proxy_set_header X-Script-Name /pgadmin4;
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Script-Name /pgadmin4;
 spec:
   rules:
-    - host: pgadmin-{{ .Chart.Name }}-{{ .Values.global.env }}.local
+    - host: {{ .Values.ci_url | quote }}
       http:
         paths:
           - pathType: Prefix
-            path: /
+            path: /pgadmin4
             backend:
               service:
                 name: "pgadmin4"

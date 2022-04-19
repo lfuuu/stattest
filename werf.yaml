@@ -441,7 +441,7 @@ ansible:
           mysqld_pid=\$!
           until mysqlcheck -u\$MYSQLDB_USER -p\$MYSQLDB_PASSWORD mysql; do sleep 2; done;
 
-          if [ `mysql mysql -e "show databases like '{{ .Values.mysql_dev.db }}'" | grep nispd | wc -l` -eq '0' ]; then
+          if [[ \$(mysql mysql -e "show databases like 'nispd'" | grep nispd | wc -l) -eq '0' ]]; then
             /bin/bash /root/00-init-db.sh
             mysql -e '\. /root/nispd.sql'
             /bin/bash /root/01-set-000001-migration.sh
