@@ -1,14 +1,12 @@
 {{- if (eq .Values.global.env "dev") }}
 
-{{ $_ := set . "pg_host" .Values.postgres_dev.host }}
-{{ $_ := set . "pg_user" .Values.postgres_dev.user }}
-{{ $_ := set . "pg_app_user" .Values.postgres_dev.app_user }}
-{{ $_ := set . "pg_app_password" .Values.postgres_dev.app_password }}
-{{ $_ := set . "pg_password" .Values.postgres_dev.password }}
-{{ $_ := set . "pg_dbname" .Values.postgres_dev.dbname }}
-{{ $_ := set . "pg_port" .Values.postgres_dev.port }}
-{{ $_ := set . "pg_repl_user" .Values.postgres_dev.repl_user }}
-{{ $_ := set . "pg_repl_password" .Values.postgres_dev.repl_password }}
+{{ $_ := set . "pg_host" .Values.postgres_history_dev.host }}
+{{ $_ := set . "pg_user" .Values.postgres_history_dev.user }}
+{{ $_ := set . "pg_app_user" .Values.postgres_history_dev.app_user }}
+{{ $_ := set . "pg_app_password" .Values.postgres_history_dev.app_password }}
+{{ $_ := set . "pg_password" .Values.postgres_history_dev.password }}
+{{ $_ := set . "pg_dbname" .Values.postgres_history_dev.db }}
+{{ $_ := set . "pg_port" .Values.postgres_history_dev.port }}
 
 ### pg_dump -Upgsqltest -h iberus.mcn.ru -csO --if-exists -n nnp -n nnp_ported nispd > nnp_schema.sql
 ### pg_dump -Upgsqltest -h iberus.mcn.ru  -aO -n nnp -T "nnp"."number_range_prefix" -T "nnp"."number_range" -T "nnp"."number_range_destination" nispd > nnp.sql
@@ -100,14 +98,14 @@ data:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.postgres_dev.host }}
+  name: postgres-history-dev
 spec:
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
       tier: postgres
   replicas: 1
-  serviceName: {{ .Values.postgres_dev.host }}
+  serviceName: postgres-history-dev
   template:
     metadata:
       labels:
@@ -127,10 +125,10 @@ spec:
             - name: POSTGRES_HOST_AUTH_METHOD
               value: trust
           ports:
-            - containerPort: {{ .Values.postgres_dev.port }}
+            - containerPort: {{ .Values.postgres_history_dev.port }}
           volumeMounts:
-            # - mountPath: /var/lib/postgresql/data
-            #   name: pg-data
+            - name: pg-data
+              mountPath: /var/lib/postgresql/data
             - name: dbconfig-volume
               mountPath: /docker-entrypoint-initdb.d/init-user-db.sh
               subPath: init-user-db.sh
@@ -146,7 +144,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.postgres_dev.host }}
+  name: postgres-history-dev
   labels:
     app: {{ .Chart.Name }}
     tier: postgres
@@ -154,8 +152,8 @@ spec:
   type: NodePort
   ports:
     - name: "postgres-port"
-      port: {{ .Values.postgres_dev.port }}
-      targetPort: {{ .Values.postgres_dev.port }}
+      port: {{ .Values.postgres_history_dev.port }}
+      targetPort: {{ .Values.postgres_history_dev.port }}
       nodePort: 30432
   selector:
     app: {{ .Chart.Name }}

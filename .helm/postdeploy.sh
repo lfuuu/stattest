@@ -76,7 +76,7 @@ if [ "$ENVNAME" = "dev" ]; then
   if [ "$PGADMIN_URL" != "" ]; then
 #    sudo sed -i -e "/^.*${PGADMIN_URL}/d" /etc/hosts
 #    echo "${minikubeIp} ${PGADMIN_URL}" | sudo tee -a /etc/hosts
-    echo "PgAdmin доступен по адресу: http://$PGADMIN_URL"
+    echo "PgAdmin доступен по адресу: http://$PGADMIN_URL/pgadmin4"
   else
     echo "PgAdmin не доступен"
   fi

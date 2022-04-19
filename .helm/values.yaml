@@ -97,8 +97,11 @@ postgres_dev:
 postgres_history_dev:
   host: history-db
   db: stat
-  user: stat
-  password: stat
+  user: postgres
+  password:
+  app_user: stat
+  app_password: stat
+  port: 5432
 
 
 params_prod:
