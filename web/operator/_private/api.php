@@ -106,12 +106,14 @@ function do_func($function)
 
         case 'getServiceOptions': return ApiLk::getServiceOptions(get_param_raw("service"), get_param_integer("client_id")); break;
         case 'getAccountsNotification': return ApiLk::getAccountsNotification(get_param_integer("client_id")); break;
+
         case 'addAccountNotification': {
             return ApiLk::addAccountNotification(
                 get_param_integer('client_id'),
                 get_param_raw('type'),
                 get_param_raw('data'),
-                get_param_raw('lang', \app\models\Language::LANGUAGE_DEFAULT)
+                get_param_raw('lang', \app\models\Language::LANGUAGE_DEFAULT),
+                (bool)get_param_raw('is_reconfirmation', 0),
             );
             break;
         }

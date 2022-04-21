@@ -1892,9 +1892,11 @@ class ApiLk
      * @param string $type тип (телефон или Email)
      * @param string $data значение
      * @param string $lang язык
+     * @param bool $is_reconfirmation - повторная отправка подтверждения контакта
      * @return array
      */
-    public static function addAccountNotification($client_id = null, $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT)
+
+    public static function addAccountNotification($client_id = null, $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT, $is_reconfirmation = false)
     {
         $data = trim($data);
 
@@ -1976,6 +1978,8 @@ class ApiLk
                 ];
             }
 
+            self::sendApproveMessage($client_id, $type, $data, $contact->id, $lang);
+        }elseif ($is_reconfirmation) {
             self::sendApproveMessage($client_id, $type, $data, $contact->id, $lang);
         }
 
