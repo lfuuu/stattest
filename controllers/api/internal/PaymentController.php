@@ -121,7 +121,8 @@ class PaymentController extends ApiInternalController
 
             $channels = PaymentApiChannel::getList();
 
-            $payment->comment = ucfirst($channels[$model->channel]) . " #" . $model->payment_no . ' (API)';
+            $infoJson =  json_decode($requestData['info_json'] ?? '{}', true);
+            $payment->comment = $infoJson['comment'] ?? ucfirst($channels[$model->channel]) . " #" . $model->payment_no . ' (API)';
 
             if (!$payment->save()) {
                 throw new ModelValidationException($payment);
