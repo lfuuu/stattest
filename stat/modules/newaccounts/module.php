@@ -5723,6 +5723,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
   ex.ext_invoice_no as bill_no,
   b.bill_no as newbills_bill_no,
   b.bill_date,
+  concat(cur.name, ' ', cur.code) as currency, 
   cg.name_full,
   cg.inn,
   cg.kpp,
@@ -5738,6 +5739,7 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
                                      WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
          field = 'name') AS orgznization_name
 FROM clients c, client_contract cc, client_contragent cg, newbills b
+inner join currency cur on cur.id = b.currency 
 left join newbills_external ex ON (ex.bill_no = b.bill_no)
 WHERE " . $dateField . " BETWEEN :date_from AND :date_to
       AND b.organization_id = :organization_id

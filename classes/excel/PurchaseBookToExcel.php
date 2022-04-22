@@ -1,6 +1,7 @@
 <?php
 
 namespace app\classes\excel;
+use app\models\Currency;
 use app\models\Organization;
 use DateTime;
 use yii\base\Exception;
@@ -61,7 +62,7 @@ class PurchaseBookToExcel extends Excel
 
     public function prepareToIfns()
     {
-        $rowsCounter = 11;
+        $rowsCounter = 12;
         $counter = 1;
 
         /** @var \PHPExcel_Worksheet $worksheet */
@@ -71,6 +72,7 @@ class PurchaseBookToExcel extends Excel
 
         $this->setOrganization($worksheet);
         $this->setDateRange($worksheet);
+        $this->setInnKpp($worksheet);
 
         foreach ($this->data as $chunk) {
             $worksheet->setCellValueByColumnAndRow(0, $rowsCounter, $counter);
@@ -79,10 +81,10 @@ class PurchaseBookToExcel extends Excel
             $worksheet->setCellValueByColumnAndRow(3, $rowsCounter, $chunk['correction_number'] ? $chunk['correction_number'] . ' от ' . $chunk['correction_date'] : '');
             $worksheet->setCellValueByColumnAndRow(7, $rowsCounter, $chunk['ext_invoice_date']);
             $worksheet->setCellValueByColumnAndRow(8, $rowsCounter, $chunk['name_full']);
-            $worksheet->setCellValueByColumnAndRow(9, $rowsCounter,
-                $chunk['legal_type'] != 'person' ? $chunk['inn']. '/'. $chunk['kpp'] : '');
-            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['sum']);
-            $worksheet->setCellValueByColumnAndRow(15, $rowsCounter, $chunk['vat']);
+            $worksheet->setCellValueByColumnAndRow(9, $rowsCounter, $chunk['legal_type'] != 'person' ? $chunk['inn']. '/'. $chunk['kpp'] : '');
+            $worksheet->setCellValueByColumnAndRow(12, $rowsCounter, $chunk['currency']);
+            $worksheet->setCellValueByColumnAndRow(13, $rowsCounter, $chunk['sum']);
+            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['vat']);
 
             ++$rowsCounter;
             ++$counter;
@@ -100,11 +102,27 @@ class PurchaseBookToExcel extends Excel
         $value = str_replace('{Name}', $name, $value);
 
         $worksheet->setCellValue('A4', $value);
+
+
+    }
+
+    private function setInnKpp(\PHPExcel_Worksheet $worksheet)
+    {
+        $cell = $worksheet->getCell('A5');
+        $value = $cell->getValue();
+
+        $organization = Organization::findOne($this->organizationId);
+        $inn = ($organization) ? $organization->tax_registration_id : '';
+        $kpp = ($organization) ? $organization->tax_registration_reason : '';
+
+        $value = str_replace('{inn}', $inn, $value);
+        $value = str_replace('{kpp}', $kpp, $value);
+        $worksheet->setCellValue('A5', $value);
     }
 
     private function setDateRange(\PHPExcel_Worksheet $worksheet)
     {
-        $cell = $worksheet->getCell('A5');
+        $cell = $worksheet->getCell('A6');
         $value = $cell->getValue();
 
         if (!$this->dateFrom || !$this->dateTo) {
@@ -114,6 +132,6 @@ class PurchaseBookToExcel extends Excel
         $value = str_replace('{DateFrom}', (new DateTime($this->dateFrom))->format('d.m.Y'), $value);
         $value = str_replace('{DateTo}', (new DateTime($this->dateTo))->format('d.m.Y'), $value);
 
-        $worksheet->setCellValue('A5', $value);
+        $worksheet->setCellValue('A6', $value);
     }
 }

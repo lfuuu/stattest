@@ -114,8 +114,6 @@
             (комиссионере, агенте, экспедиторе,
             лице, выполняющем функции застройщика)
         </td>
-        <td rowspan="2" align="center">Регистрационный номер таможенной декларации</td>
-
         <td rowspan="2" align="center">Наименование и код валюты</td>
         <td rowspan="2" align="center">
             Стоимость покупок по счету-фактуре,
@@ -157,8 +155,7 @@
             <td>{if $item.legal_type != 'person'}{$item.inn}/ {$item.kpp}{/if}</td>
             <td></td>
             <td></td>
-            <td></td>
-            <td></td>
+            <td>{$item.currency}</td>
             <td class="text-right">{$item.sum|replace:".":","}</td>
             <td class="text-right">{$item.vat|replace:".":","}</td>
             <td>{$item.ext_registration_date}</td>
@@ -167,7 +164,7 @@
     {/foreach}
     {foreach from=$totals key=currency item=total}
         <tr>
-            <td colspan="14" style="text-align: right">Итого:</td>
+            <td colspan="13" style="text-align: right">Итого:</td>
             <td>{$total.sum|replace:".":","}</td>
             <td>{$total.vat|replace:".":","}</td>
             <td>&nbsp;</td>
