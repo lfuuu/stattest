@@ -37,7 +37,6 @@ use yii\helpers\Url;
  * @property integer $is_charge_after_blocking
  * @property integer $is_include_vat
  * @property integer $is_default
- * @property integer $is_postpaid
  * @property integer $tag_id
  * @property integer $count_of_carry_period
  * @property integer $is_one_active
@@ -160,7 +159,6 @@ class Tariff extends ActiveRecord
                     'is_include_vat',
                     'is_charge_after_blocking',
                     'is_default',
-                    'is_postpaid',
                     'is_bundle',
                     'count_of_carry_period',
                     'vm_id',
@@ -626,7 +624,6 @@ class Tariff extends ActiveRecord
                 $tariffTableName . '.service_type_id' => $packageType,
                 TariffCountry::tableName() . '.country_id' => $countryId,
                 $tariffTableName . '.currency_id' => $this->currency_id,
-                // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
                 $tariffTableName . '.is_default' => 1,
                 $tariffTableName . '.tariff_status_id' => $tariffStatuses,
                 $tariffTableName . '.is_include_vat' => $isIncludeVat,

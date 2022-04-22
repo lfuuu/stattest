@@ -50,7 +50,6 @@ class AccountTariffFilter extends AccountTariff
 
     public $tariff_status_id = '';
     public $tariff_is_include_vat = '';
-    public $tariff_is_postpaid = '';
     public $tariff_country_id = '';
     public $tariff_currency_id = '';
     public $tariff_organization_id = '';
@@ -135,7 +134,6 @@ class AccountTariffFilter extends AccountTariff
                 'tariff_period_id',
                 'tariff_status_id',
                 'tariff_is_include_vat',
-                'tariff_is_postpaid',
                 'tariff_country_id',
                 'tariff_organization_id',
                 'client_organization_id',
@@ -227,7 +225,6 @@ class AccountTariffFilter extends AccountTariff
 
         $this->tariff_status_id !== '' && $query->andWhere(['tariff.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_is_include_vat !== '' && $query->andWhere(['tariff.is_include_vat' => $this->tariff_is_include_vat]);
-        $this->tariff_is_postpaid !== '' && $query->andWhere(['tariff.is_postpaid' => $this->tariff_is_postpaid]);
         $this->tariff_currency_id !== '' && $query->andWhere(['tariff.currency_id' => $this->tariff_currency_id]);
         $this->tariff_is_default !== '' && $query->andWhere(['tariff.is_default' => $this->tariff_is_default]);
 

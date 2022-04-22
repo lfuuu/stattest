@@ -7,7 +7,6 @@ return [
     'is_charge_after_blocking' => 'Is charge after blocking',
     'is_include_vat' => 'Is include VAT',
     'is_default' => 'Is default',
-    'is_postpaid' => 'Is postpaid',
     'is_bundle' => 'Bundle',
     'count_of_validity_period' => 'Count of validity period',
     'tariff_status_id' => 'Status',

@@ -87,8 +87,7 @@ class AccountTariffFlatController extends Controller
                     $accountTariffFlat->tariff_is_include_vat = $tariff ?
                         $tariff->is_include_vat : null;
                     // Постоплата
-                    $accountTariffFlat->tariff_is_postpaid = $tariff ?
-                        $tariff->is_postpaid : null;
+                    $accountTariffFlat->tariff_is_postpaid = $model->clientAccount->is_postpaid;
                     // Страна
                     if ($tariff && $tariffCountries = $tariff->tariffCountries) {
                         $accountTariffFlat->tariff_country = call_user_func(function () use ($tariffCountries) {

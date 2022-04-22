@@ -57,7 +57,6 @@ $id = mt_rand(0, 1000000);
                         true,
                         false,
                         $statusId = null,
-                        $clientAccount->is_postpaid,
                         $clientAccount->is_voip_with_tax,
                         $clientAccount->contract->organization_id,
                         $accountTariff->number->ndc_type_id

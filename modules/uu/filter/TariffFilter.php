@@ -40,7 +40,6 @@ class TariffFilter extends Tariff
     public $is_charge_after_blocking = '';
     public $is_include_vat = '';
     public $is_default = '';
-    public $is_postpaid = '';
     public $is_one_active = '';
 
     public $is_show_archive = false;
@@ -122,7 +121,6 @@ class TariffFilter extends Tariff
         $this->is_charge_after_blocking !== '' && $query->andWhere([$tariffTableName . '.is_charge_after_blocking' => (int)$this->is_charge_after_blocking]);
         $this->is_include_vat !== '' && $query->andWhere([$tariffTableName . '.is_include_vat' => (int)$this->is_include_vat]);
         $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
-        $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
 
         !$this->is_show_archive && $query->andWhere(['NOT', ['tariff_status_id' => TariffStatus::ARCHIVE_LIST]]);
@@ -165,7 +163,6 @@ class TariffFilter extends Tariff
 //     * @param int $countryId
 //     * @param int $currencyId
 //     * @param int $isDefault
-//     * @param int $isPostPaid
 //     * @param int $isOneActive
 //     * @param int $tariffStatusId
 //     * @param int $tariffPersonId
@@ -210,7 +207,6 @@ class TariffFilter extends Tariff
         $params['service_type_id'] && $query->andWhere(["{$tariffTable}.service_type_id" => (int)$params['service_type_id']]);
         $params['currency_id'] && $query->andWhere(["{$tariffTable}.currency_id" => $params['currency_id']]);
         null !== $params['is_default'] && $query->andWhere(["{$tariffTable}.is_default" => (int)$params['is_default']]);
-        null !== $params['is_postpaid'] && $query->andWhere(["{$tariffTable}.is_postpaid" => (int)$params['is_postpaid'] ]);
         null !== $params['is_one_active'] && $query->andWhere(["{$tariffTable}.is_one_active" => (int)$params['is_one_active'] ]);
         null !== $params['is_include_vat'] && $query->andWhere(["{$tariffTable}.is_include_vat" => (int)$params['is_include_vat']]);
         $params['tariff_status_id'] && $query->andWhere(["{$tariffTable}.tariff_status_id" => (int)$params['tariff_status_id']]);

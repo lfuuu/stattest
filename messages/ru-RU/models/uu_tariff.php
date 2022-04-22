@@ -9,7 +9,6 @@ return [
     'is_charge_after_blocking_package' => 'Безусловное продление',
     'is_include_vat' => 'Включая НДС',
     'is_default' => 'По умолчанию',
-    'is_postpaid' => 'Постоплата',
     'is_bundle' => 'Бандл',
     'count_of_carry_period' => 'Пакет интернета сгорает через N месяцев',
     'count_of_validity_period' => 'Кол-во продлений',

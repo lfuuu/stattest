@@ -380,13 +380,6 @@ class AccountTariffLog extends ActiveRecord
                 // пакеты со списание после блокировки можно подключить всегда
                 return;
             }
-
-            if ($clientAccount->is_postpaid != $tariff->is_postpaid && !$isPackage) {
-                // для пакетов это не надо проверять
-                $this->addError($attribute, 'ЛС и тариф должны быть либо оба предоплатные, либо оба постоплатные.');
-                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_POSTPAID;
-                return;
-            }
         }
 
         $credit = $clientAccount->credit; // кредитный лимит

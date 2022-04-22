@@ -185,13 +185,21 @@ class VoipController extends BaseController
      * @param int $ndcTypeId
      * @param int|bool $isWithEmpty
      * @param string $format
-     * @param int $isPostpaid
      * @param int $isIncludeVat
      * @param int $organizationId
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $ndcTypeId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $isIncludeVat = null, $organizationId = null)
+    public function actionGetTariffPeriods(
+        $serviceTypeId,
+        $currency,
+        $countryId,
+        $cityId = null,
+        $ndcTypeId = null,
+        $isWithEmpty = 0,
+        $format = null,
+        $isIncludeVat = null,
+        $organizationId = null)
     {
         $clientAccount = $this->_getCurrentClientAccount();
 
@@ -205,7 +213,6 @@ class VoipController extends BaseController
             (int)$isWithEmpty,
             $isWithNullAndNotNull = false,
             $statusId = null,
-            $isPostpaid,
             $isIncludeVat,
             $organizationId,
             $ndcTypeId

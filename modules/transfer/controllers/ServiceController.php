@@ -179,8 +179,8 @@ class ServiceController extends BaseController
                 $isWithEmpty = false,
                 $isWithNullAndNotNull = false,
                 $statusId,
-                $clientAccount->is_postpaid,
-                $clientAccount->is_voip_with_tax
+                $clientAccount->is_voip_with_tax,
+                $clientAccount->contract->organization_id
             );
 
             ReturnFormatted::me()->returnFormattedValues($returnArray, ReturnFormatted::FORMAT_OPTIONS);

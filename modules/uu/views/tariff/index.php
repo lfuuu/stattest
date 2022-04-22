@@ -179,13 +179,6 @@ $columns = [
 ];
 
 
-if (!array_key_exists($serviceType->id, ServiceType::$packages)) {
-    $columns[] = [
-        'attribute' => 'is_postpaid',
-        'class' => YesNoColumn::class,
-    ];
-}
-
 $columns[] = [
     'label' => Html::encode(Yii::t('models/' . TariffOrganization::tableName(), 'organization_id')),
     'attribute' => 'organization_id',
