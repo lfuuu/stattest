@@ -30,6 +30,7 @@ class TariffFilter extends Tariff
 
     public $voip_group_id = '';
     public $voip_country_id = '';
+    public $tariff_country_id = '';
     public $voip_city_id = '';
     public $voip_ndc_type_id = '';
     public $organization_id = '';
@@ -52,7 +53,7 @@ class TariffFilter extends Tariff
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['id', 'country_id', 'voip_country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
+        $rules[] = [['id', 'country_id', 'voip_country_id', 'tariff_country_id', 'voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
         return $rules;
     }
 
@@ -131,6 +132,11 @@ class TariffFilter extends Tariff
         if ($this->country_id !== '') {
             $query->joinWith('tariffCountries');
             $query->andWhere([TariffCountry::tableName() . '.country_id' => $this->country_id]);
+        }
+
+        if ($this->tariff_country_id !== '') {
+            $query->joinWith('tariffCountries');
+            $query->andWhere([TariffCountry::tableName() . '.country_id' => $this->tariff_country_id]);
         }
 
         if ($this->voip_country_id !== '') {
