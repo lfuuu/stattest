@@ -259,8 +259,8 @@ $cityColumn = [
 ];
 
 $voipCountryColumn = [
-    'label' => Html::encode(Yii::t('models/' . TariffVoipCountry::tableName(), 'country_id')),
-    'attribute' => 'voip_country_id',
+    'label' => 'Страны витрины',
+    'attribute' => 'tariff_country_id',
     'format' => 'html',
     'class' => CountryColumn::class,
     'isAddLink' => false,
@@ -269,18 +269,18 @@ $voipCountryColumn = [
     ],
     'value' => function (Tariff $tariff) {
         $maxCount = 2;
-        $tariffVoipCountries = $tariff->tariffVoipCountries;
-        $count = count($tariffVoipCountries);
+        $tariffCountries = $tariff->tariffCountries;
+        $count = count($tariffCountries);
         if ($count <= $maxCount) {
-            return implode('<br/>', $tariffVoipCountries);
+            return implode('<br/>', $tariffCountries);
         }
 
         $maxCount--;
 
         return sprintf(
             '%s<br/><abbr title="%s">… %d…</abbr>',
-            implode('<br/>', array_slice($tariffVoipCountries, 0, $maxCount)),
-            implode(PHP_EOL, array_slice($tariffVoipCountries, $maxCount)),
+            implode('<br/>', array_slice($tariffCountries, 0, $maxCount)),
+            implode(PHP_EOL, array_slice($tariffCountries, $maxCount)),
             $count - $maxCount
         );
     },
@@ -328,6 +328,7 @@ switch ($serviceType->id) {
         break;
 
     case ServiceType::ID_VOIP_PACKAGE_CALLS:
+        $columns[] = $voipCountryColumn;
         $columns[] = $cityColumn;
         $columns[] = $ndcTypeColumn;
 
