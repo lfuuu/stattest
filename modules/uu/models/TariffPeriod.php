@@ -186,7 +186,6 @@ class TariffPeriod extends ActiveRecord
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
      * @param int $statusId
-     * @param bool $isPostpaid
      * @param bool $isIncludeVat
      * @param int $organizationId
      * @param int $ndcTypeId
@@ -203,7 +202,6 @@ class TariffPeriod extends ActiveRecord
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
         $statusId = null,
-        $isPostpaid = null,
         $isIncludeVat = null,
         $organizationId = null,
         $ndcTypeId = null,
@@ -233,15 +231,6 @@ class TariffPeriod extends ActiveRecord
 
         if ($currency) {
             $activeQuery->andWhere(['tariff.currency_id' => $currency]);
-        }
-
-        if (array_key_exists($serviceTypeId, ServiceType::$packages)) {
-            // для пакетов не делить prepaid/postpaid
-            $isPostpaid = null;
-        }
-
-        if (!is_null($isPostpaid)) {
-            $activeQuery->andWhere(['tariff.is_postpaid' => $isPostpaid]);
         }
 
         if ($statusId) {
@@ -359,10 +348,10 @@ class TariffPeriod extends ActiveRecord
         $tariff = $this->tariff;
 
         if (
-            ($tariff->is_postpaid || array_key_exists($tariff->service_type_id, ServiceType::$packages))
+            (array_key_exists($tariff->service_type_id, ServiceType::$packages))
             && $this->charge_period_id != Period::ID_MONTH
         ) {
-            $this->addError($attribute, 'У постоплаты и пакетов может быть только помесячное списание');
+            $this->addError($attribute, 'У пакетов может быть только помесячное списание');
             return;
         }
 

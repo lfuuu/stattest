@@ -459,7 +459,6 @@ abstract class TariffForm extends \app\classes\Form
             'is_charge_after_blocking',
             'is_include_vat',
             'is_default',
-            'is_postpaid',
             'voip_group_id',
             'vm_id',
             'is_one_active',

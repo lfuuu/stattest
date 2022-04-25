@@ -419,7 +419,6 @@ abstract class AccountTariffForm extends Form
             $isWithEmpty,
             $isWithNullAndNotNull,
             $statusId = null,
-            $clientAccount->is_postpaid,
             $clientAccount->is_voip_with_tax,
             $clientAccount->contract->organization_id,
             $accountTariffVoip->voip_ndc_type_id

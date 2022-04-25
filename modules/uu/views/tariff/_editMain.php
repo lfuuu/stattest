@@ -125,12 +125,6 @@ $viewParams = [
                     ['label' => $tariff->getAttributeLabel('is_default') . $helpConfluence])
             ?>
             <?php
-            if (!array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
-                echo $form->field($tariff, 'is_postpaid')
-                    ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_postpaid') . $helpConfluence]);
-            }
-            ?>
-            <?php
             if (
                     isset(ServiceType::$packages[$tariff->service_type_id])
                     || array_search($tariff->service_type_id, ServiceType::$packages)

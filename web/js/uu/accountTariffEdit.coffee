@@ -21,7 +21,6 @@ class AccountTariffEdit
 
   voipServiceTypeIdVal: null
   currencyVal: null
-  isPostpaid: null
   isIncludeVat: null
   organizationId: null
 
@@ -52,7 +51,6 @@ class AccountTariffEdit
 
       @voipServiceTypeIdVal = $('#voipServiceTypeId').val()
       @currencyVal = $('#voipCurrency').val()
-      @isPostpaid = $('#isPostpaid').val()
       @isIncludeVat = $('#isIncludeVat').val()
       @organizationId = $('#organizationId').val()
 
@@ -215,7 +213,6 @@ class AccountTariffEdit
         ndcTypeId: ndcTypeId,
         isWithEmpty: 1,
         format: 'options',
-        isPostpaid: @isPostpaid,
         isIncludeVat: @isIncludeVat,
         organizationId: @organizationId
       }, (html) =>

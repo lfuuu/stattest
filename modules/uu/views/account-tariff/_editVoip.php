@@ -37,7 +37,6 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
 
         <?= Html::hiddenInput('', ServiceType::ID_VOIP, ['id' => 'voipServiceTypeId']) ?>
         <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) ?>
-        <?= Html::hiddenInput('', $clientAccount->is_postpaid, ['id' => 'isPostpaid']) ?>
         <?= Html::hiddenInput('', $clientAccount->is_voip_with_tax, ['id' => 'isIncludeVat']) ?>
         <?= Html::hiddenInput('', $clientAccount->contract->organization_id, ['id' => 'organizationId']) ?>
 

@@ -26,12 +26,6 @@ if ($clientAccount->currency != $tariff->currency) {
     $errors[] = 'валюта не совпадает';
 }
 
-if (!array_key_exists($tariff->service_type_id, ServiceType::$packages)
-    && $clientAccount->is_postpaid != $tariff->is_postpaid
-) {
-    $errors[] = 'предоплата/постоплата не совпадает';
-}
-
 if ($clientAccount->is_voip_with_tax != $tariff->is_include_vat) {
     $errors[] = 'с/без НДС не совпадает';
 }

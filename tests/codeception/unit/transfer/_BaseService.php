@@ -315,7 +315,6 @@ abstract class _BaseService extends \yii\codeception\TestCase
             $isWithEmpty = false,
             $isWithNullAndNotNull = false,
             $statusId,
-            $universalClientAccountFirst->is_postpaid,
             $universalClientAccountFirst->is_voip_with_tax,
             $universalClientAccountFirst->contract->organization_id,
             $ndcTypeId

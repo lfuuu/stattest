@@ -25,12 +25,11 @@ foreach ($tariffBundles as $tariffBundle) {
 $tariff = $formModel->tariff;
 $where = [
         'currency_id' => $tariff->currency_id,
-        'is_postpaid' => $tariff->is_postpaid,
         'is_include_vat' => $tariff->is_include_vat,
         'is_bundle' => 1,
 ];
-$tariffList = Tariff::getList(false, false, \app\modules\uu\models\ServiceType::$packages[$tariff->service_type_id], $where);
 
+$tariffList = Tariff::getList(false, false, \app\modules\uu\models\ServiceType::$packages[$tariff->service_type_id], $where);
 
 $tariffBundleTableName = TariffBundle::tableName();
 $tariffTableName = Tariff::tableName();

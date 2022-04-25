@@ -34,7 +34,6 @@ class TariffPeriodColumn extends DataColumn
             $isWithEmptyTmp = true,
             $isWithNullAndNotNullTmp = true,
             $statusId = null,
-            $isPostpaid = null,
             $isIncludeVat = null,
             $organizationId = null,
             $ndcTypeId = null,

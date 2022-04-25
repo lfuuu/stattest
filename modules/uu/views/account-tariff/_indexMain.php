@@ -175,17 +175,6 @@ $columns = array_merge($columns, [
         },
     ],
     [
-        'label' => 'Постоплата',
-        'attribute' => 'tariff_is_postpaid',
-        'class' => YesNoColumn::class,
-        'value' => function (AccountTariff $accountTariff) {
-            $tariffPeriod = $accountTariff->tariffPeriod;
-            $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
-
-            return $tariff ? $tariff->is_postpaid : null;
-        }
-    ],
-    [
         'label' => 'Страна витрины',
         'attribute' => 'tariff_country_id',
         'format' => 'html',

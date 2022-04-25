@@ -38,8 +38,6 @@
 
     AccountTariffEdit.prototype.currencyVal = null;
 
-    AccountTariffEdit.prototype.isPostpaid = null;
-
     AccountTariffEdit.prototype.isIncludeVat = null;
 
     AccountTariffEdit.prototype.organizationId = null;
@@ -80,7 +78,6 @@
           _this.tariffPeriod = $('.accountTariffTariffPeriod').on('change', _this.onTariffPeriodChange);
           _this.voipServiceTypeIdVal = $('#voipServiceTypeId').val();
           _this.currencyVal = $('#voipCurrency').val();
-          _this.isPostpaid = $('#isPostpaid').val();
           _this.isIncludeVat = $('#isIncludeVat').val();
           _this.organizationId = $('#organizationId').val();
 
@@ -279,7 +276,6 @@
         ndcTypeId: ndcTypeId,
         isWithEmpty: 1,
         format: 'options',
-        isPostpaid: this.isPostpaid,
         isIncludeVat: this.isIncludeVat,
         organizationId: this.organizationId
       }, (function(_this) {
