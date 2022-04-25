@@ -57,4 +57,19 @@ class ConsoleApplication extends \yii\console\Application
         return $this->get('user');
     }
 
+
+    private function _getProductCountry()
+    {
+        return ($_SERVER['COUNTRY'] ?? 'RU');
+    }
+
+    public function isEu()
+    {
+        return $this->_getProductCountry() == 'EU';
+    }
+
+    public function isRus()
+    {
+        return $this->_getProductCountry() == 'RU';
+    }
 }
