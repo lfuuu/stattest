@@ -217,8 +217,8 @@ $priceLevels = PriceLevel::getList();
                                                         class="text-nowrap"
                                                         style="color:<?= ($lockByCredit ? 'red' : 'green'); ?>;"
                                                 >
-                                                    <?= sprintf('%0.2f', $contractAccount->billingCounters->realtimeBalance) ?>
-                                                    <?= $contractAccount->currency ?>
+                                                    <div id="balance_<?=$contractAccount->id?>" class="balance_info" data-id="<?=$contractAccount->id?>"><?= sprintf('%0.2f', $contractAccount->billingCounters->realtimeBalance) ?>
+                                                    <?= $contractAccount->currency ?></div>
                                                 </abbr>
                                                 <br/>
                                                 <abbr title="Размер кредита" class="text-nowrap">

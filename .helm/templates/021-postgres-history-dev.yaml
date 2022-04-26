@@ -80,7 +80,7 @@ data:
             END IF;
             EXECUTE format('insert into ' || relname ||
                            '(id,model,model_id,user_id,created_at,action,data_json,prev_data_json,parent_model_id) ' ||
-                           'values ($1,$2,$3,$4,$5,$6,$7,$8,$9)')
+                           'values (\$1,\$2,\$3,\$4,\$5,\$6,\$7,\$8,\$9)')
                 USING new.id, new.model, new.model_id, new.user_id, new.created_at, new.action, new.data_json, new.prev_data_json, new.parent_model_id;
             return null;
         end;

@@ -69,6 +69,13 @@ node_comet_prod:
   port: 3000
   logLevel: 200
 
+node_balance:
+  host: node-balance
+  path: /balance
+  port: 3003
+  outPort: 30003
+  logLevel: 200
+
 node_nnp_ported_prod:
   host: node-nnp-ported-prod
   path: /nnp-ported
@@ -95,7 +102,7 @@ postgres_dev:
   db_nfdump: nfdump
 
 postgres_history_dev:
-  host: history-db
+  host: postgres-history-dev
   db: stat
   user: postgres
   password:

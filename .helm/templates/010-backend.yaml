@@ -148,6 +148,11 @@ spec:
         - name: LOG_SOURCE
           value: {{ .Values.logger.source }}
 
+  {{ if eq (env "IS_WITH_BALANCE") "1" }}
+        - name: IS_WITH_BALANCE
+          value: "1"
+  {{ end }}
+
   {{ if eq (env "IS_WITH_COMET") "1" }}
         - name: SOCKET_URL_INFO
           value: https://{{ .Values.ci_url }}{{ .Values.node_comet_prod.path }}
