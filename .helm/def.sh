@@ -20,7 +20,7 @@ function dev()
   export IS_WITH_COMET=0
   export IS_WITH_GRAPHQL=0
   export IS_WITH_NNPPORTED=0
-  export IS_WITH_BALANCE=1
+  export IS_WITH_BALANCE=0
 }
 
 function eudev()
@@ -55,7 +55,7 @@ function prod()
   export IS_WITH_COMET=1
   export IS_WITH_GRAPHQL=1
   export IS_WITH_NNPPORTED=1
-  export IS_WITH_BALANCE=0
+  export IS_WITH_BALANCE=1
 
   if [[ "$IS_MINIKUBE" == 1 ]]; then
     CI_URL="${CI_URL}.local"
