@@ -90,7 +90,7 @@ if [ "$ENVNAME" = "dev" ]; then
   echo "MySQL uri: mysql://${mysqlUser}:${mysqlPassword}@${minikubeIp}:${mysqlNodePort}/${mysqlDb}"
   echo "Stat login: admin/111"
 
-  PGDB="history-db-0"
+  PGDB="postgres-history-dev-0"
   if [ -f $HOME/.pgpass ]; then
     foundPgPass=$(kubectl exec -ti -n $NAMESPACE $PGDB -- bash -c "[ -f /root/.pgpass ] || echo 'Not found'")
     if [[ $foundPgPass =~ "Not found" ]]; then
@@ -100,6 +100,12 @@ if [ "$ENVNAME" = "dev" ]; then
   else
     echo '~/.pgpass not found'
   fi
+
+  PODNAME=$(kubectl get pods -n $NAMESPACE | grep node-balance | awk '{print $1}')
+
+  echo 'Check init node balance'
+  kubectl exec -ti -n $NAMESPACE $PODNAME -- /workspace/install-app.sh
+
 
 fi
 

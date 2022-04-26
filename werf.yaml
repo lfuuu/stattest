@@ -283,6 +283,49 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/comet-server
 {{ end }}
+{{ if eq (env "IS_WITH_BALANCE") "1" }}
+---
+image: {{ .project }}-node-balance3-{{ .env }}
+from: node:18.0.0
+docker:
+  WORKDIR: /workspace/app
+  USER: root
+  EXPOSE: {{ .Values.node_balance.port | quote}}
+  ENV:
+    LC_ALL: en_US.UTF-8
+    TERM: xterm
+    COLORTERM: truecolor
+    NODE_PATH: .:/usr/local/lib/node_modules
+{{- if eq (env "ENVNAME") "dev" }}
+  CMD: ["/bin/sleep","infinity"]
+{{- else }}
+  CMD: ["node","index.js"]
+{{- end }}
+
+{{ if ne (env "ENVNAME") "dev" }}
+git:
+  - url: git@github.com:welltime/balance_receipt_service.git
+    branch: master
+    herebyIAdmitThatBranchMightBreakReproducibility: true
+    add: /
+    to: /workspace/app
+{{ end }}
+
+ansible:
+  beforeInstall:
+    - name: "1. Utils"
+      shell: |
+        apt-get update
+        apt-get install -y \
+                     vim \
+                     mc
+  beforeSetup:
+      - name: "2. Install packages"
+        shell: |
+          npm instal -g -y websocket kafkajs
+
+
+{{ end }}
 ---
 image: {{ .project }}-redis-{{ .env }}
 from: quay.io/continuouspipe/redis3:latest

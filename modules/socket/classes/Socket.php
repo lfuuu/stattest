@@ -74,6 +74,10 @@ class Socket extends Singleton
             $baseView->registerJsFile($siteUrl . '/socket.js', ['position' => BaseView::POS_END]);
         }
 
+        if ($_SERVER['IS_WITH_BALANCE'] ?? false) {
+            $baseView->registerJsFile('/balance/script.js', ['position' => BaseView::POS_END]);
+        }
+
         return true;
     }
 

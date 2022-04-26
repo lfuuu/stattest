@@ -1,0 +1,122 @@
+{{ if eq (env "IS_WITH_BALANCE") "1" }}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-balance-config-files
+data:
+  install-app.sh: |
+    #!/bin/bash
+
+    if [[ ! -d /workspace/app ]] || [[ -z `ls -A "/workspace/app"` ]]; then
+      git clone git@github.com:welltime/balance_receipt_service.git /workspace/app
+    fi
+    
+  config.js: |
+    var config = {};
+  
+    config.host = {{ .Values.ci_url | quote }};
+    config.port = {{ .Values.node_balance.port }};
+    config.outPort = {{ .Values.node_balance.outPort }};
+  
+    module.exports = config
+---
+
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: node-balance-{{ (env "ENVNAME") }}
+spec:
+  selector:
+    matchLabels:
+      service: node-balance-{{ (env "ENVNAME") }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        ingressInternal: "yes"
+        ingressExternal: "no"
+        service: node-balance-{{ (env "ENVNAME") }}
+    spec:
+      containers:
+      - name: node-balance
+{{ tuple (printf "%s-%s-%s" .Chart.Name "node-balance3" (env "ENVNAME")) . | werf_container_image | indent 8 }}
+        ports:
+          - containerPort: {{ .Values.node_balance.port }}
+            name: http
+            protocol: TCP
+      {{ if eq (env "ENVNAME") "dev" }}
+        env:
+          - name: SSH_AUTH_SOCK
+            value: /ssh-agent
+      {{ end }}
+        volumeMounts:
+      {{ if eq (env "ENVNAME") "dev" }}
+          - name: ssh-agent-sock
+            mountPath: /ssh-agent
+
+          - name: config-sh-volume
+            subPath: install-app.sh
+            mountPath: /workspace/install-app.sh
+      {{ end }}
+
+          - name: config-js-volume
+            subPath: config.js
+            mountPath: /workspace/config.js
+
+          #### CERTS ####
+          - name: kafka-brokers-ca-certs
+            mountPath: /workspace/certs/kafka-brokers-ca-certs
+          - name: cluster-connect-tls-secret
+            mountPath: /workspace/certs/cluster-connect-tls-secret
+
+      volumes:
+        - name: config-js-volume
+          configMap:
+            name: node-balance-config-files
+
+    {{ if eq (env "ENVNAME") "dev" }}
+        - name: config-sh-volume
+          configMap:
+            name: node-balance-config-files
+            defaultMode: 0755
+
+        - name: ssh-agent-sock
+          hostPath:
+            path: /ssh-agent
+            type: Socket
+#        - name: workspace
+#          emptyDir: {}
+#          hostPath:
+#            path: /.volumes/workspace-{{ .Chart.Name }}-{{ .env }}
+
+    {{ end }}
+
+        - name: cluster-connect-tls-secret
+          secret:
+            secretName: prod-cluster-connect-tls-secret
+        - name: kafka-brokers-ca-certs
+          secret:
+            secretName: prod-kafka-brokers-ca-certs
+
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.node_balance.host }}
+  labels:
+    service: node-balance-{{ (env "ENVNAME") }}
+spec:
+  type: NodePort
+  ports:
+    - name: {{ .Values.node_balance.port | quote }}
+      port: {{ .Values.node_balance.port }}
+      nodePort: {{ .Values.node_balance.outPort }}
+  selector:
+    service: node-balance-{{ (env "ENVNAME") }}
+
+{{ end }}
