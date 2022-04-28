@@ -108,6 +108,9 @@ spec:
         - name: COUNTRY
           value: {{ env "COUNTRY" | quote}}
 
+        - name: IS_TEST
+          value: {{ ternary 1 0 (ne (env "ENVNAME") "prod") | quote }}
+
         - name: MYSQL_DB
           value: {{ .mysql.db }}
         - name: MYSQL_HOST

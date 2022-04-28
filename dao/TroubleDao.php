@@ -432,7 +432,12 @@ class TroubleDao extends Singleton
 
         $this->createTrouble($accountTariff->client_account_id, Trouble::TYPE_CONNECT, Trouble::SUBTYPE_CONNECT, $troubleText, null, ($user ? $user->user : null), $options);
 
-        if ($user && $user->email && $accountTariffLog->tariff_period_id) {
+        if (
+            !(isset($_SERVER['IS_TEST']) && $_SERVER['IS_TEST'])
+            && $user
+            && $user->email
+            && $accountTariffLog->tariff_period_id
+        ) {
             // отправить письмо только при создании, но не при закрытии
             \Yii::$app->mailer
                 ->compose()
