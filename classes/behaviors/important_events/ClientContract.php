@@ -2,6 +2,7 @@
 
 namespace app\classes\behaviors\important_events;
 
+use app\models\EventQueue;
 use Yii;
 use yii\base\Behavior;
 use yii\base\ModelEvent;
@@ -41,12 +42,23 @@ class ClientContract extends Behavior
 
         $userId = Yii::$app->user->id;
 
-        if ($clientAccountId) {
+        EventQueue::go(EventQueue::CREATE_CONTRACT, [
+            'super_client_id' => $contract->super_id,
+            'contract_id' => $event->sender->id,
+            'user_id' => $userId,
+        ]);
+    }
+
+    public static function eventAddContract($params)
+    {
+        foreach (\app\models\ClientAccount::findAll(['contract_id' => $params['contract_id']]) as $clientAccount) {
+
+            $clientAccountId = $clientAccount->id;
+
             ImportantEvents::create(ImportantEventsNames::EXTEND_ACCOUNT_CONTRACT,
-                ImportantEventsSources::SOURCE_STAT, [
+                ImportantEventsSources::SOURCE_STAT,
+                $params + [
                     'client_id' => $clientAccountId,
-                    'contract_id' => $event->sender->id,
-                    'user_id' => $userId,
                 ]);
         }
     }

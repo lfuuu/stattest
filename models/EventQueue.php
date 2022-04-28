@@ -58,6 +58,7 @@ class EventQueue extends ActiveRecord
     const CHECK_CREATE_CORE_OWNER = 'check_create_core_owner';
     const SYNC_CORE_ADMIN = 'sync_core_admin';
     const ADD_ACCOUNT = 'add_account';
+    const CREATE_CONTRACT = 'create_contract';
     const ADD_PAYMENT = 'add_payment';
     const ATS2_NUMBERS_CHECK = 'ats2_numbers_check';
     const ATS3__BLOCKED = 'ats3__blocked';
