@@ -563,6 +563,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = $isTele2Server ? AccountTariffCheckHlr::unlinkImsi($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
+                case EventQueue::CREATE_CONTRACT:
+                    \app\classes\behaviors\important_events\ClientContract::eventAddContract($param);
+                    break;
+
 
                 // --------------------------------------------
                 // Псевдо-логирование
