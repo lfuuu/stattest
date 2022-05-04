@@ -3,12 +3,14 @@
 namespace app\modules\uu\resourceReader;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\A2pSms;
 use app\models\billing\SmscRaw;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use DateTimeImmutable;
 use DateTimeZone;
 use yii\base\BaseObject;
+use yii\db\ActiveQuery;
 
 /**
  * Class A2pResourceReader
@@ -66,31 +68,43 @@ class A2pResourceReader extends BaseObject implements ResourceReaderInterface
                 $utcDateTimeZone->getOffset($dateTime)
             ) / 3600; // таймзона клиента в часах относительно UTC
 
-        if ($hoursDelta >= 0) {
-            $dateTimeUtc = $dateTime->modify('-' . $hoursDelta . ' hours');
-        } else {
-            $dateTimeUtc = $dateTime->modify('+' . abs($hoursDelta) . ' hours');
+        $dateTimeUtc = $dateTime->modify(($hoursDelta >= 0 ? '-' : '+') . abs($hoursDelta) . ' hours');
+
+        $this->cache = $this->getSmscStat($hoursDelta, $dateTimeUtc, $accountTariff);
+        if (!$this->cache) {
+            $this->cache = $this->getA2pStat($hoursDelta, $dateTimeUtc, $accountTariff);
         }
+    }
 
+    private function getSmscStat($hoursDelta, $dateTimeUtc, $accountTariff)
+    {
+        return $this->getStat(SmscRaw::find(), 'c.setup_time', $hoursDelta, $dateTimeUtc, $accountTariff);
+    }
 
-        // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
-        // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
-        $this->cache = SmscRaw::find()
-            ->alias('c')
-            ->innerJoinWith('accountTariffLight l')
-            ->select([
-                'sum' => 'SUM(ABS(c.cost))',
-                'aggr_date' => sprintf("TO_CHAR(c.setup_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
-            ])
-            ->where([
-                'c.account_id' => $accountTariff->client_account_id,
-                'l.account_package_id' => $accountTariff->id
-            ])
-            ->andWhere(['>=', 'c.setup_time', $dateTimeUtc->format(DATE_ATOM)])
-            ->groupBy(['aggr_date'])
-            ->asArray()
-            ->indexBy('aggr_date')
-            ->column();
+    private function getA2pStat($hoursDelta, $dateTimeUtc, $accountTariff)
+    {
+        return $this->getStat(A2pSms::find(), 'c.charge_time', $hoursDelta, $dateTimeUtc, $accountTariff);
+    }
+
+    private function getStat(ActiveQuery $query, $timeField, $hoursDelta, $dateTimeUtc, $accountTariff)
+    {
+        return
+            $query
+                ->alias('c')
+                ->innerJoinWith('accountTariffLight l')
+                ->select([
+                    'sum' => 'SUM(ABS(c.cost))',
+                    'aggr_date' => sprintf("TO_CHAR(%s + INTERVAL '%d hours', 'YYYY-MM-DD')", $timeField, $hoursDelta),
+                ])
+                ->where([
+                    'c.account_id' => $accountTariff->client_account_id,
+                    'l.account_package_id' => $accountTariff->id
+                ])
+                ->andWhere(['>=', $timeField, $dateTimeUtc->format(DATE_ATOM)])
+                ->groupBy(['aggr_date'])
+                ->asArray()
+                ->indexBy('aggr_date')
+                ->column();
     }
 
     /**
