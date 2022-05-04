@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\dao\billing\A2pSmsDao;
 use app\models\billing\api\ApiMethod;
 use app\dao\billing\ApiRawDao;
+use app\modules\nnp\models\AccountTariffLight;
 use Yii;
 
 /**
@@ -58,4 +59,10 @@ class A2pSms extends ActiveRecord
     {
         return A2pSmsDao::me();
     }
+
+    public function getAccountTariffLight()
+    {
+        return $this->hasOne(AccountTariffLight::class, ['id' => 'account_tariff_light_id']);
+    }
+
 }
