@@ -70,7 +70,13 @@ class CardFilter extends Card
         }
 
         $this->imei && $query->andWhere([$cardTableName . '.imei' => $this->imei]);
-        $this->client_account_id && $query->andWhere([$cardTableName . '.client_account_id' => $this->client_account_id]);
+        if ($this->client_account_id != "") {
+            if ($this->client_account_id <= 0) {
+                $query->andWhere([$cardTableName . '.client_account_id' => null]);
+            } else {
+                $query->andWhere([$cardTableName . '.client_account_id' => $this->client_account_id]);
+            }
+        }
         $this->is_active && $query->andWhere([$cardTableName . '.is_active' => $this->is_active]);
         $this->status_id && $query->andWhere([$cardTableName . '.status_id' => $this->status_id]);
 

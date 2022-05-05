@@ -60,19 +60,23 @@ class AccountTariffCheckHlr extends Behavior
         $isTurnOff = $event->changedAttributes['tariff_period_id'] && !$accountTariff->tariff_period_id; // turn Off
 
         if (!$isTurnOn && !$isTurnOff) {
-            return; // nothing (change tariff)
+            HandlerLogger::me()->add('nothing (change tariff)');
+            return;
         }
 
         if ($isTurnOn && !($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
+            HandlerLogger::me()->add('mob number without sim');
             return;
         }
 
         if ($isTurnOn) {
             if ($accountTariff->prev_usage_id) {
+                HandlerLogger::me()->add('transfer sim');
                 $this->transferCard($accountTariff);
             } else {
                 // проставляем IMSI если его нет.
                 if ($accountTariff->number && !$accountTariff->number->imsi) {
+                    HandlerLogger::me()->add('get imsi');
                     EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
                         'account_tariff_id' => $accountTariff->id,
                         'voip_number' => $accountTariff->voip_number,
@@ -89,6 +93,7 @@ class AccountTariffCheckHlr extends Behavior
             return;
         }
 
+        HandlerLogger::me()->add('unset imsi');
         EventQueue::go(EventQueue::SYNC_TELE2_UNSET_IMSI, [
             'account_tariff_id' => $accountTariff->id,
             'voip_number' => $accountTariff->voip_number,
