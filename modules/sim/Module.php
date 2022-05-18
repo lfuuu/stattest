@@ -47,7 +47,7 @@ class Module extends \yii\base\Module
                 ->addItem('SIM-карты', ['/sim/card/'], ['sim.read'])
                 ->addItem('Статусы SIM-карт', ['/sim/card-status/'], ['sim.read'])
                 ->addItem('Статусы IMSI', ['/sim/imsi-status/'], ['sim.read'])
-                ->addItem('MVNO-партнеры IMSI', ['/sim/imsi-partner/'], ['sim.read'])
+//                ->addItem('MVNO-партнеры IMSI', ['/sim/imsi-partner/'], ['sim.read'])
                 ->addItem('Реестр SIM-карт', ['/sim/registry'], ['sim.read'])
                 ->addItem('Портирование отчёт', ['/sim/porting/'], ['sim.read'])
                 ->addItem('Импорт данных из БДПН', ['/sim/porting/import/'], ['sim.write'])

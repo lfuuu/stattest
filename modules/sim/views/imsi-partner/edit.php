@@ -35,17 +35,9 @@ use yii\widgets\Breadcrumbs;
 
         <?php // Терминационный транк ?>
         <div class="col-sm-3">
-            <?= $form->field($imsiPartner, 'term_trunk_id')
+            <?= $form->field($imsiPartner, 'mvno_region_id')
                 ->widget(Select2::class, [
-                    'data' => $trankList = Trunk::dao()->getList($params = [], $isWithEmpty = true),
-                ]) ?>
-        </div>
-
-        <?php // Оригинационный транк ?>
-        <div class="col-sm-3">
-            <?= $form->field($imsiPartner, 'orig_trunk_id')
-                ->widget(Select2::class, [
-                    'data' => $trankList,
+                    'data' => \app\models\Region::getList($isWithEmpty = true),
                 ]) ?>
         </div>
 
@@ -60,7 +52,7 @@ use yii\widgets\Breadcrumbs;
     <?php // кнопки ?>
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?= $this->render('//layouts/_submitButton' . ($imsiPartner->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= '' ; $this->render('//layouts/_submitButton' . ($imsiPartner->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

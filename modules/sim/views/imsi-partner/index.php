@@ -57,14 +57,6 @@ $columns = [
         'class' => StringColumn::class,
     ],
     [
-        'attribute' => 'term_trunk_id',
-        'class' => TrunkColumn::class,
-    ],
-    [
-        'attribute' => 'orig_trunk_id',
-        'class' => TrunkColumn::class,
-    ],
-    [
         'attribute' => 'is_active',
         'class' => YesNoColumn::class,
     ],
