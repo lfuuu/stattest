@@ -23,16 +23,19 @@ class ImsiPartnerController extends BaseController
             'access' => [
                 'class' => AccessControl::class,
                 'rules' => [
+//                    [
+//                        'allow' => true,
+//                        'actions' => ['index'],
+//                        'roles' => ['sim.read'],
+//                    ],
+//                    [
+//                        'allow' => true,
+//                        'actions' => ['new', 'edit'],
+//                        'roles' => ['sim.write'],
+//                    ],
                     [
-                        'allow' => true,
-                        'actions' => ['index'],
-                        'roles' => ['sim.read'],
-                    ],
-                    [
-                        'allow' => true,
-                        'actions' => ['new', 'edit'],
-                        'roles' => ['sim.write'],
-                    ],
+                        'allow' => false,
+                    ]
                 ],
             ],
         ];

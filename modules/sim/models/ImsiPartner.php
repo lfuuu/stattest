@@ -12,13 +12,9 @@ use yii\helpers\Url;
 /**
  * @property int $id
  * @property string $name
- * @property integer $term_trunk_id
- * @property integer $orig_trunk_id
  * @property integer $is_active
  *
  * @property-read Imsi[] $imsies
- * @property-read Trunk $termTrunk
- * @property-read Trunk $origTrunk
  *
  * @method static ImsiPartner findOne($condition)
  * @method static ImsiPartner[] findAll($condition)
@@ -61,7 +57,7 @@ class ImsiPartner extends ActiveRecord
         return [
             [['name'], 'required'],
             [['name'], 'string'],
-            [['term_trunk_id', 'orig_trunk_id', 'is_active'], 'integer'],
+            [['is_active'], 'integer'],
         ];
     }
 
@@ -85,22 +81,6 @@ class ImsiPartner extends ActiveRecord
     {
         return $this->hasMany(Imsi::class, ['partner_id' => 'id'])
             ->indexBy('id');
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getTermTrunk()
-    {
-        return $this->hasOne(Trunk::class, ['id' => 'term_trunk_id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getOrigTrunk()
-    {
-        return $this->hasOne(Trunk::class, ['id' => 'orig_trunk_id']);
     }
 
     /**

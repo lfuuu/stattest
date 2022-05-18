@@ -3,7 +3,6 @@
 return [
     'id' => 'ID',
     'name' => 'Название',
-    'term_trunk_id' => 'Терминационный транк',
-    'orig_trunk_id' => 'Оригинационный транк',
+    'mvno_region_id' => 'MVNO регион',
     'is_active' => 'Вкл.',
 ];

@@ -12,8 +12,6 @@ class ImsiPartnerFilter extends ImsiPartner
 {
     public $id = '';
     public $name = '';
-    public $term_trunk_id = '';
-    public $orig_trunk_id = '';
     public $is_active = '';
 
     /**
@@ -22,7 +20,7 @@ class ImsiPartnerFilter extends ImsiPartner
     public function rules()
     {
         return [
-            [['id', 'term_trunk_id', 'orig_trunk_id', 'is_active'], 'integer'],
+            [['id', 'is_active'], 'integer'],
             [['name'], 'string'],
         ];
     }
@@ -42,8 +40,6 @@ class ImsiPartnerFilter extends ImsiPartner
 
         $this->id !== '' && $query->andWhere([$imsiPartnerTableName . '.id' => $this->id]);
         $this->name !== '' && $query->andWhere(['LIKE', $imsiPartnerTableName . '.name', $this->name]);
-        $this->term_trunk_id !== '' && $query->andWhere([$imsiPartnerTableName . '.term_trunk_id' => $this->term_trunk_id]);
-        $this->orig_trunk_id !== '' && $query->andWhere([$imsiPartnerTableName . '.orig_trunk_id' => $this->orig_trunk_id]);
         $this->is_active !== '' && $query->andWhere([$imsiPartnerTableName . '.is_active' => $this->is_active]);
 
         return $dataProvider;
