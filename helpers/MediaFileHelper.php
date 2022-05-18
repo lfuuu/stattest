@@ -16,11 +16,17 @@ class MediaFileHelper extends \yii\helpers\FileHelper
     /**
      * @param string $mode - array [0 => ..., 1 => ...], assoc [filename1 => ..., filename2 => ...]
      */
-    public static function findByPattern($path, $pattern, $mode = 'array')
+    public static function findByPattern($path, $pattern = 'images', $mode = 'array')
     {
         Assert::isIndexExists(Yii::$app->params, $path);
         $local_part = self::getLocalPath();
-        $files = glob($local_part . Yii::$app->params[$path] . $pattern, GLOB_BRACE);
+        $files = glob($local_part . Yii::$app->params[$path] . '*');
+
+        if ($pattern == 'images') {
+            $files = array_filter($files, function ($v) {
+                return preg_match('/(gif|png|jpg|jpeg)/', $v);
+            });
+        }
 
         if ($mode == 'assoc') {
             $result = [];

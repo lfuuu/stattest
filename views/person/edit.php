@@ -74,7 +74,7 @@ foreach(Language::getList() as $languageCode => $languageTitle) {
                     <?php
                     echo $form->field($model, 'signature_file_name')
                         ->dropDownList(
-                            MediaFileHelper::findByPattern('SIGNATURE_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
+                            MediaFileHelper::findByPattern('SIGNATURE_DIR', 'images', 'assoc'),
                             [
                                 'prompt' => 'Выбрать подпись',
                                 'data-source' => Yii::$app->params['SIGNATURE_DIR'],
