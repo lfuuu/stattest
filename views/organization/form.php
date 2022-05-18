@@ -314,7 +314,7 @@ if (!empty($title)) {
                 <div class="col-sm-12">
                     <?= $form->field($model, 'logo_file_name')
                         ->dropDownList(
-                            MediaFileHelper::findByPattern('ORGANIZATION_LOGO_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
+                            MediaFileHelper::findByPattern('ORGANIZATION_LOGO_DIR', 'images', 'assoc'),
                             [
                                 'prompt' => 'Выбрать логотип',
                                 'data-source' => Yii::$app->params['ORGANIZATION_LOGO_DIR'],
@@ -331,7 +331,7 @@ if (!empty($title)) {
                 <div class="col-sm-12">
                     <?= $form->field($model, 'stamp_file_name')
                         ->dropDownList(
-                            MediaFileHelper::findByPattern('STAMP_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
+                            MediaFileHelper::findByPattern('STAMP_DIR', 'images', 'assoc'),
                             [
                                 'prompt' => 'Выбрать печать',
                                 'data-source' => Yii::$app->params['STAMP_DIR'],
