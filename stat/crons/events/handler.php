@@ -712,7 +712,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case UuModule::EVENT_CHAT_BOT_CREATE:
                     if ($isChatBotServer) {
-                        ApiChatBot::createChatBot($param['client_account_id'], $param['account_tariff_id']);
+                        ApiChatBot::createChatBot(
+                            $param['client_account_id'],
+                            $param['account_tariff_id'],
+                            $param['tariff_id']
+                        );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }

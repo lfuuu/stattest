@@ -26,17 +26,18 @@ class ApiChatBot
     /**
      * @param int $clientId
      * @param int $serviceId
+     * @param int $tariffId
      * @return mixed
+     * @throws InvalidConfigException
      * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
      */
-    public static function createChatBot($clientId, $serviceId = 0)
+    public static function createChatBot($clientId, $serviceId, $tariffId)
     {
         // { account_id: НОМЕР_ЛС, service_id: НОМЕР_УСЛУГИ, max_scenario_number: КОЛИЧЕСТВО_БОТОВ(Пока хардкодим 3) }
         $data = [
             'account_id' => $clientId,
             'service_id' => $serviceId,
+            'tariff_id' => $tariffId,
             'max_scenario_number' => 3,
         ];
 

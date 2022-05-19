@@ -363,6 +363,7 @@ SQL;
                         EventQueue::go(\app\modules\uu\Module::EVENT_CHAT_BOT_CREATE, [
                             'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
+                            'tariff_id' => $accountTariff->tariffPeriod->tariff_id,
                         ]);
                         break;
 
