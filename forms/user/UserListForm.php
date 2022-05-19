@@ -43,6 +43,9 @@ class UserListForm extends UserForm
         if ($this->user) {
             $query->andWhere(['user' => $this->user]);
         }
+        if ($this->enabled) {
+            $query->andWhere(['enabled' => $this->enabled]);
+        }
     }
 
 }

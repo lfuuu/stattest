@@ -21,6 +21,7 @@ class DepartmentController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['index'],
                         'roles' => ['users.r'],
                     ],
                     [

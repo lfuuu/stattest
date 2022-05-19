@@ -8,6 +8,11 @@ use kartik\grid\GridView;
 
 $recordBtns = [
     'delete' => function ($url, $model, $key) {
+
+        if (!Yii::$app->user->can('users.change')) {
+            return '';
+        }
+
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
             ['delete', 'id' => $model->id],
@@ -55,7 +60,7 @@ echo GridView::widget([
     ],
     'toolbar' => [
         [
-            'content' =>
+            'content' => (Yii::$app->user->can('users.change') ?
                 Html::a(
                     '<i class="glyphicon glyphicon-plus"></i> Добавить',
                     ['add'],
@@ -66,7 +71,7 @@ echo GridView::widget([
                         'data-width' => 400,
                         'data-height' => 450,
                     ]
-                ),
+                ) : ''),
         ]
     ],
     'pjax' => true,

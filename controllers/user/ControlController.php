@@ -29,6 +29,7 @@ class ControlController extends BaseController
                     ],
                     [
                         'allow' => true,
+                        'actions' => ['index'],
                         'roles' => ['users.r'],
                     ],
                     [
@@ -36,11 +37,11 @@ class ControlController extends BaseController
                         'actions' => ['add', 'edit', 'delete', 'change-password'],
                         'roles' => ['users.change'],
                     ],
-                    [
-                        'allow' => true,
-                        'actions' => ['update-rights'],
-                        'roles' => ['users.grant'],
-                    ],
+//                    [
+//                        'allow' => true,
+//                        'actions' => ['update-rights'],
+//                        'roles' => ['users.grant'],
+//                    ],
                 ],
             ],
         ];
@@ -49,7 +50,13 @@ class ControlController extends BaseController
     public function actionIndex()
     {
         $model = new UserListForm;
-        $model->load(Yii::$app->request->getQueryParams());
+        $queryParams = Yii::$app->request->getQueryParams();
+
+        if (!\Yii::$app->user->can('users.change')) {
+            $queryParams['UserListForm']['enabled'] = 'yes';
+        }
+
+        $model->load($queryParams);
 
         $dataProvider = $model->spawnDataProvider();
         $dataProvider->sort = false;
@@ -149,6 +156,7 @@ class ControlController extends BaseController
         return $output;
     }
 
+    /*
     public function actionUpdateRights()
     {
         $authManager = new \app\classes\AuthManager();
@@ -156,5 +164,6 @@ class ControlController extends BaseController
         Yii::$app->session->addFlash('success', 'Права обновлены');
         return $this->redirect(Yii::$app->request->referrer);
     }
+    */
 
 }

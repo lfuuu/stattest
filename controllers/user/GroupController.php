@@ -23,6 +23,7 @@ class GroupController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['index'],
                         'roles' => ['users.r'],
                     ],
                     [

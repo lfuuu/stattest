@@ -13,6 +13,7 @@ class GroupNameColumn extends DataColumn
 
     protected function renderDataCellContent($model, $key, $index)
     {
-        return Html::a(parent::getDataCellValue($model, $key, $index), ['edit', 'id' => $model->{$this->attribute}]);
+        $value = parent::getDataCellValue($model, $key, $index);
+        return \Yii::$app->user->can('users.change') ? Html::a($value, ['edit', 'id' => $model->{$this->attribute}]) : $value;
     }
 }
