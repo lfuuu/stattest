@@ -34,6 +34,6 @@ class UserNameColumn extends DataColumn
     {
         $value = parent::getDataCellValue($model, $key, $index) .
             ' (' . $model->user . ')';
-        return Html::a($value, ['edit', 'id' => $model->id]);
+        return \Yii::$app->user->can('users.change') ? Html::a($value, ['edit', 'id' => $model->id]) : $value;
     }
 }
