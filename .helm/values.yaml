@@ -63,6 +63,15 @@ use_ngnix_virtualserver: "no"
 use_network_polices: "no"
 use_minikube: "yes"
 
+redis_server_dev:
+  is_standalone: 1
+
+redis_server_prod:
+  is_standalone: 0
+  sentineles: 5
+  replicas: 3
+  haproxies: 2
+
 node_comet_prod:
   host: node-comet-prod
   path: /comet
