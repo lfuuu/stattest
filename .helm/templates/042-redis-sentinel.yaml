@@ -58,6 +58,7 @@ spec:
                         break 2
                     fi
                 done
+                sleep 1
             done
             echo "sentinel monitor mymaster $MASTER 6379 2" >> /tmp/master
             echo "port 5000
@@ -89,15 +90,17 @@ spec:
       volumes:
       - name: redis-config
         emptyDir: {}
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "standard"
-      resources:
-        requests:
-          storage: 50Mi
+      - name: data
+        emptyDir: {}
+#  volumeClaimTemplates:
+#  - metadata:
+#      name: data
+#    spec:
+#      accessModes: [ "ReadWriteOnce" ]
+#      storageClassName: "standard"
+#      resources:
+#        requests:
+#          storage: 50Mi
 ---
 apiVersion: v1
 kind: Service

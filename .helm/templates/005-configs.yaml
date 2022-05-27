@@ -237,7 +237,7 @@ data:
             proxy_set_header X-Real-IP $remote_addr;
         }
 {{ end }}
-{{ if eq (int .redis_server.is_standalone) 0 }}
+{{ if and (eq (int .redis_server.is_standalone) 0) (eq (env "COUNTRY") "EU") }}
         location /redis-ha-stat/ {
             rewrite {{ .Values.redis_prod.path }}/(.*) /$1 break; #used to send request to base url
             proxy_set_header Host $host;
