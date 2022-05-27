@@ -7,7 +7,7 @@
   {{ $_ := set . "redis_server" .Values.redis_server_prod }}
 {{ end }}
 
-{{ if eq (int .redis_server.is_standalone ) 1 }}
+{{ if not (and (eq (int .redis_server.is_standalone) 0) (eq (env "COUNTRY") "EU")) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
