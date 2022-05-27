@@ -1,0 +1,114 @@
+{{ $_ := set . "redis_server" .Values.redis_server_dev }}
+
+{{- if (eq (env "ENVNAME") "prod") }}
+  {{ $_ := set . "redis_server" .Values.redis_server_prod }}
+{{ end }}
+
+{{ if and (eq (int .redis_server.is_standalone) 0) (eq (env "COUNTRY") "EU") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-sentinel
+spec:
+  serviceName: redis-sentinel
+  replicas: {{ .redis_server.sentineles }}
+  selector:
+    matchLabels:
+      app: redis-sentinel
+  template:
+    metadata:
+      labels:
+        app: redis-sentinel
+      annotations:
+        scheduler.alpha.kubernetes.io/affinity: >
+          {
+            "podAntiAffinity": {
+              "preferredDuringSchedulingIgnoredDuringExecution": [{
+                "labelSelector": {
+                  "matchExpressions": [{
+                    "key": "app",
+                    "operator": "In",
+                    "values": ["redis-sentinel"]
+                  }]
+                },
+                "topologyKey": "kubernetes.io/hostname"
+              }]
+            }
+
+    spec:
+      initContainers:
+      - name: wait-redis
+        image: alpine:3.6
+        command: ['/bin/sh', '-c', 'while ! getent ahostsv4 redis-server-0.redis-db; do echo waiting for redis; sleep 2; done']
+      - name: config
+        image: redis:6.2.3-alpine
+        command: [ "sh", "-c" ]
+        args:
+          - |
+            nodes=redis-server-0.redis-db,redis-server-1.redis-db,redis-server-2.redis-db
+            while true; do
+                for i in ${nodes//,/ }
+                do
+                    echo "finding master at $i"
+                    MASTER=$(redis-cli --no-auth-warning --raw -h $i info replication | awk '{print $1}' | grep master_host: | cut -d ":" -f2)
+                    if [[ -z "$MASTER" ]]; then
+                        echo "no master found"
+                    else
+                        echo "found $MASTER"
+                        break 2
+                    fi
+                done
+            done
+            echo "sentinel monitor mymaster $MASTER 6379 2" >> /tmp/master
+            echo "port 5000
+            sentinel resolve-hostnames yes
+            sentinel announce-hostnames yes
+            $(cat /tmp/master)
+            sentinel down-after-milliseconds mymaster 5000
+            sentinel failover-timeout mymaster 20000
+            sentinel parallel-syncs mymaster 1
+            #sentinel auth-pass mymaster $REDIS_PASSWORD
+            " > /etc/redis/sentinel.conf
+            cat /etc/redis/sentinel.conf
+        volumeMounts:
+        - name: redis-config
+          mountPath: /etc/redis/
+      containers:
+      - name: sentinel
+        image: redis:6.2.3-alpine
+        command: ["redis-sentinel"]
+        args: ["/etc/redis/sentinel.conf"]
+        ports:
+        - containerPort: 5000
+          name: sentinel
+        volumeMounts:
+        - name: redis-config
+          mountPath: /etc/redis/
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: redis-config
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 50Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-sentinel
+spec:
+  clusterIP: None
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: sentinel
+  selector:
+    app: redis-sentinel
+{{ end }}

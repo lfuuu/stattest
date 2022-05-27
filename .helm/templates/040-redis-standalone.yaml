@@ -1,6 +1,13 @@
 {{ $_ := set . "postfix_name" (printf "%s-%s-%s" .Chart.Name (env "ENVNAME" | lower) (env "COUNTRY" | lower)) }}
 {{ $_ := set . "storage_class_name" (printf "redis-storage-%s" .postfix_name) }}
 
+{{ $_ := set . "redis_server" .Values.redis_server_dev }}
+
+{{- if (eq (env "ENVNAME") "prod") }}
+  {{ $_ := set . "redis_server" .Values.redis_server_prod }}
+{{ end }}
+
+{{ if not (and (eq (int .redis_server.is_standalone) 0) (eq (env "COUNTRY") "EU")) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -82,3 +89,4 @@ spec:
       port: 6379
   selector:
     service: redis-{{ .postfix_name }}
+{{ end }}
