@@ -119,6 +119,8 @@ spec:
           value: {{ .mysql.user }}
         - name: MYSQL_PASSWORD
           value: {{ .mysql.password }}
+        - name: MYSQL_PORT
+          value: {{ .mysql.port | quote }}
 
         - name: POSTGRES_HOST
           value: {{ .postgres.host }}
