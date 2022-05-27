@@ -3,7 +3,7 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.361
+TAG=1.362
 
 function dev()
 {
@@ -65,7 +65,7 @@ function prod()
 function euprod()
 {
 	export ENVNAME=prod
-	CI_URL="stat.mcntele.com"
+	CI_URL="stat.kompaas.tech"
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 	export COUNTRY="EU"
 	export IS_MINIKUBE=0
