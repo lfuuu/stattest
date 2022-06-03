@@ -444,7 +444,7 @@ class LkController extends ApiController
 
             return [
                 'provider' => 'sber',
-                'order_url' => 'https://money.yandex.ru/eshop.xml?' . http_build_query([
+                'order_url' => 'https://yoomoney.ru/eshop.xml?' . http_build_query([
                         'scid' => $scId,
                         'ShopID' => $shopId,
                         'Sum' => $form->sum,
