@@ -1,3 +1,5 @@
+{{ if eq (env "IS_WITH_CRON") "1" }}
+
 {{ $_ := set . "postfix" (printf "%s-%s" ((env "ENVNAME") | lower) ((env "COUNTRY") | lower)) }}
 
 {{ $_ := set . "params" .Values.params_dev }}
@@ -19,46 +21,30 @@
 {{ $_ := set . "postgres_password" (ternary .Values.postgres_prod.password_read_only .postgres.password (eq (env "ENVNAME") "dev")) }}
 
 {{/* fail (printf "%s-%s-%s" (env "ENVNAME") "-" .postgres_user) */}}
+{{/* fail (.Values.redis_prod | toJson) */}}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: {{ .Chart.Name }}-backend-{{ .postfix }}
+  name: {{ .Chart.Name }}-backend-cron-{{ .postfix }}
 spec:
-  replicas: {{ ternary "2" "1" (eq (env "ENVNAME") "prod") }}
+  serviceName: cron-{{ .Values.global.env }}
+  replicas: 1
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}-backend-{{ .postfix }}
-  strategy:
-    type: RollingUpdate
+      app: {{ .Chart.Name }}-backend-cron-{{ .postfix }}
   template:
     metadata:
       labels:
-        ingressInternal: "yes"
-        ingressExternal: "no"
-        app: {{ .Chart.Name }}-backend-{{ .postfix }}
+        app: {{ .Chart.Name }}-backend-cron-{{ .postfix }}
     spec:
       initContainers:
 {{- include "initCo" . | indent 6}}
       containers:
-      - name: php-fpm
-{{ tuple (printf "%s-%s-%s" .Chart.Name "php-fpm" (env "ENVNAME")) . | werf_container_image | indent 8 }}
+      - name: stat-cron
+{{ tuple (printf "%s-%s-%s" .Chart.Name "cron" (env "ENVNAME")) . | werf_container_image | indent 8 }}
         command: ['/bin/sh','{{ .Values.ci_dir_home }}/stat/ENTRYPOINT.sh']
-        #command: ["/bin/sleep","infinity"]
-        ports:
-        - containerPort: 9000
-          name: http
-          protocol: TCP
-#        livenessProbe:
-#          httpGet:
-#            path: /
-#            port: 9000
-#            scheme: HTTP
-#        readinessProbe:
-#          httpGet:
-#            path: /
-#            port: 9000
-#            scheme: HTTP
+#        command: ["/bin/sleep","infinity"]
         volumeMounts:
         - name: config-volume
           subPath: params.local.php
@@ -78,46 +64,19 @@ spec:
         - name: config-volume
           subPath: php-fpm-cryptopro-known_hosts
           mountPath: /root/known_hosts
+        - name: crontab-dir
+          mountPath: /etc/crontabs/
+        - name: crontab-logs
+          mountPath: /var/log/nispd/
+        - name: config-volume
+          subPath: {{ ternary "crontab.file.dev" "crontab.file.eu" (eq (env "ENVNAME") "dev") }}
+          mountPath: /tmp/crons
         - name: store
           mountPath: {{ .Values.ci_dir_home }}/store
-        - name: assets
-          mountPath: {{ .Values.ci_dir_home }}/stat/web/assets
         env:
 {{- include "envs" . | indent 8}}
 
 {{ tuple . | werf_container_env | indent 8 }}
-      - name: nginx
-{{ tuple (printf "%s-%s-%s" .Chart.Name "nginx" (env "ENVNAME")) . | werf_container_image | indent 8 }}
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-            scheme: HTTP
-          failureThreshold: 10
-          periodSeconds: 60
-        startupProbe:
-          httpGet:
-            path: /
-            port: 80
-            scheme: HTTP
-          initialDelaySeconds: 10
-          failureThreshold: 30
-          periodSeconds: 20
-        ports:
-        - containerPort: 80
-          name: http
-          protocol: TCP
-        volumeMounts:
-        - name: config-volume
-          subPath: nginx.conf
-          mountPath: /etc/nginx/nginx.conf
-        - name: config-volume
-          subPath: nginx.default.conf
-          mountPath: /etc/nginx/conf.d/default.conf
-        - name: store
-          mountPath: {{ .Values.ci_dir_home }}/store
-        - name: assets
-          mountPath: {{ .Values.ci_dir_home }}/stat/web/assets
 
       volumes:
       - name: config-volume
@@ -125,14 +84,23 @@ spec:
           name: {{ .Chart.Name }}-config-files
       - name: store
         persistentVolumeClaim:
-          claimName: {{ printf "nfs-pvc-stat-%s-store" (env "COUNTRY" | lower) }}
-      - name: assets
+          claimName: {{ printf "nfs-pvc-stat-%s-store-cron" (env "COUNTRY" | lower) }}
       - name: health
+      - name: crontab-dir
+        emptyDir: {}
+      - name: crontab-logs
+      {{ if eq (env "ENVNAME" | lower) "dev" }}
+        hostPath:
+          path: '/.volumes/{{ .postfix }}-cron-logs'
+      {{ else }}
+        emptyDir: {}
+      {{ end }}
+
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ printf "nfs-pvc-stat-%s-store" (env "COUNTRY" | lower) }}
+  name: {{ printf "nfs-pvc-stat-%s-store-cron" (env "COUNTRY" | lower) }}
 spec:
   storageClassName: manual
   accessModes:
@@ -144,7 +112,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ printf "nfs-pv-stat-%s-store" (env "COUNTRY" | lower) }}
+  name: {{ printf "nfs-pv-stat-%s-store-cron" (env "COUNTRY" | lower) }}
 spec:
   storageClassName: manual
   capacity:
@@ -166,18 +134,5 @@ spec:
     server: tiberis.mcn.ru
     path: /home/httpd/stat.mcn.ru/store
     {{ end }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Chart.Name }}-backend-{{ .postfix }}
-  labels:
-    app: {{ .Chart.Name }}-backend-{{ .postfix }}
-spec:
-  clusterIP: None
-  selector:
-    app: {{ .Chart.Name }}-backend-{{ .postfix }}
-  ports:
-  - name: http
-    port: 80
-    protocol: TCP
+
+{{ end }}

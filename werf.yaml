@@ -221,6 +221,157 @@ ansible:
       args:
         chdir: {{ .ci_dir_home }}/stat
 
+{{ if eq (env "IS_WITH_CRON") "1" }}
+---
+image: {{ .project }}-cron-{{ .env }}
+from: php:7.4-alpine3.12
+docker:
+  WORKDIR: {{ .ci_dir_home }}/stat
+  USER: root
+  ENV:
+    MYSQL_DB: nispd
+    MYSQL_HOST: mysql
+    MYSQL_USER: stat
+    MYSQL_PASSWORD: stat
+    POSTGRES_DB: nispd
+    POSTGRES_HOST: postgres
+    POSTGRES_SLAVE_HOST: postgres
+    POSTGRES_USER: stat
+    POSTGRES_PASSWORD: stat
+    REDIS_HOST: redis
+    API_SECURE_KEY: 123
+#  EXPOSE: "9000"
+  #ENTRYPOINT: ["{{ .ci_dir_home }}/stat/ENTRYPOINT.sh"]
+  #CMD: ["/bin/sh","{{ .ci_dir_home }}/stat/ENTRYPOINT.sh"]
+
+git:
+  - add: /
+    to: {{ .ci_dir_home }}/stat
+    stageDependencies:
+      setup:
+        - "**/composer.*"
+
+ansible:
+  beforeInstall:
+    - name: "Php: 1. Utils"
+      shell: |
+        echo "http://dl-3.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-3.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        apk update && apk upgrade
+        apk add wget
+        apk add unzip
+        apk add net-tools mc
+        apk add curl
+        apk add cronie
+        apk add mysql
+        apk add git
+        apk add vim
+        apk add tmux
+        # libs
+        apk add \
+            libzip-dev \
+            libc-client-dev \
+            libkrb5-dev \
+            libpng-dev \
+            libjpeg-dev \
+            libwebp-dev \
+            libfreetype6-dev \
+            libkrb5-dev \
+            libicu-dev \
+            zlib1g-dev \
+            zstd-dev \
+            zip \
+            bzip2-dev \
+            ffmpeg \
+            libmemcached11 \
+            libmemcachedutil2 \
+            build-essential \
+            libmemcached-dev \
+            gnupg2 \
+            libpq-dev \
+            libpq5 \
+            libz-dev \
+            libxml2-dev \
+            libxslt-dev \
+            procps \
+            telnet \
+            iputils-ping \
+            htop
+        apk add busybox-extras
+        apk --no-cache add shadow
+        # id www-data
+        # dirs
+        # ssh for cryptopro
+        mkdir /root/.ssh/
+        apk add openssh-client
+  install:
+    - name: "Php: 2. Configs"
+      shell: |
+        apk add libssh2-dev
+        cd /tmp/
+        curl https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions >> install-php-extensions
+        mv install-php-extensions /usr/local/bin/
+        chmod uga+x /usr/local/bin/install-php-extensions && sync
+        # install extensions 1
+        install-php-extensions bcmath bz2 calendar exif gd gettext intl mysqli
+        # install extensions 2
+        install-php-extensions pcntl pdo_mysql pdo_pgsql pgsql soap shmop sockets sysvmsg sysvsem sysvshm xmlrpc xsl
+        # install extensions 3
+        install-php-extensions apcu gmp memcache zip
+        # install pecl extensions
+        install-php-extensions amqp igbinary mcrypt msgpack redis
+        install-php-extensions ssh2
+        # install xdebug extension
+        # install-php-extensions xdebug
+        # permissions
+        cd {{ .ci_dir_home }}/stat
+        mkdir stat/design_c
+        chown -R www-data:www-data {{ .ci_dir_home }}/stat
+        # configs
+        #cp stat/local.conf.php.tpl stat/local.conf.php
+        chmod a+x *.sh
+        #export dir
+        ln -Tfs {{ .ci_dir_home }}/store/web/export {{ .ci_dir_home }}/stat/web/export
+        #add wkhtmltopdf
+        apk add qt5-qtbase-dev wkhtmltopdf imagemagick zbar
+        ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
+        # fonts
+        apk add --update --no-cache \
+            xvfb \
+            fontconfig \
+            dbus \
+            exiftool \
+            tzdata \
+            ca-certificates
+        apk add --update --no-cache \
+            libgcc libstdc++ libx11 glib libxrender libxext libintl \
+            libcrypto1.0 libssl1.0 \
+            ttf-dejavu ttf-droid ttf-freefont ttf-liberation ttf-ubuntu-font-family
+        apk add libwmf
+        fc-cache -f
+      args:
+        chdir: {{ .ci_dir_home }}/stat
+  setup:
+      - name: "Php: 3. Install dependencies"
+        shell: |
+          # install composer
+          curl -sS https://getcomposer.org/installer | php
+          mv composer.phar /usr/local/bin/composer
+          composer self-update --1
+          composer global require "fxp/composer-asset-plugin"
+          # vendors
+          composer install --prefer-dist
+          composer clear-cache
+          # rights
+          chown -R www-data:www-data {{ .ci_dir_home }}/stat/vendor
+          chown www-data:www-data {{ .ci_dir_home }}/stat/composer*
+        args:
+          chdir: {{ .ci_dir_home }}/stat
+{{ end }}
 {{ if eq (env "IS_WITH_COMET") "1" }}
 ---
 image: {{ .project }}-node-comet-{{ .env }}
