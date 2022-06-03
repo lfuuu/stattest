@@ -48,16 +48,18 @@ $config = array(
 
 $config = array_merge($config, require(dirname(__FILE__).'/local.conf.php'));
 
-if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->db->dsn, $matches)) {
+if (preg_match_all('/host=([\w\.]+)(:(\d+))?;dbname=(\w+)/i', Yii::$app->db->dsn, $matches)) {
     $config['SQL_HOST'] = $matches[1][0];
-    $config['SQL_DB'] = $matches[2][0];
+    $config['SQL_DB'] = $matches[4][0];
     $config['SQL_USER'] = Yii::$app->db->username;
     $config['SQL_PASS'] = Yii::$app->db->password;
+    $config['SQL_PORT'] = $matches[3][0];
 } else {
     $config['SQL_HOST'] = '';
     $config['SQL_DB'] = '';
     $config['SQL_USER'] = '';
     $config['SQL_PASS'] = '';
+    $config['SQL_PORT'] = '3306';
 }
 
 if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->dbAts->dsn, $matches)) {
@@ -200,7 +202,7 @@ if (!defined('NO_INCLUDE')){
 
 ActiveRecord\Config::initialize(function($cfg) {
     $connections = array(
-        'db' => 'mysql://' . SQL_USER . ':' . SQL_PASS . '@' . SQL_HOST . '/' . SQL_DB . '?charset=utf8',
+        'db' => 'mysql://' . SQL_USER . ':' . SQL_PASS . '@' . SQL_HOST . ':' . SQL_PORT . '/' . SQL_DB . '?charset=utf8',
         'voip' => 'pgsql://' . PGSQL_USER . ':' . PGSQL_PASS . '@' . PGSQL_HOST . '/' . PGSQL_DB . '?charset=utf8',
     );
 
