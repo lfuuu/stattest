@@ -60,7 +60,7 @@ class A2pSmsDao extends Singleton
             }
             $query->addSelect([
                 ($group_by == 'cost' ? 'cost_gr' : 'charge_time') => $groupExp,
-                'cost' => new Expression('abs(sum(cost))'),
+                'cost' => new Expression('sum(abs(cost))'),
                 'count' => new Expression('count(id)'),
             ]);
 
