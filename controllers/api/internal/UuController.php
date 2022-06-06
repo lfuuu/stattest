@@ -135,10 +135,18 @@ class UuController extends ApiInternalController
      */
     public function actionGetServiceTypes()
     {
-        $query = ServiceType::find();
+        $query = ServiceType::find()->orderBy([
+            'coalesce(parent_id, id)' => SORT_ASC,
+            'id' => SORT_ASC,
+        ]);
         $result = [];
+        /** @var ServiceType $model */
         foreach ($query->each() as $model) {
-            $result[] = $this->_getIdNameRecord($model);
+            $result[] = [
+                'id' => $model->id,
+                'name' => $model->name,
+                'parent_service_type_id' => $model->parent_id,
+            ];
         }
 
         return $result;
@@ -1889,6 +1897,14 @@ class UuController extends ApiInternalController
 
     public function _addAccountTariff($post)
     {
+
+        // 1. semaphore on mysql / redis (можно SELECT FOR UPDATE) get_lock('a', 600);  is_free_lock('b'); release_lock('a');
+        // 2. нерасчитанные платежи учитывать при подключении услуги
+        // 3.
+
+        // поиск перевести на FULLTEXT
+        // отработка всевозможных отключений
+
         if (isset($post['is_async']) && $post['is_async']) {
             $event = EventQueue::go(asyncModule::EVENT_ASYNC_ADD_ACCOUNT_TARIFF, $post);
             $requestId = isset($post['request_id']) && $post['request_id'] ? $post['request_id'] : $event->id;
