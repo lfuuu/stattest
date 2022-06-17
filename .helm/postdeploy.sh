@@ -103,8 +103,15 @@ if [ "$ENVNAME" = "dev" ]; then
 
   PODNAME=$(kubectl get pods -n $NAMESPACE | grep node-balance | awk '{print $1}')
 
-  echo 'Check init node balance'
-  kubectl exec -ti -n $NAMESPACE $PODNAME -- /workspace/install-app.sh
+  if [[ $PODNAME != "" ]]; then
+    echo 'Check init node balance'
+    kubectl exec -ti -n $NAMESPACE $PODNAME -- /workspace/install-app.sh
+  fi
+
+  if [[ $IS_WITH_MAILER == "1" ]]; then
+      sudo sed -i -e "/^.*mailer.mcn.local/d" /etc/hosts
+      echo "${minikubeIp} mailer.mcn.local" | sudo tee -a /etc/hosts
+  fi
 
 
 fi

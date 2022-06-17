@@ -171,4 +171,9 @@ params_dev:
   mchs_is_enabled: "0"
   mchs_api_key:
   client_changed_amq_settings: "0"
+  sms_gate:
+    client: "xxx"
+    password: "xxx"
+    server: http://thiamis.mcn.ru/sms/gateway.php
+
 

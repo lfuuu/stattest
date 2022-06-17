@@ -206,7 +206,7 @@ spec:
           value: {{ .Values.sim_prod.transfer_msisdn | quote }}
   {{ end }}
         - name: NOTIFIER_URI
-          value: {{ .Values.notifier_prod.uri }}
+          value: http://{{ printf "mailer-processor-service-%s-%s-%s" .Chart.Name (env "ENVNAME" | lower) (env "COUNTRY" | lower) }}/
         - name: NOTIFIER_USER
           value: {{ .Values.notifier_prod.user }}
         - name: NOTIFIER_PASSWD

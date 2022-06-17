@@ -455,6 +455,112 @@ docker:
   #CMD: ["/bin/sleep","infinity"]
   EXPOSE: "22"
 {{ end }}
+
+{{ if eq (env "IS_WITH_MAILER") "1" }}
+---
+image: {{ .project }}-mailer-php-fpm-{{ .env }}
+from: php:7.1-fpm-alpine3.10
+docker:
+  WORKDIR: /app/mailer
+  USER: root
+  EXPOSE: "9000"
+
+git:
+  - url: git@github.com:welltime/mailer.git
+    branch: master
+    herebyIAdmitThatBranchMightBreakReproducibility: true
+    add: /
+    to: /app/mailer
+    stageDependencies:
+      setup:
+        - "**/composer.*"
+
+ansible:
+  beforeInstall:
+    - name: "Php-fpm: 1. Utils"
+      shell: |
+        echo "http://dl-3.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-3.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-4.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
+        echo "http://dl-5.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
+        apk update && apk upgrade
+        # apk add wget
+        # apk add unzip
+        apk add net-tools mc vim telnet iputils-ping
+        apk add busybox-extras
+        # www-data:www-data -> 509:509
+        # as jenkins:jenkins on tiberis
+        # and as nginx:nginx on nginx container in the POD
+        #apk --no-cache add shadow
+        groupmod -g 509 www-data
+        usermod -u 509 -g 509 www-data
+        # id www-data
+        # dirs
+        mkdir /run/php-fpm/
+        touch /run/php-fpm/php-fpm.pid
+        chown -R www-data:www-data /run/php-fpm/
+        mkdir -p /var/lib/php/session
+        chown -R www-data:www-data /var/lib/php/session
+  install:
+    - name: "Php-fpm: 2. Configs"
+      shell: |
+        cd /tmp/
+        curl https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions >> install-php-extensions
+        mv install-php-extensions /usr/local/bin/
+        chmod uga+x /usr/local/bin/install-php-extensions && sync
+        install extensions 1
+        install-php-extensions gettext intl mysqli pdo_mysql
+        chown -R www-data:www-data /app/mailer
+      args:
+        chdir: /app/mailer
+  setup:
+      - name: "Php-fpm: 3. Install dependencies"
+        shell: |
+          # install composer
+          curl -sS https://getcomposer.org/installer | php
+          mv composer.phar /usr/local/bin/composer
+          composer self-update --1
+          composer global require "fxp/composer-asset-plugin"
+          # vendors
+          composer install --prefer-dist
+          composer clear-cache
+          # rights
+          chown -R www-data:www-data /app/mailer/vendor
+          chown www-data:www-data /app/mailer/composer*
+        args:
+          chdir: /app/mailer
+---
+image: {{ .project }}-mailer-nginx-{{ .env }}
+from: nginx:1.15.3-alpine
+docker:
+  WORKDIR: /app/mailer
+  USER: root
+  EXPOSE: "80"
+
+git:
+  - url: git@github.com:welltime/mailer.git
+    branch: master
+    herebyIAdmitThatBranchMightBreakReproducibility: true
+    add: /
+    to: /app/mailer
+    stageDependencies:
+      setup:
+        - "**/composer.*"
+
+ansible:
+  beforeInstall:
+    - name: "Nginx 1. Utils"
+      shell: |
+        apk add net-tools mc vim telnet iputils-ping
+        apk add busybox-extras
+        # www-data:www-data -> 509:509
+        # as jenkins:jenkins on tiberis
+        # and as nginx:nginx on nginx container in the POD
+        #apk --no-cache add shadow
+
+{{ end }}
 {{- end }}
 ################################## DEV ENVIRONMENT ###########################################################
 {{ if (eq .env "dev") }}
