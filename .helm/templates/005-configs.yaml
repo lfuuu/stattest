@@ -328,7 +328,7 @@ data:
         'FEEDBACK_SERVER' => '{{ .params.feedback_server }}',
         'FEEDBACK_API_KEY' => '{{ .Values.params_prod.feedback_api_key }}',
         'MAILER' => [
-            'url' => 'http://mailer.local/',
+            'url' => 'http://{{ printf "mailer-processor-service-%s-%s-%s" .Chart.Name (env "ENVNAME" | lower) (env "COUNTRY" | lower) }}/',
             'auth' => [
                 'method' => 'basic',
                 'user' => '{{ .Values.params_prod.mailer_user }}',

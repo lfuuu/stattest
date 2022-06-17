@@ -3,7 +3,7 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.362
+TAG=1.363
 
 function dev()
 {
@@ -21,6 +21,7 @@ function dev()
   export IS_WITH_GRAPHQL=0
   export IS_WITH_NNPPORTED=0
   export IS_WITH_BALANCE=0
+  export IS_WITH_MAILER=0
 }
 
 function eudev()
@@ -39,6 +40,7 @@ function eudev()
   export IS_WITH_GRAPHQL=0
   export IS_WITH_NNPPORTED=0
   export IS_WITH_BALANCE=0
+  export IS_WITH_MAILER=0
 }
 
 function prod()
@@ -56,6 +58,7 @@ function prod()
   export IS_WITH_GRAPHQL=1
   export IS_WITH_NNPPORTED=1
   export IS_WITH_BALANCE=1
+  export IS_WITH_MAILER=0
 
   if [[ "$IS_MINIKUBE" == 1 ]]; then
     CI_URL="${CI_URL}.local"
@@ -77,6 +80,7 @@ function euprod()
   export IS_WITH_GRAPHQL=0
   export IS_WITH_NNPPORTED=0
   export IS_WITH_BALANCE=0
+  export IS_WITH_MAILER=1
 
   if [[ "$IS_MINIKUBE" == 1 ]]; then
     CI_URL="${CI_URL}.local"
