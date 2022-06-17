@@ -5,7 +5,9 @@ namespace app\controllers\api\internal;
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
 use app\exceptions\ModelValidationException;
+use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\Country;
 use app\models\LkNoticeSetting;
 use Yii;
 use yii\db\Expression;
@@ -85,6 +87,25 @@ class ClientContactController extends ApiInternalController
 
         if ($model->hasErrors()) {
             throw new ModelValidationException($model);
+        }
+
+        $clientAccount = ClientAccount::findOne(['id' => $model->client_id]);
+
+        if (!$clientAccount) {
+//            throw new \InvalidArgumentException('Account not found');
+            return ['b' => 1];
+        }
+
+        $countryId = $clientAccount->getUuCountryId();
+
+        if (
+            \Yii::$app->isRus() && (!$countryId || $countryId == Country::RUSSIA)
+            || (!\Yii::$app->isRus() && $countryId != Country::RUSSIA)
+        ) {
+            // OK
+        } else {
+//            throw new \InvalidArgumentException('not allowed');
+            return [];
         }
 
         $result->andWhere(['contacts.client_id' => $model->client_id]);
@@ -174,6 +195,24 @@ class ClientContactController extends ApiInternalController
 
         if ($model->hasErrors()) {
             throw new ModelValidationException($model);
+        }
+        $clientAccount = ClientAccount::findOne(['id' => $model->client_id]);
+
+        if (!$clientAccount) {
+//            throw new \InvalidArgumentException('Account not found');
+            return ['b' => 1];
+        }
+
+        $countryId = $clientAccount->getUuCountryId();
+
+        if (
+            \Yii::$app->isRus() && (!$countryId || $countryId == Country::RUSSIA)
+            || (!\Yii::$app->isRus() && $countryId != Country::RUSSIA)
+        ) {
+            // OK
+        } else {
+//            throw new \InvalidArgumentException('not allowed');
+            return [];
         }
 
         $result->andWhere([
