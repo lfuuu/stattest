@@ -685,7 +685,7 @@ ansible:
           chdir: /app/mailer
 ---
 image: {{ .project }}-mailer-nginx-{{ .env }}
-from: nginx:1.15.3-alpine
+from: nginx:stable-alpine
 docker:
   WORKDIR: /app/mailer
   USER: root
