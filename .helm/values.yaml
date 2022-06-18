@@ -138,12 +138,12 @@ params_prod:
   client_changed_amq_settings: "0"
 
 params_prod_eu:
-  robocall_internal_server: https://robocall.mcntele.com
-  calltracking_server: feedback.mcntele.com
-  feedback_server: feedback.mcntele.com
-  api_mcn_server: https://api.mcntele.com/v2/rest
-  phone_server: vpbx.mcntele.com
-  core_server: lk.mcntele.com
+  robocall_internal_server: https://robocall.kompaas.tech
+  calltracking_server: feedback.kompaas.tech
+  feedback_server: feedback.kompaas.tech
+  api_mcn_server: https://api.kompaas.tech/v2/rest
+  phone_server: vpbx.kompaas.tech
+  core_server: lk.kompaas.tech
   sync1c_ut_soap_url:
   vps_is_enabled: "0"
   atol_is_enabled: "0"

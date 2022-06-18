@@ -108,7 +108,7 @@ class Navigation
                 ->addItem('СОРМ: Номера', ['/monitoring/sorm-numbers'], ['clients.edit']);
 
         } else {
-            $monitorBlock->addItem('Монитор "здоровья"', 'https://voipgui.mcntele.com/health/health.html', []);
+            $monitorBlock->addItem('Монитор "здоровья"', 'https://voipgui.kompaas.tech/health/health.html', []);
         }
 
         $monitorBlock->addItem('Изменившиеся счета', ['/monitoring/changed-bills'], ['clients.edit']);
