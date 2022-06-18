@@ -233,17 +233,17 @@ spec:
 
 #          command: ["/bin/sh", "-c", "/root/entrypoint.sh"]
 # ln -s /dev/stdout /tmp/mailer.log && while :; do sleep 10000; done
-#               cp /tmp/config/*.php /app/mailer/config/ &&
-#              cp /tmp/config/crontab.file /etc/crontabs/root && 
-#              chmod 0600 /etc/crontabs/root &&
-#              crond &&
-#              /usr/local/sbin/php-fpm -D &&
-#              tail -f /tmp/mailer.log
           command: [ "/bin/sh" ]
           args:
             - -c
             - >
-              while :; do sleep 10000; done
+              cp /tmp/config/*.php /app/mailer/config/ &&
+              cp /tmp/config/crontab.file /etc/crontabs/root && 
+              chmod 0600 /etc/crontabs/root &&
+              crond &&
+              /usr/local/sbin/php-fpm -D &&
+              touch /tmp/mailer.log && 
+              tail -f /tmp/mailer.log
 
         - name: nginx
 {{ tuple (printf "%s-mailer-nginx-%s"  .Chart.Name (env "ENVNAME")) . | werf_container_image | indent 10 }}
@@ -257,6 +257,7 @@ spec:
             - containerPort: 80
               name: nginx-mailer
               protocol: TCP
+          command: [ "nginx", "-g", "daemon off;" ]
 
       volumes:
         - name: mailer-nginx-templates
