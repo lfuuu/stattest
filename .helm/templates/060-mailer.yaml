@@ -241,7 +241,7 @@ spec:
               cp /tmp/config/crontab.file /etc/crontabs/root && 
               chmod 0600 /etc/crontabs/root &&
               crond &&
-              /bin/sh -c php-fpm -D &&
+              /usr/local/sbin/php-fpm -D &&
               tail -f /tmp/mailer.log
 
         - name: nginx
