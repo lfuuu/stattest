@@ -622,3 +622,426 @@ data:
     /bin/graphql-engine serve
 
     /bin/sleep infinity
+
+  crontab.file.original: |
+    ####25 1 * * *     /etc/nispd/flows/flow-daily-run
+    ###1 9 * * 1       /etc/nispd/flows/otchnulltraf.pl >>/var/log/otchnulltraf 2>>/var/log/nispd/otchnulltraf
+  
+    ###0 5 * * *      cd /home/httpd/stat.mcn.ru/include/stat/; php -c /etc/ autosaldo.php >> /var/log/nispd/autosaldo.log
+    ###*/5 * * * *    cd /home/httpd/stat.mcn.ru/include/stat/; flock -w 3 /tmp/autoping python autoping.py 2>&1 >> /var/log/nispd/autoping.log
+    ###50 4 * * *     cd /home/httpd/stat.mcn.ru/include/stat/; php -c /etc/ autotraffic.php --yesterday >> /var/log/nispd/autotraffic.log
+    */5 * * * *    cd /home/httpd/stat.mcn.ru/include/stat/; flock -w 3 /tmp/automail php -c /etc/ automail.php >> /var/log/nispd/automail.log
+    
+    # voip day limits recalc
+    ####0 8 * * *   cd /home/httpd/stat.mcn.ru/include/stat/; php -c /etc/ client_day_limit_set.php >> /var/log/nispd/client_day_limit_set.log 
+    
+    # установка свойств клиента, применяемые в будущем
+    5 0 * * * cd /home/httpd/stat.mcn.ru/include/stat/; php -c /etc/ cron_client_prop.php >> /var/log/nispd/cron_client_prop.log
+    
+    # забор заявок OnLime
+    #*/5 * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/onlime/; php -c /etc/ get_list.php  >> /var/log/nispd/onlime.log
+    
+    # снятие с резерва
+    ##!##0 8 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/1c/; php -c /etc/ unreserv_orders.php  >> /var/log/nispd/unreserv.log
+    
+    # оповешение о минимальном кол-ве товара на складе
+    ##!##0 9 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/goods/; php -c /etc/ store_limit.php  >> /var/log/nispd/store_limit.log
+    
+    # sms синхронизация
+    ###10 0 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/sms/; php -c /etc/ replication.php  >> /var/log/nispd/sms_replication.log
+    #*/5 * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/sms/; php -c /etc/ set_active.php  >> /var/log/nispd/sms_set_active.log
+    
+    ### забор статистики SMS
+    10 2 * * * /home/httpd/stat.mcn.ru/stat/yii sms/get 2
+    5  2 1 * * /home/httpd/stat.mcn.ru/stat/yii sms/get 31
+    
+    
+    ### обновляем справочник переыва в услугах телефонии по москве
+    #########59,29 * * * * /home/httpd/stat.mcn.ru/stat/yii number/fill-non-used-numbers
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/; ./yii sorm/export-redirects >> /var/log/nispd/sorm-export-redirects.log && ./yii sorm/group >> /var/log/nispd/sorm-export-redirect-groups.log
+    
+    #### heavy task manager
+    * * * * * flock -w 3 /tmp/yii-task /home/httpd/stat.mcn.ru/stat/yii task >> /var/log/nispd/task.log
+    
+    ### Обновление lock'ов
+    * * * * * flock -w 3 /tmp/yii-update-locks /home/httpd/stat.mcn.ru/stat/yii biller/update-locks >> /var/log/nispd/biller-update-locks.log
+    
+    10 2 * * * /home/httpd/stat.mcn.ru/stat/yii usage/client-update-is-active
+    1 0 * * *  /home/httpd/stat.mcn.ru/stat/yii number/release-from-hold >> /var/log/nispd/release-from-hold.log
+    2 0 * * *  /home/httpd/stat.mcn.ru/stat/yii number/actualize-numbers-by-usages >> /var/log/nispd/actualize-numbers-by-usages.log
+    2 8 * * *  /home/httpd/stat.mcn.ru/stat/yii number/actualize-released 1 >> /var/log/nispd/actualize-numbers-released.log
+    
+    0 3 * * * flock -w 3 /tmp/yii-version-export /home/httpd/stat.mcn.ru/stat/yii version/export-current-versions >> /var/log/nispd/version-export.log
+    1 0-3,15-23 * * * flock -w 3 /tmp/yii-usage-check-bill-overdue /home/httpd/stat.mcn.ru/stat/yii usage/check-bill-overdue >> /var/log/nispd/usage-check-bill-overdue.log
+    59 23 * * *  /home/httpd/stat.mcn.ru/stat/yii usage/voip-test-clean >> /var/log/nispd/voip-test-clean.log
+    0 7 * * * flock -w 3 /tmp/lk-set-is-lk-exists /home/httpd/stat.mcn.ru/stat/yii lk/set-is-lk-exists >> /var/log/nispd/lk-set-is-lk-exists.log
+    0 * * * * flock -w 3 /tmp/number-actual-hourly /home/httpd/stat.mcn.ru/stat/yii number/actual-hourly >> /var/log/nispd/number-actual-hourly
+    3 6 * * * flock -w 3 /tmp/number-actual-status-all /home/httpd/stat.mcn.ru/stat/yii number/actual-status-all 1 >> /var/log/nispd/number-actual-status-all
+  
+    #####3 5 * * *    /home/httpd/stat.mcn.ru/stat/yii number/preload-detail-report >> /var/log/nispd/preload-detail-report.log
+  
+    */3 * * * *  flock -w 3 /tmp/yii-check-voip-day-disable /home/httpd/stat.mcn.ru/stat/yii usage/check-voip-day-disable >> /var/log/nispd/check-voip-day-disable.log
+    */3 * * * *  flock -w 3 /tmp/yii-check-notification /home/httpd/stat.mcn.ru/stat/yii lk/check-notification >> /var/log/nispd/check-notification.log
+  
+    ####! включить после решения проблем с сервереом постгреса !###
+    */5 * * * *  flock -w 3 /tmp/yii-update-interop-counter /home/httpd/stat.mcn.ru/stat/yii number/update-interop-counter >> /var/log/nispd/update-interop-counter.log
+    ###5 * * * *  flock -w 3 /tmp/yii-update-interop-counter /home/httpd/stat.mcn.ru/stat/yii number/update-interop-counter >> /var/log/nispd/update-interop-counter.log
+    
+    * * * * *  flock -w 3 /tmp/yii-tt-check-trouble-count-recal /home/httpd/stat.mcn.ru/stat/yii ticket/check-trouble-count-recal >> /var/log/nispd/tt-check-trouble-count-recal.log
+    
+    
+    7 7 3 * *  flock -w 3 /tmp/yii-fill-nnp-to-redis /home/httpd/stat.mcn.ru/stat/yii number/full-nnp-to-redis >> /var/log/nispd/full-nnp-to-redis.log
+    
+    # прогнозирование блокировки по счету
+    9 15 21-31 * *  flock -w 3 /tmp/yii-biller-forecast-account-block /home/httpd/stat.mcn.ru/stat/yii biller/forecast-account-block >> /var/log/nispd/forecast-account-block.log 2>&1
+    
+    3 0 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/voip; php -c /etc/ voipcheck.php >> /var/log/nispd/voipcheck.log
+    0 5 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/voip; php -c /etc/ voipcheck.php >> /var/log/nispd/voipcheck.log
+    
+    5 6 * * * flock -w 3 /tmp/yii-number_calc-calls-per-month-0 /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month-0 >> /var/log/nispd/number-calls-per-month.log
+    5 7 1 * * flock -w 3 /tmp/yii-number_calc-calls-per-month   /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month   >> /var/log/nispd/number-calls-per-month.log
+    
+    # Счетчики статистики
+    2 0 2-31 * * flock -w 3 /tmp/yii-statistic-update /home/httpd/stat.mcn.ru/stat/yii statistic/update yesterday >> /var/log/nispd/stat-update.log
+    2 0 1 * * flock -w 3 /tmp/yii-statistic-update /home/httpd/stat.mcn.ru/stat/yii statistic/update prevmonth >> /var/log/nispd/stat-update.log
+    
+    
+    # Заполнение calls_raw_cache
+    20 7 * * *  flock -w 3 /tmp/yii-calls_raw_cache /home/httpd/stat.mcn.ru/stat/yii calls-raw-cache/make-cache >> /var/log/nispd/calls_raw_cache.log
+    25 8 * * * flock -w 3 /tmp/yii-calls-raw-unite /home/httpd/stat.mcn.ru/stat/yii calls-raw-unite/make-unite >> /var/log/nispd/calls_raw_unite.log
+    
+    0 6 * * * flock -w 3 /tmp/yii-nnp2-renew /home/httpd/stat.mcn.ru/stat/yii nnp2/range-short/renew >> /var/log/nispd/nnp2-renew.log
+    
+    # Выставление авансовых счетов операторам
+    30 9 * * * flock -w 3 /tmp/yii-biller-advance-accounts /home/httpd/stat.mcn.ru/stat/yii biller/advance-accounts >> /var/log/nispd/biller-advance-accounts.log 2>&1
+    
+    # Перезабор данных о потребленных ресурсов с ВАТС.
+    0 5 1 * * flock -w 3 /tmp/yii-vpbx-stat-get /home/httpd/stat.mcn.ru/stat/yii stat/vats/get prevmonth >> /var/log/nispd/vats-stat-prevmonth.log 2>&1
+    10 8 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
+    10 18 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
+    
+    # обновление таблицы uu_account_tariff_voip_flat
+    0 7 * * * /home/httpd/stat.mcn.ru/stat/yii uu/account-tariff-voip-flat/generate
+    
+    # Завершение сбербанковских платежей
+    * * * * * flock -w 3 /tmp/yii-sberbank-orders-finishing /home/httpd/stat.mcn.ru/stat/yii biller/sberbank-orders-finishing >> /var/log/nispd/sberbank-orders-finishing.log
+    
+    
+    # Универсальные услуги
+    10 0-5,15-23 * * * flock -w 3 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1
+    
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1 200000 >> /var/log/nispd/ubiller.log.11
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 200001 300000 >> /var/log/nispd/ubiller.log.12
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 300001 400000 >> /var/log/nispd/ubiller.log.13
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 400001 500000 >> /var/log/nispd/ubiller.log.14
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 500001 600000 >> /var/log/nispd/ubiller.log.15
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 600001 700000 >> /var/log/nispd/ubiller.log.16
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 700001 800000 >> /var/log/nispd/ubiller.log.17
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 800001 900000 >> /var/log/nispd/ubiller.log.18
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 900001 1000000 >> /var/log/nispd/ubiller.log.19
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1000001 1100000 >> /var/log/nispd/ubiller.log.20
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1100001 1200000 >> /var/log/nispd/ubiller.log.21
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1200001 1300000 >> /var/log/nispd/ubiller.log.22
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1300001 1400000 >> /var/log/nispd/ubiller.log.23
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1400001 1500000 >> /var/log/nispd/ubiller.log.24
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1500001 1600000 >> /var/log/nispd/ubiller.log.25
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1600001 1700000 >> /var/log/nispd/ubiller.log.25
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1700001 1800000 >> /var/log/nispd/ubiller.log.25
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1800001 1900000 >> /var/log/nispd/ubiller.log.25
+    2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1900001 2000000 >> /var/log/nispd/ubiller.log.25
+    3 23 28-31 * * flock -w 8000 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log
+    
+    
+    
+    ###19 6 * * * /home/jenkins/kill_ubiller.sh >> /var/log/nispd/kubiller.log
+    ###39 13 * * * /home/jenkins/kill_ubiller.sh >> /var/log/nispd/ubiller.log
+    29 5 * * *                                   /home/httpd/stat.mcn.ru/stat/yii param/set stop_ubiller_flag 1 >> /var/log/nispd/ubiller.log
+    29 5 * * *                                   /home/httpd/stat.mcn.ru/stat/yii ubiller/prepare-resource-calc 15 >> /var/log/nispd/ubiller.log
+    29 5 * * * flock -w 3    -x /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/set-and-sync-tariff >> /var/log/nispd/ubiller.log
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p1 >> /var/log/nispd/ubiller.log.11
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p2 >> /var/log/nispd/ubiller.log.12
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p3 >> /var/log/nispd/ubiller.log.13
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p4 >> /var/log/nispd/ubiller.log.14
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p5 >> /var/log/nispd/ubiller.log.15
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p6 >> /var/log/nispd/ubiller.log.16
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p7 >> /var/log/nispd/ubiller.log.17
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p8 >> /var/log/nispd/ubiller.log.18
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p9 >> /var/log/nispd/ubiller.log.19
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p10 >> /var/log/nispd/ubiller.log.20
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p11 >> /var/log/nispd/ubiller.log.21
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p12 >> /var/log/nispd/ubiller.log.22
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p13 >> /var/log/nispd/ubiller.log.23
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p14 >> /var/log/nispd/ubiller.log.24
+    30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p15 >> /var/log/nispd/ubiller.log.25
+    31 5 * * * flock -w 8000 -x /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log
+    
+    
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p1 >> /var/log/nispd/ubiller.log.11
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p2 >> /var/log/nispd/ubiller.log.12
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p3 >> /var/log/nispd/ubiller.log.13
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p4 >> /var/log/nispd/ubiller.log.14
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p5 >> /var/log/nispd/ubiller.log.15
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p6 >> /var/log/nispd/ubiller.log.16
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p7 >> /var/log/nispd/ubiller.log.17
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p8 >> /var/log/nispd/ubiller.log.18
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p9 >> /var/log/nispd/ubiller.log.19
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p10 >> /var/log/nispd/ubiller.log.20
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p11 >> /var/log/nispd/ubiller.log.21
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p12 >> /var/log/nispd/ubiller.log.22
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p13 >> /var/log/nispd/ubiller.log.23
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p14 >> /var/log/nispd/ubiller.log.24
+    34 13 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p15 >> /var/log/nispd/ubiller.log.25
+    35 13 * * * flock -w 8000 -x /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log
+    
+    
+    5 6 2 * * time flock -w 5000 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/clean-up >> /var/log/nispd/ubiller.log
+    1 0 * * * time flock -w 3 /tmp/yii-ubiller-margin /home/httpd/stat.mcn.ru/stat/yii ubiller/fill-margins >> /var/log/nispd/margin.log 2>&1
+    
+    
+    
+    # МТТ (интернет-трафик)
+    ####* * * * * flock -w 3 /tmp/yii-mtt timeout 1h /home/httpd/stat.mcn.ru/stat/yii mtt/daemon/run >> /var/log/nispd/mtt.log 2>&1
+    # Tele2 привязка IMSI
+    * * * * * flock -w 3 /tmp/yii-tele2 timeout 1h /home/httpd/stat.mcn.ru/stat/yii usage/run-tele2-daemon >> /var/log/nispd/tele2.log 2>&1
+    
+    # ННП (импортировать Россвязь раз в месяц)
+    ##!##27 7 5 * * cd /home/httpd/stat.mcn.ru/stat; ./yii nnp/import/disable-trigger; ./yii nnp/import/rus >> /var/log/nispd/nnp_import_rus.log 2>&1
+    
+    # Экспорт free-numbers
+    44 * * * * cd /home/httpd/stat.mcn.ru/stat/modules/freeNumber; ./export.sh
+    
+    ### Парнетры ####
+    # Расчет партнерского вознаграждения
+    ###30 0 * * * flock -w 3 /tmp/yii-partner-reward /home/httpd/stat.mcn.ru/stat/yii partner-reward/calculate-rewards-for-1-day >> /var/log/nispd/partner-reward.log 2>&1
+    # Выставление счетов партнерам
+    ###5 5 1 * *  flock -w 3 /tmp/yii-partner-reward-tobill /home/httpd/stat.mcn.ru/stat/yii partner-reward/rewards-to-bill >> /var/log/nispd/partner-reward-tobills.log 2>&1
+    10 13 1 * * flock -w 3 /tmp/yii-partner-reward /home/httpd/stat.mcn.ru/stat/yii reward/calculate-all-partners "first day of previous month" >> /var/log/nispd/partner-reward.log 2>&1
+    10 8 * * * flock -w 3 /tmp/yii-partner-reward /home/httpd/stat.mcn.ru/stat/yii reward/calculate-all-partners "yesterday" >> /var/log/nispd/partner-reward.log 2>&1
+    
+    # Mailer
+    * * * * * flock -w 3 /tmp/yii-mailer /home/httpd/stat.mcn.ru/mailer/yii mail/mail >> /var/log/nispd/mailer.log 2>&1
+    
+    # Node.JS
+    * * * * * cd /home/httpd/stat.mcn.ru/comet-server/; flock -w 3 /tmp/comet-server timeout 6h node index >> /var/log/nispd/comet.log 2>> /var/log/nispd/comet.err
+    * * * * * cd /home/httpd/stat.mcn.ru/nnp-ported; flock -w 3 /tmp/nnp-ported node index >> /var/log/nispd/nnp-ported.log 2>> /var/log/nispd/nnp-ported.err
+    
+    # Очередь событий
+    * * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; flock -w 3 /tmp/handler1 php ./handler.php with_account_tariff >> /var/log/nispd/handler_with_at.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; flock -w 3 /tmp/handler2 php ./handler.php without_account_tariff >> /var/log/nispd/handler_without_at.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; flock -w 3 /tmp/handler3 php ./handler.php ats3_sync >> /var/log/nispd/handler_without_at.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; flock -w 3 /tmp/handler4 php ./handler.php nnp >> /var/log/nispd/handler_nnp.log 2>&1
+    
+    # Health-монитор
+    56 * * * * cd /home/httpd/stat.mcn.ru/stat; ./yii health/heavy >> /var/log/nispd/health.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/health; ./run.sh; cd ..; ./yii health/light >> /var/log/nispd/health.log 2>&1
+    30 */6 * * * cd /home/httpd/stat.mcn.ru/stat/health; ./runRarely.sh;
+    
+    # event::go(midnight)
+    0 0 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; php -c /etc/ event_midnight.php >> /var/log/nispd/cron_events.log
+    
+    # event::go(check_usages)
+    1 * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; php -c /etc/ event_check_usages.php >> /var/log/nispd/cron_events.log
+    
+    # stat - обновление справочника БИК
+    ####0 2 * * 1,3,5 cd /home/httpd/stat.mcn.ru/include/stat/utils/; php -c /etc/ bik_update.php get >> /var/log/nispd/cron_bik.log;  php -c /etc/ bik_update.php send >> /var/log/nispd/cron_bik.log; php -c /etc/ bik_update.php update >> /var/log/nispd/cron_bik.log;
+    5 6 * * * /home/httpd/stat.mcn.ru/stat/yii currency/bik >> /var/log/nispd/bik.log
+    
+    
+    
+    # СОРМ. Сбор 7800 номеров
+    10,20,40 * * * *  /home/httpd/stat.mcn.ru/stat/yii number/sorm7800 74 >> /var/log/nispd/sorm7800_74.log
+    
+    # Получение курсов валют
+    50 */3 * * *  /home/httpd/stat.mcn.ru/stat/yii currency/import >> /var/log/nispd/cron_currency_import.log
+    
+    # LK - оправки сообщений о активации
+    * * * * *  cd /home/httpd/stat.mcn.ru/include/stat/crons/notification/; flock -w 3 /tmp/yii-sender php -c /etc/ sender.php >> /var/log/nispd/cron_sender.log
+    
+    #выставление счетов. Отправка отчета.
+    0 9 1 * *  cd /home/httpd/stat.mcn.ru/include/; ./yii biller/get-bill-report | sendmail adima123@yandex.ru
+    #выставление счетов. Занести инвойсы в счетах зп прошлый месяц в книгу продаж
+    #50 6 1 * *  cd /home/httpd/stat.mcn.ru/include/; ./yii biller/make-invoices
+    
+    
+    #отложенные задания
+    * * * * *  cd /home/httpd/stat.mcn.ru/include/; flock -w 3 /tmp/yii-deferred-task ./yii deferred-task/process >> /var/log/nispd/deferred-task.log
+    
+    #roistat. Заполнение цен.
+    15 7 * * *  cd /home/httpd/stat.mcn.ru/include/; flock -w 3 /tmp/yii-fill-roistat-price ./yii uu/converter/account-tariff/fill-roistat-price >> /var/log/nispd/fill-roistat-price.log
+  
+    #проверяем, что все пакеты телефонии включены.
+    */5 * 2-31 * *  cd /home/httpd/stat.mcn.ru/include/; flock -w 3 /tmp/yii-usage-check-voip-delay ./yii usage/check-voip-delay >> /var/log/nispd/usage-check-voip-delay.log
+  
+    # копируем "важные события" в clickhouse
+    */3 * * * * flock -w 3 /tmp/mysql_clickhouse_copier /bin/python /home/httpd/stat.mcn.ru/stat/stat/crons/events/mysql_clickhouse_copier.py ee86a024319672991131 Sdfwe342 >> /var/log/nispd/mysql_clickhouse_copier.py
+    
+    # Импорт портированных номеров
+    30 6 * * * cd /home/httpd/stat.mcn.ru/stat/; flock -w 3 /tmp/yii-nnp_ported_numbers ./yii nnp/ported-russia/update-ported-numbers >> /var/log/nispd/nnp_ported_numberLog.log 2>&1
+    
+    #sbis
+    * * * * * flock -w 3 /tmp/yii-sbis-processor-sign /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/sign >>   /var/log/nispd/sbis/processor-sign.log
+    * * * * * flock -w 3 /tmp/yii-sbis-processor-send /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/send >>   /var/log/nispd/sbis/processor-sender.log
+    * * * * * flock -w 3 /tmp/yii-sbis-processor-check /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/check >> /var/log/nispd/sbis/processor-check.log
+    * * * * * flock -w 3 /tmp/yii-sbis-processor-generate /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/processor/generate >> /var/log/nispd/sbis/processor-generate.log
+    0 12 1 * * flock -w 3 /tmp/yii-sbis-contractor-update /home/httpd/stat.mcn.ru/stat/yii sbisTenzor/contractor/update >> /var/log/nispd/sbis/contractor-update.log
+    
+    ### SIM registry 
+    * * * * * flock -w 3 /tmp/yii-sim-registry-process /home/httpd/stat.mcn.ru/stat/yii sim/registry/process >> /var/log/nispd/sim_registry.log
+  
+    ###0 * * * * php ~/mysql_hung_request_killer.php >> /var/log/nispd/mysql_hung_request_killer.log
+
+
+  crontab.file.eu: |
+
+    ### Обновление lock'ов
+    # * * * * * flock -w 3 /tmp/yii-update-locks /home/httpd/stat.mcn.ru/stat/yii biller/update-locks >> /var/log/nispd/biller-update-locks.log
+    
+    #10 2 * * * /home/httpd/stat.mcn.ru/stat/yii usage/client-update-is-active
+    #1 0 * * *  /home/httpd/stat.mcn.ru/stat/yii number/release-from-hold >> /var/log/nispd/release-from-hold.log
+    #2 0 * * *  /home/httpd/stat.mcn.ru/stat/yii number/actualize-numbers-by-usages >> /var/log/nispd/actualize-numbers-by-usages.log
+    #2 8 * * *  /home/httpd/stat.mcn.ru/stat/yii number/actualize-released 1 >> /var/log/nispd/actualize-numbers-released.log
+    
+    #0 3 * * * flock -w 3 /tmp/yii-version-export /home/httpd/stat.mcn.ru/stat/yii version/export-current-versions >> /var/log/nispd/version-export.log
+    #1 0-3,15-23 * * * flock -w 3 /tmp/yii-usage-check-bill-overdue /home/httpd/stat.mcn.ru/stat/yii usage/check-bill-overdue >> /var/log/nispd/usage-check-bill-overdue.log
+    #59 23 * * *  /home/httpd/stat.mcn.ru/stat/yii usage/voip-test-clean >> /var/log/nispd/voip-test-clean.log
+    # 0 7 * * * flock -w 3 /tmp/lk-set-is-lk-exists /home/httpd/stat.mcn.ru/stat/yii lk/set-is-lk-exists >> /var/log/nispd/lk-set-is-lk-exists.log
+    # 0 * * * * flock -w 3 /tmp/number-actual-hourly /home/httpd/stat.mcn.ru/stat/yii number/actual-hourly >> /var/log/nispd/number-actual-hourly
+    #3 6 * * * flock -w 3 /tmp/number-actual-status-all /home/httpd/stat.mcn.ru/stat/yii number/actual-status-all 1 >> /var/log/nispd/number-actual-status-all
+  
+    #*/3 * * * *  flock -w 3 /tmp/yii-check-voip-day-disable /home/httpd/stat.mcn.ru/stat/yii usage/check-voip-day-disable >> /var/log/nispd/check-voip-day-disable.log
+    #*/3 * * * *  flock -w 3 /tmp/yii-check-notification /home/httpd/stat.mcn.ru/stat/yii lk/check-notification >> /var/log/nispd/check-notification.log
+  
+    ####! включить после решения проблем с сервереом постгреса !###
+    #*/5 * * * *  flock -w 3 /tmp/yii-update-interop-counter /home/httpd/stat.mcn.ru/stat/yii number/update-interop-counter >> /var/log/nispd/update-interop-counter.log
+    
+    #* * * * *  flock -w 3 /tmp/yii-tt-check-trouble-count-recal /home/httpd/stat.mcn.ru/stat/yii ticket/check-trouble-count-recal >> /var/log/nispd/tt-check-trouble-count-recal.log
+    
+    # прогнозирование блокировки по счету
+    # 9 15 21-31 * *  flock -w 3 /tmp/yii-biller-forecast-account-block /home/httpd/stat.mcn.ru/stat/yii biller/forecast-account-block >> /var/log/nispd/forecast-account-block.log 2>&1
+    
+    # 3 0 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/voip; php -c /etc/ voipcheck.php >> /var/log/nispd/voipcheck.log
+    # 0 5 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/voip; php -c /etc/ voipcheck.php >> /var/log/nispd/voipcheck.log
+    
+    # 5 6 * * * flock -w 3 /tmp/yii-number_calc-calls-per-month-0 /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month-0 >> /var/log/nispd/number-calls-per-month.log
+    # 5 7 1 * * flock -w 3 /tmp/yii-number_calc-calls-per-month   /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month   >> /var/log/nispd/number-calls-per-month.log
+    
+    # Счетчики статистики
+    #2 0 2-31 * * flock -w 3 /tmp/yii-statistic-update /home/httpd/stat.mcn.ru/stat/yii statistic/update yesterday >> /var/log/nispd/stat-update.log
+    #2 0 1 * * flock -w 3 /tmp/yii-statistic-update /home/httpd/stat.mcn.ru/stat/yii statistic/update prevmonth >> /var/log/nispd/stat-update.log
+    
+    
+    # Заполнение calls_raw_cache
+    #20 7 * * *  flock -w 3 /tmp/yii-calls_raw_cache /home/httpd/stat.mcn.ru/stat/yii calls-raw-cache/make-cache >> /var/log/nispd/calls_raw_cache.log
+    #25 8 * * * flock -w 3 /tmp/yii-calls-raw-unite /home/httpd/stat.mcn.ru/stat/yii calls-raw-unite/make-unite >> /var/log/nispd/calls_raw_unite.log
+    
+    #0 6 * * * flock -w 3 /tmp/yii-nnp2-renew /home/httpd/stat.mcn.ru/stat/yii nnp2/range-short/renew >> /var/log/nispd/nnp2-renew.log
+    
+    # Выставление авансовых счетов операторам
+    # 30 9 * * * flock -w 3 /tmp/yii-biller-advance-accounts /home/httpd/stat.mcn.ru/stat/yii biller/advance-accounts >> /var/log/nispd/biller-advance-accounts.log 2>&1
+    
+    # Перезабор данных о потребленных ресурсов с ВАТС.
+    #0 5 1 * * flock -w 3 /tmp/yii-vpbx-stat-get /home/httpd/stat.mcn.ru/stat/yii stat/vats/get prevmonth >> /var/log/nispd/vats-stat-prevmonth.log 2>&1
+    #10 8 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
+    #10 18 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
+    
+    # обновление таблицы uu_account_tariff_voip_flat
+    # 0 7 * * * /home/httpd/stat.mcn.ru/stat/yii uu/account-tariff-voip-flat/generate
+    
+    # Универсальные услуги
+    #10 0-5,15-23 * * * flock -w 3 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1
+    
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1 200000 >> /var/log/nispd/ubiller.log.11
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 200001 300000 >> /var/log/nispd/ubiller.log.12
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 300001 400000 >> /var/log/nispd/ubiller.log.13
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 400001 500000 >> /var/log/nispd/ubiller.log.14
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 500001 600000 >> /var/log/nispd/ubiller.log.15
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 600001 700000 >> /var/log/nispd/ubiller.log.16
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 700001 800000 >> /var/log/nispd/ubiller.log.17
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 800001 900000 >> /var/log/nispd/ubiller.log.18
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 900001 1000000 >> /var/log/nispd/ubiller.log.19
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1000001 1100000 >> /var/log/nispd/ubiller.log.20
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1100001 1200000 >> /var/log/nispd/ubiller.log.21
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1200001 1300000 >> /var/log/nispd/ubiller.log.22
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1300001 1400000 >> /var/log/nispd/ubiller.log.23
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1400001 1500000 >> /var/log/nispd/ubiller.log.24
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1500001 1600000 >> /var/log/nispd/ubiller.log.25
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1600001 1700000 >> /var/log/nispd/ubiller.log.25
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1700001 1800000 >> /var/log/nispd/ubiller.log.25
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1800001 1900000 >> /var/log/nispd/ubiller.log.25
+    #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1900001 2000000 >> /var/log/nispd/ubiller.log.25
+    #3 23 28-31 * * flock -w 8000 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log
+    
+    
+    #29 5 * * *                                   /home/httpd/stat.mcn.ru/stat/yii param/set stop_ubiller_flag 1 >> /var/log/nispd/ubiller.log
+    #29 5 * * *                                   /home/httpd/stat.mcn.ru/stat/yii ubiller/prepare-resource-calc 15 >> /var/log/nispd/ubiller.log
+    #29 5 * * * flock -w 3    -x /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/set-and-sync-tariff >> /var/log/nispd/ubiller.log
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p1 >> /var/log/nispd/ubiller.log.11
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p2 >> /var/log/nispd/ubiller.log.12
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p3 >> /var/log/nispd/ubiller.log.13
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p4 >> /var/log/nispd/ubiller.log.14
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p5 >> /var/log/nispd/ubiller.log.15
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p6 >> /var/log/nispd/ubiller.log.16
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p7 >> /var/log/nispd/ubiller.log.17
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p8 >> /var/log/nispd/ubiller.log.18
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p9 >> /var/log/nispd/ubiller.log.19
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p10 >> /var/log/nispd/ubiller.log.20
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p11 >> /var/log/nispd/ubiller.log.21
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p12 >> /var/log/nispd/ubiller.log.22
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p13 >> /var/log/nispd/ubiller.log.23
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p14 >> /var/log/nispd/ubiller.log.24
+    #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p15 >> /var/log/nispd/ubiller.log.25
+    #31 5 * * * flock -w 8000 -x /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log
+    
+    #5 6 2 * * time flock -w 5000 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/clean-up >> /var/log/nispd/ubiller.log
+    #1 0 * * * time flock -w 3 /tmp/yii-ubiller-margin /home/httpd/stat.mcn.ru/stat/yii ubiller/fill-margins >> /var/log/nispd/margin.log 2>&1
+
+    # Экспорт free-numbers
+    #44 * * * * cd /home/httpd/stat.mcn.ru/stat/modules/freeNumber; ./export.sh
+    
+    # Mailer
+    #* * * * * flock -w 3 /tmp/yii-mailer /home/httpd/stat.mcn.ru/mailer/yii mail/mail >> /var/log/nispd/mailer.log 2>&1
+    
+    # Очередь событий
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler1 php ./handler.php with_account_tariff >> /var/log/nispd/handler_with_at.log 2>&1
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler2 php ./handler.php without_account_tariff >> /var/log/nispd/handler_without_at.log 2>&1
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler3 php ./handler.php ats3_sync >> /var/log/nispd/handler_without_at.log 2>&1
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler_nnp.log 2>&1
+    
+    # Health-монитор
+    #56 * * * * cd /home/httpd/stat.mcn.ru/stat; ./yii health/heavy >> /var/log/nispd/health.log 2>&1
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/health; ./run.sh; cd ..; ./yii health/light >> /var/log/nispd/health.log 2>&1
+    #30 */6 * * * cd /home/httpd/stat.mcn.ru/stat/health; ./runRarely.sh;
+    
+    # event::go(midnight)
+    #0 0 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; php -c /etc/ event_midnight.php >> /var/log/nispd/cron_events.log
+    
+    # event::go(check_usages)
+    #1 * * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/events/; php -c /etc/ event_check_usages.php >> /var/log/nispd/cron_events.log
+    
+    # Получение курсов валют
+    50 */3 * * *  /home/httpd/stat.mcn.ru/stat/yii currency/import >> /var/log/nispd/cron_currency_import.log
+    
+    # LK - оправки сообщений о активации
+    # * * * * *  cd /home/httpd/stat.mcn.ru/include/stat/crons/notification/; flock -w 3 /tmp/yii-sender php -c /etc/ sender.php >> /var/log/nispd/cron_sender.log
+    
+    #проверяем, что все пакеты телефонии включены.
+    #*/5 * 2-31 * *  cd /home/httpd/stat.mcn.ru/include/; flock -w 3 /tmp/yii-usage-check-voip-delay ./yii usage/check-voip-delay >> /var/log/nispd/usage-check-voip-delay.log
+  
+    # копируем "важные события" в clickhouse
+    # */3 * * * * flock -w 3 /tmp/mysql_clickhouse_copier /bin/python /home/httpd/stat.mcn.ru/stat/stat/crons/events/mysql_clickhouse_copier.py ee86a024319672991131 Sdfwe342 >> /var/log/nispd/mysql_clickhouse_copier.py
+
+  crontab.file.dev: |
+    # Очередь событий
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler1 php ./handler.php with_account_tariff >> /var/log/nispd/handler_with_at.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler2 php ./handler.php without_account_tariff >> /var/log/nispd/handler_without_at.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler3 php ./handler.php ats3_sync >> /var/log/nispd/handler_without_at.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler_nnp.log 2>&1
+    
+    # event::go(midnight)
+    0 0 * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; php -c /etc/ event_midnight.php >> /var/log/nispd/cron_events.log
+    
+    # event::go(check_usages)
+    1 * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; php -c /etc/ event_check_usages.php >> /var/log/nispd/cron_events.log
+
+    # Универсальные услуги
+    #10 0-5,15-23 * * * flock -w 3 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1

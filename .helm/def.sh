@@ -3,7 +3,7 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.363
+TAG=1.366
 
 function dev()
 {
@@ -13,6 +13,7 @@ function dev()
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
   export COUNTRY="RU"
   export IS_MINIKUBE=1
+  export IS_WITH_CRON=1
 
   export IS_WITH_PHPMYADMIN=1
   export IS_WITH_PGADMIN=1
@@ -32,6 +33,7 @@ function eudev()
   export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
   export COUNTRY="EU"
   export IS_MINIKUBE=1
+  export IS_WITH_CRON=0
 
   export IS_WITH_PHPMYADMIN=1
   export IS_WITH_PGADMIN=1
@@ -50,6 +52,7 @@ function prod()
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 	export COUNTRY="RU"
 	export IS_MINIKUBE=0
+	export IS_WITH_CRON=0
 
   export IS_WITH_PHPMYADMIN=0
   export IS_WITH_PGADMIN=0
@@ -72,6 +75,7 @@ function euprod()
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 	export COUNTRY="EU"
 	export IS_MINIKUBE=0
+	export IS_WITH_CRON=0
 
   export IS_WITH_PHPMYADMIN=0
   export IS_WITH_PGADMIN=0

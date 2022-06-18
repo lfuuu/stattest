@@ -1,0 +1,24 @@
+{{- define "initCo" }}
+#initContainers:
+- name: wait-redis
+  image: alpine:3.6
+  command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.redis_prod.host }}; do echo waiting for redis; sleep 2; done']
+  {{ if eq (env "IS_WITH_COMET") "1" }}
+- name: wait-comet
+  image: alpine:3.6
+  command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.node_comet_prod.host }}; do echo waiting for comet; sleep 2; done']
+  {{- end }}
+  {{ if eq (env "IS_WITH_GRAPHQL") "1" }}
+- name: wait-hasura
+  image: alpine:3.6
+  command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.graphql_prod.host }}; do echo waiting for hasura; sleep 2; done']
+  {{- end }}
+  {{- if (eq (env "ENVNAME") "dev") }}
+- name: wait-history-pgdb
+  image: alpine:3.6
+  command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.postgres_history.host }}; do echo waiting for history-pgdb; sleep 2; done']
+- name: wait-mysql-db
+  image: alpine:3.6
+  command: ['/bin/sh', '-c', 'while ! getent ahostsv4 {{ .Values.mysql_dev.host }}; do echo waiting for mysql-db; sleep 2; done']
+  {{- end }}
+{{- end }}
