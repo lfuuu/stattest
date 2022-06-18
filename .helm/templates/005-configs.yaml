@@ -893,6 +893,12 @@ data:
 
   crontab.file.eu: |
 
+    # Очередь событий
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler1 php ./handler.php with_account_tariff >> /var/log/nispd/handler.log 2>&1
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler2 php ./handler.php without_account_tariff >> /var/log/nispd/handler.log 2>&1
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler3 php ./handler.php ats3_sync >> /var/log/nispd/handler.log 2>&1
+    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler.log 2>&1
+
     ### Обновление lock'ов
     # * * * * * flock -w 3 /tmp/yii-update-locks /home/httpd/stat.mcn.ru/stat/yii biller/update-locks >> /var/log/nispd/biller-update-locks.log
     
@@ -1000,12 +1006,6 @@ data:
     
     # Mailer
     #* * * * * flock -w 3 /tmp/yii-mailer /home/httpd/stat.mcn.ru/mailer/yii mail/mail >> /var/log/nispd/mailer.log 2>&1
-    
-    # Очередь событий
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler1 php ./handler.php with_account_tariff >> /var/log/nispd/handler_with_at.log 2>&1
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler2 php ./handler.php without_account_tariff >> /var/log/nispd/handler_without_at.log 2>&1
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler3 php ./handler.php ats3_sync >> /var/log/nispd/handler_without_at.log 2>&1
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler_nnp.log 2>&1
     
     # Health-монитор
     #56 * * * * cd /home/httpd/stat.mcn.ru/stat; ./yii health/heavy >> /var/log/nispd/health.log 2>&1

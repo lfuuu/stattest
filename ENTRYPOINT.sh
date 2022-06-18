@@ -49,24 +49,28 @@ sed -i "s/:3306/:$MYSQL_PORT/" db_stat.local.php
 cp db_pgsql.local.tpl.php db_pgsql.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pgsql.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pgsql.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pgsql.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pgsql.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pgsql.local.php
 
 cp db_pg_cache.local.tpl.php db_pg_cache.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_cache.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_cache.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pg_cache.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_cache.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_cache.local.php
 
 cp db_pg_slave.local.tpl.php db_pg_slave.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_SLAVE_HOST/" db_pg_slave.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_slave.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pg_slave.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_slave.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_slave.local.php
 
 cp db_pg_slave_cache.local.tpl.php db_pg_slave_cache.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_slave.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_slave_cache.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pg_slave_cache.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_slave_cache.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_slave_cache.local.php
 
@@ -79,18 +83,21 @@ sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_sla
 cp db_pg_nnp.local.tpl.php db_pg_nnp.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_nnp.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_nnp.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pg_nnp.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_nnp.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_nnp.local.php
 
 cp db_pg_nnp2.local.tpl.php db_pg_nnp2.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_nnp2.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_nnp2.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pg_nnp2.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_nnp2.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_nnp2.local.php
 
 cp db_pgsql_nfdump.local.tpl.php db_pgsql_nfdump.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pgsql_nfdump.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_NFDUMP_DB/" db_pgsql_nfdump.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/"  db_pgsql_nfdump.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pgsql_nfdump.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pgsql_nfdump.local.php
 
@@ -103,12 +110,14 @@ sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_sta
 cp db_pg_history.local.tpl.php db_pg_history.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HISTORY_HOST/" db_pg_history.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_HISTORY_DB/" db_pg_history.local.php
+sed -i "s/port=5432/port=$POSTGRES_HISTORY_PORT/" db_pg_history.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_HISTORY_USER'/" db_pg_history.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_HISTORY_PASSWORD'/" db_pg_history.local.php
 
 cp db_pg_call_tracking.local.tpl.php db_pg_call_tracking.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_call_tracking.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_call_tracking.local.php
+sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pg_call_tracking.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_call_tracking.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_call_tracking.local.php
 
@@ -251,6 +260,9 @@ if [ -f /usr/local/sbin/php-fpm ]; then
 else
   # cron pod
   cp /tmp/crons /etc/crontabs/root
+  mkdir -p /var/log/nispd/
+  touch /var/log/nispd/handler.log
   crond
-  /bin/sleep infinity
+  #/bin/sleep infinity
+  tail -f /var/log/nispd/handler.log
 fi
