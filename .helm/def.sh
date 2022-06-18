@@ -75,7 +75,7 @@ function euprod()
 	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
 	export COUNTRY="EU"
 	export IS_MINIKUBE=0
-	export IS_WITH_CRON=0
+	export IS_WITH_CRON=1
 
   export IS_WITH_PHPMYADMIN=0
   export IS_WITH_PGADMIN=0
