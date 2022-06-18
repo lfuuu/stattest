@@ -67,7 +67,7 @@ redis_server_dev:
   is_standalone: 1
 
 redis_server_prod:
-  is_standalone: 0
+  is_standalone: 1
   sentineles: 3
   replicas: 3
   haproxies: 2
