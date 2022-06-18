@@ -263,6 +263,6 @@ else
   mkdir -p /var/log/nispd/
   touch /var/log/nispd/handler.log
   crond
-  /bin/sleep infinity
-  #tail -f /var/log/nispd/handler.log
+  # /bin/sleep infinity
+  tail -f /var/log/nispd/handler.log
 fi
