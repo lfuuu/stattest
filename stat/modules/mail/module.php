@@ -179,6 +179,7 @@ class m_mail{
             'MCN <bill@wellsystems.ru>',
             'MCNtelecom <info@mcntele.com>',
             'MCNtelecom <invoice@mcntele.com>',
+            'MCNtelecom <info@kompaas.tech>',
         ];
 
         return array_combine($from, $from);
