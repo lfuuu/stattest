@@ -615,6 +615,7 @@ docker:
   WORKDIR: /app/mailer
   USER: root
   EXPOSE: "9000"
+  CMD: ["/bin/sleep","infinity"]
 
 git:
   - url: git@github.com:welltime/mailer.git
