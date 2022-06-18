@@ -690,6 +690,7 @@ docker:
   WORKDIR: /app/mailer
   USER: root
   EXPOSE: "80"
+  ENTRYPOINT: ["/docker-entrypoint.sh"]
 
 git:
   - url: git@github.com:welltime/mailer.git
