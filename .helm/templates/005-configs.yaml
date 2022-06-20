@@ -894,10 +894,13 @@ data:
   crontab.file.eu: |
 
     # Очередь событий
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler1 php ./handler.php with_account_tariff >> /var/log/nispd/handler.log 2>&1
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler2 php ./handler.php without_account_tariff >> /var/log/nispd/handler.log 2>&1
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler3 php ./handler.php ats3_sync >> /var/log/nispd/handler.log 2>&1
-    #* * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler1 php ./handler.php with_account_tariff >> /var/log/nispd/handler.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler2 php ./handler.php without_account_tariff >> /var/log/nispd/handler.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler3 php ./handler.php ats3_sync >> /var/log/nispd/handler.log 2>&1
+    * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler.log 2>&1
+    
+    # Универсальные услуги
+    10 0-5,15-23 * * * flock -w 3 /var/run/ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1
 
     ### Обновление lock'ов
     # * * * * * flock -w 3 /tmp/yii-update-locks /home/httpd/stat.mcn.ru/stat/yii biller/update-locks >> /var/log/nispd/biller-update-locks.log
