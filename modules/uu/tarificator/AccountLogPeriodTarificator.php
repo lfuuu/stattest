@@ -51,6 +51,7 @@ class AccountLogPeriodTarificator extends Tarificator
         }
 
         $accountTariffQuery = AccountTariff::find()
+            ->alias('a')
             ->where(['IS NOT', 'tariff_period_id', null])// только незакрытые (если вчера создали и в тот же день закрыли, то деньги списались через очередь)
             ->andWhere([
                 'OR',
@@ -75,7 +76,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 ->andWhere(['not', ['c.currency' => Currency::RUB]]);
         }
 
-        $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
+        $accountTariffId && $accountTariffQuery->andWhere(['a.id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
         $progress = new ConsoleProgress($accountTariffQuery->count(), function ($string) {
