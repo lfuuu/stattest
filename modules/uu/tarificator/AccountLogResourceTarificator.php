@@ -5,6 +5,7 @@ namespace app\modules\uu\tarificator;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Currency;
 use app\models\Param;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
@@ -149,15 +150,17 @@ class AccountLogResourceTarificator extends Tarificator
             $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                // ресурсы-опции
-                $this->tarificateAccountTariffOption($accountTariff);
+                if (\Yii::$app->isEu() && $accountTariff->clientAccount->currency != Currency::RUB) {
+                    // ресурсы-опции
+                    $this->tarificateAccountTariffOption($accountTariff);
 
-                // ресурсы-трафик
-                if ($accountTariffId && !$isForceTarifficationTraffic) {
-                    $isOk = false;
-                } else {
-                    // только по крону
-                    $isOk = $this->tarificateAccountTariffTraffic($accountTariff);
+                    // ресурсы-трафик
+                    if ($accountTariffId && !$isForceTarifficationTraffic) {
+                        $isOk = false;
+                    } else {
+                        // только по крону
+                        $isOk = $this->tarificateAccountTariffTraffic($accountTariff);
+                    }
                 }
 
                 if ($isOk) {
