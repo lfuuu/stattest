@@ -122,8 +122,11 @@ data:
     
 
   crontab.file: |
-    * * * * * date >> /tmp/mailer.log
-    # * * * * * cd /app/mailer; flock -x /tmp/mailer.lock ./yii mail/mail >> /tmp/mailer.log 
+    #* * * * * date >> /tmp/mailer.log
+    * * * * * cd /app/mailer; flock -x /var/run/mailer.lock ./yii mail/mail >> /tmp/mailer.log
+
+  empty: |
+    empty
 
 ---
 apiVersion: v1
@@ -243,7 +246,7 @@ spec:
               crond &&
               /usr/local/sbin/php-fpm -D &&
               touch /tmp/mailer.log && 
-              tail -f /tmp/mailer.log
+              tail -f /tmp/mailer.log | grep '\[-\]' | grep -v '_SERVER'
 
         - name: nginx
 {{ tuple (printf "%s-mailer-nginx-%s"  .Chart.Name (env "ENVNAME")) . | werf_container_image | indent 10 }}
