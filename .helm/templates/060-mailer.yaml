@@ -48,10 +48,10 @@ data:
       ],
       'from' => [
         'ru-RU' => 'noreply@mcn.ru',
-        'hu-HU' => 'noreply@kompaas.hu',
-        'en-EN' => 'noreply@kompaas.hu',
-        'de-DE' => 'noreply@kompaas.hu',
-        'sk-SK' => 'noreply@kompaas.hu',
+        'hu-HU' => 'noreply@mcntele.com',
+        'en-EN' => 'noreply@mcntele.com',
+        'de-DE' => 'noreply@mcntele.com',
+        'sk-SK' => 'noreply@mcntele.com',
       ],
       'system_addresses'=> [
         'monitoring' => 'monitoring@mcn.ru',
@@ -94,12 +94,12 @@ data:
     return [
       'traceLevel' => 3,  // YII_DEBUG ? 3 : 0,
       // disable/downgrade for php7.1 // 'class' => 'yii\log\Logger',
-      'flushInterval' => 1,
+      'flushInterval' => 3,
       'targets' => [
         [ 
           'exportInterval' => 1,
           'class' => 'yii\log\FileTarget',
-          'levels' => ['info', 'trace', 'error', 'warning'],
+          'levels' => ['info', /*'trace', */'error', 'warning'],
           'logFile' => '/tmp/mailer.log',
         ],
       ],
@@ -110,14 +110,14 @@ data:
     return [
       'class' => 'yii\swiftmailer\Mailer',
       'viewPath' => '@app/mail',
-    #  'transport' => [
-    #    'class' => 'Swift_SmtpTransport',
-    #    'host' => 'mailer-smtp-{{ .Values.global.env }}',
-    #    'username' => 'supername',
-    #    'password' => 'super-pass',
-    #    'port' => '25',  // '587',
-    #    // 'encryption' => 'tls',
-    #  ],
+      'transport' => [
+        'class' => 'Swift_SmtpTransport',
+        'host' => '{{ .params.mailer.smtp.server }}',
+        'username' => '{{ .params.mailer.smtp.login }}',
+        'password' => '{{ .params.mailer.smtp.password }}',
+        'port' => '25',  // '587',
+        // 'encryption' => 'tls',
+      ],
     ];
     
 
