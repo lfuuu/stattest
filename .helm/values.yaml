@@ -175,5 +175,10 @@ params_dev:
     client: "xxx"
     password: "xxx"
     server: http://thiamis.mcn.ru/sms/gateway.php
+  mailer:
+    smtp:
+      server: mail.xxx1.yyy2.zzz3.com
+      login: login
+      password: password
 
 
