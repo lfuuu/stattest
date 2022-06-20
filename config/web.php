@@ -15,9 +15,9 @@ if (file_exists($file = __DIR__ . '/cache_redis.local.php')) {
     $cacheRedis = ArrayHelper::merge($cacheRedis, require($file));
 }
 
-$db = require(__DIR__ . '/db_stat.php');
+$dbConf = require(__DIR__ . '/db_stat.php');
 if (file_exists($file = __DIR__ . '/db_stat.local.php')) {
-    $db = ArrayHelper::merge($db, require($file));
+    $dbConf = ArrayHelper::merge($dbConf, require($file));
 }
 
 $dbSms = require(__DIR__ . '/db_sms.php');
@@ -175,7 +175,7 @@ $config = [
             // 'useFileTransport' => true,
         ],
         'log' => $log,
-        'db' => $db,
+        'db' => $dbConf,
         'dbSms' => $dbSms,
         'dbPg' => $dbPg,
         'dbPgSlave' => $dbPgSlave,

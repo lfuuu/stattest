@@ -1866,11 +1866,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
 
     function createTrouble($R = array(), $user_main = null) {
-        global $db,$user;
+        global $user;
 
-        if (!$db) {
-            $db = \app\classes\StatDbDriver::me()->getDbDriver();
-        }
+        $db = \app\classes\StatDbDriver::me()->getDbDriver();
 
         if (!isset($R['user_author'])) $R['user_author']=$user->Get('user');
         if (!$user_main) {
