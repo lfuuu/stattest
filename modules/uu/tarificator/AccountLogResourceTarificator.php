@@ -129,6 +129,12 @@ class AccountLogResourceTarificator extends Tarificator
             ]);
         }
 
+        if (\Yii::$app->isEu()) {
+            $accountTariffQuery
+                ->joinWith('clientAccount as c')
+                ->andWhere(['not', ['c.currency' => Currency::RUB]]);
+        }
+
         $i = 0;
         $all = $accountTariffQuery->count();
         foreach ($accountTariffQuery->each(self::BATCH_READ_SIZE) as $accountTariff) {
@@ -150,17 +156,15 @@ class AccountLogResourceTarificator extends Tarificator
             $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                if (\Yii::$app->isEu() && $accountTariff->clientAccount->currency != Currency::RUB) {
-                    // ресурсы-опции
-                    $this->tarificateAccountTariffOption($accountTariff);
+                // ресурсы-опции
+                $this->tarificateAccountTariffOption($accountTariff);
 
-                    // ресурсы-трафик
-                    if ($accountTariffId && !$isForceTarifficationTraffic) {
-                        $isOk = false;
-                    } else {
-                        // только по крону
-                        $isOk = $this->tarificateAccountTariffTraffic($accountTariff);
-                    }
+                // ресурсы-трафик
+                if ($accountTariffId && !$isForceTarifficationTraffic) {
+                    $isOk = false;
+                } else {
+                    // только по крону
+                    $isOk = $this->tarificateAccountTariffTraffic($accountTariff);
                 }
 
                 if ($isOk) {

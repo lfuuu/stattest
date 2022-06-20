@@ -5,6 +5,7 @@ namespace app\modules\uu\tarificator;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Currency;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\classes\DateTimeOffsetParams;
 use app\modules\uu\models\AccountLogPeriod;
@@ -67,6 +68,12 @@ class AccountLogPeriodTarificator extends Tarificator
             ->with('accountTariffLogs.tariffPeriod.chargePeriod')
             ->with('tariffPeriod.tariff')
             ->with('number');
+
+        if (\Yii::$app->isEu()) {
+            $accountTariffQuery
+                ->joinWith('clientAccount as c')
+                ->andWhere(['not', ['c.currency' => Currency::RUB]]);
+        }
 
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
