@@ -471,8 +471,8 @@ data:
             ['region_id' => 88, 'operator_id' => 15, 'number_prefix' => '7831235', 'datacenter_id' => 14],
             ['region_id' => 97, 'operator_id' => 3, 'number_prefix' => '7861', 'datacenter_id' => 5],
         ],
-        'rocket_chat_token' => '{{ .Values.params_prod.rocket_chat_token }}',
-        'nnpInfoServiceURL' => '{{ .Values.params_prod.nnp_info_service_url }}',
+        'rocket_chat_token' => '{{ .params.rocket_chat_token }}',
+        'nnpInfoServiceURL' => '{{ .params.nnp_info_service_url }}',
         'nnpMCNOperatorId' => 6720,
         'billerApiURL' => '{{ .Values.params_prod.biller_api_url }}',
         {{ if eq .params.client_changed_amq_settings "1" }}
