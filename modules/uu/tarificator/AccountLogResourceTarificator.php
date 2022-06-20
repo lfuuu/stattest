@@ -89,6 +89,7 @@ class AccountLogResourceTarificator extends Tarificator
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffQuery = AccountTariff::find()
+            ->alias('a')
             ->andWhere([
                 'OR',
                 ['account_log_resource_utc' => null], // ресурсы не списаны
@@ -106,7 +107,7 @@ class AccountLogResourceTarificator extends Tarificator
         }
 
 
-        $fromId && $toId && $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
+        $fromId && $toId && $accountTariffQuery->andWhere(['between', 'a.id', $fromId, $toId]);
 
         $accountTariffQuery
             ->with('clientAccount')
@@ -120,12 +121,12 @@ class AccountLogResourceTarificator extends Tarificator
             ->with('number');
 
         if ($accountTariffId) {
-            $accountTariffQuery->andWhere(['id' => $accountTariffId]);
+            $accountTariffQuery->andWhere(['a.id' => $accountTariffId]);
         } else {
             $accountTariffQuery->orderBy([
                 'client_account_id' => SORT_ASC,
                 'prev_account_tariff_id' => SORT_ASC,
-                'id' => SORT_ASC,
+                'a.id' => SORT_ASC,
             ]);
         }
 

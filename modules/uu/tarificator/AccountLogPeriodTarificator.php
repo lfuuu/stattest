@@ -59,7 +59,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 ['<', 'account_log_period_utc', $utcDateTime->format(DateTimeZoneHelper::DATETIME_FORMAT)] // или списана давно
             ]);
 
-        $fromId && $toId && $accountTariffQuery->andWhere(['between', 'id', $fromId, $toId]);
+        $fromId && $toId && $accountTariffQuery->andWhere(['between', 'a.id', $fromId, $toId]);
 
         $accountTariffQuery
             ->with('clientAccount')
