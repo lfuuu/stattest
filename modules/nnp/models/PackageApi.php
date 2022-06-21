@@ -3,7 +3,6 @@
 namespace app\modules\nnp\models;
 
 use app\classes\model\ActiveRecord;
-use app\modules\uu\models\billing_uu\PricelistApi;
 use app\modules\uu\models\Tariff;
 use Yii;
 use yii\db\ActiveQuery;
@@ -18,7 +17,6 @@ use yii\db\ActiveQuery;
  * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
  * @property-read Package $package
  * @property-read Destination $destination
- * @property-read PricelistApi $pricelistApi
  */
 class PackageApi extends ActiveRecord
 {
@@ -80,10 +78,5 @@ class PackageApi extends ActiveRecord
     public function getPackage()
     {
         return $this->hasOne(Package::class, ['tariff_id' => 'tariff_id']);
-    }
-
-    public function getPricelistApi()
-    {
-        return $this->hasOne(PricelistApi::class, ['id' => 'api_pricelist_id']);
     }
 }

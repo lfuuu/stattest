@@ -18,7 +18,6 @@ use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\models\TroubleRoistatStore;
 use app\models\User;
-use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -752,13 +751,9 @@ class UuController extends ApiInternalController
                 'voip_cities' => $this->_getIdNameRecord($tariff->voipCities, 'city_id'),
                 'voip_ndc_types' => $this->_getIdNameRecord($tariff->voipNdcTypes, 'ndc_type_id'),
                 'organizations' => $this->_getIdNameRecord($tariff->organizations, 'organization_id'),
-                'api_package_price' => $tariff->service_type_id == ServiceType::ID_BILLING_API_MAIN_PACKAGE ? $this->_getApiPackagePrice($tariff->packageApi) : null,
-                'voip_package_pricelist' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackagePricelistRecord($tariff->packagePricelists, ['pricelist' => 'pricelist']) : null, //package_pricelist
-                'voip_package_price_internet' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpInternet, ['bytes_amount' => 'bytes_amount']) : null, // package_data
-                'voip_package_price_sms' => in_array($tariff->service_type_id,  [ServiceType::ID_VOIP_PACKAGE_SMS, ServiceType::ID_A2P_PACKAGE]) ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms) : null, // package_sms
-                'voip_package_price_minute' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp, ['minute' => 'minute']) : null,
-                'voip_package_minute' => null,
-                'package_pricelist' => null,
+                'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
+                'voip_package_price_internet' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpInternet, true),
+                'voip_package_price_sms' => $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, true),
             ];
 
             $data['overview'] = $this->_getOverview($tariff->overview);
@@ -767,14 +762,7 @@ class UuController extends ApiInternalController
         }
 
         $data['tariff_periods'] = $this->_getTariffPeriodRecord($tariffPeriod);
-        $data['voip_package_minute'] = $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic) : null;
-
-        foreach(['voip_package_pricelist', 'voip_package_price_internet', 'voip_package_price_sms', 'voip_package_minute', 'voip_package_price_minute', 'api_package_price'] as $price) {
-            if (isset($data[$price]) && $data[$price]) {
-                $data['package_pricelist'] = $data[$price];
-                break;
-            }
-        }
+        $data['voip_package_minute'] = $this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic);
 
         return $data;
     }
@@ -925,11 +913,37 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @param PackagePrice|PackagePrice[] $packagePrices
+     * @return array
+     */
+    private function _getVoipPackagePriceRecord($packagePrices)
+    {
+        if (!$packagePrices) {
+            return null;
+        }
+
+        if (is_array($packagePrices)) {
+
+            $result = [];
+            foreach ($packagePrices as $packagePrice) {
+                $result[] = $this->_getVoipPackagePriceRecord($packagePrice);
+            }
+
+            return $result;
+        }
+
+        return [
+            'destination' => (string)$packagePrices->destination,
+            'price' => $packagePrices->price,
+        ];
+    }
+
+    /**
      * @param PackagePricelistNnp[] $packagePriceLists
      * @param bool $isNames - только имена и id прайс-листов
      * @return array
      */
-    private function _getVoipPackagePriceV2Record($packagePriceLists, $addField = [])
+    private function _getVoipPackagePriceV2Record($packagePriceLists, $isNames = false)
     {
         if (!$packagePriceLists) {
             return null;
@@ -937,14 +951,11 @@ class UuController extends ApiInternalController
 
         $result = [];
         foreach ($packagePriceLists as $packagePriceList) {
-            $row = [];
-            foreach (['id' => 'id', 'name' => 'name'] as $k => $v) {
-                $row[$v] = $packagePriceList->pricelistNnp->$k;
+            if ($isNames) {
+                $result[] = $this->_getIdNameRecord($packagePriceList->pricelistNnp);
+            } else {
+                $result = array_merge($result, Pricelist::getVoipPackagePriceV2Record($packagePriceList->nnp_pricelist_id));
             }
-            foreach ($addField as $k => $v) {
-                $row[$v] = $packagePriceList->$k;
-            }
-            $result[] = $row;
         }
 
         return $result;
@@ -954,7 +965,7 @@ class UuController extends ApiInternalController
      * @param PackagePricelist|PackagePricelist[] $packagePricelists
      * @return array
      */
-    private function _getVoipPackagePricelistRecord($packagePricelists, $addField = [])
+    private function _getVoipPackagePricelistRecord($packagePricelists)
     {
         if (!$packagePricelists) {
             return null;
@@ -963,50 +974,16 @@ class UuController extends ApiInternalController
         if (is_array($packagePricelists)) {
             $result = [];
             foreach ($packagePricelists as $packagePricelist) {
-                $result[] = $this->_getVoipPackagePricelistRecord($packagePricelist, $addField);
+                $result[] = $this->_getVoipPackagePricelistRecord($packagePricelist);
             }
 
             return $result;
         }
-
-        $result = [];
-        foreach ($addField as $k => $v) {
-            $result[$v] = (string)$packagePricelists->$k;
-        }
-        $result['minute'] = $packagePricelists->minute;
-
-        return $result;
-    }
-
-    /**
-     * @param PackageApi[]|PackageApi $packageApis
-     * @return array
-     */
-    private function _getApiPackagePrice($packageApis)
-    {
-        if (!$packageApis) {
-            return null;
-        }
-
-        if (is_array($packageApis)) {
-            $result = [];
-
-            foreach ($packageApis as $packageApi) {
-                $result[] = $this->_getApiPackagePrice($packageApi);
-            }
-
-            return $result;
-        }
-
-        /** @var $packageApis PackageApi */
 
         return [
-            'id' => $packageApis->api_pricelist_id,
-            'name' => (string)$packageApis->pricelistApi,
+            'pricelist' => (string)$packagePricelists->pricelist,
         ];
-
     }
-
 
     /**
      * @SWG\Definition(definition = "TariffPeriodForExcelRecord", type = "object",

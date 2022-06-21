@@ -15,7 +15,6 @@ use yii\db\ActiveQuery;
  * @property int $id
  * @property int $tariff_id
  * @property int $pricelist_id
- * @property int $minute
   *
  * @property-read Tariff $tariff FK нет, ибо в таблица в другой БД
  * @property-read Package $package
