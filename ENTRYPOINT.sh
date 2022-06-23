@@ -154,11 +154,11 @@ fi
 if [[ -n "$STRIPE_PUBLISHABLE_KEY" ]] || [[ -n "$QIWI_PAYMENTS_PASSWORD" ]]; then
   cd $DIR_STAT/modules/payments/config/
   cp params.php params.local.php
-  if [[ -n "$STRIPE_PUBLISHABLE_KEY" ]]; then
+  if [[ -n "$QIWI_PAYMENTS_PASSWORD" ]]; then
     sed -i "s/'user' => ''/'user' => '$QIWI_PAYMENTS_USER'/" params.local.php
     sed -i "s/'password' => ''/'password' => '$QIWI_PAYMENTS_PASSWORD'/" params.local.php
   fi
-  if [[ -n "$QIWI_PAYMENTS_PASSWORD" ]]; then
+  if [[ -n "$STRIPE_PUBLISHABLE_KEY" ]]; then
     sed -i "s/'publishable_key' => ''/'publishable_key' => '$STRIPE_PUBLISHABLE_KEY'/" params.local.php
     sed -i "s/'secret_key' => ''/'secret_key' => '$STRIPE_SECRET_KEY'/" params.local.php
   fi
