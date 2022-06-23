@@ -235,11 +235,6 @@
     </div>
 
 {* {if $bill.operation_type_id == 1}   operation_type_id = 1 - расходный документ *}
-    {assign var="isDisabledLines" value=false}
-    {if $bill.uu_bill_id}
-        {assign var="isDisabledLines" value=true}
-    {/if}
-
     <table class="table table-condensed table-striped">
         <tr>
             <th width=1%>&#8470;</th>
@@ -254,6 +249,13 @@
             </th>
         </tr>
         {foreach from=$bill_lines item=item key=key name=outer}
+            {assign var="isDisabledLines" value=false}
+            {if $item.id_service > 100000 or !$isEditable }
+            {*if $bill.uu_bill_id*}
+
+                {assign var="isDisabledLines" value=true}
+            {/if}
+
             <tr>
                 <td>{$smarty.foreach.outer.iteration}.</td>
                 <td><input class="form-control input-sm"
@@ -286,7 +288,7 @@
         {/foreach}
     </table>
     <div style="text-align: center">
-        <input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if $isDisabledLines} disabled{/if}>
+        <input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if !$isEditable} disabled{/if}>
     </div>
 {* {/if} *}
 </form>

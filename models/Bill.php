@@ -673,4 +673,15 @@ class Bill extends ActiveRecord
     {
         return self::dao()->getInvoicePayments($this->bill_no);
     }
+
+    /**
+     * Можно ли редактировать строки счета
+     *
+     * @return bool
+     * @throws \yii\base\Exception
+     */
+    public function isEditable(): bool
+    {
+        return self::dao()->isEditable($this);
+    }
 }

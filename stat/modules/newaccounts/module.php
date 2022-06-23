@@ -1278,6 +1278,7 @@ class m_newaccounts extends IModule
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
+        $design->assign('isEditable', $billModel->isEditable());
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $lines = $bill->GetLines();
         
@@ -1484,13 +1485,18 @@ class m_newaccounts extends IModule
             $lines[$bill->GetMaxSort() + 1] = [];
             $lines[$bill->GetMaxSort() + 2] = [];
             $lines[$bill->GetMaxSort() + 3] = [];
-            foreach ($lines as $k => $arr_v) {
-                if (((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item'])) || isset($del[$k])) {
-                    $bill->RemoveLine($k);
-                } elseif (isset($item[$k]) && $item[$k] && isset($arr_v['item'])) {
-                    $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k]);
-                } elseif (isset($item[$k]) && $item[$k]) {
-                    $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '');
+            if ($billModel->isEditable()) {
+                foreach ($lines as $k => $arr_v) {
+                    if ($arr_v && isset($arr_v['id_service']) && $arr_v['id_service'] > 100000) {
+                        continue;
+                    }
+                    if (((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item']))) {
+                        $bill->RemoveLine($k);
+                    } elseif (isset($item[$k]) && $item[$k] && isset($arr_v['item'])) {
+                        $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k]);
+                    } elseif (isset($item[$k]) && $item[$k]) {
+                        $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '');
+                    }
                 }
             }
             $bill->Save();
