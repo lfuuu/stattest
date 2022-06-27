@@ -394,8 +394,12 @@ SQL;
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;
-                    default:
-                        // nothing
+
+                    case ImportantEventsNames::UU_UPDATED:
+                        EventQueue::go(\app\modules\uu\Module::EVENT_ROBOCALL_INTERNAL_UPDATE, [
+                            'client_account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
                         break;
                 }
                 break;

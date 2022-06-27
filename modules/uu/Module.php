@@ -38,6 +38,7 @@ class Module extends \yii\base\Module
     const EVENT_CHAT_BOT_CREATE = 'uu_chat_bot_create';
     const EVENT_CHAT_BOT_REMOVE = 'uu_chat_bot_remove';
     const EVENT_ROBOCALL_INTERNAL_CREATE = 'uu_robocall_create';
+    const EVENT_ROBOCALL_INTERNAL_UPDATE = 'uu_robocall_update';
     const EVENT_ROBOCALL_INTERNAL_REMOVE = 'uu_robocall_remove';
 
     const LOG_CATEGORY = 'uu';

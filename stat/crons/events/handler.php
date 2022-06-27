@@ -1003,7 +1003,15 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
-                    
+
+                case UuModule::EVENT_ROBOCALL_INTERNAL_UPDATE:
+                    if ($isRobocallInternalServer) {
+                        ApiRobocallInternal::me()->update($param['client_account_id'], $param['account_tariff_id']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
                 case UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE:
                     if ($isRobocallInternalServer) {
                         ApiRobocallInternal::me()->remove($param['account_tariff_id']);
