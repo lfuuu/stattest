@@ -90,6 +90,11 @@ class ApiRobocallInternal extends Singleton
         return $this->exec('/api/private/api/set_service', $data);
     }
 
+    public function update($clientId, $serviceId)
+    {
+        $this->create($clientId, $serviceId);
+    }
+
     /**
      * @param int $serviceId
      * @return mixed

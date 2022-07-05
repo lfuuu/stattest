@@ -70,6 +70,13 @@ class SyncResourceTarificator extends Tarificator
                                 'account_tariff_resource_ids' => array_keys($accountTariffResourceLogs),
                             ]);
                             break;
+
+                        case ServiceType::ID_VOICE_ROBOT:
+                            EventQueue::go(\app\modules\uu\Module::EVENT_ROBOCALL_INTERNAL_UPDATE, [
+                                'client_account_id' => $accountTariff->client_account_id,
+                                'account_tariff_id' => $accountTariff->id,
+                            ]);
+                            break;
                     }
                 }
 
