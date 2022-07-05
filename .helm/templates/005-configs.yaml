@@ -958,6 +958,8 @@ data:
     # обновление таблицы uu_account_tariff_voip_flat
     0 7 * * * /home/httpd/stat.mcn.ru/stat/yii uu/account-tariff-voip-flat/generate
     
+    */3 * * * *    cd /home/httpd/stat.mcn.ru/stat/stat/; flock -w 3 /var/run/automail php automail.php >> /var/log/nispd/handler.log 2>&1
+    
     # Универсальные услуги
     #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 1 200000 >> /var/log/nispd/ubiller.log.11
     #2 23 28-31 * * flock -w 3 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/period 200001 300000 >> /var/log/nispd/ubiller.log.12
