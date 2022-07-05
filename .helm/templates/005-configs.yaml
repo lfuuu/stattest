@@ -163,7 +163,8 @@ data:
             fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
             fastcgi_pass   127.0.0.1:9000;
             #fastcgi_pass unix:/var/run/php5-fpm.sock;
-            fastcgi_read_timeout 8h;
+            fastcgi_read_timeout 20m;
+            fastcgi_send_timeout 20m;
             try_files $uri =404;
         }
 {{ if eq (env "IS_WITH_COMET") "1" }}
