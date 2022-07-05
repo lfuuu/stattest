@@ -18,6 +18,7 @@ use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\models\TroubleRoistatStore;
 use app\models\User;
+use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
@@ -708,7 +709,7 @@ class UuController extends ApiInternalController
      * @param array $minutesStatistic
      * @return array
      */
-    private function _getTariffRecord($tariff, $tariffPeriod, $minutesStatistic = [])
+    private function _getTariffRecord($tariff, $tariffPeriod, $minutesStatistic = [], $internetStatistic = [])
     {
         if (!$tariff || !$tariffPeriod) {
             return null;
@@ -768,6 +769,13 @@ class UuController extends ApiInternalController
 
         $data['tariff_periods'] = $this->_getTariffPeriodRecord($tariffPeriod);
         $data['voip_package_minute'] = $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackageMinuteRecord($tariff->packageMinutes, $minutesStatistic) : null;
+
+        if ($tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY && $internetStatistic) {
+            if (!isset($data['voip_package_price_internet'][0])) {
+                $data['voip_package_price_internet'][0] = [];
+            }
+            $data['voip_package_price_internet'][0] += $internetStatistic;
+        }
 
 //        foreach(['voip_package_pricelist', 'voip_package_price_internet', 'voip_package_price_sms', 'voip_package_minute', 'voip_package_price_minute', 'api_package_price'] as $price) {
 //            if (isset($data[$price]) && $data[$price]) {
@@ -1250,6 +1258,48 @@ class UuController extends ApiInternalController
             $minutesStatistic = [];
         }
 
+
+        $internetStatistic = [];
+        if ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
+
+            static $internetDataCache = [];
+            $did = $accountTariff->prevAccountTariff->voip_number;
+
+            if ($did) {
+                if(!isset($internetDataCache[$did])) {
+                    $statInternets = \app\models\billing\StatsAccount::getStatInternet($did);
+
+                    $alts = AccountTariffLight::find()
+                        ->where(['id' => array_map(function ($v) {
+                            return $v['account_tariff_light_id'];
+                        }, $statInternets)])
+                        ->select('account_package_id')->indexBy('id')->column();
+
+                    foreach ($statInternets as $statInternet) {
+                        if (
+                            !isset($statInternet['bytes_amount'])
+                            || !isset($statInternet['bytes_consumed'])
+                        ) {
+                            continue;
+                        }
+
+                        if (!isset($alts[$statInternet['account_tariff_light_id']])) {
+                            continue;
+                        }
+
+                        $internetDataCache[$did][$alts[$statInternet['account_tariff_light_id']]] = [
+                            'bytes_amount' => $statInternet['bytes_amount'],
+                            'bytes_consumed' => $statInternet['bytes_consumed'],
+                        ];
+                    }
+                }
+
+                if (isset($internetDataCache[$did][$accountTariff->id])) {
+                    $internetStatistic = $internetDataCache[$did][$accountTariff->id];
+                }
+            }
+        }
+
         $number = $accountTariff->number;
         return [
             'id' => $accountTariff->id,
@@ -1264,7 +1314,7 @@ class UuController extends ApiInternalController
             'beauty_level' => $number ? $number->beauty_level : null,
             'ndc' => $number ? $number->ndc : null,
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
-            'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs, $minutesStatistic),
+            'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs, $minutesStatistic, $internetStatistic),
             'resources' => $this->_getAccountTariffResourceRecord($accountTariff),
             'calltracking_params' => $accountTariff->calltracking_params,
         ];
@@ -1275,12 +1325,12 @@ class UuController extends ApiInternalController
      * @param array $minutesStatistic
      * @return array|null
      */
-    private function _getAccountTariffLogRecord($model, $minutesStatistic = [])
+    private function _getAccountTariffLogRecord($model, $minutesStatistic = [], $internetStatistic = [])
     {
         if (is_array($model)) {
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->_getAccountTariffLogRecord($subModel, $minutesStatistic);
+                $result[] = $this->_getAccountTariffLogRecord($subModel, $minutesStatistic, $internetStatistic);
             }
 
             return $result;
@@ -1289,7 +1339,7 @@ class UuController extends ApiInternalController
         if ($model) {
             return [
                 'tariff' => $model->tariffPeriod ?
-                    $this->_getTariffRecord($model->tariffPeriod->tariff, $model->tariffPeriod, $minutesStatistic) :
+                    $this->_getTariffRecord($model->tariffPeriod->tariff, $model->tariffPeriod, $minutesStatistic, $internetStatistic) :
                     null,
                 'actual_from' => $model->actual_from,
             ];
