@@ -34,7 +34,7 @@ class RocketChat extends Singleton
             return false;
         }
 
-        $param['text'] .= "\nhttps://stat.mcn.ru/?module=tt&action=view&id=" . $param['trouble_id'];
+        $param['text'] .= "\n" . \Yii::$app->params['SITE_URL'] . "?module=tt&action=view&id=" . $param['trouble_id'];
 
         $this->send($user->rocket_nick, $param['text']);
     }

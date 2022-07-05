@@ -314,6 +314,7 @@ data:
     <?php
 
     return [
+        'SITE_URL' => 'https://{{ .Values.ci_url }}/',
         'adminEmail' => 'info@mcn.ru',
         'API_SECURE_KEY' => '{{ .params.api_secure_key }}',
         'CORE_SERVER' => '{{ .params.core_server }}',
