@@ -17,14 +17,10 @@ class StatDbDriver extends Singleton
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
         }
 
-        if (!defined("NO_WEB")) {
-            define("NO_WEB", 1);
-        }
 
         if (!defined('DESIGN_PATH')) {
             include_once PATH_TO_ROOT . 'conf.php';
         }
-
 
         if ($this->db === null) {
             $this->db = new \MySQLDatabase_yii(Yii::$app->getDb());
