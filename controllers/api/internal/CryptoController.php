@@ -15,7 +15,8 @@ use Yii;
 class CryptoController extends ApiInternalController
 {
     const STORE_PATH = 'files/crypto/messages';
-    const CRYPTO_PRO_SIGN_COMMAND = 'ssh root@cryptopro-prod /opt/cprocsp/bin/amd64/cryptcp -signf -dir {fileDir} -der -strict -cert -detached -thumbprint {thumbprint} {pin} {file}';
+//    const CRYPTO_PRO_SIGN_COMMAND = 'ssh root@cryptopro-prod /opt/cprocsp/bin/amd64/cryptcp -signf -dir {fileDir} -der -strict -cert -detached -thumbprint {thumbprint} {pin} {file}';
+    const CRYPTO_PRO_SIGN_COMMAND = '/home/httpd/stat.mcn.ru/stat/modules/sbisTenzor/script/sign.sh {thumbprint} {file} {file}.sgn';
 
     /**
      * Получить путь к хранилищу
@@ -105,7 +106,7 @@ class CryptoController extends ApiInternalController
         $command = strtr(
             self::CRYPTO_PRO_SIGN_COMMAND,
             [
-                '{thumbprint}' => $thumbprint,
+                '{thumbprint}' => ($thumbprint == '4fe6047a964d397c9a7c445e643dc20a0aa69be7' ? '8ff8660fd351c9a78655a39d3a486fa54e232fdc' : $thumbprint),
                 '{fileDir}' => $dirPath,
                 '{pin}' => $privateKeyPassword,
                 '{file}' => $fileName,
