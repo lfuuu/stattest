@@ -1252,52 +1252,15 @@ class UuController extends ApiInternalController
             return $result;
         }
 
+        $minutesStatistic = [];
         if ($accountTariff->service_type_id === ServiceType::ID_VOIP_PACKAGE_CALLS) {
             $minutesStatistic = $accountTariff->getMinuteStatistic();
-        } else {
-            $minutesStatistic = [];
         }
 
 
         $internetStatistic = [];
         if ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
-
-            static $internetDataCache = [];
-            $did = $accountTariff->prevAccountTariff->voip_number;
-
-            if ($did) {
-                if(!isset($internetDataCache[$did])) {
-                    $statInternets = \app\models\billing\StatsAccount::getStatInternet($did);
-
-                    $alts = AccountTariffLight::find()
-                        ->where(['id' => array_map(function ($v) {
-                            return $v['account_tariff_light_id'];
-                        }, $statInternets)])
-                        ->select('account_package_id')->indexBy('id')->column();
-
-                    foreach ($statInternets as $statInternet) {
-                        if (
-                            !isset($statInternet['bytes_amount'])
-                            || !isset($statInternet['bytes_consumed'])
-                        ) {
-                            continue;
-                        }
-
-                        if (!isset($alts[$statInternet['account_tariff_light_id']])) {
-                            continue;
-                        }
-
-                        $internetDataCache[$did][$alts[$statInternet['account_tariff_light_id']]] = [
-                            'bytes_amount' => $statInternet['bytes_amount'],
-                            'bytes_consumed' => $statInternet['bytes_consumed'],
-                        ];
-                    }
-                }
-
-                if (isset($internetDataCache[$did][$accountTariff->id])) {
-                    $internetStatistic = $internetDataCache[$did][$accountTariff->id];
-                }
-            }
+            $internetStatistic = $accountTariff->getInternetStatistic();
         }
 
         $number = $accountTariff->number;
@@ -1620,6 +1583,11 @@ class UuController extends ApiInternalController
             $minutesStatistic = $accountTariff->getMinuteStatistic();
         }
 
+        $internetStatistic = [];
+        if ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
+            $internetStatistic = $accountTariff->getInternetStatistic();
+        }
+
         $number = $accountTariff->number;
 
         if ($number) {
@@ -1658,7 +1626,7 @@ class UuController extends ApiInternalController
             'is_fmc_active' => $isFmcActive,
             'is_mobile_outbound_editable' => $isMobileOutboundEditable,
             'is_mobile_outbound_active' => $isMobileOutboundActive,
-            'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic),
+            'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic, $internetStatistic),
             'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],
@@ -1786,7 +1754,7 @@ class UuController extends ApiInternalController
      * @param array $minutesStatistic
      * @return array
      */
-    private function _getAccountTariffLogLightRecord($models, $minutesStatistic = [])
+    private function _getAccountTariffLogLightRecord($models, $minutesStatistic = [], $internetStatistic = [])
     {
         $result = [];
 
@@ -1811,7 +1779,7 @@ class UuController extends ApiInternalController
                 if ($modelPrev) {
                     // текущий тариф
                     $result[] = [
-                        'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod, $minutesStatistic),
+                        'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod, $minutesStatistic, $internetStatistic),
                         'activate_initial_date' => $modelFirst->actual_from,
                         'activate_past_date' => $modelPrev->actual_from,
                         'activate_future_date' => null,
@@ -1838,7 +1806,7 @@ class UuController extends ApiInternalController
 
                 // смена тарифа в прошлом
                 $result[] = [
-                    'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod, $minutesStatistic),
+                    'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod, $minutesStatistic, $internetStatistic),
                     'activate_initial_date' => $modelFirst->actual_from,
                     'activate_past_date' => $modelLast->actual_from,
                     'activate_future_date' => null,
