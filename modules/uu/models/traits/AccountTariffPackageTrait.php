@@ -8,6 +8,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\Semaphore;
 use app\models\ClientAccount;
 use app\models\DidGroup;
+use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
@@ -345,6 +346,48 @@ trait AccountTariffPackageTrait
         $accountLogPeriod = $this->accountLogPeriodLast;
 
         return $accountLogPeriod ? $accountLogPeriod->getMinutesSummaryAsArray() : [];
+    }
+
+    public function getInternetStatistic()
+    {
+        $internetStatistic = [];
+
+        static $internetDataCache = [];
+        $did = $this->prevAccountTariff->voip_number;
+
+        if (!$did) {
+            return $internetStatistic;
+        }
+
+        if (!isset($internetDataCache[$did])) {
+            $statInternets = \app\models\billing\StatsAccount::getStatInternet($did);
+
+            $alts = AccountTariffLight::find()
+                ->where(['id' => array_map(function ($v) {
+                    return $v['account_tariff_light_id'];
+                }, $statInternets)])
+                ->select('account_package_id')->indexBy('id')->column();
+
+            foreach ($statInternets as $statInternet) {
+                if (
+                    !isset($statInternet['bytes_amount'])
+                    || !isset($statInternet['bytes_consumed'])
+                ) {
+                    continue;
+                }
+
+                if (!isset($alts[$statInternet['account_tariff_light_id']])) {
+                    continue;
+                }
+
+                $internetDataCache[$did][$alts[$statInternet['account_tariff_light_id']]] = [
+                    'bytes_amount' => $statInternet['bytes_amount'],
+                    'bytes_consumed' => $statInternet['bytes_consumed'],
+                ];
+            }
+        }
+
+        return $internetDataCache[$did][$this->id];
     }
 
 
