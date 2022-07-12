@@ -177,9 +177,11 @@ class m_mail{
         $from =  [
             'МСН Телеком <info@mcn.ru>',
             'MCN <bill@wellsystems.ru>',
-            'MCNtelecom <info@mcntele.com>',
+            'MCNtelecom GmbH <info@mcntele.com>',
             'MCNtelecom <invoice@mcntele.com>',
+            'MCNtelecom GmbH <invoice@mcntele.com>',
             'MCNtelecom <info@kompaas.tech>',
+            'MCNtelecom GmbH <info@kompaas.tech>',
         ];
 
         return array_combine($from, $from);

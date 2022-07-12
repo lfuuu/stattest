@@ -92,7 +92,7 @@ data:
     */
         
     return [
-      'traceLevel' => 3,  // YII_DEBUG ? 3 : 0,
+      'traceLevel' => 0,
       // disable/downgrade for php7.1 // 'class' => 'yii\log\Logger',
       'flushInterval' => 3,
       'targets' => [
@@ -113,8 +113,6 @@ data:
       'transport' => [
         'class' => 'Swift_SmtpTransport',
         'host' => '{{ .params.mailer.smtp.server }}',
-        'username' => '{{ .params.mailer.smtp.login }}',
-        'password' => '{{ .params.mailer.smtp.password }}',
         'port' => '25',  // '587',
         // 'encryption' => 'tls',
       ],

@@ -178,7 +178,5 @@ params_dev:
   mailer:
     smtp:
       server: mail.xxx1.yyy2.zzz3.com
-      login: login
-      password: password
 
 

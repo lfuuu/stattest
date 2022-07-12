@@ -505,8 +505,9 @@ data:
 
     return array(
             'WEB_PATH'            =>    '/',
-            'WEB_ADDRESS'        => 'https://stat.mcn.ru/',
+            'WEB_ADDRESS'        => 'https://{{ .Values.ci_url }}/',
             'USE_MD5'        => 1, //использование md5-хеширование для паролей
+            'SMTP_SERVER'       => '{{ .params.mailer.smtp.server }}',
 
             /* voip regions db */
             'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
