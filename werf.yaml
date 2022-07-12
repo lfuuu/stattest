@@ -638,14 +638,8 @@ ansible:
         echo "http://dl-5.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
         echo "http://dl-5.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
         apk update && apk upgrade
-        # apk add wget
-        # apk add unzip
-        apk add net-tools mc vim telnet iputils-ping
         apk add busybox-extras
-        # www-data:www-data -> 509:509
-        # as jenkins:jenkins on tiberis
-        # and as nginx:nginx on nginx container in the POD
-        #apk --no-cache add shadow
+        apk add net-tools mc vim util-linux less
         groupmod -g 509 www-data
         usermod -u 509 -g 509 www-data
         # id www-data
