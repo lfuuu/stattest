@@ -185,6 +185,10 @@ class ImportantEventsController extends ApiInternalController
             $formattedResult->setAttributes($event->getAttributes() + [
                 'country_code' => $event->clientAccount ? $event->clientAccount->country->code : null,
             ]);
+
+            if (($prop = $event->getProperties()) && isset($prop['login_email']) && $prop['login_email']) {
+                $formattedResult->login_email = $prop['login_email'];
+            }
             return $formattedResult;
         }, $result->all());
     }

@@ -187,7 +187,7 @@ class ImportantEvents extends ActiveRecord
     public function getProperties()
     {
         if (!empty($this->context) && !$this->propertiesCollection) {
-            $this->propertiesCollection = json_decode($this->context);
+            $this->propertiesCollection = json_decode($this->context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
 
         return $this->propertiesCollection;
