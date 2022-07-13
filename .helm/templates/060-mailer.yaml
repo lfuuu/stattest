@@ -63,7 +63,9 @@ data:
     <?php
     $graylogHost = '85.94.48.39';
     $source = 'mailer';
-    /*    
+
+    {{ if eq (env "COUNTRY") "RU" }}
+   
     return [
       'flushInterval' => 1,
       'targets' => [
@@ -89,7 +91,8 @@ data:
         ],
       ],
     ];
-    */
+    
+    {{ else }}
         
     return [
       'traceLevel' => 0,
@@ -101,9 +104,12 @@ data:
           'class' => 'yii\log\FileTarget',
           'levels' => ['info', /*'trace', */'error', 'warning'],
           'logFile' => '/tmp/mailer.log',
+          'logVars' => [],
         ],
       ],
     ];
+    
+    {{ end }}
 
   mailer.local.php: |
     <?php
@@ -120,8 +126,7 @@ data:
     
 
   crontab.file: |
-    #* * * * * date >> /tmp/mailer.log
-    * * * * * cd /app/mailer; flock -x /var/run/mailer.lock ./yii mail/mail >> /tmp/mailer.log
+    #* * * * * cd /app/mailer; flock -x /var/run/mailer.lock ./yii mail/mail >> /tmp/mailer.log
 
   empty: |
     empty

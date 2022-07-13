@@ -13,7 +13,8 @@ class ImportantEventLight extends Model
         $source_id,
         $date,
         $event,
-        $country_code;
+        $country_code,
+        $login_email;
 
     /**
      * @return array
@@ -22,7 +23,7 @@ class ImportantEventLight extends Model
     {
         return [
             [['id', 'client_id', 'source_id', 'country_code',], 'integer'],
-            [['event', 'date'], 'string'],
+            [['event', 'date', 'login_email'], 'string'],
         ];
     }
 
