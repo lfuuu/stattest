@@ -67,12 +67,13 @@ data:
     {{ if eq (env "COUNTRY") "RU" }}
    
     return [
+      'traceLevel' => 0,
       'flushInterval' => 1,
       'targets' => [
         [
           'exportInterval' => 1,
           'class' => 'welltime\graylog\GraylogTarget',
-          'levels' => ['info', 'trace'],
+          'levels' => ['info'],
           'categories' => ['application'],
           'host' => $graylogHost,
           'source' => $source,
@@ -85,9 +86,11 @@ data:
           'source' => $source,
         ],
         [
-          'exportInterval' => 1,
+          'exportInterval' => 3,
           'class' => 'yii\log\FileTarget',
-          'levels' => ['info', 'trace', 'error', 'warning'],
+          'levels' => ['info', 'error', 'warning'],
+          'logFile' => '/tmp/mailer.log',
+          'logVars' => [],
         ],
       ],
     ];
@@ -100,9 +103,9 @@ data:
       'flushInterval' => 3,
       'targets' => [
         [ 
-          'exportInterval' => 1,
+          'exportInterval' => 3,
           'class' => 'yii\log\FileTarget',
-          'levels' => ['info', /*'trace', */'error', 'warning'],
+          'levels' => ['info', 'error', 'warning'],
           'logFile' => '/tmp/mailer.log',
           'logVars' => [],
         ],
@@ -126,7 +129,7 @@ data:
     
 
   crontab.file: |
-    #* * * * * cd /app/mailer; flock -x /var/run/mailer.lock ./yii mail/mail >> /tmp/mailer.log
+    * * * * * cd /app/mailer; flock -x /var/run/mailer.lock ./yii mail/mail >> /tmp/mailer.log
 
   empty: |
     empty
