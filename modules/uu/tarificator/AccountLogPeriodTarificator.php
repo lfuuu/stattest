@@ -70,11 +70,11 @@ class AccountLogPeriodTarificator extends Tarificator
             ->with('tariffPeriod.tariff')
             ->with('number');
 
-        if (\Yii::$app->isEu()) {
-            $accountTariffQuery
-                ->joinWith('clientAccount as c')
-                ->andWhere(['not', ['c.currency' => Currency::RUB]]);
-        }
+//        if (\Yii::$app->isEu()) {
+//            $accountTariffQuery
+//                ->joinWith('clientAccount as c')
+//                ->andWhere(['not', ['c.currency' => Currency::RUB]]);
+//        }
 
         $accountTariffId && $accountTariffQuery->andWhere(['a.id' => $accountTariffId]);
 
