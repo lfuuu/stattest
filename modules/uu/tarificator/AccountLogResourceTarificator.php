@@ -130,11 +130,11 @@ class AccountLogResourceTarificator extends Tarificator
             ]);
         }
 
-        if (\Yii::$app->isEu()) {
-            $accountTariffQuery
-                ->joinWith('clientAccount as c')
-                ->andWhere(['not', ['c.currency' => Currency::RUB]]);
-        }
+//        if (\Yii::$app->isEu()) {
+//            $accountTariffQuery
+//                ->joinWith('clientAccount as c')
+//                ->andWhere(['not', ['c.currency' => Currency::RUB]]);
+//        }
 
         $i = 0;
         $all = $accountTariffQuery->count();
