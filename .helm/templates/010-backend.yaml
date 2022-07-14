@@ -25,7 +25,7 @@ kind: Deployment
 metadata:
   name: {{ .Chart.Name }}-backend-{{ .postfix }}
 spec:
-  replicas: {{ ternary "1" "1" (eq (env "ENVNAME") "prod") }}
+  replicas: {{ ternary "3" "1" (eq (env "ENVNAME") "prod") }}
   selector:
     matchLabels:
       app: {{ .Chart.Name }}-backend-{{ .postfix }}
