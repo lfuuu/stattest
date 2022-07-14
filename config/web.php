@@ -144,6 +144,9 @@ $config = [
         ],
         'assetManager' => [
             'appendTimestamp' => true,
+            'hashCallback' => static function ($path) {
+                return hash('crc32', $path);
+            },
         ],
             /*
         'cache' => [
