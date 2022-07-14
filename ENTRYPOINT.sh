@@ -1,25 +1,27 @@
 #!/bin/sh
 
+cp -rp /root/id_rsa /root/.ssh
+cp -rp /root/known_hosts /root/.ssh
+chmod 0600 /root/.ssh/id_rsa
+chmod u+w /root/.ssh/known_hosts
+
+cp -rp /root/id_rsa /home/www-data/.ssh
+cp -rp /root/known_hosts /home/www-data/.ssh
+chmod 0600 /home/www-data/.ssh/id_rsa
+chmod u+w /home/www-data/.ssh/known_hosts
+chown -R www-data:www-data /home/www-data/.ssh/
+
 host_name_cryptopro=$CRYPTOPRO_HOST
 ip_cryptopro=$(getent hosts $host_name_cryptopro | awk '{ print $1 }')
 if [[ ! -z $host_name_cryptopro ]]; then
   if [[ ! -z $ip_cryptopro ]]; then
     # ssh for cryptopro, root
-    cp -rp /root/id_rsa /root/.ssh
-    cp -rp /root/known_hosts /root/.ssh
-    chmod 0600 /root/.ssh/id_rsa
-    chmod u+w /root/.ssh/known_hosts
     sed -ri "s/cryptopro-prod,10.105.196.57/$host_name_cryptopro,$ip_cryptopro/" /root/.ssh/known_hosts
 
     # first run to test with root
     ssh cryptopro-prod "/opt/cprocsp/sbin/amd64/cpconfig -license -view"
 
     # ssh for cryptopro, www-data
-    cp -rp /root/id_rsa /home/www-data/.ssh
-    cp -rp /root/known_hosts /home/www-data/.ssh
-    chmod 0600 /home/www-data/.ssh/id_rsa
-    chmod u+w /home/www-data/.ssh/known_hosts
-    chown -R www-data:www-data /home/www-data/.ssh/
     sed -ri "s/cryptopro-prod,10.105.196.57/$host_name_cryptopro,$ip_cryptopro/" /home/www-data/.ssh/known_hosts
   fi
 fi
