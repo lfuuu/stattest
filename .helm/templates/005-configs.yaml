@@ -617,7 +617,7 @@ data:
     {{ .Values.cryptopro_prod.id_rsa_pub }}
 
   php-fpm-cryptopro-known_hosts: |
-    {{ .Values.cryptopro_prod.known_hosts }}
+{{ .Values.cryptopro_prod.known_hosts | indent 4 }}
 
   graphql-engine.sh: |
     #!/bin/sh
