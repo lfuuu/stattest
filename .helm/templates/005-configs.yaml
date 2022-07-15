@@ -903,7 +903,7 @@ data:
     * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler.log 2>&1
     
     # Универсальные услуги
-    10 0-5,15-23 * * * flock -w 3 /var/run/ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1
+    10 0-5,12-23 * * * flock -w 3 /var/run/ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1
 
     ### Обновление lock'ов
     * * * * * flock -w 3 /tmp/yii-update-locks /home/httpd/stat.mcn.ru/stat/yii biller/update-locks >> /var/log/nispd/biller-update-locks.log
@@ -911,14 +911,14 @@ data:
     10 2 * * * /home/httpd/stat.mcn.ru/stat/yii usage/client-update-is-active
     1 0 * * *  /home/httpd/stat.mcn.ru/stat/yii number/release-from-hold >> /var/log/nispd/release-from-hold.log
     2 0 * * *  /home/httpd/stat.mcn.ru/stat/yii number/actualize-numbers-by-usages >> /var/log/nispd/actualize-numbers-by-usages.log
-    2 8 * * *  /home/httpd/stat.mcn.ru/stat/yii number/actualize-released 1 >> /var/log/nispd/actualize-numbers-released.log
+    2 5 * * *  /home/httpd/stat.mcn.ru/stat/yii number/actualize-released 1 >> /var/log/nispd/actualize-numbers-released.log
     
-    0 3 * * * flock -w 3 /tmp/yii-version-export /home/httpd/stat.mcn.ru/stat/yii version/export-current-versions >> /var/log/nispd/version-export.log
+    0 0 * * * flock -w 3 /tmp/yii-version-export /home/httpd/stat.mcn.ru/stat/yii version/export-current-versions >> /var/log/nispd/version-export.log
     1 0-3,15-23 * * * flock -w 3 /tmp/yii-usage-check-bill-overdue /home/httpd/stat.mcn.ru/stat/yii usage/check-bill-overdue >> /var/log/nispd/usage-check-bill-overdue.log
-    59 23 * * *  /home/httpd/stat.mcn.ru/stat/yii usage/voip-test-clean >> /var/log/nispd/voip-test-clean.log
-    0 7 * * * flock -w 3 /tmp/lk-set-is-lk-exists /home/httpd/stat.mcn.ru/stat/yii lk/set-is-lk-exists >> /var/log/nispd/lk-set-is-lk-exists.log
+    59 20 * * *  /home/httpd/stat.mcn.ru/stat/yii usage/voip-test-clean >> /var/log/nispd/voip-test-clean.log
+    0 4 * * * flock -w 3 /tmp/lk-set-is-lk-exists /home/httpd/stat.mcn.ru/stat/yii lk/set-is-lk-exists >> /var/log/nispd/lk-set-is-lk-exists.log
     0 * * * * flock -w 3 /tmp/number-actual-hourly /home/httpd/stat.mcn.ru/stat/yii number/actual-hourly >> /var/log/nispd/number-actual-hourly
-    3 6 * * * flock -w 3 /tmp/number-actual-status-all /home/httpd/stat.mcn.ru/stat/yii number/actual-status-all 1 >> /var/log/nispd/number-actual-status-all
+    3 3 * * * flock -w 3 /tmp/number-actual-status-all /home/httpd/stat.mcn.ru/stat/yii number/actual-status-all 1 >> /var/log/nispd/number-actual-status-all
   
     */3 * * * *  flock -w 3 /tmp/yii-check-voip-day-disable /home/httpd/stat.mcn.ru/stat/yii usage/check-voip-day-disable >> /var/log/nispd/check-voip-day-disable.log
     #*/3 * * * *  flock -w 3 /tmp/yii-check-notification /home/httpd/stat.mcn.ru/stat/yii lk/check-notification >> /var/log/nispd/check-notification.log
@@ -934,8 +934,8 @@ data:
     # 3 0 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/voip; php -c /etc/ voipcheck.php >> /var/log/nispd/voipcheck.log
     # 0 5 * * * cd /home/httpd/stat.mcn.ru/include/stat/crons/voip; php -c /etc/ voipcheck.php >> /var/log/nispd/voipcheck.log
     
-    5 6 * * * flock -w 3 /tmp/yii-number_calc-calls-per-month-0 /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month-0 >> /var/log/nispd/number-calls-per-month.log
-    5 7 1 * * flock -w 3 /tmp/yii-number_calc-calls-per-month   /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month   >> /var/log/nispd/number-calls-per-month.log
+    5 3 * * * flock -w 3 /tmp/yii-number_calc-calls-per-month-0 /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month-0 >> /var/log/nispd/number-calls-per-month.log
+    5 4 1 * * flock -w 3 /tmp/yii-number_calc-calls-per-month   /home/httpd/stat.mcn.ru/stat/yii number/calc-calls-per-month   >> /var/log/nispd/number-calls-per-month.log
     
     # Счетчики статистики
     2 0 2-31 * * flock -w 3 /tmp/yii-statistic-update /home/httpd/stat.mcn.ru/stat/yii statistic/update yesterday >> /var/log/nispd/stat-update.log
@@ -943,8 +943,8 @@ data:
     
     
     # Заполнение calls_raw_cache
-    20 7 * * *  flock -w 3 /tmp/yii-calls_raw_cache /home/httpd/stat.mcn.ru/stat/yii calls-raw-cache/make-cache >> /var/log/nispd/calls_raw_cache.log
-    25 8 * * * flock -w 3 /tmp/yii-calls-raw-unite /home/httpd/stat.mcn.ru/stat/yii calls-raw-unite/make-unite >> /var/log/nispd/calls_raw_unite.log
+    20 4 * * *  flock -w 3 /tmp/yii-calls_raw_cache /home/httpd/stat.mcn.ru/stat/yii calls-raw-cache/make-cache >> /var/log/nispd/calls_raw_cache.log
+    25 5 * * * flock -w 3 /tmp/yii-calls-raw-unite /home/httpd/stat.mcn.ru/stat/yii calls-raw-unite/make-unite >> /var/log/nispd/calls_raw_unite.log
     
     #0 6 * * * flock -w 3 /tmp/yii-nnp2-renew /home/httpd/stat.mcn.ru/stat/yii nnp2/range-short/renew >> /var/log/nispd/nnp2-renew.log
     
@@ -953,11 +953,11 @@ data:
     
     # Перезабор данных о потребленных ресурсов с ВАТС.
     0 5 1 * * flock -w 3 /tmp/yii-vpbx-stat-get /home/httpd/stat.mcn.ru/stat/yii stat/vats/get prevmonth >> /var/log/nispd/vats-stat-prevmonth.log 2>&1
-    10 8 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
-    10 18 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
+    10 5 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
+    10 15 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
     
     # обновление таблицы uu_account_tariff_voip_flat
-    0 7 * * * /home/httpd/stat.mcn.ru/stat/yii uu/account-tariff-voip-flat/generate
+    0 4 * * * /home/httpd/stat.mcn.ru/stat/yii uu/account-tariff-voip-flat/generate
     
     */3 * * * *    cd /home/httpd/stat.mcn.ru/stat/stat/; flock -w 3 /var/run/automail php automail.php >> /var/log/nispd/handler.log 2>&1
     
