@@ -21,6 +21,7 @@ use app\models\ClientDocument;
 use app\models\Currency;
 use app\models\Invoice;
 use app\models\LogBill;
+use app\models\OperationType;
 use app\models\Organization;
 use app\models\Payment;
 use app\models\Transaction;
@@ -446,6 +447,9 @@ class BillDao extends Singleton
 
         /** @var BillLine $line */
         foreach ($lines as $line) {
+            if (empty($line->id_service)) { // не трогаем ручные проводки
+                continue;
+            }
 
             $accountEntryId = $line->uu_account_entry_id;
             if (!isset($accountEntries[$accountEntryId])) {
@@ -1405,6 +1409,27 @@ WHERE
             ";
 
         return Bill::getDb()->createCommand($query)->queryAll();
+    }
+
+    /**
+     * Можно ли редактировать строки счета
+     *
+     * @param Bill $bill
+     * @return bool
+     */
+    public function isEditable(Bill $bill): bool
+    {
+        if ($bill->operation_type_id != OperationType::ID_PRICE) {
+            return false;
+        }
+
+        foreach($bill->invoices as $invoice) {
+            if ($invoice->number) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }
