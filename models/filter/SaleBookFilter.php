@@ -7,6 +7,7 @@ use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillLine;
+use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\Currency;
 use app\models\Invoice;
@@ -177,9 +178,8 @@ class SaleBookFilter extends Invoice
         $contract = $invoice->bill->clientAccount->contract;
 
         // internal office
-        if ($contract->contract_type_id == 6) {
+        if ($contract->business_id == Business::INTERNAL_OFFICE) {
             return false;
-
         }
 
         // если есть с/ф-3 - значит была реализация
