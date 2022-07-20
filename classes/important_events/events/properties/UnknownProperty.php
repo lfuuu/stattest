@@ -63,6 +63,10 @@ class UnknownProperty extends Component implements PropertyInterface
     {
         $properties = $this->event->properties;
 
+        if (is_array($properties)) {
+            return $properties[$this->propertyName] ?? '';
+        }
+
         return isset($properties->{$this->propertyName}) ? $properties->{$this->propertyName} : '';
     }
 
