@@ -149,8 +149,8 @@ params_prod_eu:
   atol_is_enabled: "0"
   tele2_is_enabled: "0"
   async_is_enabled: "0"
-  sberbank_api_is_enabled: "0"
-  yandex_kassa_is_enabled: "0"
+  sberbank_api_is_enabled: "1"
+  yandex_kassa_is_enabled: "1"
   mchs_is_enabled: "0"
   client_changed_amq_settings: "0"
 
