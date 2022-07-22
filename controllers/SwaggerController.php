@@ -8,7 +8,7 @@ use Yii;
 use yii\helpers\Json;
 use yii\web\Response;
 
-define('API_HOST', Yii::$app->request->serverName);
+define('API_HOST', \Yii::$app->params['SITE_URL']);
 
 class SwaggerController extends Controller
 {
