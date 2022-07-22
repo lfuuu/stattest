@@ -1419,7 +1419,7 @@ WHERE
      */
     public function isEditable(Bill $bill): bool
     {
-        if ($bill->operation_type_id != OperationType::ID_PRICE) {
+        if (!in_array($bill->operation_type_id, [OperationType::ID_PRICE, OperationType::ID_COST])) {
             return false;
         }
 
