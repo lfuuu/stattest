@@ -189,7 +189,7 @@ class Form extends \app\classes\Form
             if (!$i++ && !is_numeric($rowData[0])) {
                 // Шапка (первая строчка с названиями полей) - пропустить
                 $this->headers = $rowData;
-                $this->headers[] = 'created_at';
+                $this->headers[16] = 'created_at';
 
                 continue;
             }
@@ -199,7 +199,7 @@ class Form extends \app\classes\Form
             $row = $rowData;
 
             array_splice($row, 3, 1, [$row[3], $row[2]]);
-            $row[] = $createdAt;
+            $row[16] = $createdAt;
 
             $this->size = max($this->size, count($row));
             $this->values[] = $row;
