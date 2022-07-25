@@ -20,6 +20,7 @@ use app\models\Region;
  * @property int $imsi_last_used
  * @property int $region_id
  * @property int $parent_id
+ * @property int $sip_warehouse_status_id
  *
  * @property-read Region $region
  * @property-read RegionSettings $parent
