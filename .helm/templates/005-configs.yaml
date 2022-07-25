@@ -1030,6 +1030,12 @@ data:
     #проверяем, что все пакеты телефонии включены.
     */5 * 2-31 * *  cd /home/httpd/stat.mcn.ru/include/; flock -w 3 /tmp/yii-usage-check-voip-delay ./yii usage/check-voip-delay >> /var/log/nispd/usage-check-voip-delay.log
   
+    # Завершение сбербанковских платежей
+    */10 * * * * flock -w 3 /var/run/yii-sberbank-orders-finishing /home/httpd/stat.mcn.ru/stat/yii biller/sberbank-orders-finishing >> /var/log/nispd/sberbank-orders-finishing.log
+    
+    #### heavy task manager
+    * * * * * flock -w 3 /var/run/yii-task /home/httpd/stat.mcn.ru/stat/yii task >> /var/log/nispd/task.log
+
     # копируем "важные события" в clickhouse
     # */3 * * * * flock -w 3 /tmp/mysql_clickhouse_copier /bin/python /home/httpd/stat.mcn.ru/stat/stat/crons/events/mysql_clickhouse_copier.py ee86a024319672991131 Sdfwe342 >> /var/log/nispd/mysql_clickhouse_copier.py
 
