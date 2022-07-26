@@ -35,6 +35,28 @@ class StripeController extends ApiController
     }
 
     /**
+     * Получение публичного ключа. Со статустом
+     *
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function actionGetKeySt()
+    {
+        try {
+            return [
+                'status' => 'ok',
+                'result' => $this->actionGetKey(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
+        }
+    }
+
+    /**
      * Получение публичного ключа
      *
      * @return array
@@ -55,6 +77,28 @@ class StripeController extends ApiController
     }
 
     /**
+     * Проведение платежа. Со статустом
+     *
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function actionMakePaymentSt()
+    {
+        try {
+            return [
+                'status' => 'ok',
+                'result' => $this->actionMakePayment(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
+        }
+    }
+
+    /**
      * Проведение платежа
      *
      * @return array
@@ -72,13 +116,14 @@ class StripeController extends ApiController
         );
 
         if ($form->hasErrors()) {
-            throw new InvalidParamException(reset($form->getFirstErrors()));
+            $errors = $form->getFirstErrors();
+            throw new \InvalidArgumentException(reset($errors));
         }
 
         $tokenData = json_decode($form->token_data, true);
 
         if (!$tokenData) {
-            throw new InvalidParamException('get token error');
+            throw new \InvalidArgumentException('get token error');
         }
 
         if ($this->_processCharge($form->account_id, $tokenData, $form->amount, $form->currency)) {

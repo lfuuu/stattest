@@ -408,6 +408,29 @@ class LkController extends ApiController
     }
 
     /**
+     * Создание счета на оплату и регистрация его в Сбербанк. С обоработкой состояния.
+     * POST /api/lk/make-sberbank-order-st
+     *
+     * @return array
+     */
+
+    public function actionMakeSberbankOrderSt()
+    {
+        try {
+            return [
+                'status' => 'ok',
+                'result' => $this->actionMakeSberbankOrder()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
+        }
+    }
+
+    /**
      * POST /api/lk/make-sberbank-order
      *
      * Создание счета на оплату и регистрация его в Сбербанк.
@@ -506,6 +529,34 @@ class LkController extends ApiController
     }
 
     /**
+     * Создание счета на оплату и регистрация его в Сбербанк. С обоработкой состояния.
+     * POST /api/lk/make-sberbank-order-st
+     *
+     * @return array
+     */
+
+    public function actionApplySberbankPaymentSt()
+    {
+        try {
+            $result = $this->actionApplySberbankPayment();
+
+            if ($result == ['status' => 'ok']) {
+                return $result;
+            }
+            return [
+                'status' => 'ok',
+                'result' => $result,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
+        }
+    }
+
+    /**
      * Внесение платежа, прошедшего через Сбербанк
      *
      * @throws ModelValidationException
@@ -520,9 +571,7 @@ class LkController extends ApiController
             ]
         );
 
-        if ($form->hasErrors()) {
-            throw new ModelValidationException($form);
-        }
+        $form->validateWithException();
 
         $sbOrder = SberbankOrder::findOne(['order_id' => $form->order_id]);
 
