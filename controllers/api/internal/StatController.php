@@ -12,6 +12,8 @@ use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
 use app\models\billing\A2pSms;
+use yii\db\Connection;
+use yii\db\Expression;
 use yii\db\Query;
 
 class StatController extends ApiInternalController
@@ -53,7 +55,8 @@ class StatController extends ApiInternalController
      *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
      *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="1000000",default="100"),
      *   @SWG\Parameter(name="unique_id",type="string",description="уникальный id",in="formData", default=""),
-     *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "year", "month", "day", "hour", "minute"}),  
+     *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "year", "month", "day", "hour", "minute"}),
+     *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
      * @SWG\Response(
      *     response=200,
      *     description="Статистика по вызовам API",
@@ -84,9 +87,9 @@ class StatController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'is_in_utc'], 'integer'],
+                [['account_id', 'offset', 'limit', 'is_in_utc', 'is_with_general_info'], 'integer'],
                 [['unique_id'], 'string'],
-                ['offset', 'default', 'value' => 0],
+                [['offset', 'is_with_general_info'], 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000000],
                 ['is_in_utc', 'default', 'value' => 1],
                 ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
@@ -152,6 +155,10 @@ class StatController extends ApiInternalController
             $result[] = $data;
         }
 
+        if ($model->is_with_general_info) {
+            return $this->makeGeneralInfo($result, $query, ApiRaw::getDb());
+        }
+
         return $result;
     }
 
@@ -168,7 +175,8 @@ class StatController extends ApiInternalController
     *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
     *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
     *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="1000000",default="100"),
-    *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "year", "month", "day", "hour", "minute"}),  
+    *   @SWG\Parameter(name="group_by",type="string",description="Групировать по",in="formData",default="none",enum={"none", "year", "month", "day", "hour", "minute"}),
+    *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
     * @SWG\Response(
     *     response=200,
     *     description="Статистика по A2P SMS",
@@ -199,8 +207,8 @@ class StatController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'is_in_utc'], 'integer'],
-                ['offset', 'default', 'value' => 0],
+                [['account_id', 'offset', 'limit', 'is_in_utc', 'is_with_general_info'], 'integer'],
+                [['offset', 'is_with_general_info'], 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000000],
                 ['is_in_utc', 'default', 'value' => 1],
                 ['from_datetime', 'match', 'pattern' => $dateTimeRegexp],
@@ -264,6 +272,35 @@ class StatController extends ApiInternalController
             $result[] = $data;
         }
 
+        if ($model->is_with_general_info) {
+            return $this->makeGeneralInfo($result, $query, A2pSms::getDb());
+        }
+
         return $result;
+    }
+
+    private function makeGeneralInfo($result, Query $query, Connection $db)
+    {
+        $queryFrom = clone $query;
+        $queryFrom->limit = null;
+        $queryFrom->offset = null;
+
+        $sumQuery = new Query();
+        $sumQuery->from(['a' => clone $queryFrom]);
+
+        $sumQuery->select([
+            'sum' => new Expression('SUM(cost)::decimal(12,6)'),
+            'count' => new Expression('COUNT(*)')
+        ]);
+
+        $generalInfo = $sumQuery->one($db);
+        $generalInfo['sum'] = (float)$generalInfo['sum'];
+        $generalInfo['offset'] = (int)$query->offset;
+        $generalInfo['limit'] = (int)$query->limit;
+
+        return [
+            'info' => $generalInfo,
+            'data' => $result,
+        ];
     }
 }
