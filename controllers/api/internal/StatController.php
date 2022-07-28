@@ -49,6 +49,7 @@ class StatController extends ApiInternalController
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",default=""),
      *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
      *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
+     *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"), 
      *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
      *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
      *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="1000000",default="100"),
@@ -84,7 +85,7 @@ class StatController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'is_in_utc'], 'integer'],
+                [['account_id', 'offset', 'limit', 'is_in_utc', 'is_with_general_info'], 'integer'],
                 [['unique_id'], 'string'],
                 ['offset', 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000000],
@@ -131,7 +132,7 @@ class StatController extends ApiInternalController
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
 
-        $query = ApiRaw::dao()->getData(
+        $result = ApiRaw::dao()->getData(
             $clientAccount,
             $firstDayOfDate,
             $lastDayOfDate,
@@ -139,20 +140,10 @@ class StatController extends ApiInternalController
             $model->offset,
             $model->limit,
             $model->group_by,
+            $model->is_with_general_info
         );
 
-        $result = [];
-        foreach ($query->each(500, ApiRaw::getDb()) as $data) {
-            $data['cost'] = (double)$data['cost'];
-
-            if (isset($data['rate'])) {
-                $data['rate'] = (double)$data['rate'];
-            }
-
-            $result[] = $data;
-        }
-
-        return $result;
+        return $model->is_with_general_info ? ['info' => $result['generalInfo'], 'data' => $result['result']] : $result['result'];
     }
 
 
@@ -165,6 +156,7 @@ class StatController extends ApiInternalController
     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",default=""),
     *   @SWG\Parameter(name="from_datetime",type="string",description="Время начала (по TZ-клиента) дата или дата-время",in="formData",default=""),
     *   @SWG\Parameter(name="to_datetime",type="string",description="Время окончания (по TZ-клиента)  дата или дата-время",in="formData",default=""),
+    *   @SWG\Parameter(name="is_with_general_info",type="string",description="Подказывать общую информацию",in="formData",default="0"),
     *   @SWG\Parameter(name="is_in_utc",type="string",description="Дата в параметрах и данных в UTC, иначе в TZ клиента",in="formData",default="1"),
     *   @SWG\Parameter(name="offset",type="integer",description="сдвиг в выборке записей",in="formData",default="0"),
     *   @SWG\Parameter(name="limit",type="integer",description="размер выборки",in="formData",maximum="1000000",default="100"),
@@ -199,7 +191,7 @@ class StatController extends ApiInternalController
         $model = DynamicModel::validateData(
             $requestData,
             [
-                [['account_id', 'offset', 'limit', 'is_in_utc'], 'integer'],
+                [['account_id', 'offset', 'limit', 'is_in_utc', 'is_with_general_info'], 'integer'],
                 ['offset', 'default', 'value' => 0],
                 ['limit', 'default', 'value' => 1000000],
                 ['is_in_utc', 'default', 'value' => 1],
@@ -244,26 +236,16 @@ class StatController extends ApiInternalController
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }        
 
-        $query = A2pSms::dao()->getData(
+        $result = A2pSms::dao()->getData(
             $clientAccount,
             $firstDayOfDate,
             $lastDayOfDate,
             $model->offset,
             $model->limit,
-            $model->group_by
+            $model->group_by,
+            $model->is_with_general_info
         );
-        
-        $result = [];
-        foreach ($query->each(500, A2pSms::getDb()) as $data) {
-            $data['cost'] = (double)$data['cost'];
 
-            if (isset($data['rate'])) {
-                $data['rate'] = (double)$data['rate'];
-            }
-
-            $result[] = $data;
-        }
-
-        return $result;
+        return $model->is_with_general_info ? ['info' => $result['generalInfo'], 'data' => $result['result']] : $result['result'];
     }
 }

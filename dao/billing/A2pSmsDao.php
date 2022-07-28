@@ -19,7 +19,7 @@ class A2pSmsDao extends Singleton
                             \DateTimeImmutable $lastDayOfDate,
                             $offset,
                             $limit,
-                            $group_by)
+                            $group_by, $is_with_general_info)
     {
         $tzOffest = $firstDayOfDate->getOffset();
 
@@ -37,6 +37,22 @@ class A2pSmsDao extends Singleton
         $query->andWhere(['>=', 'charge_time', $firstDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         $query->andWhere(['<', 'charge_time', $lastDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         
+        $generalInfo = [];
+        if ($is_with_general_info) {
+            $sumQuery = clone $query;
+          
+            $sumQuery->select([
+                'sum' => new Expression('SUM(-cost)::decimal(12,2)'),
+                'count' => new Expression('COUNT(*)')
+            ]);
+            $sumQuery->orderBy(null);
+
+            $generalInfo = $sumQuery->one(A2pSms::getDb());
+            $generalInfo['sum'] = (float)$generalInfo['sum'];
+            $generalInfo['offset'] = $offset;
+            $generalInfo['limit'] = $limit;            
+        }
+
         $limit && $query->limit($limit);
         if (!$group_by || $group_by == 'none') {
             $query->select([
@@ -68,6 +84,19 @@ class A2pSmsDao extends Singleton
             $query->orderBy($groupExp);
         }
 
-        return $query;
+        $result = [];
+        foreach ($query->each(500, A2pSms::getDb()) as $data) {
+            $data['cost'] = (double)$data['cost'];
+
+            if (isset($data['rate'])) {
+                $data['rate'] = (double)$data['rate'];
+            }
+
+            $result[] = $data;
+        }
+        $result['result'] = $result;
+        $result['generalInfo'] = $generalInfo;
+
+        return $result;
     }
 }
