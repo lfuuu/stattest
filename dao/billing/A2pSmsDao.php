@@ -47,7 +47,7 @@ class A2pSmsDao extends Singleton
                 'src_number',
                 'dst_number',
                 'dst_route',
-                'cost',
+                'cost' => new Expression('abs(cost)'),
                 'rate',
                 'count'
             ]);
