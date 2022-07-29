@@ -3,8 +3,10 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\helpers\DependecyHelper;
 use app\classes\traits\GetListTrait;
 use app\exceptions\web\NotImplementedHttpException;
+use app\models\Number;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
@@ -400,6 +402,32 @@ class NnpController extends ApiInternalController
         if ($number) {
             $query->andWhere(['<=', $numberRangeTableName . '.number_from', $number]);
             $query->andWhere(['>=', $numberRangeTableName . '.number_to', $number]);
+        }
+
+        if ($number_full) {
+            $numberInfo = Number::getNnpInfo($number_full);
+
+            if ($numberInfo) {
+                $cahceKey = 'nnpCountryId:' . $numberInfo['country_code'];
+                if (!\Yii::$app->cache->exists($cahceKey)) {
+                    $countryNumberRangeId = NumberRange::find()->select('id')->where([
+                        'country_code' => $numberInfo['country_code'],
+                        'is_active' => true,
+                        'city_id' => null,
+                    ])
+                        ->andWhere(['<=', $numberRangeTableName . '.full_number_from', $number_full])
+                        ->andWhere(['>=', $numberRangeTableName . '.full_number_to', $number_full])
+                        ->scalar();
+
+                    if ($countryNumberRangeId) {
+                        \Yii::$app->cache->set($cahceKey, $countryNumberRangeId,DependecyHelper::TIMELIFE_DAY);
+                    }
+                }
+
+                $countryNumberRangeId = \Yii::$app->cache->get($cahceKey);
+
+                $query->andWhere(['id' => [$numberInfo['id'], $countryNumberRangeId ?? 0]]);
+            }
         }
 
         $query->orderBy(new Expression('ndc IS NOT NULL DESC')); // чтобы большой диапазон по всей стране типа 0000-9999 был в конце
