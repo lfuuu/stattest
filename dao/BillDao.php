@@ -14,6 +14,7 @@ use app\models\BillCorrection;
 use app\models\billing\CallsRaw;
 use app\models\billing\Trunk;
 use app\models\BillLine;
+use app\models\BillLineUu;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
@@ -441,9 +442,34 @@ class BillDao extends Singleton
             }
         }
 
-        // старые проводки
-        $lines = $bill->getLines()
+        // оригинальные Uu проводки
+        $uuBillLines = BillLineUu::find()
+            ->where(['bill_no' => $bill->bill_no])
+            ->indexBy(['uu_account_entry_id'])
             ->all();
+
+        // старые проводки
+        $_lines = $bill->getLines()
+            ->all();
+
+        $lines = [];
+        /** @var BillLine $line */
+        foreach($_lines as $line) {
+
+            // отредактированно
+            if (isset($uuBillLines[$line->uu_account_entry_id])) {
+                $lines[] = $uuBillLines[$line->uu_account_entry_id];
+                unset($uuBillLines[$line->uu_account_entry_id]);
+                continue;
+            }
+
+            $lines[] = $line;
+        }
+
+        // удаленные проводки
+        foreach ($uuBillLines as $line) {
+            $lines[] = $line;
+        }
 
         /** @var BillLine $line */
         foreach ($lines as $line) {
@@ -492,7 +518,7 @@ class BillDao extends Singleton
                     $line->price = $bill->price_include_vat ? $sum : $sumWithoutTax;
                 }
 
-                $line->calculateSum($bill->price_include_vat);
+                BillLine::_calculateSum($bill->price_include_vat, $line);
 
                 $line->item = $accountEntryName;
                 $line->cost_price = $accountEntry->cost_price;
@@ -547,7 +573,7 @@ class BillDao extends Singleton
                 $line->price = $bill->price_include_vat ? $sum : $sumWithoutTax;
             }
 
-            $line->calculateSum($bill->price_include_vat);
+            BillLine::_calculateSum($bill->price_include_vat, $line);
 
             if (!$line->save()) {
                 throw new ModelValidationException($line);

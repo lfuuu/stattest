@@ -249,27 +249,30 @@
             </th>
         </tr>
         {foreach from=$bill_lines item=item key=key name=outer}
-            {assign var="isDisabledLines" value=false}
-            {if $item.id_service > 100000 or !$isEditable }
-            {*if $bill.uu_bill_id*}
-
-                {assign var="isDisabledLines" value=true}
+            {assign var="isUuLine" value=false}
+            {if $item.id_service >= 100000}
+                {assign var="isUuLine" value=true}
             {/if}
 
-            <tr>
+            {assign var="isDisabledLine" value=false}
+            {if $isUuLine or !$isEditable }
+                {assign var="isDisabledLine" value=true}
+            {/if}
+
+            <tr {if $isUuLine}style="background-color: bisque;"{/if}>
                 <td>{$smarty.foreach.outer.iteration}.</td>
                 <td><input class="form-control input-sm"
                            value="{if isset($item.item)}{$item.item|escape:"input_value_quotes"}{/if}"
-                           name=item[{$key}]{if $isDisabledLines} disabled{/if}></td>
+                           name=item[{$key}]{if !$isEditable} disabled{/if}></td>
                 <td><input class="form-control input-sm" style="width: 100px"
                            value="{if isset($item.amount)}{$item.amount}{/if}"
-                           name=amount[{$key}]{if $isDisabledLines} disabled{/if}></td>
+                           name=amount[{$key}]{if !$isEditable} disabled{/if}></td>
                 <td><input class="form-control input-sm" style="width: 80px"
                            value="{if isset($item.price)}{$item.price}{/if}"
-                           name=price[{$key}]{if $isDisabledLines} disabled{/if}></td>
+                           name=price[{$key}]{if !$isEditable} disabled{/if}></td>
                 <td>
                     <select class="form-control input-sm" style="width: 90px"
-                            name=type[{$key}]{if $isDisabledLines} disabled{/if}>
+                            name=type[{$key}]{if !$isEditable} disabled{/if}>
                         <option value='service'{if isset($item.type) && $item.type=='service'} selected{/if}>услуга
                             &nbsp; &nbsp; &nbsp;обычная
                         </option>
@@ -282,8 +285,8 @@
                         <option value='good'{if isset($item.type) && $item.type=='good'} selected{/if}>товар</option>
                     </select>
                 </td>
-                <td><input type="checkbox" class="mark_del" name="del[{$key}]"
-                           value="1"{if $isDisabledLines} disabled{/if}/></td>
+                <td><input type="checkbox" {if $isEditable}class="mark_del" {/if}name="del[{$key}]"
+                           value="1"{if !$isEditable} readonly disabled{/if}/></td>
             </tr>
         {/foreach}
     </table>

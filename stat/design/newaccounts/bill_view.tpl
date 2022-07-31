@@ -239,10 +239,14 @@
         {/if} *}
     </tr>
     {assign var="bonus_sum" value=0}
-    {* {if $bill.operation_type_id == 1 || $is_automatic} operation_type_id = 1 - доходный документ *}
+
     {foreach from=$bill_lines item=item key=key name=outer}
-        <tr class='{cycle values="odd,even"}'>
-            <td>{$smarty.foreach.outer.iteration}.</td>
+        <tr class='{cycle values="odd,even"}
+                {if isset($item.is_deleted) && $item.is_deleted} uu-bill-view-deleted{/if}
+                {if isset($item.is_updated) && $item.is_updated} uu-bill-view-updated{/if}
+                '
+        >
+            <td>{if (isset($item.is_updated) && $item.is_updated)}^^^{else}{counter}.{/if}</td>
             <td align=left>
             <span title="{$item.art|escape}">{$item.art|truncate:10}<br>
                 {if $item.type == "good"}
@@ -829,6 +833,17 @@
         right: -1px;
         padding: 4px;
         display: none;
+    }
+
+    .uu-bill-view-deleted {
+        text-decoration: line-through;
+    }
+    .uu-bill-view-updated {
+        color: grey;
+    }
+
+    .uu-bill-view-updated a {
+        color: gray !important;
     }
 
     {/literal}

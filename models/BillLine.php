@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\helpers\DependecyHelper;
 use app\classes\model\ActiveRecord;
+use app\exceptions\ModelValidationException;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ResourceModel;
@@ -44,6 +45,7 @@ use yii\caching\TagDependency;
  * @property-read Bill $bill
  * @property-read AccountEntry $accountEntry
  * @property-read AccountTariff $accountTariff
+ * @property-read BillLineUu $lineUu
  */
 class BillLine extends ActiveRecord
 {
@@ -59,6 +61,8 @@ class BillLine extends ActiveRecord
     public $isHistoryVersioning = false;
 
     protected $billId = null;
+
+    public $isFromFrontEdit = false;
 
     /**
      * @return string
@@ -103,6 +107,14 @@ class BillLine extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLineUu()
+    {
+        return $this->hasOne(BillLineUu::class, ['uu_account_entry_id' => 'uu_account_entry_id', 'bill_no' => 'bill_no']);
+    }
+
+    /**
      * @return bool|string
      */
     public function getType()
@@ -128,17 +140,27 @@ class BillLine extends ActiveRecord
      */
     public function calculateSum($priceIncludeVat)
     {
-        $sum = $this->price * $this->amount - $this->discount_auto - $this->discount_set;
+        self::_calculateSum($priceIncludeVat, $this);
+    }
+
+    /**
+     * @param $priceIncludeVat
+     * @param BillLine|BillLineUu $line
+     * @return void
+     */
+    public static function _calculateSum($priceIncludeVat, $line)
+    {
+        $sum = $line->price * $line->amount - $line->discount_auto - $line->discount_set;
 
         if ($priceIncludeVat) {
-            $this->sum = round($sum, 2);
-            $this->sum_tax = round($this->tax_rate / (100.0 + $this->tax_rate) * $this->sum, 2);
-            $this->sum_without_tax = $this->sum - $this->sum_tax;
+            $line->sum = round($sum, 2);
+            $line->sum_tax = round($line->tax_rate / (100.0 + $line->tax_rate) * $line->sum, 2);
+            $line->sum_without_tax = $line->sum - $line->sum_tax;
         } else {
-            $this->sum_without_tax = round($sum, 2);
-            $this->sum_tax = round($this->sum_without_tax * $this->tax_rate / 100, 2);
-            $this->sum = $this->sum_without_tax + $this->sum_tax;
-        }
+            $line->sum_without_tax = round($sum, 2);
+            $line->sum_tax = round($line->sum_without_tax * $line->tax_rate / 100, 2);
+            $line->sum = $line->sum_without_tax + $line->sum_tax;
+        }        
     }
 
     /**
@@ -500,6 +522,76 @@ class BillLine extends ActiveRecord
             }
         }
         return false;
+    }
+
+    /**
+     * @param $isInsert
+     * @return bool
+     */
+    public function beforeSave($isInsert)
+    {
+        if ($isInsert || !$this->uu_account_entry_id || !$this->isFromFrontEdit) {
+            return parent::beforeSave($isInsert);
+        }
+
+        if (BillLineUu::find()
+            ->where([
+                'bill_no' => $this->bill_no,
+                'uu_account_entry_id' => $this->uu_account_entry_id
+            ])
+            ->exists()
+        ) {
+            return parent::beforeSave($isInsert);
+        }
+
+        $isChanged = false;
+        foreach (['item', 'amount', 'price', 'type'] as $field) {
+            if ($this->isAttributeChanged($field)) {
+                $isChanged = true;
+                break;
+            }
+        }
+
+        if (!$isChanged) {
+            return parent::beforeSave($isInsert);
+        }
+
+        $uuLine = new BillLineUu();
+        $uuLine->setAttributes($this->getOldAttributes());
+        if (!$uuLine->save()) {
+            throw new ModelValidationException($uuLine);
+        }
+
+
+        return parent::beforeSave($isInsert);
+    }
+
+    /**
+     * @return bool
+     * @throws ModelValidationException
+     * @throws \yii\db\Exception
+     */
+    public function beforeDelete()
+    {
+        if (!$this->isFromFrontEdit || !$this->uu_account_entry_id) {
+            return parent::beforeDelete();
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $uuLine = new BillLineUu();
+            $uuLine->setAttributes($this->getAttributes());
+            if (!$uuLine->save()) {
+                throw new ModelValidationException($uuLine);
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+
+        return parent::beforeDelete();
     }
 
 }
