@@ -50,6 +50,7 @@ class CallsRawStatisticDao extends Singleton
                 $data['generalInfo']['count'] = $dataArchive['generalInfo']['count'] + $dataCurrent['generalInfo']['count'];
                 $data['generalInfo']['offset'] = $dataArchive['generalInfo']['offset'] + $dataCurrent['generalInfo']['offset'];
                 $data['generalInfo']['limit'] = $dataArchive['generalInfo']['limit'] + $dataCurrent['generalInfo']['limit'];
+                $data['generalInfo']['billed_time'] = $dataArchive['generalInfo']['billed_time'] + $dataCurrent['generalInfo']['billed_time'];
             }
         } else {
             $connector = $firstDayOfDate >= $treshold ? self::CONNECT_MAIN_AND_FAST : self::CONNECT_SLOW_AND_BIG;
@@ -81,7 +82,8 @@ class CallsRawStatisticDao extends Singleton
             $sumQuery = clone $query;
             $sumQuery->select([
                 'sum' => new Expression('SUM(-cost)::decimal(12,2)'),
-                'count' => new Expression('COUNT(*)')
+                'count' => new Expression('COUNT(*)'),
+                'billed_time' => new Expression('SUM(billed_time)')
             ]);
             $sumQuery->orderBy(null);
 
