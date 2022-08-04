@@ -57,11 +57,11 @@ class BillUuCorrectionDao extends Singleton
         foreach ($lines as $accountEntryId => $lineSum) {
             if (isset($uuLines[$accountEntryId])) {
                 $uLine = $uuLines[$accountEntryId];
-                $corrSum -= $uLine - $lineSum;
+                $corrSum -= $lineSum - $uLine;
                 unset($uuLines[$accountEntryId]);
             }
         }
-        $corrSum -= array_sum($uuLines);
+        $corrSum += array_sum($uuLines);
 
         $transaction = \Yii::$app->db->beginTransaction();
         try {
@@ -75,18 +75,21 @@ class BillUuCorrectionDao extends Singleton
 
     private function makeOrDeleteCorrectionBill(Bill $bill, $sum)
     {
-        if (abs($sum) < 0.001 && $bill->correction_bill_id) {
-            $corrBill = $bill->correctionBill;
-            if ($corrBill) {
+        if (abs($sum) < 0.001) {
+
+            if ($bill->correction_bill_id) {
+                $corrBill = $bill->correctionBill;
 
                 $bill->correction_bill_id = null;
                 if (!$bill->save()) {
                     throw new ModelValidationException($bill);
                 }
 
-                $corrBill->isSkipCheckCorrection = true;
-                if (!$corrBill->delete()) {
-                    throw new ModelValidationException($corrBill);
+                if ($corrBill) {
+                    $corrBill->isSkipCheckCorrection = true;
+                    if (!$corrBill->delete()) {
+                        throw new ModelValidationException($corrBill);
+                    }
                 }
             }
 
@@ -101,13 +104,14 @@ class BillUuCorrectionDao extends Singleton
         /** @var Bill sum */
         $corrBill->sum = $sum;
 
-        if (!$bill->save()) {
-            throw new ModelValidationException($bill);
+        if (!$line->save()) {
+            throw new ModelValidationException($corrBill);
         }
 
         if (!$corrBill->save()) {
-            throw new ModelValidationException($corrBill);
+            throw new ModelValidationException($bill);
         }
+
     }
 
     private function getCorrectionBillAndLine($bill)
@@ -120,6 +124,10 @@ class BillUuCorrectionDao extends Singleton
             $bill->correction_bill_id = $corrBill->id;
             $corrBill->price_include_vat = 1; // здесь сумма конечная, всегда с НДС
 
+            if (!$bill->save()) {
+                throw new ModelValidationException($bill);
+            }
+
 
             $lineItem = \Yii::t(
                 'biller',
@@ -128,19 +136,20 @@ class BillUuCorrectionDao extends Singleton
                 \app\classes\Language::normalizeLang($bill->clientAccount->contract->contragent->lang_code)
             );
 
-            $corrBill->addLine(
+            $line = $corrBill->addLine(
                 $lineItem,
                 1,
                 0,
                 BillLine::LINE_TYPE_SERVICE
             );
 
-        } else {
-            $corrBill = $bill->correctionBill;
-            $lines = $corrBill->lines;
-
-            $line = reset($lines);
+            return [$corrBill, $line];
         }
+
+        $corrBill = $bill->correctionBill;
+        $lines = $corrBill->lines;
+
+        $line = reset($lines);
 
         return [$corrBill, $line];
 
