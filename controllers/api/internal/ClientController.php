@@ -26,6 +26,7 @@ use app\models\EventQueue;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 class ClientController extends ApiInternalController
@@ -1034,7 +1035,8 @@ class ClientController extends ApiInternalController
     /**
     
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-client-contract-info/", summary="Получение данных о договорах", operationId="Получение данных о договорах",
-     *   @SWG\Parameter(name = "contract_id", type = "integer", description = "ID договора (если несколько: то массив ID, или значение через ',')", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "contract_id", type = "integer", description = "ID договора (если несколько: то массив ID, или значение через ',')", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID ЛС (если несколько: то массив ID, или значение через ',')", in = "query", required = false, default = ""),
      *
      *   @SWG\Response(response = 200, description = "Информация об УЛС по контрактам",
      *     @SWG\Schema(type = "array")
@@ -1047,13 +1049,34 @@ class ClientController extends ApiInternalController
      * @param string $contract_id
      * @return array
      */
-    public function actionGetClientContractInfo($contract_id = null)
+    public function actionGetClientContractInfo($contract_id = null, $account_id = null)
     {
         if (!is_array($contract_id)) {
             $contract_id = explode(',', $contract_id);
         }
-
         $contract_id = array_filter(array_map('trim', $contract_id));
+
+        if (!is_array($account_id)) {
+            $account_id = explode(',', $account_id);
+        }
+        $account_id = array_filter(array_map('trim', $account_id));
+
+        if (!$contract_id && !$account_id) {
+            return [];
+        }
+
+        if ($account_id) {
+            $contract_id = array_unique(
+                array_merge(
+                    $contract_id,
+                    ClientAccount::find()
+                        ->select('contract_id')
+                        ->distinct()
+                        ->where(['id' => $account_id])
+                        ->column()
+                )
+            );
+        }
 
         $contracts = ClientContract::find()
             ->select(['id', 'business_process_status_id'])
