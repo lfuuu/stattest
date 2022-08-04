@@ -300,6 +300,7 @@ class Bill {
         /** @var BillLine $line */
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
         if ($line) {
+            $line->isFromFrontEdit = true;
             $line->item = $title;
             $line->amount = $amount;
             $line->price = $price;
@@ -318,6 +319,7 @@ class Bill {
         $this->changed = 1;
 
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
+        $line->isFromFrontEdit = true;
         if ($line) {
             $line->delete();
         }

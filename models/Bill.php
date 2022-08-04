@@ -10,6 +10,7 @@ use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\ActiveRecord;
 use app\classes\Utils;
 use app\dao\BillDao;
+use app\dao\BillUuCorrectionDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\media\BillExtFiles;
@@ -59,11 +60,13 @@ use yii\helpers\Url;
  * @property string $payment_date
  * @property bool $is_to_uu_invoice
  * @property string $invoice_no_ext
+ * @property string $correction_bill_id
  *
  * @property-read OperationType $operationType
  * @property-read ClientAccount $clientAccount   из версий
  * @property-read ClientAccount $clientAccountModel   прямая модель
  * @property-read BillLine[] $lines   ??
+ * @property-read BillLineUu[] $uUlines   ??
  * @property-read Transaction[] $transactions   ??
  * @property-read Currency $currencyModel
  * @property-read Payment $creditNote
@@ -73,6 +76,7 @@ use yii\helpers\Url;
  * @property-read array $document
  * @property-read Payment[] $payments
  * @property-read BillExtFiles $extFile
+ * @property-read Bill $correctionBill
  */
 class Bill extends ActiveRecord
 {
@@ -246,6 +250,14 @@ class Bill extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getUuLines()
+    {
+        return $this->hasMany(BillLineUu::class, ['bill_no' => 'bill_no'])->indexBy('uu_account_entry_id');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getTransactions()
     {
         return $this->hasMany(Transaction::class, ['bill_id' => 'id']);
@@ -323,6 +335,13 @@ class Bill extends ActiveRecord
         return $this->hasOne(uuBill::class, ['id' => 'uu_bill_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCorrectionBill()
+    {
+        return $this->hasOne(Bill::class, ['id' => 'correction_bill_id']);
+    }
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -683,5 +702,16 @@ class Bill extends ActiveRecord
     public function isEditable(): bool
     {
         return self::dao()->isEditable($this);
+    }
+
+    /**
+     * Проверка необходимости создания (удаления) корректирующего счета
+     *
+     * @return void
+     * @throws \yii\base\Exception
+     */
+    public function checkUuCorrectionBill()
+    {
+        return BillUuCorrectionDao::me()->checkBill($this);
     }
 }

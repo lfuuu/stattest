@@ -947,20 +947,46 @@ class m_newaccounts extends IModule
         );
 
         $client = ClientAccount::find()->where(['id' => $fixclient])->one();
-        $clientType = $client->contract->financial_type;
-        
+//        $clientType = $client->contract->financial_type;
+
         $L = $bill->GetLines();
+        $uuL = array_map(function($l) {
+            $l['amount'] = (float)$l['amount'];
+            $l['price'] = (float)$l['price'];
+            return $l;
+        },\app\models\BillLineUu::find()
+                ->where(['bill_no' => $bill->GetNo()])
+                ->orderBy(['uu_account_entry_id' => SORT_ASC])
+                ->asArray()
+                ->indexBy('uu_account_entry_id')
+                ->all() ?? []);
+
+        $L2 = [];
         $isAutomatic = false;
         if ($L) {
             foreach ($L as $line) {
+                $L2[] = $line;
                 if ($line['service']) {
                     $isAutomatic = true;
-                    break;
+//                    break;
                 }
 
+                if ($line['uu_account_entry_id'] && isset($uuL[$line['uu_account_entry_id']])) {
+
+                    $line = $uuL[$line['uu_account_entry_id']];
+                    $line['is_updated'] = true;
+                    $L2[] = $line;
+                    unset($uuL[$line['uu_account_entry_id']]);
+                }
             }
-            
         }
+
+        $L = array_merge($L2,
+            array_map(function ($i) {
+                $i['is_deleted'] = true;
+                return $i;
+            }, $uuL));
+
 
         $b = $bill->GetBill();
         $rewardBill = RewardBill::findOne(['bill_id' => $b['id']]);
@@ -1487,19 +1513,23 @@ class m_newaccounts extends IModule
             $lines[$bill->GetMaxSort() + 3] = [];
             if ($billModel->isEditable()) {
                 foreach ($lines as $k => $arr_v) {
-                    if ($arr_v && isset($arr_v['id_service']) && $arr_v['id_service'] > 100000) {
-                        continue;
-                    }
-                    if (((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item']))) {
+//                    if ($arr_v && isset($arr_v['id_service']) && $arr_v['id_service'] >= 100000) {
+//                        continue;
+//                    }
+
+                    if ((!isset($item[$k]) || (isset($item[$k]) && !$item[$k]) || (isset($del[$k]) && $del[$k])) && isset($arr_v['item'])) {
                         $bill->RemoveLine($k);
                     } elseif (isset($item[$k]) && $item[$k] && isset($arr_v['item'])) {
-                        $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k]);
+                        if ($item[$k] != $arr_v['item'] || $amount[$k] != $arr_v['amount'] || $price[$k] != $arr_v['price'] || $type[$k] != $arr_v['type']) {
+                            $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k]);
+                        }
                     } elseif (isset($item[$k]) && $item[$k]) {
                         $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '');
                     }
                 }
             }
             $bill->Save();
+            $billModel->checkUuCorrectionBill();
 
             // если есть зарегистрированная с/ф, то обновить.
             if ($billModel->invoices) {
