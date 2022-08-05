@@ -169,8 +169,24 @@ class Form extends \app\classes\Form
         $createdAt =
             (new \DateTime())
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        $isDetectSeparator = false;
         while(!feof($resourceSource)){
-            $rowData = fgetcsv($resourceSource,0,',','"','"');
+            if (!$isDetectSeparator) {
+                $rowData = fread($resourceSource,100);
+                $sep1 = strpos($rowData, ',') ?: 0;
+                $sep2 = strpos($rowData, ';') ?: 0;
+
+                if ($sep1 == $sep2) {
+                    throw new \Exception('разделитель не определен');
+                }
+
+                $separator = $sep1 > $sep2 ? ',' : ';';
+
+                fseek($resourceSource, 0);
+                $isDetectSeparator = true;
+            }
+            $rowData = fgetcsv($resourceSource,0,$separator,'"','"');
 
             if(empty($rowData[0])){
                 continue;
