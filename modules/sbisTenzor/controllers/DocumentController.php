@@ -4,6 +4,7 @@ namespace app\modules\sbisTenzor\controllers;
 
 use app\classes\BaseController;
 use app\models\ClientAccount;
+use app\modules\sbisTenzor\classes\SBISDocumentStatus;
 use app\modules\sbisTenzor\forms\document\AddFilesForm;
 use app\modules\sbisTenzor\forms\document\EditForm;
 use app\modules\sbisTenzor\forms\document\IndexForm;
@@ -37,7 +38,7 @@ class DocumentController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'add-files', 'cancel', 'cancel-auto', 'restore', 'restore-auto', 'start', 'send-auto'],
+                        'actions' => ['add', 'add-files', 'cancel', 'cancel-auto', 'restore', 'restore-auto', 'start', 'restart', 'send-auto'],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                 ],
@@ -265,6 +266,23 @@ class DocumentController extends BaseController
         }
 
         return $this->redirect('/sbisTenzor/document/view?id=' . $id);
+    }
+
+    /**
+     * Запуск документа в работу
+     *
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionRestart($id = 0)
+    {
+        try {
+            $id = ViewForm::restart($id);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/document/?state=' . SBISDocumentStatus::CREATED);
     }
 
     /**

@@ -114,9 +114,9 @@ class SBISExchangeGroup extends ActiveRecord
             foreach ($this->groupForms as $groupForm) {
                 $this->exchangeFiles[] = new SBISExchangeFile($groupForm->form, SBISExchangeFile::EXTENSION_XML);
             }
-            foreach ($this->groupForms as $groupForm) {
-                $this->exchangeFiles[] = new SBISExchangeFile($groupForm->form, SBISExchangeFile::EXTENSION_PDF);
-            }
+//            foreach ($this->groupForms as $groupForm) {
+//                $this->exchangeFiles[] = new SBISExchangeFile($groupForm->form, SBISExchangeFile::EXTENSION_PDF);
+//            }
         }
 
         return $this->exchangeFiles;
