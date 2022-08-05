@@ -31,7 +31,7 @@ class DraftController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['cancel', 'restore', 'save', 'process', 'process-all'],
+                        'actions' => ['cancel', 'restore', 'save', 'process', 'process-all', 'repeat'],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                 ],
@@ -125,6 +125,23 @@ class DraftController extends BaseController
     {
         try {
             IndexForm::restore($id);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/draft/');
+    }
+
+    /**
+     * Repeat document
+     *
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionRepeat($id = 0)
+    {
+        try {
+            IndexForm::repeat($id);
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error', $e->getMessage());
         }

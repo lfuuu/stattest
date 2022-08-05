@@ -292,6 +292,15 @@ echo GridView::widget([
                         ]);
                     }
 
+                    if ($model->state == SBISGeneratedDraftStatus::ERROR) {
+                        return $baseView->render('//layouts/_buttonLink', [
+                            'url' => '/sbisTenzor/draft/repeat?id=' . $model->id,
+                            'glyphicon' => 'glyphicon glyphicon-repeat',
+                            'title' => 'Повторить создание драфта',
+                        ]);
+                    }
+
+
                     return '';
                 },
                 'save' => function ($url, SBISGeneratedDraft $model) use ($baseView) {

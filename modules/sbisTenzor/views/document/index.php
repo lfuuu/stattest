@@ -237,7 +237,7 @@ aria-valuemin="0" aria-valuemax="100" style="width:' . $progressValue . '%">
         ],
         [
             'class' => ActionColumn::class,
-            'template' => '{view} {start}',
+            'template' => '{view} {start} {restart}',
             'buttons' => [
                 'view' => function ($url, SBISDocument $model) use ($baseView) {
                     return $baseView->render('//layouts/_actionView', [
@@ -249,6 +249,19 @@ aria-valuemin="0" aria-valuemax="100" style="width:' . $progressValue . '%">
                         return $baseView->render('//layouts/_link', [
                             'url' => '/sbisTenzor/document/start?id=' . $model->id,
                             'glyphicon' => 'glyphicon-send text-success',
+                            'params' => [
+                                'onClick' => 'return confirm("Отправить данный пакет?")',
+                            ],
+                        ]);
+                    }
+
+                    return false;
+                },
+                'restart' => function ($url, SBISDocument $model) use ($baseView) {
+                    if ($model->state == SBISDocumentStatus::ERROR) {
+                        return $baseView->render('//layouts/_link', [
+                            'url' => '/sbisTenzor/document/restart?id=' . $model->id,
+                            'glyphicon' => 'glyphicon-send text-warning',
                             'params' => [
                                 'onClick' => 'return confirm("Отправить данный пакет?")',
                             ],

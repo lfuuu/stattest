@@ -268,6 +268,24 @@ class ViewForm extends \app\classes\Form
     }
 
     /**
+     * ReStart document
+     *
+     * @param $id
+     * @return int
+     * @throws ModelValidationException
+     * @throws \Exception
+     */
+    public static function restart($id)
+    {
+        return self::changeDocumentState(
+            $id,
+            SBISDocumentStatus::ERROR,
+            SBISDocumentStatus::CREATED,
+            'Пакет документов в статусе {state} не может быть перезапущен в работу.'
+        );
+    }
+
+    /**
      * Возвращает цепочку пройденных статусов
      *
      * @return array

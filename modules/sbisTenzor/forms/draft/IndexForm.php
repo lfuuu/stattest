@@ -143,6 +143,24 @@ class IndexForm extends \app\classes\Form
             SBISGeneratedDraftStatus::DRAFT,
             'Черновик пакета документов в статусе {state} не может быть восстановлен.'
         );
+
+    }
+    /**
+     * Repeat draft
+     *
+     * @param $id
+     * @return int
+     * @throws ModelValidationException
+     * @throws \Exception
+     */
+    public static function repeat($id)
+    {
+        return self::changeDraftState(
+            $id,
+            SBISGeneratedDraftStatus::ERROR,
+            SBISGeneratedDraftStatus::DRAFT,
+            'Черновик пакета документов в статусе {state} не может быть восстановлен.'
+        );
     }
 
     /**
