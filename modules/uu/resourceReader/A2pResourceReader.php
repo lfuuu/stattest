@@ -93,7 +93,7 @@ class A2pResourceReader extends BaseObject implements ResourceReaderInterface
                 ->alias('c')
                 ->innerJoinWith('accountTariffLight l')
                 ->select([
-                    'sum' => 'SUM(ABS(c.cost))',
+                    'sum' => 'SUM(c.cost)',
                     'aggr_date' => sprintf("TO_CHAR(%s + INTERVAL '%d hours', 'YYYY-MM-DD')", $timeField, $hoursDelta),
                 ])
                 ->where([
