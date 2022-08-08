@@ -96,7 +96,7 @@ class ChangeClientStructureRegistrator extends Singleton
 
         EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data);
 
-//        $this->truncateData();
+        $this->truncateData();
 
         return $data;
     }
