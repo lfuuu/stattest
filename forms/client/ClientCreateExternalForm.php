@@ -85,7 +85,9 @@ class ClientCreateExternalForm extends Form
 
         $troubleId = null,
 
-        $roistat_visit = null;
+        $roistat_visit = null,
+
+        $is_create_lk = 1;
 
     /** @var EntryPoint */
     public $entryPoint = null;
@@ -157,7 +159,8 @@ class ClientCreateExternalForm extends Form
                 FormFieldValidator::class
             ],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
-            [['partner_id'], 'integer'],
+            [['is_create_lk'], 'default', 'value' => 1],
+            [['partner_id', 'is_create_lk'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
             ['timezone', 'in', 'range' => (array_keys(Timezone::getList()) + [""])],
             ['country_id', 'default', 'value' => Country::RUSSIA],
@@ -293,6 +296,11 @@ class ClientCreateExternalForm extends Form
         if ($this->utm_parameters) {
             $super->utm = is_array($this->utm_parameters) ? json_encode(array_filter($this->utm_parameters)) : $this->utm_parameters;
         }
+
+        if (!$this->is_create_lk) {
+            $super->detachBehavior('CheckCreateCoreAdmin');
+        }
+
         $super->validate();
         if (!$super->save()) {
             throw new ModelValidationException($super);
