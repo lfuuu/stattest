@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\classes\Assert;
+use app\classes\ChangeClientStructureRegistrator;
 use app\models\EventQueue;
 use app\models\User;
 use yii\console\Controller;
@@ -29,6 +30,46 @@ class NotifyController extends Controller
             ]);
         }
 
+    }
+
+    public function actionClientStructureChanged()
+    {
+        $sleepTime = 15;
+        $workTime = 300; // перезагрузка каждые 5-8 минут
+        $maxCountShift = 3;
+
+        $countShift = 0;
+
+        $registr = ChangeClientStructureRegistrator::me();
+
+        // Контроль времени работы. выключаем с 55 до 00 секунд.
+        $time = (new \DateTimeImmutable());
+        $stopTimeFrom = $time->modify('+' . $workTime . ' second');
+        $stopTimeFrom = $stopTimeFrom->modify('-' . ((int)$stopTimeFrom->format('s') + 5) . 'second');
+        $stopTimeTo = $stopTimeFrom->modify('+5 second');
+
+
+        do {
+            if ($data = $registr->checkDataForSend()) {
+                echo PHP_EOL . date("r") . ': ChangeClientStructure: ' . preg_replace('/\s+/', " ", print_r($data, true));
+            }
+
+            sleep($sleepTime);
+
+            $time = (new \DateTimeImmutable());
+
+            $isExit = $stopTimeFrom < $time && $time < $stopTimeTo;
+
+            if (!$isExit && $stopTimeTo < $time ) {
+                if ($countShift++ >= $maxCountShift) {
+                    $isExit = true;
+                } else {
+                    $stopTimeFrom = $time->modify('+1 minute');
+                    $stopTimeFrom = $stopTimeFrom->modify('-' . ((int)$stopTimeFrom->format('s') + 5) . 'second');
+                    $stopTimeTo = $stopTimeFrom->modify('+5 second');
+                }
+            }
+        } while (!$isExit);
     }
 
 }

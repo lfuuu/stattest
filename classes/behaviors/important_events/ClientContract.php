@@ -45,6 +45,7 @@ class ClientContract extends Behavior
         EventQueue::go(EventQueue::CREATE_CONTRACT, [
             'super_client_id' => $contract->super_id,
             'contract_id' => $event->sender->id,
+            'contragent_id' => $event->sender->contragent_id,
             'user_id' => $userId,
         ]);
     }

@@ -59,6 +59,7 @@ class EventQueue extends ActiveRecord
     const SYNC_CORE_ADMIN = 'sync_core_admin';
     const ADD_ACCOUNT = 'add_account';
     const CREATE_CONTRACT = 'create_contract';
+    const CONTRACT_CHANGE_CONTRAGENT = 'contract_change_contragent';
     const ADD_PAYMENT = 'add_payment';
     const ATS2_NUMBERS_CHECK = 'ats2_numbers_check';
     const ATS3__BLOCKED = 'ats3__blocked';
@@ -76,6 +77,7 @@ class EventQueue extends ActiveRecord
     const CHECK__VOIP_NUMBERS = 'check__voip_numbers';
     const CHECK__VOIP_OLD_NUMBERS = 'check__voip_old_numbers';
     const CLIENT_SET_STATUS = 'client_set_status';
+    const CLIENT_STRUCTURE_CHANGED = 'client_structure_changed';
     const CYBERPLAT_PAYMENT = 'cyberplat_payment';
     const DOC_DATE_CHANGED = 'doc_date_changed';
     const SET_GOOD_BILL_DATE = 'set_bill_good_date';
@@ -115,6 +117,7 @@ class EventQueue extends ActiveRecord
     const SYNC_TELE2_LINK_IMSI = 'sync_tele2_link_imsi';
     const SYNC_TELE2_UNSET_IMSI = 'sync_tele2_unset_imsi';
     const SYNC_TELE2_UNLINK_IMSI = 'sync_tele2_unlink_imsi';
+    const SYNC_CLIENT_CHANGED = 'sync_client_changed';
     const PORTED_NUMBER_ADD = 'ported_number_add';
     const NUMBER_HAS_BEEN_PORTED = 'number_has_been_ported';
     const ADD_RESOURCE_ON_ACCOUNT_TARIFFS = 'add_resource_on_account_tariffs';

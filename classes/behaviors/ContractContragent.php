@@ -5,6 +5,7 @@ namespace app\classes\behaviors;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
+use app\models\EventQueue;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
@@ -27,6 +28,12 @@ class ContractContragent extends Behavior
             $oldContragent = ClientContragent::findOne($contract->getOldAttribute('contragent_id'));
             /** @var ClientContragent $newContragent */
             $newContragent = ClientContragent::findOne($contract->contragent_id);
+
+            EventQueue::go(EventQueue::CONTRACT_CHANGE_CONTRAGENT, [
+                'old_contragent_id' => $oldContragent->id,
+                'new_contragent_id' => $newContragent->id,
+                'contract_id' => $contract->id,
+            ]);
 
             if ($newContragent->country_id != $oldContragent->country_id) {
                 $this->updateAccountCountry($contract, $newContragent->country_id);
