@@ -58,6 +58,7 @@ use app\modules\uu\Module as UuModule;
 use app\modules\webhook\classes\ApiWebCall;
 use yii\console\ExitCode;
 use yii\db\ActiveQuery;
+use app\classes\ChangeClientStructureRegistrator;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -181,6 +182,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     if (!$flags) {
         $flags['isCoreServer'] = (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER']);
         $flags['isVpbxServer'] = ApiVpbx::me()->isAvailable();
+        $flags['isBaseServer'] = \app\classes\api\ApiBase::me()->isAvailable();
         $flags['isVmServer'] = ApiVps::me()->isAvailable();
         $flags['isFeedbackServer'] = ApiFeedback::isAvailable();
         $flags['isChatBotServer'] = ApiChatBot::isAvailable();
@@ -201,6 +203,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
     $isCoreServer = $flags['isCoreServer'];
     $isVpbxServer = $flags['isVpbxServer'];
+    $isBaseServer = $flags['isBaseServer'];
     $isVmServer = $flags['isVmServer'];
     $isFeedbackServer = $flags['isFeedbackServer'];
     $isChatBotServer = $flags['isChatBotServer'];
@@ -364,6 +367,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         ApiCore::checkCreateCoreAdmin($param);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+                case EventQueue::SYNC_CLIENT_CHANGED:
+                    if ($isBaseServer) {
+                        \app\classes\api\ApiBase::me()->syncStatClientStructure($param);
+                    } else {
+//                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -565,6 +576,24 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::CREATE_CONTRACT:
                     \app\classes\behaviors\important_events\ClientContract::eventAddContract($param);
+                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);
+                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['contragent_id']);
+                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::SUPER, $param['super_client_id']);
+                    break;
+
+                case EventQueue::ADD_ACCOUNT:
+                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::ACCOUNT, $param);
+                    break;
+
+                case EventQueue::CONTRACT_CHANGE_CONTRAGENT:
+                    $registr = ChangeClientStructureRegistrator::me();
+                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);
+                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['new_contragent_id']);
+                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['old_contragent_id']);
+                    break;
+
+                case EventQueue::ADD_SUPER_CLIENT:
+                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::SUPER, $param);
                     break;
 
 
@@ -578,8 +607,6 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case EventQueue::DOC_DATE_CHANGED:
                 case EventQueue::YANDEX_PAYMENT:
                 case EventQueue::ATS3__BLOCKED:
-                case EventQueue::ADD_ACCOUNT:
-                case EventQueue::ADD_SUPER_CLIENT:
                 case EventQueue::SYNC_CORE_ADMIN:
                 case EventQueue::ATS2_NUMBERS_CHECK:
                 case EventQueue::ATS3__DISABLED_NUMBER:
