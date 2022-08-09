@@ -82,6 +82,7 @@ class ClientCounter extends ActiveRecord
      */
     public function getRealtimeBalance()
     {
+        /*
         Yii::info(
             GelfMessage::create()
                 ->setTimestamp(YII_BEGIN_TIME)
@@ -98,6 +99,7 @@ class ClientCounter extends ActiveRecord
                 ->setAdditional('is_local', (int)(bool)$this->isLocal),
             'balance'
         );
+        */
 
         $rtBalance = $this->clientAccount->credit > -1 ?
             $this->clientAccount->balance + $this->amount_sum :
