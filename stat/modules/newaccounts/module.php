@@ -7506,4 +7506,21 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
         exit();
     }
+
+    public function newaccounts_create_draft($fixclient)
+    {
+        $invoiceId = get_param_protected('invoice_id');
+        $billNo = get_param_protected('bill');
+        $invoice = Invoice::findOne(['id' => $invoiceId]);
+
+        if (!$invoice) {
+            throw new InvalidArgumentException('Invoice not found');
+        }
+
+        \Yii::$app->session->addFlash('success', 'Сгенерирован черновик документа в СБИС по с/ф №' . $invoice->number);
+        \app\modules\sbisTenzor\helpers\SBISDataProvider::checkInvoiceForExchange($invoice->id);
+
+        header('Location: /index.php?module=newaccounts&action=bill_view&bill=' . urlencode($invoice->bill_no));
+        exit;
+    }
 }

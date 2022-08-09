@@ -11,6 +11,7 @@ use app\classes\model\ActiveRecord;
 use app\dao\InvoiceDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use app\modules\uu\models_light\InvoiceLight;
 use yii\base\InvalidCallException;
 use yii\db\Expression;
@@ -46,6 +47,7 @@ use yii\web\Response;
  * @property-read InvoiceLine[] $lines
  * @property-read Organization $organization
  * @property-read Bill $correctionBill
+ * @property-read SBISGeneratedDraft $sbisDraft
  *
  * @property-read float $currencyRates
  * @property-read float $currencyRatesInEuro
@@ -135,6 +137,14 @@ class Invoice extends ActiveRecord
     public function getCurrencyRate()
     {
         return $this->hasMany(CurrencyRate::class, ['date' => 'date']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSbisDraft()
+    {
+        return $this->hasOne(SBISGeneratedDraft::class, ['invoice_id' => 'id']);
     }
 
     /**
@@ -411,6 +421,7 @@ class Invoice extends ActiveRecord
         /** @var Invoice $invoice */
         foreach (Invoice::find()
                      ->where(['bill_no' => $bill->bill_no, 'type_id' => $typeId])
+                        ->with('sbisDraft')
                      ->orderBy(['id' => SORT_ASC])
                      ->all()
                  as $invoice) {
