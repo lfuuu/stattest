@@ -24,7 +24,7 @@ $priceLevels = PriceLevel::getList();
         <div class="col-sm-6">
             <h2 class="c-blue-color no-margin">
                 <?= Html::a($client->name, ['/account/super-client-edit', 'id' => $client->id, 'childId' => $account->id]) ?>
-                <small>(<?= ($client->entry_point_id ? $client->entryPoint->name : '---') . '/' . ($client->entryPoint->country_id ? $client->entryPoint->country->name : '---') ?>)</small>
+                <small>(<?= ($client->entry_point_id ? $client->entryPoint->name : '---') . '/' . ($client->entry_point_id && $client->entryPoint->country_id ? $client->entryPoint->country->name : '---') ?>)</small>
             </h2>
         </div>
         <div class="col-sm-4" class="c-blue-color">

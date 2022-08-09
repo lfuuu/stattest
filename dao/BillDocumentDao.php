@@ -130,7 +130,10 @@ class BillDocumentDao extends Singleton
         $data['bill_no'] = $billNo;
         $docs->ts = date(DateTimeZoneHelper::DATETIME_FORMAT);
         $docs->setAttributes($doctypes, false);
-        $docs->save();
+
+        if (strpos(BillDocument::getDb()->username, 'readonly') === false) {
+            $docs->save();
+        }
 
         return ($returnData) ? $docs->toArray() : true;
     }
