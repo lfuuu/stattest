@@ -4,6 +4,7 @@
 {{ $_ := set . "mysql" .Values.mysql_dev }}
 {{ $_ := set . "postgres" .Values.postgres_dev }}
 {{ $_ := set . "postgres_history" .Values.postgres_history_dev }}
+{{ $_ := set . "logger" .Values.logger_dev }}
 {{- if (eq (env "ENVNAME") "prod") }}
   {{ $_ := set . "params" (ternary .Values.params_prod_eu .Values.params_prod (eq (env "COUNTRY") "EU")) }}
   {{ if and (eq (env "IS_MINIKUBE") "1") (eq (env "COUNTRY") "RU") }}
@@ -13,6 +14,7 @@
   {{ end }}
   {{ $_ := set . "postgres" (ternary .Values.postgres_prod_eu .Values.postgres_prod (eq (env "COUNTRY") "EU")) }}
   {{ $_ := set . "postgres_history" (ternary .Values.postgres_history_eu .Values.postgres_history (eq (env "COUNTRY") "EU")) }}
+  {{ $_ := set . "logger" (ternary .Values.logger_prod_eu .Values.logger_prod (eq (env "COUNTRY") "EU")) }}
 {{- end }}
 
 {{ $_ := set . "postgres_user" (ternary .Values.postgres_prod.user_read_only .postgres.user (eq (env "ENVNAME") "dev")) }}

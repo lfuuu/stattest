@@ -129,7 +129,8 @@ sed -i "s/'hostname' => 'localhost'/'hostname' => '$REDIS_HOST'/" cache_redis.lo
 
 # Logger
 cp log.local.tpl.php log.local.php
-sed -i "s/source = 'developer_stat';/source = '$LOG_SOURCE';/" cache_redis.local.php
+sed -i "s/source = 'developer_stat';/source = '$LOG_SOURCE';/" log.local.php
+sed -i "s/graylogHost = '127.0.0.1';/graylogHost = '$LOG_SERVER';/" log.local.php
 
 # Modules
 
