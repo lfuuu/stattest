@@ -107,7 +107,7 @@ $activeClient = isset($fixclient_data['id']) ?
                             ©<?=date('Y')?> MCN. тел. (495) 105–9999 (отдел продаж),
                             (495) 105–9995 (техподдержка).
                             Версия: <?=$version ?>
-                            <small style="color: #ccc;"> (<?=end(explode('-', $_SERVER['HOSTNAME'])) ?>)</small>
+                            <small style="color: #ccc;"> (<?php $h = explode('-', $_SERVER['HOSTNAME']); echo $h[count($h)-1]; ?>)</small>
                         </span>
                     </div>
                 </div>
