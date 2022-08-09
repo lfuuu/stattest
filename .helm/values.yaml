@@ -53,8 +53,17 @@ cryptopro_prod:
   host: cryptopro-prod
   port: 22
 
-logger:
+logger_dev:
+  source: stat_dev
+  server: glogstat.mcn.ru
+
+logger_prod:
   source: stat
+  server: glogstat.mcn.ru
+
+logger_prod_eu:
+  source: stat
+  server: graylog.kompaas.tech
 
 ci_url: stat.ks8.mcn.local
 ci_dir_home: /home/httpd/stat.mcn.ru

@@ -21,7 +21,7 @@ return [
 
 
 $debugLogging = false;
-$graylogHost = 'glogstat.mcn.ru';
+$graylogHost = '127.0.0.1';
 $source = 'developer_stat';
 
 if ($debugLogging) {
