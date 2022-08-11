@@ -70,13 +70,13 @@ class Bill {
             $this->bill_no=$bill_no;
             $r=$db->GetRow("
 				select
-					max(sort) as V
+					max(sort) as v
 				from
 					newbill_lines
 				where
 					bill_no='".$bill_no."'
             ");
-            $this->max_sort=($r?$r['V']:0);
+            $this->max_sort=($r?$r['v']:0);
         } else {
             is_object($client_id) && $client_id = $client_id->toArray();
 
