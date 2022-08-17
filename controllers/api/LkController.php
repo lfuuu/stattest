@@ -451,7 +451,9 @@ class LkController extends ApiController
         $account = ClientAccount::findOne(['id' => $form->account_id]);
 
         $organizationId = $account->contract->organization_id;
-        if ($organizationId == Organization::MCN_TELECOM) {
+
+        // Yandex money pay only in russia, sber if else
+        if ($organizationId == Organization::MCN_TELECOM && \Yii::$app->isRus()) {
             $shopId = $scId = null;
             if (
                 isset(\Yii::$app->params['yandex'])
