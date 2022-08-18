@@ -151,6 +151,50 @@ class LkController extends ApiController
         ] + ($danycomData ? ['danycom' => $danycomData] : []);
     }
 
+
+    /**
+     * @SWG\Post(
+     *   tags={"Работа с лицевыми счетами"},
+     *   path="/lk/account-info-st/",
+     *   summary="Получение информации о лицевом счёте с состоянием ответа",
+     *   operationId="Получение информации о лицевом счёте с состоянием ответа",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="информация о лицевом счёте",
+     *     @SWG\Definition(
+     *       type="object",
+     *       required={"id","country_id","connect_point_id","currency"},
+     *       @SWG\Property(property="id",type="integer",description="идентификатор лицевого счёта"),
+     *       @SWG\Property(property="country_id",type="integer",description="идентификатор страны"),
+     *       @SWG\Property(property="connect_point_id",type="integer",description="идентификатор точки подключения"),
+     *       @SWG\Property(property="currency",type="integer",description="валюта")
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    public function actionAccountInfoSt()
+    {
+        try {
+            return [
+                'status' => 'ok',
+                'result' => $this->actionAccountInfo(),
+                ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
+        }
+    }
     /**
      * @SWG\Definition(
      *   definition="file_list",
