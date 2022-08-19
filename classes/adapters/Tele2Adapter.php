@@ -398,9 +398,9 @@ class Tele2Adapter extends Singleton
      * @param string $imsi
      * @return string
      */
-    public function addCallForwardingOnNotReachable($requestId, $imsi)
+    public function addCallForwardingOnNotReachable($requestId, $imsi, $msisdn)
     {
-        return $this->_exec('addCallForwardingOnNotReachable', $requestId, $imsi);
+        return $this->_exec('addCallForwardingOnNotReachable', $requestId, $imsi, ['msisdn' => $msisdn]);
     }
 
     /**

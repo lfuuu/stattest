@@ -347,7 +347,7 @@ class SimController extends ApiInternalController
             usleep($usleep);
             $event->refresh();
 
-            if ($event->status == EventQueue::STATUS_OK) {
+            if ($event->status == EventQueue::STATUS_OK && $event->trace) {
                 $result = $event->trace;
                 break;
             }
