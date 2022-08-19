@@ -26,8 +26,7 @@ $version = $this->context->getVersion();
             <div class="col-sm-6 col-md-4 col-md-offset-4">
                 <div class="account-wall">
                     <div class="text-center site_caption">
-                        <a href="/" class="logo"></a>
-                        <div class="message">Сервер статистики v.<?=$version ?></div>
+                        <a href="/" class="logo-<?=\Yii::$app->isRus() ? 'ru' : 'eu'?>"></a>
                     </div>
 
                     <?php
@@ -67,7 +66,9 @@ $version = $this->context->getVersion();
 
                     echo Html::endForm();
                     ?>
-
+                <div class="text-center">
+                    <div class="message">Application version: <?=$version ?></div>
+                </div>
                 </div>
             </div>
         </div>

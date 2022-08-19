@@ -27,7 +27,16 @@ a.nohover:hover {
     padding: 15px 0;
 }
 
-.logo {
+.logo-eu {
+    display: inline-block;
+    /*background: url("../images/logo2.gif");*/
+    background: url("../images/logo-eu-blue.svg");
+    width: 143px;
+    height: 31px;
+    margin: 20px 0 0;
+}
+
+.logo-ru {
     display: inline-block;
     background: url("../images/logo2.gif");
     width: 113px;
@@ -35,7 +44,7 @@ a.nohover:hover {
     margin: 20px 0 0;
 }
 
-.site_caption .message {
+.message {
     font-size: 10px;
     line-height: 120%;
 }
