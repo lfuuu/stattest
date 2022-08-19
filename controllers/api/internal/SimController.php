@@ -5,6 +5,7 @@ namespace app\controllers\api\internal;
 use app\classes\ApiInternalController;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
+use app\models\EventQueue;
 use app\models\Number;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\CardStatus;
@@ -300,4 +301,58 @@ class SimController extends ApiInternalController
             throw $e;
         }
     }
+
+
+    /**
+     * @SWG\Get(tags = {"SIM-card"}, path = "/internal/sim/get-subscriber-status", summary = "Получить статус SIM-карты", operationId = "getSubscriberStatus",
+     *   @SWG\Parameter(name = "imsi", type = "integer", description = "IMSI", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Статус SIM-карты",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @return array
+     */
+    public function actionGetSubscriberStatus($imsi)
+    {
+        if (!$imsi || !preg_match('/^25\d{13}/', $imsi)) {
+            throw new \InvalidArgumentException('bad IMSI');
+        }
+
+        $event = EventQueue::go(EventQueue::SYNC_TELE2_GET_STATUS, ['imsi' => $imsi]);
+
+        $usleep = 200000; // 0.2 sec
+        $count = 0;
+        $isFound = false;
+        do {
+            usleep($usleep);
+            $event->refresh();
+
+            if ($event->status == EventQueue::STATUS_OK && $event->trace) {
+                $isFound = $event->trace;
+            }
+
+        } while ($count++ < 120 && !$isFound);
+
+        if (!$isFound) {
+            throw new \RuntimeException('Timeout', 502);
+        }
+
+        $json = json_decode($isFound, true);
+
+        if ($json) {
+            $isConnected = $json['isConnected'];
+            if (isset($json["GetResponse"]["MOAttributes"]["nsGetSubscriberData"]["nsSubscriberData"])) {
+                return [$json["GetResponse"]["MOAttributes"]["nsGetSubscriberData"]["nsSubscriberData"] + ['isConnected' => $isConnected]];
+            }
+            return $json;
+        }
+
+        throw new \BadMethodCallException('answer error: ' . var_export($isFound, true));
+    }
+
 }
