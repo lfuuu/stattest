@@ -574,6 +574,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = $isTele2Server ? AccountTariffCheckHlr::unlinkImsi($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
+                case EventQueue::SYNC_TELE2_GET_STATUS:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::getSubscriberStatus($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
                 case EventQueue::CREATE_CONTRACT:
                     \app\classes\behaviors\important_events\ClientContract::eventAddContract($param);
                     ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);

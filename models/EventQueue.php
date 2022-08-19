@@ -117,6 +117,8 @@ class EventQueue extends ActiveRecord
     const SYNC_TELE2_LINK_IMSI = 'sync_tele2_link_imsi';
     const SYNC_TELE2_UNSET_IMSI = 'sync_tele2_unset_imsi';
     const SYNC_TELE2_UNLINK_IMSI = 'sync_tele2_unlink_imsi';
+    const SYNC_TELE2_GET_STATUS = 'sync_tele2_get_status';
+
     const SYNC_CLIENT_CHANGED = 'sync_client_changed';
     const PORTED_NUMBER_ADD = 'ported_number_add';
     const NUMBER_HAS_BEEN_PORTED = 'number_has_been_ported';
