@@ -304,7 +304,8 @@ class AccountTariffCheckHlr extends Behavior
     public static function removeRedirect($requestId, $params, $redirect)
     {
         if ($redirect == Tele2Adapter::REDIRECT_CFNRC) {
-            return Tele2Adapter::me()->removeCallForwardingOnNotReachable($requestId, $params['imsi']);
+            return Tele2Adapter::me()->addCallForwardingOnNotReachable($requestId, $params['imsi'], '');
+            //return Tele2Adapter::me()->removeCallForwardingOnNotReachable($requestId, $params['imsi']);
         }
 
         throw new NotImplementedHttpException('Unknown redirect: ' . var_export($redirect));
