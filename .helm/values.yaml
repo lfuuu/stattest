@@ -136,6 +136,7 @@ params_prod:
   api_mcn_server: https://api.mcn.ru/v2/rest
   phone_server: vpbx.mcn.ru
   core_server: lk.mcn.ru
+  base_server: base.mcn.ru
   sync1c_ut_soap_url: http://stat.ws.dionis.mcn.ru/ws/ws/stat
   vps_is_enabled: "1"
   atol_is_enabled: "1"
@@ -153,6 +154,7 @@ params_prod_eu:
   api_mcn_server: https://api.kompaas.tech/v2/rest
   phone_server: vpbx.kompaas.tech
   core_server: lk.kompaas.tech
+  base_server:
   sync1c_ut_soap_url:
   vps_is_enabled: "0"
   atol_is_enabled: "0"
@@ -169,6 +171,7 @@ params_dev:
   api_mcn_server:
   phone_server:
   core_server:
+  base_server:
   sync1c_ut_soap_url:
   api_secure_key: 111
   vps_is_enabled: "0"

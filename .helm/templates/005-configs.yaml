@@ -318,6 +318,7 @@ data:
         'CORE_SERVER' => '{{ .params.core_server }}',
         'PHONE_SERVER' => '{{ .params.phone_server }}',
         'VPBX_SERVER' => '{{ .params.phone_server }}',
+        'BASE_SERVER' => '{{ .params.base_server }}',
         'VIRTPBX_URL' => 'https://[address]/vpbx/api/[action]',
         'VPBX_API_AUTHORIZATION' => [
             'method' => 'bearer',

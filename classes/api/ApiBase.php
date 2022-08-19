@@ -72,6 +72,6 @@ class ApiBase extends Singleton
 
     public function syncStatClientStructure($data)
     {
-        return $this->exec('sync/stat_client_structure', $data);
+        return $this->exec('sync/statClientStructure', $data);
     }
 }
