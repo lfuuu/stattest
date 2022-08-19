@@ -10,6 +10,7 @@ return [
         'token' => '',
     ],
     'LK_PATH' => 'https://vpbxphoneapi.mcn.loc/lk/',
+    'BASE_SERVER' => '',
     'FEEDBACK_SERVER' => false,
     'FEEDBACK_API_KEY' => '',
 

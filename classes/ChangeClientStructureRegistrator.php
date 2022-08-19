@@ -47,19 +47,21 @@ class ChangeClientStructureRegistrator extends Singleton
             return false;
         }
 
-        $r = [
-            'account_id' => $redis->sinter(self::ACCOUNT),
-            'contract_id' => $redis->sinter(self::CONTRACT),
-            'contragent_id' => $redis->sinter(self::CONTRAGENT),
-            'client_id' => $redis->sinter(self::SUPER),
-        ];
+        $r = [];
 
-        // format
-        $r = array_map(function ($ids) {
-            return array_map(function ($id) {
-                return (int)$id;
-            }, $ids);
-        }, $r);
+        foreach ([
+                     'accountIds' => self::ACCOUNT,
+                     'contractIds' => self::CONTRACT,
+                     'contragentIds' => self::CONTRAGENT,
+                     'clientIds' => self::SUPER,
+                 ] as $arrayKey => $redisKey) {
+            $v = $redis->sinter($redisKey);
+            if ($v) {
+                $r[$arrayKey] = array_map(function ($id) {
+                    return (int)$id;
+                }, $v);
+            }
+        }
 
         return $r;
     }
@@ -82,16 +84,8 @@ class ChangeClientStructureRegistrator extends Singleton
     {
         $data = $this->getData();
 
-        $isRegistrChanges = false;
-        foreach ($data as $ids) {
-            if ($ids) {
-                $isRegistrChanges = true;
-                break;
-            }
-        }
-
-        if (!$isRegistrChanges) {
-            return false;
+        if (!$data) {
+            return ;
         }
 
         EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data);
