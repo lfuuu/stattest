@@ -578,6 +578,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = $isTele2Server ? AccountTariffCheckHlr::getSubscriberStatus($event->id, $param) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
+                case EventQueue::SYNC_TELE2_SET_CFNRC:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::setRedirect($event->id, $param, Tele2Adapter::REDIRECT_CFNRC) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case EventQueue::SYNC_TELE2_UNSET_CFNRC:
+                    $info = $isTele2Server ? AccountTariffCheckHlr::removeRedirect($event->id, $param, Tele2Adapter::REDIRECT_CFNRC) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
                 case EventQueue::CREATE_CONTRACT:
                     \app\classes\behaviors\important_events\ClientContract::eventAddContract($param);
                     ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);

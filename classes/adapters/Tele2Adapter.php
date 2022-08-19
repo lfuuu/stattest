@@ -22,6 +22,8 @@ class Tele2Adapter extends Singleton
 
     const PROFILE_NUMBER = 301;
 
+    const REDIRECT_CFNRC = 'CFNRC';
+
     // Натройки подключения
     private $_settings;
 
@@ -389,6 +391,26 @@ class Tele2Adapter extends Singleton
     public function unblockRoamingInternational($requestId, $imsi)
     {
         return $this->_exec('unblockRoamingInternational', $requestId, $imsi);
+    }
+
+    /**
+     * @param string $requestId
+     * @param string $imsi
+     * @return string
+     */
+    public function addCallForwardingOnNotReachable($requestId, $imsi)
+    {
+        return $this->_exec('addCallForwardingOnNotReachable', $requestId, $imsi);
+    }
+
+    /**
+     * @param string $requestId
+     * @param string $imsi
+     * @return string
+     */
+    public function removeCallForwardingOnNotReachable($requestId, $imsi)
+    {
+        return $this->_exec('removeCallForwardingOnNotReachable', $requestId, $imsi);
     }
 
 
