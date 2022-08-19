@@ -285,4 +285,9 @@ class AccountTariffCheckHlr extends Behavior
     {
         return Tele2Adapter::me()->deleteSubscriber($requestId, $params['imsi']);
     }
+
+    public static function getSubscriberStatus($requestId, $params)
+    {
+        return Tele2Adapter::me()->getSubscriberStatus($requestId, $params['imsi']);
+    }
 }
