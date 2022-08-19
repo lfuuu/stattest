@@ -319,30 +319,13 @@ class SimController extends ApiInternalController
      */
     public function actionGetSubscriberStatus($imsi)
     {
-        if (!$imsi || !preg_match('/^25\d{13}/', $imsi)) {
-            throw new \InvalidArgumentException('bad IMSI');
-        }
+        $this->_checkImsi($imsi);
 
         $event = EventQueue::go(EventQueue::SYNC_TELE2_GET_STATUS, ['imsi' => $imsi]);
 
-        $usleep = 200000; // 0.2 sec
-        $count = 0;
-        $isFound = false;
-        do {
-            usleep($usleep);
-            $event->refresh();
+        $result = $this->_waitEvent($event);
 
-            if ($event->status == EventQueue::STATUS_OK && $event->trace) {
-                $isFound = $event->trace;
-            }
-
-        } while ($count++ < 120 && !$isFound);
-
-        if (!$isFound) {
-            throw new \RuntimeException('Timeout', 502);
-        }
-
-        $json = json_decode($isFound, true);
+        $json = json_decode($result, true);
 
         if ($json) {
             $isConnected = $json['isConnected'];
@@ -352,7 +335,111 @@ class SimController extends ApiInternalController
             return $json;
         }
 
-        throw new \BadMethodCallException('answer error: ' . var_export($isFound, true));
+        throw new \BadMethodCallException('answer error: ' . var_export($result, true));
     }
+
+    private function _waitEvent(EventQueue $event)
+    {
+        $usleep = 200000; // 0.2 sec
+        $count = 0;
+        $result = false;
+        do {
+            usleep($usleep);
+            $event->refresh();
+
+            if ($event->status == EventQueue::STATUS_OK) {
+                $result = $event->trace;
+                break;
+            }
+
+        } while ($count++ < 120 && !$result);
+
+        if (!$result) {
+            throw new \RuntimeException('Timeout', 502);
+        }
+
+        return $result;
+    }
+
+    private function _checkImsi($imsi)
+    {
+        if (!$imsi || !preg_match('/^25\d{13}/', $imsi)) {
+            throw new \InvalidArgumentException('bad IMSI');
+        }
+    }
+
+    private function _checkMsisdn($msisdn)
+    {
+        if (!$msisdn || !preg_match('/^7\d{10}/', $msisdn)) {
+            throw new \InvalidArgumentException('bad MSISDN');
+        }
+    }
+
+
+    /**
+     * @SWG\Get(tags = {"SIM-card"}, path = "/internal/sim/add-call-forwarding-on-not-reachable", summary = "Установить переадресацию при недоступности", operationId = "addCallForwardingOnNotReachable",
+     *   @SWG\Parameter(name = "imsi", type = "integer", description = "IMSI", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "msisdn", type = "integer", description = "IMSI", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Статус SIM-карты",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @return array
+     */
+    public function actionAddCallForwardingOnNotReachable($imsi, $msisdn)
+    {
+        $this->_checkImsi($imsi);
+        $this->_checkMSISDN($msisdn);
+
+        $event = EventQueue::go(EventQueue::SYNC_TELE2_SET_CFNRC, ['imsi' => $imsi, 'msisdn' => $msisdn]);
+
+        $result = $this->_waitEvent($event);
+
+        $json = json_decode($result, true);
+
+        if ($json) {
+            return $json;
+        }
+
+        throw new \BadMethodCallException('answer error: ' . var_export($result, true));
+    }
+
+
+    /**
+     * @SWG\Get(tags = {"SIM-card"}, path = "/internal/sim/remove-call-forwarding-on-not-reachable", summary = "Снять переадресацию при недоступности", operationId = "removeCallForwardingOnNotReachable",
+     *   @SWG\Parameter(name = "imsi", type = "integer", description = "IMSI", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Статус SIM-карты",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @return array
+     */
+    public function actionRemoveCallForwardingOnNotReachable($imsi)
+    {
+        $this->_checkImsi($imsi);
+
+        $event = EventQueue::go(EventQueue::SYNC_TELE2_UNSET_CFNRC, ['imsi' => $imsi]);
+
+        $result = $this->_waitEvent($event);
+
+        $json = json_decode($result, true);
+
+        if ($json) {
+            return $json;
+        }
+
+        throw new \BadMethodCallException('answer error: ' . var_export($result, true));
+    }
+
 
 }

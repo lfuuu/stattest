@@ -6,6 +6,7 @@ use app\classes\adapters\Tele2Adapter;
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
+use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\modules\nnp\models\NdcType;
@@ -289,5 +290,23 @@ class AccountTariffCheckHlr extends Behavior
     public static function getSubscriberStatus($requestId, $params)
     {
         return Tele2Adapter::me()->getSubscriberStatus($requestId, $params['imsi']);
+    }
+
+    public static function setRedirect($requestId, $params, $redirect)
+    {
+        if ($redirect == Tele2Adapter::REDIRECT_CFNRC) {
+            return Tele2Adapter::me()->addCallForwardingOnNotReachable($requestId, $params['imsi']);
+        }
+
+        throw new NotImplementedHttpException('Unknown redirect: ' . var_export($redirect));
+    }
+
+    public static function removeRedirect($requestId, $params, $redirect)
+    {
+        if ($redirect == Tele2Adapter::REDIRECT_CFNRC) {
+            return Tele2Adapter::me()->removeCallForwardingOnNotReachable($requestId, $params['imsi']);
+        }
+
+        throw new NotImplementedHttpException('Unknown redirect: ' . var_export($redirect));
     }
 }
