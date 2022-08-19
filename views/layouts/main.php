@@ -41,7 +41,7 @@ $activeClient = isset($fixclient_data['id']) ?
             <div class="col-sm-12">
                 <div class="row pull-left block-left">
                     <div class="col-sm-6">
-                        <a href="/" class="logo"></a>
+                        <a href="/" class="logo-<?=\Yii::$app->isRus() ? 'ru' : 'eu'?>"></a>
                     </div>
                     <div class="col-sm-6">
                         <?= $this->render('widgets/logged-user', [
