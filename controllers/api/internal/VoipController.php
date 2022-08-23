@@ -371,7 +371,8 @@ class VoipController extends ApiInternalController
             $sumQuery = clone $query;
             $sumQuery->select([
                 'sum' => new Expression('SUM(-cost)::decimal(12,2)'),
-                'count' => new Expression('COUNT(*)')
+                'count' => new Expression('COUNT(*)'),
+                'quantity' => new Expression('SUM(quantity)')
             ]);
             $sumQuery->orderBy(null);
 
@@ -485,7 +486,7 @@ class VoipController extends ApiInternalController
         }
 
         $searchModel->limit && $query->limit($searchModel->limit);
-
+        
         $result = [];
         foreach ($query->each(100, SmscRaw::getDb()) as $data) {
             $data['cost'] = abs((double)$data['cost']);
