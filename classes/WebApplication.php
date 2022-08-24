@@ -33,12 +33,13 @@ class WebApplication extends \yii\web\Application
                 $messageData .= "\n\n";
             }
 
+            $messageData = preg_replace('/("password(Repeat|Current)?": ")[^"]+"/', '$1xxx"', $messageData);;
+
             if (isset($_SERVER['REQUEST_URI_ORIG'])) {
                 $requestUri = $_SERVER['REQUEST_URI_ORIG'];
             } else {
                 $requestUri = $_SERVER['REQUEST_URI'];
             }
-
 
             Yii::info(
                 GelfMessage::create()
@@ -62,6 +63,7 @@ class WebApplication extends \yii\web\Application
                 $messageData .= json_encode($params,
                     JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
                 $messageData .= "\n\n";
+
             }
 
             if ($request->getBodyParams()) {
@@ -70,6 +72,8 @@ class WebApplication extends \yii\web\Application
                     JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
                 $messageData .= "\n\n";
             }
+
+            $messageData = preg_replace('/("password(Repeat|Current)?": ")[^"]+"/', '$1xxx"', $messageData);;
 
             if (isset($_SERVER['REQUEST_URI_ORIG'])) {
                 $requestUri = $_SERVER['REQUEST_URI_ORIG'];
