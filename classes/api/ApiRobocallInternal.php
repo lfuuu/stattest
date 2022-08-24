@@ -82,7 +82,7 @@ class ApiRobocallInternal extends Singleton
         $data = [
             'account_id' => $clientId,
             'service_id' => $serviceId,
-            'is_carousel' => false,
+            'is_carousel' => $accountTariff->getResourceValue(ResourceModel::ID_VR_CAROUSEL),
             'stat_product_id' => $accountTariff->id,
             'max_channels' => $accountTariff->getResourceValue(ResourceModel::ID_VR_CHANNEL_COUNT),
         ];
