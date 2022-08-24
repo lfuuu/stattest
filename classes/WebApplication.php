@@ -47,7 +47,10 @@ class WebApplication extends \yii\web\Application
                     ->setShortMessage('AAA START ' . $request->getMethod() . ' ' . $requestUri)
                     ->setFullMessage($messageData)
                     ->setAdditional('route', $route)
-                    ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME),
+                    ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME)
+                    ->setAdditional('remote_addr', $_SERVER['REMOTE_ADDR'] ?? '')
+                    ->setAdditional('http_x_real_ip', $_SERVER['HTTP_X_REAL_IP'] ?? '')
+                    ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''),
                 'request'
             );
         }
@@ -89,7 +92,11 @@ class WebApplication extends \yii\web\Application
                         ->setShortMessage('AAA END ' . $request->getMethod() . ' ' . $requestUri)
                         ->setFullMessage(substr($response->content, 0, 1024))
                         ->setAdditional('route', $route)
-                        ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME),
+                        ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME)
+                        ->setAdditional('remote_addr', $_SERVER['REMOTE_ADDR'] ?? '')
+                        ->setAdditional('http_x_real_ip', $_SERVER['HTTP_X_REAL_IP'] ?? '')
+                        ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''),
+
                     'request'
                 );
             }
@@ -100,7 +107,10 @@ class WebApplication extends \yii\web\Application
                     ->setShortMessage($request->getMethod() . ' ' . $requestUri)
                     ->setFullMessage($messageData)
                     ->setAdditional('route', $route)
-                    ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME),
+                    ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME)
+                    ->setAdditional('remote_addr', $_SERVER['REMOTE_ADDR'] ?? '')
+                    ->setAdditional('http_x_real_ip', $_SERVER['HTTP_X_REAL_IP'] ?? '')
+                    ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''),
                 'request'
             );
         }, $isLogAAA);
