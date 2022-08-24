@@ -396,7 +396,7 @@ class SBISTensorAPI
      * @throws SBISTensorException
      * @throws \yii\base\Exception
      */
-    public function getContractorInfoLegal($inn, $kpp, $branchCode = '')
+    public function getContractorInfoLegal($inn, $kpp, $name = '', $branchCode = '')
     {
         $info = [
             'ИНН' => $inn,
@@ -405,6 +405,10 @@ class SBISTensorAPI
 
         if ($branchCode) {
             $info['КодФилиала'] = strval($branchCode);
+        }
+
+        if ($name) {
+            $info['Название'] = $name;
         }
 
         $data = [
@@ -496,7 +500,7 @@ class SBISTensorAPI
                 break;
 
             case ClientContragent::LEGAL_TYPE:
-                $result = $this->getContractorInfoLegal($client->getInn(), $client->getKpp(), $client->getBranchCode());
+                $result = $this->getContractorInfoLegal($client->getInn(), $client->getKpp(), $client->contract->contragent->name, $client->getBranchCode());
                 break;
 
             default:

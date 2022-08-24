@@ -179,7 +179,7 @@ class ContractorController extends Controller
                     if ($branchCode) {
                         echo 'Branch code: ' . $branchCode . PHP_EOL;
                     }
-                    $result = $api->getContractorInfoLegal($client->getInn(), $kpp, $branchCode);
+                    $result = $api->getContractorInfoLegal($client->getInn(), $kpp, $client->contract->contragent->name, $branchCode);
                     break;
             }
         }
