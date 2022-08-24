@@ -472,6 +472,9 @@ class ClientController extends ApiInternalController
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},
      *       @SWG\Property(property="client_id", type="integer", description="Идентификатор супер-клиента"),
+     *       @SWG\Property(property="contragent_id", type="integer", description="Идентификатор контрагента"),
+     *       @SWG\Property(property="contract_id", type="integer", description="Идентификатор договора"),
+     *       @SWG\Property(property="account_id", type="integer", description="Идентификатор ЛС"),
      *       @SWG\Property(property="is_created", type="boolean", description="Создан ли клиент")
      *     )
      *   ),
@@ -489,6 +492,9 @@ class ClientController extends ApiInternalController
             if ($form->create()) {
                 $data = [
                     'client_id' => $form->super_id,
+                    'contragent_id' => $form->contragent_id,
+                    'contract_id' => $form->contract_id,
+                    'account_id' => $form->account_id,
                     'is_created' => $form->isCreated,
                 ];
 
