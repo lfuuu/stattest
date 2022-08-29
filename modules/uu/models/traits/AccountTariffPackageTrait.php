@@ -58,6 +58,17 @@ trait AccountTariffPackageTrait
             return;
         }
 
+        $accountTariffLog = $this->getOnAccountTariffLog();
+        if (
+            $accountTariffLog
+            && $accountTariffLog->tariff_period_id
+            && $accountTariffLog->tariffPeriod
+            && $accountTariffLog->tariffPeriod->tariff
+            && $accountTariffLog->tariffPeriod->tariff->is_bundle) {
+            HandlerLogger::me()->add('Tariff is bundle');
+            return;
+        }
+
         $transaction = \Yii::$app->db->beginTransaction();
         try {
 
