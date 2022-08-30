@@ -17,7 +17,9 @@ use yii\data\ActiveDataProvider;
  */
 class CardFilter extends Card
 {
-    public $iccid = '';
+//    public $iccid = '';
+    public $iccid_from = '';
+    public $iccid_to = '';
     public $imei = '';
     public $client_account_id = '';
     public $is_active = '';
@@ -36,7 +38,7 @@ class CardFilter extends Card
     public function rules()
     {
         return [
-            [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id', 'profile_id', 'entry_point_id'], 'integer'], // card
+            [[/*'iccid', */ 'iccid_from', 'iccid_to', 'imei', 'client_account_id', 'is_active', 'status_id', 'profile_id', 'entry_point_id'], 'integer'], // card
             [['imsi', 'msisdn', 'did', 'imsi_partner'], 'integer'], // imsi
         ];
     }
@@ -60,13 +62,17 @@ class CardFilter extends Card
             'query' => $query,
         ]);
 
-        if ($this->iccid) {
-            if (strpos($this->iccid, '*') !== false) {
-                $iccid = strtr($this->iccid, ['**' => '*', '*' => '%']);
-                $query->andWhere($cardTableName . '.iccid::varchar like :like', [':like' => $iccid]);
-            } else {
-                $query->andWhere([$cardTableName . '.iccid' => $this->iccid]);
-            }
+        if ($this->iccid_from && !$this->iccid_to) {
+//            if (strpos($this->iccid, '*') !== false) {
+//                $iccid = strtr($this->iccid, ['**' => '*', '*' => '%']);
+//                $query->andWhere($cardTableName . '.iccid::varchar like :like', [':like' => $iccid]);
+//            } else {
+                $query->andWhere([$cardTableName . '.iccid' => $this->iccid_from]);
+//            }
+        }
+
+        if ($this->iccid_from && $this->iccid_to) {
+            $query->andWhere(['between', $cardTableName . '.iccid' , $this->iccid_from, $this->iccid_to]);
         }
 
         $this->imei && $query->andWhere([$cardTableName . '.imei' => $this->imei]);
