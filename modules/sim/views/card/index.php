@@ -107,7 +107,10 @@ $columns = [
 
     [
         'attribute' => 'iccid',
-        'class' => StringColumn::class,
+//        'class' => StringColumn::class,
+        'class' => \app\classes\grid\column\universal\IntegerRangeColumn::class,
+        'options' => ['style' => 'width: 170px;'],
+
     ],
 
     [
