@@ -286,10 +286,36 @@
                     </select>
                 </td>
                 <td><input type="checkbox" {if $isEditable}class="mark_del" {/if}name="del[{$key}]"
-                           value="1"{if !$isEditable} readonly disabled{/if}/></td>
+                           value="1"{if !$isEditable} readonly disabled{/if}/>
+                    {if isset($item.is_uu_edit) && $item.is_uu_edit}
+                        <a title="Восстановить Uu-проводку в счете" href="/?module=newaccounts&action=bill_edit&bill={$item.bill_no|escape}&auid={$item.uu_account_entry_id}">uuВс</a>
+                    {/if}
+
+                </td>
             </tr>
         {/foreach}
     </table>
+    {if $bill_lines_uu}
+        <hr>
+        <h2>Удаленные универсальные проводки</h2>
+    <table class="table table-condensed table-striped">
+        {foreach from=$bill_lines_uu item=line}
+            <tr>
+                <th>Наименование</th>
+                <th>Количество</th>
+                <th>Цена</th>
+                <th>&nbsp;</th>
+            </tr>
+        <tr>
+            <td>{$line.item}</td>
+            <td>{$line.amount}</td>
+            <td>{$line.price}</td>
+            <td><a href="/?module=newaccounts&action=bill_edit&bill={$line.bill_no|escape}&auid={$line.uu_account_entry_id}">Восстановить</a></td>
+        </tr>
+        {/foreach}
+    </table>
+    {/if}
+
     <div style="text-align: center">
         <input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if !$isEditable} disabled{/if}>
     </div>
