@@ -1295,6 +1295,45 @@ class m_newaccounts extends IModule
             $isCorrection = true;
         }
 
+        if ($auId = get_param_integer('auid')) {
+            $where = ['bill_no' => $billModel->bill_no, 'uu_account_entry_id' => $auId];
+            $uLine = \app\models\BillLineUu::find()->where($where)->one();
+
+            if ($uLine) {
+                $line = \app\models\BillLine::find()->where($where)->one();
+                if (!$line) {
+                    $line = new \app\models\BillLine();
+                }
+                $maxSort = \app\models\BillLine::find()->where(['bill_no' => $billModel->bill_no])->max('sort') ?: 0;
+
+                $line->sort = $maxSort + 1;
+
+                $line->setAttributes($uLine->getAttributes(), false);
+                $transaction = \Yii::$app->db->beginTransaction();
+                try {
+                    if (!$line->save()) {
+                        throw new ModelValidationException($line);
+                    }
+                    if (!$uLine->delete()) {
+                        throw new ModelValidationException($uLine);
+                    }
+
+                    $bill->Save();
+                    $billModel->refresh();
+
+                    $billModel->checkUuCorrectionBill();
+
+                    $transaction->commit();
+                } catch (Exception $e) {
+                    $transaction->rollBack();
+                    throw $e;
+                }
+            }
+
+            header("Location: /?module=newaccounts&action=bill_edit&bill=" . urlencode($billModel->bill_no));
+            exit();
+        }
+
         $design->assign('is_correction', $isCorrection);
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], ['distr', 'operator']));
         $design->assign('clientAccountVersion', $fixclient_data['account_version']);
@@ -1317,8 +1356,23 @@ class m_newaccounts extends IModule
                 $lines[$bill->GetMaxSort() + 1] = [];
             }
         }
-        
+
+        $uuLines = $billModel->uuLines;
+        if ($uuLines) {
+            foreach ($lines as $k => $line) {
+                if (!$line['uu_account_entry_id']) {
+                    continue;
+                }
+                if (isset($uuLines[$line['uu_account_entry_id']])) {
+                    $lines[$k]['is_uu_edit'] = true;
+                    unset($uuLines[$line['uu_account_entry_id']]);
+                }
+            }
+            $uuLines = array_map(function(\app\models\BillLineUu $line){return $line->getAttributes();}, $uuLines);
+        }
+
         $design->assign('bill_lines', $lines);
+        $design->assign('bill_lines_uu', $uuLines);
         $design->AddMain('newaccounts/bill_edit.tpl');
     }
 
