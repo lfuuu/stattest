@@ -31,6 +31,7 @@ class CardFilter extends Card
     public $imsi_partner = '';
     public $profile_id = '';
     public $entry_point_id = '';
+    public $region_id = '';
 
     /**
      * @return array
@@ -38,7 +39,7 @@ class CardFilter extends Card
     public function rules()
     {
         return [
-            [[/*'iccid', */ 'iccid_from', 'iccid_to', 'imei', 'client_account_id', 'is_active', 'status_id', 'profile_id', 'entry_point_id'], 'integer'], // card
+            [[/*'iccid', */ 'iccid_from', 'iccid_to', 'imei', 'client_account_id', 'is_active', 'status_id', 'profile_id', 'entry_point_id', 'region_id'], 'integer'], // card
             [['imsi', 'msisdn', 'did', 'imsi_partner'], 'integer'], // imsi
         ];
     }
@@ -91,6 +92,7 @@ class CardFilter extends Card
         $this->did && $query->andWhere([$imsiTableName . '.did' => $this->did]);
         $this->imsi_partner && $query->andWhere([$imsiTableName . '.partner_id' => $this->imsi_partner]);
         $this->profile_id && $query->andWhere([$imsiTableName . '.profile_id' => $this->profile_id]);
+        $this->region_id && $query->andWhere([$cardTableName . '.region_id' => $this->region_id]);
 
         if ($this->entry_point_id) {
             $queryAccount = clone $query;

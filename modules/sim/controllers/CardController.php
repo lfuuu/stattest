@@ -95,8 +95,18 @@ class CardController extends BaseController
             $newAccountId = $getData['newAccountId'];
         }
 
-        if ($cardIccids) {
+        if (isset($getData['cardIccids_all'])) {
+            $dataProvier = $filterModel->search();
+            $query = $dataProvier->query;
 
+            $cardIccids =  $query->select(Card::tableName().'.iccid')->limit(10000)->column();
+
+            if (count($cardIccids) >= 10000) {
+                \Yii::$app->session->addFlash('error', 'Обрабатывается не более 10000 карт за раз');
+            }
+        }
+
+        if ($cardIccids) {
             $isEditAllow = \Yii::$app->user->can('sim.write') || \Yii::$app->user->can('sim.link');
             if (isset($getData['set-status']) && isset($getData['status']) && $getData['status']) {
                 if ($isEditAllow) {
