@@ -211,6 +211,13 @@ $columns = [
                 Yii::t('common', '(not set)');
         },
     ],
+
+    [
+        'attribute' => 'region_id',
+        'class' => \app\classes\grid\column\universal\RegionColumn::class
+
+    ],
+
     [
         'label' => 'Точка подклчюения',
         'attribute' => 'entry_point_id',
