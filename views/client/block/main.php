@@ -85,7 +85,7 @@ $priceLevels = PriceLevel::getList();
                                 <div class="col-sm-5">
                                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>">
                                         <span class="c-blue-color">
-                                            Договор № <?= $contract->number ?: 'Без номера' ?>
+                                            Договор № <?= $contract->number ?: 'Без номера' ?> (id: <?=$contract->id ?>)
                                             (<?= $contract->organization->name ?>)
                                         </span>
                                         &nbsp;
