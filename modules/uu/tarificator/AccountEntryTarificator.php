@@ -34,6 +34,17 @@ class AccountEntryTarificator extends Tarificator
      */
     public function tarificate($accountTariffId = null)
     {
+        if (!$accountTariffId) {
+            $db = Yii::$app->db;
+            $db->createCommand("DROP TEMPORARY TABLE IF EXISTS clients_postpaid")->execute();
+            $db->createCommand("CREATE TEMPORARY TABLE `clients_postpaid` (
+                           `id` int NOT NULL AUTO_INCREMENT,
+                           `is_postpaid` int NOT NULL DEFAULT '0',
+                           PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB")->execute();
+            $db->createCommand("INSERT INTO clients_postpaid (id, is_postpaid) SELECT id, is_postpaid FROM clients")->execute();
+        }
+
         // Подключение
         // Транзакции группировать в проводки следующего месяца
         $this->out('Проводки за подключение');
@@ -116,6 +127,9 @@ class AccountEntryTarificator extends Tarificator
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $clientAccountTableName = ClientAccount::tableName();
+        if (!$accountTariffId) {
+            $clientAccountTableName = 'clients_postpaid';
+        }
         $sqlParams = [];
 
         $sqlAndWhere = '';
