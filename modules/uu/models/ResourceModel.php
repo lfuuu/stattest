@@ -161,6 +161,7 @@ class ResourceModel extends ActiveRecord
         self::ID_API_CALL => self::ID_API_CALL,
         self::ID_QUOTA_TRAFFIC => self::ID_QUOTA_TRAFFIC,
         self::ID_A2P_SMS => self::ID_A2P_SMS,
+        self::ID_VOIP_PACKAGE_SMS => self::ID_VOIP_PACKAGE_SMS,
     ];
 
     // map for operation types
