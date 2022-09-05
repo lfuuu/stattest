@@ -87,6 +87,8 @@ class CardDao extends Singleton
         $transaction = Card::getDb()->beginTransaction();
         try {
 
+            $iccids = array_unique($iccids);
+
             $counter = 0;
             foreach ($iccids as $iccid) {
                 $card = Card::findOne(['iccid' => $iccid]);
