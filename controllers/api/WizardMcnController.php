@@ -264,7 +264,7 @@ class WizardMcnController extends WizardBaseController
      */
     private function _getAccountManager()
     {
-        $manager = $this->account->userAccountManager ?: User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
+        $manager = $this->account->userAccountManager ?: User::findOne(['id' => User::getDefaultAccountManagerUserId()]);
 
         if (!$manager) {
             return [
