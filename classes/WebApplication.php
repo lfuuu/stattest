@@ -50,7 +50,8 @@ class WebApplication extends \yii\web\Application
                     ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME)
                     ->setAdditional('remote_addr', $_SERVER['REMOTE_ADDR'] ?? '')
                     ->setAdditional('http_x_real_ip', $_SERVER['HTTP_X_REAL_IP'] ?? '')
-                    ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''),
+                    ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '')
+                    ->setAdditional('UserLogin', Yii::$app->user && Yii::$app->user->identity ? Yii::$app->user->identity->user : ''),
                 'request'
             );
         }
@@ -95,8 +96,8 @@ class WebApplication extends \yii\web\Application
                         ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME)
                         ->setAdditional('remote_addr', $_SERVER['REMOTE_ADDR'] ?? '')
                         ->setAdditional('http_x_real_ip', $_SERVER['HTTP_X_REAL_IP'] ?? '')
-                        ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''),
-
+                        ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '')
+                        ->setAdditional('UserLogin', Yii::$app->user && Yii::$app->user->identity ? Yii::$app->user->identity->user : ''),
                     'request'
                 );
             }
@@ -110,7 +111,8 @@ class WebApplication extends \yii\web\Application
                     ->setAdditional('duration', microtime(true) - YII_BEGIN_TIME)
                     ->setAdditional('remote_addr', $_SERVER['REMOTE_ADDR'] ?? '')
                     ->setAdditional('http_x_real_ip', $_SERVER['HTTP_X_REAL_IP'] ?? '')
-                    ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''),
+                    ->setAdditional('http_x_forwarded_for', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '')
+                    ->setAdditional('UserLogin', Yii::$app->user && Yii::$app->user->identity ? Yii::$app->user->identity->user : ''),
                 'request'
             );
         }, $isLogAAA);
