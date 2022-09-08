@@ -56,9 +56,9 @@ function prod()
 
   export IS_WITH_PHPMYADMIN=0
   export IS_WITH_PGADMIN=0
-  export IS_WITH_CRYPTOPRO=1
+  export IS_WITH_CRYPTOPRO=0
   export IS_WITH_COMET=1
-  export IS_WITH_GRAPHQL=1
+  export IS_WITH_GRAPHQL=0
   export IS_WITH_NNPPORTED=1
   export IS_WITH_BALANCE=0
   export IS_WITH_MAILER=1
