@@ -364,6 +364,7 @@ class SBISDocument extends ActiveRecord
             $oldState = $this->state;
             // change state
             $this->state = $state;
+            $this->tries = 0;
 
             $this->addEvents($state);
             Yii::info(sprintf('SBISDocument #%s, %s, state changed: %s -> %s', $this->id, $this->external_id, $oldState, $state), self::LOG_CATEGORY);
