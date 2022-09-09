@@ -18,7 +18,7 @@ php_prod:
     timezone: Europe/Moscow
   session:
     save_path: /var/lib/php/session
-    gc_maxlifetime: 3600
+    gc_maxlifetime: 43200
     gc_probability: 1
 
 php_fpm_prod:
