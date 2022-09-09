@@ -18,11 +18,13 @@ use yii\helpers\Url;
  * @property string $name
  * @property string $email
  * @property string $phone_work
+ * @property string $phone_mobile
  * @property string $incoming_phone
  * @property string $data_flag
  * @property integer $depart_id
  * @property string $enabled
  * @property string $rocket_nick
+ * @property UserFlashCode $flashCode
  *
  * @method static User findOne($condition)
  */
@@ -163,6 +165,15 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @param string $password
+     * @return bool
+     */
+    public function validatePasswordMd5($password)
+    {
+        return $this->pass === $password;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getGroupRights()
@@ -192,6 +203,16 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public function getDepartment()
     {
         return $this->hasOne(UserDeparts::class, ['id' => 'depart_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFlashCode()
+    {
+        UserFlashCode::clean();
+
+        return $this->hasOne(UserFlashCode::class, ['user_id' => 'id']);
     }
 
     /**

@@ -3,10 +3,13 @@
 namespace app\controllers;
 
 use app\classes\Language;
+use app\models\LoginGetCodeForm;
 use Yii;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
 use app\models\LoginForm;
+use yii\web\Response;
+use yii\web\ResponseFormatterInterface;
 
 class SiteController extends BaseController
 {
@@ -17,7 +20,7 @@ class SiteController extends BaseController
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['login', 'error'],
+                        'actions' => ['login', 'get-code', 'error'],
                         'allow' => true,
                     ],
                     [
@@ -49,7 +52,6 @@ class SiteController extends BaseController
 
     public function actionLogin()
     {
-
         if (!\Yii::$app->user->isGuest) {
             return $this->goHome();
         }
@@ -63,6 +65,27 @@ class SiteController extends BaseController
             return $this->render('login', [
                 'model' => $model,
             ]);
+        }
+    }
+
+    public function actionGetCode()
+    {
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+
+        try {
+            if (!\Yii::$app->request->isPost || !Yii::$app->request->post()) {
+                throw new \InvalidArgumentException('Bad request1');
+            }
+
+            $form = new LoginGetCodeForm();
+
+            if (!$form->load(Yii::$app->request->post(), '') || !$form->validate()) {
+                throw new \InvalidArgumentException(implode('<br />' . PHP_EOL, $form->getFirstErrors()));
+            }
+
+            return ['status' => 'ok', 'code_make' => $form->makeCode()];
+        } catch (\Exception $e) {
+            return ['status' => 'error', 'error' => $e->getMessage()];
         }
     }
 
