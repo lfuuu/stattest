@@ -301,4 +301,24 @@ class ApiPhone extends Singleton
 
         return $this->_exec('numbers_state', $params);
     }
+
+    /**
+     * @param string $login_did phone mobile number
+     * @return string
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function flashCall($login_did)
+    {
+        $params = [
+            'login_did' => $login_did,
+        ];
+
+        $result = $this->_exec('flash_call', $params);
+
+        if (!$result || (is_array($result) && !$result['success'])) {
+            throw new \BadMethodCallException('API Phone/flash_call error: '. var_export($result, true));
+        }
+
+        return substr($result['result']['from'], -4);
+    }
 }

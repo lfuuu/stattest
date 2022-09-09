@@ -10,8 +10,10 @@ use yii\base\Model;
  */
 class LoginForm extends Model
 {
+    const SESSION_TIMEOUT = 10; // sec
     public $username;
     public $password;
+    public $code_verification;
     public $rememberMe = true;
 
     private $user = false;
@@ -22,6 +24,7 @@ class LoginForm extends Model
     public function rules()
     {
         return [
+            ['code_verification', 'string'],
             // username and password are both required
             [['username', 'password'], 'required'],
             // rememberMe must be a boolean value
@@ -36,6 +39,7 @@ class LoginForm extends Model
         return [
             'username' => 'Логин',
             'password' => 'Пароль',
+            'code_verification' => 'Код верификации',
         ];
     }
 
@@ -55,7 +59,33 @@ class LoginForm extends Model
                 $this->addError($attribute, 'Неправильный логин или пароль.');
             }
         }
+
+        $this->validateCode();
     }
+
+    public function validateCode()
+    {
+        if (!\Yii::$app->is2fAuth()) {
+            return;
+        }
+
+        if ($this->hasErrors()) {
+            return;
+        }
+
+        $user = $this->getUser();
+
+        if (!$user->phone_mobile) {
+            return;
+        }
+
+        $userFlashCode = $user->flashCode;
+
+        if (!$userFlashCode || !$userFlashCode->isCodeValide($this->code_verification)) {
+            $this->addError('code_verification', 'Неправильный код или время ожидания истекло.');
+        }
+    }
+
 
     /**
      * Logs in a user using the provided username and password.
@@ -65,7 +95,7 @@ class LoginForm extends Model
     {
         if ($this->validate()) {
             $user = $this->getUser();
-            if (Yii::$app->user->login($user, $this->rememberMe ? 3600 * 24 * 30 : 0)) {
+            if (Yii::$app->user->login($user, $this->rememberMe ? self::SESSION_TIMEOUT : 0)) {
                 \app\classes\Language::setCurrentLanguage($user->language);
                 return true;
             } else {
