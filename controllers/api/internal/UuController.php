@@ -1670,7 +1670,7 @@ class UuController extends ApiInternalController
         foreach ($accountTariff->serviceType->resources as $resource) {
             $tariffResource = isset($tariffResourcesIndexedByResourceId[$resource->id]) ? $tariffResourcesIndexedByResourceId[$resource->id] : null;
 
-            if (!$tariffResource->is_show_resource) {
+            if (!$tariffResource || !$tariffResource->is_show_resource) {
                 continue;
             }
 
