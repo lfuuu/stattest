@@ -124,8 +124,8 @@ class ClientCounter extends ActiveRecord
             }
         }
 
-        Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный (выдаем: ' . $rtBalance . ')' : '') . ' ЛС# ' . $this->clientAccount->id . ' '
-            . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
+//        Yii::info('Баланс ' . ($this->isMass ? 'массовый' : 'нормальный') . ' ' . ($this->isLocal ? 'неверный (выдаем: ' . $rtBalance . ')' : '') . ' ЛС# ' . $this->clientAccount->id . ' '
+//            . ($this->clientAccount->balance + $this->amount_sum) . ' = ' . $this->clientAccount->balance . ' + ' . $this->amount_sum);
 
 
         switch ($this->clientAccount->account_version) {
