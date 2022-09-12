@@ -136,6 +136,6 @@ class WebApplication extends \yii\web\Application
 
     public function is2fAuth()
     {
-        return $this->isRus() && (getenv('IS_TEST') == 0) && ApiVpbx::me()->isAvailable();
+        return $this->isRus() && (getenv('IS_TEST') === 0) && ApiVpbx::me()->isAvailable();
     }
 }
