@@ -11,6 +11,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use yii\base\BaseObject;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Class A2pResourceReader
@@ -93,7 +94,7 @@ class A2pResourceReader extends BaseObject implements ResourceReaderInterface
                 ->alias('c')
                 ->innerJoinWith('accountTariffLight l')
                 ->select([
-                    'sum' => 'SUM(c.cost)',
+                    'sum' => new Expression('CASE WHEN SUM(rate) > 0 THEN ABS(SUM(cost)) ELSE -ABS(SUM(cost)) END'),
                     'aggr_date' => sprintf("TO_CHAR(%s + INTERVAL '%d hours', 'YYYY-MM-DD')", $timeField, $hoursDelta),
                 ])
                 ->where([
