@@ -94,6 +94,18 @@ if ($formModel->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET
     ];
 }
 
+if ($formModel->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS) {
+    $columns[] = [
+        'name' => 'include_amount',
+        'title' => $attributeLabels['include_amount'],
+        'type' => Editable::INPUT_RANGE,
+        'options' => $options + [
+                'html5Container' => ['style' => 'width:500px'],
+                'html5Options' => ['min' => 0, 'max' => 1000, 'step' => 10]
+        ],
+    ];
+}
+
 $columns[] = [
     'name' => 'id', // чтобы идентифицировать модель
     'type' => TabularColumn::TYPE_HIDDEN_INPUT,
