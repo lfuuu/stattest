@@ -18,8 +18,8 @@ class PackagePricelistNnpSms extends PackagePricelistNnp
     public function rules()
     {
         return [
-            [['tariff_id', 'nnp_pricelist_id'], 'required'],
-            [['tariff_id', 'nnp_pricelist_id'], 'integer'],
+            [['tariff_id', 'nnp_pricelist_id', 'include_amount'], 'required'],
+            [['tariff_id', 'nnp_pricelist_id', 'include_amount'], 'integer'],
         ];
     }
 }
