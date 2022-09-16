@@ -52,7 +52,7 @@ class GridViewSequence extends GridView
                 throw new InvalidConfigException('Model "' . $modelName . '" must have method "gridSort"');
             }
 
-            $result = $modelClass->gridSort((int)$actionRequest['moved_element_id'], (int)$actionRequest['next_element_id']);
+            $result = $modelClass->gridSort($actionRequest['moved_element_id'], $actionRequest['next_element_id']);
 
             if ($result === true) {
                 \Yii::$app->response->content = Json::encode(['result' => 'success']);

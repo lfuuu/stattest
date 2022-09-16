@@ -205,7 +205,8 @@ class Navigation
             ->addItem('Статусы бизнес процессов', ['/dictionary/business-process-status'], ['dictionary-statuses.read'])
             ->addItem('Общие настройки', ['/settings/'], ['dictionary.read'])
             ->addItem('API Каналы платежей', ['/dictionary/' . \app\models\PaymentApiChannel::NAVIGATION])
-            ->addItem('Уровни цен', ['/dictionary/price-level'], ['dictionary.read']);
+            ->addItem('Уровни цен', ['/dictionary/price-level'], ['dictionary.read'])
+            ->addItem('Телефония: Источники', ['/dictionary/voip/source'], ['dictionary.read']);
 
         if ($isRus) {
             $dictBlock->addItem('Roistat. Настройки номеров.', ['/dictionary/roistat-number-fields']);

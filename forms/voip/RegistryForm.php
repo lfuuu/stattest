@@ -10,6 +10,7 @@ use app\exceptions\ModelValidationException;
 use app\models\City;
 use app\models\Country;
 use app\models\voip\Registry;
+use app\models\voip\Source;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
@@ -69,7 +70,7 @@ class RegistryForm extends Form
             ],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
             ['city_id', 'validateCity', 'on' => 'save'],
-            ['source', 'in', 'range' => array_keys(VoipRegistrySourceEnum::$names), 'on' => 'save'],
+            ['source', 'in', 'range' => array_keys(Source::getList()), 'on' => 'save'],
             ['ndc_type_id', 'in', 'range' => array_keys(NdcType::getList()), 'on' => 'save'],
             ['account_id', AccountIdValidator::class, 'on' => 'save'],
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
