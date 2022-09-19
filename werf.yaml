@@ -385,7 +385,7 @@ docker:
     TERM: xterm
     COLORTERM: truecolor
   #CMD: ["/bin/sleep","infinity"]
-  CMD: ["node","{{ .ci_dir_home }}/comet-server/index.js"]
+  ENTRYPOINT: ["node","{{ .ci_dir_home }}/comet-server/index.js"]
 
 git:
   - url: git@github.com:welltime/comet-server.git
