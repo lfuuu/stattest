@@ -10,7 +10,7 @@ return [
         'attributes' => [
             PDO::ATTR_TIMEOUT => 10,
         ],
-        'enableSchemaCache' => true,
+        'enableSchemaCache' => false,
         'schemaCacheDuration' => 3600,
         'schemaCache' => 'cache',
 
@@ -24,7 +24,7 @@ return [
 
     'enableSlaves' => false,
 
-    'enableSchemaCache' => true,
+    'enableSchemaCache' => false,
     'schemaCacheDuration' => 3600,
     'schemaCache' => 'cache',
 ];

@@ -179,7 +179,6 @@ class CityLinker extends Singleton
 
                 $numberRangeTableName = $object::tableName();
                 $cityTableName = City::tableName();
-
                 if ($isClear) {
                     $sqlClear = <<<SQL
             UPDATE {$cityTableName} SET cnt = 0
@@ -188,18 +187,24 @@ SQL;
                     unset($sqlClear);
 
                     $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
+                    $sqlActiveCnt = 'LEAST(COALESCE(SUM(CASE WHEN is_active THEN number_to - number_from + 1 ELSE 0 END), 1), 499999999)';
                 } else {
                     $sqlCnt = '1';
+                    $sqlActiveCnt = '1';
                 }
 
                 $sql = <<<SQL
             UPDATE {$cityTableName}
-            SET cnt = {$cityTableName}.cnt + city_stat.cnt
+            SET 
+                cnt = {$cityTableName}.cnt + city_stat.cnt,
+                cnt_active = {$cityTableName}.cnt_active + city_stat.cnt_active
+                
             FROM 
                 (
                     SELECT
                         city_id,
-                        {$sqlCnt} AS cnt
+                        {$sqlCnt} AS cnt,
+                        {$sqlActiveCnt} AS cnt_active
                     FROM
                         {$numberRangeTableName} 
                     WHERE
