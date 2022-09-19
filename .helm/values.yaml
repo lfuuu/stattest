@@ -53,6 +53,12 @@ cryptopro_prod:
   host: cryptopro-prod
   port: 22
 
+web_hook_dev:
+  secret_key: "1122334455"
+  token: "5544332211"
+  account_id: 47197
+  vpbx_id: 280
+
 logger_dev:
   source: stat_dev
   server: glogstat.mcn.ru
