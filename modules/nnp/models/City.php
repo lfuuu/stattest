@@ -14,6 +14,7 @@ use yii\helpers\Url;
  * @property int $country_code
  * @property int $region_id
  * @property int $cnt
+ * @property int $cnt_active
  *
  * @property-read Country $country
  * @property-read Region $region
@@ -53,7 +54,8 @@ class City extends ActiveRecord
             'name_translit' => 'Название транслитом',
             'country_code' => 'Страна',
             'region_id' => 'Регион',
-            'cnt' => 'Кол-во номеров',
+            'cnt' => 'Кол-во номеров (всех)',
+            'cnt_active' => 'Кол-во номеров (актив)',
         ];
     }
 

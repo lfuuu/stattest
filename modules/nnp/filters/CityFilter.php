@@ -17,6 +17,8 @@ class CityFilter extends City
     public $region_id = '';
     public $cnt_from = '';
     public $cnt_to = '';
+    public $cnt_active_from = '';
+    public $cnt_active_to = '';
 
     /**
      * @return array
@@ -25,7 +27,7 @@ class CityFilter extends City
     {
         return [
             [['name', 'name_translit'], 'string'],
-            [['id', 'country_code', 'region_id', 'cnt_from', 'cnt_to'], 'integer'],
+            [['id', 'country_code', 'region_id', 'cnt_from', 'cnt_to', 'cnt_active_from', 'cnt_active_to'], 'integer'],
         ];
     }
 
@@ -50,6 +52,9 @@ class CityFilter extends City
 
         $this->cnt_from !== '' && $query->andWhere(['>=', $cityTableName . '.cnt', $this->cnt_from]);
         $this->cnt_to !== '' && $query->andWhere(['<=', $cityTableName . '.cnt', $this->cnt_to]);
+
+        $this->cnt_active_from !== '' && $query->andWhere(['>=', $cityTableName . '.cnt_active', $this->cnt_active_from]);
+        $this->cnt_active_to !== '' && $query->andWhere(['<=', $cityTableName . '.cnt_active', $this->cnt_active_to]);
 
         return $dataProvider;
     }
