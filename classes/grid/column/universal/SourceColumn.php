@@ -2,10 +2,10 @@
 
 namespace app\classes\grid\column\universal;
 
-use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\model\ActiveRecord;
+use app\models\voip\Source;
 use kartik\grid\GridView;
 
 
@@ -22,7 +22,7 @@ class SourceColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = ['' => '----'] + VoipRegistrySourceEnum::$names;
+        $this->filter = ['' => '----'] + Source::getList();
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' source-column';
     }

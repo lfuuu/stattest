@@ -41,7 +41,7 @@ use app\models\Region;
         <?php // источник номера ?>
         <div class="col-sm-2">
             <?= $form->field($number, 'source')->widget(Select2::class, [
-                'data' =>\app\classes\enum\VoipRegistrySourceEnum::$names,
+                'data' => \app\models\voip\Source::getList(),
             ]) ?>
         </div>
 

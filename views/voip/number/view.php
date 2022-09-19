@@ -42,7 +42,7 @@ echo \yii\widgets\Breadcrumbs::widget([
                 </tr>
                 <tr>
                     <td>DID группа</td>
-                    <th><?= $number->didGroup->getLink() ?></th>
+                    <th><?= $number->didGroup ? $number->didGroup->getLink() : '???'?></th>
                 </tr>
                 <tr>
                     <td>Статус</td>

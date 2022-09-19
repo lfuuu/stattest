@@ -90,7 +90,7 @@ $readonlyOptions = [
             'type' => Form::INPUT_DROPDOWN_LIST,
             'items' => $countryList,
             'options' => [
-                    'class' => 'formReload'
+                    'class' => 'formReload select2'
                 ] + ($isEditable ? [] : $readonlyOptions),
         ];
 
@@ -99,16 +99,16 @@ $readonlyOptions = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $cityList,
                 'options' => [
-                        'class' => 'formReload'
+                        'class' => 'formReload select2'
                     ] + ($isEditable ? [] : $readonlyOptions),
             ];
         }
 
         $line1Attributes['source'] = [
             'type' => Form::INPUT_DROPDOWN_LIST,
-            'items' => VoipRegistrySourceEnum::$names,
+            'items' => \app\models\voip\Source::getList(),
             'options' => [
-                    'class' => 'formReload',
+                    'class' => 'formReload select2',
                 ] + ($isEditable ? [] : $readonlyOptions),
 
         ];
@@ -152,14 +152,14 @@ $readonlyOptions = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => NdcType::getList(),
                 'options' => [
-                        'class' => 'formReload',
+                        'class' => 'formReload select2',
                     ] + ($isEditable ? [] : $readonlyOptions),
             ],
             'ndc' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $model->ndcList,
                 'options' => [
-                        'class' => 'formReload'
+                        'class' => 'formReload select2'
                     ] + ($isEditable ? [] : $readonlyOptions),
             ],
             'number_from' => $maskedInputWidgetConfig,

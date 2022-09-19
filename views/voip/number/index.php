@@ -182,7 +182,7 @@ $columns = [
         'value' => function (Number $number) {
             $didGroup = $number->didGroup;
             
-            return Html::a($didGroup->name, $didGroup->getUrl());
+            return Html::a($didGroup ? $didGroup->name : '???', $didGroup ? $didGroup->getUrl() : '???');
         },
     ],
     [
@@ -192,7 +192,7 @@ $columns = [
         'format' => 'html',
         'value' => function (Number $number) {
             return $number->client_id ?
-                $number->clientAccount->getLink() :
+                ($number->clientAccount ? $number->clientAccount->getLink() : $number->client_id) :
                 Yii::t('common', '(not set)');
         },
     ],
