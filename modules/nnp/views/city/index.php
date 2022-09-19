@@ -97,11 +97,11 @@ $columns = [
             return $city->cnt_active . ' (' .
                 Html::a(
                     'диапазон',
-                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $city->country_code, 'NumberRangeFilter[city_id]' => $city->id])
-                ) . ', ' .
-                Html::a(
-                    'портированные',
-                    Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $city->country_code, 'NumberFilter[city_id]' => $city->id])
+                    Url::to(['/nnp/number-range/',
+                        'NumberRangeFilter[country_code]' => $city->country_code,
+                        'NumberRangeFilter[city_id]' => $city->id,
+                        'NumberRangeFilter[is_active]' => 1,
+                    ])
                 ) . ')';
         }
     ],
