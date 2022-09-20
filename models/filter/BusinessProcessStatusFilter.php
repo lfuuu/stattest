@@ -15,6 +15,7 @@ class BusinessProcessStatusFilter extends BusinessProcessStatus
     public $business_process_id = '';
     public $is_bill_send = '';
     public $is_off_stage = '';
+    public $is_with_wizard = '';
 
     /**
      * Фильтровать
@@ -33,6 +34,7 @@ class BusinessProcessStatusFilter extends BusinessProcessStatus
         $this->business_process_id !== '' && $query->andWhere(['business_process_id' => $this->business_process_id]);
         $this->is_bill_send !== '' && $query->andWhere(['is_bill_send' => (bool)(int)$this->is_bill_send]);
         $this->is_off_stage !== '' && $query->andWhere(['is_off_stage' => (bool)(int)$this->is_off_stage]);
+        $this->is_with_wizard !== '' && $query->andWhere(['is_with_wizard' => (bool)(int)$this->is_with_wizard]);
 
         $query->orderBy([
             'business_process_id' => SORT_ASC,

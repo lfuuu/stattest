@@ -34,16 +34,10 @@ $baseView = $this;
 $columns = [
     [
         'class' => ActionColumn::class,
-        'template' => '{update} {delete}',
+        'template' => '{update}',
         'buttons' => [
             'update' => function ($url, BusinessProcessStatus $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, BusinessProcessStatus $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
                         'url' => $model->getUrl(),
                     ]
                 );
@@ -71,6 +65,23 @@ $columns = [
     [
         'attribute' => 'is_bill_send',
         'class' => YesNoColumn::class,
+    ],
+    [
+        'attribute' => 'is_with_wizard',
+        'class' => YesNoColumn::class,
+    ],
+    [
+        'class' => ActionColumn::class,
+        'template' => '{delete}',
+        'buttons' => [
+            'delete' => function ($url, BusinessProcessStatus $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

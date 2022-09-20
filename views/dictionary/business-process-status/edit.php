@@ -86,6 +86,11 @@ if (!$status->isNewRecord) {
             <?= $form->field($status, 'is_off_stage')->checkbox() ?>
         </div>
 
+        <?php // Работает wizard ?>
+        <div class="col-sm-4">
+            <?= $form->field($status, 'is_with_wizard')->checkbox() ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

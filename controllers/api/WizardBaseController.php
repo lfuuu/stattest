@@ -94,7 +94,7 @@ abstract class WizardBaseController extends ApiController
     private function _postProcessing()
     {
         // Клиента включили
-        if ($this->account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) {
+        if (!LkWizardState::isBPStatusAllow($this->account->contract->business_process_status_id)) {
             /** @var LkWizardState $wizard */
             $wizard = LkWizardState::findOne(['contract_id' => $this->account->contract->id]);
             if ($wizard) {
