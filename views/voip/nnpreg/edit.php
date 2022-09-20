@@ -116,25 +116,6 @@ echo Breadcrumbs::widget([
                     'value' => Html::activeHiddenInput($model, 'id')
                 ],
 
-                'actions' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' =>
-                        Html::tag(
-                            'div',
-                            Html::button('Отменить', [
-                                'class' => 'btn btn-link',
-                                'style' => 'margin-right: 15px;',
-                                'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
-                            ]) .
-                            Html::submitButton('Сохранить',
-                                [
-                                    'class' => 'btn btn-primary',
-                                    'name' => $submitName,
-                                    'value' => 'Сохранить'
-                                ]),
-                            ['style' => 'text-align: right; padding-right: 0px;']
-                        )
-                ],
             ],
         ]);
 
@@ -172,10 +153,10 @@ echo \app\classes\grid\GridView::widget([
                     static $c = [];
 
                     if (!array_key_exists($c, $row->city_id)) {
-                        $c[$row->city_id] = City::find()->where(['id' => $row->city_id])->exists();
+                        $c[$row->city_id] = $row->city_id ? City::find()->where(['id' => $row->city_id])->exists() : false;
                     }
 
-                return $c[$row->city_id] ? Html::a('>>>', Url::to(['/voip/registry/add', 'RegistryForm' => [
+                return $c[$row->city_id] || !NdcType::isCityDependent($row->ndc_type_id) ? Html::a('>>>', Url::to(['/voip/registry/add', 'RegistryForm' => [
                     'country_id' => $row->country_code,
                     'city_id' => $row->city_id,
                     'source' => $model->source,
@@ -210,10 +191,3 @@ echo \app\classes\grid\GridView::widget([
             window.frontendVariables.voipNnpregEdit.registryFormId
         );
     </script>
-
-<?php if ($model->id): ?>
-    <div class="col-sm-12 form-group">
-        <?= $this->render('//layouts/_showVersion', ['model' => $model->registry]) ?>
-        <?= $this->render('//layouts/_showHistory', ['model' => $model->registry]) ?>
-    </div>
-<?php endif; ?>
