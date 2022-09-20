@@ -76,7 +76,7 @@ class RegistryForm extends Form
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
             ['number_from', 'validateNumbersRange'],
-            [['ndc', 'mvno_partner_id', 'fmc_trunk_id'], 'safe'],
+            [['ndc', 'mvno_partner_id', 'fmc_trunk_id', 'number_from', 'number_to'], 'safe'],
             [['nnp_operator_id'], 'integer'],
         ];
     }
@@ -124,7 +124,7 @@ class RegistryForm extends Form
         if ($this->number_from > $this->number_to) {
             $this->addError('number_from', 'Номер "c" меньше номера "по"');
         } elseif (($this->number_to - $this->number_from) > 100000) {
-            $this->addError('number_from', 'Слишком большой диапазон номеров.');
+            $this->addError('number_from', 'Слишком большой диапазон номеров. (> 100000)' );
         }
     }
 
@@ -163,7 +163,7 @@ class RegistryForm extends Form
 
         if ($isSaveFromPost) {
             $this->_prepareNumbesFromPost();
-        } else {
+        } elseif ($this->registry) {
             $this->number_from = $this->registry->number_from;
             $this->number_to = $this->registry->number_to;
         }

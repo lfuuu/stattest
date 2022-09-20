@@ -463,4 +463,38 @@ class NumberRange extends ActiveRecord
 
         return $toReturn;
     }
+
+    public static function formatNumber(NumberRange $row, $isFrom = true)
+    {
+        if ($isFrom) {
+            $number = (string)$row->number_from;
+            $fullNumber = (string)$row->full_number_from;
+        } else {
+            $number = (string)$row->number_to;
+            $fullNumber = (string)$row->full_number_to;
+        }
+
+        $vv = strpos($fullNumber, $row->ndc_str);
+
+        if ($vv === false) {
+            return $fullNumber;
+        }
+
+        $value = substr($fullNumber, 0, $vv) . ' ('.$row->ndc_str.') ';
+
+        $s = substr($fullNumber, strlen($row->ndc_str) + $vv);
+        $v = '';
+
+        $count = 0;
+        while(strlen($s) > 4) {
+            $v = substr($s, -2) . ($v ? '-'.$v : '');
+            $s = substr($s, 0, strlen($s)-2);
+            if ($count++ > 10) {
+                break;
+            }
+        }
+        $value .= $s.'-'.$v;
+
+        return $value;
+    }
 }

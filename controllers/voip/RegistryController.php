@@ -69,12 +69,13 @@ class RegistryController extends BaseController
      */
     public function actionEdit($id)
     {
+        $post = Yii::$app->request->isPost ? Yii::$app->request->post() : Yii::$app->request->get();
+
         /** @var Registry $registry */
         $registry = Registry::findOne(['id' => $id]);
 
         $model = new RegistryForm;
 
-        $post = Yii::$app->request->post();
         $submitName = !$registry || ($registry && $registry->isEditable() && $registry->isSubmitable()) ? 'save' : 'save-comment';
 
         if ($post['save-comment'] && ($comment = trim($post['RegistryForm']['comment']))) {
