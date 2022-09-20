@@ -163,7 +163,7 @@ class Number extends ActiveRecord
             'did_group_id' => 'DID-группа',
             'beauty_level' => 'Степень красивости',
             'status' => 'Статус',
-            'region' => 'Регион',
+            'region' => 'Точка подключения',
             'registry_id' => 'Реестр',
             'ndc_type_id' => 'Тип номера',
             'number_tech' => 'Технический номер',
