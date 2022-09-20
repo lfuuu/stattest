@@ -103,9 +103,10 @@ class LkWizardState extends ActiveRecord
 
     public static function isBPStatusAllow($bpsId, $contractId = 0)
     {
-        return in_array($bpsId, [
-                BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
-            ]) || $contractId == 9130;
+        return (bool)BusinessProcessStatus::find()
+            ->where(['id' => $bpsId])
+            ->select('is_with_wizard')
+            ->scalar();
     }
 
 }
