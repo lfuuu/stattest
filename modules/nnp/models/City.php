@@ -179,7 +179,8 @@ class City extends ActiveRecord
         $isWithNullAndNotNull = false,
         $countryCodes = null,
         $regionIds = null,
-        $minCnt = self::MIN_CNT
+        $minCnt = self::MIN_CNT,
+        $minCntActive = 0
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -191,7 +192,8 @@ class City extends ActiveRecord
                 'AND',
                 $countryCodes ? ['country_code' => $countryCodes] : [],
                 $regionIds ? ['region_id' => $regionIds] : [],
-                $minCnt ? ['>=', 'cnt', $minCnt] : []
+                $minCnt ? ['>=', 'cnt', $minCnt] : [],
+                $minCntActive ? ['>=', 'cnt_active', $minCntActive] : [],
             ]
         );
     }

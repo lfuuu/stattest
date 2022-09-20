@@ -115,7 +115,7 @@ class CityController extends BaseController
 
         $data = '';
 
-        $city_arr = City::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $country_id, $isUsedOnly = false);
+        $city_arr = City::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $country_id, null, $minCnt = 1, $minCntActive = 1);
 
         foreach ($city_arr as $city_id => $value) {
             $data .= '<option value="' . $city_id . '">' . $value . '</option>';
