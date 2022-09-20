@@ -38,6 +38,9 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const USER_KIM = 'kim'; // Ким Александр
     const USER_KIM_ID = 70; // Ким Александр
 
+    const USER_DUTOV = 'dutov'; // Дутов
+    const USER_DUTOV_ID = 216; // Дутов
+
     const SYSTEM_USER = 'system';
     const SYSTEM_USER_ID = 60;
     const CLIENT_USER_ID = 25;
@@ -45,11 +48,6 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const USER_NICK = 'nick'; // Михайлов Николай
     const USER_KOSHELEV = 'koshelev'; // Кошелев Сергей
     const USER_VOSTROKNUTOV = 'vostroknutov'; // Михаил Вострокнутов
-
-
-    const DEFAULT_ACCOUNT_MANAGER_USER_ID = self::USER_KIM_ID;
-    const DEFAULT_ACCOUNT_MANAGER_USER = self::USER_KIM;
-
 
     const DEPART_SALES = 28;
     const DEPART_PURCHASE = 29;
@@ -127,6 +125,16 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public static function findByPasswordResetToken($token)
     {
         throw new NotSupportedException('"findByPasswordResetToken" is not implemented.');
+    }
+
+    public static function getDefaultAccountManagerUserId()
+    {
+        return \Yii::$app->isRus() ? self::USER_KIM_ID : self::USER_DUTOV_ID;
+    }
+
+    public static function getDefaultAccountManagerUser()
+    {
+        return \Yii::$app->isRus() ? self::USER_KIM : self::USER_DUTOV;
     }
 
     /**

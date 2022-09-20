@@ -44,8 +44,6 @@ class ApiLk
 
     const MAX_LK_NOTIFICATION_CONTACTS = 6;
 
-    const DEFAULT_MANAGER = User::DEFAULT_ACCOUNT_MANAGER_USER;
-
     /**
      * @param $clientId
      * @return ClientAccount
@@ -2560,14 +2558,14 @@ class ApiLk
         }
 
         if (!$userUser) {
-            $userUser = self::DEFAULT_MANAGER;
+            $userUser = User::getDefaultAccountManagerUser();
         }
 
         if ($user = User::findOne(['user' => $userUser])) {
             return $user;
         }
 
-        return User::findOne(['user' => self::DEFAULT_MANAGER]);
+        return User::findOne(['id' => User::getDefaultAccountManagerUserId()]);
     }
 
     private static function _getUserLK()
