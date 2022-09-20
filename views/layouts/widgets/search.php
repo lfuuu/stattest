@@ -26,7 +26,7 @@ $request = Yii::$app->request->get();
             <div class="btn-group" id="btn-options">
                 <button type="submit" class="btn btn-link btn-xs">Искать по</button>
                 <button type="submit" class="btn btn-primary btn-xs" data-search="clients"
-                        data-placeholder="№ ЛС или Названию">Клиентам
+                        data-placeholder="№ ЛС или Названию">Клиент
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="contractNo"
                         data-placeholder="Номеру договора">Договор
@@ -38,10 +38,10 @@ $request = Yii::$app->request->get();
                         data-placeholder="номеру">Voip
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="email"
-                        data-placeholder="email" title="Контакты email / телефон / факс">Email/тел.
+                        data-placeholder="email" title="Контакты email / телефон / факс">Email/тел
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubles"
-                        data-placeholder="№ заявки">Заявка
+                        data-placeholder="№ заявки">Заявк
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="bills"
                         data-placeholder="№ счёта">Счет
@@ -59,10 +59,10 @@ $request = Yii::$app->request->get();
                         data-placeholder="ADSL">ADSL
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubleText"
-                        data-placeholder="Текст заявки" title="Текст заявки">Текст з.
+                        data-placeholder="Текст заявки" title="Текст заявки">Текст з
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubleComment"
-                        data-placeholder="Комментарий к заявке" title="Комментарий к заявке">Коммент. к з.
+                        data-placeholder="Комментарий к заявке" title="Комментарий к заявке">Комент к з
                 </button>
                 <button type="submit" class="btn btn-default btn-xs" data-search="sip"
                         data-placeholder="Поиск по номеру SIP-учетки" title="Поиск по номеру SIP-учетки">SIP

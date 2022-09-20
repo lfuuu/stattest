@@ -157,6 +157,7 @@ class Navigation
         $phonesBlock->addItem('DID группы', ['/tariff/did-group/'], ['tarifs.read'])
             ->addItem('Номера', ['/voip/number'], ['stats.report'])
             ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
+            ->addItem('Реестр номеров 2.0 (ННП)', ['/voip/nnpreg'], ['voip.access'])
             ->addItem('Отчет по calls_raw (старая склейка)', ['/voip/raw/old'], ['voip.access'])
             ->addItem('Отчет по calls_raw', ['/voip/raw/with-cache'], ['voip.access'])
             ->addItem('Отчет по calls_raw (таблица склейки)', ['/voip/raw/unite'], ['voip.access'])
