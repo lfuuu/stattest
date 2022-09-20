@@ -16,6 +16,7 @@ use yii\helpers\Url;
  * @property int $country_code
  * @property string $iso
  * @property int $cnt
+ * @property int $cnt_active
  *
  * @property-read Country $country
  * @property-read Region $parent
@@ -130,7 +131,8 @@ class Region extends ActiveRecord
             'name' => 'Название',
             'name_translit' => 'Название транслитом',
             'country_code' => 'Страна',
-            'cnt' => 'Кол-во номеров',
+            'cnt' => 'Кол-во номеров (всех)',
+            'cnt_active' => 'Кол-во номеров (актив)',
             'iso' => 'ISO',
         ];
     }

@@ -93,6 +93,22 @@ $columns = [
                 ) . ')';
         }
     ],
+    [
+        'attribute' => 'cnt_active',
+        'class' => IntegerRangeColumn::class,
+        'format' => 'html',
+        'value' => function (Region $region) {
+            return $region->cnt_active . ' (' .
+                Html::a(
+                    'диапазон',
+                    Url::to(['/nnp/number-range/',
+                        'NumberRangeFilter[country_code]' => $region->country_code,
+                        'NumberRangeFilter[region_id]' => $region->id,
+                        'NumberRangeFilter[is_active]' => 1,
+                        ])
+                ) . ')';
+        }
+    ],
 ];
 
 $dataProvider = $filterModel->search();
