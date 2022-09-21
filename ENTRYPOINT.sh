@@ -63,8 +63,7 @@ sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_cache.l
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_cache.local.php
 
 cp db_pg_slave.local.tpl.php db_pg_slave.local.php
-sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_slave.local.php
-###sed -i "s/host=127.0.0.1/host=$POSTGRES_SLAVE_HOST/" db_pg_slave.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_SLAVE_HOST/" db_pg_slave.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_slave.local.php
 sed -i "s/port=5432/port=$POSTGRES_PORT/" db_pg_slave.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_slave.local.php
