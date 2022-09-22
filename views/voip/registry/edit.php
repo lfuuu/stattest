@@ -252,12 +252,24 @@ $readonlyOptions = [
                     ]);
             }
 
+            if ($statusInfo && isset($statusInfo['without_did_group'])) {
+                $value .= ' ' . Html::submitButton('Назначить DID-группу (' . $statusInfo['without_did_group'] . ' шт.)', [
+                        'class' => 'btn btn-warning',
+                        'name' => 'set-didgroup',
+                        'value' => 'Назначить DID-группу'
+                    ]);
+            }
+
             if ($numbersWithoutRegistry) {
                 $value .= ' ' . Html::submitButton('Прикрепить к реестру', [
                         'class' => 'btn btn-info',
                         'name' => 'attach-to-registry',
                         'value' => $numbersWithoutRegistry
                     ]);
+            }
+
+            if ($statusInfo && isset($statusInfo['instock'])) {
+                $value .= "<br>" . Html::tag('span', 'В продаже: ' . $statusInfo['instock'] . ' шт.', ['class' => 'text-info']);
             }
         }
 
@@ -302,7 +314,6 @@ $readonlyOptions = [
     </div>
 
 <?php if ($checkList) {
-
     $provider = new \yii\data\ArrayDataProvider([
         'allModels' => $checkList,
         'sort' => [
@@ -317,20 +328,30 @@ $readonlyOptions = [
         'panelHeadingTemplate' => '<div class="pull-left">{summary}</div>',
         'dataProvider' => $provider,
         'rowOptions' => function ($model) {
-            return ['class' => $model['filling'] === 'fill' ? ($model['registry_id'] && !$model['is_alien_registry'] ? 'success' : 'danger') : 'warning'];
+            return ['class' =>
+           $model['filling'] == 'instock' ? 'info' :
+                ($model['filling'] === 'fill' && $model['is_with_did_group']
+                    ? ($model['registry_id'] && !$model['is_alien_registry'] ? 'success' : 'danger')
+                    : 'warning')];
         },
         'columns' => [
             [
                 'attribute' => 'filling',
                 'label' => 'Состояние',
+                'format' =>'raw',
                 'value' => function ($model) {
                     switch ($model['filling']) {
                         case 'pass':
                             return 'Пропущено';
                         case 'fill':
-                            return 'Заполнено';
+                            return $model['is_with_did_group']
+                                ? 'Заполнено<span style="color: gray;">, с DID-группой</span>'
+                                : 'Без DID-группы';
+                        case 'instock':
+                            return 'В продаже';
+                        default:
+                            return $model['filling'];
                     }
-                    return '';
                 }
             ],
             [

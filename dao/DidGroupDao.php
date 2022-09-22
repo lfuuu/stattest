@@ -57,6 +57,8 @@ class DidGroupDao extends Singleton
             }
         }
 
+        static $cache = [];
+
         $query = DidGroup::find()
             ->where([ // прямое условие, без исключений
                 'AND',
@@ -73,7 +75,13 @@ class DidGroupDao extends Singleton
                 ]
             ]);
 
-        return $query->max('id');
+        $key = md5($query->createCommand()->rawSql);
+
+        if (!array_key_exists($cache[$key])) {
+            $cache[$key] = $query->max('id');
+        }
+
+        return $cache[$key];
     }
 
     /**

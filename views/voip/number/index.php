@@ -182,7 +182,7 @@ $columns = [
         'value' => function (Number $number) {
             $didGroup = $number->didGroup;
             
-            return Html::a($didGroup ? $didGroup->name : '???', $didGroup ? $didGroup->getUrl() : '???');
+            return $didGroup ? Html::a($didGroup->name, $didGroup->getUrl()) : Yii::t('common', '(not set)');
         },
     ],
     [
