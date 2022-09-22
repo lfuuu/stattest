@@ -184,6 +184,14 @@ class Registry extends ActiveRecord
     }
 
     /**
+     * @return mixed
+     */
+    public function setDidGroup()
+    {
+        return self::dao()->setDidGroup($this);
+    }
+
+    /**
      * Это реестр портированных номеров?
      *
      * @return bool

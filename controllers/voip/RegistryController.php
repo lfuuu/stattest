@@ -122,16 +122,25 @@ class RegistryController extends BaseController
                 $isShowCheckList = true;
             }
 
-            if ($isShowCheckList || $post['check-numbers']) {
-                $checkList = $registry->getPassMap();
+            if ($post['set-didgroup']) {
+                $registry->setDidGroup();
                 $isShowCheckList = true;
             }
 
-            if ($isShowCheckList) {
-                $statusInfo = $registry->getStatusInfo();
-            }
+        } catch (\LogicException $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+            $isShowCheckList = true;
         } catch (\Exception $e) {
             Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        if ($isShowCheckList || $post['check-numbers']) {
+            $checkList = $registry->getPassMap();
+            $isShowCheckList = true;
+        }
+
+        if ($isShowCheckList) {
+            $statusInfo = $registry->getStatusInfo();
         }
 
         $model->initForm();

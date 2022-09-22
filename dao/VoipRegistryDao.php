@@ -72,9 +72,13 @@ class VoipRegistryDao extends Singleton
         $startValue = null;
         $registryId = null;
         $lastRegistryId = null;
+        $lastDidGroupSet = null;
+        $lastInStock = null;
 
         foreach ($numbers->query() as $numberArr) {
             $number = $numberArr['number'];
+            $isDidGroupSet = (bool)$numberArr['did_group_id'];
+            $isInStock = ($numberArr['status'] != 'notsale');
             $registryId = $numberArr['registry_id'];
 
             if (!$startValue) {
@@ -84,17 +88,32 @@ class VoipRegistryDao extends Singleton
 
                 $startValue = $number;
                 $lastValue = $number;
+                $lastDidGroupSet = $isDidGroupSet;
+                $lastInStock = $isInStock;
                 $lastRegistryId = $registryId;
                 continue;
             }
 
-            if (($number - $lastValue - 1) > 0) {
-                $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue, 'registry_id' => $registryId, 'is_alien_registry' => $registry->id != $registryId];
-                $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $number - 1];
+            if (($number - $lastValue - 1) > 0 || $lastDidGroupSet != $isDidGroupSet || $isInStock != $lastInStock) {
+                $data[] = [
+                    'filling' => $lastInStock ? 'instock' : 'fill',
+                    'is_with_did_group' => $lastDidGroupSet,
+                    'start' => $startValue, 'end' => $lastValue, 'registry_id' => $registryId, 'is_alien_registry' => $registry->id != $registryId, 'isDidGroupSet' => $numberArr,
+                ];
+                if (($number - $lastValue - 1) > 0) {
+                    $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $number - 1];
+                }
                 $startValue = $number;
+                $lastDidGroupSet = $isDidGroupSet;
+                $lastInStock = $isInStock;
             } elseif ($lastRegistryId != $registryId) {
-                $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue, 'registry_id' => $lastRegistryId, 'is_alien_registry' => $registry->id != $lastRegistryId];
+                $data[] = [
+                    'filling' => $lastInStock ? 'instock' : 'fill',
+                    'is_with_did_group' => $isDidGroupSet,
+                    'start' => $startValue, 'end' => $lastValue, 'registry_id' => $lastRegistryId, 'is_alien_registry' => $registry->id != $lastRegistryId];
                 $startValue = $number;
+                $lastDidGroupSet = $isDidGroupSet;
+                $lastInStock = $isInStock;
             }
 
             $lastValue = $number;
@@ -102,7 +121,9 @@ class VoipRegistryDao extends Singleton
         }
 
         if ($startValue) {
-            $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue, 'registry_id' => $registryId, 'is_alien_registry' => $registry->id != $registryId];
+            $data[] = [
+                'filling' => $lastInStock ? 'instock' : 'fill',
+                'is_with_did_group' => $lastDidGroupSet, 'start' => $startValue, 'end' => $lastValue, 'registry_id' => $registryId, 'is_alien_registry' => $registry->id != $registryId];
             if ($lastValue < $registry->number_full_to) {
                 $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $registry->number_full_to];
             }
@@ -155,19 +176,19 @@ class VoipRegistryDao extends Singleton
             ->indexBy('beauty_level')
             ->all();
 
-        if (!$this->_didGroups) {
-            throw new InvalidConfigException(
-                \Yii::t(
-                    'number',
-                    'No DID groups found for {country} {ndcType} {city}',
-                    [
-                        'country' => $registry->country->name,
-                        'ndcType' => $registry->ndcType->name,
-                        'city' => ($registry->city_id ? $registry->city->name : '')
-                    ]
-                )
-            );
-        }
+//        if (!$this->_didGroups) {
+//            throw new InvalidConfigException(
+//                \Yii::t(
+//                    'number',
+//                    'No DID groups found for {country} {ndcType} {city}',
+//                    [
+//                        'country' => $registry->country->name,
+//                        'ndcType' => $registry->ndcType->name,
+//                        'city' => ($registry->city_id ? $registry->city->name : '')
+//                    ]
+//                )
+//            );
+//        }
 
         $filledCount = 0;
         foreach ($registry->getPassMap() as $part) {
@@ -184,9 +205,9 @@ class VoipRegistryDao extends Singleton
      *
      * @param Registry $registry
      * @param string $addNumber
-     * @throws InvalidConfigException
-     * @throws ModelValidationException
      * @return Number
+     * @throws ModelValidationException
+     * @throws InvalidConfigException
      */
     public function addNumber(Registry $registry, $addNumber)
     {
@@ -242,17 +263,17 @@ class VoipRegistryDao extends Singleton
             'beautyLevel' => \Yii::t('app', DidGroup::$beautyLevelNames[$beautyLevel])
         ];
 
-        if (!$didGroup) {
-            throw new InvalidConfigException(
-                \Yii::t(
-                    'number',
-                    'For the number {number} ({ndc_type}) with beauty: "{beautyLevel}" no DID group was found',
-                    $numberParams + ['ndc_type' => $registry->ndcType->name]
-                )
-            );
-        }
+//        if (!$didGroup) {
+//            throw new InvalidConfigException(
+//                \Yii::t(
+//                    'number',
+//                    'For the number {number} ({ndc_type}) with beauty: "{beautyLevel}" no DID group was found',
+//                    $numberParams + ['ndc_type' => $registry->ndcType->name]
+//                )
+//            );
+//        }
 
-        if ($didGroup->ndc_type_id != $registry->ndc_type_id) {
+        if ($didGroup && $didGroup->ndc_type_id != $registry->ndc_type_id) {
             throw new InvalidConfigException(
                 \Yii::t(
                     'app',
@@ -262,7 +283,9 @@ class VoipRegistryDao extends Singleton
             );
         }
 
-        $number->did_group_id = $didGroup->id;
+        if ($didGroup) {
+            $number->did_group_id = $didGroup->id;
+        }
 
         if (!$number->save()) {
             throw new ModelValidationException($number);
@@ -288,12 +311,14 @@ class VoipRegistryDao extends Singleton
         return ArrayHelper::map(
             (new Query())
                 ->from(Number::tableName())
-                ->where(['city_id' => $registry->city_id])
-                ->andWhere(['between', 'number', $registry->number_full_from, $registry->number_full_to])
-                ->select(['status' => 'status', 'count' => new Expression('count(*)')])
-                ->groupBy('status')
+                ->where(['registry_id' => $registry->id])
+                ->select([
+                    'full_status' => new Expression("if(did_group_id is null, 'without_did_group', status)"),
+                    'count' => new Expression('count(*)')
+                ])
+                ->groupBy('full_status')
                 ->all(),
-            'status',
+            'full_status',
             'count'
         );
     }
@@ -307,6 +332,7 @@ class VoipRegistryDao extends Singleton
     {
         foreach (Number::find()
                      ->where(['between', 'number', $registry->number_full_from, $registry->number_full_to])
+                     ->andWhere(['NOT', ['did_group_id' => null]])
                      ->andWhere([
                          'city_id' => $registry->city_id,
                          'status' => Number::STATUS_NOTSALE
@@ -361,7 +387,30 @@ class VoipRegistryDao extends Singleton
 
             throw $e;
         }
+    }
 
+    public function setDidGroup(Registry $registry)
+    {
+        $countWitoutDidGroup = 0;
+        /** @var Number $number */
+        foreach (Number::find()
+                     ->where([
+                         'registry_id' => $registry->id,
+                         'did_group_id' => null,
+                         'status' => Number::STATUS_NOTSALE
+                     ])->all() as $number) {
+            $didGroupId = DidGroup::dao()->getIdByNumber($number);
+            if ($didGroupId) {
+                $number->did_group_id = $didGroupId;
+                $number->save();
+            } else {
+                $countWitoutDidGroup++;
+            }
+        }
+
+        if ($countWitoutDidGroup) {
+            throw new \LogicException('Не найдена DID-группа для ' .$countWitoutDidGroup . ' номер(ов).');
+        }
     }
 
     public function addPortedNumber($accountId, $numberStr)
