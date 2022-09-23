@@ -272,8 +272,8 @@ SQL;
                 $sql = <<<SQL
             UPDATE {$regionTableName}
             SET 
-                cnt = {$regionTableName}.cnt + region_stat.cnt,
-                cnt_active = {$regionTableName}.cnt_active + region_stat.cnt_active
+                cnt = LEAST({$regionTableName}.cnt + region_stat.cnt, 499999999),
+                cnt_active = LEAST({$regionTableName}.cnt_active + region_stat.cnt_active, 499999999)
             FROM 
                 (
                     SELECT

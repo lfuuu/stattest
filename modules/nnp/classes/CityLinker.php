@@ -196,8 +196,8 @@ SQL;
                 $sql = <<<SQL
             UPDATE {$cityTableName}
             SET 
-                cnt = {$cityTableName}.cnt + city_stat.cnt,
-                cnt_active = {$cityTableName}.cnt_active + city_stat.cnt_active
+                cnt = LEAST({$cityTableName}.cnt + city_stat.cnt, 499999999),
+                cnt_active = LEAST({$cityTableName}.cnt_active + city_stat.cnt_active, 499999999)
                 
             FROM 
                 (

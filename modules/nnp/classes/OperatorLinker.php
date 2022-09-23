@@ -168,7 +168,7 @@ SQL;
 
                 $sql = <<<SQL
             UPDATE {$operatorTableName}
-            SET cnt = {$operatorTableName}.cnt + operator_stat.cnt
+            SET cnt = LEAST({$operatorTableName}.cnt + operator_stat.cnt, 499999999)
             FROM 
                 (
                     SELECT
