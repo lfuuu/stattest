@@ -85,6 +85,12 @@ class m_newaccounts_head extends IModuleHead{
                     return 'module=' . $this->module_name . '&action=bill_list';
                 }
             }),
+			array('Счета 2.0',				function() {
+                global $fixclient_data;
+                if (Yii::$app->user->can('newaccounts_balance.read') && $fixclient_data) {
+                    return '/accounting/';
+                }
+            }),
             array('Акт сверки',			function() {
                 global $fixclient_data;
                 if (Yii::$app->user->can('newaccounts_balance.read') && $fixclient_data) {
