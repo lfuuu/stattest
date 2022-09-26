@@ -15,6 +15,7 @@ use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use app\modules\uu\models_light\InvoiceLight;
 use yii\base\InvalidCallException;
 use yii\db\Expression;
+use yii\helpers\Url;
 use yii\web\NotAcceptableHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -51,6 +52,7 @@ use yii\web\Response;
  *
  * @property-read float $currencyRates
  * @property-read float $currencyRatesInEuro
+ * @property-read string $link
  */
 class Invoice extends ActiveRecord
 {
@@ -833,5 +835,16 @@ class Invoice extends ActiveRecord
         if ($invoice && $invoice->isAllPdfGenerated()) {
             EventQueue::go(EventQueue::INVOICE_ALL_PDF_CREATED, ['id' => $invoice->id]);
         }
+    }
+
+    public function getLink()
+    {
+        return Url::to(['/',
+            'module' => 'newaccounts',
+            'bill' => $this->bill_no,
+            'invoice2' => 1,
+            'action' => 'bill_mprint',
+            'invoice_id' => $this->id
+        ]);
     }
 }

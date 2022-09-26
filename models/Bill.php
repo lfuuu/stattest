@@ -77,6 +77,7 @@ use yii\helpers\Url;
  * @property-read Payment[] $payments
  * @property-read BillExtFiles $extFile
  * @property-read Bill $correctionBill
+ * @property-read string $link
  */
 class Bill extends ActiveRecord
 {
@@ -713,5 +714,14 @@ class Bill extends ActiveRecord
     public function checkUuCorrectionBill()
     {
         return BillUuCorrectionDao::me()->checkBill($this);
+    }
+
+    public function getLink()
+    {
+        return Url::to(['/',
+            'module' => 'newaccounts',
+            'action' => 'bill_view',
+            'bill' => $this->bill_no,
+        ]);
     }
 }
