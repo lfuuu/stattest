@@ -47,6 +47,11 @@ class SiteController extends BaseController
 
     public function actionIndex()
     {
+        if (\Yii::$app->is2fAuth() && !\Yii::$app->user->identity->phone_mobile) {
+            \Yii::$app->session->addFlash('error', "Вступила в силу обязательная двухфакторная аутентификацию. </br> Просим заполнить номер мобильного телефона на который будет приходить код.");
+            return $this->redirect('/user/profile');
+        }
+
         return $this->redirect('/?module=tt&action=view_type&type_pk=2&folder=256&filtred=true');
     }
 

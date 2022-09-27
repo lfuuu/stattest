@@ -88,7 +88,7 @@ class BaseController extends Controller
      */
     public function getNavigationBlocks()
     {
-        return Navigation::create()->getBlocks();
+        return \Yii::$app->is2fAuth() && !\Yii::$app->user->identity->phone_mobile ? [] : Navigation::create()->getBlocks();
     }
 
     /**
