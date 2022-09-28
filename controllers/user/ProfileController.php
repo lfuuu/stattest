@@ -20,12 +20,7 @@ class ProfileController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['usercontrol.edit_full'],
-                    ],
-                    [
-                        'allow' => true,
-                        'actions' => ['change-password'],
-                        'roles' => ['usercontrol.edit_pass'],
+                        'roles' => ['@'],
                     ],
                 ],
             ],
