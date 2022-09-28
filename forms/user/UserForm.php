@@ -63,6 +63,7 @@ class UserForm extends Form
             ['rights', ArrayValidator::class],
             ['city_id', 'default', 'value' => City::DEFAULT_USER_CITY_ID],
             ['language', 'default', 'value' => Language::LANGUAGE_DEFAULT],
+            ['phone_mobile', 'match', 'pattern' => '/^\+?79[0-9]{9}$/i', 'message' => 'Введен неправильный номер. Формат: 79123456789']
         ];
     }
 
