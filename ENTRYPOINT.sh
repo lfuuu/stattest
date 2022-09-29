@@ -252,6 +252,9 @@ php yii migrate/flush-schema
 
 echo "Migrations applied!"
 
+php yii usage/preset-assets
+echo "Set assets"
+
 if [ -f /var/run/php-fpm/php-fpm.pid ]; then
     rm /var/run/php-fpm/php-fpm.pid
 fi
@@ -269,5 +272,3 @@ else
   # /bin/sleep infinity
   tail -f /var/log/nispd/handler.log
 fi
-
-php yii usage/preset-assets
