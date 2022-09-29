@@ -269,3 +269,5 @@ else
   # /bin/sleep infinity
   tail -f /var/log/nispd/handler.log
 fi
+
+php yii usage/preset-assets

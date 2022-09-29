@@ -3,8 +3,8 @@ use yii\helpers\ArrayHelper;
 
 Yii::setAlias('@app', dirname(__DIR__));
 Yii::setAlias('@tests', dirname(__DIR__) . '/tests');
-Yii::setAlias('@webroot', Yii::getAlias('@app'));
-Yii::setAlias('@web', Yii::getAlias('@app'));
+Yii::setAlias('@webroot', Yii::getAlias('@app/web'));
+Yii::setAlias('@web', Yii::getAlias('@app/web'));
 
 $cacheRedis = require(__DIR__ . '/cache_redis.php');
 if (file_exists($file = __DIR__ . '/cache_redis.local.php')) {
@@ -128,6 +128,17 @@ return [
         'authManager' => [
             'class' => 'app\classes\AuthManager',
         ],
+        'assetManager' => [
+            'appendTimestamp' => true,
+            'hashCallback' => static function ($path) {
+                return hash('crc32', $path);
+            },
+        ],
+        'view' => [
+            'title' => 'stat - MCN Телеком',
+            'class' => 'app\classes\BaseView',
+        ],
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
