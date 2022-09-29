@@ -651,32 +651,33 @@ AAA;
     {
         // grep -R 'use .*\\Asset' .
         $A = <<<AAA
-./widgets/multiselect/MultiSelectAsset.php:class MultiSelectAsset extends AssetBundle                                                                                                                                                [24/1911]
-./widgets/GridViewExport/GridViewExportAsset.php:class GridViewExportAsset extends AssetBundle   
-./widgets/TagsSelect2/TagsSelect2Asset.php:class TagsSelect2Asset extends AssetBundle              
-./widgets/GridViewSequence/GridViewSequenceAsset.php:class GridViewSequenceAsset extends AssetBundle 
-./widgets/JQTree/JQTreeAsset.php:class JQTreeAsset extends AssetBundle                             
-./assets/TinymceAsset.php:class TinymceAsset extends AssetBundle                                   
-./assets/SwaggerUiAsset.php:class SwaggerUiAsset extends AssetBundle                                   
-./assets/LayoutMinimalAsset.php:class LayoutMinimalAsset extends AssetBundle                       
-./assets/BootstrapTableAsset.php:class BootstrapTableAsset extends AssetBundle                               
-./assets/AppAsset.php:class AppAsset extends AssetBundle                                                               
-./assets/LayoutMainAsset.php:class LayoutMainAsset extends AssetBundle                           
+./widgets/multiselect/MultiSelectAsset.php:class MultiSelectAsset extends AssetBundle
+./widgets/GridViewExport/GridViewExportAsset.php:class GridViewExportAsset extends AssetBundle
+./widgets/TagsSelect2/TagsSelect2Asset.php:class TagsSelect2Asset extends AssetBundle
+./widgets/GridViewSequence/GridViewSequenceAsset.php:class GridViewSequenceAsset extends AssetBundle
+./widgets/MonthPickerAsset.php:class MonthPickerAsset extends \yii\web\AssetBundle
+./widgets/JQTree/JQTreeAsset.php:class JQTreeAsset extends AssetBundle
+./assets/TinymceAsset.php:class TinymceAsset extends AssetBundle
+./assets/SwaggerUiAsset.php:class SwaggerUiAsset extends AssetBundle
+./assets/LayoutMinimalAsset.php:class LayoutMinimalAsset extends AssetBundle
+./assets/BootstrapTableAsset.php:class BootstrapTableAsset extends AssetBundle
+./assets/AppAsset.php:class AppAsset extends AssetBundle
+./assets/LayoutMainAsset.php:class LayoutMainAsset extends AssetBundle
 ./vendor/unclead/yii2-multiple-input/src/assets/MultipleInputSortableAsset.php:class MultipleInputSortableAsset extends AssetBundle
 ./vendor/unclead/yii2-multiple-input/src/assets/MultipleInputAsset.php:class MultipleInputAsset extends AssetBundle
-./vendor/yiisoft/yii2/web/JqueryAsset.php:class JqueryAsset extends AssetBundle                    
-./vendor/yiisoft/yii2/web/YiiAsset.php:class YiiAsset extends AssetBundle                  
-./vendor/yiisoft/yii2/grid/GridViewAsset.php:class GridViewAsset extends AssetBundle           
+./vendor/yiisoft/yii2/web/JqueryAsset.php:class JqueryAsset extends AssetBundle
+./vendor/yiisoft/yii2/web/YiiAsset.php:class YiiAsset extends AssetBundle
+./vendor/yiisoft/yii2/grid/GridViewAsset.php:class GridViewAsset extends AssetBundle
 ./vendor/yiisoft/yii2/widgets/MaskedInputAsset.php:class MaskedInputAsset extends AssetBundle
-./vendor/yiisoft/yii2/widgets/ActiveFormAsset.php:class ActiveFormAsset extends AssetBundle        
-./vendor/yiisoft/yii2/widgets/PjaxAsset.php:class PjaxAsset extends AssetBundle              
+./vendor/yiisoft/yii2/widgets/ActiveFormAsset.php:class ActiveFormAsset extends AssetBundle
+./vendor/yiisoft/yii2/widgets/PjaxAsset.php:class PjaxAsset extends AssetBundle
 ./vendor/yiisoft/yii2/captcha/CaptchaAsset.php:class CaptchaAsset extends AssetBundle
 ./vendor/yiisoft/yii2/validators/PunycodeAsset.php:class PunycodeAsset extends AssetBundle
 ./vendor/yiisoft/yii2/validators/ValidationAsset.php:class ValidationAsset extends AssetBundle
-./vendor/yiisoft/yii2-bootstrap/TetherAsset.php:class TetherAsset extends AssetBundle                                                                                                                                                         
+./vendor/yiisoft/yii2-bootstrap/TetherAsset.php:class TetherAsset extends AssetBundle
 ./vendor/yiisoft/yii2-bootstrap/BootstrapPluginAsset.php:class BootstrapPluginAsset extends AssetBundle
-./vendor/yiisoft/yii2-bootstrap/BootstrapAsset.php:class BootstrapAsset extends AssetBundle                                                                                                                                                   
-./vendor/yiisoft/yii2-bootstrap/BootstrapThemeAsset.php:class BootstrapThemeAsset extends AssetBundle                                                                                                                                         
+./vendor/yiisoft/yii2-bootstrap/BootstrapAsset.php:class BootstrapAsset extends AssetBundle
+./vendor/yiisoft/yii2-bootstrap/BootstrapThemeAsset.php:class BootstrapThemeAsset extends AssetBundle
 ./vendor/yiisoft/yii2-jui/JuiAsset.php:class JuiAsset extends AssetBundle
 ./vendor/yiisoft/yii2-jui/DatePickerLanguageAsset.php:class DatePickerLanguageAsset extends AssetBundle
 ./vendor/yiisoft/yii2-gii/TypeAheadAsset.php:class TypeAheadAsset extends AssetBundle
@@ -691,23 +692,39 @@ AAA;
 ./vendor/kartik-v/yii2-widget-select2/ThemeKrajeeAsset.php:class ThemeKrajeeAsset extends AssetBundle
 ./vendor/kartik-v/yii2-tabs-x/TabsXAsset.php:class TabsXAsset extends AssetBundle
 ./vendor/kartik-v/yii2-tabs-x/StickyTabsAsset.php:class StickyTabsAsset extends AssetBundle
+./vendor/kartik-v/yii2-widget-typeahead/TypeaheadHBAsset.php:class TypeaheadHBAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-widget-typeahead/TypeaheadAsset.php:class TypeaheadAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-widget-typeahead/TypeaheadBasicAsset.php:class TypeaheadBasicAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-builder/TabularFormAsset.php:class TabularFormAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-builder/FormAsset.php:class FormAsset extends \kartik\base\AssetBundle
 ./vendor/kartik-v/yii2-popover-x/PopoverXAsset.php:class PopoverXAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-activeform/ActiveFormAsset.php:class ActiveFormAsset extends AssetBundle
+./vendor/kartik-v/yii2-widget-datetimepicker/DateTimePickerAsset.php:class DateTimePickerAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-widget-growl/GrowlAsset.php:class GrowlAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-widget-alert/AlertAsset.php:class AlertAsset extends \kartik\base\AssetBundle
 ./vendor/kartik-v/yii2-datecontrol/DateControlAsset.php:class DateControlAsset extends AssetBundle
 ./vendor/kartik-v/yii2-datecontrol/DateFormatterAsset.php:class DateFormatterAsset extends AssetBundle
+./vendor/kartik-v/yii2-date-range/MomentAsset.php:class MomentAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-date-range/LanguageAsset.php:class LanguageAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-date-range/DateRangePickerAsset.php:class DateRangePickerAsset extends \kartik\base\AssetBundle
 ./vendor/kartik-v/yii2-editable/EditableAsset.php:class EditableAsset extends AssetBundle
 ./vendor/kartik-v/yii2-editable/EditablePjaxAsset.php:class EditablePjaxAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-datepicker/DatePickerAsset.php:class DatePickerAsset extends AssetBundle
+./vendor/kartik-v/yii2-widget-spinner/SpinnerAsset.php:class SpinnerAsset extends \kartik\base\AssetBundle
 ./vendor/kartik-v/yii2-widget-switchinput/SwitchInputAsset.php:class SwitchInputAsset extends AssetBundle
 ./vendor/kartik-v/yii2-krajee-base/AnimateAsset.php:class AnimateAsset extends AssetBundle
 ./vendor/kartik-v/yii2-krajee-base/Html5InputAsset.php:class Html5InputAsset extends AssetBundle
 ./vendor/kartik-v/yii2-krajee-base/PluginAssetBundle.php:class PluginAssetBundle extends AssetBundle
 ./vendor/kartik-v/yii2-krajee-base/WidgetAsset.php:class WidgetAsset extends AssetBundle
+./vendor/kartik-v/yii2-krajee-base/AssetBundle.php:class AssetBundle extends \yii\web\AssetBundle
+./vendor/kartik-v/yii2-widget-colorinput/ColorInputAsset.php:class ColorInputAsset extends \kartik\base\AssetBundle
+./vendor/kartik-v/yii2-widgets/AssetBundle.php:class AssetBundle extends \kartik\base\AssetBundle
 ./vendor/kartik-v/yii2-widget-fileinput/SortableAsset.php:class SortableAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-fileinput/FileInputAsset.php:class FileInputAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-fileinput/CanvasBlobAsset.php:class CanvasBlobAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-fileinput/DomPurifyAsset.php:class DomPurifyAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-touchspin/TouchSpinAsset.php:class TouchSpinAsset extends AssetBundle
+./vendor/kartik-v/yii2-widget-affix/AffixAsset.php:class AffixAsset extends \kartik\base\AssetBundle
 ./vendor/kartik-v/yii2-grid/GridResizeColumnsAsset.php:class GridResizeColumnsAsset extends AssetBundle
 ./vendor/kartik-v/yii2-grid/ExpandRowColumnAsset.php:class ExpandRowColumnAsset extends AssetBundle
 ./vendor/kartik-v/yii2-grid/GridPerfectScrollbarAsset.php:class GridPerfectScrollbarAsset extends AssetBundle
@@ -721,6 +738,7 @@ AAA;
 ./vendor/kartik-v/yii2-grid/GridViewAsset.php:class GridViewAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-depdrop/DepDropExtAsset.php:class DepDropExtAsset extends AssetBundle
 ./vendor/kartik-v/yii2-widget-depdrop/DepDropAsset.php:class DepDropAsset extends AssetBundle
+./vendor/kartik-v/yii2-widget-sidenav/SideNavAsset.php:class SideNavAsset extends \kartik\base\AssetBundle
 
 AAA;
 
