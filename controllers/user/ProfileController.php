@@ -32,25 +32,9 @@ class ProfileController extends BaseController
         $user = Yii::$app->user->identity;
         $model = (new UserProfileForm)->initModel($user);
 
-
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-
-            $toRelogin = false;
-            if ($model->phone_mobile && $user->phone_mobile != $model->phone_mobile) {
-                $toRelogin = true;
-            }
-
-            if ($model->save($user)) {
-                Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
-                if ($toRelogin) {
-                    Yii::$app->session->setFlash('success', 'Произведите вход заново');
-                    Yii::$app->user->logout();
-                    return $this->redirect('/');
-                }
-
-                return $this->redirect(Yii::$app->request->referrer);
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($user)) {
+            Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
+            return $this->redirect(Yii::$app->request->referrer);
         }
 
         return $this->render('edit', [
