@@ -117,7 +117,7 @@ class SormController extends Controller
             select voip_number as number, id as usage_id, client_account_id as client_id 
             from uu_account_tariff 
             where tariff_period_id is not null
-            having number like \'749%\'
+            and service_type_id=2
         ')->queryAll();
 
         $data = ArrayHelper::index($data, 'number');
