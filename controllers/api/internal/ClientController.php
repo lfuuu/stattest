@@ -23,6 +23,7 @@ use app\models\danycom\Info;
 use app\models\danycom\Number;
 use app\models\EntryPoint;
 use app\models\EventQueue;
+use app\models\Timezone;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
@@ -568,6 +569,30 @@ class ClientController extends ApiInternalController
         ClientAccount::updateAll(['timezone_name' => $timezone], ['super_id' => $client->id]);
 
         return true;
+    }
+
+    /**
+     * @SWG\Definition(definition = "timezones", type = "object", required = {"name"},
+     *   @SWG\Property(property = "id", type = "string",description = "Код таймзоны"),
+     *   @SWG\Property(property = "name", type = "string",description = "Название")
+     * ),
+     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-timezones/", summary = "Получение списка таймзон", operationId = "get-timezones",
+     *   @SWG\Response(response = 200, description = "таймзоны",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/timezones")
+     *     )
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
+     * )
+     */
+    public function actionGetTimezones()
+    {
+        $tzs = Timezone::getList();
+        return array_map(function ($key, $value) {
+            return [
+                'id' => $key,
+                'name' => $value
+            ];
+        }, array_keys($tzs), $tzs);
     }
 
     /**
