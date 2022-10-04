@@ -102,8 +102,10 @@ foreach ($rows as $hash => $row) {
     // сгруппировать пакеты по типу
     $packagesList = [];
     foreach ($accountTariffFirst->nextAccountTariffs as $accountTariffPackage) {
-        $isPackageDefault = $accountTariffPackage->getNotNullTariffPeriod()->tariff->is_default;
-        $packagesList[$isPackageDefault ? 0 : $accountTariffPackage->service_type_id][] = $accountTariffPackage;
+        $tariff = $accountTariffPackage->getNotNullTariffPeriod()->tariff;
+        $isPackageDefault = $tariff->is_default;
+        $isPackageBundle = $tariff->is_bundle;
+        $packagesList[(($isPackageDefault || $isPackageBundle) ? 0 : $accountTariffPackage->service_type_id)][] = $accountTariffPackage;
     }
 
     // форма
