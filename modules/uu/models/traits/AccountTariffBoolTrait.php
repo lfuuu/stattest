@@ -32,7 +32,14 @@ trait AccountTariffBoolTrait
 
         if (
             array_key_exists($this->service_type_id, ServiceType::$packages)
-            && $this->getNotNullTariffPeriod()->tariff->is_default
+            &&
+            (
+                $this->getNotNullTariffPeriod()->tariff->is_default
+                || ((
+                    $this->prev_account_tariff_id
+                    && $this->getNotNullTariffPeriod()->tariff->is_bundle
+                ))
+            )
             && !Yii::$app->user->can('services_voip.package') // если нельзя, но очень надо, то можно
         ) {
             // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
@@ -70,7 +77,8 @@ trait AccountTariffBoolTrait
         /** @var ClientAccount $clientAccount */
         $clientAccount = $this->clientAccount;
         $dateTimeNow = $clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
-        return $accountTariffLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
+        return $accountTariffLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)
+            || ($accountTariffLog->tariff_period_id && $accountTariffLog->tariffPeriod->tariff->is_bundle && $this->prev_account_tariff_id);
     }
 
     /**

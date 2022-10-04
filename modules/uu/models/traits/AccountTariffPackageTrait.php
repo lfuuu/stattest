@@ -58,7 +58,7 @@ trait AccountTariffPackageTrait
             return;
         }
 
-        $accountTariffLog = $this->getOnAccountTariffLog();
+        $accountTariffLog = $this->getLastOnAccountTariffLog();
         if (
             $accountTariffLog
             && $accountTariffLog->tariff_period_id
@@ -465,15 +465,20 @@ trait AccountTariffPackageTrait
 
             $nextTariffPeriod = $nextAccountTariff->getNotNullTariffPeriod();
 
-            if (isset($bundleTariffs[$nextTariffPeriod->id])) {
-                echo PHP_EOL . 'unset($bundleTariffs[' . $nextTariffPeriod->id . ']';
-                HandlerLogger::me()->add($nextAccountTariff->id . ' unset');
-                unset($bundleTariffs[$nextTariffPeriod->id]);
-                continue;
-            }
+            if ($nextTariffPeriod->tariff->is_bundle) {
 
-            if (!$nextTariffPeriod->tariff->is_bundle) {
-                HandlerLogger::me()->add($nextAccountTariff->id . ' !is_bundle');
+                // package in this bundle
+                if (isset($bundleTariffs[$nextTariffPeriod->id])) {
+                    HandlerLogger::me()->add($nextAccountTariff->id . ' package in this bundle => skip');
+                    unset($bundleTariffs[$nextTariffPeriod->id]);
+                    continue;
+                }
+
+                HandlerLogger::me()->add($nextAccountTariff->id . ' alien bundle => to close');
+            } else if ($nextTariffPeriod->tariff->is_default) { // is default package
+                HandlerLogger::me()->add($nextAccountTariff->id . ' is default package => to close');
+            } else { // is no bundle && no default => special package
+                HandlerLogger::me()->add($nextAccountTariff->id . ' special package => skip');
                 continue;
             }
 
@@ -495,7 +500,7 @@ trait AccountTariffPackageTrait
 //                return;
             }
             foreach ($needClose as $nextAccountTariff) {
-                HandlerLogger::me()->add('off: (' . $nextAccountTariff->id . ')' . $nextAccountTariff->tariffPeriod->getName() . ' - ' . $accountTariffLog->actual_from_utc);
+                HandlerLogger::me()->add('off: (' . $nextAccountTariff->id . ') ' . ($nextAccountTariff->tariff_period_id ? $nextAccountTariff->tariffPeriod->getName() : '???') . ' - ' . $accountTariffLog->actual_from_utc);
                 $this->_closePackage($nextAccountTariff, $accountTariffLog->actual_from_utc);
             }
         }
