@@ -119,9 +119,9 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
                     [
                         'name' => 'minute',
                         'title' => $attributeLabels['minute'] . $helpConfluence,
-                        'type' => Editable::INPUT_RANGE,
+                        'type' => Editable::INPUT_TEXT,
                         'options' => $options + [
-                                'html5Options' => ['min' => 0, 'max' => 10000, 'step' => 100],
+                                'type' => 'number',
                             ],
                     ],
                     [
