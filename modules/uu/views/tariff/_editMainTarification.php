@@ -18,21 +18,21 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
 <div class="row">
     <div class="col-sm-3">
         <?= $form->field($package, 'tarification_free_seconds')
-            ->textInput($options)
+            ->textInput($options + ['type' => 'number'])
             ->label($package->getAttributeLabel('tarification_free_seconds') . $helpConfluence)
         ?>
     </div>
 
     <div class="col-sm-3">
         <?= $form->field($package, 'tarification_min_paid_seconds')
-            ->textInput($options)
+            ->textInput($options + ['type' => 'number'])
             ->label($package->getAttributeLabel('tarification_min_paid_seconds') . $helpConfluence)
         ?>
     </div>
 
     <div class="col-sm-3">
         <?= $form->field($package, 'tarification_interval_seconds')
-            ->textInput($options)
+            ->textInput($options + ['type' => 'number'])
             ->label($package->getAttributeLabel('tarification_interval_seconds') . $helpConfluence)
         ?>
     </div>
