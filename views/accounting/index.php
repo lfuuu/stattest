@@ -23,7 +23,7 @@ $paysPlus = \app\models\Payment::find()->where(['client_id' => $account->id])->a
 $paysMinus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['<', 'sum', 0])->sum('sum') ?: 0;
 
 $paysPlusInv = $paysPlusBills = $paysPlus;
-$paysMinusBills = $paysMinus;
+$invoiceExtPays = $paysMinusBills = $paysMinus;
 
 $invoices = \app\models\Invoice::find()->joinWith('bill b')
     ->where(['b.client_id' => $account->id])
@@ -42,6 +42,17 @@ $billsMinus = \app\models\Bill::find()
     ->orderBy(['bill_date' => SORT_ASC])
     ->all();
 
+$invoiceExt = \app\models\BillExternal::find()
+    ->joinWith('bill b')
+    ->where(['b.client_id' => $account->id])
+//    ->andWhere(['not', ['ext_invoice_no' => 'AR/0010106/492']])
+    ->orderBy([
+        new \yii\db\Expression("STR_TO_DATE(ext_invoice_date, '%m-%d-%Y')") => SORT_ASC,
+        'bill_date' => SORT_ASC,
+        'b.id' => SORT_ASC,
+    ])
+    ->all();
+
 $invSum = array_reduce($invoices, function ($acum, $i) {
     return $acum + $i->sum;
 }, 0);
@@ -54,6 +65,10 @@ $billSumMinus = array_reduce($billsMinus, function ($acum, $i) {
     return $acum + $i->sum;
 }, 0);
 
+$invoiceExtSum = array_reduce($invoiceExt, function ($acum, \app\models\BillExternal $i) {
+    return $acum + $i->ext_vat + $i->ext_sum_without_vat;
+}, 0);
+
 
 function nf($d) {
     $v =  number_format($d, 2, '.', ' ');
@@ -62,7 +77,7 @@ function nf($d) {
 
 ?>
 <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <div class="row text-center"><h2>Доходные (с/ф)</h2></div>
         <div class="row">
             <div class="col-sm-6">Сумма с/ф:</div>
@@ -78,7 +93,7 @@ function nf($d) {
                  style="color: <?= (abs($paysPlus - $invSum) < 0.01 ? 'black' : ($paysPlus - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($paysPlus - $invSum) ?></div>
         </div>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <div class="row text-center"><h2>Доходные (счета)</h2></div>
         <div class="row">
             <div class="col-sm-6">Сумма счетов:</div>
@@ -94,7 +109,7 @@ function nf($d) {
                  style="color: <?= (abs($totalPlus) < 0.01 ? 'black' : ($totalPlus > 0 ? 'green' : 'red')) ?>"><?= nf($totalPlus) ?></div>
         </div>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <div class="row text-center"><h2>Расходные (счета)</h2></div>
         <div class="row">
             <div class="col-sm-6">Сумма счетов:</div>
@@ -111,14 +126,31 @@ function nf($d) {
                  style="color: <?= (abs($totalMinus) < 0.01 ? 'black' : ($totalMinus > 0 ? 'green' : 'red')) ?>"><?= nf($totalMinus) ?></div>
         </div>
     </div>
+    <div class="col-sm-3">
+        <div class="row text-center"><h2>Расходные (с/ф)</h2></div>
+        <div class="row">
+            <div class="col-sm-6">Сумма с/ф:</div>
+            <div class="col-sm-6 text-right"><?= nf($invoiceExtSum) ?></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">платежи "-":</div>
+            <div class="col-sm-6 text-right"><?= nf($invoiceExtPays) ?></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">Баланс:</div>
+            <div class="col-sm-6 text-right"
+                 style="color: <?= (abs($paysPlus - $invSum) < 0.01 ? 'black' : ($paysPlus - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($invoiceExtPays + $invoiceExtSum) ?></div>
+        </div>
+    </div>
 </div>
 <div class="row">
-    <div class="col-sm-4"></div>
-    <div class="col-sm-8"><?php $totalBills = $totalPlus - $totalMinus; ?>
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6"><?php $totalBills = $totalPlus - $totalMinus; ?>
         <div class="text-center" style="border-top: 1px solid gray; padding: 5px;">Итого по счетам: <span
                     style="color: <?= (abs($totalBills) < 0.01 ? 'black' : ($totalBills > 0 ? 'green' : 'red')) ?>"><?= nf($totalBills) ?></span>
         </div>
     </div>
+    <div class="col-sm-3"></div>
 </div>
 <?php
 $dataInv = [];
@@ -167,6 +199,22 @@ foreach ($billsMinus as $bill) {
     $paysMinusBills -= $bill->sum;
 }
 
+$dataInvoiceExt = [];
+/** @var \app\models\BillExternal $inv */
+foreach ($invoiceExt as $inv) {
+
+    $sum = $inv->ext_vat + $inv->ext_sum_without_vat;
+    $dataInvoiceExt[] = [
+        'number' => $inv->ext_invoice_no,
+        'link' => $inv->bill->link,
+        'date' => $inv->ext_invoice_date,
+        'sum' => $sum,
+        'is_paid' => $invoiceExtPays <= $sum ? 1 : (round($invoiceExtPays, 4) < 0 ? 2 : 0),
+    ];
+
+    $invoiceExtPays -= $sum;
+}
+
 
 function getGrid($models)
 {
@@ -207,13 +255,16 @@ function getGrid($models)
 }
 ?>
 <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <?=getGrid($dataInv) ?>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <?=getGrid($dataBillsPlus) ?>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <?=getGrid($dataBillsMinus) ?>
+    </div>
+    <div class="col-sm-3">
+        <?=getGrid($dataInvoiceExt) ?>
     </div>
 </div>
