@@ -109,7 +109,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     <?= Html::activeHiddenInput($tariffResource, "[{$i}]resource_id") ?>
                     <?php
                     if ($isNumber) {
-                        echo $form->field($tariffResource, "[{$i}]amount")->textInput($options)->label(false);
+                        echo $form->field($tariffResource, "[{$i}]amount")->textInput($options + ['type' => 'number'])->label(false);
                     } else {
                         echo $form->field($tariffResource, "[{$i}]amount")->checkbox(/*$options*/[], false)->label(false);
                     }

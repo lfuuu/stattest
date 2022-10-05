@@ -61,7 +61,10 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
                 [
                     'name' => 'minute',
                     'title' => $attributeLabels['minute'] . $helpConfluence,
-                    'options' => $options,
+                    'options' => $options + [
+                            'type' => 'number',
+                        ],
+                    'type' => Editable::INPUT_TEXT,
                     'headerOptions' => [
                         'class' => 'col-sm-3',
                     ],
