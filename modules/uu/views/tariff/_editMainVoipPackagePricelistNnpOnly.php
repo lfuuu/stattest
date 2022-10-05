@@ -98,10 +98,9 @@ if ($formModel->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS) {
     $columns[] = [
         'name' => 'include_amount',
         'title' => $attributeLabels['include_amount'],
-        'type' => Editable::INPUT_RANGE,
+        'type' => Editable::INPUT_TEXT,
         'options' => $options + [
-                'html5Container' => ['style' => 'width:500px'],
-                'html5Options' => ['min' => 0, 'max' => 1000, 'step' => 10]
+            'type' => 'number',
         ],
     ];
 }
