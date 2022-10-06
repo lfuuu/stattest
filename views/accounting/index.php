@@ -44,10 +44,11 @@ $billsMinus = \app\models\Bill::find()
 
 $invoiceExt = \app\models\BillExternal::find()
     ->joinWith('bill b')
+    ->with('bill')
     ->where(['b.client_id' => $account->id])
 //    ->andWhere(['not', ['ext_invoice_no' => 'AR/0010106/492']])
     ->orderBy([
-        new \yii\db\Expression("STR_TO_DATE(ext_invoice_date, '%m-%d-%Y')") => SORT_ASC,
+        new \yii\db\Expression("STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')") => SORT_ASC,
         'bill_date' => SORT_ASC,
         'b.id' => SORT_ASC,
     ])
@@ -70,8 +71,9 @@ $invoiceExtSum = array_reduce($invoiceExt, function ($acum, \app\models\BillExte
 }, 0);
 
 
-function nf($d) {
-    $v =  number_format($d, 2, '.', ' ');
+function nf($d)
+{
+    $v = number_format($d, 2, '.', ' ');
     return preg_replace('/(^0.00|\.?[0]+)$/', '<span style="color: lightgrey;">$1</span>', $v);
 }
 
@@ -121,7 +123,7 @@ function nf($d) {
         </div>
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
-            <?php $totalMinus = $billSumMinus - $paysMinus ; ?>
+            <?php $totalMinus = $billSumMinus - $paysMinus; ?>
             <div class="col-sm-6 text-right"
                  style="color: <?= (abs($totalMinus) < 0.01 ? 'black' : ($totalMinus > 0 ? 'green' : 'red')) ?>"><?= nf($totalMinus) ?></div>
         </div>
@@ -153,50 +155,69 @@ function nf($d) {
     <div class="col-sm-3"></div>
 </div>
 <?php
+
+$d = [];
+
 $dataInv = [];
 
 /** @var \app\models\Invoice $invoice */
 foreach ($invoices as $invoice) {
 
-    $dataInv[] = [
+    $v = [
         'number' => $invoice->number,
         'link' => $invoice->link,
         'date' => $invoice->date,
         'sum' => round($invoice->sum, 2),
         'is_paid' => $paysPlusInv > $invoice->sum ? 1 : ($paysPlusInv > 0 ? 2 : 0),
+        'type' => 'invoice',
     ];
 
+
+    $dataInv[] = $v;
     $paysPlusInv -= $invoice->sum;
+
+    $date = new DateTimeImmutable($invoice->date);
+    addItem($d, $v, $date);
 }
 
 $dataBillsPlus = [];
 /** @var \app\models\Bill $bill */
 foreach ($billsPlus as $bill) {
 
-    $dataBillsPlus[] = [
+    $v = [
         'number' => $bill->bill_no,
         'link' => $bill->link,
         'date' => $bill->bill_date,
         'sum' => $bill->sum,
         'is_paid' => $paysPlusBills > $bill->sum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
+        'type' => 'bill',
     ];
 
+    $dataBillsPlus[] = $v;
     $paysPlusBills -= $bill->sum;
+
+    $date = new DateTimeImmutable($bill->bill_date);
+    addItem($d, $v, $date);
 }
 
 $dataBillsMinus = [];
 /** @var \app\models\Bill $bill */
 foreach ($billsMinus as $bill) {
 
-    $dataBillsMinus[] = [
+    $v = [
         'number' => $bill->bill_no,
         'link' => $bill->link,
         'date' => $bill->bill_date,
         'sum' => $bill->sum,
         'is_paid' => $paysMinusBills <= $bill->sum ? 1 : (round($paysMinusBills, 4) < 0 ? 2 : 0),
+        'type' => 'bill_minus',
     ];
 
+    $dataBillsMinus[] = $v;
     $paysMinusBills -= $bill->sum;
+
+    $date = new DateTimeImmutable($bill->bill_date);
+    addItem($d, $v, $date);
 }
 
 $dataInvoiceExt = [];
@@ -204,17 +225,159 @@ $dataInvoiceExt = [];
 foreach ($invoiceExt as $inv) {
 
     $sum = $inv->ext_vat + $inv->ext_sum_without_vat;
-    $dataInvoiceExt[] = [
+    $date = new DateTimeImmutable($inv->ext_invoice_date);
+    $v = [
         'number' => $inv->ext_invoice_no,
         'link' => $inv->bill->link,
-        'date' => $inv->ext_invoice_date,
+        'date' => $date->format('Y-m-d'),
         'sum' => $sum,
         'is_paid' => $invoiceExtPays <= $sum ? 1 : (round($invoiceExtPays, 4) < 0 ? 2 : 0),
+        'type' => 'invoice_minus',
     ];
 
+    $dataInvoiceExt[] = $v;
     $invoiceExtPays -= $sum;
+
+    addItem($d, $v, $date);
 }
 
+foreach ($d as $year => &$yearData) {
+    foreach ($yearData as $month => &$monthData) {
+        ksort($monthData);
+    }
+    ksort($yearData);
+}
+ksort($d);
+
+function addItem(&$d, $item, $date)
+{
+    if (!isset($d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']])) {
+        $d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']] = [];
+    }
+    $d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']][] = $item;
+}
+
+foreach ($d as $year => &$yearData) {
+    foreach ($yearData as $month => &$monthData) {
+        ksort($monthData);
+
+        foreach ($monthData as $day => $dayData) {
+            $nDayData = [];
+            foreach ($dayData as $type => $values) {
+                foreach ($values as $idx => $value) {
+                    if (!isset($nDayData[$idx])) {
+                        $nDayData[$idx] = [];
+                    }
+                    $nDayData[$idx][$value['type']] = $value;
+                }
+            }
+            $monthData[$day] = $nDayData;
+        }
+    }
+    ksort($yearData);
+}
+
+
+class row
+{
+    public $year = '';
+    public $month = '';
+    public $day = '';
+
+    public $bill = '';
+    public $bill_minus = '';
+    public $invoice = '';
+    public $invoice_minus = '';
+
+    public $bill_is_paid = '';
+    public $bill_minus_is_paid = '';
+    public $invoice_is_paid = '';
+    public $invoice_minus_is_paid = '';
+}
+
+$rr = [];
+
+$bill_is_paid = false;
+$bill_minus_is_paid = false;
+$invoice_is_paid = false;
+$invoice_minus_is_paid = false;
+
+foreach ($d as $year => &$yearData) {
+    foreach ($yearData as $month => &$monthData) {
+        ksort($monthData);
+
+        foreach ($monthData as $day => $dayData) {
+            $row = new row();
+            $row->year = $year;
+            $row->month = $month;
+            $row->day = $day;
+
+            $row->bill_is_paid = $bill_is_paid;
+            $row->bill_minus_is_paid = $bill_minus_is_paid;
+            $row->invoice_is_paid = $invoice_is_paid;
+            $row->invoice_minus_is_paid = $invoice_minus_is_paid;
+
+
+            foreach ($dayData as $idx => $typeData) {
+
+                if ($idx > 0) {
+                    $rr[] = $row;
+
+                    $row = new row();
+                    $row->year = $year;
+                    $row->month = $month;
+                    $row->day = $day;
+
+                    $row->bill_is_paid = $bill_is_paid;
+                    $row->bill_minus_is_paid = $bill_minus_is_paid;
+                    $row->invoice_is_paid = $invoice_is_paid;
+                    $row->invoice_minus_is_paid = $invoice_minus_is_paid;
+                }
+
+                foreach ($typeData as $type => $value) {
+                    switch ($type) {
+                        case 'bill':
+                            $bill_is_paid = $value['is_paid'];
+                            $row->bill_is_paid = $bill_is_paid;
+                            $row->bill = $value;
+                            break;
+
+                        case 'bill_minus':
+                            $bill_minus_is_paid = $value['is_paid'];
+                            $row->bill_minus_is_paid = $bill_minus_is_paid;
+                            $row->bill_minus = $value;
+                            break;
+
+                        case 'invoice':
+                            $invoice_is_paid = $value['is_paid'];
+                            $row->invoice_is_paid = $invoice_is_paid;
+                            $row->invoice = $value;
+                            break;
+
+                        case 'invoice_minus':
+                            $invoice_minus_is_paid = $value['is_paid'];
+                            $row->invoice_minus_is_paid = $invoice_minus_is_paid;
+                            $row->invoice_minus = $value;
+                            break;
+                    }
+                }
+            }
+            $rr[] = $row;
+        }
+    }
+}
+
+?>
+
+
+
+
+<?php
+
+
+//echo "<pre>";
+//print_r($rr);
+//echo "</pre>";
 
 function getGrid($models)
 {
@@ -243,7 +406,7 @@ function getGrid($models)
             [
                 'attribute' => 'sum',
                 'format' => 'raw',
-                'value' => function($model) {
+                'value' => function ($model) {
                     return nf($model['sum']);
                 },
                 'label' => 'Сумма',
@@ -253,18 +416,140 @@ function getGrid($models)
     ]);
 
 }
+
+/*
+                    [number] => 202210-017534
+                    [link] => /?module=newaccounts&action=bill_view&bill=202210-017534
+                    [date] => 2022-10-05
+                    [sum] => -0.16
+                    [is_paid] => 0
+                    [type] => bill_minus
+ */
+
+function cellContentOptions($is_paid, $addClass = '')
+{
+    return ['class' => ($is_paid === 1 ? 'success' : ($is_paid === 2 ? 'warning' : 'danger')) . ($addClass ? ' ' . $addClass : '')];
+}
+
 ?>
+<div class="container">
+    <?php
+    echo \app\classes\grid\GridView::widget([
+            'dataProvider' => new \yii\data\ArrayDataProvider([
+                'allModels' => array_reverse($rr),
+//                'allModels' => $rr,
+                'pagination' => false,
+            ]),
+            'panelHeadingTemplate' => '',
+            'columns' => [
+                [
+                    'attribute' => 'year',
+                    'label' => 'Год',
+                ],
+                [
+                    'attribute' => 'month',
+                    'label' => 'Месяц',
+                ],
+                [
+                    'attribute' => 'day',
+                    'label' => 'День',
+                ],
+                [
+                    'label' => 'С/ф +',
+                    'format' => 'raw',
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_is_paid);
+                    },
+
+                    'value' => function (row $row) {
+                        return $row->invoice ? \app\classes\Html::a($row->invoice['number'], $row->invoice['link']) : '';
+                    },
+                ],
+                [
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->invoice ? nf($row->invoice['sum']) : '';
+                    },
+                    'label' => 'С/ф сумма +',
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_is_paid, 'text-right');
+                    },
+                ],
+                [
+                    'label' => 'Счет +',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill ? \app\classes\Html::a($row->bill['number'], $row->bill['link']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_is_paid);
+                    },
+                ],
+                [
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill ? nf($row->bill['sum']) : '';
+                    },
+                    'label' => 'Сумма счета +',
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_is_paid, 'text-right');
+                    },
+                ], [
+                    'label' => 'Счет -',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill_minus ? \app\classes\Html::a($row->bill_minus['number'], $row->bill_minus['link']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_minus_is_paid);
+                    },
+                ],
+                [
+                    'label' => 'Сумма счета -',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_minus_is_paid, 'text-right');
+                    },
+                ],
+                [
+                    'label' => 'С/ф -',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->invoice_minus ? \app\classes\Html::a($row->invoice_minus['number'], $row->invoice_minus['link']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_minus_is_paid);
+                    },
+                ],
+                [
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
+                    },
+                    'label' => 'С/ф сумма -',
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
+                    },
+                ],
+            ]
+        ]
+    );
+    ?>
+</div>
 <div class="row">
     <div class="col-sm-3">
-        <?=getGrid($dataInv) ?>
+        <?= getGrid($dataInv) ?>
     </div>
     <div class="col-sm-3">
-        <?=getGrid($dataBillsPlus) ?>
+        <?= getGrid($dataBillsPlus) ?>
     </div>
     <div class="col-sm-3">
-        <?=getGrid($dataBillsMinus) ?>
+        <?= getGrid($dataBillsMinus) ?>
     </div>
     <div class="col-sm-3">
-        <?=getGrid($dataInvoiceExt) ?>
+        <?= getGrid($dataInvoiceExt) ?>
     </div>
 </div>
