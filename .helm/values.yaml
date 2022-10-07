@@ -170,6 +170,9 @@ params_prod_eu:
   yandex_kassa_is_enabled: "0"
   mchs_is_enabled: "0"
   client_changed_amq_settings: "0"
+  vmonitor:
+    key1:
+    key2:
 
 params_dev:
   robocall_internal_server: 
@@ -196,5 +199,8 @@ params_dev:
   mailer:
     smtp:
       server: mail.xxx1.yyy2.zzz3.com
+  vmonitor:
+    key1:
+    key2:
 
 

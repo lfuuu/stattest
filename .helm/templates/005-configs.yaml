@@ -188,6 +188,8 @@ data:
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
+  
+            access_log off;
         }
 {{ end }}
 {{ if eq (env "IS_WITH_BALANCE") "1" }}
@@ -496,6 +498,12 @@ data:
         'ROBOCALL_DEFAULT_PARAMS' => ['task_id' =>  253, 'account_id' => 47197, 'robocall_id' => 9],
         'CALLTRACKING_SERVER' => '{{ .params.calltracking_server }}',
         'ROBOCALL_INTERNAL_SERVER' => '{{ .params.robocall_internal_server }}',
+        {{ if ne .params.vmonitor.key1 "" }}
+        'vmonitor' => [
+          'key1' => '{{ .params.vmonitor.key1 }}',
+          'key2' => '{{ .params.vmonitor.key2 }}',
+        ],
+        {{ end }}
     ];
 
   local.conf.php: |
