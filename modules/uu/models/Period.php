@@ -35,6 +35,8 @@ class Period extends ActiveRecord
     const ID_HALFYEAR = 4;
     const ID_YEAR = 5;
 
+    const OPEN_DATE = '3000-01-01';
+
     /**
      * @inheritdoc
      */

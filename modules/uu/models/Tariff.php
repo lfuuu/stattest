@@ -43,6 +43,7 @@ use yii\helpers\Url;
  * @property integer $is_proportionately
  * @property integer $tax_rate
  * @property integer $is_bundle
+ * @property integer $is_one_alt
  *
  * @property-read Currency $currency
  * @property-read TariffResource[] $tariffResources
@@ -166,6 +167,7 @@ class Tariff extends ActiveRecord
                     'is_one_active',
                     'is_proportionately',
                     'tax_rate',
+                    'is_one_alt',
 
                 ],
                 'integer'

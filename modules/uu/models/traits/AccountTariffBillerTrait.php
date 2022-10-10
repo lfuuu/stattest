@@ -218,7 +218,10 @@ trait AccountTariffBillerTrait
                 $accountLogPeriod->dateFrom = $dateFrom;
 
                 $accountLogPeriod->dateTo = $dateFrom;
-                if ($chargePeriod->monthscount) {
+
+                if ($tariffPeriod->tariff->is_one_alt) {
+                    $accountLogPeriod->dateTo = $accountLogPeriod->dateTo->setDate(3000,1,1); // Period::OPEN_DATE
+                } else if ($chargePeriod->monthscount) {
                     if (!$isSplitByMonth && $chargePeriod->monthscount > 1) {
                         $accountLogPeriod->dateTo = $accountLogPeriod->dateTo->modify('+' . ($chargePeriod->monthscount - 1) . ' months');
                     }

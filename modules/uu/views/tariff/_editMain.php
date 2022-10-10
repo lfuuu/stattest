@@ -126,8 +126,8 @@ $viewParams = [
             ?>
             <?php
             if (
-                    isset(ServiceType::$packages[$tariff->service_type_id])
-                    || array_search($tariff->service_type_id, ServiceType::$packages)
+                isset(ServiceType::$packages[$tariff->service_type_id])
+                || array_search($tariff->service_type_id, ServiceType::$packages)
             ) {
                 echo $form->field($tariff, 'is_bundle')
                     ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_bundle')]);
@@ -168,31 +168,42 @@ $viewParams = [
             ?>
         </div>
 
-        <div class="col-sm-4">
+        <div class="col-sm-2">
             <?= $form->field($tariff, 'is_charge_after_blocking')
                 ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
                     ['label' =>
                         (isset(ServiceType::$packages[$tariff->service_type_id])
                             ? \Yii::t('models/' . Tariff::tableName(), 'is_charge_after_blocking_package')
-                            : $tariff->getAttributeLabel('is_charge_after_blocking')) . $helpConfluence ])
+                            : $tariff->getAttributeLabel('is_charge_after_blocking')) . $helpConfluence])
 
-            ?>
-            <?= $form->field($tariff, 'is_one_active')
-                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
-                    ['label' => $tariff->getAttributeLabel('is_one_active') . $helpConfluence])
             ?>
             <?= $form->field($tariff, 'is_proportionately')
                 ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
                     ['label' => $tariff->getAttributeLabel('is_proportionately') . $helpConfluence])
             ?>
             <?= $form->field($tariff, 'tax_rate')
-                ->textInput( $options + [
+                ->textInput($options + [
                         'label' => $tariff->getAttributeLabel('tax_rate') . $helpConfluence,
                         'placeholder' => \Yii::t('common', '(not set)')
                     ])
             ?>
 
         </div>
+
+        <div class="col-sm-2">
+            <?= $form->field($tariff, 'is_one_active')
+                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                    ['label' => $tariff->getAttributeLabel('is_one_active') . $helpConfluence])
+            ?>
+            <?php
+            if (isset(ServiceType::$packages[$tariff->service_type_id])) {
+                echo $form->field($tariff, 'is_one_alt')
+                    ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                        ['label' => $tariff->getAttributeLabel('is_one_alt') . $helpConfluence]);
+            }
+            ?>
+        </div>
+
 
     </div>
 
@@ -204,7 +215,7 @@ $viewParams = [
     <?= $this->render('_editMainTags', $viewParams) ?>
     <?= $this->render('_editMainOrganization', $viewParams) ?>
 
-    <?= $tariff->is_bundle && isset(ServiceType::$packages[$tariff->service_type_id]) ? $this->render('_editMainBundleTariffEdit', $viewParams) : ''?>
-    <?= $tariff->is_bundle && array_search($tariff->service_type_id, ServiceType::$packages) ? $this->render('_editMainBundleTariffView', $viewParams) : ''?>
+    <?= $tariff->is_bundle && isset(ServiceType::$packages[$tariff->service_type_id]) ? $this->render('_editMainBundleTariffEdit', $viewParams) : '' ?>
+    <?= $tariff->is_bundle && array_search($tariff->service_type_id, ServiceType::$packages) ? $this->render('_editMainBundleTariffView', $viewParams) : '' ?>
 
 </div>
