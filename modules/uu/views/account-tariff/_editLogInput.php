@@ -2,14 +2,17 @@
 /**
  * Создание/редактирование универсальной услуги. Сменить/закрыть тариф с определенной даты
  *
- * @var \app\classes\BaseView $this
- * @var \app\modules\uu\forms\AccountTariffForm $formModel
+ * @var BaseView $this
+ * @var AccountTariffForm $formModel
  * @var ActiveForm $form
  */
 
+use app\classes\BaseView;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\models\TroubleRoistat;
+use app\modules\uu\forms\AccountTariffForm;
+use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
@@ -28,6 +31,10 @@ $channels = TroubleRoistat::CHANNELS;
 
     $accountTariffLog->tariff_period_id = $accountTariff->tariff_period_id; // текущий тариф
     !$accountTariffLog->tariff_period_id && $defaultTariffPeriodId && $accountTariffLog->tariff_period_id = $defaultTariffPeriodId; // иначе (при создании) дефолтный
+
+    if ($accountTariffLog->actual_from >= Period::OPEN_DATE) {
+        $accountTariffLog->actual_from = date('Y-m-d', strtotime('first day of next month'));
+    }
 
     $id = mt_rand(0, 1000000); // чтобы на одной странице можно было несколько объектов показывать
 
