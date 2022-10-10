@@ -19,11 +19,8 @@ use yii\widgets\Breadcrumbs;
 
 <?php
 
-$paysPlus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['>', 'sum', 0])->sum('sum') ?: 0;
-$paysMinus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['<', 'sum', 0])->sum('sum') ?: 0;
-
-$paysPlusInv = $paysPlusBills = $paysPlus;
-$invoiceExtPays = $paysMinusBills = $paysMinus;
+$paysPlus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['>', 'sum', 0])->all();
+$paysMinus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['<', 'sum', 0])->all();
 
 $invoices = \app\models\Invoice::find()->joinWith('bill b')
     ->where(['b.client_id' => $account->id])
@@ -70,6 +67,16 @@ $invoiceExtSum = array_reduce($invoiceExt, function ($acum, \app\models\BillExte
     return $acum + $i->ext_vat + $i->ext_sum_without_vat;
 }, 0);
 
+$paysPlusSum = array_reduce($paysPlus, function ($acum, $i) {
+    return $acum + $i->sum;
+}, 0);
+
+$paysMinusSum = array_reduce($paysMinus, function ($acum, $i) {
+    return $acum + $i->sum;
+}, 0);
+
+$paysPlusInv = $paysPlusBills = $paysPlusSum;
+$invoiceExtPays = $paysMinusBills = $paysMinusSum;
 
 function nf($d)
 {
@@ -87,12 +94,12 @@ function nf($d)
         </div>
         <div class="row">
             <div class="col-sm-6">платежи "+":</div>
-            <div class="col-sm-6 text-right"><?= nf($paysPlus) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($paysPlusSum) ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($paysPlus - $invSum) < 0.01 ? 'black' : ($paysPlus - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($paysPlus - $invSum) ?></div>
+                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($paysPlusSum - $invSum) ?></div>
         </div>
     </div>
     <div class="col-sm-3">
@@ -103,10 +110,10 @@ function nf($d)
         </div>
         <div class="row">
             <div class="col-sm-6">платежи "+":</div>
-            <div class="col-sm-6 text-right"><?= nf($paysPlus) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($paysPlusSum) ?></div>
         </div>
         <div class="row">
-            <div class="col-sm-6">Баланс:</div><?php $totalPlus = $paysPlus - $billSumPlus; ?>
+            <div class="col-sm-6">Баланс:</div><?php $totalPlus = $paysPlusSum - $billSumPlus; ?>
             <div class="col-sm-6 text-right"
                  style="color: <?= (abs($totalPlus) < 0.01 ? 'black' : ($totalPlus > 0 ? 'green' : 'red')) ?>"><?= nf($totalPlus) ?></div>
         </div>
@@ -119,11 +126,11 @@ function nf($d)
         </div>
         <div class="row">
             <div class="col-sm-6">платежи "-":</div>
-            <div class="col-sm-6 text-right"><?= nf($paysMinus, 2, '.', ' ') ?></div>
+            <div class="col-sm-6 text-right"><?= nf($paysMinusSum, 2, '.', ' ') ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
-            <?php $totalMinus = $billSumMinus - $paysMinus; ?>
+            <?php $totalMinus = $billSumMinus - $paysMinusSum; ?>
             <div class="col-sm-6 text-right"
                  style="color: <?= (abs($totalMinus) < 0.01 ? 'black' : ($totalMinus > 0 ? 'green' : 'red')) ?>"><?= nf($totalMinus) ?></div>
         </div>
@@ -141,7 +148,7 @@ function nf($d)
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($paysPlus - $invSum) < 0.01 ? 'black' : ($paysPlus - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($invoiceExtPays + $invoiceExtSum) ?></div>
+                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($invoiceExtPays + $invoiceExtSum) ?></div>
         </div>
     </div>
 </div>
@@ -241,6 +248,41 @@ foreach ($invoiceExt as $inv) {
     addItem($d, $v, $date);
 }
 
+/** @var \app\models\Payment $pay */
+foreach ($paysPlus as $pay) {
+
+    $v = [
+        'number' => $pay->payment_no,
+        'link' => "",
+        'date' => $pay->payment_date,
+        'sum' => round($pay->sum, 2),
+        'is_paid' => null,
+        'type' => 'payment',
+    ];
+
+    $date = new DateTimeImmutable($pay->payment_date);
+    addItem($d, $v, $date);
+}
+
+$vv = [];
+/** @var \app\models\Payment $pay */
+foreach ($paysMinus as $pay) {
+
+    $v = [
+        'number' => $pay->payment_no,
+        'link' => "",
+        'date' => $pay->payment_date,
+        'sum' => round($pay->sum, 2),
+        'is_paid' => null,
+        'type' => 'payment_minus',
+    ];
+
+    $vv[] = $v;
+    $date = new DateTimeImmutable($pay->payment_date);
+    addItem($d, $v, $date);
+}
+
+
 foreach ($d as $year => &$yearData) {
     foreach ($yearData as $month => &$monthData) {
         ksort($monthData);
@@ -256,6 +298,10 @@ function addItem(&$d, $item, $date)
     }
     $d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']][] = $item;
 }
+
+//echo "<pre>";
+//print_r($d);
+//echo "</pre>";
 
 foreach ($d as $year => &$yearData) {
     foreach ($yearData as $month => &$monthData) {
@@ -289,6 +335,9 @@ class row
     public $invoice = '';
     public $invoice_minus = '';
 
+    public $payment = '';
+    public $payment_minus = '';
+
     public $bill_is_paid = '';
     public $bill_minus_is_paid = '';
     public $invoice_is_paid = '';
@@ -297,10 +346,10 @@ class row
 
 $rr = [];
 
-$bill_is_paid = false;
-$bill_minus_is_paid = false;
-$invoice_is_paid = false;
-$invoice_minus_is_paid = false;
+$bill_is_paid = null;
+$bill_minus_is_paid = null;
+$invoice_is_paid = null;
+$invoice_minus_is_paid = null;
 
 foreach ($d as $year => &$yearData) {
     foreach ($yearData as $month => &$monthData) {
@@ -358,6 +407,14 @@ foreach ($d as $year => &$yearData) {
                             $invoice_minus_is_paid = $value['is_paid'];
                             $row->invoice_minus_is_paid = $invoice_minus_is_paid;
                             $row->invoice_minus = $value;
+                            break;
+
+                        case 'payment':
+                            $row->payment = $value;
+                            break;
+
+                        case 'payment_minus':
+                            $row->payment_minus = $value;
                             break;
                     }
                 }
@@ -428,7 +485,9 @@ function getGrid($models)
 
 function cellContentOptions($is_paid, $addClass = '')
 {
-    return ['class' => ($is_paid === 1 ? 'success' : ($is_paid === 2 ? 'warning' : 'danger')) . ($addClass ? ' ' . $addClass : '')];
+    return $is_paid === null
+        ? ($addClass ? ['class' => $addClass] : [])
+        : ['class' => ($is_paid === 1 ? 'success' : ($is_paid === 2 ? 'warning' : 'danger')) . ($addClass ? ' ' . $addClass : '')];
 }
 
 ?>
@@ -455,6 +514,26 @@ function cellContentOptions($is_paid, $addClass = '')
                     'label' => 'День',
                 ],
                 [
+                    'label' => 'Счет +',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill ? \app\classes\Html::a($row->bill['number'], $row->bill['link']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_is_paid);
+                    },
+                ],
+                [
+                    'label' => 'Сумма счета +',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill ? nf($row->bill['sum']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_is_paid, 'text-right');
+                    },
+                ],
+                [
                     'label' => 'С/ф +',
                     'format' => 'raw',
                     'contentOptions' => function ($row) {
@@ -466,35 +545,38 @@ function cellContentOptions($is_paid, $addClass = '')
                     },
                 ],
                 [
+                    'label' => 'С/ф сумма +',
                     'format' => 'raw',
                     'value' => function (row $row) {
                         return $row->invoice ? nf($row->invoice['sum']) : '';
                     },
-                    'label' => 'С/ф сумма +',
                     'contentOptions' => function ($row) {
                         return cellContentOptions($row->invoice_is_paid, 'text-right');
                     },
                 ],
+
                 [
-                    'label' => 'Счет +',
+                    'label' => 'Платеж +',
                     'format' => 'raw',
                     'value' => function (row $row) {
-                        return $row->bill ? \app\classes\Html::a($row->bill['number'], $row->bill['link']) : '';
+                        return $row->payment ?  nf($row->payment['sum']) : '';
                     },
                     'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_is_paid);
+                        return cellContentOptions(null, 'info text-right');
                     },
                 ],
                 [
+                    'label' => 'Платеж -',
                     'format' => 'raw',
                     'value' => function (row $row) {
-                        return $row->bill ? nf($row->bill['sum']) : '';
+                        return $row->payment_minus ? nf($row->payment_minus['sum']) : '';
                     },
-                    'label' => 'Сумма счета +',
                     'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_is_paid, 'text-right');
+                        return cellContentOptions(null, 'info text-right');
                     },
-                ], [
+                ],
+
+                [
                     'label' => 'Счет -',
                     'format' => 'raw',
                     'value' => function (row $row) {
