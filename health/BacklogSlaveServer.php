@@ -22,6 +22,10 @@ class BacklogSlaveServer extends Monitor
      */
     public function getValue()
     {
+        if (!\Yii::$app->isRus()) {
+            return 0; // skip check
+        }
+
         try {
             ActiveRecord::setPgTimeout(1000, \Yii::$app->dbPgSlave);
 

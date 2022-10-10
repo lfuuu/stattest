@@ -425,11 +425,12 @@ data:
                     //'sormSync' => 'http://eridanus.mcn.ru/health/healthSormSync.json',
                     ////'sormImport' => 'http://eridanus.mcn.ru/health/healthSormImport.json',
                     //'sormUpload' => 'http://eridanus.mcn.ru/health/healthSormUpload.json',
-                    'SMS Errors' => 'http://thiamis.mcn.ru/sms/health/error.json',
-                    'SMS Errors2' => 'http://thiamis.mcn.ru/sms/health/error2.json',
+                    // 'SMS Errors' => 'http://thiamis.mcn.ru/sms/health/error.json',
+                    // 'SMS Errors2' => 'http://thiamis.mcn.ru/sms/health/error2.json',
 
                     // stat heavy
                     // 'UuAccountEntry' => '@app/web/export/health/UuAccountEntry.json',
+                    {{ if (eq (env "COUNTRY") "RU") }}
                     'UuBill' => '@app/web/export/health/UuBill.json',
 
                     // stat sh
@@ -441,8 +442,8 @@ data:
                     'ubillerLog' => '@app/web/export/health/ubillerLog.json',
                     'nnpPortedNumberLog' => '@app/web/export/health/nnpPortedNumberLog.json',
                     //'uuApiLog' => '@app/web/export/health/uuApiLog.json',
-                    'mttLog' => '@app/web/export/health/mttLog.json',
-                    'mttProcess' => '@app/web/export/health/mttProcess.json',
+                    // 'mttLog' => '@app/web/export/health/mttLog.json',
+                    // 'mttProcess' => '@app/web/export/health/mttProcess.json',
                     'tele2Log' => '@app/web/export/health/tele2Log.json',
                     'tele2Process' => '@app/web/export/health/tele2Process.json',
                     'portedNumberLog' => '@app/web/export/health/numberPortedLog.json',
@@ -454,13 +455,16 @@ data:
                     'exportFreeNumbers' => '@app/web/export/health/exportFreeNumbers.json',
                     'DoublePayment' => '@app/web/export/health/DoublePayment.json',
                     'VoipDelayOnPackages' => '@app/web/export/health/VoipDelayOnPackages.json',
+                    {{ end }}
                     //'WrongNumberRegion' => '@app/web/export/health/WrongNumberRegion.json',
                     //'billerCleanMinEntry' => '@app/web/export/health/billerCleanMinEntry.json',
                 ],
                 'for_managers' => [
+                     {{ if (eq (env "COUNTRY") "RU") }}
                     'SMS balance' => 'http://thiamis.mcn.ru/sms/health/balance.json',
                     'UuTestTariff' => '@app/web/export/health/UuTestTariff.json',
                     'UuShiftTariff' => '@app/web/export/health/UuShiftTariff.json',
+                    {{ end }}
                     //'SormClientsReg97' => '@app/web/export/health/SormClientsReg97.json',
                 ]
             ],
