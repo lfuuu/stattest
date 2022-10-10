@@ -178,7 +178,7 @@ $viewParams = [
 
             ?>
             <?= $form->field($tariff, 'is_proportionately')
-                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                ->checkbox($options +
                     ['label' => $tariff->getAttributeLabel('is_proportionately') . $helpConfluence])
             ?>
             <?= $form->field($tariff, 'tax_rate')
@@ -198,8 +198,9 @@ $viewParams = [
             <?php
             if (isset(ServiceType::$packages[$tariff->service_type_id])) {
                 echo $form->field($tariff, 'is_one_alt')
-                    ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
-                        ['label' => $tariff->getAttributeLabel('is_one_alt') . $helpConfluence]);
+                    ->checkbox($options +
+                        ['label' => $tariff->getAttributeLabel('is_one_alt') . $helpConfluence]
+                    );
             }
             ?>
         </div>
