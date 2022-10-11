@@ -97,7 +97,7 @@ class BalanceSellToExcelEu extends Excel
             ];
 
             $data[] = [
-                (new DateTime($bill->bill_date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
+                (new DateTime($invoice->date))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 $account->id,
                 $contragent->country->name,
                 $contragent->legal_type,
