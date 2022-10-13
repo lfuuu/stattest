@@ -31,17 +31,13 @@ $breadCrumbLinks = [
 
 <?= Breadcrumbs::widget(['links' => $breadCrumbLinks]) ?>
 
-    <form>
-
         <div class="well">
             <?php
 
             $form = ActiveForm::begin([
-                'type' => ActiveForm::TYPE_VERTICAL,
-                'enableClientValidation' => true,
+                'action' => '/voip/monitor/',
+                'method' => 'get',
             ]);
-
-            $this->registerJsVariable('registryFormId', $form->getId());
 
             // строка 1
             $line1Attributes = [
@@ -101,7 +97,6 @@ $breadCrumbLinks = [
             ActiveForm::end();
             ?>
         </div>
-    </form>
 
 <?php
 
@@ -182,13 +177,15 @@ $columns = [[
     [
         'label' => "Ожидание соединения / Длительность",
         'value' => function ($row) {
-            return (new DateTimeImmutable($row['cdr_connect_time']))->diff(new DateTimeImmutable($row['setup_time']))->s . ' / '.$row['session_time'];
+            return (new DateTimeImmutable($row['cdr_connect_time']))->diff(new DateTimeImmutable($row['setup_time']))->s . ' / ' . $row['session_time'];
         }
     ],
     [
-            'label' => 'Транк А / Транк B',
-            'format' => 'raw',
-            'value' => function($row) { return $row['src_route'] . ' <br> ' . $row['dst_route']; }
+        'label' => 'Транк А / Транк B',
+        'format' => 'raw',
+        'value' => function ($row) {
+            return $row['src_route'] . ' <br> ' . $row['dst_route'];
+        }
     ],
     [
         'format' => 'raw',
