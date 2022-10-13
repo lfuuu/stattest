@@ -249,7 +249,7 @@ trait AccountTariffPackageTrait
         $tariffPeriod = reset($tariffPeriods);
 
         $accountTariffLogs = $this->accountTariffLogs;
-        $accountTariffLog = end($accountTariffLogs); // базовый пакет должен быть подключен с самого начала (конца desc-списка)
+        $accountTariffLog = reset($accountTariffLogs);
 
         // подключить базовый пакет
         $accountTariffPackage = new AccountTariff();
