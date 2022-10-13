@@ -251,6 +251,7 @@ class AccountEditForm extends Form
                 'admin_email' => 'Email администратора',
                 'transfer_params_from' => 'Перенести Реквизиты и Контакты с ЛС',
                 'transfer_contract_id' => 'Перенести ЛС на договор',
+                'trust_level_id' => 'Уровень доверия',
             ]
         );
     }

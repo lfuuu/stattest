@@ -33,6 +33,7 @@ class ClientAccountOptions extends ActiveRecord
     const OPTION_ORIGINAL_CONTRACT_ID = 'original_contract_id';
 
     const OPTION_UPLOAD_TO_SALES_BOOK = 'upload_to_sales_book'; // default = 1
+    const OPTION_TRUST_LEVEL = 'trust_level_id';
 
     public static $settingsAdvance = [
         self::SETTINGS_ADVANCE_NOT_SET => 'Не выставляются автоматически',
@@ -41,7 +42,8 @@ class ClientAccountOptions extends ActiveRecord
     ];
 
     private static $_defaults = [
-        self::OPTION_UPLOAD_TO_SALES_BOOK => "1" // там только строки
+        self::OPTION_UPLOAD_TO_SALES_BOOK => "1", // там только строки
+        self::OPTION_TRUST_LEVEL => "0", // 0 - Не установлен
     ];
 
     public static $infoOptions = [
