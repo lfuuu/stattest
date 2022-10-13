@@ -5,6 +5,7 @@ use app\forms\client\AccountEditForm;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\Currency;
+use app\models\dictionary\TrustLevel;
 use app\models\GoodPriceType;
 use app\models\Region;
 use app\models\Timezone;
@@ -45,8 +46,14 @@ use kartik\widgets\ActiveForm;
         <div class="col-sm-3">
             <?= $f->field($model, 'currency')->dropDownList(Currency::map()) ?>
         </div>
+<!--        <div class="col-sm-3">-->
+<!--            --><?php /* echo $f->field($model, 'price_type')->dropDownList(GoodPriceType::getList()) */ ?>
+<!--        </div>-->
         <div class="col-sm-3">
-            <?= $f->field($model, 'price_type')->dropDownList(GoodPriceType::getList()) ?>
+            <?= $f->field($model, 'options[trust_level_id]')
+                ->dropDownList(TrustLevel::getList())
+                ->label($model->getAttributeLabel('trust_level_id'))
+            ?>
         </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'pay_bill_until_days') ?>
