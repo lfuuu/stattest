@@ -4,26 +4,48 @@ namespace app\models\filter\voip;
 
 use app\classes\Form;
 use app\classes\validators\FormFieldValidator;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsCdr;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\db\Expression;
+use yii\db\QueryBuilder;
 
 class MonitorFilter extends Form
 {
-    public $range;
+//    public $range;
     public $number_a;
     public $number_b;
+
+    public $date_from;
+    public $date_to;
+
+    public $orig_account;
+    public $term_account;
+
     public $is_with_session_time = 1;
+
+    public function init()
+    {
+        $this->date_from = date('Y-m-d\TH:i', strtotime('+3 hours', strtotime('-5 minute')));
+        $this->date_to = date('Y-m-d\TH:i', strtotime('+3 hours'));
+    }
 
 
     public function rules()
     {
+        global $fixclient_data;
+
         return [
-            ['range', 'required'],
-            ['range', 'in', 'range' => $this->getRanges()],
+//            ['range', 'required'],
+//            ['range', 'in', 'range' => $this->getRanges()],
+//            [['date_from', 'date_to'], 'require'],
+            [['date_from', 'date_to'], 'datetime'],
             [['number_a', 'number_b'], 'string'],
             [['number_a', 'number_b'], FormFieldValidator::class],
             ['is_with_session_time', 'integer'],
+            [['orig_account', 'term_account'], 'integer'],
+//            ['orig_account', 'default', 'value' => $fixclient_data['id'] ?? null],
 
         ];
     }
@@ -40,71 +62,90 @@ class MonitorFilter extends Form
             'rate' => 'Ставка',
             'count' => 'Кол-во частей',
 
-            'range' => 'За последние: ',
             'connect_time' => 'Время',
             'session_time' => 'Длительность',
             'is_with_session_time' => 'Звонки с длительностью',
+
+            'orig_account' => 'ЛС номера А',
+            'term_account' => 'ЛС номера B',
+
             'number_a' => 'Номера А',
             'number_b' => 'Номера В',
+
+            'date_from' => 'Период начала звонка "С" (Мск)',
+            'date_to' => 'Период начала звонка "По" (Мск)',
+
+            'cdr_connect_time' => 'Время соединения (Мск)',
         ];
     }
 
     public function search()
     {
-        $query = CallsCdr::find()->orderBy(['connect_time' => SORT_DESC]);
+        $from = \DateTime::createFromFormat('Y-m-d\TH:i', $this->date_from)->modify('-3 hours');
+        $to = \DateTime::createFromFormat('Y-m-d\TH:i', $this->date_to)->modify('-3 hours');
 
-        if ($this->range) {
-            $query->where([
-                'between', 'connect_time',
-                new Expression("NOW() - interval '" . $this->range . "'"), new Expression('NOW()')]);
-        } else {
-            $query->where('0=1');
+        $fromStr = $from->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $toStr = $to->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+
+        $query = <<< SQL
+with cdr as (
+    SELECT *
+    FROM "calls_cdr"."cdr"
+    WHERE
+        ("connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
+    ORDER BY "connect_time" DESC
+), calls as (
+    select raw.*
+    from calls_raw.calls_raw raw,
+         cdr
+    where raw.server_id = cdr.server_id
+      and raw.cdr_id = cdr.id
+      and (raw."connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
+)
+
+select cdr.server_id, cdr.id as cdr_id, 
+       cdr.src_number as cdr_num_a, cdr.dst_number  as cdr_num_b, cdr.connect_time + interval '3 hours' as cdr_connect_time, cdr.setup_time, cdr.session_time, src_route, dst_route
+, c_orig.src_number as orig_num_a, c_orig.dst_number as orig_num_b, c_orig.account_id as orig_account
+, c_term.src_number as term_num_a, c_term.dst_number as term_num_b, c_term.account_id as term_account
+from cdr
+left join calls c_orig on cdr.server_id = c_orig.server_id and cdr.id = c_orig.cdr_id and c_orig.orig
+left join calls c_term on cdr.server_id = c_term.server_id and cdr.id = c_term.cdr_id and not c_term.orig
+WHERE True
+SQL;
+
+        $this->orig_account = preg_replace('/[^\d]/', '', $this->orig_account);
+        $this->term_account = preg_replace('/[^\d]/', '', $this->term_account);
+
+        $this->number_a = preg_replace('/[^\d]/', '', $this->number_a);
+        $this->number_b = preg_replace('/[^\d]/', '', $this->number_b);
+
+        if ($this->orig_account) {
+            $query .= " AND c_orig.account_id = '" . $this->orig_account . "'";
+        }
+
+        if ($this->term_account) {
+            $query .= " AND c_term.account_id = '" . $this->term_account . "'";
         }
 
         if ($this->number_a) {
-            if (preg_match('/^\d+$', $this->number_a)) {
-                $query->andWhere(['src_number' => $this->number_a]);
-            }else{
-                $query->andWhere(['like', 'src_number', preg_replace("/[^\d]+/", '%', $this->number_a), false]);
-            }
+            $query .= " AND COALESCE(c_orig.src_number, c_term.src_number) = " . $this->number_a . "::bigint";
         }
-
 
         if ($this->number_b) {
-            if (preg_match('/^\d+$', $this->number_b)) {
-                $query->andWhere(['dst_number' => $this->number_b]);
-            }else{
-                $query->andWhere(['like', 'dst_number', preg_replace("/[^\d]+/", '%', $this->number_b), false]);
-            }
+            $query .= " AND COALESCE(c_orig.dst_number, c_term.dst_number) = '" . $this->number_b . "'::bigint";
         }
+
 
         if ($this->is_with_session_time) {
-            $query->andWhere(['>', 'session_time', 0]);
+            $query .= ' AND cdr.session_time > 0';
         }
 
-        return new ActiveDataProvider([
-            'db' => CallsCdr::getDb(),
-            'query' => $query,
-        ]);
-    }
 
-    public function getRanges()
-    {
-        return [
-            '10 second' => '10 сек',
-            '30 second' => '30 сек',
-            '1 minute' => '1 минут',
-            '3 minute' => '3 минут',
-            '5 minute' => '5 минут',
-            '10 minute' => '10 минут',
-            '15 minute' => '15 минут',
-            '30 minute' => '30 минут',
-            '1 hour' => '1 час',
-            '3 hour' => '3 часа',
-            '12 hour' => '12 часа',
-            '1 day' => '1 день',
-            '3 day' => '3 дня',
-            '7 day' => '7 дней',
-        ];
+        $query .= PHP_EOL . "ORDER BY cdr.connect_time DESC";
+
+        return new ArrayDataProvider([
+            'allModels' => CallsCdr::getDb()->createCommand($query)->queryAll(),
+        ]);
     }
 }
