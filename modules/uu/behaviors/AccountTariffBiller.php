@@ -9,6 +9,7 @@ use app\helpers\Semaphore;
 use app\models\EventQueue;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Estimation;
 use app\modules\uu\tarificator\AccountEntryTarificator;
 use app\modules\uu\tarificator\AccountLogMinTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodPackageTarificator;
@@ -118,7 +119,7 @@ class AccountTariffBiller extends Behavior
 //         (new BillConverterTarificator)->tarificate($clientAccountId); // это не обязательно делать в реалтайме. По крону вполне сойдет
         }
 
-        (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
+        (new RealtimeBalanceTarificator)->tarificate($clientAccountId, $accountTariffId);
 
         $tarificator = (new AccountLogPeriodPackageTarificator());
         $tarificator->tarificate($accountTariffId);

@@ -15,6 +15,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\AccountTariffVoip;
+use app\modules\uu\models\Estimation;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use InvalidArgumentException;
@@ -158,6 +159,15 @@ abstract class AccountTariffForm extends Form
                     if (!$accountTariffLog->save()) {
                         $this->validateErrors += $accountTariffLog->getFirstErrors();
                         throw new ModelValidationException($accountTariffLog);
+                    }
+
+                    $estimation = new Estimation();
+                    $estimation->client_account_id = $accountTariff->client_account_id;
+                    $estimation->account_tariff_id = $accountTariff->id;
+                    $estimation->price = (float)$accountTariffLog->connectionAmount;
+
+                    if (!$estimation->save()) {
+                        throw new ModelValidationException($estimation);
                     }
                 }
 
