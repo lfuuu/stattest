@@ -2080,6 +2080,8 @@ class UuController extends ApiInternalController
                     throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга с таким идентификатором не найдена ' . $account_tariff_id, AccountTariff::ERROR_CODE_USAGE_EMPTY);
                 }
 
+                $accountTariff->checkAndCloseAccountTariffLogChangesInFuture();
+
                 // записать в лог тарифа
                 $accountTariffLog = new AccountTariffLog;
                 $accountTariffLog->account_tariff_id = $accountTariff->id;

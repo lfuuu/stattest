@@ -280,4 +280,38 @@ trait AccountTariffBillerTrait
             throw $e;
         }
     }
+
+    /**
+     * Проверить и удалить изменения в будущем
+     *
+     * @return bool
+     */
+    public function checkAndCloseAccountTariffLogChangesInFuture()
+    {
+
+        $accountTariffLogs = $this->accountTariffLogs;
+        /** @var AccountTariffLog $accountTariffLastLog */
+        $accountTariffLastLog = reset($accountTariffLogs);
+
+        $currentDateTimeUtc = $this->clientAccount
+            ->getDatetimeWithTimezone()
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        if (
+            $accountTariffLastLog->actual_from_utc > $currentDateTimeUtc
+            && count($accountTariffLogs) > 1 // решение проблемы с таймзоной, проверка, что точно была смена тарифа.
+        ) {
+
+            if (!$accountTariffLastLog->delete()) {
+                throw new ModelValidationException($accountTariffLastLog);
+            }
+
+            $this->refresh();
+            return true;
+        }
+
+        return false;
+    }
 }
