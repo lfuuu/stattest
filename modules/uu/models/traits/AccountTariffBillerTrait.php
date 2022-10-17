@@ -296,7 +296,7 @@ trait AccountTariffBillerTrait
         $currentDateTimeUtc = $this->clientAccount
             ->getDatetimeWithTimezone()
             ->setTime(0, 0, 0)
-            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+            ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if (
