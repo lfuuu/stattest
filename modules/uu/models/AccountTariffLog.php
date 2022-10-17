@@ -5,6 +5,7 @@ namespace app\modules\uu\models;
 use app\classes\behaviors\ClientChangeNotifier;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\User;
@@ -433,7 +434,7 @@ class AccountTariffLog extends ActiveRecord
             // Эти проверки только для платной услуги
 
             $credit = $clientAccount->credit; // кредитный лимит
-            $estimationSum = Estimation::find()->where(['client_account_id' => $accountTariff->client_account_id])->sum('price');
+            $estimationSum = Estimation::find()->where(['client_account_id' => $accountTariff->client_account_id])->sum('price') ?: 0;
             $realtimeBalance = $clientAccount->balance - $estimationSum;
             $realtimeBalanceWithCredit = ($realtimeBalance + $credit);
 
@@ -477,6 +478,22 @@ class AccountTariffLog extends ActiveRecord
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
         Yii::trace('AccountTariffLog. After validatorBalance', 'uu');
+    }
+
+    public function afterSave($isInsert, $changedAttributes)
+    {
+        if ($this->connectionAmount !== null) {
+
+            $estimation = new Estimation();
+            $estimation->client_account_id = $this->accountTariff->client_account_id;
+            $estimation->account_tariff_id = $this->account_tariff_id;
+            $estimation->price = (float)$this->connectionAmount;
+
+            if (!$estimation->save()) {
+                throw new ModelValidationException($estimation);
+            }
+        }
+        parent::afterSave($isInsert, $changedAttributes);
     }
 
     /**

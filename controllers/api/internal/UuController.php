@@ -34,8 +34,6 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
-use app\modules\uu\models\billing_uu\Pricelist;
-use app\modules\uu\models\Estimation;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
@@ -1984,15 +1982,6 @@ class UuController extends ApiInternalController
 
             if (!$accountTariffLog->save()) {
                 throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
-            }
-
-            $estimation = new Estimation();
-            $estimation->client_account_id = $accountTariff->client_account_id;
-            $estimation->account_tariff_id = $accountTariffLog->account_tariff_id;
-            $estimation->price = (float)$accountTariffLog->connectionAmount;
-
-            if (!$estimation->save()) {
-                throw new ModelValidationException($estimation);
             }
 
             $this->_checkTariff($accountTariff, $accountTariffLog);
