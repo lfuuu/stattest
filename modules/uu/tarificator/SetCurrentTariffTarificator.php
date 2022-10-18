@@ -494,7 +494,7 @@ SQL;
             } else {
                 HandlerLogger::me()->add('Balance recalced partially');
             }
-            (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
+            (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id, $accountTariff->id);
             HandlerLogger::me()->add(ob_get_clean());
         } catch (\Exception $e) {
             HandlerLogger::me()->add(ob_get_clean());

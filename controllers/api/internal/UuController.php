@@ -34,7 +34,6 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Bill;
-use app\modules\uu\models\billing_uu\Pricelist;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;

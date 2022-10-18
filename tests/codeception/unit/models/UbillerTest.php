@@ -664,7 +664,7 @@ class UbillerTest extends _TestCase
         // ***
         // создание старого счёта
         (new BillConverterTarificator)->transferBill($bill);
-        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
+        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id, $accountTariff->id);
 
         // Универсальный счёт сконвертирован
         $this->assertEquals($bill->is_converted, 1);
@@ -765,7 +765,7 @@ class UbillerTest extends _TestCase
         // ***
         // создание старого счёта
         (new BillConverterTarificator)->transferBill($billCost);
-        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
+        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id, $accountTariff->id);
 
         // Универсальный счёт сконвертирован
         $this->assertTrue($billCost->is_converted === 1);

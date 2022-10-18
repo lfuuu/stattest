@@ -5,6 +5,7 @@ namespace app\modules\uu\models;
 use app\classes\behaviors\ClientChangeNotifier;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\User;
@@ -56,6 +57,8 @@ class AccountTariffLog extends ActiveRecord
 
     /** @var string Это поле только для записи в историю */
     public $user_info = '';
+
+    public $connectionAmount = null;
 
     /**
      * @return string
@@ -375,16 +378,12 @@ class AccountTariffLog extends ActiveRecord
             }
 
             $isPackage = array_key_exists($tariff->service_type_id, ServiceType::$packages);
-            if ($isPackage && ($tariff->is_default || $tariff->is_charge_after_blocking)) {
+            if ($isPackage && ($tariff->is_default || $tariff->is_bundle || $tariff->is_charge_after_blocking)) {
                 // пакеты по умолчанию подключаются/отключаются автоматически. Им можно всё
                 // пакеты со списание после блокировки можно подключить всегда
                 return;
             }
         }
-
-        $credit = $clientAccount->credit; // кредитный лимит
-        $realtimeBalance = $clientAccount->balance;
-        $realtimeBalanceWithCredit = ($realtimeBalance + $credit);
 
         $warnings = $clientAccount->getVoipWarnings();
         $isCountLogs = $this->_getCountLogs(); // смена тарифа или закрытие услуги
@@ -429,71 +428,16 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        $accountLogFromToTariff = new AccountLogFromToTariff();
-        $accountLogFromToTariff->dateFrom = new DateTimeImmutable($this->actual_from);
-        $accountLogFromToTariff->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToTariff->dateFrom);
-        $accountLogFromToTariff->tariffPeriod = $tariffPeriod;
-        $accountLogFromToTariff->isFirst = true;
-
-        // AccountLogSetupTarificator и AccountLogPeriodTarificator сейчас нельзя вызвать, потому что записи в логе тарифов еще нет
-        // AccountLogResourceTarificator пока нет
-        //
-        // подключение
-        $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
-        if (
-            $isCountLogs > 1 // Это уже не первая смена тарифа. Плату за подключение уже взимали раньше
-            || (
-                // первая смена с не-тестового. Плату за подключение уже взимали раньше
-                $isCountLogs == 1
-                && ($accountTariffLogPrev = self::findOne(['account_tariff_id' => $this->account_tariff_id]))
-                && !$accountTariffLogPrev->tariffPeriod->tariff->getIsTest()
-            )
-        ) {
-            // Плата за номер не взимается
-            $accountLogSetup->price = max(0, $accountLogSetup->price - $accountLogSetup->price_number);
-            $accountLogSetup->price_number = 0;
-        }
-
-        // абонентка
-        $accountLogPeriod = (new AccountLogPeriodTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToTariff);
-
-        // ресурсы
-        $accountLogResourceTarificator = (new AccountLogResourceTarificator());
-
-        $priceResources = 0;
-        $tariffResources = $tariffPeriod->tariff->tariffResources;
-        foreach ($tariffResources as $tariffResource) {
-
-            if (!ResourceModel::isOptionId($tariffResource->resource_id)) {
-                // этот ресурс - не опция. Он считается по факту, а не заранее
-                continue;
-            }
-
-            $accountLogFromToResource = new AccountLogFromToResource;
-            $accountLogFromToResource->dateFrom = $accountLogFromToTariff->dateFrom;
-            $accountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
-            $accountLogFromToResource->tariffPeriod = $tariffPeriod;
-            $accountLogFromToResource->amountOverhead = (float)$accountTariff->getResourceValue($tariffResource->resource_id, $isCurrentOnly = false); // текущее кол-во ресурса может быть null, если услуга только создается
-            if ($accountLogFromToResource->amountOverhead) {
-                $accountLogFromToResource->amountOverhead -= $tariffResource->amount; // в amountOverhead должно быть не общее кол-во ресурса, а лишь превышение
-            }
-
-            $accountLogResource =
-                $accountLogResourceTarificator
-                    ->getAccountLogResource($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
-            $priceResources += $accountLogResource->price;
-        }
-
-        // минималка
-        $priceMin = ($tariffPeriod->price_min * $accountLogPeriod->coefficient);
-        $priceMin -= $priceResources;
-        $priceMin = max(0, $priceMin);
-
-        // суммарный платеж
-        $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceResources + $priceMin;
+        list($tariffPrice, $accountLogSetup, $accountLogPeriod, $priceResources, $priceMin)  = $this->getConnectionAmount($accountTariff, $tariffPeriod, $isCountLogs, true);
 
         if ($tariffPrice > 0) {
             // Эти проверки только для платной услуги
+
+            $credit = $clientAccount->credit; // кредитный лимит
+            $estimationSum = Estimation::find()->where(['client_account_id' => $accountTariff->client_account_id])->sum('price') ?: 0;
+            $realtimeBalance = $clientAccount->balance - $estimationSum;
+            $realtimeBalanceWithCredit = ($realtimeBalance + $credit);
+
 
             if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
                 $error = sprintf('Платную услугу нельзя подключить, потому что ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
@@ -534,6 +478,22 @@ class AccountTariffLog extends ActiveRecord
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
         Yii::trace('AccountTariffLog. After validatorBalance', 'uu');
+    }
+
+    public function afterSave($isInsert, $changedAttributes)
+    {
+        if ($this->connectionAmount !== null) {
+
+            $estimation = new Estimation();
+            $estimation->client_account_id = $this->accountTariff->client_account_id;
+            $estimation->account_tariff_id = $this->account_tariff_id;
+            $estimation->price = (float)$this->connectionAmount;
+
+            if (!$estimation->save()) {
+                throw new ModelValidationException($estimation);
+            }
+        }
+        parent::afterSave($isInsert, $changedAttributes);
     }
 
     /**
@@ -859,6 +819,85 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
+    }
+
+    public function getConnectionAmount($accountTariff = null, $tariffPeriod = null, $isCountLogs = null, $isWithObjects = false)
+    {
+        if (!$accountTariff) {
+            $accountTariff = $this->accountTariff;
+        }
+
+        if (!$tariffPeriod) {
+            $tariffPeriod = $this->tariffPeriod;
+        }
+
+        if ($isCountLogs === null) {
+            $isCountLogs = $this->_getCountLogs();
+        }
+
+        $accountLogFromToTariff = new AccountLogFromToTariff();
+        $accountLogFromToTariff->dateFrom = new DateTimeImmutable($this->actual_from);
+        $accountLogFromToTariff->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToTariff->dateFrom);
+        $accountLogFromToTariff->tariffPeriod = $tariffPeriod;
+        $accountLogFromToTariff->isFirst = true;
+
+        // AccountLogSetupTarificator и AccountLogPeriodTarificator сейчас нельзя вызвать, потому что записи в логе тарифов еще нет
+        // AccountLogResourceTarificator пока нет
+        //
+        // подключение
+        $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
+        if (
+            $isCountLogs > 1 // Это уже не первая смена тарифа. Плату за подключение уже взимали раньше
+            || (
+                // первая смена с не-тестового. Плату за подключение уже взимали раньше
+                $isCountLogs == 1
+                && ($accountTariffLogPrev = self::findOne(['account_tariff_id' => $this->account_tariff_id]))
+                && !$accountTariffLogPrev->tariffPeriod->tariff->getIsTest()
+            )
+        ) {
+            // Плата за номер не взимается
+            $accountLogSetup->price = max(0, $accountLogSetup->price - $accountLogSetup->price_number);
+            $accountLogSetup->price_number = 0;
+        }
+
+        // абонентка
+        $accountLogPeriod = (new AccountLogPeriodTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToTariff);
+
+        // ресурсы
+        $accountLogResourceTarificator = (new AccountLogResourceTarificator());
+
+        $priceResources = 0;
+        $tariffResources = $tariffPeriod->tariff->tariffResources;
+        foreach ($tariffResources as $tariffResource) {
+
+            if (!ResourceModel::isOptionId($tariffResource->resource_id)) {
+                // этот ресурс - не опция. Он считается по факту, а не заранее
+                continue;
+            }
+
+            $accountLogFromToResource = new AccountLogFromToResource;
+            $accountLogFromToResource->dateFrom = $accountLogFromToTariff->dateFrom;
+            $accountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
+            $accountLogFromToResource->tariffPeriod = $tariffPeriod;
+            $accountLogFromToResource->amountOverhead = (float)$accountTariff->getResourceValue($tariffResource->resource_id, $isCurrentOnly = false); // текущее кол-во ресурса может быть null, если услуга только создается
+            if ($accountLogFromToResource->amountOverhead) {
+                $accountLogFromToResource->amountOverhead -= $tariffResource->amount; // в amountOverhead должно быть не общее кол-во ресурса, а лишь превышение
+            }
+
+            $accountLogResource =
+                $accountLogResourceTarificator
+                    ->getAccountLogResource($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
+            $priceResources += $accountLogResource->price;
+        }
+
+        // минималка
+        $priceMin = ($tariffPeriod->price_min * $accountLogPeriod->coefficient);
+        $priceMin -= $priceResources;
+        $priceMin = max(0, $priceMin);
+
+        // суммарный платеж
+        $this->connectionAmount = $accountLogSetup->price + $accountLogPeriod->price + $priceResources + $priceMin;
+        return !$isWithObjects ? $this->connectionAmount : [$this->connectionAmount, $accountLogSetup, $accountLogPeriod, $priceResources, $priceMin];
     }
 
     /**

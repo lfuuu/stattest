@@ -5,7 +5,6 @@ namespace app\modules\uu\forms;
 use app\classes\Form;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use app\helpers\Semaphore;
 use app\models\EventQueue;
 use app\models\Region;
 use app\models\usages\UsageInterface;

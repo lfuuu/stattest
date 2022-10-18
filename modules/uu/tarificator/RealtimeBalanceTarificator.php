@@ -5,6 +5,7 @@ namespace app\modules\uu\tarificator;
 use app\models\ClientAccount;
 use app\models\Payment;
 use app\modules\uu\models\Bill;
+use app\modules\uu\models\Estimation;
 use Yii;
 
 /**
@@ -16,7 +17,7 @@ class RealtimeBalanceTarificator extends Tarificator
      * @param int|null $clientAccountId Если указан, то только для этого ЛС. Если не указан - для всех
      * @throws \yii\db\Exception
      */
-    public function tarificate($clientAccountId = null)
+    public function tarificate($clientAccountId = null, $accountTariffId = null)
     {
         $db = Yii::$app->db;
 
@@ -158,6 +159,11 @@ SQL;
         $this->out($db->createCommand($updateSQL)
             ->execute());
         $this->out('. ');
+
+        Estimation::deleteAll([]
+            + ($clientAccountId ? ['client_account_id' => $clientAccountId] : [])
+            + ($accountTariffId ? ['account_tariff_id' => $accountTariffId] : [])
+        );
 
         $updateSQL = <<<SQL
             DROP TEMPORARY TABLE clients_tmp

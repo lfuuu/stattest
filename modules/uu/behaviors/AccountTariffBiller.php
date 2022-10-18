@@ -118,7 +118,7 @@ class AccountTariffBiller extends Behavior
 //         (new BillConverterTarificator)->tarificate($clientAccountId); // это не обязательно делать в реалтайме. По крону вполне сойдет
         }
 
-        (new RealtimeBalanceTarificator)->tarificate($clientAccountId);
+        (new RealtimeBalanceTarificator)->tarificate($clientAccountId, $accountTariffId);
 
         $tarificator = (new AccountLogPeriodPackageTarificator());
         $tarificator->tarificate($accountTariffId);
