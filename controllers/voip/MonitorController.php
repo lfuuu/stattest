@@ -4,6 +4,7 @@ namespace app\controllers\voip;
 
 use app\classes\BaseController;
 use app\classes\Encrypt;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\web\BadRequestHttpException;
 use app\models\billing\CallsCdr;
 use app\models\filter\voip\MonitorFilter;
@@ -12,6 +13,8 @@ use yii\web\NotFoundHttpException;
 
 class MonitorController extends BaseController
 {
+    use AddClientAccountFilterTraits;
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -31,7 +34,9 @@ class MonitorController extends BaseController
         try {
             $searchQuery = Yii::$app->request->queryParams;
             $searchModel = new MonitorFilter();
-            $searchModel->load($searchQuery);
+            if (!$searchModel->load($searchQuery)) {
+                $searchModel->orig_account = $this->_getCurrentClientAccountId();
+            }
             $dataProvider = $searchModel->search(true);
 
             return $this->render('index', [

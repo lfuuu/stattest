@@ -6,6 +6,8 @@ use app\classes\Form;
 use app\classes\validators\FormFieldValidator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsCdr;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
@@ -87,6 +89,51 @@ class MonitorFilter extends Form
         $fromStr = $from->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $toStr = $to->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
+        $this->orig_account = preg_replace('/[^\d]/', '', $this->orig_account);
+        $this->term_account = preg_replace('/[^\d]/', '', $this->term_account);
+
+        $this->number_a = preg_replace('/[^\d]/', '', $this->number_a);
+        $this->number_b = preg_replace('/[^\d]/', '', $this->number_b);
+
+        $srcCdrNumberSql = '';
+        if ($this->orig_account) {
+            $numbers = AccountTariff::find()
+                ->where([
+                    'client_account_id' => $this->orig_account,
+                    'service_type_id' => ServiceType::ID_VOIP
+                ])
+                ->distinct()
+                ->select('voip_number')
+                ->column();
+
+            if ($numbers) {
+                $numbersWithout7 = array_map(function ($number) {
+                    return substr($number, 1);
+                }, $numbers);
+                $numbers = array_merge($numbers, $numbersWithout7);
+                $srcCdrNumberSql = ' AND (src_number like \'' .implode ('%\' OR src_number like \'', $numbers).'%\')';
+            }
+        }
+
+        $dstCdrNumberSql = '';
+        if ($this->term_account) {
+            $numbers = AccountTariff::find()
+                ->where([
+                    'client_account_id' => $this->term_account,
+                    'service_type_id' => ServiceType::ID_VOIP
+                ])
+                ->distinct()
+                ->select('voip_number')
+                ->column();
+
+            if ($numbers) {
+                $numbersWithout7 = array_map(function ($number) {
+                    return substr($number, 1);
+                }, $numbers);
+                $numbers && $numbers = array_merge($numbers, $numbersWithout7);
+                $dstCdrNumberSql = ' AND (dst_number like \'' .implode ('%\' OR dst_number like \'', $numbers).'%\')';
+            }
+        }
 
         $query = <<< SQL
 with cdr as (
@@ -94,6 +141,8 @@ with cdr as (
     FROM "calls_cdr"."cdr"
     WHERE
         ("connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
+        {$srcCdrNumberSql}
+        {$dstCdrNumberSql}
     ORDER BY "connect_time" DESC
 ), calls as (
     select raw.*
@@ -114,11 +163,6 @@ left join calls c_term on cdr.server_id = c_term.server_id and cdr.id = c_term.c
 WHERE True
 SQL;
 
-        $this->orig_account = preg_replace('/[^\d]/', '', $this->orig_account);
-        $this->term_account = preg_replace('/[^\d]/', '', $this->term_account);
-
-        $this->number_a = preg_replace('/[^\d]/', '', $this->number_a);
-        $this->number_b = preg_replace('/[^\d]/', '', $this->number_b);
 
         if ($this->orig_account) {
             $query .= " AND c_orig.account_id = '" . $this->orig_account . "'";
@@ -143,6 +187,10 @@ SQL;
 
 
         $query .= PHP_EOL . "ORDER BY cdr.connect_time DESC";
+
+//        echo "<pre>";
+//        print_r($query);
+//        echo "</pre>";
 
         return new ArrayDataProvider([
             'allModels' => CallsCdr::getDb()->createCommand($query)->queryAll(),
