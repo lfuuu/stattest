@@ -31,72 +31,105 @@ $breadCrumbLinks = [
 
 <?= Breadcrumbs::widget(['links' => $breadCrumbLinks]) ?>
 
-        <div class="well">
-            <?php
+    <div class="well">
+        <?php
 
-            $form = ActiveForm::begin([
-                'action' => '/voip/monitor/',
-                'method' => 'get',
-            ]);
+        $form = ActiveForm::begin([
+            'action' => '/voip/monitor/',
+            'method' => 'get',
+        ]);
 
-            // строка 1
-            $line1Attributes = [
-                'date_from' => [
-                    'type' => Form::INPUT_HTML5,
-                    'options' => [
-                        'type' => 'datetime-local',
-                    ]
-                ],
-
-                'date_to' => [
-                    'type' => Form::INPUT_HTML5,
-                    'options' => [
-                        'type' => 'datetime-local',
-                    ]
-                ],
-
-                'orig_account' => ['type' => Form::INPUT_TEXT,],
-                'term_account' => ['type' => Form::INPUT_TEXT,],
-
-                'is_with_session_time' => [
-                    'type' => Form::INPUT_CHECKBOX,
+        // строка 1
+        $line1Attributes = [
+            'date_from' => [
+                'type' => Form::INPUT_HTML5,
+                'options' => [
+                    'type' => 'datetime-local',
                 ]
+            ],
+
+            'date_to' => [
+                'type' => Form::INPUT_HTML5,
+                'options' => [
+                    'type' => 'datetime-local',
+                ]
+            ],
+        ];
+
+        $line1Attributes['orig_account'] = ['type' => Form::INPUT_TEXT,];
+        $line1Attributes['term_account'] = ['type' => Form::INPUT_TEXT,];
+
+        $line1Attributes['is_with_session_time'] = [
+            'type' => Form::INPUT_CHECKBOX,
+        ];
+
+        $line2Attributes = [
+            ['type' => Form::INPUT_RAW],
+            ['type' => Form::INPUT_RAW],
+        ];
+
+        if ($searchModel->orig_account) {
+            $line2Attributes['number_a'] = [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => ['' => '-- Любой --'] + \app\modules\uu\models\AccountTariff::find()
+                    ->where(['client_account_id' => $searchModel->orig_account])
+                    ->select('voip_number')
+                    ->distinct()
+                    ->indexBy('voip_number')
+                    ->column(),
+                'options' => [
+                    'class' => 'select2',
+                ],
             ];
+        } else {
+            $line2Attributes['number_a'] = ['type' => Form::INPUT_TEXT,];
+        }
 
-            $line2Attributes = [
-                ['type' => Form::INPUT_RAW],
-                ['type' => Form::INPUT_RAW],
-                'number_a' => ['type' => Form::INPUT_TEXT,],
-                'number_b' => ['type' => Form::INPUT_TEXT,],
-                ['type' => Form::INPUT_RAW],
+        if ($searchModel->term_account) {
+            $line2Attributes['number_b'] = [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => ['' => '-- Любой --'] + \app\modules\uu\models\AccountTariff::find()
+                    ->where(['client_account_id' => $searchModel->term_account])
+                    ->select('voip_number')
+                    ->distinct()
+                    ->indexBy('voip_number')
+                    ->column(),
+                'options' => [
+                    'class' => 'select2',
+                ],
             ];
+        } else {
+            $line2Attributes['number_b'] = ['type' => Form::INPUT_TEXT,];
+        }
+
+        $line2Attributes[] = ['type' => Form::INPUT_RAW];
 
 
-            echo Form::widget([
-                'model' => $searchModel,
-                'form' => $form,
-                'columns' => count($line1Attributes),
-                'attributes' => $line1Attributes
-            ]);
+        echo Form::widget([
+            'model' => $searchModel,
+            'form' => $form,
+            'columns' => count($line1Attributes),
+            'attributes' => $line1Attributes
+        ]);
 
-            echo Form::widget([
-                'model' => $searchModel,
-                'form' => $form,
-                'columns' => count($line2Attributes),
-                'attributes' => $line2Attributes
-            ]);
+        echo Form::widget([
+            'model' => $searchModel,
+            'form' => $form,
+            'columns' => count($line2Attributes),
+            'attributes' => $line2Attributes
+        ]);
 
-            echo Html::submitButton('Поиск', [
-                'class' => 'btn btn-info',
-                'name' => 'check-numbers',
-                'value' => 'Поиск',
-                'style' => 'width: 300px',
-            ]);
+        echo Html::submitButton('Поиск', [
+            'class' => 'btn btn-info',
+            'name' => 'check-numbers',
+            'value' => 'Поиск',
+            'style' => 'width: 300px',
+        ]);
 
 
-            ActiveForm::end();
-            ?>
-        </div>
+        ActiveForm::end();
+        ?>
+    </div>
 
 <?php
 
