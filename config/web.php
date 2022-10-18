@@ -225,6 +225,9 @@ $config = [
                 ],
             ],
         ],
+        'mutex' => [
+            'class' => 'yii\redis\Mutex',
+        ]
     ],
     'modules' => [
         'gridview' => [
