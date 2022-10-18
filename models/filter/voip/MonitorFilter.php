@@ -175,11 +175,11 @@ WHERE True
 SQL;
 
 
-        if ($this->orig_account) {
+        if ($this->orig_account && !$numbersA) {
             $query .= " AND c_orig.account_id = '" . $this->orig_account . "'";
         }
 
-        if ($this->term_account) {
+        if ($this->term_account && !$numbersB) {
             $query .= " AND c_term.account_id = '" . $this->term_account . "'";
         }
 
