@@ -6,7 +6,9 @@ use app\classes\api\ApiVpbx;
 use welltime\graylog\GelfMessage;
 use Yii;
 
-
+/**
+* @property \yii\redis\Mutex $mutex
+*/
 class WebApplication extends \yii\web\Application
 {
     public function init()

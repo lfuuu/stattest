@@ -54,12 +54,14 @@ use Yii;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidParamException;
 use yii\caching\TagDependency;
+use yii\mutex\MysqlMutex;
 use yii\web\HttpException;
 
 class UuController extends ApiInternalController
 {
     const DEFAULT_LIMIT = 50;
     const MAX_LIMIT = 100;
+    const DEFAULT_TIMEOUT = 60;
 
     use IdNameRecordTrait;
 
@@ -609,7 +611,7 @@ class UuController extends ApiInternalController
                     if ($voip_ndc_type_id == NdcType::ID_MOBILE && ($service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS || $service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY)) {
                         $voip_ndc_type_id = null;
                     }
-                    
+
                     $voip_country_id = $number->country_code;
                     break;
             }
@@ -638,25 +640,25 @@ class UuController extends ApiInternalController
 
         // @todo надо ли только статус "публичный" для ватс?
 
-         $params = [
-             'id' => $id,
-             'service_type_id' => $service_type_id,
-             'country_id' => $country_id,
-             'currency_id' => $currency_id,
-             'is_default' => $is_default,
-             'is_one_active' => $is_one_active,
-             'tariff_status_id' => $tariff_status_id,
-             'tariff_person_id' => $tariff_person_id,
-             'tariff_tag_id' => $tariff_tag_id,
-             'tariff_tags_id' => $tariff_tags_id,
-             'voip_group_id' => $voip_group_id,
-             'voip_city_id' => $voip_city_id,
-             'voip_ndc_type_id' => $voip_ndc_type_id,
-             'organization_id' => $organization_id,
-             'is_include_vat' => $is_include_vat,
-             'tariff_country_id' => $tariff_country_id,
-             'voip_country_id' =>$voip_country_id,
-         ];
+        $params = [
+            'id' => $id,
+            'service_type_id' => $service_type_id,
+            'country_id' => $country_id,
+            'currency_id' => $currency_id,
+            'is_default' => $is_default,
+            'is_one_active' => $is_one_active,
+            'tariff_status_id' => $tariff_status_id,
+            'tariff_person_id' => $tariff_person_id,
+            'tariff_tag_id' => $tariff_tag_id,
+            'tariff_tags_id' => $tariff_tags_id,
+            'voip_group_id' => $voip_group_id,
+            'voip_city_id' => $voip_city_id,
+            'voip_ndc_type_id' => $voip_ndc_type_id,
+            'organization_id' => $organization_id,
+            'is_include_vat' => $is_include_vat,
+            'tariff_country_id' => $tariff_country_id,
+            'voip_country_id' => $voip_country_id,
+        ];
 
 //        $tariffQuery = TariffFilter::getListQuery($id, $service_type_id, $country_id, $currency_id, $is_default, $is_one_active, $tariff_status_id, $tariff_person_id, $tariff_tag_id, $tariff_tags_id, $voip_group_id, $voip_city_id, $voip_ndc_type_id, $organization_id, $is_include_vat, $voip_country_id);
         $tariffQuery = TariffFilter::getListQuery($params);
@@ -756,7 +758,7 @@ class UuController extends ApiInternalController
                 'api_package_price' => $tariff->service_type_id == ServiceType::ID_BILLING_API_MAIN_PACKAGE ? $this->_getApiPackagePrice($tariff->packageApi) : null,
                 'voip_package_pricelist' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackagePricelistRecord($tariff->packagePricelists, ['pricelist' => 'pricelist']) : null, //package_pricelist
                 'voip_package_price_internet' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpInternet, ['bytes_amount' => 'bytes_amount']) : null, // package_data
-                'voip_package_price_sms' => in_array($tariff->service_type_id,  [ServiceType::ID_VOIP_PACKAGE_SMS, ServiceType::ID_A2P_PACKAGE]) ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms) : null, // package_sms
+                'voip_package_price_sms' => in_array($tariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_SMS, ServiceType::ID_A2P_PACKAGE]) ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms) : null, // package_sms
                 'voip_package_price_minute' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp, ['minute' => 'minute']) : null,
                 'voip_package_minute' => null,
 //                'package_pricelist' => null,
@@ -819,7 +821,7 @@ class UuController extends ApiInternalController
 
             if ($pos) {
                 $beforePos = trim(substr($line, 0, $pos));
-                $afterPos = trim(substr($line, $pos+1, strlen($line)));
+                $afterPos = trim(substr($line, $pos + 1, strlen($line)));
             }
 
             $json = [
@@ -1957,8 +1959,10 @@ class UuController extends ApiInternalController
         $post['is_create_user'] = (int)(bool)$post['is_create_user'];
 
 
-        $sem = Semaphore::me();
-        $sem->acquire(Semaphore::ID_UU_CALCULATOR);
+        $lockKey = "client_account_id_" . ($post['client_account_id'] ?? '0');
+        if (!\Yii::$app->mutex->acquire($lockKey, self::DEFAULT_TIMEOUT)) {
+            throw new \RuntimeException("Can't get account lock", 500);
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
         $accountTariff = new AccountTariff();
@@ -1999,11 +2003,13 @@ class UuController extends ApiInternalController
                 $roistatVisit ? ['roistat_visit' => $roistatVisit] : [],
             );
             $transaction->commit();
-            $sem->release(Semaphore::ID_UU_CALCULATOR);
+            \Yii::$app->mutex->release($lockKey);
+
             return $accountTariff->id;
         } catch (Exception $e) {
             $transaction->rollBack();
-            $sem->release(Semaphore::ID_UU_CALCULATOR);
+            \Yii::$app->mutex->release($lockKey);
+
             $code = $e->getCode();
             if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
                 \Yii::error(
@@ -2069,11 +2075,14 @@ class UuController extends ApiInternalController
         }
 
         $transaction = Yii::$app->db->beginTransaction();
-        $sem = Semaphore::me();
-        $sem->acquire(Semaphore::ID_UU_CALCULATOR);
         try {
 
             foreach ($account_tariff_ids as $account_tariff_id) {
+
+                $lockKey = "account_tariff_id_" . $account_tariff_id;
+                if (!\Yii::$app->mutex->acquire($lockKey, self::DEFAULT_TIMEOUT)) {
+                    throw new \RuntimeException("Can't get account lock", 500);
+                }
 
                 $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
                 if (!$accountTariff) {
@@ -2093,18 +2102,20 @@ class UuController extends ApiInternalController
                 }
 
                 $this->_checkTariff($accountTariff, $accountTariffLog);
+
+                \Yii::$app->mutex->release($lockKey);
+                $lockKey = null;
             }
 
             Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
 
             $transaction->commit();
-            $sem->release(Semaphore::ID_UU_CALCULATOR);
 
             return true;
-
         } catch (Exception $e) {
             $transaction->rollBack();
-            $sem->release(Semaphore::ID_UU_CALCULATOR);
+
+            $lockKey && \Yii::$app->mutex->release($lockKey);
 
             $code = $e->getCode();
             if ($code >= AccountTariff::ERROR_CODE_DATE_PREV && $code < AccountTariff::ERROR_CODE_USAGE_EMPTY) {
@@ -2177,54 +2188,70 @@ class UuController extends ApiInternalController
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
         }
 
-        foreach ($account_tariff_ids as $account_tariff_id) {
+        $transaction = \Yii::$app->db->beginTransaction();
+        $lockKey = null;
 
-            $account_tariff_id = trim($account_tariff_id);
-            $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
-            if (!$accountTariff) {
-                throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга с таким идентификатором не найдена', AccountTariff::ERROR_CODE_USAGE_EMPTY);
-            }
-
-            if (!$accountTariff->isLogCancelable()) {
-                throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
-            }
-
-            // лог тарифов
-            $accountTariffLogs = $accountTariff->accountTariffLogs;
-
-            // отменяемый тариф
-            /** @var AccountTariffLog $accountTariffLogCancelled */
-            $accountTariffLogCancelled = array_shift($accountTariffLogs);
-            $accountTariffLogCancelled->user_info = isset($postData['user_info']) ? $postData['user_info'] : '';
-            if (!$accountTariff->isLogCancelable()) {
-                throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
-            }
-
-            // отменить (удалить) последний тариф
-            if (!$accountTariffLogCancelled->delete()) {
-                throw new ModelValidationException($accountTariffLogCancelled, $accountTariffLogCancelled->errorCode);
-            }
-
-            if (!count($accountTariffLogs)) {
-
-                // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью
-                if (!$accountTariff->delete()) {
-                    throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+        try {
+            foreach ($account_tariff_ids as $account_tariff_id) {
+                $account_tariff_id = trim($account_tariff_id);
+                $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
+                if (!$accountTariff) {
+                    throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга с таким идентификатором не найдена', AccountTariff::ERROR_CODE_USAGE_EMPTY);
                 }
-            } else {
 
-                // предпоследний тариф становится текущим
-                /** @var AccountTariffLog $accountTariffLogActual */
-                $accountTariffLogActual = array_shift($accountTariffLogs);
-
-                // у услуги сменить кэш тарифа
-                $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
-                $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
-                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-                if (!$accountTariff->save()) {
-                    throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+                if (!$accountTariff->isLogCancelable()) {
+                    throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
                 }
+
+                $lockKey = "account_tariff_id_" . $account_tariff_id;
+                if (!\Yii::$app->mutex->acquire($lockKey, self::DEFAULT_TIMEOUT)) {
+                    throw new \RuntimeException("Can't get account lock", 500);
+                }
+
+                // лог тарифов
+                $accountTariffLogs = $accountTariff->accountTariffLogs;
+
+                // отменяемый тариф
+                /** @var AccountTariffLog $accountTariffLogCancelled */
+                $accountTariffLogCancelled = array_shift($accountTariffLogs);
+                $accountTariffLogCancelled->user_info = isset($postData['user_info']) ? $postData['user_info'] : '';
+                if (!$accountTariff->isLogCancelable()) {
+                    throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
+                }
+
+                // отменить (удалить) последний тариф
+                if (!$accountTariffLogCancelled->delete()) {
+                    throw new ModelValidationException($accountTariffLogCancelled, $accountTariffLogCancelled->errorCode);
+                }
+
+                if (!count($accountTariffLogs)) {
+
+                    // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью
+                    if (!$accountTariff->delete()) {
+                        throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+                    }
+                } else {
+
+                    // предпоследний тариф становится текущим
+                    /** @var AccountTariffLog $accountTariffLogActual */
+                    $accountTariffLogActual = array_shift($accountTariffLogs);
+
+                    // у услуги сменить кэш тарифа
+                    $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
+                    $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                    if (!$accountTariff->save()) {
+                        throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+                    }
+                }
+                \Yii::$app->mutex->release($lockKey);
             }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            $lockKey && \Yii::$app->mutex->release($lockKey);
+
+            throw $e;
         }
 
         return true;
