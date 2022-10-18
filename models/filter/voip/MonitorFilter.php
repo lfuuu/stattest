@@ -96,28 +96,34 @@ class MonitorFilter extends Form
         $this->number_b = preg_replace('/[^\d]/', '', $this->number_b);
 
         $srcCdrNumberSql = '';
+        $numbersA = [];
         if ($this->orig_account) {
-            $numbers = AccountTariff::find()
+            $numbersA = AccountTariff::find()
                 ->where([
                     'client_account_id' => $this->orig_account,
                     'service_type_id' => ServiceType::ID_VOIP
                 ])
                 ->distinct()
                 ->select('voip_number')
-                ->column();
+                ->column() ?: [];
+        }
 
-            if ($numbers) {
-                $numbersWithout7 = array_map(function ($number) {
-                    return substr($number, 1);
-                }, $numbers);
-                $numbers = array_merge($numbers, $numbersWithout7);
-                $srcCdrNumberSql = ' AND (src_number like \'' .implode ('%\' OR src_number like \'', $numbers).'%\')';
-            }
+        if ($this->number_a) {
+            $numbersA[] = $this->number_a;
+        }
+
+        if ($numbersA) {
+            $numbersWithout7 = array_map(function ($number) {
+                return substr($number, 1);
+            }, $numbersA);
+            $numbersA = array_merge($numbersA, $numbersWithout7);
+            $srcCdrNumberSql = ' AND (src_number like \'' . implode('%\' OR src_number like \'', $numbersA) . '%\')';
         }
 
         $dstCdrNumberSql = '';
+        $numbersB = [];
         if ($this->term_account) {
-            $numbers = AccountTariff::find()
+            $numbersB = AccountTariff::find()
                 ->where([
                     'client_account_id' => $this->term_account,
                     'service_type_id' => ServiceType::ID_VOIP
@@ -125,15 +131,20 @@ class MonitorFilter extends Form
                 ->distinct()
                 ->select('voip_number')
                 ->column();
-
-            if ($numbers) {
-                $numbersWithout7 = array_map(function ($number) {
-                    return substr($number, 1);
-                }, $numbers);
-                $numbers && $numbers = array_merge($numbers, $numbersWithout7);
-                $dstCdrNumberSql = ' AND (dst_number like \'' .implode ('%\' OR dst_number like \'', $numbers).'%\')';
-            }
         }
+
+        if ($this->number_b) {
+            $numbersB[] = $this->number_b;
+        }
+
+        if ($numbersB) {
+            $numbersWithout7 = array_map(function ($number) {
+                return substr($number, 1);
+            }, $numbersB);
+            $numbersB = array_merge($numbersB, $numbersWithout7);
+            $dstCdrNumberSql = ' AND (dst_number like \'' . implode('%\' OR dst_number like \'', $numbersB) . '%\')';
+        }
+
 
         $query = <<< SQL
 with cdr as (

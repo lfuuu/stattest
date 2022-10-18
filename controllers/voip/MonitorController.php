@@ -10,6 +10,7 @@ use app\models\billing\CallsCdr;
 use app\models\filter\voip\MonitorFilter;
 use Yii;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 class MonitorController extends BaseController
 {
@@ -65,10 +66,19 @@ class MonitorController extends BaseController
         }
 
         try {
-            return $this->getFile($cdr, $cdr->in_sig_call_id);
+            $file = $this->getFile($cdr, $cdr->in_sig_call_id);
         } catch (\NotFoundHttpException $e) {
-            return $this->getFile($cdr, $cdr->out_sig_call_id);
+            $file = $this->getFile($cdr, $cdr->out_sig_call_id);
         }
+
+        if (!$file) {
+            throw new NotFoundHttpException('Data not found');
+        }
+
+        $fileName = preg_replace('/(\*.*$)/', '',$cdr->src_number) . '-' . $cdr->dst_number . '--' .  (new \DateTime($cdr->connect_time))->modify('+3 hour')->format('Y_m_d_His') . '.wav';
+
+        \Yii::$app->response->setDownloadHeaders($fileName, 'audio/x-wav');
+        return $file;
     }
 
     private function getFile($cdr, $sigCallId)
