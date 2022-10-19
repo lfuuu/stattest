@@ -2144,11 +2144,14 @@ class m_newaccounts extends IModule
         if (!$bills) {
             return;
         }
+
         if (!is_array($bills)) {
 
             $billModel = Bill::findOne(['bill_no' => (string)$bills]);
+            $invoice = null;
+            $invoiceId && $invoice = Invoice::findOne(['id' => $invoiceId]);
 
-            if ($billModel && $billModel->currency != Currency::RUB && $billModel->bill_date >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
+            if ($billModel && $billModel->currency != Currency::RUB && ($invoice ? $invoice->date : $billModel->bill_date) >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING) {
                 return $this->_portingPrintNoRub($billModel, $is_pdf, $invoiceId, $isDirectLink);
             }
 
