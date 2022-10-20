@@ -41,7 +41,9 @@ class SendToOnlineCashRegister extends Behavior
         /** @var Payment $payment */
         $payment = $event->sender;
 
-        self::addEvent($payment->id, $payment->isNeedToSendAtol);
+        if ($payment->sum > 0) {
+            self::addEvent($payment->id, $payment->isNeedToSendAtol);
+        }
     }
 
     public static function addEvent($paymentId, $isForcePush = false)
