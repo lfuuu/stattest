@@ -130,10 +130,11 @@ class UnknownEvent extends Component
             $listOfUnknownProperties = '';
 
             foreach ($unknownProperties as $field) {
+                $value = is_array($this->eventModel->properties) ? $this->eventModel->properties[$field] : $this->eventModel->properties->{$field};
                 $listOfUnknownProperties .=
                     Html::beginTag('tr') .
                         Html::tag('td', $field) .
-                        Html::tag('td', $this->eventModel->properties->{$field}) .
+                        Html::tag('td', $value) .
                     Html::endTag('tr');
             }
 

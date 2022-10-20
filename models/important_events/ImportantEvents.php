@@ -102,6 +102,7 @@ class ImportantEvents extends ActiveRecord
             'comment' => 'Комментарий',
             'tags_filter' => 'Метки',
             'remote_ip' => 'IP клиента',
+            'x_fwd_ip' => 'X FWD IP',
             'ip' => 'IP источника',
             'login' => 'Login входа в ЛК'
         ];
