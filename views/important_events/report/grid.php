@@ -95,6 +95,15 @@ echo GridView::widget([
             'width' => '10%',
         ],
         [
+            'attribute' => 'x_fwd_ip',
+            'format' => 'raw',
+            'value' => function ($model) {
+                return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('HTTP_X_FORWARDED_FOR');
+            },
+
+            'width' => '10%',
+        ],
+        [
             'attribute' => 'login',
             'width' => '10%',
             'value' => function ($model) {
