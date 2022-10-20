@@ -3,7 +3,9 @@
 namespace app\classes\dictionary\forms;
 
 use app\classes\Form;
+use app\classes\Html;
 use app\models\BusinessProcessStatus;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use InvalidArgumentException;
 use Yii;
@@ -42,8 +44,16 @@ abstract class BusinessProcessStatusForm extends Form
             // название
             if (isset($post['dropButton'])) {
 
-                if (ClientContract::find()->where(['business_process_status_id' => $this->id])->exists()) {
-                    throw new \LogicException('Удалить статус нельзя. Он используется.');
+                $accounts = [];
+                $contractIds = ClientContract::find()->where(['business_process_status_id' => $this->id])->select('id')->limit(100)->column();
+                if ($contractIds) {
+                    $accounts = ClientAccount::find()->where(['contract_id' => $contractIds])->limit(20)->all();
+                }
+
+                if ($accounts) {
+                    throw new \LogicException('Удалить статус нельзя. Он используется. <br>' . implode(',<br> ', array_map(function (ClientAccount $account) {
+                            return Html::a($account->getName(), $account->getUrl());
+                        }, $accounts)));
                 }
                 // удалить
                 $this->status->delete();
