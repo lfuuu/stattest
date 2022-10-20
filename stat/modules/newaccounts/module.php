@@ -4767,7 +4767,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
                         echo '<br>Платеж ' . $P['pay'] . ' клиента ' . $client['client'] . ' не внесён, так как на ' . $P['date'] . ' отсутствует курс доллара';
                     }
                 }
-            } elseif (isset($P['is_need_check']) && isset($P['payment_id']) && $P['payment_id']) {
+            } elseif (isset($P['is_need_check']) && isset($P['payment_id']) && $P['payment_id'] && $P['sum'] > 0) {
                 \app\modules\atol\behaviors\SendToOnlineCashRegister::addEvent($P['payment_id'], true);
             }
         }
