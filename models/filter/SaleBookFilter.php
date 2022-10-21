@@ -67,7 +67,7 @@ class SaleBookFilter extends Invoice
     public function rules()
     {
         return [
-            [['date_from', 'date_to', 'organization_id', /*'filter', */'currency'], 'required'],
+            [['date_from', 'date_to', 'organization_id', /*'filter', */ 'currency'], 'required'],
             [['is_euro_format', 'is_register'], 'integer'],
             [['date_from', 'date_to'], 'date'],
             [['organization_id'], 'in', 'range' => array_keys(Organization::dao()->getList())],
@@ -111,9 +111,9 @@ class SaleBookFilter extends Invoice
                 'inv.organization_id' => $this->organization_id,
             ])
             ->andWhere(['between',
-                        'inv.date',
-                        $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                        $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+                'inv.date',
+                $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
             ])
             ->andWhere(['NOT', ['number' => null]])
             ->orderBy([
@@ -151,6 +151,28 @@ class SaleBookFilter extends Invoice
         */
 
         return $query;
+    }
+
+    public function getRubAccountIds()
+    {
+        $query = <<<SQL
+    select distinct c.id
+    from clients c,
+         uu_account_tariff at,
+         uu_account_tariff_log l,
+         uu_tariff_period tp,
+         uu_tariff t
+    where t.name like '%Global%'
+      and t.service_type_id = 2
+      and at.service_type_id = 2
+      and c.currency = 'RUB'
+      and c.id = at.client_account_id
+      and at.id = l.account_tariff_id
+      and l.tariff_period_id = tp.id
+      and tp.tariff_id = t.id
+SQL;
+
+        return self::getDb()->createCommand($query)->queryColumn();
     }
 
     public function getPaymentsStr()
