@@ -49,6 +49,11 @@
 
     $total = ['sumAll' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0,];
 
+    $rubAccountIds = null;
+    if (\Yii::$app->isEu()) {
+        $rubAccountIds = $filter->getRubAccountIds();
+    }
+
     if ($query)
         foreach ($query->each() as $invoice) : ?>
             <?php /** @var \app\models\filter\SaleBookFilter $invoice */
@@ -64,6 +69,11 @@
             try {
                 $bill = $invoice->bill;
                 $account = $bill->clientAccount;
+
+                if ($rubAccountIds !== null && $account->currency == \app\models\Currency::RUB && !in_array($account->id, $rubAccountIds)) {
+                    continue;
+                }
+
                 $contract = $account->clientContractModel;
                 $contragent = $contract->contragent;
 
