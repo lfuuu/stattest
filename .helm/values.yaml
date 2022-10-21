@@ -61,11 +61,11 @@ web_hook_dev:
 
 logger_dev:
   source: stat_dev
-  server: glogstat.mcn.ru
+  server: graylogstat.mcn.ru
 
 logger_prod:
   source: stat
-  server: glogstat.mcn.ru
+  server: graylogstat.mcn.ru
 
 logger_prod_eu:
   source: stat
