@@ -27,6 +27,19 @@ echo Breadcrumbs::widget([
     ],
 ]);
 
+$ipMap = [
+    '85.94.32.98' => 'МСН офис. Москва',
+    '85.94.32.198' => 'МСН офис. Москва',
+    '178.48.22.33' => 'МСН офис. Венгрия',
+    '185.66.52.41' => 'МСН офис. Венгрия',
+    '81.183.239.147' => 'МСН офис. Венгрия',
+    '185.66.53.70' => 'МСН офис. Венгрия. (k8 sites)',
+    '185.18.110.250' => 'МСН офис. Краснодар',
+    '46.228.0.5' => 'МСН офис. Спб',
+    '5.129.54.18' => 'МСН офис. Новосибирск'
+];
+
+
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
@@ -92,22 +105,22 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'remote_ip',
-            'width' => '10%',
-        ],
-        [
-            'attribute' => 'x_fwd_ip',
             'format' => 'raw',
-            'value' => function ($model) {
-                return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('HTTP_X_FORWARDED_FOR');
-            },
+            'value' => function($model) use ($ipMap) {
+                $xFwdIp =  ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('HTTP_X_FORWARDED_FOR');
+                $ip = $xFwdIp ? $xFwdIp : $model->remote_ip;
 
+                return $ipMap[$ip] ?? $ip;
+            },
             'width' => '10%',
         ],
         [
             'attribute' => 'login',
             'width' => '10%',
+            'format' => 'raw',
             'value' => function ($model) {
-                return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('login_email');
+                $suportEmail = ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('support_email');
+                return $suportEmail ? Html::tag('span', $suportEmail, ['class' => 'text-info']) : ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('login_email');
             },
         ],
         [
