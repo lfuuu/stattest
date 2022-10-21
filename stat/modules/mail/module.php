@@ -38,14 +38,14 @@ class m_mail{
 			if (access($act[0],$act[1])) $R[]=array($val[0],'module=mail&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 		}
 		if (!count($R)) return;
-		if (access('mail','r') && !access('mail','w') && isset($fixclient_data)) {
-			if ($this->is_active==0 && $db->GetRow('select * from mail_object where client_id="'.$fixclient_data['id'].'" AND object_type="PM" AND view_count=0 LIMIT 1')){
-				trigger_error2('<a href="?module=mail">У вас есть непросмотренные сообщения</a>');
-			}
-			return array('Просмотр сообщений',$R);
-		} else {
+		// if (access('mail','r') && !access('mail','w') && isset($fixclient_data)) {
+		// 	if ($this->is_active==0 && $db->GetRow('select * from mail_object where client_id="'.$fixclient_data['id'].'" AND object_type="PM" AND view_count=0 LIMIT 1')){
+		// 		trigger_error2('<a href="?module=mail">У вас есть непросмотренные сообщения</a>');
+		// 	}
+		// 	return array('Просмотр сообщений',$R);
+		// } else {
             return array('Письма клиентам',$R);
-		}
+		// }
 	}
 
 	function GetMain($action,$fixclient){
