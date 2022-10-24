@@ -131,6 +131,15 @@ class SaleBookFilter extends Invoice
             $query->with('lines.line');
             $query->with('lines.line.accountTariff');
         }
+
+        if (\Yii::$app->isEu()) {
+            $query->joinWith('bill.clientAccountModel c');
+            $query->andWhere(['OR',
+                ['not', ['c.currency' => Currency::RUB]],
+                ['c.id' => $this->getRubAccountIds()]
+            ]);
+        }
+
         /*
         switch ($this->filter) {
             case self::FILTER_ALL:

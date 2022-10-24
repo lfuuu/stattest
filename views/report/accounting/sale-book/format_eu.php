@@ -70,10 +70,6 @@
                 $bill = $invoice->bill;
                 $account = $bill->clientAccount;
 
-                if ($rubAccountIds !== null && $account->currency == \app\models\Currency::RUB && !in_array($account->id, $rubAccountIds)) {
-                    continue;
-                }
-
                 $contract = $account->clientContractModel;
                 $contragent = $contract->contragent;
 
