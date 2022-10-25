@@ -215,7 +215,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 ->diff($accountLogFromToTariff->dateFrom)
                 ->days; // кол-во потраченных дней
 
-        if ($tariff->count_of_carry_period || !$tariff->is_proportionately) {
+        if ($tariff->count_of_carry_period || !$tariff->is_proportionately || $tariff->is_one_alt) {
 
             // Если "Пакет интернета сгорает через N месяцев", то списывается полностью. И трафик дается тоже полностью
             $accountLogPeriod->coefficient = 1;
