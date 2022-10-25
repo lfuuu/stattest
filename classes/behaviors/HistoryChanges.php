@@ -75,6 +75,11 @@ class HistoryChanges extends Behavior
             'prev_data_json' => json_encode($prevData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ];
 
+        $this->_save($queryData);
+    }
+
+    protected function _save($queryData)
+    {
         $params = [];
         $sql = \app\models\HistoryChanges::getDb()->queryBuilder
             ->insert(
