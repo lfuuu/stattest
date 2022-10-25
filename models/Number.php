@@ -193,6 +193,16 @@ class Number extends ActiveRecord
         ];
     }
 
+    public function behaviors()
+    {
+        return array_merge(
+            parent::behaviors(),
+            [
+                \app\classes\behaviors\HistoryChangesGrayLog::class,
+            ]
+        );
+    }
+
     /**
      * @return NumberDao
      */
