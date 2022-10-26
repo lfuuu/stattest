@@ -231,7 +231,7 @@ class Payment extends ActiveRecord
             ImportantEvents::create(ImportantEventsNames::PAYMENT_ADD,
                 ImportantEventsSources::SOURCE_STAT, [
                     'client_id' => $this->client_id,
-                    'sum' => $this->sum,
+                    'sum' => round($this->sum, 2),
                     'currency' => $this->currency,
                     'user_id' => Yii::$app->user->id
                 ]);
@@ -251,7 +251,7 @@ class Payment extends ActiveRecord
         ImportantEvents::create(ImportantEventsNames::PAYMENT_DELETE,
             ImportantEventsSources::SOURCE_STAT, [
                 'client_id' => $this->client_id,
-                'sum' => $this->sum,
+                'sum' => round($this->sum, 2),
                 'currency' => $this->currency,
                 'user_id' => Yii::$app->user->id
             ]);
