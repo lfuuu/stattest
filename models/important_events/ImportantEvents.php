@@ -313,7 +313,7 @@ class ImportantEvents extends ActiveRecord
     {
         $clientAccount = ClientAccount::findOne(['id' => (int)$this->client_id]);
         if (!is_null($clientAccount)) {
-            return $clientAccount->billingCounters->realtimeBalance;
+            return round($clientAccount->billingCounters->realtimeBalance, 2);
         }
 
         return 0;
