@@ -4,6 +4,7 @@ namespace app\modules\uu\forms;
 
 use app\classes\Form;
 use app\classes\validators\AccountIdValidator;
+use app\classes\WebApplication;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Param;
 use app\modules\uu\models\AccountTariff;
@@ -96,12 +97,18 @@ class DisableForm extends Form
             $transaction->commit();
         } catch (\Exception $e) {
             $message .= 'ошибка. Все предыдущие действия будут отменены.';
-            \Yii::$app->session->addFlash('error', $message);
             $transaction->rollBack();
+            if (\Yii::$app instanceof WebApplication) {
+                \Yii::$app->session->addFlash('error', $message);
+            }
+
             throw $e;
         }
-        \Yii::$app->session->addFlash('success', $message);
-        return true;
+
+        if (\Yii::$app instanceof WebApplication) {
+            \Yii::$app->session->addFlash('success', $message);
+        }
+        return $message;
     }
 
 }
