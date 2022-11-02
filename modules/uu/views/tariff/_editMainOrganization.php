@@ -21,6 +21,11 @@ $tariffOrganizationTableName = TariffOrganization::tableName();
 $tariffTableName = Tariff::tableName();
 
 $helpConfluence = $this->render('//layouts/_helpConfluence', Tariff::getHelpConfluence());
+if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
 ?>
 
 <div class="row">
@@ -33,7 +38,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', Tariff::getHelpConf
             'data' => $organizationList,
             'options' => [
                 'multiple' => true,
-            ],
+            ] + $options,
         ]) ?>
 
         <?php if (!$tariff->isNewRecord) : ?>

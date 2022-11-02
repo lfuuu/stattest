@@ -19,6 +19,13 @@ $tariff = $formModel->tariff;
 
 $tariffVoipNdcTypeTableName = TariffVoipNdcType::tableName();
 $tariffTableName = Tariff::tableName();
+
+if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
+
 ?>
 
 <div class="row">
@@ -33,7 +40,7 @@ $tariffTableName = Tariff::tableName();
             'data' => $ndcTypeList,
             'options' => [
                 'multiple' => true,
-            ],
+            ] + $options,
         ]) ?>
     </div>
 </div>
