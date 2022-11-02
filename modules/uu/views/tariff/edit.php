@@ -62,6 +62,10 @@ if (!$serviceType) {
         $viewParams['editableType'] = TariffController::EDITABLE_FULL;
     }
 
+    if (!\Yii::$app->user->can('tarifs.edit')) {
+        $viewParams['editableType'] = TariffController::EDITABLE_NONE;
+    }
+
     // сообщение об ошибке
     if ($formModel->validateErrors) {
         Yii::$app->session->setFlash('error', $formModel->validateErrors);
@@ -69,7 +73,7 @@ if (!$serviceType) {
     ?>
 
     <?php // кнопка сохранения ?>
-    <?= $this->render('_editSubmit', $viewParams) ?>
+    <?= $viewParams['editableType'] = TariffController::EDITABLE_NONE ? $this->render('_editSubmit', $viewParams) : '' ?>
 
     <?php // свойства тарифа из основной таблицы ?>
     <?= $this->render('_editMain', $viewParams) ?>
@@ -129,7 +133,7 @@ if (!$serviceType) {
     <?= $this->render('_editOverview', $viewParams) ?>
 
     <?php // кнопка сохранения ?>
-    <?= $this->render('_editSubmit', $viewParams) ?>
+    <?= $viewParams['editableType'] = TariffController::EDITABLE_NONE ? $this->render('_editSubmit', $viewParams) : '' ?>
 
     <?php ActiveForm::end(); ?>
 </div>

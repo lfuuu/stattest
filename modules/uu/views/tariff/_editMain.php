@@ -106,7 +106,7 @@ $viewParams = [
                 'data' => Country::getList($isWithEmpty = false),
                 'options' => [
                     'multiple' => true,
-                ],
+                ] + $options,
             ]) ?>
         </div>
 
@@ -130,7 +130,8 @@ $viewParams = [
                 || array_search($tariff->service_type_id, ServiceType::$packages)
             ) {
                 echo $form->field($tariff, 'is_bundle')
-                    ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_bundle')]);
+                    ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                        ['label' => $tariff->getAttributeLabel('is_bundle')]);
             }
             ?>
         </div>
@@ -141,14 +142,14 @@ $viewParams = [
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_status_id')
                 ->widget(Select2::class, [
                     'data' => TariffStatus::getList(false, $tariff->service_type_id),
-                ])
+                ] + $options)
                 ->label($tariff->getAttributeLabel('tariff_status_id') . $helpConfluence)
             ?>
         </div>
 
         <div class="col-sm-2"><?= $form->field($tariff, 'tag_id')->widget(Select2::class, [
                 'data' => Tag::getList(true),
-            ])
+            ] + $options)
                 ->label($tariff->getAttributeLabel('tag_id') . $helpConfluence)
             ?>
         </div>

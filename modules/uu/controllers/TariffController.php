@@ -43,8 +43,17 @@ class TariffController extends BaseController
                     ],
                     [
                         'allow' => true,
+                        'actions' => ['edit'],
+                        'verbs' => ['GET'],
+                        'roles' => ['tarifs.read'],
+                    ],
+                    [
+                        'allow' => true,
                         'actions' => ['new', 'edit', 'edit-by-tariff-period', 'download'],
                         'roles' => ['tarifs.edit'],
+                    ],
+                    [
+                        'allow' => false,
                     ],
                 ],
             ],
