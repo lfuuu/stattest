@@ -223,18 +223,22 @@ $columns = [[
     [
         'format' => 'raw',
         'value' => function ($row) {
+            if (!in_array($row['server_id'], [94, 95, 97, 98, 99])) {
+                return ';';
+            }
+
             $fileLink = ['/voip/monitor/load',
                 'key' => Encrypt::encodeArray([
                     'server_id' => $row['server_id'],
                     'id' => $row['cdr_id'],
                 ])
             ];
-            return $row['server_id'] == 99 ? \app\classes\Html::tag('audio', '', [
+            return  \app\classes\Html::tag('audio', '', [
                 'preload' => 'none',
                 'id' => 'audio' . $row['id'],
                 'controls' => '1',
                 'src' => Url::to($fileLink),
-            ]) . Html::a('', Url::to($fileLink), ['target' => '_blank', 'class' => 'glyphicon glyphicon-download']) : '';
+            ]) . Html::a('', Url::to($fileLink + ['isDownload' => 1]), ['target' => '_blank', 'class' => 'glyphicon glyphicon-download']);
         }
     ]];
 
