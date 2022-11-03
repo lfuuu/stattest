@@ -229,7 +229,7 @@ WHERE b.client_id = ' . $account->id . '
     {
         $isNotRussia = $account->getUuCountryId() != Country::RUSSIA;
         if (!$dateFrom) {
-            $dateFrom = $isNotRussia ? '2019-07-31' : '2019-01-01';
+            $dateFrom = $isNotRussia ? '2019-07-31' : '2021-01-01';
         }
 
         $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia, !$isNotRussia);
