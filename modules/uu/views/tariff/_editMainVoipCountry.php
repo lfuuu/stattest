@@ -14,14 +14,6 @@ use kartik\select2\Select2;
 
 $tariff = $formModel->tariff;
 $tariffCountries = $tariff->tariffCountries;
-
-if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGHT) {
-    $options = ['disabled' => 'disabled'];
-} else {
-    $options = [];
-}
-
-
 ?>
 
 <div class="row">
@@ -37,7 +29,7 @@ if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGH
             'data' => Country::getList($isWithEmpty = false),
             'options' => [
                 'multiple' => true,
-            ] + $options,
+            ],
         ]) ?>
 	</div>
 

@@ -21,13 +21,6 @@ $tariffCountries = $tariff->tariffCountries;
 $cityList = (count($tariffCountries) == 1) ?
     City::getList($isWithEmpty = false, reset($tariffCountries)->country_id) : // для одной страны - ее города
     []; // для многих стран - города нет смысла выбирать
-
-if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGHT) {
-    $options = ['disabled' => 'disabled'];
-} else {
-    $options = [];
-}
-
 ?>
 
 <div class="row">
@@ -43,7 +36,7 @@ if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGH
             'data' => $cityList,
             'options' => [
                 'multiple' => true,
-            ] + $options,
+            ],
         ]) ?>
     </div>
 

@@ -26,9 +26,8 @@ $tariffPeriodTableName = TariffPeriod::tableName();
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = ['disabled' => 'disabled'];
-    $btnOptions = ['class' => 'hide'];
 } else {
-    $btnOptions = $options = [];
+    $options = [];
 }
 
 if (!$tariff->isNewRecord) {
@@ -54,8 +53,6 @@ if (!$tariff->isNewRecord) {
     echo TabularInput::widget([
             'models' => array_values($tariffPeriods), // ключ должен быть автоинкрементный
             'allowEmptyList' => false,
-            'addButtonOptions' => $btnOptions,
-            'removeButtonOptions' => $btnOptions,
             'columns' => [
                 [
                     'name' => 'charge_period_id',
