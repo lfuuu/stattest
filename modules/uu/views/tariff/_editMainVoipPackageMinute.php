@@ -49,7 +49,6 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
             'allowEmptyList' => true,
             'addButtonOptions' => $btnOptions,
             'removeButtonOptions' => $btnOptions,
-
             'columns' => [
                 [
                     'name' => 'destination_id',

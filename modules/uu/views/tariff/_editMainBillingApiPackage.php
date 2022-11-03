@@ -21,8 +21,9 @@ $packageApi = $formModel->packageApi;
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = ['disabled' => 'disabled'];
+    $btnOptions = ['class' => 'hide'];
 } else {
-    $options = [];
+    $btnOptions = $options = [];
 }
 
 ?>
@@ -35,6 +36,8 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
     <?= TabularInput::widget([
             'models' => $packageApi, // ключ должен быть автоинкрементный
             'allowEmptyList' => true,
+            'addButtonOptions' => $btnOptions,
+            'removeButtonOptions' => $btnOptions,
             'columns' => [
                 [
                     'name' => 'api_pricelist_id',

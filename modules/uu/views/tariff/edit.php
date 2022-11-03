@@ -73,7 +73,7 @@ if (!$serviceType) {
     ?>
 
     <?php // кнопка сохранения ?>
-    <?= $viewParams['editableType'] = TariffController::EDITABLE_NONE ? $this->render('_editSubmit', $viewParams) : '' ?>
+    <?= $this->render('_editSubmit', $viewParams) ?>
 
     <?php // свойства тарифа из основной таблицы ?>
     <?= $this->render('_editMain', $viewParams) ?>
@@ -133,7 +133,7 @@ if (!$serviceType) {
     <?= $this->render('_editOverview', $viewParams) ?>
 
     <?php // кнопка сохранения ?>
-    <?= $viewParams['editableType'] = TariffController::EDITABLE_NONE ? $this->render('_editSubmit', $viewParams) : '' ?>
+    <?= $this->render('_editSubmit', $viewParams) ?>
 
     <?php ActiveForm::end(); ?>
 </div>

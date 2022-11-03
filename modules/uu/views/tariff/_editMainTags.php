@@ -18,12 +18,6 @@ use yii\widgets\ActiveForm;
 $tariffTags = $formModel->tariffTags;
 $tariff = $formModel->tariff;
 
-if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGHT) {
-    $options = ['disabled' => 'disabled'];
-} else {
-    $options = [];
-}
-
 ?>
 
 <div class="row">
@@ -36,7 +30,7 @@ if ($editableType <= \app\modules\uu\controllers\TariffController::EDITABLE_LIGH
             'data' => Tag::getList(),
             'options' => [
                 'multiple' => true,
-            ] + $options,
+            ],
         ]) ?>
 
         <?php if (!$tariff->isNewRecord) : ?>
