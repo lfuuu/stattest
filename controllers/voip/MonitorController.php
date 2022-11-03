@@ -9,8 +9,8 @@ use app\exceptions\web\BadRequestHttpException;
 use app\models\billing\CallsCdr;
 use app\models\filter\voip\MonitorFilter;
 use Yii;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
-use yii\web\Response;
 
 class MonitorController extends BaseController
 {
@@ -50,7 +50,7 @@ class MonitorController extends BaseController
         }
     }
 
-    public function actionLoad($key)
+    public function actionLoad($key, $isDownload = false)
     {
         $data = Encrypt::decodeToArray(urldecode($key));
 
@@ -66,38 +66,54 @@ class MonitorController extends BaseController
         }
 
         try {
-            $file = $this->getFile($cdr, $cdr->in_sig_call_id);
+            $file = $this->getFile($cdr, $cdr->in_sig_call_id, $isDownload);
         } catch (\NotFoundHttpException $e) {
-            $file = $this->getFile($cdr, $cdr->out_sig_call_id);
+            $file = $this->getFile($cdr, $cdr->out_sig_call_id, $isDownload);
         }
 
         if (!$file) {
-            throw new NotFoundHttpException('Data not found');
+            throw new NotFoundHttpException('File not found');
         }
 
-        $fileName = preg_replace('/(\*.*$)/', '',$cdr->src_number) . '-' . $cdr->dst_number . '--' .  (new \DateTime($cdr->connect_time))->modify('+3 hour')->format('Y_m_d_His') . '.wav';
+        $fileName = preg_replace('/(\*.*$)/', '', $cdr->src_number) . '-' . $cdr->dst_number . '--' . (new \DateTime($cdr->connect_time))->modify('+3 hour')->format('Y_m_d_His') . '.wav';
 
         \Yii::$app->response->setDownloadHeaders($fileName, 'audio/x-wav');
         return $file;
     }
 
-    private function getFile($cdr, $sigCallId)
+    private function getFile($cdr, $sigCallId, $isFull = false)
     {
         $time = new \DateTimeImmutable($cdr->disconnect_time);
 
+        $url = 'https://' . Encrypt::decodeToArray(urldecode(\Yii::$app->params['vmonitor']['key1']))[$cdr->server_id]
+            . '/' . $time->format('Y/m/d')
+            . '/' . str_replace('-', '', $sigCallId) . ".wav";
+
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, Encrypt::decodeString(urldecode(\Yii::$app->params['vmonitor']['key1'])) . $time->format('Y/m/d') . "/" . str_replace('-', '', $sigCallId) . ".wav");
+        curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt($curl, CURLOPT_USERPWD, Encrypt::decodeString(urldecode(\Yii::$app->params['vmonitor']['key2'])));
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($curl, CURLOPT_HEADER, 0);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        if (!$isFull) {
+            curl_setopt($curl,CURLOPT_RANGE, '0-960000');
+        }
         $return = curl_exec($curl);
         $info = curl_getinfo($curl);
 
-//        $errorNo = curl_errno($curl);
-//        $error = curl_strerror($errorNo);
+        $errorNo = curl_errno($curl);
+        $error = null;
+        if ($errorNo) {
+            $error = curl_strerror($errorNo);
+        }
+
         curl_close($curl);
+
+        if ($error) {
+            throw new HttpException(500, $error);
+        }
 
         if ($info['http_code'] == 404) {
             throw new NotFoundHttpException('file not found');
