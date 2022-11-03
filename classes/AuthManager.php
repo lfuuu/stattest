@@ -181,19 +181,24 @@ class AuthManager extends BaseManager
 
             $groupGrunts = UserGrantGroups::find()->where(['name' => $user->usergroup])->asArray()->all();
             foreach ($groupGrunts as $grunt) {
-                foreach (explode(',', $grunt['access']) as $permission) {
-                    $permissions[$grunt['resource'] . '.' . $permission] = true;
-                }
+                $permissions[$grunt['resource']] = explode(',', $grunt['access']);
             }
 
             $userGrunts = UserGrantUsers::find()->where(['name' => $user->user])->asArray()->all();
             foreach ($userGrunts as $grunt) {
                 foreach (explode(',', $grunt['access']) as $permission) {
-                    $permissions[$grunt['resource'] . '.' . $permission] = true;
+                    $permissions[$grunt['resource']] = explode(',', $grunt['access']);
                 }
             }
 
-            $this->permissionsByUser[$userId] = $permissions;
+            $_permissions = [];
+            foreach($permissions as $section => $sectionPermissions) {
+                foreach ($sectionPermissions as $sectionPermission) {
+                    $_permissions[$section . '.' . $sectionPermission] = true;
+                }
+            }
+
+            $this->permissionsByUser[$userId] = $_permissions;
         }
 
         return $this->permissionsByUser[$userId];

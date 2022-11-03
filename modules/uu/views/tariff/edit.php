@@ -62,6 +62,10 @@ if (!$serviceType) {
         $viewParams['editableType'] = TariffController::EDITABLE_FULL;
     }
 
+    if (!\Yii::$app->user->can('tarifs.edit')) {
+        $viewParams['editableType'] = TariffController::EDITABLE_NONE;
+    }
+
     // сообщение об ошибке
     if ($formModel->validateErrors) {
         Yii::$app->session->setFlash('error', $formModel->validateErrors);

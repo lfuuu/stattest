@@ -33,8 +33,9 @@ $destinationList = Destination::getList(true);
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = ['disabled' => 'disabled'];
+    $btnOptions = ['class' => 'hide'];
 } else {
-    $options = [];
+    $btnOptions = $options = [];
 }
 
 $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
@@ -54,6 +55,8 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?= TabularInput::widget([
             'models' => array_values($packagePrices), // ключ должен быть автоинкрементный
             'allowEmptyList' => true,
+            'addButtonOptions' => $btnOptions,
+            'removeButtonOptions' => $btnOptions,
             'columns' => [
                 [
                     'name' => 'destination_id',
