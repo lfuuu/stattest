@@ -34,7 +34,7 @@ class UserForm extends Form
         $courier_id = 0,
         $enabled = 'yes';
 
-    public $initModel, $rights = [];
+    public $initModel, $rights = [], $rights_radio = [];
 
     public function rules()
     {
@@ -60,7 +60,7 @@ class UserForm extends Form
                 'integer'
             ],
             ['photo', 'file'],
-            ['rights', ArrayValidator::class],
+            [['rights', 'rights_radio'], ArrayValidator::class],
             ['city_id', 'default', 'value' => City::DEFAULT_USER_CITY_ID],
             ['language', 'default', 'value' => Language::LANGUAGE_DEFAULT],
         ];
@@ -110,7 +110,7 @@ class UserForm extends Form
             $user->save();
 
             if (Yii::$app->user->can('users.grant')) {
-                UserGrantUsers::setRights($user, $this->rights);
+                UserGrantUsers::setRights($user, $this->rights, $this->rights_radio);
             }
 
             $transaction->commit();

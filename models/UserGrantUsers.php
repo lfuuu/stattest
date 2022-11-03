@@ -13,7 +13,7 @@ class UserGrantUsers extends ActiveRecord
         return 'user_grant_users';
     }
 
-    public static function setRights(User $user, array $rights)
+    public static function setRights(User $user, array $rights, array $radios)
     {
         $baseRights = UserRight::find()->all();
 
@@ -24,6 +24,12 @@ class UserGrantUsers extends ActiveRecord
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
+        }
+
+        foreach ($radios as $name => $value) {
+            if ($value == 'custom' && !isset($rights[$name])) {
+                $rights[$name] = [];
+            }
         }
 
         if (!count($rights)) {
