@@ -299,10 +299,6 @@ function addItem(&$d, $item, $date)
     $d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']][] = $item;
 }
 
-//echo "<pre>";
-//print_r($d);
-//echo "</pre>";
-
 foreach ($d as $year => &$yearData) {
     foreach ($yearData as $month => &$monthData) {
         ksort($monthData);
@@ -432,57 +428,6 @@ foreach ($d as $year => &$yearData) {
 <?php
 
 
-//echo "<pre>";
-//print_r($rr);
-//echo "</pre>";
-
-function getGrid($models)
-{
-    return \app\classes\grid\GridView::widget([
-        'dataProvider' => new \yii\data\ArrayDataProvider([
-            'allModels' => array_reverse($models),
-            'pagination' => false,
-        ]),
-        'panelHeadingTemplate' => '',
-        'rowOptions' => function ($model) {
-            return ['class' => $model['is_paid'] === 1 ? 'success' : ($model['is_paid'] === 2 ? 'warning' : 'danger')];
-        },
-        'columns' => [
-            [
-                'attribute' => 'number',
-                'label' => '№ документа',
-                'format' => 'raw',
-                'value' => function ($model) {
-                    return \app\classes\Html::a($model['number'], $model['link']);
-                },
-            ],
-            [
-                'attribute' => 'date',
-                'label' => 'Дата',
-            ],
-            [
-                'attribute' => 'sum',
-                'format' => 'raw',
-                'value' => function ($model) {
-                    return nf($model['sum']);
-                },
-                'label' => 'Сумма',
-                'contentOptions' => ['class' => 'text-right'],
-            ]
-        ]
-    ]);
-
-}
-
-/*
-                    [number] => 202210-017534
-                    [link] => /?module=newaccounts&action=bill_view&bill=202210-017534
-                    [date] => 2022-10-05
-                    [sum] => -0.16
-                    [is_paid] => 0
-                    [type] => bill_minus
- */
-
 function cellContentOptions($is_paid, $addClass = '')
 {
     return $is_paid === null
@@ -491,147 +436,134 @@ function cellContentOptions($is_paid, $addClass = '')
 }
 
 ?>
-<div class="container">
-    <?php
-    echo \app\classes\grid\GridView::widget([
-            'dataProvider' => new \yii\data\ArrayDataProvider([
-                'allModels' => array_reverse($rr),
-//                'allModels' => $rr,
-                'pagination' => false,
-            ]),
-            'panelHeadingTemplate' => '',
-            'columns' => [
-                [
-                    'attribute' => 'year',
-                    'label' => 'Год',
-                ],
-                [
-                    'attribute' => 'month',
-                    'label' => 'Месяц',
-                ],
-                [
-                    'attribute' => 'day',
-                    'label' => 'День',
-                ],
-                [
-                    'label' => 'Счет +',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->bill ? \app\classes\Html::a($row->bill['number'], $row->bill['link']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_is_paid);
-                    },
-                ],
-                [
-                    'label' => 'Сумма счета +',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->bill ? nf($row->bill['sum']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_is_paid, 'text-right');
-                    },
-                ],
-                [
-                    'label' => 'С/ф +',
-                    'format' => 'raw',
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->invoice_is_paid);
-                    },
-
-                    'value' => function (row $row) {
-                        return $row->invoice ? \app\classes\Html::a($row->invoice['number'], $row->invoice['link']) : '';
-                    },
-                ],
-                [
-                    'label' => 'С/ф сумма +',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->invoice ? nf($row->invoice['sum']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->invoice_is_paid, 'text-right');
-                    },
-                ],
-
-                [
-                    'label' => 'Платеж +',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->payment ?  nf($row->payment['sum']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions(null, 'info text-right');
-                    },
-                ],
-                [
-                    'label' => 'Платеж -',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->payment_minus ? nf($row->payment_minus['sum']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions(null, 'info text-right');
-                    },
-                ],
-
-                [
-                    'label' => 'Счет -',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->bill_minus ? \app\classes\Html::a($row->bill_minus['number'], $row->bill_minus['link']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_minus_is_paid);
-                    },
-                ],
-                [
-                    'label' => 'Сумма счета -',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_minus_is_paid, 'text-right');
-                    },
-                ],
-                [
-                    'label' => 'С/ф -',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->invoice_minus ? \app\classes\Html::a($row->invoice_minus['number'], $row->invoice_minus['link']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->invoice_minus_is_paid);
-                    },
-                ],
-                [
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
-                    },
-                    'label' => 'С/ф сумма -',
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
-                    },
-                ],
-            ]
-        ]
-    );
-    ?>
-</div>
+<style>
+    td { padding:4px !important; height: 5px !important; }
+</style>
 <div class="row">
-    <div class="col-sm-3">
-        <?= getGrid($dataInv) ?>
-    </div>
-    <div class="col-sm-3">
-        <?= getGrid($dataBillsPlus) ?>
-    </div>
-    <div class="col-sm-3">
-        <?= getGrid($dataBillsMinus) ?>
-    </div>
-    <div class="col-sm-3">
-        <?= getGrid($dataInvoiceExt) ?>
+    <div class="col-xs-12">
+        <?php
+        echo \app\classes\grid\GridView::widget([
+                'dataProvider' => new \yii\data\ArrayDataProvider([
+                    'allModels' => array_reverse($rr),
+//                'allModels' => $rr,
+                    'pagination' => false,
+                ]),
+                'panelHeadingTemplate' => '',
+                'columns' => [
+                    [
+                        'label' => 'Дата',
+                        'value' => function(row $row) {
+                            $date = (new DateTimeImmutable())->setDate($row->year, $row->month, $row->day)->setTime(0,0,0);
+                            return \Yii::$app->formatter->asDate($date, 'php:Y-m-d');
+
+                        }
+                    ],
+                    [
+                        'label' => 'Счет +',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->bill ? \app\classes\Html::a($row->bill['number'], $row->bill['link']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->bill_is_paid);
+                        },
+                    ],
+                    [
+                        'label' => 'Сумма счета +',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->bill ? nf($row->bill['sum']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->bill_is_paid, 'text-right');
+                        },
+                    ],
+                    [
+                        'label' => 'С/ф +',
+                        'format' => 'raw',
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->invoice_is_paid);
+                        },
+
+                        'value' => function (row $row) {
+                            return $row->invoice ? \app\classes\Html::a($row->invoice['number'], $row->invoice['link']) : '';
+                        },
+                    ],
+                    [
+                        'label' => 'С/ф сумма +',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->invoice ? nf($row->invoice['sum']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->invoice_is_paid, 'text-right');
+                        },
+                    ],
+
+                    [
+                        'label' => 'Платеж +',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->payment ? nf($row->payment['sum']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions(null, 'info text-right');
+                        },
+                    ],
+                    [
+                        'label' => 'Платеж -',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->payment_minus ? nf($row->payment_minus['sum']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions(null, 'info text-right');
+                        },
+                    ],
+
+                    [
+                        'label' => 'Счет -',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->bill_minus ? \app\classes\Html::a($row->bill_minus['number'], $row->bill_minus['link']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->bill_minus_is_paid);
+                        },
+                    ],
+                    [
+                        'label' => 'Сумма счета -',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->bill_minus_is_paid, 'text-right');
+                        },
+                    ],
+                    [
+                        'label' => 'С/ф -',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->invoice_minus ? \app\classes\Html::a($row->invoice_minus['number'], $row->invoice_minus['link']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->invoice_minus_is_paid);
+                        },
+                    ],
+                    [
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
+                        },
+                        'label' => 'С/ф сумма -',
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
+                        },
+                    ],
+                ]
+            ]
+        );
+        ?>
     </div>
 </div>
