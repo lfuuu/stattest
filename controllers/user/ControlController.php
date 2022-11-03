@@ -93,7 +93,14 @@ class ControlController extends BaseController
 
         $model = (new UserForm)->initModel($user);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($user)) {
+        $post = Yii::$app->request->post();
+
+        if ($post && isset($post['rights_radio'])) {
+            $post['UserForm']['rights_radio'] = $post['rights_radio'];
+            unset($post['rights_radio']);
+        }
+
+        if ($model->load($post) && $model->validate() && $model->save($user)) {
             Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
             return $this->redirect(Yii::$app->request->referrer);
         }
