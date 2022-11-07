@@ -87,7 +87,9 @@ class ClientCreateExternalForm extends Form
 
         $roistat_visit = null,
 
-        $is_create_lk = 1;
+        $is_create_lk = 1,
+
+        $is_create_trouble = true;
 
     /** @var EntryPoint */
     public $entryPoint = null;
@@ -159,8 +161,8 @@ class ClientCreateExternalForm extends Form
                 FormFieldValidator::class
             ],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
-            [['is_create_lk'], 'default', 'value' => 1],
-            [['partner_id', 'is_create_lk'], 'integer'],
+            [['is_create_lk', 'is_create_trouble'], 'default', 'value' => 1],
+            [['partner_id', 'is_create_lk', 'is_create_trouble'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
             ['timezone', 'in', 'range' => (array_keys(Timezone::getList()) + [""])],
             ['country_id', 'default', 'value' => Country::RUSSIA],
@@ -253,7 +255,7 @@ class ClientCreateExternalForm extends Form
             $this->_createClientStruct();
             $this->isCreated = true;
 
-            if ($this->account_id) {
+            if ($this->account_id && $this->is_create_trouble) {
                 $this->_createTroubleAndWizard();
                 if ($this->vats_tariff_id) {
                     $resVats = $this->_createVats();
