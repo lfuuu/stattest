@@ -688,6 +688,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="file_link", type="string", description="Ссылка на PDF-заявление", in="formData", default=""),
      *   @SWG\Parameter(name="client_account_id", type="integer", description="ЛС", in="formData", default=""),
      *   @SWG\Parameter(name="entry_point_id", type="integer", description="Точка входа", in="formData", default="MNP_RU_DANYCOM"),
+     *   @SWG\Parameter(name="is_create_trouble", type="integer", description="Создавать заявку", in="formData", default="1"),
      *
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},
@@ -718,7 +719,7 @@ class ClientController extends ApiInternalController
 
         $data = $this->requestData;;
 
-        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', 'temp', 'tariff', 'delivery', 'delivery_address', 'file_link', 'client_account_id'] as $value) {
+        foreach (['name', 'doc_args', 'doc_issue', 'doc_issue_date', 'birth', 'address', 'email', 'phone', 'phone_port', 'temp', 'tariff', 'delivery', 'delivery_address', 'file_link', 'client_account_id', 'is_create_trouble'] as $value) {
             if (isset($data[$value])) {
                 $params[$value] = preg_replace('/\s+/', ' ', htmlspecialchars(trim(strip_tags($data[$value])), ENT_NOQUOTES | ENT_HTML401));
                 unset($data[$value]);
@@ -736,6 +737,7 @@ class ClientController extends ApiInternalController
         $isCreate = false;
         $accountId = null;
         if (!$params['client_account_id']) {
+
             $form = new ClientCreateExternalForm;
             $form->setAttributes([
                 'entry_point_id' => $data['entry_point_id'] ?? EntryPoint::MNP_RU_DANYCOM,
@@ -745,6 +747,7 @@ class ClientController extends ApiInternalController
                 'fio' => $params['name'],
                 'email' => $params['email'],
                 'comment' => 'Порировать номер: ' . $params['phone_port'] . $comment,
+                'is_create_trouble' => (int)(bool)($params['is_create_trouble'] ?? 0),
             ]);
 
             if ($form->validate()) {
