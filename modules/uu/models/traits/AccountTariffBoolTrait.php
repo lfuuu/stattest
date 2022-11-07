@@ -36,7 +36,7 @@ trait AccountTariffBoolTrait
             (
                 (
                     $this->getNotNullTariffPeriod()->tariff->is_default
-                    && !Yii::$app->user->can('services_voip.package') // если нельзя, но очень надо, то можно
+                    && !Yii::$app->user->can('services_voip.full') // если нельзя, но очень надо, то можно
                 )
                 || (
                     $this->prev_account_tariff_id
