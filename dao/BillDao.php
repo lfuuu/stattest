@@ -454,7 +454,7 @@ class BillDao extends Singleton
 
         $lines = [];
         /** @var BillLine $line */
-        foreach($_lines as $line) {
+        foreach ($_lines as $line) {
 
             // отредактированно
             if (isset($uuBillLines[$line->uu_account_entry_id])) {
@@ -1117,7 +1117,6 @@ SQL;
         $lines = [];
 
 
-
         $billLines = $bill->lines;
 
         if ($typeId == Invoice::TYPE_PREPAID) {
@@ -1449,13 +1448,11 @@ WHERE
             return false;
         }
 
-        foreach($bill->invoices as $invoice) {
-            if ($invoice->number) {
-                return false;
-            }
-        }
+        $info = array_filter(Invoice::getInfo($bill->bill_no), function ($v) {
+            return $v['status'] == 'invoice';
+        });
 
-        return true;
+        return !$info; // имеется хоть одна зарегистрированная с/ф
     }
 
 }

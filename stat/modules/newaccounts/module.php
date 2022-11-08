@@ -1009,6 +1009,7 @@ class m_newaccounts extends IModule
         ]);
         $design->assign('bill_is_credit_note', Bill::dao()->isBillWithCreditNote($newbill));
         $design->assign('bill_is_one_zadatok', $bill->isOneZadatok());
+        $design->assign('bill_is_editable', $newbill->isEditable());
 
         /*
            счет-фактура(1)-абонен.плата
@@ -6615,32 +6616,47 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 $date_patt = '/^\d{4}-\d{2}-\d{2}$/';
 
                 if (!preg_match($date_patt, $date_from) || !preg_match($date_patt, $date_to)) {
-                    echo "InvalidFormat";
+                    echo "Неправильный формат даты.\nВерный формат: гггг-мм-дд";
                     break;
                 }
 
-                /** @var \app\models\BillLine $line */
-                if ($line = \app\models\BillLine::find()->where([
-                    'bill_no' => $_REQUEST['bill_no'],
-                    'sort' => (int)$_REQUEST['sort_number']
-                ])->one()) {
-                    $line->date_from = $date_from;
-                    $line->date_to = $date_to;
-                    $line->tax_rate = $line->bill->clientAccount->getTaxRateOnDate($date_from);
-                    $line->calculateSum($line->bill->price_include_vat);
+                $transaction = \app\models\BillLine::getDb()->beginTransaction();
+                try {
+                    /** @var \app\models\BillLine $line */
+                    if ($line = \app\models\BillLine::find()->where([
+                        'bill_no' => $_REQUEST['bill_no'],
+                        'sort' => (int)$_REQUEST['sort_number']
+                    ])->one()) {
 
-                    if (!$line->save()) {
-                        throw new ModelValidationException($line);
+                        if (!$line->bill->isEditable()) {
+                            echo "Содержимое счета нельзя редактировать";
+                            break;
+                        }
+
+                        $line->date_from = $date_from;
+                        $line->date_to = $date_to;
+                        $line->tax_rate = $line->bill->clientAccount->getTaxRateOnDate($date_from);
+                        $line->calculateSum($line->bill->price_include_vat);
+
+                        if (!$line->save()) {
+                            throw new ModelValidationException($line);
+                        }
+
+                        if ($line->bill->invoices) {
+                            $info = Invoice::getInfo($line->bill_no);
+
+                            return $info;
+                            $line->bill->generateInvoices();
+                        }
                     }
 
-                    if ($line->bill->invoices) {
-                        $line->bill->generateInvoices();
-                    }
-
+                    //Обновление списка документов
+                    BillDocument::dao()->updateByBillNo($_REQUEST['bill_no']);
+                    $transaction->commit();
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    throw $e;
                 }
-
-                //Обновление списка документов
-                BillDocument::dao()->updateByBillNo($_REQUEST['bill_no']);
 
                 echo 'Ok';
                 break;
