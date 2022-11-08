@@ -843,11 +843,8 @@ var optools = {
 							alert('Дата успешно изменена!')
 							location.reload()
 							return
-						}else if(data == 'MySQLErr'){
-							alert('Произошла ошибка на стороне сервера!\nНе удалось изменить дату.')
-							return
-						}else if(data == 'InvalidFormat'){
-							alert('Неправильный формат даты.\nВерный формат: гггг-мм-дд')
+						}else {
+							alert(data)
 							return
 						}
 					}

@@ -23,12 +23,14 @@
                 <br>
                     <a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a>
                     /
-                    {if !$bill.uu_bill_id}
-                        <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
-                        /
-                        {if !$is_new_invoice}
-                            <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>
+                    {if $bill_is_editable}
+                        {if !$bill.uu_bill_id}
+                            <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
                             /
+                            {if !$is_new_invoice}
+                                <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>
+                                /
+                            {/if}
                         {/if}
                     {/if}
                 {/if}
@@ -270,16 +272,17 @@
                 {/if}
             </td>
             <td nowrap>
-                {if access('newaccounts_bills','edit')}
+                {if access('newaccounts_bills','edit') && $bill_is_editable}
                     <a href='#'
                        onclick='optools.bills.changeBillItemDate(event,"{$bill.bill_no}",{$item.sort});return false'
                        style='text-decoration:none;color:#333333;'>
                         {$item.date_from}<br>{$item.date_to}
                     </a>
                 {else}
-                    {$item.date_from}
+                    <span{if !$bill_is_editable} title="Содержимое счета нельзя редактировать"{/if}>{$item.date_from}
                     <br>
                     {$item.date_to}
+                    </span>
                 {/if}
             </td>
             <td>{$item.amount}{if isset($cur_state) && $cur_state == 17}/<span
