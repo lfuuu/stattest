@@ -14,6 +14,7 @@ use app\dao\BillUuCorrectionDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\media\BillExtFiles;
+use app\modules\uu\models\AccountEntryCorrection;
 use app\modules\uu\models\Bill as uuBill;
 use app\queries\BillQuery;
 use Yii;
@@ -77,6 +78,7 @@ use yii\helpers\Url;
  * @property-read Payment[] $payments
  * @property-read BillExtFiles $extFile
  * @property-read Bill $correctionBill
+ * @property-read AccountEntryCorrection $accountEntryCorrection
  * @property-read string $link
  */
 class Bill extends ActiveRecord
@@ -354,6 +356,14 @@ class Bill extends ActiveRecord
     public function getExtFile()
     {
         return $this->hasOne(BillExtFiles::class, ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccountEntryCorrection()
+    {
+        return $this->hasOne(AccountEntryCorrection::class, ['bill_no' => 'bill_no', 'client_account_id' => 'client_id']);
     }
 
     /**

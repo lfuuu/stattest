@@ -28,6 +28,7 @@ use app\models\Payment;
 use app\models\Transaction;
 use app\models\UsageTrunk;
 use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountEntryCorrection;
 use app\modules\uu\models\Bill as uuBill;
 use Yii;
 use yii\caching\ChainedDependency;
@@ -65,7 +66,7 @@ class BillUuCorrectionDao extends Singleton
 
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            $this->makeOrDeleteCorrectionBill($bill, $corrSum);
+            $this->makeOrDeleteAccountEntryCorrection($bill, -$corrSum);
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -73,85 +74,44 @@ class BillUuCorrectionDao extends Singleton
         }
     }
 
-    private function makeOrDeleteCorrectionBill(Bill $bill, $sum)
+    private function makeOrDeleteAccountEntryCorrection(Bill $bill, $sum)
     {
-        if (abs($sum) < 0.001) {
+        // удаление корректировок к счету
+        if ($bill->correction_bill_id) {
+            $corrBill = $bill->correctionBill;
 
-            if ($bill->correction_bill_id) {
-                $corrBill = $bill->correctionBill;
-
-                $bill->correction_bill_id = null;
-                if (!$bill->save()) {
-                    throw new ModelValidationException($bill);
-                }
-
-                if ($corrBill) {
-                    $corrBill->isSkipCheckCorrection = true;
-                    if (!$corrBill->delete()) {
-                        throw new ModelValidationException($corrBill);
-                    }
-                }
-            }
-
-            return;
-        }
-
-        list($corrBill, $line) = $this->getCorrectionBillAndLine($bill);
-
-        /** @var BillLine sum */
-        $line->sum = $sum;
-
-        /** @var Bill sum */
-        $corrBill->sum = $sum;
-
-        if (!$line->save()) {
-            throw new ModelValidationException($corrBill);
-        }
-
-        if (!$corrBill->save()) {
-            throw new ModelValidationException($bill);
-        }
-
-    }
-
-    private function getCorrectionBillAndLine($bill)
-    {
-        if (!$bill->correction_bill_id) {
-            $corrBill = Bill::dao()->createBill($bill->clientAccount, $bill->currency, true);
-
-            $corrBill->operation_type_id = OperationType::ID_CORRECTION;
-            $corrBill->comment = 'Автоматическая корректировка к счету ' . $bill->bill_no;
-            $bill->correction_bill_id = $corrBill->id;
-            $corrBill->price_include_vat = 1; // здесь сумма конечная, всегда с НДС
-
+            $bill->correction_bill_id = null;
             if (!$bill->save()) {
                 throw new ModelValidationException($bill);
             }
 
-
-            $lineItem = \Yii::t(
-                'biller',
-                'correct_sum',
-                [],
-                \app\classes\Language::normalizeLang($bill->clientAccount->contract->contragent->lang_code)
-            );
-
-            $line = $corrBill->addLine(
-                $lineItem,
-                1,
-                0,
-                BillLine::LINE_TYPE_SERVICE
-            );
-
-            return [$corrBill, $line];
+            if ($corrBill) {
+                $corrBill->isSkipCheckCorrection = true;
+                if (!$corrBill->delete()) {
+                    throw new ModelValidationException($corrBill);
+                }
+            }
         }
 
-        $corrBill = $bill->correctionBill;
-        $lines = $corrBill->lines;
+        $correction = $bill->accountEntryCorrection;
 
-        $line = reset($lines);
+        if (abs($sum) < 0.01) {
+            if ($correction) {
+                $correction->delete();
+            }
+            return;
+        }
 
-        return [$corrBill, $line];
+        if (!$correction) {
+            $correction = new AccountEntryCorrection();
+            $correction->client_account_id = $bill->client_id;
+            $correction->bill_no = $bill->bill_no;
+        }
 
+        $correction->sum = $sum;
+
+        if (!$correction->save()) {
+            throw new ModelValidationException($correction);
+        }
     }
 }

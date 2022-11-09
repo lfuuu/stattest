@@ -471,8 +471,8 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q = '
                 SELECT * FROM (
             SELECT
-                "bill" AS type, bill_no, "" AS bill_id, ext_bill_no AS bill_no_ext, 
-                bill_date, payment_date, client_id, currency, sum, is_payed,
+                "bill" AS type, P.bill_no, "" AS bill_id, ext_bill_no AS bill_no_ext, 
+                bill_date, payment_date, client_id, currency, P.sum, is_payed,
                 P.comment, postreg, nal, 
                 IF(state_id IS NULL OR (state_id IS NOT NULL AND state_id !=21), 0,1) AS is_canceled,
                 is_pay_overdue,
@@ -487,13 +487,15 @@ class m_newaccounts extends IModule
                 ' . ($isIncomeExpense && $billListFilter ? 'ifnull(
                     (SELECT sum(sum) FROM invoice i WHERE i.bill_no = P.bill_no GROUP BY P.bill_no),
                     (SELECT  COALESCE(-sum(ext_vat)-sum(ext_sum_without_vat), -sum(ext_sum_without_vat)) FROM `newbills_external` e where e.bill_no = P.bill_no GROUP BY P.bill_no)
-                )' : 'P.sum') . ' AS invoice_sum
+                )' : 'P.sum') . ' AS invoice_sum,
+                -aec.sum as correction_sum
             FROM
                 newbills P
                 LEFT JOIN newbills_external USING (bill_no)
                 LEFT JOIN tt_troubles t USING (bill_no)
                 LEFT JOIN tt_stages ts ON  (ts.stage_id = t. cur_stage_id)
                 LEFT JOIN newbills_external_files bf using (bill_no)
+                LEFT JOIN ' . \app\modules\uu\models\AccountEntryCorrection::tableName() . ' aec ON (P.client_id = aec.client_account_id and P.bill_no = aec.bill_no)
             WHERE
                 client_id=' . $fixclient_data['id'] . '
                 ' . ($isMulty && !$isViewCanceled ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
@@ -523,7 +525,8 @@ class m_newaccounts extends IModule
                     null as sum_correction,
                     1 as operation_type_id,
                     null as file_name,
-                    0 AS invoice_sum
+                    0 AS invoice_sum,
+                    0 as correction_sum
 
                     FROM `g_income_order` g
                         LEFT JOIN tt_troubles t ON (g.id = t.bill_id)
@@ -1476,7 +1479,7 @@ class m_newaccounts extends IModule
         }
         $bill_date = new DatePickerValues('bill_date', $bill->Get('bill_date'));
 
-        // проверка на изменений даты счета, при наличии зарегестрированной с/ф и выхода за пределы месяца
+        // проверка на изменений даты счета, при наличии зарегистрированной с/ф и выхода за пределы месяца
         if ($bill_date->getSqlDay() != $billModel->bill_date && $billModel->invoices) {
             $billDateFrom = (new DateTimeImmutable($billModel->bill_date))->modify('first day of this month');
             $billDateTo = $billDateFrom->modify('last day of this month');
@@ -1587,7 +1590,7 @@ class m_newaccounts extends IModule
             $billModel->checkUuCorrectionBill();
 
             // если есть зарегистрированная с/ф, то обновить.
-            if ($billModel->invoices) {
+            if ($billModel->invoices && $billModel->isEditable()) {
                 $billModel->generateInvoices();
             }
             $transaction->commit();
