@@ -4,6 +4,7 @@ namespace app\modules\uu\tarificator;
 
 use app\models\ClientAccount;
 use app\models\Payment;
+use app\modules\uu\models\AccountEntryCorrection;
 use app\modules\uu\models\Bill;
 use app\modules\uu\models\Estimation;
 use Yii;
@@ -133,6 +134,35 @@ SQL;
             WHERE
                 t.client_id = clients_tmp.id
 SQL;
+        $db->createCommand($selectSQL)
+            ->execute();
+        $this->out('. ');
+
+        // корректировки к проводкам
+        $correctionTableName = AccountEntryCorrection::tableName();
+        $selectSQL = <<<SQL
+            UPDATE
+                clients_tmp,
+                (
+                    SELECT
+                        correction.client_account_id AS client_id,
+                        SUM(COALESCE(correction.sum, 0)) AS balance
+                    FROM
+                        {$clientAccountTableName} clients,
+                        {$correctionTableName} correction
+                    WHERE
+                        clients.account_version = {$versionBillerUniversal}
+                        AND correction.client_account_id = clients.id
+                        {$sqlAndWhere}
+                    GROUP BY
+                        correction.client_account_id
+                ) t
+            SET
+                clients_tmp.balance = clients_tmp.balance - t.balance
+            WHERE
+                t.client_id = clients_tmp.id
+SQL;
+
         $db->createCommand($selectSQL)
             ->execute();
         $this->out('. ');

@@ -1207,6 +1207,10 @@ SQL;
      */
     public static function generateInvoices(Bill $bill, $is4Invoice = false, $isAsInsert = false)
     {
+        if (!$bill->isEditable()) {
+            return;
+        }
+
         if (
             $bill->bill_date < Invoice::DATE_ACCOUNTING
             || !$bill->operationType->is_convertible

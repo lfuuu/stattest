@@ -214,7 +214,14 @@
                 </td>
                 <td rowspan="{$rowspan}">{$op.bill.payment_date}</td>
                 <td rowspan="{$rowspan}" align="right" nowrap>{$op.bill.sum|money:$op.bill.currency}</td>
-                <td rowspan="{$rowspan}" align="right" nowrap>{if $op.bill.invoice_sum != null} <span style="font-size: 8pt; color: {if $op.bill.sum == $op.bill.invoice_sum}#ccc{else}#c40000{/if};">({$op.bill.invoice_sum|money:$op.bill.currency})</span>{/if}</td>
+                <td rowspan="{$rowspan}" align="right" nowrap>
+                    {if $op.bill.invoice_sum != null}
+                        <span style="font-size: 8pt; color: {if $op.bill.sum == $op.bill.invoice_sum}#ccc{else}#c40000{/if};"{if $op.bill.sum != $op.bill.invoice_sum} title="Корректировка с/ф"{/if}>({$op.bill.invoice_sum|money:$op.bill.currency})</span>
+                    {/if}
+                    {if $op.bill.correction_sum}
+                        <span style="font-size: 8pt; color: #0F6AB4;" title="Корректировка счета">({$op.bill.correction_sum|money:$op.bill.currency})</span>
+                    {/if}
+                </td>
                 <td rowspan="{$rowspan}" align="right">{if $op.bill.sum_correction}{$op.bill.sum_correction|money:$op.bill.currency}{/if}</td>
             {else}
                 <td colspan="3" rowspan="{$rowspan}">&nbsp;</td>
