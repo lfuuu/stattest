@@ -97,7 +97,11 @@ class m_newaccounts extends IModule
         $client_id = $fixclient_data['id'];
         ClientAccount::dao()->updateBalance($client_id);
         if ($design->ProcessEx('errors.tpl')) {
-            header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");
+            if ($returning = ($_GET['returning'] ?? false)) {
+                header("Location: /" . $returning);
+            } else {
+                header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");
+            }
             exit();
         }
     }

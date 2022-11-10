@@ -1,9 +1,19 @@
 <?php
 
+use app\classes\grid\GridView;
+use app\classes\Html;
+use app\models\BillExternal;
+use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\Invoice;
+use app\models\OperationType;
+use app\modules\uu\models\AccountEntryCorrection;
+use yii\data\ArrayDataProvider;
+use yii\db\Expression;
+use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
-/** @var \app\models\ClientAccount $account */
+/** @var ClientAccount $account */
 
 ?>
 
@@ -14,44 +24,55 @@ use yii\widgets\Breadcrumbs;
         ['label' => $this->title, 'url' => '/accounting/'],
         ['label' => $account->getAccountTypeAndId(), 'url' => '/accounting/?account_id=' . $account->id],
         ['label' => 'Тип договора: ' . ClientContract::$financialTypes[$account->clientContractModel->financial_type], 'url' => '/accounting/?account_id=' . $account->id],
+        ['label' => 'Обновить баланс', 'url' => ['/', 'module' => 'newaccounts', 'action' => 'bill_balance', 'returning' => 'accounting'], 'class' => 'btn btn-success btn-xs'],
     ],
-]) ?>
+])?>
 
 <?php
+
+$finType = $account->clientContractModel->financial_type;
+
+if (!$finType || $finType == ClientContract::FINANCIAL_TYPE_PROFITABLE || $finType == ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE) {
+    echo Html::a("Создать доходный счёт", Url::to(['/', 'module' => 'newaccounts', 'action' => 'bill_create_income']),['class' => 'btn btn-info btn-xs']);
+}
+
+if ($finType == ClientContract::FINANCIAL_TYPE_CONSUMABLES || $finType == ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE) {
+    echo Html::a("Создать расходный счёт", Url::to(['/', 'module' => 'newaccounts', 'action' => 'bill_create_outcome']), ['class' => 'btn btn-primary btn-xs']);
+}
+
 
 $paysPlus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['>', 'sum', 0])->all();
 $paysMinus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['<', 'sum', 0])->all();
 
-$invoices = \app\models\Invoice::find()->joinWith('bill b')
+$invoices = Invoice::find()->joinWith('bill b')
     ->where(['b.client_id' => $account->id])
     ->orderBy(['date' => SORT_ASC])
     ->all();
 
 $billsPlus = \app\models\Bill::find()
     ->where(['client_id' => $account->id])
-    ->andWhere(['OR', ['>=', 'sum', 0], ['operation_type_id' => \app\models\OperationType::ID_CORRECTION]])
+    ->andWhere(['OR', ['>=', 'sum', 0], ['operation_type_id' => OperationType::ID_CORRECTION]])
     ->orderBy(['bill_date' => SORT_ASC])
     ->all();
 
 $billsMinus = \app\models\Bill::find()
     ->where(['client_id' => $account->id])
-    ->andWhere(['AND', ['<', 'sum', 0], ['NOT', ['operation_type_id' => \app\models\OperationType::ID_CORRECTION]]])
+    ->andWhere(['AND', ['<', 'sum', 0], ['NOT', ['operation_type_id' => OperationType::ID_CORRECTION]]])
     ->orderBy(['bill_date' => SORT_ASC])
     ->all();
 
-$invoiceExt = \app\models\BillExternal::find()
+$invoiceExt = BillExternal::find()
     ->joinWith('bill b')
     ->with('bill')
     ->where(['b.client_id' => $account->id])
-//    ->andWhere(['not', ['ext_invoice_no' => 'AR/0010106/492']])
     ->orderBy([
-        new \yii\db\Expression("STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')") => SORT_ASC,
+        new Expression("STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')") => SORT_ASC,
         'bill_date' => SORT_ASC,
         'b.id' => SORT_ASC,
     ])
     ->all();
 
-$billCorrections = array_reduce(\app\modules\uu\models\AccountEntryCorrection::find()
+$billCorrections = array_reduce(AccountEntryCorrection::find()
     ->where(['client_account_id' => $account->id])
     ->asArray()
     ->all(),
@@ -70,7 +91,7 @@ $billInvoiceCorrections = array_filter(array_map(function (\app\models\Bill $b) 
     }
     return null;
 }, array_filter($billsPlus, function (\app\models\Bill $b) {
-    return $b->operation_type_id == \app\models\OperationType::ID_CORRECTION;
+    return $b->operation_type_id == OperationType::ID_CORRECTION;
 })));
 
 $billInvoiceCorrections = array_reduce($billInvoiceCorrections,
@@ -87,9 +108,6 @@ $invSum = array_reduce($invoices, function ($acum, $i) {
 }, 0);
 
 $billSumPlus = array_reduce($billsPlus, function ($acum, $i) {
-//    echo "<br><pre>";
-//    print_r($i->getAttributes());
-//    echo "</pre>";
     return $acum + $i->sum;
 }, 0);
 
@@ -97,7 +115,7 @@ $billSumMinus = array_reduce($billsMinus, function ($acum, $i) {
     return $acum + $i->sum;
 }, 0);
 
-$invoiceExtSum = array_reduce($invoiceExt, function ($acum, \app\models\BillExternal $i) {
+$invoiceExtSum = array_reduce($invoiceExt, function ($acum, BillExternal $i) {
     return $acum + $i->ext_vat + $i->ext_sum_without_vat;
 }, 0);
 
@@ -201,7 +219,7 @@ $d = [];
 
 $dataInv = [];
 
-/** @var \app\models\Invoice $invoice */
+/** @var Invoice $invoice */
 foreach ($invoices as $invoice) {
 
     $v = [
@@ -243,7 +261,8 @@ foreach ($billsPlus as $bill) {
 
     $v = [
         'id' => $bill->id,
-        'is_correction' => $bill->operation_type_id == \app\models\OperationType::ID_CORRECTION,
+        'is_correction' => $bill->operation_type_id == OperationType::ID_CORRECTION,
+        'comment' => $bill->operation_type_id == OperationType::ID_CORRECTION ? '' : $bill->comment,
         'number' => $bill->bill_no,
         'link' => $bill->link,
         'date' => isset($billInvoiceCorrectionIds[$bill->id]) ? $billInvoiceCorrectionIds[$bill->id] : $bill->bill_date,
@@ -297,7 +316,7 @@ foreach ($billsMinus as $bill) {
 }
 
 $dataInvoiceExt = [];
-/** @var \app\models\BillExternal $inv */
+/** @var BillExternal $inv */
 foreach ($invoiceExt as $inv) {
 
     $sum = $inv->ext_vat + $inv->ext_sum_without_vat;
@@ -408,6 +427,8 @@ class row
     public $bill_minus_is_paid = '';
     public $invoice_is_paid = '';
     public $invoice_minus_is_paid = '';
+
+    public $comment = '';
 }
 
 class rowCorrection extends row
@@ -463,6 +484,7 @@ foreach ($d as $year => &$yearData) {
                             $row->bill_is_paid = $bill_is_paid;
                             $row->bill = $value;
                             $row->bill_is_correction = $value['is_correction'];
+                            $row->comment = $value['comment'];
 
                             if (isset($billCorrections[$value['number']])) {
                                 $bc = $billCorrections[$value['number']];
@@ -538,18 +560,39 @@ function cellContentOptions($is_paid, $addClass = '')
     .correction_bill {
         color: #0d52bf;
     }
+    .detail-class {
+        padding-left: 7.4%;
+    }
+
 </style>
 <div class="row">
     <div class="col-xs-12">
         <?php
-        echo \app\classes\grid\GridView::widget([
-                'dataProvider' => new \yii\data\ArrayDataProvider([
+        echo GridView::widget([
+                'dataProvider' => new ArrayDataProvider([
                     'allModels' => array_reverse($rr),
 //                'allModels' => $rr,
                     'pagination' => false,
                 ]),
                 'panelHeadingTemplate' => '',
+
                 'columns' => [
+                    [
+                        'class' => \kartik\grid\ExpandRowColumn::class,
+                        'width' => '50px',
+//                        'disabled' => true,
+                        'hidden' => true,
+                        'value' => function ($model) {
+                            return $model->comment ? GridView::ROW_EXPANDED : GridView::ROW_COLLAPSED;
+                        },
+                        'detail' => function ($model) {
+                            return $model->comment;
+                        },
+                        'headerOptions' => ['class' => 'kartik-sheet-style'],
+                        'detailOptions' => ['class' => 'detail-class'],
+                        'detailRowCssClass' => \kartik\grid\GridView::TYPE_ACTIVE,
+                    ],
+
                     [
                         'label' => 'Дата',
                         'value' => function ($row) {
@@ -557,7 +600,7 @@ function cellContentOptions($is_paid, $addClass = '')
                                 return '';
                             }
                             $date = (new DateTimeImmutable())->setDate($row->year, $row->month, $row->day)->setTime(0, 0, 0);
-                            return \Yii::$app->formatter->asDate($date, 'php:Y-m-d');
+                            return Yii::$app->formatter->asDate($date, 'php:Y-m-d');
 
                         }
                     ],
@@ -566,12 +609,12 @@ function cellContentOptions($is_paid, $addClass = '')
                         'format' => 'raw',
                         'value' => function (row $row) {
                             if ($row instanceof rowCorrection) {
-                                return \Yii::$app->formatter->asDate($row->date, 'php:Y-m-d');
+                                return Yii::$app->formatter->asDate($row->date, 'php:Y-m-d');
                             }
 
                             return $row->bill
-                                ? \app\classes\Html::a($row->bill['number'], $row->bill['link'])
-                                . ' ' . ($row->bill_is_correction ? \app\classes\Html::tag('span', '(К)', ['title' => 'Корректировочный счет', 'class' => 'correction_bill']) : '')
+                                ? Html::a($row->bill['number'], $row->bill['link'])
+                                . ' ' . ($row->bill_is_correction ? Html::tag('span', '(К)', ['title' => 'Корректировочный счет', 'class' => 'correction_bill']) : '')
                                 : '';
                         },
                         'contentOptions' => function ($row) {
@@ -602,7 +645,7 @@ function cellContentOptions($is_paid, $addClass = '')
                             if ($row instanceof rowCorrection) {
                                 return 'корректировка счета';
                             }
-                            return $row->invoice ? \app\classes\Html::a($row->invoice['number'], $row->invoice['link']) : '';
+                            return $row->invoice ? Html::a($row->invoice['number'], $row->invoice['link']) : '';
                         },
                     ],
                     [
@@ -641,7 +684,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         'label' => 'Счет -',
                         'format' => 'raw',
                         'value' => function (row $row) {
-                            return $row->bill_minus ? \app\classes\Html::a($row->bill_minus['number'], $row->bill_minus['link']) : '';
+                            return $row->bill_minus ? Html::a($row->bill_minus['number'], $row->bill_minus['link']) : '';
                         },
                         'contentOptions' => function ($row) {
                             return cellContentOptions($row->bill_minus_is_paid);
@@ -661,7 +704,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         'label' => 'С/ф -',
                         'format' => 'raw',
                         'value' => function (row $row) {
-                            return $row->invoice_minus ? \app\classes\Html::a($row->invoice_minus['number'], $row->invoice_minus['link']) : '';
+                            return $row->invoice_minus ? Html::a($row->invoice_minus['number'], $row->invoice_minus['link']) : '';
                         },
                         'contentOptions' => function ($row) {
                             return cellContentOptions($row->invoice_minus_is_paid);
