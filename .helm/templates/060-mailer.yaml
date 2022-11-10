@@ -48,10 +48,10 @@ data:
       ],
       'from' => [
         'ru-RU' => 'noreply@mcn.ru',
-        'hu-HU' => 'noreply@mcntele.com',
-        'en-EN' => 'noreply@mcntele.com',
-        'de-DE' => 'noreply@mcntele.com',
-        'sk-SK' => 'noreply@mcntele.com',
+        'hu-HU' => 'noreply@kompaas.tech',
+        'en-EN' => 'noreply@kompaas.tech',
+        'de-DE' => 'noreply@kompaas.tech',
+        'sk-SK' => 'noreply@kompaas.tech',
       ],
       'system_addresses'=> [
         'monitoring' => 'monitoring@mcn.ru',
