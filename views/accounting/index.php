@@ -26,14 +26,14 @@ use yii\widgets\Breadcrumbs;
         ['label' => 'Тип договора: ' . ClientContract::$financialTypes[$account->clientContractModel->financial_type], 'url' => '/accounting/?account_id=' . $account->id],
         ['label' => 'Обновить баланс', 'url' => ['/', 'module' => 'newaccounts', 'action' => 'bill_balance', 'returning' => 'accounting'], 'class' => 'btn btn-success btn-xs'],
     ],
-])?>
+]) ?>
 
 <?php
 
 $finType = $account->clientContractModel->financial_type;
 
 if (!$finType || $finType == ClientContract::FINANCIAL_TYPE_PROFITABLE || $finType == ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE) {
-    echo Html::a("Создать доходный счёт", Url::to(['/', 'module' => 'newaccounts', 'action' => 'bill_create_income']),['class' => 'btn btn-info btn-xs']);
+    echo Html::a("Создать доходный счёт", Url::to(['/', 'module' => 'newaccounts', 'action' => 'bill_create_income']), ['class' => 'btn btn-info btn-xs']);
 }
 
 if ($finType == ClientContract::FINANCIAL_TYPE_CONSUMABLES || $finType == ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE) {
@@ -83,24 +83,29 @@ $billCorrections = array_reduce(AccountEntryCorrection::find()
 
 //print_r($billCorrections);
 
-$billInvoiceCorrections = array_filter(array_map(function (\app\models\Bill $b) {
-    $comment = $b->comment;
-    $m = [];
-    if (preg_match('/Автоматическая корректировка к счету (\d{6}-\d{6,7}) \((с\/ф №)?(\d)\)/', $comment, $m)) {
-        return ['bill_no' => $m[1], 'type_id' => $m[3], 'bill' => $b, 'is_found' => false];
-    }
-    return null;
-}, array_filter($billsPlus, function (\app\models\Bill $b) {
-    return $b->operation_type_id == OperationType::ID_CORRECTION;
-})));
+$billInvoiceCorrections = array_filter(
+    array_map(
+        function (\app\models\Bill $b) {
+            $comment = $b->comment;
+            $m = [];
+            if ($comment && preg_match('/Автоматическая корректировка к счету (\d{6}-\d{6,7}) \((с\/ф №)?(\d)\)/', $comment, $m)) {
+                return ['bill_no' => $m[1], 'type_id' => $m[3], 'bill' => $b, 'is_found' => false];
+            }
+            return null;
+        }, array_filter($billsPlus, function (\app\models\Bill $b) {
+            return $b->operation_type_id == OperationType::ID_CORRECTION;
+        })
+    )
+);
 
 $billInvoiceCorrections = array_reduce($billInvoiceCorrections,
-    function (Array $accum, Array $a) {
+    function (array $accum, array $a) {
         $accum[$a['bill_no']][$a['type_id']] = $a;
 
         return $accum;
-    }
-    , []);
+    },
+    []
+);
 
 
 $invSum = array_reduce($invoices, function ($acum, $i) {
@@ -246,12 +251,12 @@ foreach ($invoices as $invoice) {
 
 $billInvoiceCorrectionIds = array_reduce($billInvoiceCorrections, function ($accum, $value) {
     array_map(function ($val) use (&$accum) {
-        $accum[$val['bill']->id] = $val['is_found']->date;
+        if ($val['is_found']) {
+            $accum[$val['bill']->id] = $val['is_found']; // $val['is_found'] == invoice
+        }
     }, $value);
     return $accum;
 }, []);
-
-
 
 
 $dataBillsPlus = [];
@@ -265,15 +270,31 @@ foreach ($billsPlus as $bill) {
         'comment' => $bill->operation_type_id == OperationType::ID_CORRECTION ? '' : $bill->comment,
         'number' => $bill->bill_no,
         'link' => $bill->link,
-        'date' => isset($billInvoiceCorrectionIds[$bill->id]) ? $billInvoiceCorrectionIds[$bill->id] : $bill->bill_date,
+        'date' => $bill->bill_date,
         'sum' => $bill->sum,
         'is_paid' => $paysPlusBills > $bill->sum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
         'type' => 'bill',
     ];
     $vv[] = $v;
+
+    $invoice = $billInvoiceCorrectionIds[$bill->id] ?? null;
+    if ($invoice) {
+        $v = [
+            'number' => $invoice->number,
+//            'link' => $invoice->link,
+            'date' => $bill->bill_date,
+            'sum' => round($invoice->sum, 2),
+            'is_paid' => null,
+            'type' => 'invoice_correction',
+//            'type' => 'invoice',
+        ];
+
+        $vv[] = $v;
+    }
+
 }
 
-usort($vv, function($a, $b) {
+usort($vv, function ($a, $b) {
     $aDate = new DateTimeImmutable($a['date']);
     $bDate = new DateTimeImmutable($b['date']);
 
@@ -281,10 +302,10 @@ usort($vv, function($a, $b) {
         return $a['id'] > $b['id'] ? 1 : -1;
     }
 
-    return $aDate > $bDate  ? 1 : -1;
+    return $aDate > $bDate ? 1 : -1;
 });
 
-foreach($vv as $v) {
+foreach ($vv as $v) {
 
     $dataBillsPlus[] = $v;
     $paysPlusBills -= $bill->sum;
@@ -292,7 +313,6 @@ foreach($vv as $v) {
     $date = new DateTimeImmutable($v['date']);
     addItem($d, $v, $date);
 }
-
 
 
 $dataBillsMinus = [];
@@ -379,12 +399,17 @@ foreach ($d as $year => &$yearData) {
 }
 ksort($d);
 
-function addItem(&$d, $item, $date)
+function addItem(&$data, $item, $date)
 {
-    if (!isset($d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']])) {
-        $d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']] = [];
+    $y = (int)$date->format('Y');
+    $m = (int)$date->format('m');
+    $d = (int)$date->format('d');
+    $type = $item['type'];
+
+    if (!isset($data[$y][$m][$d][$type])) {
+        $data[$y][$m][$d][$type] = [];
     }
-    $d[(int)$date->format('Y')][(int)$date->format('m')][(int)$date->format('d')][$item['type']][] = $item;
+    $data[$y][$m][$d][$type][] = $item;
 }
 
 foreach ($d as $year => &$yearData) {
@@ -429,6 +454,7 @@ class row
     public $invoice_minus_is_paid = '';
 
     public $comment = '';
+    public $invoice_for_correction = null;
 }
 
 class rowCorrection extends row
@@ -500,7 +526,24 @@ foreach ($d as $year => &$yearData) {
 
                                 $rr[] = $rc;
                             }
+/*
+                            if ($value['invoice_for_correction']) {
+                                $row = new row();
+                                $row->year = $year;
+                                $row->month = $month;
+                                $row->day = $day;
 
+                                $row->bill_is_paid = $bill_is_paid;
+                                $row->bill_minus_is_paid = $bill_minus_is_paid;
+                                $row->invoice_is_paid = $invoice_is_paid;
+                                $row->invoice_minus_is_paid = $invoice_minus_is_paid;
+
+                                $value['number'] .= 'a';
+//                                $value['date'] =
+                                $row->invoice = $value;
+//                                $rr[] = $row;
+                            }
+*/
                             break;
 
                         case 'bill_minus':
@@ -513,6 +556,13 @@ foreach ($d as $year => &$yearData) {
                             $invoice_is_paid = $value['is_paid'];
                             $row->invoice_is_paid = $invoice_is_paid;
                             $row->invoice = $value;
+                            break;
+
+                        case 'invoice_correction':
+                            $invoice_is_paid = $value['is_paid'];
+                            $row->invoice_is_paid = $invoice_is_paid;
+                            $row->invoice = $value;
+                            $row->invoice_for_correction = true;
                             break;
 
                         case 'invoice_minus':
@@ -543,7 +593,6 @@ foreach ($d as $year => &$yearData) {
 
 <?php
 
-
 function cellContentOptions($is_paid, $addClass = '')
 {
     return $is_paid === null
@@ -557,9 +606,11 @@ function cellContentOptions($is_paid, $addClass = '')
         padding: 4px !important;
         height: 5px !important;
     }
+
     .correction_bill {
         color: #0d52bf;
     }
+
     .detail-class {
         padding-left: 7.4%;
     }
@@ -645,6 +696,9 @@ function cellContentOptions($is_paid, $addClass = '')
                             if ($row instanceof rowCorrection) {
                                 return 'корректировка счета';
                             }
+                            if ($row->invoice_for_correction) {
+                                return $row->invoice['number'];
+                            }
                             return $row->invoice ? Html::a($row->invoice['number'], $row->invoice['link']) : '';
                         },
                     ],
@@ -652,6 +706,9 @@ function cellContentOptions($is_paid, $addClass = '')
                         'label' => 'С/ф сумма +',
                         'format' => 'raw',
                         'value' => function (row $row) {
+                            if ($row->invoice_for_correction) {
+                                return 'корректировка';
+                            }
                             return $row->invoice ? nf($row->invoice['sum']) : '';
                         },
                         'contentOptions' => function ($row) {
