@@ -170,7 +170,7 @@ trait AccountTariffValidatorTrait
         }
 
         if ($this->service_type_id == ServiceType::ID_A2P) {
-            !$this->region_id && $this->region_id = Region::MOSCOW;
+            !$this->region_id && $this->region_id = \Yii::$app->isRus() ? Region::MOSCOW : Region::EUROPE;
             !$this->getParam('route_name') && $this->route_name = $this->route_name_default;
         }
     }

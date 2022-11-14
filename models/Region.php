@@ -34,6 +34,7 @@ class Region extends ActiveRecord
 
     const MOSCOW = 99;
     const HUNGARY = 81;
+    const EUROPE = 30;
 
     const IZHEVSK = 74;
     const ASTRAKHAN = 75;
