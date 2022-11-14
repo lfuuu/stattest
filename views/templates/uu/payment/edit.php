@@ -69,9 +69,16 @@ echo Breadcrumbs::widget([
         $activeCountry = $model->country_code ? : $formModel->getCountryCode();
 
         $tabs = [];
+        $useCountry = [];
         foreach (PublicSite::getAllWithCountries() as $publicSite) {
             /** @var Country $country */
             $country = $publicSite->getCountryFirst();
+            
+            if (isset($useCountry[$country->code])) {
+                continue;
+            }
+            $useCountry[$country->code] = true;
+            
             $isActive = false;
             $formTemplateModel = new PaymentForm($model->type_id, $country->code);
             if ($country->code == $activeCountry) {
