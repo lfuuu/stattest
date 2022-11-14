@@ -224,6 +224,8 @@ $d = [];
 
 $dataInv = [];
 
+$sumInvoice = [];
+
 /** @var Invoice $invoice */
 foreach ($invoices as $invoice) {
 
@@ -235,6 +237,12 @@ foreach ($invoices as $invoice) {
         'is_paid' => $paysPlusInv > $invoice->sum ? 1 : ($paysPlusInv > 0 ? 2 : 0),
         'type' => 'invoice',
     ];
+
+    if (!isset($sumInvoice[$invoice->bill_no])) {
+        $sumInvoice[$invoice->bill_no] = 0;
+    }
+
+    $sumInvoice[$invoice->bill_no] += $v['sum'];
 
 
     $dataInv[] = $v;
@@ -278,7 +286,7 @@ foreach ($billsPlus as $bill) {
     $vv[] = $v;
 
     $invoice = $billInvoiceCorrectionIds[$bill->id] ?? null;
-    if ($invoice) {
+    if ($invoice ) {
         $v = [
             'number' => $invoice->number,
 //            'link' => $invoice->link,
@@ -299,6 +307,11 @@ usort($vv, function ($a, $b) {
     $bDate = new DateTimeImmutable($b['date']);
 
     if ($aDate == $bDate) {
+        $corrA = $a['is_correction'] ?? false;
+        $corrB = $b['is_correction'] ?? false;
+        if ($corrA != $corrB) {
+            return $corrB ? 1 : -1;
+        }
         return $a['id'] > $b['id'] ? 1 : -1;
     }
 
@@ -356,14 +369,27 @@ foreach ($invoiceExt as $inv) {
     addItem($d, $v, $date);
 }
 
+static $userCache = [];
+
 /** @var \app\models\Payment $pay */
 foreach ($paysPlus as $pay) {
 
+    if ($pay->addUser)
+    $type = ($pay->type == 'ecash' ? substr($pay->ecash_operator, 0, 4) : substr($pay->type, 0, 1));
+    if ($type == 'b') {
+        $type .= ' ('.$pay->bank.')';
+    }
+    $info = '&#8470;' . $pay->payment_no . ' / ' . $type;
+    if ($pay->add_user) {
+        $name = explode(" ", trim($pay->addUser->name));
+        $info .= ' / ' . $name[0];
+    }
     $v = [
         'number' => $pay->payment_no,
         'link' => "",
         'date' => $pay->payment_date,
         'sum' => round($pay->sum, 2),
+        'info' => $info,
         'is_paid' => null,
         'type' => 'payment',
     ];
@@ -615,6 +641,10 @@ function cellContentOptions($is_paid, $addClass = '')
         padding-left: 7.4%;
     }
 
+    .text-sum-invoice-info {
+        color: #c4d3c3;
+    }
+
 </style>
 <div class="row">
     <div class="col-xs-12">
@@ -673,7 +703,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         },
                     ],
                     [
-                        'label' => 'Сумма счета +',
+                        'label' => '₽',
                         'format' => 'raw',
                         'value' => function (row $row) {
                             if ($row instanceof rowCorrection) {
@@ -683,6 +713,26 @@ function cellContentOptions($is_paid, $addClass = '')
                         },
                         'contentOptions' => function ($row) {
                             return cellContentOptions($row->bill_is_paid, 'text-right');
+                        },
+                    ],
+                    [
+                        'label' => 'Σ c/ф в счете',
+                        'format' => 'raw',
+                        'value' => function (row $row) use ($sumInvoice) {
+                            return nf($sumInvoice[$row->bill['number']] ?? '');
+                        },
+                        'contentOptions' => function ($row) use ($sumInvoice) {
+                            $options = cellContentOptions($row->bill_is_paid, 'text-right');
+
+                            $sumInv = $sumInvoice[$row->bill['number']] ?? null;
+                            if ($sumInv !== null) {
+                                if (abs($row->bill['sum'] - $sumInv) > 0.01) {
+                                    $options['class'] .= ' text-danger';
+                                } else {
+                                    $options['class'] .= ' text-sum-invoice-info';
+                                }
+                            }
+                            return $options;
                         },
                     ],
                     [
@@ -703,7 +753,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         },
                     ],
                     [
-                        'label' => 'С/ф сумма +',
+                        'label' => '₽',
                         'format' => 'raw',
                         'value' => function (row $row) {
                             if ($row->invoice_for_correction) {
@@ -720,7 +770,9 @@ function cellContentOptions($is_paid, $addClass = '')
                         'label' => 'Платеж +',
                         'format' => 'raw',
                         'value' => function (row $row) {
-                            return $row->payment ? nf($row->payment['sum']) : '';
+                            return ($row->payment
+                                ? Html::tag('small', $row->payment['info'] . ' / ') . nf($row->payment['sum'])
+                                : '');
                         },
                         'contentOptions' => function ($row) {
                             return cellContentOptions(null, 'info text-right');
@@ -748,7 +800,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         },
                     ],
                     [
-                        'label' => 'Сумма счета -',
+                        'label' => '₽',
                         'format' => 'raw',
                         'value' => function (row $row) {
                             return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
@@ -772,7 +824,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         'value' => function (row $row) {
                             return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
                         },
-                        'label' => 'С/ф сумма -',
+                        'label' => '₽',
                         'contentOptions' => function ($row) {
                             return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
                         },
