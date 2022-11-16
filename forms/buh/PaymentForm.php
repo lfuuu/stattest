@@ -23,11 +23,12 @@ class PaymentForm extends Form
     public $ecash_operator;
     public $comment;
     public $bank;
+    public $payment_type;
 
     public function rules()
     {
         return [
-            [['id', 'client_id'], 'integer'],
+            [['id', 'client_id', 'payment_type'], 'integer'],
             [['bill_no', 'type', 'ecash_operator', 'comment', 'bank', 'payment_no'], 'string'],
             [['payment_date', 'oper_date'], 'string'],
             [['currency', 'original_currency'], 'string'],
@@ -51,6 +52,7 @@ class PaymentForm extends Form
             'ecash_operator' => 'Оператор эл. денег',
             'bill_no' => 'Привязать к счету',
             'comment' => 'Комментарий',
+            'payment_type' => 'Тип платежа',
         ];
     }
 

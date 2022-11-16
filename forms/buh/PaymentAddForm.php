@@ -22,7 +22,9 @@ class PaymentAddForm extends PaymentForm
                 'original_sum',
                 'sum',
                 'payment_rate',
-                'type'
+                'type',
+                'payment_type'
+
             ],
             'required'
         ];
@@ -66,6 +68,7 @@ class PaymentAddForm extends PaymentForm
         $item->bank = $item->type == 'bank' ? $this->bank : 'mos';
         $item->ecash_operator = $item->type == 'ecash' ? $this->ecash_operator : null;
         $item->comment = $this->comment;
+        $item->payment_type = $this->payment_type;
         $item->add_date = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $item->add_user = \Yii::$app->user->getId();
 
