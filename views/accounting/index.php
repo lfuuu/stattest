@@ -41,8 +41,8 @@ if ($finType == ClientContract::FINANCIAL_TYPE_CONSUMABLES || $finType == Client
 }
 
 
-$paysPlus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['>', 'sum', 0])->all();
-$paysMinus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['<', 'sum', 0])->all();
+$paysPlus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => \app\models\Payment::PAYMENT_TYPE_INCOME] /* ['>', 'sum', 0] */)->all();
+$paysMinus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => \app\models\Payment::PAYMENT_TYPE_OUTCOME] /* ['<', 'sum', 0] */)->all();
 
 $invoices = Invoice::find()->joinWith('bill b')
     ->where(['b.client_id' => $account->id])
@@ -371,25 +371,28 @@ foreach ($invoiceExt as $inv) {
 
 static $userCache = [];
 
-/** @var \app\models\Payment $pay */
-foreach ($paysPlus as $pay) {
-
-    if ($pay->addUser)
+function getPaymentInfo(\app\models\Payment $pay)
+{
     $type = ($pay->type == 'ecash' ? substr($pay->ecash_operator, 0, 4) : substr($pay->type, 0, 1));
     if ($type == 'b') {
         $type .= ' ('.$pay->bank.')';
     }
-    $info = '&#8470;' . $pay->payment_no . ' / ' . $type;
+    $info = ($pay->payment_no ? '&#8470;' . $pay->payment_no . ' / ' : '') . $type;
     if ($pay->add_user) {
         $name = explode(" ", trim($pay->addUser->name));
         $info .= ' / ' . $name[0];
     }
+    return $info;
+}
+/** @var \app\models\Payment $pay */
+foreach ($paysPlus as $pay) {
+
     $v = [
         'number' => $pay->payment_no,
         'link' => "",
         'date' => $pay->payment_date,
         'sum' => round($pay->sum, 2),
-        'info' => $info,
+        'info' => getPaymentInfo($pay),
         'is_paid' => null,
         'type' => 'payment',
     ];
@@ -407,6 +410,7 @@ foreach ($paysMinus as $pay) {
         'link' => "",
         'date' => $pay->payment_date,
         'sum' => round($pay->sum, 2),
+        'info' => getPaymentInfo($pay),
         'is_paid' => null,
         'type' => 'payment_minus',
     ];
@@ -771,7 +775,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         'format' => 'raw',
                         'value' => function (row $row) {
                             return ($row->payment
-                                ? Html::tag('small', $row->payment['info'] . ' / ') . nf($row->payment['sum'])
+                                ? ($row->payment['info'] ? Html::tag('small', $row->payment['info'] . ' / ') : '') . nf($row->payment['sum'])
                                 : '');
                         },
                         'contentOptions' => function ($row) {
@@ -782,7 +786,9 @@ function cellContentOptions($is_paid, $addClass = '')
                         'label' => 'Платеж -',
                         'format' => 'raw',
                         'value' => function (row $row) {
-                            return $row->payment_minus ? nf($row->payment_minus['sum']) : '';
+                            return $row->payment_minus
+                                ? ($row->payment_minus['info'] ? Html::tag('small', $row->payment_minus['info'] . ' / ') : '') . nf($row->payment_minus['sum'])
+                                : '';
                         },
                         'contentOptions' => function ($row) {
                             return cellContentOptions(null, 'info text-right');

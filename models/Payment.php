@@ -32,6 +32,7 @@ use yii\db\ActiveQuery;
  * @property string $add_date       дата и время внесения записи о платеже
  * @property float $add_user       пользователь, добавивший запись о платеже
  * @property float $bank           банк
+ * @property float $payment_type   тип платежа: доход/расход
  *
  * @property-read Bill $bill счёт
  * @property-read ClientAccount $client
@@ -67,6 +68,14 @@ class Payment extends ActiveRecord
     const ECASH_STRIPE = 'stripe';
     const ECASH_SBERBANK_ONLINE_MOBILE = 'sberOnlineMob';
 
+    const PAYMENT_TYPE_INCOME = 1;
+    const PAYMENT_TYPE_OUTCOME = 2;
+
+    public static $paymentTypes = [
+        self::PAYMENT_TYPE_INCOME => 'Доход',
+        self::PAYMENT_TYPE_OUTCOME => 'Расход',
+    ];
+
     public static $types = [
         self::TYPE_PROV => 'Check',
         self::TYPE_NEPROV => 'Cash',
@@ -76,6 +85,7 @@ class Payment extends ActiveRecord
         self::TYPE_CREDITNOTE => 'Credit Note',
         self::TYPE_API => 'API',
     ];
+
 
     public static $banks = [
         self::BANK_CITI => 'Сити Банк',
