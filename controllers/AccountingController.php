@@ -49,11 +49,24 @@ class AccountingController extends BaseController
         Yii::$app->session->set('clients_client', $account->id);
         $this->applyFixClient($account->id);
 
+        if ($setValue = \Yii::$app->request->get('set')) {
+            switch ($setValue) {
+                case 'billOperations':
+                    $_SESSION["billOperations"] = (bool)\Yii::$app->request->get('is');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        $billOperations = $_SESSION["billOperations"] ?? false;
+
         return
             $this->render(
                 'index',
                 [
                     'account' => $account,
+                    'billOperations' => $billOperations,
                 ]
             );
     }
