@@ -1420,6 +1420,9 @@ class m_newaccounts extends IModule
         if (!is_array($bills)) {
             $bills = [$bills];
         }
+
+        $bills = array_filter($bills, function($bill) {return strlen($bill) > 1;});
+        
         $option = get_param_protected('option');
         $isImport = get_param_raw("from", "") == "import";
 
@@ -1917,6 +1920,9 @@ class m_newaccounts extends IModule
         if (!is_array($bills)) {
             $bills = [$bills];
         }
+
+        $bills = array_filter($bills, function($bill) {return strlen($bill) > 1;});
+
         $link = [];
         $document_link = [];
         $template = ['with_stamp' => '', 'without_stamp' => ''];
@@ -2165,6 +2171,8 @@ class m_newaccounts extends IModule
 
             $bills = [$bills];
         }
+
+        $bills = array_filter($bills, function($bill) {return strlen($bill) > 1;});
 
         $R = [];
         $P = '';

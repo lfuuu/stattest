@@ -27,7 +27,26 @@ use yii\widgets\Breadcrumbs;
         ['label' => 'Обновить баланс', 'url' => ['/', 'module' => 'newaccounts', 'action' => 'bill_balance', 'returning' => 'accounting'], 'class' => 'btn btn-success btn-xs'],
     ],
 ]) ?>
+<style>
 
+
+</style>
+
+<div class="row">
+    <div class=" col-sm-10"></div>
+    <div class="col-sm-2">
+        <div class=" form-check form-switch">
+            <input id="docs_checkbox" class="form-check-input" type="checkbox"
+                   id="flexSwitchCheckChecked"<?= $billOperations ? " checked" : "" ?>>
+            <label class="form-check-label" for="flexSwitchCheckChecked">Отправка документов</label>
+        </div>
+    </div>
+</div>
+<script>
+    $('#docs_checkbox').on('change', function (event) {
+        location.href = '/accounting/?set=billOperations&is=' + ($(event.currentTarget).is(':checked') ? "1" : "0");
+    });
+</script>
 <?php
 
 $finType = $account->clientContractModel->financial_type;
@@ -286,7 +305,7 @@ foreach ($billsPlus as $bill) {
     $vv[] = $v;
 
     $invoice = $billInvoiceCorrectionIds[$bill->id] ?? null;
-    if ($invoice ) {
+    if ($invoice) {
         $v = [
             'number' => $invoice->number,
 //            'link' => $invoice->link,
@@ -375,7 +394,7 @@ function getPaymentInfo(\app\models\Payment $pay)
 {
     $type = ($pay->type == 'ecash' ? substr($pay->ecash_operator, 0, 4) : substr($pay->type, 0, 1));
     if ($type == 'b') {
-        $type .= ' ('.$pay->bank.')';
+        $type .= ' (' . $pay->bank . ')';
     }
     $info = ($pay->payment_no ? '&#8470;' . $pay->payment_no . ' / ' : '') . $type;
     if ($pay->add_user) {
@@ -384,6 +403,7 @@ function getPaymentInfo(\app\models\Payment $pay)
     }
     return $info;
 }
+
 /** @var \app\models\Payment $pay */
 foreach ($paysPlus as $pay) {
 
@@ -556,24 +576,24 @@ foreach ($d as $year => &$yearData) {
 
                                 $rr[] = $rc;
                             }
-/*
-                            if ($value['invoice_for_correction']) {
-                                $row = new row();
-                                $row->year = $year;
-                                $row->month = $month;
-                                $row->day = $day;
+                            /*
+                                                        if ($value['invoice_for_correction']) {
+                                                            $row = new row();
+                                                            $row->year = $year;
+                                                            $row->month = $month;
+                                                            $row->day = $day;
 
-                                $row->bill_is_paid = $bill_is_paid;
-                                $row->bill_minus_is_paid = $bill_minus_is_paid;
-                                $row->invoice_is_paid = $invoice_is_paid;
-                                $row->invoice_minus_is_paid = $invoice_minus_is_paid;
+                                                            $row->bill_is_paid = $bill_is_paid;
+                                                            $row->bill_minus_is_paid = $bill_minus_is_paid;
+                                                            $row->invoice_is_paid = $invoice_is_paid;
+                                                            $row->invoice_minus_is_paid = $invoice_minus_is_paid;
 
-                                $value['number'] .= 'a';
-//                                $value['date'] =
-                                $row->invoice = $value;
-//                                $rr[] = $row;
-                            }
-*/
+                                                            $value['number'] .= 'a';
+                            //                                $value['date'] =
+                                                            $row->invoice = $value;
+                            //                                $rr[] = $row;
+                                                        }
+                            */
                             break;
 
                         case 'bill_minus':
@@ -650,194 +670,261 @@ function cellContentOptions($is_paid, $addClass = '')
     }
 
 </style>
-<div class="row">
-    <div class="col-xs-12">
-        <?php
-        echo GridView::widget([
-                'dataProvider' => new ArrayDataProvider([
-                    'allModels' => array_reverse($rr),
-//                'allModels' => $rr,
-                    'pagination' => false,
-                ]),
-                'panelHeadingTemplate' => '',
+<?php if ($billOperations) : ?>
+<script>
 
-                'columns' => [
-                    [
-                        'class' => \kartik\grid\ExpandRowColumn::class,
-                        'width' => '50px',
-//                        'disabled' => true,
-                        'hidden' => true,
-                        'value' => function ($model) {
-                            return $model->comment ? GridView::ROW_EXPANDED : GridView::ROW_COLLAPSED;
-                        },
-                        'detail' => function ($model) {
-                            return $model->comment;
-                        },
-                        'headerOptions' => ['class' => 'kartik-sheet-style'],
-                        'detailOptions' => ['class' => 'detail-class'],
-                        'detailRowCssClass' => \kartik\grid\GridView::TYPE_ACTIVE,
-                    ],
-
-                    [
-                        'label' => 'Дата',
-                        'value' => function ($row) {
-                            if ($row instanceof rowCorrection) {
-                                return '';
-                            }
-                            $date = (new DateTimeImmutable())->setDate($row->year, $row->month, $row->day)->setTime(0, 0, 0);
-                            return Yii::$app->formatter->asDate($date, 'php:Y-m-d');
-
-                        }
-                    ],
-                    [
-                        'label' => 'Счет +',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            if ($row instanceof rowCorrection) {
-                                return Yii::$app->formatter->asDate($row->date, 'php:Y-m-d');
-                            }
-
-                            return $row->bill
-                                ? Html::a($row->bill['number'], $row->bill['link'])
-                                . ' ' . ($row->bill_is_correction ? Html::tag('span', '(К)', ['title' => 'Корректировочный счет', 'class' => 'correction_bill']) : '')
-                                : '';
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->bill_is_paid);
-                        },
-                    ],
-                    [
-                        'label' => '₽',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            if ($row instanceof rowCorrection) {
-                                return nf($row->sum);
-                            }
-                            return $row->bill ? nf($row->bill['sum']) : '';
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->bill_is_paid, 'text-right');
-                        },
-                    ],
-                    [
-                        'label' => 'Σ c/ф в счете',
-                        'format' => 'raw',
-                        'value' => function (row $row) use ($sumInvoice) {
-                            return nf($sumInvoice[$row->bill['number']] ?? '');
-                        },
-                        'contentOptions' => function ($row) use ($sumInvoice) {
-                            $options = cellContentOptions($row->bill_is_paid, 'text-right');
-
-                            $sumInv = $sumInvoice[$row->bill['number']] ?? null;
-                            if ($sumInv !== null) {
-                                if (abs($row->bill['sum'] - $sumInv) > 0.01) {
-                                    $options['class'] .= ' text-danger';
-                                } else {
-                                    $options['class'] .= ' text-sum-invoice-info';
-                                }
-                            }
-                            return $options;
-                        },
-                    ],
-                    [
-                        'label' => 'С/ф +',
-                        'format' => 'raw',
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->invoice_is_paid);
-                        },
-
-                        'value' => function (row $row) {
-                            if ($row instanceof rowCorrection) {
-                                return 'корректировка счета';
-                            }
-                            if ($row->invoice_for_correction) {
-                                return $row->invoice['number'];
-                            }
-                            return $row->invoice ? Html::a($row->invoice['number'], $row->invoice['link']) : '';
-                        },
-                    ],
-                    [
-                        'label' => '₽',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            if ($row->invoice_for_correction) {
-                                return 'корректировка';
-                            }
-                            return $row->invoice ? nf($row->invoice['sum']) : '';
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->invoice_is_paid, 'text-right');
-                        },
-                    ],
-
-                    [
-                        'label' => 'Платеж +',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            return ($row->payment
-                                ? ($row->payment['info'] ? Html::tag('small', $row->payment['info'] . ' / ') : '') . nf($row->payment['sum'])
-                                : '');
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions(null, 'info text-right');
-                        },
-                    ],
-                    [
-                        'label' => 'Платеж -',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            return $row->payment_minus
-                                ? ($row->payment_minus['info'] ? Html::tag('small', $row->payment_minus['info'] . ' / ') : '') . nf($row->payment_minus['sum'])
-                                : '';
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions(null, 'info text-right');
-                        },
-                    ],
-
-                    [
-                        'label' => 'Счет -',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            return $row->bill_minus ? Html::a($row->bill_minus['number'], $row->bill_minus['link']) : '';
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->bill_minus_is_paid);
-                        },
-                    ],
-                    [
-                        'label' => '₽',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->bill_minus_is_paid, 'text-right');
-                        },
-                    ],
-                    [
-                        'label' => 'С/ф -',
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            return $row->invoice_minus ? Html::a($row->invoice_minus['number'], $row->invoice_minus['link']) : '';
-                        },
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->invoice_minus_is_paid);
-                        },
-                    ],
-                    [
-                        'format' => 'raw',
-                        'value' => function (row $row) {
-                            return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
-                        },
-                        'label' => '₽',
-                        'contentOptions' => function ($row) {
-                            return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
-                        },
-                    ],
-                ]
-            ]
-        );
-        ?>
+    function setAction(value) {
+        $('#action').val(value);
+        form = $('#formsend');
+        url = form.attr('action');
+        if (value == 'bill_mprint') {
+            form.prop("target", "_blank");
+        } else if (value == 'bill_postreg') {
+            form[0].addEventListener('submit', function (event) {
+                event.preventDefault();
+            });
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: form.serialize(),
+                complete: function (data) {
+                    if (data.status == 0 || data.status == 200) {
+                        alert('Выбранные элементы были успешно зарегистрированы');
+                    } else {
+                        alert('Произошла ошибка');
+                    }
+                    location.reload();
+                }
+            });
+        }
+    }
+</script>
+<form action="?" method="get" name="formsend" id="formsend" target="_blank">
+    <input type="hidden" name="module" value="newaccounts"/>
+    <input type="hidden" name="action" id="action" value=""/>
+    <input type="hidden" name="document_reports[]" value="bill"/>
+    <input type="hidden" name="akt-1" value="1"/>
+    <input type="hidden" name="akt-2" value="1"/>
+    <input type="hidden" name="akt-3" value="1"/>
+    <input type="hidden" name="invoice-1" value="1"/>
+    <input type="hidden" name="invoice-2" value="1"/>
+    <input type="hidden" name="invoice-3" value="1"/>
+    <input type="hidden" name="isBulkPrint" value="1"/>
+    <div class="pull-right">
+        <button type="submit" class="button" onclick="setAction('bill_email')">Отправить на e-mail</button>
+        <button type="submit" class="button" onclick="setAction('bill_mprint')" name="isLandscape" value="1">Печать в
+            альбомной ориентации
+        </button>
+        <button type="submit" class="button" onclick="setAction('bill_mprint')" name="isPortrait" value="1">Печать в
+            книжной ориентации
+        </button>
+        <button type="submit" class="button" onclick="setAction('bill_postreg')">Зарег-ть</button>
     </div>
-</div>
+    <?php endif; ?>
+    <div class="row">
+        <div class="col-xs-12">
+            <?php
+
+            $columns = [
+                [
+                    'class' => \kartik\grid\ExpandRowColumn::class,
+                    'width' => '50px',
+//                        'disabled' => true,
+                    'hidden' => true,
+                    'value' => function ($model) {
+                        return $model->comment ? GridView::ROW_EXPANDED : GridView::ROW_COLLAPSED;
+                    },
+                    'detail' => function ($model) {
+                        return $model->comment;
+                    },
+                    'headerOptions' => ['class' => 'kartik-sheet-style'],
+                    'detailOptions' => ['class' => 'detail-class'],
+                    'detailRowCssClass' => \kartik\grid\GridView::TYPE_ACTIVE,
+                ],
+
+                [
+                    'label' => 'Дата',
+                    'value' => function ($row) {
+                        if ($row instanceof rowCorrection) {
+                            return '';
+                        }
+                        $date = (new DateTimeImmutable())->setDate($row->year, $row->month, $row->day)->setTime(0, 0, 0);
+                        return Yii::$app->formatter->asDate($date, 'php:Y-m-d');
+
+                    }
+                ],
+                [
+                    'label' => 'Счет +',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        if ($row instanceof rowCorrection) {
+                            return Yii::$app->formatter->asDate($row->date, 'php:Y-m-d');
+                        }
+
+                        return $row->bill
+                            ? Html::a($row->bill['number'], $row->bill['link'])
+                            . ' ' . ($row->bill_is_correction ? Html::tag('span', '(К)', ['title' => 'Корректировочный счет', 'class' => 'correction_bill']) : '')
+                            : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_is_paid);
+                    },
+                ],
+                [
+                    'label' => '₽',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        if ($row instanceof rowCorrection) {
+                            return nf($row->sum);
+                        }
+                        return $row->bill ? nf($row->bill['sum']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_is_paid, 'text-right');
+                    },
+                ],
+                [
+                    'label' => 'Σ c/ф в счете',
+                    'format' => 'raw',
+                    'value' => function (row $row) use ($sumInvoice) {
+                        return nf($sumInvoice[$row->bill['number']] ?? '');
+                    },
+                    'contentOptions' => function ($row) use ($sumInvoice) {
+                        $options = cellContentOptions($row->bill_is_paid, 'text-right');
+
+                        $sumInv = $sumInvoice[$row->bill['number']] ?? null;
+                        if ($sumInv !== null) {
+                            if (abs($row->bill['sum'] - $sumInv) > 0.01) {
+                                $options['class'] .= ' text-danger';
+                            } else {
+                                $options['class'] .= ' text-sum-invoice-info';
+                            }
+                        }
+                        return $options;
+                    },
+                ],
+                [
+                    'label' => 'С/ф +',
+                    'format' => 'raw',
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_is_paid);
+                    },
+
+                    'value' => function (row $row) {
+                        if ($row instanceof rowCorrection) {
+                            return 'корректировка счета';
+                        }
+                        if ($row->invoice_for_correction) {
+                            return $row->invoice['number'];
+                        }
+                        return $row->invoice ? Html::a($row->invoice['number'], $row->invoice['link']) : '';
+                    },
+                ],
+                [
+                    'label' => '₽',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        if ($row->invoice_for_correction) {
+                            return 'корректировка';
+                        }
+                        return $row->invoice ? nf($row->invoice['sum']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_is_paid, 'text-right');
+                    },
+                ],
+
+                [
+                    'label' => 'Платеж +',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return ($row->payment
+                            ? ($row->payment['info'] ? Html::tag('small', $row->payment['info'] . ' / ') : '') . nf($row->payment['sum'])
+                            : '');
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions(null, 'info text-right');
+                    },
+                ],
+                [
+                    'label' => 'Платеж -',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->payment_minus
+                            ? ($row->payment_minus['info'] ? Html::tag('small', $row->payment_minus['info'] . ' / ') : '') . nf($row->payment_minus['sum'])
+                            : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions(null, 'info text-right');
+                    },
+                ],
+
+                [
+                    'label' => 'Счет -',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill_minus ? Html::a($row->bill_minus['number'], $row->bill_minus['link']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_minus_is_paid);
+                    },
+                ],
+                [
+                    'label' => '₽',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->bill_minus_is_paid, 'text-right');
+                    },
+                ],
+                [
+                    'label' => 'С/ф -',
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->invoice_minus ? Html::a($row->invoice_minus['number'], $row->invoice_minus['link']) : '';
+                    },
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_minus_is_paid);
+                    },
+                ],
+                [
+                    'format' => 'raw',
+                    'value' => function (row $row) {
+                        return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
+                    },
+                    'label' => '₽',
+                    'contentOptions' => function ($row) {
+                        return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
+                    },
+                ]
+            ];
+            if ($billOperations) {
+                $columns[] = [
+                    'class' => 'kartik\grid\CheckboxColumn',
+                    'checkboxOptions' => function (Row $row) {
+                        return [
+                            'hidden' => !($row->bill && ($row->bill['number'] ?? false) && !($row instanceof rowCorrection)),
+                            'value' => $row->bill['number']
+                        ];
+                    },
+                    'name' => 'bill',
+                ];
+            }
+
+            echo GridView::widget([
+                    'dataProvider' => new ArrayDataProvider([
+                        'allModels' => array_reverse($rr),
+//                'allModels' => $rr,
+                        'pagination' => false,
+                    ]),
+                    'panelHeadingTemplate' => '',
+
+                    'columns' => $columns,
+                ]
+            );
+            ?>
+        </div>
+    </div>
+</form>
