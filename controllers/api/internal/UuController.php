@@ -1463,6 +1463,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "Тип услуги", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
+     *   @SWG\Parameter(name = "voip_number_mask", type = "string", description = "Маска номера", in = "query", default = ""),
      *   @SWG\Parameter(name = "limit", type = "integer", description = "Не более 100 записей. Можно только уменьшить", in = "query", default = "50"),
      *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0", in = "query", default = "0"),
      *
@@ -1479,6 +1480,7 @@ class UuController extends ApiInternalController
      * @param int $client_account_id
      * @param int $service_type_id
      * @param string $voip_number
+     * @param string $voip_number_mask
      * @param int $limit
      * @param int $offset
      * @return array
@@ -1491,6 +1493,7 @@ class UuController extends ApiInternalController
         $client_account_id = null,
         $service_type_id = null,
         $voip_number = null,
+        $voip_number_mask = null,
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
     )
@@ -1514,7 +1517,7 @@ class UuController extends ApiInternalController
         }
 
         $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
-        $accountTariffQuery = AccountTariffFilter::getListWithPackagesQuery($id, $client_account_id, $service_type_id, $voip_number, $limit, $offset);
+        $accountTariffQuery = AccountTariffFilter::getListWithPackagesQuery($id, $client_account_id, $service_type_id, $voip_number, $voip_number_mask, $limit, $offset);
 
         $result = [];
         foreach ($accountTariffQuery->all() as $accountTariff) {

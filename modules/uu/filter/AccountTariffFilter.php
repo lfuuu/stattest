@@ -463,11 +463,12 @@ class AccountTariffFilter extends AccountTariff
      * @param int $clientAccountId
      * @param int $serviceTypeId
      * @param int $voipNumber
+     * @param int $voipNumberMask
      * @param int $limit
      * @param int $offset
      * @return \yii\db\ActiveQuery
      */
-    public static function getListWithPackagesQuery($id, $clientAccountId, $serviceTypeId, $voipNumber, $limit, $offset)
+    public static function getListWithPackagesQuery($id, $clientAccountId, $serviceTypeId, $voipNumber, $voipNumberMask, $limit, $offset)
     {
         $query = AccountTariff::find();
 
@@ -509,6 +510,7 @@ class AccountTariffFilter extends AccountTariff
         $clientAccountId && $query->andWhere(['client_account_id' => (int)$clientAccountId]);
         $serviceTypeId && $query->andWhere(['service_type_id' => (int)$serviceTypeId]);
         $voipNumber && $query->andWhere(['voip_number' => $voipNumber]);
+        $voipNumberMask && $query->andWhere(['LIKE', 'voip_number',  $voipNumberMask]);
 
         $offset && $query->offset($offset);
         $query->orderBy(new Expression('IF (tariff_period_id IS NULL, 1, 0)'));
