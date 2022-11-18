@@ -452,7 +452,7 @@ class ClientController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/create/", summary="Создание клиента", operationId="Создание клиента",
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/create/", summary="Создание клиента", operationId="client-create",
      *   @SWG\Parameter(name="company", type="string", description="Название клиента", in="formData", default="Клиент без названия"),
      *   @SWG\Parameter(name="address", type="string", description="Адрес", in="formData", default=""),
      *   @SWG\Parameter(name="partner_id", type="integer", description="ID партнёра", in="formData", default=""),
@@ -467,6 +467,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="site_name", type="string", description="С какого сайта пришел клиент", in="formData", default=""),
      *   @SWG\Parameter(name="vats_tariff_id", type="integer", description="ID тарифа для ВАТС", in="formData", default=""),
      *   @SWG\Parameter(name="entry_point_id", type="string", description="ID (code) точки входа", in="formData", default="RU1"),
+     *   @SWG\Parameter(name="org_type", type="string", description="Тип организации", in="formData", default=""),
      *   @SWG\Parameter(name="utm_parameters", type="string", description="UTM-метки", in="formData", default=""),
      *   @SWG\Parameter(name="roistat_visit", type="integer", description="Roistat visit", in="formData", default=""),
      *   @SWG\Parameter(name="is_create_lk", type="integer", description="Создаем ЛК?", in="formData", default="1"),

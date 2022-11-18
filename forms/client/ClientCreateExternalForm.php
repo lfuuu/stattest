@@ -81,6 +81,8 @@ class ClientCreateExternalForm extends Form
 
         $entry_point_id = '',
 
+        $org_type = '',
+
         $utm_parameters = [],
 
         $troubleId = null,
@@ -140,7 +142,8 @@ class ClientCreateExternalForm extends Form
                     'fax',
                     'address',
                     'comment',
-                    'site_name'
+                    'site_name',
+                    'org_type',
                 ],
                 'default',
                 'value' => ''
@@ -157,6 +160,7 @@ class ClientCreateExternalForm extends Form
                     'comment',
                     'site_name',
                     'entry_point_id',
+                    'org_type',
                 ],
                 FormFieldValidator::class
             ],
@@ -193,6 +197,7 @@ class ClientCreateExternalForm extends Form
             'country_id' => 'Код страны',
             'site_name' => 'Сайт',
             'roistat_visit' => 'Roistat visit',
+            'org_type' => 'Тип организации',
         ];
     }
 
@@ -323,6 +328,7 @@ class ClientCreateExternalForm extends Form
         $contragent->address_jur = $this->address;
         $contragent->legal_type = 'legal';
         $contragent->country_id = $this->country_id;
+        $contragent->org_type = $this->org_type;
 
         if ($this->entryPoint) {
             $contragent->country_id = $this->entryPoint->country_id;

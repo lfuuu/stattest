@@ -41,6 +41,7 @@ return [
     'legalTypePerson' => 'Физ. лицо',
 
     'sale_channel_id' => 'Откуда узнали о нас',
+    'org_type' => 'Тип организации',
     'branch_code' => 'Код филиала',
     'partner_contract_id' => 'Партнер',
 
