@@ -5,6 +5,8 @@ namespace app\controllers;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\models\ClientAccount;
+use app\models\ClientContract;
+use app\models\Organization;
 use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
@@ -50,16 +52,44 @@ class AccountingController extends BaseController
         $this->applyFixClient($account->id);
 
         if ($setValue = \Yii::$app->request->get('set')) {
+            $is = \Yii::$app->request->get('is');
             switch ($setValue) {
                 case 'billOperations':
-                    $_SESSION["billOperations"] = (bool)\Yii::$app->request->get('is');
+                    $_SESSION["billOperations"] = (bool)$is;
                     break;
+
+                case 'listFilter':
+                    $filter = $is;
+
+                    if (!in_array($filter, ['full', 'income'])) {
+                        $filter = null;
+                    }
+
+                    if (!$filter && isset($_SESSION["listFilter"])) {
+                        unset($_SESSION["listFilter"]);
+                    }
+
+                    if ($filter) {
+                        $_SESSION["listFilter"] = $filter;
+                    }
+                    break;
+
                 default:
                     break;
             }
         }
 
+        if (!isset($_SESSION["prevClientAccountId"])) {
+            $_SESSION["prevClientAccountId"] = $account->id;
+        }
+
+        if ($_SESSION["prevClientAccountId"] != $account->id) {
+            $_SESSION["listFilter"] = $account->contract->financial_type == ClientContract::FINANCIAL_TYPE_YIELD_CONSUMABLE ? 'full' : 'income';
+            $_SESSION["prevClientAccountId"] = $account->id;
+        }
+
         $billOperations = $_SESSION["billOperations"] ?? false;
+        $listFilter = $_SESSION["listFilter"] ?? 'income';
 
         return
             $this->render(
@@ -67,6 +97,8 @@ class AccountingController extends BaseController
                 [
                     'account' => $account,
                     'billOperations' => $billOperations,
+                    'listFilter' => $listFilter,
+                    'changeCompany' => Organization::dao()->getWhenOrganizationSwitched($account->contract_id)
                 ]
             );
     }

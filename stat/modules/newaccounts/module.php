@@ -238,32 +238,6 @@ class m_newaccounts extends IModule
         }
     }
 
-    /**
-     * @param int $contractId
-     * @return array
-     */
-    function _getWhenOrganizationSwitched($contractId)
-    {
-        $result = [];
-        $lastOrganizationId = 0;
-
-        foreach (
-            \app\models\HistoryVersion::find()
-                ->andWhere(['regexp', 'data_json', '"organization_id":"?[0-9]+"?,'])
-                ->andWhere(['model' => 'app\\models\\ClientContract', 'model_id' => $contractId])
-                ->orderBy(['date' => SORT_ASC])
-                ->all() as $record
-        ) {
-            $historyData = json_decode($record->data_json, true);
-            if ($lastOrganizationId != $historyData['organization_id']) {
-                $result[$record->date] = $historyData['organization_id'];
-                $lastOrganizationId = $historyData['organization_id'];
-            }
-        }
-
-        return $result;
-    }
-
     function newaccounts_bill_list_simple($get_sum = false, $clientType = null)
     {
         global $design, $db, $user, $fixclient, $fixclient_data;
@@ -304,7 +278,7 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        $stDates = $this->_getWhenOrganizationSwitched($clientAccount->contract_id);
+        $stDates = Organization::dao()->getWhenOrganizationSwitched($clientAccount->contract_id);
 
         if ($stDates) {
             foreach ($stDates as $date => $organizationId) {
@@ -704,7 +678,7 @@ class m_newaccounts extends IModule
         ksort($buf);
         ksort($sw);
 
-        $stDates = $this->_getWhenOrganizationSwitched($clientAccount->contract_id);
+        $stDates = Organization::dao()->getWhenOrganizationSwitched($clientAccount->contract_id);
 
         if ($stDates) {
             foreach ($stDates as $date => $organizationId) {
