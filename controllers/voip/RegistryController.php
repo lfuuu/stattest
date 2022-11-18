@@ -97,7 +97,9 @@ class RegistryController extends BaseController
 
         $isSave = $model->getScenario() === 'save';
 
-        if ($isSave && $isLoad && $model->initForm($isSave) && $model->validate() && $model->save()) {
+        $isPost = \Yii::$app->request->isPost;
+
+        if ($isSave && $isLoad && $model->initForm($isPost) && $model->validate() && $model->save()) {
             Yii::$app->session->addFlash('success', ($id ? 'Запись обновлена' : 'Запись создана'));
             return $this->redirect(['edit', 'id' => $model->id]);
         }
@@ -143,7 +145,7 @@ class RegistryController extends BaseController
             $statusInfo = $registry->getStatusInfo();
         }
 
-        $model->initForm();
+        $model->initForm($isPost);
 
         return $this->render('edit', [
             'model' => $model,
