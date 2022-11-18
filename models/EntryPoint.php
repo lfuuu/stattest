@@ -35,6 +35,9 @@ use http\Url;
  * @property Country $country
  * @property User $connectTroubleUser
  * @property PublicSite $site
+ * @property Business $business
+ * @property BusinessProcess $businessProcess
+ * @property BusinessProcessStatus $businessProcessStatus
  */
 class EntryPoint extends ActiveRecord
 {
@@ -207,6 +210,31 @@ class EntryPoint extends ActiveRecord
     {
         return $this->hasOne(PublicSite::class, ['id' => 'site_id']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBusiness()
+    {
+        return $this->hasOne(Business::class, ['id' => 'client_contract_business_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBusinessProcess()
+    {
+        return $this->hasOne(BusinessProcess::class, ['id' => 'client_contract_business_process_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBusinessProcessStatus()
+    {
+        return $this->hasOne(BusinessProcessStatus::class, ['id' => 'client_contract_business_process_status_id']);
+    }
+
 
     /**
      * Вовращает точку входа по коду, или по умолчанию, если такая не найдена
