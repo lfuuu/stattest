@@ -23,6 +23,7 @@ use app\models\danycom\Info;
 use app\models\danycom\Number;
 use app\models\EntryPoint;
 use app\models\EventQueue;
+use app\models\Organization;
 use app\models\Timezone;
 use Exception;
 use Psr\Log\InvalidArgumentException;
@@ -953,40 +954,40 @@ class ClientController extends ApiInternalController
         }
 
 
-/*
-        $data = [
-            'account_id' => 69911,
-            'email' => 'zzz@zzz.ru',
-            'emailVerified' => true,
-            'phone' => '+79252111111',
-            'phoneVerified' => false,
-            'name' => 'Тестеров Тест тестерович оглы первый',
-            'birthDate' => '09.11.1981',
-            'birthPlace' => 'Родился там-то',
-            'gender' => 'M',
-            'citizenship' => 'RUS',
-            'inn' => '470322313839',
-            'address' => [
-                'addressStr' => 'тут адрес',
-                'countryId' => 'RUS',
-                'house' => '123',
-                'zipCode' => '123123',
-                'city' => 'город',
-                'street' => 'улица',
-                'region' => 'регион'
-            ],
-            'identity' => [
-                'type' => 'RF_PASSPORT',
-                'series' => '1234',
-                'number' => '123456',
-                'issueDate' => '30.01.1972',
-                'issueId' => 'код подразделения',
-                'issuedBy' => 'тут кем выдан',
-                'vrfStu' => 'VERIFIED'
-            ],
-            'trusted' => true
-        ];
-*/
+        /*
+                $data = [
+                    'account_id' => 69911,
+                    'email' => 'zzz@zzz.ru',
+                    'emailVerified' => true,
+                    'phone' => '+79252111111',
+                    'phoneVerified' => false,
+                    'name' => 'Тестеров Тест тестерович оглы первый',
+                    'birthDate' => '09.11.1981',
+                    'birthPlace' => 'Родился там-то',
+                    'gender' => 'M',
+                    'citizenship' => 'RUS',
+                    'inn' => '470322313839',
+                    'address' => [
+                        'addressStr' => 'тут адрес',
+                        'countryId' => 'RUS',
+                        'house' => '123',
+                        'zipCode' => '123123',
+                        'city' => 'город',
+                        'street' => 'улица',
+                        'region' => 'регион'
+                    ],
+                    'identity' => [
+                        'type' => 'RF_PASSPORT',
+                        'series' => '1234',
+                        'number' => '123456',
+                        'issueDate' => '30.01.1972',
+                        'issueId' => 'код подразделения',
+                        'issuedBy' => 'тут кем выдан',
+                        'vrfStu' => 'VERIFIED'
+                    ],
+                    'trusted' => true
+                ];
+        */
 
         /** @var ClientAccount $account */
         $account = null;
@@ -1057,7 +1058,7 @@ class ClientController extends ApiInternalController
         $idt = $data['identity'];
         $person->passport_serial = $idt['series'];
         $person->passport_number = $idt['number'];
-        $person->passport_date_issued =  \DateTimeImmutable::createFromFormat('d.m.Y', $idt['issueDate'])->format(DateTimeZoneHelper::DATE_FORMAT);
+        $person->passport_date_issued = \DateTimeImmutable::createFromFormat('d.m.Y', $idt['issueDate'])->format(DateTimeZoneHelper::DATE_FORMAT);
         $person->passport_issued = $idt['issuedBy'] . ' Код подразделения: ' . $idt['issueId'];
 
         if (!$person->save()) {
@@ -1068,7 +1069,6 @@ class ClientController extends ApiInternalController
     }
 
     /**
-    
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-client-contract-info/", summary="Получение данных о договорах", operationId="Получение данных о договорах",
      *   @SWG\Parameter(name = "contract_id", type = "integer", description = "ID договора (если несколько: то массив ID, или значение через ',')", in = "query", required = false, default = ""),
      *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID ЛС (если несколько: то массив ID, или значение через ',')", in = "query", required = false, default = ""),
@@ -1136,7 +1136,7 @@ class ClientController extends ApiInternalController
             ->where(['contract_id' => $contract_id])
             ->asArray()
             ->all();
-        
+
         $info = [];
         foreach ($accounts as $account) {
             $info[$account['contract_id']][] = ClientSuper::dao()->getAccountInfo($account, $contracts[$account['contract_id']], false);
@@ -1152,5 +1152,50 @@ class ClientController extends ApiInternalController
         unset($info);
 
         return $data;
+    }
+
+    /**
+     * @SWG\Post(tags={"Справочники"}, path="/internal/client/get-entry-point-list/", summary="Получения списка Точек Входа", operationId="EntryPointList",
+     *   @SWG\Parameter(name = "code", type = "string", description = "код Точки Входа", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "country_code", type = "string", description = "Страна точки входа", in = "query", required = false, default = "643"),
+     *   @SWG\Parameter(name = "is_default", type = "string", description = "Точка Входа по-умолчанию", in = "query", required = false, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Информация о Точке Входа",
+     *     @SWG\Schema(type = "array")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param string $contract_id
+     * @return array
+     */
+    public function actionGetEntryPointList($code = null, $country_code = null, $is_default = null)
+    {
+        $listQuery = EntryPoint::find();
+
+        $listQuery->andFilterWhere(['code' => $code]);
+        $listQuery->andFilterWhere(['country_id' => $country_code]);
+        $listQuery->andFilterWhere(['is_default' => $is_default]);
+
+        $list = $listQuery->all();
+
+        $orgList = Organization::dao()->getList();
+
+        return array_map(
+            function (EntryPoint $ep) use ($orgList) {
+                $row = $ep->getAttributes(null, ['id', 'country_id', 'site_id', 'client_contract_business_id', 'client_contract_business_process_id', 'client_contract_business_process_status_id', 'organization_id']);
+                $row['business'] = $ep->business->getAttributes(['id', 'name']);
+                $row['business_process'] = $ep->businessProcess->getAttributes(['id', 'name']);
+                $row['business_process_status'] = $ep->businessProcessStatus->getAttributes(['id', 'name']);
+                $org = $orgList[$ep->organization_id];
+                $row['organization'] = ['id' => $org->organization_id, 'name' => $org->name->value];
+                $row['country'] = $ep->country->getAttributes(['code', 'name']);
+                $row['site'] = $ep->site;
+                return $row;
+            },
+            $list
+        );
     }
 }
