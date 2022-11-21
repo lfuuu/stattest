@@ -24,12 +24,12 @@ class Currency extends ActiveRecord
     const HUF = 'HUF';
     const EUR = 'EUR';
 
-    private static $_symbols = [
-        self::RUB => 'руб.',
-        self::USD => '$',
-        self::HUF => 'Ft',
-        self::EUR => '€',
-    ];
+    const CAD = 'CAD';
+    const GBP = 'GBP';
+    const KZT = 'KZT';
+    const RSD = 'RSD';
+
+    private static $_symbols = [];
 
     private static $_currencyByCountry = [
         Country::RUSSIA => self::RUB,
@@ -65,6 +65,9 @@ class Currency extends ActiveRecord
      */
     public static function symbol($currencyId)
     {
+        if (!self::$_symbols) {
+            self::_load();
+        }
         return isset(self::$_symbols[$currencyId]) ?
             self::$_symbols[$currencyId] :
             $currencyId;
@@ -75,6 +78,9 @@ class Currency extends ActiveRecord
      */
     public static function enum()
     {
+        if (!self::$_symbols) {
+            self::_load();
+        }
         return array_keys(self::$_symbols);
     }
 
@@ -83,7 +89,15 @@ class Currency extends ActiveRecord
      */
     public static function map()
     {
+        if (!self::$_symbols) {
+            self::_load();
+        }
         return self::$_symbols;
+    }
+
+    private static function _load()
+    {
+        self::$_symbols = self::find()->select('symbol')->indexBy('id')->column();;
     }
 
     /**
