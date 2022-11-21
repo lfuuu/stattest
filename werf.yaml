@@ -375,7 +375,8 @@ ansible:
 {{ if eq (env "IS_WITH_COMET") "1" }}
 ---
 image: {{ .project }}-node-comet-{{ .env }}
-from: node:9.11.2
+##from: node:9.11.2
+from: node:18.0.0
 docker:
   WORKDIR: {{ .ci_dir_home }}/comet-server
   USER: root
