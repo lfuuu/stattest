@@ -33,6 +33,7 @@ class CountriesController extends ApiInternalController
      * @SWG\Definition(definition = "cityRecord", type = "object",
      *   @SWG\Property(property = "city_id", type = "integer", description = "Идентификатор города"),
      *   @SWG\Property(property = "city_name", type = "string", description = "Название города"),
+     *   @SWG\Property(property = "city_name_translit", type = "string", description = "Название города. Транслит."),
      *   @SWG\Property(property = "region", type = "object", description = "Регион (точка подключения)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "free_numbers_count", type = "integer", description = "Кол-во доступных для покупки номерных ёмкостей"),
      *   @SWG\Property(property = "weight", type = "integer", description = "Вес"),
@@ -172,6 +173,7 @@ class CountriesController extends ApiInternalController
             $result[] = [
                 'city_id' => $city->id,
                 'city_name' => $city->name,
+                'city_name_translit' => $city->name_translit,
                 'region' => $this->_getIdNameRecord($city->region),
                 'free_numbers_count' => (int)$freeNumbersCount,
                 'weight' => $city->order,

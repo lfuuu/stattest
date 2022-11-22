@@ -499,7 +499,7 @@ docker:
 {{ if eq (env "IS_WITH_NNPPORTED") "1" }}
 ---
 image: {{ .project }}-node-nnp-ported-{{ .env }}
-##from: node:9.11.2
+#from: node:9.11.2
 from: node:18.0.0
 docker:
   WORKDIR: {{ .ci_dir_home }}/nnp-ported

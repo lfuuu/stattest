@@ -48,6 +48,8 @@ abstract class CityForm extends Form
 
             } elseif ($this->city->load($post)) {
 
+                $this->city->name_translit = \app\modules\nnp\models\City::find()->where(['id' => $this->city->id])->select('name_translit')->scalar();
+
                 // создать/редактировать
                 if ($this->city->validate() && $this->city->save()) {
                     $this->id = $this->city->id;
