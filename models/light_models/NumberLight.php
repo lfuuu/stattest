@@ -30,6 +30,7 @@ class NumberLight extends Model
         $common_ndc,
         $common_number_subscriber,
         $did_group_id,
+        $source,
         $default_tariff,
         $calls_per_month = [];
 
@@ -40,7 +41,7 @@ class NumberLight extends Model
     {
         return [
             [['beauty_level', 'region', 'city_id', 'ndc_type_id', 'country_prefix', 'ndc', 'number_subscriber', 'common_ndc', 'common_number_subscriber', 'did_group_id'], 'integer'],
-            [['number', 'currency', 'origin_currency'], 'string'],
+            [['number', 'currency', 'origin_currency', 'source'], 'string'],
             [['price', 'price2', 'origin_price'], 'number'],
         ];
     }

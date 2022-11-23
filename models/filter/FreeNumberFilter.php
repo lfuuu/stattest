@@ -376,6 +376,18 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param string $source
+     * @return $this
+     */
+    public function setSource($source)
+    {
+        if ($source) {
+            $this->_query->andWhere([parent::tableName() . '.source' => $source]);
+        }
+        return $this;
+    }
+
+    /**
      * @return \app\models\Number[]
      */
     public function result()
