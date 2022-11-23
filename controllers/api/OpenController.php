@@ -79,6 +79,7 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "number_subscriber", type = "integer", description = "Номер без префикса и NDC"),
      *   @SWG\Property(property = "common_ndc", type = "integer", description = "Общепринятый NDC"),
      *   @SWG\Property(property = "common_number_subscriber", type = "integer", description = "Общепринятый местный номер"),
+     *   @SWG\Property(property = "source", type = "string", description = "Источник"),
      *   @SWG\Property(property = "default_tariff", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipDefaultPackageRecord"),
      *   @SWG\Property(property = "calls_per_month", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipCallsPerMonthRecord")
      * ),
@@ -103,6 +104,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "excludeNdcs[0]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "source", type = "string", description = "Источник номера", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список свободных номеров", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/freeNumberRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
@@ -125,6 +127,7 @@ final class OpenController extends Controller
      * @param int|int[] $excludeNdcs
      * @param int $client_account_id
      * @param int $isShowInLkLevel
+     * @param string $source
      * @return array
      * @throws HttpException
      */
@@ -145,7 +148,8 @@ final class OpenController extends Controller
         $ndc = null,
         array $excludeNdcs = [],
         $client_account_id = null,
-        $isShowInLkLevel = City::IS_SHOW_IN_LK_FULL
+        $isShowInLkLevel = City::IS_SHOW_IN_LK_FULL,
+        $source = null
     )
     {
 
@@ -167,7 +171,8 @@ final class OpenController extends Controller
                 $similar,
                 $ndc,
                 $excludeNdcs,
-                $client_account_id
+                $client_account_id,
+                $source,
             ], true),
             \app\modules\uu\Module::LOG_CATEGORY_API
         );
@@ -189,6 +194,7 @@ final class OpenController extends Controller
             ->setOffset($offset)
             ->setLimit($limit)
             ->setIsShowInLk($isShowInLkLevel)
+            ->setSource($source)
             ->orderBy(['number' => SORT_ASC]);
 
         $client_account_id = (int)$client_account_id;
@@ -275,6 +281,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "excludeNdcs[0]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "source", type = "string", description = "Источник номера", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список свободных номеров", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/freeNumberRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
@@ -317,9 +324,8 @@ final class OpenController extends Controller
         $ndc = null,
         array $excludeNdcs = [],
         $client_account_id = null,
-        $isShowInLkLevel = City::IS_SHOW_IN_LK_API_ONLY
-
-
+        $isShowInLkLevel = City::IS_SHOW_IN_LK_API_ONLY,
+        $source = null
     )
     {
         return $this->actionGetFreeNumbers(
@@ -339,7 +345,8 @@ final class OpenController extends Controller
             $ndc,
             $excludeNdcs,
             $client_account_id,
-            $isShowInLkLevel
+            $isShowInLkLevel,
+            $source
         );
     }
 
