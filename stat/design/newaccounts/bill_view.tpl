@@ -578,6 +578,102 @@
             </td>
         </tr>
     </table>
+
+    {if $bill.sum > 0 || $bill_is_one_zadatok}
+        <div style="float: left; margin: 0 4px 4px 4px" class="well well-sm">
+            <table border="0">
+                <tr>
+                    <td valign="top" style="width: 400px;">
+                        <b>Счета-фактуры</b>
+                        <table>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td nowrap="nowrap">
+                                        <b>{if $typeId == 4}Авансовая с/ф{else}С/ф №{$typeId}{/if}</b>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+
+                            </tr>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td valign="top">
+                                        <table>
+                                            {foreach from=$item.invoices item=invoice}
+                                                <tr>
+                                                    {if $invoice.idx}
+                                                        <td nowrap="nowrap">
+                                                            <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
+                                                               target="_blank">{$invoice.number}{if $invoice.correction_idx} ({$invoice.correction_idx}){/if}</a>
+                                                            {if $bill_client.exchange_group_id && !$invoice->is_reversal && !$invoice.sbisDraft}<a href="/?module=newaccounts&bill={$bill.bill_no}&action=create_draft&invoice_id={$invoice.id}" title="Создать драфт в СБИС" class="glyphicon glyphicon-transfer">В_Сбис</a>{/if}:
+                                                        </td>
+                                                        <td class="text-right">{$invoice.sum|round:2}</td>
+                                                    {elseif $invoice.is_reversal}
+                                                        <td>&nbsp;</td>
+                                                        <td class="text-right">{$invoice.sum|round:2}</td>
+                                                    {/if}
+                                                </tr>
+                                            {/foreach}
+
+                                            {if $item.status == 'draft'}
+                                                <tr>
+                                                    <td nowrap="nowrap">
+                                                        <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
+                                                           target="_blank">*{$invoice.bill_no}*</a>:
+                                                    </td>
+                                                    <td class="text-right"> {$invoice.sum|round:2}</td>
+                                                </tr>
+                                            {/if}
+                                        </table>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+                            </tr>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td valign="top">
+                                        <div class="row">
+                                        {if $item.status == 'empty' || $item.status == 'reversal'}
+                                            <div style="text-align: center;">
+                                            <a href="/bill/publish/invoice-draft?bill_no={$bill.bill_no}&type_id={$typeId}" class="glyphicon glyphicon-plus btn btn-xs btn-success" title="Создать драфт">
+                                            </a>
+                                                <div>
+                                        {elseif $item.status == 'draft'}
+                                                    <br>
+                                            <div class="col-sm-4 text-center">
+                                                <a href="/bill/publish/invoice-edit?invoice_id={$item.lastId}" class="glyphicon glyphicon-edit btn btn-xs btn-primary" title="Редактирование"></a>
+                                            </div>
+                                            <div class="col-sm-4 text-center">
+                                                <a href="/bill/publish/invoice-delete?bill_no={$bill.bill_no}&type_id={$typeId}" class="glyphicon glyphicon-remove btn btn-xs btn-danger" title="Удалить"></a>
+                                            </div>
+                                            <div class="col-sm-4 text-center">
+                                                <a href="/bill/publish/invoice-register?bill_no={$bill.bill_no}&type_id={$typeId}" class="glyphicon glyphicon-download-alt btn btn-xs btn-warning" title="Регистрировать"></a>
+                                            </div>
+                                        {elseif $item.status == 'invoice'}
+                                            <div style="text-align: center;">
+                                                <a href="/bill/publish/invoice-storno?bill_no={$bill.bill_no}&type_id={$typeId}&id={$item.stornoId}" class="glyphicon glyphicon-repeat btn btn-xs btn-info">торно</a>
+                                            </div>
+                                        {/if}
+                                        </div>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+                            </tr>
+                            <tr>
+                                {foreach from=$invoice2_info key=typeId item=item}
+                                    <td>
+                                    </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                {/foreach}
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {/if}
+
     <div style="width:300px; height: 350px; float: left;">
         Почтовый реестр: {$bill.postreg}
         <br/>
@@ -616,107 +712,22 @@
             <div class="flag flag-us"></div>
             Счет операторский #{$bill.bill_no}</a>
 
-        <a href='#'> 
+        <a href='#'>
     </div>
     <div style="width:300px; float: left; margin-top:100px; ">
-         <a href="{$LINK_START}module=newaccounts&action=bill_create_correction&orig_bill={$bill.bill_no}">Внести правки</a>
-         </br></br>
+        <a href="{$LINK_START}module=newaccounts&action=bill_create_correction&orig_bill={$bill.bill_no}">Внести правки</a>
+        </br></br>
 
-         {if $connected_bills}
+        {if $connected_bills}
             {foreach from=$connected_bills key=id item=item}
-                <a href="/?module=newaccounts&action=bill_view&bill={$item.bill_no}">{$id+1}. {if $item.correction_number} Правка {else} Сторно {/if} {$bill_ext.ext_invoice_no}</a> 
+                <a href="/?module=newaccounts&action=bill_view&bill={$item.bill_no}">{$id+1}. {if $item.correction_number} Правка {else} Сторно {/if} {$bill_ext.ext_invoice_no}</a>
                 <b style="font-weight: bold;"> ({$item.sum}) </b>
-                <a href='/?module=newaccounts&action=bill_delete&bill={$item.bill_no}'>(X)</a> 
+                <a href='/?module=newaccounts&action=bill_delete&bill={$item.bill_no}'>(X)</a>
                 </br>
             {/foreach}
-         {/if}
+        {/if}
 
     </div>
-
-    {if $bill.sum > 0 || $bill_is_one_zadatok}
-        <div style="float: left">
-            <table border="0">
-                <tr>
-                    <td valign="top" style="width: 400px;">
-                        Счета-фактур
-                        <table>
-                            <tr>
-                                {foreach from=$invoice2_info key=typeId item=item}
-                                    <td>
-                                        <b>{if $typeId == 4}Авансовая с/ф{else}С/ф №{$typeId}{/if}</b>
-                                    </td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                {/foreach}
-
-                            </tr>
-                            <tr>
-                                {foreach from=$invoice2_info key=typeId item=item}
-                                    <td valign="top">
-                                        <table>
-                                            {foreach from=$item.invoices item=invoice}
-                                                <tr>
-                                                    {if $invoice.idx}
-                                                        <td>
-                                                            <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
-                                                               target="_blank">{$invoice.number}{if $invoice.correction_idx} ({$invoice.correction_idx}){/if}</a>
-                                                            {if $bill_client.exchange_group_id && !$invoice->is_reversal && !$invoice.sbisDraft}<a href="/?module=newaccounts&bill={$bill.bill_no}&action=create_draft&invoice_id={$invoice.id}" title="Создать драфт в СБИС" class="glyphicon glyphicon-transfer">В_Сбис</a>{/if}:
-                                                        </td>
-                                                        <td>{$invoice.sum|round:2}</td>
-                                                    {elseif $invoice.is_reversal}
-                                                        <td>&nbsp;</td>
-                                                        <td>{$invoice.sum|round:2}</td>
-                                                    {/if}
-                                                </tr>
-                                            {/foreach}
-
-                                            {if $item.status == 'draft'}
-                                                <tr>
-                                                    <td>
-                                                        <a href="/?module=newaccounts&bill={$bill.bill_no}&invoice2=1&action=bill_mprint&invoice_id={$invoice.id}"
-                                                           target="_blank">*{$invoice.bill_no}*</a>:
-                                                    </td>
-                                                    <td> {$invoice.sum|round:2}</td>
-                                                </tr>
-                                            {/if}
-                                        </table>
-                                    </td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                {/foreach}
-                            </tr>
-                            <tr>
-                                {foreach from=$invoice2_info key=typeId item=item}
-                                    <td valign="top">
-                                        {if $item.status == 'empty' || $item.status == 'reversal'}
-                                            <a href="/bill/publish/invoice-draft?bill_no={$bill.bill_no}&type_id={$typeId}">
-                                                Создать драфт
-                                            </a>
-                                        {elseif $item.status == 'draft'}
-                                            <a href="/bill/publish/invoice-edit?invoice_id={$item.lastId}">Редактирование</a>
-                                            |
-                                            <a href="/bill/publish/invoice-delete?bill_no={$bill.bill_no}&type_id={$typeId}">Удалить</a>
-                                            |
-                                            <a href="/bill/publish/invoice-register?bill_no={$bill.bill_no}&type_id={$typeId}">Регистрировать</a>
-                                        {elseif $item.status == 'invoice'}
-                                            <a href="/bill/publish/invoice-storno?bill_no={$bill.bill_no}&type_id={$typeId}&id={$item.stornoId}">Сторно</a>
-                                        {/if}
-                                    </td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                {/foreach}
-                            </tr>
-                            <tr>
-                                {foreach from=$invoice2_info key=typeId item=item}
-                                    <td>
-                                    </td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                {/foreach}
-                            </tr>
-                        </table>
-
-                    </td>
-                </tr>
-            </table>
-        </div>
-    {/if}
     <div style="clear: both"></div>
 </form>
 
