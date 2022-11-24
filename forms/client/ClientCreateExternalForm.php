@@ -333,6 +333,9 @@ class ClientCreateExternalForm extends Form
         if ($this->entryPoint) {
             $contragent->country_id = $this->entryPoint->country_id;
             $contragent->lang_code = $this->entryPoint->country->lang;
+            if ($this->entryPoint->org_type) {
+                $contragent->org_type = $this->entryPoint->org_type;
+            }
         }
 
         if (!$contragent->validate() || !$contragent->save()) {

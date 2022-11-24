@@ -130,10 +130,17 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 ?>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'region_id')
                     ->dropDownList(Region::getList($isWithEmpty = false))
+                ?>
+            </div>
+
+            <div class="col-sm-2">
+                <?= $form
+                    ->field($model, 'org_type')
+                    ->textInput()
                 ?>
             </div>
         </div>
