@@ -30,6 +30,7 @@ use http\Url;
  * @property int $site_id
  * @property int $connect_trouble_user_id
  * @property int $price_level
+ * @property string $org_type
  *
  * @property string $wizard_type
  * @property Country $country
@@ -114,7 +115,8 @@ class EntryPoint extends ActiveRecord
                     'region_id',
                     'connect_trouble_user_id',
                     'wizard_type',
-                    'site_id'
+                    'site_id',
+                    'org_type',
                 ],
                 'required'
             ],
@@ -169,6 +171,7 @@ class EntryPoint extends ActiveRecord
             'wizard_type' => "Тип Wizard'а",
             'site_id' => "Сайт для обслуживания",
             'price_level' => "Уровень цен",
+            'org_type' => "Тип организации",
         ];
     }
 
