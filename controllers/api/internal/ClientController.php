@@ -1194,6 +1194,7 @@ class ClientController extends ApiInternalController
                 $row['organization'] = ['id' => $org->organization_id, 'name' => $org->name->value];
                 $row['country'] = $ep->country->getAttributes(['code', 'name']);
                 $row['site'] = $ep->site;
+                $row['org_type'] = $ep->org_type;
                 return $row;
             },
             $list
