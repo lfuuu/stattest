@@ -37,7 +37,6 @@ use yii\db\Expression;
  * @property string $okvd
  * @property string $ogrn
  * @property string $comment
- * @property string $org_type
  * @property int $sale_channel_id
  * @property int $partner_contract_id___DEPRICATED
  * @property string $created_at
@@ -168,7 +167,6 @@ class ClientContragent extends HistoryActiveRecord
             'sale_channel_id' => 'Откуда узнали о нас',
             'partner_contract_id' => 'Партнер',
             'super_id' => 'Супер-клиент',
-            'org_type' => 'Тип организации',
         ];
     }
 

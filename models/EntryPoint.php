@@ -30,7 +30,7 @@ use http\Url;
  * @property int $site_id
  * @property int $connect_trouble_user_id
  * @property int $price_level
- * @property string $org_type
+ * @property string $legal_type
  *
  * @property string $wizard_type
  * @property Country $country
@@ -116,7 +116,6 @@ class EntryPoint extends ActiveRecord
                     'connect_trouble_user_id',
                     'wizard_type',
                     'site_id',
-                    'org_type',
                 ],
                 'required'
             ],
@@ -128,6 +127,7 @@ class EntryPoint extends ActiveRecord
             ['currency_id', 'in', 'range' => array_keys(Currency::getList())],
             ['timezone_name', 'in', 'range' => Region::getTimezoneList()],
             ['wizard_type', 'in', 'range' => array_keys(LkWizardState::$name)],
+            ['legal_type', 'in', 'range' => array_keys(ClientContragent::$names + ['' => 'Empty'])],
             [['is_postpaid', 'is_default'], 'boolean'],
             ['account_version', 'in', 'range' => array_keys(ClientAccount::$versions)],
             [['credit', 'voip_credit_limit_day', 'voip_limit_mn_day'], 'integer', 'min' => 0],
@@ -171,7 +171,7 @@ class EntryPoint extends ActiveRecord
             'wizard_type' => "Тип Wizard'а",
             'site_id' => "Сайт для обслуживания",
             'price_level' => "Уровень цен",
-            'org_type' => "Тип организации",
+            'legal_type' => "Тип юр. лица",
         ];
     }
 

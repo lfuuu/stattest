@@ -102,14 +102,13 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
         echo Form::widget([
             'model' => $model,
             'form' => $f,
-            'columns' => 2,
+            'columns' => 1,
             'options' => ['class' => 'percent50 block-left-indent'],
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
             'attributes' => [
                 'tax_registration_reason' => [],
-                'org_type' => [],
 
                 'position' => [],
                 'fio' => [],

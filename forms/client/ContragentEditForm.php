@@ -57,7 +57,6 @@ class ContragentEditForm extends Form
         $signer_passport,
         $comment,
         $sale_channel_id,
-        $org_type,
         $contragent_id,
         $first_name,
         $last_name,
@@ -97,7 +96,6 @@ class ContragentEditForm extends Form
                     'signer_passport',
                     'comment',
                     'tax_regime',
-                    'org_type',
                 ],
                 'string'
             ],
@@ -118,7 +116,6 @@ class ContragentEditForm extends Form
                     'ogrn',
                     'signer_passport',
                     'comment',
-                    'org_type',
                 ],
                 'default',
                 'value' => ''
@@ -386,7 +383,6 @@ class ContragentEditForm extends Form
         $contragent->country_id = $this->country_id;
         $contragent->lang_code = $this->lang_code;
         $contragent->sale_channel_id = $this->sale_channel_id;
-        $contragent->org_type = $this->org_type;
     }
 
     /**
