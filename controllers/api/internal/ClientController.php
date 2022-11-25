@@ -467,7 +467,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="site_name", type="string", description="С какого сайта пришел клиент", in="formData", default=""),
      *   @SWG\Parameter(name="vats_tariff_id", type="integer", description="ID тарифа для ВАТС", in="formData", default=""),
      *   @SWG\Parameter(name="entry_point_id", type="string", description="ID (code) точки входа", in="formData", default="RU1"),
-     *   @SWG\Parameter(name="org_type", type="string", description="Тип организации", in="formData", default=""),
+     *   @SWG\Parameter(name="legal_type", type="string", description="Тип юр лица", in="formData", default=""),
      *   @SWG\Parameter(name="utm_parameters", type="string", description="UTM-метки", in="formData", default=""),
      *   @SWG\Parameter(name="roistat_visit", type="integer", description="Roistat visit", in="formData", default=""),
      *   @SWG\Parameter(name="is_create_lk", type="integer", description="Создаем ЛК?", in="formData", default="1"),
@@ -1194,7 +1194,7 @@ class ClientController extends ApiInternalController
                 $row['organization'] = ['id' => $org->organization_id, 'name' => $org->name->value];
                 $row['country'] = $ep->country->getAttributes(['code', 'name']);
                 $row['site'] = $ep->site;
-                $row['org_type'] = $ep->org_type;
+                $row['legal_type'] = $ep->legal_type;
                 return $row;
             },
             $list

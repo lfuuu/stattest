@@ -15,6 +15,7 @@ use app\models\BusinessProcessStatus;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\ClientContragent;
 use app\models\ClientSuper;
 use app\models\Country;
 use app\models\DidGroup;
@@ -81,7 +82,7 @@ class ClientCreateExternalForm extends Form
 
         $entry_point_id = '',
 
-        $org_type = '',
+        $legal_type = '',
 
         $utm_parameters = [],
 
@@ -143,7 +144,7 @@ class ClientCreateExternalForm extends Form
                     'address',
                     'comment',
                     'site_name',
-                    'org_type',
+                    'legal_type',
                 ],
                 'default',
                 'value' => ''
@@ -160,7 +161,6 @@ class ClientCreateExternalForm extends Form
                     'comment',
                     'site_name',
                     'entry_point_id',
-                    'org_type',
                 ],
                 FormFieldValidator::class
             ],
@@ -171,6 +171,7 @@ class ClientCreateExternalForm extends Form
             ['timezone', 'in', 'range' => (array_keys(Timezone::getList()) + [""])],
             ['country_id', 'default', 'value' => Country::RUSSIA],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
+            ['legal_type', 'in', 'range' => array_keys(['' => 'Empty'] + ClientContragent::$names)],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
             [['ip', 'utm_parameters'], 'safe'],
             [['roistat_visit',], 'integer'],
@@ -197,7 +198,6 @@ class ClientCreateExternalForm extends Form
             'country_id' => 'Код страны',
             'site_name' => 'Сайт',
             'roistat_visit' => 'Roistat visit',
-            'org_type' => 'Тип организации',
         ];
     }
 
@@ -215,10 +215,10 @@ class ClientCreateExternalForm extends Form
         }
 
         if (
-        !(
-            ($account = ClientAccount::findOne(['id' => $partnerId]))
-            && ($account->contract->isPartner())
-        )
+            !(
+                ($account = ClientAccount::findOne(['id' => $partnerId]))
+                && ($account->contract->isPartner())
+            )
         ) {
             $this->addError($attr, "Партнер не найден");
             return;
@@ -245,7 +245,9 @@ class ClientCreateExternalForm extends Form
     {
         $resVats = null;
 
-        $this->entryPoint = EntryPoint::getByIdOrDefault($this->entry_point_id);
+        if ($this->entry_point_id) {
+            $this->entryPoint = EntryPoint::getByIdOrDefault($this->entry_point_id);
+        }
         if (!$this->timezone) {
             $this->timezone = $this->entryPoint->timezone_name;
         }
@@ -326,16 +328,20 @@ class ClientCreateExternalForm extends Form
         $contragent = new ContragentEditForm(['super_id' => $super->id]);
         $contragent->name = $contragent->name_full = $this->company ?: $super->name;
         $contragent->address_jur = $this->address;
-        $contragent->legal_type = 'legal';
+        $contragent->legal_type = $this->legal_type ? $this->legal_type : ClientContragent::LEGAL_TYPE;
         $contragent->country_id = $this->country_id;
-        $contragent->org_type = $this->org_type;
+
 
         if ($this->entryPoint) {
             $contragent->country_id = $this->entryPoint->country_id;
             $contragent->lang_code = $this->entryPoint->country->lang;
-            if ($this->entryPoint->org_type) {
-                $contragent->org_type = $this->entryPoint->org_type;
+            if ($this->entryPoint->legal_type) {
+                $contragent->legal_type = $this->entryPoint->legal_type;
             }
+        }
+
+        if ($contragent->legal_type == ClientContragent::PERSON_TYPE || $contragent->legal_type == ClientContragent::IP_TYPE) {
+            list($contragent->last_name, $contragent->first_name, $contragent->middle_name) = explode(' ', $contragent->name . '    ');
         }
 
         if (!$contragent->validate() || !$contragent->save()) {
@@ -518,7 +524,7 @@ class ClientCreateExternalForm extends Form
                     ($this->ip ? "IP-адрес: " . $this->ip . PHP_EOL : '') .
                     ($this->roistat_visit ? 'Roistat visit: ' . $this->roistat_visit . PHP_EOL : '') .
                     ($this->utm_parameters ? 'UTM: ' . json_encode($this->utm_parameters) . PHP_EOL : '')
-                    ,
+                ,
             ];
 
             $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);

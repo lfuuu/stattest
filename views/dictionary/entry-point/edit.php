@@ -139,8 +139,8 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
 
             <div class="col-sm-2">
                 <?= $form
-                    ->field($model, 'org_type')
-                    ->textInput()
+                    ->field($model, 'legal_type')
+                    ->dropDownList(['' => '-- Не заданно --'] + \app\models\ClientContragent::$names)
                 ?>
             </div>
         </div>
