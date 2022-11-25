@@ -286,6 +286,8 @@ class AccountEditForm extends Form
      */
     public function init()
     {
+        $this->currency = \Yii::$app->isRus() ? Currency::RUB : Currency::HUF;
+        
         if ($this->id) {
             $this->clientM = ClientAccount::findOne($this->id);
 

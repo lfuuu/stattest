@@ -98,7 +98,7 @@ class MonitorController extends BaseController
         curl_setopt($curl, CURLOPT_HEADER, 0);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         if (!$isFull) {
-            curl_setopt($curl,CURLOPT_RANGE, '0-960000');
+            curl_setopt($curl,CURLOPT_RANGE, '0-2880000');
         }
         $return = curl_exec($curl);
         $info = curl_getinfo($curl);
