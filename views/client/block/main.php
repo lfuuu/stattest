@@ -23,7 +23,7 @@ $priceLevels = PriceLevel::getList();
     <div class="row">
         <div class="col-sm-6">
             <h2 class="c-blue-color no-margin">
-                <?= Html::a($client->name, ['/account/super-client-edit', 'id' => $client->id, 'childId' => $account->id]) ?>
+                <?= Html::a(trim($client->name) ? $client->name : '<i>Не задано</i>', ['/account/super-client-edit', 'id' => $client->id, 'childId' => $account->id]) ?>
                 <small>(<?= ($client->entry_point_id ? $client->entryPoint->name : '---') . '/' . ($client->entry_point_id && $client->entryPoint->country_id ? $client->entryPoint->country->name : '---') ?>)</small>
             </h2>
         </div>
