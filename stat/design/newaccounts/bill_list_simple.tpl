@@ -154,12 +154,24 @@
                 <input type="checkbox" onclick="selectAllCheckboxes($(this).prop('checked'))">&nbsp&nbsp
             </td>
         </tr>
+        {if $currentStatement}
+            <tr class="even">
+                <td>{$currentStatement.bill_date}</td>
+                <td>
+                    <a href="{$LINK_START}module=newaccounts&action=bill_view&bill=current_statement">Текущая выписка</a>
+                </td>
+                <td></td>
+                <td class="text-right">{$currentStatement.sum|money:$fixclient_data.currency}</td>
+                <td colspan="6">&nbsp;</td>
+            </tr>
+        {/if}
+
         {foreach from=$billops item=op key=key name=outer}
             {count_comments v=$op}
             {if (isset($op.bill) && $op.bill && $op.bill.currency!=$fixclient_data.currency) || ((!isset($op.bill) || !$op.bill) && (count($op.pays)==1) && !$op.pays.0.in_sum)}
                 {assign var=class value=other}
             {else}
-                {cycle values="even,odd" assign=class}
+                {cycle values="odd,even" assign=class}
             {/if}
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}

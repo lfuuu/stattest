@@ -199,12 +199,24 @@
         <td class="header sum_column" valign="bottom">Сумма оплаты</td>
         <td class="header payment_info_column" valign="bottom">Дата платежа</td>
     </tr>
+    {if $currentStatement}
+        <tr class="even">
+            <td style="">{$currentStatement.bill_date}</td>
+            <td class="">
+                <a href="{$LINK_START}module=newaccounts&action=bill_view&bill=current_statement">Текущая выписка</a>
+            </td>
+            <td></td>
+            <td class="text-right">{$currentStatement.sum|money:$fixclient_data.currency}</td>
+            <td colspan="11">&nbsp;</td>
+        </tr>
+
+    {/if}
     {foreach from=$billops item=op key=key name=outer}
         {count_comments v=$op}
         {if isset($op.bill) && (($op.bill && $op.bill.currency!=$fixclient_data.currency) || (!$op.bill && (count($op.pays)==1) && !$op.pays.0.in_sum))}
             {assign var=class value=other}
         {else}
-            {cycle values="even,odd" assign=class}
+            {cycle values="odd,even" assign=class}
         {/if}
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}

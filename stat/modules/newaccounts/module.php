@@ -230,6 +230,18 @@ class m_newaccounts extends IModule
                 ->all()
         );
 
+        $currentStatement = [];
+        if ($fixclient_data->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $statementSum = number_format(\app\modules\uu\models\Bill::getUnconvertedAccountEntries($fixclient_data->id)->sum('price_with_vat'), 2, '.', '');
+
+            $currentStatement = [
+                'sum' => $statementSum,
+                'bill_date' => date('Y-m-d'),
+                'bill_no' => 'current_statement',
+            ];
+        }
+        $design->assign('currentStatement', $currentStatement);
+
 
         if ($user->Flag('balance_simple')) {
             return $this->newaccounts_bill_list_simple($get_sum, $clientType);
@@ -841,8 +853,7 @@ class m_newaccounts extends IModule
 
             //income orders
             //}elseif(isset($_GET["bill"]) && preg_match("/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/", $_GET["bill"])){ // incoming orders
-        } elseif (isset($_GET["income_order_id"]) || (isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/",
-                    $_GET["bill"]))
+        } elseif (isset($_GET["income_order_id"]) || (isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"]))
         ) { // incoming orders
 
             //find last order
@@ -871,6 +882,21 @@ class m_newaccounts extends IModule
                     throw new ModelValidationException($bill);
                 }
             }
+        } elseif ($_GET['bill'] == 'current_statement') {
+            $bill = new Bill();
+            $bill->bill_no = 'Текущая выписка';
+            $bill->client_id = $fixclient_data->id;
+            $bill->bill_date = date("Y-m-d");
+            $bill->price_include_vat = 0;
+            $bill->sum = \app\modules\uu\models\Bill::getUnconvertedAccountEntries($fixclient_data->id)->sum('price_with_vat');
+            $st = \app\modules\uu\models\Bill::getUnconvertedAccountEntries($fixclient_data->id)->all();
+
+            $design->assign('bill', $bill);
+            $design->assign('bill_lines', $st);
+
+            $design->AddMain('newaccounts/bill_view_current_statement.tpl');
+            return;
+
         } else {
             die("Неизвестный тип документа");
         }
