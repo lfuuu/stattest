@@ -728,10 +728,15 @@ class Bill extends ActiveRecord
 
     public function getLink()
     {
+        return self::makeLink($this->bill_no);
+    }
+
+    public static function makeLink($billNo)
+    {
         return Url::to(['/',
             'module' => 'newaccounts',
             'action' => 'bill_view',
-            'bill' => $this->bill_no,
+            'bill' => $billNo,
         ]);
     }
 }

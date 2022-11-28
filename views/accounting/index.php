@@ -326,8 +326,32 @@ foreach ($billsPlus as $bill) {
 
         $vv[] = $v;
     }
-
 }
+
+$currentStatement = [];
+if ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+    $statementSum = number_format(\app\modules\uu\models\Bill::getUnconvertedAccountEntries($account->id)->sum('price_with_vat'), 2, '.', '');
+
+    $v = [
+        'id' => PHP_INT_MAX,
+        'is_correction' => false,
+        'comment' => '',
+        'number' => 'Текущая выписка',
+        'link' => \app\models\Bill::makeLink('current_statement'),
+        'date' => date('Y-m-d'),
+        'sum' => $statementSum,
+        'is_paid' => $paysPlusBills > $statementSum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
+        'type' => 'bill',
+    ];
+    $vv[] = $v;
+
+    $currentStatement = [
+        'sum' => $statementSum,
+        'bill_date' => date('Y-m-d'),
+        'bill_no' => 'current_statement',
+    ];
+}
+
 
 usort($vv, function ($a, $b) {
     $aDate = new DateTimeImmutable($a['date']);
