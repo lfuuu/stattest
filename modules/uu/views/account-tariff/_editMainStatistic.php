@@ -1,11 +1,14 @@
 <?php
 
 /** @var \app\modules\uu\models\AccountTariff $accountTariff */
-$nnpPackageStat = \app\models\billing\StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id, $accountTariff->id);
 
-$nnpPackageStat = array_filter($nnpPackageStat, function ($row) {
-    return isset($row['total_seconds']) && $row['total_seconds'] > 0;
-});
+$isMobile = $accountTariff->service_type_id == \app\modules\uu\models\ServiceType::ID_VOIP && $accountTariff->number->ndc_type_id == \app\modules\nnp\models\NdcType::ID_MOBILE;
+
+if (!$isMobile) {
+    return '';
+}
+
+$nnpPackageStat = \app\models\billing\StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id, $accountTariff->id, true);
 
 if ($nnpPackageStat) {
     ?>
@@ -49,13 +52,14 @@ $fSize = function ($size, $iInsMb = false) {
     }
 };
 
-$internetStat = $accountTariff->voip_number ? \app\models\billing\StatsAccount::getStatInternet($accountTariff->voip_number) : [];
-
-$internetStat = array_filter($internetStat, function ($row) {
-    return isset($row['bytes_consumed']) && isset($row['bytes_amount']);
-});
+$internetStat = \app\models\billing\StatsAccount::getStatInternet($accountTariff->voip_number);
 
 if ($internetStat) {
+
+    $internetStat = array_filter($internetStat, function ($row) {
+        return isset($row['bytes_consumed']) && isset($row['bytes_amount']);
+    });
+
     ?>
     <div class="well">
         <h2>Статистика по пакетам Интернет</h2>
@@ -78,6 +82,37 @@ if ($internetStat) {
             <div class="col-sm-2"><?= $fSize($row['bytes_consumed'], true) ?></div><?php
             ?>
             <div class="col-sm-2"><?= $fSize($row['bytes_amount'] - $row['bytes_consumed'], true) ?></div><?php
+            ?></div><?php
+        }
+        ?>
+    </div>
+    <?php
+}
+
+
+$smsStat = \app\models\billing\StatsAccount::getStatSms2($accountTariff->voip_number);
+
+if ($smsStat) {
+    ?>
+    <div class="well">
+        <h2>Статистика по пакетам SMS</h2>
+        <div class="row">
+            <div class="col-sm-5"><b>Название</b></div>
+            <div class="col-sm-2"><b>Всего</b></div>
+            <div class="col-sm-2"><b>В&nbsp;пакете</b></div>
+            <div class="col-sm-2"><b>Остаток</b></div>
+        </div>
+        <?php
+
+        foreach ($smsStat as $row) {
+            ?>
+            <div class="row"><?php
+            ?>
+            <div class="col-sm-5"><?= $row['tariff_name'] ?></div><?php
+            ?>
+            <div class="col-sm-2"><?= $row['amount'] ?></div>
+            <div class="col-sm-2"><?= $row['amount_package'] ?></div>
+            <div class="col-sm-2"><?= round($row['amount_package'] - $row['used_sms']) ?></div><?php
             ?></div><?php
         }
         ?>

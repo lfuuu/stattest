@@ -708,9 +708,11 @@ class UuController extends ApiInternalController
      * @param Tariff $tariff
      * @param TariffPeriod|TariffPeriod[] $tariffPeriod
      * @param array $minutesStatistic
+     * @param array $internetStatistic
+     * @param array $smsStatistic
      * @return array
      */
-    private function _getTariffRecord($tariff, $tariffPeriod, $minutesStatistic = [], $internetStatistic = [])
+    private function _getTariffRecord($tariff, $tariffPeriod, $minutesStatistic = [], $internetStatistic = [], $priceMinutesStatistic = [], $smsStatistic = [])
     {
         if (!$tariff || !$tariffPeriod) {
             return null;
@@ -757,7 +759,7 @@ class UuController extends ApiInternalController
                 'api_package_price' => $tariff->service_type_id == ServiceType::ID_BILLING_API_MAIN_PACKAGE ? $this->_getApiPackagePrice($tariff->packageApi) : null,
                 'voip_package_pricelist' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackagePricelistRecord($tariff->packagePricelists, ['pricelist' => 'pricelist']) : null, //package_pricelist
                 'voip_package_price_internet' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpInternet, ['bytes_amount' => 'bytes_amount']) : null, // package_data
-                'voip_package_price_sms' => in_array($tariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_SMS, ServiceType::ID_A2P_PACKAGE]) ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms) : null, // package_sms
+                'voip_package_price_sms' => in_array($tariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_SMS, ServiceType::ID_A2P_PACKAGE]) ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnpSms, ['include_amount' => 'amount']) : null, // package_sms
                 'voip_package_price_minute' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackagePriceV2Record($tariff->packagePricelistsNnp, ['minute' => 'minute']) : null,
                 'voip_package_minute' => null,
 //                'package_pricelist' => null,
@@ -775,7 +777,24 @@ class UuController extends ApiInternalController
             if (!isset($data['voip_package_price_internet'][0])) {
                 $data['voip_package_price_internet'][0] = [];
             }
-            $data['voip_package_price_internet'][0] += $internetStatistic;
+            $data['voip_package_price_internet'][0] += [
+                'bytes_amount_package' => $internetStatistic['bytes_amount'],
+                'bytes_consumed' => $internetStatistic['bytes_consumed']
+            ];
+        }
+
+        if ($tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS && $priceMinutesStatistic) {
+            if (!isset($data['voip_package_price_minute'][0])) {
+                $data['voip_package_price_minute'][0] = [];
+            }
+            $data['voip_package_price_minute'][0] += $priceMinutesStatistic;
+        }
+
+        if ($tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS && $smsStatistic) {
+            if (!isset($data['voip_package_price_sms'][0])) {
+                $data['voip_package_price_sms'][0] = [];
+            }
+            $data['voip_package_price_sms'][0] += $smsStatistic;
         }
 
 //        foreach(['voip_package_pricelist', 'voip_package_price_internet', 'voip_package_price_sms', 'voip_package_minute', 'voip_package_price_minute', 'api_package_price'] as $price) {
@@ -1254,14 +1273,20 @@ class UuController extends ApiInternalController
         }
 
         $minutesStatistic = [];
+        $priceMinutesStatistic = [];
         if ($accountTariff->service_type_id === ServiceType::ID_VOIP_PACKAGE_CALLS) {
             $minutesStatistic = $accountTariff->getMinuteStatistic();
+            $priceMinutesStatistic = $accountTariff->getPriceMinuteStatistic();
         }
-
 
         $internetStatistic = [];
         if ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
             $internetStatistic = $accountTariff->getInternetStatistic();
+        }
+
+        $smsStatistic = [];
+        if ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS) {
+            $smsStatistic = $accountTariff->getSmsStatistic();
         }
 
         $number = $accountTariff->number;
@@ -1278,7 +1303,7 @@ class UuController extends ApiInternalController
             'beauty_level' => $number ? $number->beauty_level : null,
             'ndc' => $number ? $number->ndc : null,
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
-            'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs, $minutesStatistic, $internetStatistic),
+            'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs, $minutesStatistic, $internetStatistic, $priceMinutesStatistic, $smsStatistic),
             'resources' => $this->_getAccountTariffResourceRecord($accountTariff),
             'calltracking_params' => $accountTariff->calltracking_params,
         ];
@@ -1289,12 +1314,12 @@ class UuController extends ApiInternalController
      * @param array $minutesStatistic
      * @return array|null
      */
-    private function _getAccountTariffLogRecord($model, $minutesStatistic = [], $internetStatistic = [])
+    private function _getAccountTariffLogRecord($model, $minutesStatistic = [], $internetStatistic = [], $priceMinutesStatistic = [], $smsStatistic = [])
     {
         if (is_array($model)) {
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->_getAccountTariffLogRecord($subModel, $minutesStatistic, $internetStatistic);
+                $result[] = $this->_getAccountTariffLogRecord($subModel, $minutesStatistic, $internetStatistic, $priceMinutesStatistic, $smsStatistic);
             }
 
             return $result;
@@ -1303,7 +1328,7 @@ class UuController extends ApiInternalController
         if ($model) {
             return [
                 'tariff' => $model->tariffPeriod ?
-                    $this->_getTariffRecord($model->tariffPeriod->tariff, $model->tariffPeriod, $minutesStatistic, $internetStatistic) :
+                    $this->_getTariffRecord($model->tariffPeriod->tariff, $model->tariffPeriod, $minutesStatistic, $internetStatistic, $priceMinutesStatistic, $smsStatistic) :
                     null,
                 'actual_from' => $model->actual_from,
             ];
@@ -1583,13 +1608,21 @@ class UuController extends ApiInternalController
     private function _getAccountTariffWithPackagesRecord($accountTariff)
     {
         $minutesStatistic = [];
+        $priceMinutesStatistic = [];
+
         if ($accountTariff->service_type_id === ServiceType::ID_VOIP_PACKAGE_CALLS) {
             $minutesStatistic = $accountTariff->getMinuteStatistic();
+            $priceMinutesStatistic = $accountTariff->getPriceMinuteStatistic();
         }
 
         $internetStatistic = [];
         if ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
             $internetStatistic = $accountTariff->getInternetStatistic();
+        }
+
+        $smsStatistic = [];
+        if ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_SMS) {
+            $smsStatistic = $accountTariff->getSmsStatistic();
         }
 
         $number = $accountTariff->number;
@@ -1630,7 +1663,7 @@ class UuController extends ApiInternalController
             'is_fmc_active' => $isFmcActive,
             'is_mobile_outbound_editable' => $isMobileOutboundEditable,
             'is_mobile_outbound_active' => $isMobileOutboundActive,
-            'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic, $internetStatistic),
+            'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs, $minutesStatistic, $internetStatistic, $priceMinutesStatistic, $smsStatistic),
             'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],
@@ -1758,7 +1791,7 @@ class UuController extends ApiInternalController
      * @param array $minutesStatistic
      * @return array
      */
-    private function _getAccountTariffLogLightRecord($models, $minutesStatistic = [], $internetStatistic = [])
+    private function _getAccountTariffLogLightRecord($models, $minutesStatistic = [], $internetStatistic = [], $priceMinutesStatistic = [], $smsStatistic = [])
     {
         $result = [];
 
@@ -1783,7 +1816,7 @@ class UuController extends ApiInternalController
                 if ($modelPrev) {
                     // текущий тариф
                     $result[] = [
-                        'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod, $minutesStatistic, $internetStatistic),
+                        'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod, $minutesStatistic, $internetStatistic, $priceMinutesStatistic, $smsStatistic),
                         'activate_initial_date' => $modelFirst->actual_from,
                         'activate_past_date' => $modelPrev->actual_from,
                         'activate_future_date' => null,
@@ -1810,7 +1843,7 @@ class UuController extends ApiInternalController
 
                 // смена тарифа в прошлом
                 $result[] = [
-                    'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod, $minutesStatistic, $internetStatistic),
+                    'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod, $minutesStatistic, $internetStatistic, $priceMinutesStatistic, $smsStatistic),
                     'activate_initial_date' => $modelFirst->actual_from,
                     'activate_past_date' => $modelLast->actual_from,
                     'activate_future_date' => null,
