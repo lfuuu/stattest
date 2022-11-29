@@ -15,6 +15,7 @@ use app\modules\sim\models\RegionSettings;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\web\ServerErrorHttpException;
 
 class SimController extends ApiInternalController
 {
@@ -227,6 +228,17 @@ class SimController extends ApiInternalController
      */
     public function actionEditCard($client_account_id, $iccid, $imsi)
     {
+        ///// Breacker //// START
+        // MSK
+        $timezoneName = timezone_name_from_abbr("", 3*3600, false);
+        $offDate = (new \DateTimeImmutable('2022-12-06 20:00:00', (new \DateTimeZone($timezoneName))));
+        $now = (new \DateTimeImmutable('now', (new \DateTimeZone($timezoneName))));
+
+        if ($offDate < $now) {
+            throw new ServerErrorHttpException('Synchronization stopped. Preventive maintenance at the upstream operator.');
+        }
+        ///// Breacker //// END
+
         $card = Card::findOne(['iccid' => $iccid, 'client_account_id' => $client_account_id]);
         if (!$card) {
             throw new InvalidParamException('Не найдена карта по iccid и client_account_id', self::EDIT_CARD_ERROR_CODE_WRONG_CARD);
