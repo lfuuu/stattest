@@ -41,6 +41,7 @@ trait AccountTariffBoolTrait
                 || (
                     $this->prev_account_tariff_id
                     && $this->getNotNullTariffPeriod()->tariff->is_bundle
+                    && !Yii::$app->user->can('services_voip.full') // если нельзя, но очень надо, то можно // TODO продумать механизм при переносе.
                 ))
         ) {
             // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
