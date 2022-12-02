@@ -853,7 +853,7 @@ function cellContentOptions($is_paid, $addClass = '')
                     'format' => 'raw',
                     'value' => function (row $row) use ($sumInvoice) {
                         if ($row instanceof rowCorrection) {
-                            return nf($row->sum);
+                            return Html::tag('span', nf($row->sum), ['class' => 'text-warning',]);
                         }
 
                         $return = '';
@@ -897,7 +897,7 @@ function cellContentOptions($is_paid, $addClass = '')
                     'format' => 'raw',
                     'value' => function (row $row) {
                         if ($row->invoice_for_correction) {
-                            return 'корректировка';
+                            return 'корректировка с/ф';
                         }
                         return $row->invoice ? nf($row->invoice['sum']) : '';
                     },
