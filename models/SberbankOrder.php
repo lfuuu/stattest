@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\behaviors\CreatedAt;
+use app\classes\helpers\DependecyHelper;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -86,10 +87,9 @@ class SberbankOrder extends ActiveRecord
 
         $transaction = \Yii::$app->db->beginTransaction();
 
-        $semResource = sem_get(self::ID_SEMAFOR);
-
-        if ($semResource) {
-            sem_acquire($semResource);
+        $mutexLockKey = 'sber-payment-lock-key';
+        if (!\Yii::$app->mutex->acquire($mutexLockKey, DependecyHelper::TIMELIFE_MINUTE)) {
+            throw new \RuntimeException("Can't get lock", 500);
         }
 
         try {
@@ -125,10 +125,10 @@ class SberbankOrder extends ActiveRecord
             }
 
             $transaction->commit();
-            $semResource && sem_release($semResource);
+            \Yii::$app->mutex->release($mutexLockKey);
         } catch (\Exception $e) {
             $transaction->rollBack();
-            $semResource && sem_release($semResource);
+            \Yii::$app->mutex->release($mutexLockKey);
             \Yii::error($e);
             throw $e;
         }
