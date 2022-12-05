@@ -18,58 +18,36 @@ $request = Yii::$app->request->get();
                 <input id="search" type="text" class="form-control input-sm" placeholder="Search ..." name="search"
                        value="<?= (isset($request['search'])) ? $request['search'] : '' ?>">
                 <span class="input-group-btn" title="Submit">
-                <button type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-search"></i></button>
+                <button id="search_btn" type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-search"></i></button>
             </span>
             </div>
         </div>
         <div class="col-sm-9">
-            <div class="btn-group" id="btn-options">
+
+            <div class="dropdown">
                 <button type="submit" class="btn btn-link btn-xs">Искать по</button>
-                <button type="submit" class="btn btn-primary btn-xs" data-search="clients"
-                        data-placeholder="№ ЛС или Названию">Клиент
+
+                <button id="title_search" class="btn btn-primary dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Клиенту
+                    <span class="caret"></span>
                 </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="contractNo"
-                        data-placeholder="Номеру договора">Договор
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="inn"
-                        data-placeholder="ИНН">ИНН
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="voip"
-                        data-placeholder="номеру">Voip
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="email"
-                        data-placeholder="email" title="Контакты email / телефон / факс">Email/тел
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="troubles"
-                        data-placeholder="№ заявки">Заявк
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="bills"
-                        data-placeholder="№ счёта">Счет
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="ip"
-                        data-placeholder="IP адресу">IP
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="address"
-                        data-placeholder="адресу">Адрес
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="domain"
-                        data-placeholder="домену">Домен
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="adsl"
-                        data-placeholder="ADSL">ADSL
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="troubleText"
-                        data-placeholder="Текст заявки" title="Текст заявки">Текст з
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="troubleComment"
-                        data-placeholder="Комментарий к заявке" title="Комментарий к заявке">Комент к з
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="sip"
-                        data-placeholder="Поиск по номеру SIP-учетки" title="Поиск по номеру SIP-учетки">SIP
-                </button>
-                <button type="submit" class="btn btn-default btn-xs" data-search="roistat_visit"
-                        data-placeholder="roistat visit" title="Поиск по roistat-visit заявки">RS
-                </button>
+                <ul class="dropdown-menu" id="search-options" aria-labelledby="dropdownMenu1">
+                    <li><a href="#" data-search="clients" title="№ ЛС или Названию">Клиенту</a></li>
+                    <li><a href="#" data-search="contractNo" title="Номеру договора">Договор</a></li>
+                    <li><a href="#" data-search="inn">ИНН</a></li>
+                    <li><a href="#" data-search="voip">Voip</a></li>
+                    <li><a href="#" data-search="email" title="Контакты email / телефон / факс">Email/тел</a></li>
+                    <li><a href="#" data-search="troubles" title="№ заявки">Заявка</a></li>
+                    <li><a href="#" data-search="bills" title="№ счёта">Счет</a></li>
+                    <li><a href="#" data-search="ip">IP адресу</a></li>
+                    <li><a href="#" data-search="address">Адресу</a></li>
+                    <li><a href="#" data-search="domain">Домену</a></li>
+                    <li><a href="#" data-search="adsl">ADSL</a></li>
+                    <li><a href="#" data-search="troubleText">Текст заявки</a></li>
+                    <li><a href="#" data-search="troubleComment">Комментарий к заявке</a></li>
+                    <li><a href="#" data-search="sip">Поиск по SIP-учетке</a></li>
+                    <li><a href="#" data-search="roistat_visit">Поиск по roistat-visit заявки</a></li>
+                </ul>
             </div>
         </div>
     </form>

@@ -123,14 +123,38 @@ class ClientSearch extends ClientAccount
             $this->id = $result && isset($result['result']) && $result['result'] ? $result['result'] : 0;
         }
 
+        if ($this->inn) {
+            $contragents = ClientContragent::find()->where(['inn' => $this->inn])->with('contractsActiveQuery.clientAccountModels')->limit(100)->all();
+
+            $accountIds = [];
+            $super = [];
+            /** @var ClientContragent $contragent */
+            foreach ($contragents as $contragent) {
+                if (!isset($super[$contragent->super_id])) {
+                    $super[$contragent->super_id] = $super[$contragent->super];
+                }
+                foreach ($contragent->contractsActiveQuery as $contract) {
+                    foreach ($contract->clientAccountModels as $clientAccountModel) {
+                        $accountIds[] = $clientAccountModel->id;
+                    }
+                }
+            }
+
+            if (!$accountIds) {
+                $query->andFilterWhere(['super_client.id' => $super ? array_keys($super) : -1]);
+            } else {
+                $this->id = $accountIds;
+            }
+        }
+
         $query
             ->orFilterWhere(['client.id' => $this->id])
             ->orFilterWhere(['contract.manager' => $this->manager])
             ->orFilterWhere(['contract.account_manager' => $this->account_manager])
+            ->orFilterWhere(['contract.number' => $this->contractNo])
             ->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
             ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
             ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName])
-            ->orFilterWhere(['LIKE', 'inn', $this->inn])
             ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
 
         if ($this->email) {

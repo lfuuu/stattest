@@ -2,27 +2,44 @@
   'use strict';
 
   $(function () {
+    $('.dropdown-menu a').click(function(event) {
+      event.preventDefault();
+
+      let $el = $(event.currentTarget);
+      let type = $el.data('search');
+      $('#search-type').attr('value',type);
+      $('#title_search').text($el.text())
+      $('#search-form').submit();
+    });
+
     var
       $searchForm = $('#search-form'),
       $searchField = $('#search'),
       $searchTypes = $('#btn-options .btn:not(.btn-link)'),
       $searchType = $('#search-type'),
       setInput = function () {
-        var $searchTypeBtn = $('#btn-options .btn-primary');
-        $searchField.attr('placeholder', 'Поиск по ' + $searchTypeBtn.data('placeholder'));
+        let $searchTypeBtn = $('#search-options a:first');
+        $searchField.attr('placeholder', 'Поиск по ' + $searchTypeBtn.attr('title'));
         $searchType.val($searchTypeBtn.data('search'));
       };
 
-    if ($searchType.val()) {
-      $searchTypes
-        .addClass('btn-default')
-        .removeClass('btn-primary');
-      $('.btn[data-search="' + $searchType.val() + '"]')
-        .removeClass('btn-default')
-        .addClass('btn-primary');
-    }
+    setInput = function ($currentSearchEl) {
+      let isTitle = $currentSearchEl.prop('title');
+      let title = (isTitle ? $currentSearchEl.attr('title') : $currentSearchEl.text());
+      $searchField.attr('placeholder', 'Поиск по ' + title);
+      $searchType.val($currentSearchEl.data('search'));
+    };
 
-    setInput();
+    if ($searchType.val()) {
+      let $currentSearchEl = $('#search-options a[data-search='+$searchType.val()+']')
+
+      if ($currentSearchEl.length) {
+        $('#title_search').text($currentSearchEl.text())
+        setInput($currentSearchEl);
+      }
+    } else {
+      setInput($('#search-options a:first'));
+    }
 
     var substringMatcher = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
