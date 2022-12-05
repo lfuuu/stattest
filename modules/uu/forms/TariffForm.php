@@ -170,7 +170,8 @@ abstract class TariffForm extends \app\classes\Form
                     'is_one_active' => $post['Tariff']['is_one_active'],
                     'is_proportionately' => $post['Tariff']['is_proportionately'],
                     'voip_group_id' => $post['Tariff']['voip_group_id'],
-                    'overview' => $post['Tariff']['overview']
+                    'overview' => $post['Tariff']['overview'],
+                    'comment' => $post['Tariff']['comment'],
                 ];
             }
 

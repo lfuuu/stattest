@@ -132,6 +132,9 @@ if (!$serviceType) {
     <?php // Описание тарифа ?>
     <?= $this->render('_editOverview', $viewParams) ?>
 
+    <?php // Комментарий к тарифу ?>
+    <?= $this->render('_editComment', $viewParams) ?>
+
     <?php // кнопка сохранения ?>
     <?= $this->render('_editSubmit', $viewParams) ?>
 
