@@ -181,7 +181,7 @@ class Tariff extends ActiveRecord
             [['count_of_validity_period', 'count_of_carry_period'], 'integer', 'min' => 0, 'max' => 365],
             ['count_of_validity_period', 'validatorTest', 'skipOnEmpty' => false],
             ['count_of_carry_period', 'validatorBurnInternet'],
-            [['overview'], 'string'],
+            [['overview', 'comment'], 'string'],
         ];
     }
 
@@ -472,7 +472,6 @@ class Tariff extends ActiveRecord
         return $this->hasMany(TariffBundle::class, ['package_tariff_id' => 'id'])
             ->orderBy(['tariff_id' => SORT_ASC]);
     }
-
 
 
     /**
