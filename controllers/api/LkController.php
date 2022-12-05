@@ -496,6 +496,10 @@ class LkController extends ApiController
 
         $organizationId = $account->contract->organization_id;
 
+        if ($organizationId == Organization::AB_SERVICE_MARCOMNET) {
+            $organizationId = Organization::MCN_TELECOM;
+        }
+
         // Yandex money pay only in russia, sber if else
         if ($organizationId == Organization::MCN_TELECOM && \Yii::$app->isRus()) {
             $shopId = $scId = null;

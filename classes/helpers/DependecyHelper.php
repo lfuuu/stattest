@@ -16,6 +16,7 @@ use yii\db\ActiveQuery;
  */
 class DependecyHelper extends Singleton
 {
+    const TIMELIFE_MINUTE = 60;
     const TIMELIFE_HOUR = 3600;
     const TIMELIFE_DAY = 86400; //3600*24;
     const TIMELIFE_MONTH = 2678400; //3600*24*30;
