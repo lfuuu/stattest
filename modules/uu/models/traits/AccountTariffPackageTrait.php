@@ -6,6 +6,7 @@ use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\exceptions\ModelValidationException;
 use app\helpers\Semaphore;
+use app\models\billing\StatsAccount;
 use app\models\ClientAccount;
 use app\models\DidGroup;
 use app\modules\nnp\models\AccountTariffLight;
@@ -359,6 +360,42 @@ trait AccountTariffPackageTrait
         return $accountLogPeriod ? $accountLogPeriod->getMinutesSummaryAsArray() : [];
     }
 
+    /**
+     * Вернуть кол-во потраченных минут по ННП пакету минут
+     *
+     * @throws \yii\db\Exception
+     */
+    public function getPriceMinuteStatistic()
+    {
+        static $cache = [];
+
+        if (!isset($cache[$this->prev_account_tariff_id])) {
+            $_nnpPackageStat = \app\models\billing\StatsAccount::getStatsNnpPackageMinute($this->client_account_id, $this->prev_account_tariff_id);
+
+            /**
+             * "id": 43000921,
+             * "account_tariff_id": 2421192,
+             * "account_package_id": 2421199,
+             * "name": "Комплект S 200 минут",
+             * "used_seconds": 120,
+             * "total_seconds": "1200"
+             */
+
+            $nnpPackageStat = [];
+
+            array_walk($_nnpPackageStat, function ($v) use (&$nnpPackageStat) {
+                $nnpPackageStat[$v['account_package_id']] = [
+                    'used_seconds' => (int)$v['used_seconds'],
+                    'total_seconds' => (int)$v['total_seconds'],
+                ];
+            });
+
+            $cache[$this->prev_account_tariff_id] = $nnpPackageStat;
+        }
+
+        return $cache[$this->prev_account_tariff_id][$this->id] ?? [];
+    }
+
     public function getInternetStatistic()
     {
         $internetStatistic = [];
@@ -399,6 +436,29 @@ trait AccountTariffPackageTrait
         }
 
         return $internetDataCache[$did][$this->id];
+    }
+
+    public function getSmsStatistic()
+    {
+        static $cache = [];
+
+        if (!isset($cache[$this->prev_account_tariff_id])) {
+            $accountTariffSmsStat = StatsAccount::getStatSms($this->client_account_id, $this->prev_account_tariff_id);
+
+            $smsStat = [];
+
+            array_walk($accountTariffSmsStat, function ($v) use (&$smsStat) {
+                $smsStat[$v['account_package_id']] = [
+                    'amount' => $v['amount'],
+                    'amount_package' => $v['amount_package'],
+                    'used_sms' => $v['used_sms'],
+                ];
+            });
+
+            $cache[$this->prev_account_tariff_id] = $smsStat;
+        }
+
+        return $cache[$this->prev_account_tariff_id][$this->id] ?? [];
     }
 
 

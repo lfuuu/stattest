@@ -298,7 +298,7 @@ class AccountController extends ApiInternalController
             ->one();
 
         // счетчики потраченных минут
-        $statsNnpPackageMinute = StatsAccount::getStatsNnpPackageMinute($client_account_id, $account_tariff_id);
+        $statsNnpPackageMinute = StatsAccount::getStatsNnpPackageMinute($client_account_id, $account_tariff_id, false);
 
         return [
             'sum_day' => (float)$statsAccount['sum_day'],
