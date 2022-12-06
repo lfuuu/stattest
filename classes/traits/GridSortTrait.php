@@ -33,7 +33,7 @@ trait GridSortTrait
                     'AND',
                     ['>=', self::$sortableAttribute, $nextElement->{self::$sortableAttribute}],
                     ['!=', self::$primaryField, $movedElement->{self::$primaryField}],
-                ]);
+                ])->orderBy([self::$sortableAttribute => SORT_ASC]);
 
 
                 $counter = 0;
@@ -42,16 +42,6 @@ trait GridSortTrait
                     $model->{self::$sortableAttribute} = $movedElement->{self::$sortableAttribute} + ++$counter;
                     $model->save();
                 }
-/*
-                self::updateAllCounters([
-                    self::$sortableAttribute => 1
-                ], [
-                    'AND',
-                    ['!=', self::$sortableAttribute, 0],
-                    ['>=', self::$sortableAttribute, $nextElement->{self::$sortableAttribute}],
-                    ['!=', self::$primaryField, $movedElement->{self::$primaryField}],
-                ]);
-*/
             } else {
                 $maxSequence = self::find()->max('`' . self::$sortableAttribute . '`');
                 $movedElement->{self::$sortableAttribute} = (int)$maxSequence + 1;
