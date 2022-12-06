@@ -98,6 +98,16 @@ $uuSyncEvents = [
 
 $syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents);
 
+$tele2Events = [
+    EventQueue::SYNC_TELE2_GET_IMSI,
+    EventQueue::SYNC_TELE2_LINK_IMSI,
+    EventQueue::SYNC_TELE2_UNSET_IMSI,
+    EventQueue::SYNC_TELE2_UNLINK_IMSI,
+    EventQueue::SYNC_TELE2_GET_STATUS,
+    EventQueue::SYNC_TELE2_SET_CFNRC,
+    EventQueue::SYNC_TELE2_UNSET_CFNRC,
+];
+
 $map = [
     'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', ['event' => $uuSyncEvents]]],
     'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents]],
@@ -132,6 +142,22 @@ if (!empty($memoryLimitMap[$consoleParam])) {
         ) . PHP_EOL;
 }
 
+function isNeedBreackTele2Sync()
+{
+    ///// Breacker //// START
+    // MSK
+    $timezoneName = timezone_name_from_abbr("", 3*3600, false);
+    $offDate = (new \DateTimeImmutable('2022-12-06 20:00:00', (new \DateTimeZone($timezoneName))));
+    $now = (new \DateTimeImmutable('now', (new \DateTimeZone($timezoneName))));
+
+    if ($offDate < $now) {
+        return true;
+    }
+
+    return false;
+    ///// Breacker //// END
+}
+
 
 // Контроль времени работы. выключаем с 55 до 00 секунд.
 $time = (new DateTimeImmutable());
@@ -144,6 +170,10 @@ do {
     $activeQuery = EventQueue::getPlannedQuery();
     foreach ($map[$consoleParam] as $where) {
         $activeQuery->andWhere($where);
+    }
+
+    if (isNeedBreackTele2Sync()) {
+        $activeQuery->andWhere(['NOT', ['event' => $tele2Events]]);
     }
 
     doEvents($activeQuery, $uuSyncEvents);
