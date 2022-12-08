@@ -224,7 +224,7 @@ SQL;
          */
         $url = isset(\Yii::$app->params['billerApiURL']) && \Yii::$app->params['billerApiURL'] ? \Yii::$app->params['billerApiURL'] : false;
 
-        if (!$url) {
+        if (!$url || !\Yii::$app->isRus()) {
             return [];
         }
 
