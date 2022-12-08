@@ -3,6 +3,7 @@
 namespace app\modules\uu\forms;
 
 use app\classes\Form;
+use app\classes\helpers\DependecyHelper;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
@@ -103,6 +104,12 @@ abstract class AccountTariffForm extends Form
     {
         /** @var array $post */
         $transaction = \Yii::$app->db->beginTransaction();
+
+        $lockKey = "client_account_id_" . ($post['client_account_id'] ?? '0');
+        if (!\Yii::$app->mutex->acquire($lockKey, DependecyHelper::TIMELIFE_3MINUTE)) {
+            throw new \RuntimeException("Can't get account lock", 500);
+        }
+
 
         // при создании услуга + лог в одной форме, при редактировании - в разных
         $isNewRecord = $this->accountTariff->isNewRecord;
@@ -342,10 +349,12 @@ abstract class AccountTariffForm extends Form
 
             Yii::info('AccountTariffForm. Before commit', 'uu');
             $transaction->commit();
+            $lockKey && \Yii::$app->mutex->release($lockKey);
             Yii::info('AccountTariffForm. After commit', 'uu');
 
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
+            $lockKey && \Yii::$app->mutex->release($lockKey);
             $this->isSaved = false;
             if ($isNewRecord) {
                 $this->id = $this->accountTariff->id = null;
@@ -354,6 +363,7 @@ abstract class AccountTariffForm extends Form
 
         } catch (\Exception $e) {
             $transaction->rollBack();
+            $lockKey && \Yii::$app->mutex->release($lockKey);
             Yii::error($e);
             $this->isSaved = false;
 
