@@ -236,7 +236,9 @@ SQL;
                 ->getResponseDataWithCheck();
         } catch (\Exception $e) {
             \Yii::error($e);
-            throw $e;
+            if (Yii::$app instanceof \app\classes\WebApplication) {
+                Yii::$app->session->addFlash('error', $e->getMessage());
+            }
             return [];
         }
 
