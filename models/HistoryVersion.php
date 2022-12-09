@@ -73,6 +73,7 @@ class HistoryVersion extends ActiveRecord
         $className = $this->model;
         $currentModel = $className::findOne($this->model_id);
         $currentModel->fillHistoryDataInModel(json_decode($this->data_json, $assoc = true));
+        $currentModel->isHistoryVersioning = false; // что бы не перезаписывать уже сохраненную версию
 
         return $currentModel->save(false);
     }
