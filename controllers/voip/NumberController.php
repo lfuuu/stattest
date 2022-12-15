@@ -192,6 +192,7 @@ class NumberController extends BaseController
             'set-status' => 'Статус',
             'set-beauty-level' => 'Степень красивости',
             'set-did-group' => 'DID-группа',
+            NumberFilter::ACTION_DELETE_NUMBERS => 'удаление номеров',
         ];
 
         $numbers = isset($post['numbers']) ? json_decode($post['numbers']) : [];
@@ -200,8 +201,9 @@ class NumberController extends BaseController
         $didGroupId = $post['did_group_id'] ?? null;
 
         $action = '';
-        foreach ([NumberFilter::ACTION_SET_STATUS, NumberFilter::ACTION_SET_BEAUTY_LEVEL, NumberFilter::ACTION_SET_DID_GROUP] as $action) {
-            if (isset($post[$action])) {
+        foreach ([NumberFilter::ACTION_SET_STATUS, NumberFilter::ACTION_SET_BEAUTY_LEVEL, NumberFilter::ACTION_SET_DID_GROUP, NumberFilter::ACTION_DELETE_NUMBERS] as $_action) {
+            if (isset($post[$_action])) {
+                $action = $_action;
                 break;
             }
         }
@@ -319,15 +321,32 @@ class NumberController extends BaseController
                         throw new ModelValidationException($numbers);
                     }
 
+                } elseif ($action == NumberFilter::ACTION_DELETE_NUMBERS) {
+                    if (in_array($number->status, [Number::STATUS_RELEASED, Number::STATUS_NOTSALE])) {
+                        $number->delete();
+                    } else {
+                        throw new \LogicException("Номер {$number->number} нельзя удалить");
+                    }
                 }
 
                 $count++;
             }
             $transaction->commit();
-            Yii::$app->session->setFlash('success', $whoStr . ' был изменен у ' . $count . ' номера(ов)');
+            if ($action == NumberFilter::ACTION_DELETE_NUMBERS) {
+                Yii::$app->session->setFlash('success', 'Удалено ' . $count . ' номера(ов)');
+            } else {
+                Yii::$app->session->setFlash('success', $whoStr . ' был изменен у ' . $count . ' номера(ов)');
+            }
         } catch (\Exception $e) {
             $transaction->rollBack();
-            Yii::$app->session->setFlash('error', ($number ? 'Нельзя изменить ' . mb_strtolower($whoStr) . ' у номера ' . $number->number . ' ' : '') . '<br/>' . Html::tag('small', $e->getMessage()));
+            if ($action == NumberFilter::ACTION_DELETE_NUMBERS) {
+                Yii::$app->session->setFlash('error', $e->getMessage());
+            } else {
+                Yii::$app->session->setFlash('error',
+                    ($number ? 'Нельзя изменить ' . mb_strtolower($whoStr) . ' у номера ' . $number->number . ' ' : '') . '<br/>' .
+                    Html::tag('small', $e->getMessage())
+                );
+            }
         }
         return $this->redirect(Yii::$app->request->referrer);
     }

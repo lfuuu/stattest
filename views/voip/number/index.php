@@ -56,7 +56,10 @@ use yii\widgets\Breadcrumbs;
 <?php
 $dataProvider = $filterModel->search();
 
-if (Yii::$app->user->can('voip.change-number-status')) {
+if (
+    Yii::$app->user->can('voip.change-number-status')
+    || \Yii::$app->user->can('voip.delete-number')
+) {
     $numbers = [];
     $query = clone $dataProvider->query;
     $isMoreNumbers = $query->count() > 10000;
@@ -69,33 +72,48 @@ if (Yii::$app->user->can('voip.change-number-status')) {
         echo Html::tag('b', 'Изменить статус на') . '<br>';
         echo Html::beginForm(Url::to(['change-status']));
         echo Html::hiddenInput('numbers', json_encode($numbers));
-        echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-status']);
-        echo Html::dropDownList('status', null,
-            DidGroup::getEmptyList(true) +
-            [
-                Number::STATUS_NOTSALE => 'Не продается',
-                Number::STATUS_INSTOCK => 'Свободен',
-                Number::STATUS_RELEASED => 'Откреплен',
-            ], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
-        echo "</div>";
+        if (Yii::$app->user->can('voip.change-number-status')) {
+            echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-status']);
+            echo Html::dropDownList('status', null,
+                DidGroup::getEmptyList(true) +
+                [
+                    Number::STATUS_NOTSALE => 'Не продается',
+                    Number::STATUS_INSTOCK => 'Свободен',
+                    Number::STATUS_RELEASED => 'Откреплен',
+                ], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+            echo "</div>";
 
-        echo "<div class=well style='width: 400px; float: left; margin-left: 10px;'>";
-        echo Html::tag('b', 'Изменить степень красивости') . '<br>';
-        echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-beauty-level']);
-        echo Html::dropDownList('beauty-level', null,
-            DidGroup::getEmptyList(true) + DidGroup::$beautyLevelNames + ['original' => 'Изначальный'], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
-        echo "</div>";
+            echo "<div class=well style='width: 400px; float: left; margin-left: 10px;'>";
+            echo Html::tag('b', 'Изменить степень красивости') . '<br>';
+            echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-beauty-level']);
+            echo Html::dropDownList('beauty-level', null,
+                DidGroup::getEmptyList(true) + DidGroup::$beautyLevelNames + ['original' => 'Изначальный'], ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+            echo "</div>";
 
-        echo "<div class=well style='width: 400px; float: left; margin-left: 10px;'>";
-        echo Html::tag('b', 'Изменить DID-группу') . '<br>';
-        if (!$filterModel->ndc_type_id) {
-            echo Html::tag('span', 'Для получения списка DID-групп необходимов выбрать "Страну" и "Тип номера"', ['class' => 'text-info']);
-        } else {
-            echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-did-group']);
-            echo Html::dropDownList('did_group_id', null,
-                DidGroup::getList($isWithEmpty = true, $filterModel->country_id, $filterModel->city_id, $filterModel->ndc_type_id), ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+            echo "<div class=well style='width: 400px; float: left; margin-left: 10px;'>";
+            echo Html::tag('b', 'Изменить DID-группу') . '<br>';
+            if (!$filterModel->ndc_type_id) {
+                echo Html::tag('span', 'Для получения списка DID-групп необходимов выбрать "Страну" и "Тип номера"', ['class' => 'text-info']);
+            } else {
+                echo Html::button('Применить', ['class' => 'btn btn-primary', 'type' => 'submit', 'style' => 'margin-left: 10px', 'name' => 'set-did-group']);
+                echo Html::dropDownList('did_group_id', null,
+                    DidGroup::getList($isWithEmpty = true, $filterModel->country_id, $filterModel->city_id, $filterModel->ndc_type_id), ['class' => 'form-control pull-left', 'style' => 'width: 250px']);
+            }
         }
         echo "</div>";
+
+        if (\Yii::$app->user->can('voip.delete-number')) {
+            echo "<div class=well style='width: 150px; float: left; margin-left: 10px;'>";
+            echo Html::button(' Удалить', [
+                'class' => 'btn btn-danger glyphicon glyphicon-trash',
+                'style' => 'margin-left: 10px',
+                'type' => 'submit',
+                'name' => 'delete-numbers',
+            ]);
+            echo "</div>";
+        }
+
+
         echo Html::endForm();
         echo "</div>";
 
