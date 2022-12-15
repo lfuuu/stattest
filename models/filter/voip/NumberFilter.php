@@ -19,6 +19,7 @@ class NumberFilter extends Number
     const ACTION_SET_STATUS = 'set-status';
     const ACTION_SET_BEAUTY_LEVEL = 'set-beauty-level';
     const ACTION_SET_DID_GROUP = 'set-did-group';
+    const ACTION_DELETE_NUMBERS = 'delete-numbers';
 
     public $number = '';
     public $number_from = '';
