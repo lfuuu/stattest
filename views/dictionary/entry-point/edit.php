@@ -85,13 +85,19 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 ?>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'organization_id')
                     ->dropDownList(OrganizationDao::me()->getList())
                 ?>
             </div>
 
+            <div class="col-sm-2">
+                <?= $form
+                    ->field($model, 'partner_id')
+                    ->dropDownList(\app\models\ClientContract::dao()->getPartnerList($isWithEmpty = true))
+                ?>
+            </div>
             <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'country_id')
