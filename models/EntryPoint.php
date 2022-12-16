@@ -30,6 +30,7 @@ use http\Url;
  * @property int $site_id
  * @property int $connect_trouble_user_id
  * @property int $price_level
+ * @property int $partner_id
  * @property string $legal_type
  *
  * @property string $wizard_type
@@ -136,7 +137,8 @@ class EntryPoint extends ActiveRecord
                     'client_contract_business_id',
                     'client_contract_business_process_id',
                     'client_contract_business_process_status_id',
-                    'price_level'
+                    'price_level',
+                    'partner_id',
                 ],
                 'integer'
             ],
@@ -172,6 +174,7 @@ class EntryPoint extends ActiveRecord
             'site_id' => "Сайт для обслуживания",
             'price_level' => "Уровень цен",
             'legal_type' => "Тип юр. лица",
+            'partner_id' => "Партнер ID",
         ];
     }
 

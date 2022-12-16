@@ -373,6 +373,7 @@ class ClientCreateExternalForm extends Form
             $contract->business_process_id = $this->entryPoint->client_contract_business_process_id;
             $contract->business_process_status_id = $this->entryPoint->client_contract_business_process_status_id;
             $contract->organization_id = $this->entryPoint->organization_id;
+            $contract->partner_contract_id = $this->entryPoint->partner_id;
         } else {
             $contract->business_id = Business::TELEKOM;
             $contract->business_process_id = BusinessProcess::TELECOM_SUPPORT;
