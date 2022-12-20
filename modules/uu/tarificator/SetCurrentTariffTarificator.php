@@ -186,7 +186,12 @@ SQL;
                     'account_tariff_id' => $accountTariff->id,
                     'service_type_id' => $accountTariff->service_type_id,
                     'client_id' => $accountTariff->client_account_id,
-                ]);
+                ]
+                + ($eventType === ImportantEventsNames::UU_SWITCHED_ON
+                    ? ['tariff_status' => $accountTariff->tariffPeriod->tariff->status->name]
+                    : []
+                )
+            );
         }
 
         if ($eventType === ImportantEventsNames::UU_SWITCHED_ON) {
@@ -369,10 +374,10 @@ SQL;
 
                     case ImportantEventsNames::UU_SWITCHED_OFF:
                         // удалить
-                        EventQueue::go(\app\modules\uu\Module::EVENT_CHAT_BOT_REMOVE. [
-                            'client_account_id' => $accountTariff->client_account_id,
-                            'account_tariff_id' => $accountTariff->id,
-                        ]);
+                        EventQueue::go(\app\modules\uu\Module::EVENT_CHAT_BOT_REMOVE . [
+                                'client_account_id' => $accountTariff->client_account_id,
+                                'account_tariff_id' => $accountTariff->id,
+                            ]);
                         break;
 
                     default:
