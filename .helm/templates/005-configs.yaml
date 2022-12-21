@@ -26,7 +26,8 @@ data:
     memory_limit = 4G
     post_max_size = 90M
     upload_max_filesize = 500M
-    serialize_precision = 100
+    serialize_precision = -1
+    precision = -1
     short_open_tag = On
 
     error_reporting = {{ .Values.php_prod.error_reporting }}
