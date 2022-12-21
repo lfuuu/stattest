@@ -178,6 +178,9 @@ return [
                 ],
             ],
         ],
+        'mutex' => [
+            'class' => 'yii\redis\Mutex',
+        ],
     ],
     'modules' => [
         'glpi' => ['class' => 'app\modules\glpi\Module'],
