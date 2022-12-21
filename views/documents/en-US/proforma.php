@@ -113,7 +113,7 @@ $contragent = $payerCompany->contragent;
         <td width="70%" align="left" valign="top" class="text">
 
             <strong>
-                <p class="strong no-margin">COSTUMER: <?= $contragent->name ?><br /></p><br />
+                <p class="strong no-margin">COSTOMER: <?= $contragent->name ?><br /></p><br />
                 Address: <?= $contragent->address_jur ?><br />
                 TAX ID: <?= $contragent->inn ?><br />
                 EU TAX ID: <?= $contragent->inn_euro ?>
