@@ -23,6 +23,7 @@ use app\models\PaymentApiInfo;
 
 class PaymentController extends ApiInternalController
 {
+    const UNRECOGNIZED_PAYMENTS_ACCOUONT_ID = 115504;
 
     /**
      * @throws NotImplementedHttpException
@@ -36,7 +37,7 @@ class PaymentController extends ApiInternalController
      * @SWG\Post(tags={"Payments"}, path="/internal/payment/add/", summary="Добавление платежа", operationId="Добавление платежа",
      *   @SWG\Parameter(name="access_token", type="string", description="Код доступа к каналу", in="formData", default="", required=true),
      *   @SWG\Parameter(name="channel", type="string", description="Канал платежа", in="formData", default="", required=true),
-     *   @SWG\Parameter(name="account_id", type="integer", description="ID ЛС", in="formData", default="", required=true),
+     *   @SWG\Parameter(name="account_id", type="integer", description="ID ЛС", in="formData", default=""),
      *   @SWG\Parameter(name="payment_no", type="string", description="ID платежа", in="formData", default="", required=true),
      *   @SWG\Parameter(name="sum", type="integer", description="Сумма платежа", in="formData", default="0", required=true),
      *   @SWG\Parameter(name="currency", type="string", description="Валюта платежа", in="formData", default="RUB", required=true),
@@ -64,13 +65,14 @@ class PaymentController extends ApiInternalController
                 [['channel', 'access_token'], 'required'],
                 ['access_token', PaymentApiAccessCheckerValidator::class],
 
-                [['account_id', 'payment_no', 'sum', 'currency'], 'required'],
+                [['payment_no', 'sum', 'currency'], 'required'],
                 ['currency', 'in', 'range' => Currency::enum()],
                 [['bill_no', 'payment_no', 'currency', 'description'], FormFieldValidator::class],
                 ['info_json', JsonValidator::class],
                 [['sum'], 'number', 'min' => 0.1, 'max' => 15000],
+                ['account_id', 'default', 'value' => self::UNRECOGNIZED_PAYMENTS_ACCOUONT_ID],
                 ['account_id', AccountIdValidator::class],
-                ['bill_no', BillNoValidator::class]
+                ['bill_no', BillNoValidator::class],
             ]
         );
 
