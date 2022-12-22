@@ -50,11 +50,16 @@ if (
         'module' => 'newaccounts',
         'action' => 'bill_print',
         'bill' => $invoice->bill_no,
-        'object' => 'invoice2',
         'to_print' => 'true',
         'invoice_id' => $invoice->id,
         'is_pdf' => $isPdf
     ];
+
+    if ($R['is_act'] ?? false) {
+        $_GET['object'] = 'akt-' . $invoice->type_id;
+    } else {
+        $_GET['object'] = 'invoice2';
+    }
 
     global $design;
     $design->assign('emailed', true);

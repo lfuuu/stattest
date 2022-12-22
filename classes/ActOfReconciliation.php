@@ -346,8 +346,18 @@ WHERE b.client_id = ' . $account->id . '
                     'is_pdf' => 1,
                     'tpl1' => 1,
                     'client' => $account->id,
-                    'invoice_id' => $row['id']
+                    'invoice_id' => $row['id'],
+                    'is_act' => 1,
                 ]);
+
+                if ($account->getTaxRateOnDate($row['bill_date']) > 0) {
+                    $row['link_invoice'] = Encrypt::encodeArray([
+                        'is_pdf' => 1,
+                        'tpl1' => 1,
+                        'client' => $account->id,
+                        'invoice_id' => $row['id'],
+                    ]);
+                }
             } elseif ($row['type'] == 'bill' && !$isNotRussia) {
                 if (!$row['is_invoice_created']) {
                     $row['outcome_sum'] = 0;
@@ -386,7 +396,7 @@ WHERE b.client_id = ' . $account->id . '
                         'type' => 'month',
                         'date' => $findDate,
                         'add_datetime' => $setDateTime($findDate, true),
-                        'balance' => $balance,
+                        'balance' => round($balance, 2),
                         'description' => 'month_balance',
                     ];
 
@@ -406,7 +416,7 @@ WHERE b.client_id = ' . $account->id . '
                 'type' => 'month',
                 'date' => $findDate,
                 'add_datetime' => $setDateTime($findDate, true),
-                'balance' => $balance,
+                'balance' => round($balance, 2),
                 'description' => 'month_balance',
             ];
         }
