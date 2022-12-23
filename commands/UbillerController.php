@@ -507,8 +507,10 @@ FROM uu_account_tariff_log l, (SELECT
                                GROUP BY pack_id) m
   , uu_account_entry e
 WHERE m.m_id = l.id AND l.tariff_period_id IS NULL
-      AND e.account_tariff_id = pack_id AND e.date > cast(actual_from_utc AS DATE)
-      AND e.type_id = -3 AND e.price > 0
+      AND e.account_tariff_id = pack_id 
+      AND e.date >= CAST(DATE_FORMAT(NOW() , '%Y-%m-01') AS DATE)
+      ###AND e.type_id = -3 
+      AND e.price > 0
 ORDER BY client_account_id
 SQL;
 
@@ -522,17 +524,27 @@ SQL;
 
                 echo PHP_EOL . 'AccountEntry[id=' . $entry->id . '] price: ' . $entry->price;
 
-                foreach ($entry->accountLogMins as $logMin) {
-                    echo PHP_EOL . '(-) AccountLogMins[id=' . $logMin->id . ']';
-                    !$isTest && $logMin->delete();
+                if ($entry->type_id == AccountEntry::TYPE_ID_MIN) {
+                    foreach ($entry->accountLogMins as $logMin) {
+                        echo PHP_EOL . '(-) AccountLogMins[id=' . $logMin->id . ']';
+                        !$isTest && $logMin->delete();
 
-                    $logPeriod = AccountLogPeriod::findOne(['id' => $logMin->id]);
+                        $logPeriod = AccountLogPeriod::findOne(['id' => $logMin->id]);
 
-                    if ($logPeriod) {
-                        echo PHP_EOL . '(-) AccountLogPeriods[id=' . $logPeriod->id . ']';
+                        if ($logPeriod) {
+                            echo PHP_EOL . '(-) AccountLogPeriods[id=' . $logPeriod->id . ']';
+                            !$isTest && $logPeriod->delete();
+                        }
+                    }
+                } elseif ($entry->type_id == AccountEntry::TYPE_ID_PERIOD) {
+
+                    foreach ($entry->accountLogPeriods as $logPeriod) {
+                        echo PHP_EOL . '(-) AccountLogPeriod[id=' . $logPeriod->id . ']';
                         !$isTest && $logPeriod->delete();
                     }
-
+                } else {
+                    echo PHP_EOL . '!!!!! unknown type: ' . $entry->type_id;
+                    break;
                 }
 
                 /** @var \app\modules\uu\models\Bill $bill */
