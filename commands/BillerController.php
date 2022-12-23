@@ -375,9 +375,9 @@ class BillerController extends Controller
             /** @var SberbankOrder $order */
             foreach ($orderQuery->each() as $order) {
 
-                if ($order->bill->clientAccount->contract->organization_id != $organizationId) {
-                    continue;
-                }
+//                if ($order->bill->clientAccount->contract->organization_id != $organizationId) {
+//                    continue;
+//                }
 
                 try {
 
