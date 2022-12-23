@@ -69,6 +69,11 @@ class SberbankOrder extends ActiveRecord
      */
     public function makePayment($info)
     {
+        $mutexLockKey = 'sber-payment-lock-key';
+        if (!\Yii::$app->mutex->acquire($mutexLockKey, DependecyHelper::TIMELIFE_MINUTE)) {
+            throw new \RuntimeException("Can't get lock", 500);
+        }
+
         if (isset($info['orderNumber'])) {
             if (
                 Payment::find()->where(['bill_no' => $info['orderNumber']])->exists()
@@ -81,16 +86,12 @@ class SberbankOrder extends ActiveRecord
                     ])->exists()
                 )
             ) {
+                \Yii::$app->mutex->release($mutexLockKey);
                 return;
             }
         }
 
         $transaction = \Yii::$app->db->beginTransaction();
-
-        $mutexLockKey = 'sber-payment-lock-key';
-        if (!\Yii::$app->mutex->acquire($mutexLockKey, DependecyHelper::TIMELIFE_MINUTE)) {
-            throw new \RuntimeException("Can't get lock", 500);
-        }
 
         try {
             $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)));
