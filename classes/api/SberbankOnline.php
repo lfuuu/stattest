@@ -109,7 +109,7 @@ class SberbankOnline
             ->joinWith('clientContractModel co')
             ->where([
                 'c.id' => ($voipAccountId ? $voipAccountId : $data['account'] ?? 0),
-                'co.organization_id' => Organization::MCN_TELECOM,
+//                'co.organization_id' => Organization::MCN_TELECOM,
             ])
             ->one();
 
