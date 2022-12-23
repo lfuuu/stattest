@@ -107,6 +107,7 @@ class ClientSuperDao extends Singleton
                             'partner_id' => $contract['partner_contract_id'],
                             'is_partner' => $contract['business_id'] == Business::PARTNER,
                             'partner_login_allow' => $contract['is_partner_login_allow'],
+                            'account_manager' => $contract['account_manager'],
                             'business_id' => $contract['business_id'],
                             'business_process_id' => $contract['business_process_id'],
                             'business_process_status_id' => $contract['business_process_status_id'],
