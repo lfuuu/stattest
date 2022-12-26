@@ -11,6 +11,8 @@ use yii\db\Expression;
  * @property int $created_at
  * @property int $info_json
  * @property int $request
+ * @property int $channel
+ * @property int $payment_no
  */
 
 
