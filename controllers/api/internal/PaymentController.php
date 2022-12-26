@@ -83,10 +83,10 @@ class PaymentController extends ApiInternalController
         if ($model->payment_no) {
             $p = Payment::find()
                 ->alias('p')
-                ->joinWith('bill b', true, 'INNER JOIN')
                 ->where([
+                    'p.type' => Payment::TYPE_API,
+                    'p.ecash_operator' => $model->channel,
                     'p.payment_no' => $model->payment_no,
-                    'b.client_id' => $model->account_id,
                 ])
                 ->exists();
 
@@ -142,6 +142,8 @@ class PaymentController extends ApiInternalController
 
             $paymentInfo = new PaymentApiInfo();
             $paymentInfo->payment_id = $payment->id;
+            $paymentInfo->channel = $payment->ecash_operator;
+            $paymentInfo->payment_no = $payment->payment_no;
             $paymentInfo->info_json = $requestData['info_json'] ?? '';
             unset($requestData['info_json']);
             $paymentInfo->request = json_encode($requestData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -154,7 +156,15 @@ class PaymentController extends ApiInternalController
 
             return ['payment_id' => $payment->id];
         } catch (\Exception $e) {
+            \Yii::error($e);
             $transaction->rollBack();
+
+            $msg = $e->getMessage();
+
+            if (strpos($msg, 'SQLSTATE') !== false) {
+                throw new \InvalidArgumentException('Payment No is exists.');
+            }
+
             throw $e;
         }
     }
