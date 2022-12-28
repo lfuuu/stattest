@@ -572,4 +572,16 @@ class ClientContract extends HistoryActiveRecord
     {
         self::dao()->resetTaxVoip($this, $contragent);
     }
+
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+            case 'manager':
+            case 'account_manager':
+                return User::find()->where(['user' => $value])->select('name')->scalar();
+
+            default:
+                return parent::prepareHistoryValue($field, $value);
+        }
+    }
 }

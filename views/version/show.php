@@ -44,7 +44,9 @@ $links = [
                             <a href="<?= $links[$version->model] . $version->model_id . '&date=' . $version->date ?>"><?= $version->date ?></a>
                         <?php endif ?>
                         <?php if ($last !== $k || !$version['diffs']) : ?>
-                            <i class="uncheck btn-delete-version" style="cursor: pointer;" data-model="<?= $version->model ?>" data-model-id="<?= $version->model_id ?>" data-date="<?= $version->date ?>"></i>
+                            <i class="uncheck btn-delete-version" style="cursor: pointer;"
+                               data-model="<?= $version->model ?>" data-model-id="<?= $version->model_id ?>"
+                               data-date="<?= $version->date ?>"></i>
                         <?php endif; ?>
                     </td>
 
@@ -58,10 +60,27 @@ $links = [
                     <?= $models[$version->model]->getAttributeLabel($field) ?>
                 </td>
                 <td>
-                    <?= $values[0] ?>
+                    <?php
+                    if (isset($values[0])) {
+                        $value = $values[0];
+                        if (method_exists($models[$version->model], 'prepareHistoryValue')) {
+                            $value = $models[$version->model]::prepareHistoryValue($field, $value);
+                        }
+
+                        echo $value;
+                    }
+                    ?>
                 </td>
-                <td>
-                    <?= $values[1] ?>
+                <td><?php
+                    if (isset($values[1])) {
+                        $value = $values[1];
+                        if (method_exists($models[$version->model], 'prepareHistoryValue')) {
+                            $value = $models[$version->model]::prepareHistoryValue($field, $value);
+                        }
+
+                        echo $value;
+                    }
+                    ?>
                 </td>
             </tr>
         <?php endforeach; ?>

@@ -694,7 +694,7 @@ class Tariff extends ActiveRecord
                 break;
         }
 
-        return $value;
+        return parent::prepareHistoryValue($field, $value);
     }
 
     /**

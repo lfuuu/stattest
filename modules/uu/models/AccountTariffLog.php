@@ -428,7 +428,7 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        list($tariffPrice, $accountLogSetup, $accountLogPeriod, $priceResources, $priceMin)  = $this->getConnectionAmount($accountTariff, $tariffPeriod, $isCountLogs, true);
+        list($tariffPrice, $accountLogSetup, $accountLogPeriod, $priceResources, $priceMin) = $this->getConnectionAmount($accountTariff, $tariffPeriod, $isCountLogs, true);
 
         if ($tariffPrice > 0) {
             // Эти проверки только для платной услуги
@@ -920,9 +920,10 @@ class AccountTariffLog extends ActiveRecord
                     return $tariffPeriod->getLink();
                 }
                 break;
-        }
 
-        return $value;
+            default:
+                return parent::prepareHistoryValue($field, $value);
+        }
     }
 
     /**

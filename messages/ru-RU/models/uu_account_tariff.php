@@ -25,10 +25,11 @@ return [
     'device_address' => 'Адрес установки оборудования', // Телефония
     'tariff_period_utc' => 'Дата последней смены тарифа',
     'account_log_period_utc' => 'Абонентка списана до',
+    'account_log_resource_utc' => 'Ресурсы рассчитаны до',
     'calltracking_params' => 'Параметры Сalltracking',
 
-    'insert_time' => 'Когда создал, UTC',
+    'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',
-    'update_time' => 'Когда редактировал, UTC',
+    'update_time' => 'Когда редактировал',
     'update_user_id' => 'Кто редактировал',
 ];

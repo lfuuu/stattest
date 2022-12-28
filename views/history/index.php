@@ -39,7 +39,7 @@ $dataFunction = function (HistoryChanges $historyChanges, $fieldName) use (&$mod
 
     $lines = [];
 
-    $data = HistoryChanges::humanizedHistory(json_decode($historyChanges->$fieldName, true));
+    $data = json_decode($historyChanges->$fieldName, true);
     foreach ($data as $field => $value) {
         if ($model) {
             if (method_exists($model, 'prepareHistoryValue')) {

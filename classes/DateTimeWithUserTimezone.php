@@ -1,4 +1,5 @@
 <?php
+
 namespace app\classes;
 
 use app\helpers\DateTimeZoneHelper;
@@ -16,8 +17,12 @@ class DateTimeWithUserTimezone extends DateTime
      */
     public function __construct($time = 'now', DateTimeZone $timezone = null)
     {
+        if (!$timezone) {
+            $timezone = new DateTimeZone('UTC');
+        }
         parent::__construct($time, $timezone); // дату обычно устанавливаем в UTC
         $this->setTimezone($this->getUserTimeZone()); // а потом для вывода используем зону юзера
+        Yii::$app->formatter->timeZone = $this->getUserTimeZone();
     }
 
     /**
@@ -96,7 +101,27 @@ class DateTimeWithUserTimezone extends DateTime
      */
     public function getDateTime($format = 'medium')
     {
-        return Yii::$app->formatter->asDatetime($this, $format);
+        $tzName = $this->getTzName();
+        return Yii::$app->formatter->asDatetime($this, $format) . ($tzName ? ' (' . $tzName . ')' : '');
+    }
+
+    public function getTzName()
+    {
+        $tz = Yii::$app->formatter->timeZone;
+        if ($tz->getLocation()['comments']) {
+            $tzNameAr = explode("+", $tz->getLocation()['comments']);
+            $tzName = strtolower($tzNameAr[0]);
+            $tzName[0] = strtoupper($tzName[0]);
+            return substr($tzName, 0, 3);
+        }
+
+        $tzNameAr = explode("/", $tz->getName());
+        if (!isset($tzNameAr[1])) {
+            return $tzNameAr[0];
+        }
+        $tzName = str_replace(['a', 'e', 'i', 'o', 'u', 'y'], '', $tzNameAr[1]);
+
+        return substr($tzName, 0, 3);
     }
 
     /**

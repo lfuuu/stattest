@@ -18,6 +18,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
+use app\models\dictionary\TrustLevel;
 use app\models\voip\StatisticDay;
 use app\modules\sbisTenzor\models\SBISExchangeGroup;
 use app\modules\uu\models\AccountTariff;
@@ -419,6 +420,7 @@ class ClientAccount extends HistoryActiveRecord
             'show_in_lk' => 'Показывать ЛС в ЛК',
             'exchange_group_id' => 'Группа документов для отправки в системе СБИС',
             'exchange_status' => 'Статус интеграции с системой СБИС',
+            'trust_level_id' => 'Уровень доверия',
         ];
     }
 
@@ -1617,9 +1619,25 @@ class ClientAccount extends HistoryActiveRecord
                 }
                 break;
 
+            case 'trust_level_id':
+                $list = TrustLevel::getList();
+                if (isset($list[$value])) {
+                    return $list[$value];
+                }
+                return $value;
+
+            case 'account_version':
+                return self::$versions[$value];
+
+            case 'price_include_vat':
+            case 'type_of_bill':
+            case 'upload_to_sales_book':
+                return parent::prepareHistoryBoolValue($value);
+                break;
+
         }
 
-        return $value;
+        return parent::prepareHistoryValue($field, $value);
     }
 
     /**

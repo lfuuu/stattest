@@ -273,7 +273,25 @@ class ActiveRecord extends \yii\db\ActiveRecord
      */
     public static function prepareHistoryValue($field, $value)
     {
-        return $value;
+        if (strpos($field, 'is_') !== false) {
+            return self::prepareHistoryBoolValue($value);
+        }
+
+        if (substr($field, -4) === '_utc') {
+            return self::prepareHistoryDateTimeUtcValue($value);
+        }
+
+        return self::humanizedHistory($field, $value);
+    }
+
+    public static function prepareHistoryBoolValue($value)
+    {
+        return $value ? 'Да' : 'Нет';
+    }
+
+    public static function prepareHistoryDateTimeUtcValue($dateStr)
+    {
+        return (new \app\classes\DateTimeWithUserTimezone($dateStr))->getDateTime();
     }
 
     /**
@@ -344,74 +362,76 @@ class ActiveRecord extends \yii\db\ActiveRecord
 
     /**
      * @param array $data
-     * @return array
+     * @return string
      */
-    public static function humanizedHistory($data)
+    public static function humanizedHistory($key, $value)
     {
-        foreach ($data as $key => $value) {
-            switch ($key) {
-                case 'package_id':
-                    if ($tariff = Tariff::findOne(['id' => $value])) {
-                        $data[$key] = $tariff->name;
-                    }
-                    break;
-                case 'organization_id':
-                    if (
+        switch ($key) {
+            case 'package_id':
+                if ($tariff = Tariff::findOne(['id' => $value])) {
+                    return $tariff->name;
+                }
+                break;
+            case 'organization_id':
+                if (
                     $organization = Organization::find()
                         ->where([Organization::tableName() . '.organization_id' => $value])
                         ->actual()
                         ->one()
-                    ) {
-                        $data[$key] = $organization->name->value;
-                    }
-                    break;
-                case 'federal_district':
-                    if (isset(ClientContract::$districts[$value])) {
-                        $data[$key] = ClientContract::$districts[$value];
-                    }
-                    break;
-                case 'business_id':
-                    if ($business = Business::findOne(['id' => $value])) {
-                        $data[$key] = $business->name;
-                    }
-                    break;
-                case 'business_process_id':
-                    if ($businessProcess = BusinessProcess::findOne(['id' => $value])) {
-                        $data[$key] = $businessProcess->name;
-                    }
-                    break;
-                case 'business_process_status_id':
-                    if ($businessProcessStatus = BusinessProcessStatus::findOne(['id' => $value])) {
-                        $data[$key] = $businessProcessStatus->name;
-                    }
-                    break;
-                case 'country_id':
-                    if ($country = Country::findOne(['code' => $value])) {
-                        $data[$key] = $country->name;
-                    }
-                    break;
-                case 'contragent_id':
-                    if ($contragent = ClientContragent::findOne(['id' => $value])) {
-                        $data[$key] = $contragent->name;
-                    }
-                    break;
-                case 'tag_id':
-                    if ($tag = Tag::findOne(['id' => $value])) {
-                        $data[$key] = $tag;
-                    } else {
-                        $data[$key] = '???#'.$value;
-                    }
-                    break;
-                case 'tariff_id':
-                    if ($tariff = Tariff::findOne(['id' => $value])) {
-                        $data[$key] = $tariff;
-                    } else {
-                        $data[$key] = '???#'.$value;
-                    }
-                    break;
-            }
+                ) {
+                    return $organization->name->value;
+                }
+                break;
+            case 'federal_district':
+                if (isset(ClientContract::$districts[$value])) {
+                    return ClientContract::$districts[$value];
+                }
+                break;
+            case 'business_id':
+                if ($business = Business::findOne(['id' => $value])) {
+                    return $business->name;
+                }
+                break;
+            case 'business_process_id':
+                if ($businessProcess = BusinessProcess::findOne(['id' => $value])) {
+                    return $businessProcess->name;
+                }
+                break;
+            case 'business_process_status_id':
+                if ($businessProcessStatus = BusinessProcessStatus::findOne(['id' => $value])) {
+                    return $businessProcessStatus->name;
+                }
+                break;
+            case 'country_id':
+                if ($country = Country::findOne(['code' => $value])) {
+                    return $country->name;
+                }
+                break;
+            case 'contragent_id':
+                if ($contragent = ClientContragent::findOne(['id' => $value])) {
+                    return $contragent->name;
+                }
+                break;
+            case 'tag_id':
+                if ($tag = Tag::findOne(['id' => $value])) {
+                    return $tag;
+                } else {
+                    return '???#' . $value;
+                }
+                break;
+            case 'tariff_id':
+                if ($tariff = Tariff::findOne(['id' => $value])) {
+                    return $tariff;
+                } else {
+                    return '???#' . $value;
+                }
+                break;
+
+            default:
+                return $value;
         }
-        return $data;
+
+        return $value;
     }
 
     /**
