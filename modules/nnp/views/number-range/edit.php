@@ -70,7 +70,7 @@ if (!$numberRange->isNewRecord) {
             <label><?= $numberRange->getAttributeLabel('insert_time') ?></label>
             <div>
                 <?= $numberRange->insert_time ?
-                    Yii::$app->formatter->asDate($numberRange->insert_time, 'medium') :
+                    (new \app\classes\DateTimeWithUserTimezone($numberRange->insert_time))->getDateTime() :
                     Yii::t('common', '(not set)') ?>
             </div>
         </div>
@@ -80,7 +80,7 @@ if (!$numberRange->isNewRecord) {
             <label><?= $numberRange->getAttributeLabel('update_time') ?></label>
             <div>
                 <?= $numberRange->insert_time ?
-                    Yii::$app->formatter->asDate($numberRange->update_time, 'medium') :
+                    (new \app\classes\DateTimeWithUserTimezone($numberRange->update_time))->getDateTime() :
                     Yii::t('common', '(not set)') ?>
             </div>
         </div>

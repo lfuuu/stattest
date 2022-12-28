@@ -81,8 +81,6 @@ class VersionController extends BaseController
                 }
                 $odata[$key] = $value[0];
                 $ndata[$key] = $value[1];
-                $odata = HistoryVersion::humanizedHistory($odata);
-                $ndata = HistoryVersion::humanizedHistory($ndata);
                 $version->diffs[$key][0] = $odata[$key];
                 $version->diffs[$key][1] = $ndata[$key];
             }

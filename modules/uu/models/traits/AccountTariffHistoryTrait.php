@@ -40,6 +40,9 @@ trait AccountTariffHistoryTrait
                     return $city->getLink();
                 }
                 break;
+
+            default:
+                return parent::prepareHistoryValue($field, $value);
         }
 
         return $value;

@@ -273,4 +273,16 @@ class ClientContact extends HistoryActiveRecord
     {
         $this->client_id = $parentId;
     }
+
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+            case 'ts':
+                return (new \app\classes\DateTimeWithUserTimezone($value))->getDateTime();
+            case 'user_id':
+                return User::find()->where(['id' => $value])->select('name')->scalar();
+            default:
+                return parent::prepareHistoryValue($field, $value);
+        }
+    }
 }

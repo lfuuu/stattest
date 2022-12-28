@@ -37,8 +37,8 @@ foreach ($changes as $k => $change):
 
     $prevModelId = $change->model_id;
 
-    $newData = HistoryChanges::humanizedHistory(json_decode($change->data_json, true));
-    $oldData = HistoryChanges::humanizedHistory(json_decode($change->prev_data_json, true));
+    $newData = json_decode($change->data_json, true);
+    $oldData = json_decode($change->prev_data_json, true);
 
     /** @var array $data */
     if ($newData) {
@@ -72,11 +72,7 @@ foreach ($changes as $k => $change):
                     <?= $change->user ? $change->user->name : $change->user_id ?>
                     <br/>
 
-                    <?php
-                    $date = new DateTime($change->created_at, new DateTimeZone('UTC'));
-                    $date->setTimeZone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
-                    echo $date->format('d.m.Y H:i:s');
-                    ?>
+                    <?= (new \app\classes\DateTimeWithUserTimezone($change->created_at))->getDateTime() ?>
 
                 </td>
             <?php endif; ?>
