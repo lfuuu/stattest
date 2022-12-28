@@ -2,7 +2,7 @@
   'use strict';
 
   $(function () {
-    $('.dropdown-menu a').click(function(event) {
+    $('#search-options.dropdown-menu a').click(function(event) {
       event.preventDefault();
 
       let $el = $(event.currentTarget);
