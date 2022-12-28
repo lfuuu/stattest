@@ -178,7 +178,7 @@ $viewParams = [
 
             ?>
             <?= $form->field($tariff, 'is_proportionately')
-                ->checkbox($options +
+                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
                     ['label' => $tariff->getAttributeLabel('is_proportionately') . $helpConfluence])
             ?>
             <?= $form->field($tariff, 'tax_rate')
