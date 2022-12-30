@@ -17,7 +17,8 @@ class ExceptionValidationForm extends \app\exceptions\ModelValidationException
 
     public function __construct(Model $model)
     {
-        $errorKey = reset(array_keys($model->getFirstErrors()));
+        $keys = array_keys($model->getFirstErrors());
+        $errorKey = reset($keys);
 
         foreach ($this->exceptions as $exceptionKey => $fields) {
             if (in_array($errorKey, $fields, true)) {

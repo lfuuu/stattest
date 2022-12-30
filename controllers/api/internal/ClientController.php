@@ -18,13 +18,16 @@ use app\models\ClientContragent;
 use app\models\ClientSuper;
 use app\models\Business;
 use app\models\BusinessProcess;
+use app\models\Country;
 use app\models\danycom\Address;
 use app\models\danycom\Info;
 use app\models\danycom\Number;
 use app\models\EntryPoint;
 use app\models\EventQueue;
 use app\models\Organization;
+use app\models\OrganizationSettlementAccount;
 use app\models\Timezone;
+use app\models\usages\UsageInterface;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
@@ -578,7 +581,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property = "id", type = "string",description = "Код таймзоны"),
      *   @SWG\Property(property = "name", type = "string",description = "Название")
      * ),
-     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-timezones/", summary = "Получение списка таймзон", operationId = "get-timezones",
+     * @SWG\Get(tags = {"Dictionaries"}, path = "/internal/client/get-timezones/", summary = "Получение списка таймзон", operationId = "get-timezones",
      *   @SWG\Response(response = 200, description = "таймзоны",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/timezones")
      *     )
@@ -602,7 +605,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property = "id", type = "integer",description = "ID"),
      *   @SWG\Property(property = "name", type = "string",description = "Название подразделения")
      * ),
-     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-business-list/", summary = "Получение списка подразделений", operationId = "get-business-list",
+     * @SWG\Get(tags = {"Dictionaries"}, path = "/internal/client/get-business-list/", summary = "Получение списка подразделений", operationId = "get-business-list",
      *   @SWG\Response(response = 200, description = "данные о подразделениях",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/business")
      *     )
@@ -625,7 +628,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property = "business_id", type = "integer",description = "ID подразделения"),
      *   @SWG\Property(property = "name", type = "string",description = "Название подразделения")
      * ),
-     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-business-process-list/", summary = "Получение списка бизнес процессов", operationId = "get-business-process-list",
+     * @SWG\Get(tags = {"Dictionaries"}, path = "/internal/client/get-business-process-list/", summary = "Получение списка бизнес процессов", operationId = "get-business-process-list",
      *   @SWG\Response(response = 200, description = "данные о бизнес процессах",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/business_process")
      *     )
@@ -652,7 +655,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property = "business_process_id", type = "integer",description = "ID бизнес процесса"),
      *   @SWG\Property(property = "name", type = "string",description = "Название статуса")
      * ),
-     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-business-process-status-list/", summary = "Получение списка стаусов бизнес процессов", operationId = "get-business-process-status-list",
+     * @SWG\Get(tags = {"Dictionaries"}, path = "/internal/client/get-business-process-status-list/", summary = "Получение списка стаусов бизнес процессов", operationId = "get-business-process-status-list",
      *   @SWG\Response(response = 200, description = "данные о статусах бизнес процессов",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/business_process_status")
      *     )
@@ -1156,7 +1159,7 @@ class ClientController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags={"Справочники"}, path="/internal/client/get-entry-point-list/", summary="Получения списка Точек Входа", operationId="EntryPointList",
+     * @SWG\Post(tags={"Dictionaries"}, path="/internal/client/get-entry-point-list/", summary="Получения списка Точек Входа", operationId="EntryPointList",
      *   @SWG\Parameter(name = "code", type = "string", description = "код Точки Входа", in = "query", required = false, default = ""),
      *   @SWG\Parameter(name = "country_code", type = "string", description = "Страна точки входа", in = "query", required = false, default = "643"),
      *   @SWG\Parameter(name = "is_default", type = "string", description = "Точка Входа по-умолчанию", in = "query", required = false, default = ""),
@@ -1198,6 +1201,63 @@ class ClientController extends ApiInternalController
                 return $row;
             },
             $list
+        );
+    }
+
+
+    /**
+     * @SWG\Post(tags={"Dictionaries"}, path="/internal/client/organisations/", summary="List of organizations", operationId="ListOfOrganizations",
+     *   @SWG\Response(response = 200, description = "Organizations",
+     *     @SWG\Schema(type = "array")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Error",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param string $contract_id
+     * @return array
+     */
+    public function actionOrganisations()
+    {
+        return array_map(function ($a) {
+            $row = ['name' => (string)$a->name] + $a->getAttributes([
+                    "organization_id",
+                    "actual_from",
+                    "actual_to",
+                    "country_id",
+                    "lang_code",
+                    "is_simple_tax_system",
+                    "vat_rate",
+                    "tax_registration_id",
+                    "tax_registration_reason",
+                    "contact_phone",
+                    "contact_fax",
+                    "contact_email",
+                    "contact_site"
+                ]);
+
+            if ($row['actual_to'] == UsageInterface::MAX_POSSIBLE_DATE) {
+                $row['actual_to'] = null;
+            }
+            $settlementAccount = $a->getSettlementAccount(
+                $a->country_id == Country::RUSSIA
+                    ? OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_RUSSIA
+                    : OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_SWIFT
+            );
+
+            $row['bank'] = $settlementAccount->getAttributes(null, ['organization_record_id', 'settlement_account_type_id']);
+            $row['bank']['bank_account'] = $settlementAccount->getProperty(
+                $a->country_id == Country::RUSSIA
+                    ? 'bank_account_RUB'
+                    : ($a->country_id == Country::HUNGARY
+                    ? 'bank_account_HUF'
+                    : 'bank_account_EUR')
+            )->value;
+
+            return $row;
+        },
+            Organization::dao()->getList()
         );
     }
 }
