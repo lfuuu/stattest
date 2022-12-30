@@ -84,6 +84,7 @@ trait AccountTariffValidatorTrait
                 'client_account_id' => $this->client_account_id,
                 'service_type_id' => $this->service_type_id,
             ])
+            ->andWhere(['NOT', ['tariff_period_id' => null]])
             ->andWhere($condition)
             ->count()
         ) {
