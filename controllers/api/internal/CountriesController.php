@@ -41,7 +41,7 @@ class CountriesController extends ApiInternalController
      *   @SWG\Property(property = "ndc_type_ids", type = "array", description = "Типы NDC", @SWG\Items(type = "integer"))
      * ),
      *
-     * @SWG\Post(tags = {"Справочники"}, path = "/internal/countries/get-cities/", summary = "Получение списка городов в стране", operationId = "Получение списка городов в стране",
+     * @SWG\Post(tags = {"Dictionaries"}, path = "/internal/countries/get-cities/", summary = "Получение списка городов в стране", operationId = "Получение списка городов в стране",
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "Идентификатор страны", in = "formData", required  =  true, default = ""),
      *   @SWG\Parameter(name = "with_numbers", type = "integer", description = "Признак возврата кол-ва свободных номеров: 0/1", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "with_ndcs", type = "integer", description = "Признак возврата NDC: 0/1", in = "formData", default = "0"),
@@ -66,7 +66,7 @@ class CountriesController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags = {"Справочники"}, path = "/internal/countries/get-cities__for-api-mcn-ru/", summary = "Получение списка городов в стране", operationId = "Получение списка городов в стране (для api.mcn.ru)",
+     * @SWG\Post(tags = {"Dictionaries"}, path = "/internal/countries/get-cities__for-api-mcn-ru/", summary = "Получение списка городов в стране", operationId = "Получение списка городов в стране (для api.mcn.ru)",
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "Идентификатор страны", in = "formData", required  =  true, default = ""),
      *   @SWG\Parameter(name = "with_numbers", type = "integer", description = "Признак возврата кол-ва свободных номеров: 0/1", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "with_ndcs", type = "integer", description = "Признак возврата NDC: 0/1", in = "formData", default = "0"),
@@ -200,7 +200,7 @@ class CountriesController extends ApiInternalController
      *   @SWG\Property(property = "regions", type = "array", @SWG\Items(type = "integer"))
      * ),
      *
-     * @SWG\Post(tags = {"Справочники"}, path = "/internal/countries/get-countries-by-domain", summary = "Получение списка стран по домену", operationId = "Получение списка стран по домену",
+     * @SWG\Post(tags = {"Dictionaries"}, path = "/internal/countries/get-countries-by-domain", summary = "Получение списка стран по домену", operationId = "Получение списка стран по домену",
      *   @SWG\Parameter(name = "domain", type = "string", description = "доменное имя", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список стран для сайта", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/countryRecord"))),
@@ -237,7 +237,7 @@ class CountriesController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Справочники"}, path = "/internal/countries/get-countries", summary = "Получение списка стран", operationId = "Получение списка стран",
+     * @SWG\Get(tags = {"Dictionaries"}, path = "/internal/countries/get-countries", summary = "Получение списка стран", operationId = "Получение списка стран",
      *   @SWG\Parameter(name = "is_with_site_only", type = "integer", description = "Только имеющие сайт", in = "query", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Список стран", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/countryRecord"))),
@@ -303,7 +303,7 @@ class CountriesController extends ApiInternalController
      *   @SWG\Property(property = "country", type = "object", description = "Страна", ref  =  "#/definitions/idNameRecord")),
      * ),
      *
-     * @SWG\Get(tags = {"Справочники"}, path = "/internal/countries/get-regions", summary = "Получение списка регионов (точек подключения)", operationId = "Получение списка регионов (точек подключения)",
+     * @SWG\Get(tags = {"Dictionaries"}, path = "/internal/countries/get-regions", summary = "Получение списка регионов (точек подключения)", operationId = "Получение списка регионов (точек подключения)",
      *   @SWG\Parameter(name  =  "country_id", type  =  "integer", description  =  "ID страны", in  =  "query", default  =  ""),
      *   @SWG\Parameter(name  =  "client_account_id", type  =  "integer", description  =  "ID ЛС (для определения по нему страны)", in  =  "query", default  =  ""),
      *
