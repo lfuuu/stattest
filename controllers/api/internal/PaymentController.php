@@ -88,10 +88,11 @@ class PaymentController extends ApiInternalController
                     'p.ecash_operator' => $model->channel,
                     'p.payment_no' => $model->payment_no,
                 ])
-                ->exists();
+                ->one();
 
             if ($p) {
-                throw new \InvalidArgumentException('Payment No is exists');
+                return ['payment_id' => $p->id];
+//                throw new \InvalidArgumentException('Payment No is exists');
             }
         }
 
@@ -162,7 +163,7 @@ class PaymentController extends ApiInternalController
             $msg = $e->getMessage();
 
             if (strpos($msg, 'SQLSTATE') !== false) {
-                throw new \InvalidArgumentException('Payment No is exists.');
+                throw new \InvalidArgumentException('Error add payment. Try again later.');
             }
 
             throw $e;
