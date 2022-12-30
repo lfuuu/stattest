@@ -134,19 +134,19 @@ class AccountController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags = {"ClientAccount"}, path = "/internal/account/balance-full/", summary = "Получение полного баланса лицевого счёта", operationId = "Получение полного баланса лицевого счёта",
-     *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID ЛС", in = "formData", default = "", required = true),
-     *   @SWG\Response(response = 200, description = "данные об услугах",
+     * @SWG\Post(tags = {"ClientAccount"}, path = "/internal/account/balance-full/", summary = "Getting the full balance of the personal account", operationId = "Getting the full balance of the personal account",
+     *   @SWG\Parameter(name = "account_id", type = "integer", description = "Account ID", in = "formData", default = "", required = true),
+     *   @SWG\Response(response = 200, description = "data",
      *     @SWG\Schema(type = "object", required = {"id", "balance", "currency", "credit", "expenditure", "view_mode"},
-     *       @SWG\Property(property = "id", type = "integer", description = "ID ЛС"),
-     *       @SWG\Property(property = "balance", type = "number", description = "Баланс"),
-     *       @SWG\Property(property = "currency", type = "string", description = "Валюта"),
-     *       @SWG\Property(property = "credit", type = "number", description = "Кредитный лимит"),
-     *       @SWG\Property(property = "expenditure", type = "string", description = "Дополнительные данные"),
-     *       @SWG\Property(property = "view_mode", type = "string", description = "Режим отображения")
+     *       @SWG\Property(property = "id", type = "integer", description = "Account ID"),
+     *       @SWG\Property(property = "balance", type = "number", description = "Balance"),
+     *       @SWG\Property(property = "currency", type = "string", description = "Currency"),
+     *       @SWG\Property(property = "credit", type = "number", description = "Credit limit"),
+     *       @SWG\Property(property = "expenditure", type = "string", description = "Additional data"),
+     *       @SWG\Property(property = "view_mode", type = "string", description = "View mode")
      *     )
      *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
+     *   @SWG\Response(response = "default", description = "Errors",
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
