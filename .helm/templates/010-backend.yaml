@@ -178,7 +178,6 @@ metadata:
   labels:
     app: {{ .Chart.Name }}-backend-{{ .postfix }}
 spec:
-  clusterIP: None
   selector:
     app: {{ .Chart.Name }}-backend-{{ .postfix }}
   ports:
