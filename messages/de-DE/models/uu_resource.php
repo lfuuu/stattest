@@ -51,11 +51,14 @@ return [
     'Resource #46' => 'Call limit',
     'Resource #48' => 'Quotenverkehr',
     'Resource #49' => 'Anrufe (eingehend)',
-    'Resource #50' => 'API-Methodenaufruf',
+    'Resource #50' => 'API-Methodenanforderung',
     'Resource #51' => 'Sprachassistent',
     'Resource #52' => 'Robotersteuerung',
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
+    'Resource #60' => 'Souffleur',
+    'Resource #62' => 'Sprachkanalisierung',
+    'Resource #66' => 'Trunk der externen PBX',
 
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
