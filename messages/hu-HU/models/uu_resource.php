@@ -44,10 +44,14 @@ return [
     'Resource #46' => 'Call limit',
     'Resource #48' => 'Kvóta forgalom',
     'Resource #49' => 'Hívások (bejövő)',
+    'Resource #50' => 'API-metódus kérés',
     'Resource #51' => 'Hangsegéd',
     'Resource #52' => 'Robotvezérlő',
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
+    'Resource #60' => 'Súgó',
+    'Resource #62' => 'Hangcsatornázás',
+    'Resource #66' => 'Külső VPBX trönkje',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

@@ -52,11 +52,14 @@ return [
     'Resource #46' => 'Call limit',
     'Resource #48' => 'Quota traffic',
     'Resource #49' => 'Calls (incoming)',
-    'Resource #50' => 'API method call',
+    'Resource #50' => 'API-method request',
     'Resource #51' => 'Voice assistant',
     'Resource #52' => 'Robot controller',
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
+    'Resource #60' => 'Prompter',
+    'Resource #62' => 'Voice channeling',
+    'Resource #66' => 'Trunk for external PBX',
 
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
