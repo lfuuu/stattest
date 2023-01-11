@@ -57,7 +57,7 @@
                     {$item.date_to}
                     </span>
             </td>
-            <td>{$item.amount}</td>
+            <td>{$item.amount|round:6}</td>
             <td style="text-align: right">{$item.price}</td>
             {if $discount != 0}
                 {assign var="row_discount" value=`$item.discount_auto+$item.discount_set`}

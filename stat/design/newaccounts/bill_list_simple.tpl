@@ -105,7 +105,7 @@
                             Расход за день: <b>{$counters.amount_day_sum}</b><br/>
                             Расход за день МН: <b>{$counters.amount_mn_day_sum}</b><br/>
                             Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
-                            Текущий баланс: <b>{$realtime_balance} {$fixclient_data.currency}</b><br/>
+                            Текущий баланс: <b>{$realtime_balance|money:$fixclient_data.currency}</b><br/>
                         </td>
                     </tr>
                 </table>
