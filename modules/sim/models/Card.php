@@ -20,6 +20,7 @@ use yii\helpers\Url;
  * @property int $is_active
  * @property int $status_id
  * @property int $region_id
+ * @property int $sim_type_id
  *
  * @property-read ClientAccount $clientAccount
  * @property-read Imsi[] $imsies
@@ -113,6 +114,14 @@ class Card extends ActiveRecord
     public function getStatus()
     {
         return $this->hasOne(CardStatus::class, ['id' => 'status_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getType()
+    {
+        return $this->hasOne(CardType::class, ['id' => 'sim_type_id']);
     }
 
     /**

@@ -51,6 +51,10 @@ $model = $form->registry;
         <td><?= $model->count ?></td>
     </tr>
     <tr>
+        <td><label><?= $model->getAttributeLabel('sim_type_id'); ?></label></td>
+        <td><?= $model->type->name ?></td>
+    </tr>
+    <tr>
         <td><label><?= $model->getAttributeLabel('iccid_from'); ?></label></td>
         <td><?= $model->iccid_from ?></td>
     </tr>

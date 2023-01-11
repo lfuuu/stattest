@@ -2,6 +2,7 @@
 
 namespace app\modules\sim\forms\registry;
 
+use app\modules\sim\models\CardType;
 use app\modules\sim\models\Registry;
 use app\exceptions\ModelValidationException;
 use app\modules\sim\classes\RegistryState;
@@ -20,7 +21,8 @@ class Form extends \app\classes\Form
         $imsi_s1_from,
         $imsi_s1_to,
         $imsi_s2_from,
-        $imsi_s2_to
+        $imsi_s2_to,
+        $sim_type_id = CardType::ID_DEFAULT
     ;
 
     /** @var Registry */
@@ -46,8 +48,8 @@ class Form extends \app\classes\Form
     public function rules()
     {
         return [
-            [['region_sim_settings_id', 'iccid_from', 'iccid_to', 'imsi_from', 'imsi_to'], 'required'],
-            [['id', 'region_sim_settings_id'], 'integer'],
+            [['region_sim_settings_id', 'iccid_from', 'iccid_to', 'imsi_from', 'imsi_to', 'sim_type_id'], 'required'],
+            [['id', 'region_sim_settings_id', 'sim_type_id'], 'integer'],
             [['iccid_from', 'iccid_to'], 'string', 'max' => 16],
             [['imsi_from', 'imsi_to'], 'string', 'max' => 16],
             [['imsi_s1_from', 'imsi_s1_to'], 'string', 'min' => 15, 'max' => 15],
@@ -76,6 +78,8 @@ class Form extends \app\classes\Form
 
             'imsi_s2_from' => 'IMSI S2 с (15 символов)',
             'imsi_s2_to' => 'IMSI S2 по (15 символов)',
+
+            'sim_type_id' => 'Тип SIM-карты',
         ];
     }
 
@@ -116,6 +120,7 @@ class Form extends \app\classes\Form
                          'imsi_s1_to',
                          'imsi_s2_from',
                          'imsi_s2_to',
+                         'sim_type_id',
                      ] as $field) {
                 $this->registry->{$field} = $this->{$field};
             }

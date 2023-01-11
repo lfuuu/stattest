@@ -119,6 +119,12 @@ $columns = [
         },
     ],
     [
+        'attribute' => 'sim_type_id',
+        'value' => function (Registry $simHistory) {
+            return $simHistory->type->name;
+        },
+    ],
+    [
         'class' => ActionColumn::class,
         'template' => '{cancel} {view} {start}',
         'buttons' => [

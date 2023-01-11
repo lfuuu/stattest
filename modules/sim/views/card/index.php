@@ -225,6 +225,11 @@ $columns = [
         'format' => 'html',
     ],
     [
+        'attribute' => 'sim_type_id',
+        'class' => \app\modules\sim\columns\CardTypeColumn::class,
+        'format' => 'html',
+    ],
+    [
         'class' => ActionColumn::class,
         'template' => '{update}',
         'buttons' => [
