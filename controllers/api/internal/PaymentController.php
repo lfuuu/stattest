@@ -3,6 +3,7 @@
 namespace app\controllers\api\internal;
 
 use app\classes\Assert;
+use app\classes\payments\recognition\PaymentOwnerRecognition;
 use app\classes\validators\BillNoValidator;
 use app\classes\validators\FormFieldValidator;
 use app\classes\validators\JsonValidator;
@@ -96,6 +97,12 @@ class PaymentController extends ApiInternalController
             }
         }
 
+        $recognizer = PaymentOwnerRecognition::me();
+        if ($recognizedAccountId = $recognizer->who($model)) {
+            $model->account_id = $recognizedAccountId;
+        }
+
+
         $account = ClientAccount::find()->where(['id' => $model->account_id])->one();
         Assert::isObject($account, 'Account not found');
 
@@ -146,6 +153,8 @@ class PaymentController extends ApiInternalController
             $paymentInfo->channel = $payment->ecash_operator;
             $paymentInfo->payment_no = $payment->payment_no;
             $paymentInfo->info_json = $requestData['info_json'] ?? '';
+            $paymentInfo->log = $recognizer->getLog();
+
             unset($requestData['info_json']);
             $paymentInfo->request = json_encode($requestData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 

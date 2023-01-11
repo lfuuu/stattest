@@ -13,6 +13,7 @@ use yii\db\Expression;
  * @property int $request
  * @property int $channel
  * @property int $payment_no
+ * @property string $log
  */
 
 

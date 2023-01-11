@@ -7,6 +7,7 @@ use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Payment;
 use app\models\PaymentApiChannel;
+use app\models\PaymentApiInfo;
 use app\models\PaymentAtol;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
@@ -40,6 +41,7 @@ class PayReportFilter extends Payment
     public $uuid = '';
     public $uuid_status = '';
     public $uuid_log = '';
+    public $payment_api_log = '';
 
     /**
      * @return array
@@ -82,6 +84,7 @@ class PayReportFilter extends Payment
                     'comment',
                     'uuid',
                     'uuid_log',
+                    'payment_api_log'
                 ],
                 'string'
             ],
@@ -101,6 +104,7 @@ class PayReportFilter extends Payment
                 'uuid' => 'ID в онлайн-кассе',
                 'uuid_status' => 'Статус отправки в онлайн-кассу',
                 'uuid_log' => 'Лог отправки в онлайн-кассу / API Payment Info',
+                'payment_api_log' => 'Лог поиска ЛС',
             ];
     }
 
@@ -116,6 +120,7 @@ class PayReportFilter extends Payment
             ->joinWith('bill b')
             ->joinWith('paymentAtol')
             ->joinWith('apiInfo')
+            ->with('apiInfo')
         ;
 
         $dataProvider = new ActiveDataProvider([
@@ -175,6 +180,7 @@ class PayReportFilter extends Payment
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
         $this->uuid_status !== '' && $query->andWhere([$paymentAtolTableName . '.uuid_status' => $this->uuid_status]);
         $this->uuid_log !== '' && $query->andWhere(['LIKE', $paymentAtolTableName . '.uuid_log', $this->uuid_log]);
+        $this->payment_api_log !== '' && $query->andWhere(['LIKE', PaymentApiInfo::tableName() . '.log', $this->payment_api_log]);
 
         $this->total = "+" . $query->sum(new Expression('IF(p.sum > 0, p.sum, 0)')) . ' / ' . $query->sum(new Expression('IF(p.sum < 0, p.sum, 0)')) . ' ' . $this->currency;
 
