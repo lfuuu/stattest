@@ -278,6 +278,33 @@ $columns = [
             );
         }
     ],
+    [
+        'attribute' => 'payment_api_log',
+        'label' => $filterModel->getAttributeLabel('payment_api_log'),
+        'format' => 'raw',
+        'class' => StringColumn::class,
+        'contentOptions' => [
+            'class' => 'popover-width-auto',
+        ],
+        'value' => function (Payment $payment) {
+
+            if ($payment->apiInfo && $payment->apiInfo->log) {
+                return Html::tag(
+                    'button',
+                    $payment->apiInfo->log,
+                    [
+                        'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
+                        'data-toggle' => 'popover',
+                        'data-html' => 'true',
+                        'data-placement' => 'bottom',
+                        'data-content' => nl2br(htmlspecialchars($payment->apiInfo->log)),
+                    ]
+                );
+            }
+
+            return Yii::t('common', '(not set)');
+        }
+    ],
 ];
 
 $dataProvider = $filterModel->search();
