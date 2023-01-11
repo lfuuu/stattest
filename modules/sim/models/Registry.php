@@ -38,6 +38,7 @@ use yii\helpers\Url;
  * @property-read RegionSettings $regionSettings
  * @property-read RegionSettings $actualSettings
  * @property-read User $createdBy
+ * @property-read CardType $type
  */
 class Registry extends ActiveRecord
 {
@@ -55,8 +56,8 @@ class Registry extends ActiveRecord
     public function rules()
     {
         return [
-            [['state', 'region_sim_settings_id', 'iccid_from', 'iccid_to', 'imsi_from', 'imsi_to', 'count'], 'required'],
-            [['id', 'region_sim_settings_id', 'state', 'count', 'created_by'], 'integer'],
+            [['state', 'region_sim_settings_id', 'iccid_from', 'iccid_to', 'imsi_from', 'imsi_to', 'count', 'sim_type_id'], 'required'],
+            [['id', 'region_sim_settings_id', 'state', 'count', 'created_by', 'sim_type_id'], 'integer'],
             [['iccid_from', 'iccid_to'], 'string', 'max' => 16],
             [['imsi_from', 'imsi_to'], 'string', 'max' => 16],
             [['imsi_s1_from', 'imsi_s1_to'], 'string', 'min' => 15, 'max' => 15],
@@ -65,6 +66,7 @@ class Registry extends ActiveRecord
             [['created_at', 'updated_at', 'started_at', 'completed_at'], 'safe'],
             //[['updated_at', 'started_at', 'completed_at'], 'safe'],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['created_by' => 'id']],
+            [['sim_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => CardType::class, 'targetAttribute' => ['sim_type_id' => 'id']],
         ];
     }
 
@@ -105,6 +107,7 @@ class Registry extends ActiveRecord
             'completed_at' => 'Завершён',
 
             'created_by' => 'Кем создан',
+            'sim_type_id' => 'Тип карты',
         ];
     }
 
@@ -437,6 +440,14 @@ class Registry extends ActiveRecord
     public function getCreatedBy()
     {
         return $this->hasOne(User::class, ['id' => 'created_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getType()
+    {
+        return $this->hasOne(CardType::class, ['id' => 'sim_type_id']);
     }
 
     /**

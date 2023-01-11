@@ -27,7 +27,7 @@ class RegistryController extends Controller
         return Registry::find()
             ->with('regionSettings.region')
             ->with('regionSettings.parent')
-            ->where(['=', 'state', RegistryState::STARTED])
+            ->where(['state' => [RegistryState::STARTED]])
             ->orderBy([
                 'updated_at' => SORT_ASC,
                 'created_at' => SORT_ASC,

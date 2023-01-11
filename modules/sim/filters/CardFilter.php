@@ -32,6 +32,7 @@ class CardFilter extends Card
     public $profile_id = '';
     public $entry_point_id = '';
     public $region_id = '';
+    public $sim_type_id = '';
 
     /**
      * @return array
@@ -40,7 +41,7 @@ class CardFilter extends Card
     {
         return [
             [[/*'iccid', */ 'iccid_from', 'iccid_to', 'imei', 'client_account_id', 'is_active', 'status_id', 'profile_id', 'entry_point_id', 'region_id'], 'integer'], // card
-            [['imsi', 'msisdn', 'did', 'imsi_partner'], 'integer'], // imsi
+            [['imsi', 'msisdn', 'did', 'imsi_partner', 'sim_type_id'], 'integer'], // imsi
         ];
     }
 
@@ -93,6 +94,7 @@ class CardFilter extends Card
         $this->imsi_partner && $query->andWhere([$imsiTableName . '.partner_id' => $this->imsi_partner]);
         $this->profile_id && $query->andWhere([$imsiTableName . '.profile_id' => $this->profile_id]);
         $this->region_id && $query->andWhere([$cardTableName . '.region_id' => $this->region_id]);
+        $this->sim_type_id && $query->andWhere([$cardTableName . '.sim_type_id' => $this->sim_type_id]);
 
         if ($this->entry_point_id) {
             $queryAccount = clone $query;

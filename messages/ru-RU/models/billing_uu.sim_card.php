@@ -8,4 +8,5 @@ return [
     'status_id' => 'Статус',
     'region_id' => 'Регион',
     'entry_point_id' => 'Точка подключения',
+    'sim_type_id' => 'Тип карты',
 ];

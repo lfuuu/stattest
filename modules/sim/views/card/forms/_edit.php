@@ -12,6 +12,7 @@ use yii\widgets\ActiveForm;
  * @var \app\classes\BaseView $this
  * @var Card $card
  * @var string $regionName
+ * @var string $simTypeId
  * @var string $activeFormId
  * @var string $submitButtonId
  */
@@ -63,7 +64,10 @@ $optionDisable = $isAllowEdit ? [] : ['disabled' => true];
     </div>
 
     <div class="col-sm-2">
-
+        <?= $form->field($card, 'sim_type_id')->textInput([
+            'disabled' => true,
+            'value' => $card->type->name,
+        ]) ?>
     </div>
 </div>
 

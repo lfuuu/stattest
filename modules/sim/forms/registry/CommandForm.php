@@ -162,6 +162,7 @@ class CommandForm extends Form
                 $simCard->is_active = 1;
                 $simCard->status_id = CardStatus::ID_DEFAULT;
                 $simCard->region_id = $model->regionSettings->region_id;
+                $simCard->sim_type_id = $model->sim_type_id;
                 //$simCard->save();
                 $batchInsertICCIDs[] = $simCard->toArray();
             }

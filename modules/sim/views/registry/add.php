@@ -252,6 +252,29 @@ echo Html::formLabel($this->title);
             'columns' => count($line5Attributes),
             'attributes' => $line5Attributes
         ]);
+
+        // строка 6
+        $line6Attributes = [];
+
+        $line6Attributes = $addText($line6Attributes);
+        $line6Attributes = $addText($line6Attributes);
+
+        $line6Attributes['sim_type_id'] = [
+            'type' => Form::INPUT_DROPDOWN_LIST,
+            'items' => \app\modules\sim\models\CardType::getList($isWithEmpty = true),
+            'options' => [
+                'class' => 'select2',
+                'maxlength'=>15,
+                'style'=>'width:300px',
+            ],
+        ];
+
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => count($line6Attributes),
+            'attributes' => $line6Attributes
+        ]);
     ?>
 
         <div style="height: 30px;">
