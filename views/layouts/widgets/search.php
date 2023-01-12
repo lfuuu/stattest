@@ -24,7 +24,7 @@ $request = Yii::$app->request->get();
         </div>
         <div class="col-sm-9">
 
-            <div class="dropdown">
+            <div class="dropdown" id="btn-options">
                 <button type="submit" class="btn btn-link btn-xs">Искать по</button>
 
                 <button id="title_search" class="btn btn-primary dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
