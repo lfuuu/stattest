@@ -152,6 +152,7 @@ class SimController extends ApiInternalController
             'region' => $this->regionRecord($card->region_id),
             'status' => $this->_getIdNameRecord($card->status),
             'imsies' => $this->simImsiesRecord($card->imsies),
+            'sim_type' => $this->_getIdNameRecord($card->type),
         ];
     }
 
