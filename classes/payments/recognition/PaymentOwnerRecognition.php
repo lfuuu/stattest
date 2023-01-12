@@ -25,7 +25,8 @@ class PaymentOwnerRecognition extends Singleton
         $info = json_decode($model->info_json, true);
 
         if (!isset($info['paymentPurpose']) || !$info['paymentPurpose']) {
-            $this->logger->add('Пустое описание');
+            return;
+//            $this->logger->add('Пустое описание');
         } else {
 
             $purpose = $info['paymentPurpose'];
