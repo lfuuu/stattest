@@ -15,6 +15,7 @@ use app\modules\sim\models\RegionSettings;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\web\Response;
 
 class SimController extends ApiInternalController
 {
@@ -443,4 +444,48 @@ class SimController extends ApiInternalController
     }
 
 
+    /**
+     * @SWG\Get(tags = {"SIM-card"}, path = "/internal/sim/get-imsi-token-qrcode", summary = "Получение токена QR-кода токена IMSI", operationId = "GetImsiTokenQrCode",
+     *   @SWG\Parameter(name = "imsi", type = "integer", description = "IMSI", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "asImage", type = "integer", description = "as Image", in = "query", required = false, default = "0"),
+     *
+     *   @SWG\Response(response = 200, description = "Получение токена QR-кода токена IMSI",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @return array
+     */
+    public function actionGetImsiTokenQrcode($imsi, $asImage = false)
+    {
+        /** @var Imsi $imsiModel */
+        $imsiModel = Imsi::find()->where(['imsi' => $imsi])->one();
+
+        if (!$imsiModel) {
+            throw new \InvalidArgumentException('IMSI not found');
+        }
+
+        $imsiToken = $imsiModel->token;
+
+        if (!$imsiToken) {
+            throw new \InvalidArgumentException('IMSI token not found');
+        }
+
+        $data = $imsiToken->getTokenQrCode();
+
+        if (!$asImage) {
+            return $data;
+        }
+
+        // out as image
+        \Yii::$app->response->content = base64_decode($data['image']);
+        \Yii::$app->response->format = Response::FORMAT_RAW;
+        \Yii::$app->response->headers->set('Content-Type', $data['mime_type']);
+        \Yii::$app->response->send();
+
+        \Yii::$app->end();
+    }
 }
