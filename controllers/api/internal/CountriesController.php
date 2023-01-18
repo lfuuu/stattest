@@ -4,6 +4,7 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\helpers\ArrayHelper;
+use app\classes\helpers\DependecyHelper;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\models\City;
@@ -15,6 +16,7 @@ use app\models\Number;
 use app\models\Region;
 use app\modules\uu\models\AccountTariff;
 use InvalidArgumentException;
+use yii\caching\TagDependency;
 use yii\db\Expression;
 
 class CountriesController extends ApiInternalController
@@ -94,10 +96,23 @@ class CountriesController extends ApiInternalController
 
     private function _getCities($countryId, $withNumbers, $withNdcs, $withNdcTypeIds, $isApi)
     {
-
         if (!$countryId || !($country = Country::findOne($countryId))) {
             throw new BadRequestHttpException;
         }
+
+        $cacheKey = implode('-', array_map(function ($a) {
+            if (is_bool($a)) {
+                $a = (int)$a;
+            }
+            return (string)$a;
+        }, [$countryId, $withNumbers, $withNdcs, $withNdcTypeIds, $isApi]));
+
+        $value = \Yii::$app->cache->get($cacheKey);
+
+        if ($value) {
+            return $value;
+        }
+
 
         $showLevelWhere = ['is_show_in_lk' => City::IS_SHOW_IN_LK_FULL];
         $isApi && $showLevelWhere = ['>=', 'is_show_in_lk', City::IS_SHOW_IN_LK_API_ONLY];
@@ -157,7 +172,7 @@ class CountriesController extends ApiInternalController
                 ->asArray()
                 ->all();
 
-            foreach($ndcTypeIdsPreData as $d) {
+            foreach ($ndcTypeIdsPreData as $d) {
                 $ndcTypeIdsData[$d['city_id']][$d['ndc']] = $d['ndc_type_id'];
             }
         }
@@ -168,7 +183,7 @@ class CountriesController extends ApiInternalController
 
             $ndcs = $withNdcs && isset($ndcsData[$city->id]) ? explode(",", $ndcsData[$city->id]) : [];
 
-            $ndcTypeIds = $withNdcTypeIds && isset($ndcTypeIdsData[$city->id]) ? $ndcTypeIdsData[$city->id]: [];
+            $ndcTypeIds = $withNdcTypeIds && isset($ndcTypeIdsData[$city->id]) ? $ndcTypeIdsData[$city->id] : [];
 
             $result[] = [
                 'city_id' => $city->id,
@@ -181,6 +196,8 @@ class CountriesController extends ApiInternalController
                 'ndc_type_ids' => $ndcTypeIds,
             ];
         }
+
+        \Yii::$app->cache->set($cacheKey, $result, DependecyHelper::TIMELIFE_3MINUTE, new TagDependency(['tags' => [DependecyHelper::TAG_USAGE]]));
 
         return $result;
     }
