@@ -97,7 +97,8 @@ class PaymentController extends ApiInternalController
             }
         }
 
-        if ($recognizedAccountId = PaymentOwnerRecognition::me()->who($model)) {
+        $recognizer = PaymentOwnerRecognition::me();
+        if ($recognizedAccountId = $recognizer->who($model)) {
             $model->account_id = $recognizedAccountId;
         }
 

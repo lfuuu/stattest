@@ -1639,7 +1639,8 @@ class UuController extends ApiInternalController
         }
 
         /** @var AccountTariffLog $firstTariff */
-        $lastLog = end($accountTariff->accountTariffLogs);
+        $accountTariffLogs = $accountTariff->accountTariffLogs;
+        $lastLog = end($accountTariffLogs);
         $isDefaultTariff = true;
 
         if ($lastLog && $lastLog->tariff_period_id) {

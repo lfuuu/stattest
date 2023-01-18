@@ -435,7 +435,7 @@ trait AccountTariffPackageTrait
             }
         }
 
-        return $internetDataCache[$did][$this->id];
+        return $internetDataCache[$did][$this->id] ?? [];
     }
 
     public function getSmsStatistic()
