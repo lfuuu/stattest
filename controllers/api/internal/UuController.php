@@ -2597,7 +2597,7 @@ class UuController extends ApiInternalController
 
         $query = ClientAccount::find()
             ->alias('c')
-            ->joinWith('accountTariffs at', true, 'INNER JOIN')
+            ->joinWith('accountTariffs at', false, 'INNER JOIN')
             ->select(['at.service_type_id', 'at.client_account_id', 'contract_id'])
             ->distinct()
             ->orderBy(['contract_id' => SORT_ASC, 'client_account_id' => SORT_ASC, 'service_type_id' => SORT_ASC])
