@@ -3,6 +3,7 @@
 namespace app\modules\nnp\commands;
 
 use app\modules\nnp\classes\FtpSsh2Downloader;
+use app\modules\nnp\classes\RouteMncDownloader;
 use app\modules\nnp\models\Country;
 use yii\base\InvalidConfigException;
 use yii\console\ExitCode;
@@ -34,6 +35,30 @@ use yii\web\NotFoundHttpException;
  */
 class PortedRussiaController extends PortedController
 {
+    const SCHEMA = [
+        'table' => 'nnp_ported.number',
+        'pk' => 'full_number',
+        'fields' => [
+            'full_number' => 'BIGINT NOT NULL',
+            'operator_source' => 'CHARACTER VARYING(255)',
+            'operator_id' => 'integer',
+            'mnc' => 'character(2)',
+            'route' => 'character(5)',
+            'region_code_fz' => 'character(2)',
+            'ported_date' => 'timestamp with time zone',
+        ],
+        'set' => [
+            'operator_id' => <<< SQL
+CASE WHEN number_tmp.operator_id IS NOT NULL THEN number_tmp.operator_id ELSE
+    CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE
+    NULL 
+    END
+END
+SQL
+
+        ]
+    ];
+
     /**
      * @inheritdoc
      * @throws \yii\base\InvalidParamException
@@ -71,8 +96,12 @@ class PortedRussiaController extends PortedController
 
             $operatorName = $row[1];
             $operatorName = substr($operatorName, 1); // удалить первую 'm'
+            $mnc = $row[2];
+            $route = $row[3];
+            $fzRegionCode = $row[4];
+            $portDate = $row[5];
 
-            $insertValues[] = [$number, $operatorName];
+            $insertValues[] = [$number, $operatorName, null, $mnc, $route, $fzRegionCode, $portDate];
 
             if (count($insertValues) >= self::CHUNK_SIZE) {
                 $this->insertValues(Country::RUSSIA, $insertValues);
