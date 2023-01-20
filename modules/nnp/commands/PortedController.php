@@ -15,7 +15,7 @@ abstract class PortedController extends Controller
     const CHUNK_SIZE = 500000;
 
     /** @var Connection */
-    private $_db = null;
+    protected $_db = null;
 
     public $fileName = '';
 
@@ -83,23 +83,46 @@ abstract class PortedController extends Controller
      * @throws \yii\db\Exception
      * @throws \LogicException
      */
-    protected function insertValues($countryCode, &$insertValues, $fields = ['full_number', 'operator_source'])
+    protected function insertValues($countryCode, &$insertValues)
     {
-        echo PHP_EOL;
+        $schema = get_class($this)::SCHEMA;
+
+        if (!$schema || !isset($schema['fields']) || !isset($schema['pk'])) {
+            throw new \InvalidArgumentException('Schema not configured');
+        }
+
+        $tableName = $schema['table'] ?? nnpNumber::tableName();
+
+        $fieldsWithType = '';
+        $fields = [];
+        $fieldsStr = '';
+        $textFields = [];
+        foreach ($schema['fields'] as $field => $type) {
+            $fieldsWithType .= ($fieldsWithType ? ', ' : '') . $field . ' ' . $type;
+            $fieldsStr .= ($fieldsStr ? ', ' : '') . $field;
+            $fields[] = $field;
+            $type = strtolower($type);
+            if (strpos($type, 'character') !== false || strpos($type, 'text') !== false) {
+                $textFields[$field] = 1;
+            }
+        }
+
+        $pk = $schema['pk'];
 
         // Создать временную таблицу
         $sql = <<<SQL
             CREATE TEMPORARY TABLE number_tmp
             (
                 id SERIAL NOT NULL,
-                full_number BIGINT NOT NULL,
-                operator_source CHARACTER VARYING(255),
-                operator_id integer 
+                {$fieldsWithType}
             )
 SQL;
+
         // CONSTRAINT number_tmp_pkey PRIMARY KEY (id)
         $this->_db->createCommand('DROP TABLE IF EXISTS number_tmp')->execute();
         $this->_db->createCommand($sql)->execute();
+
+//        $q = $this->_db->createCommand()->batchInsert('number_tmp', $fields, $insertValues)->rawSql;
 
         // Добавить в нее данные
         $this->_db->createCommand()
@@ -107,43 +130,47 @@ SQL;
             ->execute();
         $insertValues = [];
 
-        // создать индекс
-//        $sql = <<<SQL
-//            CREATE INDEX number_tmp_full_number_idx ON number_tmp USING btree (full_number)
-//SQL;
-//        $this->_db->createCommand($sql)->execute();
-//        echo '# ';
 
         // удалить дубли
         $sql = <<<SQL
-            WITH t1 AS (SELECT MAX(id) AS max_id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
-            DELETE FROM number_tmp
-            USING t1
-            WHERE number_tmp.full_number = t1.full_number AND number_tmp.id < t1.max_id
+        WITH t1 AS (SELECT MAX(id) AS max_id, {$pk} FROM number_tmp GROUP BY {$pk} HAVING COUNT(*) > 1)
+        DELETE FROM number_tmp
+        USING t1
+        WHERE number_tmp.{$pk} = t1.{$pk} AND number_tmp.id < t1.max_id
 SQL;
         $affectedRows = $this->_db->createCommand($sql)->execute();
         echo sprintf('Дублей: %d' . PHP_EOL, $affectedRows);
 
-        // обновить
-        $tableName = nnpNumber::tableName();
         $sql = <<<SQL
             UPDATE
                 {$tableName} number
             SET
-                operator_source = number_tmp.operator_source,
-                operator_id =
-                    CASE WHEN number_tmp.operator_id IS NOT NULL THEN number_tmp.operator_id ELSE
-                        CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE
-                        NULL 
-                        END
-                    END
-                
+SQL;
+
+        $sqlSet = '';
+        $sqlWhereOr = '';
+        foreach ($fields as $field) {
+            $updateSetSql = null;
+            if (isset($schema['set'][$field])) {
+                $updateSetSql = $schema['set'][$field];
+            }
+            $sqlSet .= ($sqlSet ? ',' . PHP_EOL : '') . "{$field} = " . ($updateSetSql ?? "number_tmp.{$field}");
+            if ($field != $pk) {
+                $castType = !isset($textFields[$field]) ? "::text" : "";
+                $sqlWhereOr .= ($sqlWhereOr ? PHP_EOL . ' OR ' : '') . "coalesce(number.{$field}{$castType}, '') != coalesce(" . ($updateSetSql ?? "number_tmp.{$field}") . $castType . ", '')";
+            }
+        }
+        $sql .= <<<SQL
+                {$sqlSet}
             FROM
                 number_tmp
             WHERE
-                number.full_number = number_tmp.full_number
+                number.{$pk} = number_tmp.{$pk}
+                and (
+                    {$sqlWhereOr}
+                )
 SQL;
-//        operator_id = CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE NULL END
+
         $affectedRows = $this->_db->createCommand($sql)->execute();
         echo sprintf('Обновлено: %d' . PHP_EOL, $affectedRows);
 
@@ -154,7 +181,7 @@ SQL;
             USING
                 {$tableName} number
             WHERE
-                number.full_number = number_tmp.full_number
+                number.{$pk} = number_tmp.{$pk}
 SQL;
         $this->_db->createCommand($sql)->execute();
 
@@ -164,16 +191,12 @@ SQL;
                 {$tableName}
             (
                 country_code,
-                full_number,
-                operator_source,
-                operator_id
+                {$fieldsStr}
             )
-            WITH t1 AS (SELECT MAX(id) as id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
+            WITH t1 AS (SELECT MAX(id) as id, {$pk} FROM number_tmp GROUP BY {$pk} HAVING COUNT(*) > 1)
             SELECT 
                 :country_code as country_code, 
-                full_number,
-                operator_source,
-                operator_id
+                {$fieldsStr}
             FROM
                 number_tmp
 SQL;
