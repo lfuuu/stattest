@@ -13,11 +13,14 @@ use yii\db\Connection;
 abstract class PortedController extends Controller
 {
     const CHUNK_SIZE = 500000;
+    const PERCENT_AVAILABLE_FOR_DELETION = 10;
 
     /** @var Connection */
     protected $_db = null;
 
     public $fileName = '';
+
+    protected $_isTrackingForDeletion = false;
 
     /**
      * Список возможных параметров при вызове метода
@@ -53,7 +56,6 @@ abstract class PortedController extends Controller
         // $transaction = $this->_db->beginTransaction();
         try {
             echo PHP_EOL . 'Начало импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
-
             $this->readData();
             // $transaction->commit();
             echo PHP_EOL . 'Окончание импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
@@ -90,6 +92,8 @@ abstract class PortedController extends Controller
         if (!$schema || !isset($schema['fields']) || !isset($schema['pk'])) {
             throw new \InvalidArgumentException('Schema not configured');
         }
+
+        $this->_isTrackingForDeletion && $this->addValuesTrackingForDeletion($insertValues);
 
         $tableName = $schema['table'] ?? nnpNumber::tableName();
 
@@ -209,9 +213,97 @@ SQL;
         $this->_db->createCommand($sql)->execute();
     }
 
+    public function startTrackingForDeletion()
+    {
+        $schema = get_class($this)::SCHEMA;
+
+        if (!$schema || !isset($schema['fields']) || !isset($schema['pk'])) {
+            throw new \InvalidArgumentException('Schema not configured');
+        }
+
+        $this->_isTrackingForDeletion = true;
+
+        $pk = $schema['pk'];
+
+        $this->_db->createCommand("DROP TABLE IF EXISTS number_for_del")->execute();
+//        $this->_db->createCommand("TRUNCATE number_for_del")->execute();
+
+        $sql = <<<SQL
+            CREATE TEMPORARY TABLE number_for_del
+            (
+                {$pk} {$schema['fields'][$pk]},
+                CONSTRAINT number_for_del_pkey PRIMARY KEY ({$pk})
+            )
+SQL;
+
+        $this->_db->createCommand($sql)->execute();
+    }
+
+    public function addValuesTrackingForDeletion(&$insertData)
+    {
+        $schema = get_class($this)::SCHEMA;
+        $pk = $schema['pk'];
+        $pkFieldIdx = array_search($pk, array_keys($schema['fields']));
+
+        $data = [];
+        array_walk($insertData, function ($v) use (&$data, $pkFieldIdx, $pk) {
+            $data[] = [$pk => $v[$pkFieldIdx]];
+        });
+
+        $sql = $this->_db->createCommand()->batchInsert('number_for_del', [$pk], $data)->rawSql;
+        $sql .= " ON CONFLICT({$pk}) DO NOTHING";
+
+        $this->_db->createCommand($sql)->execute();
+    }
+
+    public function endTrackingForDeletion($countryCode)
+    {
+        $schema = get_class($this)::SCHEMA;
+        $pk = $schema['pk'];
+        $table = $schema['table'];
+        $sqlCount = <<<SQL
+                SELECT count(n.{$pk}) FROM {$table} n
+                LEFT JOIN number_for_del d USING ({$pk})
+                WHERE d.{$pk} IS NULL AND n.country_code = {$countryCode}
+SQL;
+
+        $countDel = $this->_db->createCommand($sqlCount)->queryScalar();
+        $countAll = $this->_db->createCommand("SELECT count(*) FROM {$table} WHERE country_code = {$countryCode}")->queryScalar();
+
+        echo PHP_EOL . 'Всего записей: ' . $countAll;
+        echo PHP_EOL . 'На удаление: ' . $countDel;
+
+        if ($countDel) {
+            $percent = round(($countDel / ($countAll / 100)), 2);
+            echo ' (' . $percent . '%)';
+            echo PHP_EOL;
+
+            if ($percent > self::PERCENT_AVAILABLE_FOR_DELETION) {
+                throw new \LogicException("Удаляется слишком много данных ({$percent} % > " . self::PERCENT_AVAILABLE_FOR_DELETION . " %)");
+            }
+
+
+            $sql = <<<SQL
+            WITH d AS (
+                SELECT n.{$pk} FROM {$table} n
+                LEFT JOIN number_for_del d USING ({$pk})
+                WHERE d.{$pk} IS NULL AND n.country_code = {$countryCode}
+            )
+            DELETE FROM {$table} n
+            USING d
+            WHERE n.{$pk} = d.{$pk} AND n.country_code = {$countryCode} 
+SQL;
+
+            $affectedRows = $this->_db->createCommand($sql)->execute();
+            printf(PHP_EOL . 'Удалено %s строк', $affectedRows);
+        }
+
+        $this->_isTrackingForDeletion = false;
+    }
+
     public function actionNotifyEventPortedNumber()
     {
-        Number::notifySync();
+//        Number::notifySync();
 
         return ExitCode::OK;
     }

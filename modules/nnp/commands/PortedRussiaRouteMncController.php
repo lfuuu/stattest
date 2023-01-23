@@ -62,6 +62,7 @@ class PortedRussiaRouteMncController extends PortedController
             $sheet = $excel->getSheet(0);
 
             $insertValues = [];
+            $this->startTrackingForDeletion();
             foreach ($sheet->getRowIterator(2) as $xlsRow) {
                 $cellIterator = $xlsRow->getCellIterator();
                 $cellIterator->setIterateOnlyExistingCells(false); // Loop all cells, even if it is not set
@@ -108,6 +109,7 @@ class PortedRussiaRouteMncController extends PortedController
             if ($insertValues) {
                 $this->insertValues(Country::RUSSIA, $insertValues);
             }
+            $this->endTrackingForDeletion(Country::RUSSIA);
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();

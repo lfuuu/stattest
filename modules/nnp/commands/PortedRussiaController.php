@@ -80,6 +80,7 @@ SQL
         fgetcsv($fp, 0); // пропустить первую строчку с заголовком
 
         $insertValues = [];
+        $this->startTrackingForDeletion();
         while (($row = fgetcsv($fp, 0)) !== false) {
 
             if (count($row) < 7) {
@@ -113,6 +114,7 @@ SQL
         if ($insertValues) {
             $this->insertValues(Country::RUSSIA, $insertValues);
         }
+        $this->endTrackingForDeletion(Country::RUSSIA);
     }
 
     /**
