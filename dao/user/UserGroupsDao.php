@@ -18,7 +18,7 @@ class UserGroupsDao extends Singleton
     {
         static $res = [];
 
-        if ($res[$key]) {
+        if (isset($res[$key])) {
             return $res[$key];
         }
 
@@ -27,7 +27,7 @@ class UserGroupsDao extends Singleton
         $users = User::find()
             ->alias('u')
             ->select(['u.id', 'u.user', 'u.name', 'g.comment', 'u.enabled'])
-            ->innerJoinWith('group g')
+            ->innerJoinWith('group g', false)
             ->orderBy(['g.comment' => SORT_ASC, 'u.enabled' => SORT_ASC ,'u.name' => SORT_ASC])
             ->asArray()
             ->all();
