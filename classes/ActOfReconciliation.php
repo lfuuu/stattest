@@ -47,7 +47,7 @@ class ActOfReconciliation extends Singleton
 
         $dateFromFormated = (new \DateTimeImmutable($dateFrom))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
         $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
-        $lang = $account->contragent->lang_code; 
+        $lang = $account->contragent->lang_code;
 
         $result[] = [
             'type' => 'saldo',
@@ -151,7 +151,7 @@ WHERE b.client_id = ' . $account->id . '
             ->from(['a' => $query])
             ->orderBy([($sortByBillDate ? 'bill_date' : 'date') => SORT_ASC, 'a.id' => SORT_ASC])
             ->all();
-        
+
         foreach ($arr as $item) {
             $isInvoice = $item['type'] == 'invoice';
             $date = (new \DateTimeImmutable($item['date']))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
@@ -159,22 +159,22 @@ WHERE b.client_id = ' . $account->id . '
 
             if ($lang == Language::LANGUAGE_RUSSIAN) {
                 $description = $isInvoice
-                ? ($item['payment_type'] == Invoice::TYPE_GOOD ? 'Накладная' : 'Акт') . ' (' . $date . ', №' . $item['number'] . ')'
-                : (
-                ($item['payment_type'] == 'creditnote')
-                    ? 'Кредит-нота от ' . $date
-                    : 'Оплата' . ' (' . $date . ', №' . $item['number'] . ')'
-                );
+                    ? ($item['payment_type'] == Invoice::TYPE_GOOD ? 'Накладная' : 'Акт') . ' (' . $date . ', №' . $item['number'] . ')'
+                    : (
+                    ($item['payment_type'] == 'creditnote')
+                        ? 'Кредит-нота от ' . $date
+                        : 'Оплата' . ' (' . $date . ', №' . $item['number'] . ')'
+                    );
             } else {
                 $description = $isInvoice
-                ? ($item['payment_type'] == Invoice::TYPE_GOOD ? 'Waybill' : 'Invoice') . ' (' . $date . ', №' . $item['number'] . ')'
-                : (
-                ($item['payment_type'] == 'creditnote')
-                    ? 'Credit note from ' . $date
-                    : 'Payment' . ' (' . $date . ', №' . $item['number'] . ')'
-                );
+                    ? ($item['payment_type'] == Invoice::TYPE_GOOD ? 'Waybill' : 'Invoice') . ' (' . $date . ', №' . $item['number'] . ')'
+                    : (
+                    ($item['payment_type'] == 'creditnote')
+                        ? 'Credit note from ' . $date
+                        : 'Payment' . ' (' . $date . ', №' . $item['number'] . ')'
+                    );
             }
-            
+
             if ($item['type'] == 'bill') {
                 // select count(*) from newbill_lines where bill_no = '202012-018854' and id_service is not null
                 $isServiceBill = BillLine::find()->where(['bill_no' => $item['number']])->andWhere(['NOT', ['id_service' => null]])->exists();
@@ -191,7 +191,7 @@ WHERE b.client_id = ' . $account->id . '
                     'income_sum' => $sum > 0 ? $sum : '',
                     'outcome_sum' => $sum < 0 ? -$sum : '',
                 ] + ($isInvoice ? ['correction_idx' => $item['correction_idx']] : ['add_datetime' => $item['add_datetime']])
-            + ($item['type'] == 'bill' ? ['is_invoice_created' => $isServiceBill && $isInvoiceCreated] : []);
+                + ($item['type'] == 'bill' ? ['is_invoice_created' => $isServiceBill && $isInvoiceCreated] : []);
 
             $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
         }
@@ -284,7 +284,7 @@ WHERE b.client_id = ' . $account->id . '
         });
 
         $sumNotInInvoice = 0;
-        array_walk($d, function($v) use (&$sumNotInInvoice) {
+        array_walk($d, function ($v) use (&$sumNotInInvoice) {
             $sumNotInInvoice += (float)$v['outcome_sum'] - (float)$v['income_sum'];
         });
 
@@ -376,7 +376,7 @@ WHERE b.client_id = ' . $account->id . '
             if (!$findDate) {
                 $findDate = date('Y-m-d', strtotime('first day of this month', strtotime($row['date'])));
                 $result[] = $row;
-                $balance += $row['income_sum'] - $row['outcome_sum'];
+                $balance += (float)$row['income_sum'] - (float)$row['outcome_sum'];
                 continue;
             }
 
@@ -396,7 +396,7 @@ WHERE b.client_id = ' . $account->id . '
                         'type' => 'month',
                         'date' => $findDate,
                         'add_datetime' => $setDateTime($findDate, true),
-                        'balance' => round($balance, 2),
+                        'balance' => $balance,
                         'description' => 'month_balance',
                     ];
 
@@ -405,7 +405,7 @@ WHERE b.client_id = ' . $account->id . '
             }
             $result[] = $row;
             if ($row['type'] != 'bill') {
-                $balance += $row['income_sum'] - $row['outcome_sum'];
+                $balance += (float)$row['income_sum'] - (float)$row['outcome_sum'];
             }
 
         }
@@ -422,10 +422,25 @@ WHERE b.client_id = ' . $account->id . '
         }
 
         if (!$isWithCorrection) {
+            $this->_typeCast($result);
             return $result;
         }
 
-        return $this->makingAdjustments($account, $result);
+        $result = $this->makingAdjustments($account, $result);
+        $this->_typeCast($result);
+
+        return $result;
+    }
+
+    private function _typeCast(&$result)
+    {
+        array_walk($result, function (&$v) {
+            foreach (['income_sum', 'outcome_sum', 'balance'] as $field) {
+                if (isset($v[$field]) && $v[$field] !== '') {
+                    $v[$field] = round($v[$field], 2);
+                }
+            }
+        });
     }
 
     protected function makingAdjustments(ClientAccount $account, $result)
