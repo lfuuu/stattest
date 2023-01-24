@@ -93,7 +93,7 @@ $invoiceExt = BillExternal::find()
     ->with('bill')
     ->where(['b.client_id' => $account->id])
     ->orderBy([
-        new Expression("STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')") => SORT_ASC,
+        "STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')" => SORT_ASC,
         'bill_date' => SORT_ASC,
         'b.id' => SORT_ASC,
     ])
@@ -315,7 +315,9 @@ foreach ($billsPlus as $bill) {
     $invoice = $billInvoiceCorrectionIds[$bill->id] ?? null;
     if ($invoice) {
         $v = [
+            'id' => $invoice->id,
             'number' => $invoice->number,
+            'is_correction' => false,
 //            'link' => $invoice->link,
             'date' => $bill->bill_date,
             'sum' => round($invoice->sum, 2),
@@ -857,7 +859,10 @@ function cellContentOptions($is_paid, $addClass = '')
                         }
 
                         $return = '';
-                        $sumInv = $sumInvoice[$row->bill['number']] ?? null;
+                        $sumInv = null;
+                        if ($row->bill) {
+                            $sumInv = $sumInvoice[$row->bill['number']] ?? null;
+                        }
                         if ($sumInv !== null && abs($row->bill['sum'] - $sumInv) > 0.01) {
                             $return .= Html::tag('span', nf($sumInvoice[$row->bill['number']] ?? ''), [
                                         'class' => 'text-danger',
