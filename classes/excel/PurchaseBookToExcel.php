@@ -78,7 +78,7 @@ class PurchaseBookToExcel extends Excel
             $worksheet->setCellValueByColumnAndRow(0, $rowsCounter, $counter);
             $worksheet->setCellValueByColumnAndRow(1, $rowsCounter, '01');
             $worksheet->setCellValueByColumnAndRow(2, $rowsCounter, $chunk['bill_no'] .' от '. $chunk['ext_invoice_date']);
-            $worksheet->setCellValueByColumnAndRow(3, $rowsCounter, $chunk['correction_number'] ? $chunk['correction_number'] . ' от ' . $chunk['correction_date'] : '');
+            $worksheet->setCellValueByColumnAndRow(3, $rowsCounter, ($chunk['correction_number'] ?? null) ? $chunk['correction_number'] . ' от ' . $chunk['correction_date'] : '');
             $worksheet->setCellValueByColumnAndRow(7, $rowsCounter, $chunk['ext_invoice_date']);
             $worksheet->setCellValueByColumnAndRow(8, $rowsCounter, $chunk['name_full']);
             $worksheet->setCellValueByColumnAndRow(9, $rowsCounter, $chunk['legal_type'] != 'person' ? $chunk['inn']. '/'. $chunk['kpp'] : '');

@@ -5870,7 +5870,7 @@ ORDER BY " . $dateField . ", sum DESC";
             ->where(['bill_no' => $row['newbills_bill_no']])
             ->one();
            
-            if ($billCorrDate['correction_number'] != null) {
+            if ($billCorrDate && $billCorrDate['correction_number'] ?? null) {
                 $data[$i]['correction_number'] = $billCorrDate['correction_number'];
                 $data[$i]['correction_date'] = date('d.m.Y', strtotime($billCorrDate['date_created']));
             }
