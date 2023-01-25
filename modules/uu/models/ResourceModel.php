@@ -91,6 +91,7 @@ class ResourceModel extends ActiveRecord
     const ID_NNP_NUMBERS = 44; // ННП. Кол-во номеров
 
     const ID_CALLTRACKING = 45;
+    const ID_CALLTRACKING_ADDITIONAL_SITES = 70; // Calltracking. Количество дополнительных сайтов
 
     // SIP-Trunk
     const ID_CALLLIMIT = 46;
@@ -434,7 +435,7 @@ class ResourceModel extends ActiveRecord
             FROM {$tariffTableName}
             WHERE service_type_id = {$serviceTypeId};
 SQL;
-        $db->createCommand($sql)->execute();
+//        $db->createCommand($sql)->execute(); // already in Migration::insertResource
 
 
         if ($this->isOption()) {
