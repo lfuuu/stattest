@@ -1955,6 +1955,8 @@ class m_newaccounts extends IModule
 
             $allowTypes = array_merge($D['Счет-фактура'], $D['Акт'], $D['УПД']);
 
+            $isMultipleDocs = false;
+
             foreach ($D as $k => $rs) {
                 $counter = 1;
                 foreach ($rs as $r) {
@@ -2014,14 +2016,18 @@ class m_newaccounts extends IModule
         }
 
         foreach ($template as $tk => $tv) {
-            foreach ($link[$tk] as $item) {
-                $template[$tk] .= $item['description'] . '<a href="' . $item['url'] . '">' . $item['url'] . '</a><br>';
+            if (isset($link[$tk])) {
+                foreach ($link[$tk] as $item) {
+                    $template[$tk] .= $item['description'] . '<a href="' . $item['url'] . '">' . $item['url'] . '</a><br>';
+                }
             }
         }
 
         foreach ($template as $tk => $tv) {
-            foreach ($document_link[$tk] as $item) {
-                $template[$tk] .= $item['description'] . '<a href="' . $item['url'] . '">' . $item['url'] . '</a><br>';
+            if (isset($document_link[$tk])) {
+                foreach ($document_link[$tk] as $item) {
+                    $template[$tk] .= $item['description'] . '<a href="' . $item['url'] . '">' . $item['url'] . '</a><br>';
+                }
             }
         }
         $c = ClientAccount::findOne($bill->Client('id'));

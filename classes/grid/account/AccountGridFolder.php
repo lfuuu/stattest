@@ -332,7 +332,10 @@ abstract class AccountGridFolder extends Model
             $columns[$column] = $this->getDefaultColumns()[$column];
             $columns[$column]['label'] = $this->getAttributeLabel($column);
 
-            $callback = !is_array($columns[$column]['filter']) ? $columns[$column]['filter'] : array_pop($columns[$column]['filter']);
+            $callback = null;
+            if (isset($columns[$column]['filter'])) {
+                $callback = !is_array($columns[$column]['filter']) ? $columns[$column]['filter'] : array_pop($columns[$column]['filter']);
+            }
 
             if ($callback instanceof \Closure) {
                 $columns[$column]['filter'] = $callback();

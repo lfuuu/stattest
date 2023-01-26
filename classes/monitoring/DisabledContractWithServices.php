@@ -100,10 +100,10 @@ class DisabledContractWithServices extends Component implements MonitoringInterf
     {
         $result = AccountTariff::find()
             ->alias('a')
-            ->joinWith('clientAccount.clientContractModel cc', true, 'INNER JOIN')
-            ->joinWith('clientAccount.clientContractModel.clientContragent cg', true, 'INNER JOIN')
-            ->joinWith('clientAccount.clientContractModel.businessProcessStatus bps', true, 'INNER JOIN')
-            ->joinWith('serviceType s', true, 'INNER JOIN')
+            ->joinWith('clientAccount.clientContractModel cc', false, 'INNER JOIN')
+            ->joinWith('clientAccount.clientContractModel.clientContragent cg', false, 'INNER JOIN')
+            ->joinWith('clientAccount.clientContractModel.businessProcessStatus bps', false, 'INNER JOIN')
+            ->joinWith('serviceType s', false, 'INNER JOIN')
             ->select([
                 'client_account_id',
                 'account_tariff_id' => 'a.id',

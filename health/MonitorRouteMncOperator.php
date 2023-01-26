@@ -16,7 +16,7 @@ class MonitorRouteMncOperator extends Monitor
      */
     public function getLimits()
     {
-        return [3, 5, 10];
+        return [1, 5, 10];
     }
 
     /**

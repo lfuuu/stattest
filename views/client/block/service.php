@@ -496,7 +496,7 @@ if ($has) :
                                         <?= Html::a($renderDate($trunk->actual_from, $trunk->actual_to), $helper->getEditLink(), ['target' => '_blank']); ?>
                                     </td>
                                     <td><?= $trunk->connectionPoint->name; ?></td>
-                                    <td><?= $trunk->trunk->name; ?></td>
+                                    <td><?= $trunk->trunk ? $trunk->trunk->name : ''; ?></td>
                                     <td>
                                         <?php if ($trunk->orig_enabled): ?>
                                             Оригинация

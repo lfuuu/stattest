@@ -66,7 +66,7 @@
 	<tr class={cycle values='even,odd'}>
 		<td nowrap>{$o.destination}</td>
 		<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
-		<td><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>
+		<td><b>{$o.defcode}</b>{if isset($o.defcode2)} ({$o.defcode2}){/if}</td>
 		<td align=right><b>{$o.price}</b></td>
 		{if $f_short == ''}<td>{$o.date_from} - {$o.date_to}</td>{/if}
 		</tr>
