@@ -136,6 +136,14 @@ class PortedRussiaRouteMncController extends PortedController
         return ExitCode::OK;
     }
 
+    private function resetOperatorIds()
+    {
+        $newOperators = $this->_db->createCommand("SELECT nnp.update_operator_mnc_list()")->queryScalar();
+        echo PHP_EOL . "Новых операторов добавлено: {$newOperators}";
+
+        $this->_db->createCommand("SELECT nnp.set_route_mnc_operator_id()")->execute();
+    }
+
     /**
      * Полный цикл портирования номеров (скачивание, обновление, линковка, синхронизация)
      */
@@ -162,6 +170,9 @@ class PortedRussiaRouteMncController extends PortedController
         if ($this->actionImport() != ExitCode::OK) {
             throw new \LogicException('Error in actionImport');
         }
+
+        $this->resetOperatorIds();
+
 //
 //        echo PHP_EOL . date('r') . ': Создаем событие синхронизации';
 //        $this->actionNotifyEventPortedNumber();

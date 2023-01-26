@@ -79,6 +79,7 @@ abstract class Monitor extends Component
             MonitorDoublePayment::class,
             MonitorMultiAccountService::class,
             MonitorVoipDelayOnPackages::class,
+            MonitorRouteMncOperator::class,
         ];
     }
 }
