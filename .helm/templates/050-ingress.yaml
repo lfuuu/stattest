@@ -9,8 +9,8 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-body-size: 0
     nginx.ingress.kubernetes.io/proxy-connect-timeout: 6000
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 18000
-    nginx.ingress.kubernetes.io/proxy-send-timeout: 18000
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 36000
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 36000
 #    NNPLK-5: Сделать так, чтобы работали одновременно nnp и apigw
 #    nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/whitelist-source-range: >-
