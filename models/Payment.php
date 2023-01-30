@@ -109,6 +109,7 @@ class Payment extends ActiveRecord
     ];
 
     public $isNeedToSendAtol = false;
+    public $isIdentificationPayment = false;
 
     /**
      * Название таблицы
@@ -243,7 +244,8 @@ class Payment extends ActiveRecord
                     'client_id' => $this->client_id,
                     'sum' => round($this->sum, 2),
                     'currency' => $this->currency,
-                    'user_id' => Yii::$app->user->id
+                    'user_id' => Yii::$app->user->id,
+                    'is_identification_payment' => $this->isIdentificationPayment,
                 ]);
         } else {
             Transaction::dao()->updateByPayment($this);

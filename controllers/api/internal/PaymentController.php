@@ -24,7 +24,7 @@ use app\models\PaymentApiInfo;
 
 class PaymentController extends ApiInternalController
 {
-    const UNRECOGNIZED_PAYMENTS_ACCOUONT_ID = 115504;
+    const UNRECOGNIZED_PAYMENTS_ACCOUONT_ID = 132778;
 
     /**
      * @throws NotImplementedHttpException
@@ -98,8 +98,10 @@ class PaymentController extends ApiInternalController
         }
 
         $recognizer = PaymentOwnerRecognition::me();
+        $isIdentificationPayment = false;
         if ($recognizedAccountId = $recognizer->who($model)) {
             $model->account_id = $recognizedAccountId;
+            $isIdentificationPayment = $recognizer->isIdentificationPayment;
         }
 
 
@@ -133,6 +135,8 @@ class PaymentController extends ApiInternalController
 
             $infoJson =  json_decode($requestData['info_json'] ?? '{}', true);
             $payment->comment = $infoJson['comment'] ?? ucfirst($channels[$model->channel]) . " #" . $model->payment_no . ' (API)';
+
+            $payment->isIdentificationPayment = $isIdentificationPayment;
 
             if (!$payment->save()) {
                 throw new ModelValidationException($payment);

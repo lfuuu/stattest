@@ -13,11 +13,13 @@ class PaymentOwnerRecognition extends Singleton
 {
     /** @var LoggerSimpleInternal */
     private $logger = null;
+    public $isIdentificationPayment = false;
 
     public function who($model)
     {
         $this->logger = new LoggerSimpleInternal();
         $this->listInnAccountIds = [];
+        $this->isIdentificationPayment = false;
 
         if (!$model->info_json) {
             $this->logger->add('Пустой info_json');
@@ -45,12 +47,14 @@ class PaymentOwnerRecognition extends Singleton
         }
 
         $innAccountId = $this->accountQualifierByInn($info['payerInn'] ?? $data['inn'] ?? false, $descriptionAccountId);
-        if ($innAccountId) {
-            $this->logger->add('Результат: Л/С: ' . $innAccountId);
-            return $innAccountId;
+        if (!$innAccountId) {
+            $this->logger->add('Итого: Л/С не найден');
+            return;
         }
 
-        $this->logger->add('Итого: Л/С не найден');
+        $this->logger->add('Результат: Л/С: ' . $innAccountId);
+
+        return $innAccountId;
     }
 
     public function getLog()
@@ -181,6 +185,7 @@ class PaymentOwnerRecognition extends Singleton
             if (count($accountIds) == 1) {
                 $accountId = reset($accountIds);
                 $this->logger->add("Найден единственный активный Л/С {$accountId} по ИНН: {$inn}");
+                $this->isIdentificationPayment = true;
                 return $accountId;
             } elseif ($accountIds) {
                 $this->logger->add("Нет Л/С по ИНН {$inn}");
@@ -196,6 +201,7 @@ class PaymentOwnerRecognition extends Singleton
         if ($accountIds) {
             if (in_array($descriptionAccountId, $accountIds)) {
                 $this->logger->add("Л/С {$descriptionAccountId} ЕСТЬ в списке тех, у кого есть ИНН {$inn}");
+                $this->isIdentificationPayment = true;
                 return $descriptionAccountId;
             } else {
                 $this->logger->add("Л/С {$descriptionAccountId} НЕТ в списке тех, у кого есть ИНН {$inn} (" . $this->getList($accountIds) . ")");
@@ -211,6 +217,7 @@ class PaymentOwnerRecognition extends Singleton
         if (count($accountIds) == 1) {
             $accountId = reset($accountIds);
             $this->logger->add("Найден единственный Л/С {$accountId} у ИНН: {$inn}");
+            $this->isIdentificationPayment = true;
             return $accountId;
         }
 
