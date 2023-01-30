@@ -5,6 +5,7 @@ namespace app\modules\sbisTenzor\classes\XmlGenerator;
 use ActiveRecord\DateTime;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContragent;
+use app\models\Invoice;
 use app\modules\sbisTenzor\classes\XmlGenerator;
 
 class Invoice2016Form5_02 extends XmlGenerator
@@ -94,11 +95,17 @@ class Invoice2016Form5_02 extends XmlGenerator
         $elInfoSellerAddress->appendChild($elInfoSellerAddressData);
 
         // payments
-        foreach ($this->bill->getInvoicePayments() as $payment) {
-            $elPayment = $dom->createElement('СвПРД');
-            $elPayment->setAttribute('ДатаПРД', (new \DateTime())->setTimestamp($payment['payment_date_ts'])->format('d.m.Y'));
-            $elPayment->setAttribute('НомерПРД', $payment['payment_no']);
-            $elInvoiceInfo->appendChild($elPayment);
+        if (
+            $this->invoice->type_id == Invoice::TYPE_1
+            || $this->invoice->type_id == Invoice::TYPE_GOOD
+            || ($this->invoice->type_id == Invoice::TYPE_2 && $this->bill->inv2to1)
+        ) {
+            foreach ($this->bill->getInvoicePayments() as $payment) {
+                $elPayment = $dom->createElement('СвПРД');
+                $elPayment->setAttribute('ДатаПРД', (new \DateTime())->setTimestamp($payment['payment_date_ts'])->format('d.m.Y'));
+                $elPayment->setAttribute('НомерПРД', $payment['payment_no']);
+                $elInvoiceInfo->appendChild($elPayment);
+            }
         }
 
         $elInfoBuyer = $dom->createElement('СвПокуп');
