@@ -34,16 +34,24 @@ trait AccountTariffBoolTrait
             array_key_exists($this->service_type_id, ServiceType::$packages)
             &&
             (
-                (
-                    $this->getNotNullTariffPeriod()->tariff->is_default
-                    && !Yii::$app->user->can('services_voip.full') // если нельзя, но очень надо, то можно
-                )
-                || (
-                    $this->prev_account_tariff_id
-                    && $this->getNotNullTariffPeriod()->tariff->is_bundle
-                ))
+                $this->getNotNullTariffPeriod()->tariff->is_default
+                && !Yii::$app->user->can('services_voip.full') // если нельзя, но очень надо, то можно
+            )
         ) {
             // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
+            return false;
+        }
+
+        if (
+            array_key_exists($this->service_type_id, ServiceType::$packages)
+            &&
+            (
+                $this->prev_account_tariff_id
+                && $this->getNotNullTariffPeriod()->tariff->is_bundle
+                && !Yii::$app->user->can('services_voip.full') // если нельзя, но очень надо, то можно
+            )
+        ) {
+            // бандлы редактировать можно только если есть права
             return false;
         }
 
