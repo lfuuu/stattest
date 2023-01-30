@@ -103,6 +103,8 @@ class CallsRawStatisticDao extends Singleton
         $query->limit($limit);
 
         static $cTariff = [];
+        
+        $result = [];
 
         foreach ($query->each(100, $db) as $call) {
             $call['cost'] = (double)$call['cost'];
@@ -130,8 +132,6 @@ class CallsRawStatisticDao extends Singleton
 
             $result[] = $call;
         }
-
-        $result = $result ? $result : [];
 
         $data['result'] = $result;
         if (isset($generalInfo)) {
