@@ -221,7 +221,10 @@ ansible:
         
         ### Yii 2.0.37: Bug #18171: Change case of column names in SQL query for findConstraints to fix MySQL 8 compatibility
         ### Need update Yii2
-        sed -r -i 's/^\s+kcu\.([^ ,]+)(,|$)/kcu.\1 as \1\2/'  vendor/yiisoft/yii2/db/mysql/Schema.php        
+        sed -r -i 's/^\s+kcu\.([^ ,]+)(,|$)/kcu.\1 as \1\2/'  vendor/yiisoft/yii2/db/mysql/Schema.php
+        
+        ### fix PHPExcel (PHPExcel - does not develop)
+        sed -i 's/\$pValue{0}/((string)\$pValue)[0]/' vendor/phpoffice/phpexcel/Classes/PHPExcel/Cell/DefaultValueBinder.php
 
       args:
         chdir: {{ .ci_dir_home }}/stat
