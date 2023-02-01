@@ -57,7 +57,9 @@ return [
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
     'Resource #60' => 'Souffleur',
+    'Resource #61' => 'Anrufbewertung',
     'Resource #62' => 'Sprachkanalisierung',
+    'Resource #65' => 'Routing nach B-Nummer-Region',
     'Resource #66' => 'Trunk der externen PBX',
 
 
