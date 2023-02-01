@@ -50,7 +50,9 @@ return [
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
     'Resource #60' => 'Súgó',
+    'Resource #61' => 'Operátor értékelés',
     'Resource #62' => 'Hangcsatornázás',
+    'Resource #65' => 'Hívószám automatikus cseréje',
     'Resource #66' => 'Külső VPBX trönkje',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',

@@ -58,7 +58,9 @@ return [
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
     'Resource #60' => 'Prompter',
+    'Resource #61' => 'Operator rating',
     'Resource #62' => 'Voice channeling',
+    'Resource #65' => 'Automatic replacement of phone number',
     'Resource #66' => 'Trunk for external PBX',
 
 
