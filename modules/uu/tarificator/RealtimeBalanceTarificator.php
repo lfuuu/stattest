@@ -51,7 +51,7 @@ SQL;
 
         // платежи
         $paymentTableName = Payment::tableName();
-        $selectSQL = <<<SQL
+        $updateSQL = <<<SQL
             UPDATE
                 clients_tmp,
                 (
@@ -73,14 +73,14 @@ SQL;
             WHERE
                 t.client_id = clients_tmp.id
 SQL;
-        $db->createCommand($selectSQL)
+        $db->createCommand($updateSQL)
             ->execute();
         $this->out('. ');
 
 
         // автоматические счета (универсальные)
         $billTableName = Bill::tableName();
-        $selectSQL = <<<SQL
+        $updateSQL = <<<SQL
             UPDATE
                 clients_tmp,
                 (
@@ -102,7 +102,7 @@ SQL;
             WHERE
                 t.client_id = clients_tmp.id
 SQL;
-        $db->createCommand($selectSQL)
+        $db->createCommand($updateSQL)
             ->execute();
         $this->out('. ');
 
@@ -111,7 +111,7 @@ SQL;
         // Для УУ старый счет считается ручным, если у него нет ссылки на УУ-счет
         // Счет с задатком не учитывается, но эта логика заложена в \app\dao\BillDao::calculateBillSum, а здесь достаточно просуммировать суммы старых счетов (для zadatok она будет нулевой)
         $oldBillTableName = \app\models\Bill::tableName();
-        $selectSQL = <<<SQL
+        $updateSQL = <<<SQL
             UPDATE
                 clients_tmp,
                 (
@@ -134,13 +134,42 @@ SQL;
             WHERE
                 t.client_id = clients_tmp.id
 SQL;
-        $db->createCommand($selectSQL)
+        $db->createCommand($updateSQL)
             ->execute();
         $this->out('. ');
 
+
+        // ручные строки в универсальных счетах
+        $billLinesTableName = \app\models\BillLine::tableName();
+        $updateSQL = <<<SQL
+            UPDATE
+                clients_tmp,
+                (
+                    SELECT 
+                        clients.id AS client_id, 
+                        SUM(nl.sum) as balance
+                    FROM {$clientAccountTableName} clients
+                        JOIN {$oldBillTableName} b ON clients.id = b.client_id
+                        JOIN {$billLinesTableName} nl ON b.bill_no = nl.bill_no and nl.type != 'zadatok'
+                    WHERE b.uu_bill_id IS NOT NULL
+                      AND nl.uu_account_entry_id IS NULL
+                      AND clients.account_version = {$versionBillerUniversal}
+                      {$sqlAndWhere}
+                    GROUP BY clients.id
+                ) t
+            SET
+                clients_tmp.balance = clients_tmp.balance - t.balance
+            WHERE
+                t.client_id = clients_tmp.id
+SQL;
+        $db->createCommand($updateSQL)
+            ->execute();
+        $this->out('. ');
+
+
         // корректировки к проводкам
         $correctionTableName = AccountEntryCorrection::tableName();
-        $selectSQL = <<<SQL
+        $updateSQL = <<<SQL
             UPDATE
                 clients_tmp,
                 (
@@ -163,7 +192,7 @@ SQL;
                 t.client_id = clients_tmp.id
 SQL;
 
-        $db->createCommand($selectSQL)
+        $db->createCommand($updateSQL)
             ->execute();
         $this->out('. ');
 
