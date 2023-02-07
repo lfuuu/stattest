@@ -393,11 +393,13 @@ class m_newaccounts extends IModule
             'USD' => [
                 'delta' => 0,
                 'bill' => 0,
+                'invoice' => 0,
                 'ts' => ''
             ],
             'RUB' => [
                 'delta' => 0,
                 'bill' => 0,
+                'invoice' => 0,
                 'ts' => ''
             ]
         ];
@@ -423,6 +425,7 @@ class m_newaccounts extends IModule
                 [
                     'delta' => 0,
                     'bill' => $r['saldo'],
+                    'invoice' => 0,
                     'ts' => $r['ts'],
                     'saldo' => $r['saldo'],
                     'last_saldo' => $r['saldo'],
@@ -434,6 +437,7 @@ class m_newaccounts extends IModule
                 [
                     'delta' => 0,
                     'bill' => 0,
+                    'invoice' => 0,
                     'ts' => ''
                 ];
         }
@@ -474,7 +478,7 @@ class m_newaccounts extends IModule
                 sum_correction,
                 P.operation_type_id,
                 bf.name as file_name,
-                ' . ($isIncomeExpense && $billListFilter ? 'ifnull(
+                ' . (true /* $isIncomeExpense && $billListFilter */ ? 'ifnull(
                     (SELECT sum(sum) FROM invoice i WHERE i.bill_no = P.bill_no GROUP BY P.bill_no),
                     (SELECT  COALESCE(-sum(ext_vat)-sum(ext_sum_without_vat), -sum(ext_sum_without_vat)) FROM `newbills_external` e where e.bill_no = P.bill_no GROUP BY P.bill_no)
                 )' : 'P.sum') . ' AS invoice_sum,

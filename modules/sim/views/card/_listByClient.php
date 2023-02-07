@@ -81,15 +81,18 @@ if ($account->superClient->entry_point_id != \app\models\EntryPoint::ID_MNP_RU_D
                 <div class="row">
                     <?php
                     [$cards, $accountTariffs] = \app\modules\sim\classes\Linker::me()->getDataByAccountId($account->id);
+                    $imsies = array_keys($cards);
+                    $accountTariffIds = array_keys($accountTariffs);
+
                     ?>
                     <?php if ($cards && $accountTariffs) : ?>
                         <div class="col-sm-4">ICCID:</div>
                         <div class="col-sm-8">
-                            <?= \yii\helpers\Html::dropDownList('connect_iccid', $cards ? reset(array_keys($cards)) : null, $cards, ['class' => 'select2']) ?>
+                            <?= \yii\helpers\Html::dropDownList('connect_iccid', $cards ? reset($imsies) : null, $cards, ['class' => 'select2']) ?>
                         </div>
                         <div class="col-sm-4">Номер:</div>
                         <div class="col-sm-8">
-                            <?= \yii\helpers\Html::dropDownList('connect_account_tariff_id', $accountTariffs ? reset(array_keys($accountTariffs)) : null, $accountTariffs, ['class' => 'select2']) ?>
+                            <?= \yii\helpers\Html::dropDownList('connect_account_tariff_id', $accountTariffs ? reset($accountTariffIds) : null, $accountTariffs, ['class' => 'select2']) ?>
                         </div>
                         <div class="col-sm-6"></div>
                         <div class="col-sm-4">

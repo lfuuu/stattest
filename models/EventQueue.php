@@ -190,6 +190,7 @@ class EventQueue extends ActiveRecord
         self::SYNC_TELE2_UNLINK_IMSI => 'Теле2. Открепить номер от IMSI',
         self::PORTED_NUMBER_ADD => 'Добавить портированный номер',
         self::NUMBER_HAS_BEEN_PORTED => 'Номер портирован к МСН Телеком',
+        self::TROUBLE_NOTIFIER_EVENT => 'Оповещение о заявке',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',

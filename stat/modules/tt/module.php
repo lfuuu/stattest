@@ -1676,7 +1676,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQLI_ASSOC));
 
             $design->assign('curtype',$this->curtype);
-            if(in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
+            if($this->curtype && isset($this->curtype['code']) && in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
                 $design->assign('form',(new BaseView)->render('@app/views/trouble/_form',[
                     'account' => $account,
                     'curtype' => $this->curtype,
