@@ -135,6 +135,7 @@ if ($useCache) {
          */
         function checkIfValid(int $lineNumber, array $row, ImportServiceUploaded $importServiceUploaded, array $errorLines, array $warningLines, array $alreadyRead, $countryCode, $countryFileId, $isFileOK): array
         {
+            $oldLine = null;
             if (!($lineNumber == 1 && !is_numeric($row[0]))) {
                 $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
                 $rowStatus = $importServiceUploaded->getRowHasError($numberRangeImport);
