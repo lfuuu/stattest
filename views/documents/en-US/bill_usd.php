@@ -113,11 +113,7 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
                 <table border="0" align="right">
                     <tr<?= ($document->sum > 300 ? ' bgcolor="#FFD6D6"' : ''); ?>>
                         <td>Client</td>
-                        <td><?= $document->bill->clientAccount->client; ?></td>
-                    </tr>
-                    <tr valign=top>
-                        <td>Account Manager</td>
-                        <td width="50"><?= str_replace(' ', '&nbsp;', $document->bill->clientAccount->userManager->name); ?></td>
+                        <td><?= $document->bill->clientAccount->id; ?></td>
                     </tr>
                     <tr>
                         <td colspan="2" align="center">
