@@ -49,7 +49,9 @@
         <tr class='{cycle values="odd,even"}'>
             <td>{counter}</td>
             <td>
-                    {$item.name}
+                <a target="_blank" href="/uu/account-tariff/edit?id={$item.account_tariff_id}">
+                    {$item.fullName}
+                </a>
             </td>
             <td nowrap>
                     <span>{$item.date_from}
