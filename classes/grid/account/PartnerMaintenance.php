@@ -16,6 +16,8 @@ use Yii;
 
 class PartnerMaintenance extends AccountGrid
 {
+    use GenericFolderTrait;
+
     public function getBusiness()
     {
         return Business::PARTNER;
@@ -26,18 +28,34 @@ class PartnerMaintenance extends AccountGrid
         return BusinessProcess::PARTNER_MAINTENANCE;
     }
 
-    public function getFolders()
+    public function getColumns()
     {
         return [
-            NegotiationsFolder::create($this),
-            ActingFolder::create($this),
-            WhiteLabelFolder::create($this),
-            ManualBillFolder::create($this),
-            SuspendedFolder::create($this),
-            TerminatedFolder::create($this),
-            FailureFolder::create($this),
-            TrashFolder::create($this),
+            'status',
+            'id',
+            'company',
+            'contractNo',
+            'contract_created',
+            'manager',
+            'account_manager',
+            'region',
+            'contract_type',
+            'partner_clients_service'
         ];
     }
+
+//    public function getFolders()
+//    {
+//        return [
+//            NegotiationsFolder::create($this),
+//            ActingFolder::create($this),
+//            WhiteLabelFolder::create($this),
+//            ManualBillFolder::create($this),
+//            SuspendedFolder::create($this),
+//            TerminatedFolder::create($this),
+//            FailureFolder::create($this),
+////            TrashFolder::create($this),
+//        ];
+//    }
 
 }
