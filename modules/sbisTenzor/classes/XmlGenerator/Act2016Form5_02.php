@@ -145,7 +145,7 @@ class Act2016Form5_02 extends XmlGenerator
             $elLine->setAttribute('Номер', $index++);// optional
             //$elLine->setAttribute('НаимРабот', $this->prepareText($line->getFullName()));// optional1
             $elLine->setAttribute('Количество', $this->formatNumber($line->getAmount()));// optional
-            $elLine->setAttribute('НалСт', $line->getVat_rate() . '%');// optional
+            $elLine->setAttribute('НалСт', $line->getVat_rate() ? $line->getVat_rate() . '%' : 'без НДС');// optional
             // http://www.classbase.ru/okei
             // 796 - штука
             //$elLine->setAttribute('ОКЕИ', 796);// optional, but required if no optional1
