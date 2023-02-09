@@ -270,7 +270,7 @@ class Invoice2016Form5_02 extends XmlGenerator
         foreach ($this->invoice->lines as $line) {
             $elLine = $dom->createElement('СведТов');
             $elLine->setAttribute('НомСтр', $index++);
-            $elLine->setAttribute('НалСт', $line->getVat_rate() . '%');
+            $elLine->setAttribute('НалСт', $line->getVat_rate() ? $line->getVat_rate() . '%' : 'без НДС');
             $elLine->setAttribute('НаимТов', $this->prepareText($line->getFullName()));// optional
             $elLine->setAttribute('СтТовУчНал', $this->formatNumber($line->getPrice_with_vat()));// optional
             // http://www.classbase.ru/okei

@@ -55,7 +55,7 @@ class Invoice2019Form5_01 extends Invoice2016Form5_02
         foreach ($this->invoice->lines as $line) {
             $elLine = $dom->createElement('СведТов');
             $elLine->setAttribute('НомСтр', $index++);
-            $elLine->setAttribute('НалСт', $line->getVat_rate() . '%');
+            $elLine->setAttribute('НалСт', $line->getVat_rate() ? $line->getVat_rate() . '%' : 'без НДС');// optional
             $elLine->setAttribute('НаимТов', $this->prepareText($line->getFullName()));
             $elLine->setAttribute('СтТовУчНал', $this->formatNumber($line->getPrice_with_vat()));
             // http://www.classbase.ru/okei
