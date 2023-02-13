@@ -13,6 +13,10 @@ use yii\helpers\Url;
  * @property int $code
  * @property int $access_token
  * @property int $name
+ * @property int $check_organization_id
+ *
+ * @method static PaymentApiChannel findOne($condition)
+ * @method static PaymentApiChannel[] findAll($condition)
  */
 class PaymentApiChannel extends ActiveRecord
 {
@@ -40,7 +44,7 @@ class PaymentApiChannel extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'is_active'], 'integer'],
+            [['id', 'check_organization_id', 'is_active'], 'integer'],
             [['code', 'access_token', 'name'], 'string'],
             [['code', 'name', 'is_active'], 'required'],
             [['code', 'access_token', 'name'], FormFieldValidator::class],
@@ -61,6 +65,7 @@ class PaymentApiChannel extends ActiveRecord
             'code' => 'Код канала',
             'access_token' => 'Токен',
             'is_active' => 'Активен',
+            'check_organization_id' => 'Чек от орагнизации',
         ];
     }
 

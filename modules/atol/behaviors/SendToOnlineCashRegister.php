@@ -8,6 +8,7 @@ use app\models\ClientContact;
 use app\models\Currency;
 use app\models\EventQueue;
 use app\models\Payment;
+use app\models\PaymentApiChannel;
 use app\models\PaymentAtol;
 use app\modules\atol\classes\Api;
 use Yii;
@@ -42,17 +43,17 @@ class SendToOnlineCashRegister extends Behavior
         $payment = $event->sender;
 
         if ($payment->sum > 0) {
-            self::addEvent($payment->id, $payment->isNeedToSendAtol);
+            self::addEvent($payment->id, $payment->isNeedToSendAtol, $payment->checkOrganizationId);
         }
     }
 
-    public static function addEvent($paymentId, $isForcePush = false)
+    public static function addEvent($paymentId, $isForcePush = false, $checkOrganizationId = false)
     {
         // поставить в очередь для отправки
         EventQueue::go(\app\modules\atol\Module::EVENT_SEND, [
                 'paymentId' => $paymentId,
                 'isForcePush' => $isForcePush,
-            ]
+            ] + ($checkOrganizationId ? ['checkOrganizationId' => $checkOrganizationId] : [])
         );
     }
 
@@ -63,7 +64,7 @@ class SendToOnlineCashRegister extends Behavior
      * @param bool $isForcePush
      * @return false|string
      */
-    public static function send($paymentId, $isForcePush = false)
+    public static function send($paymentId, $isForcePush = false, $checkOrganizationId = false)
     {
         $payment = Payment::findOne(['id' => $paymentId]);
         if (!$payment) {
@@ -75,21 +76,31 @@ class SendToOnlineCashRegister extends Behavior
             return false;
         }
 
-        if (
-            !$isForcePush && (
-                $payment->type != Payment::TYPE_ECASH
-                || !array_key_exists($payment->ecash_operator, Payment::$ecash)
-                || $payment->ecash_operator == Payment::ECASH_CYBERPLAT
-            )
-        ) {
-            // Отправлять в онлайн-кассу только рублевые электронные платежи за исключением Киберплата
+        $isToSend = false;
+        if ($isForcePush) {
+            $isToSend = true;
+        } elseif ($payment->type == Payment::TYPE_ECASH) {
+            $isToSend = true;
+        } elseif ($payment->type == Payment::TYPE_API) {
+            if ($checkOrganizationId) {
+                $isToSend = true;
+            } else {
+                $apiChannel = PaymentApiChannel::findOne(['code' => $payment->ecash_operator]);
+                if ($apiChannel && $apiChannel->check_organization_id) {
+                    $checkOrganizationId = $apiChannel->check_organization_id;
+                    $isToSend = true;
+                }
+            }
+        }
+
+        if (!$isToSend) {
             return false;
         }
 
         $client = $payment->client;
         $contacts = $client->getOfficialContact();
 
-        $organizationId = $payment->client->contract->organization_id;
+        $organizationId = $checkOrganizationId ?: $payment->client->contract->organization_id;
 
         list($uuid, $log) = Api::me()->sendSell(
             $payment->id,
