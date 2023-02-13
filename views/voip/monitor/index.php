@@ -223,7 +223,7 @@ $columns = [[
     [
         'format' => 'raw',
         'value' => function ($row) {
-            if (!in_array($row['server_id'], [94, 95, 97, 98, 99])) {
+            if (!in_array($row['server_id'], [89, 93, 94, 95, 97, 98, 99])) {
                 return ';';
             }
 
