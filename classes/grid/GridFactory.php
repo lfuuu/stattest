@@ -15,6 +15,7 @@ use app\classes\grid\account\PartnerMaintenance;
 use app\classes\grid\account\ProviderMaintenance;
 use app\classes\grid\account\ProviderOrders;
 use app\classes\grid\account\TelecomMaintenance;
+use app\classes\grid\account\TelecomMaintenanceB2c;
 use app\classes\grid\account\TelecomReports;
 use app\classes\grid\account\TelecomSales;
 use app\classes\grid\account\OTTMaintenance;
@@ -35,6 +36,7 @@ class GridFactory extends Singleton
     {
         return [
             new TelecomMaintenance(),
+            new TelecomMaintenanceB2c(),
             new TelecomReports(),
             new TelecomSales(),
             new InternetShopMaintenance(),

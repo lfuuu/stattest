@@ -28,6 +28,7 @@ class BusinessProcess extends ActiveRecord
     const TELECOM_SUPPORT = 1;
 
     const TELECOM_MAINTENANCE = 1;
+    const TELECOM_MAINTENANCE_B2C = 21;
     const TELECOM_REPORTS = 16;
     const TELECOM_SALES = 2;
 
