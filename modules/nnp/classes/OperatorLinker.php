@@ -187,13 +187,13 @@ SQL;
             }
         );
 
-        if (!$isClear) {
-            $log .= Module::transaction(
-                function () {
-                    Operator::deleteAll(['cnt' => 0]);
-                }
-            );
-        }
+//        if (!$isClear) {
+//            $log .= Module::transaction(
+//                function () {
+//                    Operator::deleteAll(['cnt' => 0]);
+//                }
+//            );
+//        }
 
         return $log;
     }
