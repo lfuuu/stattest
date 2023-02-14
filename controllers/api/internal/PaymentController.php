@@ -97,6 +97,11 @@ class PaymentController extends ApiInternalController
             }
         }
 
+        $channelOrganizationId = PaymentApiChannel::find()
+            ->where(['code' => $model->channel])
+            ->select('check_organization_id')
+            ->scalar();
+
         $recognizer = PaymentOwnerRecognition::me();
         $isIdentificationPayment = false;
         if ($recognizedAccountId = $recognizer->who($model)) {
@@ -135,6 +140,10 @@ class PaymentController extends ApiInternalController
 
             $infoJson =  json_decode($requestData['info_json'] ?? '{}', true);
             $payment->comment = $infoJson['comment'] ?? ucfirst($channels[$model->channel]) . " #" . $model->payment_no . ' (API)';
+
+            if ($channelOrganizationId) {
+                $payment->checkOrganizationId = $channelOrganizationId;
+            }
 
             $payment->isIdentificationPayment = $isIdentificationPayment;
 

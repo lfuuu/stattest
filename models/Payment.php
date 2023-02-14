@@ -112,6 +112,7 @@ class Payment extends ActiveRecord
 
     public $isNeedToSendAtol = false;
     public $isIdentificationPayment = false;
+    public $checkOrganizationId = null;
 
     /**
      * Название таблицы

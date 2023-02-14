@@ -61,6 +61,10 @@ $columns = [
         'class' => StringColumn::class,
     ],
     [
+        'attribute' => 'check_organization_id',
+        'class' => \app\classes\grid\column\universal\OrganizationColumn::class,
+    ],
+    [
         'attribute' => 'is_active',
         'class' => YesNoColumn::class,
     ],

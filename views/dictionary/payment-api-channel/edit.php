@@ -69,6 +69,11 @@ if (!$region->isNewRecord) {
             <?= $form->field($region, 'access_token')->textInput() ?>
         </div>
 
+        <?php // Чек от орагнизации ?>
+        <div class="col-sm-3">
+            <?= $form->field($region, 'check_organization_id')->dropDownList(\app\models\Organization::dao()->getList(true), ['class' => 'select2']) ?>
+        </div>
+
     </div>
 
 
