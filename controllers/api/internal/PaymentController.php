@@ -35,11 +35,12 @@ class PaymentController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags={"Payments"}, path="/internal/payment/add/", summary="Добавление платежа", operationId="Добавление платежа",
+     * @SWG\Post(tags={"Payments"}, path="/internal/payment/add/", summary="Добавление платежа", operationId="Add",
      *   @SWG\Parameter(name="access_token", type="string", description="Код доступа к каналу", in="formData", default="", required=true),
      *   @SWG\Parameter(name="channel", type="string", description="Канал платежа", in="formData", default="", required=true),
      *   @SWG\Parameter(name="account_id", type="integer", description="ID ЛС", in="formData", default=""),
-     *   @SWG\Parameter(name="payment_no", type="string", description="ID платежа", in="formData", default="", required=true),
+     *   @SWG\Parameter(name="operation_id", type="string", description="ID платежа", in="formData", default="", required=false),
+     *   @SWG\Parameter(name="payment_no", type="string", description="Номер платежа", in="formData", default="", required=true),
      *   @SWG\Parameter(name="sum", type="integer", description="Сумма платежа", in="formData", default="0", required=true),
      *   @SWG\Parameter(name="currency", type="string", description="Валюта платежа", in="formData", default="RUB", required=true),
      *   @SWG\Parameter(name="bill_no", type="string", description="Оплата счета", in="formData", default=""),
@@ -65,12 +66,11 @@ class PaymentController extends ApiInternalController
             [
                 [['channel', 'access_token'], 'required'],
                 ['access_token', PaymentApiAccessCheckerValidator::class],
-
                 [['payment_no', 'sum', 'currency'], 'required'],
                 ['currency', 'in', 'range' => Currency::enum()],
-                [['bill_no', 'payment_no', 'currency', 'description'], FormFieldValidator::class],
+                [['bill_no', 'payment_no', 'currency', 'description', 'operation_id'], FormFieldValidator::class],
                 ['info_json', JsonValidator::class],
-                [['sum'], 'number', 'min' => 0.1, 'max' => 15000],
+                [['sum'], 'number'],
                 ['account_id', 'default', 'value' => self::UNRECOGNIZED_PAYMENTS_ACCOUONT_ID],
                 ['account_id', AccountIdValidator::class],
                 ['bill_no', BillNoValidator::class],
@@ -81,18 +81,20 @@ class PaymentController extends ApiInternalController
             throw new ExceptionValidationForm($model);
         }
 
+        if (!$model->operation_id) {
+            $model->operation_id = $model->payment_no;
+        }
+
         if ($model->payment_no) {
-            $p = Payment::find()
-                ->alias('p')
+            $p = PaymentApiInfo::find()
                 ->where([
-                    'p.type' => Payment::TYPE_API,
-                    'p.ecash_operator' => $model->channel,
-                    'p.payment_no' => $model->payment_no,
+                    'channel' => $model->channel,
+                    'operation_id' => $model->operation_id,
                 ])
-                ->one();
+                ->select('payment_id')->scalar();
 
             if ($p) {
-                return ['payment_id' => $p->id];
+                return ['payment_id' => (int)$p];
 //                throw new \InvalidArgumentException('Payment No is exists');
             }
         }
@@ -165,6 +167,7 @@ class PaymentController extends ApiInternalController
             $paymentInfo->payment_id = $payment->id;
             $paymentInfo->channel = $payment->ecash_operator;
             $paymentInfo->payment_no = $payment->payment_no;
+            $paymentInfo->operation_id = $model->operation_id;
             $paymentInfo->info_json = $requestData['info_json'] ?? '';
             $paymentInfo->log = $recognizer->getLog();
 
