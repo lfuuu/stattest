@@ -294,9 +294,9 @@ class GridViewExport extends GridView
         $view->registerJs($script);
     }
 
-    private function _actionGetfile()
+    private function _actionGetfile($key = null)
     {
-        $_GET['key'] = $this->getKey();
+        $_GET['key'] = $key ?: $this->getKey();
         $_GET['offset'] = 0;
         $_GET['batchSize'] = 1000000;
 
