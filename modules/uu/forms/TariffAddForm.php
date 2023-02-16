@@ -16,6 +16,7 @@ use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\modules\uu\models\TariffVoipSource;
 
 class TariffAddForm extends TariffForm
 {
@@ -88,6 +89,14 @@ class TariffAddForm extends TariffForm
     public function getTariffVoipNdcTypes()
     {
         return [new TariffVoipNdcType()];
+    }
+
+    /**
+     * @return TariffVoipSource[]
+     */
+    public function getTariffVoipSources()
+    {
+        return [new TariffVoipSource()];
     }
 
     /**

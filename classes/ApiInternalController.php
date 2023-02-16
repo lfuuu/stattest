@@ -45,6 +45,8 @@ class ApiInternalController extends ApiController
             $result = $e->getMessage();
             $code = $e->getCode();
 
+            \Yii::error($e);
+
             return [
                 'status' => 'ERROR',
                 'result' => $result,

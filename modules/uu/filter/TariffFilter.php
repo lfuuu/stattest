@@ -12,6 +12,7 @@ use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\modules\uu\models\TariffVoipSource;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
 
@@ -189,9 +190,8 @@ class TariffFilter extends Tariff
         $tariffTable = Tariff::tableName();
 
         $query
-            ->with('tariffPeriods')
             ->with('tariffPeriods.chargePeriod')
-            ->with('tariffCountries')
+            ->with('tariffCountries.country')
             ->with('tariffVoipCountries.country')
             ->with('package')
             ->with('serviceType')
@@ -202,13 +202,14 @@ class TariffFilter extends Tariff
             ->with('voipGroup')
             ->with('voipCities.city')
             ->with('voipNdcTypes.ndcType')
+            ->with('voipSources.source')
             ->with('organizations.organization')
             ->with('packageMinutes.destination')
             ->with('packagePrices.destination')
             ->with('packagePricelists.pricelist')
             ->with('tariffTags')
             ->with('tariffTags.tag');
-      
+
         $params['id'] && $query->andWhere(["{$tariffTable}.id" => $params['id']]);
         $params['service_type_id'] && $query->andWhere(["{$tariffTable}.service_type_id" => (int)$params['service_type_id']]);
         $params['currency_id'] && $query->andWhere(["{$tariffTable}.currency_id" => $params['currency_id']]);
@@ -256,6 +257,17 @@ class TariffFilter extends Tariff
             $query
                 ->joinWith('voipNdcTypes')
                 ->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $params['voip_ndc_type_id']]);
+        }
+
+        if ($params['voip_source']) {
+            $query
+                ->joinWith('voipSources')
+                ->andWhere([
+                        'OR',
+                        [TariffVoipSource::tableName() . '.source_code' => null],
+                        [TariffVoipSource::tableName() . '.source_code' => $params['voip_source']],
+                    ]
+                );
         }
 
         if ($params['organization_id']) {

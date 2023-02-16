@@ -25,4 +25,5 @@ $viewParams = [
     <?= $this->render('_editMainVoipCountry', $viewParams) ?>
     <?= $this->render('_editMainVoipCity', $viewParams) ?>
     <?= $this->render('_editMainVoipNdcType', $viewParams) ?>
+    <?= $this->render('_editMainVoipSource', $viewParams) ?>
 </div>
