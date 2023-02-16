@@ -155,14 +155,11 @@ class GridViewExport extends GridView
 
         if (!empty($column->label)) {
             $label = $column->label;
-        }
-        elseif (!empty($column->header)) {
+        } elseif (!empty($column->header)) {
             $label = $column->header;
-        }
-        elseif (!empty($column->attribute)) {
+        } elseif (!empty($column->attribute)) {
             $label = $this->getAttributeLabel($column->attribute);
-        }
-        elseif (!$column instanceof DataColumn) {
+        } elseif (!$column instanceof DataColumn) {
             $label = Inflector::camel2words((new \ReflectionClass($column))->getShortName());
         }
 
@@ -197,8 +194,8 @@ class GridViewExport extends GridView
      * @param ActiveRecord $model
      * @param string $key
      * @param int $index
-     * @throws InvalidParamException
      * @return array
+     * @throws InvalidParamException
      */
     public function getRow($model, $key, $index)
     {
@@ -206,7 +203,7 @@ class GridViewExport extends GridView
 
         foreach ($this->visibleColumns as $columnIndex => $column) {
             $render = $this->columnRenders[$columnIndex];
-            switch ($render[self::PARAM_CASE]){
+            switch ($render[self::PARAM_CASE]) {
                 case self::COLUMN_CASE_SERIAL:
                     $value = $column->renderDataCell($model, $key, $index);
                     break;
@@ -297,13 +294,25 @@ class GridViewExport extends GridView
         $view->registerJs($script);
     }
 
+    private function _actionGetfile()
+    {
+        $_GET['key'] = $this->getKey();
+        $_GET['offset'] = 0;
+        $_GET['batchSize'] = 1000000;
+
+        $this->_actionInit($_GET['key']);
+        $this->_actionIteration();
+        $this->_actionDownload();
+
+    }
+
     /**
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws ModelValidationException
      * @throws \ReflectionException
      */
-    private function _actionInit()
+    private function _actionInit($key = null)
     {
         /** @var DynamicModel $input */
         $input = DynamicModel::validateData(
@@ -331,6 +340,20 @@ class GridViewExport extends GridView
             }
         }
 
+        $key = $key ?: $this->getKey();
+
+        if (($key = $driver->createHeader($key, $headerColumns)) === false) {
+            throw new BadRequestHttpException('Cannot create export file');
+        }
+
+        \Yii::$app->response->content = Json::encode([
+            'total' => $this->provider->getTotalCount(),
+            'key' => $key,
+        ]);
+    }
+
+    private function getKey()
+    {
 
         if ($this->filterModel->hasProperty('connect_time_from') && $this->filterModel->hasProperty('connect_time_to')) {
             $keyData = [$this->filterModel->connect_time_from, $this->filterModel->connect_time_to];
@@ -344,14 +367,7 @@ class GridViewExport extends GridView
         $name = (($substr = strstr($name, 'Filter', true)) !== false) ? $substr : $name;
         $name = BaseInflector::underscore($name);
 
-        if (($key = $driver->createHeader( $name  . '_' . implode('_', $keyData) . '_' . time(), $headerColumns)) === false) {
-            throw new BadRequestHttpException('Cannot create export file');
-        }
-
-        \Yii::$app->response->content = Json::encode([
-            'total' => $this->provider->getTotalCount(),
-            'key' => $key,
-        ]);
+        return $name . '_' . implode('_', $keyData) . '_' . time();
     }
 
     /**
@@ -376,7 +392,7 @@ class GridViewExport extends GridView
         );
 
         if ($input->hasErrors()) {
-            throw new ModelValidationException($input);
+            throw new \Exception(array_values($input->getFirstErrors())[0]);
         }
 
         if (!isset($this->drivers[$input->driver])) {
