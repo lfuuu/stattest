@@ -5,11 +5,13 @@ use app\dao\OrganizationDao;
 use app\models\Business;
 use app\models\BusinessProcess;
 use app\models\BusinessProcessStatus;
+use app\models\ClientContract;
 use app\models\Country;
 use app\models\Currency;
 use app\models\dictionary\PublicSite;
 use app\models\EntryPoint;
 use app\models\LkWizardState;
+use app\models\PriceLevel;
 use app\models\Region;
 use app\classes\Html;
 use app\models\Timezone;
@@ -34,6 +36,7 @@ $regions = Region::find()
 echo Html::formLabel('Редактирование точки входа');
 echo Breadcrumbs::widget([
     'links' => [
+        'Словари',
         'Словари',
         ['label' => $this->title = 'Точки входа', 'url' => $cancelUrl = '/dictionary/entry-point'],
         ($model->id ? 'Редактирование' : 'Добавление'),
@@ -95,7 +98,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'partner_id')
-                    ->dropDownList(\app\models\ClientContract::dao()->getPartnerList($isWithEmpty = true))
+                    ->dropDownList(ClientContract::dao()->getPartnerList($isWithEmpty = true))
                 ?>
             </div>
             <div class="col-sm-2">
@@ -174,7 +177,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'price_level')
-                    ->dropDownList(ClientAccount::getPriceLevels())
+                    ->dropDownList(PriceLevel::getList())
                 ?>
             </div>
 
