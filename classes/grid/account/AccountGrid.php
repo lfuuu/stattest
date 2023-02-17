@@ -38,7 +38,17 @@ abstract class AccountGrid implements AccountGridInterface
             '\telecom\maintenance\AutoBlockDayLimitFolder',
             '\telecom\maintenance\BlockBillPayOverdueFolder',
             '\telecom\maintenance\AutoBlock800Folder',
+            '\telecom\maintenance\AutoBlockFolder',
             '\telecom\maintenance\AutoBlockInternetFolder',
+        ],
+        BusinessProcess::TELECOM_MAINTENANCE_B2C => [
+            '\telecom\maintenance\b2c\DisconnectedDebtFolder',
+            '\telecom\maintenance\b2c\AutoBlockCreditFolder',
+            '\telecom\maintenance\b2c\AutoBlockDayLimitFolder',
+            '\telecom\maintenance\b2c\BlockBillPayOverdueFolder',
+            '\telecom\maintenance\b2c\AutoBlock800Folder',
+            '\telecom\maintenance\b2c\AutoBlockFolder',
+            '\telecom\maintenance\b2c\AutoBlockInternetFolder',
         ],
         BusinessProcess::OTT_MAINTENANCE => [
             '\ott\maintenance\DisconnectedDebtFolder',

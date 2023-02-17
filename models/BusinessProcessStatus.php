@@ -29,7 +29,7 @@ class BusinessProcessStatus extends ActiveRecord
     // Общие
     const STATE_NEGOTIATIONS = 11; // Переговоры
 
-    // Телеком
+    // Телеком b2b
     const TELEKOM_MAINTENANCE_ORDER_OF_SERVICES = 19; // Заказ услуг
     const TELEKOM_MAINTENANCE_CONNECTED = 8; // Подключаемые
     const TELEKOM_MAINTENANCE_WORK = 9; // Включенные
@@ -43,6 +43,20 @@ class BusinessProcessStatus extends ActiveRecord
     const TELEKOM_MAINTENANCE_WLINNONET = 152; // WL_Innonet
     const TELEKOM_MAINTENANCE_EXCEPTION_FROM_BOOK_OF_PROD = 157; // Исключения из Книги Прод.
     const TELEKOM_MAINTENANCE_PORTING_REQUEST_ACCEPTED = 169; // Заявка на портирование принята
+
+    // Телеком b2c
+    const TELEKOM_MAINTENANCE_B2C_ORDER_OF_SERVICES = 201; // Заказ услуг
+    const TELEKOM_MAINTENANCE_B2C_CONNECTED = 198; // Подключаемые
+    const TELEKOM_MAINTENANCE_B2C_WORK = 199; // Включенные
+    const TELEKOM_MAINTENANCE_B2C_DISCONNECTED = 200; // Отключенные
+    const TELEKOM_MAINTENANCE_B2C_TRASH = 202; // Мусор
+    const TELEKOM_MAINTENANCE_B2C_TECH_FAILURE = 203; // Тех. отказ
+    const TELEKOM_MAINTENANCE_B2C_FAILURE = 204; // Отказ
+    const TELEKOM_MAINTENANCE_B2C_DUPLICATE = 205; // Дубликат
+    const TELEKOM_MAINTENANCE_B2C_WLINNONET = 206; // WL_Innonet
+    const TELEKOM_MAINTENANCE_B2C_EXCEPTION_FROM_BOOK_OF_PROD = 207; // Исключения из Книги Прод.
+    const TELEKOM_MAINTENANCE_B2C_PORTING_REQUEST_ACCEPTED = 213; // Заявка на портирование принята
+
 
     // Статусы, в которых можно получать платежи с внешних систем
     const PAY_AVAILABLE_STATUSES_TELEKOM_MAINTENANCE = [

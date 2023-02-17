@@ -34,7 +34,18 @@ class DisconnectedDebtFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
+        $query->andWhere(['cr.business_process_status_id' => $this->getBusinessProcessStatus()]);
         $query->andWhere(['c.is_blocked' => 1]);
     }
+
+    /**
+     * Получение статуса бизнес процесса
+     *
+     * @return int
+     */
+    protected function getBusinessProcessStatus()
+    {
+        return BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK;
+    }
+
 }

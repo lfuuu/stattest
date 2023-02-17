@@ -48,7 +48,7 @@ class AutoBlockFolder extends AccountGridFolder
         $query->addSelect(['block_date' => $this->getBlockDateQuery()]);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
+        $query->andWhere(['cr.business_process_status_id' => $this->getBusinessProcessStatus()]);
         $query->andWhere(['c.is_blocked' => 0]);
 
         try {

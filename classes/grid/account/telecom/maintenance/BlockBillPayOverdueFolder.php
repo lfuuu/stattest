@@ -61,10 +61,20 @@ class BlockBillPayOverdueFolder extends AccountGridFolder
             ->from(['clients' => ClientAccount::tableName()])
             ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
             ->andWhere(['contracts.business_id' => $this->grid->getBusiness()])
-            ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
+            ->andWhere(['contracts.business_process_status_id' => $this->getBusinessProcessStatus()])
             ->andWhere(['clients.is_bill_pay_overdue' => 1])
             ->andWhere(['clients.is_active' => 1]);
 
         $query->where(['IN', 'c.id', $statQuery]);
+    }
+
+    /**
+     * Получение статуса бизнес процесса
+     *
+     * @return int
+     */
+    protected function getBusinessProcessStatus()
+    {
+        return BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK;
     }
 }
