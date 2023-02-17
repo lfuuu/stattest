@@ -13,7 +13,6 @@ use app\modules\nnp\models\PackagePricelistNnpInternet;
 use app\modules\nnp\models\PackagePricelistNnpSms;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\Tag;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffBundle;
 use app\modules\uu\models\TariffCountry;
@@ -212,9 +211,20 @@ abstract class TariffForm extends \app\classes\Form
             } elseif (isset($post['dropButton'])) {
 
                 // удалить
-                $this->tariff->delete();
-                $this->id = null;
-                $this->isSaved = true;
+                try {
+                    $this->tariff->delete();
+                    $this->id = null;
+                    $this->isSaved = true;
+                } catch (\Exception $e) {
+                    $msg = $e->getMessage();
+                    if (strpos($msg, 'SQLSTATE[23000') !== false) {
+                        if (strpos($msg, TariffBundle::tableName()) !== false) {
+                            $msg = 'Бандл-тариф нельзя удалить, т.к. на него ссылаются бандл-пакеты';
+                        }
+                    }
+
+                    throw new \Exception($msg, $e->getCode());
+                }
 
             } elseif ($this->tariff->load($post)) {
 
