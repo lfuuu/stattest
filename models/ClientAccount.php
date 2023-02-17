@@ -1613,7 +1613,7 @@ class ClientAccount extends HistoryActiveRecord
                 break;
 
             case 'price_level':
-                $priceLevels = self::getPriceLevels();
+                $priceLevels = PriceLevel::getList();
                 if (isset($priceLevels[$value])) {
                     return $priceLevels[$value];
                 }
