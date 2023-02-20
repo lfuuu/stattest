@@ -24,6 +24,7 @@ use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\modules\uu\models\TariffVoipSource;
 use InvalidArgumentException;
 
 abstract class TariffForm extends \app\classes\Form
@@ -49,6 +50,9 @@ abstract class TariffForm extends \app\classes\Form
 
     /** @var TariffVoipNdcType[] */
     public $tariffNdcTypes;
+
+    /** @var TariffVoipSource[] */
+    public $tariffSource;
 
     /** @var TariffOrganization[] */
     public $tariffOrganizations;
@@ -81,6 +85,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return TariffVoipNdcType[]
      */
     abstract public function getTariffVoipNdcTypes();
+
+    /**
+     * @return TariffVoipSource[]
+     */
+    abstract public function getTariffVoipSources();
 
     /**
      * @return TariffOrganization[]
@@ -195,6 +204,7 @@ abstract class TariffForm extends \app\classes\Form
                 $this->tariffVoipCountries = $this->getTariffVoipCountries();
                 $this->tariffVoipCities = $this->getTariffVoipCities();
                 $this->tariffNdcTypes = $this->getTariffVoipNdcTypes();
+                $this->tariffSource = $this->getTariffVoipSources();
                 break;
         }
 
@@ -328,6 +338,10 @@ abstract class TariffForm extends \app\classes\Form
                             $tariffVoipNdcType = new TariffVoipNdcType();
                             $tariffVoipNdcType->tariff_id = $this->id;
                             $this->tariffNdcTypes = $this->crudMultipleSelect2($this->tariffNdcTypes, $post, $tariffVoipNdcType, 'ndc_type_id');
+
+                            $tariffVoipSource = new TariffVoipSource();
+                            $tariffVoipSource->tariff_id = $this->id;
+                            $this->tariffSource = $this->crudMultipleSelect2($this->tariffSource, $post, $tariffVoipSource, 'source_code', null, false);
                         }
 
                         if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY) {
@@ -360,6 +374,10 @@ abstract class TariffForm extends \app\classes\Form
                         $tariffVoipNdcType = new TariffVoipNdcType();
                         $tariffVoipNdcType->tariff_id = $this->id;
                         $this->tariffNdcTypes = $this->crudMultipleSelect2($this->tariffNdcTypes, $post, $tariffVoipNdcType, 'ndc_type_id');
+
+                        $tariffVoipSource = new TariffVoipSource();
+                        $tariffVoipSource->tariff_id = $this->id;
+                        $this->tariffSource = $this->crudMultipleSelect2($this->tariffSource, $post, $tariffVoipSource, 'source_code', null, false);
                         break;
 
                     case ServiceType::ID_BILLING_API_MAIN_PACKAGE:

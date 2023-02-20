@@ -421,6 +421,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_city_id", type = "integer", description = "ID города телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_ndc_type_id", type = "integer", description = "ID типа NDC телефонии", in = "query", default = ""),
+     *   @SWG\Parameter(name = "voip_source", type = "integer", description = "ID источника нормеа", in = "query", default = ""),
      *   @SWG\Parameter(name = "organization_id", type = "integer", description = "ID организации", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги ЛС", in = "query", default = ""),
@@ -451,6 +452,7 @@ class UuController extends ApiInternalController
      * @param int $voip_group_id
      * @param int $voip_city_id
      * @param int $voip_ndc_type_id
+     * @param int $voip_source
      * @param int $organization_id
      * @param string $voip_number
      * @param int $account_tariff_id
@@ -475,6 +477,7 @@ class UuController extends ApiInternalController
         $voip_group_id = null,
         $voip_city_id = null,
         $voip_ndc_type_id = null,
+        $voip_source = null,
         $organization_id = null,
         $voip_number = null,
         $account_tariff_id = null,
@@ -501,6 +504,7 @@ class UuController extends ApiInternalController
                 $voip_group_id,
                 $voip_city_id,
                 $voip_ndc_type_id,
+                $voip_source,
                 $organization_id,
                 $voip_number,
                 $account_tariff_id,
@@ -588,6 +592,7 @@ class UuController extends ApiInternalController
                     $tariff_status_id = $number->didGroup->getTariffStatusMain($clientAccount->price_level);
                     $voip_ndc_type_id = $number->ndc_type_id;
                     $voip_country_id = $number->country_code;
+                    $voip_source = $number->source;
                     break;
 
                 case ServiceType::ID_VOIP_PACKAGE_CALLS:
@@ -653,6 +658,7 @@ class UuController extends ApiInternalController
             'voip_group_id' => $voip_group_id,
             'voip_city_id' => $voip_city_id,
             'voip_ndc_type_id' => $voip_ndc_type_id,
+            'voip_source' => $voip_source,
             'organization_id' => $organization_id,
             'is_include_vat' => $is_include_vat,
             'tariff_country_id' => $tariff_country_id,
@@ -685,6 +691,7 @@ class UuController extends ApiInternalController
                         $voip_group_id,
                         $voip_city_id,
                         $voip_ndc_type_id,
+                        $voip_source,
                         $organization_id_tmp = null, // пакеты телефонии - по стране, все остальное - по организации
                         $voip_number,
                         $account_tariff_id
@@ -721,6 +728,7 @@ class UuController extends ApiInternalController
         $cacheKey = 'uuapitariff' . $tariff->id;
 
         if (!($data = \Yii::$app->cache->get($cacheKey))) {
+//        if (true) {
 
             $package = $tariff->package;
             $tariffVoipCountries = $tariff->tariffVoipCountries;
@@ -755,6 +763,7 @@ class UuController extends ApiInternalController
                 'voip_group' => $this->_getIdNameRecord($tariff->voipGroup),
                 'voip_cities' => $this->_getIdNameRecord($tariff->voipCities, 'city_id'),
                 'voip_ndc_types' => $this->_getIdNameRecord($tariff->voipNdcTypes, 'ndc_type_id'),
+                'voip_sources' => $this->_getIdNameRecord($tariff->voipSources, 'source_code'),
                 'organizations' => $this->_getIdNameRecord($tariff->organizations, 'organization_id'),
                 'api_package_price' => $tariff->service_type_id == ServiceType::ID_BILLING_API_MAIN_PACKAGE ? $this->_getApiPackagePrice($tariff->packageApi) : null,
                 'voip_package_pricelist' => $tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS ? $this->_getVoipPackagePricelistRecord($tariff->packagePricelists, ['pricelist' => 'pricelist']) : null, //package_pricelist

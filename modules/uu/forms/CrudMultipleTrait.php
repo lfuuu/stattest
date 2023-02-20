@@ -82,7 +82,7 @@ trait CrudMultipleTrait
      * @param string $formName
      * @return ActiveRecord[]
      */
-    protected function crudMultipleSelect2($models, $data, ActiveRecord $originalModel, $fieldName, $formName = null)
+    protected function crudMultipleSelect2($models, $data, ActiveRecord $originalModel, $fieldName, $formName = null, $isIdInt = true)
     {
         $returnModels = [];
 
@@ -92,7 +92,9 @@ trait CrudMultipleTrait
             /** @var string[] $dataParam */
             foreach ($data[$formName] as $id) {
 
-                $id = (int)$id;
+                if ($isIdInt) {
+                    $id = (int)$id;
+                }
                 if ($id && isset($models[$id]) && ($model = $models[$id]) && $model->{$fieldName} == $id) {
                     // update
                     unset($models[$id]);

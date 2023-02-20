@@ -82,7 +82,7 @@ class AccountTariffLog extends ActiveRecord
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
-            ['tariff_period_id', 'validatorNdcType'],
+            ['tariff_period_id', 'validatorNdcTypeAndSource'],
             ['tariff_period_id', 'validatorOneActive'],
             ['user_info', 'string'],
         ];
@@ -737,7 +737,7 @@ class AccountTariffLog extends ActiveRecord
      * @param string $attribute
      * @param array $params
      */
-    public function validatorNdcType($attribute, $params)
+    public function validatorNdcTypeAndSource($attribute, $params)
     {
         if (!$this->tariff_period_id) {
             // закрытие услуги всегда можно
@@ -765,6 +765,14 @@ class AccountTariffLog extends ActiveRecord
         if (!isset($this->tariffPeriod->tariff->voipNdcTypes[$number->ndc_type_id])) {
             $this->addError($attribute, 'Этот тариф для другого типа NDC, чем телефонный номер.');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
+            return;
+        }
+
+        $voipSources = $this->tariffPeriod->tariff->voipSources;
+
+        if ($voipSources && !in_array($number->source, array_keys($voipSources))) {
+            $this->addError($attribute, 'Неподходящий источник номера');
+            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_WRONG;
             return;
         }
     }

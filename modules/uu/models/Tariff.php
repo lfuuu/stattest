@@ -83,6 +83,7 @@ use yii\helpers\Url;
  * @property-read TariffOrganization[] $organizations
  * @property-read TariffTags[] $tags
  * @property-read TariffVoipNdcType[] $voipNdcTypes
+ * @property-read TariffVoipSource[] $voipSources
  * @property-read boolean $isTest
  *
  * @method static Tariff findOne($condition)
@@ -432,6 +433,15 @@ class Tariff extends ActiveRecord
     {
         return $this->hasMany(TariffVoipNdcType::class, ['tariff_id' => 'id'])
             ->indexBy('ndc_type_id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getVoipSources()
+    {
+        return $this->hasMany(TariffVoipSource::class, ['tariff_id' => 'id'])
+            ->indexBy('source_code');
     }
 
     /**

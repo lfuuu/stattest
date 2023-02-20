@@ -13,6 +13,7 @@ use app\modules\uu\models\TariffTags;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipCountry;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\modules\uu\models\TariffVoipSource;
 
 class TariffEditForm extends TariffForm
 {
@@ -78,6 +79,14 @@ class TariffEditForm extends TariffForm
     public function getTariffVoipNdcTypes()
     {
         return $this->tariff->voipNdcTypes;
+    }
+
+    /**
+     * @return TariffVoipSource[]
+     */
+    public function getTariffVoipSources()
+    {
+        return $this->tariff->voipSources;
     }
 
     /**
