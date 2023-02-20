@@ -179,7 +179,8 @@ return [
             ],
         ],
         'mutex' => [
-            'class' => 'yii\redis\Mutex',
+//            'class' => 'yii\redis\Mutex',
+            'class' => 'yii\mutex\MysqlMutex',
         ],
     ],
     'modules' => [
