@@ -13,6 +13,7 @@ use yii\helpers\Url;
  * @property int $code
  * @property int $access_token
  * @property int $name
+ * @property int $is_active
  * @property int $check_organization_id
  *
  * @method static PaymentApiChannel findOne($condition)
