@@ -27,16 +27,10 @@ $baseView = $this;
 $columns = [
     [
         'class' => ActionColumn::class,
-        'template' => '{update} {delete}',
+        'template' => '{update}',
         'buttons' => [
             'update' => function ($url, TariffStatus $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, TariffStatus $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
                         'url' => $model->getUrl(),
                     ]
                 );
@@ -51,6 +45,19 @@ $columns = [
     [
         'attribute' => 'service_type_id',
         'class' => ServiceTypeColumn::class,
+    ],
+    [
+        'class' => ActionColumn::class,
+        'template' => '{delete}',
+        'buttons' => [
+            'delete' => function ($url, TariffStatus $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 
