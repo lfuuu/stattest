@@ -170,7 +170,8 @@ class ServiceType extends ActiveRecord
      */
     public static function getList(
         $isWithEmpty = false,
-        $isWithNullAndNotNull = false
+        $isWithNullAndNotNull = false,
+        $isOnlyTopLevelStatuses = false
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -178,7 +179,7 @@ class ServiceType extends ActiveRecord
             $indexBy = 'id',
             $select = 'name',
             $orderBy = ['id' => SORT_ASC],
-            $where = []
+            $where = ($isOnlyTopLevelStatuses ? ['parent_id' => null] : [])
         );
     }
 
