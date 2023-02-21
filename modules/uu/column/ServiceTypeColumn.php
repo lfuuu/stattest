@@ -14,11 +14,12 @@ class ServiceTypeColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
+    public $isOnlyTopLevelStatuses = false;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = ServiceType::getList(true);
+        $this->filter = ServiceType::getList(true, false, $this->isOnlyTopLevelStatuses);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' service-type-column';
     }
