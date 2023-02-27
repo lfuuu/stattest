@@ -144,6 +144,11 @@ class PortedRussiaRouteMncController extends PortedController
         $this->_db->createCommand("SELECT nnp.set_route_mnc_operator_id()")->execute();
     }
 
+    public function actionMakeSyncEvent()
+    {
+        \Yii::$app->dbPg->createCommand("select event.notify_event_to_all('nnp_route_mnc')")->execute();
+    }
+
     /**
      * Полный цикл портирования номеров (скачивание, обновление, линковка, синхронизация)
      */
@@ -173,11 +178,11 @@ class PortedRussiaRouteMncController extends PortedController
 
         $this->resetOperatorIds();
 
-//
-//        echo PHP_EOL . date('r') . ': Создаем событие синхронизации';
-//        $this->actionNotifyEventPortedNumber();
-//
-//
+
+        echo PHP_EOL . date('r') . ': Создаем событие синхронизации';
+        $this->actionMakeSyncEvent();
+
+
         echo PHP_EOL . date('r') . ': End porting numbers';
     }
 

@@ -303,7 +303,7 @@ SQL;
 
     public function actionNotifyEventPortedNumber()
     {
-//        Number::notifySync();
+        Number::notifySync();
 
         return ExitCode::OK;
     }
