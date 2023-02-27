@@ -18,7 +18,8 @@ class PaymentApiAccessCheckerValidator extends Validator
             || !$model->channel
             || !PaymentApiChannel::find()->where([
                 'code' => $model->channel,
-                'access_token' => $model->access_token
+                'access_token' => $model->access_token,
+                'is_active' => 1,
             ])->exists()
         ) {
             $this->addError($model, $attribute, $this->errorMessage);
