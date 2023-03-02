@@ -35,6 +35,10 @@ class ClientAccountOptions extends ActiveRecord
     const OPTION_UPLOAD_TO_SALES_BOOK = 'upload_to_sales_book'; // default = 1
     const OPTION_TRUST_LEVEL = 'trust_level_id';
 
+    const OPTION_SBIS_DOC_BASE = 'sbis_document_base';
+    const OPTION_SBIS_DOC_BASE_BILL = 'bill'; // default
+    const OPTION_SBIS_DOC_BASE_CONTRACT = 'contract';
+
     public static $settingsAdvance = [
         self::SETTINGS_ADVANCE_NOT_SET => 'Не выставляются автоматически',
         self::SETTINGS_ADVANCE_1_AND_15 => 'Выставляются каждого 1 и 15 числа',
@@ -44,6 +48,12 @@ class ClientAccountOptions extends ActiveRecord
     private static $_defaults = [
         self::OPTION_UPLOAD_TO_SALES_BOOK => "1", // там только строки
         self::OPTION_TRUST_LEVEL => "0", // 0 - Не установлен
+        self::OPTION_SBIS_DOC_BASE => self::OPTION_SBIS_DOC_BASE_BILL,
+    ];
+
+    public static $sbisDocumentBaseList = [
+        self::OPTION_SBIS_DOC_BASE_BILL => 'Счет',
+        self::OPTION_SBIS_DOC_BASE_CONTRACT => 'Договор',
     ];
 
     public static $infoOptions = [
