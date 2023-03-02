@@ -716,6 +716,8 @@ abstract class TariffForm extends \app\classes\Form
             'price_per_unit',
             'price_min',
             'resource_id',
+            'is_can_manage',
+            'is_show_resource',
         ];
         foreach ($tariffResources as $tariffResource) {
             $tariffResourceCloned = new TariffResource();
