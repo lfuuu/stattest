@@ -260,6 +260,13 @@ use kartik\widgets\ActiveForm;
             ?>
         </div>
         <div class="col-sm-3">
+            <?= $f
+                ->field($model, "options[" . ClientAccountOptions::OPTION_SBIS_DOC_BASE . "]")
+                ->dropDownList(ClientAccountOptions::$sbisDocumentBaseList)
+                ->label('СБИС. Основание. (Акт)')
+            ?>
+        </div>
+        <div class="col-sm-3">
             <?php
             if (!$exchangeError) {
                 echo $f->field($model, 'exchange_status')->dropDownList(SBISExchangeStatus::$states);
