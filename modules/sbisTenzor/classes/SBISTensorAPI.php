@@ -426,19 +426,19 @@ class SBISTensorAPI
      * Получить информацию о контрагенте
      *
      * @param string $inn
-     * @param string $kpp
+     * @param string $branchCode
      * @return array
      * @throws BadRequestHttpException
      * @throws SBISTensorException
      * @throws \yii\base\Exception
      */
-    public function getContractorInfoIp($inn)
+    public function getContractorInfoIp($inn, $branchCode = 0)
     {
         $data = [
             'Участник' => [
                 'СвФЛ' => [
                     'ИНН' => $inn,
-                ],
+                ] + ($branchCode ? ['КодФилиала' => strval($branchCode)] : []),
             ],
         ];
 
@@ -496,7 +496,7 @@ class SBISTensorAPI
                 break;
 
             case ClientContragent::IP_TYPE:
-                $result = $this->getContractorInfoIp($client->getInn());
+                $result = $this->getContractorInfoIp($client->getInn(), $client->getBranchCode());
                 break;
 
             case ClientContragent::LEGAL_TYPE:
