@@ -1,36 +1,26 @@
 <?php
 
-namespace app\classes\payments\recognition;
+namespace app\classes\payments\recognition\processors;
 
-use app\classes\helpers\LoggerSimpleInternal;
-use app\classes\Singleton;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\modules\uu\models\AccountTariff;
 
-class PaymentOwnerRecognition extends Singleton
+class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
 {
-    /** @var LoggerSimpleInternal */
-    private $logger = null;
-    public $isIdentificationPayment = false;
-
-    public function who($model)
+    public static function detect($infoJson): bool
     {
-        $this->logger = new LoggerSimpleInternal();
-        $this->listInnAccountIds = [];
-        $this->isIdentificationPayment = false;
-
-        if (!$model->info_json) {
-            $this->logger->add('Пустой info_json');
-            return;
+        if (!$infoJson || !is_array($infoJson) || !isset($infoJson['paymentPurpose'])) {
+            return false;
         }
 
-        $info = json_decode($model->info_json, true);
+        return true;
+    }
 
-        if (!$info || !isset($info['paymentPurpose']) || !$info['paymentPurpose']) {
-            return;
-        }
+    public function yetWho(): int
+    {
+        $info = $this->infoJson;
 
         $purpose = $info['paymentPurpose'];
 
@@ -49,7 +39,7 @@ class PaymentOwnerRecognition extends Singleton
         $innAccountId = $this->accountQualifierByInn($info['payerInn'] ?? $data['inn'] ?? false, $descriptionAccountId);
         if (!$innAccountId) {
             $this->logger->add('Итого: Л/С не найден');
-            return;
+            return 0;
         }
 
         $this->logger->add('Результат: Л/С: ' . $innAccountId);
@@ -57,13 +47,7 @@ class PaymentOwnerRecognition extends Singleton
         return $innAccountId;
     }
 
-    public function getLog()
-    {
-        return $this->logger->get();
-    }
-
-
-    public function parseDescription($description)
+    private function parseDescription($description)
     {
         $matches = [];
 
@@ -75,7 +59,7 @@ class PaymentOwnerRecognition extends Singleton
         if (preg_match("/id(\d{5,})/", $description, $matches)) {
             $data['account_id'] = $matches[1];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
-        } elseif (preg_match("/(л\/с|лицевому счету)\s*(#|№| )?(\d{5,6})[^\d-]/iu", $description, $matches)) {
+        } elseif (preg_match("/(л[\/\.\s]*с[.]*|лицевому счету)\s*(#|№| )?(\d{5,6})[^\d-]/iu", $description, $matches)) {
             $data['account_id'] = $matches[3];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
         }
@@ -100,7 +84,7 @@ class PaymentOwnerRecognition extends Singleton
         return $data;
     }
 
-    public function accountQualifierByDescription($data)
+    private function accountQualifierByDescription($data)
     {
         if (isset($data['bill_no'])) {
             $accountId = Bill::find()->where(['bill_no' => $data['bill_no']])->select('client_id')->scalar();
@@ -112,6 +96,7 @@ class PaymentOwnerRecognition extends Singleton
                 $this->logger->add('Л/С по счету не найден');
             }
         }
+
 
         if (isset($data['account_id'])) {
             $accountId = ClientAccount::find()->where(['id' => $data['account_id']])->select('id')->scalar();
@@ -169,11 +154,11 @@ class PaymentOwnerRecognition extends Singleton
         }
     }
 
-    public function accountQualifierByInn($inn, $descriptionAccountId)
+    private function accountQualifierByInn($inn, $descriptionAccountId)
     {
         if (!$inn) {
             $this->logger->add('ИНН не задан');
-            return;
+            return 0;
         }
 
         if (!$descriptionAccountId) {
@@ -188,11 +173,11 @@ class PaymentOwnerRecognition extends Singleton
                 $this->isIdentificationPayment = true;
                 return $accountId;
             } elseif ($accountIds) {
-                $this->logger->add("Нет Л/С по ИНН {$inn}");
-                return ;
-            } else {
                 $this->logger->add('нет однозначного выбора ЛС: ' . implode(", ", array_splice($accountIds, 0, 10)) . (count($accountIds) > 10 ? '...' : ''));
-                return ;
+                return 0;
+            } else {
+                $this->logger->add("Нет Л/С по ИНН {$inn}");
+                return 0;
             }
         }
 
@@ -203,30 +188,26 @@ class PaymentOwnerRecognition extends Singleton
                 $this->logger->add("Л/С {$descriptionAccountId} ЕСТЬ в списке тех, у кого есть ИНН {$inn}");
                 $this->isIdentificationPayment = true;
                 return $descriptionAccountId;
+            } elseif (count($accountIds) == 1) {
+                $accountId = reset($accountIds);
+                $this->logger->add("Найден единственный Л/С {$accountId} у ИНН: {$inn}");
+                $this->isIdentificationPayment = true;
+                return $accountId;
             } else {
-                $this->logger->add("Л/С {$descriptionAccountId} НЕТ в списке тех, у кого есть ИНН {$inn} (" . $this->getList($accountIds) . ")");
+                $this->logger->add("Л/С {$descriptionAccountId} НЕТ в списке тех, у кого есть ИНН {$inn} (" . $this->getAccountListToString($accountIds) . ")");
                 $this->logger->add("Требуется проверка");
-                return;
+                return 0;
             }
         } else {
             $this->logger->add("Нет Л/С по ИНН {$inn}");
             $this->logger->add("Требуется проверка");
-            return;
+            return 0;
         }
 
-        if (count($accountIds) == 1) {
-            $accountId = reset($accountIds);
-            $this->logger->add("Найден единственный Л/С {$accountId} у ИНН: {$inn}");
-            $this->isIdentificationPayment = true;
-            return $accountId;
-        }
-
-        // $accountIds && count($accountIds) > 1
-        $this->logger->add('нет однозначного выбора ЛС: ' . implode(", ", array_splice($accountIds, 0, 10)) . (count($accountIds) > 10 ? '...' : ''));
-        return;
+        return 0;
     }
 
-    private function getAccountIdsByInn($inn, $isActive = true)
+    private function getAccountIdsByInn($inn, $isActive = true): array
     {
         $query = ClientAccount::find()
             ->alias('c')
@@ -243,10 +224,5 @@ class PaymentOwnerRecognition extends Singleton
         }
 
         return $query->column();
-    }
-
-    private function getList($array)
-    {
-        return implode(", ", array_splice($array, 0, 10)) . (count($array) > 10 ? '...' : '');
     }
 }

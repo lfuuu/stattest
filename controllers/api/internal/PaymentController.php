@@ -4,6 +4,8 @@ namespace app\controllers\api\internal;
 
 use app\classes\Assert;
 use app\classes\payments\recognition\PaymentOwnerRecognition;
+use app\classes\payments\recognition\PaymentRecognitionFactory;
+use app\classes\payments\recognition\processors\RecognitionProcessor;
 use app\classes\validators\BillNoValidator;
 use app\classes\validators\FormFieldValidator;
 use app\classes\validators\JsonValidator;
@@ -104,11 +106,14 @@ class PaymentController extends ApiInternalController
             ->select('check_organization_id')
             ->scalar();
 
-        $recognizer = PaymentOwnerRecognition::me();
+        $infoJson =  json_decode($requestData['info_json'] ?? '{}', true);
+
+        $processor = PaymentRecognitionFactory::me()->getProcessor($infoJson);
+
         $isIdentificationPayment = false;
-        if ($recognizedAccountId = $recognizer->who($model)) {
+        if ($recognizedAccountId = $processor->who()) {
             $model->account_id = $recognizedAccountId;
-            $isIdentificationPayment = $recognizer->isIdentificationPayment;
+            $isIdentificationPayment = $processor->isIdentificationPayment;
         }
 
 
@@ -140,7 +145,6 @@ class PaymentController extends ApiInternalController
 
             $channels = PaymentApiChannel::getList();
 
-            $infoJson =  json_decode($requestData['info_json'] ?? '{}', true);
             $payment->comment = $infoJson['comment'] ?? ucfirst($channels[$model->channel]) . " #" . $model->payment_no . ' (API)';
 
             if ($channelOrganizationId) {
@@ -169,7 +173,7 @@ class PaymentController extends ApiInternalController
             $paymentInfo->payment_no = $payment->payment_no;
             $paymentInfo->operation_id = $model->operation_id;
             $paymentInfo->info_json = $requestData['info_json'] ?? '';
-            $paymentInfo->log = $recognizer->getLog();
+            $paymentInfo->log = $processor->getLog();
 
             unset($requestData['info_json']);
             $paymentInfo->request = json_encode($requestData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
