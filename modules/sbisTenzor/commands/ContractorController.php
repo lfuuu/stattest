@@ -169,7 +169,7 @@ class ContractorController extends Controller
                     break;
 
                 case ClientContragent::IP_TYPE:
-                    $result = $api->getContractorInfoIp($client->getInn());
+                    $result = $api->getContractorInfoIp($client->getInn(), $branchCode);
                     break;
 
                 case ClientContragent::LEGAL_TYPE:
