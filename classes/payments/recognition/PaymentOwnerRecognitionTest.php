@@ -16,16 +16,18 @@ class PaymentOwnerRecognitionTest
 {
     public function runTest()
     {
-        $recognizer = PaymentOwnerRecognition::me();
+//        $recognizer = PaymentOwnerRecognition::me();
+        $factory = PaymentRecognitionFactory::me();
         foreach ($this->getTestData() as $value) {
-            $model = new _Record();
-            $model->info_json = json_encode($value);
+//            $model = new _Record();
+//            $model->info_json = json_encode($value);
 
-            $recognizer->who($model);
+            $processor = $factory->getProcessor($value);
+            $processor->who();
 
             echo PHP_EOL . '-------------------------' . PHP_EOL;
-            print_r(json_decode($model->info_json, true));
-            echo PHP_EOL . $recognizer->getLog();
+            print_r(json_decode($value->info_json, true));
+            echo PHP_EOL . $processor->getLog();
         }
     }
 
@@ -145,7 +147,11 @@ TEXT;
          * })
          */
 
-//        $strs = ' @@ 1198 @@ Назн:услуги связи по счету №202212-010260 от 01.12.22 Телефоннат за ООО "ПГ"АЛМЕТ" ИНН 7460031716 (N842 30.12.22) тел89678656691';
+        $strs = '7734236387 @@ 90000 @@ Оплата по л.с. 112705 за услуги связи. Сумма 90000-00 В т.ч. НДС  (20%) 15000-00';
+
+        return [
+            ['debtorAccount' => ['iban' => '778547309143tinkoff']]
+        ];
 
         $data = [];
         foreach (explode("\n", $strs) as $line) {
