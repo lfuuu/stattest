@@ -152,10 +152,18 @@ class ClientSearch extends ClientAccount
             ->orFilterWhere(['contract.manager' => $this->manager])
             ->orFilterWhere(['contract.account_manager' => $this->account_manager])
             ->orFilterWhere(['contract.number' => $this->contractNo])
-            ->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
-            ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
-            ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName])
             ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
+
+        if ($this->companyName) {
+//            if (\Yii::$app->request->isAjax) {
+                $query->orWhere(new Expression("match(contragent.name_full) against (:searchStr IN BOOLEAN MODE)", ['searchStr' => '*'.preg_replace('/\s+/', '*', $this->companyName).'*']));
+//            } else {
+//                $query->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
+//                    ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
+//                    ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName]);
+//            }
+            $dataProvider->setSort(false);
+        }
 
         if ($this->email) {
             $query->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
