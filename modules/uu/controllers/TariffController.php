@@ -7,6 +7,7 @@ namespace app\modules\uu\controllers;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\models\Currency;
 use app\modules\uu\filter\TariffFilter;
 use app\modules\uu\forms\TariffAddForm;
 use app\modules\uu\forms\TariffEditForm;
@@ -69,8 +70,12 @@ class TariffController extends BaseController
      */
     public function actionIndex($serviceTypeId = ServiceType::ID_VPBX)
     {
+        $getData = Yii::$app->request->get();
+        if (\Yii::$app->isRus() && !isset($getData['TariffFilter'])) {
+            $getData['TariffFilter']['currency_id'] = Currency::RUB;
+        }
         $filterModel = new TariffFilter($serviceTypeId);
-        $filterModel->load(Yii::$app->request->get());
+        $filterModel->load($getData);
         $filterModel->initExtraValues();
 
         return $this->render('index', ['filterModel' => $filterModel]);
