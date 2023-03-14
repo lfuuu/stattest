@@ -19,6 +19,7 @@ class PaymentOwnerRecognitionTest
 //        $recognizer = PaymentOwnerRecognition::me();
         $factory = PaymentRecognitionFactory::me();
         foreach ($this->getTestData() as $value) {
+            var_dump($value);
 //            $model = new _Record();
 //            $model->info_json = json_encode($value);
 
@@ -150,7 +151,14 @@ TEXT;
         $strs = '7734236387 @@ 90000 @@ Оплата по л.с. 112705 за услуги связи. Сумма 90000-00 В т.ч. НДС  (20%) 15000-00';
 
         return [
-            ['debtorAccount' => ['iban' => '778547309143tinkoff']]
+            [
+                'debtorAccount' => ['iban' => '778547309143tinkoff'],
+                'debtorName' => 'Contact Plus Consulting Kft.'
+            ],
+            [
+                'debtorAccount' => ['iban' => 'xxxx'],
+                'debtorName' => 'SDRC SPORT DIAGNOSZTIKAI ÉS REHABIL'
+            ],
         ];
 
         $data = [];
