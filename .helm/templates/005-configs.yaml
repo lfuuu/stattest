@@ -331,6 +331,9 @@ data:
         'LK_PATH' => 'https://{{ .params.core_server }}/lk/',
         'FEEDBACK_SERVER' => '{{ .params.feedback_server }}',
         'FEEDBACK_API_KEY' => '{{ .Values.params_prod.feedback_api_key }}',
+        {{- if (eq (env "ENVNAME") "prod") }}
+        'KAFKA_BROKERS' => '{{ ternary .Values.ebc_kafka_prod_eu.brokers .Values.ebc_kafka_prod.brokers (eq (env "COUNTRY") "EU") }}',
+        {{ end }}
         'MAILER' => [
             'url' => 'http://{{ printf "mailer-processor-service-%s-%s-%s" .Chart.Name (env "ENVNAME" | lower) (env "COUNTRY" | lower) }}/',
             'auth' => [

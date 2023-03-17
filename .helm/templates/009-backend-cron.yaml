@@ -24,6 +24,24 @@
 
 {{/* fail (printf "%s-%s-%s" (env "ENVNAME") "-" .postgres_user) */}}
 {{/* fail (.Values.redis_prod | toJson) */}}
+
+{{- if (eq (env "ENVNAME") "prod") }}
+
+{{ $_ := set . "ebc_kafka" (ternary .Values.ebc_kafka_prod_eu .Values.ebc_kafka_prod (eq (env "COUNTRY") "EU")) }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kafka-ssl-secrets-{{ .Chart.Name }}
+type: Opaque
+stringData:
+  ca.crt: |
+{{ .ebc_kafka.crts.cluster_crt | indent 4 }}
+  tls.crt: |
+{{ .ebc_kafka.crts.client_crt | indent 4 }}
+  tls.key: |
+{{ .ebc_kafka.crts.client_key | indent 4 }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -73,6 +91,11 @@ spec:
         - name: config-volume
           subPath: {{ ternary "crontab.file.dev" "crontab.file.eu" (eq (env "ENVNAME") "dev") }}
           mountPath: /tmp/crons
+{{- if (eq (env "ENVNAME") "prod") }}
+        - name: kafka-ssl-secrets
+          mountPath: /etc/kafka-ssl
+          readOnly: true
+{{ end }}
         - name: store
           mountPath: {{ .Values.ci_dir_home }}/store
         env:
@@ -87,6 +110,11 @@ spec:
       - name: store
         persistentVolumeClaim:
           claimName: {{ printf "nfs-pvc-stat-%s-store-cron" (env "COUNTRY" | lower) }}
+{{- if (eq (env "ENVNAME") "prod") }}
+      - name: kafka-ssl-secrets
+        secret:
+          secretName: kafka-ssl-secrets-{{ .Chart.Name }}
+{{ end }}
       - name: health
       - name: crontab-dir
         emptyDir: {}
