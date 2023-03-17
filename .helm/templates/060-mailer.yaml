@@ -145,7 +145,7 @@ data:
     }
     http {
       server {
-        listen 80 default_server;
+        listen 0.0.0.0:80 default_server;
         ### listen [::]:80 default_server;
       
         # Set nginx to serve files from the shared volume!
