@@ -2,7 +2,8 @@
 
 namespace app\classes;
 
-use app\models\EventQueue;
+use app\classes\adapters\EbcKafka;
+use app\dao\ClientSuperDao;
 
 class ChangeClientStructureRegistrator extends Singleton
 {
@@ -10,6 +11,9 @@ class ChangeClientStructureRegistrator extends Singleton
     const CONTRACT = 'contract';
     const CONTRAGENT = 'contragent';
     const SUPER = 'super';
+
+    const EVENT = 'change_client_struct';
+    const TOPIC = 'stat-event--full-client-struct';
 
     const objTypes = [
         self::ACCOUNT,
@@ -88,10 +92,17 @@ class ChangeClientStructureRegistrator extends Singleton
             return ;
         }
 
-        EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data);
-
         $this->truncateData();
 
         return $data;
+    }
+
+    public function anonce($superId)
+    {
+        return EbcKafka::me()->sendMessage(
+            self::TOPIC,
+            ClientSuperDao::me()->getSuperClientStructByIds([$superId]),
+            (string)$superId
+        );
     }
 }

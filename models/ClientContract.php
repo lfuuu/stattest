@@ -15,7 +15,6 @@ use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\SetFieldTypeHelper;
-use app\models\ClientDocument;
 use yii\db\ActiveQuery;
 
 /**
@@ -183,7 +182,7 @@ class ClientContract extends HistoryActiveRecord
             'SetClientContractOfferDate' => SetClientContractOfferDate::class,
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
-//            'ClientChangeNotifier' => ClientChangeNotifier::class,
+            'ClientChangeNotifier' => ClientChangeNotifier::class,
         ];
     }
 

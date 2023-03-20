@@ -4,6 +4,7 @@ namespace app\commands;
 
 use app\classes\Assert;
 use app\classes\ChangeClientStructureRegistrator;
+use app\dao\ClientSuperDao;
 use app\models\EventQueue;
 use app\models\User;
 use yii\console\Controller;
@@ -52,6 +53,14 @@ class NotifyController extends Controller
         do {
             if ($data = $registr->checkDataForSend()) {
                 echo PHP_EOL . date("r") . ': ChangeClientStructure: ' . preg_replace('/\s+/', " ", print_r($data, true));
+            }
+
+            $superIds = ClientSuperDao::me()->getSuperIds($data['clientIds'] ?? null, null, $data['contractIds'] ?? null, $data['contragentIds'] ?? null, $data['accountIds'] ?? null);
+
+            foreach ($superIds as $superId) {
+                echo PHP_EOL . 'SuperId: ' . $superId .PHP_EOL;
+
+                EventQueue::go(ChangeClientStructureRegistrator::EVENT, $superId);
             }
 
             sleep($sleepTime);

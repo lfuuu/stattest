@@ -340,7 +340,7 @@ class ClientAccount extends HistoryActiveRecord
             'EffectiveVATRate' => EffectiveVATRate::class,
             'SetTaxVoip' => SetTaxVoip::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class, // Логирование изменений всегда в конце
-//            'ClientChangeNotifier' => ClientChangeNotifier::class,
+            'ClientChangeNotifier' => ClientChangeNotifier::class,
         ];
     }
 
