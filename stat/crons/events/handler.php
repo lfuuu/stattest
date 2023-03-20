@@ -199,6 +199,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
         $flags['is1CServer'] = defined('SYNC1C_UT_SOAP_URL') && SYNC1C_UT_SOAP_URL;
         $flags['isRobocallServer'] = ApiRobocall::me()->isAvailable();
         $flags['isRobocallInternalServer'] = ApiRobocallInternal::me()->isAvailable();
+        $flags['isEbcKafka'] = \app\classes\adapters\EbcKafka::me()->isAvailable();
     }
 
     $isCoreServer = $flags['isCoreServer'];
@@ -220,6 +221,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     $is1CServer = $flags['is1CServer'];
     $isRobocallServer = $flags['isRobocallServer'];
     $isRobocallInternalServer = $flags['isRobocallInternalServer'];
+    $isEbcKafka = $flags['isEbcKafka'];
     echo '. ';
 
 
@@ -588,9 +590,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::CREATE_CONTRACT:
                     \app\classes\behaviors\important_events\ClientContract::eventAddContract($param);
-                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);
-                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['contragent_id']);
-                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::SUPER, $param['super_client_id']);
+                    $registr = ChangeClientStructureRegistrator::me();
+                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);
+                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['contragent_id']);
+                    $registr->registrChange(ChangeClientStructureRegistrator::SUPER, $param['super_client_id']);
                     break;
 
                 case EventQueue::ADD_ACCOUNT:
@@ -607,6 +610,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case EventQueue::ADD_SUPER_CLIENT:
                     ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::SUPER, $param);
                     break;
+
+                case ChangeClientStructureRegistrator::EVENT:
+                    $info = $isEbcKafka ? ChangeClientStructureRegistrator::me()->anonce($param) : EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
 
 
                 // --------------------------------------------
