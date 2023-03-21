@@ -36,10 +36,13 @@ class EbcKafka extends Singleton
         $config->set('group.id', self::DEFAULT_GROUPID);
         $config->set('metadata.broker.list', \Yii::$app->params['KAFKA_BROKERS']);
         $config->set('client.id', self::DEFAULT_GROUPID);
-        $config->set('security.protocol', 'ssl');
-        $config->set('ssl.ca.location', self::SSL_CA_CRT);
-        $config->set('ssl.key.location', self::SSL_TLS_KEY);
-        $config->set('ssl.certificate.location', self::SSL_TLS_CRT);
+
+        if (\Yii::$app->params['IS_KAFKA_WITH_SSL'] ?? false) {
+            $config->set('security.protocol', 'ssl');
+            $config->set('ssl.ca.location', self::SSL_CA_CRT);
+            $config->set('ssl.key.location', self::SSL_TLS_KEY);
+            $config->set('ssl.certificate.location', self::SSL_TLS_CRT);
+        }
 
         $this->producer = new \RdKafka\Producer($config);
     }
