@@ -332,7 +332,9 @@ data:
         'FEEDBACK_SERVER' => '{{ .params.feedback_server }}',
         'FEEDBACK_API_KEY' => '{{ .Values.params_prod.feedback_api_key }}',
         {{- if (eq (env "ENVNAME") "prod") }}
-        'KAFKA_BROKERS' => '{{ ternary .Values.ebc_kafka_prod_eu.brokers .Values.ebc_kafka_prod.brokers (eq (env "COUNTRY") "EU") }}',
+        {{ $_ := set . "ebc_kafka" (ternary .Values.ebc_kafka_prod_eu .Values.ebc_kafka_prod (eq (env "COUNTRY") "EU")) }}
+        'KAFKA_BROKERS' => '{{ .ebc_kafka.brokers }}',
+        'IS_KAFKA_WITH_SSL' => {{ ternary true false (eq .ebc_kafka.is_with_ssl "1") }},
         {{ end }}
         'MAILER' => [
             'url' => 'http://{{ printf "mailer-processor-service-%s-%s-%s" .Chart.Name (env "ENVNAME" | lower) (env "COUNTRY" | lower) }}/',
