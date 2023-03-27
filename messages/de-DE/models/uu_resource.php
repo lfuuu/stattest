@@ -61,6 +61,7 @@ return [
     'Resource #62' => 'Sprachkanalisierung',
     'Resource #65' => 'Routing nach B-Nummer-Region',
     'Resource #66' => 'Trunk der externen PBX',
+    'Resource #70' => 'Zusätzliche Seite',
 
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',

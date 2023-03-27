@@ -59,6 +59,7 @@ return [
     'Resource #60' => 'Pomocník',
     'Resource #62' => 'Hlasová kanalizácia',
     'Resource #66' => 'Trunk pre Vonkajšiu ústredňu',
+    'Resource #70' => 'Ďalšie stránky',
 
 
     'Gb' => 'Gb',
