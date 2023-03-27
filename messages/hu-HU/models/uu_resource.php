@@ -54,6 +54,7 @@ return [
     'Resource #62' => 'Hangcsatornázás',
     'Resource #65' => 'Hívószám automatikus cseréje',
     'Resource #66' => 'Külső VPBX trönkje',
+    'Resource #70' => 'További webhely',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

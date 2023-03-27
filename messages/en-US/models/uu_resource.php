@@ -62,6 +62,7 @@ return [
     'Resource #62' => 'Voice channeling',
     'Resource #65' => 'Automatic replacement of phone number',
     'Resource #66' => 'Trunk for external PBX',
+    'Resource #70' => 'Additional site',
 
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
