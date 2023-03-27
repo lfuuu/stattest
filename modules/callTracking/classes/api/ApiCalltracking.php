@@ -35,8 +35,8 @@ class ApiCalltracking extends Singleton
      */
     private function _getApiUrl()
     {
-        $phoneHost = $this->_getHost();
-        return $phoneHost ? 'https://' . $phoneHost . '/calltracking/api/' : '';
+        $calltrackingServer = $this->_getHost();
+        return $calltrackingServer ? 'https://' . $calltrackingServer . '/daemon/api/private/api/calltracker/service/' : '';
     }
 
 

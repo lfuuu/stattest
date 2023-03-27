@@ -137,7 +137,7 @@ postgres_history_dev:
 
 params_prod:
   robocall_internal_server: https://robocall.mcn.ru
-  calltracking_server: feedback.mcn.ru
+  calltracking_server: calltracking.mcn.ru
   feedback_server: feedback.mcn.ru
   api_mcn_server: https://api.mcn.ru/v2/rest
   phone_server: vpbx.mcn.ru
@@ -155,7 +155,7 @@ params_prod:
 
 params_prod_eu:
   robocall_internal_server: https://robocall.kompaas.tech
-  calltracking_server: feedback.kompaas.tech
+  calltracking_server: calltracking.kompaas.tech
   feedback_server: feedback.kompaas.tech
   api_mcn_server: https://api.kompaas.tech/v2/rest
   phone_server: vpbx.kompaas.tech
