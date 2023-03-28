@@ -82,6 +82,9 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
         return $query->column();
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     private function findByName($name): int
     {
         $accountId = $this->getAccountIdByName($name);
@@ -95,18 +98,5 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
         return $accountId;
     }
 
-    private function getAccountIdByName($name): int
-    {
-        $sql = <<<SQL
-        SELECT `client`.id
-  FROM `clients` `client`
-         INNER JOIN `client_contract` `contract` ON contract.id = client.contract_id
-         INNER JOIN `client_contragent` `contragent` ON contragent.id = contract.contragent_id
-WHERE match(name_full) against('*{$name}*' IN BOOLEAN MODE) > 20
-ORDER BY match(name_full) against('*{$name}*' IN BOOLEAN MODE) desc, client.is_active desc, client.id desc
-LIMIT 1
-SQL;
 
-        return ClientAccount::getDb()->createCommand($sql)->queryScalar() ?: 0;
-    }
 }
