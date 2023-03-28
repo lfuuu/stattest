@@ -18,6 +18,9 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
         return true;
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     public function yetWho(): int
     {
         $info = $this->infoJson;
@@ -35,6 +38,35 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
                 $this->logger->add('Результат поиска по описанию: Л/С: ' . $descriptionAccountId);
             }
         }
+
+       $isPerson = false;
+       if (isset($info['payerName'])) {
+           $isPerson = $this->isPerson($info['payerName']);
+       }
+
+        if ($isPerson) {
+            $this->logger->add('У Частного лица не проверяем Л/С по ИНН');
+
+            if ($descriptionAccountId) {
+                $this->logger->add('Результат: Л/С: ' . $descriptionAccountId);
+                return $descriptionAccountId;
+            }
+
+            $accountIdByName = $this->getAccountIdByName($isPerson, 15);
+            if ($accountIdByName) {
+                $this->logger->add('Найдено по матчингу: Л/С ' . $accountIdByName);
+                return $accountIdByName;
+            }
+
+            $this->logger->add('Не найдено по матчингу');
+            $accountIdByName = $this->getAccountIdByName($isPerson, 5);
+            if ($accountIdByName) {
+                $this->logger->add('Возможно это Л/С: ' . $accountIdByName);
+            }
+
+            return 0;
+        }
+
 
         $innAccountId = $this->accountQualifierByInn($info['payerInn'] ?? $data['inn'] ?? false, $descriptionAccountId);
         if (!$innAccountId) {
@@ -59,7 +91,7 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
         if (preg_match("/id(\d{5,})/", $description, $matches)) {
             $data['account_id'] = $matches[1];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
-        } elseif (preg_match("/(л[\/\.\s]*с[.]*|лицевому счету)\s*(#|№| )?(\d{5,6})[^\d-]/iu", $description, $matches)) {
+        } elseif (preg_match("/(л[\/\.\s]*с[.]*|лицевому счету)\s*(#|№| )?(\d{5,6})\b/iu", $description, $matches)) {
             $data['account_id'] = $matches[3];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
         }
@@ -71,7 +103,7 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
 
         if (preg_match("/ИНН\s*(\d{10})/", $description, $matches)) {
             $data['inn'] = $matches[1];
-            $description = str_replace($data['inn'], '',  $description);
+            $description = str_replace($data['inn'], '', $description);
             $this->logger->add('Скан: найден ИНН: ' . $data['inn']);
         }
 
@@ -118,12 +150,20 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
                     'is_active' => 1
                 ])->select('id')->limit(10)->column();
 
+                $isActive = $accountIds;
+
+                if (!$accountIds) {
+                    $accountIds = ClientAccount::find()->where([
+                        'contract_id' => $contractId,
+                    ])->select('id')->limit(10)->column();
+                }
+
                 if (!$accountIds) {
                     $this->logger->add('Не найдены ЛС у договора');
                 } elseif (count($accountIds) > 1) {
                     $this->logger->add('нет однозначного выбора ЛС: ' . implode(", ", $accountIds));
                 } else {
-                    $this->logger->add('найден активный ЛС (' . $accountIds[0] . ') по договору');
+                    $this->logger->add('найден ' . (!$isActive ? 'не ' : '') . 'активный ЛС (' . $accountIds[0] . ') по договору');
                     return reset($accountIds);
                 }
             } else {
@@ -224,5 +264,65 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
         }
 
         return $query->column();
+    }
+
+    private function isPerson($payer)
+    {
+        if (strpos($payer, '//') !== false) {
+            $payerData = explode('//', $payer.'////');
+
+            // ПАО СБЕРБАНК//Голубчиков Павел Васильевич//1522001036883//195252,РОССИЯ,САНКТ-ПЕТЕРБУРГ Г,Г САНКТ-ПЕТЕРБУРГ,УЛ СОФЬИ КОВАЛЕВСКОЙ//
+            if ($this->isOrganizatoin($payerData[0]) && $this->isFio($payerData[1])) {
+                $this->logger->add('Банк-плательщик: ' . $payerData[0]);
+                $this->logger->add('Частное лицо: ' . $payerData[1]);
+                return $payerData[1];
+            }
+
+            // КОЗИК СЕРГЕЙ МИХАЙЛОВИЧ//Г. Москва Г МОСКВА УЛ Б-Р ОРЕХОВЫЙ д.18 кв.298//
+            if ($this->isFio($payerData[0])) {
+                $this->logger->add('Частное лицо: ' . $payerData[0]);
+                return $payerData[0];
+            }
+
+            return false;
+        }
+
+        if ($this->isOrganizatoin($payer)) {
+            $this->logger->add('Платеж от организации');
+            return false;
+        }
+
+        if ($this->isFio($payer)) {
+            $this->logger->add('Частное лицо: ' . $payer);
+            return $payer;
+        }
+
+        return false;
+    }
+
+    private function isOrganizatoin($payer)
+    {
+        foreach(['ИП', 'ООО', 'АО', 'ПАО', 'НКО', 'ОП', 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ'] as $legalForm) {
+            if (preg_match("/\b{$legalForm}\b/u", $payer)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isFio($str)
+    {
+        $data = preg_split("/\s/", $str);
+
+        if (!$data) {
+            return false;
+        }
+
+        if (count($data) == 3) {
+            return true;
+        }
+
+        return false;
     }
 }

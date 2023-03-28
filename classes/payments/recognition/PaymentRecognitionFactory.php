@@ -6,6 +6,7 @@ use app\classes\payments\recognition\processors\DummyRecognitionProcessor;
 use app\classes\payments\recognition\processors\PaymentNordingerRecognitionProcessor;
 use app\classes\payments\recognition\processors\PaymentTinkoffRecognitionProcessor;
 use app\classes\payments\recognition\processors\RecognitionProcessor;
+use app\classes\payments\recognition\processors\RusSbpRecognitionProcessor;
 use app\classes\Singleton;
 
 class PaymentRecognitionFactory extends Singleton
@@ -13,6 +14,8 @@ class PaymentRecognitionFactory extends Singleton
     private function getProcessors(): array
     {
         return [
+            RusSbpRecognitionProcessor::class,
+
             PaymentTinkoffRecognitionProcessor::class,
             PaymentNordingerRecognitionProcessor::class,
 

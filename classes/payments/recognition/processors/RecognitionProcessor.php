@@ -3,6 +3,7 @@
 namespace app\classes\payments\recognition\processors;
 
 use app\classes\helpers\LoggerSimpleInternal;
+use app\models\ClientAccount;
 
 abstract class RecognitionProcessor
 {
@@ -45,5 +46,26 @@ abstract class RecognitionProcessor
     protected function getAccountListToString($array): string
     {
         return implode(", ", array_splice($array, 0, 10)) . (count($array) > 10 ? '...' : '');
+    }
+
+    /**
+     * @param string $name
+     * @param int $factorLimit
+     * @return int
+     * @throws \yii\db\Exception
+     */
+    protected function getAccountIdByName(string $name, int $factorLimit = 20): int
+    {
+        $sql = <<<SQL
+        SELECT `client`.id
+  FROM `clients` `client`
+         INNER JOIN `client_contract` `contract` ON contract.id = client.contract_id
+         INNER JOIN `client_contragent` `contragent` ON contragent.id = contract.contragent_id
+WHERE match(name_full) against('*{$name}*' IN BOOLEAN MODE) > {$factorLimit}
+ORDER BY match(name_full) against('*{$name}*' IN BOOLEAN MODE) desc, client.is_active desc, client.id desc
+LIMIT 1
+SQL;
+
+        return ClientAccount::getDb()->createCommand($sql)->queryScalar() ?: 0;
     }
 }
