@@ -62,7 +62,7 @@ data:
   log.local.php: |
     <?php
     $graylogHost = 'graylogstat.mcn.ru';
-    $source = 'mailer';
+    $source = 'mailer{{- if (eq (env "ENVNAME") "dev") }}_dev{{- end -}}';
 
     {{ if eq (env "COUNTRY") "RU" }}
    

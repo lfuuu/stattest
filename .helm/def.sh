@@ -3,7 +3,7 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.459
+TAG=1.460
 
 function dev()
 {
@@ -22,7 +22,7 @@ function dev()
   export IS_WITH_GRAPHQL=0
   export IS_WITH_NNPPORTED=0
   export IS_WITH_BALANCE=0
-  export IS_WITH_MAILER=0
+  export IS_WITH_MAILER=1
 }
 
 function eudev()
