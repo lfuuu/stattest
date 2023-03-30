@@ -61,6 +61,8 @@ spec:
               value: adminmcn
             - name: PGADMIN_SERVER_JSON_FILE
               value: /mnt/pgadmin-servers.json
+            - name: PGADMIN_LISTEN_ADDRESS
+              value: 0.0.0.0
           ports:
             - containerPort: 80
               name: pgadmin4
