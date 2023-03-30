@@ -344,7 +344,7 @@ SQL;
         $this->_db->createCommand($sql)->execute();
 
         if ($affectedRowsDelta < self::DELTA_MIN) {
-            throw new \LogicException('Стало слишком мало записей');
+            // throw new \LogicException('Стало слишком мало записей');
         }
 
         $this->importHistory->ranges_before = $affectedRowsBefore;
