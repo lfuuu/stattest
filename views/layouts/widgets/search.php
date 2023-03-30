@@ -14,7 +14,7 @@ $request = Yii::$app->request->get();
                value="<?= (isset($request['searchType'])) ? $request['searchType'] : '' ?>"
                id="search-type">
 
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <div class="input-group">
                 <input id="search" type="text" class="form-control input-sm" placeholder="Search ..." name="search"
                        value="<?= (isset($request['search'])) ? $request['search'] : '' ?>">
@@ -24,7 +24,7 @@ $request = Yii::$app->request->get();
             </div>
         </div>
 
-        <div class="col-sm-3">
+        <div class="col-sm-8">
             <div class="dropdown" id="btn-options">
                 <button type="submit" class="btn btn-link btn-xs">Искать по</button>
 
