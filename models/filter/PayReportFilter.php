@@ -41,6 +41,7 @@ class PayReportFilter extends Payment
     public $uuid = '';
     public $uuid_status = '';
     public $uuid_log = '';
+    public $info_json = '';
     public $payment_api_log = '';
 
     /**
@@ -103,8 +104,9 @@ class PayReportFilter extends Payment
                 'bill_date' => 'Дата счета',
                 'uuid' => 'ID в онлайн-кассе',
                 'uuid_status' => 'Статус отправки в онлайн-кассу',
-                'uuid_log' => 'Лог отправки в онлайн-кассу / API Payment Info',
+                'uuid_log' => 'Лог отправки в онлайн-кассу',
                 'payment_api_log' => 'Лог поиска ЛС',
+                'info_json' => 'Данные платежа',
             ];
     }
 
@@ -121,6 +123,7 @@ class PayReportFilter extends Payment
             ->joinWith('paymentAtol')
             ->joinWith('apiInfo')
             ->with('apiInfo')
+            ->with('apiChannel')
         ;
 
         $dataProvider = new ActiveDataProvider([

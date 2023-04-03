@@ -10,6 +10,7 @@ use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Платёж
@@ -40,6 +41,7 @@ use yii\db\ActiveQuery;
  * @property-read PaymentAtol $paymentAtol
  * @property-read PaymentStripe $paymentStripe
  * @property-read PaymentApiInfo $apiInfo
+ * @property-read PaymentApiChannel $apiChannel
  */
 class Payment extends ActiveRecord
 {
@@ -228,6 +230,14 @@ class Payment extends ActiveRecord
     public function getPaymentStripe()
     {
         return $this->hasOne(PaymentStripe::class, ['payment_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getApiChannel()
+    {
+        return $this->hasOne(PaymentApiChannel::class, ['code' => 'ecash_operator']);
     }
 
     /**
