@@ -4,6 +4,7 @@ namespace app\classes;
 
 use app\classes\adapters\EbcKafka;
 use app\dao\ClientSuperDao;
+use app\models\EventQueue;
 
 class ChangeClientStructureRegistrator extends Singleton
 {
@@ -91,6 +92,8 @@ class ChangeClientStructureRegistrator extends Singleton
         if (!$data) {
             return ;
         }
+
+        EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data); // @todo старая система оповещения о изменениях структуры
 
         $this->truncateData();
 
