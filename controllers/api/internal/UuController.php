@@ -1204,7 +1204,6 @@ class UuController extends ApiInternalController
         );
 
         return AccountTariffStructureGenerator::me()->getAccountTariffsWithPackages(
-            $methodName,
             $id,
             $client_account_id,
             $service_type_id,
