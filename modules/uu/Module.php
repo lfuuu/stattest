@@ -34,6 +34,8 @@ class Module extends \yii\base\Module
     const EVENT_DELETE_LIGHT = 'uu_delete_light';
     const EVENT_CLOSE_LIGHT = 'uu_close_light';
     const EVENT_UU_SWITCHED_ON = 'uu_switched_on'; // УУ-услуга включена
+    const EVENT_UU_SWITCHED_OFF = 'uu_switched_off'; // УУ-услуга выключена
+    const EVENT_UU_UPDATE = 'uu_update'; // УУ-услуга сменила тариф
     const EVENT_SIPTRUNK_SYNC = 'uu_siptrunk_sync';
     const EVENT_CHAT_BOT_CREATE = 'uu_chat_bot_create';
     const EVENT_CHAT_BOT_REMOVE = 'uu_chat_bot_remove';

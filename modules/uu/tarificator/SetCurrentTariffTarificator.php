@@ -103,6 +103,8 @@ SQL;
                 // сменить тариф
                 $this->changeAccountTariff($accountTariff, $newTariffPeriodId, $eventType);
 
+                $this->generateUuEvent($accountTariff, $eventType);
+
                 // создать события
                 $this->generateEvents($accountTariff, $eventType, $oldTariffPeriodId, $newTariffPeriodId);
 
@@ -168,6 +170,32 @@ SQL;
         return $eventType;
     }
 
+    protected function generateUuEvent(AccountTariff $accountTariff, $eventType)
+    {
+        if (!$eventType) {
+            return;
+        }
+
+        switch ($eventType) {
+            case ImportantEventsNames::UU_SWITCHED_ON:
+                $event = \app\modules\uu\Module::EVENT_UU_SWITCHED_ON;
+                break;
+            case ImportantEventsNames::UU_SWITCHED_OFF:
+                $event = \app\modules\uu\Module::EVENT_UU_SWITCHED_OFF;
+                break;
+            case ImportantEventsNames::UU_UPDATED:
+                $event = \app\modules\uu\Module::EVENT_UU_UPDATE;
+                break;
+        }
+
+        EventQueue::go($event, [
+            'client_account_id' => $accountTariff->client_account_id,
+            'account_tariff_id' => $accountTariff->id,
+            'service_type_id' => $accountTariff->service_type_id,
+            'is_package' => in_array($accountTariff->service_type_id, ServiceType::$packages),
+        ]);
+    }
+
     /**
      * @param AccountTariff $accountTariff
      * @param string|null $eventType
@@ -192,13 +220,6 @@ SQL;
                     : []
                 )
             );
-        }
-
-        if ($eventType === ImportantEventsNames::UU_SWITCHED_ON) {
-            EventQueue::go(\app\modules\uu\Module::EVENT_UU_SWITCHED_ON, [
-                'client_account_id' => $accountTariff->client_account_id,
-                'account_tariff_id' => $accountTariff->id,
-            ]);
         }
 
         // доп. обработка в зависимости от типа услуги
@@ -318,11 +339,13 @@ SQL;
                     EventQueue::go(\app\modules\callTracking\Module::EVENT_CALLTRACKING_CREATE, [
                         'account_id' => $accountTariff->client_account_id,
                         'stat_product_id' => $accountTariff->id,
+                        'account_tariff_id' => $accountTariff->id,
                     ]);
                 } elseif ($eventType == ImportantEventsNames::UU_SWITCHED_OFF) {
                     EventQueue::go(\app\modules\callTracking\Module::EVENT_CALLTRACKING_DELETE, [
                         'account_id' => $accountTariff->client_account_id,
                         'stat_product_id' => $accountTariff->id,
+                        'account_tariff_id' => $accountTariff->id,
                     ]);
                 }
 

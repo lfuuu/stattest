@@ -58,7 +58,8 @@ use app\modules\uu\Module as UuModule;
 use app\modules\webhook\classes\ApiWebCall;
 use yii\console\ExitCode;
 use yii\db\ActiveQuery;
-use app\classes\ChangeClientStructureRegistrator;
+use app\classes\dto\ChangeClientStructureRegistrator;
+use app\classes\dto\AccountTariffStructureToKafka;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -817,8 +818,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case UuModule::EVENT_UU_SWITCHED_ON:
+                case UuModule::EVENT_UU_SWITCHED_OFF:
+                case UuModule::EVENT_UU_UPDATE:
                     // УУ-услуга включена
                     ClientAccount::dao()->updateIsActive($param['client_account_id']);
+
+                    if ($isEbcKafka) {
+                        AccountTariffStructureToKafka::me()->anonce($param['account_tariff_id']);
+                    }
                     break;
 
                 case UuModule::EVENT_SIPTRUNK_SYNC:
