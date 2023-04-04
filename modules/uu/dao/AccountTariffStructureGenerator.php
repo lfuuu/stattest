@@ -36,7 +36,6 @@ class AccountTariffStructureGenerator extends Singleton
         $client_account_id = null,
         $service_type_id = null,
         $voip_number = null,
-        $voip_number_mask = null,
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
     )
