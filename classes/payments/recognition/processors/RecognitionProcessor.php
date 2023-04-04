@@ -7,6 +7,11 @@ use app\models\ClientAccount;
 
 abstract class RecognitionProcessor
 {
+    const SPB_ACCOUNT_ID = 133674;
+    const UNRECOGNIZED_PAYMENTS_ACCOUNT_ID = 132778;
+
+    const SPECIAL_ACCOUNT_IDS = [self::SPB_ACCOUNT_ID, self::UNRECOGNIZED_PAYMENTS_ACCOUNT_ID];
+
     protected ?LoggerSimpleInternal $logger = null;
     public bool $isIdentificationPayment = false;
     public array $listInnAccountIds = [];
