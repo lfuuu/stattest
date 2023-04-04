@@ -15,7 +15,8 @@ class Utils
     public static function dateEndOfMonth($date)
     {
         $date = explode('-', $date);
-        $date[2] = cal_days_in_month(CAL_GREGORIAN, $date[1], $date[0]);
+        // $date[2] = cal_days_in_month(CAL_GREGORIAN, $date[1], $date[0]);
+        $date[2] = date('t', mktime(0, 0, 0, $date[1], 1, $date[0]));
         return implode('-', $date);
     }
 

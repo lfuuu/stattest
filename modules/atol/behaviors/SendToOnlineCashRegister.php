@@ -3,6 +3,7 @@
 namespace app\modules\atol\behaviors;
 
 use app\classes\model\ActiveRecord;
+use app\classes\payments\recognition\processors\RecognitionProcessor;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
 use app\models\Currency;
@@ -14,6 +15,7 @@ use app\modules\atol\classes\Api;
 use Yii;
 use yii\base\Behavior;
 use yii\base\Event;
+use yii\db\AfterSaveEvent;
 
 
 class SendToOnlineCashRegister extends Behavior
@@ -25,6 +27,7 @@ class SendToOnlineCashRegister extends Behavior
     {
         return [
             ActiveRecord::EVENT_AFTER_INSERT => 'postponeSend',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'changeClientId',
             // @todo при update надо оформлять корректирующий чек
             // @todo при delete надо сторнировать
         ];
@@ -71,8 +74,12 @@ class SendToOnlineCashRegister extends Behavior
             throw new \InvalidArgumentException('Неправильный платеж ' . $paymentId);
         }
 
+        if (in_array($payment->client_id, RecognitionProcessor::SPECIAL_ACCOUNT_IDS)) {
+            return false;
+        }
+
         // уже отправленные не отправляем
-        if ($payment->currency !== Currency::RUB || $paymentAtol = $payment->paymentAtol) {
+        if ($payment->currency !== Currency::RUB || $payment->paymentAtol) {
             return false;
         }
 
@@ -174,5 +181,34 @@ class SendToOnlineCashRegister extends Behavior
         }
 
         return $status;
+    }
+
+    /**
+     * Поведение на изменение ЛС у платежа.
+     *
+     * @param AfterSaveEvent $event
+     * @return bool
+     */
+    public function changeClientId(AfterSaveEvent $event)
+    {
+        // перенос не со спец ЛС
+        if (
+            !isset($event->changedAttributes['client_id'])
+            || !in_array($event->changedAttributes['client_id'], RecognitionProcessor::SPECIAL_ACCOUNT_IDS)
+        ) {
+            return true;
+        }
+
+        /** @var Payment $payment */
+        $payment = $event->sender;
+
+        if ($payment->paymentAtol) {
+            // чек уже отправлен в АТОЛ
+            return true;
+        }
+
+        self::addEvent($payment->id);
+
+        return true;
     }
 }

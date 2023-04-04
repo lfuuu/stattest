@@ -7,8 +7,6 @@ namespace app\classes\payments\recognition\processors;
  */
 class RusSbpRecognitionProcessor extends RecognitionProcessor
 {
-    const ACCOUNT_ID = 133674;
-
     public static function detect($infoJson): bool
     {
         if (
@@ -27,7 +25,7 @@ class RusSbpRecognitionProcessor extends RecognitionProcessor
 
     protected function yetWho(): int
     {
-        $this->logger->add("Найден СБП платеж, переносим в Л/С " . self::ACCOUNT_ID);
-        return self::ACCOUNT_ID;
+        $this->logger->add("Найден СБП платеж, переносим в Л/С " . self::SPB_ACCOUNT_ID);
+        return self::SPB_ACCOUNT_ID;
     }
 }

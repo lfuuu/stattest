@@ -3,7 +3,6 @@
 namespace app\controllers\api\internal;
 
 use app\classes\Assert;
-use app\classes\payments\recognition\PaymentOwnerRecognition;
 use app\classes\payments\recognition\PaymentRecognitionFactory;
 use app\classes\payments\recognition\processors\RecognitionProcessor;
 use app\classes\validators\BillNoValidator;
@@ -26,8 +25,6 @@ use app\models\PaymentApiInfo;
 
 class PaymentController extends ApiInternalController
 {
-    const UNRECOGNIZED_PAYMENTS_ACCOUONT_ID = 132778;
-
     /**
      * @throws NotImplementedHttpException
      */
@@ -73,7 +70,7 @@ class PaymentController extends ApiInternalController
                 [['bill_no', 'payment_no', 'currency', 'description', 'operation_id'], FormFieldValidator::class],
                 ['info_json', JsonValidator::class],
                 [['sum'], 'number'],
-                ['account_id', 'default', 'value' => self::UNRECOGNIZED_PAYMENTS_ACCOUONT_ID],
+                ['account_id', 'default', 'value' => RecognitionProcessor::UNRECOGNIZED_PAYMENTS_ACCOUNT_ID],
                 ['account_id', AccountIdValidator::class],
                 ['bill_no', BillNoValidator::class],
             ]
