@@ -177,9 +177,22 @@ $columns = [
             if (
                 !$paymentAtol
                 && $payment->currency === Currency::RUB
-                && $payment->type === Payment::TYPE_ECASH
-                && array_key_exists($payment->ecash_operator, Payment::$ecash)
-                && $payment->ecash_operator !== Payment::ECASH_CYBERPLAT
+                && $payment->sum > 0
+                && (
+                    (
+                        $payment->type === Payment::TYPE_API
+                        && $payment->apiChannel
+                        && $payment->apiChannel->is_active
+                        && $payment->apiChannel->check_organization_id
+                    )
+
+                    ||
+                    (
+                        $payment->type === Payment::TYPE_ECASH
+                        && array_key_exists($payment->ecash_operator, Payment::$ecash)
+                        && $payment->ecash_operator !== Payment::ECASH_CYBERPLAT
+                    )
+                )
             ) {
                 return Yii::t('common', '(not set)') .
                     ' ' .
@@ -230,27 +243,6 @@ $columns = [
         'value' => function (Payment $payment) {
             $paymentAtol = $payment->paymentAtol;
             if (!$paymentAtol) {
-
-                if ($payment->apiInfo && $payment->apiInfo->info_json) {
-                    try {
-                        $logArray = Json::decode($payment->apiInfo->info_json, true);
-                    } catch (\Exception $e) {
-                        $logArray = $payment->apiInfo->info_json . '<br>' . $e->getMessage();
-                    }
-                    $logString = substr(print_r($logArray, true), 0, 10240);
-                    return Html::tag(
-                        'button',
-                        $logString,
-                        [
-                            'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
-                            'data-toggle' => 'popover',
-                            'data-html' => 'true',
-                            'data-placement' => 'bottom',
-                            'data-content' => nl2br(htmlspecialchars($logString)),
-                        ]
-                    );
-                }
-
                 return Yii::t('common', '(not set)');
             }
 
@@ -276,6 +268,38 @@ $columns = [
                     'data-content' => nl2br(htmlspecialchars($logString)),
                 ]
             );
+        }
+    ],
+    [
+        'attribute' => 'info_json',
+        'label' => $filterModel->getAttributeLabel('info_json'),
+        'format' => 'raw',
+        'class' => StringColumn::class,
+        'contentOptions' => [
+            'class' => 'popover-width-auto',
+        ],
+        'value' => function (Payment $payment) {
+            if ($payment->apiInfo && $payment->apiInfo->info_json) {
+                try {
+                    $logArray = Json::decode($payment->apiInfo->info_json, true);
+                } catch (\Exception $e) {
+                    $logArray = $payment->apiInfo->info_json . '<br>' . $e->getMessage();
+                }
+                $logString = substr(print_r($logArray, true), 0, 10240);
+                return Html::tag(
+                    'button',
+                    $logString,
+                    [
+                        'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
+                        'data-toggle' => 'popover',
+                        'data-html' => 'true',
+                        'data-placement' => 'bottom',
+                        'data-content' => nl2br(htmlspecialchars($logString)),
+                    ]
+                );
+            }
+
+            return Yii::t('common', '(not set)');
         }
     ],
     [
