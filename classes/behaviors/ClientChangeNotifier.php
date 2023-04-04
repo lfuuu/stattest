@@ -2,15 +2,10 @@
 
 namespace app\classes\behaviors;
 
-use app\classes\adapters\ClientChangedAmqAdapter;
-use app\classes\ChangeClientStructureRegistrator;
-use app\classes\HandlerLogger;
-use app\helpers\DateTimeZoneHelper;
+use app\classes\dto\ChangeClientStructureRegistrator;
 use app\models\ClientAccount;
 use app\models\ClientContract;
-use app\models\EventQueue;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\AccountTariffLog;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 

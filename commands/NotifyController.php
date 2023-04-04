@@ -3,7 +3,7 @@
 namespace app\commands;
 
 use app\classes\Assert;
-use app\classes\ChangeClientStructureRegistrator;
+use app\classes\dto\ChangeClientStructureRegistrator;
 use app\dao\ClientSuperDao;
 use app\models\EventQueue;
 use app\models\User;
