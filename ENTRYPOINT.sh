@@ -214,6 +214,11 @@ if [ "$ATOL_IS_ENABLED" -eq "1" ]; then
   sed -i "s/'groupCode' => 'group_code_21'/'groupCode' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_GROUP_CODE'/" params.local.php
   sed -i "s/'inn' => 'inn_21'/'inn' => '$ATOL_ACCESS_MCN_TELECOM_SERVICE_INN'/" params.local.php
   #
+  sed -i "s/'password' => 'password_14'/'password' => '$ATOL_ACCESS_AB_SERVICE_MARCOMNET_PASSWORD'/" params.local.php
+  sed -i "s/'login' => 'login_14'/'login' => '$ATOL_ACCESS_AB_SERVICE_MARCOMNET_LOGIN'/" params.local.php
+  sed -i "s/'groupCode' => 'group_code_14'/'groupCode' => '$ATOL_ACCESS_AB_SERVICE_MARCOMNET_GROUP_CODE'/" params.local.php
+  sed -i "s/'inn' => 'inn_14'/'inn' => '$ATOL_ACCESS_AB_SERVICE_MARCOMNET_INN'/" params.local.php
+  #
   sed -i "s/'paymentAddress' => ''/'paymentAddress' => '$ATOL_BUY_OR_SELL_PAYMENT_ADDRESS'/" params.local.php
   sed -i "s/'sno' => ''/'sno' => '$ATOL_BUY_OR_SELL_SNO'/" params.local.php
   sed -i "s/'itemName' => ''/'itemName' => '$ATOL_BUY_OR_SELL_ITEM_NAME'/" params.local.php

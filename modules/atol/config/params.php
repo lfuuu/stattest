@@ -32,6 +32,12 @@ return [
                 'groupCode' => 'group_code_21',
                 'inn' => 'inn_21',
             ],
+            'organization_' . \app\models\Organization::AB_SERVICE_MARCOMNET => [
+                'password' => 'password_14',
+                'login' => 'login_14',
+                'groupCode' => 'group_code_14',
+                'inn' => 'inn_14',
+            ],
         ],
 
         // Получение токена
