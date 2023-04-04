@@ -1,8 +1,9 @@
 <?php
 
-namespace app\classes;
+namespace app\classes\dto;
 
 use app\classes\adapters\EbcKafka;
+use app\classes\Singleton;
 use app\dao\ClientSuperDao;
 use app\models\EventQueue;
 
