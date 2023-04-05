@@ -61,8 +61,11 @@ class BusinessProcessStatus extends ActiveRecord
     // Статусы, в которых можно получать платежи с внешних систем
     const PAY_AVAILABLE_STATUSES_TELEKOM_MAINTENANCE = [
         self::TELEKOM_MAINTENANCE_WORK,
+        self::TELEKOM_MAINTENANCE_B2C_WORK,
         self::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES,
+        self::TELEKOM_MAINTENANCE_B2C_ORDER_OF_SERVICES,
         self::TELEKOM_MAINTENANCE_CONNECTED,
+        self::TELEKOM_MAINTENANCE_B2C_CONNECTED,
         self::TELEKOM_MAINTENANCE_DISCONNECTED_DEBT,
     ];
 
