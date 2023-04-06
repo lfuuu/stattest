@@ -182,7 +182,13 @@ class PayReportFilter extends Payment
 
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
         $this->uuid_status !== '' && $query->andWhere([$paymentAtolTableName . '.uuid_status' => $this->uuid_status]);
-        $this->uuid_log !== '' && $query->andWhere(['LIKE', $paymentAtolTableName . '.uuid_log', $this->uuid_log]);
+        if($this->uuid_log !== '') {
+            if (in_array(trim($this->uuid_log), ['не задано', '(не задано)'])) {
+                $query->andWhere([$paymentAtolTableName . '.uuid_log' => null]);
+            } else {
+                $query->andWhere(['LIKE', $paymentAtolTableName . '.uuid_log', $this->uuid_log]);
+            }
+        }
         $this->payment_api_log !== '' && $query->andWhere(['LIKE', PaymentApiInfo::tableName() . '.log', $this->payment_api_log]);
 
         $this->total = "+" . $query->sum(new Expression('IF(p.sum > 0, p.sum, 0)')) . ' / ' . $query->sum(new Expression('IF(p.sum < 0, p.sum, 0)')) . ' ' . $this->currency;
