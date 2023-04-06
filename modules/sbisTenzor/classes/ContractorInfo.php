@@ -7,6 +7,7 @@ use app\models\ClientContragent;
 use app\models\Organization;
 use app\modules\sbisTenzor\helpers\SBISDataProvider;
 use app\modules\sbisTenzor\helpers\SBISInfo;
+use app\modules\sbisTenzor\models\SBISContractor;
 
 class ContractorInfo
 {
@@ -33,6 +34,8 @@ class ContractorInfo
     protected $isRoamingEnabled = false;
     /** @var EdfOperator */
     protected $operator;
+    /** @var SBISContractor */
+    public $contractor;
 
     /**
      * ContractorInfo constructor.
@@ -87,12 +90,13 @@ class ContractorInfo
             return $result;
         }
 
-        $contractor = null;
         try {
             $contractor = SBISInfo::getPreparedContractor($client, $isForce);
         } catch (\Exception $e) {
             return $e->getMessage();
         }
+
+        $this->contractor = $contractor;
 
         if (!$contractor || !$contractor->getEdfId()) {
             return sprintf('Данный клиент не зарегистрирован ни в одной из систем документооборота');
