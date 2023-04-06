@@ -46,9 +46,9 @@ use kartik\widgets\ActiveForm;
         <div class="col-sm-3">
             <?= $f->field($model, 'currency')->dropDownList(Currency::map()) ?>
         </div>
-<!--        <div class="col-sm-3">-->
-<!--            --><?php /* echo $f->field($model, 'price_type')->dropDownList(GoodPriceType::getList()) */ ?>
-<!--        </div>-->
+        <!--        <div class="col-sm-3">-->
+        <!--            --><?php /* echo $f->field($model, 'price_type')->dropDownList(GoodPriceType::getList()) */ ?>
+        <!--        </div>-->
         <div class="col-sm-3">
             <?= $f->field($model, 'options[trust_level_id]')
                 ->dropDownList(TrustLevel::getList())
@@ -241,24 +241,26 @@ use kartik\widgets\ActiveForm;
             ?>
         </div>
         <?php
-            $exchangeError = $model->getExchangeGroupError();
+        $exchangeError = $model->getExchangeGroupError();
+
+        $contractorId = !$model->isNewRecord ? $model->getContractorInfo()->contractor->id : 0;
         ?>
         <div class="col-sm-3">
-            <?php
-                if ($exchangeError) {
-                    ?>
-                    <div class="form-group">
-                        <label>Интеграция со СБИС</label><br /><br />
-                        <span class="text-warning"><?=$exchangeError?></span>
-                    </div>
-                    <?php
-                } else {
-                    echo $f->field($model, 'exchange_group_id')->dropDownList(SBISExchangeGroup::getList($model->getModel(), $isWithEmpty = true));
-
-                    echo $model->getEdfOperatorHtml();
-                }
-            ?>
+            <div class="form-group">
+                <label>Интеграция со СБИС</label>
+                <?= $contractorId ? $f->field($model, 'contractor_exchange_id')
+                    ->dropDownList(\app\modules\sbisTenzor\models\SBISContractorExchange::getList($contractorId, $isWithEmpty = true)) : ''
+                ?>
+                <?php if ($exchangeError) { ?>
+                    <br>
+                    <span class="text-warning"><?= $exchangeError ?></span>
+                <?php } else { ?>
+                    <?= $f->field($model, 'exchange_group_id')->dropDownList(SBISExchangeGroup::getList($model->getModel(), $isWithEmpty = true)) ?>
+                    <?= $model->getEdfOperatorHtml() ?>
+                <?php } ?>
+            </div>
         </div>
+
         <div class="col-sm-3">
             <?= $f
                 ->field($model, "options[" . ClientAccountOptions::OPTION_SBIS_DOC_BASE . "]")
@@ -273,7 +275,7 @@ use kartik\widgets\ActiveForm;
             }
             ?>
         </div>
-        <div class="col-sm-3"><?= $f->field($model, 'transfer_params_from')->dropDownList($model->getNearAccounts())?></div>
+        <div class="col-sm-3"><?= $f->field($model, 'transfer_params_from')->dropDownList($model->getNearAccounts()) ?></div>
     </div>
 
     <div class="row">

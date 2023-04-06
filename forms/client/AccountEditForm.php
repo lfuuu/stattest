@@ -24,6 +24,7 @@ use app\models\Region;
 use app\models\Timezone;
 use app\modules\sbisTenzor\classes\ContractorInfo;
 use app\modules\sbisTenzor\classes\SBISExchangeStatus;
+use app\modules\sbisTenzor\helpers\SBISDataProvider;
 use http\Client;
 use Yii;
 use yii\base\Exception;
@@ -101,7 +102,8 @@ class AccountEditForm extends Form
         $exchange_group_id,
         $exchange_status = SBISExchangeStatus::UNKNOWN,
         $transfer_params_from = 0,
-        $transfer_contract_id = 0;
+        $transfer_contract_id = 0,
+        $contractor_exchange_id = '';
 
     protected $contractorInfo;
 
@@ -130,6 +132,7 @@ class AccountEditForm extends Form
                     'bank_name',
                     'bank_city',
                     'bank_properties',
+                    'contractor_exchange_id',
                     'historyVersionStoredDate',
                     'historyVersionStoredDateSelected'
                 ],
@@ -252,6 +255,8 @@ class AccountEditForm extends Form
                 'transfer_params_from' => 'Перенести Реквизиты и Контакты с ЛС',
                 'transfer_contract_id' => 'Перенести ЛС на договор',
                 'trust_level_id' => 'Уровень доверия',
+
+                'contractor_exchange_id' => 'Оператор ЭДО',
             ]
         );
     }
@@ -351,6 +356,13 @@ class AccountEditForm extends Form
         $this->options = ArrayHelper::merge($this->options, $options);
         $this->{ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK} =
             isset($this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK]) ? $this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK] : 1;
+
+        if (!$this->clientM->isNewRecord) {
+            $sbisContractor = SBISDataProvider::getSBISContractor($this->clientM);
+            if ($sbisContractor) {
+                $this->contractor_exchange_id = $sbisContractor->exchange_id;
+            }
+        }
     }
 
     /**
@@ -385,6 +397,10 @@ class AccountEditForm extends Form
                 $this->_saveFromAccount();
             } else {
                 $this->_saveFromPost();
+            }
+
+            if ($this->contractor_exchange_id) {
+                $this->_saveSbisContractorExchangeId();
             }
 
             $transaction->commit();
@@ -456,7 +472,7 @@ class AccountEditForm extends Form
      * @return ContractorInfo|null
      * @throws Exception
      */
-    protected function getContractorInfo() {
+    public function getContractorInfo() {
         if ($this->getIsNewRecord()) {
             throw new Exception('Client is not created!');
         }
@@ -612,6 +628,27 @@ class AccountEditForm extends Form
 
             $this->_saveOptions();
 
+        }
+    }
+
+    /**
+     * @throws ModelValidationException
+     */
+    private function _saveSbisContractorExchangeId()
+    {
+        $account = $this->clientM;
+        $sbisContractor = SBISDataProvider::getSBISContractor($account);
+
+        if (!$sbisContractor) {
+            return;
+        }
+
+        if ($sbisContractor->exchange_id != $this->contractor_exchange_id) {
+            $sbisContractor->exchange_id = $this->contractor_exchange_id;
+
+            if (!$sbisContractor->save()) {
+                throw new ModelValidationException($sbisContractor);
+            }
         }
     }
 

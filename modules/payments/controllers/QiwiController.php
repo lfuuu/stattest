@@ -74,7 +74,8 @@ class QiwiController extends BaseController
             }
 
             if (!$form->validate()) {
-                $e = reset($form->getFirstErrors());
+                $errors = $form->getFirstErrors();
+                $e = reset($errors);
                 throw new QiwiExitObject($e);
             }
 

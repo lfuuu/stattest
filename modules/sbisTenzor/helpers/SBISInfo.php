@@ -2,16 +2,19 @@
 
 namespace app\modules\sbisTenzor\helpers;
 
+use app\classes\Connection;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\modules\sbisTenzor\exceptions\SBISTensorException;
 use app\modules\sbisTenzor\models\SBISContractor;
 use app\modules\sbisTenzor\classes\SBISTensorAPI;
+use app\modules\sbisTenzor\models\SBISContractorExchange;
 use app\modules\sbisTenzor\models\SBISExchangeGroup;
 use app\modules\sbisTenzor\models\SBISOrganization;
 use app\modules\sbisTenzor\Module;
 use kartik\base\Config;
+use yii\db\Expression;
 
 class SBISInfo
 {
@@ -132,7 +135,7 @@ class SBISInfo
         }
 
         $fieldsMap = [
-            'exchange_id' => 'Идентификатор',
+//            'exchange_id' => 'Идентификатор',
             'exchange_id_is' => 'ИдентификаторИС',
             'exchange_id_spp' => 'ИдентификаторСПП',
             'email' => 'Email',
@@ -143,6 +146,7 @@ class SBISInfo
                 $sbisContractor->$field = $result[$property];
             }
         }
+//        $sbisContractor->exchange_id = $sbisContractor->getMainExchangeId($result);
         $sbisContractor->is_private = '0';
 
         if (!empty($result['СвЮЛ'])) {
@@ -175,5 +179,35 @@ class SBISInfo
         if (!$sbisContractor->save()) {
             throw new ModelValidationException($sbisContractor);
         }
+
+        self::saveContractorExchanges($sbisContractor, $result);
+
+    }
+
+    private static function saveContractorExchanges(SBISContractor $contractor, $result)
+    {
+        \Yii::$app->db->transaction(function(Connection $db) use($contractor, $result) {
+
+            $exs = array_map(function($row) use ($contractor) {
+                return [
+                    $contractor->id,
+                    $row['ИдентификаторУчастника'],
+                    $row['Оператор']['Название'],
+                    (int)($row['Основной'] == 'Да'),
+                    (int)($row['Роуминг'] == 'Да'),
+                    $row['СостояниеПодключения']['Код'],
+                    $row['СостояниеПодключения']['Описание'],
+                    new Expression('UTC_TIMESTAMP()')
+                ];
+
+            }, $result['Идентификатор']);
+
+            $db->createCommand()->delete(SBISContractorExchange::tableName(), ['contractor_id' => $contractor->id])->execute();
+            if ($exs) {
+                $db->createCommand()->batchInsert(SBISContractorExchange::tableName(), [
+                    'contractor_id', 'exchange_id', 'operator_name', 'is_main', 'is_roaming', 'exchange_state_code', 'exchange_state_code_description', 'created_at'
+                ], $exs)->execute();
+            }
+        });
     }
 }
