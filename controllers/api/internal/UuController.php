@@ -1460,6 +1460,93 @@ class UuController extends ApiInternalController
         );
     }
 
+
+
+    /**
+     * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/change-account-tariff-package", summary = "Сменить пакет у Услуги", operationId = "ChangeAccountTariffPackage",
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID основной услуги", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "package_id", type = "integer", description = "ID Отключаемого пакета", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой отключится пакет, и включится новый", in = "formData", required=true, default = ""),*
+     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID включаемого тариф-периода", in = "formData", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Тариф изменен",
+     *     @SWG\Schema(type = "boolean", description = "true - успешно")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return int
+     * @throws Exception
+     */
+    public function actionChangeAccountTariffPackage()
+    {
+        $postData = Yii::$app->request->post();
+        foreach(['account_tariff_id', 'package_id', 'actual_from', 'tariff_period_id'] as $field) {
+            if (!isset($postData[$field]) || !$postData[$field]) {
+                throw new \InvalidArgumentException('Invalid argument: ' . $field);
+            }
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $accountTariff = AccountTariff::findOne(['id' => $postData['account_tariff_id']]);
+            $package = AccountTariff::findOne(['id' => $postData['package_id']]);
+            $tariffPeriod = TariffPeriod::findOne(['id' => $postData['tariff_period_id']]);
+
+            if (!$accountTariff) {
+                throw new \InvalidArgumentException('AccountTariff not found');
+            }
+
+            if ($accountTariff->serviceType->isPackage()) {
+                throw new \LogicException('Account Tariff is package');
+            }
+
+            if (!$package) {
+                throw new \InvalidArgumentException('Package not found');
+            }
+
+            if (!$package->serviceType->isPackage()) {
+                throw new \LogicException('Package is main service');
+            }
+
+            if ($package->prev_account_tariff_id != $accountTariff->id) {
+                throw new \LogicException('The package does not belong to the service');
+            }
+
+            if (!$tariffPeriod) {
+                throw new \InvalidArgumentException('TariffPeriod not found');
+            }
+
+            if ($tariffPeriod->tariff->serviceType->parent_id != $accountTariff->service_type_id) {
+                throw new \LogicException('TariffPeriod is not for this service');
+            }
+
+            $this->actionCloseAccountTariff([
+                'account_tariff_ids' => [$postData['package_id']],
+                'actual_from' => $postData['actual_from'] ?? null,
+            ]);
+
+            $result = $this->_addAccountTariff([
+                'client_account_id' => $accountTariff->client_account_id,
+                'actual_from' => $postData['actual_from'],
+                'tariff_period_id' => $postData['tariff_period_id'],
+                'service_type_id' => $tariffPeriod->tariff->service_type_id,
+                'prev_account_tariff_id' => $accountTariff->id,
+            ]);
+
+            $transaction->commit();
+
+            return $result;
+        } catch (\Exception $e) {
+            Yii::error($e);
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
     /**
      * @param int[] $account_tariff_ids
      * @param int $tariff_period_id
@@ -1549,11 +1636,14 @@ class UuController extends ApiInternalController
      * @return int
      * @throws Exception
      */
-    public function actionCloseAccountTariff()
+    public function actionCloseAccountTariff($post = [])
     {
-        $postData = Yii::$app->request->post();
+        $postData = $post ?: Yii::$app->request->post();
+
+        $account_tariff_ids = $postData['account_tariff_ids'] ?? [];
+
         return $this->editAccountTariff(
-            isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [],
+            $account_tariff_ids,
             null,
             (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null,
             isset($postData['user_info']) ? $postData['user_info'] : ''
