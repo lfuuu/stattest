@@ -145,7 +145,7 @@ class PaymentController extends ApiInternalController
             $payment->comment = $infoJson['comment'] ?? ucfirst($channels[$model->channel]) . " #" . $model->payment_no . ' (API)';
 
             if ($channelOrganizationId) {
-                $payment->checkOrganizationId = $channelOrganizationId;
+                $payment->organization_id = $channelOrganizationId;
             }
 
             $payment->isIdentificationPayment = $isIdentificationPayment;

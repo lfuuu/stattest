@@ -20,9 +20,19 @@ class SberbankOnline
     const SUM_MIN = 10;
     const SUM_MAX = 15000;
 
+    const SBER_ORGANIZATION_MCN_TELECOM = 1;
+    const SBER_ORGANIZATION_AB_SERVICE = 2;
+
+    const SBER_ORGANIZATION_TO_ORGANIZATION = [
+        self::SBER_ORGANIZATION_MCN_TELECOM => Organization::MCN_TELECOM,
+        self::SBER_ORGANIZATION_AB_SERVICE => Organization::AB_SERVICE_MARCOMNET,
+    ];
+
     const DATE_FORMAT = 'YmdHis';
 
     private $resultCode = 0; // Успешное завершение операции
+
+    private $organizationId = null;
 
     /**
      * SberbankOnline constructor.
@@ -48,20 +58,8 @@ class SberbankOnline
                 throw new \InvalidArgumentException('Invalid format of the Payer\'s identifier');
             }
 
-            if (!isset($data['sum'])) {
-                $this->resultCode = 9; // Неверная сумма платежа
-                throw new \InvalidArgumentException('Invalid payment amount');
-            }
-
-            if ($data['sum'] < self::SUM_MIN) {
-                $this->resultCode = 10; // Сумма слишком мала
-                throw new \InvalidArgumentException('The amount is too small');
-            }
-
-            if ($data['sum'] > self::SUM_MAX) {
-                $this->resultCode = 11; // Сумма слишком велика
-                throw new \InvalidArgumentException('The amount is too big');
-            }
+            $this->checkSum($data);
+            $this->checkOrganization($data);
 
             switch ($data['command']) {
                 case self::ACTION_CHECK:
@@ -87,6 +85,37 @@ class SberbankOnline
         } catch (\Exception $e) {
             return ['comment' => $e->getMessage()];
         }
+    }
+
+    private function checkSum($data)
+    {
+        if (!isset($data['sum'])) {
+            $this->resultCode = 9; // Неверная сумма платежа
+            throw new \InvalidArgumentException('Invalid payment amount');
+        }
+
+        if ($data['sum'] < self::SUM_MIN) {
+            $this->resultCode = 10; // Сумма слишком мала
+            throw new \InvalidArgumentException('The amount is too small');
+        }
+
+        if ($data['sum'] > self::SUM_MAX) {
+            $this->resultCode = 11; // Сумма слишком велика
+            throw new \InvalidArgumentException('The amount is too big');
+        }
+    }
+
+    private function checkOrganization($data)
+    {
+        if (!isset($data['serv_id'])) {
+            return;
+        }
+
+        if (!isset(self::SBER_ORGANIZATION_TO_ORGANIZATION[$data['serv_id']])) {
+            return;
+        }
+
+        $this->organizationId = self::SBER_ORGANIZATION_TO_ORGANIZATION[$data['serv_id']];
     }
 
     private function checkAccount(&$data)
@@ -165,6 +194,7 @@ class SberbankOnline
                 'original_currency' => $bill->currency,
                 'comment' => 'Sberbank.Online payment #' . $data['txn_id'] . ' at ' . $paymentDate->format(DateTimeZoneHelper::DATETIME_FORMAT),
                 'add_date' => $addDate->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                'organization_id' => $this->organizationId,
             ], false);
 
             if (!$payment->save()) {

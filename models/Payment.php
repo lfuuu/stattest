@@ -34,6 +34,7 @@ use yii\db\Expression;
  * @property float $add_user       пользователь, добавивший запись о платеже
  * @property float $bank           банк
  * @property float $payment_type   тип платежа: доход/расход
+ * @property int $organization_id
  *
  * @property-read Bill $bill счёт
  * @property-read ClientAccount $client
@@ -114,7 +115,6 @@ class Payment extends ActiveRecord
 
     public $isNeedToSendAtol = false;
     public $isIdentificationPayment = false;
-    public $checkOrganizationId = null;
 
     /**
      * Название таблицы
@@ -174,6 +174,7 @@ class Payment extends ActiveRecord
             'comment' => 'Комментарий',
             'add_date' => 'Дата занесения платежа',
             'add_user' => 'Добавивший пользователь',
+            'organization_id' => 'Организация',
             'bank' => 'Банк',
         ];
     }
