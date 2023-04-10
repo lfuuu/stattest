@@ -46,17 +46,17 @@ class SendToOnlineCashRegister extends Behavior
         $payment = $event->sender;
 
         if ($payment->sum > 0) {
-            self::addEvent($payment->id, $payment->isNeedToSendAtol, $payment->checkOrganizationId);
+            self::addEvent($payment->id, $payment->isNeedToSendAtol);
         }
     }
 
-    public static function addEvent($paymentId, $isForcePush = false, $checkOrganizationId = false)
+    public static function addEvent($paymentId, $isForcePush = false)
     {
         // поставить в очередь для отправки
         EventQueue::go(\app\modules\atol\Module::EVENT_SEND, [
                 'paymentId' => $paymentId,
                 'isForcePush' => $isForcePush,
-            ] + ($checkOrganizationId ? ['checkOrganizationId' => $checkOrganizationId] : [])
+            ]
         );
     }
 
@@ -67,7 +67,7 @@ class SendToOnlineCashRegister extends Behavior
      * @param bool $isForcePush
      * @return false|string
      */
-    public static function send($paymentId, $isForcePush = false, $checkOrganizationId = false)
+    public static function send($paymentId, $isForcePush = false)
     {
         $payment = Payment::findOne(['id' => $paymentId]);
         if (!$payment) {
@@ -82,6 +82,8 @@ class SendToOnlineCashRegister extends Behavior
         if ($payment->currency !== Currency::RUB || $payment->paymentAtol) {
             return false;
         }
+
+        $checkOrganizationId = $payment->organization_id;
 
         $isToSend = false;
         if ($isForcePush) {
@@ -150,8 +152,9 @@ class SendToOnlineCashRegister extends Behavior
      */
     public static function refreshStatus($paymentId)
     {
+        $payment = Payment::findOne(['id' => $paymentId]);
         $paymentAtol = PaymentAtol::findOne(['id' => $paymentId]);
-        if (!$paymentAtol) {
+        if (!$payment || !$paymentAtol) {
             throw new \InvalidArgumentException('Неправильный платеж ' . $paymentId);
         }
 
@@ -159,7 +162,7 @@ class SendToOnlineCashRegister extends Behavior
             throw new \LogicException('Платеж не был отправлен в онлайн-кассу ' . $paymentId);
         }
 
-        $organizationId = $paymentAtol->payment->client->contract->organization_id;
+        $organizationId = $payment->organization_id ?: $paymentAtol->payment->client->contract->organization_id;
 
         list($status, $log) = Api::me()->getStatus($paymentAtol->uuid, $organizationId);
 

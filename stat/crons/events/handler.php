@@ -844,8 +844,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = $isAtolServer ?
                         SendToOnlineCashRegister::send(
                             $param['paymentId'],
-                            $param['isForcePush'] ?? false,
-                            $param['checkOrganizationId'] ?? false
+                            $param['isForcePush'] ?? false
                         ) :
                         EventQueue::API_IS_SWITCHED_OFF;
                     break;
