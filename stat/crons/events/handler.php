@@ -950,16 +950,20 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 // --------------------------------------------
                 case FreeNumberModule::EVENT_EXPORT_FREE:
                     // Номер стал свободным
+                    /*
                     $info = $isFreeNumberServer ?
                         FreeNumberModule::addFree($param) :
                         EventQueue::API_IS_SWITCHED_OFF;
+                    */
                     break;
 
                 case FreeNumberModule::EVENT_EXPORT_BUSY:
                     // Номер стал несвободным
+                    /*
                     $info = $isFreeNumberServer ?
                         FreeNumberModule::addBusy($param) :
                         EventQueue::API_IS_SWITCHED_OFF;
+                    */
                     break;
 
                 // --------------------------------------------
