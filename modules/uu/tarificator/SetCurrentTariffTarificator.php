@@ -190,9 +190,9 @@ SQL;
 
         EventQueue::go($event, [
             'client_account_id' => $accountTariff->client_account_id,
-            'account_tariff_id' => $accountTariff->id,
-            'service_type_id' => $accountTariff->service_type_id,
-            'is_package' => in_array($accountTariff->service_type_id, ServiceType::$packages),
+            'account_tariff_id' => $accountTariff->prev_account_tariff_id ?: $accountTariff->id,
+            'service_type_id' => $accountTariff->prev_account_tariff_id ? $accountTariff->prevAccountTariff->service_type_id : $accountTariff->service_type_id,
+//            'is_package' => in_array($accountTariff->service_type_id, ServiceType::$packages),
         ]);
     }
 

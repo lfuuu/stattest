@@ -40,6 +40,7 @@ class AccountTariffStructureGenerator extends Singleton
         $offset = 0
     )
     {
+        $voip_number_mask = null;
         if (!$id && !$client_account_id && !$voip_number) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
@@ -109,6 +110,7 @@ class AccountTariffStructureGenerator extends Singleton
         $record = [
             'id' => $accountTariff->id,
             'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
+            'client_account_id' => $accountTariff->client_account_id,
             'region' => $this->_getIdNameRecord($accountTariff->region),
             'voip_number' => $accountTariff->voip_number,
             'voip_city' => $this->_getIdNameRecord($accountTariff->city),
