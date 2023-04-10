@@ -1071,7 +1071,8 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE:
                     if ($isRobocallInternalServer) {
-                        ApiRobocallInternal::me()->remove($param['account_tariff_id']);
+                        // The disconnect event is taken from kafka
+//                        ApiRobocallInternal::me()->remove($param['account_tariff_id']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
