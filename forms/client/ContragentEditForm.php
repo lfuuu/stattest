@@ -191,7 +191,7 @@ class ContragentEditForm extends Form
             ['lang_code', 'string'],
             [['passport_serial', 'passport_number'], PassportValuesValidator::class],
             [['passport_serial', 'passport_number'], PassportNumberUniqValidator::class],
-            [['branch_code'], 'string', 'max' => 3],
+            [['branch_code'], 'string', 'max' => 8],
             [['branch_code'], 'default', 'value' => null],
         ];
 
