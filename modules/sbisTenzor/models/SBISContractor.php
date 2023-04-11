@@ -62,7 +62,7 @@ class SBISContractor extends ActiveRecord
             [['iec'], 'string', 'max' => 36],
             [['full_name', 'email', 'phone', 'exchange_id_is', 'exchange_id_spp'], 'string', 'max' => 255],
             [['exchange_id', 'fixed_exchange_id'], 'string', 'max' => 46],
-            [['branch_code'], 'string', 'max' => 3],
+            [['branch_code'], 'string', 'max' => 8],
             [['inila'], 'string', 'max' => 15],
             [['last_name', 'first_name', 'middle_name'], 'string', 'max' => 60],
             [['accounts'], 'string'],
