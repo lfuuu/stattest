@@ -4,6 +4,7 @@ namespace app\classes\dto;
 
 use app\classes\adapters\EbcKafka;
 use app\classes\Singleton;
+use app\classes\Utils;
 use app\dao\ClientSuperDao;
 use app\modules\uu\dao\AccountTariffStructureGenerator;
 
@@ -13,10 +14,16 @@ class AccountTariffStructureToKafka extends Singleton
 
     public function anonce($accountTariffId)
     {
+        $atStruct = AccountTariffStructureGenerator::me()->getAccountTariffsWithPackages($accountTariffId);
+
         return EbcKafka::me()->sendMessage(
             self::TOPIC,
-            AccountTariffStructureGenerator::me()->getAccountTariffsWithPackages($accountTariffId),
-            (string)$accountTariffId
+            $atStruct,
+            (string)$accountTariffId,
+            [
+                'service_type_id' => $atStruct[0]['service_type']['id'],
+                'uuid' => Utils::genUUID(),
+            ]
         );
     }
 }
