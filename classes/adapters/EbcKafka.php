@@ -67,7 +67,7 @@ class EbcKafka extends Singleton
      * @return bool
      * @throws InvalidConfigException
      */
-    public function sendMessage($topic, $message, $key = null): bool
+    public function sendMessage($topic, $message, $key = null, $headers = null): bool
     {
         if (!$this->isAvailable()) {
             throw new InvalidConfigException('Connect to Kafka not configured');
@@ -85,9 +85,12 @@ class EbcKafka extends Singleton
             $message = json_encode($message, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         }
 
+        $key = $key ?: md5(uniqid());
+
         $rdTopic = $this->getRdTopic($topic);
 
-        $result = $rdTopic->produce(RD_KAFKA_PARTITION_UA, 0, $message, $key ?: md5(uniqid()));
+        $result = $rdTopic->producev(RD_KAFKA_PARTITION_UA, 0, $message, $key, $headers);
+
         $this->producer->flush(self::SEND_TIMEOUT);
 
         return (int) $result == RD_KAFKA_RESP_ERR_NO_ERROR;
