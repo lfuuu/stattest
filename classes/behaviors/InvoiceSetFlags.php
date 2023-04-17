@@ -34,7 +34,7 @@ class InvoiceSetFlags extends Behavior
         $invoice->is_act = (bool)BillDocument::dao()->me()->_isSF($invoice->bill->client_id, BillDocument::TYPE_AKT, $invoiceDate->getTimestamp());
 
         // за пределами России - только инвойсы
-        if ($invoice->bill->clientAccount->contragent->country_id != Country::RUSSIA) {
+        if ($invoice->bill->clientAccount->contragent->country_id != Country::RUSSIA || \Yii::$app->isEu()) {
             $invoice->is_invoice = $invoice->is_invoice || $invoice->is_act;
             $invoice->is_act = false;
         }
