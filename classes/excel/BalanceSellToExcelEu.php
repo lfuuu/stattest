@@ -76,9 +76,9 @@ class BalanceSellToExcelEu extends Excel
         $data = [];
         foreach ($this->filter->search()->each() as $invoice) {
 
-            if (!$this->filter->check($invoice)) {
-                continue;
-            }
+            // if (!$this->filter->check($invoice)) {
+            //    continue;
+            // }
 
             /** @var \app\models\filter\SaleBookFilter $invoice */
             $bill = $invoice->bill;
