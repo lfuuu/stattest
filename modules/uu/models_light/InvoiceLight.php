@@ -230,8 +230,13 @@ class InvoiceLight extends Component
             }
 
             return $content;
-        } else {\
-            Yii::$app->session->setFlash('error', 'Шаблон счета-фактуры для языка "' . $this->_language . '" не найден');
+        } else {
+            $msg = 'Шаблон счета-фактуры для языка "' . $this->_language . '" не найден';
+            if (Yii::$app instanceof \app\classes\WebApplication) {
+                Yii::$app->session->setFlash('error', $msg);
+            } else {
+                throw new \InvalidArgumentException($msg);
+            }
         }
 
         return false;
