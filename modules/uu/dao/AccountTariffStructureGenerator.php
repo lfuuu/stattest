@@ -36,11 +36,11 @@ class AccountTariffStructureGenerator extends Singleton
         $client_account_id = null,
         $service_type_id = null,
         $voip_number = null,
+        $voip_number_mask = null,
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
     )
     {
-        $voip_number_mask = null;
         if (!$id && !$client_account_id && !$voip_number) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }

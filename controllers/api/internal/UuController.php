@@ -1197,6 +1197,7 @@ class UuController extends ApiInternalController
                 $client_account_id,
                 $service_type_id,
                 $voip_number,
+                $voip_number_mask,
                 $limit,
                 $offset
             ], true),
@@ -1208,6 +1209,7 @@ class UuController extends ApiInternalController
             $client_account_id,
             $service_type_id,
             $voip_number,
+            $voip_number_mask,
             $limit,
             $offset
         );
