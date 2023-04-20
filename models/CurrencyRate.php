@@ -16,6 +16,7 @@ use yii\db\Expression;
  */
 class CurrencyRate extends ActiveRecord
 {
+    public const transferFee = 0.02; // % => value
     /**
      * Вернуть имена полей
      * @return array [полеВТаблице => Перевод]

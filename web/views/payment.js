@@ -21,23 +21,23 @@
         $paymentOriginalSummary.on('change', function(){
             var originalSum = $(this).val(),
                 paymentRate = $paymentRate.val(),
-                sum = originalSum / paymentRate;
+                sum = originalSum * paymentRate;
 
             $paymentSummary.val(sum.toFixed(2));
         });
 
         $paymentSummary.on('change', function(){
-            var originalSum = $paymentOriginalSummary.val(),
-                sum = $(this).val(),
-                paymentRate = originalSum / sum;
+            var sum = $(this).val(),
+                paymentRate = $paymentRate.val(),
+                originalSum = sum / paymentRate;
 
-            $paymentRate.val(paymentRate.toFixed(4));
+            $paymentSummary.val(originalSum.toFixed(2));
         });
 
         $paymentRate.on('change', function(){
             var originalSum = $paymentOriginalSummary.val(),
                 paymentRate = $(this).val(),
-                sum = originalSum / paymentRate;
+                sum = originalSum * paymentRate;
 
             $paymentSummary.val(sum.toFixed(2));
         });

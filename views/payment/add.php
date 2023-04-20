@@ -40,7 +40,7 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'oper_date' => ['type' => Form::INPUT_TEXT],
             'original_currency' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['id' => 'payment_original_currency']],
-            'payment_rate' => ['type' => Form::INPUT_TEXT, 'options' => ['id' => 'payment_rate']],
+            'payment_rate' => ['type' => Form::INPUT_TEXT, 'options' => ['id' => 'payment_rate', 'disabled'=>'disabled']],
         ],
     ]);
     echo Form::widget([
