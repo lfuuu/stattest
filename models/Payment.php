@@ -241,6 +241,31 @@ class Payment extends ActiveRecord
         return $this->hasOne(PaymentApiChannel::class, ['code' => 'ecash_operator']);
     }
 
+    public function beforeSave($isInsert)
+    {
+        if (!$this->original_currency) {
+            $this->original_currency = $this->currency;
+        }
+
+        if (!$this->original_sum) {
+            $this->original_sum = $this->sum;
+        }
+
+        $this->sum = $this->original_sum;
+
+        if ($this->client->currency == $this->original_currency) {
+            $this->payment_rate = 1;
+            return parent::beforeSave($isInsert);
+        }
+
+        $this->sum *= (1 - CurrencyRate::transferFee); // fee
+        $this->payment_rate = CurrencyRate::dao()->crossRate($this->original_currency, $this->client->currency, $this->payment_date);
+        $this->sum *= $this->payment_rate;
+        $this->currency = $this->client->currency;
+
+        return parent::beforeSave($isInsert);
+    }
+
     /**
      * @param bool $insert
      * @param array $changedAttributes

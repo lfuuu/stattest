@@ -131,7 +131,7 @@ class PaymentController extends ApiInternalController
             $payment->client_id = $account->id;
             $payment->payment_no = $model->payment_no;
             $payment->bill_no = $payment->bill_vis_no = $bill->bill_no;
-            $payment->sum = $payment->original_sum = $model->sum;
+            $payment->sum = $model->sum;
             $payment->currency = $model->currency;
 
             $payment->payment_date = $payment->oper_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);

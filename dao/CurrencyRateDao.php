@@ -73,8 +73,8 @@ class CurrencyRateDao extends Singleton
         }
 
         if (
-            $rateFrom = self::getRate($currencyFromId, $date, true)
-            && $rateTo = self::getRate($currencyToId, $date, true)
+            ($rateFrom = self::getRate($currencyFromId, $date, true))
+            && ($rateTo = self::getRate($currencyToId, $date, true))
         ) {
             return $rateFrom / $rateTo;
         }

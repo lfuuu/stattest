@@ -21,7 +21,7 @@ class PaymentAddForm extends PaymentForm
                 'original_currency',
                 'original_sum',
                 'sum',
-                'payment_rate',
+//                'payment_rate',
                 'type',
                 'payment_type'
 
