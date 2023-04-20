@@ -460,6 +460,8 @@ class NumberRange extends ActiveRecord
         $toReturn['operator'] = $nnpNumberRange->operator->name;
         $toReturn['city_name'] = $nnpNumberRange->city->name;
         $toReturn['number_length'] = $numberModel->city->postfix_length;
+        $toReturn['city_id'] = $billerInfo['nnp_city_id'];
+        $toReturn['country_code'] = $billerInfo['country_code'];
 
         return $toReturn;
     }
