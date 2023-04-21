@@ -12,13 +12,15 @@ class EbcKafka extends Singleton
     const SSL_TLS_KEY = '/etc/kafka-ssl/tls.key';
 
     const DEFAULT_GROUPID = 'group-stat';
+//    const DEFAULT_GROUPID = 'stat-test';
 
     const SEND_TIMEOUT = 10000;
 
     /** @var \RdKafka\Producer */
     private $producer = null;
 
-    private $rdTopics = [];
+    private $producerTopics = [];
+    private $consumerTopics = [];
 
     public function isAvailable()
     {
@@ -33,9 +35,13 @@ class EbcKafka extends Singleton
     {
         $config = new \RdKafka\Conf();
 //        $config->set('debug', 'all');
+//        $config->set('debug', 'consumer');
         $config->set('group.id', self::DEFAULT_GROUPID);
         $config->set('metadata.broker.list', \Yii::$app->params['KAFKA_BROKERS']);
         $config->set('client.id', self::DEFAULT_GROUPID);
+
+        $config->set('auto.offset.reset', 'earliest');
+        $config->set('enable.partition.eof', 'true');
 
         if (\Yii::$app->params['IS_KAFKA_WITH_SSL'] ?? false) {
             $config->set('security.protocol', 'ssl');
@@ -44,20 +50,62 @@ class EbcKafka extends Singleton
             $config->set('ssl.certificate.location', self::SSL_TLS_CRT);
         }
 
-        $this->producer = new \RdKafka\Producer($config);
+        return $config;
     }
 
-    private function getRdTopic($topicName)
+    private function getProducerTopic($topicName)
     {
         if (!$this->producer) {
-            $this->getConfig();
+            $this->producer = new \RdKafka\Producer($this->getConfig());
         }
 
-        if (!isset($this->rdTopics[$topicName])) {
-            $this->rdTopics[$topicName] = $this->producer->newTopic($topicName);
+        if (!isset($this->producerTopics[$topicName])) {
+            $this->producerTopics[$topicName] = $this->producer->newTopic($topicName);
         }
 
-        return $this->rdTopics[$topicName];
+        return $this->producerTopics[$topicName];
+    }
+
+    /**
+     * @param $topicName
+     * @return mixed|\RdKafka\kafkaConsumerTopic
+     */
+    public function getMessage($topicName, $callback, $timeoutSec = 10)
+    {
+        if (!is_callable($callback)) {
+            throw new \InvalidArgumentException('No callback function');
+        }
+
+        if (!isset($this->consumerTopics[$topicName])) {
+            $this->consumerTopics[$topicName] = new \RdKafka\KafkaConsumer($this->getConfig());
+        }
+
+        $consumer = $this->consumerTopics[$topicName];
+
+        $consumer->subscribe([$topicName]);
+
+        while(true) {
+            $message = $consumer->consume($timeoutSec * 10000);
+            switch ($message->err) {
+                case RD_KAFKA_RESP_ERR_NO_ERROR:
+                    echo "\n" . date("r") .": Message >>> \n";
+                    $callback($message);
+                    break;
+
+                case RD_KAFKA_RESP_ERR__PARTITION_EOF:
+                    echo "\n" . date("r") .": No more messages; will wait for more\n";
+                    sleep(1);
+                    break;
+
+                case RD_KAFKA_RESP_ERR__TIMED_OUT:
+                    echo "\n" . date("r") .": TIMED_OUT\n";
+                    return;
+
+                default:
+                    throw new \Exception($message->errstr(), $message->err);
+
+            }
+        }
     }
 
     /**
@@ -67,7 +115,7 @@ class EbcKafka extends Singleton
      * @return bool
      * @throws InvalidConfigException
      */
-    public function sendMessage($topic, $message, $key = null, $headers = null): bool
+    public function sendMessage($topic, $message, $key = null, $headers = null, $timestamp_ms=0): bool
     {
         if (!$this->isAvailable()) {
             throw new InvalidConfigException('Connect to Kafka not configured');
@@ -87,9 +135,9 @@ class EbcKafka extends Singleton
 
         $key = $key ?: md5(uniqid());
 
-        $rdTopic = $this->getRdTopic($topic);
+        $rdTopic = $this->getProducerTopic($topic);
 
-        $result = $rdTopic->producev(RD_KAFKA_PARTITION_UA, 0, $message, $key, $headers);
+        $result = $rdTopic->producev(RD_KAFKA_PARTITION_UA, 0, $message, $key, $headers, $timestamp_ms);
 
         $this->producer->flush(self::SEND_TIMEOUT);
 
