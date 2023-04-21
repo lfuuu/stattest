@@ -53,7 +53,6 @@ use yii\helpers\Url;
  * @property-read TariffPerson $person
  * @property-read TariffPeriod[] $tariffPeriods
  * @property-read Tag $tag
- * @property-read TariffTag[] $tariffTags
  * @property-read TariffBundle[] $bundleTariffs
  * @property-read TariffBundle[] $bundlePackages
  *
@@ -524,7 +523,7 @@ class Tariff extends ActiveRecord
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'id',
-            $select = 'name',
+            $select = new Expression("concat('№', id, ' ', name)") ,
             $orderBy = ['name' => SORT_ASC],
             $where
         );
