@@ -71,19 +71,13 @@ $baseView = $this;
 $columns = [
     [
         'class' => ActionColumn::class,
-        'template' => '{update} {delete}',
+        'template' => '{update}',
         'buttons' => [
             'update' => function ($url, Tariff $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
                         'url' => $model->getUrl(),
                     ]
                 );
-            },
-            'delete' => function ($url, Tariff $model, $key) use ($baseView) {
-                $params = array_merge(['id' => $model->id], $_GET);
-                return $baseView->render('//layouts/_actionDrop', [
-                    'url' => '/uu/tariff/edit?' . http_build_query($params)
-                ]);
             },
         ],
         'hAlign' => GridView::ALIGN_CENTER,
@@ -448,6 +442,21 @@ foreach ($resources as $resource) {
         },
     ];
 }
+
+
+$columns[] = [
+    'class' => ActionColumn::class,
+    'template' => '{delete}',
+    'buttons' => [
+        'delete' => function ($url, Tariff $model, $key) use ($baseView) {
+            $params = array_merge(['id' => $model->id], $_GET);
+            return $baseView->render('//layouts/_actionDrop', [
+                'url' => '/uu/tariff/edit?' . http_build_query($params)
+            ]);
+        },
+    ],
+    'hAlign' => GridView::ALIGN_CENTER,
+];
 
 $dataProvider = $filterModel->search();
 
