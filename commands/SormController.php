@@ -2,12 +2,14 @@
 
 namespace app\commands;
 
+use app\classes\adapters\EbcKafka;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Address;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use yii\helpers\ArrayHelper;
 
@@ -320,7 +322,7 @@ SQL;
                 $l = $loadData[$k];
 
                 $diff = [];
-                foreach(['numbers', 'close_time'] as $f) {
+                foreach (['numbers', 'close_time'] as $f) {
                     if ($s[$f] != $l[$f]) {
                         $diff[$f] = $l[$f];
                     }
@@ -354,7 +356,7 @@ SQL;
     public function actionAddressRecognition()
     {
         $token = getenv('DADATA_TOKEN');
-        $secret = getenv('DADATA_SECRET') ;
+        $secret = getenv('DADATA_SECRET');
 
         if (!$token || !$secret) {
             throw new \Exception('Empty auth parameters');
@@ -363,7 +365,7 @@ SQL;
         $dadata = new \Dadata\DadataClient($token, $secret);
 
         /** @var Address $address */
-        foreach(Address::find()->where(['state' => 'added'])->all() as $address) {
+        foreach (Address::find()->where(['state' => 'added'])->all() as $address) {
 
             if (!$address->address) {
                 $address->state = 'need_check';
@@ -377,7 +379,6 @@ SQL;
                 $address->save();
                 continue;
             }
-
 
 
             $result = $dadata->clean("address", $address->address);
@@ -421,5 +422,220 @@ SQL;
 
             print_r($d);
         }
+    }
+
+    public function actionDidDvo()
+    {
+        $topicName = "kafka-app1-DidForwarding-didForwarding";
+
+        if (!EbcKafka::me()->isAvailable()) {
+            throw new InvalidConfigException('Kafka not configured');
+        }
+
+        EbcKafka::me()->getMessage($topicName, function ($message) {
+            $this->proccessMessage($message);
+        });
+    }
+
+    public function proccessMessage($message)
+    {
+        $dstTopicName = "kafka-app1-DidForwarding-didForwarding-events";
+
+
+        var_dump($message);
+        $data = $message->payload;
+        $dd = $this->transformJson($data);
+
+        if (!$dd) {
+            return;
+        }
+
+        echo "++++++++++++++++++++++++++++++++++";
+        foreach ($dd as $d) {
+            echo " >>>";
+            EbcKafka::me()->sendMessage($dstTopicName, $d, $d['did'], null, $message->timestamp);
+
+            $queryData = [
+                'did' => $d['did'],
+                'type' => $d['type'],
+                'number' => $d['number'],
+                'is_on' => $d['action'] == 'on',
+                'created_at' => $d['created_at'] . '+00',
+                'region_id' => $this->getRegion($d['number']),
+            ];
+            \Yii::$app->dbPg->createCommand()->insert('sorm_itgrad_calls.did_forwarding', $queryData)->execute();
+            echo "<<< ";
+        }
+    }
+
+    public function getRegion($number)
+    {
+        static $c = [];
+
+        if (!$c) {
+            $c = $this->_loadNumbering();
+        }
+
+        return $this->_findRegion($c, $number);
+    }
+
+    public function _loadNumbering()
+    {
+        $query = \Yii::$app->dbPg->createCommand('select prefix, number_from, number_to, region_id from sorm_itgrad.phone_numbering')->query();
+
+        $data = [];
+        foreach ($query as $i) {
+            $regionId = $i['region_id'];
+            if (!isset($data[$regionId])) {
+                $data[$regionId] = [];
+            }
+
+            $data[$regionId][] = [
+                'from' => (int)('7' . $i['prefix'] . $i['number_from']),
+                'to' => (int)('7' . $i['prefix'] . $i['number_to']),
+            ];
+        }
+
+        return $data;
+    }
+
+    public function _findRegion($c, $number)
+    {
+        $number = (int)$number;
+
+        if (!$number) {
+            return null;
+        }
+
+        foreach ($c as $regionId => $regionData) {
+            foreach ($regionData as $region) {
+                if ($region['from'] <= $number && $number <= $region['to']) {
+                    return $regionId;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    public function transformJson($json)
+    {
+        $j = json_decode($json, true);
+
+        if (!isset($j['before']) || !isset($j['after'])) {
+            throw new \InvalidArgumentException("Bad JSON: " . var_export($j, true));
+        }
+
+        $after = $j['after'];
+        $before = $j['before'];
+
+        $afterJ = json_encode($after);
+        $beforeJ = json_encode($before);
+
+        if ($afterJ == $beforeJ) {
+            echo 'Is equal' . PHP_EOL;
+            return;
+        }
+
+        $didJ = $before['did'] ?? $after['did'] ?? false;
+        if (!$didJ) {
+            return;
+        }
+
+        $time = explode('.', $j['window_end'])[0];
+
+        $did = $didJ['did'];
+
+        if (strlen($did) < 9) {
+            echo 'DID: ' . $did . ' so small';
+            return;
+        }
+
+        $beforeF = $this->fwd($before['did_forwards']);
+        $afterF = $this->fwd($after['did_forwards']);
+
+        $diff = $this->diff($beforeF, $afterF);
+
+        $diff = array_map(function ($a) use ($did, $time) {
+            return ['did' => $did] + $a + ['created_at' => $time];
+        }, $diff);
+
+        echo PHP_EOL . '=============================' . PHP_EOL;
+        print_r('before: ');
+        print_r($beforeF);
+        print_r('after: ');
+        print_r($afterF);
+
+        print_r('diff: ');
+        print_r($diff);
+
+        return $diff;
+    }
+
+    public function fwd($fwds)
+    {
+        $d = [];
+        foreach ($fwds as $fwd) {
+            $df = $fwd['did_forward'];
+
+            if (!$df['enabled']) {
+                continue;
+            }
+
+            $dft = $fwd['did_forward_targets'];
+
+            usort($dft, function ($a, $b) {
+                return $a['priority'] > $b['priority'];
+            });
+
+            $numbers = array_filter(array_map(function ($a) {
+                return preg_replace("/\+?(\d{9,})(@.*)?/i", "$1", $a['number']);
+            }, $dft));
+
+            if (!$numbers) {
+                continue;
+            }
+
+            $d[$df['type']] = $numbers;
+        }
+
+        return $d;
+    }
+
+    public function diff($b, $a)
+    {
+        $d = [];
+        $keys = array_unique(array_merge(array_keys($b), array_keys($a)));
+        foreach ($keys as $key) {
+            $bNumbers = $aNumbers = [];
+            if (isset($b[$key])) {
+                $bNumbers = $b[$key];
+            }
+            if (isset($a[$key])) {
+                $aNumbers = $a[$key];
+            }
+
+            $add = array_diff($aNumbers, $bNumbers);
+            $rm = array_diff($bNumbers, $aNumbers);
+
+            foreach ($add as $number) {
+                $d[] = [
+                    'type' => $key,
+                    'number' => $number,
+                    'action' => 'on',
+                ];
+            }
+
+            foreach ($rm as $number) {
+                $d[] = [
+                    'type' => $key,
+                    'number' => $number,
+                    'action' => 'off',
+                ];
+            }
+        }
+
+        return $d;
     }
 }
