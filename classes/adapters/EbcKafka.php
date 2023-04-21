@@ -11,7 +11,7 @@ class EbcKafka extends Singleton
     const SSL_TLS_CRT = '/etc/kafka-ssl/tls.crt';
     const SSL_TLS_KEY = '/etc/kafka-ssl/tls.key';
 
-    const DEFAULT_GROUPID = 'group-stat';
+    const DEFAULT_GROUPID = 'stat';
 //    const DEFAULT_GROUPID = 'stat-test';
 
     const SEND_TIMEOUT = 10000;
