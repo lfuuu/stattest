@@ -15,7 +15,7 @@ class FtpSsh2Downloader extends Component
     private $_pass = null;
     private $_srcDir = './runtime';
 
-    const HOST = 'prod-sftp.numlex.ru';
+    const HOST = 'prod-sftp.bdpn.ru';
     const PORT = 3232;
     const PATH = '/numlex/Port_All';
 
