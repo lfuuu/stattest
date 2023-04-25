@@ -441,7 +441,6 @@ SQL;
     {
         $dstTopicName = "kafka-app1-DidForwarding-didForwarding-events";
 
-
         var_dump($message);
         $data = $message->payload;
         $dd = $this->transformJson($data);
@@ -452,6 +451,8 @@ SQL;
 
         echo "++++++++++++++++++++++++++++++++++";
         foreach ($dd as $d) {
+            $d['region_id'] = $this->getRegion($d['did']);
+
             echo " >>>";
             EbcKafka::me()->sendMessage($dstTopicName, $d, $d['did'], null, $message->timestamp);
 
@@ -461,9 +462,12 @@ SQL;
                 'number' => $d['number'],
                 'is_on' => $d['action'] == 'on',
                 'created_at' => $d['created_at'] . '+00',
-                'region_id' => $this->getRegion($d['number']),
+                'region_id' => $d['region_id'],
             ];
-            \Yii::$app->dbPg->createCommand()->insert('sorm_itgrad_calls.did_forwarding', $queryData)->execute();
+
+            if ($d['did'] != $d['number']) { // убираем SIP переадресации
+                \Yii::$app->dbPg->createCommand()->insert('sorm_itgrad_calls.did_forwarding', $queryData)->execute();
+            }
             echo "<<< ";
         }
     }
@@ -590,7 +594,10 @@ SQL;
             });
 
             $numbers = array_filter(array_map(function ($a) {
-                return preg_replace("/\+?(\d{9,})(@.*)?/i", "$1", $a['number']);
+                if (strpos($a['number'], '@') === false) { // убираем SIP учетки
+                    return preg_replace("/\+?(\d{9,})/i", "$1", $a['number']);
+                }
+                return '';
             }, $dft));
 
             if (!$numbers) {
