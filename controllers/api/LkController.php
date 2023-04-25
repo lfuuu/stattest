@@ -3,9 +3,6 @@
 namespace app\controllers\api;
 
 use app\classes\api\SberbankApi;
-use app\classes\media\MediaManager;
-use app\exceptions\api\SberbankApiException;
-use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\Currency;
 use app\models\danycom\PhoneHistory;
@@ -15,7 +12,6 @@ use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\models\media\ClientFiles;
 use app\models\Organization;
-use app\models\Payment;
 use app\models\SberbankOrder;
 use app\models\Trouble;
 use app\models\UsageVoip;
@@ -31,6 +27,7 @@ use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use yii\base\InvalidParamException;
 use yii\db\Expression;
+use yii\validators\UrlValidator;
 
 /**
  * Class LkController
@@ -475,6 +472,33 @@ class LkController extends ApiController
     }
 
     /**
+     * @SWG\Post(
+     *   tags={"LK"},
+     *   path="/lk/make-sberbank-order",
+     *   summary="Создание заказа для оплаты через Сбербанк",
+     *   operationId="lk-make-sberbank-order",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",default = "", required = true,in="formData"),
+     *   @SWG\Parameter(name="sum",type="integer",description="Сумма",default = "", required = true,in="formData"),
+     *   @SWG\Parameter(name="is_pay_page",type="integer",description="? is_pay_page",default = "0", required = true,in="formData"),
+     *   @SWG\Parameter(name="return_url",type="string",description="URL возврата при успехе",default = "", required = false,in="formData"),
+     *   @SWG\Parameter(name="fail_url",type="string",description="URL возврата при непрохождении платежа",default = "", required = false,in="formData"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Создание заказа для оплаты через Сбербанк",
+     *     @SWG\Definition(
+     *       type="object",
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
      * POST /api/lk/make-sberbank-order
      *
      * Создание счета на оплату и регистрация его в Сбербанк.
@@ -487,8 +511,10 @@ class LkController extends ApiController
                 ['account_id', AccountIdValidator::class],
                 ['sum', 'double', 'min' => 10, 'max' => 15000],
                 ['is_pay_page', 'boolean'],
+                [['return_url', 'fail_url'], UrlValidator::class],
             ]
         );
+
 
         $form->validateWithException();
 
@@ -559,7 +585,9 @@ class LkController extends ApiController
                 $bill->clientAccount,
                 $bill->bill_no,
                 $form->sum,
-                $form->is_pay_page
+                $form->is_pay_page,
+                $form->return_url,
+                $form->fail_url
             );
 
             $sbOrder->status = SberbankOrder::STATUS_REGISTERED;
