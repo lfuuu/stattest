@@ -30,7 +30,8 @@ spec:
     spec:
       containers:
         - name: redis-{{ .postfix_name }}
-          image: quay.io/continuouspipe/redis3:latest
+#          image: quay.io/continuouspipe/redis3:latest
+          image: redis:7.0.11          
           command: ['redis-server']
           ports:
             - containerPort: {{ .Values.redis_prod.port }}
