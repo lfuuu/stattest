@@ -501,8 +501,8 @@ ansible:
 {{ end }}
 ---
 image: {{ .project }}-redis-{{ .env }}
-from: quay.io/continuouspipe/redis3:latest
-#from: redis:6.2
+#from: quay.io/continuouspipe/redis3:latest
+from: redis:7.0.11
 
 ansible:
   beforeInstall:
