@@ -11,10 +11,15 @@ class EbcKafka extends Singleton
     const SSL_TLS_CRT = '/etc/kafka-ssl/tls.crt';
     const SSL_TLS_KEY = '/etc/kafka-ssl/tls.key';
 
+//    const SSL_CA_CRT = '/home/httpd/stat.mcn.ru/stat/config/kssl/cluster-ca.crt';
+//    const SSL_TLS_CRT = '/home/httpd/stat.mcn.ru/stat/config/kssl/key/clients-ca.crt';
+//    const SSL_TLS_KEY = '/home/httpd/stat.mcn.ru/stat/config/kssl/key/clients-ca.key';
+
     const DEFAULT_GROUPID = 'stat';
 //    const DEFAULT_GROUPID = 'stat-test';
 
     const SEND_TIMEOUT = 10000;
+    const DEFAULT_READ_TIMEOUT_SEC = 10;
 
     /** @var \RdKafka\Producer */
     private $producer = null;
@@ -31,14 +36,14 @@ class EbcKafka extends Singleton
             && file_exists(self::SSL_TLS_KEY) && is_readable(self::SSL_TLS_KEY);
     }
 
-    private function getConfig()
+    private function getConfig($readerGroupId = null)
     {
         $config = new \RdKafka\Conf();
 //        $config->set('debug', 'all');
 //        $config->set('debug', 'consumer');
-        $config->set('group.id', self::DEFAULT_GROUPID);
+        $config->set('group.id', $readerGroupId ?: self::DEFAULT_GROUPID);
         $config->set('metadata.broker.list', \Yii::$app->params['KAFKA_BROKERS']);
-        $config->set('client.id', self::DEFAULT_GROUPID);
+        $config->set('client.id', $readerGroupId ?: self::DEFAULT_GROUPID);
 
         $config->set('auto.offset.reset', 'earliest');
         $config->set('enable.partition.eof', 'true');
@@ -70,17 +75,20 @@ class EbcKafka extends Singleton
      * @param $topicName
      * @return mixed|\RdKafka\kafkaConsumerTopic
      */
-    public function getMessage($topicName, $callback, $timeoutSec = 10)
+    public function getMessage($topicName, $callback, $timeoutSec = null, $readerGroupId = null)
     {
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException('No callback function');
         }
 
-        if (!isset($this->consumerTopics[$topicName])) {
-            $this->consumerTopics[$topicName] = new \RdKafka\KafkaConsumer($this->getConfig());
+        $timeoutSec = $timeoutSec ?: self::DEFAULT_READ_TIMEOUT_SEC;
+        $readerGroupId = $readerGroupId ?: self::DEFAULT_GROUPID;
+
+        if (!isset($this->consumerTopics[$topicName][$readerGroupId])) {
+            $this->consumerTopics[$topicName][$readerGroupId] = new \RdKafka\KafkaConsumer($this->getConfig($readerGroupId));
         }
 
-        $consumer = $this->consumerTopics[$topicName];
+        $consumer = $this->consumerTopics[$topicName][$readerGroupId];
 
         $consumer->subscribe([$topicName]);
 

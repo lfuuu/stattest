@@ -140,10 +140,10 @@ class Utils
         return strpos($hostName, '-dev-') === false;
     }
 
-    public static function genUUID()
+    public static function genUUID($data = null)
     {
         $strong = "";
-        $data = openssl_random_pseudo_bytes(16, $strong);
+        $data = $data ?: openssl_random_pseudo_bytes(16, $strong);
         assert($data !== false && $strong);
         return self::format_uuidv4($data);
     }
