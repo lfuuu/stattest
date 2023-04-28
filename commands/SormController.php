@@ -10,6 +10,7 @@ use app\models\Address;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use app\modules\uu\models\AccountTariff;
 use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use yii\helpers\ArrayHelper;
@@ -482,7 +483,7 @@ SQL;
 
         $id = "0{$msg['region_id']}-{$uuid}-01";
         $data = <<<TEXT
-"{$id}";"{$msg['created_at']}.000000";"0";"{$eventToCode[$msg['type']][$msg['action']]}";"{$msg['did']}";"";"{$msg['number']}";"";"1";"";"{$msg['account_id']}";"";"";"";"";"";"";
+"{$id}";"{$msg['created_at']}.000000";"0";"{$eventToCode[$msg['type']][$msg['action']]}";"{$msg['did']}";"";"{$msg['number']}";"";"1";"";"{$msg['service_id']}";"";"";"";"";"";"";
 TEXT;
 
         $queryData = [
@@ -526,7 +527,7 @@ TEXT;
             'number' => $msg['number'],
             'is_on' => $msg['action'] == 'on',
             'created_at' => $msg['created_at'] . '+00',
-            'region_id' => $msg['region_id'],
+            'region_id' => $msg['region_id'] + 1000 // TODO remove
         ];
 
         print_r($queryData);
@@ -552,7 +553,8 @@ TEXT;
 
         var_dump($message);
         $data = $message->payload;
-        $dd = $this->transformJson($data);
+        $accountId = 0;
+        $dd = $this->transformJson($data, $accountId);
 
         if (!$dd) {
             return;
@@ -561,6 +563,9 @@ TEXT;
         echo "++++++++++++++++++++++++++++++++++";
         foreach ($dd as $d) {
             echo " >>>";
+            $d['region_id'] = $this->getRegion($d['did']);
+            $d['account_id'] = $accountId;
+            $d['service_id'] = $this->getServiceId($d['account_id'], $d['did']);
             EbcKafka::me()->sendMessage($dstTopicName, $d, $d['did'], null, $message->timestamp);
             echo "<<< ";
         }
@@ -575,6 +580,16 @@ TEXT;
         }
 
         return $this->_findRegion($c, $number);
+    }
+
+    public function getServiceId($accountId, $number)
+    {
+        return AccountTariff::find()
+            ->where(['not', ['tariff_period_id' => null]])
+            ->andWhere([
+                'voip_number' => $number,
+                'client_account_id' => $accountId
+            ])->select('id')->scalar();
     }
 
     public function _loadNumbering()
@@ -617,7 +632,7 @@ TEXT;
     }
 
 
-    public function transformJson($json)
+    public function transformJson($json, &$accountId)
     {
         $j = json_decode($json, true);
 
@@ -640,6 +655,8 @@ TEXT;
         if (!$didJ) {
             return;
         }
+
+        $accountId = $didJ['account_id'];
 
         $time = explode('.', $j['window_end'])[0];
 
