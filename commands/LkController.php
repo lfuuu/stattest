@@ -98,7 +98,7 @@ and o.account_id = at.client_account_id and o.did = at.voip_number and tariff_pe
 having lk_device_address != at.device_address and lk_device_address != ''
 SQL;
         $query = \Yii::$app->db->createCommand($sql)->query();
-        echo PHP_EOL;
+        echo PHP_EOL . date('r') . PHP_EOL;
         foreach($query as $row) {
             echo "id: {$row['id']}, account_id: {$row['account_id']}, did: {$row['did']}, >>>{$row['lk_device_address']}===>>>{$row['device_address']}<<<" . PHP_EOL;
 
