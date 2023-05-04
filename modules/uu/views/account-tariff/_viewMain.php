@@ -249,7 +249,7 @@ switch ($formModel->serviceTypeId) {
     <div class="well">
         <div class="row">
             <div class="col-sm-10">
-                <?=$form->field($formModel->accountTariff, 'device_address')->textInput() ?>
+                <?=$form->field($formModel->accountTariff, 'device_address')->textInput(['disabled' => 'disabled']) ?>
             </div>
             <div class="col-sm-2">
                 <label class="control-label">&nbsp;</label>

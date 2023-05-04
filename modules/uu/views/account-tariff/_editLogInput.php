@@ -131,10 +131,4 @@ $channels = TroubleRoistat::CHANNELS;
         </div>
     <?php endif ?>
 
-    <?php if($accountTariffVoip): ?>
-        <div class="col-sm-6">
-            <?= $form->field($accountTariffVoip, 'device_address')->textInput()->label('Адрес установки оборудования'); ?>
-        </div>
-    <?php endif ?>
-
 </div>

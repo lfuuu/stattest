@@ -160,16 +160,6 @@ class AccountTariffController extends BaseController
 
         $post = \Yii::$app->request->post();
 
-        if ($post && $accountTariff && $accountTariff->service_type_id == ServiceType::ID_VOIP) {
-            if (!$accountTariff->isEditable() && isset($post['AccountTariff']) && isset($post['AccountTariff']['device_address'])) {
-                $accountTariff->device_address = $post['AccountTariff']['device_address'];
-
-                if (!$accountTariff->save()) {
-                    throw new ModelValidationException($accountTariff);
-                }
-            }
-        }
-
         try {
             $formModel = new AccountTariffEditForm(['id' => $id, 'postData' => $post]);
         } catch (\InvalidArgumentException $e) {

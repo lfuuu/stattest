@@ -99,7 +99,7 @@ $helpConfluenceInternet = $this->render('//layouts/_helpConfluence', ServiceType
 <div class="row">
     <div class="col-sm-6">
         <?= $form->field($accountTariff, 'device_address')
-            ->textInput()
+            ->textInput(['disabled' => 'disabled'])
             ->label($accountTariff->getAttributeLabel('device_address') . $helpConfluenceVoip)
         ?>
     </div>
