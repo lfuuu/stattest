@@ -248,20 +248,8 @@ switch ($formModel->serviceTypeId) {
     ]); ?>
     <div class="well">
         <div class="row">
-            <div class="col-sm-10">
+            <div class="col-sm-12">
                 <?=$form->field($formModel->accountTariff, 'device_address')->textInput(['disabled' => 'disabled']) ?>
-            </div>
-            <div class="col-sm-2">
-                <label class="control-label">&nbsp;</label>
-                <?= $this->render('//layouts/_submitButton', [
-                    'text' => Yii::t('common', 'Save'),
-                    'glyphicon' => 'glyphicon-save',
-                    'params' => [
-                            'class' => 'btn btn-primary form-control',
-                            'id' => 'submit-button'
-                        ],
-                ]) ?>
-
             </div>
         </div>
     </div>

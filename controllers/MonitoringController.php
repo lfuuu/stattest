@@ -425,6 +425,8 @@ class MonitoringController extends BaseController
      */
     public function actionSaveAddress()
     {
+        throw new NotImplementedHttpException('Адреса редактируются только в ЛК');
+
         $id = Yii::$app->request->post('id');
         $address = Yii::$app->request->post('text');
 
