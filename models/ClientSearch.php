@@ -116,7 +116,7 @@ class ClientSearch extends ClientAccount
             $result = (new HttpClient())
                 ->createJsonRequest()
                 ->setMethod('get')
-                ->setUrl('https://vpbx.mcn.ru/phone/api/get_account_id_by_sip_name/')
+                ->setUrl('https://' . \Yii::$app->params['VPBX_SERVER'] . '/phone/api/get_account_id_by_sip_name/')
                 ->setData(['sip_name' => $this->sip])
                 ->getResponseDataWithCheck();
 
@@ -156,7 +156,7 @@ class ClientSearch extends ClientAccount
 
         if ($this->companyName) {
 //            if (\Yii::$app->request->isAjax) {
-                $query->orWhere(new Expression("match(contragent.name_full) against (:searchStr IN BOOLEAN MODE)", ['searchStr' => '*'.preg_replace('/\s+/', '*', $this->companyName).'*']));
+                $query->orWhere(new Expression("match(contragent.name_full) against (:searchStr /*IN BOOLEAN MODE*/)", ['searchStr' => preg_replace('/\s+/', '*', $this->companyName)]));
 //            } else {
 //                $query->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
 //                    ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
@@ -236,6 +236,9 @@ class ClientSearch extends ClientAccount
 
             $query->andFilterWhere(['LIKE', 'tech_port.node', $this->adsl]);
         }
+
+//        echo $query->createCommand()->rawSql;
+//        exit();
 
         return $dataProvider;
     }
