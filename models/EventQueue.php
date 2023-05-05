@@ -490,6 +490,10 @@ class EventQueue extends ActiveRecord
             $accountTariffId = null;
         }
 
+        if ($event == UuModule::EVENT_UU_ANONCE) {
+            $accountTariffId = null;
+        }
+
         if (is_array($param) || is_object($param)) {
             $param = json_encode($param);
         }
