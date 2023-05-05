@@ -822,15 +822,16 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
                     break;
 
-                case UuModule::EVENT_UU_ANONCE:
                 case UuModule::EVENT_UU_SWITCHED_ON:
                 case UuModule::EVENT_UU_SWITCHED_OFF:
                 case UuModule::EVENT_UU_UPDATE:
                     // УУ-услуга включена
                     ClientAccount::dao()->updateIsActive($param['client_account_id']);
+                    break;
 
+                case UuModule::EVENT_UU_ANONCE:
                     if ($isEbcKafka) {
-                        AccountTariffStructureToKafka::me()->anonce($param['account_tariff_id']);
+                        $info = AccountTariffStructureToKafka::me()->anonce($param['account_tariff_id']);
                     }
                     break;
 
