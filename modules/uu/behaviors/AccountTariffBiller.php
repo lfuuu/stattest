@@ -68,8 +68,12 @@ class AccountTariffBiller extends Behavior
 
         );
 
+        if ($event->name == ActiveRecord::EVENT_AFTER_UPDATE) {
+            return true;
+        }
+
         EventQueue::go(\app\modules\uu\Module::EVENT_UU_ANONCE, [
-            'account_tariff_id' => $accountTariff->id,
+            'account_tariff_id' => $accountTariff->prev_account_tariff_id ?: $accountTariff->id,
             'client_account_id' => $accountTariff->client_account_id,
         ],
             $isForceAdd = false,
