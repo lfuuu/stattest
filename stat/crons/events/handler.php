@@ -97,7 +97,14 @@ $uuSyncEvents = [
     UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE,
 ];
 
-$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents);
+$kafkaEvents = [
+    UuModule::EVENT_UU_ANONCE,
+    UuModule::EVENT_UU_SWITCHED_ON,
+    UuModule::EVENT_UU_SWITCHED_OFF,
+    UuModule::EVENT_UU_UPDATE,
+];
+
+$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents, $kafkaEvents);
 
 $map = [
     'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', ['event' => $uuSyncEvents]]],
@@ -778,8 +785,6 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
                     break;
 
-
-
                 case UuModule::EVENT_RESOURCE_VOIP:
                     // УУ. Отправить измененные ресурсы телефонии на платформу
                     if (AccountTariff::hasTrunk($param['client_account_id'])) {
@@ -817,6 +822,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
                     break;
 
+                case UuModule::EVENT_UU_ANONCE:
                 case UuModule::EVENT_UU_SWITCHED_ON:
                 case UuModule::EVENT_UU_SWITCHED_OFF:
                 case UuModule::EVENT_UU_UPDATE:
@@ -1056,7 +1062,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
-                
+
                 case UuModule::EVENT_ROBOCALL_INTERNAL_CREATE:
                     if ($isRobocallInternalServer) {
                         ApiRobocallInternal::me()->create($param['client_account_id'], $param['account_tariff_id']);
