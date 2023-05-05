@@ -67,6 +67,17 @@ class AccountTariffBiller extends Behavior
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT)
 
         );
+
+        EventQueue::go(\app\modules\uu\Module::EVENT_UU_ANONCE, [
+            'account_tariff_id' => $accountTariff->id,
+            'client_account_id' => $accountTariff->client_account_id,
+        ],
+            $isForceAdd = false,
+            $nextStart = DateTimeZoneHelper::getUtcDateTime()
+                ->modify('+2 second')
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+
+        );
     }
 
     /**
