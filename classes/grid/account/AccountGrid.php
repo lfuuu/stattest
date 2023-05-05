@@ -15,21 +15,22 @@ abstract class AccountGrid implements AccountGridInterface
     const BUSINESS_MAPPING_REJECT = 1;
 
     // Карта замен отчетов, используемая в цикле при обработке запрашиваемых статусов
-    public static $BUSINESS_CYCLE_MAPPING = [
-        BusinessProcess::TELECOM_MAINTENANCE => [
-            // Инджект связанного отчета
-            [
-                BPS::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES => '\telecom\maintenance\OrderServiceFolder',
-                BPS::TELEKOM_MAINTENANCE_WORK => '\telecom\maintenance\WorkFolder',
-                BPS::TELEKOM_MAINTENANCE_TRASH => '\telecom\maintenance\TrashFolder',
-            ],
-            // Реджект связанного отчета
-            [
-                BPS::TELEKOM_MAINTENANCE_EXCEPTION_FROM_BOOK_OF_PROD,
-            ],
+    public static $BUSINESS_CYCLE_MAPPING = [];
+//        BusinessProcess::TELECOM_MAINTENANCE => [
+//            // Инджект связанного отчета
+//            [
+//                BPS::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES => '\telecom\maintenance\OrderServiceFolder',
+//                BPS::TELEKOM_MAINTENANCE_WORK => '\telecom\maintenance\WorkFolder',
+//                BPS::TELEKOM_MAINTENANCE_TRASH => '\telecom\maintenance\TrashFolder',
+//            ],
+//            // Реджект связанного отчета
+//            [
+//                BPS::TELEKOM_MAINTENANCE_EXCEPTION_FROM_BOOK_OF_PROD,
+//            ],
+//
+//        ],
+//    ];
 
-        ],
-    ];
     // Карта добавочных отчетов, внедряемых независимо от основного цикла карты замен
     public static $BUSINESS_EXTRA_MAPPING = [
         BusinessProcess::TELECOM_MAINTENANCE => [
