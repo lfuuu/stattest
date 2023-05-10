@@ -177,8 +177,8 @@ class CurrencyController extends Controller
             //2 массива со старыми данными из БД и новыми данными из XML 
             $newInfo = [
                 'bik' => $node['BIC'],
-                'corr_acc' => $newAccount,
-                'bank_city' => $node->ParticipantInfo['Nnp'],
+                'corr_acc' => (string)$newAccount,
+                'bank_city' => (string)$node->ParticipantInfo['Nnp'],
                 'bank_address' => $node->ParticipantInfo['Adr'],
                 'bank_name' => $node->ParticipantInfo['NameP']
             ];
