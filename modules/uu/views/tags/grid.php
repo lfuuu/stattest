@@ -1,6 +1,9 @@
 <?php
 
 use app\classes\BaseView;
+use app\modules\uu\forms\TagsForm;
+use app\modules\uu\models\Tag;
+use app\modules\uu\models\Tariff;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 use app\classes\grid\GridView;
@@ -9,7 +12,7 @@ use yii\widgets\Breadcrumbs;
 
 /** @var BaseView $baseView */
 /** @var $dataProvider ActiveDataProvider */
-/** @var \app\modules\uu\forms\TagsForm $form */
+/** @var TagsForm $form */
 
 $baseView = $this;
 echo Html::formLabel('Метки');
@@ -40,36 +43,44 @@ echo GridView::widget([
         ],
         [
             'attribute' => 'id',
-            'width' => '5%',
+            'width' => '3%',
         ],
         [
             'attribute' => 'name',
-            'width' => '*',
+            'width' => '10%',
         ],
         [
             'label' => 'Используется',
             'format' => 'raw',
-            'value' => function ($model) use ($form) {
+            'value' => function (Tag $model) use ($form) {
 
                 $result = [];
 
-                foreach($model->getTariffTags()->with(['tariff', 'tariff.serviceType'])->all() as $tariffTag) {
-                    /** @var \app\modules\uu\models\Tariff $tariff */
+                foreach ($model
+                             ->getTariffTags()
+                             ->joinWith('tariff t')
+                             ->with(['tariff', 'tariff.serviceType'])
+                             ->orderBy([
+                                 't.service_type_id' => SORT_ASC,
+                                 't.name' => SORT_ASC
+                             ])
+                             ->all() as $tariffTag) {
+                    /** @var Tariff $tariff */
                     $tariff = $tariffTag->tariff;
+                    if (!$tariff) {
+                        continue;
+                    }
                     $result[] = Html::tag(
                         'div',
-                        Html::a($tariff->serviceType->name.': ' .Html::tag('span', $tariff->name, [
-                            'style' => ['color' => '#fff', 'font-size' => '8pt'],
-                                ]), $tariff->getUrl(),['target' => '_blank']),
+                        Html::a($tariff->serviceType->name . ': ' . Html::tag('span', $tariff->name, [
+                                'style' => ['color' => '#fff', 'font-size' => '8pt'],
+                            ]), $tariff->getUrl(), ['target' => '_blank']),
                         ['class' => 'label label-info']
                     );
                 }
-            return implode('&nbsp;', $result);
-
-
-
+                return implode('    ', $result);
             },
-            'width' => '30%',
+            'width' => '*',
         ],
     ],
     'floatHeader' => false,
