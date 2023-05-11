@@ -70,7 +70,7 @@ class Currency extends ActiveRecord
             self::_load();
         }
         return isset(self::$_symbols[$currencyId]) ?
-            self::$_symbols[$currencyId] :
+            explode(' - ', self::$_symbols[$currencyId])[0] :
             $currencyId;
     }
 
