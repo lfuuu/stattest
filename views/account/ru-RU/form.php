@@ -44,7 +44,7 @@ use kartik\widgets\ActiveForm;
             <?= $f->field($model, 'nal')->dropDownList(ClientAccount::$nalTypes) ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'currency')->dropDownList(Currency::map()) ?>
+            <?= $f->field($model, 'currency')->dropDownList(Currency::map(), ['class' => 'select2']) ?>
         </div>
         <!--        <div class="col-sm-3">-->
         <!--            --><?php /* echo $f->field($model, 'price_type')->dropDownList(GoodPriceType::getList()) */ ?>
