@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\model\ActiveRecord;
 use NumberFormatter;
 use Yii;
+use yii\db\Expression;
 
 /**
  * @property string $id
@@ -69,7 +70,7 @@ class Currency extends ActiveRecord
             self::_load();
         }
         return isset(self::$_symbols[$currencyId]) ?
-            self::$_symbols[$currencyId] :
+            explode(' - ', self::$_symbols[$currencyId])[0] :
             $currencyId;
     }
 
@@ -97,7 +98,13 @@ class Currency extends ActiveRecord
 
     private static function _load()
     {
-        self::$_symbols = self::find()->select('symbol')->indexBy('id')->column();;
+        self::$_symbols = self::find()
+            ->select(new Expression("concat(symbol, ' - ', name)"))
+            ->orderBy([
+                "if(id='RUB', -10, if(id='HUF', -9 , if (id='EUR', -8, if(id='USD', -7,  char_length(symbol)))))" => SORT_ASC,
+                'symbol' => SORT_ASC,
+            ])
+            ->indexBy('id')->column();
     }
 
     /**
