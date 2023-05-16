@@ -15,7 +15,9 @@ use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\SetFieldTypeHelper;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Class ClientContract
@@ -183,6 +185,11 @@ class ClientContract extends HistoryActiveRecord
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
             'ClientChangeNotifier' => ClientChangeNotifier::class,
+            'TimestampBehavior' => [
+                // Установить "когда создал" и "когда обновил"
+                'class' => TimestampBehavior::class,
+                'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+            ],
         ];
     }
 
