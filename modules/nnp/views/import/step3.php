@@ -140,7 +140,7 @@ if ($useCache) {
                 $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
                 $rowStatus = $importServiceUploaded->getRowHasError($numberRangeImport);
 
-                $key = sprintf("%s %s - %s %s", $numberRangeImport->ndc, $numberRangeImport->number_from, $numberRangeImport->ndc, $numberRangeImport->number_to);
+                $key = sprintf("(%s) %s %s - %s %s", $numberRangeImport->country_prefix, $numberRangeImport->ndc_str, $numberRangeImport->number_from, $numberRangeImport->ndc_str, $numberRangeImport->number_to);
                 if ($errors = $numberRangeImport->getErrors()) {
                     $isFileOK = false;
 
@@ -151,7 +151,7 @@ if ($useCache) {
                         }
                     }
                     $errorLines[$lineNumber] = $text;
-                } elseif (empty($numberRangeImport->ndc)) {
+                } elseif (empty($numberRangeImport->ndc_str) && $numberRangeImport->ndc_str != '0') {
                     $warningLines[$lineNumber] = 'Пустой NDC - диапазон не будет загружен';
                 } elseif ($numberRangeImport->ndc_type_id == 6) {
                     $warningLines[$lineNumber] = 'Короткий номер - диапазон не будет загружен';
