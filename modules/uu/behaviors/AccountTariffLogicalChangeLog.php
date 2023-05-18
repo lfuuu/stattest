@@ -21,7 +21,6 @@ class AccountTariffLogicalChangeLog extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
         ];
