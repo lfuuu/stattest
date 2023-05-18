@@ -155,4 +155,14 @@ class Utils
 
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
+
+    public static function toJson($obj)
+    {
+        return json_encode($obj, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    public static function fromJson($obj)
+    {
+        return json_decode($obj, true);
+    }
 }
