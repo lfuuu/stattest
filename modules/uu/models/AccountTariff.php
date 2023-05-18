@@ -9,6 +9,7 @@ use app\classes\validators\FormFieldValidator;
 use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
 use app\modules\uu\behaviors\AccountTariffCheckHlr;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
+use app\modules\uu\behaviors\AccountTariffLogicalChangeLog;
 use app\modules\uu\behaviors\AccountTariffTransferClean;
 use app\modules\uu\behaviors\AccountTariffVoipNumber;
 use app\modules\uu\models\traits\AccountTariffBillerPeriodTrait;
@@ -153,6 +154,7 @@ class AccountTariff extends ActiveRecord
                 AccountTariffAddDefaultPackage::class,
                 AccountTariffTransferClean::class,
                 AccountTariffCheckHlr::class,
+                AccountTariffLogicalChangeLog::class,
 //                ClientChangeNotifier::class,
                 [
                     // Установить "когда создал" и "когда обновил"

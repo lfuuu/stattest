@@ -9,6 +9,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\User;
 use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\AccountTariffLogicalChangeLog;
 use app\modules\uu\behaviors\AccountTariffLogTimeHistory;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
 use app\modules\uu\classes\AccountLogFromToResource;
@@ -113,6 +114,7 @@ class AccountTariffLog extends ActiveRecord
                 \app\classes\behaviors\HistoryChanges::class,
                 AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
                 FillAccountTariffResourceLog::class, // Создать лог ресурсов при создании услуги. Удалить при удалении
+                AccountTariffLogicalChangeLog::class,
                 AccountTariffLogTimeHistory::class, // Обновление время продажи и допродажи в модели AccountTariff
             ]
         );
@@ -480,7 +482,7 @@ class AccountTariffLog extends ActiveRecord
 
     public function afterSave($isInsert, $changedAttributes)
     {
-        if ($this->connectionAmount !== null) {
+        if ($this->connectionAmount !== null && abs((float)$this->connectionAmount) >= 0.01) {
 
             $estimation = new Estimation();
             $estimation->client_account_id = $this->accountTariff->client_account_id;

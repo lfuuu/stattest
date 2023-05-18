@@ -56,10 +56,10 @@ foreach ($rows as $hash => $row) {
     $value = \Yii::$app->cache->get($cacheKey);
 
     if ($value !== false) {
-        if (strpos($value, $accountTariffFirst->id . '"') === false) {
-            \Yii::error('CACHEDOUBLE C ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
-            $value = false;
-        }
+//        if (strpos($value, $accountTariffFirst->id . '"') === false) {
+//            \Yii::error('CACHEDOUBLE C ' . $accountTariffFirst->id . ': ' . $accountTariffFirst->client_account_id);
+//            $value = false;
+//        }
 
         ActiveForm::begin(['action' => '/uu/account-tariff/save-voip']);
         $params = [

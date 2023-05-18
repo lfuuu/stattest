@@ -35,7 +35,7 @@ class FillAccountTariffResourceLog extends Behavior
         $accountTariffLog = $event->sender;
 
         if (!$accountTariffLog->tariff_period_id) {
-            // закрыть услугу
+            // на закрытие услуги
             return;
         }
 
