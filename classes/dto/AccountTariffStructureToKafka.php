@@ -31,7 +31,7 @@ class AccountTariffStructureToKafka extends Singleton
             ] + ($isAddedService ? ['is_add_service' => $accountTariffId] : [])
         );
 
-        if ($atStruct['changes']) {
+        if ($changes) {
             AccountTariffChange::setAsPublished($accountTariffId);
         }
 
