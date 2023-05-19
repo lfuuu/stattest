@@ -6,6 +6,8 @@ use app\classes\behaviors\CreatedAt;
 use app\classes\model\ActiveRecord;
 use app\classes\Utils;
 use app\exceptions\ModelValidationException;
+use app\models\User;
+use yii\behaviors\BlameableBehavior;
 
 /**
  * @property int $id
@@ -14,6 +16,7 @@ use app\exceptions\ModelValidationException;
  * @property int $client_account_id
  * @property string $message
  * @property int $is_published
+ * @property int $user_id
  */
 class AccountTariffChange extends ActiveRecord
 {
@@ -40,12 +43,19 @@ class AccountTariffChange extends ActiveRecord
     {
         return array_merge(parent::behaviors(), [
             'CreatedAt' => CreatedAt::class,
+            'leaving a trace of the creator' => [
+                'class' => BlameableBehavior::class,
+                'createdByAttribute' => 'user_id',
+                'updatedByAttribute' => null
+            ]
         ]);
     }
 
     // DAO
     public static function add($clientAccountId, $accountTariffId, array $changes)
     {
+        unset($changes['account_tariff_id']);
+
         $change = new static();
         $change->client_account_id = $clientAccountId;
         $change->account_tariff_id = $accountTariffId;
@@ -60,11 +70,12 @@ class AccountTariffChange extends ActiveRecord
 
     public static function getUnsaveChanges($accountTariffId)
     {
-        return array_map(function ($msg) {
-            var_dump($msg);
-            return Utils::fromJson($msg);
+        return array_map(function (self $msg) {
+            return $msg->message
+                + ['created_at_utc' => $msg->created_at]
+                + ($msg->user_id && $msg->user_id != User::SYSTEM_USER_ID ? ['user_id' => $msg->user_id] : [])
+                ;
         }, self::find()
-            ->select('message')
             ->where([
                 'account_tariff_id' => $accountTariffId,
                 'is_published' => 0,
@@ -72,7 +83,7 @@ class AccountTariffChange extends ActiveRecord
             ->orderBy([
                 'id' => SORT_ASC
             ])
-            ->column()
+            ->all()
         );
     }
 
