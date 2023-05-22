@@ -19,27 +19,37 @@ use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffStatus;
 use Yii;
-use yii\base\InvalidParamException;
 
 trait AccountTariffPackageTrait
 {
+    private static string $TYPE_PACKAGE_DEFAULT = 'default_package';
+    private static string $TYPE_PACKAGE_BUNDLE = 'bundle_package';
+
     /**
-     * @param int $accountTariffId
+     * @param array $params
      * @throws \Exception
      */
-    public static function actualizeDefaultPackages($accountTariffId)
+    public static function actualizeDefaultPackages($params)
     {
-        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
-        if (!$accountTariff) {
-            throw new InvalidParamException('Услуга не найдена: ' . $accountTariffId);
+        $accountTariffLog = AccountTariffLog::findOne(['id' => $params['account_tariff_log_id']]);
+        if (!$accountTariffLog) {
+            throw new \InvalidArgumentException('AccountTariffLog id: ' . $params['account_tariff_log_id'] . ' не найден');
         }
+
+        $accountTariff = $accountTariffLog->accountTariff;
+
+        if (!$accountTariff) {
+            throw new \InvalidArgumentException('Услуга не найдена: ' . $accountTariffLog->account_tariff_id);
+        }
+
+        self::checkEventSuitable($accountTariff, $accountTariffLog);
 
         if (!Semaphore::me()->acquire(Semaphore::ID_UU_CALCULATOR, false)) {
             throw new \LogicException('calculator busy, try restart later');
         }
 
         try {
-            $accountTariff->addOrCloseDefaultPackage();
+            $accountTariff->addOrCloseDefaultPackage($accountTariffLog);
         } catch (\Exception $e) {
             Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
             throw $e;
@@ -53,36 +63,26 @@ trait AccountTariffPackageTrait
      *
      * @throws \Exception
      */
-    public function addOrCloseDefaultPackage()
+    public function addOrCloseDefaultPackage(AccountTariffLog $accountTariffLog)
     {
         if (!in_array($this->service_type_id, ServiceType::$packages)) {
             return;
         }
 
-        $accountTariffLog = $this->getLastOnAccountTariffLog();
         if (
-            $accountTariffLog
-            && $accountTariffLog->tariff_period_id
-            && $accountTariffLog->tariffPeriod
-            && $accountTariffLog->tariffPeriod->tariff
-            && $accountTariffLog->tariffPeriod->tariff->is_bundle) {
-            HandlerLogger::me()->add('Tariff is bundle');
+            !$accountTariffLog->tariff_period_id
+            || !$accountTariffLog->tariffPeriod
+            || !$accountTariffLog->tariffPeriod->tariff
+            || !$accountTariffLog->tariffPeriod->tariff->is_default) {
+            HandlerLogger::me()->add('Tariff is not default');
             return;
         }
 
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-
-            if ($this->isActive()) {
-                // подключить базовые пакеты
-                $this->_addDefaultPackage();
-            } else {
-                // выключить все пакеты
-                $this->_closeAllPackages();
-            }
-
+            // подключить базовые пакеты
+            $this->_addDefaultPackage($accountTariffLog);
             $transaction->commit();
-
         } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error($e);
@@ -97,7 +97,7 @@ trait AccountTariffPackageTrait
      *
      * @throws \app\exceptions\ModelValidationException
      */
-    private function _addDefaultPackage()
+    private function _addDefaultPackage(AccountTariffLog $accountTariffLog)
     {
         $packageType = ServiceType::$serviceToPackage[$this->service_type_id] ?? null;
 
@@ -110,8 +110,10 @@ trait AccountTariffPackageTrait
             return;
         }
 
+        $this->closeAlienPackages($accountTariffLog, self::$TYPE_PACKAGE_DEFAULT);
+
         /** @var TariffPeriod $tariffPeriod */
-        $tariffPeriod = $this->getNotNullTariffPeriod();
+        $tariffPeriod = $accountTariffLog->tariffPeriod;
         $tariffStatuses = $this->getPackageTariffStatuses();
         /** @var \app\models\Number $number */
         $number = $this->number;
@@ -152,7 +154,33 @@ trait AccountTariffPackageTrait
 
         /** @var Tariff $defaultPackage */
         foreach ($defaultPackages as $defaultPackage) {
-            $this->_addPackage($defaultPackage);
+            $this->_addPackage($defaultPackage, $accountTariffLog);
+        }
+    }
+
+    private function closeAlienPackages(AccountTariffLog $accountTariffLog, $type)
+    {
+        foreach ($this->nextAccountTariffs as $nextAccountTariff) {
+            if (!$nextAccountTariff->isActive()) {
+                HandlerLogger::me()->add($nextAccountTariff->id . ' is off');
+                continue;
+            }
+
+            $nextTariffPeriod = $nextAccountTariff->getNotNullTariffPeriod();
+
+            $toClose = false;
+            if ($type == self::$TYPE_PACKAGE_BUNDLE && $nextTariffPeriod->tariff->is_default) {
+                $toClose = true;
+            } elseif ($type == self::$TYPE_PACKAGE_DEFAULT && $nextTariffPeriod->tariff->is_bundle) {
+                $toClose = true;
+            }
+
+            if (!$toClose) {
+                continue;
+            }
+
+            HandlerLogger::me()->add('off: (' . $nextAccountTariff->id . ') ' . ($nextAccountTariff->tariff_period_id ? $nextAccountTariff->tariffPeriod->getName() : '???') . ' - ' . $accountTariffLog->actual_from_utc);
+            $nextAccountTariff->closeAccountTariff($accountTariffLog->actual_from_utc);
         }
     }
 
@@ -221,22 +249,35 @@ trait AccountTariffPackageTrait
      * @throws \app\exceptions\ModelValidationException
      * @throws \Exception
      */
-    private function _closeAllPackages()
+    public static function closeAllPackages($params)
     {
-        /** @var AccountTariffLog[] $accountTariffLogs */
-        $accountTariffLogs = $this->accountTariffLogs;
-        $accountTariffLog = reset($accountTariffLogs); // пакет должен быть закрыт с даты закрытия самого тарифа (то есть начала desc-списка)
+        $accountTariffLog = AccountTariffLog::findOne(['id' => $params['account_tariff_log_id']]);
+        if (!$accountTariffLog) {
+            throw new \InvalidArgumentException('AccountTariffLog id: ' . $params['account_tariff_log_id'] . ' не найден');
+        }
+
+        $accountTariff = $accountTariffLog->accountTariff;
+
+        if (!$accountTariff) {
+            throw new \InvalidArgumentException('Услуга не найдена: ' . $accountTariffLog->account_tariff_id);
+        }
+
         if ($accountTariffLog->tariff_period_id) {
-            Yii::error('Услуга ' . $this->id . ' закрыта, хотя не должна', 'uu');
+            $text = 'Услуга ' . $accountTariffLog->account_tariff_id . ' закрыта, хотя не должна';
+            HandlerLogger::me()->add($text);
+            Yii::error($text, 'uu');
             return;
         }
 
         // закрыть все пакеты
-        /** @var AccountTariff[] $nextAccountTariffs */
-        $nextAccountTariffs = $this->nextAccountTariffs;
-        foreach ($nextAccountTariffs as $nextAccountTariff) {
-            $this->_closePackage($nextAccountTariff, $accountTariffLog->actual_from_utc);
-        }
+
+        $accountTariff::getDb()->transaction(function($db) use ($accountTariff, $accountTariffLog) {
+            /** @var AccountTariff[] $nextAccountTariffs */
+            $nextAccountTariffs = $accountTariff->nextAccountTariffs;
+            foreach ($nextAccountTariffs as $nextAccountTariff) {
+                $nextAccountTariff->closeAccountTariff($accountTariffLog->actual_from_utc);
+            }
+        });
     }
 
 
@@ -244,13 +285,10 @@ trait AccountTariffPackageTrait
      * @param Tariff $tariff
      * @throws ModelValidationException
      */
-    private function _addPackage(Tariff $tariff)
+    private function _addPackage(Tariff $tariff, AccountTariffLog $accountTariffLog)
     {
         $tariffPeriods = $tariff->tariffPeriods;
         $tariffPeriod = reset($tariffPeriods);
-
-        $accountTariffLogs = $this->accountTariffLogs;
-        $accountTariffLog = reset($accountTariffLogs);
 
         // подключить базовый пакет
         $accountTariffPackage = new AccountTariff();
@@ -273,6 +311,8 @@ trait AccountTariffPackageTrait
         }
     }
 
+    // @TODO объединить с setClosed ("остаться должен только один")
+
     /**
      * @param AccountTariff $nextAccountTariff
      * @param string $actual_from_utc
@@ -280,15 +320,14 @@ trait AccountTariffPackageTrait
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    private function _closePackage(AccountTariff $nextAccountTariff, $actual_from_utc)
+    public function closeAccountTariff($actual_from_utc)
     {
-        if (!$nextAccountTariff->tariff_period_id) {
+        if (!$this->tariff_period_id) {
             // уже закрыт
             return;
         }
 
-        /** @var AccountTariffLog[] $nextAccountTariffLogs */
-        $nextAccountTariffLogs = $nextAccountTariff->accountTariffLogs;
+        $nextAccountTariffLogs = $this->accountTariffLogs;
         $nextAccountTariffLog = reset($nextAccountTariffLogs);  // последняя смена тарифа (в начале desc-списка)
         if ($nextAccountTariffLog->actual_from_utc > $actual_from_utc) {
             // что-то есть в будущем - отменить и закрыть
@@ -309,7 +348,7 @@ trait AccountTariffPackageTrait
 
         // закрыть
         $nextAccountTariffLog = new AccountTariffLog();
-        $nextAccountTariffLog->account_tariff_id = $nextAccountTariff->id;
+        $nextAccountTariffLog->account_tariff_id = $this->id;
         $nextAccountTariffLog->tariff_period_id = null;
         $nextAccountTariffLog->actual_from_utc = $actual_from_utc;
         $nextAccountTariffLog->insert_time = $actual_from_utc; // чтобы не было лишнего списания
@@ -474,19 +513,21 @@ trait AccountTariffPackageTrait
             return;
         }
 
-        $accountTariffId = null;
-        if (is_array($params) && isset($params['account_tariff_id'])) {
-            $accountTariffId = $params['account_tariff_id'];
+        $accountTariffLog = AccountTariffLog::findOne(['id' => $params['account_tariff_log_id']]);
+        if (!$accountTariffLog) {
+            throw new \InvalidArgumentException('AccountTariffLog id: ' . $params['account_tariff_log_id'] . ' не найден');
         }
 
-        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffLog->account_tariff_id]);
         if (!$accountTariff) {
-            throw new InvalidParamException('Услуга не найдена: ' . $accountTariffId);
+            throw new \InvalidArgumentException('Услуга не найдена: ' . $accountTariffLog->account_tariff_id);
         }
+
+        self::checkEventSuitable($accountTariff, $accountTariffLog);
 
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            $accountTariff->_checkBoundlePackages();
+            $accountTariff->_checkBoundlePackages($accountTariffLog);
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -494,7 +535,22 @@ trait AccountTariffPackageTrait
         }
     }
 
-    private function _checkBoundlePackages()
+    // Проверяем, последний ли лог тарифа мы обрабатываем.
+    private static function checkEventSuitable(AccountTariff $accountTariff, AccountTariffLog $accountTariffLog)
+    {
+        $accountTariffLogs = $accountTariff->accountTariffLogs;
+        /** @var AccountTariffLog $lastAccountTariffLog */
+        $lastAccountTariffLog = reset($accountTariffLogs);
+        if (!$lastAccountTariffLog || !$lastAccountTariffLog->tariff_period_id) {
+            throw new \InvalidArgumentException('Ошибка получения логов включения по услуге: ' . $accountTariffLog->account_tariff_id);
+        }
+
+        if ($lastAccountTariffLog->tariff_period_id != $accountTariffLog->tariff_period_id) {
+            throw new \LogicException('Последнее включение лога тариф-периода не совпадает с тариф-периодом в задаче');
+        }
+    }
+
+    private function _checkBoundlePackages(AccountTariffLog $accountTariffLog)
     {
         $packageType = ServiceType::$serviceToPackage[$this->service_type_id] ?? null;
 
@@ -502,12 +558,24 @@ trait AccountTariffPackageTrait
             return;
         }
 
-        if (!$this->tariff_period_id) {
+        if (!$accountTariffLog->tariff_period_id) {
             HandlerLogger::me()->add('is off');
             return;
         }
 
-        $tariff = $this->tariffPeriod->tariff;
+        if (
+            !$accountTariffLog->tariffPeriod
+            || !$accountTariffLog->tariffPeriod->tariff
+            || !$accountTariffLog->tariffPeriod->tariff->is_bundle) {
+            HandlerLogger::me()->add('Tariff is not bundle');
+            return;
+        }
+
+        $this->closeAlienPackages($accountTariffLog, self::$TYPE_PACKAGE_BUNDLE);
+
+
+        // compare bundle package
+        $tariff = $accountTariffLog->tariffPeriod->tariff;
         $bundleTariffs = [];
         foreach ($tariff->bundlePackages as $bundlePackage) {
             $bundleTariffPeriod = reset($bundlePackage->packageTariff->tariffPeriods); // нет механизма какой ТП брать
@@ -515,30 +583,24 @@ trait AccountTariffPackageTrait
         }
 
         $needClose = [];
-        $_needClose = [];
         foreach ($this->nextAccountTariffs as $nextAccountTariff) {
             if (!$nextAccountTariff->isActive()) {
-                HandlerLogger::me()->add($nextAccountTariff->id . ' !isActive');
+                HandlerLogger::me()->add($nextAccountTariff->id . ' is off. Skip');
                 // зачем нам уже отключенные. Включенные в будущем будут здесь
                 continue;
             }
 
             $nextTariffPeriod = $nextAccountTariff->getNotNullTariffPeriod();
 
-            if ($nextTariffPeriod->tariff->is_bundle) {
+            if (!$nextTariffPeriod->tariff->is_bundle) {
+                HandlerLogger::me()->add($nextAccountTariff->id . ' is not bundle. Skip');
+                continue;
+            }
 
-                // package in this bundle
-                if (isset($bundleTariffs[$nextTariffPeriod->id])) {
-                    HandlerLogger::me()->add($nextAccountTariff->id . ' package in this bundle => skip');
-                    unset($bundleTariffs[$nextTariffPeriod->id]);
-                    continue;
-                }
-
-                HandlerLogger::me()->add($nextAccountTariff->id . ' alien bundle => to close');
-            } else if ($nextTariffPeriod->tariff->is_default) { // is default package
-                HandlerLogger::me()->add($nextAccountTariff->id . ' is default package => to close');
-            } else { // is no bundle && no default => special package
-                HandlerLogger::me()->add($nextAccountTariff->id . ' special package => skip');
+            // package in this bundle
+            if (isset($bundleTariffs[$nextTariffPeriod->id])) {
+                HandlerLogger::me()->add($nextAccountTariff->id . ' package in this bundle. Skip');
+                unset($bundleTariffs[$nextTariffPeriod->id]);
                 continue;
             }
 
@@ -548,20 +610,14 @@ trait AccountTariffPackageTrait
         if ($bundleTariffs) {
             foreach ($bundleTariffs as $tariff) {
                 HandlerLogger::me()->add('on: (' . $tariff->id . ')' . $tariff->name);
-                $this->_addPackage($tariff);
+                $this->_addPackage($tariff, $accountTariffLog);
             }
         }
 
         if ($needClose) {
-            $accountTariffLogs = $this->accountTariffLogs;
-            $accountTariffLog = reset($accountTariffLogs); // пакет должен быть закрыт с даты закрытия самого тарифа (то есть начала desc-списка)
-            if (!$accountTariffLog->tariff_period_id) {
-                throw new \LogicException('Услуга ' . $this->id . ' закрыта, хотя не должна');
-//                return;
-            }
             foreach ($needClose as $nextAccountTariff) {
                 HandlerLogger::me()->add('off: (' . $nextAccountTariff->id . ') ' . ($nextAccountTariff->tariff_period_id ? $nextAccountTariff->tariffPeriod->getName() : '???') . ' - ' . $accountTariffLog->actual_from_utc);
-                $this->_closePackage($nextAccountTariff, $accountTariffLog->actual_from_utc);
+                $nextAccountTariff->closeAccountTariff($accountTariffLog->actual_from_utc);
             }
         }
     }

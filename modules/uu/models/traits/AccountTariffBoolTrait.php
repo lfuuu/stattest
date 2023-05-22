@@ -86,8 +86,7 @@ trait AccountTariffBoolTrait
         /** @var ClientAccount $clientAccount */
         $clientAccount = $this->clientAccount;
         $dateTimeNow = $clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
-        return $accountTariffLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)
-            || ($accountTariffLog->tariff_period_id && $accountTariffLog->tariffPeriod->tariff->is_bundle && $this->prev_account_tariff_id);
+        return $accountTariffLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
     /**
