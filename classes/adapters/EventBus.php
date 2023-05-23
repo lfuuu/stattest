@@ -20,11 +20,12 @@ class EventBus extends Singleton
                 return false;
             }
 
-            echo PHP_EOL . ($message->headers['type'] ?? '') . ' ' . ($message->headers['src'] ?? '') . '/' . ($message->headers['dst'] ?? '') . ' cmd: ' . ($message->headers['cmd'] ?? '');
+            echo PHP_EOL . date('r') . ': ' . $message->key . ': ' . ($message->headers['type'] ?? '') . ' (' . ($message->headers['src'] ?? '') . '=>' . ($message->headers['dst'] ?? '') . ') cmd: ' . ($message->headers['cmd'] ?? '');
             if (
                 !(
                     isset($message->headers['dst']) && $message->headers['dst'] == 'stat'
                     && isset($message->headers['type']) && $message->headers['type'] == 'cmd'
+                    && isset($message->headers['version']) && $message->headers['version'] == 1
                 )
             ) {
                 echo ' -- skip message';
@@ -120,15 +121,15 @@ class EventBus extends Singleton
 
         $queryString = isset($msg['argv']) && $msg['argv'] ? http_build_query($msg['argv']) : '';
 
-        $endPoint = $siteUrl.$msg['cmd'];
+        $endPoint = $siteUrl . $msg['cmd'];
 
         if ($method == 'GET' && $queryString) {
-            $endPoint .='?'.$queryString;
+            $endPoint .= '?' . $queryString;
             $queryString = '';
         }
 
         if ($queryString) {
-            $queryString = ' -d \''.$queryString.'\' ';
+            $queryString = ' -d \'' . $queryString . '\' ';
         }
 
         $command = "curl --show-error -s -X {$method} --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: application/json' --header 'Authorization: Bearer {$apiKey}' $queryString '{$endPoint}' 2>&1";
