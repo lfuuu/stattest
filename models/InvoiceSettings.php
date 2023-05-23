@@ -10,6 +10,7 @@ use app\classes\model\ActiveRecord;
  * @property int $vat_apply_scheme
  * @property int $settlement_account_type_id
  * @property int $vat_rate
+ * @property string $at_account_code
  */
 class InvoiceSettings extends ActiveRecord
 {
@@ -47,7 +48,7 @@ class InvoiceSettings extends ActiveRecord
     {
         return [
             [
-                ['doer_organization_id', 'customer_country_code', 'settlement_account_type_id', 'vat_rate', 'vat_apply_scheme',],
+                ['doer_organization_id', 'customer_country_code', 'settlement_account_type_id', 'vat_rate', 'vat_apply_scheme', 'at_account_code', ],
                 'integer'
             ],
             [['doer_organization_id', 'settlement_account_type_id'], 'required'],
@@ -65,6 +66,7 @@ class InvoiceSettings extends ActiveRecord
             'vat_apply_scheme' => 'Схема применения налоговой ставки',
             'vat_rate' => 'Ставка налога',
             'settlement_account_type_id' => 'Тип платежных реквизитов',
+            'at_account_code' => 'Номер счета согласно Бухгалтерскому план счетов Австрии',
         ];
     }
 

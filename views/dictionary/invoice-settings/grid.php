@@ -89,6 +89,11 @@ echo GridView::widget([
             },
             'width' => '10%',
         ],
+        [
+            'attribute' => 'at_account_code',
+            'label' => 'Номер счета бух. план Австрии',
+            'width' => '10%',
+        ],
     ],
     'extraButtons' =>
         $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/invoice-settings/add/']) .
