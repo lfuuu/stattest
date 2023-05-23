@@ -90,16 +90,17 @@ class EventBus extends Singleton
             'src' => 'tester',
             'dst' => 'stat',
             'type' => 'cmd',
-            'cmd' => '/api/internal/client/get-business-list',
-//            'cmd' => '/api/internal/uu/add-account-tariff',
-//            'argv' => [
-//                'client_account_id' => 4,
-//                'service_type_id' => 2,
-//                'tariff_period_id' => 15,
-//                'voip_number' => '74992130008',
-//                'is_async' => 0,
-//                'is_create_user' => 1,
-//            ]
+            'cmd' => '/api/internal/uu/get-tariffs',
+            'argv' => [
+//                "id" => 14027,
+                "service_type_id" => 2,
+                "is_default" => 1,
+                "currency_id" => "RUB",
+                "country_id" => 643,
+                "tariff_status_id" => 1,
+                "voip_ndc_type_id" => 1,
+                "is_include_vat" => 1
+            ]
         ],
             $id,
             [
@@ -114,10 +115,25 @@ class EventBus extends Singleton
     {
         $apiKey = \Yii::$app->params['API_SECURE_KEY'];
         $siteUrl = isset($_SERVER['IS_TEST']) && $_SERVER['IS_TEST'] == 1 ? 'http://127.0.0.1/' : \Yii::$app->params['SITE_URL'];
-        $queryString = isset($msg['argv']) ? '-d \'' . http_build_query($msg['argv']) . '\'' : '';
-        $method = SwaggerPathMethodMap::me()->getMethod($msg['cmd']);
-        $command = "curl --show-error -s -X {$method} --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: application/json' --header 'Authorization: Bearer {$apiKey}' {$queryString} '{$siteUrl}{$msg['cmd']}' 2>&1";
 
+        $method = SwaggerPathMethodMap::me()->getMethod($msg['cmd']);
+
+        $queryString = isset($msg['argv']) && $msg['argv'] ? http_build_query($msg['argv']) : '';
+
+        $endPoint = $siteUrl.$msg['cmd'];
+
+        if ($method == 'GET' && $queryString) {
+            $endPoint .='?'.$queryString;
+            $queryString = '';
+        }
+
+        if ($queryString) {
+            $queryString = ' -d \''.$queryString.'\' ';
+        }
+
+        $command = "curl --show-error -s -X {$method} --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: application/json' --header 'Authorization: Bearer {$apiKey}' $queryString '{$endPoint}' 2>&1";
+
+        \app\classes\HandlerLogger::me()->add($command);
         @ob_start();
         system($command);
         $result = ob_get_clean();
