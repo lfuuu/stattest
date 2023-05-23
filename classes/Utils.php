@@ -161,8 +161,8 @@ class Utils
         return json_encode($obj, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-    public static function fromJson($obj)
+    public static function fromJson($jsonStr)
     {
-        return json_decode($obj, true);
+        return json_decode($jsonStr, true);
     }
 }

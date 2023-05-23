@@ -126,6 +126,9 @@ class EventQueue extends ActiveRecord
     const NUMBER_HAS_BEEN_PORTED = 'number_has_been_ported';
     const ADD_RESOURCE_ON_ACCOUNT_TARIFFS = 'add_resource_on_account_tariffs';
 
+    const EVENT_BUS_CMD = 'event_bus_cmd';
+    const EVENT_BUS_CMD_RESULT = 'event_bus_cmd_result';
+
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
     public static $names = [
@@ -191,6 +194,8 @@ class EventQueue extends ActiveRecord
         self::PORTED_NUMBER_ADD => 'Добавить портированный номер',
         self::NUMBER_HAS_BEEN_PORTED => 'Номер портирован к МСН Телеком',
         self::TROUBLE_NOTIFIER_EVENT => 'Оповещение о заявке',
+        self::EVENT_BUS_CMD => 'Шина. Команда.',
+        self::EVENT_BUS_CMD_RESULT => 'Шина. Команда. Результат.',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',
