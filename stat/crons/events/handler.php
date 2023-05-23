@@ -273,6 +273,12 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
             }
 
             switch ($event->event) {
+                case EventQueue::EVENT_BUS_CMD:
+                    $info = \app\classes\adapters\EventBus::me()->applyCmd($param);
+                    break;
+                case EventQueue::EVENT_BUS_CMD_RESULT:
+                    $info = \app\classes\adapters\EventBus::me()->sendCmdResult($param);
+                    break;
                 case EventQueue::USAGE_VOIP__INSERT:
                 case EventQueue::USAGE_VOIP__UPDATE:
                 case EventQueue::USAGE_VOIP__DELETE:
