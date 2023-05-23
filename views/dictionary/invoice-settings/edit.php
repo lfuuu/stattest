@@ -29,7 +29,7 @@ echo Breadcrumbs::widget([
 <div class="container well col-sm-12">
     <fieldset class="col-sm-12">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'doer_organization_id')
                     ->dropDownList(OrganizationDao::me()->getList(), [
@@ -37,7 +37,7 @@ echo Breadcrumbs::widget([
                     ])
                 ?>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <?php if ($model->isNewRecord) {
                     $countryList = Country::getList() + [null => 'Прочие страны'];
                 } else {
@@ -48,6 +48,11 @@ echo Breadcrumbs::widget([
                     ->dropDownList($countryList, [
                         'disabled' => !$model->isNewRecord,
                     ])
+                ?>
+            </div>
+            <div class="col-sm-4">
+                <?= $form
+                    ->field($model, 'at_account_code')
                 ?>
             </div>
         </div>
@@ -78,7 +83,7 @@ echo Breadcrumbs::widget([
 
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?= $this->render('//layouts/_submitButton' . ($city->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_submitButtonSave') ?>
     </div>
 
     <?php ActiveForm::end() ?>
