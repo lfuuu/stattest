@@ -31,6 +31,11 @@ $baseView = $this;
 
 $columns = [
     [
+        'attribute' => 'id',
+        'class' => IntegerColumn::class,
+    ],
+
+    [
         'attribute' => 'client_id',
         'class' => IntegerColumn::class,
     ],
@@ -91,10 +96,26 @@ $columns = [
         'class' => IntegerRangeColumn::class,
         'headerOptions' => ['style' => 'width: 100px'],
     ],
-
     [
         'attribute' => 'currency',
         'class' => CurrencyColumn::class,
+    ],
+
+    [
+        'attribute' => 'original_sum',
+        'class' => IntegerRangeColumn::class,
+        'headerOptions' => ['style' => 'width: 100px'],
+        'contentOptions' => function (Payment $payment, $key, $index, $column) {
+            return $payment->currency == $payment->original_currency ? ['class' => 'small_grey'] : [];
+        },
+    ],
+
+    [
+        'attribute' => 'original_currency',
+        'class' => CurrencyColumn::class,
+        'contentOptions' => function (Payment $payment, $key, $index, $column) {
+            return $payment->currency == $payment->original_currency ? ['class' => 'small_grey'] : [];
+        },
     ],
 
     [
@@ -310,20 +331,35 @@ $columns = [
         'contentOptions' => [
             'class' => 'popover-width-auto',
         ],
-        'value' => function (Payment $payment) {
+        'value' => function (Payment $payment) use ($filterModel) {
 
             if ($payment->apiInfo && $payment->apiInfo->log) {
-                return Html::tag(
-                    'button',
-                    $payment->apiInfo->log,
-                    [
-                        'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
-                        'data-toggle' => 'popover',
-                        'data-html' => 'true',
-                        'data-placement' => 'bottom',
-                        'data-content' => nl2br(htmlspecialchars($payment->apiInfo->log)),
-                    ]
-                );
+                return
+                    ($payment->client_id == \app\classes\payments\recognition\processors\RecognitionProcessor::UNRECOGNIZED_PAYMENTS_ACCOUNT_ID ?
+                        Html::a(
+                            Html::tag('i', '', [
+                                'class' => 'glyphicon glyphicon-refresh',
+                                'aria-hidden' => 'true',
+                            ]),
+                            ['/report/accounting/pay-report/',
+                                'PayReportFilter' => ['id' => $payment->id],
+                                'do' => 'recognition'
+                            ],
+                            [
+                                'class' => 'btn btn-xs btn-default',
+                                'title' => 'Повторное распознавание',
+                            ] + ($filterModel->id ? [] : ['target' => '_blank'])) : '') .
+                    Html::tag(
+                        'button',
+                        $payment->apiInfo->log,
+                        [
+                            'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
+                            'data-toggle' => 'popover',
+                            'data-html' => 'true',
+                            'data-placement' => 'bottom',
+                            'data-content' => nl2br(htmlspecialchars($payment->apiInfo->log)),
+                        ]
+                    );
             }
 
             return Yii::t('common', '(not set)');

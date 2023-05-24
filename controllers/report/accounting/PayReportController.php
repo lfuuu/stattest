@@ -4,11 +4,15 @@ namespace app\controllers\report\accounting;
 
 use app\classes\ActOfReconciliation;
 use app\classes\BaseController;
+use app\classes\payments\recognition\PaymentRecognitionFactory;
+use app\classes\payments\recognition\processors\RecognitionProcessor;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\media\ClientFiles;
 use app\exceptions\ModelValidationException;
+use app\models\Payment;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\models\filter\PayReportFilter;
 use Yii;
@@ -40,10 +44,65 @@ class PayReportController extends BaseController
         $filterModel = new PayReportFilter();
         $filterModel->load(Yii::$app->request->get());
 
+        try {
+            $result = $this->do($filterModel);
+            if ($result) {
+                \Yii::$app->session->addFlash('success', $result);
+            }
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
         return $this->render('index', [
             'filterModel' => $filterModel,
         ]);
     }
+
+    private function do(PayReportFilter $filterModel)
+    {
+        switch (\Yii::$app->request->get('do')) {
+            case 'recognition':
+                if (!$filterModel->id) {
+                    throw new \InvalidArgumentException('Платеж не задан');
+                }
+                $payment = Payment::findOne(['id' => $filterModel->id]);
+                if (!$payment) {
+                    throw new \InvalidArgumentException('Платеж не найден');
+                }
+
+                if ($payment->client_id != RecognitionProcessor::UNRECOGNIZED_PAYMENTS_ACCOUNT_ID) {
+                    throw new \InvalidArgumentException('Платеж не на кошельке по-умолчанию');
+                }
+
+                $infoJson = json_decode($payment->apiInfo->info_json ?? '{}', true);
+
+                if (!$infoJson) {
+                    throw new \InvalidArgumentException('Пустой json с данными');
+                }
+
+                $processor = PaymentRecognitionFactory::me()->getProcessor($infoJson);
+
+                if (($recognizedAccountId = $processor->who()) != $payment->client_id) {
+                    $fromAccountId = $payment->client_id;
+                    $payment->client_id = $recognizedAccountId;
+                    if (!$payment->save()) {
+                        throw new ModelValidationException($payment);
+                    }
+                    EventQueue::go(EventQueue::UPDATE_BALANCE, $fromAccountId);
+                    EventQueue::go(EventQueue::UPDATE_BALANCE, $payment->client_id);
+                }
+
+                $payment->apiInfo->log = $processor->getLog() . PHP_EOL . '----------------------------' . PHP_EOL . $payment->apiInfo->log;
+                if (!$payment->apiInfo->save()) {
+                    throw new ModelValidationException($payment->apiInfo);
+                }
+                return $processor->getLog();
+                break;
+            default:
+                throw new \InvalidArgumentException('');
+        }
+    }
+
 
     /**
      * @param int $id
@@ -160,7 +219,7 @@ class PayReportController extends BaseController
                 // Save file
                 $clientFilesAttr = [
                     'name' => str_replace(['"'], "",
-                        $contragent->name_full) . ' ' . $account->id . ' Акт сверки (на ' . $dateTo . ').pdf',
+                            $contragent->name_full) . ' ' . $account->id . ' Акт сверки (на ' . $dateTo . ').pdf',
                     'ts' => $account->getDatetimeWithTimezone()->format(DateTimeZoneHelper::DATETIME_FORMAT),
                     'contract_id' => $account->contract_id,
                     'comment' => $contragent->name_full . ' ' . $account->id . ' Акт сверки (на ' . $dateTo . ')',

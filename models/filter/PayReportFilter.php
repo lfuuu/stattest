@@ -24,6 +24,7 @@ class PayReportFilter extends Payment
     public $bill_date_from = '';
     public $bill_date_to = '';
     public $currency = '';
+    public $original_currency = '';
     public $payment_date_from = '';
     public $payment_date_to = '';
     public $oper_date_from = '';
@@ -33,6 +34,8 @@ class PayReportFilter extends Payment
     public $organization_id = '';
     public $sum_from = '';
     public $sum_to = '';
+    public $original_sum_from = '';
+    public $original_sum_to = '';
     public $type = '';
     public $payment_no = '';
     public $comment = '';
@@ -59,6 +62,8 @@ class PayReportFilter extends Payment
                     'add_user',
                     'sum_from',
                     'sum_to',
+                    'original_sum_from',
+                    'original_sum_to',
                     'add_user',
                     'uuid_status',
                 ],
@@ -69,6 +74,7 @@ class PayReportFilter extends Payment
                     'bill_no',
                     'client_name',
                     'currency',
+                    'original_currency',
                     'date_by',
                     'user_id',
                     'comment',
@@ -160,8 +166,11 @@ class PayReportFilter extends Payment
         $this->bill_date_to !== '' && $query->andWhere(['<=', 'b.bill_date', $this->bill_date_to]);
         $this->sum_from !== '' && $query->andWhere(['>=', 'p.sum', $this->sum_from]);
         $this->sum_to !== '' && $query->andWhere(['<=', 'p.sum', $this->sum_to]);
+        $this->original_sum_from !== '' && $query->andWhere(['>=', 'p.original_sum', $this->original_sum_from]);
+        $this->original_sum_to !== '' && $query->andWhere(['<=', 'p.original_sum', $this->original_sum_to]);
 
         $this->currency !== '' && $query->andWhere(['p.currency' => $this->currency]);
+        $this->original_currency !== '' && $query->andWhere(['p.original_currency' => $this->original_currency]);
 
         $this->payment_date_from !== '' && $query->andWhere(['>=', 'p.payment_date', $this->payment_date_from]);
         $this->payment_date_to !== '' && $query->andWhere(['<=', 'p.payment_date', $this->payment_date_to]);

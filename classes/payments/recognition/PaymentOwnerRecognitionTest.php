@@ -25,7 +25,7 @@ class PaymentOwnerRecognitionTest
 //            $model->info_json = json_encode($value);
 
             $processor = $factory->getProcessor($value);
-            $processor->who();
+            var_dump($processor);
 
             echo PHP_EOL . '-------------------------' . PHP_EOL;
             print_r(json_decode($value->info_json, true));
@@ -150,6 +150,19 @@ TEXT;
          */
 
         $strs = '7734236387 @@ 90000 @@ Оплата по л.с. 112705 за услуги связи. Сумма 90000-00 В т.ч. НДС  (20%) 15000-00';
+
+        return [
+            [
+                    'valueDate' => '2023-05-22',
+'debtorName' => 'NOVAMETRO OU',
+'transactionId' => '20230522105007182125645279',
+'transactionAmount' => [
+        'amount' => 965.21,
+        'currency' => 'EUR'
+    ],
+            ]
+        ];
+
 
         return [
             [

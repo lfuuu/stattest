@@ -202,14 +202,11 @@ class Currency extends ActiveRecord
     public static function getList(
         $isWithEmpty = false,
         $isWithNullAndNotNull = false
-    ) {
-        return self::getListTrait(
-            $isWithEmpty,
-            $isWithNullAndNotNull,
-            $indexBy = 'id',
-            $select = 'id',
-            $orderBy = ['id' => SORT_ASC],
-            $where = []
-        );
+    )
+    {
+        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) +
+            array_map(function ($k) {
+                return explode(' - ', $k)[0];
+            }, self::map());
     }
 }
