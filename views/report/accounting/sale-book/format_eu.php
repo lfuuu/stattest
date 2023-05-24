@@ -159,7 +159,7 @@
                             }
                         }
 
-                        echo $value ?: 'w/o sett';
+                        echo $value ?: (!$countrySettings ? ' org->country not found' : 'Tax settings not found');
                     }
                     ?></td>
                 <td nowrap=""><?= Html::a($account->id . '-' . $invoice->number . '.pdf', [
@@ -203,6 +203,7 @@
                 var ll = $('a[href*=invoice_id]').toArray();
 
                 downloadAll(ll);
+
                 async function downloadAll(elements) {
                     var count = 0;
                     for (var e in elements) {
