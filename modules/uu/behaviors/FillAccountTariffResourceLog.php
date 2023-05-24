@@ -51,7 +51,7 @@ class FillAccountTariffResourceLog extends Behavior
         $mapAccountTariffResources = $accountTariff->getResourceMap();
 
         /** @var \app\models\Number $number */
-        $number = $number = $accountTariff->number;
+        $number = $accountTariff->number;
 
         $tariff = $accountTariffLog->tariffPeriod->tariff;
         $tariffResources = $tariff->tariffResources;

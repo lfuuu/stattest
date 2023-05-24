@@ -6,7 +6,6 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\classes\validators\FormFieldValidator;
-use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
 use app\modules\uu\behaviors\AccountTariffCheckHlr;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
 use app\modules\uu\behaviors\AccountTariffLogicalChangeLog;
@@ -151,7 +150,6 @@ class AccountTariff extends ActiveRecord
                 \app\classes\behaviors\HistoryChanges::class,
                 AccountTariffImportantEvents::class,
                 AccountTariffVoipNumber::class,
-                AccountTariffAddDefaultPackage::class,
                 AccountTariffTransferClean::class,
                 AccountTariffCheckHlr::class,
                 AccountTariffLogicalChangeLog::class,

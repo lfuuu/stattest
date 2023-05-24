@@ -739,7 +739,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
 
                     // УУ. Добавление/выключение дефолтных пакетов телефонии
-                    AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
+//                    AccountTariff::actualizeDefaultPackages($param);
                     break;
 
                 case UuModule::EVENT_VOIP_BUNDLE:
@@ -749,7 +749,12 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case UuModule::EVENT_ADD_DEFAULT_PACKAGES:
                     // УУ. Добавление/выключение дефолтных пакетов телефонии
-                    AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
+                    AccountTariff::actualizeDefaultPackages($param);
+                    break;
+
+                case UuModule::EVENT_CLOSE_ALL_PACKAGE:
+                    // УУ. Отключить все пакеты
+                    AccountTariff::closeAllPackages($param);
                     break;
 
                 case UuModule::EVENT_CALL_CHAT_CREATE:

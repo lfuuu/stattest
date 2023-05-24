@@ -252,20 +252,6 @@ SQL;
                     }
                 }
 
-                // Включение / смена тарифа с участием бандл-пакетов
-                // Отключение действует централизованно (см. AccountTariff::actualizeDefaultPackages)
-                if (
-                    ($oldTariffPeriod && $oldTariffPeriod->tariff->is_bundle)
-                    || ($accountTariff->tariffPeriod && $accountTariff->tariffPeriod->tariff->is_bundle)
-                ) {
-                    EventQueue::go(Module::EVENT_VOIP_BUNDLE, [
-                        'client_account_id' => $accountTariff->client_account_id,
-                        'account_tariff_id' => $accountTariff->id,
-                        'old_tariff_period_id' => $oldTariffPeriodId,
-                        'new_tariff_period_id' => $accountTariff->tariff_period_id,
-                    ]);
-                }
-
                 /** @var \app\modules\callTracking\Module $callTrackingModule */
                 $callTrackingModule = Yii::$app->getModule('callTracking');
                 $callTrackingParams = $callTrackingModule->params;

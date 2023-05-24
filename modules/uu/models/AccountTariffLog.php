@@ -8,10 +8,12 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\User;
+use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\AccountTariffLogicalChangeLog;
 use app\modules\uu\behaviors\AccountTariffLogTimeHistory;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
+use app\modules\uu\behaviors\ReferentialPackageControl;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
@@ -112,8 +114,10 @@ class AccountTariffLog extends ActiveRecord
                     'value' => Yii::$app->user->getId(),
                 ],
                 \app\classes\behaviors\HistoryChanges::class,
+                AccountTariffAddDefaultPackage::class,
                 AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
                 FillAccountTariffResourceLog::class, // Создать лог ресурсов при создании услуги. Удалить при удалении
+                ReferentialPackageControl::class,
                 AccountTariffLogicalChangeLog::class,
                 AccountTariffLogTimeHistory::class, // Обновление время продажи и допродажи в модели AccountTariff
             ]
@@ -932,6 +936,8 @@ class AccountTariffLog extends ActiveRecord
             default:
                 return parent::prepareHistoryValue($field, $value);
         }
+
+        return true;
     }
 
     /**
