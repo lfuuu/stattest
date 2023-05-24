@@ -159,7 +159,9 @@
                             }
                         }
 
-                        echo $value ?: ($countrySettings ? 'Tax settings not found (' . $contract->contragent->tax_regime . ')' : ' org->country not found');
+                        echo $value !== null
+                            ? ($value ?: 'no code')
+                            : ($countrySettings ? 'Tax settings not found (' . $contract->contragent->tax_regime . ')' : ' org->country not found');
                     }
                     ?></td>
                 <td nowrap=""><?= Html::a($account->id . '-' . $invoice->number . '.pdf', [
