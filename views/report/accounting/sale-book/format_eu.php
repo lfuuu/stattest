@@ -56,11 +56,6 @@
     $invSettCache = [];
     if (\Yii::$app->isEu()) {
         $rubAccountIds = $filter->getRubAccountIds();
-
-        /** @var InvoiceSettings $settings */
-        foreach (InvoiceSettings::find()->all() as $settings) {
-            $invSettCache[$settings->doer_organization_id][$settings->customer_country_code ?: 'any'][$settings->vat_apply_scheme] = $settings->at_account_code;
-        }
     }
 
     if ($query)
@@ -134,36 +129,7 @@
 
                 <td nowrap><?= $contragent->inn_euro ?></td>
                 <td nowrap><?= $contragent->inn ?></td>
-                <td nowrap><?php
-                    if ($invSettCache) {
-//                    $invSettCache
-                        $organizationId = $filter->organization_id;
-                        $countryId = $contragent->country_id;
-
-                        if (isset($invSettCache[$organizationId][$countryId])) { // настройки компания+страна
-                            $countrySettings = $invSettCache[$organizationId][$countryId];
-                        } elseif (isset($invSettCache[$organizationId]['any'])) { // настройки компания+любая страна
-                            $countrySettings = $invSettCache[$organizationId]['any'];
-                        } else {
-                            $countrySettings = null;
-                        }
-
-                        $value = null;
-                        if ($countrySettings) {
-                            if ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_YCH_VAT0 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT])) {
-                                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT];
-                            } elseif ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_OCH_VAT18 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_VAT])) {
-                                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_VAT];
-                            } elseif (isset($countrySettings[InvoiceSettings::VAT_SCHEME_ANY])) {
-                                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_ANY];
-                            }
-                        }
-
-                        echo $value !== null
-                            ? ($value ?: 'no code')
-                            : ($countrySettings ? 'Tax settings not found (' . $contract->contragent->tax_regime . ')' : ' org->country not found');
-                    }
-                    ?></td>
+                <td nowrap><?= $filter->getAtCode($contract, $contragent) ?></td>
                 <td nowrap=""><?= Html::a($account->id . '-' . $invoice->number . '.pdf', [
                         '/',
                         'module' => 'newaccounts',

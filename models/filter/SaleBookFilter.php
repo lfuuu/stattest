@@ -3,19 +3,15 @@
 namespace app\models\filter;
 
 
-use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
-use app\models\Bill;
-use app\models\BillLine;
 use app\models\Business;
 use app\models\BusinessProcessStatus;
+use app\models\ClientContract;
+use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\Invoice;
-use app\models\InvoiceLine;
+use app\models\InvoiceSettings;
 use app\models\Organization;
-use app\modules\uu\models\AccountEntry;
-use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ServiceType;
 use yii\base\NotSupportedException;
 use yii\db\ActiveQuery;
 
@@ -54,6 +50,7 @@ class SaleBookFilter extends Invoice
         $is_euro_format = 0,
         $is_register = 0;
 
+    private $invoiceSettingsCache = [];
 
     public function __construct()
     {
@@ -61,6 +58,12 @@ class SaleBookFilter extends Invoice
 
         $this->date_from = $from->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE);
         $this->date_to = $from->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE);
+
+        $this->invoiceSettingsCache = [];
+        /** @var InvoiceSettings $settings */
+        foreach (InvoiceSettings::find()->all() as $settings) {
+            $this->invoiceSettingsCache[$settings->doer_organization_id][$settings->customer_country_code ?: 'any'][$settings->vat_apply_scheme] = $settings->at_account_code;
+        }
     }
 
 
@@ -225,6 +228,66 @@ SQL;
         # AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
 
         return !(in_array($contract->business_process_status_id, self::$skipping_bps));
+    }
+
+    public function getAtCode($obj = null, $obj2 = null, $obj3 = null)
+    {
+        if (!$this->invoiceSettingsCache) {
+            return null;
+        }
+
+        $contract = $contragent = $invoice = null;
+
+        $objs = array_filter([$obj, $obj2, $obj3]);
+
+        foreach ($objs as $obj) {
+            if ($obj instanceof ClientContract) {
+                $contract = $obj;
+            }
+
+            if ($obj instanceof ClientContragent) {
+                $contragent = $obj;
+            }
+
+            if ($obj instanceof Invoice) {
+                $invoice = $obj;
+            }
+        }
+
+        if (!$contragent) {
+            if ($contract) {
+                $contragent = $contract->contragent;
+            } elseif ($invoice) {
+                $contract = $invoice->bill->clientAccount->contract;
+                $contragent = $contract->contragent;
+            }
+        }
+
+        $organizationId = $this->organization_id;
+        $countryId = $contragent->country_id;
+
+        if (isset($this->invoiceSettingsCache[$organizationId][$countryId])) { // настройки компания+страна
+            $countrySettings = $this->invoiceSettingsCache[$organizationId][$countryId];
+        } elseif (isset($this->invoiceSettingsCache[$organizationId]['any'])) { // настройки компания+любая страна
+            $countrySettings = $this->invoiceSettingsCache[$organizationId]['any'];
+        } else {
+            $countrySettings = null;
+        }
+
+        $value = null;
+        if ($countrySettings) {
+            if ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_YCH_VAT0 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT])) {
+                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT];
+            } elseif ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_OCH_VAT18 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_VAT])) {
+                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_VAT];
+            } elseif (isset($countrySettings[InvoiceSettings::VAT_SCHEME_ANY])) {
+                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_ANY];
+            }
+        }
+
+        return $value !== null
+            ? ($value ?: 'no code')
+            : ($countrySettings ? 'Tax settings not found (' . $contract->contragent->tax_regime . ')' : ' org->country not found' . $organizationId.'->'.$countryId);
     }
 
 }
