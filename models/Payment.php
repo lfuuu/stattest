@@ -255,6 +255,7 @@ class Payment extends ActiveRecord
 
         if ($this->client->currency == $this->original_currency) {
             $this->payment_rate = 1;
+            $this->currency = $this->original_currency;
             return parent::beforeSave($isInsert);
         }
 
