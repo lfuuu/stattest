@@ -59,6 +59,7 @@ class BalanceSellToExcelEu extends Excel
             \PHPExcel_Cell_DataType::TYPE_NUMERIC,
             \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_STRING,
+            \PHPExcel_Cell_DataType::TYPE_STRING,
             \PHPExcel_Cell_DataType::TYPE_STRING
         ];
 
@@ -111,7 +112,7 @@ class BalanceSellToExcelEu extends Excel
                 $invoice->bill->currency,
                 $invoice->sum_tax,
                 $invoice->sum_without_tax,
-                $account->getTaxRate($bill->bill_date) . '%',
+                $account->getTaxRate() . '%',
 
                 $inEuro['rate'],
                 $inEuro['net'],
@@ -120,6 +121,7 @@ class BalanceSellToExcelEu extends Excel
 
                 $contragent->inn_euro,
                 $contragent->inn,
+                $this->filter->getAtCode($contract, $contragent),
                 \Yii::$app->params['SITE_URL']. Url::to([
                     '',
                     'module' => 'newaccounts',
