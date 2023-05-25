@@ -64,6 +64,7 @@ class DisableForm extends Form
                 'client_account_id' => $this->clientAccountId
             ])
             ->andWhere(['NOT', ['tariff_period_id' => null]])
+            ->andWhere(['prev_account_tariff_id' => null])
             ->orderBy([
                 'service_type_id' => SORT_ASC,
                 'id' => SORT_ASC
