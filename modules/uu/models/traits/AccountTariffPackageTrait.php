@@ -55,7 +55,6 @@ trait AccountTariffPackageTrait
             throw $e;
         }
         Semaphore::me()->release(Semaphore::ID_UU_CALCULATOR);
-
     }
 
     /**
@@ -69,12 +68,22 @@ trait AccountTariffPackageTrait
             return;
         }
 
+        if (!$accountTariffLog->tariff_period_id) {
+            HandlerLogger::me()->add('Услуга выключается');
+            return;
+        }
+
         if (
-            !$accountTariffLog->tariff_period_id
-            || !$accountTariffLog->tariffPeriod
+            !$accountTariffLog->tariffPeriod
             || !$accountTariffLog->tariffPeriod->tariff
-            || !$accountTariffLog->tariffPeriod->tariff->is_default) {
-            HandlerLogger::me()->add('Tariff is not default');
+        ) {
+            throw new \InvalidArgumentException('Тариф не найден');
+        }
+
+        if (
+            $accountTariffLog->tariffPeriod->tariff->is_bundle
+        ) {
+            HandlerLogger::me()->add('Tariff is bundle');
             return;
         }
 
