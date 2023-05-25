@@ -57,9 +57,9 @@ class AccountTariffAddDefaultPackage extends Behavior
         }
         $tariff = $accountTariffLog->tariffPeriod->tariff;
 
-        if (!($tariff->is_default || $tariff->is_bundle)) {
-            return true;
-        }
+//        if (!($tariff->is_default || $tariff->is_bundle)) {
+//            return true;
+//        }
 
         $accountTariff->refresh();
         $accountTariffLogs = $accountTariff->accountTariffLogs;
@@ -77,7 +77,8 @@ class AccountTariffAddDefaultPackage extends Behavior
 
         if ($tariff->is_bundle) {
             EventQueue::go(Module::EVENT_VOIP_BUNDLE, $data);
-        } elseif ($tariff->is_default) {
+        } else {
+//        } elseif ($tariff->is_default) {
             EventQueue::go(Module::EVENT_ADD_DEFAULT_PACKAGES, $data);
         }
 
