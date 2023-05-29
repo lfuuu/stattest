@@ -6,7 +6,7 @@ use app\classes\Html;
 
 /** @var $model \app\forms\buh\PaymentYandexTransfer */
 
-echo Html::formLabel($this->title = 'Перенос Яндекс платежей');
+echo Html::formLabel($this->title = 'Перенос платежей');
 
 echo Breadcrumbs::widget([
     'links' => [

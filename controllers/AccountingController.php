@@ -61,7 +61,7 @@ class AccountingController extends BaseController
                 case 'listFilter':
                     $filter = $is;
 
-                    if (!in_array($filter, ['full', 'income'])) {
+                    if (!in_array($filter, ['full', 'income', 'outcome'])) {
                         $filter = null;
                     }
 

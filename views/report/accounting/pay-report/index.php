@@ -119,6 +119,27 @@ $columns = [
     ],
 
     [
+        'attribute' => 'payment_type',
+        'class' => DropdownColumn::class,
+        'filter' => ['' => '----'] + Payment::$paymentTypes,
+        'value' => function (Payment $payment) {
+            return Payment::$paymentTypes[$payment->payment_type] .
+                (Yii::$app->user->can('newaccounts_payments.edit')
+                    ? '&nbsp;' . Html::a(
+                        Html::tag('i', '', [
+                            'class' => 'glyphicon glyphicon-retweet',
+                            'aria-hidden' => 'true',
+                        ]),
+                        ['/report/accounting/pay-report/change-payment-type/', 'id' => $payment->id, 'PayReportFilter' => $_GET['PayReportFilter']],
+                        [
+                            'class' => 'btn btn-xs btn-default',
+                            'title' => 'Запросить в онлайн-кассе текущий статус',
+                        ])
+                    : '');
+        },
+        'headerOptions' => ['style' => 'width: 8em'],
+    ],
+    [
         'attribute' => 'payment_date',
         'class' => DateRangeDoubleColumn::class,
     ],
