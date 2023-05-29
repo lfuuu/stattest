@@ -176,6 +176,7 @@ class Payment extends ActiveRecord
             'add_user' => 'Добавивший пользователь',
             'organization_id' => 'Организация',
             'bank' => 'Банк',
+            'payment_type' => 'Тип дохода',
         ];
     }
 

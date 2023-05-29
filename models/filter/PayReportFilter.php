@@ -91,7 +91,8 @@ class PayReportFilter extends Payment
                     'comment',
                     'uuid',
                     'uuid_log',
-                    'payment_api_log'
+                    'payment_api_log',
+                    'payment_type',
                 ],
                 'string'
             ],
@@ -171,6 +172,8 @@ class PayReportFilter extends Payment
 
         $this->currency !== '' && $query->andWhere(['p.currency' => $this->currency]);
         $this->original_currency !== '' && $query->andWhere(['p.original_currency' => $this->original_currency]);
+
+        $this->payment_type != '' && $query->andWhere(['p.payment_type' => $this->payment_type]);
 
         $this->payment_date_from !== '' && $query->andWhere(['>=', 'p.payment_date', $this->payment_date_from]);
         $this->payment_date_to !== '' && $query->andWhere(['<=', 'p.payment_date', $this->payment_date_to]);

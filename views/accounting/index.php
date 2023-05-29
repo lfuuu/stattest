@@ -52,6 +52,7 @@ use yii\widgets\Breadcrumbs;
         <div class="btn-group btn-group-sm">
             <?= Html::a('Доходный', Url::to(['/accounting/', 'set' => 'listFilter', 'is' => 'income']), ["class" => "btn btn-xs btn-" . ($listFilter == 'income' ? 'info' : 'default')]) ?>
             <?= Html::a('Полный', Url::to(['/accounting/', 'set' => 'listFilter', 'is' => 'full']), ["class" => "btn btn-xs btn-" . ($listFilter == 'full' ? 'info' : 'default')]) ?>
+            <?= Html::a('Расходный', Url::to(['/accounting/', 'set' => 'listFilter', 'is' => 'outcome']), ["class" => "btn btn-xs btn-" . ($listFilter == 'outcome' ? 'info' : 'default')]) ?>
         </div>
         <div class=" form-check form-switch">
             <input id="docs_checkbox" class="form-check-input" type="checkbox"
@@ -555,6 +556,7 @@ class ChangeCompanyFounder
 {
     private $changes = [];
     private $orgs = [];
+
     public function __construct($arr)
     {
         $this->changes = $arr;
@@ -832,101 +834,105 @@ function cellContentOptions($is_paid, $addClass = '')
                         return Yii::$app->formatter->asDate($date, 'php:Y-m-d');
 
                     }
-                ],
-                [
-                    'label' => 'Счет +',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        if ($row instanceof rowCorrection) {
-                            return Yii::$app->formatter->asDate($row->date, 'php:Y-m-d');
-                        }
-
-                        return $row->bill
-                            ? Html::a($row->bill['number'], $row->bill['link'])
-                            . ' ' . ($row->bill_is_correction ? Html::tag('span', '(К)', ['title' => 'Корректировочный счет', 'class' => 'correction_bill']) : '')
-                            : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_is_paid);
-                    },
-                ],
-                [
-                    'label' => '₽',
-                    'format' => 'raw',
-                    'value' => function (row $row) use ($sumInvoice) {
-                        if ($row instanceof rowCorrection) {
-                            return Html::tag('span', nf($row->sum), ['class' => 'text-warning',]);
-                        }
-
-                        $return = '';
-                        $sumInv = null;
-                        if ($row->bill) {
-                            $sumInv = $sumInvoice[$row->bill['number']] ?? null;
-                        }
-                        if ($sumInv !== null && abs($row->bill['sum'] - $sumInv) > 0.01) {
-                            $return .= Html::tag('span', nf($sumInvoice[$row->bill['number']] ?? ''), [
-                                        'class' => 'text-danger',
-                                        'style' => ['padding-right' => '10px'],
-                                        'title' => 'Расхождение между суммой счета и суммой во всех с/ф этого счета',
-                                    ]
-                                ) . ' ';
-                        }
-
-                        $return .= $row->bill ? Html::tag('span', nf($row->bill['sum']), ['title' => 'Сумма счета']) : '';
-
-                        return $return;
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->bill_is_paid, 'text-right');
-                    },
-                ],
-                [
-                    'label' => 'С/ф +',
-                    'format' => 'raw',
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->invoice_is_paid);
-                    },
-
-                    'value' => function (row $row) {
-                        if ($row instanceof rowCorrection) {
-                            return 'корректировка счета';
-                        }
-                        if ($row->invoice_for_correction) {
-                            return $row->invoice['number'];
-                        }
-                        return $row->invoice ? Html::a($row->invoice['number'], $row->invoice['link']) : '';
-                    },
-                ],
-                [
-                    'label' => '₽',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        if ($row->invoice_for_correction) {
-                            return 'корректировка с/ф';
-                        }
-                        return $row->invoice ? nf($row->invoice['sum']) : '';
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions($row->invoice_is_paid, 'text-right');
-                    },
-                ],
-
-                [
-                    'label' => 'Платеж +',
-                    'format' => 'raw',
-                    'value' => function (row $row) {
-                        return ($row->payment
-                            ? ($row->payment['info'] ? Html::tag('small', $row->payment['info'] . ' / ') : '') . nf($row->payment['sum'])
-                            : '');
-                    },
-                    'contentOptions' => function ($row) {
-                        return cellContentOptions(null, 'info text-right');
-                    },
-                ],
-
+                ]
             ];
 
-            if ($listFilter == 'full') {
+            if ($listFilter == 'income' || $listFilter == 'full') {
+                $columns = array_merge($columns, [
+                    [
+                        'label' => 'Счет +',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            if ($row instanceof rowCorrection) {
+                                return Yii::$app->formatter->asDate($row->date, 'php:Y-m-d');
+                            }
+
+                            return $row->bill
+                                ? Html::a($row->bill['number'], $row->bill['link'])
+                                . ' ' . ($row->bill_is_correction ? Html::tag('span', '(К)', ['title' => 'Корректировочный счет', 'class' => 'correction_bill']) : '')
+                                : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->bill_is_paid);
+                        },
+                    ],
+                    [
+                        'label' => '₽',
+                        'format' => 'raw',
+                        'value' => function (row $row) use ($sumInvoice) {
+                            if ($row instanceof rowCorrection) {
+                                return Html::tag('span', nf($row->sum), ['class' => 'text-warning',]);
+                            }
+
+                            $return = '';
+                            $sumInv = null;
+                            if ($row->bill) {
+                                $sumInv = $sumInvoice[$row->bill['number']] ?? null;
+                            }
+                            if ($sumInv !== null && abs($row->bill['sum'] - $sumInv) > 0.01) {
+                                $return .= Html::tag('span', nf($sumInvoice[$row->bill['number']] ?? ''), [
+                                            'class' => 'text-danger',
+                                            'style' => ['padding-right' => '10px'],
+                                            'title' => 'Расхождение между суммой счета и суммой во всех с/ф этого счета',
+                                        ]
+                                    ) . ' ';
+                            }
+
+                            $return .= $row->bill ? Html::tag('span', nf($row->bill['sum']), ['title' => 'Сумма счета']) : '';
+
+                            return $return;
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->bill_is_paid, 'text-right');
+                        },
+                    ],
+                    [
+                        'label' => 'С/ф +',
+                        'format' => 'raw',
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->invoice_is_paid);
+                        },
+
+                        'value' => function (row $row) {
+                            if ($row instanceof rowCorrection) {
+                                return 'корректировка счета';
+                            }
+                            if ($row->invoice_for_correction) {
+                                return $row->invoice['number'];
+                            }
+                            return $row->invoice ? Html::a($row->invoice['number'], $row->invoice['link']) : '';
+                        },
+                    ],
+                    [
+                        'label' => '₽ +',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            if ($row->invoice_for_correction) {
+                                return 'корректировка с/ф';
+                            }
+                            return $row->invoice ? nf($row->invoice['sum']) : '';
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions($row->invoice_is_paid, 'text-right');
+                        },
+                    ],
+
+                    [
+                        'label' => 'Платеж +',
+                        'format' => 'raw',
+                        'value' => function (row $row) {
+                            return ($row->payment
+                                ? ($row->payment['info'] ? Html::tag('small', $row->payment['info'] . ' / ') : '') . nf($row->payment['sum'])
+                                : '');
+                        },
+                        'contentOptions' => function ($row) {
+                            return cellContentOptions(null, 'info text-right');
+                        },
+                    ],
+                ]);
+            }
+
+            if ($listFilter == 'full' || $listFilter == 'outcome') {
                 $columns = array_merge($columns, [
                     [
                         'label' => 'Счет -',
@@ -939,7 +945,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         },
                     ],
                     [
-                        'label' => '₽',
+                        'label' => '₽ -',
                         'format' => 'raw',
                         'value' => function (row $row) {
                             return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
@@ -963,7 +969,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         'value' => function (row $row) {
                             return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
                         },
-                        'label' => '₽',
+                        'label' => '₽ -',
                         'contentOptions' => function ($row) {
                             return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
                         },

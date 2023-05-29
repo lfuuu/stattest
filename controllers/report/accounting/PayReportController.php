@@ -15,14 +15,40 @@ use app\exceptions\ModelValidationException;
 use app\models\Payment;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\models\filter\PayReportFilter;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\db\Exception;
+use yii\filters\AccessControl;
 use yii\web\Response;
 
 class PayReportController extends BaseController
 {
     use AddClientAccountFilterTraits;
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return array_merge(parent::behaviors(), [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'send-to-atol', 'revise'],
+                        'roles' => ['newaccounts_payments.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['change-payment-type'],
+                        'roles' => ['newaccounts_payments.edit'],
+                    ],
+                ],
+            ],
+        ]);
+    }
 
     /**
      * Вывод списка
@@ -42,7 +68,16 @@ class PayReportController extends BaseController
     {
         $this->view->title = 'Платежи';
         $filterModel = new PayReportFilter();
-        $filterModel->load(Yii::$app->request->get());
+        $get = Yii::$app->request->get();
+
+        if (!isset($get['PayReportFilter'])) {
+            $get['PayReportFilter'] = [
+                'add_date_from' => (new \DateTimeImmutable)->modify('-2 days')->format(DateTimeZoneHelper::DATE_FORMAT),
+            ] + ($this->_getCurrentClientAccountId() ? ['client_id' => $this->_getCurrentClientAccountId()] : []);
+        }
+
+        $filterModel->load($get);
+
 
         try {
             $result = $this->do($filterModel);
@@ -60,6 +95,10 @@ class PayReportController extends BaseController
 
     private function do(PayReportFilter $filterModel)
     {
+        if (!Yii::$app->user->can('newaccounts_payments.edit')) {
+            throw new AccessDeniedException('Нет прав');
+        }
+
         switch (\Yii::$app->request->get('do')) {
             case 'recognition':
                 if (!$filterModel->id) {
@@ -98,8 +137,6 @@ class PayReportController extends BaseController
                 }
                 return $processor->getLog();
                 break;
-            default:
-                throw new \InvalidArgumentException('');
         }
     }
 
@@ -244,5 +281,35 @@ class PayReportController extends BaseController
             default:
                 return $this->render('revise', $viewParams);
         }
+    }
+
+    public function actionChangePaymentType($id)
+    {
+        $reportQuery = \Yii::$app->request->get('PayReportFilter');
+
+        try {
+            $report = new PayReportFilter();
+            if (!$report->load($reportQuery, '')) {
+                throw new \InvalidArgumentException('Ошибка в данных');
+            }
+
+            $report->id = $id;
+            $payments = $report->search()->getModels();
+
+            if (count($payments) != 1) {
+                throw new \InvalidArgumentException('Платежей не 1. ');
+            }
+
+            /** @var Payment $payment */
+            $payment = reset($payments);
+            $payment->payment_type = $payment->payment_type == Payment::PAYMENT_TYPE_INCOME ? Payment::PAYMENT_TYPE_OUTCOME : Payment::PAYMENT_TYPE_INCOME;
+            if (!$payment->save()) {
+                throw new ModelValidationException($payment);
+            }
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect(['/report/accounting/pay-report/', 'PayReportFilter' => $reportQuery]);
     }
 }

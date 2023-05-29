@@ -52,14 +52,13 @@ class Navigation
             ->addStatModuleItems('newaccounts');
 
         if ($fixclient_data) {
-            $accountBlock->addItem('Перенос эл. платежей', '/payment/yandex-transfer', 'newaccounts_payments.delete');
+            $accountBlock->addItem('Перенос платежей', '/payment/yandex-transfer', 'newaccounts_payments.delete');
         }
 
         $accountBlock->addItem('Реестр неоплаченных счетов', '/report/operator-pay/', 'clients.edit');
         $accountBlock->addItem('Платежи',
             [
                 '/report/accounting/pay-report/',
-                'PayReportFilter[add_date_from]' => (new \DateTimeImmutable)->modify('-2 days')->format(DateTimeZoneHelper::DATE_FORMAT),
             ],
             'newaccounts_payments.read'
         );
