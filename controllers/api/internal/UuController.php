@@ -1274,7 +1274,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_async", type = "integer", description = "Асинхронная схема", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор запроса для асинхронного ответа", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор внешнего запроса (отправляется в vpbx/add_did)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_create_user", type = "integer", description = "Создавать ли пользователя ЛК (при отсутствии: 1)", in = "formData", default = "1"),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
@@ -1312,7 +1312,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_async", type = "integer", description = "Асинхронная схема", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор запроса для асинхронного ответа", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор внешнего запроса (отправляется в vpbx/add_did)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_create_user", type = "integer", description = "Создавать ли пользователя ЛК (при отсутствии: 1)", in = "formData", default = "1"),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
@@ -1376,6 +1376,9 @@ class UuController extends ApiInternalController
 
             $accountTariff->setAttributes($post);
             $accountTariff->addParam('is_create_user', $post['is_create_user']);
+            if ($post['request_id'] ?? false) {
+                $accountTariff->addParam('request_id', $post['request_id']);
+            }
             if (!$accountTariff->save()) {
                 throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
             }
