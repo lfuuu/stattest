@@ -49,7 +49,6 @@ class ActaulizerVoipNumbers extends Singleton
     /**
      * @param string $number
      * @param int $accountTariffId
-     * @return bool
      */
     public function actualizeByNumber($number, $accountTariffId = null)
     {
@@ -57,7 +56,7 @@ class ActaulizerVoipNumbers extends Singleton
             return true;
         }
 
-        $this->_checkSync($number, null, $accountTariffId);
+        return $this->_checkSync($number, null, $accountTariffId);
     }
 
     /**
@@ -349,8 +348,9 @@ class ActaulizerVoipNumbers extends Singleton
             (int)$data['region'],
             (bool)$this->_isNonumber($data['number']),
             $data['number7800'],
-            isset($params['vpbx_stat_product_id']) ? $params['vpbx_stat_product_id'] : null,
-            isset($params['is_create_user']) ? $params['is_create_user'] : null
+            $params['vpbx_stat_product_id'] ?? null,
+            $params['is_create_user'] ?? null,
+            $params['request_id'] ?? null
         );
     }
 

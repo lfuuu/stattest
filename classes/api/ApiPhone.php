@@ -122,6 +122,7 @@ class ApiPhone extends Singleton
      * @param string $number7800
      * @param int $vpbxStatProductId
      * @param int $isCreateUser
+     * @param string $requestId
      * @return array
      * @throws InvalidConfigException
      * @throws \yii\base\Exception
@@ -135,7 +136,9 @@ class ApiPhone extends Singleton
         $isNonumber,
         $number7800 = null,
         $vpbxStatProductId = null,
-        $isCreateUser = null
+        $isCreateUser = null,
+        $requestId = null
+
     ) {
         $accountClient = ClientAccount::findOne(['id' => $clientAccountId]);
 
@@ -151,7 +154,7 @@ class ApiPhone extends Singleton
             'sip_accounts' => (($lines == 0 || UsageTrunk::dao()->hasService($accountClient) || AccountTariff::hasTrunk($clientAccountId)) ? 0 : 1),
             'nonumber' => $isNonumber,
             'is_user_create' => $isCreateUser ?? 1,
-        ];
+        ] + ($requestId ? ['request_id' => $requestId] : []);
 
         if ($isNonumber && $number7800) {
             $params['nonumber_phone'] = $number7800;
