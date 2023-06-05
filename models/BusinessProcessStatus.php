@@ -43,6 +43,7 @@ class BusinessProcessStatus extends ActiveRecord
     const TELEKOM_MAINTENANCE_WLINNONET = 152; // WL_Innonet
     const TELEKOM_MAINTENANCE_EXCEPTION_FROM_BOOK_OF_PROD = 157; // Исключения из Книги Прод.
     const TELEKOM_MAINTENANCE_PORTING_REQUEST_ACCEPTED = 169; // Заявка на портирование принята
+    const TELEKOM_MAINTENANCE_WEB_SHOP = 158; // Заказ услуг
 
     // Телеком b2c
     const TELEKOM_MAINTENANCE_B2C_ORDER_OF_SERVICES = 201; // Заказ услуг

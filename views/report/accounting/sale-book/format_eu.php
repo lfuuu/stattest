@@ -34,6 +34,9 @@
 
         <td>EU VAT №</td>
         <td>Local VAT №</td>
+        <td>filiale</td>
+        <td>steuer</td>
+        <td>steuercode</td>
         <td>AT Code №</td>
         <td>Link to invoice (internal)</td>
     </tr>
@@ -129,6 +132,9 @@
 
                 <td nowrap><?= $contragent->inn_euro ?></td>
                 <td nowrap><?= $contragent->inn ?></td>
+                <td nowrap><?= $filter->getFilial($contragent) ?></td>
+                <td nowrap><?= ($steuer = $filter->getSteuer($contragent, $contract, $invoice, $taxRate, 1)) ?></td>
+                <td nowrap><?= $filter->getSteuerCode($steuer) ?></td>
                 <td nowrap><?= $filter->getAtCode($contract, $contragent) ?></td>
                 <td nowrap=""><?= Html::a($account->id . '-' . $invoice->number . '.pdf', [
                         '/',

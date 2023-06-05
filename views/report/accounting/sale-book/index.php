@@ -34,18 +34,26 @@ $printSum = function ($sum, $len = 2) {
     </div>
 
     <div class="row">
-        <div class="col-sm-3"><label
-                    class="control-label">Компания:</label><?= \app\classes\Html::dropDownList('SaleBookFilter[organization_id]', $filter->organization_id, \app\models\Organization::dao()->getList(), ['class' => 'select2']) ?>
+        <div class="col-sm-3">
+            <label class="control-label">Компания:</label>
+            <?= \app\classes\Html::dropDownList('SaleBookFilter[organization_id]', $filter->organization_id, \app\models\Organization::dao()->getList(), ['class' => 'select2']) ?>
         </div>
         <div class="col-sm-3">
             <label class="control-label">Валюта:</label>
             <?= \app\classes\Html::dropDownList('SaleBookFilter[currency]', $filter->currency, \app\models\Currency::getList(true), ['class' => 'select2']) ?>
         </div>
-
     </div>
     <div class="row">
-        <div class="col-sm-3"><label class="control-label">в Excel:</label> <input type="checkbox" name="is_excel"
-                                                                                   value="1"/>
+        <div class="col-sm-3">
+            <label class="control-label">
+                <input type="checkbox" name="is_excel" value="1"/>в Excel
+            </label>
+            <?php if ($filter->is_euro_format): ?>
+            <br>
+            <label class="control-label">
+                <input type="checkbox" name="is_excel_eu_bmd" value="1"/>в Excel (BMD)
+            </label>
+            <?php endif; ?>
             <div>
             </div>
 

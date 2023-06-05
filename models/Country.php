@@ -49,6 +49,11 @@ class Country extends ActiveRecord
     const UNITED_KINGDOM = 826;
     const CHINA = 156;
 
+    const SPAIN = 724;
+    const ROMÂNIA = 642;
+    const NETHERLANDS = 528;
+    const POLAND = 616;
+
     const DEFAULT_GOOD_COUNTRY = self::CHINA;
 
     public static $primaryField = 'code';
@@ -160,7 +165,8 @@ class Country extends ActiveRecord
     public static function getList(
         $isWithEmpty = false,
         $indexBy = 'code'
-    ) {
+    )
+    {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull = false,
