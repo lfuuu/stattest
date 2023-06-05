@@ -685,18 +685,27 @@ class Invoice extends ActiveRecord
     /**
      * Получить путь к pdf-файлу
      *
-     * @param $document
+     * @param string $document
      * @return string
      * @throws \Exception
      */
-    public function getFilePath($document)
+    public function getFilePath(string $document = 'invoice'): string
     {
         return $this->getPath()
-            . $this->bill->client_id
-            . '-' . $document . '-' . $this->number
-            . ($this->is_reversal ? 'R' : '')
-            . ($this->correction_idx ? '-' . $this->correction_idx : '')
-            . '.pdf';
+            . $this->getFileName($document);
+    }
+
+    /**
+     * @param string $document
+     * @return string
+     */
+    public function getFileName(string $document = 'invoice'): string
+    {
+        return $this->bill->client_id
+        . '-' . $document . '-' . $this->number
+        . ($this->is_reversal ? 'R' : '')
+        . ($this->correction_idx ? '-' . $this->correction_idx : '')
+        . '.pdf';
     }
 
     /**

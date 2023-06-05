@@ -5,11 +5,9 @@ namespace app\controllers\report\accounting;
 use app\classes\BaseController;
 use app\classes\excel\BalanceSellToExcel;
 use app\classes\excel\BalanceSellToExcelEu;
+use app\classes\excel\BalanceSellToExcelEuBmd;
 use app\classes\excel\BalancesellToExcelRegister;
-use app\helpers\DateTimeZoneHelper;
-use app\models\BusinessProcessStatus;
 use app\models\filter\SaleBookFilter;
-use app\models\Organization;
 use Exception;
 use Yii;
 use yii\filters\AccessControl;
@@ -43,6 +41,15 @@ class SaleBookController extends BaseController
         $request = \Yii::$app->request;
         $filter->load(\Yii::$app->request->get()) && $filter->validate();
         // Получение excel-файла
+
+
+        if (($isExcel = $request->get('is_excel_eu_bmd')) && (int)$isExcel === 1) {
+            if ($filter->is_euro_format) {
+                $excel = new BalanceSellToExcelEuBmd(['filter' => $filter]);
+                $excel->download('Sale book');
+            }
+        }
+
         if (($isExcel = $request->get('is_excel')) && (int)$isExcel === 1) {
             // Формирование документа
 
