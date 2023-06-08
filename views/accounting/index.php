@@ -69,99 +69,10 @@ use yii\widgets\Breadcrumbs;
 
 <?php
 
-$paysPlus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => \app\models\Payment::PAYMENT_TYPE_INCOME] /* ['>', 'sum', 0] */)->all();
-$paysMinus = \app\models\Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => \app\models\Payment::PAYMENT_TYPE_OUTCOME] /* ['<', 'sum', 0] */)->all();
 
-$invoices = Invoice::find()->joinWith('bill b')
-    ->where(['b.client_id' => $account->id])
-    ->orderBy(['date' => SORT_ASC])
-    ->all();
+$report = new \app\classes\accounting\AccountingTwoZero($account);
 
-$billsPlus = \app\models\Bill::find()
-    ->where(['client_id' => $account->id])
-    ->andWhere(['OR', ['>=', 'sum', 0], ['operation_type_id' => OperationType::ID_CORRECTION]])
-    ->orderBy(['bill_date' => SORT_ASC])
-    ->all();
-
-$billsMinus = \app\models\Bill::find()
-    ->where(['client_id' => $account->id])
-    ->andWhere(['AND', ['<', 'sum', 0], ['NOT', ['operation_type_id' => OperationType::ID_CORRECTION]]])
-    ->orderBy(['bill_date' => SORT_ASC])
-    ->all();
-
-$invoiceExt = BillExternal::find()
-    ->joinWith('bill b')
-    ->with('bill')
-    ->where(['b.client_id' => $account->id])
-    ->orderBy([
-        "STR_TO_DATE(ext_invoice_date, '%d-%m-%Y')" => SORT_ASC,
-        'bill_date' => SORT_ASC,
-        'b.id' => SORT_ASC,
-    ])
-    ->all();
-
-$billCorrections = array_reduce(AccountEntryCorrection::find()
-    ->where(['client_account_id' => $account->id])
-    ->asArray()
-    ->all(),
-    function (array $accum, array $value) {
-        $accum[$value['bill_no']] = $value;
-        return $accum;
-    }, []);
-
-//print_r($billCorrections);
-
-$billInvoiceCorrections = array_filter(
-    array_map(
-        function (\app\models\Bill $b) {
-            $comment = $b->comment;
-            $m = [];
-            if ($comment && preg_match('/Автоматическая корректировка к счету (\d{6}-\d{6,7}) \((с\/ф №)?(\d)\)/', $comment, $m)) {
-                return ['bill_no' => $m[1], 'type_id' => $m[3], 'bill' => $b, 'is_found' => false];
-            }
-            return null;
-        }, array_filter($billsPlus, function (\app\models\Bill $b) {
-            return $b->operation_type_id == OperationType::ID_CORRECTION;
-        })
-    )
-);
-
-$billInvoiceCorrections = array_reduce($billInvoiceCorrections,
-    function (array $accum, array $a) {
-        $accum[$a['bill_no']][$a['type_id']] = $a;
-
-        return $accum;
-    },
-    []
-);
-
-
-$invSum = array_reduce($invoices, function ($acum, $i) {
-    return $acum + $i->sum;
-}, 0);
-
-$billSumPlus = array_reduce($billsPlus, function ($acum, $i) {
-    return $acum + $i->sum;
-}, 0);
-
-$billSumMinus = array_reduce($billsMinus, function ($acum, $i) {
-    return $acum + $i->sum;
-}, 0);
-
-$invoiceExtSum = array_reduce($invoiceExt, function ($acum, BillExternal $i) {
-    return $acum + $i->ext_vat + $i->ext_sum_without_vat;
-}, 0);
-
-$paysPlusSum = array_reduce($paysPlus, function ($acum, $i) {
-    return $acum + $i->sum;
-}, 0);
-
-$paysMinusSum = array_reduce($paysMinus, function ($acum, $i) {
-    return $acum + $i->sum;
-}, 0);
-
-$paysPlusInv = $paysPlusBills = $paysPlusSum;
-$invoiceExtPays = $paysMinusBills = $paysMinusSum;
+$t = $report->totals;
 
 function nf($d)
 {
@@ -175,73 +86,72 @@ function nf($d)
         <div class="row text-center"><h2>Доходные (с/ф)</h2></div>
         <div class="row">
             <div class="col-sm-6">Сумма с/ф:</div>
-            <div class="col-sm-6 text-right"><?= nf($invSum) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->invSum) ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">платежи "+":</div>
-            <div class="col-sm-6 text-right"><?= nf($paysPlusSum) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->paysPlusSum) ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($paysPlusSum - $invSum) ?></div>
+                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($t->paysPlusSum - $t->invSum) ?></div>
         </div>
     </div>
     <div class="col-sm-3">
         <div class="row text-center"><h2>Доходные (счета)</h2></div>
         <div class="row">
             <div class="col-sm-6">Сумма счетов:</div>
-            <div class="col-sm-6 text-right"><?= nf($billSumPlus) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->billSumPlus) ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">платежи "+":</div>
-            <div class="col-sm-6 text-right"><?= nf($paysPlusSum) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->paysPlusSum) ?></div>
         </div>
         <div class="row">
-            <div class="col-sm-6">Баланс:</div><?php $totalPlus = $paysPlusSum - $billSumPlus; ?>
+            <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($totalPlus) < 0.01 ? 'black' : ($totalPlus > 0 ? 'green' : 'red')) ?>"><?= nf($totalPlus) ?></div>
+                 style="color: <?= (abs($totalPlus) < 0.01 ? 'black' : ($totalPlus > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalPlus) ?></div>
         </div>
     </div>
     <div class="col-sm-3">
         <div class="row text-center"><h2>Расходные (счета)</h2></div>
         <div class="row">
             <div class="col-sm-6">Сумма счетов:</div>
-            <div class="col-sm-6 text-right"><?= nf($billSumMinus) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->billSumMinus) ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">платежи "-":</div>
-            <div class="col-sm-6 text-right"><?= nf($paysMinusSum, 2, '.', ' ') ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->paysMinusSum, 2, '.', ' ') ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
-            <?php $totalMinus = $billSumMinus - $paysMinusSum; ?>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($totalMinus) < 0.01 ? 'black' : ($totalMinus > 0 ? 'green' : 'red')) ?>"><?= nf($totalMinus) ?></div>
+                 style="color: <?= (abs($totalMinus) < 0.01 ? 'black' : ($totalMinus > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalMinus) ?></div>
         </div>
     </div>
     <div class="col-sm-3">
         <div class="row text-center"><h2>Расходные (с/ф)</h2></div>
         <div class="row">
             <div class="col-sm-6">Сумма с/ф:</div>
-            <div class="col-sm-6 text-right"><?= nf($invoiceExtSum) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->invoiceExtSum) ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">платежи "-":</div>
-            <div class="col-sm-6 text-right"><?= nf($invoiceExtPays) ?></div>
+            <div class="col-sm-6 text-right"><?= nf($t->invoiceExtPays) ?></div>
         </div>
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($invoiceExtPays + $invoiceExtSum) ?></div>
+                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($t->invoiceExtPays + $t->invoiceExtSum) ?></div>
         </div>
     </div>
 </div>
 <div class="row">
     <div class="col-sm-3"></div>
-    <div class="col-sm-6"><?php $totalBills = $totalPlus - $totalMinus; ?>
+    <div class="col-sm-6">
         <div class="text-center" style="border-top: 1px solid gray; padding: 5px;">Итого по счетам: <span
-                    style="color: <?= (abs($totalBills) < 0.01 ? 'black' : ($totalBills > 0 ? 'green' : 'red')) ?>"><?= nf($totalBills) ?></span>
+                    style="color: <?= (abs($totalBills) < 0.01 ? 'black' : ($totalBills > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalBills) ?></span>
         </div>
     </div>
     <div class="col-sm-3"></div>
@@ -253,6 +163,16 @@ $d = [];
 $dataInv = [];
 
 $sumInvoice = [];
+
+$paysPlus = $report->list->paysPlus;
+$paysMinus = $report->list->paysMinus;
+$invoices = $report->list->invoices;
+$billsPlus = $report->list->billsPlus;
+$billsMinus = $report->list->billsMinus;
+$invoiceExt = $report->list->invoiceExt;
+$billCorrections = $report->list->billCorrections;
+$billInvoiceCorrections = $report->list->billInvoiceCorrections;
+
 
 /** @var Invoice $invoice */
 foreach ($invoices as $invoice) {
