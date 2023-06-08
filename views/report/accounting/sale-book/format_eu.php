@@ -105,6 +105,15 @@
             $total['sum'] += $sum_without_tax;
             $total['tax'] += $sum_tax;
 
+            $filial = $filter->getFilial($contragent);
+            $steuer = $filter->getSteuer($contragent, $contract, $invoice, $taxRate, 1);
+            $steuerCode = $filter->getSteuerCode($steuer);
+            $atCode = $filter->getAtCode($contract, $contragent);
+
+            if ($steuerCode == 77 && $atCode == 4113 || $filial == 1) {
+                $filial = '';
+            }
+
             ?>
             <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
                 <td><a href="./?module=newaccounts&action=bill_view&bill=<?= $invoice->bill_no ?>"
@@ -132,10 +141,10 @@
 
                 <td nowrap><?= $contragent->inn_euro ?></td>
                 <td nowrap><?= $contragent->inn ?></td>
-                <td nowrap><?= $filter->getFilial($contragent) ?></td>
-                <td nowrap><?= ($steuer = $filter->getSteuer($contragent, $contract, $invoice, $taxRate, 1)) ?></td>
-                <td nowrap><?= $filter->getSteuerCode($steuer) ?></td>
-                <td nowrap><?= $filter->getAtCode($contract, $contragent) ?></td>
+                <td nowrap><?= $filial ?></td>
+                <td nowrap><?= $steuer ?></td>
+                <td nowrap><?= $steuerCode ?></td>
+                <td nowrap><?= $atCode ?></td>
                 <td nowrap=""><?= Html::a($account->id . '-' . $invoice->number . '.pdf', [
                         '/',
                         'module' => 'newaccounts',
