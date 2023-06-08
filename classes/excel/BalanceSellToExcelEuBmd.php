@@ -90,6 +90,15 @@ class BalanceSellToExcelEuBmd extends Excel
                 $invoiceDate->format('Y') . '_Q' . $invoiceDateQuarter,
                 $invoice->getFileName()];
 
+            $filial = $this->filter->getFilial($contragent);
+            $steuerCode = $this->filter->getSteuerCode($this->filter->getSteuer($contragent, $contract, $invoice, $account->getTaxRate(), 1));
+            $atCode = $this->filter->getAtCode($contract, $contragent);
+
+            if ($steuerCode == 77 && $atCode == 4113 || $filial == 1) {
+                $filial = '';
+            }
+
+
             $data[] = [
                 0,
                 'AR',
@@ -106,9 +115,9 @@ class BalanceSellToExcelEuBmd extends Excel
                 ($invoice->bill->currency != Currency::EUR && $invoice->sum_tax != 0 ? -$invoice->sum_tax : ''),
                 ($invoice->bill->currency == Currency::EUR && $invoice->sum_tax != 0 ? -$invoice->sum_tax : ''),
                 $account->getTaxRate(),
-                $this->filter->getFilial($contragent),
-                $this->filter->getSteuerCode($this->filter->getSteuer($contragent, $contract, $invoice, $account->getTaxRate(), 1)),
-                $this->filter->getAtCode($contract, $contragent),
+                $filial,
+                $steuerCode,
+                $atCode,
                 'telekommunikationsdinstleitungen',
                 implode('\\', $filePathAr),
             ];

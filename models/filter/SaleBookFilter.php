@@ -308,7 +308,7 @@ SQL;
             return '??? ' . $contragent->country->name;
         }
 
-        return $countryCodeAt === 1 ? '' : $countryCodeAt;
+        return $countryCodeAt;
     }
 
     private function _loadFilials()
