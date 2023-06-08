@@ -95,7 +95,7 @@ function nf($d)
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($t->paysPlusSum - $t->invSum) ?></div>
+                 style="color: <?= (abs($t->paysPlusSum - $t->invSum) < 0.01 ? 'black' : ($t->paysPlusSum - $t->invSum > 0 ? 'green' : 'red')) ?>"><?= nf($t->paysPlusSum - $t->invSum) ?></div>
         </div>
     </div>
     <div class="col-sm-3">
@@ -111,7 +111,7 @@ function nf($d)
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($totalPlus) < 0.01 ? 'black' : ($totalPlus > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalPlus) ?></div>
+                 style="color: <?= (abs($t->totalPlus) < 0.01 ? 'black' : ($t->totalPlus > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalPlus) ?></div>
         </div>
     </div>
     <div class="col-sm-3">
@@ -127,7 +127,7 @@ function nf($d)
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($totalMinus) < 0.01 ? 'black' : ($totalMinus > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalMinus) ?></div>
+                 style="color: <?= (abs($t->totalMinus) < 0.01 ? 'black' : ($t->totalMinus > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalMinus) ?></div>
         </div>
     </div>
     <div class="col-sm-3">
@@ -143,7 +143,7 @@ function nf($d)
         <div class="row">
             <div class="col-sm-6">Баланс:</div>
             <div class="col-sm-6 text-right"
-                 style="color: <?= (abs($paysPlusSum - $invSum) < 0.01 ? 'black' : ($paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($t->invoiceExtPays + $t->invoiceExtSum) ?></div>
+                 style="color: <?= (abs($t->paysPlusSum - $t->invSum) < 0.01 ? 'black' : ($t->paysPlusSum - $invSum > 0 ? 'green' : 'red')) ?>"><?= nf($t->invoiceExtPays + $t->invoiceExtSum) ?></div>
         </div>
     </div>
 </div>
@@ -151,7 +151,7 @@ function nf($d)
     <div class="col-sm-3"></div>
     <div class="col-sm-6">
         <div class="text-center" style="border-top: 1px solid gray; padding: 5px;">Итого по счетам: <span
-                    style="color: <?= (abs($totalBills) < 0.01 ? 'black' : ($totalBills > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalBills) ?></span>
+                    style="color: <?= (abs($t->totalBills) < 0.01 ? 'black' : ($t->totalBills > 0 ? 'green' : 'red')) ?>"><?= nf($t->totalBills) ?></span>
         </div>
     </div>
     <div class="col-sm-3"></div>
