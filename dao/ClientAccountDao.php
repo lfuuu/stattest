@@ -5,6 +5,7 @@ namespace app\dao;
 use app\classes\api\ApiPhone;
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\dao\account\UpdateBalanceHelper;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
@@ -538,6 +539,124 @@ class ClientAccountDao extends Singleton
     }
 
     /**
+     * Обновление баланса ЛС
+     *
+     * @param int $clientAccountId
+     * @param bool $isForce
+     * @throws \yii\db\Exception
+     */
+    public function updateBalanceNew($clientAccountId, $isForce = true)
+    {
+        if (!$isForce && Param::findOne(Param::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL)) {
+            return;
+        }
+
+        $clientAccount = $clientAccountId instanceof ClientAccount ? $clientAccountId : ClientAccount::findOne(['id' => $clientAccountId]);
+
+        \Yii::$app->db->createCommand("update newbills set is_payed=0, payment_date = null where client_id={$clientAccountId} and sum < 0")->execute();
+
+        Assert::isObject($clientAccount);
+
+        $saldo = $this->_getSaldo($clientAccount);
+
+        $billsAll = $this->_enumBillsFullSum($clientAccount, $saldo['ts']);
+        $paysAll = $this->_enumPayments($clientAccount, $saldo['ts'], true);
+
+        $sum = -$saldo['saldo'];
+
+        $balance = 0;
+
+        if ($sum > 0) {
+            array_unshift($paysAll, [
+                'id' => '0',
+                'client_id' => $clientAccount->id,
+                'payment_no' => 0,
+                'bill_no' => 'saldo',
+                'bill_vis_no' => 'saldo',
+                'payment_date' => $saldo['ts'],
+                'oper_date' => $saldo['ts'],
+                'comment' => '',
+                'add_date' => $saldo['ts'],
+                'add_user' => 0,
+                'sum' => $sum,
+            ]);
+        } elseif ($sum < 0) {
+            array_unshift($billsAll, [
+                'bill_no' => 'saldo',
+                'is_payed' => 1,
+                'sum' => -$sum,
+                'new_is_payed' => 0,
+            ]);
+        }
+
+
+        $paysOutcome = array_filter($paysAll, function ($p) {
+            return isset($p['payment_type']) && $p['payment_type'] == Payment::PAYMENT_TYPE_OUTCOME;
+        });
+
+        $paysIncome = array_filter($paysAll, function ($p) {
+            return !isset($p['payment_type']) || $p['payment_type'] != Payment::PAYMENT_TYPE_OUTCOME;
+        });
+
+        $billsPlus = array_filter($billsAll, function ($b) {
+            return $b['sum'] >= 0;
+        });
+
+        $billsMinus = array_filter($billsAll, function ($b) {
+            return $b['sum'] < 0;
+        });
+
+        UpdateBalanceHelper::mergePaymentIntoBills($billsPlus, $paysIncome);
+        UpdateBalanceHelper::mergePaymentIntoBills($billsMinus, $paysOutcome);
+
+        $plusPaymentOrders = UpdateBalanceHelper::paymentOrders_extractFromBills($billsPlus);
+        $minusPaymentOrders = UpdateBalanceHelper::paymentOrders_extractFromBills($billsMinus);
+
+        $paymentOrders = array_merge($plusPaymentOrders, $minusPaymentOrders);
+        UpdateBalanceHelper::paymentOrders_save($clientAccountId, $paymentOrders);
+
+
+        $transaction = Bill::getDb()->beginTransaction();
+
+        $bills = array_merge($billsPlus, $billsMinus);
+        UpdateBalanceHelper::saveBillIfPayed($bills);
+
+
+        if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
+        } else {
+            $fnGetSum = function ($a) {
+                return $a['sum'];
+            };
+            $balance -= array_sum(array_map($fnGetSum, $billsAll));
+            $balance += array_sum(array_map($fnGetSum, $paysAll));
+
+
+            $lastBillDate = ClientAccount::dao()->getLastBillDate($clientAccount);
+            $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($clientAccount);
+
+            $p = [
+                ':clientAccountId' => $clientAccount->id,
+                ':balance' => $balance,
+                ':lastBillDate' => $lastBillDate,
+                ':lastPayedBillMonth' => $lastPayedBillMonth
+            ];
+
+            ClientAccount::getDb()
+                ->createCommand('
+                UPDATE clients
+                SET balance = :balance,
+                    last_account_date = :lastBillDate,
+                    last_payed_voip_month = :lastPayedBillMonth
+                WHERE id = :clientAccountId', $p
+                )
+                ->execute();
+        }
+
+        $transaction->commit();
+    }
+
+    /**
      * @param ClientAccount $clientAccount
      * @return array
      */
@@ -648,7 +767,7 @@ class ClientAccountDao extends Singleton
      * @param string $saldoDate
      * @return array
      */
-    private function _enumPayments(ClientAccount $clientAccount, $saldoDate)
+    private function _enumPayments(ClientAccount $clientAccount, $saldoDate, $isOnlyPayments = false)
     {
         $sql = '
             select P.*, 0 as is_billpay  
@@ -686,6 +805,10 @@ class ClientAccountDao extends Singleton
             $paymentsById[$payment['id']] = $payment;
         }
 
+        if ($isOnlyPayments) {
+            return $paymentsById;
+        }
+
         $sql = "
                         SELECT B.*
                         FROM newbills as B
@@ -717,31 +840,31 @@ class ClientAccountDao extends Singleton
 
         foreach ($billPayments as $v) {
 
-            if (!isset($paymentsAndChargebacks[$v['bill_no']])) {
+            if (isset($paymentsAndChargebacks[$v['bill_no']])) {
+                continue;
+            }
 
-                foreach ($paymentsById as $v2) {
-                    if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0) {
-                        $v['sum'] -= $v2['sum'];
-                    }
-                }
-
-                if ($v['sum'] < 0) {
-                    $pay = [
-                        'id' => $v['bill_no'],
-                        'client_id' => $v['client_id'],
-                        'payment_date' => $v['bill_date'],
-                        'payment_id' => $v['bill_no'],
-                        'currency' => $v['currency'],
-                        'sum' => -$v['sum'],
-                        'bill_no' => '',
-                        'bill_vis_no' => '',
-                        'is_billpay' => 1
-                    ];
-                    $paymentsById[$v['bill_no']] = $pay;
+            foreach ($paymentsById as $v2) {
+                if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0) {
+                    $v['sum'] -= $v2['sum'];
                 }
             }
-        }
 
+            if ($v['sum'] < 0) {
+                $pay = [
+                    'id' => $v['bill_no'],
+                    'client_id' => $v['client_id'],
+                    'payment_date' => $v['bill_date'],
+                    'payment_id' => $v['bill_no'],
+                    'currency' => $v['currency'],
+                    'sum' => -$v['sum'],
+                    'bill_no' => '',
+                    'bill_vis_no' => '',
+                    'is_billpay' => 1
+                ];
+                $paymentsById[$v['bill_no']] = $pay;
+            }
+        }
         return $paymentsById;
     }
 

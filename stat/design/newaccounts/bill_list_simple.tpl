@@ -24,7 +24,9 @@
     <a href="{$LINK_START}module=newaccounts&action=bill_create_income">Создать доходный счёт</a> /
     <a href="{$LINK_START}module=newaccounts&action=bill_create_outcome">Создать расходный счёт</a> /
 {/if}
-<a href="{$LINK_START}module=newaccounts&action=bill_balance">Обновить баланс</a><br/><br/>
+<a href="{$LINK_START}module=newaccounts&action=bill_balance">Обновить баланс</a>
+<a style="padding-left: 200px;" href="{$LINK_START}module=newaccounts&action=bill_balance2" title="Разносит отдельно по доходные и расходные платежи">Обновить баланс (новая версия, для тестирования)<div class="glyphicon glyphicon-refresh"></div></a>
+<br/><br/>
 
 <span title="Клиент должен нам">Входящее сальдо</span>:
 <form style="display: inline;" action="?" method="POST" onSubmit="return optools.bills.checkSubmitSetSaldo();">
