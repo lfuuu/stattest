@@ -106,6 +106,21 @@ class m_newaccounts extends IModule
         }
     }
 
+    function newaccounts_bill_balance2($fixclient)
+    {
+        global $design, $db, $user, $fixclient_data;
+        $client_id = $fixclient_data['id'];
+        ClientAccount::dao()->updateBalanceNew($client_id);
+        if ($design->ProcessEx('errors.tpl')) {
+            if ($returning = ($_GET['returning'] ?? false)) {
+                header("Location: /" . $returning);
+            } else {
+                header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");
+            }
+            exit();
+        }
+    }
+
     function newaccounts_bill_balance_mass($fixclient)
     {
         global $design;
