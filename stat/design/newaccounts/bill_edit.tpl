@@ -179,6 +179,12 @@
                             <input class="form-control input-sm"
                                    id=invoice_ext_date type=text name=invoice_date_ext
                                    value="{$bill_ext.ext_invoice_date}">
+                            <script>
+                                {literal}
+                                    $('#invoice_ext_date').each(function() {$(this).setMask('39-19-2099')});
+                                    $('#registration_date_ext').each(function() {$(this).setMask('39-19-2099')});
+                                {/literal}
+                            </script>
                         </div>
                     </div>
                 </div>
