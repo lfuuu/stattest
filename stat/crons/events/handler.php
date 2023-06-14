@@ -99,6 +99,7 @@ $uuSyncEvents = [
 
 $kafkaEvents = [
     UuModule::EVENT_UU_ANONCE,
+    UuModule::EVENT_UU_ANONCE_TARIFF,
     UuModule::EVENT_UU_SWITCHED_ON,
     UuModule::EVENT_UU_SWITCHED_OFF,
     UuModule::EVENT_UU_UPDATE,
@@ -843,6 +844,12 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case UuModule::EVENT_UU_ANONCE:
                     if ($isEbcKafka) {
                         $info = AccountTariffStructureToKafka::me()->anonce($param['account_tariff_id']);
+                    }
+                    break;
+
+                case UuModule::EVENT_UU_ANONCE_TARIFF:
+                    if ($isEbcKafka) {
+                        $info = AccountTariffStructureToKafka::me()->anonceTariff($param);
                     }
                     break;
 

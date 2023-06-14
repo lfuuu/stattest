@@ -2,12 +2,12 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\behaviors\EventQueueAddEvent;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\Currency;
-use app\models\Organization;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
@@ -16,6 +16,7 @@ use app\modules\nnp\models\PackagePricelist;
 use app\modules\nnp\models\PackagePricelistNnp;
 use app\modules\nnp\models\PackagePricelistNnpInternet;
 use app\modules\nnp\models\PackagePricelistNnpSms;
+use app\modules\uu\Module;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -132,6 +133,10 @@ class Tariff extends ActiveRecord
                         ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
                     ],
                     'value' => Yii::$app->user->getId(),
+                ],
+                'EventQueueAddEvent' => [
+                    'class' => EventQueueAddEvent::class,
+                    'updateEvent' => Module::EVENT_UU_ANONCE_TARIFF,
                 ],
             ]
         );
