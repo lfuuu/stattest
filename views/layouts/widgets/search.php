@@ -35,6 +35,7 @@ $request = Yii::$app->request->get();
                 <ul class="dropdown-menu" id="search-options" aria-labelledby="dropdownMenu1">
                     <li><a href="#" data-search="clients" title="№ ЛС или Названию">Клиенту</a></li>
                     <li><a href="#" data-search="contractNo" title="Номеру договора">Договор</a></li>
+                    <li><a href="#" data-search="contragentNo" title="Поиск по номеру контрагента">Контрагент №</a></li>
                     <li><a href="#" data-search="inn">ИНН</a></li>
                     <li><a href="#" data-search="voip">Voip</a></li>
                     <li><a href="#" data-search="email" title="Контакты email / телефон / факс">Email/тел</a></li>

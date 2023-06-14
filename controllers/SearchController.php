@@ -5,9 +5,10 @@ namespace app\controllers;
 use app\classes\BaseController;
 use app\classes\DynamicModel;
 use app\classes\validators\FormFieldValidator;
-use app\exceptions\ModelValidationException;
 use app\models\Bank;
 use app\models\Bill;
+use app\models\ClientAccount;
+use app\models\ClientContragent;
 use app\models\GoodsIncomeOrder;
 use app\models\Invoice;
 use app\models\Trouble;
@@ -94,6 +95,32 @@ class SearchController extends BaseController
             case 'contractNo':
                 $params['contractNo'] = trim($search);
                 break;
+
+            case 'contragentNo':
+                $contragent = ClientContragent::findOne(['id' => trim($search)]);
+                if ($contragent) {
+                    $account = null;
+                    $contract = reset($contragent->contracts);
+                    if ($contract) {
+                        $accounts = $contract->accounts;
+                        if ($accounts) {
+                            $accountsFiltred = array_filter($accounts, function (ClientAccount $account) {
+                                return $account->is_active;
+                            });
+
+                            if ($accountsFiltred) {
+                                $accounts = $accountsFiltred;
+                            }
+                            $account = reset($accounts);
+                        }
+                    }
+
+                    return $this->redirect([
+                            '/contragent/edit', 'id' => $contragent->id
+                        ] + ($account ? ['childId' => $account->id] : []));
+                }
+
+                return $this->render('result', ['message' => 'Контрагент № ' . $search . ' не найден']);
 
             case 'bills':
 
@@ -265,7 +292,7 @@ class SearchController extends BaseController
 
     public function actionTrouble()
     {
-        $form = DynamicModel::validateData(Yii::$app->request->queryParams,[
+        $form = DynamicModel::validateData(Yii::$app->request->queryParams, [
             ['troubleComment', 'required'],
             ['troubleComment', FormFieldValidator::class],
             ['troubleComment', 'string', 'min' => 4]
