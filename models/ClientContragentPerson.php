@@ -58,4 +58,56 @@ class ClientContragentPerson extends HistoryActiveRecord
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
         ];
     }
+
+    public function getFullName(): ?string
+    {
+        $n = [];
+
+        if ($this->last_name) {
+            $n[] = $this->last_name;
+        }
+
+        if ($this->first_name) {
+            $n[] = $this->first_name;
+        }
+
+        if ($this->middle_name) {
+            $n[] = $this->middle_name;
+        }
+
+        return implode(' ', $n) ?: null;
+    }
+
+    public static function normalizeName(?string $name): ?string
+    {
+        if (!$name) {
+            return $name;
+        }
+
+        $name = trim($name);
+
+        if (!$name) {
+            return $name;
+        }
+
+        $firstLetter = mb_substr($name, 0, 1);
+
+        if ($firstLetter != mb_strtoupper($firstLetter)) {
+            $firstLetter = mb_strtoupper($firstLetter);
+        }
+
+        if (mb_strlen($name) == 1) {
+            return $firstLetter;
+        }
+
+        $woFirstLetter = mb_substr($name,  1);
+        $twoLetter = mb_substr($woFirstLetter,  0, 1);
+
+
+        if ($twoLetter != mb_strtolower($twoLetter)) {
+            $woFirstLetter = mb_strtolower($woFirstLetter);
+        }
+
+        return $firstLetter.$woFirstLetter;
+    }
 }
