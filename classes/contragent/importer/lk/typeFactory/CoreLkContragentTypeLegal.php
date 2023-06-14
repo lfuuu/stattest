@@ -1,0 +1,36 @@
+<?php
+
+namespace app\classes\contragent\importer\lk\typeFactory;
+
+use app\models\ClientContragent;
+
+class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
+{
+    public static $orgType = self::ORG_TYPE_LEGAL;
+
+    public function getStatLegalType()
+    {
+        return ClientContragent::LEGAL_TYPE;
+    }
+
+    protected function makeStatModel()
+    {
+        $r = $this->coreLkContragent->getDataResponse();
+        $data = $r['data'] ?? [];
+
+        $contragent = new ClientContragent();
+
+        $contragent->name = $data['name']['short_with_opf'] ?? $r['value'] ?? '???';
+        $contragent->name_full = $data['name']['full_with_opf'] ?? $r['value'] ?? '???';
+
+        $contragent->inn = $data['inn'] ?? null;
+        $contragent->kpp = $data['kpp'] ?? null;
+        $contragent->ogrn = $data['ogrn'] ?? null;
+        $contragent->okpo = $data['okpo'] ?? null;
+        $contragent->address_jur = $data['address']['unrestricted_value'] ?? null;
+        $contragent->fio = $contragent->fioV = $data['management']['name'] ?? null;
+        $contragent->position = $contragent->positionV = $data['management']['post'];
+
+        return true;
+    }
+}

@@ -1,0 +1,85 @@
+<?php
+
+namespace app\classes\contragent\importer\lk;
+
+
+use app\classes\contragent\importer\lk\typeFactory\CoreLkContragentTypeDefault;
+use app\classes\contragent\importer\lk\typeFactory\CoreLkContragentTypeFactory;
+use app\classes\Utils;
+use app\models\ClientContragent;
+
+class CoreLkContragent
+{
+//    protected array $row = [];
+    public array $row = [];
+    protected ClientContragent $statContragent;
+
+    public function __construct($dbRow)
+    {
+        $this->row = $dbRow;//['contragent_id' => $dbRow['contragent_id'], 'name' => $dbRow['name']];
+    }
+
+    public function getOrgType(): string
+    {
+        $name = $this->row['name'] ?? '';
+        if (strpos($name, 'ИП ') === 0) {
+            return CoreLkContragentTypeDefault::ORG_TYPE_INDIVIDUAL;
+        };
+
+        if ($this->row['org_type'] == CoreLkContragentTypeDefault::ORG_TYPE_BUSINESS) {
+            switch ($this->row['legal_type']) {
+                case ClientContragent::IP_TYPE:
+                    return CoreLkContragentTypeDefault::ORG_TYPE_INDIVIDUAL;
+                case ClientContragent::LEGAL_TYPE:
+                    return CoreLkContragentTypeDefault::ORG_TYPE_LEGAL;
+                case ClientContragent::PERSON_TYPE:
+                    return CoreLkContragentTypeDefault::ORG_TYPE_PHYSICAL;
+                default:
+                    throw new \InvalidArgumentException('Unknown contragent type: ' . var_export($this->row['legal_type'], true));
+            }
+        }
+
+        return $this->row['org_type'] ?? '';
+    }
+
+    public function getName(): string
+    {
+        return $this->row['name'];
+    }
+
+    public function getContragentId(): string
+    {
+        return $this->row['contragent_id'] ?? false;
+    }
+
+    public function setStatContragent(ClientContragent $contragent)
+    {
+        $this->statContragent = $contragent;
+    }
+
+    public function getStatContragent(): ?ClientContragent
+    {
+        return $this->statContragent;
+    }
+
+    private function loadStatContragent()
+    {
+        $this->setStatContragent(ClientContragent::find()->where(['id' => $this->getContragentId()])->with('personModel')->one());
+    }
+
+    public function getTransformatorByType(): CoreLkContragentTypeDefault
+    {
+        if (!isset($this->statContragent)) {
+            $this->loadStatContragent();
+        }
+
+        return CoreLkContragentTypeFactory::getTransformer($this);
+    }
+
+    public function getDataResponse()
+    {
+        return Utils::fromJson($this->row['data_response']);
+    }
+
+}
+
