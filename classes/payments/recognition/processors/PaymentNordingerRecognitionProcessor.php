@@ -11,10 +11,7 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
         if (
             !$infoJson
             || !is_array($infoJson)
-//            || !isset($infoJson['debtorAccount'])
-            || !isset($infoJson['debtorName'])
-//            || !isset($infoJson['debtorAccount']['iban'])
-//            || !$infoJson['debtorAccount']['iban']
+            || !(isset($infoJson['debtorName']) || isset($infoJson['creditorName']))
         ) {
             return false;
         }
@@ -36,7 +33,7 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
             }
         }
 
-        return $this->findByName($info['debtorName']);
+        return $this->findByName($info['debtorName'] ?? $info['creditorName'] ?? '');
     }
 
     private function findByIban($iban)
@@ -89,6 +86,10 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
      */
     private function findByName($name): int
     {
+        if (!$name) {
+            return 0;
+        }
+
         $accountId = $this->getAccountIdByName($name);
 
         if (!$accountId) {
