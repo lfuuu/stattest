@@ -32,8 +32,8 @@ class ClientContragentPerson extends HistoryActiveRecord
 
     public function attributeLabels()
     {
-        return [
-            'contragent_id' => 'Конатргент',
+        return (new ClientContragent())->attributeLabels() + [
+            'contragent_id' => 'Контрагент',
             'last_name' => 'Фамилия',
             'first_name' => 'Имя',
             'middle_name' => 'Отчество',

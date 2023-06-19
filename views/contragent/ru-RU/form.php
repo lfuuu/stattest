@@ -16,6 +16,23 @@ use kartik\widgets\Select2;
  */
 
 $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
+$isDisabled = (bool)$model->contragent->is_lk_first;
+$optionState = $isDisabled ? ['disabled' => true] : [];
+?>
+
+<?php
+if ($isDisabled):
+    ?>
+    <div class="row max-screen">
+        <div class="col-sm-12 text-center text-warning">
+            <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span>Редактирование основных данных контрагента доступно только в ЛК</span>
+            <br>
+            <br>
+        </div>
+    </div>
+
+<?php
+endif;
 ?>
 
 <div class="row max-screen">
@@ -31,11 +48,11 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
     <div id="type-select">
         <div class="btn-group">
             <button type="button" class="btn btn-default"
-                    data-tab="#legal"><?= $model->getAttributeLabel('legalTypeLegal') ?></button>
+                    data-tab="#legal"<?= ($isDisabled ? ' disabled' : '') ?>><?= $model->getAttributeLabel('legalTypeLegal') ?></button>
             <button type="button" class="btn btn-default"
-                    data-tab="#ip"><?= $model->getAttributeLabel('legalTypeIp') ?></button>
+                    data-tab="#ip"<?= ($isDisabled ? ' disabled' : '') ?>><?= $model->getAttributeLabel('legalTypeIp') ?></button>
             <button type="button" class="btn btn-default"
-                    data-tab="#person"><?= $model->getAttributeLabel('legalTypePerson') ?></button>
+                    data-tab="#person"<?= ($isDisabled ? ' disabled' : '') ?>><?= $model->getAttributeLabel('legalTypePerson') ?></button>
         </div>
     </div>
 </div>
@@ -48,7 +65,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'model' => $model,
             'form' => $f,
             'columns' => 2,
-            'options' => ['class' => 'percent100'],
+            'options' => ['class' => 'percent100'] + $optionState,
             'columnOptions' => ['class' => 'col-sm-6'],
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
@@ -64,7 +81,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'form' => $f,
             'columns' => 2,
             'columnOptions' => ['class' => 'col-sm-6'],
-            'options' => ['class' => 'pull-left percent50 block-right-indent'],
+            'options' => ['class' => 'pull-left percent50 block-right-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -85,7 +102,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'model' => $model,
             'form' => $f,
             'columns' => 2,
-            'options' => ['class' => 'percent50 block-left-indent'],
+            'options' => ['class' => 'percent50 block-left-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -103,7 +120,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'model' => $model,
             'form' => $f,
             'columns' => 1,
-            'options' => ['class' => 'percent50 block-left-indent'],
+            'options' => ['class' => 'percent50 block-left-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -123,7 +140,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'model' => $model,
             'form' => $f,
             'columns' => 1,
-            'options' => ['class' => 'pull-left percent50 block-right-indent'],
+            'options' => ['class' => 'pull-left percent50 block-right-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -138,7 +155,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'form' => $f,
             'columns' => 1,
             'columnOptions' => ['class' => 'col-sm-12'],
-            'options' => ['class' => 'percent50 block-left-indent'],
+            'options' => ['class' => 'percent50 block-left-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -152,7 +169,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'form' => $f,
             'columns' => 1,
             'columnOptions' => ['class' => 'col-sm-12'],
-            'options' => ['class' => 'percent50 block-left-indent'],
+            'options' => ['class' => 'percent50 block-left-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -169,7 +186,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'model' => $model,
             'form' => $f,
             'columns' => 2,
-            'options' => ['class' => 'clearix percent50 block-right-indent'],
+            'options' => ['class' => 'clearix percent50 block-right-indent'] + $optionState,
             'columnOptions' => ['class' => 'col-sm-6'],
             'attributeDefaults' => [
                 'container' => [
@@ -195,7 +212,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'model' => $model,
             'form' => $f,
             'columns' => 1,
-            'options' => ['class' => 'pull-left percent50 block-right-indent'],
+            'options' => ['class' => 'pull-left percent50 block-right-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -210,7 +227,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'form' => $f,
             'columns' => 2,
             'columnOptions' => ['class' => 'col-sm-6'],
-            'options' => ['class' => 'percent50 block-left-indent block-right-indent'],
+            'options' => ['class' => 'percent50 block-left-indent block-right-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -224,7 +241,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'form' => $f,
             'columns' => 2,
             'columnOptions' => ['class' => 'col-sm-12'],
-            'options' => ['class' => 'percent50 block-left-indent block-right-indent'],
+            'options' => ['class' => 'percent50 block-left-indent block-right-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -234,6 +251,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
                     'widgetClass' => 'app\widgets\DateControl',
                     'convertFormat' => true,
                     'options' => [
+                        'disabled' => $isDisabled,
                         'pluginOptions' => [
                             'autoclose' => true,
                             'startDate' => '-40y',
@@ -246,6 +264,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
                     'widgetClass' => 'app\widgets\DateControl',
                     'convertFormat' => true,
                     'options' => [
+                        'disabled' => $isDisabled,
                         'pluginOptions' => [
                             'autoclose' => true,
                             'startDate' => '-100y',

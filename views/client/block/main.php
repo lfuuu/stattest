@@ -64,6 +64,10 @@ $priceLevels = PriceLevel::getList();
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
                             <span class="c-blue-color">
                                 <?= trim($contragent->name) ? $contragent->name : '<i>Не задано</i>' ?>
+                                <?= ($contragent->is_lk_first ? Html::tag('span', '', [
+                                    'class' => 'text-warning small glyphicon glyphicon-warning-sign',
+                                    'title' => 'Редактирование основных данных контрагента доступно только в ЛК',
+                                ]) : '') ?>
                             </span>
                         </a>
                     </div>
@@ -85,7 +89,7 @@ $priceLevels = PriceLevel::getList();
                                 <div class="col-sm-5">
                                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>">
                                         <span class="c-blue-color">
-                                            Договор № <?= $contract->number ?: 'Без номера' ?> (id: <?=$contract->id ?>)
+                                            Договор № <?= $contract->number ?: 'Без номера' ?> (id: <?= $contract->id ?>)
                                             (<?= $contract->organization->name ?>)
                                         </span>
                                         &nbsp;
@@ -217,8 +221,9 @@ $priceLevels = PriceLevel::getList();
                                                         class="text-nowrap"
                                                         style="color:<?= ($lockByCredit ? 'red' : 'green'); ?>;"
                                                 >
-                                                    <div id="balance_<?=$contractAccount->id?>" class="balance_info" data-id="<?=$contractAccount->id?>"><?= sprintf('%0.2f', $contractAccount->billingCounters->realtimeBalance) ?>
-                                                    <?= $contractAccount->currency ?></div>
+                                                    <div id="balance_<?= $contractAccount->id ?>" class="balance_info"
+                                                         data-id="<?= $contractAccount->id ?>"><?= sprintf('%0.2f', $contractAccount->billingCounters->realtimeBalance) ?>
+                                                        <?= $contractAccount->currency ?></div>
                                                 </abbr>
                                                 <br/>
                                                 <abbr title="Размер кредита" class="text-nowrap">

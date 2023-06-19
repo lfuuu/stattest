@@ -40,6 +40,7 @@ use yii\db\Expression;
  * @property int $sale_channel_id
  * @property int $partner_contract_id___DEPRICATED
  * @property string $created_at
+ * @property int $is_lk_first
  *
  * @property-read ClientAccount[] $accounts
  * @property-read ClientContragentPerson $person
@@ -167,6 +168,7 @@ class ClientContragent extends HistoryActiveRecord
             'sale_channel_id' => 'Откуда узнали о нас',
             'partner_contract_id' => 'Партнер',
             'super_id' => 'Супер-клиент',
+            'is_lk_first' => 'Основные данные в ЛК',
         ];
     }
 
