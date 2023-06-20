@@ -198,7 +198,7 @@ class m_newaccounts extends IModule
         set_time_limit(60);
 
         $_SESSION['clients_client'] = $fixclient;
-        
+
         $clientType = $fixclient_data->contract->financial_type;
         $design->assign('fin_type', $clientType);
 
@@ -324,13 +324,13 @@ class m_newaccounts extends IModule
             }
         }
 
-        foreach ($R as $bill) {     
-            if ($bill->operation_type_id != OperationType::ID_COST) { 
+        foreach ($R as $bill) {
+            if ($bill->operation_type_id != OperationType::ID_COST) {
                 $b = BillExternal::find()->where(['bill_no' => $bill['bill']['bill_no']])->one();
                 $R[$b['bill_no']]['ext_sum'] = $b['ext_vat'] + $b['ext_sum_without_vat'];
             }
         }
-    
+
         #krsort($R);
         $design->assign('client_type', $clientType);
         $design->assign('billops', $R);
@@ -803,7 +803,7 @@ class m_newaccounts extends IModule
         if (!$fixclient) {
             return;
         }
-        
+
         $currency = get_param_raw('currency');
 
         $bill = new \Bill(null, $fixclient_data, time(), 0, $currency, OperationType::ID_COST);
@@ -828,12 +828,12 @@ class m_newaccounts extends IModule
 
         $origBill = $_GET['orig_bill'];
         $currency = get_param_raw('currency');
- 
+
         $bill = new \Bill(null, $fixclient_data, time(), 0, $currency, OperationType::ID_COST);
-        
+
         $no = $bill->GetNo();
         unset($bill);
-        
+
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_edit&bill=" . $no . '&orig_bill=' . $origBill);
             exit();
@@ -938,7 +938,7 @@ class m_newaccounts extends IModule
         }
 
         $connectedBillsList = BillOutcomeCorrection::find()->where(['original_bill_no' => $bill_no])->asArray()->all();
-        $originalBill = BillOutcomeCorrection::find()->where(['bill_no' => $bill_no])->one();        
+        $originalBill = BillOutcomeCorrection::find()->where(['bill_no' => $bill_no])->one();
 
         if (isset($originalBill)) {
             $design->assign('orig_bill', $originalBill);
@@ -947,7 +947,7 @@ class m_newaccounts extends IModule
         if (isset($connectedBillsList)) {
             foreach($connectedBillsList as $i => $connection){
                 $billExternal = BillExternal::find()->where(['bill_no' => $connection['bill_no']])->one();
-                $connectedBillsList[$i]['sum'] = $billExternal['ext_vat'] +  $billExternal['ext_sum_without_vat'];  
+                $connectedBillsList[$i]['sum'] = $billExternal['ext_vat'] +  $billExternal['ext_sum_without_vat'];
             }
 
             $design->assign('connected_bills', $connectedBillsList);
@@ -1276,7 +1276,7 @@ class m_newaccounts extends IModule
             header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
         }
-        
+
         $isCorrection = false;
         if (isset($_GET['orig_bill'])){
             $orig_bill = $_GET['orig_bill'];
@@ -1310,7 +1310,7 @@ class m_newaccounts extends IModule
         if (!$bill->CheckForAdmin()) {
             return;
         }
-        
+
         $billCorrection = BillOutcomeCorrection::find()->where(['bill_no' => $bill_no])->one();
         if($billCorrection){
             $design->assign('corr_bill',  date('d-m-Y', strtotime($billCorrection->GetDate())));
@@ -1373,8 +1373,8 @@ class m_newaccounts extends IModule
         $design->assign('isEditable', $billModel->isEditable());
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $lines = $bill->GetLines();
-        
-        if ($billModel->operation_type_id != OperationType::ID_COST) { 
+
+        if ($billModel->operation_type_id != OperationType::ID_COST) {
             $lines[$bill->GetMaxSort() + 1] = [];
             $lines[$bill->GetMaxSort() + 2] = [];
             $lines[$bill->GetMaxSort() + 3] = [];
@@ -1441,7 +1441,7 @@ class m_newaccounts extends IModule
         }
 
         $bills = array_filter($bills, function($bill) {return strlen($bill) > 1;});
-        
+
         $option = get_param_protected('option');
         $isImport = get_param_raw("from", "") == "import";
 
@@ -1514,12 +1514,12 @@ class m_newaccounts extends IModule
                 header("Location: ?module=newaccounts&action=bill_edit&bill=" . $bill_no);
                 exit();
             }
-        }  
-        
+        }
+
         if($bill_corr_date){
             $bill_corr->date_created = date('Y-m-d', strtotime($bill_corr_date));
         }
-        
+
         if($bill_corr_num){
             $bill_corr->correction_number = (int)$bill_corr_num;
         }
@@ -1548,7 +1548,7 @@ class m_newaccounts extends IModule
         //         throw new Exception();
         //     }
         // }
-        
+
         $bill->Set('bill_date', $bill_date->getSqlDay());
         $billPayBillUntil = new DatePickerValues('pay_bill_until', $bill->Get('pay_bill_until'));
         $bill->Set('pay_bill_until', $billPayBillUntil->getSqlDay());
@@ -1570,7 +1570,7 @@ class m_newaccounts extends IModule
             if (!$bill_corr->save()) {
                 throw new ModelException('Ошибка сохранения');
             }
-        }   
+        }
 
         if ($ext_file) {
             (new \app\classes\media\BillExtMedia($billModel))->addFile($ext_file, $ext_file_comment);
@@ -1580,7 +1580,7 @@ class m_newaccounts extends IModule
         $amount = get_param_raw("amount");
         $price = get_param_raw("price");
         $type = get_param_raw("type");
-        $del = get_param_raw("del", []);  
+        $del = get_param_raw("del", []);
 
         if (!$item || !$amount || !$price || !$type) { // Сохранение только "шапки" счета     
             $bill->Save();
@@ -3722,7 +3722,7 @@ class m_newaccounts extends IModule
                         $co = $o[1] == "citi" ? "mcn" : ($o[1] == "ural" ? "cmc" : "mcn");
                         $acc = $o[1] == "mcn" ? "mos" : $o[1];
                         $data[strtotime(str_replace("_", "-", $o[2]))][$co][$acc] = $o[0];
-                        
+
                         $all[] = $o[0];
 
                     } else {
@@ -5692,6 +5692,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         global $design, $db, $user, $fixclient_data;
 
         $periodType = get_param_raw('period_type', 'registration');
+        $isBmd = (bool)get_param_raw('is_bmd', '0');
 
         $dateFromStr = get_param_raw('date_from', date('m-Y'));
         $dateToStr = get_param_raw('date_to', date('m-Y'));
@@ -5730,6 +5731,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
   c.id                                                            AS account_id,
   cg.name_full,
   cnt.name                                                        AS country_name,
+  cg.country_id,
   cg.inn_euro,
   cg.inn,
   ext_invoice_no,
@@ -5766,7 +5768,46 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
 
         $total = $totalEuro = [];
         $total['EUR'] = ['sum' => 0, 'vat' => 0, 'sum_without_vat' => 0, 'count' => 0];
+
+        $steuercodeMap = [
+            '5701' => '2',
+            '5755' => '79',
+        ];
+
+
         foreach ($data as $idx => $row) {
+            if ($isBmd) {
+                $gkonto = $row['country_id'] == \app\models\Country::AUSTRIA
+                    ? '5701'
+                    : (in_array($row['country_id'], \app\models\Country::EUROPE) ? '5755' : '5756');
+
+                $prozent = ($gkonto != '5756' ? 20 : 0);
+
+                $row['vat'] = (float)$row['vat'];
+
+                $tax = $row['vat'] ?: ($gkonto == '5755' && $prozent ? $row['sum_without_vat'] * ($prozent/100) : null);
+
+                $bSum = $row['sum_without_vat'];
+                if($gkonto == '5701') {
+                    $bSum = $row['sum_without_vat']+$tax;
+
+                    if ($tax) {
+                        $tax = -abs($tax);
+                    }
+                }
+
+                $b = [
+                    'fwbetrag' => ($row['currency'] != Currency::EUR ? $this->nf(-$bSum) : ''),
+                    'betrag' => ($row['currency'] == Currency::EUR ? $this->nf(-$bSum) : ''),
+                    'fwsteuer' => ($row['currency'] != Currency::EUR && $tax? $this->nf(-$tax) : ''),
+                    'steuer' => ($row['currency'] == Currency::EUR && $tax? $this->nf(-$tax) : ''),
+                    'prozent' => $prozent,
+                    'steuercode' => $steuercodeMap[$gkonto] ?? '',
+                    'gkonto' => $gkonto,
+                ];
+
+                $data[$idx]['bmd'] = $b;
+            }
 
             $rate = $row['nat_rate'] / $row['euro_rate'];
 
@@ -5774,8 +5815,6 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
             $data[$idx]['vat_euro'] = $row['vat_euro'] = round($row['vat'] * $rate, 2);
             $data[$idx]['sum_euro'] = $row['sum_euro'] = round($row['sum'] * $rate, 2);
             $data[$idx]['rate'] = $row['rate'] = round($rate, 4);
-
-
 
             if (!isset($total[$row['currency']])) {
                 $total[$row['currency']] = [
@@ -5800,7 +5839,17 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
             $total[$row['currency']]['count']++;
         }
 
-        if (get_param_raw('is_to_excel', 0) == 1) {
+        if (get_param_raw('is_to_excel_bmd', '0') == 1) {
+            $excel = new \app\classes\excel\PurchaseBookToExcelBmd();
+            $excel->data = $data;
+            $excel->total = $total;
+            $excel->organizationId = $organizationId;
+            $excel->dateFrom = $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
+            $excel->dateTo = $dateTo->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
+            $excel->openFile(Yii::getAlias('@app/templates/purchase_book_bmd.xls'));
+            $excel->prepare();
+            $excel->download('Purchase_Book_BMD');
+        } elseif (get_param_raw('is_to_excel', 0) == 1) {
             $excel = new \app\classes\excel\PurchaseBookToExcel;
             $excel->data = $data;
             $excel->total = $total;
@@ -5815,8 +5864,23 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
         $design->assign('data', $data);
         $design->assign('totals', $total);
         $design->assign('totalEuro', $totalEuro);
+        $design->assign('is_bmd', $isBmd);
         $design->AddMain('newaccounts/ext_bills.tpl');
     }
+
+    private function nf($number)
+    {
+        if ($number === null || $number === '') {
+            return '';
+        }
+
+        if (!is_numeric($number)) {
+            return $number;
+        }
+
+        return number_format($number, 2, '.', '');
+    }
+
 
     function newaccounts_ext_bills_ifns($fixclient)
     {
@@ -5894,7 +5958,7 @@ ORDER BY " . $dateField . ", sum DESC";
             $billCorrDate = BillOutcomeCorrection::find()
             ->where(['bill_no' => $row['newbills_bill_no']])
             ->one();
-           
+
             if ($billCorrDate && $billCorrDate['correction_number'] ?? null) {
                 $data[$i]['correction_number'] = $billCorrDate['correction_number'];
                 $data[$i]['correction_date'] = date('d.m.Y', strtotime($billCorrDate['date_created']));

@@ -54,6 +54,8 @@ class Country extends ActiveRecord
     const NETHERLANDS = 528;
     const POLAND = 616;
 
+    const EUROPE = [40, 100, 191, 196, 203, 208, 233, 246, 250, 276, 300, 348, 372, 380, 428, 440, 442, 470, 528, 616, 620, 642, 703, 705, 724, 752];
+
     const DEFAULT_GOOD_COUNTRY = self::CHINA;
 
     public static $primaryField = 'code';
