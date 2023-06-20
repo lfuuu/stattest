@@ -82,6 +82,10 @@
             <td> в Excel: <input type=checkbox name='is_to_excel' value="1" class=button></td>
         </tr>
         <tr>
+            <td>BMD:<input type="checkbox" name='is_bmd' value='1'{if $is_bmd} checked{/if}></td>
+            <td>{if $is_bmd} в Excel: <input type=checkbox name='is_to_excel_bmd' value="1" class=button>{/if}</td>
+        </tr>
+        <tr>
             <td colspan="2"><input type=submit value='Поехали' class="btn btn-primary"></td>
         </tr>
     </table>
@@ -89,7 +93,64 @@
 </form>
 <br>
 <br>
+{if $is_bmd}
+    <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
+        <thead>
+        <tr>
+            <td>belegnr</td>
+            <td>satzart</td>
+            <td>buchsymbol</td>
+            <td>buchcode</td>
+            <td>gegenbuchkz</td>
+            <td>verbuchkz</td>
+            <td>konto</td>
+            <td>buchdatum</td>
+            <td>belegdatum</td>
+            <td>extbelegnr</td>
+            <td>waehrung</td>
+            <td>fwbetrag</td>
+            <td>betrag</td>
+            <td>fwsteuer</td>
+            <td>steuer</td>
+            <td>prozent</td>
+            <td>steuercode</td>
+            <td>gkonto</td>
+            <td>dokument</td>
 
+            <td>Ссылка на оригинальную с/ф поставщика</td>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach from=$data item=item name=outer}
+            <tr>
+                <td>{$smarty.foreach.outer.iteration}</td>
+                <td>0</td>
+                <td>ER</td>
+                <td>2</td>
+                <td>E</td>
+                <td>A</td>
+                <td><a href="/client/view?id={$item.account_id}" target="_blank">{$item.account_id}</a></td>
+                <td>{$item.invoice_date}</td>
+                <td>{$item.due_date}</td>
+                <td><a href="/?module=newaccounts&action=bill_view&bill={$item.bill_no}" target="_blank">{$item.ext_invoice_no}</a></td>
+                <td>{$item.currency}</td>
+                <td>{$item.bmd.fwbetrag}</td>
+                <td>{$item.bmd.betrag}</td>
+                <td>{$item.bmd.fwsteuer}</td>
+                <td>{$item.bmd.steuer}</td>
+                <td>{$item.bmd.prozent}</td>
+                <td>{$item.bmd.steuercode}</td>
+                <td>{$item.bmd.gkonto}</td>
+                <td>See STAT bill <a href="/?module=newaccounts&action=bill_view&bill={$item.bill_no}" target="_blank">{$item.bill_no}</a> for details</td>
+                <!-- td>\\tsclient\C\ER22INVOICE\Q3\RA0013112022.pdf</td -->
+                <td>{if $item.file_name}<a
+                        href="/?module=newaccounts&action=bill_ext_file_get&bill_no={$item.bill_no|escape:'url'}"
+                        class="">{$item.file_name}</a>{else}...{/if}</td>
+            </tr>
+        {/foreach}
+        </tbody>
+    </table>
+{else}
 <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
     <thead>
     <tr>
@@ -168,32 +229,32 @@
     {/foreach}
     </tbody>
 </table>
-
+{/if}
 <script>
     {literal}
     //optools.DatePickerInit();
     $(function () {
-      $('#date_from').datepicker({
-        changeMonth: true,
-        changeYear: true,
-        showButtonPanel: true,
-        dateFormat: 'mm-yy',
-        onClose: function (dateText, inst) {
-          $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-        }
-      });
+        $('#date_from').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            dateFormat: 'mm-yy',
+            onClose: function (dateText, inst) {
+                $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+            }
+        });
     });
 
     $(function () {
-      $('#date_to').datepicker({
-        changeMonth: true,
-        changeYear: true,
-        showButtonPanel: true,
-        dateFormat: 'mm-yy',
-        onClose: function (dateText, inst) {
-          $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-        }
-      });
+        $('#date_to').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            dateFormat: 'mm-yy',
+            onClose: function (dateText, inst) {
+                $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+            }
+        });
     });
     {/literal}
 </script>
@@ -211,31 +272,31 @@
 <BR>
 <BR>
 <div class="well" style="width: 225px;">
-<button id="downloadAll" class="btn btn-warning">Скачать все документы</button>
+    <button id="downloadAll" class="btn btn-warning">Скачать все документы</button>
 </div>
 
 <script>
     {literal}
     $(document).ready(function () {
-      $('#downloadAll').click(function (e) {
-        e.stopPropagation();
+        $('#downloadAll').click(function (e) {
+            e.stopPropagation();
 
-        var ll = $('a[href*=bill_ext_file_get]');
+            var ll = $('a[href*=bill_ext_file_get]');
 
-        var link = document.createElement('a');
+            var link = document.createElement('a');
 
-        link.setAttribute('download', null);
-        link.style.display = 'none';
+            link.setAttribute('download', null);
+            link.style.display = 'none';
 
-        document.body.appendChild(link);
+            document.body.appendChild(link);
 
-        for (var i = 0; i < ll.length; i++) {
-          link.setAttribute('href', ll[i]);
-          link.click();
-        }
+            for (var i = 0; i < ll.length; i++) {
+                link.setAttribute('href', ll[i]);
+                link.click();
+            }
 
-        document.body.removeChild(link);
-      });
+            document.body.removeChild(link);
+        });
     });
     {/literal}
 </script>
