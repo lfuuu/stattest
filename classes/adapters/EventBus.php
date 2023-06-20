@@ -49,6 +49,8 @@ class EventBus extends Singleton
 
         $result = $this->execCurlCmd($msg);
 
+        $this->checkSqlError($result);
+
         $headers = [
                 'version' => 1,
                 'type' => 'cmd_result',
@@ -64,6 +66,23 @@ class EventBus extends Singleton
             'id' => $msg['id'],
             'headers' => $headers,
         ]);
+    }
+
+    private function checkSqlError($result)
+    {
+        if(!isset($result['status']) || !isset($result['result'])) {
+            return;
+        }
+
+        if ($result['status'] != 'ERROR') {
+            return;
+        }
+
+        if (strpos($result['result'], 'SQLSTATE') === false) {
+            return;
+        }
+
+        throw new \BadMethodCallException($result['result']);
     }
 
     public function sendCmdResult($params)
