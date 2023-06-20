@@ -33,6 +33,25 @@ use yii\web\NotFoundHttpException;
  */
 class PortedHungaryController extends PortedController
 {
+    const SCHEMA = [
+        'table' => 'nnp_ported.number',
+        'pk' => 'full_number',
+        'fields' => [
+            'full_number' => 'BIGINT NOT NULL',
+            'operator_source' => 'CHARACTER VARYING(255)',
+            'operator_id' => 'integer',
+        ],
+        'set' => [
+            'operator_id' => <<< SQL
+CASE WHEN number_tmp.operator_id IS NOT NULL THEN number_tmp.operator_id ELSE
+    CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE
+    NULL
+    END
+END
+SQL
+
+        ]
+    ];
 
     private $_errors = [];
 
@@ -81,6 +100,7 @@ class PortedHungaryController extends PortedController
 
         $insertValues = [];
         $isFirst = true;
+        $this->startTrackingForDeletion();
         while (($row = fgets($fp)) !== false) {
 
             if ($isFirst) {
@@ -101,6 +121,9 @@ class PortedHungaryController extends PortedController
         if ($insertValues) {
             $this->insertValues(Country::HUNGARY, $insertValues, ['full_number', 'operator_source', 'operator_id']);
         }
+
+        $this->endTrackingForDeletion(Country::RUSSIA);
+        $this->actionNotifyEventPortedNumber();
     }
 
     private function loadOperators()
@@ -179,7 +202,7 @@ class PortedHungaryController extends PortedController
     {
         foreach ($this->_errors as $errKey => $errStrs){
             foreach ($errStrs as $idx => $errStr) {
-                echo PHP_EOL . 'Errro: ' . $errKey . ': ' . ( $idx == 12 ? ' ...+' : '') . $errStr;
+                echo PHP_EOL . 'Error: ' . $errKey . ': ' . ( $idx == 12 ? ' ...+' : '') . $errStr;
             }
         }
         echo PHP_EOL;
