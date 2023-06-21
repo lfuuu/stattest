@@ -78,8 +78,7 @@ class CoreLkContragentTypeDefault
             if ($this->diffContragentPerson) {
                 $this->updateModel($this->coreLkContragent->getStatContragent()->personModel, $this->diffContragentPerson);
             }
-//            $transaction->commit();
-            $transaction->rollBack(); //@TODO
+            $transaction->commit();
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
