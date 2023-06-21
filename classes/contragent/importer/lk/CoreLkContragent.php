@@ -81,5 +81,10 @@ class CoreLkContragent
         return Utils::fromJson($this->row['data_response']);
     }
 
+    public function isVerified(): bool
+    {
+        return $this->row['status'] == 'verified';
+    }
+
 }
 

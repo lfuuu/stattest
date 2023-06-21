@@ -19,9 +19,8 @@ class CoreLkContragentTypeIp extends CoreLkContragentTypeDefault
         $lkContragent = $this->coreLkContragent;
         $resp = $lkContragent->getDataResponse();
 
-        $contragent = new ClientContragent();
-
-        $contragent->is_lk_first = 1;
+        parent::makeStatModel();
+        $contragent = $this->contragent;
 
         $contragent->legal_type = ClientContragent::IP_TYPE;
         $contragent->name = $resp['value'] ?? $resp['unrestricted_value'] ?? $resp['data']['name']['short_with_opf'] ?? $lkContragent->getName();
@@ -47,8 +46,6 @@ class CoreLkContragentTypeIp extends CoreLkContragentTypeDefault
 //        $person->registration_address = $contragent->address_jur;
 
         $contragent->populateRelation('personModel', $person);
-
-        $this->contragent = $contragent;
 
         return true;
     }
