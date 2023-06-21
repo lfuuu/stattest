@@ -20,6 +20,8 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
 
         $contragent = new ClientContragent();
 
+        $contragent->is_lk_first = 1;
+
         $contragent->name = $data['name']['short_with_opf'] ?? $r['value'] ?? '???';
         $contragent->name_full = $data['name']['full_with_opf'] ?? $r['value'] ?? '???';
 
