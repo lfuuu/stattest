@@ -21,6 +21,8 @@ class CoreLkContragentTypeIp extends CoreLkContragentTypeDefault
 
         $contragent = new ClientContragent();
 
+        $contragent->is_lk_first = 1;
+
         $contragent->legal_type = ClientContragent::IP_TYPE;
         $contragent->name = $resp['value'] ?? $resp['unrestricted_value'] ?? $resp['data']['name']['short_with_opf'] ?? $lkContragent->getName();
 //        $contragent->name_full = $resp['data']['name']['full_with_opf'] ?? $contragent->name;
