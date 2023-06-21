@@ -10,6 +10,7 @@ use app\models\billing\SmscRaw;
 use app\models\ClientAccount;
 use app\models\filter\SmsFilter;
 use app\models\Number;
+use app\models\voip\Source;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use Yii;
@@ -499,5 +500,31 @@ class VoipController extends ApiInternalController
         }
 
         return $searchModel->is_with_general_info ? ['info' => $generalInfo, 'result' => $result] : $result;
+    }
+
+
+    /**
+     * @SWG\Definition(definition = "voipSourceRecord", type = "object",
+     *   @SWG\Property(property = "code", type = "integer", description = "Код источника"),
+     *   @SWG\Property(property = "name", type = "string", description = "Название"),
+     *   @SWG\Property(property = "is_service", type = "string", description = "Служебный?"),
+     * ),
+     *
+     * @SWG\Get(tags = {"Dictionaries"}, path = "/internal/voip/get-sources", summary = "Получение источников номера",
+     *   @SWG\Parameter(name  =  "is_service", type="integer", description="Служебный?", in="query", default="0"),
+     *
+     *   @SWG\Response(response = 200, description = "Список источников номера", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/voipSourceRecord"))),
+     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
+     * )
+     *
+     * @param int $country_id
+     * @param int $client_account_id
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+
+    public function actionGetSources($is_service = null)
+    {
+        return Source::getList(false, false, $is_service);
     }
 }

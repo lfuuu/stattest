@@ -67,15 +67,20 @@ class Source extends ActiveRecord
 
     public static function getList(
         $isWithEmpty = false,
-        $isWithNullAndNotNull = false
+        $isWithNullAndNotNull = false,
+        $isService = null
     ) {
+        $where = [];
+        if ($isService !== null && $isService !== '') {
+            $where = ['is_service' => (int)(bool)$isService];
+        }
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'code',
             $select = 'name',
             $orderBy = ['order' => SORT_ASC],
-            $where = []
+            $where
         );
     }
 
