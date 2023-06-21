@@ -18,7 +18,8 @@ class CoreLkContragentTypePerson extends CoreLkContragentTypeDefault
     {
         $resp = $this->coreLkContragent->getDataResponse();
 
-        $contragent = new ClientContragent();
+        parent::makeStatModel();
+        $contragent = $this->contragent;
         $person = new ClientContragentPerson();
 
         $contragent->is_lk_first = 1;
@@ -40,8 +41,6 @@ class CoreLkContragentTypePerson extends CoreLkContragentTypeDefault
         $contragent->name = $contragent->name_full = $person->getFullName();
 
         $contragent->populateRelation('personModel', $person);
-
-        $this->contragent = $contragent;
 
         return true;
     }

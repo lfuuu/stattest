@@ -18,9 +18,8 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
         $r = $this->coreLkContragent->getDataResponse();
         $data = $r['data'] ?? [];
 
-        $contragent = new ClientContragent();
-
-        $contragent->is_lk_first = 1;
+        parent::makeStatModel();
+        $contragent = $this->contragent;
 
         $contragent->name = $data['name']['short_with_opf'] ?? $r['value'] ?? '???';
         $contragent->name_full = $data['name']['full_with_opf'] ?? $r['value'] ?? '???';

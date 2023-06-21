@@ -38,7 +38,7 @@ class DataLoader
 
     private static function _getObjectsForSync($contragentId = null): iterable
     {
-        $sqlWhere = "is_lk_first and status ='verified' ";
+        $sqlWhere = "is_lk_first ";
         if ($contragentId) {
             $sqlWhere .= " and contragent_id = " . $contragentId;
         }

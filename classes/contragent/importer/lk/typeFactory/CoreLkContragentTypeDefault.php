@@ -164,9 +164,12 @@ class CoreLkContragentTypeDefault
 
     protected function makeStatModel()
     {
-        echo PHP_EOL . 'ERROR: contragent: ' . $this->coreLkContragent->getContragentId() . ': ' . $this->coreLkContragent->getOrgType();
+        $contragent = new ClientContragent();
+        $contragent->is_lk_first = 1;
 
-        return false;
+        $this->contragent = $contragent;
+
+        return true;
     }
 }
 
