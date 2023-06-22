@@ -30,7 +30,21 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
         $contragent->okpo = $data['okpo'] ?? null;
         $contragent->address_jur = $data['address']['unrestricted_value'] ?? null;
         $contragent->fio = $contragent->fioV = $data['management']['name'] ?? null;
-        $contragent->position = $contragent->positionV = $data['management']['post'];
+
+        $position = $data['management']['post'] ?? '';
+
+        if ($position) {
+            $contragent->position = $contragent->positionV = strtr($position, [
+                'ГЕНЕРАЛЬНЫЙ ДИРЕКТОР' => 'Генеральный директор',
+                'ДИРЕКТОР' => 'Директор',
+                'ИСПОЛНЯЮЩИЙ ОБЯЗАННОСТИ ГЕНЕРАЛЬНОГО ДИРЕКТОРА' => 'Исполняющий обязанности генерального директора',
+                'ИСПОЛНИТЕЛЬНЫЙ ДИРЕКТОР' => 'Исполнительный директор',
+                'ИНДИВИДУЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ' => 'Индивидульный предприниматель',
+                'УПРАВЛЯЮЩИЙ' => 'Управляющий',
+                'ПРЕЗИДЕНТ' => 'Президент',
+                'ПРЕДСТАВИТЕЛЬ' => 'Представитель',
+            ]);
+        }
 
         return true;
     }
