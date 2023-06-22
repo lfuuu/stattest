@@ -281,6 +281,10 @@
         $('#downloadAll').click(function (e) {
             e.stopPropagation();
 
+            $('a[href*=bill_ext_file_get]').each(function(b, a) {
+                window.open(a.href);
+            });
+/*
             var ll = $('a[href*=bill_ext_file_get]');
 
             var link = document.createElement('a');
@@ -296,6 +300,7 @@
             }
 
             document.body.removeChild(link);
+*/
         });
     });
     {/literal}
