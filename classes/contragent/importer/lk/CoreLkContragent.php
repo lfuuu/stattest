@@ -86,5 +86,9 @@ class CoreLkContragent
         return $this->row['status'] == 'verified';
     }
 
+    public static function syncDbRow($contragentId)
+    {
+        (new CoreLkContragentDbSyncer($contragentId))->sync();
+    }
 }
 

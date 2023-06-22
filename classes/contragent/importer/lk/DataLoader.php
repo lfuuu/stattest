@@ -11,7 +11,7 @@ class DataLoader
 
     public static function getObjectsForSync($contragentId = null)
     {
-        return (new BufferedLoader(self::_getObjectsForSync($contragentId), 10))
+        return (new BufferedLoader(self::_getObjectsForSync($contragentId)))
             ->setPostLoader(function ($buffer) {
                 $ids = array_map(function ($value) {
                     return $value->getContragentId();

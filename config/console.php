@@ -46,6 +46,11 @@ if (file_exists($file = __DIR__ . '/db_pgsql_nfdump.local.php')) {
     $dbPgNfDump = ArrayHelper::merge($dbPgNfDump, require($file));
 }
 
+$dbPgLk = require(__DIR__ . '/db_pgsql_lk.php');
+if (file_exists($file = __DIR__ . '/db_pgsql_lk.local.php')) {
+    $dbPgLk = ArrayHelper::merge($dbPgLk, require($file));
+}
+
 $dbAts = require(__DIR__ . '/db_ats.php');
 if (file_exists($file = __DIR__ . '/db_ats.local.php')) {
     $dbAts = ArrayHelper::merge($dbAts, require($file));
@@ -155,6 +160,7 @@ return [
         'dbPgNnpSlave' => $dbPgSlave,
         'dbPgCallTracking' => $dbPgCallTracking,
         'dbPgNfDump' => $dbPgNfDump,
+        'dbPgLk' => $dbPgLk,
         'dbPg' => $dbPg,
         'dbPgSlave' => $dbPgSlave,
         'dbPgSlaveCache' => $dbPgSlaveCache,

@@ -2,6 +2,7 @@
 namespace app\commands;
 
 use app\classes\adapters\EventBus;
+use app\classes\adapters\EventBusContragent;
 use app\exceptions\web\NotImplementedHttpException;
 use yii\console\Controller;
 
@@ -21,4 +22,10 @@ class EventBusController extends Controller
     {
         EventBus::me()->testCmd();
     }
+
+    public function actionListenContragentChanges()
+    {
+        EventBusContragent::me()->listen();
+    }
+
 }
