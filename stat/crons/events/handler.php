@@ -280,6 +280,9 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case EventQueue::EVENT_BUS_CMD_RESULT:
                     $info = \app\classes\adapters\EventBus::me()->sendCmdResult($param);
                     break;
+                case EventQueue::EVENT_LK_CONTRAGENT_CHANGED:
+                    \app\classes\adapters\EventBusContragent::me()->syncContragent($param['contragent_id'] ?? 0);
+
                 case EventQueue::USAGE_VOIP__INSERT:
                 case EventQueue::USAGE_VOIP__UPDATE:
                 case EventQueue::USAGE_VOIP__DELETE:

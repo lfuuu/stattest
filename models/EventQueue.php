@@ -129,6 +129,8 @@ class EventQueue extends ActiveRecord
     const EVENT_BUS_CMD = 'event_bus_cmd';
     const EVENT_BUS_CMD_RESULT = 'event_bus_cmd_result';
 
+    const EVENT_LK_CONTRAGENT_CHANGED = 'lk_contragent_changed';
+
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
     public static $names = [
@@ -196,6 +198,7 @@ class EventQueue extends ActiveRecord
         self::TROUBLE_NOTIFIER_EVENT => 'Оповещение о заявке',
         self::EVENT_BUS_CMD => 'Шина. Команда.',
         self::EVENT_BUS_CMD_RESULT => 'Шина. Команда. Результат.',
+        self::EVENT_LK_CONTRAGENT_CHANGED => 'Шина. Изменен контрагент в ЛК',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',
