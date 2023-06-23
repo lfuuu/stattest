@@ -564,6 +564,9 @@ class AccountTariffStructureGenerator extends Singleton
         foreach ($packagePriceLists as $packagePriceList) {
             $row = [];
             foreach (['id' => 'id', 'name' => 'name'] as $k => $v) {
+                if (!$packagePriceList->pricelistNnp) {
+                    continue;
+                }
                 $row[$v] = $packagePriceList->pricelistNnp->$k;
             }
             foreach ($addField as $k => $v) {
