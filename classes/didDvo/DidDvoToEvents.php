@@ -49,8 +49,9 @@ class DidDvoToEvents extends DidDvoTo
         }
 
         $id = "0{$msg['region_id']}-{$uuid}-01";
+        $created_at = str_replace('Z', '', $msg['created_at']);
         $data = <<<TEXT
-"{$id}";"{$msg['created_at']}.000000";"0";"{$eventToCode[$msg['type']][$msg['action']]}";"{$msg['did']}";"";"{$msg['number']}";"";"1";"";"{$msg['service_id']}";"";"";"";"";"";"";
+"{$id}";"{$created_at}";"0";"{$eventToCode[$msg['type']][$msg['action']]}";"{$msg['did']}";"";"{$msg['number']}";"";"1";"";"{$msg['service_id']}";"";"";"";"";"";"";
 TEXT;
 
         $queryData = [
