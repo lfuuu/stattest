@@ -3,6 +3,9 @@
 namespace app\commands;
 
 use app\classes\adapters\EbcKafka;
+use app\classes\didDvo\DidDvoStarter;
+use app\classes\didDvo\DidDvoToCdr;
+use app\classes\didDvo\DidDvoToEvents;
 use app\classes\Utils;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -426,331 +429,34 @@ SQL;
         }
     }
 
-    public function actionDidDvoToEvents($isReset = 0)
+
+    public function actionDidDvo($isReset = 0)
     {
-        $srcTopicName = "kafka-app1-DidForwarding-didForwarding-events";
-
-        if (!EbcKafka::me()->isAvailable()) {
-            throw new InvalidConfigException('Kafka not configured');
-        }
-
-        EbcKafka::me()->getMessage($srcTopicName, function ($message) use ($isReset) {
-            if (!$isReset) {
-                $this->saveMessageToEvents($message);
-            }
-        }, null, 'stat-diddvo-events-to-events-export');
+        (new DidDvoStarter())->go($isReset);
     }
 
-    private function saveMessageToEvents($message)
+    public function actionDidDvoTest()
     {
-        var_dump($message);
-        $data = $message->payload;
-        $msg = json_decode($data, true);
+        (new DidDvoStarter())->test();
+    }
 
-        if (!$msg || !isset($msg['region_id']) || $msg['region_id'] != 99) {
-            return;
-        }
+    public function actionDidDvoToEvents($isReset = 0)
+    {
+        (new DidDvoToEvents())->go($isReset);
+    }
 
-        $uuid = Utils::genUUID(md5($message->payload));
-
-        $eventToCode = [
-            'uncond' => [
-                'on' => '10118', // 'On Call Forwarding Unconditional',
-                'off' => '10121', // 'Off Call Forwarding Unconditional',
-            ],
-            'busy' => [
-                'on' => '10116', // 'On Call Forwarding on Busy',
-                'off' => '10119', // 'Off Call Forwarding on Busy',
-            ],
-            'noanswer' => [
-                'on' => '10117', // 'On Call Forwarding on No Reply',
-                'off' => '10120', // 'Off Call Forwarding on No Reply',
-            ],
-            'unavail' => [
-                'on' => '10122', // On Call Forwarding Unavailable
-                'off' => '10123', // Off Call Forwarding Unavailable
-            ],
-            // 'cond' => 10124, // ???
-        ];
-
-        if (!isset($eventToCode[$msg['type']][$msg['action']])) {
-            if ($msg['type'] != 'cond') {
-                throw new \LogicException('Unknown type: ' . $msg['type'] . '-' . $msg['action']);
-            }
-
-            return;
-        }
-
-        $id = "0{$msg['region_id']}-{$uuid}-01";
-        $data = <<<TEXT
-"{$id}";"{$msg['created_at']}.000000";"0";"{$eventToCode[$msg['type']][$msg['action']]}";"{$msg['did']}";"";"{$msg['number']}";"";"1";"";"{$msg['service_id']}";"";"";"";"";"";"";
-TEXT;
-
-        $queryData = [
-            'server_id' => $msg['region_id'] + 1000,
-            'mcn_callid' => $id,
-            'data' => $data,
-        ];
-
-        echo PHP_EOL . var_export($queryData);
-
-        return \Yii::$app->dbPg->createCommand()->insert('sorm_itgrad_calls.out_events_package', $queryData)->execute();
+    public function actionDidDvoToEventsTest()
+    {
+        (new DidDvoToEvents())->test();
     }
 
     public function actionDidDvoToCdr($isReset = 0)
     {
-        $srcTopicName = "kafka-app1-DidForwarding-didForwarding-events";
-
-        if (!EbcKafka::me()->isAvailable()) {
-            throw new InvalidConfigException('Kafka not configured');
-        }
-
-        EbcKafka::me()->getMessage($srcTopicName, function ($message) use ($isReset) {
-            if (!$isReset) {
-                $this->saveMessageToPg($message);
-            }
-        }, null, 'stat-diddvo-events-to-pg');
+        (new DidDvoToCdr())->go($isReset);
     }
 
-    private function saveMessageToPg($message)
+    public function actionDidDvoToCdrTest()
     {
-        $data = $message->payload;
-        $msg = json_decode($data, true);
-
-        if (!$msg || !$msg['region_id']) {
-            return;
-        }
-
-        $queryData = [
-            'did' => $msg['did'],
-            'type' => $msg['type'],
-            'number' => $msg['number'],
-            'is_on' => $msg['action'] == 'on',
-            'created_at' => $msg['created_at'] . '+00',
-            'region_id' => $msg['region_id'] + 1000 // TODO remove
-        ];
-
-        print_r($queryData);
-        return \Yii::$app->dbPg->createCommand()->insert('sorm_itgrad.did_forwarding', $queryData)->execute();
-    }
-
-    public function actionDidDvo()
-    {
-        $topicName = "kafka-app1-DidForwarding-didForwarding";
-
-        if (!EbcKafka::me()->isAvailable()) {
-            throw new InvalidConfigException('Kafka not configured');
-        }
-
-        EbcKafka::me()->getMessage($topicName, function ($message) {
-            $this->proccessMessage($message);
-        });
-    }
-
-    public function proccessMessage($message)
-    {
-        $dstTopicName = "kafka-app1-DidForwarding-didForwarding-events";
-
-        var_dump($message);
-        $data = $message->payload;
-        $accountId = 0;
-        $dd = $this->transformJson($data, $accountId);
-
-        if (!$dd) {
-            return;
-        }
-
-        echo "++++++++++++++++++++++++++++++++++";
-        foreach ($dd as $d) {
-            echo " >>>";
-            $d['region_id'] = $this->getRegion($d['did']);
-            $d['account_id'] = $accountId;
-            $d['service_id'] = $this->getServiceId($d['account_id'], $d['did']);
-            EbcKafka::me()->sendMessage($dstTopicName, $d, $d['did'], null, $message->timestamp);
-            echo "<<< ";
-        }
-    }
-
-    public function getRegion($number)
-    {
-        static $c = [];
-
-        if (!$c) {
-            $c = $this->_loadNumbering();
-        }
-
-        return $this->_findRegion($c, $number);
-    }
-
-    public function getServiceId($accountId, $number)
-    {
-        return AccountTariff::find()
-            ->where(['not', ['tariff_period_id' => null]])
-            ->andWhere([
-                'voip_number' => $number,
-                'client_account_id' => $accountId
-            ])->select('id')->scalar();
-    }
-
-    public function _loadNumbering()
-    {
-        $query = \Yii::$app->dbPg->createCommand('select prefix, number_from, number_to, region_id from sorm_itgrad.phone_numbering')->query();
-
-        $data = [];
-        foreach ($query as $i) {
-            $regionId = $i['region_id'];
-            if (!isset($data[$regionId])) {
-                $data[$regionId] = [];
-            }
-
-            $data[$regionId][] = [
-                'from' => (int)('7' . $i['prefix'] . $i['number_from']),
-                'to' => (int)('7' . $i['prefix'] . $i['number_to']),
-            ];
-        }
-
-        return $data;
-    }
-
-    public function _findRegion($c, $number)
-    {
-        $number = (int)$number;
-
-        if (!$number) {
-            return null;
-        }
-
-        foreach ($c as $regionId => $regionData) {
-            foreach ($regionData as $region) {
-                if ($region['from'] <= $number && $number <= $region['to']) {
-                    return $regionId;
-                }
-            }
-        }
-
-        return null;
-    }
-
-
-    public function transformJson($json, &$accountId)
-    {
-        $j = json_decode($json, true);
-
-        if (!isset($j['before']) || !isset($j['after'])) {
-            throw new \InvalidArgumentException("Bad JSON: " . var_export($j, true));
-        }
-
-        $after = $j['after'];
-        $before = $j['before'];
-
-        $afterJ = json_encode($after);
-        $beforeJ = json_encode($before);
-
-        if ($afterJ == $beforeJ) {
-            echo 'Is equal' . PHP_EOL;
-            return;
-        }
-
-        $didJ = $before['did'] ?? $after['did'] ?? false;
-        if (!$didJ) {
-            return;
-        }
-
-        $accountId = $didJ['account_id'];
-
-        $time = explode('.', $j['window_end'])[0];
-
-        $did = $didJ['did'];
-
-        if (strlen($did) < 9) {
-            echo 'DID: ' . $did . ' so small';
-            return;
-        }
-
-        $beforeF = $this->fwd($before['did_forwards']);
-        $afterF = $this->fwd($after['did_forwards']);
-
-        $diff = $this->diff($beforeF, $afterF);
-
-        $diff = array_map(function ($a) use ($did, $time) {
-            return ['did' => $did] + $a + ['created_at' => $time];
-        }, $diff);
-
-        echo PHP_EOL . '=============================' . PHP_EOL;
-        print_r('before: ');
-        print_r($beforeF);
-        print_r('after: ');
-        print_r($afterF);
-
-        print_r('diff: ');
-        print_r($diff);
-
-        return $diff;
-    }
-
-    public function fwd($fwds)
-    {
-        $d = [];
-        foreach ($fwds as $fwd) {
-            $df = $fwd['did_forward'];
-
-            if (!$df['enabled']) {
-                continue;
-            }
-
-            $dft = $fwd['did_forward_targets'];
-
-            usort($dft, function ($a, $b) {
-                return $a['priority'] > $b['priority'];
-            });
-
-            $numbers = array_filter(array_map(function ($a) {
-                return preg_replace("/\+?(\d{9,})(@.*)?/i", "$1", $a['number']);
-            }, $dft));
-
-            if (!$numbers) {
-                continue;
-            }
-
-            $d[$df['type']] = $numbers;
-        }
-
-        return $d;
-    }
-
-    public function diff($b, $a)
-    {
-        $d = [];
-        $keys = array_unique(array_merge(array_keys($b), array_keys($a)));
-        foreach ($keys as $key) {
-            $bNumbers = $aNumbers = [];
-            if (isset($b[$key])) {
-                $bNumbers = $b[$key];
-            }
-            if (isset($a[$key])) {
-                $aNumbers = $a[$key];
-            }
-
-            $add = array_diff($aNumbers, $bNumbers);
-            $rm = array_diff($bNumbers, $aNumbers);
-
-            foreach ($add as $number) {
-                $d[] = [
-                    'type' => $key,
-                    'number' => $number,
-                    'action' => 'on',
-                ];
-            }
-
-            foreach ($rm as $number) {
-                $d[] = [
-                    'type' => $key,
-                    'number' => $number,
-                    'action' => 'off',
-                ];
-            }
-        }
-
-        return $d;
+        (new DidDvoToCdr())->test();
     }
 }
