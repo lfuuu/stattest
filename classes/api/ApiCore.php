@@ -194,7 +194,13 @@ class ApiCore
 
         EventQueue::goWithIndicator(
             EventQueue::CORE_CREATE_OWNER,
-            ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
+            [
+                'id' => $superId,
+                'account_id' => $account->id,
+                'email' => $adminEmail->data,
+                'name' => $account->contragent->name,
+                'contract_id' => $account->contract_id,
+            ] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
             \app\models\ClientSuper::tableName(),
             $superId);
     }
@@ -212,7 +218,8 @@ class ApiCore
         $accountSync->id = $params['id'];
         $accountSync->type = CoreSyncIds::TYPE_SUPER_CLIENT;
 
-        $info = self::createCoreOwner($params['id'], $params['account_id'], $params['email'], isset($params['phone']) && $params['phone'] ? $params['phone'] : null );
+//        $info = self::createCoreOwner($params['id'], $params['account_id'], $params['email'], isset($params['phone']) && $params['phone'] ? $params['phone'] : null );
+        $info = ApiBase::me()->userCreateCoreOwner($params['email'], $params['name'], $params['contract_id']);
 
         $accountSync->external_id = $info['user_id'];
 

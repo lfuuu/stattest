@@ -424,7 +424,13 @@ class ClientController extends BaseController
 
         EventQueue::goWithIndicator(
             EventQueue::CORE_CREATE_OWNER,
-            ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
+            [
+                'id' => $account->super_id,
+                'account_id' => $account->id,
+                'email' => $contact->data,
+                'name' => $account->contragent->name,
+                'contract_id' => $account->contract_id,
+            ] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
             ClientSuper::tableName(),
             $account->super_id
         );
