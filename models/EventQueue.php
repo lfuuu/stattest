@@ -554,10 +554,11 @@ class EventQueue extends ActiveRecord
      * @param string $object
      * @param integer $objectId
      * @param string|null $section
+     * @param string|null $timeLag
      * @return self
      * @throws ModelValidationException
      */
-    public static function goWithIndicator($event, $eventParam, $object, $objectId = 0, $section = null)
+    public static function goWithIndicator($event, $eventParam, $object, $objectId = 0, $section = null, $timeLag = null)
     {
         $indicator = null;
 
@@ -578,7 +579,12 @@ class EventQueue extends ActiveRecord
             }
         }
 
-        $eventQueue = self::go($event, $eventParam);
+        $nextStart = null;
+        if ($timeLag) {
+            $nextStart = (new \DateTimeImmutable())->modify($timeLag)->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        }
+
+        $eventQueue = self::go($event, $eventParam, false, $nextStart);
 
         if (!$indicator) {
             $indicator = new EventQueueIndicator;
