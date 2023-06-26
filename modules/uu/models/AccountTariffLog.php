@@ -98,14 +98,14 @@ class AccountTariffLog extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                [
+                'TimestampBehaviorInsertTime' => [
                     // Установить "когда создал"
                     'class' => TimestampBehavior::class,
                     'createdAtAttribute' => 'insert_time',
                     'updatedAtAttribute' => false,
                     'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
                 ],
-                [
+                'AttributeBehaviorInsertUser' => [
                     // Установить "кто создал"
                     'class' => AttributeBehavior::class,
                     'attributes' => [
@@ -113,13 +113,13 @@ class AccountTariffLog extends ActiveRecord
                     ],
                     'value' => Yii::$app->user->getId(),
                 ],
-                \app\classes\behaviors\HistoryChanges::class,
-                AccountTariffAddDefaultPackage::class,
-                AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
-                FillAccountTariffResourceLog::class, // Создать лог ресурсов при создании услуги. Удалить при удалении
-                ReferentialPackageControl::class,
-                AccountTariffLogicalChangeLog::class,
-                AccountTariffLogTimeHistory::class, // Обновление время продажи и допродажи в модели AccountTariff
+                'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+                'AccountTariffAddDefaultPackage' => AccountTariffAddDefaultPackage::class,
+                'AccountTariffBiller' => AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
+                'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::class, // Создать лог ресурсов при создании услуги. Удалить при удалении
+                'ReferentialPackageControl' => ReferentialPackageControl::class,
+                'AccountTariffLogicalChangeLog' => AccountTariffLogicalChangeLog::class,
+                'AccountTariffLogTimeHistory' => AccountTariffLogTimeHistory::class, // Обновление время продажи и допродажи в модели AccountTariff
             ]
         );
     }

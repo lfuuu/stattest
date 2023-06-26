@@ -105,10 +105,10 @@ class TrunkServiceTransfer extends BasicServiceTransfer
         if ($packages->count()) {
             /** @var AccountTariff $package */
             foreach ($packages->each() as $package) {
-                if ($package->tariffPeriod->tariff->is_default) {
+//                if ($package->tariffPeriod->tariff->is_default) {
                     // Skip if package is default
-                    continue;
-                }
+//                    continue;
+//                }
 
                 $preProcessor->processor->run(
                     (new PreProcessor)
