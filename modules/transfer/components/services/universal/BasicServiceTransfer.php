@@ -132,16 +132,15 @@ abstract class BasicServiceTransfer extends ServiceTransfer
      */
     public function closeService(PreProcessor $preProcessor)
     {
-        if ($this->getService()->serviceType->isPackage()) {
-            return;
-        }
-
         $accountTariffLog = new AccountTariffLog;
         $accountTariffLog->setAttributes([
             'account_tariff_id' => $this->getService()->primaryKey,
             'tariff_period_id' => null,
             'actual_from' => $preProcessor->activationDate,
         ]);
+
+        $accountTariffLog->detachBehavior('ReferentialPackageControl');
+        $accountTariffLog->detachBehavior('AccountTariffAddDefaultPackage');
 
         if (!$accountTariffLog->save()) {
             throw new ModelValidationException($accountTariffLog);
