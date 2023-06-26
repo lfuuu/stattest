@@ -1,20 +1,10 @@
 <?php
+
 namespace app\classes\api;
 
-use app\classes\Assert;
-use app\classes\HttpRequest;
 use app\classes\Singleton;
-use app\models\EventQueue;
 use app\classes\HttpClient;
-use app\exceptions\ModelValidationException;
-use app\models\Business;
-use app\models\ClientContact;
-use app\models\ClientSuper;
-use app\models\CoreSyncIds;
-use app\models\EventQueueIndicator;
-use app\models\important_events\ImportantEventsNames;
 use Yii;
-use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -73,5 +63,14 @@ class ApiBase extends Singleton
     public function syncStatClientStructure($data)
     {
         return $this->exec('sync/statClientStructure', $data);
+    }
+
+    public function userCreateCoreOwner($email, $fullName, $contractId = 0)
+    {
+        return $this->exec('user/createCoreOwner', [
+            'email' => $email,
+            'fullName' => $fullName,
+            'contractId' => $contractId,
+        ]);
     }
 }
