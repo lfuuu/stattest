@@ -1,4 +1,5 @@
 <?php
+
 namespace app\classes\api;
 
 use app\classes\Assert;
@@ -202,7 +203,10 @@ class ApiCore
                 'contract_id' => $account->contract_id,
             ] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
             \app\models\ClientSuper::tableName(),
-            $superId);
+            $superId,
+            null,
+            '+15 seconds'
+        );
     }
 
     /**
@@ -221,7 +225,7 @@ class ApiCore
 //        $info = self::createCoreOwner($params['id'], $params['account_id'], $params['email'], isset($params['phone']) && $params['phone'] ? $params['phone'] : null );
         $info = ApiBase::me()->userCreateCoreOwner($params['email'], $params['name'], $params['contract_id']);
 
-        $accountSync->external_id = $info['user_id'];
+        $accountSync->external_id = $info['result'];
 
         if (!$accountSync->save()) {
             throw new ModelValidationException($accountSync);
@@ -242,10 +246,10 @@ class ApiCore
     public static function createCoreOwner($superClientId, $accountId, $email, $phone = null)
     {
         $result = ApiCore::exec('create_core_owner', [
-            'id' => $superClientId,
-            'email' => $email,
-            'account_id' => $accountId,
-        ] + ($phone ? ['phone' => $phone] : []));
+                'id' => $superClientId,
+                'email' => $email,
+                'account_id' => $accountId,
+            ] + ($phone ? ['phone' => $phone] : []));
 
         if (isset($result['data'])) {
             return $result['data'];

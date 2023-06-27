@@ -432,7 +432,10 @@ class ClientController extends BaseController
                 'contract_id' => $account->contract_id,
             ] + ($phone ? ['phone' => str_replace('+', '', $phone)] : []),
             ClientSuper::tableName(),
-            $account->super_id
+            $account->super_id,
+            null,
+            '+15 seconds'
+
         );
 
         return $this->redirect(Url::to(['/client/view', 'id' => $account->id]));
