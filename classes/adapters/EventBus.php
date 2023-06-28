@@ -58,13 +58,12 @@ class EventBus extends Singleton
             + ($msg['dst'] ? ['src' => $msg['dst']] : [])
             + ($msg['src'] ? ['dst' => $msg['src']] : []);
 
-        $messageId = isset($params['account_tariff_id']) ? json_encode(['accountTariffId' => $params['account_tariff_id']]) : ($msg['id'] ?? null);
         EventQueue::go(EventQueue::EVENT_BUS_CMD_RESULT, [
             'payload' => [
                     'id' => $msg['id'],
                     'result' => $result,
                 ] + $headers,
-            'id' => $messageId,
+            'id' => $params['key'],
             'headers' => $headers,
         ]);
     }
