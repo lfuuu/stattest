@@ -104,7 +104,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "excludeNdcs[0]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "source", type = "string", description = "Источник номера", in = "query", default = ""),
+     *   @SWG\Parameter(name = "source", type = "string", description = "Источник(и) номера (GET-массив или строка с разделителем ',')", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список свободных номеров", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/freeNumberRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
@@ -149,7 +149,7 @@ final class OpenController extends Controller
         array $excludeNdcs = [],
         $client_account_id = null,
         $isShowInLkLevel = City::IS_SHOW_IN_LK_FULL,
-        $source = null
+        array $source = null
     )
     {
 
@@ -281,7 +281,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "excludeNdcs[0]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "source", type = "string", description = "Источник номера", in = "query", default = ""),
+     *   @SWG\Parameter(name = "source", type = "string", description = "Источник(и) номера (GET-массив или строка с разделителем ',')", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список свободных номеров", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/freeNumberRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
@@ -325,7 +325,7 @@ final class OpenController extends Controller
         array $excludeNdcs = [],
         $client_account_id = null,
         $isShowInLkLevel = City::IS_SHOW_IN_LK_API_ONLY,
-        $source = null
+        array $source = null
     )
     {
         return $this->actionGetFreeNumbers(
