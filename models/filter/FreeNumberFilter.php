@@ -379,10 +379,19 @@ class FreeNumberFilter extends Number
      * @param string $source
      * @return $this
      */
-    public function setSource($source)
+    public function setSource(?array $source)
     {
         if ($source) {
-            $this->_query->andWhere([parent::tableName() . '.source' => $source]);
+            $filtredSource = [];
+            array_walk($source, function($sourceStrValue) use (&$filtredSource) {
+                foreach(explode(',', $sourceStrValue) as $sourceValue) {
+                    $filtredSource[] = trim($sourceValue);
+                }
+            });
+            $filtredSource = array_filter($filtredSource);
+            if ($filtredSource) {
+                $this->_query->andWhere([parent::tableName() . '.source' => $filtredSource]);
+            }
         }
         return $this;
     }
@@ -523,7 +532,7 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param \app\models\light_models\NumberLight[] $numbers
+     * @param \app\models\Number[] $numbers
      * @param string $currency
      * @return array
      */
