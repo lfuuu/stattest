@@ -6,6 +6,7 @@ use app\classes\contragent\importer\lk\CoreLkContragent;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContragent;
+use app\models\ClientContragentPerson;
 
 class CoreLkContragentTypeDefault
 {
@@ -52,6 +53,15 @@ class CoreLkContragentTypeDefault
 
             $lkContragentPerson = $lkContragent->personModel;
             $statContragentPerson = $statContragent->personModel;
+
+            if (!$statContragentPerson) {
+                $statContragentPerson = new ClientContragentPerson();
+                $statContragentPerson->contragent_id = $statContragent->id;
+                if (!$statContragentPerson->save()) {
+                    throw new ModelValidationException($statContragentPerson);
+                }
+                $statContragent->populateRelation('personModel', $statContragentPerson);
+            }
 
             if ($lkContragentPerson && $statContragentPerson) {
                 $this->diffContragentPerson = $this->compareModels($lkContragentPerson, $statContragentPerson, '    person', $statContragentPerson->contragent_id);
