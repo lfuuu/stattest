@@ -79,6 +79,7 @@ class CoreLkContragentTypeDefault
                 $this->updateModel($this->coreLkContragent->getStatContragent()->personModel, $this->diffContragentPerson);
             }
             $transaction->commit();
+//            $transaction->rollBack();
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();

@@ -14,6 +14,7 @@ use app\classes\api\ApiSipTrunk;
 use app\classes\api\ApiVpbx;
 use app\classes\api\ApiVps;
 use app\classes\behaviors\InvoiceGeneratePdf;
+use app\classes\contragent\importer\lk\CoreLkContragent;
 use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\classes\partners\RewardCalculate;
@@ -280,8 +281,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case EventQueue::EVENT_BUS_CMD_RESULT:
                     $info = \app\classes\adapters\EventBus::me()->sendCmdResult($param);
                     break;
+
                 case EventQueue::EVENT_LK_CONTRAGENT_CHANGED:
-                    \app\classes\adapters\EventBusContragent::me()->syncContragent($param['contragent_id'] ?? 0);
+                    CoreLkContragent::syncAndUpdate($param['contragent_id'] ?? 0);
+                    break;
 
                 case EventQueue::USAGE_VOIP__INSERT:
                 case EventQueue::USAGE_VOIP__UPDATE:

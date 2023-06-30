@@ -3,7 +3,8 @@
 namespace app\commands;
 
 use app\classes\adapters\EventBusContragent;
-use app\classes\contragent\importer\lk\ContragentLkImporter;
+use app\classes\contragent\importer\lk\CoreLkContragent;
+use yii\base\Exception;
 use yii\console\Controller;
 
 /**
@@ -14,12 +15,36 @@ class ContragentController extends Controller
 {
     /***
      * Массовое обновление данных контрагентов из ЛК по уже залитым данным
+     * @return void
+     */
+    public function actionUpdateAll()
+    {
+        CoreLkContragent::update();
+    }
+
+    /***
+     * Обновление контрагента из ЛК по уже залитым данным
      * @param ?int $contragentId
      * @return void
      */
-    public function actionUpdateAll($contragentId = null)
+    public function actionUpdate($contragentId = null)
     {
-        (new ContragentLkImporter())->run($contragentId);
+        if (!$contragentId) {
+            throw new \InvalidArgumentException('Не установлен контрагент');
+        }
+
+        CoreLkContragent::update($contragentId);
+    }
+
+    /***
+     * Обновление контрагента в БД
+     *
+     * @param ?int $contragentId
+     * @return void
+     */
+    public function actionSync($contragentId = null)
+    {
+        CoreLkContragent::syncDbRow($contragentId);
     }
 
     /**
@@ -32,11 +57,12 @@ class ContragentController extends Controller
 
     /**
      * Синхронизация и обновление одного контрагента.
+     *
      * @param int $contragentId
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function actionSyncAndUpdate($contragentId)
     {
-        EventBusContragent::me()->syncContragent($contragentId);
+        return CoreLkContragent::syncAndUpdate($contragentId);
     }
 }
