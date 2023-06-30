@@ -48,6 +48,11 @@ class CoreLkContragent
         return $this->row['name'];
     }
 
+    public function getStatus(): string
+    {
+        return $this->row['status'];
+    }
+
     public function getContragentId(): string
     {
         return $this->row['contragent_id'] ?? false;

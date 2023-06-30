@@ -167,6 +167,7 @@ class CoreLkContragentTypeDefault
     {
         $contragent = new ClientContragent();
         $contragent->is_lk_first = 1;
+        $contragent->lk_status = $this->coreLkContragent->getStatus();
 
         $this->contragent = $contragent;
 

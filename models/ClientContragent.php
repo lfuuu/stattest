@@ -41,6 +41,7 @@ use yii\db\Expression;
  * @property int $partner_contract_id___DEPRICATED
  * @property string $created_at
  * @property int $is_lk_first
+ * @property string $lk_status
  *
  * @property-read ClientAccount[] $accounts
  * @property-read ClientContragentPerson $person
@@ -169,6 +170,7 @@ class ClientContragent extends HistoryActiveRecord
             'partner_contract_id' => 'Партнер',
             'super_id' => 'Супер-клиент',
             'is_lk_first' => 'Основные данные в ЛК',
+            'lk_status' => 'Статус верификации в ЛК',
         ];
     }
 
