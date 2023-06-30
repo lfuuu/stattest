@@ -2,11 +2,7 @@
 
 namespace app\classes\contragent\importer\lk;
 
-
-use app\classes\contragent\importer\lk\typeFactory\CoreLkContragentTypeDefault;
-use app\classes\contragent\importer\lk\typeFactory\CoreLkContragentTypeFactory;
 use app\classes\Utils;
-use app\models\ClientContragent;
 
 class CoreLkContragentDbSyncer
 {
@@ -24,12 +20,17 @@ class CoreLkContragentDbSyncer
         }
 
         $rowLk = \Yii::$app->dbPgLk->createCommand('select * from contragent where contragent_id = :id', ['id' => $this->contragentId])->queryOne();
-        $rowStat = \Yii::$app->db->createCommand('select * from import_dict.core_contragent where contragent_id = :id', ['id' => $this->contragentId])->queryOne();
 
-        unset($rowLk['data_response_change_date'], $rowLk['created_at'], $rowLk['updated_at']);
-        unset($rowStat['data_response_change_date'], $rowStat['created_at'], $rowStat['updated_at']);
+        if (!$rowLk) {
+            return false;
+        }
 
-        array_walk($rowLk, function(&$val){
+        $rowStat = \Yii::$app->db->createCommand('select * from import_dict.core_contragent where contragent_id = :id', ['id' => $this->contragentId])->queryOne() ?: [];
+
+        unset($rowLk['data_response_change_date'], $rowLk['changelog'], $rowLk['created_at'], $rowLk['updated_at']);
+        unset($rowStat['data_response_change_date'], $rowStat['changelog'], $rowStat['created_at'], $rowStat['updated_at']);
+
+        array_walk($rowLk, function (&$val) {
             if (is_bool($val)) {
                 $val = (int)$val;
             }
@@ -37,14 +38,13 @@ class CoreLkContragentDbSyncer
 
         if (!$rowStat) {
             $this->jsonFix($rowLk);
-            $this->logApply($rowLk, null);
+            $this->logApply($rowLk, []);
             \Yii::$app->db->createCommand()->insert('import_dict.core_contragent', $rowLk)->execute();
-        } elseif($rowLk) {
+        } elseif ($rowLk) {
             $diff = array_diff_assoc($rowLk, $rowStat);
             $this->logApply($diff, $rowStat);
             if ($diff) {
                 $this->jsonFix($diff);
-
                 \Yii::$app->db->createCommand()->update('import_dict.core_contragent', $diff, ['contragent_id' => $this->contragentId])->execute();
             }
         }
@@ -63,8 +63,9 @@ class CoreLkContragentDbSyncer
 
     private function logApply($diff, $rowStat)
     {
-        array_walk($diff, function($val, $key) use($rowStat) {
-            echo PHP_EOL . $this->contragentId.': ' . $key.': ' . ($rowStat[$key] ?? '') . ' => ' . $val;
+        array_walk($diff, function ($val, $key) use ($rowStat) {
+            echo PHP_EOL . $this->contragentId . ': ' . $key ;
+            echo ': ' . ($rowStat[$key] ?? '') . ' => ' . $val;
         });
     }
 }

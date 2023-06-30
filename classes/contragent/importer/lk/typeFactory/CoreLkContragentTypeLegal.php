@@ -19,6 +19,11 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
         $data = $r['data'] ?? [];
 
         parent::makeStatModel();
+
+        if (!$data) {
+            return true;
+        }
+
         $contragent = $this->contragent;
 
         $contragent->name = $data['name']['short_with_opf'] ?? $r['value'] ?? '???';
@@ -43,6 +48,7 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
                 'УПРАВЛЯЮЩИЙ' => 'Управляющий',
                 'ПРЕЗИДЕНТ' => 'Президент',
                 'ПРЕДСТАВИТЕЛЬ' => 'Представитель',
+                'НАЧАЛЬНИК УПРАВЛЕНИЯ' => 'Начальник управления',
             ]);
         }
 

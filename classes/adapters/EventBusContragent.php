@@ -2,8 +2,6 @@
 
 namespace app\classes\adapters;
 
-use app\classes\contragent\importer\lk\CoreLkContragent;
-use app\classes\contragent\importer\lk\DataLoader;
 use app\classes\event_bus_contragent\ContragentMessage;
 use app\classes\Singleton;
 use app\classes\Utils;
@@ -28,21 +26,5 @@ class EventBusContragent extends Singleton
 
             return (new ContragentMessage($message))->getOperator()->process();
         });
-    }
-
-    public function syncContragent($contragentId): bool
-    {
-        if (!$contragentId) {
-            return false;
-        }
-
-        CoreLkContragent::syncDbRow($contragentId);
-
-        $obj = DataLoader::getObjectsForSync($contragentId)->current();
-        if ($obj) {
-            $obj->getTransformatorByType()->update();
-        }
-
-        return true;
     }
 }

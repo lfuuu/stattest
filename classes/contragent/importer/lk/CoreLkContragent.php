@@ -7,6 +7,7 @@ use app\classes\contragent\importer\lk\typeFactory\CoreLkContragentTypeDefault;
 use app\classes\contragent\importer\lk\typeFactory\CoreLkContragentTypeFactory;
 use app\classes\Utils;
 use app\models\ClientContragent;
+use app\models\User;
 
 class CoreLkContragent
 {
@@ -86,9 +87,36 @@ class CoreLkContragent
         return $this->row['status'] == 'verified';
     }
 
-    public static function syncDbRow($contragentId)
+    public static function syncAndUpdate($contragentId): bool
     {
-        (new CoreLkContragentDbSyncer($contragentId))->sync();
+        if (!$contragentId) {
+            return false;
+        }
+
+        self::syncDbRow($contragentId);
+        self::update($contragentId);
+
+        return true;
+    }
+
+    public static function syncDbRow($contragentId): bool
+    {
+        return (new CoreLkContragentDbSyncer($contragentId))->sync();
+    }
+
+    public static function update($contragentId = 0)
+    {
+        $identity = \Yii::$app->user->identity;
+        \Yii::$app->user->setIdentity(User::findOne(['id' => User::LK_USER_ID]));
+
+        /** @var CoreLkContragent $obj */
+        foreach (DataLoader::getObjectsForSync($contragentId) as $obj) {
+            $obj
+                ->getTransformatorByType()
+                ->update();
+        }
+
+        \Yii::$app->user->setIdentity($identity);
     }
 }
 
