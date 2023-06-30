@@ -22,8 +22,6 @@ class CoreLkContragentTypePerson extends CoreLkContragentTypeDefault
         $contragent = $this->contragent;
         $person = new ClientContragentPerson();
 
-        $contragent->is_lk_first = 1;
-
         $person->last_name = ClientContragentPerson::normalizeName($resp['lastName'] ?? null);
         $person->first_name = ClientContragentPerson::normalizeName($resp['firstName'] ?? null);
         $person->middle_name = ClientContragentPerson::normalizeName($resp['middleName'] ?? null);
