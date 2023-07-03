@@ -520,9 +520,13 @@ WHERE b.client_id = ' . $account->id . '
     /**
      * Сохраняем балансы в ЛС по месяцам
      */
-    public function saveBalances()
+    public function saveBalances($accountId = 0)
     {
         $clientQuery = ClientAccount::find()->where(['is_active' => 1]);
+
+        if ($accountId) {
+            $clientQuery->andWhere(['id' => $accountId]);
+        }
 
         foreach ($clientQuery->each() as $account) {
             $data = $this->getData($account, null, (date('Y') + 1) . '-01-01', false);
