@@ -602,9 +602,9 @@ ORDER BY mn, firm_name, bs_name, currency
     /**
      * Сохраняем балансы в ЛС по месяцам
      */
-    public function actionSaveMonthBalance()
+    public function actionSaveMonthBalance($accountId = null)
     {
-        ActOfReconciliation::me()->saveBalances();
+        ActOfReconciliation::me()->saveBalances($accountId);
     }
 
     public function actionUpdateLocks()
