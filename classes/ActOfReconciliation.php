@@ -177,7 +177,7 @@ WHERE b.client_id = ' . $account->id . '
 
             if ($item['type'] == 'bill') {
                 // select count(*) from newbill_lines where bill_no = '202012-018854' and id_service is not null
-                $isServiceBill = BillLine::find()->where(['bill_no' => $item['number']])->andWhere(['NOT', ['id_service' => null]])->exists();
+                $isServiceBill = BillLine::find()->where(['bill_no' => $item['number']])->andWhere(['NOT', ['type' => BillLine::LINE_TYPE_ZADATOK]])->exists();
                 $isInvoiceCreated = Invoice::find()->where(['bill_no' => $item['number']])->exists();
             }
 
@@ -283,10 +283,9 @@ WHERE b.client_id = ' . $account->id . '
             return $d['type'] == 'bill' && !$d['is_invoice_created'];
         });
 
-        $sumNotInInvoice = 0;
-        array_walk($d, function ($v) use (&$sumNotInInvoice) {
-            $sumNotInInvoice += (float)$v['outcome_sum'] - (float)$v['income_sum'];
-        });
+        $sumNotInInvoice = array_reduce($d, function ($sumNotInInvoice, $v) {
+            return $sumNotInInvoice + ((float)$v['outcome_sum'] - (float)$v['income_sum']);
+        }, 0);
 
         $result[] = [
             'type' => 'current_balance',
