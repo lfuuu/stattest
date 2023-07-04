@@ -279,9 +279,10 @@ WHERE b.client_id = ' . $account->id . '
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         };
 
-        $d = array_filter($data, function ($d) {
-            return $d['type'] == 'bill' && !$d['is_invoice_created'];
-        });
+        $d = [];
+//        array_filter($data, function ($d) {
+//            return $d['type'] == 'bill' && !$d['is_invoice_created'];
+//        });
 
         $sumNotInInvoice = array_reduce($d, function ($sumNotInInvoice, $v) {
             return $sumNotInInvoice + ((float)$v['outcome_sum'] - (float)$v['income_sum']);
@@ -358,9 +359,11 @@ WHERE b.client_id = ' . $account->id . '
                     ]);
                 }
             } elseif ($row['type'] == 'bill' && !$isNotRussia) {
-                if (!$row['is_invoice_created']) {
-                    $row['outcome_sum'] = 0;
-                }
+//                if (!$row['is_invoice_created']) {
+//                    $row['outcome_sum'] = 0;
+//                    $row['income_sum'] = $row['outcome_sum'];
+//                    $row['outcome_sum'] = 0;
+//                }
                 $row['link'] = Encrypt::encodeArray([
                     'bill' => $row['number'],
                     'object' => 'bill-2-RUB',
@@ -375,7 +378,10 @@ WHERE b.client_id = ' . $account->id . '
             if (!$findDate) {
                 $findDate = date('Y-m-d', strtotime('first day of this month', strtotime($row['date'])));
                 $result[] = $row;
-                $balance += (float)$row['income_sum'] - (float)$row['outcome_sum'];
+
+                if (!(isset($row['is_invoice_created']) && !$row['is_invoice_created'])) { // в балансе не участвуют счета без с/ф
+                    $balance += (float)$row['income_sum'] - (float)$row['outcome_sum'];
+                }
                 continue;
             }
 
