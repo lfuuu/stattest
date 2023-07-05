@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\didDvo;
+namespace app\modules\sorm\classes\didDvo;
 
 use app\classes\adapters\EbcKafka;
 use app\classes\Utils;

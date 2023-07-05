@@ -205,6 +205,7 @@ return [
         'freeNumber' => ['class' => 'app\modules\freeNumber\Module'],
         'async' => ['class' => 'app\modules\async\Module'],
         'sbisTenzor' => ['class' => 'app\modules\sbisTenzor\Module',],
+        'sorm' => ['class' => 'app\modules\sorm\Module',],
     ],
     'params' => $params,
 ];
