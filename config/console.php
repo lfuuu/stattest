@@ -46,8 +46,8 @@ if (file_exists($file = __DIR__ . '/db_pgsql_nfdump.local.php')) {
     $dbPgNfDump = ArrayHelper::merge($dbPgNfDump, require($file));
 }
 
-$dbPgLk = require(__DIR__ . '/db_pgsql_lk.php');
-if (file_exists($file = __DIR__ . '/db_pgsql_lk.local.php')) {
+$dbPgLk = require(__DIR__ . '/db_pg_lk.php');
+if (file_exists($file = __DIR__ . '/db_pg_lk.local.php')) {
     $dbPgLk = ArrayHelper::merge($dbPgLk, require($file));
 }
 
