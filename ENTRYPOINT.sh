@@ -116,6 +116,13 @@ sed -i "s/port=5432/port=$POSTGRES_HISTORY_PORT/" db_pg_history.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_HISTORY_USER'/" db_pg_history.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_HISTORY_PASSWORD'/" db_pg_history.local.php
 
+cp db_pg_lk.local.tpl.php db_pg_lk.local.php
+sed -i "s/host=127.0.0.1/host=$POSTGRES_LK_HOST/" db_pg_lk.local.php
+sed -i "s/dbname=nispd/dbname=$POSTGRES_LK_DB/" db_pg_lk.local.php
+sed -i "s/port=5432/port=$POSTGRES_LK_PORT/" db_pg_lk.local.php
+sed -i "s/'username' => 'readonly'/'username' => '$POSTGRES_LK_USER'/" db_pg_lk.local.php
+sed -i "s/'password' => 'readonly'/'password' => '$POSTGRES_LK_PASSWORD'/" db_pg_lk.local.php
+
 cp db_pg_call_tracking.local.tpl.php db_pg_call_tracking.local.php
 sed -i "s/host=127.0.0.1/host=$POSTGRES_HOST/" db_pg_call_tracking.local.php
 sed -i "s/dbname=nispd/dbname=$POSTGRES_DB/" db_pg_call_tracking.local.php

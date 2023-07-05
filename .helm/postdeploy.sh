@@ -53,7 +53,7 @@ fi
 
 if [ "$ENVNAME" = "dev" ]; then
   NAMESPACE="$APPNAME-$ENVNAME"
-  PODNAME=$(kubectl get pods -n $NAMESPACE | grep $APPNAME | grep backend | awk '{print $1}')
+  PODNAME=$(kubectl get pods -n $NAMESPACE | grep $APPNAME | grep backend-dev | awk '{print $1}')
 
   echo 'mysql DB: apply migrations'
   kubectl exec -ti -n $NAMESPACE -c php-fpm $PODNAME -- /home/httpd/stat.mcn.ru/stat/yii migrate --interactive=0

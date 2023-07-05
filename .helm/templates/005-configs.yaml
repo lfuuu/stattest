@@ -966,9 +966,6 @@ data:
     
     #0 6 * * * flock -w 3 /tmp/yii-nnp2-renew /home/httpd/stat.mcn.ru/stat/yii nnp2/range-short/renew >> /var/log/nispd/nnp2-renew.log
     
-    # Выставление авансовых счетов операторам
-    # 30 9 * * * flock -w 3 /tmp/yii-biller-advance-accounts /home/httpd/stat.mcn.ru/stat/yii biller/advance-accounts >> /var/log/nispd/biller-advance-accounts.log 2>&1
-    
     # Перезабор данных о потребленных ресурсов с ВАТС.
     0 5 1 * * flock -w 3 /tmp/yii-vpbx-stat-get /home/httpd/stat.mcn.ru/stat/yii stat/vats/get prevmonth >> /var/log/nispd/vats-stat-prevmonth.log 2>&1
     10 5 * * *  /home/httpd/stat.mcn.ru/stat/yii stat/vats/get yesterday >> /var/log/nispd/cron_vats_stat.log
@@ -1022,8 +1019,8 @@ data:
     #30 5 * * * flock -w 4000 -s /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/resource p15 >> /var/log/nispd/ubiller.log.25
     #31 5 * * * flock -w 8000 -x /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log
     
-    5 6 2 * * time flock -w 5000 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller/clean-up >> /var/log/nispd/ubiller.log
-    1 0 * * * time flock -w 3 /tmp/yii-ubiller-margin /home/httpd/stat.mcn.ru/stat/yii ubiller/fill-margins >> /var/log/nispd/margin.log 2>&1
+    5 6 2 * * time flock -w 5000 /tmp/yii-ubiller        /home/httpd/stat.mcn.ru/stat/yii ubiller/clean-up >> /var/log/nispd/ubiller.log
+    1 0 * * * time flock -w 3    /tmp/yii-ubiller-margin /home/httpd/stat.mcn.ru/stat/yii ubiller/fill-margins >> /var/log/nispd/margin.log 2>&1
 
     # Экспорт free-numbers
     #44 * * * * cd /home/httpd/stat.mcn.ru/stat/modules/freeNumber; ./export.sh
@@ -1052,17 +1049,11 @@ data:
     #проверяем, что все пакеты телефонии включены.
     */5 * 2-31 * *  cd /home/httpd/stat.mcn.ru/include/; flock -w 3 /tmp/yii-usage-check-voip-delay ./yii usage/check-voip-delay >> /var/log/nispd/usage-check-voip-delay.log
   
-    # Завершение сбербанковских платежей
-    */10 * * * * flock -w 3 /var/run/yii-sberbank-orders-finishing /home/httpd/stat.mcn.ru/stat/yii biller/sberbank-orders-finishing >> /var/log/nispd/sberbank-orders-finishing.log
-    
     #### heavy task manager
     * * * * * flock -w 3 /var/run/yii-task /home/httpd/stat.mcn.ru/stat/yii task >> /var/log/nispd/task.log
     
     #### sync client change
     * * * * * flock -w 3 /var/run/yii-sync-client-change /home/httpd/stat.mcn.ru/stat/yii notify/client-structure-changed >> /var/log/nispd/handler.log
-
-    # копируем "важные события" в clickhouse
-    # */3 * * * * flock -w 3 /tmp/mysql_clickhouse_copier /bin/python /home/httpd/stat.mcn.ru/stat/stat/crons/events/mysql_clickhouse_copier.py ee86a024319672991131 Sdfwe342 >> /var/log/nispd/mysql_clickhouse_copier.py
 
   crontab.file.dev: |
     # Очередь событий

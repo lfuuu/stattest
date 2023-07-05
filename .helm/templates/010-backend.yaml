@@ -4,6 +4,7 @@
 {{ $_ := set . "mysql" .Values.mysql_dev }}
 {{ $_ := set . "postgres" .Values.postgres_dev }}
 {{ $_ := set . "postgres_history" .Values.postgres_history_dev }}
+{{ $_ := set . "postgres_lk" .Values.postgres_lk_dev }}
 {{ $_ := set . "logger" .Values.logger_dev }}
 {{ $_ := set . "web_hook" .Values.web_hook_dev }}
 {{- if (eq (env "ENVNAME") "prod") }}
@@ -15,6 +16,7 @@
   {{ end }}
   {{ $_ := set . "postgres" (ternary .Values.postgres_prod_eu .Values.postgres_prod (eq (env "COUNTRY") "EU")) }}
   {{ $_ := set . "postgres_history" (ternary .Values.postgres_history_eu .Values.postgres_history (eq (env "COUNTRY") "EU")) }}
+  {{ $_ := set . "postgres_lk" (ternary .Values.lk_prod_eu .Values.lk_prod (eq (env "COUNTRY") "EU")) }}
   {{ $_ := set . "logger" (ternary .Values.logger_prod_eu .Values.logger_prod (eq (env "COUNTRY") "EU")) }}
   {{ $_ := set . "web_hook" (ternary .Values.web_hook_prod_eu .Values.web_hook_prod (eq (env "COUNTRY") "EU")) }}
 {{- end }}

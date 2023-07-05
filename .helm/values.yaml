@@ -134,6 +134,12 @@ postgres_history_dev:
   app_password: stat
   port: 5432
 
+postgres_lk_dev:
+  host: postgres-lk-dev
+  db: stat
+  user: postgres
+  password: postgres
+  port: 5432
 
 params_prod:
   robocall_internal_server: https://robocall.mcn.ru
