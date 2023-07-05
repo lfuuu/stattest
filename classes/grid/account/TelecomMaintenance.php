@@ -30,6 +30,7 @@ class TelecomMaintenance extends AccountGrid
             'currency',
             'sale_channel',
             'manager',
+            'account_manager',
             'region',
             'legal_entity',
         ];
