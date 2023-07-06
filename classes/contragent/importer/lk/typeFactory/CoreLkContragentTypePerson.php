@@ -18,7 +18,10 @@ class CoreLkContragentTypePerson extends CoreLkContragentTypeDefault
     {
         $resp = $this->coreLkContragent->getDataResponse();
 
-        parent::makeStatModel();
+        if (!parent::makeStatModel()) {
+            return true;
+        }
+
         $contragent = $this->contragent;
         $person = new ClientContragentPerson();
 

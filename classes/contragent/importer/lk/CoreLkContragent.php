@@ -11,7 +11,6 @@ use app\models\User;
 
 class CoreLkContragent
 {
-//    protected array $row = [];
     public array $row = [];
     protected ClientContragent $statContragent;
 
@@ -90,6 +89,11 @@ class CoreLkContragent
     public function isVerified(): bool
     {
         return $this->row['status'] == 'verified';
+    }
+
+    public function isLkFirst(): bool
+    {
+        return (bool)$this->row['is_lk_first'] ?? 0;
     }
 
     public static function syncAndUpdate($contragentId): bool
