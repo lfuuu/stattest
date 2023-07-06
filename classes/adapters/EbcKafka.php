@@ -45,7 +45,7 @@ class EbcKafka extends Singleton
         $config->set('metadata.broker.list', \Yii::$app->params['KAFKA_BROKERS']);
         $config->set('client.id', $readerGroupId ?: self::DEFAULT_GROUPID);
 
-        $config->set('auto.offset.reset', 'earliest');
+        $config->set('auto.offset.reset', 'latest');
         $config->set('enable.partition.eof', 'true');
 
         if (\Yii::$app->params['IS_KAFKA_WITH_SSL'] ?? false) {

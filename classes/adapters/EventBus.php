@@ -5,6 +5,7 @@ namespace app\classes\adapters;
 use app\classes\dictionary\SwaggerPathMethodMap;
 use app\classes\Singleton;
 use app\classes\Utils;
+use app\models\EventCmdId;
 use app\models\EventQueue;
 use RdKafka\Message;
 
@@ -35,7 +36,24 @@ class EventBus extends Singleton
             $arrayMessage = (array)$message;
             $arrayMessage['payload'] = Utils::fromJson($message->payload);
 
-            return EventQueue::go(EventQueue::EVENT_BUS_CMD, $arrayMessage);
+            $id = $arrayMessage['payload']['id'] ?? null;
+
+            if (!$id) {
+                echo ' -- no ID';
+                return false;
+            }
+
+            if (EventCmdId::isExists($id)) {
+                echo ' -- ID is already exists';
+                return false;
+            }
+
+            \Yii::$app->db->transaction(function($db) use ($arrayMessage, $id) {
+                EventCmdId::add($id);
+                EventQueue::go(EventQueue::EVENT_BUS_CMD, $arrayMessage);
+            });
+
+            return true;
         });
     }
 

@@ -323,6 +323,9 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     // очистка очереди событий
                     EventQueue::go(EventQueue::MIDNIGHT__CLEAN_EVENT_QUEUE);
 
+                    // очистка id комманд из кафки
+                    EventQueue::go(EventQueue::MIDNIGHT__CLEAN_EVENT_CMD_ID);
+
                     break;
 
                 case EventQueue::CHECK__USAGES:
@@ -377,6 +380,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 // очистка очереди событий
                 case EventQueue::MIDNIGHT__CLEAN_EVENT_QUEUE:
                     EventQueue::clean();
+                    break;
+
+                // очистка очереди событий
+                case EventQueue::MIDNIGHT__CLEAN_EVENT_CMD_ID:
+                    \app\models\EventCmdId::clean();
                     break;
 
                 case EventQueue::LK_SETTINGS_TO_MAILER:

@@ -44,7 +44,7 @@ class SwaggerPathMethodMap extends Singleton
 
     private function loadFromOrigin()
     {
-        $siteUrl = isset($_SERVER['IS_TEST']) && $_SERVER['IS_TEST'] == 1 ? 'http://127.0.0.1/' : Yii::$app->params['SITE_URL'];
+        $siteUrl = isset($_SERVER['IS_TEST']) && $_SERVER['IS_TEST'] == 1 ? 'http://stat-backend-dev-ru/' : Yii::$app->params['SITE_URL'];
 
         $cmd = "curl --show-error -s -X GET {$siteUrl}swagger/documentation 2>&1";
 
