@@ -84,6 +84,7 @@ class EventQueue extends ActiveRecord
     const LK_SETTINGS_TO_MAILER = 'lk_settings_to_mailer';
     const MIDNIGHT = 'midnight';
     const MIDNIGHT__CLEAN_EVENT_QUEUE = 'midnight__clean_event_queue';
+    const MIDNIGHT__CLEAN_EVENT_CMD_ID = 'midnight__clean_event_cmd_id';
     const MIDNIGHT__CLEAN_PRE_PAYED_BILLS = 'midnight__clean_pre_payed_bills';
     const MIDNIGHT__LK_BILLS4ALL = 'midnight__lk_bills4all';
     const MIDNIGHT__MONTHLY_FEE_MSG = 'midnight__monthly_fee_msg';
@@ -163,6 +164,7 @@ class EventQueue extends ActiveRecord
         self::LK_SETTINGS_TO_MAILER => 'Передать настройки в mailer',
         self::MIDNIGHT => 'Полночь',
         self::MIDNIGHT__CLEAN_EVENT_QUEUE => 'Очистка очереди событий',
+        self::MIDNIGHT__CLEAN_EVENT_CMD_ID => 'Очистка id команд из кафки',
         self::MIDNIGHT__CLEAN_PRE_PAYED_BILLS => 'Удаление пустых счетов на предоплату из ЛК',
         self::MIDNIGHT__LK_BILLS4ALL => 'Принудительная публикация счетов',
         self::MIDNIGHT__MONTHLY_FEE_MSG => 'Предупреждаем о списании абонентки авансовым клиентам',
