@@ -32,7 +32,7 @@ class Navigation
             NavigationBlock::create()
                 ->setRights(['clients.read'])
                 ->setTitle('Клиенты')
-                ->addItem('Новый клиент', Url::toRoute(['/client/create']), 'clients.read')
+                ->addItem('Новый клиент', Url::toRoute(['/client/create']), 'clients.new')
                 ->addItem('Мои клиенты', Url::toRoute([
                     '/client/search',
                     'manager' => Yii::$app->user->identity->user,

@@ -59,6 +59,7 @@ class ClientController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['view', 'grid', 'search', 'cancel-saldo', 'add-admin-lk', 'save-comment', 'check-email-exists'],
                         'roles' => ['clients.read'],
                     ],
                     [
