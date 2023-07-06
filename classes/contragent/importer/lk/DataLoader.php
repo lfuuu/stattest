@@ -38,9 +38,9 @@ class DataLoader
 
     private static function _getObjectsForSync($contragentId = null): iterable
     {
-        $sqlWhere = "is_lk_first ";
+        $sqlWhere = "is_lk_first";
         if ($contragentId) {
-            $sqlWhere .= " and contragent_id = " . $contragentId;
+            $sqlWhere = "contragent_id = " . $contragentId;
         }
 
         foreach (\Yii::$app

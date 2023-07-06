@@ -19,7 +19,10 @@ class CoreLkContragentTypeIp extends CoreLkContragentTypeDefault
         $lkContragent = $this->coreLkContragent;
         $resp = $lkContragent->getDataResponse();
 
-        parent::makeStatModel();
+        if (!parent::makeStatModel()) {
+            return true;
+        }
+
         $contragent = $this->contragent;
 
         $contragent->legal_type = ClientContragent::IP_TYPE;

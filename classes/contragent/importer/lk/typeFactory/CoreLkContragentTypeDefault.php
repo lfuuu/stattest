@@ -164,6 +164,10 @@ class CoreLkContragentTypeDefault
             return null;
         }
 
+        if (($spacePosition = strpos($dateStr, ' ')) !== false) {
+            $dateStr = substr($dateStr, 0, $spacePosition);
+        }
+
         if (strpos($dateStr, '-') !== false) {
             return $dateStr;
         }
@@ -176,12 +180,12 @@ class CoreLkContragentTypeDefault
     protected function makeStatModel()
     {
         $contragent = new ClientContragent();
-        $contragent->is_lk_first = 1;
-        $contragent->lk_status = $this->coreLkContragent->getStatus();
+        $contragent->is_lk_first = (int)$this->coreLkContragent->isLkFirst();
+        $contragent->lk_status = $contragent->is_lk_first ? $this->coreLkContragent->getStatus() : null;
 
         $this->contragent = $contragent;
 
-        return true;
+        return $contragent->is_lk_first;
     }
 }
 

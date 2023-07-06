@@ -18,7 +18,9 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
         $r = $this->coreLkContragent->getDataResponse();
         $data = $r['data'] ?? [];
 
-        parent::makeStatModel();
+        if (!parent::makeStatModel()) {
+            return true;
+        }
 
         if (!$data) {
             return true;
