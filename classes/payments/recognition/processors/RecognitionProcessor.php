@@ -3,6 +3,7 @@
 namespace app\classes\payments\recognition\processors;
 
 use app\classes\helpers\LoggerSimpleInternal;
+use app\classes\Utils;
 use app\models\ClientAccount;
 
 abstract class RecognitionProcessor
@@ -61,6 +62,7 @@ abstract class RecognitionProcessor
      */
     protected function getAccountIdByName(string $name, int $factorLimit = 20): int
     {
+        $name = Utils::fixMysqlFulltextSearch($name);
         $sql = <<<SQL
         SELECT `client`.id
   FROM `clients` `client`

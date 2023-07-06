@@ -165,4 +165,9 @@ class Utils
     {
         return json_decode($jsonStr, true);
     }
+
+    public static function fixMysqlFulltextSearch($text)
+    {
+        return preg_replace('/[+\-><\(\)~*\"@]+/', ' ', preg_replace('/[^\p{L}\p{N}_]+/u', ' ', $text));
+    }
 }

@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\HttpClient;
+use app\classes\Utils;
 use app\modules\uu\models\AccountTariff;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
@@ -155,8 +156,10 @@ class ClientSearch extends ClientAccount
             ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
 
         if ($this->companyName) {
+            $name = Utils::fixMysqlFulltextSearch($this->companyName);
+
 //            if (\Yii::$app->request->isAjax) {
-                $query->orWhere(new Expression("match(contragent.name_full) against (:searchStr /*IN BOOLEAN MODE*/)", ['searchStr' => preg_replace('/\s+/', '*', $this->companyName)]));
+                $query->orWhere(new Expression("match(contragent.name_full) against (:searchStr /*IN BOOLEAN MODE*/)", ['searchStr' => preg_replace('/\s+/', '*', $name)]));
 //            } else {
 //                $query->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
 //                    ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
