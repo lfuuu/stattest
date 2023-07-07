@@ -2,7 +2,7 @@
 
 namespace app\classes\contragent\importer\lk;
 
-use app\classes\Utils;
+use yii\db\Expression;
 
 class CoreLkContragentDbSyncer
 {
@@ -56,7 +56,7 @@ class CoreLkContragentDbSyncer
     {
         foreach (['data_response', 'changelog', 'stat_response'] as $f) {
             if (isset($row[$f])) {
-                $row[$f] = $row[$f] != '{}' ? Utils::fromJson($row[$f]) : json_decode('{}');
+                $row[$f] = new Expression(":json", ['json' => $row[$f]]);
             }
         }
     }
