@@ -920,8 +920,8 @@ data:
     * * * * * cd /home/httpd/stat.mcn.ru/stat/stat/crons/events/; flock -w 3 /var/run/handler4 php ./handler.php nnp >> /var/log/nispd/handler.log 2>&1
     
     # Сообщения из kafka
-    * * * * * flock -w 3 /var/run/yii-contragent-listen-changes /home/httpd/stat.mcn.ru/stat/yii contragent/listen-changes >> /var/log/nispd/contragent-listen-changes.log 2>&1
-    * * * * * flock -w 3 /var/run/yii-event-bus-listen /home/httpd/stat.mcn.ru/stat/yii event-bus/listen                  >> /var/log/nispd/event-bus-listen.log 2>&1
+    * * * * * flock -w 3 /var/run/yii-contragent-listen-changes /home/httpd/stat.mcn.ru/stat/yii contragent/listen-changes >> /var/log/nispd/handler.log 2>&1
+    * * * * * flock -w 3 /var/run/yii-event-bus-listen /home/httpd/stat.mcn.ru/stat/yii event-bus/listen                   >> /var/log/nispd/handler.log 2>&1
         
     # Универсальные услуги
     10 0-5,12-23 * * * flock -w 3 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1
