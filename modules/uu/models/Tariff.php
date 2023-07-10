@@ -136,6 +136,7 @@ class Tariff extends ActiveRecord
                 ],
                 'EventQueueAddEvent' => [
                     'class' => EventQueueAddEvent::class,
+                    'insertEvent' => Module::EVENT_UU_ANONCE_TARIFF,
                     'updateEvent' => Module::EVENT_UU_ANONCE_TARIFF,
                 ],
             ]
