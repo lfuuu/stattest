@@ -41,7 +41,7 @@ class MakeReducedStateBehavior extends Behavior
             'account_id' => $log->account_id,
             'did' => $log->did,
             'sip_login' => $log->sip_login,
-            'activete_dt' => $log->created_at,
+            'activate_dt' => $log->created_at,
         ])->one();
 
         if (!$rState) {

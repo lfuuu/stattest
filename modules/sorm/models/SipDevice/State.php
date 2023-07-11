@@ -54,7 +54,7 @@ class State extends ActiveRecord
         return implode("\t", [$this->account_id, $this->did, $this->sip_login, $this->created_at]);
     }
 
-    public function fixLoad()
+    public function fixLoad(): bool
     {
         if (!$this->created_at) {
             return true;

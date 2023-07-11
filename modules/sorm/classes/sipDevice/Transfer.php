@@ -29,6 +29,7 @@ class Transfer extends \app\classes\Singleton
             }
 
             if ($this->stat) {
+                /** @var State $state */
                 foreach ($this->stat as $state) {
                     $key = $state->getStateKey();
                     echo PHP_EOL . date('r') . ': (-) ' . $key;
