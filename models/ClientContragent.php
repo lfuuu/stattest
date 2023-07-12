@@ -91,6 +91,7 @@ class ClientContragent extends HistoryActiveRecord
         'comment',
         'sale_channel_id',
         'partner_contract_id',
+        'branch_code',
     ];
 
 
