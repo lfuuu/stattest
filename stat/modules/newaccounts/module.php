@@ -39,6 +39,7 @@ use app\models\ClientContarct;
 use app\models\filter\PartnerRewardsNewFilter;
 use app\models\rewards\RewardBill;
 use yii\db\Expression;
+use yii\db\Query;
 
 class m_newaccounts extends IModule
 {
@@ -151,13 +152,23 @@ class m_newaccounts extends IModule
 
         $design->ProcessEx('errors.tpl');
 
-        $clientAccounts = ClientAccount::find()
-            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]])
-            ->orWhere(['is_active' => 1]);
+        $dateStr = (new \DateTimeImmutable())->modify('-2 month')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        $queryPayment = Payment::find()->where(['>=', 'oper_date', $dateStr])->select('client_id')->distinct();
+        $queryBill = Bill::find()->where(['>=', 'bill_date', $dateStr])->select('client_id')->distinct();
+        $queryAccount = ClientAccount::find()->where(['is_active' => 1])->select(['client_id' => 'id'])->distinct();
+
+        $query = (new Query())
+            ->from(['c' => $queryAccount->union($queryBill)->union($queryPayment)])
+            ->orderBy(['client_id' => SORT_ASC])
+            ->select('client_id')
+            ->distinct();
+
+        $clientAccountQuery = ClientAccount::find()->where([ClientAccount::tableName() . '.id' => $query])->orderBy(['id' => SORT_ASC]);
 
         if (($organizationId = get_param_integer('organizationId'))) {
-            $clientAccounts->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = ' . ClientAccount::tableName() . '.contract_id');
-            $clientAccounts->andWhere(['cc.organization_id' => $organizationId]);
+            $clientAccountQuery->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = ' . ClientAccount::tableName() . '.contract_id');
+            $clientAccountQuery->andWhere(['cc.organization_id' => $organizationId]);
         }
 
         set_time_limit(0);
@@ -168,7 +179,7 @@ class m_newaccounts extends IModule
         }
 
         /** @var ClientAccount $clientAccount */
-        foreach ($clientAccounts->each() as $clientAccount) {
+        foreach ($clientAccountQuery->each() as $clientAccount) {
             echo date("d-m-Y H:i:s") . ": " . $clientAccount->id . ' ' . $clientAccount->currency;
             try {
                 ClientAccount::dao()->updateBalance($clientAccount);
