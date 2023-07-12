@@ -38,7 +38,7 @@ class Transfer extends \app\classes\Singleton
             }
 
             $transaction->commit();
-            echo PHP_EOL . date('r') . ': OK';
+//            echo PHP_EOL . date('r') . ': OK';
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
