@@ -5,11 +5,11 @@ namespace app\modules\uu\tarificator;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use app\models\Currency;
 use app\models\Param;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\classes\DateTimeOffsetParams;
+use app\modules\uu\classes\ParallelExecutionSettings;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ResourceModel;
@@ -62,29 +62,14 @@ class AccountLogResourceTarificator extends Tarificator
         // check console start
         $isConsoleScriptAndNotParamers = isset($_SERVER['argv']) && count($_SERVER['argv']) == 2 && $_SERVER['argv'][1] == 'ubiller';
 
-        // распаралелливание обработки
-        if (isset($_SERVER['argv']) and count($_SERVER['argv']) >= 3 && $_SERVER['argv'][1] == 'ubiller/resource') {
+        // распараллеливание обработки
+        $pes = new ParallelExecutionSettings($_SERVER['argv']);
+        if ($pes->isParallel()) {
+            $fromId = $pes->getFromId();
+            $toId = $pes->getToId();
 
-            if (count($_SERVER['argv']) == 4) {
-                $fromId = (int)$_SERVER['argv'][2];
-                $toId = (int)$_SERVER['argv'][3];
-            } elseif (count($_SERVER['argv']) == 3 && $_SERVER['argv'][2][0] == 'p') {
-                $part = substr($_SERVER['argv'][2], 1);
-                $partsDataStr = Param::getParam(Param::RESOURCE_PARTS, []);
-
-                if ($partsDataStr) {
-                    $partsData = json_decode($partsDataStr, true);
-                    if (isset($partsData[$part - 1])) {
-                        $partData = $partsData[$part - 1];
-                        $fromId = (int)$partData['min'];
-                        $toId = (int)$partData['max'];
-                    }
-                }
-            }
-
-            if (!$fromId || !$toId || $fromId > $toId) {
-                throw new \InvalidArgumentException('Неверные аргументы');
-            }
+            echo PHP_EOL . 'parallel execution: from ' . $fromId. ' to ' . $toId;
+            echo PHP_EOL;
         }
 
         // рассчитать новое по каждой универсальной услуге

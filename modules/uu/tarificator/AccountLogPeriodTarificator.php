@@ -2,12 +2,11 @@
 
 namespace app\modules\uu\tarificator;
 
-use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use app\models\Currency;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\classes\DateTimeOffsetParams;
+use app\modules\uu\classes\ParallelExecutionSettings;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -39,15 +38,15 @@ class AccountLogPeriodTarificator extends Tarificator
         $utcDateTime = $dateTimeOffsetParams->getCurrentDateTime();
 
         $fromId = $toId = null;
-        // распаралелливание обработки
-        if (isset($_SERVER['argv']) && count($_SERVER['argv']) == 4 && $_SERVER['argv'][1] == 'ubiller/period') {
 
-            $fromId = (int)$_SERVER['argv'][2];
-            $toId = (int)$_SERVER['argv'][3];
+        // распараллеливание обработки
+        $pes = new ParallelExecutionSettings($_SERVER['argv']);
+        if ($pes->isParallel()) {
+            $fromId = $pes->getFromId();
+            $toId = $pes->getToId();
 
-            if (!$fromId || !$toId || $fromId >= $toId) {
-                throw new \InvalidArgumentException('Неверные аргументы');
-            }
+            echo PHP_EOL . 'parallel execution: from ' . $fromId. ' to ' . $toId;
+            echo PHP_EOL;
         }
 
         $accountTariffQuery = AccountTariff::find()
