@@ -97,7 +97,10 @@ class AccountLogSetupTarificator extends Tarificator
         $accountLogSetup->account_tariff_id = $accountTariff->id;
 
         // Стоимость подключения тарифа - только не при переносе
-        $accountLogSetup->price_setup = $accountTariff->prev_usage_id ? 0 : $tariffPeriod->price_setup;
+        $accountLogSetup->price_setup = $tariffPeriod->price_setup;
+        if ($accountLogFromToTariff->isFirst && $accountTariff->prev_usage_id) {
+            $accountLogSetup->price_setup = 0;
+        }
 
         if ($accountLogFromToTariff->isFirst
             && !$accountTariff->prev_usage_id
