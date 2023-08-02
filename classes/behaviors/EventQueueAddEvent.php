@@ -93,7 +93,7 @@ class EventQueueAddEvent extends Behavior
      */
     public function afterDelete()
     {
-        if ($this->deleteEvent) {
+        if (!$this->deleteEvent) {
             return;
         }
 
