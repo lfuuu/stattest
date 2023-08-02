@@ -21,7 +21,7 @@ class AccountingController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags={"Accounting"}, path="/internal/accounting/get-current-statement/", summary="Получение текущей выписки", operationId="getCurrentStatement",
+     * @SWG\Get(tags={"Accounting"}, path="/internal/accounting/get-current-statement/", summary="Получение текущей выписки", operationId="getCurrentStatement",
      *   @SWG\Parameter(name="accountId", type="integer", description="ID ЛС", in="formData", default=""),
      *
      *   @SWG\Response(response=200, description="выписка",
