@@ -343,6 +343,8 @@ class NnpController extends ApiInternalController
     )
     {
 
+        return [];
+
         $query = NumberRange::find();
         $numberRangeTableName = NumberRange::tableName();
 
