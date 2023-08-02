@@ -28,8 +28,10 @@ class AccountingController extends ApiInternalController
      *   ),
      * )
      */
-    public function actionGetCurrentStatement($accountId)
+    public function actionGetCurrentStatement()
     {
+        $accountId = \Yii::$app->request->post('accountId') ?:  \Yii::$app->request->get('accountId') ?: 0;
+
         $lines = [];
         $sum = 0;
 
