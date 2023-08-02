@@ -22,16 +22,14 @@ class AccountingController extends ApiInternalController
 
     /**
      * @SWG\Get(tags={"Accounting"}, path="/internal/accounting/get-current-statement/", summary="Получение текущей выписки", operationId="getCurrentStatement",
-     *   @SWG\Parameter(name="accountId", type="integer", description="ID ЛС", in="formData", default=""),
+     *   @SWG\Parameter(name="accountId", type="integer", description="ID ЛС", in = "query", default=""),
      *
      *   @SWG\Response(response=200, description="выписка",
      *   ),
      * )
      */
-    public function actionGetCurrentStatement()
+    public function actionGetCurrentStatement($accountId)
     {
-        $accountId = \Yii::$app->request->post('accountId') ?:  \Yii::$app->request->get('accountId') ?: 0;
-
         $lines = [];
         $sum = 0;
 
@@ -49,6 +47,7 @@ class AccountingController extends ApiInternalController
         }
 
         return [
+            'account_id' => $accountId,
             "bill" => [
                 "bill_no" => 'current_statement',
                 "is_rollback" => 0,
