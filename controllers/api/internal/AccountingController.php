@@ -28,7 +28,7 @@ class AccountingController extends ApiInternalController
      *   ),
      * )
      */
-    public function actionGetCurrentStatement(int $accountId)
+    public function actionGetCurrentStatement($accountId)
     {
         $lines = [];
         $sum = 0;
