@@ -28,7 +28,7 @@ class CoreLkContragentTypePerson extends CoreLkContragentTypeDefault
         $person->last_name = ClientContragentPerson::normalizeName($resp['lastName'] ?? null);
         $person->first_name = ClientContragentPerson::normalizeName($resp['firstName'] ?? null);
         $person->middle_name = ClientContragentPerson::normalizeName($resp['middleName'] ?? null);
-        $person->birthday = $this->helper_date($resp['birthDate'] ?? null);
+        $person->birthday = $this->helper_date($resp['birthDate'] ?? $resp['birthday'] ?? null);
 
         $person->registration_address = $resp['addr']['fullAddressStr'] ?? $resp['addr']['addressStr'] ?? null;
 
