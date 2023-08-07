@@ -33,10 +33,13 @@ class AccountingController extends ApiInternalController
         $lines = [];
         $sum = 0;
 
-        $query = uuBill::getUnconvertedAccountEntries($accountId);
+        $query = uuBill::getUnconvertedAccountEntries($accountId)->with('tariffPeriod.tariff');
+
         foreach ($query->each() as $uuLine) {
             $lines[] = [
                 'item' => $uuLine->getFullName(),
+                'service_type' => $uuLine->tariffPeriod->tariff->serviceType->getAttributes(['id', 'name']),
+                'type_id' => $uuLine->type_id,
                 'date_from' => '',
                 'amount' => 1,
                 'price' => number_format($uuLine->price_with_vat, 2, '.', ''),
