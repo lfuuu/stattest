@@ -36,7 +36,8 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
         $contragent->ogrn = $data['ogrn'] ?? null;
         $contragent->okpo = $data['okpo'] ?? null;
         // $contragent->address_jur = $data['address']['unrestricted_value'] ?? null;
-        $contragent->address_jur = $data['address']['value'] ?? null;
+        // $contragent->address_jur = $data['address']['value'] ?? null;
+        $contragent->address_jur = $data['address']['data']['source'] ?? $data['address']['value'] ?? null;
         $contragent->fio = $contragent->fioV = $data['management']['name'] ?? null;
 
         $position = $data['management']['post'] ?? '';
