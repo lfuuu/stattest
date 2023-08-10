@@ -118,9 +118,10 @@ class BalanceSimple
                     $sum[$params['client_currency']]['ts']
                         ?    'IF(P.payment_date>="'.$sum[$params['client_currency']]['ts'].'",1,0)'
                         :    '1'
-                ).' as in_sum
+                ).' as in_sum, ai.info_json
             from
                 newpayments as P
+            LEFT JOIN newpayment_api_info ai ON ai.payment_id=P.id
             LEFT JOIN
                 user_users as U
             on
@@ -149,6 +150,9 @@ class BalanceSimple
             foreach($R2 as $k2=>$r2){
                 $r2['bill_vis_no'] = $r2['bill_no'];
                 $R2[$k2]['bill_vis_no'] = $r2['bill_no'];
+                if ($r2['info_json']) {
+                    $r2['info_json'] = var_export(json_decode($r2['info_json'], true), true);
+                }
                 if($r['bill_no'] == $r2['bill_no']
                 &&
                     (
