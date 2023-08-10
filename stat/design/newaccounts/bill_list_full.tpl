@@ -329,7 +329,15 @@
                     {if $pay.comment}
                         </tr>
                         <tr class="{$class}">
-                            <td colspan="6" class="comment">{$pay.comment|escape:"html"}</td>
+                            <td colspan="6" class="comment">
+                                {if $pay.info_json}
+                                    <span class="btn btn-xs " data-toggle="popover" data-html="true" data-placement="bottom" data-content="<br />
+                                    <pre>{$pay.info_json|escape:"html"}</pre>
+                                    " data-original-title="" title="">{$pay.comment|escape:"html"}</span>
+                                {else}
+                                    {$pay.comment|escape:"html"}
+                                {/if}
+                                </td>
                             <td colspan="2">&nbsp;</td>
                     {/if}
                 {/foreach}
@@ -379,9 +387,21 @@
             document.forms["show_incomegoods"].submit();
         }
         $( '#date').datepicker({dateFormat: 'yy-mm-dd'});
+
+    $(function () {
+        var $popovers = $('[data-toggle="popover"]');
+        $popovers.length && $popovers.popover();
+    })
+
     {/literal}
 </script>
-
+<style>
+    {literal}
+    .popover {
+        max-width:600px;
+    }
+    {/literal}
+</style>
 {if access('newaccounts_bills','edit')}
     <div style="float: right;">
         <a href="/?module=newaccounts&action=recalc_entry" class="btn btn-info btn-sm" role="button">

@@ -369,6 +369,7 @@ foreach ($paysPlus as $pay) {
         'date' => $pay->payment_date,
         'sum' => round($pay->sum, 2),
         'info' => $listFilter == 'income' ? getPaymentInfo($pay) : '',
+        'info_json' => $pay->type == \app\models\Payment::TYPE_API ? $pay->apiInfo->info_json : null,
         'is_paid' => null,
         'type' => 'payment',
     ];
@@ -387,6 +388,7 @@ foreach ($paysMinus as $pay) {
         'date' => $pay->payment_date,
         'sum' => round($pay->sum, 2),
         'info' => $listFilter == 'income' ? getPaymentInfo($pay) : '',
+        'info_json' => $pay->type == \app\models\Payment::TYPE_API ? $pay->apiInfo->info_json : null,
         'is_paid' => null,
         'type' => 'payment_minus',
     ];
@@ -842,9 +844,27 @@ function cellContentOptions($is_paid, $addClass = '')
                         'label' => 'Платеж +',
                         'format' => 'raw',
                         'value' => function (row $row) {
-                            return ($row->payment
-                                ? ($row->payment['info'] ? Html::tag('small', $row->payment['info'] . ' / ') : '') . nf($row->payment['sum'])
-                                : '');
+                            if (!$row->payment) {
+                                return '';
+                            }
+
+                            $payInfoStr = ($row->payment['info'] ? Html::tag('small', $row->payment['info'] . ' / ') : '') . nf($row->payment['sum']);
+
+                            if ($row->payment['info_json']) {
+                                return Html::tag(
+                                    'button',
+                                    $payInfoStr,
+                                    [
+                                        'class' => 'btn btn-xs',
+                                        'data-toggle' => 'popover',
+                                        'data-html' => 'true',
+                                        'data-placement' => 'bottom',
+                                        'data-content' => Html::tag('pre', var_export(json_decode($row->payment['info_json'], true), true)),
+                                    ]
+                                );
+                            }
+
+                            return $payInfoStr;
                         },
                         'contentOptions' => function ($row) {
                             return cellContentOptions(null, 'info text-right');
@@ -938,3 +958,13 @@ function cellContentOptions($is_paid, $addClass = '')
         </div>
     </div>
 </form>
+<script>
+$(function () {
+    $('[data-toggle="popover"]').popover()
+})
+</script>
+<style type="text/css">
+    .popover{
+        max-width:600px;
+    }
+</style>

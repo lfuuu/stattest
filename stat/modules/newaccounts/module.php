@@ -577,7 +577,6 @@ class m_newaccounts extends IModule
         }
 
         $R2 = $db->AllRecords('
-
             select
                 P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.p_bill_no, P.p_bill_vis_no,
                 U.user as user_name,
@@ -589,7 +588,8 @@ class m_newaccounts extends IModule
                 P.payment_id,
                 P.bill_no,
                 P.sum_pay,
-                P.bank
+                P.bank,
+                ai.info_json
             from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
                         L.payment_id, L.bill_no, L.sum as sum_pay, P.bank
                     FROM newpayments P LEFT JOIN newpayments_orders L ON L.client_id=' . $fixclient_data['id'] . ' and P.id=L.payment_id
@@ -601,6 +601,7 @@ class m_newaccounts extends IModule
                     WHERE L.client_id=' . $fixclient_data['id'] . '
                 ) as P
 
+            LEFT JOIN newpayment_api_info ai on ai.payment_id = P.id
             LEFT JOIN user_users as U on U.id=P.add_user
 
             order by
@@ -630,7 +631,9 @@ class m_newaccounts extends IModule
             ];
 
             foreach ($R2 as $k2 => $r2) {
-
+                if ($r2['info_json']) {
+                    $r2['info_json'] = var_export(json_decode($r2['info_json'], true), true);
+                }
                 if (strpos($r2['payment_id'], '-')) {
                     $r2['currency'] = 'RUB';
                     $r2['id'] = $r2['payment_id'];

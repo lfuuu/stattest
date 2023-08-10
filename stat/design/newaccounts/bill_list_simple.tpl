@@ -216,7 +216,18 @@
                     {if $pay.comment}
                         </tr>
                         <tr class="{$class}">
-                        <td colspan="4" class="comment">{$pay.comment|escape:"html"}</td>
+                        <td colspan="4" class="comment">
+
+                            {if $pay.info_json}
+                                <span class="btn btn-xs " data-toggle="popover" data-html="true" data-placement="bottom" data-content="<br />
+                                <pre>{$pay.info_json|escape:"html"}</pre>
+
+    " data-original-title="" title="">{$pay.comment|escape:"html"}</span>
+                            {else}
+                                {$pay.comment|escape:"html"}
+                            {/if}
+
+                            </td>
                     {/if}
                 {/foreach}
                 {if $op.bill.comment}
@@ -318,12 +329,18 @@
                 });
             }
         }
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    })
     {/literal}
 </script>
 <style type="text/css">
     {literal}
     .ui-datepicker-calendar {
         display: none;
+    }
+    .popover{
+        max-width:600px;
     }
     {/literal}
 </style>
