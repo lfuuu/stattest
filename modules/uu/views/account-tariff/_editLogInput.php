@@ -67,7 +67,7 @@ $channels = TroubleRoistat::CHANNELS;
 
 
     <div class="col-sm-2">
-        <?= $accountTariff->isNewRecord ? '' : $form->field($accountTariffLog, 'actual_from')
+        <?= $accountTariff->isNewRecord && $accountTariff->service_type_id == ServiceType::ID_VOIP ? '' : $form->field($accountTariffLog, 'actual_from')
             ->widget(DatePicker::class, [
                 'removeButton' => false,
                 'pluginOptions' => [
