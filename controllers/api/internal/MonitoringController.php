@@ -54,7 +54,7 @@ class MonitoringController extends ApiInternalController
                     'did' => $r['usage_id'],
                     'account_id' => (int)$r['account_id']
                 ]
-                + (SyncErrorsUsageBase::STATUS_ACCOUNT_DIFF ? ['account_id2' => (int)$r['account_id2']] : []);
+                + ($r['status'] == SyncErrorsUsageBase::STATUS_ACCOUNT_DIFF ? ['account_id2' => (int)$r['account_id2']] : []);
         }
 
         return $rr;
