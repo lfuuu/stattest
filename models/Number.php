@@ -62,6 +62,7 @@ use yii\helpers\Url;
  * @property string $solution_date
  * @property integer $nnp_city_id
  * @property integer $nnp_region_id
+ * @property integer $is_verified
  *
  * @property-read City $city
  * @property-read AccountTariff $accountTariff
@@ -90,6 +91,7 @@ class Number extends ActiveRecord
 {
     const STATUS_NOTSALE = 'notsale';
     const STATUS_INSTOCK = 'instock';
+    const STATUS_NOT_VERFIED = 'not_verfied';
     const STATUS_ACTIVE_CONNECTED = 'active_connected';
     const STATUS_ACTIVE_TESTED = 'active_tested';
     const STATUS_ACTIVE_COMMERCIAL = 'active_commercial';
@@ -119,6 +121,7 @@ class Number extends ActiveRecord
     public static $statusList = [
         self::STATUS_NOTSALE => 'Не продается',
         self::STATUS_INSTOCK => 'Свободен',
+        self::STATUS_NOT_VERFIED => 'Не верифицирован',
         self::STATUS_ACTIVE_TESTED => 'Используется. Тестируется.',
         self::STATUS_ACTIVE_COMMERCIAL => 'Используется. В коммерции.',
         self::STATUS_ACTIVE_CONNECTED => 'Подключение запланировано',
@@ -128,7 +131,7 @@ class Number extends ActiveRecord
     ];
 
     public static $statusGroup = [
-        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_CONNECTED, self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL],
+        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_CONNECTED, self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL, self::STATUS_NOT_VERFIED],
         self::STATUS_GROUP_NOTACTIVE => [self::STATUS_NOTACTIVE_RESERVED, self::STATUS_NOTACTIVE_HOLD],
     ];
 
