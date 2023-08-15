@@ -29,7 +29,7 @@ $priceLevels = PriceLevel::getList();
         </div>
         <div class="col-sm-4" class="c-blue-color">
             <?php if (ApiCore::isAvailable()) : ?>
-                    <a href="https://<?= Yii::$app->params['BASE_SERVER']; ?>/api/public/api/auth/login/support?accountId=<?= $account->id ?>"
+                    <a href="https://<?= Yii::$app->params['BASE_SERVER']; ?>/api/public/api/auth/login/support?accountId=<?= $account->id ?>&withRedirect=true"
                        target="_blank">
                         Переход в ЛК
                     </a>
