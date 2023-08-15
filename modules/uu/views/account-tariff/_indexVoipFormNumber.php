@@ -27,7 +27,11 @@ use yii\helpers\Url;
         <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
     <?php else : ?>
         <?= Html::a(
-            $accountTariff->voip_number ?:
+            $accountTariff->voip_number ?
+                Html::tag('span', $accountTariff->voip_number . (
+                        ($isNumberNotVerified = $accountTariff->voip_number && $accountTariff->number->status == \app\models\Number::STATUS_NOT_VERFIED) ? Html::tag('sup', 'нв') : ''),
+                    $isNumberNotVerified ? ['style' => ['color' => 'gray'], 'title' => 'Не верифицирован'] : [])
+                :
                 (
                 ($accountTariff->service_type_id == ServiceType::ID_ONE_TIME && ($accountLogResources = $accountTariff->accountLogResources)) ?
                     // стоимость разовой услуги

@@ -45,6 +45,8 @@ class AccountTariffVoipNumber extends Behavior
         }
 
         $number->status = Number::STATUS_ACTIVE_CONNECTED;
+//        $number->status = Number::STATUS_NOT_VERFIED;
+//        $number->is_verified = 0;
         if (!$number->save()) {
             throw new ModelValidationException($number);
         }

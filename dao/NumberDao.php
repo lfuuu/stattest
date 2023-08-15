@@ -104,6 +104,10 @@ class NumberDao extends Singleton
                 Number::STATUS_ACTIVE_COMMERCIAL
             );
 
+        if ($number->is_verified === 0) {
+            $newStatus = Number::STATUS_NOT_VERFIED;
+        }
+
         if ($fieldsEqual && $newStatus == $number->status) {
             return;
         }
@@ -115,10 +119,20 @@ class NumberDao extends Singleton
         $number->status = $newStatus;
         $number->save();
 
+        $logStatus = Number::STATUS_ACTIVE_TESTED;
+        switch ($newStatus) {
+            case Number::STATUS_ACTIVE_TESTED:
+                $logStatus = NumberLog::ACTION_ADDITION_TESTED; break;
+            case Number::STATUS_ACTIVE_COMMERCIAL:
+                $logStatus = NumberLog::ACTION_ADDITION_COMMERCIAL; break;
+            case Number::STATUS_NOT_VERFIED:
+                $logStatus = NumberLog::ACTION_NOT_VERFIED; break;
+        }
+
         Number::dao()->log(
             $number,
             NumberLog::ACTION_ACTIVE,
-            $newStatus == Number::STATUS_ACTIVE_TESTED ? NumberLog::ACTION_ADDITION_TESTED : NumberLog::ACTION_ADDITION_COMMERCIAL
+            $logStatus
         );
     }
 

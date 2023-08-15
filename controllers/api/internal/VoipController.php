@@ -527,4 +527,120 @@ class VoipController extends ApiInternalController
     {
         return Source::getList(false, false, $is_service);
     }
+
+
+    /**
+     * @SWG\Get(tags = {"Numbers"}, path = "/internal/voip/get-numbers-in-status-not-verfied/", summary = "Получение номеров в статусе 'не верифицирован'", operationId = "get-numbers-in-status-not-verfied",
+     *   @SWG\Response(response = 200, description = "Получение информации о номере",
+     *   )
+     * )
+     */
+
+    public function actionGetNumbersInStatusNotVerfied()
+    {
+        return Number::find()
+            ->select('number')
+            ->where([
+                'status' => Number::STATUS_NOT_VERFIED,
+                'is_verified' => 0
+            ])->column();
+    }
+
+
+    /**
+     * @SWG\Post(tags = {"Numbers"}, path = "/internal/voip/set-number-as-verfied/", summary = "Установка статуса у номера, что он проверен", operationId = "set-number-as-verfied",
+     *   @SWG\Parameter(name="number",type="string",description="номер телефона",in="formData",default=""),
+     *   @SWG\Response(response = 200, description = "Получение информации о номере",
+     *   )
+     * )
+     */
+
+    public function actionSetNumberAsVerfied()
+    {
+        $requestData = Yii::$app->request->post() ?: [];
+
+        $model = DynamicModel::validateData(
+            $requestData,
+            [
+                ['number', 'string'],
+                ['number', 'trim'],
+                ['number', 'required'],
+            ]
+        );
+
+        if ($model->hasErrors()) {
+            $errors = $model->getFirstErrors();
+            throw new \InvalidArgumentException(reset($errors));
+        }
+
+        $number = Number::findOne(['number' => $model['number']]);
+
+        if (!$number) {
+            throw new InvalidParamException('Number not found');
+        }
+
+        if ($number->is_verified === 0) {
+            $number->is_verified = 1;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->actualizeStatus($number);
+            $number->refresh();
+        }
+
+        return ['current_status' => $number->status];
+    }
+
+    /**
+     * @SWG\Post(tags = {"Numbers"}, path = "/internal/voip/set-number-to-verfied/", summary = "Установка статуса у номера, необходима проверен", operationId = "set-number-to-verfied",
+     *   @SWG\Parameter(name="number",type="string",description="номер телефона",in="formData",default=""),
+     *   @SWG\Response(response = 200, description = "Получение информации о номере",
+     *   )
+     * )
+     */
+
+    public function actionSetNumberToVerfied()
+    {
+        $requestData = Yii::$app->request->post() ?: [];
+
+        $model = DynamicModel::validateData(
+            $requestData,
+            [
+                ['number', 'string'],
+                ['number', 'trim'],
+                ['number', 'required'],
+            ]
+        );
+
+        if ($model->hasErrors()) {
+            $errors = $model->getFirstErrors();
+            throw new \InvalidArgumentException(reset($errors));
+        }
+
+        $number = Number::findOne(['number' => $model['number']]);
+
+        if (!$number) {
+            throw new InvalidParamException('Number not found');
+        }
+
+        if (!in_array($number->status, Number::$statusGroup[Number::STATUS_GROUP_ACTIVE])) {
+            throw new \InvalidArgumentException('Number not in active status');
+        }
+
+        if ($number->status == Number::STATUS_NOT_VERFIED) {
+            return ['current_status' => $number->status];
+        }
+
+        $number->is_verified = 0;
+
+        if (!$number->save()) {
+            throw new ModelValidationException($number);
+        }
+
+        Number::dao()->actualizeStatus($number);
+        $number->refresh();
+
+        return ['current_status' => $number->status];
+    }
 }

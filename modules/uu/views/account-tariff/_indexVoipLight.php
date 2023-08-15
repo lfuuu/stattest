@@ -27,7 +27,10 @@ $queryDep = clone $query;
 $queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CONCAT(COALESCE(tariff_period_id, -1010)+ CAST(REPLACE(COALESCE(actual_from_utc, \'3020\'), \'-\', \'\') AS UNSIGNED)))
                    FROM uu_account_tariff_log
                    WHERE account_tariff_id = uu_account_tariff.id
-                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id))')]);
+                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id))'),
+                'voip_status' => new \yii\db\Expression("group_concat(substring(coalesce(vn.status, ' '), 1, 1) separator '')")]);
+$queryDep->leftJoin(['vn' => \app\models\Number::tableName()], 'vn.number = voip_number');
+
 
 $sqlDep = $queryDep->createCommand()->rawSql;
 $dbDep = new \yii\caching\DbDependency(['sql' => $sqlDep]);
@@ -57,6 +60,7 @@ echo \Yii::$app->cache->getOrSet($key,
         }
 
         return $content;
+//        echo $content;
 
     }, 3600 * 24 * 30, $chainDep
 );

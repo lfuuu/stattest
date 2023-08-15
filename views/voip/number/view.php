@@ -274,13 +274,12 @@ echo \yii\widgets\Breadcrumbs::widget([
                                     case NumberLog::ACTION_ACTIVE:
                                         if ($log['addition'] == NumberLog::ACTION_ADDITION_TESTED) {
                                             ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_TESTED] ?></b><?php
+                                        } elseif ($log['addition'] == NumberLog::ACTION_ADDITION_COMMERCIAL) { ?>
+                                            <b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
+                                        } elseif ($log['addition'] == NumberLog::ACTION_NOT_VERFIED) { ?>
+                                            <b>Используется. <?= Number::$statusList[Number::STATUS_NOT_VERFIED] ?></b><?php
                                         } else {
-                                            if ($log['addition'] == NumberLog::ACTION_ADDITION_COMMERCIAL) {
-                                                ?>
-                                                <b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
-                                            } else {
-                                                ?><b>Используется</b><?php
-                                            }
+                                            ?><b>Используется</b><?php
                                         }
                                         if ($log['client_id']) {
                                             ?>, Л/С: <a href='/client/view?id=<?= $log['client_id'] ?>'
