@@ -60,6 +60,8 @@ class AccountTariffResourceLog extends ActiveRecord
 
     public $isAllowSavingInPast = false;
 
+    public $isValidateOnly = false;
+
     /**
      * @return string
      */
@@ -281,7 +283,7 @@ class AccountTariffResourceLog extends ActiveRecord
             }
         */
 
-        if (self::find()
+        if (!$this->isValidateOnly && self::find()
             ->where([
                 'account_tariff_id' => $this->account_tariff_id,
                 'resource_id' => $this->resource_id,
@@ -296,6 +298,32 @@ class AccountTariffResourceLog extends ActiveRecord
         }
 
         Yii::trace('AccountTariffResourceLog. After validatorFuture', 'uu');
+    }
+
+    public function deleteAppointmentsInTheFuture()
+    {
+        if ($this->isValidateOnly) {
+            return;
+        }
+
+        $accountTariff = $this->accountTariff;
+        $clientAccount = $accountTariff->clientAccount;
+
+        $currentDateTimeUtc = $clientAccount
+            ->getDatetimeWithTimezone()
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        foreach (self::find()
+                ->where([
+                    'account_tariff_id' => $this->account_tariff_id,
+                    'resource_id' => $this->resource_id,
+                ])
+                ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
+                ->each() as $log) {
+            $log->delete();
+        }
     }
 
     /**
@@ -391,9 +419,9 @@ class AccountTariffResourceLog extends ActiveRecord
     {
         Yii::trace('AccountTariffResourceLog. Before validatorBalance', 'uu');
 
-        if (!$this->isNewRecord) {
-            return null;
-        }
+//        if (!$this->isNewRecord) {
+//            return null;
+//        }
 
         $accountTariff = $this->accountTariff;
         if (!$accountTariff) {
