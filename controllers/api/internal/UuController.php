@@ -1830,14 +1830,17 @@ class UuController extends ApiInternalController
      */
     public function actionEditAccountTariffResource()
     {
-        $transaction = Yii::$app->db->beginTransaction();
         $post = Yii::$app->request->post();
+
+        $transaction = Yii::$app->db->beginTransaction();
         try {
 
             $isValidateOnly = (isset($post['is_validate_only']) && $post['is_validate_only']) ? (boolean)$post['is_validate_only'] : false;
 
             $accountTariffResourceLog = new AccountTariffResourceLog();
             $accountTariffResourceLog->setAttributes($post);
+            $accountTariffResourceLog->isValidateOnly = $isValidateOnly;
+
             if (!$accountTariffResourceLog->actual_from_utc) {
                 $accountTariff = $accountTariffResourceLog->accountTariff;
                 if (!$accountTariff || !$accountTariff->clientAccount) {
@@ -1847,6 +1850,10 @@ class UuController extends ApiInternalController
                 $accountTariffResourceLog->actual_from_utc = (new \DateTime('00:00:00', $accountTariff->clientAccount->getTimezone()))
                     ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            }
+
+            if (!$isValidateOnly) {
+                $accountTariffResourceLog->deleteAppointmentsInTheFuture();
             }
 
             if (
@@ -1872,10 +1879,25 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
+
             \Yii::error(
                 print_r(['EditAccountTariffResource', $e->getMessage(), $post], true),
                 Module::LOG_CATEGORY_API
             );
+
+            if ($e->getCode() == AccountTariff::ERROR_CODE_TARIFF_SAME) {
+                return [
+                    'amount_use' => $accountLogResource ? $accountLogResource->amount_use : null,
+                    'amount_free' => $accountLogResource ? $accountLogResource->amount_free : null,
+                    'amount_overhead' => $accountLogResource ? $accountLogResource->amount_overhead : null,
+                    'price_per_unit' => $accountLogResource ? $accountLogResource->price_per_unit : null,
+                    'coefficient' => $accountLogResource ? $accountLogResource->coefficient : null,
+                    'price' => $accountLogResource ? $accountLogResource->price : null,
+                    'actual_from' => $accountLogResource ? $accountLogResource->date_from : null,
+                    'actual_to' => $accountLogResource ? $accountLogResource->date_to : null,
+                ];
+            }
+
             throw $e;
         }
     }
