@@ -18,6 +18,7 @@ use app\models\BillLineUu;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
+use app\models\ClientContractAdditionalAgreement;
 use app\models\ClientDocument;
 use app\models\Currency;
 use app\models\Invoice;
@@ -647,6 +648,13 @@ class BillDao extends Singleton
      */
     public function isBillNewCompany(Bill $bill, $oldCompanyId, $newCompanyId)
     {
+        return ClientContractAdditionalAgreement::find()->where([
+            'account_id' => $bill->client_id,
+            'from_organization_id' => $oldCompanyId,
+            'to_organization_id' => $newCompanyId,
+            'transfer_date' => $bill->bill_date,
+        ])->exists();
+
         $sql = <<<ESQL
             SELECT
                 model,

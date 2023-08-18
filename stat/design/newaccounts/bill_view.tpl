@@ -553,6 +553,11 @@
                     <label for="wm114">Соглашение (Телеком -> Сервис)</label>
                     <br/>
                 {/if}
+                {if $bill_is_new_company.service_to_abonserv}
+                    <input type="checkbox" value="1" name="sogl_mcn_service_to_abonservice" id="wm115"/>
+                    <label for="wm115">Соглашение (ТелекомСервис -> АбонСервис)</label>
+                    <br/>
+                {/if}
                 {if $bill_client.firma == 'mcn_telekom'}
                     <input type="checkbox" value="1" name="sogl_mcm_telekom" id="wm112"/>
                     <label for="wm112">Договор переуступки c МСН Телеком на МСМ Телеком</label>

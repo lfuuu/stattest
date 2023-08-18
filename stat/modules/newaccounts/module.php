@@ -1046,6 +1046,7 @@ class m_newaccounts extends IModule
         $design->assign('bill_is_new_company', [
             'retail_to_service' => Bill::dao()->isBillNewCompany($newbill, 11, 21),
             'telekom_to_service' => Bill::dao()->isBillNewCompany($newbill, 1, 21),
+            'service_to_abonserv' => Bill::dao()->isBillNewCompany($newbill, 21, 14),
         ]);
         $design->assign('bill_is_credit_note', Bill::dao()->isBillWithCreditNote($newbill));
         $design->assign('bill_is_one_zadatok', $bill->isOneZadatok());
@@ -1983,6 +1984,7 @@ class m_newaccounts extends IModule
                 'Соглашение о передачи прав (МСМ=>МСН Ретайл)' => ['sogl_mcn_telekom'],
                 'Соглашение о передачи прав (ООО МСН Телеком Ритейл => ООО МСН Телеком Сервис)' => ['sogl_mcn_service'],
                 'Соглашение о передачи прав (ООО МСН Телеком => ООО МСН Телеком Сервис)' => ['sogl_mcn_telekom_to_service'],
+                'Соглашение о передачи прав (ООО МСН Телеком Сервис => АбонСервис)' => ['sogl_mcn_service_to_abonservice'],
                 'Кредит-нота' => ['credit_note'],
             ];
 
@@ -2000,7 +2002,7 @@ class m_newaccounts extends IModule
                         $isMultipleDocs = $counter > 1;
 
                         if (
-                        in_array($r, ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service'])
+                        in_array($r, ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service', 'sogl_mcn_service_to_abonservice'])
                         ) {
                             $is_pdf = 1;
                         }
@@ -2232,7 +2234,7 @@ class m_newaccounts extends IModule
         ]);
         $L = array_merge($L, ['akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3']);
         $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'credit_note']);
-        $L = array_merge($L, ['partner_reward', 'partner_reward_2', 'sogl_mcn_telekom_to_service', 'invoice2']);
+        $L = array_merge($L, ['partner_reward', 'partner_reward_2', 'sogl_mcn_telekom_to_service', 'sogl_mcn_service_to_abonservice', 'invoice2']);
 
         $landscapeActions = ['invoice-1', 'invoice-2', 'invoice-3', 'invoice-4', 'upd-1', 'upd-2', 'upd-3'];
 
@@ -2766,6 +2768,7 @@ class m_newaccounts extends IModule
             case 'sogl_mcm_telekom':
             case 'sogl_mcn_telekom':
             case 'sogl_mcn_service':
+            case 'sogl_mcn_service_to_abonservice':
             case 'sogl_mcn_telekom_to_service': {
                 if ($billModel) {
                     $report = DocumentReportFactory::me()->getReport($billModel, $obj, get_param_raw('emailed', false));

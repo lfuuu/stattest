@@ -27,7 +27,7 @@ class BillContract
             return $contract["no"] . " от " . DateFunction::mdate($contract["date"], "d месяца Y") . " г.";
         }
 
-        return "";
+        return $contractId;
     }
 
     public static function getLastContract($contractId, $dateTs, $isWithBN = true)
