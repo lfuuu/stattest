@@ -15,9 +15,11 @@ use yii\helpers\Url;
  * @property int $region_id
  * @property int $cnt
  * @property int $cnt_active
+ * @property int $parent_id
  *
  * @property-read Country $country
  * @property-read Region $region
+ * @property-read City $parent
  */
 class City extends ActiveRecord
 {
@@ -56,6 +58,7 @@ class City extends ActiveRecord
             'region_id' => 'Регион',
             'cnt' => 'Кол-во номеров (всех)',
             'cnt_active' => 'Кол-во номеров (актив)',
+            'parent_id' => 'Город-родитель',
         ];
     }
 
@@ -76,7 +79,7 @@ class City extends ActiveRecord
     {
         return [
             [['name', 'name_translit'], 'string'],
-            [['country_code', 'region_id'], 'integer'],
+            [['country_code', 'region_id', 'parent_id'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
     }
@@ -135,6 +138,14 @@ class City extends ActiveRecord
     public function getRegion()
     {
         return $this->hasOne(Region::class, ['id' => 'region_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParent()
+    {
+        return $this->hasOne(self::class, ['id' => 'parent_id']);
     }
 
     /**

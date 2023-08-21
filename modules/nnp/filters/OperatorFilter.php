@@ -18,6 +18,7 @@ class OperatorFilter extends Operator
     public $cnt_to = '';
     public $group = '';
     public $operator_src_code = '';
+    public $parent_id = '';
 
     /**
      * @return array
@@ -25,7 +26,7 @@ class OperatorFilter extends Operator
     public function rules()
     {
         return [
-            [['name', 'name_translit'], 'string'],
+            [['name', 'name_translit', 'parent_id'], 'string'],
             [['id', 'country_code', 'cnt_from', 'cnt_to', 'group', 'operator_src_code'], 'integer'],
         ];
     }
@@ -53,6 +54,12 @@ class OperatorFilter extends Operator
         $this->cnt_to !== '' && $query->andWhere(['<=', $operatorTableName . '.cnt', $this->cnt_to]);
 
         $this->group !== '' && $query->andWhere(["{$operatorTableName}.group" => $this->group]);
+
+        if ($this->parent_id !== '') {
+            $query->joinWith('parent p')->andWhere(['LIKE', 'p.name', $this->parent_id, true]);
+        }
+
+        $query->with('parent');
 
         return $dataProvider;
     }

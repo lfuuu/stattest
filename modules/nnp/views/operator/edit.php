@@ -117,6 +117,17 @@ if (!$operator->isNewRecord) {
                 ],
             ]) ?>
         </div>
+        <div class="col-sm-2">
+            <?php
+                $operatorList = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $operator->country_code);
+                if ($operator->id) {
+                    unset($operatorList[$operator->id]);
+                }
+            ?>
+            <?= $form->field($operator, 'parent_id')->widget(Select2::class, [
+                'data' => $operatorList,
+            ]) ?>
+        </div>
     </div>
 
     <?php // кнопки ?>

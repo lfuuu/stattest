@@ -32,6 +32,19 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
+        'class' => ActionColumn::class,
+        'template' => '{update}',
+        'buttons' => [
+            'update' => function ($url, Operator $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
         'attribute' => 'id',
         'class' => IntegerColumn::class,
         'format' => 'raw',
@@ -55,6 +68,11 @@ $columns = [
     [
         'attribute' => 'name_translit',
         'class' => StringColumn::class,
+    ],
+    [
+        'attribute' => 'parent_id',
+        'class' => StringColumn::class,
+        'value' => fn(Operator $operator) => $operator->parent ? $operator->parent->name : null,
     ],
     [
         'attribute' => 'operator_src_code',

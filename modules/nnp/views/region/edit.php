@@ -61,8 +61,16 @@ if (!$region->isNewRecord) {
         </div>
 
         <div class="col-sm-2">
+            <?php
+                $regionList = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code);
+
+                if ($region->id) {
+                    unset($regionList[$region->id]);
+                }
+
+            ?>
             <?= $form->field($region, 'parent_id')->widget(Select2::class, [
-                'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code),
+                'data' => $regionList,
             ]) ?>
             <div>
                 <?= ($regionParent = $region->parent) ?
