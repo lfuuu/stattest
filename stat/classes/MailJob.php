@@ -182,6 +182,13 @@ class MailJob {
                     BillContract::getString($this->client['contract_id'], time()) . ': ' .
                     $this->get_object_link('sogl_mcn_telekom_to_service', $this->client['id'], 2, true);
             }
+
+            case 'SOGL_MCNSERVICETOABONSERV': {
+                return
+                    'Соглашение о передаче прав и обязанностей по договору №' .
+                    BillContract::getString($this->client['contract_id'], time()) . ': ' .
+                    $this->get_object_link('sogl_mcn_service_to_abonservice', $this->client['id'], 2, true);
+            }
         }
         return '';
     }
@@ -408,6 +415,7 @@ class MailJob {
         $text = preg_replace_callback('/%(SOGL_MCN)_TELEKOM%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCNSERVICE)%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCNTELEKOMTOSERVICE)%/',array($this,'_get_assignments'),$text);
+        $text = preg_replace_callback('/%(SOGL_MCNSERVICETOABONSERV)%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}
