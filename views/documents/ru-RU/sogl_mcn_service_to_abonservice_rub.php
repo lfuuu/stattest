@@ -23,7 +23,7 @@ $info = ClientContractAdditionalAgreement::find()->where([
     'account_id' => $account->id,
     'from_organization_id' => Organization::MCN_TELECOM_SERVICE,
     'to_organization_id' => Organization::AB_SERVICE_MARCOMNET,
-    'transfer_date' => $document->bill->bill_date,
+    // 'transfer_date' => $document->bill->bill_date,
 ])->one();
 
 if (!$info) {
