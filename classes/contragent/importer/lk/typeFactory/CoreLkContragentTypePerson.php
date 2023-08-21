@@ -36,7 +36,7 @@ class CoreLkContragentTypePerson extends CoreLkContragentTypeDefault
         $person->passport_serial = $resp['document']['series'] ?? null;
         $person->passport_date_issued = $this->helper_date($resp['document']['issueDate'] ?? null);
         $person->passport_issued = $resp['document']['issuedBy'] ?? null;
-        $person->birthplace = $resp['document']['birthplace'] ?? null;
+        $person->birthplace = $resp['document']['birthPlace'] ?? $resp['document']['birthplace'] ?? null;
 
         $contragent->legal_type = ClientContragent::PERSON_TYPE;
         $contragent->name = $contragent->name_full = $person->getFullName();
