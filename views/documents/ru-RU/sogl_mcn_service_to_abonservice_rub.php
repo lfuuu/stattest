@@ -88,15 +88,15 @@ $isWithStamp = $isPdf;
                 г. Москва
             </td>
             <td style="text-align: right;<?= $fsStyle ?>">
-                <?= $dateStr ?>&nbsp;&nbsp;&nbsp;
+                &laquo;21&raquo; августа 2023 г.&nbsp;&nbsp;&nbsp;
             </td>
         </tr>
     </table>
     <p style="<?= $fsStyle ?>text-align: justify; text-indent: 35.0pt;">
-        <?= $organizationService->name ?> в лице Генерального директора <?= $organizationService->director ?>,
+        <?= $organizationService->name ?> в лице Генерального директора Кима А.Г.,
         действующей на основании Устава, с
         одной стороны, и <?= $organizationAbonService->name ?> в лице Генерального
-        директора <?= $organizationAbonService->director ?>,
+        директора Бирюковой Н. В.,
         действующего на основании Устава, с другой стороны, при совместном упоминании именуемые Стороны, заключили
         настоящее Соглашение (далее - «Соглашение») о передаче прав и обязанностей по Договору
         между <?= $organizationService->name ?>
