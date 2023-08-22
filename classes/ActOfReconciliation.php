@@ -183,6 +183,10 @@ WHERE b.client_id = ' . $account->id . '
 
                 if (!$isServiceBill) {
                     $sum = BillLine::find()->where(['bill_no' => $item['number']])->sum('sum');
+
+                    if ($sum) {
+                        $sum = -$sum;
+                    }
                 }
             }
 
