@@ -25,16 +25,21 @@ class InvoiceForm extends Form
     private $_langCode = Language::LANGUAGE_DEFAULT;
     private $_invoice = null;
 
+    /** @var Bill */
+    public $_invoiceProformaBill = null;
+
     /**
      * @param array|string $langCode
      * @param Invoice $invoice
+     * @param Bill $invoice
      */
-    public function __construct($langCode = Language::LANGUAGE_DEFAULT, $invoice = null)
+    public function __construct($langCode = Language::LANGUAGE_DEFAULT, $invoice = null, $_invoiceProformaBill = null)
     {
         parent::__construct();
 
         $this->_langCode = $langCode;
         $this->_invoice = $invoice;
+        $this->_invoiceProformaBill = $_invoiceProformaBill;
     }
 
     /**
@@ -52,7 +57,11 @@ class InvoiceForm extends Form
      */
     public function getFileName()
     {
-        if ($this->_invoice && $this->_invoice->is_reversal) {
+        if ($this->_invoiceProformaBill) {
+            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_PROFORMA, $this->_invoiceProformaBill->clientAccount->contragent->country->code);
+
+            return PaymentForm::getPath() . PaymentForm::getFileName($template->type_id, $template->country->alpha_3, $template->version, self::TEMPLATE_EXTENSION);
+        }elseif ($this->_invoice && $this->_invoice->is_reversal) {
             if ($this->_invoice->bill->clientAccount->contragent->lang_code == Language::LANGUAGE_ENGLISH) {
                 $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, Country::UNITED_KINGDOM);
             } else {
