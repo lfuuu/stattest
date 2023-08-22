@@ -28,10 +28,11 @@ class ActOfReconciliation extends Singleton
      * @param int $startSaldo
      * @param bool $sortByBillDate
      * @param bool $isWithBills
+     * @param bool $isWithPrepayedBills
      * @return array
      * @throws Exception
      */
-    public function getRevise(ClientAccount $account, $dateFrom, $dateTo, $startSaldo = 0, $sortByBillDate = false, $isWithBills = false)
+    public function getRevise(ClientAccount $account, $dateFrom, $dateTo, $startSaldo = 0, $sortByBillDate = false, $isWithBills = false, $isWithPrepayedBills = false)
     {
         $dateFrom = DateTimeZoneHelper::getDateTime($dateFrom, DateTimeZoneHelper::DATE_FORMAT, false);
         $dateTo = DateTimeZoneHelper::getDateTime($dateTo, DateTimeZoneHelper::DATE_FORMAT, false);
@@ -94,7 +95,7 @@ class ActOfReconciliation extends Singleton
                 'currency' => $account->currency,
                 'operation_type_id' => OperationType::ID_PRICE,
             ])
-            ->andWhere(['>', 'sum', 0])
+            ->andWhere([($isWithPrepayedBills ? '>=' : '>' ), 'sum', 0])
             ->andWhere(['between', 'bill_date', $dateFrom, $dateTo]);
 
 
@@ -179,6 +180,10 @@ WHERE b.client_id = ' . $account->id . '
                 // select count(*) from newbill_lines where bill_no = '202012-018854' and id_service is not null
                 $isServiceBill = BillLine::find()->where(['bill_no' => $item['number']])->andWhere(['NOT', ['type' => BillLine::LINE_TYPE_ZADATOK]])->exists();
                 $isInvoiceCreated = Invoice::find()->where(['bill_no' => $item['number']])->exists();
+
+                if (!$isServiceBill) {
+                    $sum = BillLine::find()->where(['bill_no' => $item['number']])->sum('sum');
+                }
             }
 
             $result[] = [
@@ -225,14 +230,14 @@ WHERE b.client_id = ' . $account->id . '
         ];
     }
 
-    public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true)
+    public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true, $isWithPrepaymentBills = false)
     {
         $isNotRussia = $account->getUuCountryId() != Country::RUSSIA;
         if (!$dateFrom) {
             $dateFrom = $isNotRussia ? '2019-07-31' : date('Y-01-01', strtotime('-3 year'));
         }
 
-        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia, !$isNotRussia);
+        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia, !$isNotRussia, $isWithPrepaymentBills);
 
         $data = array_reverse(
             array_filter($dirtyData['data'], function ($a) {
