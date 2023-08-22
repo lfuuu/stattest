@@ -34,6 +34,7 @@ class PaymentTemplateType extends ActiveRecord
     const TYPE_INVOICE = 1;
     const TYPE_INVOICE_STORNO = 2;
     const TYPE_INVOICE_RF = 3;
+    const TYPE_INVOICE_PROFORMA = 4;
 
     /**
      * @inheritdoc
