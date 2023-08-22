@@ -63,8 +63,6 @@ class DataRawDao extends Singleton
             if ($group_by == 'number') {
                 $query->select([
                     'number' => 'msisdn',
-                    'cost' => new Expression('ABS(SUM(cost))'),
-                    'quantity' => new Expression('SUM(quantity)'),
                 ]);
                 $query->groupBy('msisdn');
             } else {
@@ -72,8 +70,6 @@ class DataRawDao extends Singleton
                 $query->addSelect([
                     'charge_time' => $exp,
                     'number' => 'msisdn',
-                    'cost' => new Expression('ABS(SUM(cost))'),
-                    'quantity' => new Expression('SUM(quantity)'),
                 ]);
 
                 $groupExp = clone $exp;
@@ -82,6 +78,12 @@ class DataRawDao extends Singleton
                 $query->groupBy($groupExp);
                 $query->orderBy($groupExp);
             }
+
+            $query->addSelect([
+                'cost' => new Expression('ABS(SUM(cost))'),
+                'quantity' => new Expression('SUM(quantity)'),
+                'count' => new Expression('COUNT(*)')
+            ]);
         }
 
         return $query;
