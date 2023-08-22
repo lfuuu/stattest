@@ -31,7 +31,6 @@ class InvoiceLight extends Component
         $_items,
         $_bill,
         $_invoice,
-        $_invoiceProformaBill,
 
         $_clientAccount,
         $_language = Language::LANGUAGE_DEFAULT,
@@ -88,16 +87,6 @@ class InvoiceLight extends Component
     public function setDate($date)
     {
         $this->_date = $date;
-        return $this;
-    }
-
-    /**
-     * @param Bill $invoiceProformaBill
-     * @return $this
-     */
-    public function setInvoiceProformaBill($invoiceProformaBill)
-    {
-        $this->_invoiceProformaBill = $invoiceProformaBill;
         return $this;
     }
 
@@ -229,7 +218,7 @@ class InvoiceLight extends Component
         $smarty = Smarty::init();
         $smarty->assign($this->getProperties());
 
-        $invoiceTemplate = new InvoiceForm($this->_language, $this->_invoice, $this->_invoiceProformaBill);
+        $invoiceTemplate = new InvoiceForm($this->_language, $this->_invoice);
 
         if ($invoiceTemplate->fileExists()) {
             $content = $smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName()));
