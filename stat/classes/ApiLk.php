@@ -162,6 +162,7 @@ class ApiLk
             (new DateTimeImmutable('now'))
                 ->modify('last day of this month')
                 ->format(DateTimeZoneHelper::DATE_FORMAT)
+            , true, true
         );
     }
 
