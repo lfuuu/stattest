@@ -375,7 +375,7 @@ class VoipController extends ApiInternalController
                 'count' => new Expression('COUNT(*)'),
                 'quantity' => new Expression('SUM(quantity)')
             ]);
-            $sumQuery->orderBy(null);
+            $sumQuery->orderBy(null)->groupBy(null);
 
             $generalInfo = $sumQuery->one(DataRaw::getDb());
             $generalInfo['count'] = (int)$generalInfo['count'];
