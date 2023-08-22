@@ -34,16 +34,10 @@ $baseView = $this;
 $columns = [
     [
         'class' => ActionColumn::class,
-        'template' => '{update} {delete}',
+        'template' => '{update}',
         'buttons' => [
             'update' => function ($url, Region $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, Region $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
                         'url' => $model->getUrl(),
                     ]
                 );
@@ -54,6 +48,10 @@ $columns = [
     [
         'attribute' => 'id',
         'class' => IntegerColumn::class,
+        'format' => 'html',
+        'value' => function (Region $model) use ($baseView) {
+            return Html::a($model->id, $model->getUrl());
+        }
     ],
     [
         'attribute' => 'country_code',
@@ -65,17 +63,17 @@ $columns = [
         'class' => StringColumn::class,
     ],
     [
-        'attribute' => 'parent_id',
-        'class' => RegionColumn::class,
-        'countryCodes' => $filterModel->country_code,
-    ],
-    [
         'attribute' => 'name',
         'class' => StringColumn::class,
     ],
     [
         'attribute' => 'name_translit',
         'class' => StringColumn::class,
+    ],
+    [
+        'attribute' => 'parent_id',
+        'class' => RegionColumn::class,
+        'countryCodes' => $filterModel->country_code,
     ],
     [
         'attribute' => 'cnt',
@@ -109,6 +107,20 @@ $columns = [
                 ) . ')';
         }
     ],
+    [
+        'class' => ActionColumn::class,
+        'template' => '{delete}',
+        'buttons' => [
+            'delete' => function ($url, Region $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
+
 ];
 
 $dataProvider = $filterModel->search();

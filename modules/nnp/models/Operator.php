@@ -16,8 +16,10 @@ use yii\helpers\Url;
  * @property int $cnt
  * @property int $type
  * @property string $operator_src_code
+ * @property int $parent_id
  *
  * @property-read Country $country
+ * @property-read Operator $parent
  */
 class Operator extends ActiveRecord
 {
@@ -87,6 +89,7 @@ class Operator extends ActiveRecord
             'group' => 'Группа оператора',
             'partner_code' => 'Код партнера',
             'operator_src_code' => 'Код оператора портирования',
+            'parent_id' => 'Оператор-родитель',
         ];
     }
 
@@ -107,7 +110,7 @@ class Operator extends ActiveRecord
     {
         return [
             [['name', 'name_translit', 'partner_code'], 'string'],
-            [['country_code', 'group'], 'integer'],
+            [['country_code', 'group', 'parent_id'], 'integer'],
             [['name', 'country_code'], 'required'],
             ['operator_src_code', 'safe'],
         ];
@@ -153,6 +156,14 @@ class Operator extends ActiveRecord
     public function getCountry()
     {
         return $this->hasOne(Country::class, ['code' => 'country_code']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParent()
+    {
+        return $this->hasOne(self::class, ['id' => 'parent_id']);
     }
 
     public function beforeSave($isInsert)

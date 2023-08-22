@@ -94,6 +94,27 @@ if (!$city->isNewRecord) {
         </div>
 
     </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <?php
+            $cityList = City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code);
+
+            if ($city->id) {
+                unset($cityList[$city->id]);
+            }
+
+            ?>
+            <?= $form->field($city, 'parent_id')->widget(Select2::class, [
+                'data' => $cityList,
+            ]) ?>
+            <div>
+                <?= ($cityParent = $city->parent) ?
+                    Html::a($cityParent->name, $cityParent->getUrl()) :
+                    '' ?>
+            </div>
+        </div>
+
+    </div>
 
     <?php // кнопки ?>
     <div class="form-group text-right">
