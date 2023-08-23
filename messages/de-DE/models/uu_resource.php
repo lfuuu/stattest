@@ -63,7 +63,7 @@ return [
     'Resource #66' => 'Trunk der externen PBX',
     'Resource #69' => 'SMART-Funktion',
     'Resource #70' => 'Zusätzliche Seite',
-
+    'Resource #72' => 'Transkription',
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];

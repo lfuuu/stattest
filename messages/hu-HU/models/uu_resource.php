@@ -56,6 +56,7 @@ return [
     'Resource #66' => 'Külső VPBX trönkje',
     'Resource #69' => 'SMART funkció',
     'Resource #70' => 'További webhely',
+    'Resource #72' => 'Átírása',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

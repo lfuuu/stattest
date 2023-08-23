@@ -58,6 +58,7 @@ class ResourceModel extends ActiveRecord
     const ID_VPBX_TRUNK_EXT_VPBX = 66; // ВАТС. Транк для внешней АТС
     const ID_VPBX_SPECIAL_AUTOCALL = 67; // ВАТС. СпецАвтообзвон
     const ID_VPBX_CALL_END_MANAGEMENT = 68; // ВАТС. УправлениеЗавершениемЗвонка
+    const ID_VPBX_TRANSCRIPTION = 72; // ВАТС. Транскрибация
 
     // VOIP
     const ID_VOIP_LINE = 7; // Телефония. Линия

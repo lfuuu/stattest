@@ -64,7 +64,7 @@ return [
     'Resource #66' => 'Trunk for external PBX',
     'Resource #69' => 'SMART function',
     'Resource #70' => 'Additional site',
-
+    'Resource #72' => 'Transcription',
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
 ];
