@@ -136,11 +136,12 @@ class ApiVpbx extends Singleton
                 'enable_prompter' => $tariff['enable_prompter'] ?? 0,
                 'voice_assistant' => $tariff['voice_assistant'] ?? 0,
                 'robot_controller' => $tariff['robot_controller'] ?? 0,
-                'is_reserv' => $tariff['is_reserv'] ?? 0,
-                'is_operator_score' => $tariff['is_operator_score'] ?? 0,
-                'is_external_pbx' => $tariff['is_external_pbx'] ?? 0,
-                'is_special_autocall' => $tariff['is_special_autocall'] ?? 0,
-                'is_call_end_management' => $tariff['is_call_end_management'] ?? 0,
+                'is_reserv' => $tariff['is_reserv'] ?? false,
+                'is_operator_score' => $tariff['is_operator_score'] ?? false,
+                'is_external_pbx' => $tariff['is_external_pbx'] ?? false,
+                'is_special_autocall' => $tariff['is_special_autocall'] ?? false,
+                'is_call_end_management' => $tariff['is_call_end_management'] ?? false,
+                'is_transcription' => $tariff['is_transcription'] ?? false,
             ]
         );
     }
@@ -304,11 +305,12 @@ class ApiVpbx extends Singleton
                 'voice_assistant' => $tariff['voice_assistant'] ?? 0,
                 'robot_controller' => $tariff['robot_controller'] ?? 0,
                 'enable_prompter' => $tariff['enable_prompter'] ?? 0,
-                'is_reserv' => $tariff['is_reserv'] ?? 0,
-                'is_operator_score' => $tariff['is_operator_score'] ?? 0,
-                'is_external_pbx' => $tariff['is_external_pbx'] ?? 0,
-                'is_special_autocall' => $tariff['is_special_autocall'] ?? 0,
-                'is_call_end_management' => $tariff['is_call_end_management'] ?? 0,
+                'is_reserv' => $tariff['is_reserv'] ?? false,
+                'is_operator_score' => $tariff['is_operator_score'] ?? false,
+                'is_external_pbx' => $tariff['is_external_pbx'] ?? false,
+                'is_special_autocall' => $tariff['is_special_autocall'] ?? false,
+                'is_call_end_management' => $tariff['is_call_end_management'] ?? false,
+                'is_transcription' => $tariff['is_transcription'] ?? false,
             ]
         );
     }
@@ -422,7 +424,8 @@ class ApiVpbx extends Singleton
                     region,
                     0 as enable_geo,
                     0 as enable_min_price,
-                    0 as enable_sub_accounts
+                    0 as enable_sub_accounts,
+                    0 as is_transcription
                 FROM (select (
                         select
                             id_tarif
@@ -480,11 +483,12 @@ SQL;
             'enable_prompter' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_PROMPTER),
             'voice_assistant' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_VOICE_ASSISTANT),
             'robot_controller' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_ROBOT_CONTROLLER),
-            'is_reserv' => (int)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_RESERV),
+            'is_reserv' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_RESERV),
             'is_operator_score' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_OPERATOR_ASSESSMENT),
             'is_external_pbx' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_TRUNK_EXT_VPBX),
             'is_special_autocall' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_SPECIAL_AUTOCALL),
             'is_call_end_management' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_CALL_END_MANAGEMENT),
+            'is_transcription' => (bool)$accountTariff->getResourceValue(ResourceModel::ID_VPBX_TRANSCRIPTION),
         ];
     }
 }
