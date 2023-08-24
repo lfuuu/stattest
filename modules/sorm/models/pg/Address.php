@@ -52,4 +52,38 @@ class Address extends ActiveRecord
         return \Yii::$app->dbPg;
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'address' => 'Адрес оригинальный',
+            'state' => 'Состояние',
+            'post_code' => 'Почтовый индекс',
+            'country' => 'Страна',
+            'district_type' => 'district_type',
+            'district' => 'district',
+            'region_type' => 'Тип района',
+            'region' => 'Район',
+            'city_type' => 'Тип города',
+            'city' => 'Город',
+            'street_type' => 'Тип улицы',
+            'street' => 'улица',
+            'house' => 'Номер дома',
+            'housing' => 'Корпус',
+            'flat_type' => 'Тип помещения',
+            'flat' => 'номер помещения',
+            'address_nostruct' => 'не структурированный адрес',
+            'json' => 'JSON',
+            'unparsed_parts' => 'Не распознанные части адреса',
+        ];
+    }
+
+    public function getStateList()
+    {
+        return [
+            'need_check' => 'Необходима проверка',
+            'added' => 'Ожидается распознование',
+            'ok' => 'Всё ОК (распознано)',
+        ];
+    }
+
 }
