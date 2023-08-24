@@ -253,6 +253,16 @@ class Navigation
         if ($isRus && $module = Yii::$app->getModule('sim')) {
             $module->getNavigation($this);
         }
+
+        if (access('sorm', 'read')) {
+            $this->addBlock(
+                NavigationBlock::create()
+                    ->setId('sorm')
+                    ->setTitle('СОРМ')
+                    ->addItem('Клиенты', ['/sorm/client'])
+            );
+
+        }
     }
 
     /**
