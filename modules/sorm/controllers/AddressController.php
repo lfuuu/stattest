@@ -15,9 +15,26 @@ class AddressController extends BaseController
 {
     public function actionIndex($hash)
     {
-        return $this->render('index',[
+        $model = Address::find()->where(['hash' => $hash])->one();
+
+        if (!$model) {
+            throw new \InvalidArgumentException('Адрес не найден');
+        }
+
+        if (\Yii::$app->request->isPost) {
+            try {
+                if ($model->load(\Yii::$app->request->post()) && $model->save()) {
+                    \Yii::$app->session->addFlash('success', 'Данные сохранены');
+                }
+            } catch (\Exception $e) {
+                \Yii::$app->session->addFlash('error', $e->getMessage());
+            }
+            $model->refresh();
+        }
+
+        return $this->render('index', [
             'hash' => $hash,
-            'model' => Address::find()->where(['hash' => $hash])->one(),
+            'model' => $model,
         ]);
     }
 }
