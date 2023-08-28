@@ -38,7 +38,8 @@ $columns = [
         'attribute' => '_address_device_nostruct',
         'label' => 'Адрес установки оборудования',
         'format' => 'html',
-        'value' => fn($f) => addressIndicator($f['_state_address_device_nostruct']) . $f['_address_device_nostruct'],
+        'value' => fn($f) => \app\classes\Html::a(addressIndicator($f['_state_address_device_nostruct']) , '/sorm/address?hash=' . md5($f['_address_device_nostruct'])) .
+            ($f['_state_address_device_nostruct'] != 'ok' ? \app\classes\Html::a($f['_address_device_nostruct'], '/sorm/address?hash=' . md5($f['_address_device_nostruct'])) : $f['_address_device_nostruct']),
     ],
 ];
 
