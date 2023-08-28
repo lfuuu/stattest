@@ -11,11 +11,11 @@ $form = \yii\widgets\ActiveForm::begin([
     'action' => ['/sorm/address', 'hash' => $model->hash],
 ]);
 
-$isNeedCheck = $model->state != 'need_check';
+$isNeedCheck = $model->state == 'need_check';
 
 $option = [];
 
-if ($isNeedCheck) {
+if (!$isNeedCheck) {
     $option = ['disabled' => true];
 }
 
@@ -87,7 +87,7 @@ echo \app\classes\Html::hiddenInput('doSave', 1);
                 <?= $form->field($model, "unparsed_parts")->textInput(['readonly' => true]) ?>
             </div>
             <div class="col-sm-6" style="text-align: right;">
-                <?= $this->render('//layouts/_submitButton' . 'Save') ?>
+                <?= ($isNeedCheck ? $this->render('//layouts/_submitButton' . 'Save') : '') ?>
             </div>
         </div>
         <div class="row well" style="margin-left:2%; margin-right:2%;">
