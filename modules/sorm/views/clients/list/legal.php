@@ -1,73 +1,45 @@
-<?= app\classes\Html::formLabel($this->title = 'СОРМ: Клиенты') ?>
+<?= app\classes\Html::formLabel($this->title = 'СОРМ: Клиенты. Юридические лица') ?>
 <?= \yii\widgets\Breadcrumbs::widget([
     'links' => [
-        ['label' => $this->title, 'url' => '/sorm/client/'],
+        ['label' => $this->title, 'url' => '/sorm/clients/legal'],
     ],
 ]) ?>
 
 <?php
 
-function addressIndicator($state)
-{
-    switch ($state) {
-        case 'added':
-            return \app\classes\Html::tag('span', '', ['class' => 'glyphicon glyphicon-remove text-danger']) . ' ';
-        case 'ok':
-            return \app\classes\Html::tag('span', '', ['class' => 'glyphicon glyphicon-ok text-success']) . ' ';
-        default:
-            return ' (' . $state . ') ';
-    }
-}
-
-function fioInd($f, $strLen = null)
-{
-    $f = trim($f);
-    if (!$f) {
-        return \app\classes\Html::tag('span', '&nbsp;?&nbsp;', ['style' => ['color' => 'white', 'background-color' => 'red']]);
-    }
-
-    if ($strLen && mb_strlen($f) != $strLen) {
-        if (mb_strlen($f) > $strLen) {
-            $len = 1;
-        } else {
-            $len = $strLen - mb_strlen($f);
-        }
-        return \app\classes\Html::tag('span', $f.str_repeat('?', $len), ['style' => ['color' => 'black', 'background-color' => 'yellow']]);
-    }
-
-    return $f;
-}
+include "fn.php";
 
 $columns = [
     [
-        'attribute' => 'id',
+        'label' => '(У)ЛС',
         'value' => fn($f) => \app\classes\Html::a($f['id'], '/client/view?id=' . $f['id']),
         'format' => 'html',
     ],
     [
         'attribute' => 'legal_type_id',
+        'label' => 'Тип юр. лица',
         'class' => \app\classes\grid\column\universal\DropdownColumn::class,
         'filter' => ['1' => 'Юр. лицо', '0' => 'Физ. лицо'],
     ],
     [
         'attribute' => 'name_jur',
+        'label' => 'Название',
         'format' => 'html',
-        'value' => fn($f) => ($f['legal_type_id'] == '0' ? fioInd($f['f']) . ' / ' . fioInd($f['i']) . ' / ' . fioInd($f['o']) : str_replace('ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ', 'ООО', $f['name_jur'])),
+        'value' => fn($f) => str_replace('ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ', 'ООО', $f['name_jur']),
     ],
     [
         'attribute' => '_address_nostruct',
+        'label' => 'Юр. адрес',
         'format' => 'html',
-        'value' => fn($f) => addressIndicator($f['_state_address_nostruct']) . ($f['_state_address_nostruct'] != 'ok' ? \app\classes\Html::a($f['_address_nostruct'], '/sorm/address?hash=' . md5($f['_address_nostruct'])) : $f['_address_nostruct']),
+        'value' => fn($f) => \app\classes\Html::a(addressIndicator($f['_state_address_nostruct']) , '/sorm/address?hash=' . md5($f['_address_nostruct'])) .
+            ($f['_state_address_nostruct'] != 'ok' ? \app\classes\Html::a($f['_address_nostruct'], '/sorm/address?hash=' . md5($f['_address_nostruct'])) : $f['_address_nostruct']),
     ],
     [
         'attribute' => '_address_device_nostruct',
+        'label' => 'Адрес установки оборудования',
         'format' => 'html',
         'value' => fn($f) => addressIndicator($f['_state_address_device_nostruct']) . $f['_address_device_nostruct'],
     ],
-    [
-        'value' => fn($f) => ($f['document_name']. ': ' . fioInd($f['passport_serial'], 4) . ' / ' . fioInd($f['passport_number'], 6). ' / ' . fioInd($f['passport_issued_date']) . ' / ' . fioInd($f['passport_issued'])),
-        'format' => 'html',
-    ]
 ];
 
 

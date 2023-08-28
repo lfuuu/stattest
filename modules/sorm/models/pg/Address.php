@@ -77,12 +77,40 @@ class Address extends ActiveRecord
         ];
     }
 
+
+    public function rules()
+    {
+        $modelFields = [
+            'state',
+            'post_code',
+            'country',
+            'district_type',
+            'district',
+            'region_type',
+            'region',
+            'city_type',
+            'city',
+            'street_type',
+            'street',
+            'house',
+            'housing',
+            'flat_type',
+            'flat',
+            'address_nostruct',
+        ];
+
+        $rules = [[$modelFields, 'safe', 'skipOnEmpty' => true]];
+
+        return $rules;
+    }
+
+
     public function getStateList()
     {
         return [
             'need_check' => 'Необходима проверка',
             'added' => 'Ожидается распознование',
-            'ok' => 'Всё ОК (распознано)',
+            'checked' => 'Всё ОК',
         ];
     }
 

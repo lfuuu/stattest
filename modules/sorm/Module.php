@@ -3,6 +3,7 @@
 namespace app\modules\sorm;
 
 use app\classes\helpers\ArrayHelper;
+use app\classes\NavigationBlock;
 use Yii;
 
 class Module extends \yii\base\Module
@@ -32,5 +33,16 @@ class Module extends \yii\base\Module
 //        }
 //
 //        Yii::configure($this, $params);
+    }
+
+    public function getNavigation($nav)
+    {
+            $nav->addBlock(
+                NavigationBlock::create()
+                    ->setId('sorm')
+                    ->setTitle('СОРМ')
+                    ->addItem('Клиенты. Адреса. Физ.', ['/sorm/clients/person'])
+                    ->addItem('Клиенты. Адреса. Юр./ИП', ['/sorm/clients/legal'])
+            );
     }
 }
