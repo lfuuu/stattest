@@ -33,6 +33,7 @@ class MonitoringController extends ApiInternalController
 
     /**
      * @SWG\Get(tags = {"Monitoring"}, path = "/internal/monitoring/sync-errors-usage-voip/", summary = "Мониторинг ключевых событий. шибки синхронизации. Телефония", operationId = "sync_errors_usage_voip",
+     *   @SWG\Parameter(name = "isMetric", type = "integer", description = "Показывать метрики", in = "query", default = "0", required = false),
      *   @SWG\Response(response = 200, description = "данные об услугах",
      *     )
      *   ),
@@ -40,7 +41,7 @@ class MonitoringController extends ApiInternalController
      *
      * @throws BadRequestHttpException
      */
-    public function actionSyncErrorsUsageVoip()
+    public function actionSyncErrorsUsageVoip($isMetric = 0)
     {
         $dataPrivider = MonitorFactory::me()->getSyncErrorsUsageVoip()->getResult();
 
@@ -57,6 +58,22 @@ class MonitoringController extends ApiInternalController
                 + ($r['status'] == SyncErrorsUsageBase::STATUS_ACCOUNT_DIFF ? ['account_id2' => (int)$r['account_id2']] : []);
         }
 
-        return $rr;
+        if (!$isMetric) {
+            return $rr;
+        }
+
+
+        \Yii::$app->response->format = Response::FORMAT_RAW;
+
+        $content = '';
+        foreach ($rr as $status => $statusData) {
+            foreach ($statusData as $value) {
+                $content .= PHP_EOL . 'metric count {source="' . $status . '", account_id="' . $value['account_id'] . '", did="' . $value['did'] . '"} 1';
+            }
+        }
+
+        \Yii::$app->response->content = $content . PHP_EOL;
+
+        \Yii::$app->end();
     }
 }
