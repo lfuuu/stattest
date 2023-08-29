@@ -18,7 +18,7 @@ use yii\widgets\Breadcrumbs;
 $region = $formModel->region;
 
 if (!$region->isNewRecord) {
-    $this->title = $region->name;
+    $this->title = ['label' => $region->name, 'url' => $region->getUrl()];
 } else {
     $this->title = Yii::t('common', 'Create');
 }
@@ -28,6 +28,7 @@ if (!$region->isNewRecord) {
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
         ['label' => 'Регионы', 'url' => $cancelUrl = '/nnp/region/'],
+        $region->country_code ? ['label' => $region->country,  'url' => $cancelUrl = ['/nnp/region/', 'RegionFilter' => ['country_code' => $formModel->region->country_code]]] : ['label' => 'Добавление региона'],
         $this->title
     ],
 ]) ?>
@@ -60,25 +61,6 @@ if (!$region->isNewRecord) {
             <?= $form->field($region, 'iso')->textInput() ?>
         </div>
 
-        <div class="col-sm-2">
-            <?php
-                $regionList = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code);
-
-                if ($region->id) {
-                    unset($regionList[$region->id]);
-                }
-
-            ?>
-            <?= $form->field($region, 'parent_id')->widget(Select2::class, [
-                'data' => $regionList,
-            ]) ?>
-            <div>
-                <?= ($regionParent = $region->parent) ?
-                    Html::a($regionParent->name, $regionParent->getUrl()) :
-                    '' ?>
-            </div>
-        </div>
-
         <?php // Название ?>
         <div class="col-sm-2">
             <?= $form->field($region, 'name')->textInput() ?>
@@ -104,6 +86,55 @@ if (!$region->isNewRecord) {
                 ) . ')' ?>
             </div>
         </div>
+
+        <?php // if valid  ?>
+        <?php $childs = $region->childs; ?>
+        <div class="col-sm-3">
+            <br />
+            <?= $form->field($region, 'is_valid')->checkbox($childs ? ['disabled' => true] : []) . ($childs ? $form->field($region, 'is_valid')->hiddenInput()->label('') : '')?>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <?php
+            $regionList = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code, null, true);
+
+            if ($region->id) {
+                unset($regionList[$region->id]);
+            }
+
+            ?>
+            <?= $form->field($region, 'parent_id')->widget(Select2::class, [
+                'data' => $regionList,
+            ]) ?>
+            <div>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <?php
+            if ($parent = $region->parent) {
+                echo Html::a(
+                    'перейти к родителю',
+                    Url::to($parent->getUrl())
+                );
+            }
+
+            if ($childs) {
+                echo 'Синонимы: <br />';
+
+                $i = 0;
+                foreach ($childs as $child) {
+                    echo ++$i . '. ' . Html::a(
+                            strval($child),
+                            Url::to($child->getUrl())
+                        ) . '<br />';
+                }
+            }
+
+            ?>
+        </div>
+
 
     </div>
 

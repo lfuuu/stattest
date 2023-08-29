@@ -17,9 +17,11 @@ use yii\helpers\Url;
  * @property string $iso
  * @property int $cnt
  * @property int $cnt_active
+ * @property int $is_valid
  *
  * @property-read Country $country
  * @property-read Region $parent
+ * @property-read Region[] $childs
  */
 class Region extends ActiveRecord
 {
@@ -134,6 +136,7 @@ class Region extends ActiveRecord
             'cnt' => 'Кол-во номеров (всех)',
             'cnt_active' => 'Кол-во номеров (актив)',
             'iso' => 'ISO',
+            'is_valid' => 'Подтверждён',
         ];
     }
 
@@ -157,6 +160,7 @@ class Region extends ActiveRecord
             [['name', 'name_translit', 'iso'], FormFieldValidator::class],
             ['iso', 'string', 'max' => 3],
             [['country_code', 'parent_id'], 'integer'],
+            [['is_valid'], 'boolean'],
             [['name', 'country_code'], 'required'],
         ];
     }
@@ -201,6 +205,10 @@ class Region extends ActiveRecord
             $this->iso = strtoupper($this->iso);
         }
 
+        if ($this->parent_id && !$this->is_valid) {
+            $this->is_valid = true;
+        }
+
         return parent::beforeSave($isInsert);
     }
 
@@ -218,6 +226,14 @@ class Region extends ActiveRecord
     public function getParent()
     {
         return $this->hasOne(self::class, ['id' => 'parent_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getChilds()
+    {
+        return $this->hasMany(self::class, ['parent_id' => 'id']);
     }
 
     /**
@@ -270,8 +286,11 @@ class Region extends ActiveRecord
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
         $countryCodes = null,
-        $minCnt = self::MIN_CNT
+        $minCnt = null,
+        $isValid = null
     ) {
+        $minCnt = $minCnt ?? self::MIN_CNT;
+
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
@@ -281,7 +300,8 @@ class Region extends ActiveRecord
             $where = [
                 'AND',
                 $countryCodes ? ['country_code' => $countryCodes] : [],
-                $minCnt ? ['>=', 'cnt', $minCnt] : []
+                $minCnt ? ['>=', 'cnt', $minCnt] : [],
+                $isValid !== null ? ['is_valid' => (bool)$isValid] : [],
             ]
         );
     }

@@ -20,6 +20,7 @@ class CityFilter extends City
     public $cnt_active_from = '';
     public $cnt_active_to = '';
     public $parent_id = '';
+    public $is_valid = '';
 
     /**
      * @return array
@@ -28,7 +29,7 @@ class CityFilter extends City
     {
         return [
             [['name', 'name_translit', 'parent_id'], 'string'],
-            [['id', 'country_code', 'region_id', 'cnt_from', 'cnt_to', 'cnt_active_from', 'cnt_active_to'], 'integer'],
+            [['id', 'country_code', 'region_id', 'cnt_from', 'cnt_to', 'cnt_active_from', 'cnt_active_to', 'is_valid'], 'integer'],
         ];
     }
 
@@ -56,6 +57,8 @@ class CityFilter extends City
 
         $this->cnt_active_from !== '' && $query->andWhere(['>=', $cityTableName . '.cnt_active', $this->cnt_active_from]);
         $this->cnt_active_to !== '' && $query->andWhere(['<=', $cityTableName . '.cnt_active', $this->cnt_active_to]);
+
+        $this->is_valid !== '' && $query->andWhere(["{$cityTableName}.is_valid" => (bool)$this->is_valid]);
 
         if ($this->parent_id !== '') {
             $query->joinWith('parent p')->andWhere(['LIKE', 'p.name', $this->parent_id, true]);

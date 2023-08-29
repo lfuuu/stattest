@@ -68,10 +68,12 @@ class CityController extends BaseController
         // сообщение об ошибке
         if ($formModel->validateErrors) {
             Yii::$app->session->setFlash('error', $formModel->validateErrors);
+            return $this->redirect($formModel->city->getUrl());
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index', 'CityFilter[country_code]' => $formModel->city->country_code, 'CityFilter[region_id]' => $formModel->city->region_id]);
+            \Yii::$app->session->addFlash('success', 'Данные сохранены');
+            return $this->redirect($formModel->city->getUrl());
         }
 
         return $this->render('edit', [
@@ -96,10 +98,12 @@ class CityController extends BaseController
         // сообщение об ошибке
         if ($formModel->validateErrors) {
             Yii::$app->session->setFlash('error', $formModel->validateErrors);
+            return $this->redirect($formModel->city->getUrl());
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index', 'CityFilter[country_code]' => $formModel->city->country_code, 'CityFilter[region_id]' => $formModel->city->region_id]);
+            return $this->redirect($formModel->city->getUrl());
+//            return $this->redirect(['index', 'CityFilter[country_code]' => $formModel->city->country_code, 'CityFilter[region_id]' => $formModel->city->region_id]);
         }
 
         return $this->render('edit', [

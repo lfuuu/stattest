@@ -96,10 +96,12 @@ class RegionController extends BaseController
         // сообщение об ошибке
         if ($formModel->validateErrors) {
             Yii::$app->session->setFlash('error', $formModel->validateErrors);
+            return $this->redirect($formModel->region->getUrl());
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index', 'RegionFilter[country_code]' => $formModel->region->country_code]);
+            \Yii::$app->session->addFlash('success', 'Данные сохранены');
+            return $this->redirect($formModel->region->getUrl());
         }
 
         return $this->render('edit', [

@@ -19,6 +19,7 @@ class RegionFilter extends Region
     public $cnt_to = '';
     public $cnt_active_from = '';
     public $cnt_active_to = '';
+    public $is_valid = '';
 
     /**
      * @return array
@@ -27,7 +28,7 @@ class RegionFilter extends Region
     {
         return [
             [['name', 'name_translit', 'iso'], 'string'],
-            [['id', 'country_code', 'parent_id', 'cnt_from', 'cnt_to', 'cnt_active_from', 'cnt_active_to'], 'integer'],
+            [['id', 'country_code', 'parent_id', 'cnt_from', 'cnt_to', 'cnt_active_from', 'cnt_active_to', 'is_valid'], 'integer'],
         ];
     }
 
@@ -55,6 +56,7 @@ class RegionFilter extends Region
 
         $this->cnt_active_from !== '' && $query->andWhere(['>=', $regionTableName . '.cnt_active', $this->cnt_active_from]);
         $this->cnt_active_to !== '' && $query->andWhere(['<=', $regionTableName . '.cnt_active', $this->cnt_active_to]);
+        $this->is_valid !== '' && $query->andWhere(["{$regionTableName}.is_valid" => (bool)$this->is_valid]);
 
         return $dataProvider;
     }
