@@ -68,12 +68,14 @@ class MonitoringController extends ApiInternalController
         $content = '';
         foreach ($rr as $status => $statusData) {
             foreach ($statusData as $value) {
-                $content .= PHP_EOL . 'metric count {source="' . $status . '", account_id="' . $value['account_id'] . '", did="' . $value['did'] . '"} 1';
+                $content .= PHP_EOL . 'numbers_active_db {source="' . $status . '", account_id="' . $value['account_id'] . '", did="' . $value['did'] . '"} 1';
             }
         }
 
         \Yii::$app->response->content = $content . PHP_EOL;
 
         \Yii::$app->end();
+
+        return;
     }
 }
