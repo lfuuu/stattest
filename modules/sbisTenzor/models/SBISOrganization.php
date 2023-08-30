@@ -39,6 +39,7 @@ class SBISOrganization extends ActiveRecord
 {
     const ID_MCN_TELECOM = 1;
     const ID_MCN_TELECOM_SERVICE = 2; // МСН Телеком Сервис
+    const ID_AB_SERVICE_MARCOMNET = 14; // Абонент Сервис
 
     public $login;
     public $password;

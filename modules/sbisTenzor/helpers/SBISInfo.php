@@ -39,6 +39,7 @@ class SBISInfo
                 break;
 
             case SBISOrganization::ID_MCN_TELECOM_SERVICE:
+            case SBISOrganization::ID_AB_SERVICE_MARCOMNET:
                 $groupIds1 = [
                     SBISExchangeGroup::ACT,
                 ];
