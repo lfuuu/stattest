@@ -18,7 +18,7 @@ use yii\widgets\Breadcrumbs;
 $operator = $formModel->operator;
 
 if (!$operator->isNewRecord) {
-    $this->title = $operator->name;
+    $this->title = ['label' => $operator->name, 'url' => $operator->getUrl()];
 } else {
     $this->title = Yii::t('common', 'Create');
 }
@@ -28,6 +28,7 @@ if (!$operator->isNewRecord) {
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
         ['label' => 'Операторы', 'url' => $cancelUrl = '/nnp/operator/'],
+        $operator->country_code ? ['label' => $operator->country,  'url' => $cancelUrl = ['/nnp/operator/', 'OperatorFilter' => ['country_code' => $formModel->operator->country_code]]] : ['label' => 'Добавление оператора'],
         $this->title
     ],
 ]) ?>
@@ -117,17 +118,51 @@ if (!$operator->isNewRecord) {
                 ],
             ]) ?>
         </div>
+
+        <?php // if valid  ?>
+        <?php $childs = $operator->childs; ?>
+        <div class="col-sm-3">
+            <br />
+            <?= $form->field($operator, 'is_valid')->checkbox($childs ? ['disabled' => true] : []) . ($childs ? $form->field($operator, 'is_valid')->hiddenInput()->label('') : '')?>
+        </div>
+    </div>
+    <div class="row">
+        <?php // parent_id  ?>
         <div class="col-sm-2">
             <?php
-                $operatorList = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $operator->country_code);
-                if ($operator->id) {
-                    unset($operatorList[$operator->id]);
-                }
+            $operatorList = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $operator->country_code, null, true);
+            if ($operator->id) {
+                unset($operatorList[$operator->id]);
+            }
             ?>
             <?= $form->field($operator, 'parent_id')->widget(Select2::class, [
                 'data' => $operatorList,
             ]) ?>
         </div>
+        <div class="col-sm-2">
+            <?php
+            if ($parent = $operator->parent) {
+                echo Html::a(
+                    'перейти к родителю',
+                    Url::to($parent->getUrl())
+                );
+            }
+
+            if ($childs) {
+                echo 'Синонимы: <br />';
+
+                $i = 0;
+                foreach ($childs as $child) {
+                    echo ++$i . '. ' . Html::a(
+                            strval($child),
+                            Url::to($child->getUrl())
+                        ) . '<br />';
+                }
+            }
+
+            ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

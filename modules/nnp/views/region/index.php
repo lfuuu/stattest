@@ -65,10 +65,26 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::class,
+        'format' => 'html',
+        'value' => function (Region $region) {
+            $html = $region->name;
+            if ($region->is_valid) {
+                $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']);
+            } else {
+                $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
+            }
+
+            return $html;
+        },
     ],
     [
         'attribute' => 'name_translit',
         'class' => StringColumn::class,
+    ],
+    [
+        'attribute' => 'is_valid',
+        'class' => \app\classes\grid\column\universal\YesNoColumn::class,
+        'contentOptions' => fn(Region $region) => ($region->is_valid ? ['style' => ['color' => 'green', 'font-weight' => 'bold']] : []),
     ],
     [
         'attribute' => 'parent_id',

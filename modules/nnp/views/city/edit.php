@@ -19,18 +19,28 @@ use yii\widgets\Breadcrumbs;
 $city = $formModel->city;
 
 if (!$city->isNewRecord) {
-    $this->title = $city->name;
+    $this->title = ['label' => $city->name, 'url' => $city->getUrl()];
 } else {
     $this->title = Yii::t('common', 'Create');
 }
 ?>
 
-<?= Breadcrumbs::widget([
-    'links' => [
-        ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
-        ['label' => 'Города', 'url' => $cancelUrl = '/nnp/city/'],
-        $this->title
-    ],
+<?php
+
+$links = [];
+
+$links[] = ['label' => 'Национальный номерной план', 'url' => '/nnp/'];
+$links[] = ['label' => 'Города', 'url' => $cancelUrl = '/nnp/city/'];
+if (!$city->isNewRecord) {
+    $links[] = ['label' => 'Страна: ' . $city->country, 'url' => $cancelUrl = ['/nnp/city/', 'CityFilter' => ['country_code' => $city->country_code]]];
+    $links[] = ['label' => 'Регион: ' . $city->region, 'url' => $cancelUrl = ['/nnp/city/', 'CityFilter' => ['country_code' => $city->country_code, 'region_id' => $city->region_id]]];
+} else {
+    $links[] = ['label' => 'Добавление города'];
+}
+$links[] = $this->title;
+
+echo Breadcrumbs::widget([
+    'links' => $links,
 ]) ?>
 
 <div class="well">
@@ -93,11 +103,18 @@ if (!$city->isNewRecord) {
             </div>
         </div>
 
+        <?php // if valid  ?>
+        <?php $childs = $city->childs; ?>
+        <div class="col-sm-3">
+            <br />
+            <?= $form->field($city, 'is_valid')->checkbox($childs ? ['disabled' => true] : []) . ($childs ? $form->field($city, 'is_valid')->hiddenInput()->label('') : '') ?>
+        </div>
+
     </div>
     <div class="row">
         <div class="col-sm-2">
             <?php
-            $cityList = City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code);
+            $cityList = City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code, null, null, null, true);
 
             if ($city->id) {
                 unset($cityList[$city->id]);
@@ -107,11 +124,30 @@ if (!$city->isNewRecord) {
             <?= $form->field($city, 'parent_id')->widget(Select2::class, [
                 'data' => $cityList,
             ]) ?>
-            <div>
-                <?= ($cityParent = $city->parent) ?
-                    Html::a($cityParent->name, $cityParent->getUrl()) :
-                    '' ?>
-            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <?php
+            if ($parent = $city->parent) {
+                echo Html::a(
+                    'перейти к родителю',
+                    Url::to($parent->getUrl())
+                );
+            }
+
+            if ($childs) {
+                echo 'Синонимы: <br />';
+
+                $i = 0;
+                foreach ($childs as $child) {
+                    echo ++$i . '. ' . Html::a(
+                            strval($child),
+                            Url::to($child->getUrl())
+                        ) . '<br />';
+                }
+            }
+
+            ?>
         </div>
 
     </div>

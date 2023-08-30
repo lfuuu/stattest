@@ -96,10 +96,12 @@ class OperatorController extends BaseController
         // сообщение об ошибке
         if ($formModel->validateErrors) {
             Yii::$app->session->setFlash('error', $formModel->validateErrors);
+            return $this->redirect($formModel->getOperatorModel()->getUrl());
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index', 'OperatorFilter[country_code]' => $formModel->operator->country_code]);
+            \Yii::$app->session->addFlash('success', 'Данные сохранены');
+            return $this->redirect($formModel->getOperatorModel()->getUrl());
         }
 
         return $this->render('edit', [

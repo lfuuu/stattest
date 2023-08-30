@@ -16,10 +16,12 @@ use yii\helpers\Url;
  * @property int $cnt
  * @property int $cnt_active
  * @property int $parent_id
+ * @property int $is_valid
  *
  * @property-read Country $country
  * @property-read Region $region
  * @property-read City $parent
+ * @property-read City[] $childs
  */
 class City extends ActiveRecord
 {
@@ -59,6 +61,7 @@ class City extends ActiveRecord
             'cnt' => 'Кол-во номеров (всех)',
             'cnt_active' => 'Кол-во номеров (актив)',
             'parent_id' => 'Город-родитель',
+            'is_valid' => 'Подтверждён',
         ];
     }
 
@@ -80,6 +83,7 @@ class City extends ActiveRecord
         return [
             [['name', 'name_translit'], 'string'],
             [['country_code', 'region_id', 'parent_id'], 'integer'],
+            [['is_valid'], 'boolean'],
             [['name', 'country_code'], 'required'],
         ];
     }
@@ -124,6 +128,14 @@ class City extends ActiveRecord
         return Yii::$app->dbPgNnp;
     }
 
+    public function beforeSave($isInsert)
+    {
+        if ($this->parent_id && !$this->is_valid) {
+            $this->is_valid = true;
+        }
+
+        return parent::beforeSave($isInsert);
+    }
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -146,6 +158,14 @@ class City extends ActiveRecord
     public function getParent()
     {
         return $this->hasOne(self::class, ['id' => 'parent_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getChilds()
+    {
+        return $this->hasMany(self::class, ['parent_id' => 'id']);
     }
 
     /**
@@ -190,9 +210,13 @@ class City extends ActiveRecord
         $isWithNullAndNotNull = false,
         $countryCodes = null,
         $regionIds = null,
-        $minCnt = self::MIN_CNT,
-        $minCntActive = 0
+        $minCnt = null,
+        $minCntActive = null,
+        $isValid = null
     ) {
+        $minCnt = $minCnt ?? self::MIN_CNT;
+        $minCntActive = $minCntActive ?? 0;
+
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
@@ -205,6 +229,7 @@ class City extends ActiveRecord
                 $regionIds ? ['region_id' => $regionIds] : [],
                 $minCnt ? ['>=', 'cnt', $minCnt] : [],
                 $minCntActive ? ['>=', 'cnt_active', $minCntActive] : [],
+                $isValid !== null ? ['is_valid' => (bool)$isValid] : [],
             ]
         );
     }

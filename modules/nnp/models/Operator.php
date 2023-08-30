@@ -4,6 +4,7 @@ namespace app\modules\nnp\models;
 
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\exceptions\ModelValidationException;
 use Yii;
 use yii\helpers\Url;
 
@@ -17,9 +18,11 @@ use yii\helpers\Url;
  * @property int $type
  * @property string $operator_src_code
  * @property int $parent_id
+ * @property int $is_valid
  *
  * @property-read Country $country
  * @property-read Operator $parent
+ * @property-read Operator[] $childs
  */
 class Operator extends ActiveRecord
 {
@@ -90,6 +93,7 @@ class Operator extends ActiveRecord
             'partner_code' => 'Код партнера',
             'operator_src_code' => 'Код оператора портирования',
             'parent_id' => 'Оператор-родитель',
+            'is_valid' => 'Подтверждён',
         ];
     }
 
@@ -111,6 +115,7 @@ class Operator extends ActiveRecord
         return [
             [['name', 'name_translit', 'partner_code'], 'string'],
             [['country_code', 'group', 'parent_id'], 'integer'],
+            [['is_valid'], 'boolean'],
             [['name', 'country_code'], 'required'],
             ['operator_src_code', 'safe'],
         ];
@@ -166,10 +171,22 @@ class Operator extends ActiveRecord
         return $this->hasOne(self::class, ['id' => 'parent_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getChilds()
+    {
+        return $this->hasMany(self::class, ['parent_id' => 'id']);
+    }
+
     public function beforeSave($isInsert)
     {
         if (!$this->operator_src_code) {
             $this->operator_src_code = null;
+        }
+
+        if ($this->parent_id && !$this->is_valid) {
+            $this->is_valid = true;
         }
 
         return parent::beforeSave($isInsert);
@@ -207,15 +224,19 @@ class Operator extends ActiveRecord
      * @param bool $isWithNullAndNotNull
      * @param int|int[] $countryCode
      * @param int $minCnt
+     * @param int $isValid
      * @return \string[]
      */
     public static function getList(
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
         $countryCode = null,
-        $minCnt = self::MIN_CNT
+        $minCnt = null,
+        $isValid = null
     )
     {
+        $minCnt = $minCnt ?? self::MIN_CNT;
+
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
@@ -225,7 +246,8 @@ class Operator extends ActiveRecord
             $where = [
                 'AND',
                 $countryCode ? ['country_code' => $countryCode] : [],
-                $minCnt ? ['>=', 'cnt', $minCnt] : []
+                $minCnt ? ['>=', 'cnt', $minCnt] : [],
+                $isValid !== null ? ['is_valid' => (bool)$isValid] : [],
             ]
         );
     }
