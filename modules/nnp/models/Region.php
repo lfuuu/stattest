@@ -5,6 +5,7 @@ namespace app\modules\nnp\models;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\classes\validators\FormFieldValidator;
+use app\modules\nnp\classes\NumberRangeSetValid;
 use Yii;
 use yii\helpers\Url;
 
@@ -94,14 +95,14 @@ class Region extends ActiveRecord
         82 /* Ростовская обл. */ => 7863 /* Ростов-на-Дону */,
         83 /* Ставропольский край */ => 103543 /* Ставрополь */,
 
-        45	/* Смоленская обл. */ => 100964 /* Смоленск */,
-        70	/* Нижегородская обл. */ => 7831 /* Нижний Новгород */,
-        79	/* Саратовская обл. */ => 102626 /* Саратов */,
+        45    /* Смоленская обл. */ => 100964 /* Смоленск */,
+        70    /* Нижегородская обл. */ => 7831 /* Нижний Новгород */,
+        79    /* Саратовская обл. */ => 102626 /* Саратов */,
 
-        14	/* Башкирия */ => 7347 /* Уфа */,
-        59	/* Псковская обл. */ => 101841 /* Псков */,
-        64	/* Новгородская обл. */ => 102128 /* Великий Новгород */,
-        74	/* Пензенская обл. */ => 102291	/* Пенза */,
+        14    /* Башкирия */ => 7347 /* Уфа */,
+        59    /* Псковская обл. */ => 101841 /* Псков */,
+        64    /* Новгородская обл. */ => 102128 /* Великий Новгород */,
+        74    /* Пензенская обл. */ => 102291    /* Пенза */,
 
     ];
 
@@ -212,6 +213,15 @@ class Region extends ActiveRecord
         return parent::beforeSave($isInsert);
     }
 
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (isset($changedAttributes['is_valid']) && $changedAttributes['is_valid'] != $this->is_valid) {
+            NumberRangeSetValid::me()->set($this->country_code, null, null, $this->id);
+        }
+        parent::afterSave($insert, $changedAttributes);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -288,7 +298,8 @@ class Region extends ActiveRecord
         $countryCodes = null,
         $minCnt = null,
         $isValid = null
-    ) {
+    )
+    {
         $minCnt = $minCnt ?? self::MIN_CNT;
 
         return self::getListTrait(

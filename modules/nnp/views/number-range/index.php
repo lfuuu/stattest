@@ -80,6 +80,24 @@ $filterColumns = [
     ],
 ];
 
+
+function getNameWithValidIndicator(?\app\classes\model\ActiveRecord $model)
+{
+    if (!$model) {
+        return '';
+    }
+
+    $html = $model->name;
+    if ($model->is_valid) {
+        $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']);
+    } else {
+        $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
+    }
+
+    return $html;
+}
+
+
 $columns = [
     [
         'class' => ActionColumn::class,
@@ -116,6 +134,7 @@ $columns = [
         'filterInputOptions' => [
             'multiple' => true,
         ],
+        'value' => fn($nr) => getNameWithValidIndicator($nr->operator)
     ],
     [
         'attribute' => 'region_id',
@@ -126,6 +145,7 @@ $columns = [
         'filterInputOptions' => [
             'multiple' => true,
         ],
+        'value' => fn($nr) => getNameWithValidIndicator($nr->region)
     ],
     [
         'attribute' => 'city_id',
@@ -137,6 +157,7 @@ $columns = [
         'filterInputOptions' => [
             'multiple' => true,
         ],
+        'value' => fn($nr) => getNameWithValidIndicator($nr->city)
     ],
     [
         'attribute' => 'ndc_type_id',
@@ -149,6 +170,11 @@ $columns = [
     [
         'attribute' => 'is_active',
         'class' => YesNoColumn::class,
+    ],
+    [
+        'attribute' => 'is_valid',
+        'class' => YesNoColumn::class,
+        'contentOptions' => fn(NumberRange $nr) => ($nr->is_valid ? ['style' => ['color' => 'green', 'font-weight' => 'bold']] : []),
     ],
     [
         'label' => 'Префиксы',
@@ -222,6 +248,6 @@ echo GridView::widget([
 //if (NumberRange::isTriggerEnabled()) {
 //    echo $this->render('_indexTriggerEnabled');
 //} else {
-    // echo $this->render('_indexReset');
-    echo $this->render('_indexFilterToPrefix');
+// echo $this->render('_indexReset');
+echo $this->render('_indexFilterToPrefix');
 //}

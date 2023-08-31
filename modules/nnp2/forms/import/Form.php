@@ -26,7 +26,7 @@ class Form extends \app\classes\Form
     /** @var Country */
     public $country;
 
-    public $version = self::VERSION_V2;
+    public $version = self::VERSION_V1;
 
     protected static $versionNames = [
         self::VERSION_V1 => 'Импорт v1',

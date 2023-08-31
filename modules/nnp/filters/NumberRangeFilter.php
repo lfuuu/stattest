@@ -35,6 +35,7 @@ class NumberRangeFilter extends NumberRange
     public $insert_time = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это месяц добавления (insert_time) ИЛИ выключения (date_stop)
     public $date_resolution_from = '';
     public $date_resolution_to = '';
+    public $is_valid = '';
 
     public $prefix_id = '';
 
@@ -45,7 +46,7 @@ class NumberRangeFilter extends NumberRange
     {
         return [
             [['operator_source', 'ndc_str', 'region_source', 'city_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
-            [['country_code', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'prefix_id'], 'integer'],
+            [['country_code', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'prefix_id', 'is_valid'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
             [['date_resolution_from', 'date_resolution_to'], 'string'],
         ];
@@ -62,7 +63,7 @@ class NumberRangeFilter extends NumberRange
         $numberRangeTableName = NumberRange::tableName();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'db' => NumberRange::getDbSlave(),
+            'db' => NumberRange::getDb(),
         ]);
 
         $this->country_code && $query->andWhere([$numberRangeTableName . '.country_code' => $this->country_code]);
@@ -123,6 +124,20 @@ class NumberRangeFilter extends NumberRange
                 break;
             default:
                 $query->andWhere([$numberRangeTableName . '.city_id' => $this->city_id]);
+                break;
+        }
+
+        switch ($this->is_valid) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere($numberRangeTableName . '.is_valid IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere($numberRangeTableName . '.is_valid IS NOT NULL');
+                break;
+            default:
+                $query->andWhere([$numberRangeTableName . '.is_valid' => (bool)$this->is_valid]);
                 break;
         }
 

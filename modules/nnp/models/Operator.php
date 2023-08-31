@@ -5,6 +5,7 @@ namespace app\modules\nnp\models;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
+use app\modules\nnp\classes\NumberRangeSetValid;
 use Yii;
 use yii\helpers\Url;
 
@@ -190,6 +191,15 @@ class Operator extends ActiveRecord
         }
 
         return parent::beforeSave($isInsert);
+    }
+
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (isset($changedAttributes['is_valid']) && $changedAttributes['is_valid'] != $this->is_valid) {
+            NumberRangeSetValid::me()->set($this->country_code, $this->id);
+        }
+        parent::afterSave($insert, $changedAttributes);
     }
 
     /**

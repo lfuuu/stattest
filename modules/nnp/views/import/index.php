@@ -77,7 +77,8 @@ echo GridView::widget([
             'class' => CountryColumn::class,
             'format' => 'html',
             'value' => function (ImportHistory $model) {
-                return
+                return '';
+                return $model && $model->country ?
                     Html::a(
                         $model->country->name_rus .
                         ( $model->version ? Html::tag(
@@ -92,13 +93,14 @@ echo GridView::widget([
                             '/nnp/import/step2',
                             'countryCode' => $model->country->code,
                         ])
-                    );
+                    ) : '?';
             }
         ],
         [
             'attribute' => 'countryFile.name',
             'format' => 'html',
             'value' => function (ImportHistory $model) {
+                return '';
                 return
                     Html::a(
                         $model->countryFile->name,
