@@ -54,6 +54,7 @@ return [
     'Resource #50' => 'API-Methodenanforderung',
     'Resource #51' => 'Sprachassistent',
     'Resource #52' => 'Robotersteuerung',
+    'Resource #54' => 'Anzahl der Bots',
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
     'Resource #60' => 'Souffleur',

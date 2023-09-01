@@ -47,6 +47,7 @@ return [
     'Resource #50' => 'API-metódus kérés',
     'Resource #51' => 'Hangsegéd',
     'Resource #52' => 'Robotvezérlő',
+    'Resource #54' => 'Botok száma',
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
     'Resource #60' => 'Súgó',
