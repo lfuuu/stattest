@@ -54,6 +54,7 @@ return [
     'Resource #50' => 'Žiadosť o metódu API',
     'Resource #51' => 'Hlasový asistent',
     'Resource #52' => 'Ovládač robota',
+    'Resource #54' => 'Počet robotov',
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
     'Resource #60' => 'Pomocník',

@@ -55,6 +55,7 @@ return [
     'Resource #50' => 'API-method request',
     'Resource #51' => 'Voice assistant',
     'Resource #52' => 'Robot controller',
+    'Resource #54' => 'Number of bots',
     'Resource #58' => 'Alpha numbers',
     'Resource #59' => 'SMS',
     'Resource #60' => 'Prompter',
