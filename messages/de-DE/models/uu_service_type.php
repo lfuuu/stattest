@@ -42,4 +42,5 @@ return [
     'Type #35' => 'A2P',
     'Type #36' => 'A2P',
     'Type #37' => 'Sprachroboter',
+    'Type #38' => 'Multichat',
 ];
