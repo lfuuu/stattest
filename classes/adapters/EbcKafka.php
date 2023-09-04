@@ -47,6 +47,7 @@ class EbcKafka extends Singleton
 
         $config->set('auto.offset.reset', 'latest');
         $config->set('enable.partition.eof', 'true');
+        $config->set('message.max.bytes', 10485880);
 
         if (\Yii::$app->params['IS_KAFKA_WITH_SSL'] ?? false) {
             $config->set('security.protocol', 'ssl');
