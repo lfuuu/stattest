@@ -190,7 +190,6 @@ a.nohover:hover {
 .sim-card-status-column,
 .nnp-status-column,
 .nnp-region-column,
-.nnp-operator-column,
 .event-queue-event-column,
 .pricelist-column,
 .package-type-column,
@@ -198,7 +197,6 @@ a.nohover:hover {
 .number-status-column,
 .is-null-and-not-null-column,
 .did-group-column,
-.operator-column,
 .ndc-type-column,
 .account-entry-type-column,
 .service-type-column,
@@ -216,6 +214,8 @@ a.nohover:hover {
     min-width: 140px;
 }
 
+.operator-column,
+.nnp-operator-column,
 .mtt-service-column,
 .datetime-range-double-column {
     min-width: 160px;

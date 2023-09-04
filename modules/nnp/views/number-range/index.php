@@ -81,23 +81,6 @@ $filterColumns = [
 ];
 
 
-function getNameWithValidIndicator(?\app\classes\model\ActiveRecord $model)
-{
-    if (!$model) {
-        return '';
-    }
-
-    $html = $model->name;
-    if ($model->is_valid) {
-        $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']);
-    } else {
-        $html .= '&nbsp;' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
-    }
-
-    return $html;
-}
-
-
 $columns = [
     [
         'class' => ActionColumn::class,
@@ -134,7 +117,6 @@ $columns = [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'value' => fn($nr) => getNameWithValidIndicator($nr->operator)
     ],
     [
         'attribute' => 'region_id',
@@ -145,7 +127,6 @@ $columns = [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'value' => fn($nr) => getNameWithValidIndicator($nr->region)
     ],
     [
         'attribute' => 'city_id',
@@ -157,7 +138,6 @@ $columns = [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'value' => fn($nr) => getNameWithValidIndicator($nr->city)
     ],
     [
         'attribute' => 'ndc_type_id',
