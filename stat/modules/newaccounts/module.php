@@ -172,11 +172,11 @@ class m_newaccounts extends IModule
         }
 
         set_time_limit(0);
-        session_write_close();
-
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
+//        session_write_close();
+//
+//        while (ob_get_level() > 0) {
+//            ob_end_clean();
+//        }
 
         /** @var ClientAccount $clientAccount */
         foreach ($clientAccountQuery->each() as $clientAccount) {
@@ -197,6 +197,8 @@ class m_newaccounts extends IModule
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT),
             $isRawValue = true
         );
+
+        \Yii::$app->end();
     }
 
     function newaccounts_bill_list($fixclient, $get_sum = false)
