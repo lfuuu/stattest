@@ -77,7 +77,6 @@ echo GridView::widget([
             'class' => CountryColumn::class,
             'format' => 'html',
             'value' => function (ImportHistory $model) {
-                return '';
                 return $model && $model->country ?
                     Html::a(
                         $model->country->name_rus .
@@ -100,8 +99,7 @@ echo GridView::widget([
             'attribute' => 'countryFile.name',
             'format' => 'html',
             'value' => function (ImportHistory $model) {
-                return '';
-                return
+                return $model && $model->country ?
                     Html::a(
                         $model->countryFile->name,
                         Url::to([
@@ -116,7 +114,7 @@ echo GridView::widget([
                         'title' => 'Скачать',
                         'glyphicon' => 'glyphicon-download',
                         'class' => 'btn-default btn-xs',
-                    ]);
+                    ]) : '?';
             },
         ],
         [

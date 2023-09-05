@@ -52,6 +52,7 @@ class CityColumn extends DataColumn
      */
     protected function renderDataCellContent($model, $key, $index)
     {
+        /** @var NumberRange $model */
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
 
@@ -60,7 +61,7 @@ class CityColumn extends DataColumn
             $strValue = $model->city->name;
         }
 
-        $this->renderIsValid($model, $strValue);
+        $this->renderSymbolIsValid($model->city, $strValue);
 
         $htmlArray = [];
 

@@ -154,7 +154,7 @@ $columns = [
     [
         'attribute' => 'is_valid',
         'class' => YesNoColumn::class,
-        'contentOptions' => fn(NumberRange $nr) => ($nr->is_valid ? ['style' => ['color' => 'green', 'font-weight' => 'bold']] : []),
+        'value' => fn(NumberRange $nr) => $nr->is_valid === null ? null : \app\modules\nnp\column\traits\ModelIsValid::getSymbolHtml($nr->is_valid),
     ],
     [
         'label' => 'Префиксы',

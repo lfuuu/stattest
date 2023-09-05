@@ -7,16 +7,17 @@ use app\classes\Html;
 
 trait ModelIsValid
 {
-    protected function renderIsValid($model, &$strValue)
+    protected function renderSymbolIsValid($model, &$strValue)
     {
-        if ($model->is_valid) {
-            $html = Html::tag('i', '', ['class' => 'glyphicon glyphicon-ok text-success']);
-        } else {
-            $html = Html::tag('i', '', ['class' => 'glyphicon glyphicon-remove text-danger']);
-        }
+        $html = self::getSymbolHtml($model->is_valid);
 
         $strValue = $html . '&nbsp;' . $strValue;
 
         return $strValue;
+    }
+
+    public static function getSymbolHtml(bool $isValid): string
+    {
+        return Html::tag('i', '', ['class' => 'glyphicon ' . ($isValid ? 'glyphicon-ok text-success' : 'glyphicon-remove text-danger')]);
     }
 }
