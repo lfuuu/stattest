@@ -9,9 +9,11 @@ trait ModelIsValid
 {
     protected function renderSymbolIsValid($model, &$strValue)
     {
-        $html = self::getSymbolHtml($model->is_valid);
+        if (is_bool($model->is_valid)) {
+            $html = self::getSymbolHtml($model->is_valid);
 
-        $strValue = $html . '&nbsp;' . $strValue;
+            $strValue = $html . '&nbsp;' . $strValue;
+        }
 
         return $strValue;
     }
