@@ -20,12 +20,12 @@ class OperatorLinker extends Singleton
     /**
      * Актуализировать привязку к операторам
      *
+     * @param int $countryCode
      * @return string
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \LogicException
+     * @throws ModelValidationException
      * @throws \yii\db\Exception
      */
-    public function run()
+    public function run($countryCode = null)
     {
 //        if (NumberRange::isTriggerEnabled()) {
 //            throw new \LogicException('Линковка невозможна, потому что триггер включен');
@@ -34,16 +34,18 @@ class OperatorLinker extends Singleton
         $log = '';
 
         $object = new NumberRange();
-        $log .= $this->_setNull($object);
-        $log .= $this->_link($object);
-        $log .= $this->_updateCnt($object, true);
+        $log .= $this->_setNull($object, $countryCode);
+        $log .= $this->_link($object, $countryCode);
+        $log .= $this->_updateCnt($object, true, $countryCode);
 
-        $object = new nnpNumber();
-        $log .= $this->_setNull($object);
-        $log .= $this->_link($object);
-        $log .= $this->_updateCnt($object, false);
+        if (!$countryCode) {
+            $object = new nnpNumber();
+            $log .= $this->_setNull($object);
+            $log .= $this->_link($object);
+            $log .= $this->_updateCnt($object, false);
+        }
 
-        $log .= $this->_transliterate();
+        $log .= $this->_transliterate($countryCode);
 
         return $log;
     }
@@ -55,9 +57,9 @@ class OperatorLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _setNull(ActiveRecord $object)
+    private function _setNull(ActiveRecord $object, $countryCode = null)
     {
-        $object::updateAll(['operator_id' => null], ['operator_source' => '']);
+        $object::updateAll(['operator_id' => null], ['operator_source' => ''] + ($countryCode ? ['country_code' => $countryCode] : []));
     }
 
     /**
@@ -69,12 +71,16 @@ class OperatorLinker extends Singleton
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _link(ActiveRecord $object)
+    private function _link(ActiveRecord $object, $countryCode = null)
     {
         $numberRangeQuery = $object::find()
             ->andWhere('operator_id IS NULL')
             ->andWhere(['IS NOT', 'operator_source', null])
             ->andWhere(['!=', 'operator_source', '']);
+
+        if ($countryCode) {
+            $numberRangeQuery->andWhere(['country_code' => $countryCode]);
+        }
 
         if (!$numberRangeQuery->count()) {
             return 'ok ';
@@ -83,22 +89,34 @@ class OperatorLinker extends Singleton
         $log = '';
 
         // Уже существующие объекты
-        $operatorSourceToId = Operator::find()
+        $operatorSourceToIdQuery = Operator::find()
             ->select([
                 'id',
                 'name' => new Expression("CONCAT(country_code, '_', LOWER(name))"),
-            ])
+            ]);
+
+        if ($countryCode) {
+            $operatorSourceToIdQuery->andWhere(['country_code' => $countryCode]);
+        }
+
+        $operatorSourceToId = $operatorSourceToIdQuery
             ->indexBy('name')
             ->column();
 
         // Уже сделанные соответствия
-        $operatorSourceToId += $object::find()
+        $objectQuery = $object::find()
             ->distinct()
             ->select([
                 'id' => 'operator_id',
                 'name' => new Expression("CONCAT(country_code, '_', LOWER(operator_source))"),
             ])
-            ->where('operator_id IS NOT NULL')
+            ->where('operator_id IS NOT NULL');
+
+        if ($countryCode) {
+            $objectQuery->andWhere(['country_code' => $countryCode]);
+        }
+
+        $operatorSourceToId += $objectQuery
             ->indexBy('name')
             ->column();
 
@@ -143,27 +161,37 @@ class OperatorLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _updateCnt(ActiveRecord $object, $isClear)
+    private function _updateCnt(ActiveRecord $object, $isClear, $countryCode = null)
     {
         $log = '';
 
         $log .= Module::transaction(
-            function () use ($object, $isClear) {
+            function () use ($object, $isClear, $countryCode) {
                 $db = Operator::getDb();
 
                 $numberRangeTableName = $object::tableName();
                 $operatorTableName = Operator::tableName();
 
+                $paramsCountry = $countryCode ? [':country_code' => $countryCode] : [];
+                $whereCountry = 'country_code = :country_code';
                 if ($isClear) {
-                    $sqlClear = <<<SQL
-            UPDATE {$operatorTableName} SET cnt = 0
-SQL;
-                    $db->createCommand($sqlClear)->execute();
+                    $sqlClear = "UPDATE {$operatorTableName} SET cnt = 0";
+
+                    if ($countryCode) {
+                        $sqlClear .= ' WHERE ' . $whereCountry;
+                    }
+
+                    $db->createCommand($sqlClear, $paramsCountry)->execute();
                     unset($sqlClear);
 
                     $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
                 } else {
                     $sqlCnt = '1';
+                }
+
+                $andWhere = '';
+                if ($countryCode) {
+                    $andWhere = ' AND ' . $whereCountry;
                 }
 
                 $sql = <<<SQL
@@ -178,12 +206,13 @@ SQL;
                         {$numberRangeTableName} 
                     WHERE
                         operator_id IS NOT NULL 
+                        {$andWhere}
                     GROUP BY
                         operator_id
                 ) operator_stat
             WHERE {$operatorTableName}.id = operator_stat.operator_id
 SQL;
-                $db->createCommand($sql)->execute();
+                $db->createCommand($sql, $paramsCountry)->execute();
             }
         );
 
@@ -201,9 +230,9 @@ SQL;
     /**
      * Транслитировать
      */
-    private function _transliterate()
+    private function _transliterate($countryCode = null)
     {
-        $operatorQuery = Operator::find()->where(['name_translit' => null]);
+        $operatorQuery = Operator::find()->where(['name_translit' => null] + ($countryCode ? ['country_code' => $countryCode] : []));
         /** @var Operator $operator */
         foreach ($operatorQuery->each() as $operator) {
             $operator->name_translit = TranslitHelper::t($operator->name);

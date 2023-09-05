@@ -27,7 +27,7 @@ class CityLinker extends Singleton
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    public function run()
+    public function run($countryCode = null)
     {
 //        if (NumberRange::isTriggerEnabled()) {
 //            throw new \LogicException('Линковка невозможна, потому что триггер включен');
@@ -35,14 +35,16 @@ class CityLinker extends Singleton
 
         $log = '';
         $object = new NumberRange();
-        $log .= $this->_setNull($object);
-        $log .= $this->_link($object);
-        $log .= $this->_updateCnt($object, true);
+        $log .= $this->_setNull($object, $countryCode);
+        $log .= $this->_link($object, $countryCode);
+        $log .= $this->_updateCnt($object, true, $countryCode);
 
-        $object = new Number();
-        $log .= $this->_setNull($object);
-        $log .= $this->_link($object);
-        $log .= $this->_updateCnt($object, false);
+        if (!$countryCode) {
+            $object = new Number();
+            $log .= $this->_setNull($object);
+            $log .= $this->_link($object);
+            $log .= $this->_updateCnt($object, false);
+        }
 
         $log .= $this->_transliterate();
 
@@ -56,9 +58,9 @@ class CityLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _setNull(ActiveRecord $object)
+    private function _setNull(ActiveRecord $object, $countryCode = null)
     {
-        $object::updateAll(['city_id' => null], ['city_source' => '']);
+        $object::updateAll(['city_id' => null], ['city_source' => ''] + ($countryCode ? ['country_code' => $countryCode] : []));
     }
 
     /**
@@ -70,12 +72,16 @@ class CityLinker extends Singleton
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _link(ActiveRecord $object)
+    private function _link(ActiveRecord $object, $countryCode = null)
     {
         $numberRangeQuery = $object::find()
             ->andWhere('city_id IS NULL')
             ->andWhere(['IS NOT', 'city_source', null])
             ->andWhere(['!=', 'city_source', '']);
+
+        if ($countryCode) {
+            $numberRangeQuery->andWhere(['country_code' => $countryCode]);
+        }
 
         if (!$numberRangeQuery->count()) {
             return 'ok ';
@@ -84,22 +90,34 @@ class CityLinker extends Singleton
         $log = '';
 
         // Уже существующие объекты
-        $this->_regionSourceToCityId = City::find()
+        $regionSourceToCityIdQuery = City::find()
             ->select([
                 'id',
                 'name' => new Expression("CONCAT(country_code, '_', region_id, '_', LOWER(name))"),
-            ])
+            ]);
+
+        if ($countryCode) {
+            $regionSourceToCityIdQuery->andWhere(['country_code' => $countryCode]);
+        }
+
+        $this->_regionSourceToCityId = $regionSourceToCityIdQuery
             ->indexBy('name')
             ->column();
 
         // Уже сделанные соответствия
-        $this->_regionSourceToCityId += $object::find()
+        $objectQuery = $object::find()
             ->distinct()
             ->select([
                 'id' => 'city_id',
                 'name' => new Expression("CONCAT(country_code, '_', region_id, '_', LOWER(city_source))"),
             ])
-            ->where('city_id IS NOT NULL')
+            ->where('city_id IS NOT NULL');
+
+        if ($countryCode) {
+            $objectQuery->andWhere(['country_code' => $countryCode]);
+        }
+
+        $this->_regionSourceToCityId += $objectQuery
             ->indexBy('name')
             ->column();
 
@@ -169,21 +187,26 @@ class CityLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _updateCnt(ActiveRecord $object, $isClear)
+    private function _updateCnt(ActiveRecord $object, $isClear, $countryCode = null)
     {
         $log = '';
 
         $log .= Module::transaction(
-            function () use ($object, $isClear) {
+            function () use ($object, $isClear, $countryCode) {
                 $db = City::getDb();
 
                 $numberRangeTableName = $object::tableName();
                 $cityTableName = City::tableName();
+                $paramsCountry = $countryCode ? [':country_code' => $countryCode] : [];
+                $whereCountry = 'country_code = :country_code';
+
                 if ($isClear) {
-                    $sqlClear = <<<SQL
-            UPDATE {$cityTableName} SET cnt = 0
-SQL;
-                    $db->createCommand($sqlClear)->execute();
+                    $sqlClear = "UPDATE {$cityTableName} SET cnt = 0";
+                    if ($countryCode) {
+                        $sqlClear .= ' WHERE ' . $whereCountry;
+                    }
+
+                    $db->createCommand($sqlClear, $paramsCountry)->execute();
                     unset($sqlClear);
 
                     $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
@@ -191,6 +214,11 @@ SQL;
                 } else {
                     $sqlCnt = '1';
                     $sqlActiveCnt = '1';
+                }
+
+                $andWhere = '';
+                if ($countryCode) {
+                    $andWhere = ' AND ' . $whereCountry;
                 }
 
                 $sql = <<<SQL
@@ -209,12 +237,13 @@ SQL;
                         {$numberRangeTableName} 
                     WHERE
                         city_id IS NOT NULL 
+                        {$andWhere}
                     GROUP BY
                         city_id
                 ) city_stat
             WHERE {$cityTableName}.id = city_stat.city_id
 SQL;
-                $db->createCommand($sql)->execute();
+                $db->createCommand($sql, $paramsCountry)->execute();
             }
         );
 
@@ -232,9 +261,9 @@ SQL;
     /**
      * Транслитировать
      */
-    private function _transliterate()
+    private function _transliterate($countryCode = null)
     {
-        $cityQuery = City::find()->where(['name_translit' => null]);
+        $cityQuery = City::find()->where(['name_translit' => null] + ($countryCode ? ['country_code' => $countryCode] : []));
         /** @var City $city */
         foreach ($cityQuery->each() as $city) {
             $city->name_translit = TranslitHelper::t($city->name);

@@ -4,6 +4,7 @@ namespace app\modules\nnp\models;
 
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\modules\nnp\classes\NumberRangeSetValid;
 use Yii;
 use yii\helpers\Url;
 
@@ -136,6 +137,15 @@ class City extends ActiveRecord
 
         return parent::beforeSave($isInsert);
     }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (isset($changedAttributes['is_valid']) && $changedAttributes['is_valid'] != $this->is_valid) {
+            NumberRangeSetValid::me()->set($this->country_code, null, $this->id);
+        }
+        parent::afterSave($insert, $changedAttributes);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -213,7 +223,8 @@ class City extends ActiveRecord
         $minCnt = null,
         $minCntActive = null,
         $isValid = null
-    ) {
+    )
+    {
         $minCnt = $minCnt ?? self::MIN_CNT;
         $minCntActive = $minCntActive ?? 0;
 

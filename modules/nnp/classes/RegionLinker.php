@@ -72,7 +72,7 @@ class RegionLinker extends Singleton
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    public function run()
+    public function run($countryCode = null)
     {
 //        if (NumberRange::isTriggerEnabled()) {
 //            throw new \LogicException('Линковка невозможна, потому что триггер включен');
@@ -80,16 +80,18 @@ class RegionLinker extends Singleton
 
         $log = '';
         $object = new NumberRange();
-        $log .= $this->_setNull($object);
-        $log .= $this->_link($object);
-        $log .= $this->_updateCnt($object, true);
+        $log .= $this->_setNull($object, $countryCode);
+        $log .= $this->_link($object, $countryCode);
+        $log .= $this->_updateCnt($object, true, $countryCode);
 
-        $object = new Number();
-        $log .= $this->_setNull($object);
-        $log .= $this->_link($object);
-        $log .= $this->_updateCnt($object, false);
+        if (!$countryCode) {
+            $object = new Number();
+            $log .= $this->_setNull($object);
+            $log .= $this->_link($object);
+            $log .= $this->_updateCnt($object, false);
+        }
 
-        $log .= $this->_transliterate();
+        $log .= $this->_transliterate($countryCode);
 
         return $log;
     }
@@ -101,9 +103,9 @@ class RegionLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _setNull(ActiveRecord $object)
+    private function _setNull(ActiveRecord $object, $countryCode = null)
     {
-        $object::updateAll(['region_id' => null], ['region_source' => '']);
+        $object::updateAll(['region_id' => null], ['region_source' => ''] + ($countryCode ? ['country_code' => $countryCode] : []));
     }
 
     /**
@@ -115,12 +117,16 @@ class RegionLinker extends Singleton
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _link(ActiveRecord $object)
+    private function _link(ActiveRecord $object, $countryCode = null)
     {
         $numberRangeQuery = $object::find()
             ->andWhere('region_id IS NULL')
             ->andWhere(['IS NOT', 'region_source', null])
             ->andWhere(['!=', 'region_source', '']);
+
+        if ($countryCode) {
+            $numberRangeQuery->andWhere(['country_code' => $countryCode]);
+        }
 
         if (!$numberRangeQuery->count()) {
             return 'ok ';
@@ -129,21 +135,33 @@ class RegionLinker extends Singleton
         $log = '';
 
         // Уже существующие объекты
-        $regionSourceToId = Region::find()
+        $regionSourceToIdQuery = Region::find()
             ->select([
                 'id',
                 'name' => new Expression("CONCAT(country_code, '_', LOWER(name))"),
-            ])
+            ]);
+
+        if ($countryCode) {
+            $regionSourceToIdQuery->andWhere(['country_code' => $countryCode]);
+        }
+
+        $regionSourceToId = $regionSourceToIdQuery
             ->indexBy('name')
             ->column();
 
         // Уже сделанные соответствия
-        $regionSourceToId += $object::find()
+        $objectQuery = $object::find()
             ->distinct()
             ->select([
                 'id' => 'region_id',
                 'name' => new Expression("CONCAT(country_code, '_', LOWER(region_source))"),
-            ])
+            ]);
+
+        if ($countryCode) {
+            $objectQuery->andWhere(['country_code' => $countryCode]);
+        }
+
+        $regionSourceToId += $objectQuery
             ->where('region_id IS NOT NULL')
             ->indexBy('name')
             ->column();
@@ -245,21 +263,25 @@ class RegionLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _updateCnt(ActiveRecord $object, $isClear)
+    private function _updateCnt(ActiveRecord $object, $isClear, $countryCode = null)
     {
         $log = '';
 
         $log .= Module::transaction(
-            function () use ($object, $isClear) {
+            function () use ($object, $isClear, $countryCode) {
                 $db = Region::getDb();
                 $numberRangeTableName = $object::tableName();
                 $regionTableName = Region::tableName();
+                $paramsCountry = $countryCode ? [':country_code' => $countryCode] : [];
+                $whereCountry = 'country_code = :country_code';
 
                 if ($isClear) {
-                    $sqlClear = <<<SQL
-            UPDATE {$regionTableName} SET cnt = 0
-SQL;
-                    $db->createCommand($sqlClear)->execute();
+                    $sqlClear = "UPDATE {$regionTableName} SET cnt = 0";
+                    if ($countryCode) {
+                        $sqlClear .= ' WHERE ' . $whereCountry;
+                    }
+
+                    $db->createCommand($sqlClear, $paramsCountry)->execute();
                     unset($sqlClear);
 
                     $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
@@ -267,6 +289,11 @@ SQL;
                 } else {
                     $sqlCnt = '1';
                     $sqlActiveCnt = '1';
+                }
+
+                $andWhere = '';
+                if ($countryCode) {
+                    $andWhere = ' AND ' . $whereCountry;
                 }
 
                 $sql = <<<SQL
@@ -284,12 +311,13 @@ SQL;
                         {$numberRangeTableName} 
                     WHERE
                         region_id IS NOT NULL 
+                        {$andWhere}
                     GROUP BY
                         region_id
                 ) region_stat
             WHERE {$regionTableName}.id = region_stat.region_id
 SQL;
-                $db->createCommand($sql)->execute();
+                $db->createCommand($sql, $paramsCountry)->execute();
             }
         );
 
@@ -307,9 +335,9 @@ SQL;
     /**
      * Транслитировать
      */
-    private function _transliterate()
+    private function _transliterate($countryCode = null)
     {
-        $regionQuery = Region::find()->where(['name_translit' => null]);
+        $regionQuery = Region::find()->where(['name_translit' => null] + ($countryCode ? ['country_code' => $countryCode] : []));
         /** @var Region $region */
         foreach ($regionQuery->each() as $region) {
             $region->name_translit = TranslitHelper::t($region->name);

@@ -6,6 +6,7 @@ use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\modules\nnp\column\traits\ModelIsValid;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
 use kartik\grid\GridView;
@@ -18,6 +19,7 @@ class RegionColumn extends DataColumn
     use ListTrait {
         ListTrait::renderDataCellContent as defaultRenderDataCellContent;
     }
+    use ModelIsValid;
 
     public $filterType = GridView::FILTER_SELECT2;
     public $isAddLink = true;
@@ -43,6 +45,7 @@ class RegionColumn extends DataColumn
      */
     protected function renderDataCellContent($model, $key, $index)
     {
+        /** @var NumberRange $model */
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
 
@@ -50,6 +53,8 @@ class RegionColumn extends DataColumn
             // посколько регионов очень много, в селект попадают не все. Чтобы не выводить некрасивых id несколько лишних раз поднимем связанные модели
             $strValue = $model->region->name;
         }
+
+        $this->renderSymbolIsValid($model->region, $strValue);
 
         $htmlArray = [];
 

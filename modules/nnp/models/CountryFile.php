@@ -151,7 +151,7 @@ class CountryFile extends ActiveRecord
             throw new \RuntimeException($logFull);
         }
 
-        return $logFull;
+        return [$logFull, $country->code];
     }
 
     /**

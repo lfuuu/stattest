@@ -43,6 +43,7 @@ use yii\helpers\Url;
  * @property string $date_resolution date
  * @property string $detail_resolution
  * @property string $status_number
+ * @property string $is_valid
  *
  * @property-read Operator $operator
  * @property-read Region $region
@@ -108,6 +109,8 @@ class NumberRange extends ActiveRecord
             'insert_user_id' => 'Кто создал',
             'update_time' => 'Когда редактировал',
             'update_user_id' => 'Кто редактировал',
+
+            'is_valid' => 'Подтверждён',
         ];
     }
 

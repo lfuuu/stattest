@@ -340,6 +340,7 @@ class ImportController extends BaseController
                     // поставить в очередь для пересчета операторов, регионов и городов
                     $eventQueue = EventQueue::go(Module::EVENT_LINKER, [
                         'notified_user_id' => Yii::$app->user->id,
+                        'country_code' => $country->code,
                     ]);
                     Yii::$app->session->addFlash('success', 'Файл успешно импортирован v1.' . nl2br(PHP_EOL . $logOld) .
                         'Пересчет операторов, регионов и городов будет через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));

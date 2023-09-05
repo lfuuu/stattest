@@ -80,6 +80,7 @@ $filterColumns = [
     ],
 ];
 
+
 $columns = [
     [
         'class' => ActionColumn::class,
@@ -149,6 +150,11 @@ $columns = [
     [
         'attribute' => 'is_active',
         'class' => YesNoColumn::class,
+    ],
+    [
+        'attribute' => 'is_valid',
+        'class' => YesNoColumn::class,
+        'value' => fn(NumberRange $nr) => $nr->is_valid === null ? null : \app\modules\nnp\column\traits\ModelIsValid::getSymbolHtml($nr->is_valid),
     ],
     [
         'label' => 'Префиксы',
@@ -222,6 +228,6 @@ echo GridView::widget([
 //if (NumberRange::isTriggerEnabled()) {
 //    echo $this->render('_indexTriggerEnabled');
 //} else {
-    // echo $this->render('_indexReset');
-    echo $this->render('_indexFilterToPrefix');
+// echo $this->render('_indexReset');
+echo $this->render('_indexFilterToPrefix');
 //}

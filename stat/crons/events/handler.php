@@ -906,11 +906,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case NnpModule::EVENT_IMPORT:
                     // ННП. Импорт страны
                     if ($isNnpServer) {
-                        $info = CountryFile::importById($param['fileId'], $param['old'], $param['new']);
+                        list($info, $countryCode) = CountryFile::importById($param['fileId'], $param['old'], $param['new']);
 
                         if ($param['old']) {
                             // поставить в очередь для пересчета операторов, регионов и городов
-                            EventQueue::go(NnpModule::EVENT_LINKER);
+                            EventQueue::go(NnpModule::EVENT_LINKER, ['country_code' => $countryCode]);
                         }
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
@@ -920,9 +920,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case NnpModule::EVENT_LINKER:
                     // ННП. Линковка исходных к ID
                     $info .= $isNnpServer ?
-                        'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL .
-                        'Регионы: ' . RegionLinker::me()->run() . PHP_EOL .
-                        'Города: ' . CityLinker::me()->run() . PHP_EOL :
+                        'Операторы: ' . OperatorLinker::me()->run($param['country_code'] ?? null) . PHP_EOL .
+                        'Регионы: ' . RegionLinker::me()->run($param['country_code'] ?? null) . PHP_EOL .
+                        'Города: ' . CityLinker::me()->run($param['country_code'] ?? null) . PHP_EOL .
+                        ($param['country_code'] ? 'Подтверждение: ' . \app\modules\nnp\classes\NumberRangeSetValid::me()->set($param['country_code']) : ''):
                         EventQueue::API_IS_SWITCHED_OFF;
 
                     EventQueue::go(NnpModule::EVENT_EXAMPLES);

@@ -6,6 +6,7 @@ use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\modules\nnp\column\traits\ModelIsValid;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\NumberRange;
 use kartik\grid\GridView;
@@ -18,6 +19,7 @@ class CityColumn extends DataColumn
     use ListTrait {
         ListTrait::renderDataCellContent as defaultRenderDataCellContent;
     }
+    use ModelIsValid;
 
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
@@ -50,6 +52,7 @@ class CityColumn extends DataColumn
      */
     protected function renderDataCellContent($model, $key, $index)
     {
+        /** @var NumberRange $model */
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
 
@@ -57,6 +60,8 @@ class CityColumn extends DataColumn
             // посколько городов очень много, в селект попадают не все. Чтобы не выводить некрасивых id несколько лишних раз поднимем связанные модели
             $strValue = $model->city->name;
         }
+
+        $this->renderSymbolIsValid($model->city, $strValue);
 
         $htmlArray = [];
 
