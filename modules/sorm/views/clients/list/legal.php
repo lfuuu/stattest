@@ -1,4 +1,8 @@
-<?= app\classes\Html::formLabel($this->title = 'СОРМ: Клиенты. Юридические лица') ?>
+<?php
+
+/** @var $filterModel \app\modules\sorm\filters\SormClientsFilter */
+
+?><?= app\classes\Html::formLabel($this->title = 'СОРМ: Клиенты. Юридические лица. ' . ($filterModel->isB2c ? '(B2C)' : '(B2B/OTT)')) ?>
 <?= \yii\widgets\Breadcrumbs::widget([
     'links' => [
         ['label' => $this->title, 'url' => '/sorm/clients/legal'],
@@ -31,14 +35,14 @@ $columns = [
         'attribute' => '_address_nostruct',
         'label' => 'Юр. адрес',
         'format' => 'html',
-        'value' => fn($f) => \app\classes\Html::a(addressIndicator($f['_state_address_nostruct']) , '/sorm/address?hash=' . md5($f['_address_nostruct'])) .
+        'value' => fn($f) => \app\classes\Html::a(addressIndicator($f['_state_address_nostruct']), '/sorm/address?hash=' . md5($f['_address_nostruct'])) .
             ($f['_state_address_nostruct'] != 'ok' ? \app\classes\Html::a($f['_address_nostruct'], '/sorm/address?hash=' . md5($f['_address_nostruct'])) : $f['_address_nostruct']),
     ],
     [
         'attribute' => '_address_device_nostruct',
         'label' => 'Адрес установки оборудования',
         'format' => 'html',
-        'value' => fn($f) => \app\classes\Html::a(addressIndicator($f['_state_address_device_nostruct']) , '/sorm/address?hash=' . md5($f['_address_device_nostruct'])) .
+        'value' => fn($f) => \app\classes\Html::a(addressIndicator($f['_state_address_device_nostruct']), '/sorm/address?hash=' . md5($f['_address_device_nostruct'])) .
             ($f['_state_address_device_nostruct'] != 'ok' ? \app\classes\Html::a($f['_address_device_nostruct'], '/sorm/address?hash=' . md5($f['_address_device_nostruct'])) : $f['_address_device_nostruct']),
     ],
 ];

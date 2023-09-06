@@ -1,7 +1,11 @@
-<?= app\classes\Html::formLabel($this->title = 'СОРМ: Клиенты. Физические лица') ?>
+<?php
+
+/** @var $filterModel \app\modules\sorm\filters\SormClientsFilter */
+
+?><?= app\classes\Html::formLabel($this->title = 'СОРМ: Клиенты. Физические лица. ' . ($filterModel->isB2c ? '(B2C)' : '(B2B/OTT)')) ?>
 <?= \yii\widgets\Breadcrumbs::widget([
     'links' => [
-        ['label' => $this->title, 'url' => '/sorm/clients/person'],
+        ['label' => $this->title, 'url' => '/sorm/clients/person' . ($filterModel->isB2c ? '-b2c' : '')],
     ],
 ]) ?>
 
