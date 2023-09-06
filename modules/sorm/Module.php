@@ -41,8 +41,11 @@ class Module extends \yii\base\Module
                 NavigationBlock::create()
                     ->setId('sorm')
                     ->setTitle('СОРМ')
-                    ->addItem('Клиенты. Адреса. Физ.', ['/sorm/clients/person'])
-                    ->addItem('Клиенты. Адреса. Юр./ИП', ['/sorm/clients/legal'])
+                    ->addItem('Клиенты. B2C. Адреса. Физ.', ['/sorm/clients/person-b2c'])
+                    ->addItem('Клиенты. B2C. Адреса. Юр./ИП', ['/sorm/clients/legal-b2c'])
+                    ->addItem('Клиенты. B2B/ОТТ. Адреса. Физ.', ['/sorm/clients/person'])
+                    ->addItem('Клиенты. B2B/ОТТ. Адреса. Юр./ИП', ['/sorm/clients/legal'])
+
             );
     }
 }

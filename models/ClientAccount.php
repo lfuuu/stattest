@@ -202,6 +202,8 @@ class ClientAccount extends HistoryActiveRecord
 
     const ID_PORTED = 99999;
 
+    const PRICE_LEVEL_B2C = [2, 3];
+
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
         'testing' => ['name' => 'тестируемый', 'color' => '#6DCFF6'],

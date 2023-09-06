@@ -18,17 +18,31 @@ class ClientsController extends BaseController
         throw new NotImplementedHttpException();
     }
 
+    public function actionPersonB2c()
+    {
+        return $this->render('list/person',[
+            'filterModel' => (new SormClientsFilter(['type' => ClientContragent::PERSON_TYPE, 'isB2c' => true])),
+        ]);
+    }
+
+    public function actionLegalB2c()
+    {
+        return $this->render('list/legal',[
+            'filterModel' => (new SormClientsFilter(['type' => ClientContragent::LEGAL_TYPE, 'isB2c' => true])),
+        ]);
+    }
+
     public function actionPerson()
     {
         return $this->render('list/person',[
-            'filterModel' => (new SormClientsFilter(['type' => ClientContragent::PERSON_TYPE])),
+            'filterModel' => (new SormClientsFilter(['type' => ClientContragent::PERSON_TYPE, 'isB2c' => false])),
         ]);
     }
 
     public function actionLegal()
     {
         return $this->render('list/legal',[
-            'filterModel' => (new SormClientsFilter(['type' => ClientContragent::LEGAL_TYPE])),
+            'filterModel' => (new SormClientsFilter(['type' => ClientContragent::LEGAL_TYPE, 'isB2c' => false])),
         ]);
     }
 }
