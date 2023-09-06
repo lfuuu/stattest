@@ -796,25 +796,25 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
 
-                case UuModule::EVENT_CHAT_BOT_CREATE:
-                    if ($isChatBotServer) {
-                        ApiChatBot::createChatBot(
-                            $param['client_account_id'],
-                            $param['account_tariff_id'],
-                            $param['tariff_id']
-                        );
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
-                    break;
-
-                case UuModule::EVENT_CHAT_BOT_REMOVE:
-                    if ($isChatBotServer) {
-                        ApiChatBot::removeChatBot($param['account_tariff_id']);
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
-                    break;
+//                case UuModule::EVENT_CHAT_BOT_CREATE:
+//                    if ($isChatBotServer) {
+//                        ApiChatBot::createChatBot(
+//                            $param['client_account_id'],
+//                            $param['account_tariff_id'],
+//                            $param['tariff_id']
+//                        );
+//                    } else {
+//                        $info = EventQueue::API_IS_SWITCHED_OFF;
+//                    }
+//                    break;
+//
+//                case UuModule::EVENT_CHAT_BOT_REMOVE:
+//                    if ($isChatBotServer) {
+//                        ApiChatBot::removeChatBot($param['account_tariff_id']);
+//                    } else {
+//                        $info = EventQueue::API_IS_SWITCHED_OFF;
+//                    }
+//                    break;
 
                 case UuModule::EVENT_RESOURCE_VOIP:
                     // УУ. Отправить измененные ресурсы телефонии на платформу
