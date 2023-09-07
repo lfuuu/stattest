@@ -4,6 +4,8 @@ namespace app\commands;
 
 use app\classes\adapters\Tele2Adapter;
 use app\classes\behaviors\SetTaxVoip;
+use app\classes\Utils;
+use app\classes\voip\StateVoipUpdater;
 use app\health\MonitorVoipDelayOnPackages;
 use app\models\EventQueue;
 use app\models\Trouble;
@@ -634,6 +636,11 @@ FROM
                 echo PHP_EOL . 'OK: ' . strip_tags($source->description . ' / ' . $target->description . ' / ' . $object->activationDate);
             }
         }
+    }
+
+    public function actionStateVoipUpdate()
+    {
+        StateVoipUpdater::me()->update();
     }
 
     private function _getNumbersForTransfer()
