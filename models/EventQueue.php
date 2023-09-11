@@ -201,6 +201,7 @@ class EventQueue extends ActiveRecord
         self::EVENT_BUS_CMD => 'Шина. Команда.',
         self::EVENT_BUS_CMD_RESULT => 'Шина. Команда. Результат.',
         self::EVENT_LK_CONTRAGENT_CHANGED => 'Шина. Изменен контрагент в ЛК',
+        self::SYNC_CLIENT_CHANGED => 'Передача измененных клиентов',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',

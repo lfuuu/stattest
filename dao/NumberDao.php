@@ -440,27 +440,47 @@ class NumberDao extends Singleton
         }
 
         if (!$usage && !$universalUsage) {
-            $uUsages = AccountTariff::find()
-                ->where([
-                    'voip_number' => $number->number,
-                    'tariff_period_id' => null
-                ])
-                ->with('accountTariffLogs')
-                ->all();
 
             $now = DateTimeZoneHelper::getUtcDateTime();
+            $isFoundInPast = false;
 
-            foreach ($uUsages as $uUsage) {
-                /** @var AccountTariffLog $log */
-                if (
-                    ($logs = $uUsage->accountTariffLogs) &&
-                    ($log = reset($logs)) &&
-                    $log->actual_from_utc > $now
-                ) {
-                    $universalUsage = $uUsage;
-                    $isInFuture = true;
+            // in connection proccess
+            if ($number->status == Number::STATUS_ACTIVE_CONNECTED && $number->uu_account_tariff_id) {
+                $universalUsage = AccountTariff::find()->where(['id' => $number->uu_account_tariff_id])->one();
+                if ($logs = $universalUsage->accountTariffLogs) {
+                    /** @var AccountTariffLog $log */
+                    if ($log = reset($logs)) {
+                        if ($log->tariff_period_id && $log->actual_from_utc < $now) { // still not turned on
+                            $isInFuture = true; // in past...
+                            $isFoundInPast = true;
+                        }
+                    }
+                }
+            }
 
-                    break;
+            if (!$isFoundInPast) {
+                // in future
+                $uUsages = AccountTariff::find()
+                    ->where([
+                        'voip_number' => $number->number,
+                        'tariff_period_id' => null
+                    ])
+                    ->with('accountTariffLogs')
+                    ->all();
+
+                foreach ($uUsages as $uUsage) {
+                    echo PHP_EOL . $uUsage->id;
+
+                    /** @var AccountTariffLog $log */
+                    if ($logs = $uUsage->accountTariffLogs) {
+                        if ($log = reset($logs)) {
+                            if ($log->actual_from_utc > $now) {
+                                $universalUsage = $uUsage;
+                                $isInFuture = true;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
