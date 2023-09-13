@@ -1,6 +1,6 @@
 <?php
 
-/** @var $filterModel \app\modules\sorm\filters\SormClientsFilter */
+/** @var $filterModel \app\modules\sorm\filters\ClientsFilter */
 
 ?><?= app\classes\Html::formLabel($this->title = 'СОРМ: Клиенты. Физические лица. ' . ($filterModel->isB2c ? '(B2C)' : '(B2B/OTT)')) ?>
 <?= \yii\widgets\Breadcrumbs::widget([
@@ -16,7 +16,7 @@ include "fn.php";
 $columns = [
     [
         'label' => '(У)ЛС',
-        'value' => fn($f) => \app\classes\Html::a($f['id'], '/client/view?id=' . $f['id']),
+        'value' => fn($f) => \app\classes\Html::a($f['account_id'], '/client/view?id=' . $f['account_id']),
         'format' => 'html',
     ],
     [
@@ -63,7 +63,7 @@ $columns = [
 ];
 
 
-/** @var $filterModel \app\modules\sorm\filters\SormClientsFilter */
+/** @var $filterModel \app\modules\sorm\filters\ClientsFilter */
 echo \app\classes\grid\GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,

@@ -102,10 +102,7 @@ class Navigation
             ->addItem('Очередь событий', ['/monitoring/event-queue'], []);
 
         if ($isRus) {
-            $monitorBlock->addItem('Монитор "здоровья"', 'https://voipgui.mcn.ru/health/health.html', [])
-                ->addItem('СОРМ: Клиенты', ['/monitoring/sorm-clients'], ['clients.edit'])
-                ->addItem('СОРМ: Номера', ['/monitoring/sorm-numbers'], ['clients.edit']);
-
+            $monitorBlock->addItem('Монитор "здоровья"', 'https://voipgui.mcn.ru/health/health.html', []);
         } else {
             $monitorBlock->addItem('Монитор "здоровья"', 'https://voipgui.kompaas.tech/health/health.html', []);
         }

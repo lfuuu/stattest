@@ -5,7 +5,7 @@ namespace app\modules\sorm\controllers;
 use app\exceptions\web\NotImplementedHttpException;
 use app\models\filter\SormClientFilter;
 use app\models\Task;
-use app\modules\sorm\filters\SormClientsFilter;
+use app\modules\sorm\filters\ClientsFilter;
 use app\modules\sorm\models\pg\Address;
 use Yii;
 use yii\web\Response;
