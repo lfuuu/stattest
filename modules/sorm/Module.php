@@ -37,15 +37,26 @@ class Module extends \yii\base\Module
 
     public function getNavigation($nav)
     {
+        if (Yii::$app->user->can('sorm.read') || Yii::$app->user->can('sorm.edit')) {
+            $nav->addBlock(
+                NavigationBlock::create()
+                    ->setId('sorm_b2c')
+                    ->setTitle('СОРМ. B2C.')
+                    ->addItem('Номера', ['/sorm/numbers/numbers-b2c'], ['sorm.edit'])
+//                    ->addItem('Клиенты', ['/sorm/old/sorm-clients'], ['sorm.edit'])
+                    ->addItem('Адреса. Клиенты. Физ.', ['/sorm/clients/person-b2c'], ['sorm.edit'])
+                    ->addItem('Адреса. Клиенты. Юр./ИП', ['/sorm/clients/legal-b2c'], ['sorm.edit'])
+            );
+
             $nav->addBlock(
                 NavigationBlock::create()
                     ->setId('sorm')
-                    ->setTitle('СОРМ')
-                    ->addItem('Клиенты. B2C. Адреса. Физ.', ['/sorm/clients/person-b2c'])
-                    ->addItem('Клиенты. B2C. Адреса. Юр./ИП', ['/sorm/clients/legal-b2c'])
-                    ->addItem('Клиенты. B2B/ОТТ. Адреса. Физ.', ['/sorm/clients/person'])
-                    ->addItem('Клиенты. B2B/ОТТ. Адреса. Юр./ИП', ['/sorm/clients/legal'])
-
+                    ->setTitle('СОРМ. B2B/ОТТ.')
+                    ->addItem('Номера', ['/sorm/numbers/numbers'], ['sorm.edit'])
+//                    ->addItem('Клиенты', ['/sorm/old/sorm-clients'], ['sorm.edit'])
+                    ->addItem('Адреса. Клиенты. Физ.', ['/sorm/clients/person'], ['sorm.edit'])
+                    ->addItem('Адреса. Клиенты. Юр./ИП', ['/sorm/clients/legal'], ['sorm.edit'])
             );
+        }
     }
 }
