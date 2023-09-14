@@ -200,28 +200,36 @@ class NumbersController extends BaseController
      */
     public function actionSaveAddress()
     {
-        throw new NotImplementedHttpException('Адреса редактируются только в ЛК');
-
         $id = Yii::$app->request->post('id');
         $address = Yii::$app->request->post('text');
 
-        Assert::isNotEmpty($id);
-        Assert::isNotEmpty($address);
+        try {
+            Assert::isNotEmpty($id);
+            Assert::isNotEmpty($address);
 
-        if ($id >= AccountTariff::DELTA) {
-            $accountTariff = AccountTariff::findOne(['id' => $id]);
-            Assert::isObject($accountTariff);
+            if ($id >= AccountTariff::DELTA) {
+                /** @var AccountTariff $accountTariff */
+                $accountTariff = AccountTariff::find()
+                    ->where([
+                        'id' => $id,
+                        'tariff_period_id' => null
+                    ])->one();
+                Assert::isObject($accountTariff);
 
-            $accountTariff->device_address = $address;
-        } else {
-            $accountTariff = UsageVoip::findOne(['id' => $id]);
-            Assert::isObject($accountTariff);
+                $accountTariff->device_address = $address;
+            } else {
+                $accountTariff = UsageVoip::findOne(['id' => $id]);
+                Assert::isObject($accountTariff);
 
-            $accountTariff->address = $address;
-        }
+                $accountTariff->address = $address;
+            }
 
-        if (!$accountTariff->save()) {
-            throw new ModelValidationException($accountTariff);
+            if (!$accountTariff->save()) {
+                throw new ModelValidationException($accountTariff);
+            }
+        } catch (\Exception $e) {
+            \Yii::$app->response->statusCode = 501;
+            echo 'Error: ' . $e->getMessage();
         }
     }
 

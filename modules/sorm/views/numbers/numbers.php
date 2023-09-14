@@ -18,9 +18,9 @@ use \app\models\User;
 
 /** @var $filter \app\models\voip\StateServiceVoip */
 
-//$this->registerJs("var gve_targetElementName = 'address';\n", View::POS_HEAD);
-//$this->registerJs("var gve_targetUrl = 'monitoring/save-address';\n", View::POS_HEAD);
-//$this->registerJsFile('js/grid_view_edit.js',  ['position' => yii\web\View::POS_END]);
+$this->registerJs("var gve_targetElementName = 'address';\n", View::POS_HEAD);
+$this->registerJs("var gve_targetUrl = 'sorm/numbers/save-address';\n", View::POS_HEAD);
+$this->registerJsFile('js/grid_view_edit.js',  ['position' => yii\web\View::POS_END]);
 
 echo Html::formLabel('Номера. Включенные. Без адреса установки оборудования');
 
@@ -55,43 +55,43 @@ $form = ActiveForm::begin([
 <?php
 ActiveForm::end();
 ?>
-<div style="clear: both;"></div>
+    <div style="clear: both;"></div>
 
 <?php
 
 $columns = [
     [
-        'label'     => 'ЛС',
+        'label' => 'ЛС',
         'attribute' => 'clientAccount.id',
         'format' => 'html',
-        'filter'    => false,
+        'filter' => false,
         'value' => function (StateServiceVoip $state) {
             return $state->clientAccount->getLink();
         },
     ],
     [
-        'label'     => 'Название контрагента',
+        'label' => 'Название контрагента',
         'attribute' => 'clientAccount.contragent.name',
-        'filter'    => false,
+        'filter' => false,
     ],
     [
-        'label'     => 'Ак. Менеджер',
+        'label' => 'Ак. Менеджер',
         'attribute' => 'clientAccount.clientContractModel.accountManagerName',
-        'filter'    => false,
+        'filter' => false,
     ],
     [
-        'label'     => 'Юр. адрес',
+        'label' => 'Юр. адрес',
         'attribute' => 'clientAccount.contragent.address_jur',
-        'filter'    => false,
+        'filter' => false,
     ],
     [
         'attribute' => 'e164',
-        'filter'    => false,
+        'filter' => false,
     ],
     [
         'label' => 'Дата продажи, utc',
         'attribute' => 'date_sale',
-        'filter'    => false,
+        'filter' => false,
         'value' => function (StateServiceVoip $state) {
             $accountTariffHeap = $state->accountTariff->accountTariffHeap;
             return ($accountTariffHeap && $accountTariffHeap->date_sale) ?
@@ -101,7 +101,7 @@ $columns = [
     [
         'label' => 'Дата отключения, utc',
         'attribute' => 'disconnect_date',
-        'filter'    => false,
+        'filter' => false,
         'value' => function (StateServiceVoip $state) {
             $accountTariffHeap = $state->accountTariff->accountTariffHeap;
             return ($accountTariffHeap && $accountTariffHeap->disconnect_date) ?
@@ -109,20 +109,20 @@ $columns = [
         },
     ],
 ];
-/*
+
 $columns['address'] = [
     'label' => 'Адрес',
-//    'attribute' => 'device_address',
-    'filter'    => false,
+    'attribute' => 'device_address',
+    'filter' => false,
     'format' => 'raw',
-//    'value' => function (AccountTariff $accountTariff) {
-//        return
-//            '<span>' . $accountTariff->device_address . '</span>' .
-//            '<img src="/images/icons/edit.gif" role="button" data-id=' . $accountTariff->id . ' class="edit pull-right" alt="Редактировать" />';
-//    },
+    'value' => function (StateServiceVoip $state) {
+        return
+            '<span>' . $state->accountTariff->device_address . '</span>' .
+            '<img src="/images/icons/edit.gif" role="button" data-id=' . $state->accountTariff->id . ' class="edit pull-right" alt="Редактировать" />';
+    },
     'width' => '20%',
 ];
-*/
+
 
 echo GridView::widget([
     'dataProvider' => $filter->search(),
@@ -130,5 +130,5 @@ echo GridView::widget([
     'columns' => $columns,
 
     'toolbar' => [],
-    'panel'=> true,
+    'panel' => true,
 ]);
