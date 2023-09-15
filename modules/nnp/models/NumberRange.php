@@ -329,6 +329,7 @@ class NumberRange extends ActiveRecord
 
             $cache = \Yii::$app->cache;
 
+//            $data = $cache->delete('ndcdata');
             $data = $cache->get('ndcdata');
 
             if (!$data) {
@@ -340,7 +341,8 @@ class NumberRange extends ActiveRecord
                 if ($cityId) {
                     $dd = $data['with_city_id'][$countryCode][$ndcTypeId][$cityId];
                 } else {
-                    $dd = array_unique($data['without_city_id'][$countryCode][$ndcTypeId]);
+//                    $dd = array_unique($data['without_city_id'][$countryCode][$ndcTypeId]);
+                    $dd = $data['without_city_id'][$countryCode][$ndcTypeId];
                 }
 
                 if (!$dd) {
@@ -374,25 +376,32 @@ class NumberRange extends ActiveRecord
         $dataAll = [];
         $dataWithCity = [];
 
-        $rows = NumberRange::find()
-            ->select(['country_code', 'city_id', 'ndc_type_id', 'ndc_str'])
-            ->distinct()
+        $rows = NumberRange::find()->alias('nr')
+            ->select(['nr.country_code', 'city_id', 'ndc_type_id', 'ndc_str', 'r.name'])
+            ->joinWith('region r')
             ->where(['is_active' => true/*, 'country_code' => Country::RUSSIA*/])
+            ->groupBy(['nr.country_code', 'city_id', 'ndc_type_id', 'ndc_str', 'r.name'])
             ->orderBy([
                 'country_code' => SORT_ASC,
                 'ndc_type_id' => SORT_ASC,
                 'ndc_str' => SORT_ASC,
             ])->asArray()->all(NumberRange::getDbSlave());
 
+
         foreach ($rows as $row) {
+            if (!$row['ndc_str']) {
+                continue;
+            }
+
             if (!isset($dataAll[$row['country_code']][$row['ndc_type_id']])) {
                 $dataAll[$row['country_code']][$row['ndc_type_id']] = [];
             }
 
-            $dataAll[$row['country_code']][$row['ndc_type_id']][] = $row['ndc_str'];
+            $cityName = $row['name'] ? ' (' . $row['name'] . ')' : null;
+            $dataAll[$row['country_code']][$row['ndc_type_id']][$row['ndc_str']] = $row['ndc_str'] . ($cityName ?? '');
 
             if ($row['city_id']) {
-                $dataWithCity[$row['country_code']][$row['ndc_type_id']][$row['city_id']][] = $row['ndc_str'];
+                $dataWithCity[$row['country_code']][$row['ndc_type_id']][$row['city_id']][$row['ndc_str']] = $row['ndc_str'] . ($cityName ?? '');
             }
         }
 
@@ -485,20 +494,20 @@ class NumberRange extends ActiveRecord
             return $fullNumber;
         }
 
-        $value = substr($fullNumber, 0, $vv) . ' ('.$row->ndc_str.') ';
+        $value = substr($fullNumber, 0, $vv) . ' (' . $row->ndc_str . ') ';
 
         $s = substr($fullNumber, strlen($row->ndc_str) + $vv);
         $v = '';
 
         $count = 0;
-        while(strlen($s) > 4) {
-            $v = substr($s, -2) . ($v ? '-'.$v : '');
-            $s = substr($s, 0, strlen($s)-2);
+        while (strlen($s) > 4) {
+            $v = substr($s, -2) . ($v ? '-' . $v : '');
+            $s = substr($s, 0, strlen($s) - 2);
             if ($count++ > 10) {
                 break;
             }
         }
-        $value .= $s.'-'.$v;
+        $value .= $s . '-' . $v;
 
         return $value;
     }
