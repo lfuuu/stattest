@@ -22,7 +22,7 @@ $this->registerJs("var gve_targetElementName = 'address';\n", View::POS_HEAD);
 $this->registerJs("var gve_targetUrl = 'sorm/numbers/save-address';\n", View::POS_HEAD);
 $this->registerJsFile('js/grid_view_edit.js',  ['position' => yii\web\View::POS_END]);
 
-echo Html::formLabel('Номера. Включенные. Без адреса установки оборудования');
+echo Html::formLabel('Номера. Включенные. Без адреса установки оборудования.');
 
 $form = ActiveForm::begin([
     'method' => 'get',
@@ -71,7 +71,7 @@ $columns = [
     ],
     [
         'label' => 'Название контрагента',
-        'attribute' => 'clientAccount.contragent.name',
+        'attribute' => 'clientAccount.clientContractModel.clientContragent.name',
         'filter' => false,
     ],
     [
@@ -81,32 +81,36 @@ $columns = [
     ],
     [
         'label' => 'Юр. адрес',
-        'attribute' => 'clientAccount.contragent.address_jur',
+//        'attribute' => 'clientAccount.clientContractModel.clientContragent.address_jur',
         'filter' => false,
+        'value' => function(StateServiceVoip $state) {
+            $cg = $state->clientAccount->clientContractModel->clientContragent;
+            return $cg->legal_type == \app\models\ClientContragent::PERSON_TYPE ? $cg->personModel->registration_address : $cg->address_jur;
+        }
     ],
     [
         'attribute' => 'e164',
         'filter' => false,
     ],
     [
-        'label' => 'Дата продажи, utc',
-        'attribute' => 'date_sale',
+        'label' => 'Дата включения',
+        'attribute' => 'actual_from',
         'filter' => false,
-        'value' => function (StateServiceVoip $state) {
-            $accountTariffHeap = $state->accountTariff->accountTariffHeap;
-            return ($accountTariffHeap && $accountTariffHeap->date_sale) ?
-                $accountTariffHeap->date_sale : '';
-        },
+//        'value' => function (StateServiceVoip $state) {
+//            $accountTariffHeap = $state->accountTariff->accountTariffHeap;
+//            return ($accountTariffHeap && $accountTariffHeap->date_sale) ?
+//                $accountTariffHeap->date_sale : '';
+//        },
     ],
     [
-        'label' => 'Дата отключения, utc',
-        'attribute' => 'disconnect_date',
+        'label' => 'Дата отключения',
+        'attribute' => 'actual_to',
         'filter' => false,
-        'value' => function (StateServiceVoip $state) {
-            $accountTariffHeap = $state->accountTariff->accountTariffHeap;
-            return ($accountTariffHeap && $accountTariffHeap->disconnect_date) ?
-                $accountTariffHeap->disconnect_date : '';
-        },
+//        'value' => function (StateServiceVoip $state) {
+//            $accountTariffHeap = $state->accountTariff->accountTariffHeap;
+//            return ($accountTariffHeap && $accountTariffHeap->disconnect_date) ?
+//                $accountTariffHeap->disconnect_date : '';
+//        },
     ],
 ];
 
@@ -118,7 +122,7 @@ $columns['address'] = [
     'value' => function (StateServiceVoip $state) {
         return
             '<span>' . $state->accountTariff->device_address . '</span>' .
-            '<img src="/images/icons/edit.gif" role="button" data-id=' . $state->accountTariff->id . ' class="edit pull-right" alt="Редактировать" />';
+            ($state->accountTariff->tariff_period_id ? '' : '<img src="/images/icons/edit.gif" role="button" data-id=' . $state->accountTariff->id . ' class="edit pull-right" alt="Редактировать" />');
     },
     'width' => '20%',
 ];
