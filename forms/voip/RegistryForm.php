@@ -192,7 +192,7 @@ class RegistryForm extends Form
 
         $this->ndcList = NumberRange::getNdcList(
             $this->country_id,
-            $this->ndc_type_id == NdcType::ID_MOBILE ? null : $this->city_id,
+            null, // $this->ndc_type_id == NdcType::ID_MOBILE ? null : $this->city_id,
             $this->ndc_type_id
         );
 
