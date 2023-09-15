@@ -10,8 +10,15 @@ class StateVoipUpdater extends Singleton
 
     public function update()
     {
+        echo PHP_EOL . date('r');
+
+        $this->binLogOff();
+
         $this->createTable();
         $this->makeActual();
+
+        $this->binLogOff();
+
         $this->addMissing();
         $this->deleteMissing();
         $this->makeChanges();
@@ -170,5 +177,16 @@ set s.lines_amount = b.lines_amount,
 where s.usage_id = b.usage_id
 SQL;
     }
+
+    private function binLogOn()
+    {
+        $this->sql[] = 'SET SQL_LOG_BIN=1;';
+    }
+
+    private function binLogOff()
+    {
+        $this->sql[] = 'SET SQL_LOG_BIN=0;';
+    }
+
 
 }
