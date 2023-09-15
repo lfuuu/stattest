@@ -348,7 +348,8 @@ class NumberRange extends ActiveRecord
                 if (!$dd) {
                     $dd = [];
                 }
-                return array_combine($dd, $dd);
+                return $dd;
+//                return array_combine($dd, $dd);
             }
 
             $where = [
