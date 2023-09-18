@@ -26,6 +26,7 @@ class OperatorColumn extends DataColumn
     public $countryCode = null;
     public $isWithNullAndNotNull = false;
     public $isWithEmpty = true;
+    public $ellipsisWidth = '150px';
 
     public function __construct($config = [])
     {
@@ -58,16 +59,16 @@ class OperatorColumn extends DataColumn
 
         $htmlArray = [];
 
-        if ($model instanceof NumberRange && $model->operator_source) {
-            $htmlArray[] = Html::ellipsis($model->operator_source);
+        if ($this->attribute == 'operator_id' && $model instanceof NumberRange && $model->operator_source) {
+            $htmlArray[] = Html::ellipsis($model->operator_source, $this->ellipsisWidth);
         }
 
         if (is_null($value)) {
             $htmlArray[] = Yii::t('common', '(not set)');
         } elseif ($this->isAddLink) {
-            $htmlArray[] = Html::ellipsis(Html::a($strValue, Operator::getUrlById($value)));
+            $htmlArray[] = Html::ellipsis(Html::a($strValue, Operator::getUrlById($value)), $this->ellipsisWidth);
         } else {
-            $htmlArray[] = Html::ellipsis($strValue);
+            $htmlArray[] = Html::ellipsis($strValue, $this->ellipsisWidth);
         }
 
         return implode('<br>', $htmlArray);

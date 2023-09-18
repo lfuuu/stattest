@@ -72,8 +72,12 @@ if (!$operator->isNewRecord) {
             <div>
                 <?= $operator->cnt . ' (' .
                 Html::a(
-                    'диапазон',
+                    'оператор (диапазон)',
                     Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $operator->country_code, 'NumberRangeFilter[operator_id]' => $operator->id])
+                ) . ', ' .
+                Html::a(
+                    'ориг. оператор',
+                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $operator->country_code, 'NumberRangeFilter[orig_operator_id]' => $operator->id])
                 ) . ', ' .
                 Html::a(
                     'портированные',
@@ -143,13 +147,13 @@ if (!$operator->isNewRecord) {
             <?php
             if ($parent = $operator->parent) {
                 echo Html::a(
-                    'перейти к родителю',
+                    ' перейти к родителю ',
                     Url::to($parent->getUrl())
                 );
             }
 
             if ($childs) {
-                echo 'Синонимы: <br />';
+                echo '<br><br>Синонимы: <br />';
 
                 $i = 0;
                 foreach ($childs as $child) {

@@ -4,8 +4,8 @@ namespace app\modules\nnp\models;
 
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
-use app\exceptions\ModelValidationException;
 use app\modules\nnp\classes\NumberRangeSetValid;
+use app\modules\nnp\classes\OperatorLinker;
 use Yii;
 use yii\helpers\Url;
 
@@ -199,6 +199,20 @@ class Operator extends ActiveRecord
         if (isset($changedAttributes['is_valid']) && $changedAttributes['is_valid'] != $this->is_valid) {
             NumberRangeSetValid::me()->set($this->country_code, $this->id);
         }
+
+        if (array_key_exists('parent_id', $changedAttributes)) {
+            $map = self::getParentOperatorsMap($this->country_code);
+            $affectedOperatorIds = array_unique(array_filter([$this->id, $this->parent_id, $changedAttributes['parent_id']]));
+            $allParentOperators = self::filterParentOperators($map, $affectedOperatorIds);
+
+            if ($allParentOperators) {
+                ob_start();
+                OperatorLinker::me()->_link((new NumberRange), $this->country_code, $allParentOperators);
+                ob_get_clean();
+
+                NumberRangeSetValid::me()->set($this->country_code, $allParentOperators);
+            }
+        }
         parent::afterSave($insert, $changedAttributes);
     }
 
@@ -225,6 +239,67 @@ class Operator extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/nnp/operator/edit', 'id' => $id]);
+    }
+
+    public static function getParentOperatorsMap($countryCode)
+    {
+        $operators = Operator::find()
+            ->where(['country_code' => $countryCode])
+            ->andWhere(['not', ['parent_id' => null]])
+            ->select('parent_id')
+            ->indexBy('id')
+            ->column();
+
+        do {
+            $isFound = false;
+            foreach ($operators as $operatorId => $parentOperatorId) {
+                if (isset($operators[$parentOperatorId])) {
+                    $operators[$operatorId] = $operators[$parentOperatorId];
+                    $isFound = true;
+                }
+            }
+        } while($isFound);
+
+        return $operators;
+    }
+
+    public static function filterParentOperators($map, $toFind = [])
+    {
+        $res = [];
+        do {
+            $isFound = false;
+
+            $nFind = [];
+            foreach ($toFind as $s) {
+                echo ' .' . $s;
+                $_toFind = self::findMatches($map, $s);
+                foreach($_toFind as $f) {
+                    if (!in_array($f, $res)) {
+                        $nFind[] = $f;
+                        $res[] = $f;
+                    }
+                }
+
+                if ($nFind) {
+                    $isFound = true;
+                    $toFind = $nFind;
+                }
+            }
+        } while($isFound);
+
+        return $res;
+    }
+
+    private static function findMatches($m, $s)
+    {
+        $toFind = [];
+        foreach ($m as $k => $v) {
+            if ($k == $s || $v == $s) {
+                $toFind[] = $k;
+                $toFind[] = $v;
+            }
+        }
+        return array_unique($toFind);
     }
 
     /**

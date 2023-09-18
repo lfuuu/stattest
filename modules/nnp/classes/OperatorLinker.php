@@ -25,7 +25,7 @@ class OperatorLinker extends Singleton
      * @throws ModelValidationException
      * @throws \yii\db\Exception
      */
-    public function run($countryCode = null)
+    public function run($countryCode = null, $isReset = false)
     {
 //        if (NumberRange::isTriggerEnabled()) {
 //            throw new \LogicException('Линковка невозможна, потому что триггер включен');
@@ -34,7 +34,7 @@ class OperatorLinker extends Singleton
         $log = '';
 
         $object = new NumberRange();
-        $log .= $this->_setNull($object, $countryCode);
+        $log .= $this->_setNull($object, $countryCode, $isReset);
         $log .= $this->_link($object, $countryCode);
         $log .= $this->_updateCnt($object, true, $countryCode);
 
@@ -57,9 +57,9 @@ class OperatorLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _setNull(ActiveRecord $object, $countryCode = null)
+    private function _setNull(ActiveRecord $object, $countryCode = null, $isReset = false)
     {
-        $object::updateAll(['operator_id' => null], ['operator_source' => ''] + ($countryCode ? ['country_code' => $countryCode] : []));
+        $object::updateAll(['operator_id' => null, 'orig_operator_id' => null], ($isReset ? [] : ['operator_source' => '']) + ($countryCode ? ['country_code' => $countryCode] : []));
     }
 
     /**
@@ -71,15 +71,17 @@ class OperatorLinker extends Singleton
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _link(ActiveRecord $object, $countryCode = null)
+    public function _link(ActiveRecord $object, $countryCode = null, $operatorsIds = [])
     {
         $numberRangeQuery = $object::find()
-            ->andWhere('operator_id IS NULL')
             ->andWhere(['IS NOT', 'operator_source', null])
             ->andWhere(['!=', 'operator_source', '']);
 
-        if ($countryCode) {
-            $numberRangeQuery->andWhere(['country_code' => $countryCode]);
+        $countryCode && $numberRangeQuery->andWhere(['country_code' => $countryCode]);
+        if ($operatorsIds) {
+            $numberRangeQuery->andWhere(['orig_operator_id' => $operatorsIds]);
+        } else {
+            $numberRangeQuery->andWhere('operator_id IS NULL');
         }
 
         if (!$numberRangeQuery->count()) {
@@ -95,9 +97,8 @@ class OperatorLinker extends Singleton
                 'name' => new Expression("CONCAT(country_code, '_', LOWER(name))"),
             ]);
 
-        if ($countryCode) {
-            $operatorSourceToIdQuery->andWhere(['country_code' => $countryCode]);
-        }
+        $countryCode &&  $operatorSourceToIdQuery->andWhere(['country_code' => $countryCode]);
+        $operatorsIds &&  $operatorSourceToIdQuery->andWhere(['id' => $operatorsIds]);
 
         $operatorSourceToId = $operatorSourceToIdQuery
             ->indexBy('name')
@@ -122,6 +123,8 @@ class OperatorLinker extends Singleton
 
         $i = 0;
 
+        $parentOperatorsStorage = [];
+
         /** @var NumberRange|nnpNumber $numberRange */
         foreach ($numberRangeQuery->each() as $numberRange) {
 
@@ -144,9 +147,28 @@ class OperatorLinker extends Singleton
                 $operatorSourceToId[$key] = $operator->id;
             }
 
-            $numberRange->operator_id = $operatorSourceToId[$key];
-            if (!$numberRange->save()) {
-                throw new ModelValidationException($numberRange);
+
+            if ($numberRange->orig_operator_id != $operatorSourceToId[$key]) {
+                $numberRange->orig_operator_id = $operatorSourceToId[$key];
+            }
+
+            if (!array_key_exists($numberRange->country_code, $parentOperatorsStorage)) {
+                $parentOperatorsStorage[$numberRange->country_code] = Operator::getParentOperatorsMap($numberRange->country_code);
+            }
+
+            $operatorId = $parentOperatorsStorage[$numberRange->country_code][$numberRange->operator_id] ?: $numberRange->orig_operator_id;
+
+            if ($operatorId != $numberRange->operator_id) {
+                $numberRange->operator_id = $operatorId;
+            }
+
+//            echo ($numberRange->operator_id == $numberRange->orig_operator_id ? ' .' : ' +');
+
+            if ($numberRange->isNewRecord || $numberRange->getDirtyAttributes()) {
+//                echo ($numberRange->operator_id == $numberRange->orig_operator_id ? ' .' : ' +');
+                if (!$numberRange->save()) {
+                    throw new ModelValidationException($numberRange);
+                }
             }
         }
 

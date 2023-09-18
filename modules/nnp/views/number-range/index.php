@@ -119,6 +119,16 @@ $columns = [
         ],
     ],
     [
+        'attribute' => 'orig_operator_id',
+        'class' => OperatorColumn::class,
+        'countryCode' => $filterModel->country_code,
+        // 'isWithNullAndNotNull' => false,
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+    ],
+    [
         'attribute' => 'region_id',
         'class' => RegionColumn::class,
         // 'isWithNullAndNotNull' => true,
