@@ -24,6 +24,7 @@ class NumberRangeFilter extends NumberRange
     public $full_number_mask = '';
     public $operator_source = '';
     public $operator_id = '';
+    public $orig_operator_id = '';
     public $region_source = '';
     public $region_id = '';
     public $city_source = '';
@@ -46,7 +47,7 @@ class NumberRangeFilter extends NumberRange
     {
         return [
             [['operator_source', 'ndc_str', 'region_source', 'city_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
-            [['country_code', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'prefix_id', 'is_valid'], 'integer'],
+            [['country_code', 'ndc_type_id', 'is_active', 'operator_id', 'orig_operator_id', 'region_id', 'city_id', 'prefix_id', 'is_valid'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
             [['date_resolution_from', 'date_resolution_to'], 'string'],
         ];
@@ -82,6 +83,20 @@ class NumberRangeFilter extends NumberRange
                 break;
             default:
                 $query->andWhere([$numberRangeTableName . '.operator_id' => $this->operator_id]);
+                break;
+        }
+
+        switch ($this->orig_operator_id) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere($numberRangeTableName . '.orig_operator_id IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere($numberRangeTableName . '.orig_operator_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere([$numberRangeTableName . '.orig_operator_id' => $this->orig_operator_id]);
                 break;
         }
 

@@ -28,6 +28,7 @@ use yii\helpers\Url;
  *
  * @property string $operator_source
  * @property int $operator_id
+ * @property int $orig_operator_id
  *
  * @property string $region_source
  * @property int $region_id
@@ -89,6 +90,7 @@ class NumberRange extends ActiveRecord
 
             'operator_source' => 'Исходный оператор',
             'operator_id' => 'Оператор',
+            'orig_operator_id' => 'Ориг. Оператор',
 
             'region_source' => 'Исходный регион',
             'region_id' => 'Регион',
@@ -202,6 +204,14 @@ class NumberRange extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(Operator::class, ['id' => 'operator_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getOrigOperator()
+    {
+        return $this->hasOne(Operator::class, ['id' => 'orig_operator_id']);
     }
 
     /**
