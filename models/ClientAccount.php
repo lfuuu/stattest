@@ -1704,4 +1704,9 @@ class ClientAccount extends HistoryActiveRecord
     {
         return $this->bill_rename1 == 'yes';
     }
+
+    public static function getLinkToLk($accountId)
+    {
+        return 'https://' . \Yii::$app->params['BASE_SERVER'] . '/api/public/api/auth/login/support?accountId=' . $accountId . '&withRedirect=true';
+    }
 }

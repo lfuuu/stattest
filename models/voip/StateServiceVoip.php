@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GridSortTrait;
 use app\classes\validators\FormFieldValidator;
 use app\models\ClientAccount;
+use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
 use Yii;
 
@@ -24,6 +25,7 @@ use Yii;
  *
  * @property-read ClientAccount clientAccount
  * @property-read AccountTariff accountTariff
+ * @property-read UsageVoip usageVoip
  */
 class StateServiceVoip extends ActiveRecord
 {
@@ -86,6 +88,11 @@ class StateServiceVoip extends ActiveRecord
     public function getAccountTariff()
     {
         return $this->hasOne(AccountTariff::class, ['id' => 'usage_id']);
+    }
+
+    public function getUsageVoip()
+    {
+        return $this->hasOne(UsageVoip::class, ['id' => 'usage_id']);
     }
 
     public function __toString()
