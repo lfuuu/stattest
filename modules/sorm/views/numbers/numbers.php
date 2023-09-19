@@ -22,7 +22,7 @@ $this->registerJs("var gve_targetElementName = 'address';\n", View::POS_HEAD);
 $this->registerJs("var gve_targetUrl = 'sorm/numbers/save-address';\n", View::POS_HEAD);
 $this->registerJsFile('js/grid_view_edit.js',  ['position' => yii\web\View::POS_END]);
 
-echo Html::formLabel('Номера. Включенные. Без адреса установки оборудования.');
+echo Html::formLabel('Номера. Без адреса установки оборудования.');
 
 $form = ActiveForm::begin([
     'method' => 'get',
@@ -50,11 +50,22 @@ $form = ActiveForm::begin([
         <div class="col-md-1" style="margin-top: 20px">
             <?= Html::submitButton('Фильтровать', ['class' => 'btn btn-info']) ?>
         </div>
+        <div class="col-md-1" style="margin-top: 20px">
+            &nbsp;
+        </div>
+        <div class="col-md-4" style="margin-top: 20px">
+            <div class="well text-info">
+                <h1>Инструкция:</h1>
+                <p>Отчет показывает на какой услуге не заполнен "Адрес установки оборудования" (далее Адрес).</p>
+                <ul>
+                    <li>Если номер выключен, Адрес можно заполнить из данного отчета</li>
+                    <li>Если номер включен, Адрес можно заполнить только из ЛК</li>
+                    <li>Если в ЛК адрес у услуги номера присутствует, но его нет в данном отчете, то надо подождать когда пройдет синхронизация.</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
-<?php
-ActiveForm::end();
-?>
     <div style="clear: both;"></div>
 
 <?php
@@ -67,6 +78,16 @@ $columns = [
         'filter' => false,
         'value' => function (StateServiceVoip $state) {
             return $state->clientAccount->getLink();
+        },
+    ],
+    [
+        'label' => 'Переход в ЛК',
+        'format' => 'html',
+        'filter' => false,
+        'value' => function (StateServiceVoip $state) {
+            return \app\classes\api\ApiCore::isAvailable()
+                ? Html::a(Html::tag('i', '', ['class' => 'glyphicon glyphicon-new-window']), \app\models\ClientAccount::getLinkToLk($state->client_id), ['target' => '_blank'])
+                : '';
         },
     ],
     [
@@ -91,6 +112,8 @@ $columns = [
     [
         'attribute' => 'e164',
         'filter' => false,
+        'format' => 'html',
+        'value' => fn(StateServiceVoip $state) => Html::a($state->e164, $state->usage_id > AccountTariff::DELTA ? $state->accountTariff->getUrl() : $state->usageVoip->getUrl()),
     ],
     [
         'label' => 'Дата включения',
@@ -121,7 +144,7 @@ $columns['address'] = [
     'format' => 'raw',
     'value' => function (StateServiceVoip $state) {
         return
-            '<span>' . $state->accountTariff->device_address . '</span>' .
+            '<span>' . ($state->usage_id > AccountTariff::DELTA ? $state->accountTariff->device_address : $state->usageVoip->address). '</span>' .
             ($state->accountTariff->tariff_period_id ? '' : '<img src="/images/icons/edit.gif" role="button" data-id=' . $state->accountTariff->id . ' class="edit pull-right" alt="Редактировать" />');
     },
     'width' => '20%',
@@ -132,7 +155,10 @@ echo GridView::widget([
     'dataProvider' => $filter->search(),
     'filterModel' => $filter,
     'columns' => $columns,
+    'isFilterButton' => false,
 
-    'toolbar' => [],
-    'panel' => true,
+//    'toolbar' => [],
+//    'panel' => true,
 ]);
+
+ActiveForm::end();
