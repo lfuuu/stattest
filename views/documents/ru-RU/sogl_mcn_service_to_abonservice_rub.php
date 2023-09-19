@@ -19,6 +19,7 @@ if ($contract->state == \app\models\ClientContract::STATE_OFFER) {
 
 $contragent = $contract->contragent;
 
+/** @var ClientContractAdditionalAgreement $info */
 $info = ClientContractAdditionalAgreement::find()->where([
     'account_id' => $account->id,
     'from_organization_id' => Organization::MCN_TELECOM_SERVICE,
@@ -29,6 +30,15 @@ $info = ClientContractAdditionalAgreement::find()->where([
 if (!$info) {
     return;
 }
+
+$documentDateTs = (new DateTimeImmutable($info->transfer_date))->modify('-11 day')->getTimestamp();
+
+$documentDateStr =
+    "&laquo;" .
+    \app\classes\DateFunction::mdate($documentDateTs, 'd') .
+    "&raquo; " .
+    \app\classes\DateFunction::mdate($documentDateTs, 'месяца Y г.');
+
 
 $organizationService = Organization::find()->byId(Organization::MCN_TELECOM_SERVICE)->actual()->one(); //Сервис
 $organizationAbonService = Organization::find()->byId(Organization::AB_SERVICE_MARCOMNET)->actual()->one(); //АбонСервисе
@@ -88,7 +98,7 @@ $isWithStamp = $isPdf;
                 г. Москва
             </td>
             <td style="text-align: right;<?= $fsStyle ?>">
-                &laquo;21&raquo; августа 2023 г.&nbsp;&nbsp;&nbsp;
+                <?= $documentDateStr ?>
             </td>
         </tr>
     </table>
