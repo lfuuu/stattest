@@ -156,7 +156,7 @@ class OperatorLinker extends Singleton
                 $parentOperatorsStorage[$numberRange->country_code] = Operator::getParentOperatorsMap($numberRange->country_code);
             }
 
-            $operatorId = $parentOperatorsStorage[$numberRange->country_code][$numberRange->operator_id] ?: $numberRange->orig_operator_id;
+            $operatorId = $parentOperatorsStorage[$numberRange->country_code][$numberRange->orig_operator_id] ?: $numberRange->orig_operator_id;
 
             if ($operatorId != $numberRange->operator_id) {
                 $numberRange->operator_id = $operatorId;
