@@ -26,7 +26,11 @@ class NumbersController extends BaseController
      */
     public function actionNumbersB2c()
     {
-        $params = Yii::$app->request->get() ?: ['StateServiceVoipFilter' => ['is_b2c' => 1]];
+        $params = Yii::$app->request->get();
+
+        if (!isset($params['StateServiceVoipFilter']['is_b2c'])) {
+            $params['StateServiceVoipFilter']['is_b2c'] = 1;
+        }
 
         $filter = new StateServiceVoipFilter();
         $filter->load($params);
@@ -42,7 +46,11 @@ class NumbersController extends BaseController
      */
     public function actionNumbers()
     {
-        $params = Yii::$app->request->get() ?: ['StateServiceVoipFilter' => ['is_b2c' => 0]];
+        $params = Yii::$app->request->get();
+
+        if (!isset($params['StateServiceVoipFilter']['is_b2c'])) {
+            $params['StateServiceVoipFilter']['is_b2c'] = 0;
+        }
 
         $filter = new StateServiceVoipFilter();
         $filter->load($params);
