@@ -152,7 +152,6 @@ VAT Number: <?= $contragent->inn_euro ?>
     <thead>
     <th>No</th>
     <th>Description</th>
-    <th>Billing period</th>
     <?php if (!$isOperatorBill) { ?>
         <th>Volume, min</th><?php } ?>
     <th>Amount, <?= $currency ?></th>
@@ -169,7 +168,6 @@ VAT Number: <?= $contragent->inn_euro ?>
         <tr>
             <td align="center"><?= ($idx + 1); ?></td>
             <td align="center"><?= $line['item'] ?></td>
-            <td align="center"><?= $hDate($line['date_from']) . ' - ' . $hDate($line['date_to']) ?></td>
             <?php if (!$isOperatorBill) { ?>
                 <td align="center"><?= $line['amount'] ?></td><?php } ?>
             <td align="center"><?= $line['price'] ?></td>
@@ -186,7 +184,7 @@ VAT Number: <?= $contragent->inn_euro ?>
         $total['sum'] += $line['sum'];
     endforeach; ?>
     <tr>
-        <td colspan="<?= $isOperatorBill ? 3 : 4 ?>" align="right"><b>Total Amount Due:</b></td>
+        <td colspan="<?= $isOperatorBill ? 2 : 3 ?>" align="right"><b>Total Amount Due:</b></td>
         <td align="center"><?= number_format($total['amount'], 2, '.', '') ?></td>
         <?php if (!$isCurrentStatement): ?>
             <td align="center">&nbsp;</td>
