@@ -38,12 +38,10 @@ class OperatorLinker extends Singleton
         $log .= $this->_link($object, $countryCode);
         $log .= $this->_updateCnt($object, true, $countryCode);
 
-        if (!$countryCode) {
-            $object = new nnpNumber();
-            $log .= $this->_setNull($object);
-            $log .= $this->_link($object);
-            $log .= $this->_updateCnt($object, false);
-        }
+        $object = new nnpNumber();
+        $log .= $this->_setNull($object, $countryCode);
+        $log .= $this->_link($object, $countryCode);
+        $log .= $this->_updateCnt($object, false, $countryCode);
 
         $log .= $this->_transliterate($countryCode);
 
@@ -59,7 +57,7 @@ class OperatorLinker extends Singleton
      */
     private function _setNull(ActiveRecord $object, $countryCode = null, $isReset = false)
     {
-        $object::updateAll(['operator_id' => null, 'orig_operator_id' => null], ($isReset ? [] : ['operator_source' => '']) + ($countryCode ? ['country_code' => $countryCode] : []));
+        $object::updateAll(['operator_id' => null] + ($object instanceof NumberRange ?  ['orig_operator_id' => null] : []), ($isReset ? [] : ['operator_source' => '']) + ($countryCode ? ['country_code' => $countryCode] : []));
     }
 
     /**
@@ -148,19 +146,16 @@ class OperatorLinker extends Singleton
             }
 
 
-            if ($numberRange->orig_operator_id != $operatorSourceToId[$key]) {
-                $numberRange->orig_operator_id = $operatorSourceToId[$key];
+            $origOperatorId = $operatorSourceToId[$key];
+            if ($object instanceof NumberRange) {
+                $numberRange->orig_operator_id = $origOperatorId;
             }
 
             if (!array_key_exists($numberRange->country_code, $parentOperatorsStorage)) {
                 $parentOperatorsStorage[$numberRange->country_code] = Operator::getParentOperatorsMap($numberRange->country_code);
             }
 
-            $operatorId = $parentOperatorsStorage[$numberRange->country_code][$numberRange->orig_operator_id] ?: $numberRange->orig_operator_id;
-
-            if ($operatorId != $numberRange->operator_id) {
-                $numberRange->operator_id = $operatorId;
-            }
+            $numberRange->operator_id = $parentOperatorsStorage[$numberRange->country_code][$origOperatorId] ?: $origOperatorId;
 
 //            echo ($numberRange->operator_id == $numberRange->orig_operator_id ? ' .' : ' +');
 
