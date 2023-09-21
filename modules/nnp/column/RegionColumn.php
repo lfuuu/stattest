@@ -54,12 +54,16 @@ class RegionColumn extends DataColumn
             $strValue = $model->region->name;
         }
 
-        $this->renderSymbolIsValid($model->region, $strValue);
-
         $htmlArray = [];
 
-        if ($model instanceof NumberRange && $model->region_source) {
-            $htmlArray[] = Html::ellipsis($model->region_source);
+        if ($model instanceof NumberRange) {
+            if ($model->region_id) {
+                $this->renderSymbolIsValid($model->region, $strValue);
+            }
+
+            if ($model->region_source) {
+                $htmlArray[] = Html::ellipsis($model->region_source);
+            }
         }
 
         if (is_null($value)) {
