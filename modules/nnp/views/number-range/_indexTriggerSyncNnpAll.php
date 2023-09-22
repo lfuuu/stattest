@@ -41,6 +41,7 @@ $isTimeCorrect = true;//$currentHour >= 19;
     <div class="col-md-1">
         &nbsp;
     </div>
+    <?php if (\Yii::$app->isRus()): ?>
     <div class="col-md-3 alert alert-info">
         <?php
 
@@ -70,13 +71,12 @@ $isTimeCorrect = true;//$currentHour >= 19;
             $out[] = 'Ползователь: ' . (\app\models\User::find()->where(['id' => $_userId])->select('name')->scalar() ?: '???');
         }
 
-        if (EventFlag::getOrNull('is_nnp_sync_need')) {
+        if (EventFlag::getOrNull('is_nnp_sync_started')) {
+            $out[] = \app\classes\Html::tag('span', 'Синхронизация данных с Европой в процессе ', ['class' => 'text-warning']);
+        }elseif (EventFlag::getOrNull('is_nnp_sync_need')) {
             $out[] = \app\classes\Html::tag('span', 'Ожидается обновление данных с Европой', ['class' => 'text-muted']);
         }
 
-        if (EventFlag::getOrNull('is_nnp_sync_started')) {
-            $out[] = \app\classes\Html::tag('span', 'Синхронизация данных с Европой в процессе ', ['class' => 'text-warning']);
-        }
 
         $_syncStartDate = EventFlag::getOrNull('is_nnp_sync_start_date');
         if ($_syncStartDate) {
@@ -96,4 +96,5 @@ $isTimeCorrect = true;//$currentHour >= 19;
         ?>
 
     </div>
+    <?php endif; ?>
 </div>
