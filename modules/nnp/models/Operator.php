@@ -208,7 +208,10 @@ class Operator extends ActiveRecord
             if ($allParentOperators) {
                 ob_start();
                 OperatorLinker::me()->_link((new NumberRange), $this->country_code, $allParentOperators);
-                ob_get_clean();
+                OperatorLinker::me()->_updateCnt((new NumberRange), true, $this->country_code, $allParentOperators);
+                if ($text = ob_get_clean()) {
+                    \Yii::$app->session->addFlash('success', $text);
+                }
 
                 NumberRangeSetValid::me()->set($this->country_code, $allParentOperators);
             }
@@ -271,7 +274,6 @@ class Operator extends ActiveRecord
 
             $nFind = [];
             foreach ($toFind as $s) {
-                echo ' .' . $s;
                 $_toFind = self::findMatches($map, $s);
                 foreach($_toFind as $f) {
                     if (!in_array($f, $res)) {
@@ -287,7 +289,7 @@ class Operator extends ActiveRecord
             }
         } while($isFound);
 
-        return $res;
+        return array_unique(array_merge($res, $toFind));
     }
 
     private static function findMatches($m, $s)

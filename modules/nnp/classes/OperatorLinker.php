@@ -178,12 +178,12 @@ class OperatorLinker extends Singleton
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _updateCnt(ActiveRecord $object, $isClear, $countryCode = null)
+    public function _updateCnt(ActiveRecord $object, $isClear, $countryCode = null, $operatorIds = [])
     {
         $log = '';
 
         $log .= Module::transaction(
-            function () use ($object, $isClear, $countryCode) {
+            function () use ($object, $isClear, $countryCode, $operatorIds) {
                 $db = Operator::getDb();
 
                 $numberRangeTableName = $object::tableName();
@@ -208,7 +208,15 @@ class OperatorLinker extends Singleton
 
                 $andWhere = '';
                 if ($countryCode) {
-                    $andWhere = ' AND ' . $whereCountry;
+                    $andWhere .= ' AND ' . $whereCountry;
+                }
+
+                if ($operatorIds) {
+                    $andWhere .= ' AND operator_id in (';
+                    foreach ($operatorIds as $operatorId) {
+                        $paramsCountry['operator_id' . $operatorId] = $operatorId;
+                    }
+                    $andWhere .= ':operator_id' . implode(', :operator_id', $operatorIds). ')';
                 }
 
                 $sql = <<<SQL
