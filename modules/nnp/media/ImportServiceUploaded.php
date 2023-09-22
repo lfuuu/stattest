@@ -7,7 +7,6 @@ use app\modules\nnp\filters\NumberRangeImport;
 class ImportServiceUploaded extends ImportService
 {
     public $url;
-
     /**
      * Основной метод
      * Вызывается после _pre и перед _post

@@ -323,6 +323,7 @@ class ImportController extends BaseController
                 $importHistoryOld = ImportHistory::startFile($countryFile, false);
                 $importOld = new ImportServiceUploaded([
                     'countryCode' => $countryCode,
+                    'countryFileId' => $countryFile->id,
                     'url' => $mediaManager->getUnzippedFilePath($countryFile),
                     'delimiter' => ';',
                 ]);

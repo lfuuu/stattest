@@ -4,6 +4,7 @@ namespace app\modules\nnp\media;
 
 use app\classes\Connection;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\EventFlag;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
@@ -11,6 +12,7 @@ use app\modules\nnp2\models\ImportHistory;
 use UnexpectedValueException;
 use Yii;
 use yii\base\Model;
+use yii\db\Expression;
 
 abstract class ImportService extends Model
 {
@@ -29,6 +31,8 @@ abstract class ImportService extends Model
 
     /** @var Country */
     protected $country;
+
+    public $countryFileId = null;
 
     protected $ndcTypeList = [];
 
@@ -91,6 +95,8 @@ abstract class ImportService extends Model
             $this->_preImport();
             $this->callbackMethod();
             $this->_postImport();
+
+            $this->_makeSyncEvent($this->countryCode, $this->countryFileId);
 
             $transaction->commit();
 
@@ -350,6 +356,18 @@ SQL;
         $this->importHistory->ranges_before = $affectedRowsBefore;
         $this->importHistory->ranges_updated = $affectedRowsUpdated;
         $this->importHistory->ranges_new = $affectedRowsAdded;
+    }
+
+    private function _makeSyncEvent($countryCode, $fileId)
+    {
+        $expression = new Expression("NOW() AT TIME ZONE 'utc'");
+        $now = (new \yii\db\Query)->select($expression)->scalar(EventFlag::getDb());
+
+        EventFlag::upsert('last_import_file_country_code', $countryCode);
+        EventFlag::upsert('last_import_file_id', $fileId);
+        EventFlag::upsert('last_import_file_date', $now);
+        EventFlag::upsert('last_import_file_user_id', \Yii::$app->user->getId());
+        EventFlag::upsert('is_nnp_sync_need', 1);
     }
 
     /**
