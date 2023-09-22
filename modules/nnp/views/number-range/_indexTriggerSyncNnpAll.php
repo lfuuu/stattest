@@ -14,7 +14,7 @@ $isTimeCorrect = true;//$currentHour >= 19;
 ?>
 
 <div class="row" style="padding-left: 15px;">
-    <div class="col-md-8 alert alert-warning">
+    <div class="col-md-5 alert alert-warning">
         <p>
             Изменения не синхронизируются в биллер! <br>
             Можно выполнять массовые операции по изменению префиксов.<br>
@@ -42,7 +42,7 @@ $isTimeCorrect = true;//$currentHour >= 19;
         &nbsp;
     </div>
     <?php if (\Yii::$app->isRus()): ?>
-    <div class="col-md-3 alert alert-info">
+    <div class="col-md-5 alert alert-info">
         <?php
 
         $out = [];
@@ -97,4 +97,8 @@ $isTimeCorrect = true;//$currentHour >= 19;
 
     </div>
     <?php endif; ?>
+    <div class="col-md-1">
+        &nbsp;
+    </div>
+
 </div>
