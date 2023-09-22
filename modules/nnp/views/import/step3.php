@@ -153,8 +153,8 @@ if ($useCache) {
                     $errorLines[$lineNumber] = $text;
                 } elseif (empty($numberRangeImport->ndc_str) && $numberRangeImport->ndc_str != '0') {
                     $warningLines[$lineNumber] = 'Пустой NDC - диапазон не будет загружен';
-                } elseif ($numberRangeImport->ndc_type_id == 6) {
-                    $warningLines[$lineNumber] = 'Короткий номер - диапазон не будет загружен';
+//                } elseif ($numberRangeImport->ndc_type_id == 6) {
+//                    $warningLines[$lineNumber] = 'Короткий номер - диапазон не будет загружен';
                 } elseif (isset($alreadyRead[$key])) {
                     $oldLine = $alreadyRead[$key];
 

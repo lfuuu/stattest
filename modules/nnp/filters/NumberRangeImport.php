@@ -107,7 +107,7 @@ class NumberRangeImport extends NumberRange
     {
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
-            && strlen($value) >= 2
+            && (strlen($value) >= 2 || (strlen($value) >= 1 && $this->ndc_type_id == 6))
         ) {
             $this->number_from = $value;
             return true;
@@ -127,7 +127,7 @@ class NumberRangeImport extends NumberRange
     {
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false, $isConvertToInt = false)
-            && strlen($this->number_from) === strlen($value)
+            && strlen((string)$this->number_from) === strlen((string)$value)
         ) {
             $this->number_to = $value;
 
@@ -264,7 +264,7 @@ class NumberRangeImport extends NumberRange
     private function _checkNatural(&$value, $isEmptyAllowed, $isConvertToInt = true)
     {
         $value = trim($value);
-        if (!$value) {
+        if (!$value && $value !== '0') {
             $value = null;
             return $isEmptyAllowed;
         }
