@@ -214,7 +214,8 @@ class ApiLk
         $R = [
                 'bill' => $billNo,
                 'object' => 'bill-2-RUB',
-                'client' => $bill->client_id
+                'client' => $bill->client_id,
+                'is_pdf' => 1,
             ] + (
             $bill->clientAccount->country_id != Country::RUSSIA ?
                 ['doc_type' => \app\classes\documents\DocumentReport::DOC_TYPE_PROFORMA] :
