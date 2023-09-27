@@ -241,7 +241,7 @@ WHERE b.client_id = ' . $account->id . '
             $dateFrom = $isNotRussia ? '2019-07-31' : date('Y-01-01', strtotime('-3 year'));
         }
 
-        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia, !$isNotRussia, $isWithPrepaymentBills);
+        $dirtyData = $this->getRevise($account, $dateFrom, $dateTo, 0, $isNotRussia, true /*!$isNotRussia */, $isWithPrepaymentBills);
 
         $data = array_reverse(
             array_filter($dirtyData['data'], function ($a) {
