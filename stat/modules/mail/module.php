@@ -73,7 +73,7 @@ class m_mail{
 				job_id
 			ORDER BY
 				job_id desc
-            limit 50
+            limit 150
 		');
 		$design->assign('mail_job',$L);
 		$design->AddMain('mail/list.tpl');
