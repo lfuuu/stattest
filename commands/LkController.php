@@ -90,12 +90,18 @@ class LkController extends Controller
 
     public function actionDownloadDeviceAddressesFromLk()
     {
-        $sql =<<<SQL
-select at.id, o.account_id, o.did, a.address ->> "$.street" as lk_device_address, at.device_address
-from import_dict.core_ott o, import_dict.core_device_address a, uu_account_tariff at
-where o.device_address_id = a.id and a.check_status = 'checked'
-and o.account_id = at.client_account_id and o.did = at.voip_number and tariff_period_id is not null
-having lk_device_address != at.device_address and lk_device_address != ''
+        $sql = <<<SQL
+SELECT at.id, o.account_id, o.did, a.address ->> "$.street" as lk_device_address, at.device_address
+FROM import_dict.core_ott o,
+     import_dict.core_device_address a,
+     uu_account_tariff at
+WHERE o.device_address_id = a.id
+  AND (a.check_status is null or a.check_status = 'checked')
+  AND o.account_id = at.client_account_id
+  AND o.did = at.voip_number
+  AND tariff_period_id is not null
+HAVING lk_device_address != at.device_address
+   AND lk_device_address != ''
 SQL;
         $query = \Yii::$app->db->createCommand($sql)->query();
         echo PHP_EOL . date('r') . PHP_EOL;
