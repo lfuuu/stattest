@@ -80,7 +80,7 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
         // Подготовка массива выбираемых полей
         $select = array_merge([
             'c.id',
-            "concat(c.id, '( ', cg.name, ' )') company",
+            "concat(c.id, ' (', cg.name, ')') company",
             'amu.name account_manager_name',
             'cr.organization_id',
             'c.currency',
