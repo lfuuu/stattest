@@ -9,19 +9,32 @@ use app\modules\uu\models\AccountTariff;
 
 class ClientsFilter extends ActiveRecord
 {
+    public $filter_region_id = '';
     public $type = ClientContragent::PERSON_TYPE;
-    public $isB2c = true;
+    public $is_b2c = 1;
+    public $account_manager = '';
 
     private $legalMap = [
         ClientContragent::PERSON_TYPE => 0,
         ClientContragent::LEGAL_TYPE => 1,
     ];
 
-    public function attributes()
+    public function attributeLabels()
     {
         return [
             'id' => 'Ид',
             'name_jur' => 'Название / ФИО',
+            'is_b2c' => 'B2C',
+            'account_manager' => 'Акк. менеджер',
+            'filter_region_id' => 'Регион',
+        ];
+    }
+
+    public function rules()
+    {
+        return [
+            [['filter_region_id', 'is_b2c'], 'integer'],
+            [['account_manager',], 'string'],
         ];
     }
 
@@ -52,14 +65,22 @@ class ClientsFilter extends ActiveRecord
         $accountIdsB2c = array_fill_keys($accountIdsB2c, 1); // array values to keys
         return array_filter($subscribers, function ($sub) use ($accountIdsB2c) {
             $isSet = isset($accountIdsB2c[$sub['id']]);
-            return $this->isB2c ? $isSet : !$isSet;
+            return $this->is_b2c ? $isSet : !$isSet;
         });
 
     }
 
     private function getSubscribers()
     {
-        $subscribers = \Yii::$app->dbPg->createCommand($q = 'select * from sorm_itgrad.subscribers_v1 where (not is_active and legal_type_id = :legal_type_id)', [':legal_type_id' => $this->getLegalTypeId()])->queryAll();
+        $andWhere = '';
+        $params = [':legal_type_id' => $this->getLegalTypeId()];
+
+        if ($this->filter_region_id !== '') {
+            $params[':region_id'] = $this->filter_region_id;
+            $andWhere .= ' AND region_id = :region_id';
+        }
+
+        $subscribers = \Yii::$app->dbPg->createCommand($q = 'select * from sorm_itgrad.subscribers_v1 where (not is_active and legal_type_id = :legal_type_id)' . $andWhere, $params)->queryAll();
 
         if (!$subscribers) {
             return [];
@@ -73,9 +94,12 @@ class ClientsFilter extends ActiveRecord
             $accountIds += AccountTariff::find()->where(['id' => $accountTariffIds])->select('client_account_id')->distinct()->indexBy('id')->column();
         }
 
-        $priceLevelWhere = $this->isB2c ? ['price_level' => ClientAccount::PRICE_LEVEL_B2C] : ['not', ['price_level' => ClientAccount::PRICE_LEVEL_B2C]];
+        $priceLevelWhere = $this->is_b2c !== '' ? ($this->is_b2c ? ['price_level' => ClientAccount::PRICE_LEVEL_B2C] : ['not', ['price_level' => ClientAccount::PRICE_LEVEL_B2C]]) : [];
 
-        $qq = ClientAccount::find()->where(['id' => array_keys($accountIds)])->andWhere($priceLevelWhere)->select('id');
+        $qq = ClientAccount::find()->alias('c')->where(['c.id' => array_keys($accountIds)])->andWhere($priceLevelWhere)->select('c.id');
+        if ($this->account_manager !== '') {
+            $qq->joinWith('clientContractModel cc')->andWhere(['cc.account_manager' => $this->account_manager]);
+        }
 //        echo $qq->createCommand()->rawSql;
         $accountIdsB2c = $qq->column();
 
@@ -83,14 +107,14 @@ class ClientsFilter extends ActiveRecord
             return [];
         }
 
-        array_walk($subscribers, function(&$sub) use ($accountIds) {
+        array_walk($subscribers, function (&$sub) use ($accountIds) {
             $sub['account_id'] = $accountIds[$sub['id']];
         });
 
         $accountIdsB2c = array_fill_keys($accountIdsB2c, 1); // array values to keys
         $subscribers = array_filter($subscribers, function ($sub) use ($accountIdsB2c) {
             $isSet = isset($accountIdsB2c[$sub['account_id']]);
-//            return $this->isB2c ? $isSet : !$isSet;
+//            return $this->is_b2c ? $isSet : !$isSet;
             return $isSet;
         });
 
