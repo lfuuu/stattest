@@ -12,6 +12,7 @@ use app\models\ClientContragent;
 use app\models\EquipmentUser;
 use app\models\filter\SormClientFilter;
 use app\models\UsageVoip;
+use app\modules\sorm\classes\ControllerHelperSetDefaults;
 use app\modules\sorm\filters\StateServiceVoipFilter;
 use app\modules\uu\models\AccountTariff;
 use Yii;
@@ -32,6 +33,8 @@ class NumbersController extends BaseController
             $params['StateServiceVoipFilter']['is_b2c'] = 1;
         }
 
+        ControllerHelperSetDefaults::me()->setDefaults($params, 'StateServiceVoipFilter', 'region');
+
         $filter = new StateServiceVoipFilter();
         $filter->load($params);
 
@@ -39,6 +42,7 @@ class NumbersController extends BaseController
             'filter' => $filter,
         ]);
     }
+
     /**
      * Номера
      *
@@ -51,6 +55,8 @@ class NumbersController extends BaseController
         if (!isset($params['StateServiceVoipFilter']['is_b2c'])) {
             $params['StateServiceVoipFilter']['is_b2c'] = 0;
         }
+
+        ControllerHelperSetDefaults::me()->setDefaults($params, 'StateServiceVoipFilter', 'region');
 
         $filter = new StateServiceVoipFilter();
         $filter->load($params);
