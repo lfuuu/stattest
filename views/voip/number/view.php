@@ -307,6 +307,10 @@ echo \yii\widgets\Breadcrumbs::widget([
                                         echo '<b>Номер переведен в статус Откреплен</b>';
 
                                         break;
+                                    case NumberLog::ACTION_CONNECTED:
+                                        echo '<b>Номер подключен к услуге: №' . Html::a($log['addition'], \app\modules\uu\models\AccountTariff::getUrlById($log['addition']), ['target' => '_blank']) . '</b>';
+
+                                        break;
                                         ?>
                                     <?php } ?>
                             </td>
