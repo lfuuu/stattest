@@ -5,6 +5,7 @@ namespace app\modules\uu\behaviors;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Number;
+use app\models\NumberLog;
 use app\modules\uu\models\AccountTariff;
 use yii\base\Behavior;
 use yii\base\Event;
@@ -48,10 +49,14 @@ class AccountTariffVoipNumber extends Behavior
         $number->uu_account_tariff_id = $accountTariff->id;
         $number->client_id = $accountTariff->client_account_id;
 
-//        $number->status = Number::STATUS_NOT_VERFIED;
-//        $number->is_verified = 0;
         if (!$number->save()) {
             throw new ModelValidationException($number);
         }
+
+        Number::dao()->log(
+            $number,
+            NumberLog::ACTION_CONNECTED,
+            $accountTariff->id
+        );
     }
 }

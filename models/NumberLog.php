@@ -31,6 +31,8 @@ class NumberLog extends ActiveRecord
     const ACTION_ADDITION_COMMERCIAL = 'commercial';
     const ACTION_NOT_VERFIED = 'not_verfied';
 
+    const ACTION_CONNECTED = 'connected';
+
     const ACTION_INVERTRESERVED = 'invertReserved';
     //const ACTION_INVERTOUR = 'invertOur';
     //const ACTION_INVERTSPECIAL = 'invertSpecial';
