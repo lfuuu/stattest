@@ -72,8 +72,8 @@ abstract class AccountTariffForm extends Form
 
         $this->accountTariffLog = new AccountTariffLog();
         $this->accountTariffLog->account_tariff_id = $this->accountTariff->id;
-        $this->accountTariffLog->actual_from = $this->accountTariff->getDefaultActualFrom();
         $this->accountTariffLog->populateRelation('accountTariff', $this->accountTariff);
+        $this->accountTariffLog->actual_from = $this->accountTariff->getDefaultActualFrom();
 
         $this->accountTariffVoip = new AccountTariffVoip();
         $this->accountTariffVoip->voip_country_id = $this->accountTariff->clientAccount->country_id;

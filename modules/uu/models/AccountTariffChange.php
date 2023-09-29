@@ -4,8 +4,9 @@ namespace app\modules\uu\models;
 
 use app\classes\behaviors\CreatedAt;
 use app\classes\model\ActiveRecord;
-use app\classes\Utils;
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\models\User;
 use yii\behaviors\BlameableBehavior;
 
@@ -64,6 +65,18 @@ class AccountTariffChange extends ActiveRecord
         if (!$change->save()) {
             throw new ModelValidationException($change);
         }
+
+        EventQueue::go(\app\modules\uu\Module::EVENT_UU_ANONCE, [
+            'account_tariff_id' => $accountTariffId,
+            'client_account_id' => $clientAccountId,
+        ],
+            $isForceAdd = false,
+            $nextStart = DateTimeZoneHelper::getUtcDateTime()
+                ->modify('+2 second')
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+
+        );
+
 
         return $change;
     }

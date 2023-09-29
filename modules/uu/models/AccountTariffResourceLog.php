@@ -31,6 +31,7 @@ use yii\db\Expression;
  * @property float $amount
  * @property string $actual_from_utc
  * @property string $sync_time
+ * @property int $is_announced
  *
  * @property string $actual_from
  *
@@ -77,7 +78,7 @@ class AccountTariffResourceLog extends ActiveRecord
     {
         return [
             [['account_tariff_id', 'resource_id', 'amount'], 'required'],
-            [['account_tariff_id', 'resource_id'], 'integer'],
+            [['account_tariff_id', 'resource_id', 'is_announced'], 'integer'],
             ['resource_id', 'validateTariffResource'],
             [['amount'], 'number'],
             [['amount'], 'validatorOther', 'skipOnEmpty' => false],
@@ -85,6 +86,7 @@ class AccountTariffResourceLog extends ActiveRecord
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['user_info', 'string'],
+            ['is_announced', 'default', 'value' => 0],
         ];
     }
 
