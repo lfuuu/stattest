@@ -15,6 +15,7 @@ use app\modules\uu\tarificator\AccountLogPeriodPackageTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
+use app\modules\uu\tarificator\AnnounceResourceChangesTarifficator;
 use app\modules\uu\tarificator\BillTarificator;
 use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
@@ -109,6 +110,7 @@ class AccountTariffBiller extends Behavior
         $isNeedRecalc = false;
 
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
+        (new AnnounceResourceChangesTarifficator())->tarificate($accountTariffId);
         (new SyncResourceTarificator())->tarificate($accountTariffId);
 
         $tarificator = (new AccountLogSetupTarificator);

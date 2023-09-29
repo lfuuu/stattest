@@ -20,6 +20,7 @@ use app\modules\uu\tarificator\AccountLogPeriodPackageTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
+use app\modules\uu\tarificator\AnnounceResourceChangesTarifficator;
 use app\modules\uu\tarificator\AutoCloseAccountTariffTarificator;
 use app\modules\uu\tarificator\BillConverterTarificator;
 use app\modules\uu\tarificator\BillTarificator;
@@ -92,6 +93,9 @@ class UbillerController extends Controller
         // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
         // обязательно это вызывать до транзакций (чтобы они правильно посчитали)
         $this->actionSetCurrentTariff();
+
+
+        $this->actionAnnounceResourceChanges();
 
         // Автоматически закрыть услугу по истечению тестового периода
         // Обязательно после actionSetCurrentTariff (чтобы правильно учесть тариф) и до транзакций (чтобы они правильно посчитали)
@@ -346,6 +350,14 @@ class UbillerController extends Controller
     public function actionSyncResource()
     {
         $this->executeRater(SyncResourceTarificator::class);
+    }
+
+    /**
+     * Анонсировать применение ресурсов
+     */
+    public function actionAnnounceResourceChanges()
+    {
+        $this->executeRater(AnnounceResourceChangesTarifficator::class);
     }
 
     /**

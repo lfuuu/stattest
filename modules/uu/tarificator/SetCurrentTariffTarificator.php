@@ -11,6 +11,7 @@ use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffChange as Log;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
@@ -99,6 +100,8 @@ SQL;
                 $eventType = $this->getEventType($accountTariff, $newTariffPeriodId);
 
                 $oldTariffPeriodId = $accountTariff->tariff_period_id;
+
+                $this->saveStateChange($accountTariff, $newTariffPeriodId);
 
                 // сменить тариф
                 $this->changeAccountTariff($accountTariff, $newTariffPeriodId, $eventType);
@@ -428,7 +431,34 @@ SQL;
                 'account_tariff_id' => $accountTariff->id,
             ]);
         }
+    }
 
+    private function saveStateChange(AccountTariff $accountTariff, $newTariffPeriodId)
+    {
+        if ($accountTariff->tariff_period_id == $newTariffPeriodId) {
+            // nothing changed
+            return;
+        }
+        $obj = $accountTariff->prev_account_tariff_id ? 'package' : 'service';
+
+        $data = [
+                'account_tariff_id' => $accountTariff->prev_account_tariff_id ?: $accountTariff->id,
+                'tariff_period_id' => (int)$newTariffPeriodId,
+            ] + ($accountTariff->prev_account_tariff_id ? ['package_id' => $accountTariff->id] : []);
+
+        if (!$newTariffPeriodId) {
+            // off
+            Log::add($accountTariff->client_account_id, $data['account_tariff_id'], $data + ['action' => $obj . '_off_applied']);
+        } elseif (!$accountTariff->tariff_period_id) {
+            // on
+            Log::add($accountTariff->client_account_id, $data['account_tariff_id'], $data + ['action' => $obj . '_on_applied']);
+        } else {
+            // change
+            Log::add($accountTariff->client_account_id, $data['account_tariff_id'], $data + [
+                    'action' => $obj . '_tariff_period_change_apply',
+                    'tariff_period_id_from' => (int)$accountTariff->tariff_period_id,
+                ]);
+        }
     }
 
     /**
