@@ -76,16 +76,42 @@ class AccountEntryTarificator extends Tarificator
         // Ресурсы
         // (аналогично абонентке за исключением группировки - группировать всегда)
         $this->out(PHP_EOL . 'Проводки за ресурсы');
-        $this->calculateEntries(
-            AccountLogResource::tableName(),
-            'tariff_resource_id',
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isSplitByMonths = true,
-            $isGroupPerDayToMonth = true,
-            'account_log.cost_price'
-        );
+        if ($accountTariffId) {
+            $this->calculateEntries(
+                AccountLogResource::tableName(),
+                'tariff_resource_id',
+                'date_from',
+                'date_to',
+                $accountTariffId,
+                $isSplitByMonths = true,
+                $isGroupPerDayToMonth = true,
+                'account_log.cost_price'
+            );
+        } else {
+
+            $maxId = AccountTariff::find()->max('id');
+//            $maxId = AccountLogResource::find()->max('account_tariff_id');
+            echo PHP_EOL . $maxId;
+            $stepLen = 1000;
+
+            for($i = 0; $i <= $maxId+$stepLen ; $i+=$stepLen) {
+                echo "\r[ " . str_pad($i . ' / ' . $maxId . ' => ' . round($i / ($maxId / 100)).'% ',  30, '.') . ']';
+                $this->isEcho = false;
+                $accountTariffId = [($i+1), ($i+$stepLen)];
+                $this->calculateEntries(
+                    AccountLogResource::tableName(),
+                    'tariff_resource_id',
+                    'date_from',
+                    'date_to',
+                    $accountTariffId,
+                    $isSplitByMonths = true,
+                    $isGroupPerDayToMonth = true,
+                    'account_log.cost_price'
+                );
+                $this->isEcho = true;
+            }
+            echo PHP_EOL;
+        }
 
         // Минимальная плата
         // Транзакции группировать в проводки следующего месяца
@@ -134,8 +160,14 @@ class AccountEntryTarificator extends Tarificator
 
         $sqlAndWhere = '';
         if ($accountTariffId) {
-            $sqlAndWhere .= ' AND account_log.account_tariff_id = :account_tariff_id';
-            $sqlParams[':account_tariff_id'] = $accountTariffId;
+            if (is_array($accountTariffId) && count($accountTariffId) == 2) {
+                $sqlAndWhere .= ' AND account_log.account_tariff_id BETWEEN :account_tariff_id_from and :account_tariff_id_to';
+                $sqlParams[':account_tariff_id_from'] = $accountTariffId[0];
+                $sqlParams[':account_tariff_id_to'] = $accountTariffId[1];
+            } else {
+                $sqlAndWhere .= ' AND account_log.account_tariff_id = :account_tariff_id';
+                $sqlParams[':account_tariff_id'] = $accountTariffId;
+            }
         }
 
         if ($isSplitByMonths) {
@@ -296,7 +328,11 @@ SQL;
         $accountEntryTableName = AccountEntry::tableName();
 
         if ($accountTariffId) {
-            $sqlAndWhere = ' AND account_entry.account_tariff_id = ' . $accountTariffId;
+            if (is_array($accountTariffId) && count($accountTariffId) == 2) {
+                $sqlAndWhere = ' AND account_entry.account_tariff_id BETWEEN ' . $accountTariffId[0] . ' AND '.$accountTariffId[1];
+            } else {
+                $sqlAndWhere = ' AND account_entry.account_tariff_id = ' . $accountTariffId;
+            }
         } else {
             $sqlAndWhere = '';
         }
