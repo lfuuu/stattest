@@ -97,13 +97,13 @@ class AccountEntryTarificator extends Tarificator
             for($i = 0; $i <= $maxId+$stepLen ; $i+=$stepLen) {
                 echo "\r[ " . str_pad($i . ' / ' . $maxId . ' => ' . round($i / ($maxId / 100)).'% ',  30, '.') . ']';
                 $this->isEcho = false;
-                $accountTariffId = [($i+1), ($i+$stepLen)];
+                $_accountTariffId = [($i+1), ($i+$stepLen)];
                 $this->calculateEntries(
                     AccountLogResource::tableName(),
                     'tariff_resource_id',
                     'date_from',
                     'date_to',
-                    $accountTariffId,
+                    $_accountTariffId,
                     $isSplitByMonths = true,
                     $isGroupPerDayToMonth = true,
                     'account_log.cost_price'

@@ -541,7 +541,12 @@ class AccountTariffResourceLog extends ActiveRecord
         $datimeNow = $clientAccount->getDatetimeWithTimezone();
         if ($datimeNow->format(DateTimeZoneHelper::DATE_FORMAT) == $this->actual_from) {
             $this->actual_from = $accountTariff->getDefaultActualFrom();
-            Yii::$app->session->setFlash('error', $error . '. Дата включения сдвинута.');
+            $msg = $error . '. Дата включения сдвинута.';
+            if (Yii::$app->session) {
+                Yii::$app->session->setFlash('error', $msg);
+            } else {
+                echo PHP_EOL . $msg;
+            }
         }
     }
 
