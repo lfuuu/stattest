@@ -102,6 +102,7 @@ class EventQueue extends ActiveRecord
     const USAGE_VOIP__UPDATE = 'usage_voip__update';
     const YANDEX_PAYMENT = 'yandex_payment';
     const UPDATE_BALANCE = 'update_balance';
+    const UPDATE_BALANCE_MASS = 'update_balance_mass';
     const ACCOUNT_BLOCKED = 'account_blocked';
     const ACCOUNT_UNBLOCKED = 'account_unblocked';
     const PARTNER_REWARD = 'partner_reward';
@@ -181,6 +182,7 @@ class EventQueue extends ActiveRecord
         self::USAGE_VOIP__UPDATE => 'Услуга телефонии изменена',
         self::USAGE_VOIP__DELETE => 'Услуга телефонии удалена',
         self::UPDATE_BALANCE => 'Обновление баланса',
+        self::UPDATE_BALANCE_MASS => 'Массовое обновление баланса',
         self::ACCOUNT_BLOCKED => 'ЛС заблокирован',
         self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',

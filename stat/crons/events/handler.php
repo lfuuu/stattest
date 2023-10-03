@@ -306,6 +306,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     EventHandler::updateBalance($param);
                     break;
 
+                case EventQueue::UPDATE_BALANCE_MASS:
+                    ClientAccount::dao()->billBalanceMass();
+                    break;
+
                 case EventQueue::MIDNIGHT:
                     // проверка необходимости включать или выключать услуги
                     EventQueue::go(EventQueue::CHECK__USAGES);

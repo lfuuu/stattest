@@ -120,13 +120,13 @@ class m_newaccounts_head extends IModuleHead{
             array('Импорт платежей',	'pi_list'),
             array('Массовые счета', function() {
                 if (Yii::$app->user->can('newaccounts_mass.access')) {
-                    return ['bill/publish/index'];
+                    return ['/bill/publish/index'];
                 }
             }),
             array('Книга продаж',		'balance_sell'),
             array('Книга продаж (новая)',		function() {
                 if (Yii::$app->user->can('newaccounts_balance.read')) {
-                    return ['report/accounting/sale-book/'];
+                    return ['/report/accounting/sale-book/'];
                 }
             }),
             array('Отчёт по долгам',	'debt_report'),

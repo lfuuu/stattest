@@ -4,6 +4,7 @@ namespace app\dao;
 
 use app\classes\api\ApiPhone;
 use app\classes\Assert;
+use app\classes\HandlerLogger;
 use app\classes\Singleton;
 use app\dao\account\UpdateBalanceHelper;
 use app\exceptions\ModelValidationException;
@@ -1124,5 +1125,52 @@ class ClientAccountDao extends Singleton
             ->orderBy(['id' => SORT_DESC])
             ->limit(1)
             ->scalar();
+    }
+
+    public function billBalanceMass()
+    {
+        $dateStr = (new \DateTimeImmutable())->modify('-2 month')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        $queryPayment = Payment::find()->where(['>=', 'oper_date', $dateStr])->select('client_id')->distinct();
+        $queryBill = Bill::find()->where(['>=', 'bill_date', $dateStr])->select('client_id')->distinct();
+        $queryAccount = ClientAccount::find()->where(['is_active' => 1])->select(['client_id' => 'id'])->distinct();
+
+        $query = (new Query())
+            ->from(['c' => $queryAccount->union($queryBill)->union($queryPayment)])
+            ->orderBy(['client_id' => SORT_ASC])
+            ->select('client_id')
+            ->distinct();
+
+        $clientAccountQuery = ClientAccount::find()->where([ClientAccount::tableName() . '.id' => $query])->orderBy(['id' => SORT_ASC]);
+
+        if (($organizationId = get_param_integer('organizationId'))) {
+            $clientAccountQuery->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = ' . ClientAccount::tableName() . '.contract_id');
+            $clientAccountQuery->andWhere(['cc.organization_id' => $organizationId]);
+        }
+
+        set_time_limit(0);
+//        session_write_close();
+//
+//        while (ob_get_level() > 0) {
+//            ob_end_clean();
+//        }
+
+        /** @var ClientAccount $clientAccount */
+        foreach ($clientAccountQuery->each() as $clientAccount) {
+            try {
+                ClientAccount::dao()->updateBalance($clientAccount);
+            } catch (Exception $e) {
+                HandlerLogger::me()->add("!!! ERROR !!!" . $clientAccount->id. ': ' . $e->getMessage());
+            }
+            flush();
+        }
+
+        $now = (new \DateTimeImmutable('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)));
+        Param::setParam(
+            Param::NOTIFICATIONS_SWITCH_ON_DATE,
+            $now->modify("+2 minutes")
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $isRawValue = true
+        );
     }
 }
