@@ -55,6 +55,17 @@ class PriceLevel extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+        ];
+    }
+
+
+    /**
      * @return string[]
      */
     public static function primaryKey()

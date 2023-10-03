@@ -96,7 +96,10 @@ class HistoryChanges extends Behavior
      */
     private function _fillChanges(&$result, &$resultOld)
     {
-        $attributes = $this->owner->getAttributes();
+        $allowNames = property_exists($this->owner, 'attributesAllowedForVersioning') ? $this->owner->attributesAllowedForVersioning: null;
+        $exceptNames = property_exists($this->owner, 'attributesProtectedForVersioning') ? $this->owner->attributesProtectedForVersioning: [];
+
+        $attributes = $this->owner->getAttributes($allowNames, $exceptNames);
         $oldAttributes = $this->owner->getOldAttributes();
 
         $result = [];

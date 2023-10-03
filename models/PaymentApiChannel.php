@@ -28,6 +28,8 @@ class PaymentApiChannel extends ActiveRecord
         getList as getListTrait;
     }
 
+    public $attributesProtectedForVersioning = ['access_token'];
+
     /**
      * Название таблицы
      *
@@ -38,6 +40,15 @@ class PaymentApiChannel extends ActiveRecord
         return 'newpayment_api_channel';
     }
 
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+        ];
+    }
 
     /**
      * @return array

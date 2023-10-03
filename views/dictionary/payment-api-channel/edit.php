@@ -78,9 +78,16 @@ if (!$region->isNewRecord) {
 
 
     <?php // кнопки ?>
-    <div class="form-group text-right">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-3">
+        <?= $this->render('//layouts/_showHistory', ['model' => $region]) ?>
+            </div>
+                <div class="col-sm-9 text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
         <?= $this->render('//layouts/_submitButton' . ($region->isNewRecord ? 'Create' : 'Save')) ?>
+                </div>
+        </div>
     </div>
 
     <?php ActiveForm::end(); ?>

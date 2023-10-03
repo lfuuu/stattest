@@ -22,4 +22,15 @@ class ProductState extends ActiveRecord
         return 'product_state';
     }
 
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+        ];
+    }
+
+
 }

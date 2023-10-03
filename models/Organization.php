@@ -103,6 +103,17 @@ class Organization extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+        ];
+    }
+
+
+    /**
      * @param bool $insert
      * @return bool
      * @throws \yii\db\Exception
