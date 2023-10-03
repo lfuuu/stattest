@@ -6,7 +6,7 @@ return [
     'region_id' => 'Регион (точка подключения)',
     'city_id' => 'Город',
     'prev_account_tariff_id' => 'Основная услуга', // если из пакета, то ссылка на основную услугу "телефония"
-    'comment' => 'Технические данные',
+    'comment' => 'Технические данные (комментарий)',
     'voip_number' => 'Номер',
     'vm_elid_id' => 'ID VPS',
     'route_name' => 'Route Name',
@@ -27,6 +27,7 @@ return [
     'account_log_period_utc' => 'Абонентка списана до',
     'account_log_resource_utc' => 'Ресурсы рассчитаны до',
     'calltracking_params' => 'Параметры Сalltracking',
+    'iccid' => 'ICCID',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

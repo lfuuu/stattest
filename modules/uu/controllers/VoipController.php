@@ -18,8 +18,10 @@ use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\sim\models\Card;
 use app\modules\uu\models\TariffPeriod;
 use yii\db\Expression;
+use yii\web\Response;
 
 
 class VoipController extends BaseController
@@ -287,5 +289,27 @@ class VoipController extends BaseController
             'is_mob' => (int)$numberRange->is_mob,
             'is_active' => (int)$numberRange->is_active,
         ];
+    }
+
+    public function actionIccidList($q = null, $id = null)
+    {
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $out = ['results' => ['id' => '', 'text' => '']];
+
+        if ($id) {
+            $out['results'] = ['id' => (string)$id, 'text' => (string)$id];
+        } elseif ($q) {
+            $iccidExp = new Expression('iccid::text');
+            $query = Card::find()->select(['id' => $iccidExp, 'text' => $iccidExp])
+                ->where(new Expression('iccid::text like :q', ['q' => '%' . $q . '%']))
+                ->andWhere(['client_account_id' => null])
+                ->limit(20);
+            $command = $query->createCommand(Card::getDb());
+            $data = $command->queryAll();
+            $out['results'] = array_values($data);
+        }
+
+        return $out;
     }
 }

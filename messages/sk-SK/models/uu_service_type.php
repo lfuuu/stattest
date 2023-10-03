@@ -43,4 +43,5 @@ return [
     'Type #36' => 'A2P',
     'Type #37' => 'Hlasový robot',
     'Type #38' => 'Hlasový robot',
+    'Type #39' => '(e)SIM',
 ];

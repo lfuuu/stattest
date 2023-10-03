@@ -27,6 +27,7 @@ use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
+ * @property string iccid
  * @property-read ClientAccount $clientAccount
  * @property-read ServiceType $serviceType
  * @property-read ResourceModel[] $resources
@@ -498,6 +499,16 @@ trait AccountTariffRelationsTrait
             }
             $this->addParam('route_id', $route->id);
         }
+    }
+
+    public function getIccid()
+    {
+        return $this->getParam('iccid', '');
+    }
+
+    public function setIccid($routeName)
+    {
+        $this->addParam('iccid', $routeName);
     }
 
 }
