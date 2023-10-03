@@ -152,53 +152,10 @@ class m_newaccounts extends IModule
 
         $design->ProcessEx('errors.tpl');
 
-        $dateStr = (new \DateTimeImmutable())->modify('-2 month')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $event = \app\models\EventQueue::go(\app\models\EventQueue::UPDATE_BALANCE_MASS, ['notified_user_id' => \Yii::$app->user->id]);
 
-        $queryPayment = Payment::find()->where(['>=', 'oper_date', $dateStr])->select('client_id')->distinct();
-        $queryBill = Bill::find()->where(['>=', 'bill_date', $dateStr])->select('client_id')->distinct();
-        $queryAccount = ClientAccount::find()->where(['is_active' => 1])->select(['client_id' => 'id'])->distinct();
-
-        $query = (new Query())
-            ->from(['c' => $queryAccount->union($queryBill)->union($queryPayment)])
-            ->orderBy(['client_id' => SORT_ASC])
-            ->select('client_id')
-            ->distinct();
-
-        $clientAccountQuery = ClientAccount::find()->where([ClientAccount::tableName() . '.id' => $query])->orderBy(['id' => SORT_ASC]);
-
-        if (($organizationId = get_param_integer('organizationId'))) {
-            $clientAccountQuery->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = ' . ClientAccount::tableName() . '.contract_id');
-            $clientAccountQuery->andWhere(['cc.organization_id' => $organizationId]);
-        }
-
-        set_time_limit(0);
-//        session_write_close();
-//
-//        while (ob_get_level() > 0) {
-//            ob_end_clean();
-//        }
-
-        /** @var ClientAccount $clientAccount */
-        foreach ($clientAccountQuery->each() as $clientAccount) {
-            echo date("d-m-Y H:i:s") . ": " . $clientAccount->id . ' ' . $clientAccount->currency;
-            try {
-                ClientAccount::dao()->updateBalance($clientAccount);
-            } catch (Exception $e) {
-                echo "<h1>!!! " . $e->getMessage() . "</h1>";
-            }
-            echo "<br>\n";
-            flush();
-        }
-
-        $now = (new \DateTimeImmutable('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)));
-        Param::setParam(
-            Param::NOTIFICATIONS_SWITCH_ON_DATE,
-            $now->modify("+2 minutes")
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
-            $isRawValue = true
-        );
-
-        \Yii::$app->end();
+        header("Location: /monitoring/event-queue?" . http_build_query(['EventQueueFilter' => ['id' => $event->id]]));
+        exit();
     }
 
     function newaccounts_bill_list($fixclient, $get_sum = false)
