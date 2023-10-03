@@ -2,12 +2,10 @@
 
 namespace app\modules\atol\behaviors;
 
-use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\classes\payments\recognition\processors\RecognitionProcessor;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
-use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\EventQueue;
 use app\models\Payment;
@@ -82,12 +80,6 @@ class SendToOnlineCashRegister extends Behavior
 
         // уже отправленные не отправляем
         if ($payment->currency !== Currency::RUB || $payment->paymentAtol) {
-            return false;
-        }
-
-        $legalType = $payment->client->clientContractModel->clientContragent->legal_type;
-        if ($legalType != ClientContragent::PERSON_TYPE) {
-            HandlerLogger::me()->add('Client - ' . $legalType. '. Ignored');
             return false;
         }
 
