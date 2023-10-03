@@ -224,15 +224,15 @@ switch ($formModel->serviceTypeId) {
 
         break;
 
-    case ServiceType::ID_CALLTRACKING:
-        $attributes[] = [
-            'attribute' => 'calltracking_params',
-            'format' => 'raw',
-            'value' => function (AccountTariff $accountTariff) {
-                return '<pre>' . json_encode(json_decode($accountTariff->calltracking_params), JSON_PRETTY_PRINT) . '</pre>';
-            },
-        ];
-        break;
+//    case ServiceType::ID_CALLTRACKING:
+//        $attributes[] = [
+//            'attribute' => 'calltracking_params',
+//            'format' => 'raw',
+//            'value' => function (AccountTariff $accountTariff) {
+//                return '<pre>' . json_encode(json_decode($accountTariff->calltracking_params), JSON_PRETTY_PRINT) . '</pre>';
+//            },
+//        ];
+//        break;
 }
 
 ?>

@@ -99,6 +99,7 @@ if (!$serviceType) {
     }
     ?>
 
+    <?php if ($serviceType->id != ServiceType::ID_ESIM) : ?>
     <div class="row">
 
         <?php // регион
@@ -142,8 +143,8 @@ if (!$serviceType) {
                 'accountTariff' => $accountTariff,
             ])?>
         </div>
-
     </div>
+    <?php endif; ?>
 
     <div class="row">
         <?php // комментарий ?>
@@ -194,6 +195,10 @@ if (!$serviceType) {
 
         case ServiceType::ID_CALLTRACKING:
             echo $this->render('_editMainCalltrackingParams', $viewParams);
+            break;
+
+        case ServiceType::ID_ESIM:
+            echo $this->render('_editMainEsim', $viewParams);
             break;
     }
     ?>

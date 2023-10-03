@@ -192,6 +192,10 @@ abstract class AccountTariffForm extends Form
                     $this->accountTariff->route_name = $post['AccountTariff']['route_name'];
                 }
 
+                if ($this->accountTariff->service_type_id == ServiceType::ID_ESIM && isset($post['AccountTariff']['iccid'])) {
+                    $this->accountTariff->iccid = $post['AccountTariff']['iccid'];
+                }
+
                 // услуга
                 if ($this->accountTariff->save()) {
                     $this->id = $this->accountTariff->id;

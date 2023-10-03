@@ -58,6 +58,7 @@ use yii\db\Expression;
  * @property string $calltracking_params
  * @property string $route_name
  * @property string $route_name_default
+ * @property string $iccid
  */
 class AccountTariff extends ActiveRecord
 {
@@ -238,6 +239,7 @@ class AccountTariff extends ActiveRecord
                 },
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
+            ['iccid', 'validateIccid', 'when' => fn(AccountTariff $accountTariff) => $accountTariff->isNewRecord && $accountTariff->service_type_id == ServiceType::ID_ESIM],
             ['calltracking_params', function ($value) {
                 if ($this->calltracking_params && !json_decode($this->calltracking_params)) {
                     $this->addError('calltracking_params', 'Невалидный JSON формат');

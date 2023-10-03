@@ -7,6 +7,7 @@ use app\models\ClientAccount;
 use app\models\Number;
 use app\models\Region;
 use app\modules\nnp\models\NdcType;
+use app\modules\sim\models\Card;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -174,6 +175,32 @@ trait AccountTariffValidatorTrait
             !$this->region_id && $this->region_id = \Yii::$app->isRus() ? Region::MOSCOW : Region::EUROPE;
             !$this->getParam('route_name') && $this->route_name = $this->route_name_default;
         }
+    }
+
+    public function validateIccid($attr, $params)
+    {
+        if ($this->service_type_id != ServiceType::ID_ESIM) {
+            return ;
+        }
+
+        if (!$this->iccid) {
+            $this->addError('iccid', 'ICCID не установлен');
+            return ;
+        }
+
+        /** @var Card $card */
+        $card = Card::find()->where(['iccid' => $this->iccid])->one();
+
+        if (!$card) {
+            $this->addError('iccid', 'ICCID не найдена. ');
+            return ;
+        }
+
+        if (!$card->client_account_id || $card->client_account_id == $this->client_account_id) {
+            return ;
+        }
+
+        $this->addError('iccid', 'ICCID занята');
     }
 
     /**

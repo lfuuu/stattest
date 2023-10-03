@@ -73,6 +73,8 @@ class ServiceType extends ActiveRecord
 
     const ID_MULTICHAT = 38;
 
+    const ID_ESIM = 39;
+
     const CLOSE_AFTER_DAYS = 60;
 
     public static $packages = [

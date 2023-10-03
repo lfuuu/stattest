@@ -43,4 +43,5 @@ return [
     'Type #36' => 'A2P',
     'Type #37' => 'Sprachroboter',
     'Type #38' => 'Multichat',
+    'Type #39' => '(e)SIM',
 ];

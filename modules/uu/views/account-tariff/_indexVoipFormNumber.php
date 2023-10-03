@@ -25,6 +25,9 @@ use yii\helpers\Url;
 
     <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK && $accountTariff->trunk_type_id != AccountTariff::TRUNK_TYPE_MULTITRUNK) : ?>
         <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
+    <?php elseif ($accountTariff->service_type_id == ServiceType::ID_ESIM ) : ?>
+        <?= Html::a('<span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span>', $accountTariff->getUrl()) . '&nbsp;' .
+        Html::a($accountTariff->iccid, ['/sim/card/edit', 'originIccid' => $accountTariff->iccid]) ?>
     <?php else : ?>
         <?= Html::a(
             $accountTariff->voip_number ?
