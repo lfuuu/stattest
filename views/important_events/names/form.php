@@ -62,10 +62,15 @@ echo Breadcrumbs::widget([
         </div>
     <?php endif; ?>
 
-    <div class="form-group text-right">
-        <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['important_events/names'])]) ?>
-        <?= $this->render('//layouts/_submitButtonSave') ?>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-3">
+                <?= $this->render('//layouts/_showHistory', ['model' => $model]) ?>
+            </div>
+            <div class="col-sm-9 text-right">
+                <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['important_events/names'])]) ?>
+                <?= $this->render('//layouts/_submitButtonSave') ?>
+            </div>
+        </div>
     </div>
-
-    <?php ActiveForm::end() ?>
-</div>
+<?php ActiveForm::end() ?>

@@ -65,7 +65,7 @@ if (!$region->isNewRecord) {
         </div>
 
         <div class="col-sm-3">
-            <?= $form->field($region, 'is_active', ['options' => ['class' => 'pull-left', 'style'=> 'margin-right: 20px']])->checkbox() ?>
+            <?= $form->field($region, 'is_active', ['options' => ['class' => 'pull-left', 'style' => 'margin-right: 20px']])->checkbox() ?>
             <?= $form->field($region, 'is_use_sip_trunk')->checkbox() ?>
             <?= $form->field($region, 'is_use_vpbx')->checkbox() ?>
         </div>
@@ -102,10 +102,17 @@ if (!$region->isNewRecord) {
     </div>
 
     <?php // кнопки ?>
-    <div class="form-group text-right">
-        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?= $this->render('//layouts/_submitButton' . ($region->isNewRecord ? 'Create' : 'Save')) ?>
-    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-3">
+                <?= $this->render('//layouts/_showHistory', ['model' => $region]) ?>
+            </div>
+            <div class="col-sm-9 text-right">
+                <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+                <?= $this->render('//layouts/_submitButton' . ($region->isNewRecord ? 'Create' : 'Save')) ?>
+            </div>
+        </div>
 
-    <?php ActiveForm::end(); ?>
+        <?php ActiveForm::end(); ?>
+    </div>
 </div>

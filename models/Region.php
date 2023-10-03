@@ -67,6 +67,17 @@ class Region extends ActiveRecord
     /**
      * @return array
      */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+        ];
+    }
+
+
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
