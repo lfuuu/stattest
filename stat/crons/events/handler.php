@@ -82,6 +82,7 @@ $nnpEvents = ['event' => [
     EventQueue::INVOICE_GENERATE_PDF,
     EventQueue::INVOICE_ALL_PDF_CREATED,
     EventQueue::ADD_RESOURCE_ON_ACCOUNT_TARIFFS,
+    EventQueue::UPDATE_BALANCE_MASS,
 ]];
 
 $syncEvents = ['event' => [
