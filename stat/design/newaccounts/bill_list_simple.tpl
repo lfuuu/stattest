@@ -81,7 +81,7 @@
                     <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|money:'USD'}{else}{$sum.USD.bill|money:'USD'}{/if}</b></td>
                 </tr>
                 <tr>
-                    <td>Общая сумма <span title="Клиент должен нам">долга</span> (с учётом сальдо):</td>
+                    <td>Общая сумма <span title="Клиент должен нам">долга</span> (с учётом сальдо) (счета "минус" платежи):</td>
                     <td align="right">
                         <b>
                             {if $fixclient_data.currency!='USD'}
@@ -89,6 +89,18 @@
                             {else}
                                 {if isset($sum.RUB.saldo)}{$sum.RUB.delta+$sum.RUB.saldo|money:'RUB'}{else}{$sum.RUB.delta|money:'RUB'}{/if}
                             {/if}
+                        </b>
+                    </td>
+                    <td></td>
+                    <td align="right">
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>Баланс с учетом текущей выписки:</td>
+                    <td align="right">
+                        <b>
+                            <span title="{$sum_cur.delta|default:'0.00'|money:$currency} {if $sum_current_statement > 0}+{/if} {$sum_current_statement|default:'0.00'|money:$currency}">{$sum_cur.delta+$sum_current_statement|default:'0.00'|money:$currency}</span>
                         </b>
                     </td>
                     <td></td>

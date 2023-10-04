@@ -38,6 +38,7 @@ use app\models\User;
 use app\models\ClientContarct;
 use app\models\filter\PartnerRewardsNewFilter;
 use app\models\rewards\RewardBill;
+use app\modules\uu\models\Bill as uuBill;
 use yii\db\Expression;
 use yii\db\Query;
 
@@ -306,6 +307,8 @@ class m_newaccounts extends IModule
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('currency', $clientAccount->currency);
+        $design->assign('sum_current_statement', uuBill::getUnconvertedAccountEntries($clientAccount->id)->sum('price_with_vat') ?: 0);
         $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',
@@ -728,6 +731,8 @@ class m_newaccounts extends IModule
         $design->assign('billops', $result);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('currency', $clientAccount->currency);
+        $design->assign('sum_current_statement', uuBill::getUnconvertedAccountEntries($clientAccount->id)->sum('price_with_vat') ?: 0);
         $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',

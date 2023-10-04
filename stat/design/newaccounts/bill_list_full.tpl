@@ -121,7 +121,7 @@
                     </tr>
                 {/if}
                 <tr  style="background-color: #eaeaea;">
-                    <td>Общая сумма <span title="Клиент должен нам">долга</span> (с учётом сальдо):</td>
+                    <td>Общая сумма <span title="Клиент должен нам">долга</span> (с учётом сальдо) (счета "минус" платежи):</td>
                     <td align="right">
                         <b>
                             {if $fixclient_data.currency!='USD'}
@@ -143,6 +143,19 @@
                         &nbsp;
                     </td>
                 </tr>
+                <tr>
+                    <td>Баланс с учетом текущей выписки:</td>
+                    <td align="right">
+                        <b>
+                            <span title="{$sum_cur.delta|default:'0.00'|money:$currency} {if $sum_current_statement > 0}+{/if} {$sum_current_statement|default:'0.00'|money:$currency}">{$sum_cur.delta+$sum_current_statement|default:'0.00'|money:$currency}</span>
+                        </b>
+                    </td>
+                    <td></td>
+                    <td align="right">
+                        &nbsp;
+                    </td>
+                </tr>
+
             </table>
         </td>
         <td valign="top" style="padding-left: 100px;" align="right">
