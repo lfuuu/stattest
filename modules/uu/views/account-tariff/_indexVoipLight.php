@@ -28,7 +28,7 @@ $queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CON
                    FROM uu_account_tariff_log
                    WHERE account_tariff_id = uu_account_tariff.id
                   ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id))'),
-                'voip_status' => new \yii\db\Expression("group_concat(substring(coalesce(vn.status, ' '), 1, 1) separator '')")]);
+                'voip_status' => new \yii\db\Expression("md5(group_concat(vn.status))")]);
 $queryDep->leftJoin(['vn' => \app\models\Number::tableName()], 'vn.number = voip_number');
 
 
