@@ -37,7 +37,7 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
                     ],
                 ]
             ]) :
-            $form->field($accountTariff, 'iccid')->textInput(['disabled' => true])
+            $form->field($accountTariff, 'iccid')->textInput(['disabled' => true])->label('ICCID')
         ?>
     </div>
 </div>
