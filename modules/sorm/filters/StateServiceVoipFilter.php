@@ -38,7 +38,9 @@ class StateServiceVoipFilter extends StateServiceVoip
             ->alias('s')
             ->where(['>', 's.lines_amount', 0])
             ->andWhere(['s.device_address' => ''])
-            ->andWhere(['not', ['like', 'e164', '79%', false]])
+            ->andWhere(['not', ['like', 'e164', '79%', false]]) // no mob
+            ->andWhere(['not', ['like', 'e164', '77%', false]]) // no KZ
+            ->andWhere(['not', ['like', 'e164', '780%', false]]) // no free phones
             ->andWhere(['like', 'e164', '7%', false])
             ->andWhere(['OR', ['actual_to' => null], ['>=', 'actual_to', (new \DateTime('now'))->modify('-3 year')->format(DateTimeZoneHelper::DATE_FORMAT)]])
             ->joinWith('clientAccount.clientContractModel cc')
