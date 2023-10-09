@@ -455,7 +455,7 @@ SQL;
         } else {
             // change
             Log::add($accountTariff->client_account_id, $data['account_tariff_id'], $data + [
-                    'action' => $obj . '_tariff_period_change_apply',
+                    'action' => $obj . '_tariff_period_change_applied',
                     'tariff_period_id_from' => (int)$accountTariff->tariff_period_id,
                 ]);
         }
