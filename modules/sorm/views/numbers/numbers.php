@@ -20,7 +20,7 @@ use \app\models\User;
 
 $this->registerJs("var gve_targetElementName = 'address';\n", View::POS_HEAD);
 $this->registerJs("var gve_targetUrl = 'sorm/numbers/save-address';\n", View::POS_HEAD);
-$this->registerJsFile('js/grid_view_edit.js',  ['position' => yii\web\View::POS_END]);
+$this->registerJsFile('js/grid_view_edit.js', ['position' => yii\web\View::POS_END]);
 
 echo Html::formLabel('Номера. Без адреса установки оборудования.');
 
@@ -60,7 +60,9 @@ $form = ActiveForm::begin([
                 <ul>
                     <li>Если номер выключен, Адрес можно заполнить из данного отчета</li>
                     <li>Если номер включен, Адрес можно заполнить только из ЛК</li>
-                    <li>Если в ЛК адрес у услуги номера присутствует, но его нет в данном отчете, то надо подождать когда пройдет синхронизация.</li>
+                    <li>Если в ЛК адрес у услуги номера присутствует, но его нет в данном отчете, то надо подождать
+                        когда пройдет синхронизация.
+                    </li>
                 </ul>
             </div>
         </div>
@@ -104,7 +106,7 @@ $columns = [
         'label' => 'Юр. адрес',
 //        'attribute' => 'clientAccount.clientContractModel.clientContragent.address_jur',
         'filter' => false,
-        'value' => function(StateServiceVoip $state) {
+        'value' => function (StateServiceVoip $state) {
             $cg = $state->clientAccount->clientContractModel->clientContragent;
             return $cg->legal_type == \app\models\ClientContragent::PERSON_TYPE ? $cg->personModel->registration_address : $cg->address_jur;
         }
@@ -144,8 +146,8 @@ $columns['address'] = [
     'format' => 'raw',
     'value' => function (StateServiceVoip $state) {
         return
-            '<span>' . ($state->usage_id > AccountTariff::DELTA ? $state->accountTariff->device_address : $state->usageVoip->address). '</span>' .
-            ($state->accountTariff->tariff_period_id ? '' : '<img src="/images/icons/edit.gif" role="button" data-id=' . $state->accountTariff->id . ' class="edit pull-right" alt="Редактировать" />');
+            '<span>' . /*($state->usage_id > AccountTariff::DELTA ? $state->accountTariff->device_address : $state->usageVoip->address). */ '</span>' .
+            ($state->accountTariff->tariff_period_id ? '' : '<img src="/images/icons/edit.gif" role="button" data-id=' . $state->usage_id . ' class="edit pull-right" alt="Редактировать" />');
     },
     'width' => '20%',
 ];
