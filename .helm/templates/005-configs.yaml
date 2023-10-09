@@ -925,6 +925,7 @@ data:
         
     # Универсальные услуги
     10 0-5,12-23 * * * flock -w 3 /tmp/yii-ubiller /home/httpd/stat.mcn.ru/stat/yii ubiller >> /var/log/nispd/ubiller.log 2>&1
+    0 * * * * flock -w 3 /tmp/yii-ubiller-announce-resource-changes /home/httpd/stat.mcn.ru/stat/yii ubiller/announce-resource-changes >> /var/log/nispd/ubiller.log 2>&1
 
     ### Обновление lock'ов
     * * * * * flock -w 3 /var/run/yii-update-locks /home/httpd/stat.mcn.ru/stat/yii biller/update-locks >> /var/log/nispd/biller-update-locks.log
