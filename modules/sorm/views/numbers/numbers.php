@@ -146,7 +146,7 @@ $columns['address'] = [
     'format' => 'raw',
     'value' => function (StateServiceVoip $state) {
         return
-            '<span>' . /*($state->usage_id > AccountTariff::DELTA ? $state->accountTariff->device_address : $state->usageVoip->address). */ '</span>' .
+            '<span>' . ($state->usage_id > AccountTariff::DELTA ? $state->accountTariff->device_address : $state->usageVoip->address) . '</span>' .
             ($state->accountTariff->tariff_period_id ? '' : '<img src="/images/icons/edit.gif" role="button" data-id=' . $state->usage_id . ' class="edit pull-right" alt="Редактировать" />');
     },
     'width' => '20%',
