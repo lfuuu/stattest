@@ -17,7 +17,7 @@ class AccountTariffStructureToKafka extends Singleton
     public function anonce($accountTariffId)
     {
         $atStruct = AccountTariffStructureGenerator::me()->getAccountTariffsWithPackages($accountTariffId);
-        $changes = AccountTariffChange::getUnsaveChanges($accountTariffId);
+        list($changeIds, $changes) = AccountTariffChange::getUnsaveChanges($accountTariffId);
         $isAddedService = AccountTariffChange::isAddedService($changes);
 
         $atStruct[0]['changes'] = $changes;
@@ -33,7 +33,7 @@ class AccountTariffStructureToKafka extends Singleton
         );
 
         if ($changes) {
-            AccountTariffChange::setAsPublished($accountTariffId);
+            AccountTariffChange::setAsPublished($accountTariffId, $changeIds);
         }
 
         return $sendResult;

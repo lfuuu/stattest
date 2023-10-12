@@ -15,7 +15,7 @@ use yii\behaviors\BlameableBehavior;
  * @property string $created_at
  * @property int $account_tariff_id
  * @property int $client_account_id
- * @property string $message
+ * @property array $message // json
  * @property int $is_published
  * @property int $user_id
  */
@@ -81,14 +81,13 @@ class AccountTariffChange extends ActiveRecord
         return $change;
     }
 
-    public static function getUnsaveChanges($accountTariffId)
+    /**
+     * @param $accountTariffId
+     * @return array[changeIds, changes]
+     */
+    public static function getUnsaveChanges($accountTariffId): array
     {
-        return array_map(function (self $msg) {
-            return $msg->message
-                + ['created_at_utc' => $msg->created_at]
-                + ($msg->user_id && $msg->user_id != User::SYSTEM_USER_ID ? ['user_id' => $msg->user_id] : [])
-                ;
-        }, self::find()
+        $changes = self::find()
             ->where([
                 'account_tariff_id' => $accountTariffId,
                 'is_published' => 0,
@@ -96,15 +95,29 @@ class AccountTariffChange extends ActiveRecord
             ->orderBy([
                 'id' => SORT_ASC
             ])
-            ->all()
+            ->all();
+
+        $ids = array_map(fn(self $change) => $change->id, $changes);
+        $data = array_map(fn(self $msg) => $msg->message
+            + ['created_at_utc' => $msg->created_at]
+            + ($msg->user_id && $msg->user_id != User::SYSTEM_USER_ID ? ['user_id' => $msg->user_id] : []),
+            $changes
         );
+
+        return [$ids, $data];
     }
 
-    public static function setAsPublished($accountTariffId)
+    /**
+     * @param int $accountTariffId
+     * @param array[int] $changeIds
+     * @return int
+     */
+    public static function setAsPublished($accountTariffId, $changeIds = [])
     {
         return self::updateAll(
             ['is_published' => 1],
             ['account_tariff_id' => $accountTariffId]
+            + ($changeIds ? ['id' => $changeIds] : [])
         );
     }
 
