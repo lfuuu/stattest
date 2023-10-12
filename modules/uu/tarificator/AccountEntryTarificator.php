@@ -26,6 +26,30 @@ use yii\db\Expression;
  */
 class AccountEntryTarificator extends Tarificator
 {
+    const STEP_BATCH = 10000;
+
+    public function runCalculateEntries($accountTariffId, $sectionCb)
+    {
+        if ($accountTariffId) {
+            $sectionCb($accountTariffId);
+        } else {
+            $maxId = AccountTariff::find()->max('id');
+            echo PHP_EOL . $maxId;
+            $stepLen = self::STEP_BATCH;
+
+            for ($i = 0; $i <= $maxId + $stepLen; $i += $stepLen) {
+                echo "\r[ " . str_pad($i . ' / ' . $maxId . ' => ' . round($i / ($maxId / 100)) . '% ', 30, '.') . ']';
+                $this->isEcho = false;
+                $_accountTariffId = [($i + 1), ($i + $stepLen)];
+
+                $sectionCb($_accountTariffId);
+
+                $this->isEcho = true;
+            }
+            echo PHP_EOL;
+        }
+    }
+
     /**
      * На основе новых транзакций создать новые проводки или добавить в существующие
      *
@@ -48,35 +72,39 @@ class AccountEntryTarificator extends Tarificator
         // Подключение
         // Транзакции группировать в проводки следующего месяца
         $this->out('Проводки за подключение');
-        $this->calculateEntries(
-            AccountLogSetup::tableName(),
-            new Expression((string)AccountEntry::TYPE_ID_SETUP),
-            'date',
-            'date',
-            $accountTariffId,
-            $isSplitByMonths = true,
-            $isGroupPerDayToMonth = true
-        );
+        $this->runCalculateEntries($accountTariffId, function ($accountTariffId) {
+            $this->calculateEntries(
+                AccountLogSetup::tableName(),
+                new Expression((string)AccountEntry::TYPE_ID_SETUP),
+                'date',
+                'date',
+                $accountTariffId,
+                $isSplitByMonths = true,
+                $isGroupPerDayToMonth = true
+            );
+        });
 
         // Абонентская плата
         // Постоплатные: все транзакции группировать в проводки следующего месяца
         // Предоплатные: помесячные транзакции от 1го числа группировать в проводки того же месяца. Остальные транзакции (посуточные или не от 1го числа) группировать в проводки следующего месяца
         // Посуточные проводки не группировать в транзакции, а так и оставлять 1-в-1 независимо от типа оплаты
         $this->out(PHP_EOL . 'Проводки за абоненскую плату');
-        $this->calculateEntries(
-            AccountLogPeriod::tableName(),
-            new Expression((string)AccountEntry::TYPE_ID_PERIOD),
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isSplitByMonths = true,
-            $isGroupPerDayToMonth = false
-        );
+        $this->runCalculateEntries($accountTariffId, function ($accountTariffId) {
+            $this->calculateEntries(
+                AccountLogPeriod::tableName(),
+                new Expression((string)AccountEntry::TYPE_ID_PERIOD),
+                'date_from',
+                'date_to',
+                $accountTariffId,
+                $isSplitByMonths = true,
+                $isGroupPerDayToMonth = false
+            );
+        });
 
         // Ресурсы
         // (аналогично абонентке за исключением группировки - группировать всегда)
         $this->out(PHP_EOL . 'Проводки за ресурсы');
-        if ($accountTariffId) {
+        $this->runCalculateEntries($accountTariffId, function ($accountTariffId) {
             $this->calculateEntries(
                 AccountLogResource::tableName(),
                 'tariff_resource_id',
@@ -87,48 +115,28 @@ class AccountEntryTarificator extends Tarificator
                 $isGroupPerDayToMonth = true,
                 'account_log.cost_price'
             );
-        } else {
-
-            $maxId = AccountTariff::find()->max('id');
-//            $maxId = AccountLogResource::find()->max('account_tariff_id');
-            echo PHP_EOL . $maxId;
-            $stepLen = 1000;
-
-            for($i = 0; $i <= $maxId+$stepLen ; $i+=$stepLen) {
-                echo "\r[ " . str_pad($i . ' / ' . $maxId . ' => ' . round($i / ($maxId / 100)).'% ',  30, '.') . ']';
-                $this->isEcho = false;
-                $_accountTariffId = [($i+1), ($i+$stepLen)];
-                $this->calculateEntries(
-                    AccountLogResource::tableName(),
-                    'tariff_resource_id',
-                    'date_from',
-                    'date_to',
-                    $_accountTariffId,
-                    $isSplitByMonths = true,
-                    $isGroupPerDayToMonth = true,
-                    'account_log.cost_price'
-                );
-                $this->isEcho = true;
-            }
-            echo PHP_EOL;
-        }
+        });
 
         // Минимальная плата
         // Транзакции группировать в проводки следующего месяца
         $this->out(PHP_EOL . 'Проводки за минимальную плату');
-        $this->calculateEntries(
-            AccountLogMin::tableName(),
-            new Expression((string)AccountEntry::TYPE_ID_MIN),
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isSplitByMonths = false,
-            $isGroupPerDayToMonth = true
-        );
+        $this->runCalculateEntries($accountTariffId, function ($accountTariffId) {
+            $this->calculateEntries(
+                AccountLogMin::tableName(),
+                new Expression((string)AccountEntry::TYPE_ID_MIN),
+                'date_from',
+                'date_to',
+                $accountTariffId,
+                $isSplitByMonths = false,
+                $isGroupPerDayToMonth = true
+            );
+        });
 
         // Расчёт НДС
         $this->out(PHP_EOL . 'Расчёт НДС');
-        $this->calculateVat($accountTariffId);
+        $this->runCalculateEntries($accountTariffId, function ($accountTariffId) {
+            $this->calculateVat($accountTariffId);
+        });
 
         $this->out(PHP_EOL);
     }
@@ -329,7 +337,7 @@ SQL;
 
         if ($accountTariffId) {
             if (is_array($accountTariffId) && count($accountTariffId) == 2) {
-                $sqlAndWhere = ' AND account_entry.account_tariff_id BETWEEN ' . $accountTariffId[0] . ' AND '.$accountTariffId[1];
+                $sqlAndWhere = ' AND account_entry.account_tariff_id BETWEEN ' . $accountTariffId[0] . ' AND ' . $accountTariffId[1];
             } else {
                 $sqlAndWhere = ' AND account_entry.account_tariff_id = ' . $accountTariffId;
             }
