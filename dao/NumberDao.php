@@ -599,7 +599,7 @@ class NumberDao extends Singleton
                 left join `clients` `cl` on `cl`.`id` = `es`.`client`
                 left join `user_users` `uu` on `uu`.`id` = `es`.`user`
                 where `es`.`e164`= :did
-                order by `es`.`time` desc
+                order by `es`.`time` desc, es.pk desc
             ", [
                 ':did' => $number->number
             ])->queryAll();
