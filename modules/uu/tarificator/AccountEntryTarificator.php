@@ -134,9 +134,9 @@ class AccountEntryTarificator extends Tarificator
 
         // Расчёт НДС
         $this->out(PHP_EOL . 'Расчёт НДС');
-        $this->runCalculateEntries($accountTariffId, function ($accountTariffId) {
+        // $this->runCalculateEntries($accountTariffId, function ($accountTariffId) {
             $this->calculateVat($accountTariffId);
-        });
+        // });
 
         $this->out(PHP_EOL);
     }
