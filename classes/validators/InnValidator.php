@@ -23,7 +23,11 @@ class InnValidator extends Validator
      */
     public function validateValue($value)
     {
-        if (!$this->_checkInn($value)) {
+        if (\Yii::$app->isEu()) {
+            if (!$this->_checkInnEuro($value) && !$this->_checkInnHU($value)) {
+                return ['Incorrect TIN'];
+            }
+        } elseif (!$this->_checkInn($value)) {
             return [$this->message];
         }
 
@@ -114,8 +118,19 @@ class InnValidator extends Validator
      * @param string $inn
      * @return bool
      */
-    private function _checkInnHU($inn)
+    private function _checkInnHU($inn): bool
     {
         return boolval(preg_match('/^\d{8}-\d{1}-\d{2}$/', $inn));
+    }
+
+    /**
+     * Проверка Euro ИНН
+     *
+     * @param string $inn
+     * @return bool
+     */
+    private function _checkInnEuro($inn): bool
+    {
+        return (bool)preg_match('/^[A-Z]{2}\d{2,13}$/', $inn);
     }
 }
