@@ -4,6 +4,7 @@ namespace app\classes\dto;
 
 use app\classes\adapters\EbcKafka;
 use app\classes\Singleton;
+use app\classes\Utils;
 use app\dao\ClientSuperDao;
 use app\models\EventQueue;
 
@@ -91,7 +92,7 @@ class ChangeClientStructureRegistrator extends Singleton
         $data = $this->getData();
 
         if (!$data) {
-            return ;
+            return;
         }
 
         EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data); // @todo старая система оповещения о изменениях структуры
@@ -106,7 +107,10 @@ class ChangeClientStructureRegistrator extends Singleton
         return EbcKafka::me()->sendMessage(
             self::TOPIC,
             ClientSuperDao::me()->getSuperClientStructByIds([$superId]),
-            (string)$superId
+            (string)$superId,
+            [
+                'uuid' => Utils::genUUID()
+            ],
         );
     }
 }
