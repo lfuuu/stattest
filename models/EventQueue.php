@@ -319,7 +319,8 @@ class EventQueue extends ActiveRecord
             ->orderBy([
                 'iteration' => SORT_ASC, // сначала запланированные, а потом ошибочные
                 'id' => SORT_ASC,
-            ]);
+            ])
+            ->limit(20);
     }
 
     /**
