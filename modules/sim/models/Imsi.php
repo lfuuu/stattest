@@ -9,6 +9,7 @@ use app\classes\traits\AttributeLabelsTraits;
 use app\models\Number;
 use app\modules\sim\behaviors\ImsiBehavior;
 use app\modules\sim\behaviors\ImsiTele2StatusBehavior;
+use app\modules\sim\dao\ImsiDao;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\Connection;
@@ -106,6 +107,12 @@ class Imsi extends ActiveRecord
             ]
         );
     }
+
+    public static function dao()
+    {
+        return ImsiDao::me();
+    }
+
 
     /**
      * @return ActiveQuery
