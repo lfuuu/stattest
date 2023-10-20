@@ -321,53 +321,7 @@ class SimController extends ApiInternalController
      */
     public function actionGetSubscriberStatus($imsi)
     {
-        $this->_checkImsi($imsi);
-
-        $event = EventQueue::go(EventQueue::SYNC_TELE2_GET_STATUS, ['imsi' => $imsi]);
-
-        $result = $this->_waitEvent($event);
-
-        $json = json_decode($result, true);
-
-        if ($json) {
-            $isConnected = $json['isConnected'];
-            if (isset($json["GetResponse"]["MOAttributes"]["nsGetSubscriberData"]["nsSubscriberData"])) {
-                return [$json["GetResponse"]["MOAttributes"]["nsGetSubscriberData"]["nsSubscriberData"] + ['isConnected' => $isConnected]];
-            }
-            return $json;
-        }
-
-        throw new \BadMethodCallException('answer error: ' . var_export($result, true));
-    }
-
-    private function _waitEvent(EventQueue $event)
-    {
-        $usleep = 200000; // 0.2 sec
-        $count = 0;
-        $result = false;
-        do {
-            usleep($usleep);
-            $event->refresh();
-
-            if ($event->status == EventQueue::STATUS_OK && $event->trace) {
-                $result = $event->trace;
-                break;
-            }
-
-        } while ($count++ < 120 && !$result);
-
-        if (!$result) {
-            throw new \RuntimeException('Timeout', 502);
-        }
-
-        return $result;
-    }
-
-    private function _checkImsi($imsi)
-    {
-        if (!$imsi || !preg_match('/^25\d{13}/', $imsi)) {
-            throw new \InvalidArgumentException('bad IMSI');
-        }
+        return Imsi::dao()->getSubscriberStatus($imsi);
     }
 
     private function _checkMsisdn($msisdn)

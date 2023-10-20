@@ -2,21 +2,15 @@
 
 namespace app\modules\sim\commands;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\Country;
 use app\models\EventQueue;
 use app\modules\nnp\models\NdcType;
-use app\modules\sim\models\Card;
 use app\modules\sim\models\Imsi;
-use app\modules\sim\models\ImsiProfile;
 use app\modules\sim\models\RegionSettings;
-use app\modules\sim\models\Registry;
-use app\modules\sim\classes\RegistryState;
-use app\modules\sim\forms\registry\CommandForm;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use yii\console\Controller;
-use yii\db\Command;
-use yii\db\Expression;
 
 class OperateController extends Controller
 {
@@ -39,8 +33,7 @@ class OperateController extends Controller
             ])
             ->joinWith('number n', true, 'INNER JOIN')
             ->joinWith('number.city c', true, 'INNER JOIN')
-            ->with('number')
-        ;
+            ->with('number');
 
         if ($accountId) {
             $accountTariffQuery->andWhere(['client_account_id' => $accountId]);
@@ -64,7 +57,7 @@ class OperateController extends Controller
             $sipWarehouseId = $cache[$region];
 
             if (!$sipWarehouseId) {
-                echo PHP_EOL . 'in region: '. $region . ' SIP warehouse not found';;
+                echo PHP_EOL . 'in region: ' . $region . ' SIP warehouse not found';
                 continue;
             }
 
@@ -78,5 +71,32 @@ class OperateController extends Controller
 
             echo "+";
         }
+    }
+
+    /**
+     * Запускаем цикл получения статусов IMSI в Tele2
+     */
+    public function actionRunGetImsiStatusLoop()
+    {
+        $countError = 0;
+        do {
+            $imsies = Imsi::dao()->getImsiesForGetStatus();
+
+            foreach ($imsies as $imsi) {
+                echo PHP_EOL . date(DateTimeZoneHelper::DATETIME_FORMAT) . ': ' . $imsi;
+                try {
+                    Imsi::dao()->getSubscriberStatus($imsi, $isSaveResultToLog = true, $isSilentWhenSaving = false);
+                } catch (\Exception $e) {
+                    \Yii::error($e);
+                    $countError++;
+                    echo PHP_EOL . 'Error: ' . $countError . ' => ' . $e->getMessage();
+
+                    if ($countError >= 3) {
+                        break 2;
+                    }
+                }
+            }
+        } while (true);
+        echo PHP_EOL . 'exit';
     }
 }

@@ -2,13 +2,12 @@
 
 namespace app\modules\sim\models;
 
-use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\classes\Utils;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\sim\classes\externalStatusLog\StatusContentRecognition;
 use Yii;
-use yii\db\ActiveQuery;
-use yii\helpers\Url;
+use yii\db\Expression;
 
 /**
  * @property int $imsi
@@ -34,6 +33,18 @@ class ImsiExternalStatusLog extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgNnp;
+    }
+
+    public static function makeLog($imsi, $status): int
+    {
+        if (!is_string($status)) {
+            $status = Utils::toJson($status);
+        }
+
+        return self::getDb()
+            ->createCommand()
+            ->insert(self::tableName(), ['imsi' => $imsi, 'status' => new Expression("'" . $status . "'::jsonb")])
+            ->execute();
     }
 
     public function getInsertDate()
