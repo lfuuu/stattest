@@ -30,7 +30,7 @@ class ImsiDao extends Singleton
 
         if ($isSaveResultToLog) {
             try {
-                ImsiExternalStatusLog::makeLog($imsi, $json);
+                ImsiExternalStatusLog::makeLog($imsi, ['result' => $json, 'status' => 'OK']);
             } catch (\Exception $e) {
                 \Yii::error($e);
                 if (!$isSilentWhenSaving) {
