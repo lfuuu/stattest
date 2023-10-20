@@ -37,6 +37,7 @@ use yii\helpers\Url;
  * @property-read ImsiPartner $partner
  * @property-read ImsiProfile $profile
  * @property-read ImsiToken $token
+ * @property-read ImsiExternalStatusLog $externalStatusLog
  *
  * @method static Imsi findOne($condition)
  * @method static Imsi[] findAll($condition)
@@ -152,6 +153,14 @@ class Imsi extends ActiveRecord
     public function getToken()
     {
         return $this->hasOne(ImsiToken::class, ['imsi' => 'imsi']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getExternalStatusLog()
+    {
+        return $this->hasMany(ImsiExternalStatusLog::class, ['imsi' => 'imsi']);
     }
 
     /**

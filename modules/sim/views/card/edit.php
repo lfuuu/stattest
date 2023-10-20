@@ -1,4 +1,5 @@
 <?php
+
 use app\modules\sim\models\CardStatus;
 use app\classes\Html;
 use app\modules\sim\models\Dsm;
@@ -20,15 +21,23 @@ use yii\widgets\Breadcrumbs;
         $this->title = $dsm->origin->isNewRecord ? Yii::t('common', 'Create') : $dsm->origin->iccid
     ],
 ]) ?>
-<!-- Форма редактирования OriginCard -->
-<div class="well">
-    <?= $this->render('forms/_edit', [
-        'card' => $dsm->origin,
-        'regionName' => $dsm->regionName,
-        'activeFormId' => 'origin_card',
-        'submitButtonId' => 'submitButtonOriginCard',
-    ]) ?>
-</div>
+    <!-- Форма редактирования OriginCard -->
+    <div class="well">
+        <?= $this->render('forms/_edit', [
+            'card' => $dsm->origin,
+            'regionName' => $dsm->regionName,
+            'activeFormId' => 'origin_card',
+            'submitButtonId' => 'submitButtonOriginCard',
+        ]) ?>
+    </div>
+
+<?php
+$imsies = $dsm->origin->imsies;
+foreach ($imsies as $imsiO) {
+    echo $this->render('forms/_imsiExternalStatusLog', ['imsi' => $imsiO, 'count' => count($imsies)]);
+}
+?>
+
 <?php if (!$dsm->origin->isNewRecord && \Yii::$app->user->can('sim.write')) { ?>
     <!-- Блок, отображающий методы для выбора необходимой сим-карты или непривязанного номера -->
     <div class="well">
@@ -55,7 +64,7 @@ use yii\widgets\Breadcrumbs;
                 <div class="col-sm-5">
                     <?= Html::input('text', Dsm::ENV_WITH_RAW_NUMBER,
                         $dsm->isSynchronizable() ? $dsm->rawNumber : null,
-                    ['class' => 'form-control', 'id' => Dsm::ENV_WITH_RAW_NUMBER]); ?>
+                        ['class' => 'form-control', 'id' => Dsm::ENV_WITH_RAW_NUMBER]); ?>
                 </div>
                 <!-- Кнопка синхронизации -->
                 <div class="col-sm-3">
