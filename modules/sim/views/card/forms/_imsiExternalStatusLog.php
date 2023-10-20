@@ -9,9 +9,10 @@ if (!$extLog) {
     <h1>Внешний лог состояния IMSI <?=$imsi->imsi?></h1>
     <div class="col-md-<?= round(12 / $count) ?>">
         <?php
+        /** @var \app\modules\sim\models\ImsiExternalStatusLog $log */
         foreach ($imsi->externalStatusLog as $log) {
             ?>
-            <?= $log->statusString ?>
+            <?= $log->statusStringHtml ?>
             <?php
         }
         ?>

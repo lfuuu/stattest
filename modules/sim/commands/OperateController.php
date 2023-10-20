@@ -83,9 +83,16 @@ class OperateController extends Controller
             $imsies = Imsi::dao()->getImsiesForGetStatus();
 
             foreach ($imsies as $imsi) {
-                echo PHP_EOL . date(DateTimeZoneHelper::DATETIME_FORMAT) . ': ' . $imsi;
+                echo PHP_EOL . date(DateTimeZoneHelper::DATETIME_FORMAT) . ': ' . $imsi . ': ';
                 try {
                     Imsi::dao()->getSubscriberStatus($imsi, $isSaveResultToLog = true, $isSilentWhenSaving = false);
+
+                    $imsi = Imsi::findOne(['imsi' => $imsi]);
+                    $log = $imsi->getExternalStatusLog()->orderBy(['id' => SORT_DESC])->one();
+                    if ($log) {
+                        echo $log;
+                    }
+
                 } catch (\Exception $e) {
                     \Yii::error($e);
                     $countError++;

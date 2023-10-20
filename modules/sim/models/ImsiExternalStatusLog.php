@@ -13,7 +13,8 @@ use yii\db\Expression;
  * @property int $imsi
  * @property string $insert_dt
  * @property string $status
- * @property-readonly string $insertDate
+ * @property-read string $insertDate
+ * @property-read string $statusStringHtml
  */
 class ImsiExternalStatusLog extends ActiveRecord
 {
@@ -52,8 +53,13 @@ class ImsiExternalStatusLog extends ActiveRecord
         return DateTimeZoneHelper::getDateTime($this->insert_dt);
     }
 
-    public function getStatusString()
+    public function getStatusStringHtml()
     {
-        return StatusContentRecognition::me()->getAsString($this);
+        return StatusContentRecognition::me()->getAsString($this, true);
+    }
+
+    public function __toString()
+    {
+        return StatusContentRecognition::me()->getAsString($this, false);
     }
 }

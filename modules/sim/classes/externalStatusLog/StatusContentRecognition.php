@@ -6,10 +6,11 @@ use app\modules\sim\models\ImsiExternalStatusLog;
 
 class StatusContentRecognition extends \app\classes\Singleton
 {
-    public function getAsString(ImsiExternalStatusLog $log)
+    public function getAsString(ImsiExternalStatusLog $log, $asHtml = false)
     {
         $result = $this->getResultItem($log->status);
         $result->insertDt = $log->insert_dt;
+        $result->asHtml = $asHtml;
         return (string)$result;
     }
 

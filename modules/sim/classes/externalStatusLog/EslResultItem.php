@@ -24,9 +24,14 @@ class EslResultItem extends \yii\base\Component
     public string $itemText = '';
     public array $info = [];
     public string $insertDt = '';
+    public bool $asHtml = false;
 
     public function __toString()
     {
+        if (!$this->asHtml) {
+            return $this->itemText;
+        }
+
         $insertDate = $this->insertDt ? DateTimeZoneHelper::getDateTime($this->insertDt) : '';
         $title = "";
 
