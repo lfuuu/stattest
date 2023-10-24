@@ -52,6 +52,11 @@ class Address extends ActiveRecord
         return \Yii::$app->dbPg;
     }
 
+    public static function primaryKey()
+    {
+        return ['id'];
+    }
+
     public function attributeLabels()
     {
         return [
@@ -104,6 +109,12 @@ class Address extends ActiveRecord
         return $rules;
     }
 
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+        ];
+    }
 
     public static function getStateList()
     {
