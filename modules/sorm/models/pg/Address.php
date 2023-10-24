@@ -105,7 +105,7 @@ class Address extends ActiveRecord
     }
 
 
-    public function getStateList()
+    public static function getStateList()
     {
         return [
             'need_check' => 'Необходима проверка',
