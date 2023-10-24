@@ -168,7 +168,7 @@ echo $this->render('//layouts/_toggleButton', ['divSelector' => '#instruction', 
         </div>
 
     </div>
-
+    <?= $this->render('//layouts/_showHistory', ['model' => $model]) ?>
 <?php
 \yii\widgets\ActiveForm::end();
 ?>
