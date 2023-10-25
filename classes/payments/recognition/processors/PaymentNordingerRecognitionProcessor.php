@@ -54,12 +54,10 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
             $this->logger->add("Найден единственный Л/С {$accountId}");
             $this->isIdentificationPayment = true;
             return $accountId;
-        } else { // count($accountIds) > 1
-            $this->logger->add("Найдено несколько Л/С с IBAN платежа (" . $this->getAccountListToString($accountIds) . ")");
-            $this->logger->add("Требуется проверка");
-            return 0;
         }
-
+        // count($accountIds) > 1
+        $this->logger->add("Найдено несколько Л/С с IBAN платежа (" . $this->getAccountListToString($accountIds) . ")");
+        $this->logger->add("Требуется проверка");
         return 0;
     }
 
@@ -90,7 +88,7 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
             return 0;
         }
 
-        $accountId = $this->getAccountIdByName($name);
+        $accountId = $this->getAccountIdByName($name, 43);
 
         if (!$accountId) {
             $this->logger->add('не найден контрагент по компании: ' . $name);
