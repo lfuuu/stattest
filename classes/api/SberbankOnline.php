@@ -41,6 +41,7 @@ class SberbankOnline
     {
         \Yii::$app->response->format = Response::FORMAT_XML;
         $result = $this->do(\Yii::$app->request->isPost ? \Yii::$app->request->post() : \Yii::$app->request->get());
+        \Yii::info($result);
         \Yii::$app->response->data = ['result' => $this->resultCode] + $result;
         \Yii::$app->end();
     }
