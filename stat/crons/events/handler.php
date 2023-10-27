@@ -59,7 +59,7 @@ use app\modules\uu\Module as UuModule;
 use app\modules\webhook\classes\ApiWebCall;
 use yii\console\ExitCode;
 use yii\db\ActiveQuery;
-use app\classes\dto\ChangeClientStructureRegistrator;
+use app\classes\dto\ChangeClientStructureRegistratorDto;
 use app\classes\dto\AccountTariffStructureToKafka;
 
 define('NO_WEB', 1);
