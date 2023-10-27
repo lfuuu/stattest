@@ -151,6 +151,7 @@ return [
         ],
         'log' => $log,
         'db' => $db,
+        'db2' => $db, // for working with the database outside of a main transaction
         'dbSms' => $dbSms,
         'dbAts' => $dbAts,
         'dbAts2' => $dbAts2,
