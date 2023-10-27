@@ -33,7 +33,7 @@ class ClientStructureChangeRegistry extends ActiveRecord
 
     public static function add($section, $value)
     {
-        self::getDb()->createCommand(
+        return self::getDb()->createCommand(
             'INSERT INTO ' . self::tableName() . ' (section, model_id) VALUES (:section, :value) ON DUPLICATE KEY UPDATE created_at = CURRENT_TIMESTAMP',
             ['section' => $section, 'value' => $value]
         )->execute();

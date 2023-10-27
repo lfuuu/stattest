@@ -36,12 +36,12 @@ class ChangeClientStructureRegistratorDto extends Singleton
             throw new \InvalidArgumentException('Unknown object type: ' . $obj);
         }
 
-        ClientStructureChangeRegistry::add($obj, $value);
+        return ClientStructureChangeRegistry::add($obj, $value);
     }
 
     public function getData(): array
     {
-        $data = ClientStructureChangeRegistry::findAll();
+        $data = ClientStructureChangeRegistry::find()->all();
         $result = [];
 
         foreach ($data as $r) {
