@@ -53,16 +53,16 @@ class NotifyController extends Controller
         do {
             if ($data = $registr->checkDataForSend()) {
                 echo PHP_EOL . date("r") . ': ChangeClientStructure: ' . preg_replace('/\s+/', " ", print_r($data, true));
-            }
 
-            EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data); // old notification scheme
+                EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data); // old notification scheme
 
-            $superIds = ClientSuperDao::me()->getSuperIds($data['clientIds'] ?? null, null, $data['contractIds'] ?? null, $data['contragentIds'] ?? null, $data['accountIds'] ?? null);
+                $superIds = ClientSuperDao::me()->getSuperIds($data['clientIds'] ?? null, null, $data['contractIds'] ?? null, $data['contragentIds'] ?? null, $data['accountIds'] ?? null);
 
-            foreach ($superIds as $superId) {
-                echo PHP_EOL . 'SuperId: ' . $superId .PHP_EOL;
+                foreach ($superIds as $superId) {
+                    echo PHP_EOL . 'SuperId: ' . $superId . PHP_EOL;
 
-                EventQueue::go(ChangeClientStructureRegistratorDto::EVENT, $superId);
+                    EventQueue::go(ChangeClientStructureRegistratorDto::EVENT, $superId);
+                }
             }
 
             sleep($sleepTime);
@@ -71,7 +71,7 @@ class NotifyController extends Controller
 
             $isExit = $stopTimeFrom < $time && $time < $stopTimeTo;
 
-            if (!$isExit && $stopTimeTo < $time ) {
+            if (!$isExit && $stopTimeTo < $time) {
                 if ($countShift++ >= $maxCountShift) {
                     $isExit = true;
                 } else {
