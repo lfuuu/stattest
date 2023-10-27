@@ -3,7 +3,7 @@
 namespace app\commands;
 
 use app\classes\Assert;
-use app\classes\dto\ChangeClientStructureRegistrator;
+use app\classes\dto\ChangeClientStructureRegistratorDto;
 use app\dao\ClientSuperDao;
 use app\models\EventQueue;
 use app\models\User;
@@ -41,7 +41,7 @@ class NotifyController extends Controller
 
         $countShift = 0;
 
-        $registr = ChangeClientStructureRegistrator::me();
+        $registr = ChangeClientStructureRegistratorDto::me();
 
         // Контроль времени работы. выключаем с 55 до 00 секунд.
         $time = (new \DateTimeImmutable());
@@ -55,12 +55,14 @@ class NotifyController extends Controller
                 echo PHP_EOL . date("r") . ': ChangeClientStructure: ' . preg_replace('/\s+/', " ", print_r($data, true));
             }
 
+            EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data); // old notification scheme
+
             $superIds = ClientSuperDao::me()->getSuperIds($data['clientIds'] ?? null, null, $data['contractIds'] ?? null, $data['contragentIds'] ?? null, $data['accountIds'] ?? null);
 
             foreach ($superIds as $superId) {
                 echo PHP_EOL . 'SuperId: ' . $superId .PHP_EOL;
 
-                EventQueue::go(ChangeClientStructureRegistrator::EVENT, $superId);
+                EventQueue::go(ChangeClientStructureRegistratorDto::EVENT, $superId);
             }
 
             sleep($sleepTime);

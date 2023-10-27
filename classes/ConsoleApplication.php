@@ -5,6 +5,9 @@ use app\models\User;
 use welltime\graylog\GelfMessage;
 use Yii;
 
+/**
+ * @property \yii\db\Connection $db2
+ */
 
 class ConsoleApplication extends \yii\console\Application
 {

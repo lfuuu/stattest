@@ -629,29 +629,29 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::CREATE_CONTRACT:
                     \app\classes\behaviors\important_events\ClientContract::eventAddContract($param);
-                    $registr = ChangeClientStructureRegistrator::me();
-                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);
-                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['contragent_id']);
-                    $registr->registrChange(ChangeClientStructureRegistrator::SUPER, $param['super_client_id']);
+                    $registr = ChangeClientStructureRegistratorDto::me();
+                    $registr->registrChange(ChangeClientStructureRegistratorDto::CONTRACT, $param['contract_id']);
+                    $registr->registrChange(ChangeClientStructureRegistratorDto::CONTRAGENT, $param['contragent_id']);
+                    $registr->registrChange(ChangeClientStructureRegistratorDto::SUPER, $param['super_client_id']);
                     break;
 
                 case EventQueue::ADD_ACCOUNT:
-                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::ACCOUNT, $param);
+                    ChangeClientStructureRegistratorDto::me()->registrChange(ChangeClientStructureRegistratorDto::ACCOUNT, $param);
                     break;
 
                 case EventQueue::CONTRACT_CHANGE_CONTRAGENT:
-                    $registr = ChangeClientStructureRegistrator::me();
-                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRACT, $param['contract_id']);
-                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['new_contragent_id']);
-                    $registr->registrChange(ChangeClientStructureRegistrator::CONTRAGENT, $param['old_contragent_id']);
+                    $registr = ChangeClientStructureRegistratorDto::me();
+                    $registr->registrChange(ChangeClientStructureRegistratorDto::CONTRACT, $param['contract_id']);
+                    $registr->registrChange(ChangeClientStructureRegistratorDto::CONTRAGENT, $param['new_contragent_id']);
+                    $registr->registrChange(ChangeClientStructureRegistratorDto::CONTRAGENT, $param['old_contragent_id']);
                     break;
 
                 case EventQueue::ADD_SUPER_CLIENT:
-                    ChangeClientStructureRegistrator::me()->registrChange(ChangeClientStructureRegistrator::SUPER, $param);
+                    ChangeClientStructureRegistratorDto::me()->registrChange(ChangeClientStructureRegistratorDto::SUPER, $param);
                     break;
 
-                case ChangeClientStructureRegistrator::EVENT:
-                    $info = $isEbcKafka ? ChangeClientStructureRegistrator::me()->anonce($param) : EventQueue::API_IS_SWITCHED_OFF;
+                case ChangeClientStructureRegistratorDto::EVENT:
+                    $info = $isEbcKafka ? ChangeClientStructureRegistratorDto::me()->anonce($param) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
 

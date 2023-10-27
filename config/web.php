@@ -179,6 +179,7 @@ $config = [
         ],
         'log' => $log,
         'db' => $dbConf,
+        'db2' => $dbConf, // for working with the database outside of a main transaction
         'dbSms' => $dbSms,
         'dbPg' => $dbPg,
         'dbPgSlave' => $dbPgSlave,
