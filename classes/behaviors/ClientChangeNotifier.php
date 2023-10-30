@@ -36,7 +36,7 @@ class ClientChangeNotifier extends Behavior
 
             $attrs = ['business_process_status_id', 'state', 'is_lk_access', 'partner_contract_id', 'is_partner_login_allow', 'account_manager', 'legal_type', ];
             foreach($attrs as $attr) {
-                if ($model->isAttributeChanged($attr)) {
+                if ($model->{$attr} != $model->getOldAttribute($attr)) {
                     ChangeClientStructureRegistratorDto::me()->registrChange(ChangeClientStructureRegistratorDto::CONTRACT, $model->id);
                     return;
                 }
@@ -48,9 +48,9 @@ class ClientChangeNotifier extends Behavior
                 return;
             }
 
-            $attrs = ['is_blocked', 'price_level', 'credit', 'show_in_lk', 'is_active', 'is_bill_pay_overdue', 'is_postpaid'];
+            $attrs = ['is_blocked', 'price_level', 'credit', 'show_in_lk', 'is_active', 'is_bill_pay_overdue', 'is_postpaid', ];
             foreach($attrs as $attr) {
-                if ($model->isAttributeChanged($attr)) {
+                if ($model->{$attr} != $model->getOldAttribute($attr)) {
                     ChangeClientStructureRegistratorDto::me()->registrChange(ChangeClientStructureRegistratorDto::ACCOUNT, $model->id);
                     return;
                 }

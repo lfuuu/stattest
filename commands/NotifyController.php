@@ -56,7 +56,11 @@ class NotifyController extends Controller
 
                 EventQueue::go(EventQueue::SYNC_CLIENT_CHANGED, $data); // old notification scheme
 
-                $superIds = ClientSuperDao::me()->getSuperIds($data['clientIds'] ?? null, null, $data['contractIds'] ?? null, $data['contragentIds'] ?? null, $data['accountIds'] ?? null);
+                $superIds = ClientSuperDao::me()->getSuperIds(
+                    $data['clientIds'] ?? null, null,
+                    $data['contractIds'] ?? null,
+                    $data['contragentIds'] ?? null, null,
+                    $data['accountIds'] ?? null);
 
                 foreach ($superIds as $superId) {
                     echo PHP_EOL . 'SuperId: ' . $superId . PHP_EOL;

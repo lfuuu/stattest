@@ -276,10 +276,10 @@ class ClientSuperDao extends Singleton
      * (для функции get-full-client-struct)
      *
      * @param integer|array $superId
-     * @param integer $superName
+     * @param string $superName
      * @param integer $contractId
      * @param integer $contragentId
-     * @param integer $contragentName
+     * @param string $contragentName
      * @param integer $accountId
      * @return int[]
      */
