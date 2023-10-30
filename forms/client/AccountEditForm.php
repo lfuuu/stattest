@@ -4,6 +4,7 @@ namespace app\forms\client;
 
 use app\classes\api\ApiCore;
 use app\classes\Assert;
+use app\classes\dto\ChangeClientStructureRegistratorDto;
 use app\classes\Form;
 use app\classes\Html;
 use app\classes\traits\GetListTrait;
@@ -404,6 +405,7 @@ class AccountEditForm extends Form
             }
 
             $transaction->commit();
+            ChangeClientStructureRegistratorDto::me()->registrChange(ChangeClientStructureRegistratorDto::ACCOUNT, $this->clientM->id); // any save account from interface => announce struct
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
