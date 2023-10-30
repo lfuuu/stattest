@@ -34,7 +34,7 @@ class ClientChangeNotifier extends Behavior
                 return;
             }
 
-            $attrs = ['business_process_status_id', 'state', 'is_lk_access', 'partner_contract_id', 'is_partner_login_allow', 'account_manager', 'legal_type', ];
+            $attrs = ['business_process_status_id', 'state', 'is_lk_access', 'partner_contract_id', 'is_partner_login_allow', 'account_manager', 'organization_id', ];
             foreach($attrs as $attr) {
                 if ($model->{$attr} != $model->getOldAttribute($attr)) {
                     ChangeClientStructureRegistratorDto::me()->registrChange(ChangeClientStructureRegistratorDto::CONTRACT, $model->id);
