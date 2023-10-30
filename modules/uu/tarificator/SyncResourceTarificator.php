@@ -85,7 +85,7 @@ class SyncResourceTarificator extends Tarificator
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
                 $this->out(PHP_EOL . 'Error. ' . $e->getMessage() . PHP_EOL);
-                Yii::error($e->getMessage());
+                Yii::error($e);
                 if ($accountTariffId) {
                     throw $e;
                 }
