@@ -106,7 +106,7 @@ class CryptoController extends ApiInternalController
         $command = strtr(
             self::CRYPTO_PRO_SIGN_COMMAND,
             [
-                '{thumbprint}' => ($thumbprint == '4fe6047a964d397c9a7c445e643dc20a0aa69be7' ? '6c987da82827902bb39adcccef1df65ba76f01a9' : $thumbprint),
+                '{thumbprint}' => ($thumbprint == '4fe6047a964d397c9a7c445e643dc20a0aa69be7' ? 'c9f65edeb5805b059631e8ea1deb20a4cbd09d11' : $thumbprint),
                 '{fileDir}' => $dirPath,
                 '{pin}' => $privateKeyPassword,
                 '{file}' => $fileName,
