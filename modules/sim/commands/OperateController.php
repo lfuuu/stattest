@@ -102,6 +102,7 @@ class OperateController extends Controller
                         break 2;
                     }
                 }
+                sleep(3);
             }
         } while (true);
         echo PHP_EOL . 'exit';
