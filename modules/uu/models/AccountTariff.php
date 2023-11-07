@@ -140,6 +140,8 @@ class AccountTariff extends ActiveRecord
 
     public $voip_numbers_warehouse_status = null;
 
+    public array $attributesProtectedForVersioning = ['account_log_period_utc', 'account_log_resource_utc'];
+
     /**
      * @return array
      */
