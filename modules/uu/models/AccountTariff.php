@@ -59,6 +59,7 @@ use yii\db\Expression;
  * @property string $route_name
  * @property string $route_name_default
  * @property string $iccid
+ * @property integer $is_verified
  */
 class AccountTariff extends ActiveRecord
 {
