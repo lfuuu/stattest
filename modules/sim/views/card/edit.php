@@ -34,7 +34,7 @@ use yii\widgets\Breadcrumbs;
 <?php
 $imsies = $dsm->origin->imsies;
 foreach ($imsies as $imsiO) {
-    echo $this->render('forms/_imsiExternalStatusLog', ['imsi' => $imsiO, 'count' => count($imsies)]);
+    echo $this->render('forms/_imsiExternalStatusLog', ['imsi' => $imsiO]);
 }
 ?>
 
