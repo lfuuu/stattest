@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Assert;
@@ -13,6 +14,7 @@ use app\models\ClientAccount;
 use app\models\Number;
 use app\models\NumberLog;
 use app\models\UsageVoip;
+use app\modules\uu\models\ServiceType;
 use DateTime;
 use DateTimeZone;
 use Yii;
@@ -32,9 +34,10 @@ class NumberDao extends Singleton
      */
     public function startReserve(
         \app\models\Number $number,
-        ClientAccount $clientAccount = null,
-        DateTime $stopDate = null
-    ) {
+        ClientAccount      $clientAccount = null,
+        DateTime           $stopDate = null
+    )
+    {
         Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_NOTSALE]);
 
         $utc = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
@@ -69,10 +72,11 @@ class NumberDao extends Singleton
      */
     public function startActive(
         \app\models\Number $number,
-        UsageVoip $usage = null,
-        AccountTariff $uuUsage = null,
-        $isInFuture = false
-    ) {
+        UsageVoip          $usage = null,
+        AccountTariff      $uuUsage = null,
+                           $isInFuture = false
+    )
+    {
 
         if ($usage) {
             $fieldsEqual =
@@ -122,11 +126,14 @@ class NumberDao extends Singleton
         $logStatus = Number::STATUS_ACTIVE_TESTED;
         switch ($newStatus) {
             case Number::STATUS_ACTIVE_TESTED:
-                $logStatus = NumberLog::ACTION_ADDITION_TESTED; break;
+                $logStatus = NumberLog::ACTION_ADDITION_TESTED;
+                break;
             case Number::STATUS_ACTIVE_COMMERCIAL:
-                $logStatus = NumberLog::ACTION_ADDITION_COMMERCIAL; break;
+                $logStatus = NumberLog::ACTION_ADDITION_COMMERCIAL;
+                break;
             case Number::STATUS_NOT_VERFIED:
-                $logStatus = NumberLog::ACTION_NOT_VERFIED; break;
+                $logStatus = NumberLog::ACTION_NOT_VERFIED;
+                break;
         }
 
         Number::dao()->log(
@@ -313,6 +320,7 @@ class NumberDao extends Singleton
             throw $e;
         }
     }
+
     /**
      * @param \app\models\Number $number
      * @param DateTime|null $holdTo
@@ -412,6 +420,7 @@ class NumberDao extends Singleton
 
     /**
      * @param \app\models\Number $number
+     * @throws \Exception
      */
     public function actualizeStatus(\app\models\Number $number)
     {
@@ -434,56 +443,17 @@ class NumberDao extends Singleton
 
         if (!$usage) {
             $universalUsage = AccountTariff::find()
-                ->where(['voip_number' => $number->number])
-                ->andWhere(['IS NOT', 'tariff_period_id', null])
+                ->where([
+                    'voip_number' => $number->number,
+                    'service_type_id' => ServiceType::ID_VOIP,
+                ])
+                ->andWhere(['NOT', ['tariff_period_id' => null]])
                 ->one();
-        }
-
-        if (!$usage && !$universalUsage) {
-
-            $now = DateTimeZoneHelper::getUtcDateTime();
-            $isFoundInPast = false;
-
-            // in connection proccess
-            if ($number->status == Number::STATUS_ACTIVE_CONNECTED && $number->uu_account_tariff_id) {
-                $universalUsage = AccountTariff::find()->where(['id' => $number->uu_account_tariff_id])->one();
-                if ($logs = $universalUsage->accountTariffLogs) {
-                    /** @var AccountTariffLog $log */
-                    if ($log = reset($logs)) {
-                        if ($log->tariff_period_id && $log->actual_from_utc < $now) { // still not turned on
-                            $isInFuture = true; // in past...
-                            $isFoundInPast = true;
-                        }
-                    }
-                }
-            }
-
-            if (!$isFoundInPast) {
-                // in future
-                $uUsages = AccountTariff::find()
-                    ->where([
-                        'voip_number' => $number->number,
-                        'tariff_period_id' => null
-                    ])
-                    ->with('accountTariffLogs')
-                    ->all();
-
-                foreach ($uUsages as $uUsage) {
-                    echo PHP_EOL . $uUsage->id;
-
-                    /** @var AccountTariffLog $log */
-                    if ($logs = $uUsage->accountTariffLogs) {
-                        if ($log = reset($logs)) {
-                            if ($log->actual_from_utc > $now) {
-                                $universalUsage = $uUsage;
-                                $isInFuture = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+            if (!$universalUsage) {
+                $universalUsage = $this->getActiveAccountTariffByNumber($number, $isInFuture);
             }
         }
+
 
         if ($usage) {
             Number::dao()->startActive($number, $usage, null, $isInFuture);
@@ -492,6 +462,79 @@ class NumberDao extends Singleton
         } else {
             Number::dao()->stopActive($number);
         }
+    }
+
+    /**
+     * Получаем услугу по номеру
+     *
+     * @param Number $number
+     * @return AccountTariff|null
+     * @throws \Exception
+     */
+    public function getActiveAccountTariffByNumber(Number $number, bool &$inFuture): ?AccountTariff
+    {
+        /** @var AccountTariff $universalUsage */
+        $universalUsage = AccountTariff::find()
+            ->where([
+                'voip_number' => $number->number,
+                'service_type_id' => ServiceType::ID_VOIP,
+            ])
+            ->andWhere(['NOT', ['tariff_period_id' => null]])
+            ->one();
+
+        if ($universalUsage) {
+            return $universalUsage;
+        }
+
+        $now = DateTimeZoneHelper::getUtcDateTime();
+
+        // is connecting progress
+        if (in_array($number->status, Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]) && $number->uu_account_tariff_id) {
+
+            /** @var AccountTariff $universalUsage */
+            $universalUsage = AccountTariff::find()->where([
+                'id' => $number->uu_account_tariff_id,
+                'service_type_id' => ServiceType::ID_VOIP,
+            ])->one();
+
+            if ($logs = $universalUsage->accountTariffLogs) {
+
+                /** @var AccountTariffLog $log */
+                if ($log = reset($logs)) {
+                    if ($log->tariff_period_id && $log->actual_from_utc < $now) { // still not turned on
+                        $inFuture = true;
+                        return $universalUsage;
+                    }
+                }
+            }
+        }
+
+        // in future
+        $accountTariffs = AccountTariff::find()
+            ->where([
+                'voip_number' => $number->number,
+                'service_type_id' => ServiceType::ID_VOIP,
+                'tariff_period_id' => null,
+            ])
+            ->with('accountTariffLogs')
+            ->all();
+
+        /** @var AccountTariff $accountTariff */
+        foreach ($accountTariffs as $accountTariff) {
+            echo PHP_EOL . $accountTariff->id;
+
+            /** @var AccountTariffLog $log */
+            if ($logs = $accountTariff->accountTariffLogs) {
+                if ($log = reset($logs)) {
+                    if ($log->actual_from_utc > $now) {
+                        $inFuture = true;
+                        return $accountTariff;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -78,7 +78,6 @@ use yii\helpers\Url;
  * @property-read Registry $registry
  * @property-read Operator $nnpOperator
  * @property-read \app\modules\nnp\models\Region $nnpRegion
- * @property-read \app\modules\nnp\models\Operator $nnpOperator
  * @property-read \app\modules\nnp\models\City $nnpCity
  * @property-read string $link
  * @property-read Url $url

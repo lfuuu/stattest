@@ -22,7 +22,6 @@ use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\UsageVoipValidator;
 use yii\base\InvalidParamException;
-use app\dao\statistics\CallsRawDao;
 use app\models\billing\CallsRaw;
 use yii\db\Expression;
 
@@ -209,7 +208,7 @@ class VoipController extends ApiInternalController
         );
 
         if ($model->hasErrors()) {
-            throw new ModelValidationException($model);
+            throw new ExceptionValidationForm($model);
         }
 
         $number = Number::findOne(['number' => $model['number']]);
@@ -355,7 +354,7 @@ class VoipController extends ApiInternalController
 
         $diff = $firstDayOfDate->diff($lastDayOfDate);
 
-        if ($diff->y > 0 || $diff->m > 2 || ($diff->m > 1 && $diff->d > 2)){
+        if ($diff->y > 0 || $diff->m > 2 || ($diff->m > 1 && $diff->d > 2)) {
             throw new \InvalidArgumentException('DATETIME_RANGE_LIMIT', -10);
         }
 
@@ -383,7 +382,7 @@ class VoipController extends ApiInternalController
             $generalInfo['offset'] = $model->offset;
             $generalInfo['limit'] = $model->limit;
         }
-        
+
         if ($model->offset) {
             $query->offset($model->offset);
         }
@@ -400,7 +399,7 @@ class VoipController extends ApiInternalController
 
             $result[] = $data;
         }
-       
+
         return $model->is_with_general_info ? ['info' => $generalInfo, 'result' => $result] : $result;
     }
 
@@ -465,7 +464,7 @@ class VoipController extends ApiInternalController
         }
 
         $query = $searchModel->search();
-        
+
         $generalInfo = [];
         if ($searchModel->is_with_general_info) {
             $sumQuery = clone $query;
@@ -481,13 +480,13 @@ class VoipController extends ApiInternalController
             $generalInfo['offset'] = $searchModel->offset;
             $generalInfo['limit'] = $searchModel->limit;
         }
-        
+
         if ($searchModel->offset) {
             $query->offset($searchModel->offset);
         }
 
         $searchModel->limit && $query->limit($searchModel->limit);
-        
+
         $result = [];
         foreach ($query->each(100, SmscRaw::getDb()) as $data) {
             $data['cost'] = abs((double)$data['cost']);
@@ -581,11 +580,30 @@ class VoipController extends ApiInternalController
 
         if ($number->is_verified === 0) {
             $number->is_verified = 1;
-            if (!$number->save()) {
-                throw new ModelValidationException($number);
-            }
 
-            Number::dao()->actualizeStatus($number);
+            $transaction = Number::getDb()->beginTransaction();
+            try {
+
+                $inFuture = false;
+                if ($accountTariff = Number::dao()->getActiveAccountTariffByNumber($number, $inFuture)) {
+                    $accountTariff->is_verified = $number->is_verified;
+                }
+
+                if (!$number->save()) {
+                    throw new ModelValidationException($number);
+                }
+
+                if (!$accountTariff->save()) {
+                    throw new ModelValidationException($number);
+                }
+
+                Number::dao()->actualizeStatus($number);
+                $transaction->commit();
+            } catch (\Exception $e) {
+                Yii::error($e);
+                $transaction->rollBack();
+                throw $e;
+            }
             $number->refresh();
         }
 
@@ -632,13 +650,31 @@ class VoipController extends ApiInternalController
             return ['current_status' => $number->status];
         }
 
-        $number->is_verified = 0;
+        $transaction = Number::getDb()->beginTransaction();
+        try {
+            $number->is_verified = 0;
 
-        if (!$number->save()) {
-            throw new ModelValidationException($number);
+            $inFuture = false;
+            if ($accountTariff = Number::dao()->getActiveAccountTariffByNumber($number, $inFuture)) {
+                $accountTariff->is_verified = $number->is_verified;
+            }
+
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            if (!$accountTariff->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->actualizeStatus($number);
+            $transaction->commit();
+        } catch (\Exception $e) {
+            Yii::error($e);
+            $transaction->rollBack();
+            throw $e;
         }
 
-        Number::dao()->actualizeStatus($number);
         $number->refresh();
 
         return ['current_status' => $number->status];
