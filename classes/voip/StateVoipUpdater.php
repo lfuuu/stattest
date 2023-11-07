@@ -8,7 +8,9 @@ class StateVoipUpdater extends Singleton
 {
     private array $sql = [];
 
-    public function update()
+    protected ?int $accountTariffId = null; // @TODO обработка по наличию услуги
+
+    public function update(?int $accountTariffId = null)
     {
         echo PHP_EOL . date('r');
 
@@ -35,6 +37,7 @@ class StateVoipUpdater extends Singleton
             throw $e;
         }
         $this->_dropTable();
+        echo PHP_EOL;
     }
 
     private function createTable()
@@ -62,7 +65,8 @@ SELECT usage_id,
        activation_dt,
        IF(expire_dt > '3000-01-01 00:00:00', NULL, expire_dt) AS expire_dt,
        lines_amount,
-       trim(device_address)                                   AS device_address
+       trim(device_address)                                   AS device_address,
+       is_verified
 FROM (
          SELECT u.id                                          AS usage_id,
                 c.id                                          AS client_id,
@@ -73,7 +77,8 @@ FROM (
                 activation_dt,
                 expire_dt,
                 no_of_lines                                   as lines_amount,
-                u.address                                     AS device_address
+                u.address                                     AS device_address,
+                null                                          AS is_verified
          FROM usage_voip u,
               voip_numbers v,
               clients c
@@ -92,7 +97,8 @@ FROM (
                 activation_dt,
                 expire_dt,
                 lines_amount,
-                device_address
+                device_address,
+                is_verified
          FROM (
                   SELECT u.id                                                     AS usage_id,
                          client_account_id                                        AS client_id,
@@ -113,7 +119,8 @@ FROM (
                          (SELECT max(amount)
                           FROM uu_account_tariff_resource_log l
                           WHERE l.account_tariff_id = u.id AND l.resource_id = 7) as lines_amount,
-                         u.device_address
+                         u.device_address,
+                         u.is_verified
                   FROM uu_account_tariff u,
                        voip_numbers v,
                        clients c
@@ -140,14 +147,15 @@ SQL;
     private function deleteMissing()
     {
         $this->sql[] = <<<SQL
-delete z
-from state_service_voip z,
+DELETE z
+FROM state_service_voip z,
      (
-    select a.usage_id
-    from state_service_voip a
-             left join state_service_voip_tmp b using (usage_id)
-    where b.usage_id is null
-) a where  a.usage_id = z.usage_id
+         SELECT a.usage_id
+         FROM state_service_voip a
+                  LEFT JOIN state_service_voip_tmp b USING (usage_id)
+         WHERE b.usage_id is null
+     ) a
+WHERE a.usage_id = z.usage_id
 
 SQL;
     }
@@ -163,17 +171,19 @@ update
      where true
        and (
                  a.lines_amount != b.lines_amount
-             or coalesce(a.actual_from, '') != coalesce(b.actual_from, '')
+             or a.actual_from != b.actual_from
              or coalesce(a.expire_dt, '') != coalesce(b.expire_dt, '')
-             or coalesce(a.activation_dt, '') != coalesce(b.activation_dt, '')
+             or a.activation_dt != b.activation_dt
              or coalesce(a.device_address, '') != coalesce(b.device_address, '')
+             or coalesce(a.is_verified, '') != coalesce(b.is_verified, '')
          )
     ) b
 set s.lines_amount = b.lines_amount,
     s.actual_from = b.actual_from,
     s.expire_dt = b.expire_dt,
     s.activation_dt = b.activation_dt,
-    s.device_address = b.device_address
+    s.device_address = b.device_address,
+    s.is_verified = b.is_verified
 where s.usage_id = b.usage_id
 SQL;
     }
