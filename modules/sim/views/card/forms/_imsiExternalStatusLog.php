@@ -5,17 +5,17 @@ if (!$extLog) {
     return '';
 }
 ?>
-<div class="well" style="padding-bottom: 40px;">
-    <h1>Внешний лог состояния IMSI <?=$imsi->imsi?></h1>
-    <div class="col-md-<?= round(12 / $count) ?>">
-        <?php
-        /** @var \app\modules\sim\models\ImsiExternalStatusLog $log */
-        foreach ($imsi->externalStatusLog as $log) {
-            ?>
-            <?= $log->statusStringHtml ?>
+<div class="well">
+    <h1>Внешний лог состояния IMSI <?= $imsi->imsi ?></h1>
+    <div class="row" style="border: 1px solid #ddd; border-radius: 5px; min-height: 100px; height: 100px; overflow-y: scroll;">
+        <div class="col-md-12">
             <?php
-        }
-        ?>
+            /** @var \app\modules\sim\models\ImsiExternalStatusLog $log */
+            foreach ($imsi->getExternalStatusLog()->orderBy(['id' => SORT_DESC])->each() as $log) {
+                echo $log->statusStringHtml;
+            }
+            ?>
+        </div>
     </div>
 </div>
 
