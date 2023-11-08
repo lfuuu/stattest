@@ -37,21 +37,30 @@ class InvoiceNextIdx extends Behavior
         $startDate = (new \DateTimeImmutable($invoice->date))->modify('first day of this month');
         $endDate = (new \DateTimeImmutable($invoice->date))->modify('last day of this month');
 
+        $organization = null;
+
         // с 1 января, для всех не Россиских компаний номерация с/ф сквозная в течении года
         if (
             $invoice->date >= Invoice::DATE_NO_RUSSIAN_ACCOUNTING
-            && $invoice->bill->clientAccount->contract->organization->invoice_counter_range_id == Organization::INVOICE_COUNTER_RANGE_ID_YEAR
         ) {
-            $startDate = (new \DateTimeImmutable($invoice->date))
-                ->setDate($startDate->format('Y'), 1, 1);
+            $organization = $invoice->calculateOrganization();
+            if ($organization->invoice_counter_range_id == Organization::INVOICE_COUNTER_RANGE_ID_YEAR) {
+                $startDate = (new \DateTimeImmutable($invoice->date))
+                    ->setDate($startDate->format('Y'), 1, 1);
 
-            $endDate = $startDate->setDate($startDate->format('Y'), 12, 31);
+                $endDate = $startDate->setDate($startDate->format('Y'), 12, 31);
+            }
         }
 
         $isSetId = $event->name == ActiveRecord::EVENT_BEFORE_INSERT && $invoice->isSetDraft !== true
             || $event->name == ActiveRecord::EVENT_BEFORE_UPDATE && $invoice->isSetDraft === false;
 
-        !$invoice->organization_id && $invoice->organization_id = $invoice->bill->organization_id;
+        if (!$invoice->organization_id) {
+            if (!$organization) {
+                $organization = $invoice->calculateOrganization();
+            }
+            $invoice->organization_id = $organization->organization_id;
+        }
 
         if ($isSetId && !$invoice->idx) {
             $isNeedNewNumber = true;

@@ -66,6 +66,7 @@ use yii\helpers\Url;
  * @property-read OperationType $operationType
  * @property-read ClientAccount $clientAccount   из версий
  * @property-read ClientAccount $clientAccountModel   прямая модель
+ * @property-read Organization $organization   прямая модель
  * @property-read BillLine[] $lines   ??
  * @property-read BillLineUu[] $uUlines   ??
  * @property-read Transaction[] $transactions   ??
@@ -289,6 +290,14 @@ class Bill extends ActiveRecord
     public function getClientAccountModel()
     {
         return $this->hasOne(ClientAccount::class, ['id' => 'client_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrganization()
+    {
+        return $this->hasOne(Organization::class, ['organization_id' => 'organization_id'])->orderBy(['id' => SORT_DESC]);
     }
 
     /**

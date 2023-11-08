@@ -52,7 +52,7 @@ class SBISDataProvider
             throw new \Exception(sprintf('Закрывающий документ не найден! Invoice id: %s', $invoiceId));
         }
 
-        $client = $invoice->bill->clientAccount;
+        $client = $invoice->bill->clientAccountModel;
         if (!$client->exchange_group_id) {
             // без интеграции со СБИС
             return;

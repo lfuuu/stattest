@@ -150,6 +150,20 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * Вычисляет организацию с/ф
+     *
+     * @return Organization
+     */
+    public function calculateOrganization(): Organization
+    {
+        try {
+            return $this->bill->clientAccountModel->clientContractModel->loadVersionOnDate($this->date)->organization;
+        } catch (\Exception $e) {
+            return $this->bill->organization;
+        }
+    }
+
+    /**
      * @return float
      */
     public static function getCurrencyRates($date, $currency = null)
