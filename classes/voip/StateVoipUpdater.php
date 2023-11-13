@@ -104,13 +104,13 @@ FROM (
                          client_account_id                                        AS client_id,
                          voip_number                                              AS e164,
                          v.region,
-                         (SELECT actual_from_utc + INTERVAL 3 HOUR
+                         (SELECT actual_from_utc
                           FROM uu_account_tariff_log
                           WHERE account_tariff_id = u.id
                             AND tariff_period_id IS NOT NULL
                           ORDER BY actual_from_utc
                           LIMIT 1)                                                   activation_dt,
-                         (SELECT actual_from_utc + INTERVAL 3 HOUR
+                         (SELECT actual_from_utc
                           FROM uu_account_tariff_log
                           WHERE account_tariff_id = u.id
                             AND tariff_period_id IS NULL
