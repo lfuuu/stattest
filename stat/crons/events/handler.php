@@ -838,6 +838,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                             null,
                             $param['is_robocall_enabled'],
                             $param['is_smart'],
+                            $param['is_geo_substitute'] ?? null,
                         );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
