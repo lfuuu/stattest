@@ -8,6 +8,7 @@ use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 
 /**
@@ -322,14 +323,19 @@ class ActaulizerVoipNumbers extends Singleton
             $params = json_decode($usage->create_params, true) ?: [];
         }
 
+        $paramIsGeoSubstitute = null;
         if (!$usage) {
+            /** @var AccountTariff $usage */
             $usage = AccountTariff::find()
                 ->where(['voip_number' => $data['number']])
                 ->andWhere(['IS NOT', 'tariff_period_id', null])
                 ->one();
 
-            if ($usage && $usage->calltracking_params) {
-                $params = json_decode($usage->calltracking_params, true) ?: [];
+            if ($usage) {
+                $paramIsGeoSubstitute = $usage->getResourceValue(ResourceModel::ID_VOIP_GEO_REPLACE);
+                if ($usage->calltracking_params) {
+                    $params = json_decode($usage->calltracking_params, true) ?: [];
+                }
             }
         }
 
@@ -350,7 +356,8 @@ class ActaulizerVoipNumbers extends Singleton
             $data['number7800'],
             $params['vpbx_stat_product_id'] ?? null,
             $params['is_create_user'] ?? null,
-            $params['request_id'] ?? null
+            $params['request_id'] ?? null,
+            $paramIsGeoSubstitute
         );
     }
 
@@ -485,6 +492,10 @@ class ActaulizerVoipNumbers extends Singleton
                 ->one();
 
             $isRobocallEnabled = $accountTariff && $accountTariff->tariff_period_id && $accountTariff->tariffPeriod->tariff->isAutodial();
+            $isGeoSubstitute = null;
+            if ($accountTariff) {
+                $isGeoSubstitute = $accountTariff->getResourceValue(ResourceModel::ID_VOIP_GEO_REPLACE);
+            }
 
             $this->_getPhoneApi()->editDid(
                 (int)$new['client_id'],
@@ -496,7 +507,8 @@ class ActaulizerVoipNumbers extends Singleton
                 null,
                 isset($changedFields['region']) ? (int)$changedFields['region'] : null,
                 isset($changedFields['number7800']) ? $changedFields['number7800'] : null,
-                $isRobocallEnabled
+                $isRobocallEnabled,
+                $isGeoSubstitute
             );
         }
     }

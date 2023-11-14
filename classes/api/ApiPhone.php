@@ -123,6 +123,7 @@ class ApiPhone extends Singleton
      * @param int $vpbxStatProductId
      * @param int $isCreateUser
      * @param string $requestId
+     * @param bool $isGeoSubstitute
      * @return array
      * @throws InvalidConfigException
      * @throws \yii\base\Exception
@@ -137,8 +138,8 @@ class ApiPhone extends Singleton
         $number7800 = null,
         $vpbxStatProductId = null,
         $isCreateUser = null,
-        $requestId = null
-
+        $requestId = null,
+        $isGeoSubstitute = null
     ) {
         $accountClient = ClientAccount::findOne(['id' => $clientAccountId]);
 
@@ -165,6 +166,10 @@ class ApiPhone extends Singleton
             $params['type'] = self::TYPE_VPBX;
         }
 
+        if ($isGeoSubstitute !== null) {
+            $params['is_geo_substitute'] = (int)$isGeoSubstitute;
+        }
+
         if (strpos($number, '7800') === 0) {
             $params['tech_number_did'] = Number::find()
                 ->where(['number' => $number])
@@ -188,6 +193,8 @@ class ApiPhone extends Singleton
      * @param int $region
      * @param string $number7800
      * @param bool $isRobocallEnabled
+     * @param bool $isSmart
+     * @param bool $isGeoSubstitute
      * @return array
      */
     public function editDid(
@@ -201,7 +208,8 @@ class ApiPhone extends Singleton
         $region = null,
         $number7800 = null,
         $isRobocallEnabled = false,
-        $isSmart = false
+        $isSmart = false,
+        $isGeoSubstitute = null
     ) {
         $params = [
             'client_id' => $clientAccountId,
@@ -231,6 +239,10 @@ class ApiPhone extends Singleton
 
         if ($number7800) {
             $params['nonumber_phone'] = $number7800;
+        }
+
+        if ($isGeoSubstitute !== null) {
+            $params['is_geo_substitute'] = (int)$isGeoSubstitute;
         }
 
         if ($isSmart !== null) {
