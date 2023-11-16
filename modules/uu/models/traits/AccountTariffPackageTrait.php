@@ -157,7 +157,9 @@ trait AccountTariffPackageTrait
         );
 
         if (!$defaultPackages) {
-            Yii::error('Не найден базовый пакет для услуги ' . $this->id, 'uu');
+            $msg = 'Не найден базовый пакет для услуги ' . $this->id;
+            HandlerLogger::me()->add($msg);
+            Yii::error($msg, 'uu');
             return;
         }
 
