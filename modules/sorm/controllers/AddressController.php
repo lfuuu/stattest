@@ -18,6 +18,10 @@ class AddressController extends BaseController
         $model = Address::find()->where(['hash' => $hash])->one();
 
         if (!$model) {
+            $model = Address::find()->where(['address' => $hash])->one();
+        }
+
+        if (!$model) {
             throw new \InvalidArgumentException('Адрес не найден');
         }
 
