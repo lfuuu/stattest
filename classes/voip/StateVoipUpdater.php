@@ -180,6 +180,7 @@ update
     ) b
 set s.lines_amount = b.lines_amount,
     s.actual_from = b.actual_from,
+    s.actual_to = b.actual_to,
     s.expire_dt = b.expire_dt,
     s.activation_dt = b.activation_dt,
     s.device_address = b.device_address,
