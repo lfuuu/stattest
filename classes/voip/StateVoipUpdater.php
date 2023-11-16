@@ -172,8 +172,9 @@ update
        and (
                  a.lines_amount != b.lines_amount
              or a.actual_from != b.actual_from
-             or coalesce(a.expire_dt, '') != coalesce(b.expire_dt, '')
+             or coalesce(a.actual_to, '') != coalesce(b.actual_to, '')
              or a.activation_dt != b.activation_dt
+             or coalesce(a.expire_dt, '') != coalesce(b.expire_dt, '')
              or coalesce(a.device_address, '') != coalesce(b.device_address, '')
              or coalesce(a.is_verified, '') != coalesce(b.is_verified, '')
          )
