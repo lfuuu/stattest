@@ -63,7 +63,7 @@ $form = \kartik\widgets\ActiveForm::begin([
 $columns = [
     [
         'label' => '(У)ЛС',
-        'value' => fn($f) => \app\classes\Html::a($f['account_id'], '/client/view?id=' . $f['account_id']),
+        'value' => fn($f) => \app\classes\Html::a($f['account_id'] .  ($f['cnt'] > 1 ? \app\classes\Html::tag('sup', '+'.($f['cnt']-1)) : ''), '/client/view?id=' . $f['account_id']),
         'format' => 'html',
     ],
     [

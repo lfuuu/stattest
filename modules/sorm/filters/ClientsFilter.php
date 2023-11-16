@@ -80,13 +80,15 @@ class ClientsFilter extends ActiveRecord
             $andWhere .= ' AND region_id = :region_id';
         }
 
-        $subscribers = \Yii::$app->dbPg->createCommand($q = 'select * from sorm_itgrad.subscribers_v1 where (not is_active and legal_type_id = :legal_type_id)' . $andWhere, $params)->queryAll();
+        $fList = 'region_id, f, i, o, legal_type_id, name_jur, _state_address_nostruct, _address_nostruct, _state_address_device_nostruct, _address_device_nostruct ';
+        $subscribersQuery = \Yii::$app->dbPg->createCommand($q = 'select max(id::int) as id, count(*) as cnt, ' . $fList . ' from sorm_itgrad.subscribers_v1 where (not is_active and legal_type_id = :legal_type_id)' . $andWhere . ' group by ' . $fList, $params);
 
+        $subscribers = $subscribersQuery->queryAll();
         if (!$subscribers) {
             return [];
         }
 
-        $accountIds = array_filter(array_map(fn($sub) => $sub['region_id'] != 99 ? $sub['id'] : null, $subscribers));
+        $accountIds = array_filter(array_map(fn($sub) => $sub['region_id'] != 99 ? $sub['id'] : AccountTariff::find()->where(['id' => $sub['id']])->select('client_account_id')->scalar(), $subscribers));
         $accountIds = array_combine($accountIds, $accountIds);
 
         $accountTariffIds = array_filter(array_map(fn($sub) => $sub['region_id'] == 99 ? $sub['id'] : null, $subscribers));
