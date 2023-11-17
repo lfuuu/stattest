@@ -56,7 +56,7 @@ class VoipRegistryDao extends Singleton
         $numbers = Number::find()
             ->where([
                 'country_code' => $registry->country_id,
-                'city_id' => $registry->city_id
+//                'city_id' => $registry->city_id
             ])
             ->andWhere([
                 'between',
