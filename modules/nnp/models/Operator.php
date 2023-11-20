@@ -16,6 +16,7 @@ use yii\helpers\Url;
  * @property string $group
  * @property int $country_code
  * @property int $cnt
+ * @property int $cnt_active
  * @property int $type
  * @property string $operator_src_code
  * @property int $parent_id
@@ -90,6 +91,7 @@ class Operator extends ActiveRecord
             'name_translit' => 'Название транслитом',
             'country_code' => 'Страна',
             'cnt' => 'Кол-во номеров',
+            'cnt_active' => 'Кол-во номеров (актив)',
             'group' => 'Группа оператора',
             'partner_code' => 'Код партнера',
             'operator_src_code' => 'Код оператора портирования',

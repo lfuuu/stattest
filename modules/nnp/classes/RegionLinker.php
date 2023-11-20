@@ -276,7 +276,7 @@ class RegionLinker extends Singleton
                 $whereCountry = 'country_code = :country_code';
 
                 if ($isClear) {
-                    $sqlClear = "UPDATE {$regionTableName} SET cnt = 0";
+                    $sqlClear = "UPDATE {$regionTableName} SET cnt = 0, cnt_active=0";
                     if ($countryCode) {
                         $sqlClear .= ' WHERE ' . $whereCountry;
                     }
