@@ -78,6 +78,16 @@ echo Breadcrumbs::widget([
                 <?= $form->field($model, 'vat_rate') ?>
             </div>
         </div>
+        <?php if (\Yii::$app->isEu()) : ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <?= $form
+                    ->field($model, 'tax_reason')
+                    ->textInput()
+                ?>
+            </div>
+        </div>
+        <?php endif; ?>
 
     </fieldset>
 

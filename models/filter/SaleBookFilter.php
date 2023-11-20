@@ -52,20 +52,12 @@ class SaleBookFilter extends Invoice
         $is_excel_eu_bmd = 0,
         $is_register = 0;
 
-    private $invoiceSettingsCache = [];
-
     public function __construct()
     {
         $from = (new \DateTimeImmutable())->modify('first day of this month');
 
         $this->date_from = $from->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE);
         $this->date_to = $from->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE);
-
-        $this->invoiceSettingsCache = [];
-        /** @var InvoiceSettings $settings */
-        foreach (InvoiceSettings::find()->all() as $settings) {
-            $this->invoiceSettingsCache[$settings->doer_organization_id][$settings->customer_country_code ?: 'any'][$settings->vat_apply_scheme] = $settings->at_account_code;
-        }
     }
 
 
@@ -145,6 +137,8 @@ class SaleBookFilter extends Invoice
                 ['c.id' => $this->getRubAccountIds()]
             ]);
         }
+
+        $query->limit(1);
 
         /*
         switch ($this->filter) {
@@ -235,10 +229,6 @@ SQL;
 
     public function getAtCode($obj = null, $obj2 = null, $obj3 = null)
     {
-        if (!$this->invoiceSettingsCache) {
-            return null;
-        }
-
         $contract = $contragent = $invoice = null;
 
         $objs = array_filter([$obj, $obj2, $obj3]);
@@ -269,28 +259,7 @@ SQL;
         $organizationId = $this->organization_id;
         $countryId = $contragent->country_id;
 
-        if (isset($this->invoiceSettingsCache[$organizationId][$countryId])) { // настройки компания+страна
-            $countrySettings = $this->invoiceSettingsCache[$organizationId][$countryId];
-        } elseif (isset($this->invoiceSettingsCache[$organizationId]['any'])) { // настройки компания+любая страна
-            $countrySettings = $this->invoiceSettingsCache[$organizationId]['any'];
-        } else {
-            $countrySettings = null;
-        }
-
-        $value = null;
-        if ($countrySettings) {
-            if ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_YCH_VAT0 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT])) {
-                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT];
-            } elseif ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_OCH_VAT18 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_VAT])) {
-                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_VAT];
-            } elseif (isset($countrySettings[InvoiceSettings::VAT_SCHEME_ANY])) {
-                $value = $countrySettings[InvoiceSettings::VAT_SCHEME_ANY];
-            }
-        }
-
-        return $value !== null
-            ? ($value ?: 'no code')
-            : ($countrySettings ? 'Tax settings not found (' . $contract->contragent->tax_regime . ')' : ' org->country not found' . $organizationId . '->' . $countryId);
+        return InvoiceSettings::dao()->getAtAccountCode($organizationId, $countryId, $contract->contragent->tax_regime) ?: InvoiceSettings::dao()->getLastErrorString();
     }
 
     public function getFilial(ClientContragent $contragent)

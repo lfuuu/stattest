@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use app\dao\InvoiceSettingsDao;
 
 /**
  * @property int $doer_organization_id
@@ -11,6 +12,7 @@ use app\classes\model\ActiveRecord;
  * @property int $settlement_account_type_id
  * @property int $vat_rate
  * @property string $at_account_code
+ * @property string $tax_reason
  */
 class InvoiceSettings extends ActiveRecord
 {
@@ -51,6 +53,7 @@ class InvoiceSettings extends ActiveRecord
                 ['doer_organization_id', 'customer_country_code', 'settlement_account_type_id', 'vat_rate', 'vat_apply_scheme', 'at_account_code', ],
                 'integer'
             ],
+            ['tax_reason', 'string'],
             [['doer_organization_id', 'settlement_account_type_id'], 'required'],
         ];
     }
@@ -67,7 +70,13 @@ class InvoiceSettings extends ActiveRecord
             'vat_rate' => 'Ставка налога',
             'settlement_account_type_id' => 'Тип платежных реквизитов',
             'at_account_code' => 'Номер счета согласно Бухгалтерскому план счетов Австрии',
+            'tax_reason' => 'Tax reason (EU)',
         ];
+    }
+
+    public static function dao()
+    {
+        return InvoiceSettingsDao::me();
     }
 
 }
