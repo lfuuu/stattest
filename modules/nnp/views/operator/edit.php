@@ -84,6 +84,19 @@ if (!$operator->isNewRecord) {
                     Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $operator->country_code, 'NumberFilter[operator_id]' => $operator->id])
                 ) . ')' ?>
             </div>
+            <br>
+            <label><?= $operator->getAttributeLabel('cnt_active') ?></label>
+            <div>
+                <?= $operator->cnt_active . ' (' .
+                Html::a(
+                    'диапазон',
+                    Url::to(['/nnp/number-range/',
+                        'NumberRangeFilter[country_code]' => $operator->country_code,
+                        'NumberRangeFilter[operator_id]' => $operator->id,
+                        'NumberRangeFilter[is_active]' => 1,
+                    ])
+                ) . ')' ?>
+            </div>
         </div>
 
     </div>
