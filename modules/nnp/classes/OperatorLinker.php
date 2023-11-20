@@ -192,7 +192,7 @@ class OperatorLinker extends Singleton
                 $paramsCountry = $countryCode ? [':country_code' => $countryCode] : [];
                 $whereCountry = 'country_code = :country_code';
                 if ($isClear) {
-                    $sqlClear = "UPDATE {$operatorTableName} SET cnt = 0";
+                    $sqlClear = "UPDATE {$operatorTableName} SET cnt = 0, cnt_active=0";
 
                     if ($countryCode) {
                         $sqlClear .= ' WHERE ' . $whereCountry;
@@ -202,8 +202,10 @@ class OperatorLinker extends Singleton
                     unset($sqlClear);
 
                     $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
+                    $sqlActiveCnt = 'LEAST(COALESCE(SUM(CASE WHEN is_active THEN number_to - number_from + 1 ELSE 0 END), 1), 499999999)';
                 } else {
                     $sqlCnt = '1';
+                    $sqlActiveCnt = '1';
                 }
 
                 $andWhere = '';
@@ -221,12 +223,15 @@ class OperatorLinker extends Singleton
 
                 $sql = <<<SQL
             UPDATE {$operatorTableName}
-            SET cnt = LEAST({$operatorTableName}.cnt + operator_stat.cnt, 499999999)
+            SET 
+                cnt = LEAST({$operatorTableName}.cnt + operator_stat.cnt, 499999999),
+                cnt_active = LEAST({$operatorTableName}.cnt_active + operator_stat.cnt_active, 499999999)
             FROM 
                 (
                     SELECT
                         operator_id,
-                        {$sqlCnt} AS cnt
+                        {$sqlCnt} AS cnt,
+                        {$sqlActiveCnt} AS cnt_active
                     FROM
                         {$numberRangeTableName} 
                     WHERE

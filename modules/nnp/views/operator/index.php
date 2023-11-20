@@ -112,6 +112,22 @@ $columns = [
         }
     ],
     [
+        'attribute' => 'cnt_active',
+        'class' => IntegerRangeColumn::class,
+        'format' => 'html',
+        'value' => function (Operator $operator) {
+            return $operator->cnt_active . ' (' .
+                Html::a(
+                    'диапазон',
+                    Url::to(['/nnp/number-range/',
+                        'NumberRangeFilter[country_code]' => $operator->country_code,
+                        'NumberRangeFilter[operator_id]' => $operator->id,
+                        'NumberRangeFilter[is_active]' => 1,
+                    ])
+                ) . ')';
+        }
+    ],
+    [
         'class' => ActionColumn::class,
         'template' => '{delete}',
         'buttons' => [

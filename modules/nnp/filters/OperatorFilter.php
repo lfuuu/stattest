@@ -16,6 +16,8 @@ class OperatorFilter extends Operator
     public $country_code = '';
     public $cnt_from = '';
     public $cnt_to = '';
+    public $cnt_active_from = '';
+    public $cnt_active_to = '';
     public $group = '';
     public $operator_src_code = '';
     public $parent_id = '';
@@ -28,7 +30,7 @@ class OperatorFilter extends Operator
     {
         return [
             [['name', 'name_translit', 'parent_id'], 'string'],
-            [['id', 'country_code', 'cnt_from', 'cnt_to', 'group', 'operator_src_code', 'is_valid'], 'integer'],
+            [['id', 'country_code', 'cnt_from', 'cnt_to', 'cnt_active_from', 'cnt_active_to', 'group', 'operator_src_code', 'is_valid'], 'integer'],
         ];
     }
 
@@ -53,6 +55,9 @@ class OperatorFilter extends Operator
 
         $this->cnt_from !== '' && $query->andWhere(['>=', $operatorTableName . '.cnt', $this->cnt_from]);
         $this->cnt_to !== '' && $query->andWhere(['<=', $operatorTableName . '.cnt', $this->cnt_to]);
+
+        $this->cnt_active_from !== '' && $query->andWhere(['>=', $operatorTableName . '.cnt_active', $this->cnt_active_from]);
+        $this->cnt_active_to !== '' && $query->andWhere(['<=', $operatorTableName . '.cnt_active', $this->cnt_active_to]);
 
         $this->group !== '' && $query->andWhere(["{$operatorTableName}.group" => $this->group]);
         $this->is_valid !== '' && $query->andWhere(["{$operatorTableName}.is_valid" => (bool)$this->is_valid]);

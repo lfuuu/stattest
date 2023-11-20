@@ -91,7 +91,8 @@ class Module extends \yii\base\Module
         } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error($e);
-            return sprintf('%s %s', $e->getMessage(), $e->getTraceAsString());
+            throw $e;
+//            return sprintf('%s %s', $e->getMessage(), $e->getTraceAsString());
         }
     }
 

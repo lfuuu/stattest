@@ -201,7 +201,7 @@ class CityLinker extends Singleton
                 $whereCountry = 'country_code = :country_code';
 
                 if ($isClear) {
-                    $sqlClear = "UPDATE {$cityTableName} SET cnt = 0";
+                    $sqlClear = "UPDATE {$cityTableName} SET cnt = 0, cnt_active=0";
                     if ($countryCode) {
                         $sqlClear .= ' WHERE ' . $whereCountry;
                     }
