@@ -3,7 +3,9 @@
 namespace app\classes\contragent\importer\lk\typeFactory\eu;
 
 use app\classes\contragent\importer\lk\typeFactory\CoreLkContragentTypeDefault;
+use app\models\ClientContract;
 use app\models\ClientContragent;
+use app\models\InvoiceSettings;
 
 class CoreLkContragentTypeLegalEu extends CoreLkContragentTypeDefault
 {
@@ -54,7 +56,19 @@ class CoreLkContragentTypeLegalEu extends CoreLkContragentTypeDefault
 
         $data = $this->coreLkContragent->getDataResponse();
         if ($data && isset($data['CC']) && $data['CC'] && isset($data['Number']) && $data['Number']) {
-            $contragent->inn_euro = mb_strtoupper($data['CC']) .  $data['Number'];
+            $contragent->inn_euro = mb_strtoupper($data['CC']) . $data['Number'];
+            $contragent->tax_regime = ClientContragent::TAX_REGTIME_OCH_VAT18;
+        }
+
+        $statContragent = $this->coreLkContragent->getStatContragent();
+        if ($statContragent && !$statContragent->tax_registration_reason) {
+            /** @var ClientContract $contract */
+            $contract = reset($statContragent->contractsActiveQuery);
+
+            $taxReason = InvoiceSettings::dao()->getTaxReason($contract->organization_id, $contragent->country_id, $contragent->tax_regime);
+            if ($taxReason) {
+                $contragent->tax_registration_reason = $taxReason;
+            }
         }
 
         $contragent->legal_type = $this->getStatLegalType();
