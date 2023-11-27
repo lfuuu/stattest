@@ -2,6 +2,7 @@
 
 namespace app\dao\statistics;
 
+use app\models\Number;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
@@ -154,29 +155,7 @@ class CallsRawStatisticDao extends Singleton
             return unserialize($numberInfo);
         }
 
-        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
-
-        if (!$url) {
-            throw new InvalidConfigException('nnpInfoServiceURL not set');
-        }
-
-
-        $numberInfo = [
-            'nnp_city_id' => 0,
-            'nnp_region_id' => 0,
-            'nnp_operator_id' => 0,
-            'ndc_type_id' => 0,
-        ];
-
-        try {
-            $numberInfo = (new HttpClient())
-                ->get($url, [
-                    'cmd' => 'getNumberRangeByNum',
-                    'num' => $number])
-                ->getResponseDataWithCheck();
-        } catch (\Exception $e) {
-            Yii::error($e);
-        }
+        $numberInfo = Number::getNnpInfo($number);
 
         /** @var yii\redis\Cache $redis */
         $redis = \Yii::$app->redis;

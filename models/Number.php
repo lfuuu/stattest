@@ -593,17 +593,29 @@ class Number extends ActiveRecord
      */
     public static function getNnpInfo($number)
     {
-        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
+        $url = \Yii::$app->params['nnpInfoServiceURL'] ?? false;
 
         if (!$url) {
             throw new InvalidConfigException('nnpInfoServiceURL not set');
         }
 
-        return (new HttpClient())
-            ->get($url, [
-                'cmd' => 'getNumberRangeByNum',
-                'num' => $number])
-            ->getResponseDataWithCheck();
+        $count = 0;
+        do {
+            try {
+                return (new HttpClient())
+                    ->get($url, [
+                        'cmd' => 'getNumberRangeByNum',
+                        'num' => $number])
+                    ->getResponseDataWithCheck();
+            } catch (\Exception $e) {
+                \Yii::error($e);
+                $count++;
+                sleep(1);
+                if ($count > 3) {
+                    throw $e;
+                }
+            }
+        } while (true);
     }
 
     /**

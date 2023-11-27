@@ -54,7 +54,7 @@ return [
         ]
     ],
 
-    'nnpInfoServiceURL' => '', // http://reg10.mcntelecom.ru:8032/test/nnpcalc
+    'nnpInfoServiceURL' => '', // https://api-gw.mcn.ru/voipbilld/reg/test/nnpcalc
     'nnpMCNOperatorId' => 6720,
     'billerApiURL' => '', // http://reg99.mcntelecom.ru:8101/api/
 

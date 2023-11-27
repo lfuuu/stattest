@@ -186,7 +186,7 @@ SQL;
 
     public static function getStatInternet($number)
     {
-        $url = isset(\Yii::$app->params['billerApiURL']) && \Yii::$app->params['billerApiURL'] ? \Yii::$app->params['billerApiURL'] : false;
+        $url = \Yii::$app->params['billerApiURL'] ?? false;
 
         if (!$url) {
             return [];
@@ -222,7 +222,7 @@ SQL;
          *  }
          * ]
          */
-        $url = isset(\Yii::$app->params['billerApiURL']) && \Yii::$app->params['billerApiURL'] ? \Yii::$app->params['billerApiURL'] : false;
+        $url = \Yii::$app->params['billerApiURL'] ?? false;
 
         if (!$url || !\Yii::$app->isRus()) {
             return [];
