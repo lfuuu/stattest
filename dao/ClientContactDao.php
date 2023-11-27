@@ -2,8 +2,8 @@
 
 namespace app\dao;
 
-use app\classes\HttpClient;
 use app\classes\Singleton;
+use app\models\Number;
 
 /**
  * @method static ClientContactDao me($args = null)
@@ -103,19 +103,7 @@ class ClientContactDao extends Singleton
     {
         $number = preg_replace('/[^\d]+/', '', $number);
 
-
-        $url = isset(\Yii::$app->params['nnpInfoServiceURL']) && \Yii::$app->params['nnpInfoServiceURL'] ? \Yii::$app->params['nnpInfoServiceURL'] : false;
-
-        try {
-            $numberInfo = (new HttpClient())
-                ->get($url, [
-                    'cmd' => 'getNumberRangeByNum',
-                    'num' => $number])
-                ->getResponseDataWithCheck();
-        } catch (\Exception $e) {
-            \Yii::error($e);
-            return false;
-        }
+        $numberInfo = Number::getNnpInfo($number);
 
         if (!is_array($numberInfo)) {
             return false;
