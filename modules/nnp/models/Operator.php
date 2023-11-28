@@ -210,7 +210,7 @@ class Operator extends ActiveRecord
             if ($allParentOperators) {
                 ob_start();
                 OperatorLinker::me()->_link((new NumberRange), $this->country_code, $allParentOperators);
-                OperatorLinker::me()->_updateCnt((new NumberRange), true, $this->country_code, $allParentOperators);
+                OperatorLinker::me()->_updateCnt((new NumberRange), true, $this->country_code/*, $allParentOperators */);
                 if ($text = ob_get_clean()) {
                     \Yii::$app->session->addFlash('success', $text);
                 }
