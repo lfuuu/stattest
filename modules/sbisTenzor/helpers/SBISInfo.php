@@ -187,27 +187,73 @@ class SBISInfo
 
     private static function saveContractorExchanges(SBISContractor $contractor, $result)
     {
-        \Yii::$app->db->transaction(function(Connection $db) use($contractor, $result) {
+        \Yii::$app->db->transaction(function (Connection $db) use ($contractor, $result) {
 
-            $exs = array_map(function($row) use ($contractor) {
-                return [
-                    $contractor->id,
-                    $row['ИдентификаторУчастника'],
-                    $row['Оператор']['Название'],
-                    (int)($row['Основной'] == 'Да'),
-                    (int)($row['Роуминг'] == 'Да'),
-                    $row['СостояниеПодключения']['Код'],
-                    $row['СостояниеПодключения']['Описание'],
-                    new Expression('UTC_TIMESTAMP()')
+            $resultExchanges = [];
+            foreach ($result['Идентификатор'] as $row) {
+                $resultExchanges[$row['ИдентификаторУчастника']] = [
+                    'contractor_id' => $contractor->id,
+                    'exchange_id' => $row['ИдентификаторУчастника'],
+                    'operator_name' => $row['Оператор']['Название'],
+                    'is_main' => (int)($row['Основной'] == 'Да'),
+                    'is_roaming' => (int)($row['Роуминг'] == 'Да'),
+                    'exchange_state_code' => $row['СостояниеПодключения']['Код'],
+                    'exchange_state_code_description' => $row['СостояниеПодключения']['Описание'],
+                    'is_deleted' => 0,
+                    'deleted_at' => null,
                 ];
+            }
 
-            }, $result['Идентификатор']);
+            $contractorExchanges = SBISContractorExchange::find()->where(['contractor_id' => $contractor->id])->indexBy('exchange_id')->asArray()->all();
 
-            $db->createCommand()->delete(SBISContractorExchange::tableName(), ['contractor_id' => $contractor->id])->execute();
-            if ($exs) {
-                $db->createCommand()->batchInsert(SBISContractorExchange::tableName(), [
-                    'contractor_id', 'exchange_id', 'operator_name', 'is_main', 'is_roaming', 'exchange_state_code', 'exchange_state_code_description', 'created_at'
-                ], $exs)->execute();
+            $toAdd = array_diff_assoc($resultExchanges, $contractorExchanges);
+            $toDel = array_diff_assoc($contractorExchanges, $resultExchanges);
+
+            $toDel = array_filter($toDel, fn($row) => !(bool)(int)$row['is_deleted']);
+            $delIds = array_map(fn($row) => $row['id'], $toDel);
+
+            array_walk($delIds, function ($id) {
+                $ex = SBISContractorExchange::find()->where(['id' => $id])->one();
+                if (!$ex) {
+                    return;
+                }
+
+                $ex->is_deleted = 1;
+                $ex->deleted_at = new Expression('UTC_TIMESTAMP()');
+                if (!$ex->save()) {
+                    throw new ModelValidationException($ex);
+                }
+            });
+
+            if ($toAdd) {
+                array_walk($toAdd, function ($row) {
+                    $ex = new SBISContractorExchange;
+                    $ex->setAttributes($row);
+                    if (!$ex->save()) {
+                        throw new ModelValidationException($ex);
+                    }
+                });
+            }
+
+            $intersected = array_intersect_assoc($contractorExchanges, $resultExchanges);
+            foreach ($intersected as $exchangeId => $contractorEx) {
+                $resultContractorEx = $resultExchanges[$exchangeId];
+
+
+                $diff = array_diff_assoc($resultContractorEx, $contractorEx);
+                if (!$diff) {
+                    continue;
+                }
+
+                $ex = SBISContractorExchange::find()->where(['id' => $contractorEx['id']])->one();
+                if (!$ex) {
+                    continue;
+                }
+
+                $ex->setAttributes($diff);
+                if (!$ex->save()) {
+                    throw new ModelValidationException($ex);
+                }
             }
         });
     }
