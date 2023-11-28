@@ -37,6 +37,7 @@ use yii\db\Expression;
  * @property string $updated_at
  *
  * @property-read ClientAccount $clientAccount
+ * @property-read SBISContractorExchange $exchanges
  */
 class SBISContractor extends ActiveRecord
 {
@@ -154,6 +155,11 @@ class SBISContractor extends ActiveRecord
     public function getEdfId()
     {
         return $this->fixed_exchange_id ? : $this->exchange_id;
+    }
+
+    public function getExchanges()
+    {
+        return $this->hasMany(SBISContractorExchange::class, ['contractor_id' => 'id']);
     }
 
     /**
