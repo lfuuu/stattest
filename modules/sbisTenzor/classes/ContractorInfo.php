@@ -102,6 +102,11 @@ class ContractorInfo
             return sprintf('Данный клиент не зарегистрирован ни в одной из систем документооборота');
         }
 
+        $exchange = $contractor->getExchanges()->where(['exchange_id' => $contractor->getEdfId()])->one();
+        if (!$exchange || $exchange->is_deleted) {
+            return 'Маршрут до оператора ЭДО не доступен';
+        }
+
         $this->edfId = $contractor->getEdfId();
 
         $code = substr($this->edfId, 0, 3);
