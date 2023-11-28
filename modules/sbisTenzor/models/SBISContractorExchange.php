@@ -4,8 +4,6 @@ namespace app\modules\sbisTenzor\models;
 
 use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
-use app\modules\sbisTenzor\classes\ContractorInfo;
-use app\modules\sbisTenzor\helpers\SBISInfo;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -22,6 +20,8 @@ use yii\db\Expression;
  * @property int exchange_state_code
  * @property string exchange_state_code_description
  * @property string created_at
+ * @property string is_deleted
+ * @property string deleted_at
  *
  * @property-read ClientAccount $clientAccount
  */
@@ -46,9 +46,10 @@ class SBISContractorExchange extends ActiveRecord
     public function rules()
     {
         return [
-            [['exchange_id', 'operator_name', 'exchange_state_code_description', 'exchange_id_is', 'exchange_id_spp'], 'string', 'max' => 255],
+            [['exchange_id', 'operator_name', 'exchange_state_code_description'], 'string', 'max' => 255],
             [['contractor_id', 'exchange_state_code'], 'integer'],
-            [['is_main', 'is_roaming'], 'integer'],
+            [['is_main', 'is_roaming', 'is_deleted'], 'integer'],
+            ['deleted_at', 'safe'],
         ];
     }
 
@@ -62,7 +63,6 @@ class SBISContractorExchange extends ActiveRecord
             [
                 // Установить "когда создал" и "когда обновил"
                 'class' => TimestampBehavior::class,
-                'createdAtAttribute' => 'created_at',
                 'value' => new Expression("UTC_TIMESTAMP()"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
         ];
@@ -87,7 +87,7 @@ class SBISContractorExchange extends ActiveRecord
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'exchange_id',
-            $select = 'operator_name',
+            $select = new Expression("concat(if(is_deleted, '(X) ', ''), if(is_main, '(+) ', ''), operator_name, if (is_roaming, ' (R)', ''))"),
             $orderBy = ['id' => SORT_ASC],
             ['contractor_id' => $contractorId]
         );
