@@ -11,7 +11,7 @@ use yii\helpers\ArrayHelper;
 
 class RedirectsController extends Controller
 {
-    public function actionExportRedirects()
+    public function actionExport()
     {
         $geted = $this->getGetedRedirects();
         $saved = $this->getSavedRedirects();
