@@ -18,6 +18,8 @@ use yii\db\ActiveQuery;
 
 trait AccountTariffBoolTrait
 {
+    public bool $isTransfer = false;
+
     /**
      * Можно ли редактировать
      *
@@ -25,43 +27,34 @@ trait AccountTariffBoolTrait
      */
     public function isEditable()
     {
-        if (!$this->isActive()) {
-            // уже закрытый
-            return false;
-        }
-
-        if (
-            array_key_exists($this->service_type_id, ServiceType::$packages)
-            &&
-            (
-                $this->getNotNullTariffPeriod()->tariff->is_default
-                && !Yii::$app->user->can('services_voip.full') // если нельзя, но очень надо, то можно
-            )
-        ) {
-            // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
-            return false;
-        }
-
-        if (
-            array_key_exists($this->service_type_id, ServiceType::$packages)
-            &&
-            (
-                $this->prev_account_tariff_id
-                && $this->getNotNullTariffPeriod()->tariff->is_bundle
-                && !Yii::$app->user->can('services_voip.full') // если нельзя, но очень надо, то можно
-            )
-        ) {
-            // бандлы редактировать можно только если есть права
-            return false;
-        }
-
         if (!$this->client_account_id) {
             // не указан ЛС
             return false;
         }
 
-        // таки можно
-        return true;
+        if (!$this->isActive()) {
+            // уже закрытый
+            return false;
+        }
+
+        if (!array_key_exists($this->service_type_id, ServiceType::$packages)) {
+            // не пакет
+            return true;
+        }
+
+        $tariff = $this->getNotNullTariffPeriod()->tariff;
+
+        if (!($tariff->is_default || $tariff->is_bundle)) {
+            // обычный пакет
+            return true;
+        }
+
+        if ($this->isTransfer || Yii::$app->user->can('services_voip.full')) {
+            // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
+            return true;
+        }
+
+        return false;
     }
 
     /**
