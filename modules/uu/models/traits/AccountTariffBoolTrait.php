@@ -205,12 +205,10 @@ trait AccountTariffBoolTrait
             return false;
         }
 
+        /** @var AccountTariffResourceLog $accountTariffResourceLog */
         $accountTariffResourceLog = reset($accountTariffResourceLogs);
 
-        /** @var ClientAccount $clientAccount */
-        $clientAccount = $this->clientAccount;
-        $dateTimeNow = $clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
-        return $accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
+        return $accountTariffResourceLog->isResourceLogCancelable();
     }
 
     /**

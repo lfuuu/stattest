@@ -133,6 +133,7 @@ class AccountTariff extends ActiveRecord
     const ERROR_CODE_RESOURCE_TRAFFIC = 54; // Этот ресурс - трафик, а не опция. Его нельзя установить заранее.
     const ERROR_CODE_RESOURCE_AMOUNT_MIN = 55; // Значение ресурса меньше минимально допустимого значения.
     const ERROR_CODE_RESOURCE_AMOUNT_MAX = 56; // Значение ресурса больше максимально допустимого значения.
+    const ERROR_CODE_RESOURCE_NOT_CANCELABLE = 57; // Ресурс невозможно отменить
 
     // Ошибка телефонии
     const ERROR_CODE_VOIP_WRONG_STATUS = 72; // Статус тарифа не совпадает со статусом телефонного номера

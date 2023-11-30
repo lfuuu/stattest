@@ -616,19 +616,13 @@ class AccountTariffController extends BaseController
                     throw new InvalidParamException('Ресурс невозможно отменить');
                 }
 
-                /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
-                $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resourceId)->all();
-                $accountTariffResourceLog = reset($accountTariffResourceLogs);
-                if (!$accountTariffResourceLog->delete()) {
-                    throw new ModelValidationException($accountTariffResourceLog);
-                }
+                $accountTariff->cancelResource($resource);
             }
 
             $transaction->commit();
             Yii::$app->session->setFlash('success', 'Смена количества ресурса успешно отменена');
 
         } catch (\Exception $e) {
-
             $transaction->rollBack();
             Yii::error($e);
             Yii::$app->session->setFlash('error', YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error'));
