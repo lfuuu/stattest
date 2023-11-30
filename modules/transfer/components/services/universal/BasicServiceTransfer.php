@@ -141,6 +141,7 @@ abstract class BasicServiceTransfer extends ServiceTransfer
 
         $accountTariffLog->detachBehavior('ReferentialPackageControl');
         $accountTariffLog->detachBehavior('AccountTariffAddDefaultPackage');
+        $accountTariffLog->accountTariff->isTransfer = true;
 
         if (!$accountTariffLog->save()) {
             throw new ModelValidationException($accountTariffLog);
