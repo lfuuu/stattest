@@ -20,6 +20,7 @@ use app\classes\grid\account\TelecomReports;
 use app\classes\grid\account\TelecomSales;
 use app\classes\grid\account\OTTMaintenance;
 use app\classes\grid\account\OTTSales;
+use app\classes\grid\account\UniversalAccountGrid;
 use app\classes\grid\account\WelltimeMaintenance;
 use app\classes\Singleton;
 
@@ -70,6 +71,8 @@ class GridFactory extends Singleton
             }
         }
 
-        Assert::isUnreachable('Business process grid not found');
+        return (new UniversalAccountGrid())->setBusinessProcessId($businessProcessId);
+
+//        Assert::isUnreachable('Business process grid not found');
     }
 }
