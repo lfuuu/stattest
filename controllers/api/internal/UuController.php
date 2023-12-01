@@ -1838,6 +1838,10 @@ class UuController extends ApiInternalController
             $isValidateOnly = (isset($post['is_validate_only']) && $post['is_validate_only']) ? (boolean)$post['is_validate_only'] : false;
 
             $accountTariffResourceLog = new AccountTariffResourceLog();
+            if ($post['account_tariff_id'] ?? false) {
+                $accountTariffResourceLog->account_tariff_id = $post['account_tariff_id'];
+                unset($post['account_tariff_id']);
+            }
             $accountTariffResourceLog->setAttributes($post);
             $accountTariffResourceLog->isValidateOnly = $isValidateOnly;
 
