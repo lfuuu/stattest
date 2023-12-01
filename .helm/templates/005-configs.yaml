@@ -945,7 +945,11 @@ data:
   
     */3 * * * *  flock -w 3 /tmp/yii-check-voip-day-disable /home/httpd/stat.mcn.ru/stat/yii usage/check-voip-day-disable >> /var/log/nispd/check-voip-day-disable.log
     #*/3 * * * *  flock -w 3 /tmp/yii-check-notification /home/httpd/stat.mcn.ru/stat/yii lk/check-notification >> /var/log/nispd/check-notification.log
-  
+
+    # Расчет партнерского вознаграждения
+    10 13 1 * * flock -w 3 /tmp/yii-partner-reward /home/httpd/stat.mcn.ru/stat/yii reward/calculate-all-partners "first day of previous month" >> /var/log/nispd/partner-reward.log 2>&1
+    10 8 * * * flock -w 3 /tmp/yii-partner-reward /home/httpd/stat.mcn.ru/stat/yii reward/calculate-all-partners "yesterday" >> /var/log/nispd/partner-reward.log 2>&1
+    
     ####! включить после решения проблем с сервереом постгреса !###
     #*/5 * * * *  flock -w 3 /tmp/yii-update-interop-counter /home/httpd/stat.mcn.ru/stat/yii number/update-interop-counter >> /var/log/nispd/update-interop-counter.log
     
