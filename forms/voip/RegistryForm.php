@@ -197,7 +197,8 @@ class RegistryForm extends Form
         );
 
         if (!isset($this->ndcList[$this->ndc])) {
-            $this->ndc = $this->ndcList ? reset($this->ndcList) : '';
+            $keys = array_keys($this->ndcList);
+            $this->ndc = $this->ndcList ? reset($keys) : '';
         }
     }
 
