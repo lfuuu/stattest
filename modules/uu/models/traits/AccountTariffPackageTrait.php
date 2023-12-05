@@ -14,11 +14,14 @@ use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\ResourceModel;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffStatus;
 use Yii;
+use yii\base\InvalidParamException;
 
 trait AccountTariffPackageTrait
 {
@@ -366,8 +369,31 @@ trait AccountTariffPackageTrait
         if (!$nextAccountTariffLog->save($runValidation = false)) { // пакет не может работать без основной услуги. Поэтому закрыть и точка, что бы там проверки не говорили "уже оплачено" и прочее!
             throw new ModelValidationException($nextAccountTariffLog);
         }
-
     }
+
+    /**
+     * Отмена ресурса в будещем
+     *
+     * @param ResourceModel $resource
+     * @return int|null
+     */
+    public function cancelResource(ResourceModel $resource)
+    {
+        if (!$this->isResourceCancelable($resource)) {
+            throw new InvalidParamException('Ресурс невозможно отменить');
+        }
+
+        /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
+        $accountTariffResourceLogs = $this->getAccountTariffResourceLogs($resource->id)->all();
+        $accountTariffResourceLog = reset($accountTariffResourceLogs);
+
+        if (!$accountTariffResourceLog->isResourceLogCancelable()) {
+            throw new \LogicException('Ресурс невозможно отменить');
+        }
+
+        return $accountTariffResourceLog->deleteAppointmentsInTheFuture();
+    }
+
 
     /**
      * @return string

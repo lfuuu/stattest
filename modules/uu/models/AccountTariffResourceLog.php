@@ -302,10 +302,10 @@ class AccountTariffResourceLog extends ActiveRecord
         Yii::trace('AccountTariffResourceLog. After validatorFuture', 'uu');
     }
 
-    public function deleteAppointmentsInTheFuture()
+    public function deleteAppointmentsInTheFuture(): ?int
     {
         if ($this->isValidateOnly) {
-            return;
+            return null;
         }
 
         $accountTariff = $this->accountTariff;
@@ -317,15 +317,27 @@ class AccountTariffResourceLog extends ActiveRecord
             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        foreach (self::find()
-                ->where([
-                    'account_tariff_id' => $this->account_tariff_id,
-                    'resource_id' => $this->resource_id,
-                ])
-                ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
-                ->each() as $log) {
-            $log->delete();
+        $deletedCount = 0;
+        $query = self::find()
+            ->where([
+                'account_tariff_id' => $this->account_tariff_id,
+                'resource_id' => $this->resource_id,
+            ])
+            ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc]);
+
+        /** @var self $log */
+        foreach ($query->each() as $log) {
+            $deletedCount += (int)$log->delete();
         }
+
+        return $deletedCount;
+    }
+
+    public function isResourceLogCancelable()
+    {
+        $clientAccount = $this->accountTariff->clientAccount;
+        $dateTimeNow = $clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
+        return $this->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
     /**

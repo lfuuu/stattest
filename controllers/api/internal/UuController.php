@@ -1489,7 +1489,7 @@ class UuController extends ApiInternalController
     public function actionChangeAccountTariffPackage()
     {
         $postData = Yii::$app->request->post();
-        foreach(['account_tariff_id', 'package_id', 'actual_from', 'tariff_period_id'] as $field) {
+        foreach (['account_tariff_id', 'package_id', 'actual_from', 'tariff_period_id'] as $field) {
             if (!isset($postData[$field]) || !$postData[$field]) {
                 throw new \InvalidArgumentException('Invalid argument: ' . $field);
             }
@@ -1904,6 +1904,73 @@ class UuController extends ApiInternalController
 
             throw $e;
         }
+    }
+
+
+    /**
+     * @SWG\Definition(definition = "cancelEditAccountTariffResourceRecord", type = "object",
+     *   @SWG\Property(property = "delete_rows", type = "int", description = "кол-во удаленных записей"),
+     * ),
+     *
+     * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/cancel-edit-account-tariff-resource", summary = "Отменить смену количество ресурса в услуге ЛС", operationId = "CancelEditAccountTariffResource",
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги/услуг", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "resource_id", type = "integer", description = "ID ресурса", in = "formData", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Отменено измнение ресурса",
+     *     @SWG\Schema(ref = "#/definitions/cancelEditAccountTariffResourceRecord")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function actionCancelEditAccountTariffResource()
+    {
+        $post = Yii::$app->request->post();
+
+        $accountTariffId = $post['account_tariff_id'] ?? [];
+        if (!$accountTariffId) {
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_MAIN);
+        }
+
+        $resourceId = $post['resource_id'] ?? [];
+        if (!$resourceId || !($resource = ResourceModel::findOne(['id' => $resourceId]))) {
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан несуществующий ресурс', AccountTariff::ERROR_CODE_RESOURCE_WRONG);
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+
+        $accountTariffQuery = AccountTariff::find()->where(['id' => $accountTariffId]);
+
+        $count = 0;
+        try {
+            /** @var AccountTariff $accountTariff */
+            foreach ($accountTariffQuery->each() as $accountTariff) {
+
+                $count .= 0;
+                if (!$accountTariff->isResourceCancelable($resource)) {
+                    throw new \LogicException('Ресурс невозможно отменить');
+                }
+
+                $count += $accountTariff->cancelResource($resource);
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Ресурс невозможно отменить', AccountTariff::ERROR_CODE_RESOURCE_NOT_CANCELABLE);
+//            throw $e;
+        }
+
+        return [
+            'delete_rows' => $count,
+        ];
     }
 
     /**
