@@ -8,6 +8,7 @@ use app\models\ClientContragent;
 use app\models\Organization;
 use app\modules\sbisTenzor\classes\SBISTensorAPI\SBISDocumentInfo;
 use app\modules\sbisTenzor\exceptions\SBISTensorException;
+use app\modules\sbisTenzor\helpers\SBISInfo;
 use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISAttachment;
 use app\modules\sbisTenzor\models\SBISDocument;
@@ -741,6 +742,8 @@ class SBISTensorAPI
         }
         $documentData['Дата'] = $date;
         $documentData['Номер'] = $document->number;
+
+        $documentData['Контрагент']['Идентификатор'] = SBISInfo::getExchangeIntegrationId($document->clientAccount);
 
         $legalType = $document->clientAccount->contragent->legal_type;
         if ($legalType == ClientContragent::LEGAL_TYPE) {
