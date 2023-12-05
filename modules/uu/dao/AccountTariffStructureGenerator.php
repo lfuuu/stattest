@@ -164,7 +164,7 @@ class AccountTariffStructureGenerator extends Singleton
         !$modelFirst && $modelFirst = $modelPrev;
         !$modelFirst && $modelFirst = $modelLast;
 
-        $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
+        $isCancelable = $modelLast->actual_from_utc > date(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if ($modelLast->tariff_period_id) {
 
