@@ -81,7 +81,11 @@ class ClientsFilter extends ActiveRecord
         }
 
         $fList = 'region_id, f, i, o, legal_type_id, name_jur, _state_address_nostruct, _address_nostruct, _state_address_device_nostruct, _address_device_nostruct ';
-        $subscribersQuery = \Yii::$app->dbPg->createCommand($q = 'select max(id::int) as id, count(*) as cnt, ' . $fList . ' from sorm_itgrad.subscribers_v1 where (not is_active and legal_type_id = :legal_type_id)' . $andWhere . ' group by ' . $fList, $params);
+        $subscribersQuery = \Yii::$app->dbPg->createCommand(<<<SQL
+            select max(id::int) as id, count(*) as cnt, {$fList} 
+            from sorm_itgrad.subscribers_v1 
+            where (not is_active and legal_type_id = :legal_type_id) and id ~ '^\d+$' {$andWhere} group by {$fList}
+SQL, $params);
 
         $subscribers = $subscribersQuery->queryAll();
         if (!$subscribers) {
