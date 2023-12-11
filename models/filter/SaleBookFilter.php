@@ -138,8 +138,6 @@ class SaleBookFilter extends Invoice
             ]);
         }
 
-        $query->limit(1);
-
         /*
         switch ($this->filter) {
             case self::FILTER_ALL:
