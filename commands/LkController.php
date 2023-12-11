@@ -99,6 +99,7 @@ WHERE o.device_address_id = a.id
   AND (a.check_status is null or a.check_status = 'checked')
   AND o.account_id = at.client_account_id
   AND o.did = at.voip_number
+  AND o.service_id = at.id
   AND tariff_period_id is not null
 HAVING lk_device_address != at.device_address
    AND lk_device_address != ''
