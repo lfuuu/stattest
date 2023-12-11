@@ -66,15 +66,18 @@ if (!$cards) {
 </div>
 <?php
 if ($account->superClient->entry_point_id != \app\models\EntryPoint::ID_MNP_RU_DANYCOM) {
-    return;
+//    return;
 }
+
+$isView = true;
+ob_start();
 ?>
 <form action="/sim/card/link">
     <input type="hidden" name="account_id" value="<?= $account->id ?>">
     <div class="col-sm-4">
-        <div class="panel panel-default">
+        <div class="panel panel-danger">
             <div class="panel-heading">
-                <h2 class="panel-title">SIM-карты. Управление. Деником</h2>
+                <h2 class="panel-title">SIM-карты. Управление.</h2>
             </div>
 
             <div class="panel-body">
@@ -104,9 +107,16 @@ if ($account->superClient->entry_point_id != \app\models\EntryPoint::ID_MNP_RU_D
                         <div class="text-danger"  style="text-align: center;">Не полные данные!!! <?=count($accountTariffs)?>/<?=count($cards)?></div>
                     <?php else :?>
                         <div class="text-info" style="text-align: center;">Не требуется действий</div>
+                        <?php $isView = false;?>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </form>
+<?php
+$content = ob_get_clean();
+
+if ($isView) {
+    echo $content;
+}
