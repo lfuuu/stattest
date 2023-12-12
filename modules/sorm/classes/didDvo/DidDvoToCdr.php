@@ -20,7 +20,7 @@ class DidDvoToCdr extends DidDvoTo
         $queryData = [
             'did' => $msg['did'],
             'type' => $msg['type'],
-            'number' => $msg['number'],
+            'number' => str_replace('+', '', $msg['number']),
             'is_on' => $msg['action'] == 'on',
             'created_at' => $msg['created_at'] . '+00',
             'region_id' => $msg['region_id'],
