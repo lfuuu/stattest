@@ -26,7 +26,7 @@ class ClientsFilter extends ActiveRecord
         88, // self::REGION_ID_NN,
         42, // self::REGION_ID_VLADIMIR,
 
-        777, // self::REGION_ID_FOR_IMPORT,
+        // 777, // self::REGION_ID_FOR_IMPORT,
     ];
 
     public function attributeLabels()
