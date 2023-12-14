@@ -19,6 +19,16 @@ class ClientsFilter extends ActiveRecord
         ClientContragent::LEGAL_TYPE => 1,
     ];
 
+    const REGION_SERVICEID_AS_ID = [
+        99, // self::REGION_ID_MSK,
+        35, // self::REGION_ID_ARHANGELSK,
+        47, // self::REGION_ID_KALUGA,
+        88, // self::REGION_ID_NN,
+        42, // self::REGION_ID_VLADIMIR,
+
+        777, // self::REGION_ID_FOR_IMPORT,
+    ];
+
     public function attributeLabels()
     {
         return [
@@ -92,10 +102,10 @@ SQL, $params);
             return [];
         }
 
-        $accountIds = array_filter(array_map(fn($sub) => $sub['region_id'] != 99 ? $sub['id'] : AccountTariff::find()->where(['id' => $sub['id']])->select('client_account_id')->scalar(), $subscribers));
+        $accountIds = array_filter(array_map(fn($sub) => !$this->isRegionServiceIdAsId($sub['region_id']) ? $sub['id'] : AccountTariff::find()->where(['id' => $sub['id']])->select('client_account_id')->scalar(), $subscribers));
         $accountIds = array_combine($accountIds, $accountIds);
 
-        $accountTariffIds = array_filter(array_map(fn($sub) => $sub['region_id'] == 99 ? $sub['id'] : null, $subscribers));
+        $accountTariffIds = array_filter(array_map(fn($sub) => $this->isRegionServiceIdAsId($sub['region_id']) ? $sub['id'] : null, $subscribers));
         if ($accountTariffIds) {
             $accountIds += AccountTariff::find()->where(['id' => $accountTariffIds])->select('client_account_id')->distinct()->indexBy('id')->column();
         }
@@ -130,5 +140,10 @@ SQL, $params);
     private function getLegalTypeId()
     {
         return $this->legalMap[$this->type] ?? 1;
+    }
+
+    private function isRegionServiceIdAsId($regionId)
+    {
+        return in_array($regionId, self::REGION_SERVICEID_AS_ID);
     }
 }
