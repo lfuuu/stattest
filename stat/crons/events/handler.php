@@ -162,6 +162,10 @@ do {
         $activeQuery->andWhere($where);
     }
 
+    if ($consoleParam == 'ats3_sync') {
+        $activeQuery->limit(10000);
+    }
+
     doEvents($activeQuery, $uuSyncEvents);
     sleep($sleepTime);
 
