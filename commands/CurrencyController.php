@@ -176,7 +176,7 @@ class CurrencyController extends Controller
 
             //2 массива со старыми данными из БД и новыми данными из XML 
             $newInfo = [
-                'bik' => $node['BIC'],
+                'bik' => (string)$node['BIC'],
                 'corr_acc' => (string)$newAccount,
                 'bank_city' => (string)$node->ParticipantInfo['Nnp'],
                 'bank_address' => $node->ParticipantInfo['Adr'],
@@ -185,21 +185,17 @@ class CurrencyController extends Controller
             $oldInfo = Yii::$app->db->createCommand("select * from bik where bik = :bik", [':bik' => $newInfo['bik']])->queryOne();
 
             //смотрим если запись отсутствует
-            $isAdded = false;
             if (!$oldInfo) {
-                echo "BIK " . $newInfo['bik'] . ": (+)";
-                $isAdded = true;
-                
+                echo PHP_EOL . "BIK " . $newInfo['bik'] . ": (+)";
+
                 //добавляем новую запись в базу
-                if ($isAdded && $isReplace) {
-                    Yii::$app->db->createCommand()->insert('bik', [
-                        'bik' => $newInfo['bik'],
-                        'corr_acc' => $newInfo['corr_acc'],
-                        'bank_name' => $newInfo['bank_name'],
-                        'bank_city' => $newInfo['bank_city'],
-                        'bank_address' => $newInfo['bank_address'],
-                    ])->execute();
-                }
+                Yii::$app->db->createCommand()->insert('bik', [
+                    'bik' => $newInfo['bik'],
+                    'corr_acc' => $newInfo['corr_acc'],
+                    'bank_name' => $newInfo['bank_name'],
+                    'bank_city' => $newInfo['bank_city'],
+                    'bank_address' => $newInfo['bank_address'],
+                ])->execute();
             } else { // если запись имеется
                 $changeArray = [];
                 foreach (['bik', 'corr_acc', 'bank_name', 'bank_city', 'bank_address'] as $param) {
