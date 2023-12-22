@@ -89,36 +89,32 @@ $syncEvents = ['event' => [
     EventQueue::ATS3__SYNC,
     EventQueue::MAKE_CALL,
     EventQueue::SYNC_1C_CLIENT,
-]];
-
-$uuSyncEvents = [
-    UuModule::EVENT_ADD_LIGHT,
-    UuModule::EVENT_CLOSE_LIGHT,
     UuModule::EVENT_SIPTRUNK_SYNC,
     UuModule::EVENT_ROBOCALL_INTERNAL_CREATE,
     UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE,
-];
+]];
 
-$kafkaEvents = [
+$uuSyncEvents = ['event' => [
+    UuModule::EVENT_ADD_LIGHT,
+    UuModule::EVENT_CLOSE_LIGHT,
+]];
+
+$kafkaEvents = ['event' => [
     UuModule::EVENT_UU_ANONCE,
     UuModule::EVENT_UU_ANONCE_TARIFF,
-    UuModule::EVENT_UU_SWITCHED_ON,
-    UuModule::EVENT_UU_SWITCHED_OFF,
-    UuModule::EVENT_UU_UPDATE,
-];
+]];
 
-$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents, $kafkaEvents);
+//$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents['event']/*, $kafkaEvents*/);
 
 $map = [
-    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', ['event' => $uuSyncEvents]]],
-    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents]],
+    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]], // account_tariff_id => not null =>> already ['NOT', $syncEvents] && ['NOT', $nnpEvents]
+    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]],
 
+    'kafka' => [$kafkaEvents], // kafka events
+    'uu_sync' => [$uuSyncEvents],
     'ats3_sync' => [$syncEvents], // all sync events
-    'ats3_sync_event' => [['event' => [EventQueue::ATS3__SYNC]]],
-    'make_calls' => [['event' => [EventQueue::MAKE_CALL]]],
-    '1c' => [['event' => EventQueue::SYNC_1C_CLIENT]],
-
     'nnp' => [$nnpEvents],
+
     'no_nnp' => [['NOT', $nnpEvents]], //для служебного пользования
 ];
 
@@ -162,7 +158,7 @@ do {
         $activeQuery->andWhere($where);
     }
 
-    if ($consoleParam == 'ats3_sync') {
+    if ($consoleParam == 'uu_sync') {
         $activeQuery->limit(10000);
     }
 
