@@ -558,8 +558,8 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case EventQueue::NOTIFIER_TO_MATRIX:
-                    if (ApiMatrixElementChat::isAvailable()) {
-                        MatrixElementChat::me()->sendTroubleNotifier($param['trouble_id'], $param['user'], $param['text']);
+                    if (\app\classes\api\ApiMatrixElementChat::isAvailable()) {
+                        \app\classes\sender\MatrixElementChat::me()->sendTroubleNotifier($param['trouble_id'], $param['user'], $param['text']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
