@@ -273,7 +273,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 json_encode($param, (JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))
             );
 
-            if ($event->account_tariff_id && !in_array($event->event, $uuSyncEvents)) {
+            if ($event->account_tariff_id && !in_array($event->event, $uuSyncEvents['event'])) {
                 // все запросы по одной услуге надо выполнять строго последовательно
                 if ($event->hasPrevEvent()) {
                     throw new LogicException('Еще не выполнен предыдущий запрос по этой услуге');
