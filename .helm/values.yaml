@@ -208,5 +208,6 @@ params_dev:
   vmonitor:
     key1:
     key2:
+  matrix_notifier_token: testtesttest
 
 

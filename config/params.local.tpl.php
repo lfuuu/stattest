@@ -15,6 +15,7 @@ return [
     'FEEDBACK_API_KEY' => '',
 
     'NOTIFICATION_TOKEN' => '4Zf|4Jdney10@t55?Xj80tiDIfTe&{',
+    'matrix_notifier_token' => '',
 
     // доступ к шлюзу отправки sms-сообщений на thiamis.mcn.ru
     'sms_client' => null,

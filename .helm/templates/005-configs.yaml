@@ -485,6 +485,7 @@ data:
             ['region_id' => 97, 'operator_id' => 3, 'number_prefix' => '7861', 'datacenter_id' => 5],
         ],
         'rocket_chat_token' => '{{ .params.rocket_chat_token }}',
+        'matrix_notifier_token' => '{{ .params.matrix_notifier_token }}',
         'nnpInfoServiceURL' => '{{ .params.nnp_info_service_url }}',
         'nnpMCNOperatorId' => 6720,
         'billerApiURL' => '{{ .Values.params_prod.biller_api_url }}',
