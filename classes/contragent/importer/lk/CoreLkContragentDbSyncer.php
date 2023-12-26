@@ -36,6 +36,12 @@ class CoreLkContragentDbSyncer
             }
         });
 
+        $columns = $this->getTableColumnList();
+        $notInListColumns = array_diff(array_keys($rowLk), $columns);
+        foreach($notInListColumns as $column) {
+            unset($rowLk[$column]);
+        }
+
         if (!$rowStat) {
             $this->jsonFix($rowLk);
             $this->logApply($rowLk, []);
@@ -50,6 +56,15 @@ class CoreLkContragentDbSyncer
         }
 
         return true;
+    }
+
+    private function getTableColumnList()
+    {
+        return \Yii::$app->db->createCommand(
+            "SELECT t.COLUMN_NAME
+                    FROM information_schema.COLUMNS t
+                    WHERE TABLE_SCHEMA='import_dict' and TABLE_NAME='core_contragent'
+                    ")->queryColumn();
     }
 
     private function jsonFix(&$row)
