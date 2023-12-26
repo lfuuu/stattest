@@ -110,6 +110,7 @@ class EventQueue extends ActiveRecord
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
     const COMET_NOTIFIER_EVENT = 'comet_notifier_event';
     const TROUBLE_NOTIFIER_EVENT = 'trouble_notifier_event';
+    const NOTIFIER_TO_MATRIX = 'notifier_to_matrix';
     const MAKE_CALL = 'make_call';
     const INVOICE_GENERATE_PDF = 'invoice_generate_pdf';
     const INVOICE_ALL_PDF_CREATED = 'invoice_all_pdf_created';
@@ -200,6 +201,7 @@ class EventQueue extends ActiveRecord
         self::PORTED_NUMBER_ADD => 'Добавить портированный номер',
         self::NUMBER_HAS_BEEN_PORTED => 'Номер портирован к МСН Телеком',
         self::TROUBLE_NOTIFIER_EVENT => 'Оповещение о заявке',
+        self::NOTIFIER_TO_MATRIX => 'Оповещение о заявке (element)',
         self::EVENT_BUS_CMD => 'Шина. Команда.',
         self::EVENT_BUS_CMD_RESULT => 'Шина. Команда. Результат.',
         self::EVENT_LK_CONTRAGENT_CHANGED => 'Шина. Изменен контрагент в ЛК',
@@ -221,9 +223,9 @@ class EventQueue extends ActiveRecord
         UuModule::EVENT_RECALC_BALANCE => 'УУ. Обновление баланса',
         UuModule::EVENT_VPS_SYNC => 'УУ. VPS',
         UuModule::EVENT_VPS_LICENSE => 'УУ. VPS. Доп. услуги',
-        UuModule::EVENT_ADD_LIGHT => 'УУ. Добавить пакет телефонии',
-        UuModule::EVENT_DELETE_LIGHT => 'УУ. Удалить пакет телефонии',
-        UuModule::EVENT_CLOSE_LIGHT => 'УУ. Закрыть пакет телефонии',
+        UuModule::EVENT_ADD_LIGHT => 'УУ. Добавить лайт-тариф',
+        UuModule::EVENT_DELETE_LIGHT => 'УУ. Удалить лайт-тариф',
+        UuModule::EVENT_CLOSE_LIGHT => 'УУ. Закрыть лайт-тариф',
         UuModule::EVENT_UU_SWITCHED_ON => 'УУ включена',
         UuModule::EVENT_UU_SWITCHED_OFF => 'УУ выключена',
         UuModule::EVENT_UU_ANONCE => 'Анонсировать (в Кафку) изменение УУ-услуги',

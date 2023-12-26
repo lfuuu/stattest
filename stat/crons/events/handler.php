@@ -557,6 +557,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     RocketChat::me()->sendTroubleNotifier($param);
                     break;
 
+                case EventQueue::NOTIFIER_TO_MATRIX:
+                    if (ApiMatrixElementChat::isAvailable()) {
+                        MatrixElementChat::me()->sendTroubleNotifier($param['trouble_id'], $param['user'], $param['text']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
                 case EventQueue::MAKE_CALL:
                     ApiWebCall::me()->makeCall($param['abon'], $param['calling_number']);
                     break;

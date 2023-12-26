@@ -40,6 +40,7 @@ return [
         ],
     ],
     'rocket_chat_token' => '',
+    'matrix_notifier_token' => '',
     'sormRegions' => [],
     'isLogAAA' => false,
     'clientChangedAmqSettings' => [
