@@ -74,6 +74,7 @@ endif;
                 'name' => [],
                 'address_jur' => [],
                 'name_full' => [],
+                'post_address_filial' => [],
             ],
         ]);
         echo Form::widget([
@@ -129,7 +130,6 @@ endif;
 
                 'position' => [],
                 'fio' => [],
-                'post_address_filial' => [],
             ],
         ]);
         ?>
