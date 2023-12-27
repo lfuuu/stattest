@@ -161,6 +161,7 @@ endif;
             ],
             'attributes' => [
                 'address_jur' => [],
+                'address_registration_ip' => [],
             ],
         ]);
 

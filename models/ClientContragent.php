@@ -21,6 +21,7 @@ use yii\db\Expression;
  * @property string $legal_type
  * @property string $name_full
  * @property string $address_jur
+ * @property string $address_registration_ip
  * @property string $inn
  * @property string $inn_euro
  * @property string $kpp
@@ -51,6 +52,7 @@ use yii\db\Expression;
  * @property-read Country $country
  * @property-read ClientSuper $super
  * @property-read ClientContact $partnerContract
+ * @property-read string $address
  */
 class ClientContragent extends HistoryActiveRecord
 {
@@ -156,6 +158,7 @@ class ClientContragent extends HistoryActiveRecord
             'name' => 'Название',
             'name_full' => 'Название полное',
             'address_jur' => 'Юридический адрес',
+            'address_registration_ip' => 'Адрес регистрации ИП',
             'legal_type' => 'Юридический тип',
             'fio' => 'ФИО Исполнительного органа',
             'comment' => 'Комментарий',
@@ -372,5 +375,18 @@ class ClientContragent extends HistoryActiveRecord
     public static function getHistoryHiddenFields($action)
     {
         return ['id'];
+    }
+
+    public function getAddress()
+    {
+        switch($this->legal_type)  {
+            case self::PERSON_TYPE:
+                $person = $this->person;
+                return $person ? $person->registration_address : '';
+//            case self::IP_TYPE:
+//                return $this->address_registration_ip;
+            default: // && LEGAL_TYPE
+                return $this->address_jur;
+        }
     }
 }

@@ -4,6 +4,7 @@ return [
     'name' => 'Rövid elnevezés',
     'name_full' => 'Cégnév',
     'address_jur' => 'Székhely',
+    'address_registration_ip' => 'Székhely (IP)',
     'legal_type' => 'Тип',
     'inn' => 'Adószám',
     'inn_euro' => 'Adószám',

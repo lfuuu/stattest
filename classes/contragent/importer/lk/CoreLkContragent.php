@@ -57,6 +57,11 @@ class CoreLkContragent
         return $this->row['contragent_id'] ?? false;
     }
 
+    public function getAddressRegistratonIp(): string
+    {
+        return (string)$this->row['reg_address_ip'];
+    }
+
     public function setStatContragent(ClientContragent $contragent)
     {
         $this->statContragent = $contragent;

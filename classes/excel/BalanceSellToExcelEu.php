@@ -103,7 +103,7 @@ class BalanceSellToExcelEu extends Excel
                 $contragent->country->name,
                 $contragent->legal_type,
                 trim($contragent->name_full),
-                trim($contragent->legal_type == ClientContragent::PERSON_TYPE ? $contragent->person->registration_address : $contragent->address_jur),
+                trim($contragent->address),
                 $contract->business->name . ' / ' . $contract->businessProcessStatus->name,
                 $invoice->number,
                 $invoice->is_reversal && $invoice->getReversalInvoice() ? $invoice->getReversalInvoice()->number : '',
