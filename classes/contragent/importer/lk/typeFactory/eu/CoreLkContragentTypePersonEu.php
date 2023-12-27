@@ -55,7 +55,7 @@ class CoreLkContragentTypePersonEu extends CoreLkContragentTypeDefault
         }
 
         if ($row['address']) {
-            $contragent->address_jur = $person->registration_address = $row['address'].'aaa';
+            $contragent->address_jur = $person->registration_address = $row['address'];
         }
 
         $contragent->populateRelation('personModel', $person);
