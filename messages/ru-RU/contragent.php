@@ -5,6 +5,7 @@ return [
     'name_full' => 'Полное наименование',
     'address_jur' => 'Адрес юридический',
     'address_registration_ip' => 'Адрес регистрации ИП',
+    'post_address_filial' => 'Почтовый адрес филиала',
     'legal_type' => 'Тип',
     'inn' => 'ИНН',
     'inn_euro' => 'ЕвроИНН',

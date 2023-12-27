@@ -22,6 +22,7 @@ use yii\db\Expression;
  * @property string $name_full
  * @property string $address_jur
  * @property string $address_registration_ip
+ * @property string $post_address_filial
  * @property string $inn
  * @property string $inn_euro
  * @property string $kpp
@@ -159,6 +160,7 @@ class ClientContragent extends HistoryActiveRecord
             'name_full' => 'Название полное',
             'address_jur' => 'Юридический адрес',
             'address_registration_ip' => 'Адрес регистрации ИП',
+            'post_address_filial' => 'Почтовый адрес филиала',
             'legal_type' => 'Юридический тип',
             'fio' => 'ФИО Исполнительного органа',
             'comment' => 'Комментарий',

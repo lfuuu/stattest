@@ -29,7 +29,7 @@
                     <br />
 
                     Заказчик: <strong style="font-size: 10pt;">{if $bill_client.head_company}{$bill_client.head_company}, {/if}{$bill_client.company_full}</strong><br />
-                    Адрес: <strong>{$bill_client.contragent.address_jur}</strong><br />
+                    Адрес: <strong>{$bill_client.address}</strong><br />
                     ИНН/КПП покупателя: <strong>{$bill_client.inn} / {$bill_client.kpp}</strong><br />
                 </td>
                 {if $bill_no_qr}

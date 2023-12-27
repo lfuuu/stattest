@@ -40,6 +40,7 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
         // $contragent->address_jur = $data['address']['value'] ?? null;
         $contragent->address_jur = $data['address']['data']['source'] ?? $data['address']['value'] ?? null;
         $contragent->fio = $contragent->fioV = $data['management']['name'] ?? null;
+        $contragent->post_address_filial = $this->coreLkContragent->getAddressPostFilial();
 
         $position = $data['management']['post'] ?? '';
 

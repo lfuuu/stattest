@@ -84,6 +84,7 @@ use yii\helpers\Url;
  * @property int $exchange_group_id
  * @property int $exchange_status
  * @property string $bill_rename1
+ * @property string $head_company_address_jur
  *
  * @property-read Currency $currencyModel
  * @property-read ClientSuper $superClient
@@ -129,6 +130,7 @@ use yii\helpers\Url;
  * @property-read integer $is_show_in_lk
  * @property-read ClientAccountOptions $options
  * @property-read EquipmentUser $equipmentUsers
+ * @property-read string $address
  *
  * @method static ClientAccount findOne($condition)
  * @method static ClientAccount[] findAll($condition)
@@ -552,6 +554,24 @@ class ClientAccount extends HistoryActiveRecord
     public function getAddress_jur()
     {
         return $this->contract->contragent->address_jur;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        if ($this->head_company_address_jur) {
+            return $this->head_company_address_jur;
+        }
+
+        $contragent = $this->contragent;
+
+        if ($contragent->post_address_filial) {
+            return $contragent->post_address_filial;
+        }
+
+        return $contragent->address;
     }
 
     /**
