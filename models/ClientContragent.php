@@ -385,8 +385,8 @@ class ClientContragent extends HistoryActiveRecord
             case self::PERSON_TYPE:
                 $person = $this->person;
                 return $person ? $person->registration_address : '';
-//            case self::IP_TYPE:
-//                return $this->address_registration_ip;
+            case self::IP_TYPE:
+                return $this->address_registration_ip;
             default: // && LEGAL_TYPE
                 return $this->address_jur;
         }
