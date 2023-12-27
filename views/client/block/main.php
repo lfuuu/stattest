@@ -71,7 +71,7 @@ $priceLevels = PriceLevel::getList();
                         </a>
                     </div>
                     <div class="col-sm-5 address">
-                        <span><?= $contragent->address_jur ?: '...' ?></span>
+                        <span><?= $contragent->address ?: '...' ?></span>
                     </div>
                     <div class="col-sm-2">
                         <a href="<?= Url::toRoute(['contract/create', 'parentId' => $contragent->id, 'childId' => $account->id]) ?>">

@@ -4,6 +4,7 @@ return [
     'name' => 'Краткое наименование',
     'name_full' => 'Полное наименование',
     'address_jur' => 'Адрес юридический',
+    'address_registration_ip' => 'Адрес регистрации ИП',
     'legal_type' => 'Тип',
     'inn' => 'ИНН',
     'inn_euro' => 'ЕвроИНН',

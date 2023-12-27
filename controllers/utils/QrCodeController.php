@@ -86,19 +86,14 @@ class QrCodeController extends BaseController
                     if ($contragent->person->middle_name) {
                         $qrData['MiddleName'] = $contragent->person->middle_name;
                     }
-
-                    if ($contragent->person->registration_address) {
-                        $qrData['PayerAddress'] = $contragent->person->registration_address;
-                    }
                 }
             } else {
                 if ($contragent->inn) {
                     $qrData['PayerINN'] = $contragent->inn;
                 }
-
-                if ($contragent->address_jur) {
-                    $qrData['PayerAddress'] = $contragent->address_jur;
-                }
+            }
+            if ($contragent->address) {
+                $qrData['PayerAddress'] = $contragent->address;
             }
             $qrData['Purpose'] = 'Предоплата по лицевому счету ' . $accountId . ' за телекоммуникационные услуги';
         }

@@ -634,11 +634,7 @@ class ClientDocumentDao extends Singleton
         $contragent = $account->contract->contragent;
         $officialContacts = $account->getOfficialContact();
 
-        $result = $contragent->name_full . '<br />Адрес: ' . (
-            $contragent->legal_type == ClientContragent::PERSON_TYPE ?
-                $contragent->person->registration_address :
-                $account->address_jur
-            ) . '<br />';
+        $result = $contragent->name_full . '<br />Адрес: ' . $contragent->address . '<br />';
 
         if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
             $personData = $contragent->person->passport_serial .
@@ -739,9 +735,7 @@ class ClientDocumentDao extends Singleton
             'birthdate' => $contragent->person ? $contragent->person->birthday : '',
             'birthplace' => $contragent->person ? $contragent->person->birthplace : '',
 
-            'address_jur' => ($contragent->legal_type == ClientContragent::PERSON_TYPE ?
-                ($person ? $person->registration_address : '') :
-                $contragent->address_jur),
+            'address_jur' => $contragent->address,
             'bank_properties' => nl2br($account->bank_properties),
             'bik' => $account->bik,
             'address_post_real' => $account->address_post_real,

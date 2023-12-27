@@ -40,6 +40,7 @@ class ContragentEditForm extends Form
         $name,
         $name_full,
         $address_jur,
+        $address_registration_ip,
         $inn,
         $inn_euro,
         $kpp,
@@ -83,6 +84,7 @@ class ContragentEditForm extends Form
                     'name',
                     'name_full',
                     'address_jur',
+                    'address_registration_ip',
                     'inn',
                     'inn_euro',
                     'kpp',
@@ -104,6 +106,7 @@ class ContragentEditForm extends Form
                     'name',
                     'name_full',
                     'address_jur',
+                    'address_registration_ip',
                     'inn',
                     'inn_euro',
                     'kpp',
@@ -125,6 +128,7 @@ class ContragentEditForm extends Form
                     'name',
                     'name_full',
                     'address_jur',
+                    'address_registration_ip',
                     'inn',
                     'inn_euro',
                     'kpp',
@@ -361,6 +365,7 @@ class ContragentEditForm extends Form
         $contragent->name = $this->name;
         $contragent->name_full = $this->name_full;
         $contragent->address_jur = $this->address_jur;
+        $contragent->address_registration_ip = $this->address_registration_ip;
         $contragent->inn = $this->inn;
         $contragent->inn_euro = $this->inn_euro;
         $contragent->kpp = $this->kpp;
