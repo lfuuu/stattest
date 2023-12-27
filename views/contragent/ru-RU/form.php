@@ -129,6 +129,7 @@ endif;
 
                 'position' => [],
                 'fio' => [],
+                'post_address_filial' => [],
             ],
         ]);
         ?>

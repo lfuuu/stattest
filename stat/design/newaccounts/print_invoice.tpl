@@ -375,7 +375,7 @@
                 <strong>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</strong>
                 <br>
                 Адрес:
-                <strong>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</strong>
+                <strong>{$bill_client.address}</strong>
                 <br>
                 ИНН/КПП покупателя:
                 <strong>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</strong>
@@ -498,7 +498,7 @@
                     <tr>
                         <td class="f">Адрес:</td>
                         <td class="n">
-                            <strong>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</strong>
+                            <strong>{$bill_client.address}</strong>
                         </td>
                         <td class="l">(6а)</td>
                     </tr>

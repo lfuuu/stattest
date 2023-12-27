@@ -9,7 +9,7 @@
         {$firm.address}
     {/capture}
     {capture name=customer_address}
-        {if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}
+        {$bill_client.address}
     {/capture}
     {capture name=seller_inn}
         {$firm.inn}&nbsp;/&nbsp;{$firm.kpp}
@@ -85,7 +85,7 @@
         {$firm.name}
     {/capture}
     {capture name=seller_address}
-        {if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}
+        {$bill_client.address}
     {/capture}
     {capture name=customer_address}
         {$firm.address}
