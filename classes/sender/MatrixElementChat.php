@@ -62,6 +62,10 @@ class MatrixElementChat extends Singleton
 
     private function getUserIdByUser(User $user)
     {
+        if ($user->rocket_nick && preg_match('/^@[^:]+:[^:]+/', $user->rocket_nick)) {
+            return $user->rocket_nick;
+        }
+
         $users = $this->api->searchUsers($user->phone_work);
 
         if (!$users || !isset($users['results'])) {
