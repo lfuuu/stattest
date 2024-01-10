@@ -6,9 +6,9 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
-use app\models\VirtpbxStat;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\AccountTariffLogicalChangeLog;
+use app\modules\uu\behaviors\AccountTariffResourceLogSyncBiller;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use DateTime;
@@ -115,6 +115,7 @@ class AccountTariffResourceLog extends ActiveRecord
                 ],
                 AccountTariffBiller::class, // Пересчитать транзакции, проводки и счета
                 AccountTariffLogicalChangeLog::class,
+                AccountTariffResourceLogSyncBiller::class, // Поставить на синхронизацию ресурсы в биллер
             ]
         );
     }
