@@ -307,14 +307,21 @@ class AccountController extends BaseController
     public function actionAdditionalInnCreate($accountId)
     {
         $account = ClientAccount::findOne($accountId);
+
         if (!$account) {
             throw new Exception('Account does not exist');
         }
 
-        $model = new ClientInn();
-        $model->load(Yii::$app->request->post());
-        $model->client_id = $accountId;
-        $model->save();
+        try {
+            $model = new ClientInn();
+            $model->load(Yii::$app->request->post());
+            $model->client_id = $accountId;
+            if (!$model->save()) {
+                throw new ModelValidationException($model);
+            }
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', $e->getMessage());
+        }
 
         return $this->redirect(['account/edit', 'id' => $accountId]);
     }
