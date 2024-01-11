@@ -175,6 +175,12 @@ class ResourceModel extends ActiveRecord
         self::ID_TRUNK_PACKAGE_TERM_CALLS => OperationType::ID_COST,
     ];
 
+    public static $billingResources = [
+        self::ID_VOIP_SMS_SUBABSENT, // Телефония. SMS. Если абонент не в сети
+        self::ID_VOIP_SMS_DUPMTSMS, // Телефония. SMS. Отправка всегда
+    ];
+
+
     /**
      * @inheritdoc
      */
@@ -280,6 +286,17 @@ class ResourceModel extends ActiveRecord
     public function isOption()
     {
         return self::isOptionId($this->id);
+    }
+
+    /**
+     * Это ресурс, который надо передавать на биллинг?
+     *
+     * @param integer $resourceId
+     * @return bool
+     */
+    public static function isBillingResource($resourceId): bool
+    {
+        return in_array($resourceId, self::$billingResources);
     }
 
     /**
