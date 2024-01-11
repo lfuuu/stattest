@@ -101,8 +101,19 @@ $uuSyncEvents = ['event' => [
 
 $kafkaEvents = ['event' => [
     UuModule::EVENT_UU_ANONCE,
+    UuModule::EVENT_UU_ANONCE2,
     UuModule::EVENT_UU_ANONCE_TARIFF,
 ]];
+
+$kafkaEvents1 = ['event' => [
+    UuModule::EVENT_UU_ANONCE,
+    UuModule::EVENT_UU_ANONCE_TARIFF,
+]];
+
+$kafkaEvents2 = ['event' => [
+    UuModule::EVENT_UU_ANONCE2,
+]];
+
 
 //$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents['event']/*, $kafkaEvents*/);
 
@@ -110,7 +121,8 @@ $map = [
     'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]], // account_tariff_id => not null =>> already ['NOT', $syncEvents] && ['NOT', $nnpEvents]
     'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]],
 
-    'kafka' => [$kafkaEvents], // kafka events
+    'kafka' => [$kafkaEvents1], // kafka events
+    'kafka2' => [$kafkaEvents2], // kafka events
     'uu_sync' => [$uuSyncEvents],
     'ats3_sync' => [$syncEvents], // all sync events
     'nnp' => [$nnpEvents],
@@ -144,6 +156,23 @@ if (!empty($memoryLimitMap[$consoleParam])) {
         ) . PHP_EOL;
 }
 
+const MAX_PARALLEL_WORKERS = 5;
+
+
+$parallelWorkers = $_SERVER['argv'][2] ?? false;
+$parallelWorkerIdx = $_SERVER['argv'][3] ?? false;
+
+if ($parallelWorkers !== false && $parallelWorkerIdx !== false) {
+    $parallelWorkers = (int)$parallelWorkers;
+    $parallelWorkerIdx = (int)$parallelWorkerIdx;
+
+    if (!($parallelWorkers && $parallelWorkerIdx && $parallelWorkers <= MAX_PARALLEL_WORKERS && $parallelWorkerIdx <= $parallelWorkers)) {
+        throw new IncorrectRequestParametersException();
+    }
+
+} else {
+    $parallelWorkers = $parallelWorkerIdx = false;
+}
 
 // Контроль времени работы. выключаем с 55 до 00 секунд.
 $time = (new DateTimeImmutable());
@@ -160,6 +189,10 @@ do {
 
     if ($consoleParam == 'uu_sync') {
         $activeQuery->limit(10000);
+    }
+
+    if ($parallelWorkers) {
+        $activeQuery->andWhere('id % ' . $parallelWorkers . ' = ' . ($parallelWorkerIdx - 1));
     }
 
     doEvents($activeQuery, $uuSyncEvents);
@@ -875,6 +908,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case UuModule::EVENT_UU_ANONCE:
+                case UuModule::EVENT_UU_ANONCE2:
                     if ($isEbcKafka) {
                         $info = AccountTariffStructureToKafka::me()->anonce($param['account_tariff_id']);
                     } else {

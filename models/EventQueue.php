@@ -229,6 +229,7 @@ class EventQueue extends ActiveRecord
         UuModule::EVENT_UU_SWITCHED_ON => 'УУ включена',
         UuModule::EVENT_UU_SWITCHED_OFF => 'УУ выключена',
         UuModule::EVENT_UU_ANONCE => 'Анонсировать (в Кафку) изменение УУ-услуги',
+        UuModule::EVENT_UU_ANONCE2 => 'Анонсировать (в Кафку) изменение УУ-услуги (2)',
         UuModule::EVENT_SIPTRUNK_SYNC => 'SIP-транк. Синхронизация',
 
         NnpModule::EVENT_IMPORT => 'ННП. Импорт страны',
