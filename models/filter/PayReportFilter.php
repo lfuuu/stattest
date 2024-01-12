@@ -18,6 +18,7 @@ use yii\db\Expression;
 class PayReportFilter extends Payment
 {
     public $id = '';
+    public $account_version = '';
     public $client_id = '';
     public $client_name = '';
     public $bill_no = '';
@@ -56,6 +57,7 @@ class PayReportFilter extends Payment
             [
                 [
                     'id',
+                    'account_version',
                     'client_id',
                     'organization_id',
                     'user_id',
@@ -145,6 +147,13 @@ class PayReportFilter extends Payment
         $paymentAtolTableName = PaymentAtol::tableName();
 
         $this->id !== '' && $query->andWhere(['p.id' => $this->id]);
+
+        if ($this->account_version !== '') {
+            $query
+                ->innerJoin(['c' => ClientAccount::tableName()], 'c.id = p.client_id')
+                ->andWhere(['c.account_version' => $this->account_version]);
+        }
+
         $this->client_id !== '' && $query->andWhere(['p.client_id' => $this->client_id]);
 
         if ($this->organization_id !== '') {

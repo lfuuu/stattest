@@ -177,6 +177,7 @@ class Payment extends ActiveRecord
             'organization_id' => 'Организация',
             'bank' => 'Банк',
             'payment_type' => 'Тип дохода',
+            'account_version' => 'Тип ЛС',
         ];
     }
 

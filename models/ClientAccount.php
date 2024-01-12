@@ -243,8 +243,8 @@ class ClientAccount extends HistoryActiveRecord
         'new' => 'Новый',
     ];
     public static $versions = [
-        self::VERSION_BILLER_UNIVERSAL => 'Универсальный',
-        self::VERSION_BILLER_USAGE => 'Старый',
+        self::VERSION_BILLER_UNIVERSAL => 'УЛС',
+        self::VERSION_BILLER_USAGE => 'ЛС',
     ];
 
     public static $shopIds = [14050, 18042];
