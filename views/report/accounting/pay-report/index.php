@@ -36,6 +36,12 @@ $columns = [
     ],
 
     [
+        'attribute' => 'account_version',
+        'class' => \app\classes\grid\column\universal\AccountVersionColumn::class,
+        'value' => 'client.account_version'
+    ],
+
+    [
         'attribute' => 'client_id',
         'class' => IntegerColumn::class,
     ],
