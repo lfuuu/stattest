@@ -8,22 +8,17 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsCdr;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
-use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
-use yii\db\Expression;
-use yii\db\QueryBuilder;
 
 class MonitorFilter extends Form
 {
 //    public $range;
-    public $number_a;
-    public $number_b;
+    public $number;
 
     public $date_from;
     public $date_to;
 
-    public $orig_account;
-    public $term_account;
+    public $account;
 
     public $is_with_session_time = 1;
 
@@ -43,10 +38,10 @@ class MonitorFilter extends Form
 //            ['range', 'in', 'range' => $this->getRanges()],
 //            [['date_from', 'date_to'], 'require'],
             [['date_from', 'date_to'], 'datetime'],
-            [['number_a', 'number_b'], 'string'],
-            [['number_a', 'number_b'], FormFieldValidator::class],
+            [['number'], 'string'],
+            [['number'], FormFieldValidator::class],
             ['is_with_session_time', 'integer'],
-            [['orig_account', 'term_account'], 'integer'],
+            [['account'], 'integer'],
 //            ['orig_account', 'default', 'value' => $fixclient_data['id'] ?? null],
 
         ];
@@ -68,11 +63,9 @@ class MonitorFilter extends Form
             'session_time' => 'Длительность',
             'is_with_session_time' => 'Звонки с длительностью',
 
-            'orig_account' => 'ЛС номера А',
-            'term_account' => 'ЛС номера B',
+            'account' => 'ЛС номера А/B',
 
-            'number_a' => 'Номера А',
-            'number_b' => 'Номера В',
+            'number' => 'Номера А/B',
 
             'date_from' => 'Период начала звонка "С" (Мск)',
             'date_to' => 'Период начала звонка "По" (Мск)',
@@ -89,18 +82,18 @@ class MonitorFilter extends Form
         $fromStr = $from->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $toStr = $to->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        $this->orig_account = preg_replace('/[^\d]/', '', $this->orig_account);
-        $this->term_account = preg_replace('/[^\d]/', '', $this->term_account);
+        $this->account = preg_replace('/[^\d]/', '', $this->account);
 
-        $this->number_a = preg_replace('/[^\d]/', '', $this->number_a);
-        $this->number_b = preg_replace('/[^\d]/', '', $this->number_b);
+        $this->number = preg_replace('/[^\d]/', '', $this->number);
 
-        $srcCdrNumberSql = '';
-        $numbersA = [];
-        if ($this->orig_account) {
-            $numbersA = AccountTariff::find()
+        $cdrNumberSql = '';
+        $numbers = [];
+        if ($this->number) {
+            $numbers[] = $this->number;
+        } elseif ($this->account) {
+            $numbers = AccountTariff::find()
                 ->where([
-                    'client_account_id' => $this->orig_account,
+                    'client_account_id' => $this->account,
                     'service_type_id' => ServiceType::ID_VOIP
                 ])
                 ->distinct()
@@ -108,94 +101,56 @@ class MonitorFilter extends Form
                 ->column() ?: [];
         }
 
-        if ($this->number_a) {
-            $numbersA[] = $this->number_a;
-        }
-
-        if ($numbersA) {
+        if ($numbers) {
             $numbersWithout7 = array_map(function ($number) {
                 return substr($number, 1);
-            }, $numbersA);
-            $numbersA = array_merge($numbersA, $numbersWithout7);
-            $srcCdrNumberSql = ' AND (src_number like \'' . implode('%\' OR src_number like \'', $numbersA) . '%\')';
-        }
-
-        $dstCdrNumberSql = '';
-        $numbersB = [];
-        if ($this->term_account) {
-            $numbersB = AccountTariff::find()
-                ->where([
-                    'client_account_id' => $this->term_account,
-                    'service_type_id' => ServiceType::ID_VOIP
-                ])
-                ->distinct()
-                ->select('voip_number')
-                ->column();
-        }
-
-        if ($this->number_b) {
-            $numbersB[] = $this->number_b;
-        }
-
-        if ($numbersB) {
-            $numbersWithout7 = array_map(function ($number) {
-                return substr($number, 1);
-            }, $numbersB);
-            $numbersB = array_merge($numbersB, $numbersWithout7);
-            $dstCdrNumberSql = ' AND (dst_number like \'' . implode('%\' OR dst_number like \'', $numbersB) . '%\')';
+            }, $numbers);
+            $numbers = array_merge($numbers, $numbersWithout7);
+            $cdrNumberSql = ' AND (src_number like \'' . implode('%\' OR src_number like \'', $numbers) . '%\'';
+            $cdrNumberSql .= ' OR  dst_number like \'' . implode('%\' OR dst_number like \'', $numbers) . '%\' )';
         }
 
 
         $query = <<< SQL
-with cdr as (
+WITH cdr AS (
     SELECT *
     FROM "calls_cdr"."cdr"
     WHERE
         ("connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
-        {$srcCdrNumberSql}
-        {$dstCdrNumberSql}
+        {$cdrNumberSql}
     ORDER BY "connect_time" DESC
-), calls as (
-    select raw.*
-    from calls_raw.calls_raw raw,
+    LIMIT 100000
+), calls AS (
+    SELECT raw.*
+    FROM calls_raw.calls_raw raw,
          cdr
-    where raw.server_id = cdr.server_id
-      and raw.cdr_id = cdr.id
-      and (raw."connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
+    WHERE raw.server_id = cdr.server_id
+      AND raw.cdr_id = cdr.id
+      AND (raw."connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
 )
 
-select cdr.server_id, cdr.id as cdr_id, 
-       cdr.src_number as cdr_num_a, cdr.dst_number  as cdr_num_b, cdr.connect_time + interval '3 hours' as cdr_connect_time, cdr.setup_time, cdr.session_time, src_route, dst_route
+SELECT cdr.server_id, cdr.id as cdr_id, 
+       cdr.src_number as cdr_num_a, cdr.dst_number  as cdr_num_b, cdr.connect_time + INTERVAL '3 hours' as cdr_connect_time, cdr.setup_time, cdr.session_time, src_route, dst_route
 , c_orig.src_number as orig_num_a, c_orig.dst_number as orig_num_b, c_orig.account_id as orig_account
 , c_term.src_number as term_num_a, c_term.dst_number as term_num_b, c_term.account_id as term_account
-from cdr
-left join calls c_orig on cdr.server_id = c_orig.server_id and cdr.id = c_orig.cdr_id and c_orig.orig
-left join calls c_term on cdr.server_id = c_term.server_id and cdr.id = c_term.cdr_id and not c_term.orig
+FROM cdr
+LEFT JOIN calls c_orig on cdr.server_id = c_orig.server_id and cdr.id = c_orig.cdr_id and c_orig.orig
+LEFT JOIN calls c_term on cdr.server_id = c_term.server_id and cdr.id = c_term.cdr_id and not c_term.orig
 WHERE True
 SQL;
 
 
-        if ($this->orig_account && !$numbersA) {
-            $query .= " AND c_orig.account_id = '" . $this->orig_account . "'";
+        if ($this->account && !$numbers) {
+            $query .= " AND (c_orig.account_id = '" . $this->account . "' OR c_term.account_id = '" . $this->account . "')";
         }
 
-        if ($this->term_account && !$numbersB) {
-            $query .= " AND c_term.account_id = '" . $this->term_account . "'";
+        if ($this->number) {
+            $query .= " AND (COALESCE(c_orig.src_number, c_term.src_number) = " . $this->number . "::bigint OR COALESCE(c_orig.dst_number, c_term.dst_number) = '" . $this->number . "'::bigint)";
         }
-
-        if ($this->number_a) {
-            $query .= " AND COALESCE(c_orig.src_number, c_term.src_number) = " . $this->number_a . "::bigint";
-        }
-
-        if ($this->number_b) {
-            $query .= " AND COALESCE(c_orig.dst_number, c_term.dst_number) = '" . $this->number_b . "'::bigint";
-        }
-
 
         if ($this->is_with_session_time) {
             $query .= ' AND cdr.session_time > 0';
         }
-
 
         $query .= PHP_EOL . "ORDER BY cdr.connect_time DESC";
 
@@ -207,4 +162,6 @@ SQL;
             'allModels' => CallsCdr::getDb()->createCommand($query)->queryAll(),
         ]);
     }
+
+
 }
