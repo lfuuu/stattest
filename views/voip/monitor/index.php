@@ -56,8 +56,7 @@ $breadCrumbLinks = [
             ],
         ];
 
-        $line1Attributes['orig_account'] = ['type' => Form::INPUT_TEXT,];
-        $line1Attributes['term_account'] = ['type' => Form::INPUT_TEXT,];
+        $line1Attributes['account'] = ['type' => Form::INPUT_TEXT,];
 
         $line1Attributes['is_with_session_time'] = [
             'type' => Form::INPUT_CHECKBOX,
@@ -68,11 +67,11 @@ $breadCrumbLinks = [
             ['type' => Form::INPUT_RAW],
         ];
 
-        if ($searchModel->orig_account) {
-            $line2Attributes['number_a'] = [
+        if ($searchModel->account) {
+            $line2Attributes['number'] = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => ['' => '-- Любой --'] + \app\modules\uu\models\AccountTariff::find()
-                    ->where(['client_account_id' => $searchModel->orig_account])
+                    ->where(['client_account_id' => $searchModel->account])
                     ->select('voip_number')
                     ->distinct()
                     ->indexBy('voip_number')
@@ -82,24 +81,7 @@ $breadCrumbLinks = [
                 ],
             ];
         } else {
-            $line2Attributes['number_a'] = ['type' => Form::INPUT_TEXT,];
-        }
-
-        if ($searchModel->term_account) {
-            $line2Attributes['number_b'] = [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => ['' => '-- Любой --'] + \app\modules\uu\models\AccountTariff::find()
-                    ->where(['client_account_id' => $searchModel->term_account])
-                    ->select('voip_number')
-                    ->distinct()
-                    ->indexBy('voip_number')
-                    ->column(),
-                'options' => [
-                    'class' => 'select2',
-                ],
-            ];
-        } else {
-            $line2Attributes['number_b'] = ['type' => Form::INPUT_TEXT,];
+            $line2Attributes['number'] = ['type' => Form::INPUT_TEXT,];
         }
 
         $line2Attributes[] = ['type' => Form::INPUT_RAW];
@@ -175,7 +157,7 @@ $columns = [[
         'format' => 'raw',
         'contentOptions' => ['class' => 'text-right'],
         'value' => function ($row) {
-            $time = explode(" ", $row['cdr_connect_time'])[1];
+            $time = $row['cdr_connect_time'];
             list($time, $msecs) = explode(".", $time);
 
             return $time . Html::tag('span', '.' . $msecs . (strlen($msecs) < 3 ? str_repeat('0', 3 - strlen($msecs)) : ''), ['style' => 'color: lightgray']);
@@ -184,13 +166,13 @@ $columns = [[
     [
         'attribute' => 'src_number',
         'value' => function ($row) {
-            return $row['orig_num_a'] ? $row['orig_num_a'] : ($row['term_num_a'] ? $row['term_num_a'] : ($row['cdr_num_a']));
+            return $row['orig_num_a'] ?: ($row['term_num_a'] ?: ($row['cdr_num_a']));
         }
     ],
     [
         'attribute' => 'dst_number',
         'value' => function ($row) {
-            return $row['orig_num_b'] ? $row['orig_num_b'] : ($row['term_num_b'] ? $row['term_num_b'] : ($row['cdr_num_b']));
+            return $row['orig_num_b'] ?: ($row['term_num_b'] ?: ($row['cdr_num_b']));
         }
     ],
     [
@@ -223,13 +205,15 @@ $columns = [[
     [
         'format' => 'raw',
         'value' => function ($row) {
-            if (!in_array($row['server_id'], [89, 93, 94, 95, 97, 98, 99])) {
-                return ';';
+            $serverId = \app\models\billing\Server::getMgmnServerId($row['server_id']);
+            if (!$serverId) {
+                return 'server_id: ' . $row['server_id']. '?';
             }
 
             $fileLink = ['/voip/monitor/load',
                 'key' => Encrypt::encodeArray([
-                    'server_id' => $row['server_id'],
+                    'cdr_server_id' => $row['server_id'],
+                    'raw_server_id' => $serverId,
                     'id' => $row['cdr_id'],
                 ])
             ];
@@ -238,7 +222,7 @@ $columns = [[
                 'id' => 'audio' . $row['id'],
                 'controls' => '1',
                 'src' => Url::to($fileLink),
-            ]) . Html::a('', Url::to($fileLink + ['isDownload' => 1]), ['target' => '_blank', 'class' => 'glyphicon glyphicon-download']);
+            ]) . Html::a('', Url::to($fileLink + ['isDownload' => 1]), ['target' => '_blank', 'class' => 'glyphicon glyphicon-download']) . '('.$row['server_id'].')';
         }
     ]];
 

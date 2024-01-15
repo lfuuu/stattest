@@ -36,7 +36,7 @@ class MonitorController extends BaseController
             $searchQuery = Yii::$app->request->queryParams;
             $searchModel = new MonitorFilter();
             if (!$searchModel->load($searchQuery)) {
-                $searchModel->orig_account = $this->_getCurrentClientAccountId();
+                $searchModel->account = $this->_getCurrentClientAccountId();
             }
             $dataProvider = $searchModel->search(true);
 
@@ -54,21 +54,21 @@ class MonitorController extends BaseController
     {
         $data = Encrypt::decodeToArray(urldecode($key));
 
-        if (!$data || !($data['server_id'] ?? false) || !($data['id'] ?? false)) {
+        if (!$data || !($data['raw_server_id'] ?? false) || !($data['cdr_server_id'] ?? false) || !($data['id'] ?? false)) {
             throw new BadRequestHttpException('parameters error');
         }
 
         /** @var CallsCdr $cdr */
-        $cdr = CallsCdr::find()->where(['server_id' => $data['server_id'], 'id' => $data['id']])->one();
+        $cdr = CallsCdr::find()->where(['server_id' => $data['cdr_server_id'], 'id' => $data['id']])->one();
 
         if (!$cdr) {
             throw new NotFoundHttpException('Data not found');
         }
 
         try {
-            $file = $this->getFile($cdr, $cdr->in_sig_call_id, $isDownload);
+            $file = $this->getFile($data['raw_server_id'], $cdr, $cdr->in_sig_call_id, $isDownload);
         } catch (\NotFoundHttpException $e) {
-            $file = $this->getFile($cdr, $cdr->out_sig_call_id, $isDownload);
+            $file = $this->getFile($data['raw_server_id'], $cdr, $cdr->out_sig_call_id, $isDownload);
         }
 
         if (!$file) {
@@ -81,11 +81,11 @@ class MonitorController extends BaseController
         return $file;
     }
 
-    private function getFile($cdr, $sigCallId, $isFull = false)
+    private function getFile($rawServerId, $cdr, $sigCallId, $isFull = false)
     {
         $time = new \DateTimeImmutable($cdr->disconnect_time);
 
-        $url = 'https://' . Encrypt::decodeToArray(urldecode(\Yii::$app->params['vmonitor']['key1']))[$cdr->server_id]
+        $url = 'https://' . Encrypt::decodeToArray(urldecode(\Yii::$app->params['vmonitor']['key1']))[$rawServerId]
             . '/' . $time->format('Y/m/d')
             . '/' . str_replace('-', '', $sigCallId) . ".wav";
 

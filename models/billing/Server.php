@@ -71,4 +71,20 @@ class Server extends ActiveRecord
         return 'http://' . $this->hostname . ':' . self::API_PORT;
     }
 
+    public static function getMgmnServerId($serverId)
+    {
+        return self::find()
+            ->select('id')
+            ->where([
+                'hub_id' => self::find()
+                    ->select('hub_id')
+                    ->where(['id' => $serverId])
+                    ->cache(1000)
+                    ->scalar()
+            ])
+            ->andWhere(new yii\db\Expression("coalesce(mg_spc::varchar, '') != ''"))
+            ->cache(1000)
+            ->scalar();
+    }
+
 }
