@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\Utils;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\classes\model\ActiveRecord;
 use app\models\important_events\ImportantEvents;
@@ -10,7 +11,6 @@ use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\Expression;
 
 /**
  * Платёж
@@ -312,5 +312,26 @@ class Payment extends ActiveRecord
         LogBill::dao()->log($this->bill_no, "Удаление платежа ({$this->id}), на сумму: {$this->sum}");
 
         return parent::beforeDelete();
+    }
+
+    public function detectPerson(): bool
+    {
+        $jsonInfo = Utils::fromJson($this->apiInfo->info_json);
+        if (!$jsonInfo) {
+            return false;
+        }
+
+        $name = mb_strtolower($jsonInfo['payerName'] ?? "");
+
+        if (!$name || preg_match('/\B(индивидуальный\s+предприниматель|ип|нотариус|адвокат)\B/', $name)) {
+            return false;
+        }
+
+        $payerInn = $jsonInfo['payerInn'] ?? "";
+        if (!(strlen($payerInn) == 12 || $payerInn == "")) {
+            return false;
+        }
+
+        return true;
     }
 }

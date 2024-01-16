@@ -96,6 +96,11 @@ class SendToOnlineCashRegister extends Behavior
             } else {
                 $apiChannel = PaymentApiChannel::findOne(['code' => $payment->ecash_operator]);
                 if ($apiChannel && $apiChannel->check_organization_id) {
+
+                    if ($apiChannel->id == PaymentApiChannel::ID_API_TINKOFF_ABONENTSERVICE && !$payment->detectPerson()) { // @TODO make factory
+                        return false;
+                    }
+
                     $checkOrganizationId = $apiChannel->check_organization_id;
                     $isToSend = true;
                 }
