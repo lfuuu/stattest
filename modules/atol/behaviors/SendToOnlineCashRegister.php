@@ -2,6 +2,7 @@
 
 namespace app\modules\atol\behaviors;
 
+use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\classes\payments\recognition\processors\RecognitionProcessor;
 use app\exceptions\ModelValidationException;
@@ -83,6 +84,17 @@ class SendToOnlineCashRegister extends Behavior
             return false;
         }
 
+        $apiChannel = null;
+        if ($payment->type == Payment::TYPE_API) {
+            $apiChannel = PaymentApiChannel::findOne(['code' => $payment->ecash_operator]);
+
+            if ($apiChannel->id == PaymentApiChannel::ID_API_TINKOFF_ABONENTSERVICE && !$payment->detectPerson()) {
+                HandlerLogger::me()->add('No detect person. Channel: ' . $apiChannel->name);
+                return false;
+            }
+        }
+
+
         $checkOrganizationId = $payment->organization_id;
 
         $isToSend = false;
@@ -94,13 +106,7 @@ class SendToOnlineCashRegister extends Behavior
             if ($checkOrganizationId) {
                 $isToSend = true;
             } else {
-                $apiChannel = PaymentApiChannel::findOne(['code' => $payment->ecash_operator]);
                 if ($apiChannel && $apiChannel->check_organization_id) {
-
-                    if ($apiChannel->id == PaymentApiChannel::ID_API_TINKOFF_ABONENTSERVICE && !$payment->detectPerson()) { // @TODO make factory
-                        return false;
-                    }
-
                     $checkOrganizationId = $apiChannel->check_organization_id;
                     $isToSend = true;
                 }
