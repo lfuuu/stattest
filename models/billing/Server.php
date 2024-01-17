@@ -73,14 +73,20 @@ class Server extends ActiveRecord
 
     public static function getMgmnServerId($serverId)
     {
+        $hubId = self::find()
+            ->select('hub_id')
+            ->where(['id' => $serverId])
+            ->cache(1000)
+            ->scalar();
+
+        if ($hubId == 1) {
+            return 99;
+        }
+
         return self::find()
             ->select('id')
             ->where([
-                'hub_id' => self::find()
-                    ->select('hub_id')
-                    ->where(['id' => $serverId])
-                    ->cache(1000)
-                    ->scalar()
+                'hub_id' => $hubId
             ])
             ->andWhere(new yii\db\Expression("coalesce(mg_spc::varchar, '') != ''"))
             ->cache(1000)
