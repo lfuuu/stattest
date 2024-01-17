@@ -21,6 +21,8 @@ use yii\helpers\Url;
  */
 class PaymentApiChannel extends ActiveRecord
 {
+    const ID_API_TINKOFF_ABONENTSERVICE = 3;
+
     const NAVIGATION = 'payment-api-channel';
     const TITLE = 'API Каналы платежей';
 
