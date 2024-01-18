@@ -2876,12 +2876,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 "Проблема: " . $p["problem"] . "\n\n" .
                 ($comment ? "Последний коментарий: " . $comment . "\n\n" : "");
 
-            EventQueue::go(EventQueue::TROUBLE_NOTIFIER_EVENT, [
-                'user' => $user,
-                'trouble_id' => $tId,
-                'text' => $msg,
-            ]);
-
             EventQueue::go(EventQueue::NOTIFIER_TO_MATRIX, [
                 'user' => $user,
                 'trouble_id' => $tId,

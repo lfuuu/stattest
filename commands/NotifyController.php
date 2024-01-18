@@ -24,7 +24,7 @@ class NotifyController extends Controller
 
             echo PHP_EOL . "+" . $text . ': ' . $userName;
 
-            EventQueue::go(EventQueue::TROUBLE_NOTIFIER_EVENT, [
+            EventQueue::go(EventQueue::NOTIFIER_TO_MATRIX, [
                 'user' => $userName,
                 'trouble_id' => 1000,
                 'text' => $text,
