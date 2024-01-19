@@ -26,8 +26,16 @@ $breadCrumbLinks = [
     'Телефония',
     ['label' => 'Мониторинг', 'url' => $urlData],
 ];
+/** @var \app\classes\BaseView $this */
+$this->registerCss('
+audio { 
+    height: 20px;
+    width: 284px;
+   }');
 
 ?>
+
+
 
 <?= Breadcrumbs::widget(['links' => $breadCrumbLinks]) ?>
 
@@ -155,7 +163,7 @@ $columns = [[
     [
         'attribute' => 'cdr_connect_time',
         'format' => 'raw',
-        'contentOptions' => ['class' => 'text-right'],
+        'contentOptions' => fn($row) => ['class' => 'text-right', 'style' => ['border-right' => '5px solid #'.substr($row['mcn_callid'], -6)]],
         'value' => function ($row) {
             $time = $row['cdr_connect_time'];
             list($time, $msecs) = explode(".", $time);
@@ -222,7 +230,7 @@ $columns = [[
                 'id' => 'audio' . $row['id'],
                 'controls' => '1',
                 'src' => Url::to($fileLink),
-            ]) . Html::a('', Url::to($fileLink + ['isDownload' => 1]), ['target' => '_blank', 'class' => 'glyphicon glyphicon-download']) . '('.$row['server_id'].')';
+            ]) . Html::a('', Url::to($fileLink + ['isDownload' => 1]), ['target' => '_blank', 'class' => 'glyphicon glyphicon-download']);
         }
     ]];
 

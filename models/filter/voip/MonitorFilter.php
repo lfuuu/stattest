@@ -6,8 +6,7 @@ use app\classes\Form;
 use app\classes\validators\FormFieldValidator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsCdr;
-use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ServiceType;
+use app\models\voip\StateServiceVoip;
 use yii\data\ArrayDataProvider;
 
 class MonitorFilter extends Form
@@ -88,27 +87,54 @@ class MonitorFilter extends Form
 
         $cdrNumberSql = '';
         $numbers = [];
+        $ranges = [];
+
         if ($this->number) {
             $numbers[] = $this->number;
-        } elseif ($this->account) {
-            $numbers = AccountTariff::find()
-                ->where([
-                    'client_account_id' => $this->account,
-                    'service_type_id' => ServiceType::ID_VOIP
-                ])
-                ->distinct()
-                ->select('voip_number')
-                ->column() ?: [];
+        }
+
+        if ($this->account) {
+            $ranges = array_map(fn(StateServiceVoip $s) => [
+                'number' => $s->e164,
+                'activation_dt' => $s->activation_dt,
+                'expire_dt' => $s->expire_dt
+            ], StateServiceVoip::findAll(['client_id' => $this->account]));
+
+            $numbers = array_unique(array_map(fn($n) => $n['number'], $ranges));
+
+            if ($this->number) {
+                $numbers = array_filter($numbers, fn($n) => $n == $this->number);
+            }
         }
 
         if ($numbers) {
-            $numbersWithout7 = array_map(function ($number) {
-                return substr($number, 1);
-            }, $numbers);
-            $numbers = array_merge($numbers, $numbersWithout7);
-            $cdrNumberSql = ' AND (src_number like \'' . implode('%\' OR src_number like \'', $numbers) . '%\'';
-            $cdrNumberSql .= ' OR  dst_number like \'' . implode('%\' OR dst_number like \'', $numbers) . '%\' )';
+            foreach ($numbers as $number) {
+                $numbersWithout7 = substr($number, 1);
+                $_numbers = [$number, $numbersWithout7];
+                $numberSql = ' src_number like \'' . implode('%\' OR src_number like \'', $_numbers) . '%\'';
+                $numberSql .= ' OR  dst_number like \'' . implode('%\' OR dst_number like \'', $_numbers) . '%\' ';
+
+                if ($ranges) {
+                    $rangeSql = "";
+
+                    $numberRanges = array_filter($ranges, fn(array $range) => $range['number'] == $number);
+
+                    if ($numberRanges) {
+                        $rangeSql = implode(" OR ",
+                            array_map(fn(array $range) => "connect_time > '{$range['activation_dt']}'" .
+                                ($range['expire_dt'] ? " AND connect_time < '{$range['expire_dt']}'" : '')
+                                , $numberRanges));
+                    }
+
+                    if ($rangeSql) {
+                        $numberSql = " ($numberSql) AND ($rangeSql) ";
+                    }
+                }
+                $cdrNumberSql .= PHP_EOL . ($cdrNumberSql ? " OR " : "    ") . " ($numberSql) ";
+            }
         }
+
+        !$cdrNumberSql && $cdrNumberSql = " true ";
 
 
         $query = <<< SQL
@@ -117,7 +143,7 @@ WITH cdr AS (
     FROM "calls_cdr"."cdr"
     WHERE
         ("connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
-        {$cdrNumberSql}
+        AND ({$cdrNumberSql})
     ORDER BY "connect_time" DESC
     LIMIT 100000
 ), calls AS (
@@ -129,7 +155,7 @@ WITH cdr AS (
       AND (raw."connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
 )
 
-SELECT cdr.server_id, cdr.id as cdr_id, 
+SELECT cdr.server_id, cdr.id as cdr_id, cdr.mcn_callid,
        cdr.src_number as cdr_num_a, cdr.dst_number  as cdr_num_b, cdr.connect_time + INTERVAL '3 hours' as cdr_connect_time, cdr.setup_time, cdr.session_time, src_route, dst_route
 , c_orig.src_number as orig_num_a, c_orig.dst_number as orig_num_b, c_orig.account_id as orig_account
 , c_term.src_number as term_num_a, c_term.dst_number as term_num_b, c_term.account_id as term_account
