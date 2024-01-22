@@ -133,6 +133,7 @@ class EventQueue extends ActiveRecord
     const EVENT_BUS_CMD_RESULT = 'event_bus_cmd_result';
 
     const EVENT_LK_CONTRAGENT_CHANGED = 'lk_contragent_changed';
+    const EVENT_LK_CONTRACT_CHANGED = 'lk_contract_changed';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 

@@ -325,6 +325,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     CoreLkContragent::syncAndUpdate($param['contragent_id'] ?? 0);
                     break;
 
+                case EventQueue::EVENT_LK_CONTRACT_CHANGED:
+                    \app\classes\contragent\importer\lk\CoreLkContract::me()->applyChanges($param);
+                    break;
+
                 case EventQueue::USAGE_VOIP__INSERT:
                 case EventQueue::USAGE_VOIP__UPDATE:
                 case EventQueue::USAGE_VOIP__DELETE:
