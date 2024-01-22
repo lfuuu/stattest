@@ -2183,4 +2183,66 @@ class UuController extends ApiInternalController
         return $result;
     }
 
+
+
+    /**
+     * @SWG\Put(tags = {"UniversalTariffs"}, path = "/internal/uu/upload-to-kafka", summary = "Выгрузить услуги в кафку", operationId = "UuUploadToKafka",
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги", in = "formData", required = false, default = ""),
+     *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID УЛС", in = "formData", required = false, default = ""),
+     *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID тип услуги (есди надо все услуги в УЛС - то 'all') обязательное, если есть account_id", in = "formData", required = false, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Результат выгрузки услуг в кафку",
+     *     @SWG\Schema(type = "array")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @param int $contract_id
+     * @param int $is_enabled
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionUploadToKafka()
+    {
+        $post = \Yii::$app->request->post();
+
+        if (!$post || (!isset($post['account_tariff_id']) && !isset($post['account_id']) && !isset($post['service_type_id']))) {
+            throw new \InvalidArgumentException('Empty parameters');
+        }
+
+        $query = AccountTariff::find();
+
+        if (isset($post['account_tariff_id'])) {
+            $query->andWhere(['id' => $post['account_tariff_id']]);
+        } elseif (isset($post['account_id']) && isset($post['service_type_id'])) {
+            $query->andWhere(['client_account_id' => $post['account_id']]);
+
+            if ($post['service_type_id'] != 'all') {
+                $query->andWhere(['service_type_id' => $post['service_type_id']]);
+            }
+        } else {
+            $query->andWhere('1=0');
+        }
+
+        $query
+            ->select(['id' => new \yii\db\Expression('IFNULL(prev_account_tariff_id, id)'), 'client_account_id' => 'client_account_id'])
+            ->distinct()
+            ->asArray();
+
+        $cnt = 0;
+        foreach ($query->each() as $accountTariff) {
+            EventQueue::go(Module::EVENT_UU_ANONCE2, [
+                'account_tariff_id' => $accountTariff['id'],
+                'client_account_id' => $accountTariff['client_account_id']
+            ]);
+            $cnt++;
+        }
+
+        return ['number_of_events_created' => $cnt];
+
+    }
+
 }
