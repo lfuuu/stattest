@@ -2,7 +2,7 @@
 
 namespace app\classes\adapters;
 
-use app\classes\event_bus_contragent\ContragentMessage;
+use app\classes\lk_event_bus\message\LkEventBusMessage;
 use app\classes\Singleton;
 use app\classes\Utils;
 use RdKafka\Message;
@@ -24,7 +24,7 @@ class EventBusContragent extends Singleton
 
             print_r($message->payload);
 
-            return (new ContragentMessage($message))->getOperator()->process();
+            return (new LkEventBusMessage($message))->getOperator()->process();
         });
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\event_bus_contragent;
+namespace app\classes\lk_event_bus;
 
 class EventTypeFactory
 {
@@ -20,6 +20,7 @@ class EventTypeFactory
     {
         return [
             EventTypeContragentChanged::class,
+            EventTypeContractChanged::class,
 //            EventTypeDefault::class,
         ];
     }
