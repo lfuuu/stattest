@@ -38,7 +38,7 @@ class m211015_135921_usage_voice_assist extends Migration
             ]);
 
         $this->insert(ServiceType::tableName(), [
-            'id' => ServiceType::ID_MULTICHAT,
+            'id' => ServiceType::ID_CONTACT_CENTER_AI,
             'name' => 'Мультичат',
             'parent_id' => null,
             'close_after_days' => 60
@@ -51,6 +51,6 @@ class m211015_135921_usage_voice_assist extends Migration
     public function safeDown()
     {
         $this->delete(ResourceModel::tableName(), ['id' => [ResourceModel::ID_VR_CHANNEL_COUNT, ResourceModel::ID_VR_CAROUSEL]]);
-        $this->delete(ServiceType::tableName(), ['id' => [ServiceType::ID_VOICE_ROBOT, ServiceType::ID_MULTICHAT]]);
+        $this->delete(ServiceType::tableName(), ['id' => [ServiceType::ID_VOICE_ROBOT, ServiceType::ID_CONTACT_CENTER_AI]]);
     }
 }
