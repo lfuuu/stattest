@@ -112,8 +112,12 @@ class ResourceModel extends ActiveRecord
     const ID_VR_CHANNEL_COUNT = 62;
     const ID_VR_CAROUSEL = 63;
 
-    // MULTICHAT
-    const ID_MULTICHAT_OPERATOR_COUNT = 71;
+    // contact center AI (old MULTICHAT)
+    const ID_CC_OPERATOR_COUNT = 71;
+
+    const ID_CC_VOICE_ANALYTICS = 73;
+    const ID_CC_RESOURCE1 = 74;
+    const ID_CC_RESOURCE2 = 75;
 
 
     const TYPE_BOOLEAN = 'boolean';

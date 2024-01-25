@@ -71,7 +71,7 @@ class ServiceType extends ActiveRecord
 
     const ID_VOICE_ROBOT = 37;
 
-    const ID_MULTICHAT = 38;
+    const ID_CONTACT_CENTER_AI = 38;
 
     const ID_ESIM = 39;
 
