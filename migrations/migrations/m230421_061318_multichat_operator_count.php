@@ -15,8 +15,8 @@ class m230421_061318_multichat_operator_count extends Migration
     public function safeUp()
     {
         $this->insertResource(
-            ServiceType::ID_MULTICHAT,
-            ResourceModel::ID_MULTICHAT_OPERATOR_COUNT,
+            ServiceType::ID_CONTACT_CENTER_AI,
+            ResourceModel::ID_CC_OPERATOR_COUNT,
             [
                 'name' => 'Количество операторов',
                 'unit' => '¤',
@@ -31,6 +31,6 @@ class m230421_061318_multichat_operator_count extends Migration
      */
     public function safeDown()
     {
-        $this->deleteResource(ResourceModel::ID_MULTICHAT_OPERATOR_COUNT);
+        $this->deleteResource(ResourceModel::ID_CC_OPERATOR_COUNT);
     }
 }
