@@ -34,7 +34,7 @@ class UniversalTransfer extends Processor
             parent::SERVICE_VOIP => VoipServiceTransfer::class,
             parent::SERVICE_VPBX => VirtpbxServiceTransfer::class,
             parent::SERVICE_CALL_CHAT => CallChatServiceTransfer::class,
-            parent::SERVICE_TRUNK => TrunkServiceTransfer::class,
+//            parent::SERVICE_TRUNK => TrunkServiceTransfer::class,
             parent::SERVICE_WELLTIME_SAAS => WelltimeServiceTransfer::class,
             parent::SERVICE_EXTRA => ExtraServiceTransfer::class,
 
