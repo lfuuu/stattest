@@ -181,10 +181,15 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 ?>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'currency_id')
                     ->dropDownList(Currency::getList())
+                ?>
+            </div>
+            <div class="col-sm-2">
+                <?= $form
+                    ->field($model, 'lk_shopfront_id')
                 ?>
             </div>
         </div>

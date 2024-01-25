@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetListTrait;
+use app\classes\validators\FormFieldValidator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\dictionary\PublicSite;
 use http\Url;
@@ -32,6 +33,7 @@ use http\Url;
  * @property int $price_level
  * @property int $partner_id
  * @property string $legal_type
+ * @property string $lk_shopfront_id
  *
  * @property string $wizard_type
  * @property Country $country
@@ -142,7 +144,8 @@ class EntryPoint extends ActiveRecord
                 ],
                 'integer'
             ],
-            ['name_prefix', 'safe'],
+            [['name_prefix', 'lk_shopfront_id'], 'string'],
+            [['name_prefix', 'lk_shopfront_id'], FormFieldValidator::class],
         ];
     }
 
@@ -175,6 +178,7 @@ class EntryPoint extends ActiveRecord
             'price_level' => "Уровень цен",
             'legal_type' => "Тип юр. лица",
             'partner_id' => "Партнер ID",
+            'lk_shopfront_id' => "ID витрины ЛК",
         ];
     }
 
