@@ -50,18 +50,24 @@ class CoreLkContract extends Singleton
 
         $newOrganizationId = $newOrganization->organization_id;
 
-        if ($newOrganizationId == $json['organization_id']) {
-            HandlerLogger::me()->add('Organizations equal. No changes');
+        if ($contract->organization_id == $newOrganizationId) {
+            HandlerLogger::me()->add("Organizations equal. ({$newOrganizationId}) No changes");
+            return;
         }
 
         $origOrganization = $contract->organization_id;
         $contract->organization_id = $newOrganizationId;
 
+        $identity = \Yii::$app->user->identity;
+        \Yii::$app->user->setIdentity(User::findOne(['id' => User::LK_USER_ID]));
+
         if (!$contract->save()) {
             throw new ModelValidationException($contract);
         }
 
-        HandlerLogger::me()->add("Organizations changes. ({$origOrganization} => {$newOrganizationId})");
+        \Yii::$app->user->setIdentity($identity);
+
+        HandlerLogger::me()->add("Organization changed. ({$origOrganization} => {$newOrganizationId})");
     }
 }
 
