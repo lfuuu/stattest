@@ -54,6 +54,8 @@ class EntryPoint extends ActiveRecord
     const MNP_RU_DANYCOM = 'MNP_RU_DANYCOM';
     const ID_MNP_RU_DANYCOM = 17;
 
+    const ID_TRANSFER_ALLOWED_LC = 11;
+
     public function __construct(array $config = [])
     {
         parent::__construct($config);

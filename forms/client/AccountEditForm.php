@@ -805,6 +805,6 @@ class AccountEditForm extends Form
     public function isShowTransferContract()
     {
         return $this->contract_id == ClientContract::ID_DANYCOM_TRASH
-        || ($this->clientM->superClient && $this->clientM->superClient->entry_point_id == EntryPoint::ID_MNP_RU_DANYCOM);
+        || ($this->clientM->superClient && $this->clientM->superClient->entry_point_id == EntryPoint::ID_TRANSFER_ALLOWED_LC);
     }
 }
