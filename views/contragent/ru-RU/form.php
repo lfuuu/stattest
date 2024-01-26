@@ -130,6 +130,15 @@ endif;
 
                 'position' => [],
                 'fio' => [],
+                'is_take_signatory' => [
+                    'type' => Form::INPUT_CHECKBOX,
+                ],
+                'signatory_position' => [
+                    'options' => ['disabled' => !$model->is_take_signatory],
+                ],
+                'signatory_fio' => [
+                    'options' => ['disabled' => !$model->is_take_signatory],
+                ],
             ],
         ]);
         ?>

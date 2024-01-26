@@ -49,6 +49,9 @@ class ContragentEditForm extends Form
         $tax_registration_reason,
         $position,
         $fio,
+        $is_take_signatory,
+        $signatory_position,
+        $signatory_fio,
         $tax_regime,
         $opf_id,
         $okpo,
@@ -94,6 +97,8 @@ class ContragentEditForm extends Form
                     'tax_registration_reason',
                     'position',
                     'fio',
+                    'signatory_position',
+                    'signatory_fio',
                     'okpo',
                     'okvd',
                     'ogrn',
@@ -117,6 +122,8 @@ class ContragentEditForm extends Form
                     'tax_registration_reason',
                     'position',
                     'fio',
+                    'signatory_position',
+                    'signatory_fio',
                     'okpo',
                     'okvd',
                     'ogrn',
@@ -140,6 +147,8 @@ class ContragentEditForm extends Form
                     'tax_registration_reason',
                     'position',
                     'fio',
+                    'signatory_position',
+                    'signatory_fio',
                     'okpo',
                     'okvd',
                     'ogrn',
@@ -195,12 +204,13 @@ class ContragentEditForm extends Form
                 'in',
                 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]
             ],
-            [['super_id', 'country_id', 'opf_id', 'sale_channel_id'], 'integer'],
+            [['super_id', 'country_id', 'opf_id', 'sale_channel_id', 'is_take_signatory'], 'integer'],
             ['lang_code', 'string'],
             [['passport_serial', 'passport_number'], PassportValuesValidator::class],
             [['passport_serial', 'passport_number'], PassportNumberUniqValidator::class],
             [['branch_code'], 'string', 'max' => 8],
             [['branch_code'], 'default', 'value' => null],
+            [['is_take_signatory'], 'default', 'value' => 0],
         ];
 
         // Валидация КПП, состоящая из 9 цифр, для контрагентов юр.лиц. со страной Россия
@@ -378,6 +388,9 @@ class ContragentEditForm extends Form
         $contragent->tax_registration_reason = $this->tax_registration_reason;
         $contragent->position = $this->position;
         $contragent->fio = $this->fio;
+        $contragent->is_take_signatory = $this->is_take_signatory;
+        $contragent->signatory_position = $this->signatory_position;
+        $contragent->signatory_fio = $this->signatory_fio;
         $contragent->comment = $this->comment;
 
         if ($contragent->legal_type == 'person') {
