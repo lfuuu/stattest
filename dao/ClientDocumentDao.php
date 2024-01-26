@@ -719,12 +719,8 @@ class ClientDocumentDao extends Singleton
         }
 
         return [
-            'position' => $contragent->legal_type == ClientContragent::LEGAL_TYPE ?
-                $contragent->position :
-                '',
-            'fio' => $contragent->legal_type == ClientContragent::LEGAL_TYPE ?
-                $contragent->fio :
-                $contragent->name_full,
+            'position' => $contragent->signer_position,
+            'fio' => $contragent->signer_fio,
             'name' => $contragent->name,
             'name_full' => $contragent->name_full,
 

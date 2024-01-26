@@ -44,6 +44,9 @@ use yii\db\Expression;
  * @property string $created_at
  * @property int $is_lk_first
  * @property string $lk_status
+ * @property int $is_take_signatory
+ * @property string $signatory_position
+ * @property string $signatory_fio
  *
  * @property-read ClientAccount[] $accounts
  * @property-read ClientContragentPerson $person
@@ -54,6 +57,8 @@ use yii\db\Expression;
  * @property-read ClientSuper $super
  * @property-read ClientContact $partnerContract
  * @property-read string $address
+ * @property-read string $signer_position
+ * @property-read string $signer_fio
  */
 class ClientContragent extends HistoryActiveRecord
 {
@@ -95,6 +100,9 @@ class ClientContragent extends HistoryActiveRecord
         'sale_channel_id',
         'partner_contract_id',
         'branch_code',
+        'signatory_fio',
+        'signatory_position',
+        'is_take_signatory',
     ];
 
 
@@ -381,7 +389,7 @@ class ClientContragent extends HistoryActiveRecord
 
     public function getAddress()
     {
-        switch($this->legal_type)  {
+        switch ($this->legal_type) {
             case self::PERSON_TYPE:
                 $person = $this->person;
                 return $person ? $person->registration_address : '';
@@ -390,5 +398,19 @@ class ClientContragent extends HistoryActiveRecord
             default: // && LEGAL_TYPE
                 return $this->address_jur;
         }
+    }
+
+    public function getSigner_position()
+    {
+        return ($this->legal_type == ClientContragent::LEGAL_TYPE ?
+            $this->position :
+            '');
+    }
+
+    public function getSigner_fio()
+    {
+        return ($this->legal_type == ClientContragent::LEGAL_TYPE ?
+            $this->fio :
+            $this->name_full);
     }
 }
