@@ -603,7 +603,15 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getSigner_position()
     {
-        return $this->contract->contragent->position;
+        return $this->contract->contragent->signer_position;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSigner_name()
+    {
+        return $this->contract->contragent->signer_fio;
     }
 
     /**
@@ -612,14 +620,6 @@ class ClientAccount extends HistoryActiveRecord
     public function getSigner_positionV()
     {
         return $this->contract->contragent->positionV;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSigner_name()
-    {
-        return $this->contract->contragent->fio;
     }
 
     /**
