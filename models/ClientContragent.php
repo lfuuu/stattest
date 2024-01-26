@@ -100,9 +100,6 @@ class ClientContragent extends HistoryActiveRecord
         'sale_channel_id',
         'partner_contract_id',
         'branch_code',
-        'signatory_fio',
-        'signatory_position',
-        'is_take_signatory',
     ];
 
 
