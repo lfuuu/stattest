@@ -64,6 +64,12 @@
                 $addressJur.val($(this).val());
             }
         });
+
+        $('#contragenteditform-is_take_signatory').on('change', function (event) {
+            var isChecked = $(event.currentTarget).is(':checked')
+            $('#contragenteditform-signatory_position').prop('disabled', !isChecked);
+            $('#contragenteditform-signatory_fio').prop('disabled', !isChecked);
+        });
     })
 
 }(jQuery);
