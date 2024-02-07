@@ -66,6 +66,7 @@ class Organization extends ActiveRecord
     const WL_MCN_INNONET = 23;
     const AB_SERVICE_MARCOMNET = 14;
     const WELLSTART = 8;
+    const VOICE_CONNECT = 24;
 
     const INVOICE_COUNTER_RANGE_ID_MONTH = 1;
     const INVOICE_COUNTER_RANGE_ID_YEAR = 2;
