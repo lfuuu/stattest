@@ -33,6 +33,7 @@ class SBISInfo
         $groupIds1 = [];
         switch ($sbisOrganization->id) {
             case SBISOrganization::ID_MCN_TELECOM:
+            case SBISOrganization::ID_VOICE_CONNECT:
                 $groupIds1 = [
                     SBISExchangeGroup::ACT_AND_INVOICE_2019,
                 ];
