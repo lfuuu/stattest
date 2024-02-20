@@ -118,10 +118,11 @@ class BalanceSimple
                     $sum[$params['client_currency']]['ts']
                         ?    'IF(P.payment_date>="'.$sum[$params['client_currency']]['ts'].'",1,0)'
                         :    '1'
-                ).' as in_sum, ai.info_json
+                ).' as in_sum, ai.info_json, atl.uuid_log
             from
                 newpayments as P
             LEFT JOIN newpayment_api_info ai ON ai.payment_id=P.id
+            LEFT JOIN payment_atol atl ON atl.id=P.id
             LEFT JOIN
                 user_users as U
             on
@@ -152,6 +153,19 @@ class BalanceSimple
                 $R2[$k2]['bill_vis_no'] = $r2['bill_no'];
                 if ($r2['info_json']) {
                     $r2['info_json'] = var_export(json_decode($r2['info_json'], true), true);
+                }
+                if ($r2['uuid_log']) {
+                    $uuidLog = json_decode($r2['uuid_log'], true);
+                    $status = $uuidLog['status'] ?? false;
+                    $atolStatus = false;
+                    if ($status !== false) {
+                        if ($status == 'done') {
+                            $atolStatus = ['status' => 'done', 'text' => $uuidLog['payload']['ofd_receipt_url']];
+                        }else{
+                            $atolStatus = ['status' => $status, 'text' => $uuidLog['error']['text']];
+                        }
+                    }
+                    $r2['uuid_log'] = $atolStatus;
                 }
                 if($r['bill_no'] == $r2['bill_no']
                 &&

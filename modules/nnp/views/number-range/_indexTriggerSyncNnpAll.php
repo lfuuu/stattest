@@ -68,7 +68,7 @@ $isTimeCorrect = true;//$currentHour >= 19;
 
         $_userId = EventFlag::getOrNull('last_import_file_user_id');
         if ($_userId) {
-            $out[] = 'Ползователь: ' . (\app\models\User::find()->where(['id' => $_userId])->select('name')->scalar() ?: '???');
+            $out[] = 'Пользователь: ' . (\app\models\User::find()->where(['id' => $_userId])->select('name')->scalar() ?: '???');
         }
 
         if (EventFlag::getOrNull('is_nnp_sync_started')) {

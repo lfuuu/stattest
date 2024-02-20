@@ -551,7 +551,8 @@ class m_newaccounts extends IModule
                 P.bill_no,
                 P.sum_pay,
                 P.bank,
-                ai.info_json
+                ai.info_json,
+                atl.uuid_log
             from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
                         L.payment_id, L.bill_no, L.sum as sum_pay, P.bank
                     FROM newpayments P LEFT JOIN newpayments_orders L ON L.client_id=' . $fixclient_data['id'] . ' and P.id=L.payment_id
@@ -564,6 +565,7 @@ class m_newaccounts extends IModule
                 ) as P
 
             LEFT JOIN newpayment_api_info ai on ai.payment_id = P.id
+            LEFT JOIN payment_atol atl on atl.id = P.id
             LEFT JOIN user_users as U on U.id=P.add_user
 
             order by
@@ -596,6 +598,20 @@ class m_newaccounts extends IModule
                 if ($r2['info_json']) {
                     $r2['info_json'] = var_export(json_decode($r2['info_json'], true), true);
                 }
+                if ($r2['uuid_log']) {
+                    $uuidLog = json_decode($r2['uuid_log'], true);
+                    $status = $uuidLog['status'] ?? false;
+                    $atolStatus = false;
+                    if ($status !== false) {
+                        if ($status == 'done') {
+                            $atolStatus = ['status' => 'done', 'text' => $uuidLog['payload']['ofd_receipt_url']];
+                        }else{
+                            $atolStatus = ['status' => $status, 'text' => $uuidLog['error']['text']];
+                        }
+                    }
+                    $r2['uuid_log'] = $atolStatus;
+                }
+
                 if (strpos($r2['payment_id'], '-')) {
                     $r2['currency'] = 'RUB';
                     $r2['id'] = $r2['payment_id'];
