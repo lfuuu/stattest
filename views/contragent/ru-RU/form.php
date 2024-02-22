@@ -22,10 +22,13 @@ $optionState = $isDisabled ? ['disabled' => true] : [];
 
 <?php
 if ($isDisabled):
+    $importLkStatus = $model->contragent->importLkStatus;
     ?>
     <div class="row max-screen">
         <div class="col-sm-12 text-center text-warning">
             <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span>Редактирование основных данных контрагента доступно только в ЛК</span>
+            <?= ($importLkStatus ? '<br><span class="text-'.($importLkStatus->status_code == 'ok' ? 'info' : 'warning').'"><small>Последнее обновление было: ' . \app\helpers\DateTimeZoneHelper::getDateTime($importLkStatus->updated_at) . '</small></span>' : '') ?>
+            <?= ($importLkStatus && $importLkStatus->status_code != 'ok'? '<br><span class="text-danger">Ошибка импорта данных с ЛК: ' . $importLkStatus->status_text . '</span>' : '') ?>
             <br>
             <br>
         </div>

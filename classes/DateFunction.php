@@ -116,6 +116,10 @@ class DateFunction
      */
     public static function getDateRange($dateFrom, $dateTo)
     {
+        if (!$dateFrom) {
+            return '';
+        }
+
         $dateFrom = self::convertToDateTime($dateFrom);
         $dateTo = self::convertToDateTime($dateTo);
 

@@ -63,10 +63,14 @@ $priceLevels = PriceLevel::getList();
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
                             <span class="c-blue-color">
                                 <?= trim($contragent->name) ? $contragent->name : '<i>Не задано</i>' ?>
-                                <?= ($contragent->is_lk_first ? Html::tag('span', '', [
-                                    'class' => 'text-warning small glyphicon glyphicon-warning-sign',
-                                    'title' => 'Редактирование основных данных контрагента доступно только в ЛК',
-                                ]) : '') ?>
+                                <?php if ($contragent->is_lk_first) :
+                                    $importLkStatus = $contragent->importLkStatus;
+                                    ?>
+                                <?=Html::tag('span', '', [
+                                    'class' => 'text-'.($importLkStatus ? ($importLkStatus->status_code == 'ok' ? 'info' : 'danger') : 'warning').' small glyphicon glyphicon-warning-sign',
+                                    'title' => ($importLkStatus && $importLkStatus->status_code != 'ok' ? $importLkStatus->status_text . PHP_EOL : '') . 'Редактирование основных данных контрагента доступно только в ЛК',
+                                ]) ?>
+                                <?php endif; ?>
                             </span>
                         </a>
                     </div>

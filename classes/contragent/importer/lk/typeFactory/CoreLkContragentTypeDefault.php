@@ -6,6 +6,7 @@ use app\classes\contragent\importer\lk\CoreLkContragent;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContragent;
+use app\models\ClientContragentImportLkStatus;
 use app\models\ClientContragentPerson;
 
 class CoreLkContragentTypeDefault
@@ -88,12 +89,14 @@ class CoreLkContragentTypeDefault
             if ($this->diffContragentPerson) {
                 $this->updateModel($this->coreLkContragent->getStatContragent()->personModel, $this->diffContragentPerson);
             }
+            ClientContragentImportLkStatus::set($this->contragent->id);
             $transaction->commit();
 //            $transaction->rollBack();
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
             echo PHP_EOL . 'ERROR: ' . $e->getMessage();
+            ClientContragentImportLkStatus::set($this->coreLkContragent->getContragentId(), 'error', $e->getMessage());
 //            throw $e;
         }
 
