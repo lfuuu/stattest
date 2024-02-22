@@ -59,6 +59,7 @@ use yii\db\Expression;
  * @property-read string $address
  * @property-read string $signer_position
  * @property-read string $signer_fio
+ * @property-read ClientContragentImportLkStatus $importLkStatus
  */
 class ClientContragent extends HistoryActiveRecord
 {
@@ -323,6 +324,11 @@ class ClientContragent extends HistoryActiveRecord
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::class, ['id' => 'super_id']);
+    }
+
+    public function getImportLkStatus()
+    {
+        return $this->hasOne(ClientContragentImportLkStatus::class, ['contragent_id' => 'id']);
     }
 
     /**
