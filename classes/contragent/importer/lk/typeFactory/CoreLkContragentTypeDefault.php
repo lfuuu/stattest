@@ -89,7 +89,7 @@ class CoreLkContragentTypeDefault
             if ($this->diffContragentPerson) {
                 $this->updateModel($this->coreLkContragent->getStatContragent()->personModel, $this->diffContragentPerson);
             }
-            ClientContragentImportLkStatus::set($this->contragent->id);
+            ClientContragentImportLkStatus::set($this->coreLkContragent->getContragentId());
             $transaction->commit();
 //            $transaction->rollBack();
             return true;
