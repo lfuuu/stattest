@@ -67,6 +67,9 @@ class ClientContragentImportLkStatus extends ActiveRecord
         }
         $status->status_code = $statusCode;
         $status->status_text = $statusText;
+        if (!$status->getIsNewRecord()) {
+            $status->touch('updated_at');
+        }
 
         if(!$status->save()) {
             throw new ModelValidationException($status);
