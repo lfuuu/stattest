@@ -77,7 +77,7 @@ class CoreLkContragentTypeDefault
     public function update(): ?bool
     {
         if (!$this->checkIfNeed()) {
-            return null;
+//            return null;
         }
 
         $transaction = \Yii::$app->db->beginTransaction();
