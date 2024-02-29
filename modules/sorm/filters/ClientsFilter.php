@@ -25,6 +25,15 @@ class ClientsFilter extends ActiveRecord
         47, // self::REGION_ID_KALUGA,
         88, // self::REGION_ID_NN,
         42, // self::REGION_ID_VLADIMIR,
+        77, // self::REGION_ID_RYAZAN,
+        63, // self::REGION_ID_ULIANOVSK,
+        55, // self::REGION_ID_KRASNOIARSK,
+        44, // self::REGION_ID_SMOLENSK,
+        89, // self::REGION_ID_VLADIVOSTOK,
+        71, // self::REGION_ID_MURMANSK,
+        66, // self::REGION_ID_SARATOV
+        74, // self::REGION_ID_IZHEVSK
+        95, // self::REGION_ID_EKATERINBURG
 
         // 777, // self::REGION_ID_FOR_IMPORT,
     ];
