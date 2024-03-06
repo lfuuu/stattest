@@ -367,17 +367,25 @@ WHERE b.client_id = ' . $account->id . '
                         'invoice_id' => $row['id'],
                     ]);
                 }
-            } elseif ($row['type'] == 'bill' && !$isNotRussia) {
+            } elseif ($row['type'] == 'bill' /* && !$isNotRussia */ ) {
 //                if (!$row['is_invoice_created']) {
 //                    $row['outcome_sum'] = 0;
 //                    $row['income_sum'] = $row['outcome_sum'];
 //                    $row['outcome_sum'] = 0;
 //                }
+//                $row['link'] = Encrypt::encodeArray([
+//                    'bill' => $row['number'],
+//                    'object' => 'bill-2-RUB',
+//                    'client' => $account->id,
+//                    'is_pdf' => 1
+//                ]);
+
                 $row['link'] = Encrypt::encodeArray([
+                    'doc_type' => 'proforma',
                     'bill' => $row['number'],
                     'object' => 'bill-2-RUB',
                     'client' => $account->id,
-                    'is_pdf' => 1
+                    'is_pdf' => 1,
                 ]);
             }
             unset($row['id']);
