@@ -58,14 +58,14 @@ class InvoiceForm extends Form
     public function getFileName()
     {
         if ($this->_invoiceProformaBill) {
-            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_PROFORMA, $this->_invoiceProformaBill->clientAccount->contragent->country->code);
+            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_PROFORMA, $this->_invoiceProformaBill->clientAccount->getUuCountryId());
 
             return PaymentForm::getPath() . PaymentForm::getFileName($template->type_id, $template->country->alpha_3, $template->version, self::TEMPLATE_EXTENSION);
         }elseif ($this->_invoice && $this->_invoice->is_reversal) {
             if ($this->_invoice->bill->clientAccount->contragent->lang_code == Language::LANGUAGE_ENGLISH) {
                 $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, Country::UNITED_KINGDOM);
             } else {
-                $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, $this->_invoice->bill->clientAccount->contragent->country_id);
+                $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_STORNO, $this->_invoice->bill->clientAccount->getUuCountryId());
             }
 
             if (!$template) {
