@@ -25,16 +25,13 @@ $bill = null;
 //exit();
 
 if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RUB")) {
-    if (!$R['client'] || !$R['bill']) {
-        return;
-    }
+    if ($R['client'] && $R['bill']) {
 
-    $bill = Bill::findOne(['bill_no' => $R['bill'], 'client_id' => $R['client']]);
-    if (!$bill) {
-        return;
+        $bill = Bill::findOne(['bill_no' => $R['bill'], 'client_id' => $R['client']]);
+        if ($bill) {
+            $bill->setViewed();
+        }
     }
-
-    $bill->setViewed();
 }
 
 $_GET = $R;

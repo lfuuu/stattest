@@ -57,10 +57,10 @@ class DocumentReportFactory extends Singleton
 
         if ($bill instanceof Bill) {
             $currency = $bill->currency;
-            $language = $bill->clientAccount->contragent->country->lang;
+            $language = $bill->clientAccount->clientContractModel->clientContragent->lang_code;
         } elseif ($bill instanceof ClientAccount) {
             $currency = $bill->currency;
-            $language = $bill->contragent->country->lang;
+            $language = $bill->clientContractModel->clientContragent->lang_code;
         } else {
             Assert::isUnreachable('main object unreachable');
         }
