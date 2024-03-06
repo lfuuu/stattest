@@ -24,7 +24,7 @@ class InnValidator extends Validator
     public function validateValue($value)
     {
         if (\Yii::$app->isEu()) {
-            if (!$this->_checkInnEuro($value) && !$this->_checkInnHU($value)) {
+            if ($value && !$this->_checkInnEuro($value) && !$this->_checkInnHU($value) && !$this->_checkInn($value)) {
                 return ['Incorrect TIN'];
             }
         } elseif (!$this->_checkInn($value)) {
