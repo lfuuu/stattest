@@ -5,8 +5,8 @@ namespace app\modules\nnp\classes;
 class RouteMncDownloader
 {
 
-    const URL_FILE_LIST = 'https://zniis.ru/table-of-route-numbers/';
-    const URL_SITE = 'https://zniis.ru';
+    const URL_FILE_LIST = 'https://www.niir.ru/bdpn/tablica-marshrutnyh-nomerov/';
+    const URL_SITE = 'https://www.niir.ru';
 
     const downloadDir = './runtime';
 
@@ -29,7 +29,7 @@ class RouteMncDownloader
     {
         $m = [];
 
-        preg_match_all("/<a href='(?'url'\/router\/router-(?'day'\d{1,2})_(?'month'\d{1,2})_(?'year'20\d{2}).xls)'>Скачать/u", $this->page, $m, PREG_SET_ORDER);
+        preg_match_all("/href='(?'url'\/wp-content\/uploads\/bdpnfiles\/number_range\/number_range_auto-(?'day'\d{1,2})_(?'month'\d{1,2})_(?'year'20\d{2}).xls)'/u", $this->page, $m, PREG_SET_ORDER);
 
         if (!$m) {
             throw new \LogicException('File list empty');
