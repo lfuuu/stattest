@@ -26,3 +26,4 @@ monitorItem mailerLog;
 monitorItem mailerProcess;
 monitorItem handlerProcess;
 monitorItem exportFreeNumbers;
+monitorItem mncPortedLog;
