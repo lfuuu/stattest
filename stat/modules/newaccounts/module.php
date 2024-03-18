@@ -8,6 +8,7 @@ use app\classes\documents\DocumentReportFactory;
 use app\classes\Encrypt;
 use app\classes\rewards\CalculateReward;
 use app\classes\StatModule;
+use app\classes\payments\PaymentParser;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
@@ -4680,7 +4681,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
         foreach ($pays as $pay) {
             $paymentId = Payment::find()->where([
                 'payment_no' => $pay['pp'],
-                'oper_date' => DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT),
+                'oper_date' => DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['oper_date'])->format(DateTimeZoneHelper::DATE_FORMAT),
                 'sum' => $pay['sum'],
             ])->select('id')->scalar();
 
@@ -4689,15 +4690,18 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
                     $info = new \app\models\PaymentInfo();
                     $info->payment_id = $paymentId;
 
+                    $info->payer = $pay['payer'];
                     $info->payer_inn = $pay['inn'];
                     $info->payer_bik = $pay['bik'];
                     $info->payer_bank = $pay['a2'];
                     $info->payer_account = $pay['account'];
 
+                    $info->getter = $pay['geter'];
                     $info->getter_inn = $pay['geter_inn'];
                     $info->getter_bik = $pay['geter_bik'];
                     $info->getter_bank = $pay['geter_bank'];
                     $info->getter_account = $pay['geter_acc'];
+                    $info->comment = $pay['comment'];
 
                     if (!$info->save()) {
                         throw new ModelValidationException($info);
@@ -4722,7 +4726,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
 
         $ps = array_filter($payments, function($p) use ($payment) {
             return $p['pp'] ==  $payment->payment_no
-                && DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $p['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT) == $payment->oper_date
+                && DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $p['oper_date'])->format(DateTimeZoneHelper::DATE_FORMAT) == $payment->oper_date
                 && $p['sum'] == $payment->sum
                 ;
         });

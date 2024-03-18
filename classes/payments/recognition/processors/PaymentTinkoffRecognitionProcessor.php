@@ -91,7 +91,7 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
         if (preg_match("/id(\d{5,})/", $description, $matches)) {
             $data['account_id'] = $matches[1];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
-        } elseif (preg_match("/(л[\/\.\s]*с[.]*|лицевому счету)\s*(#|№| )?(\d{5,6})\b/iu", $description, $matches)) {
+        } elseif (preg_match("/(л[\/\.\s]*с[.]*|лицевому счету)\s*(#|№| )?(\d{5,6})\b/iu", $description, $matches)) { // Абонентская плата за доступ в интернет Лицевой счет: 54183 -за февраль
             $data['account_id'] = $matches[3];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
         }
