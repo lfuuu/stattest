@@ -360,6 +360,11 @@ function getPaymentInfo(\app\models\Payment $pay)
     return $info;
 }
 
+function getPaymentInfoJson(\app\models\Payment $pay) {
+
+    return \app\models\PaymentInfo::getInfoText($pay);
+}
+
 /** @var \app\models\Payment $pay */
 foreach ($paysPlus as $pay) {
 
@@ -369,7 +374,7 @@ foreach ($paysPlus as $pay) {
         'date' => $pay->payment_date,
         'sum' => round($pay->sum, 2),
         'info' => $listFilter == 'income' ? getPaymentInfo($pay) : '',
-        'info_json' => $pay->type == \app\models\Payment::TYPE_API ? $pay->apiInfo->info_json : null,
+        'info_json' => getPaymentInfoJson($pay),
         'is_paid' => null,
         'type' => 'payment',
     ];
@@ -388,7 +393,7 @@ foreach ($paysMinus as $pay) {
         'date' => $pay->payment_date,
         'sum' => round($pay->sum, 2),
         'info' => $listFilter == 'income' ? getPaymentInfo($pay) : '',
-        'info_json' => $pay->type == \app\models\Payment::TYPE_API ? $pay->apiInfo->info_json : null,
+        'info_json' => getPaymentInfoJson($pay),
         'is_paid' => null,
         'type' => 'payment_minus',
     ];
@@ -859,7 +864,7 @@ function cellContentOptions($is_paid, $addClass = '')
                                         'data-toggle' => 'popover',
                                         'data-html' => 'true',
                                         'data-placement' => 'bottom',
-                                        'data-content' => Html::tag('pre', var_export(json_decode($row->payment['info_json'], true), true)),
+                                        'data-content' => Html::tag('pre', $row->payment['info_json']),
                                     ]
                                 );
                             }

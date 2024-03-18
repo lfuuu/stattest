@@ -342,11 +342,11 @@
                     {if $pay.comment}
                         </tr>
                         <tr class="{$class}">
-                            <td colspan="6" class="comment">
+                            <td colspan="6" class="comment"{if $pay.info_json} style="border-bottom: 1px dotted #000; text-decoration: none;"{/if}>
                                 {if $pay.info_json}
                                     <span class="btn btn-xs " data-toggle="popover" data-html="true" data-placement="bottom" data-content="<br />
                                     <pre>{$pay.info_json|escape:"html"}</pre>
-                                    " data-original-title="" title="">{$pay.comment|escape:"html"}</span>
+                                    " data-original-title="" title="">{if $pay.comment}{$pay.comment|escape:"html"}{else}&nbsp;1111{/if}</span>
                                 {else}
                                     {$pay.comment|escape:"html"}
                                 {/if}

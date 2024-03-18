@@ -111,7 +111,7 @@ class PaymentParser
         }
         fclose($f);
         if ($tkey == '1CClientBankExchange') $v = 'markomnet'; else $v = 'mcn';
-\print_r($R);
+
         $_payAcc = $payAcc;
         $payAcc = [];
 
