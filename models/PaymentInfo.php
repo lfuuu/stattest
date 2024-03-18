@@ -35,4 +35,53 @@ class PaymentInfo extends ActiveRecord
     {
         return ['payment_id'];
     }
+
+    public static function getInfoText(Payment $payment, self $i = null)
+    {
+        $res = '';
+        if ($payment->type == Payment::TYPE_BANK) {
+            if (!$i) {
+                $i = $payment->info;
+            }
+            if ($i && $i->payer_account) {
+                $res = <<<PAY
+<small><i>Банковский платеж:</i></small>
+
+Плательшик:
+    {$i->payer}
+    ИНН: {$i->payer_inn}
+    Банк: {$i->payer_bank} ({$i->payer_bik})
+    р/с: {$i->payer_account}
+PAY;
+
+                if ($i->comment) {
+                    $res .= "\n\nКомментарий: {$i->comment}\n";
+                }
+
+                if ($i->getter) {
+                    $res .= <<<PAY
+<small>
+Получатель: 
+    {$i->getter}
+    ИНН: {$i->getter_inn}
+    Банк: {$i->getter_bank} ({$i->getter_bik})
+    р/с: {$i->getter_account}
+    </small>
+PAY;
+
+                    if (!$payment->comment && $i->comment) {
+                        $payment->comment = 'Платеж #' . $payment->payment_no . ': ' . $i->comment;
+                    }
+                }
+            }
+        } elseif ($payment->type == Payment::TYPE_API) {
+            $res = var_export(json_decode($payment->apiInfo->info_json, true), true);
+        }
+
+        if (!$payment->comment && $res) {
+            $payment->comment = '...';
+        }
+
+        return $res;
+    }
 }

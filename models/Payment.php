@@ -42,6 +42,7 @@ use yii\db\ActiveQuery;
  * @property-read PaymentAtol $paymentAtol
  * @property-read PaymentStripe $paymentStripe
  * @property-read PaymentApiInfo $apiInfo
+ * @property-read PaymentInfo $info
  * @property-read PaymentApiChannel $apiChannel
  */
 class Payment extends ActiveRecord
@@ -225,6 +226,14 @@ class Payment extends ActiveRecord
     public function getApiInfo()
     {
         return $this->hasOne(PaymentApiInfo::class, ['payment_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getInfo()
+    {
+        return $this->hasOne(PaymentInfo::class, ['payment_id' => 'id']);
     }
 
     /**

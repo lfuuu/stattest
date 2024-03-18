@@ -554,6 +554,17 @@ class m_newaccounts extends IModule
                 P.bank,
                 ai.info_json,
                 atl.uuid_log
+                ,pi.payer_inn
+                ,pi.payer_bik
+                ,pi.payer_bank
+                ,pi.payer_account
+                ,pi.getter_inn
+                ,pi.getter_bik
+                ,pi.getter_bank
+                ,pi.getter_account
+                ,pi.payer
+                ,pi.getter
+                ,pi.comment as pi_comment
             from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
                         L.payment_id, L.bill_no, L.sum as sum_pay, P.bank
                     FROM newpayments P LEFT JOIN newpayments_orders L ON L.client_id=' . $fixclient_data['id'] . ' and P.id=L.payment_id
@@ -566,6 +577,7 @@ class m_newaccounts extends IModule
                 ) as P
 
             LEFT JOIN newpayment_api_info ai on ai.payment_id = P.id
+            LEFT JOIN newpayment_info pi on pi.payment_id = P.id
             LEFT JOIN payment_atol atl on atl.id = P.id
             LEFT JOIN user_users as U on U.id=P.add_user
 
@@ -595,10 +607,20 @@ class m_newaccounts extends IModule
                 'isCanceled' => $r['is_canceled']
             ];
 
-            foreach ($R2 as $k2 => $r2) {
-                if ($r2['info_json']) {
-                    $r2['info_json'] = var_export(json_decode($r2['info_json'], true), true);
+            foreach ($R2 as $k2 => &$r2) {
+                $payment = new Payment();
+                $payment->setAttributes($r2, false);
+                $info = new \app\models\PaymentInfo();
+                $info->payment_id = $payment->id;
+                $info->setAttributes($r2, false);
+                $info->comment = $r2['pi_comment'];
+
+                $r2['info_json'] = \app\models\PaymentInfo::getInfoText($payment, $info);
+
+                if (!$r2['comment'] && $r2['info_json']) {
+                    $r2['comment'] = $payment->comment;
                 }
+
                 if ($r2['uuid_log']) {
                     $uuidLog = json_decode($r2['uuid_log'], true);
                     $status = $uuidLog['status'] ?? false;
