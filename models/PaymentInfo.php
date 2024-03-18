@@ -29,4 +29,10 @@ class PaymentInfo extends ActiveRecord
     {
         return 'newpayment_info';
     }
+
+
+    public static function primaryKey()
+    {
+        return ['payment_id'];
+    }
 }

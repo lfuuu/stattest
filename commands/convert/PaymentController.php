@@ -11,12 +11,7 @@ class PaymentController extends Controller
 {
     public function actionA($file)
     {
-//        $store = '/home/httpd/stat.mcn.ru/store/payments/';
-//        $file = 'sber_mcnservice__14-03-2024.txt';
-//        $file = 'sber_telekom__14-03-2024.txt';
-        $store = '';
-
-        $this->go($store . $file);
+        $this->go($file);
     }
 
     private function go($file)
@@ -32,9 +27,6 @@ class PaymentController extends Controller
         }
 
         foreach ($payments as $pay) {
-            if ($pay['pp'] != 128) {
-//                continue;
-            }
 
             $sum = $pay['sum'];
             if (isset($payAccs[$pay['account']])) {
@@ -56,14 +48,14 @@ class PaymentController extends Controller
             }
 
             if ($payment) {
-//                try {
+                try {
                     $this->_c($payment, $pay);
-//                }catch (\Exception $e) {
-//                    echo PHP_EOL ;
-//                    print_r($e->getMessage());
-//                }
+                }catch (\Exception $e) {
+                    echo PHP_EOL ;
+                    print_r($e->getMessage());
+                }
             } else {
-                echo ' $payment not found';
+//                echo ' $payment not found';
             }
         }
     }
