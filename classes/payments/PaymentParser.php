@@ -17,6 +17,7 @@ class PaymentParser
                 'Плательщик' => 'payer',
                 'Плательщик1' => 'payer',
                 'ДатаПоступило' => 'oper_date',
+                'ДатаСписано' => 'oper_date_out',
 
                 "ПлательщикСчет" => "account",
                 "ПолучательСчет" => "geter_acc",

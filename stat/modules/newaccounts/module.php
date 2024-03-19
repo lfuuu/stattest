@@ -4703,7 +4703,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
         foreach ($pays as $pay) {
             $paymentId = Payment::find()->where([
                 'payment_no' => $pay['pp'],
-                'oper_date' => DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['oper_date'])->format(DateTimeZoneHelper::DATE_FORMAT),
+                'oper_date' => DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['oper_date_out'] ?: $pay['oper_date'] ?: $pay['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT),
                 'sum' => $pay['sum'],
             ])->select('id')->scalar();
 
@@ -4748,7 +4748,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
 
         $ps = array_filter($payments, function($p) use ($payment) {
             return $p['pp'] ==  $payment->payment_no
-                && DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $p['oper_date'])->format(DateTimeZoneHelper::DATE_FORMAT) == $payment->oper_date
+                && DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $p['oper_date_out'] ?: $p['oper_date'] ?: $p['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT) == $payment->oper_date
                 && $p['sum'] == $payment->sum
                 ;
         });

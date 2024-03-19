@@ -35,17 +35,10 @@ class PaymentController extends Controller
 
             $payment = Payment::find()->where([
                 'payment_no' => $pay['pp'],
-                'oper_date' => \DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['oper_date'] ?: $pay['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT),
+                'oper_date' => \DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['oper_date_out'] ?: $pay['oper_date'] ?: $pay['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT),
                 'sum' => $sum,
             ])->one();
 
-            if (!$payment) {
-                $payment = Payment::find()->where([
-                    'payment_no' => $pay['pp'],
-                    'oper_date' => \DateTime::createFromFormat(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, $pay['date_dot'])->format(DateTimeZoneHelper::DATE_FORMAT),
-                    'sum' => $sum,
-                ])->one();
-            }
 
             if ($payment) {
                 try {
