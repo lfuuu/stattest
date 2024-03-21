@@ -167,7 +167,7 @@ class m_newaccounts extends IModule
             return;
         }
 
-        set_time_limit(60);
+        set_time_limit(600);
 
         $_SESSION['clients_client'] = $fixclient;
 
