@@ -101,7 +101,7 @@ class HttpRequest extends \yii\httpclient\Request
         $this->addOptions([
             CURLOPT_FRESH_CONNECT => 1,
             CURLOPT_FORBID_REUSE => 1,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_TIMEOUT => 300,
             CURLOPT_SSL_VERIFYPEER => false, // на платформе самоподписанный сертификат
         ]);
 
