@@ -106,7 +106,7 @@ ansible:
         apk add net-tools mc
         apk add curl
         apk add cronie
-        apk add mysql
+        apk add 
         apk add git
         apk add vim
         # libs
@@ -736,7 +736,7 @@ ansible:
 {{ if (eq .env "dev") }}
 ---
 image: {{ .project }}-mysql8-dev
-from: mysql:8
+from: mysql:8.0.25
 
 git:
   - add: /migrations/migrations/data/m100000_000001_init/nispd.sql
