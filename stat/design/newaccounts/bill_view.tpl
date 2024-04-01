@@ -204,7 +204,7 @@
 {foreach from=$bill_lines item=item key=key name=outer}
     {if !$item.is_deleted}
         {assign var="discount" value=`$discount+$item.discount_auto+$item.discount_set`}
-        {assign var="sum_tax" value=`$sum_tax+$item.sum_tax`} {$item.sum_tax}
+        {assign var="sum_tax" value=`$sum_tax+$item.sum_tax`}
         {assign var="sum_without_tax" value=`$sum_without_tax+$item.sum_without_tax`}
     {/if}
 {/foreach}
