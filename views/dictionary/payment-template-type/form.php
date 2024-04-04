@@ -49,6 +49,10 @@ echo Breadcrumbs::widget([
             <?= $form->field($model, 'is_enabled')->checkbox() ?>
         </div>
 
+        <div class="col-sm-6">
+            <?= $form->field($model, 'is_portrait')->dropDownList(PaymentTemplateType::$typeList) ?>
+        </div>
+
     </div>
 
     <div class="form-group text-right">

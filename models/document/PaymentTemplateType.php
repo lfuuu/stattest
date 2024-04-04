@@ -20,6 +20,7 @@ use app\models\User;
  * @property string $created_at
  * @property string $updated_at
  * @property integer $updated_by
+ * @property integer $is_portrait
  *
  * @property PaymentTemplate[] $paymentTemplates
  * @property User $updatedBy
@@ -35,6 +36,13 @@ class PaymentTemplateType extends ActiveRecord
     const TYPE_INVOICE_STORNO = 2;
     const TYPE_INVOICE_RF = 3;
     const TYPE_INVOICE_PROFORMA = 4;
+    const TYPE_PORTRAIT = 1;
+    const TYPE_LANDSCAPE = 0;
+
+    public static $typeList = [
+        self::TYPE_PORTRAIT => 'Портретная',
+        self::TYPE_LANDSCAPE => 'Ландшафтная',
+    ];
 
     /**
      * @inheritdoc
@@ -80,6 +88,7 @@ class PaymentTemplateType extends ActiveRecord
             [['updated_by'], 'integer'],
             [['name', 'note'], 'string', 'max' => 255],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
+            [['is_portrait'], 'integer'],
         ];
     }
 
@@ -96,6 +105,7 @@ class PaymentTemplateType extends ActiveRecord
             'created_at' => 'Создан',
             'updated_at' => 'Обновлён',
             'updated_by' => 'Изменён',
+            'is_portrait' => 'Ориентация',
         ];
     }
 
