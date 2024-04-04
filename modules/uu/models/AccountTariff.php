@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\behaviors\ModelLifeRecorder;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
@@ -175,6 +176,11 @@ class AccountTariff extends ActiveRecord
                     ],
                     'value' => Yii::$app->user->getId(),
                 ],
+                'ModelLifeRec' => [
+                    'class' => ModelLifeRecorder::class,
+                    'modelName' => 'service',
+                ]
+
             ]
         );
     }

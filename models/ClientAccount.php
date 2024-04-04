@@ -9,6 +9,7 @@ use app\classes\behaviors\ClientAccountSyncEvent;
 use app\classes\behaviors\ClientChangeNotifier;
 use app\classes\behaviors\EffectiveVATRate;
 use app\classes\behaviors\EventQueueAddEvent;
+use app\classes\behaviors\ModelLifeRecorder;
 use app\classes\behaviors\SetOldStatus;
 use app\classes\behaviors\SetTaxVoip;
 use app\classes\BillContract;
@@ -345,6 +346,10 @@ class ClientAccount extends HistoryActiveRecord
             'SetTaxVoip' => SetTaxVoip::class,
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class, // Логирование изменений всегда в конце
             'ClientChangeNotifier' => ClientChangeNotifier::class,
+            'ModelLifeRec' => [
+                'class' => ModelLifeRecorder::class,
+                'modelName' => 'account',
+            ]
         ];
     }
 
