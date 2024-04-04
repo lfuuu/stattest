@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\behaviors\ContragentCountry;
 use app\classes\behaviors\EffectiveVATRate;
+use app\classes\behaviors\ModelLifeRecorder;
 use app\classes\behaviors\SetTaxVoip;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
@@ -147,6 +148,11 @@ class ClientContragent extends HistoryActiveRecord
                 'updatedAtAttribute' => null,
                 'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
+            'ModelLifeRec' => [
+                'class' => ModelLifeRecorder::class,
+                'modelName' => 'contragent',
+            ]
+
         ];
     }
 

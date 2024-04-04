@@ -7,6 +7,7 @@ use app\classes\behaviors\ClientContractComments;
 use app\classes\behaviors\ContractContragent;
 use app\classes\behaviors\EffectiveVATRate;
 use app\classes\behaviors\LkWizardClean;
+use app\classes\behaviors\ModelLifeRecorder;
 use app\classes\behaviors\SetClientContractOfferDate;
 use app\classes\behaviors\SetOldStatus;
 use app\classes\behaviors\SetTaxVoip;
@@ -190,6 +191,10 @@ class ClientContract extends HistoryActiveRecord
                 'class' => TimestampBehavior::class,
                 'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
             ],
+            'ModelLifeRec' => [
+                'class' => ModelLifeRecorder::class,
+                'modelName' => 'contract',
+            ]
         ];
     }
 
