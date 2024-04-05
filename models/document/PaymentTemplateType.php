@@ -21,6 +21,7 @@ use app\models\User;
  * @property string $updated_at
  * @property integer $updated_by
  * @property integer $is_portrait
+ * @property string $data_source
  *
  * @property PaymentTemplate[] $paymentTemplates
  * @property User $updatedBy
@@ -38,10 +39,17 @@ class PaymentTemplateType extends ActiveRecord
     const TYPE_INVOICE_PROFORMA = 4;
     const TYPE_PORTRAIT = 1;
     const TYPE_LANDSCAPE = 0;
+    const DATA_SOURCE_INVOICE = 'invoice';
+    const DATA_SOURCE_BILL = 'bill';
 
     public static $typeList = [
         self::TYPE_PORTRAIT => 'Портретная',
         self::TYPE_LANDSCAPE => 'Ландшафтная',
+    ];
+
+    public static $dataSourceList = [
+        self::DATA_SOURCE_INVOICE => 'Счет-фактуры/Акты',
+        self::DATA_SOURCE_BILL => 'Счета',
     ];
 
     /**
@@ -83,12 +91,13 @@ class PaymentTemplateType extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'is_enabled', 'created_at'], 'required'],
+            [['name', 'is_enabled', 'created_at', 'is_portrait', 'data_source'], 'required'],
             [['created_at', 'updated_at', 'is_enabled'], 'safe'],
             [['updated_by'], 'integer'],
             [['name', 'note'], 'string', 'max' => 255],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
             [['is_portrait'], 'integer'],
+            [['data_source'], 'string'],
         ];
     }
 
@@ -106,6 +115,7 @@ class PaymentTemplateType extends ActiveRecord
             'updated_at' => 'Обновлён',
             'updated_by' => 'Изменён',
             'is_portrait' => 'Ориентация',
+            'data_source' => 'Источник данных',
         ];
     }
 

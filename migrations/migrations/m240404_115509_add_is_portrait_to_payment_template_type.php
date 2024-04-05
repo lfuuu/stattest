@@ -18,6 +18,6 @@ class m240404_115509_add_is_portrait_to_payment_template_type extends \app\class
      */
     public function safeDown()
     {
-        $this->dropColumn('payment_template_type', 'is_portrait');
+        $this->dropColumn(\app\models\document\PaymentTemplateType::tableName(), 'is_portrait');
     }
 }
