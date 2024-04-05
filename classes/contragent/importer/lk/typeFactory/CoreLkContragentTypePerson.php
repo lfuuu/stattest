@@ -18,6 +18,26 @@ class CoreLkContragentTypePerson extends CoreLkContragentTypeDefault
     {
         $resp = $this->coreLkContragent->getDataResponse();
 
+        if (!$resp) {
+            $name = $this->coreLkContragent->getName();
+            if ($name) {
+                $nameAr = preg_split('/\s+/', $name);
+
+                $nameStruct = [
+                    'lastName' => array_shift($nameAr),
+                    'firstName' => array_shift($nameAr),
+                    'middleName' => implode(" ", $nameAr)
+                ];
+
+                $resp += $nameStruct;
+            }
+
+            $address = $this->coreLkContragent->getAddress();
+            if ($address) {
+                $resp['addr'] = ['addressStr' => $address];
+            }
+        }
+
         if (!parent::makeStatModel()) {
             return true;
         }
