@@ -47,7 +47,7 @@ class ModelLifeLog extends ActiveRecord
 
     public static function log($model_name, $model_id, $action = self::DO_INSERT)
     {
-        if (rand(1, 10) == 1) {
+        if (rand(1, 20) == 1) {
             self::clean();
         }
 

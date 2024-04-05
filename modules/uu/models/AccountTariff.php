@@ -179,6 +179,7 @@ class AccountTariff extends ActiveRecord
                 'ModelLifeRec' => [
                     'class' => ModelLifeRecorder::class,
                     'modelName' => 'service',
+                    'isRegisterUpdate' => false,
                 ]
 
             ]
