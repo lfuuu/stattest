@@ -15,6 +15,10 @@ class ModelLifeRecorder extends Behavior
 {
     public ?string $modelName = null;
 
+    public bool $isRegisterInsert = true;
+    public bool $isRegisterUpdate = true;
+    public bool $isRegisterDelete = true;
+
     public function events()
     {
         return [
@@ -37,12 +41,21 @@ class ModelLifeRecorder extends Behavior
 
         switch ($event->name) {
             case BaseActiveRecord::EVENT_AFTER_UPDATE:
+                if (!$this->isRegisterUpdate) {
+                    return;
+                }
                 $action = ModelLifeLog::DO_UPDATE;
                 break;
             case BaseActiveRecord::EVENT_BEFORE_DELETE:
+                if (!$this->isRegisterDelete) {
+                    return;
+                }
                 $action = ModelLifeLog::DO_DELETE;
                 break;
             default:
+                if (!$this->isRegisterInsert) {
+                    return;
+                }
                 $action = ModelLifeLog::DO_INSERT;
         }
 
