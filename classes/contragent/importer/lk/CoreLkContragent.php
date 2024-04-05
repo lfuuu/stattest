@@ -67,6 +67,11 @@ class CoreLkContragent
         return (string)$this->row['postal_address'];
     }
 
+    public function getAddress(): string
+    {
+        return (string)$this->row['address'];
+    }
+
     public function setStatContragent(ClientContragent $contragent)
     {
         $this->statContragent = $contragent;
