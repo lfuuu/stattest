@@ -46,11 +46,15 @@ echo Breadcrumbs::widget([
         </div>
 
         <div class="col-sm-6">
-            <?= $form->field($model, 'is_enabled')->checkbox() ?>
+            <?= $form->field($model, 'is_portrait')->dropDownList(PaymentTemplateType::$typeList) ?>
         </div>
 
         <div class="col-sm-6">
-            <?= $form->field($model, 'is_portrait')->dropDownList(PaymentTemplateType::$typeList) ?>
+            <?= $form->field($model, 'data_source')->dropDownList(PaymentTemplateType::$dataSourceList) ?>
+        </div>
+
+        <div class="col-sm-6">
+            <?= $form->field($model, 'is_enabled')->checkbox() ?>
         </div>
 
     </div>
