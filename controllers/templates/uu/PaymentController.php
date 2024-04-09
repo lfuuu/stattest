@@ -77,10 +77,10 @@ class PaymentController extends BaseController
     public function actionGetContent($id = 0)
     {
         if ($model = PaymentTemplate::findOne(['id' => $id])) {
-            echo $model->content;
+            Yii::$app->response->content = $model->content;
+            Yii::$app->response->send();
+            Yii::$app->end(200);
         }
-
-        Yii::$app->end(200);
     }
 
     /**

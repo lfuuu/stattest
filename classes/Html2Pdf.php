@@ -24,6 +24,9 @@ class Html2Pdf extends BaseObject
     /** @var string */
     private $pdf = '';
 
+    /** @var boolean */
+    private $isLandscape = false;
+
     private $execTool = '/usr/local/bin/wkhtmltopdf';
 
     /**
@@ -39,6 +42,11 @@ class Html2Pdf extends BaseObject
         if (!is_executable($this->execTool)) {
             throw new \Exception('wkhtmltopdf not executable');
         }
+
+        if (($config['landscape'] ?? false) === true) {
+            $this->isLandscape = true;
+        }
+        unset($config['landscape']);
 
         parent::__construct($config);
     }
@@ -85,6 +93,10 @@ class Html2Pdf extends BaseObject
 
         /** wkhtmltopdf */
         $options = ' --quiet -L 15 -R 15 -T 15 -B 15';
+
+        if ($this->isLandscape) {
+            $options .= ' -O landscape';
+        }
 
         $this->html = str_replace("<head>", "<head><base href='" . \Yii::$app->params['SITE_URL'] . "' />", $this->html);
 
