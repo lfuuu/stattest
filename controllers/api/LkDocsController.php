@@ -16,6 +16,9 @@ use app\classes\DynamicModel;
 use app\models\ClientDocument;
 use app\models\ClientAccount;
 use yii\db\Query;
+use app\classes\Encrypt;
+use app\models\document\PaymentTemplateType;
+use yii\web\Response;
 
 class LkDocsController extends ApiController
 {
@@ -49,7 +52,7 @@ class LkDocsController extends ApiController
 
     /**
      * @SWG\Post(
-     *   tags={"Работа с документами"},
+     *   tags={"Documents"},
      *   path="/lk-docs/sections/",
      *   summary="Получение списка документов ЛС",
      *   operationId="Получение списка документов ЛС",
@@ -212,7 +215,7 @@ class LkDocsController extends ApiController
 
     /**
      * @SWG\Post(
-     *   tags={"Работа с документами"},
+     *   tags={"Documents"},
      *   path="/lk-docs/document/",
      *   summary="Получение текста документа",
      *   operationId="Получение текста документа",
@@ -271,6 +274,65 @@ class LkDocsController extends ApiController
         unset($result["client_id"]);
 
         return $result;
+    }
+
+    /**
+     * @SWG\Post(
+     *   tags={"Documents"},
+     *   path="/lk-docs/document-pdf/",
+     *   summary="Получение pdf документа",
+     *   operationId="Получение pdf документа",
+     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор лицевого счёта", in="formData", default="54054"),
+     *   @SWG\Parameter(name="document_number", type="string", description="идентификатор документа", in="formData", default="1240414-1235"),
+     *   @SWG\Parameter(name="template_name", type="string", description="тип шаблона", in="formData", enum={"Invoice", "Счет РФ"}, default="Invoice"),
+     *   @SWG\Parameter(name="country_code", type="string", description="код страны", in="formData", default="643"),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    public function actionDocumentPdf()
+    {
+        $form = DynamicModel::validateData(
+            Yii::$app->request->bodyParams,
+            [
+                ['account_id', AccountIdValidator::class],
+                [['document_number', 'template_name', 'country_code'], 'required'],
+            ]
+        );
+
+        $templateType = PaymentTemplateType::findOne(['name' => $form->template_name]);
+
+        if (!$templateType) {
+            throw new \InvalidArgumentException('Template not found');
+        }
+
+        $country = Country::findOne(['code' => $form->country_code]);
+
+        if (!$country) {
+            throw new \InvalidArgumentException('Country not found');
+        }
+
+        $data = [
+            'tpl1' => 3,
+            'account_id' => $form->account_id,
+            'document_number' => $form->document_number,
+            'template_type_id' => $templateType->id,
+            'country_code' => $form->country_code,
+        ];
+
+        $url = \Yii::$app->params['SITE_URL'] . 'bill.php?bill=';
+
+        $link = Encrypt::encodeArray($data);
+
+        \Yii::$app->response->format = Response::FORMAT_RAW;
+        \Yii::$app->response->content = $url . $link;
+        \Yii::$app->end();
+
     }
 
     public function actionPassportList()
@@ -377,7 +439,7 @@ class LkDocsController extends ApiController
             ->limit(500);
 
         $result = [];
-        
+
         /** @var HistoryChanges $hist */
         foreach ($historyQuery->each() as $hist) {
             $new = json_decode($hist->data_json, true);

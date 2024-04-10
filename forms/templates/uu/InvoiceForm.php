@@ -23,6 +23,8 @@ class InvoiceForm extends Form
     const UNIVERSAL_INVOICE_KEY = 'en-EN-universal';
 
     private $_langCode = Language::LANGUAGE_DEFAULT;
+    private $_countryCode = null;
+    private $_templateTypeId = null;
     private $_invoice = null;
 
     /** @var Bill */
@@ -33,13 +35,21 @@ class InvoiceForm extends Form
      * @param Invoice $invoice
      * @param Bill $invoice
      */
-    public function __construct($langCode = Language::LANGUAGE_DEFAULT, $invoice = null, $_invoiceProformaBill = null)
+    public function __construct(
+        $langCode = Language::LANGUAGE_DEFAULT,
+        $invoice = null,
+        $_invoiceProformaBill = null,
+        $templateTypeId = null,
+        $countryCode = null
+    )
     {
         parent::__construct();
 
         $this->_langCode = $langCode;
         $this->_invoice = $invoice;
         $this->_invoiceProformaBill = $_invoiceProformaBill;
+        $this->_templateTypeId = $templateTypeId;
+        $this->_countryCode = $countryCode;
     }
 
     /**
@@ -57,7 +67,19 @@ class InvoiceForm extends Form
      */
     public function getFileName()
     {
-        if ($this->_invoiceProformaBill) {
+        if ($this->_templateTypeId && $this->_countryCode) {
+            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode($this->_templateTypeId, $this->_countryCode);
+
+            if (!$template) {
+                if ($this->_countryCode == Country::RUSSIA) {
+                    throw new InvalidArgumentException('Шаблон не найден, либо не включен по-умолчанию.');
+                }
+                throw new InvalidArgumentException('Template either not found or not selected as default.');
+            }
+
+            return PaymentForm::getFileName($template->type_id, $template->country->alpha_3, $template->version, self::TEMPLATE_EXTENSION);
+
+        } else if ($this->_invoiceProformaBill) {
             $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode(PaymentTemplateType::TYPE_INVOICE_PROFORMA, $this->_invoiceProformaBill->clientAccount->getUuCountryId());
 
             return PaymentForm::getPath() . PaymentForm::getFileName($template->type_id, $template->country->alpha_3, $template->version, self::TEMPLATE_EXTENSION);

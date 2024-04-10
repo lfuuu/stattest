@@ -10,6 +10,7 @@ use app\models\Country;
 use app\models\Invoice;
 use app\modules\uu\models_light\InvoiceLight;
 use yii\web\Response;
+use app\models\document\PaymentTemplateType;
 
 define("PATH_TO_ROOT", '../stat/');
 include PATH_TO_ROOT . "conf_yii.php";
@@ -20,9 +21,6 @@ if (!($R = Encrypt::decodeToArray($billStr))) {
 }
 
 $bill = null;
-
-//print_r($R);
-//exit();
 
 if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RUB")) {
     if ($R['client'] && $R['bill']) {
@@ -69,7 +67,6 @@ if (
     exit;
 }
 
-
 if (isset($R['tpl1']) && $R['tpl1'] == 1) {
 
     if (!isset($R['invoice_id']) || !isset($R['client'])) {
@@ -108,6 +105,77 @@ if (isset($R['tpl1']) && $R['tpl1'] == 1) {
 }
 
 
+// 'tpl1' => 3,
+if (
+    isset($R['tpl1']) && $R['tpl1'] == 3
+    && isset($R['account_id'])
+    && isset($R['document_number'])
+    && isset($R['template_type_id'])
+    && isset($R['country_code'])
+) {
+
+    $clientAccount = null;
+
+    $templateType = PaymentTemplateType::findOne(['id' => $R['template_type_id']]);
+
+    if (!$templateType || !$templateType->data_source) {
+        return;
+    }
+
+    $templateTypeId = $templateType->id;
+
+    $isLandscape = (bool) $templateType->is_portrait ? false : true;
+    $isBill = $templateType->data_source == PaymentTemplateType::DATA_SOURCE_BILL;
+    $isInvoice = $templateType->data_source == PaymentTemplateType::DATA_SOURCE_INVOICE;
+
+    if ($isBill) {
+        $bill = Bill::findOne(['bill_no' => $R['document_number'], 'client_id' => $R['account_id']]);
+
+        if (!$bill) {
+            return;
+        }
+
+        $clientAccount = $bill->clientAccount;
+
+        $invoiceDocument = (new InvoiceLight($clientAccount));
+        $invoiceDocument->setInvoiceProformaBill($bill);
+
+    } else if ($isInvoice) {
+        $invoice = Invoice::findOne(['number' => $R['document_number']]);
+        $bill = $invoice->bill;
+
+        if (!$invoice || !$bill) {
+            return;
+        }
+
+        $clientAccount = $invoice->bill->clientAccount;
+
+        $invoiceDocument = (new InvoiceLight($clientAccount));
+        $invoiceDocument->setInvoice($invoice);
+    }
+
+    if (
+        !$clientAccount
+        || !$bill
+        || $bill->client_id != $R['account_id']
+    ) {
+        return;
+    }
+
+    $invoiceDocument->setBill($bill);
+    $invoiceDocument->setCountry($R['country_code']);
+    $invoiceDocument->setTemplateType($templateTypeId);
+
+    $pdfContent = $invoiceDocument->render(true, $isLandscape);
+
+    $attachmentName = $clientAccount->id . '-' . $R['document_number'] . '.pdf';
+
+    Yii::$app->response->format = Response::FORMAT_RAW;
+    Yii::$app->response->content = $pdfContent;
+    Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
+
+    \Yii::$app->end();
+}
 
 
 // 'tpl1' => 2,

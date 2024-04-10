@@ -21,6 +21,7 @@ use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\db\Expression;
 use yii\db\Query;
+use app\models\document\PaymentTemplate;
 
 class InvoiceLight extends Component
 {
@@ -35,6 +36,8 @@ class InvoiceLight extends Component
 
         $_clientAccount,
         $_language = Language::LANGUAGE_DEFAULT,
+        $_templateType,
+        $_country,
         $_date;
 
     /**
@@ -78,6 +81,26 @@ class InvoiceLight extends Component
     public function setLanguage($langCode)
     {
         $this->_language = $langCode;
+        return $this;
+    }
+
+    /**
+     * @param string $countryCode
+     * @return $this
+     */
+    public function setCountry($countryCode)
+    {
+        $this->_country = $countryCode;
+        return $this;
+    }
+
+    /**
+     * @param string $templateTypeId
+     * @return $this
+     */
+    public function setTemplateType($templateTypeId)
+    {
+        $this->_templateType = $templateTypeId;
         return $this;
     }
 
@@ -224,24 +247,35 @@ class InvoiceLight extends Component
      * @param bool $isPdf
      * @return string
      */
-    public function render($isPdf = false)
+    public function render($isPdf = false, $isLandscape = false)
     {
+        $content = null;
+
         $smarty = Smarty::init();
         $smarty->assign($this->getProperties());
 
-        $invoiceTemplate = new InvoiceForm($this->_language, $this->_invoice, $this->_invoiceProformaBill);
+        $invoiceTemplate = new InvoiceForm(
+            $this->_language,
+            $this->_invoice,
+            $this->_invoiceProformaBill,
+            $this->_templateType,
+            $this->_country,
+        );
 
-        if ($invoiceTemplate->fileExists()) {
-            $content = $smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName()));
+        if ($this->_templateType && $this->_country) {
+            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode($this->_templateType, $this->_country);
+            $content = trim($smarty->fetch('string:' . $template->content));
+        } else if ($invoiceTemplate->fileExists()) {
+            $content = trim($smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName())));
+        }
 
-            if ($isPdf) {
-                $generator = new Html2Pdf();
-                $generator->html = $content;
-                $content = $generator->pdf;
-            }
+        if ($content && $isPdf) {
+            $generator = new Html2Pdf(['landscape' => $isLandscape]);
+            $generator->html = $content;
+            $content = $generator->pdf;
+        }
 
-            return $content;
-        } else {
+        if (!$content) {
             $msg = 'Шаблон счета-фактуры для языка "' . $this->_language . '" не найден';
             if (Yii::$app instanceof \app\classes\WebApplication) {
                 Yii::$app->session->setFlash('error', $msg);
@@ -250,7 +284,7 @@ class InvoiceLight extends Component
             }
         }
 
-        return false;
+        return $content;
     }
 
 
