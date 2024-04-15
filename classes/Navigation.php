@@ -63,6 +63,8 @@ class Navigation
             'newaccounts_payments.read'
         );
 
+        $accountBlock->addItem('Печать закрывающих документов', '/report/closing-statements-print/', 'clients.edit');
+
         $this->addBlock($accountBlock);
 
 

@@ -136,4 +136,49 @@ class Encrypt
         }
         return $R;
     }
+
+    /**
+     * Кодирует ссылку на PDF
+     *
+     * @param string $type invoice|act|bill
+     * @param app\models\Invoice $invoice
+     * @return string
+     */
+    public static function encodePdfLink($type, $invoice)
+    {
+        $result = false;
+
+        $url = \Yii::$app->params['SITE_URL'] . 'bill.php?bill=';
+
+        switch ($type) {
+            case 'invoice':
+                $result = $url . Encrypt::encodeArray([
+                    'tpl' => 1,
+                    'is_pdf' => 1,
+                    'client' => $invoice->bill->client_id,
+                    'invoice_id' => $invoice->id,
+                    'is_act' => 0,
+                ]);
+            break;
+            case 'act':
+                $result = $url . Encrypt::encodeArray([
+                    'tpl' => 1,
+                    'is_pdf' => 1,
+                    'client' => $invoice->bill->client_id,
+                    'invoice_id' => $invoice->id,
+                    'is_act' => 1,
+                ]);
+            break;
+            case 'bill':
+                $result = $url . Encrypt::encodeArray([
+                    'bill' => $invoice->bill->bill_no,
+                    'object' => 'bill-2-RUB',
+                    'client' => $invoice->bill->client_id,
+                    'is_pdf' => 1,
+                ]);
+            break;
+        }
+
+        return $result;
+    }
 }
