@@ -113,6 +113,32 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * Получение списка с платной доставкой.
+     *
+     * @param int $organizationId
+     * @param string $dateFrom
+     * @param string $dateTo
+     */
+    public function getPaymentDeliveryList($organizationId, $dateFrom, $dateTo)
+    {
+        return self::find()
+            ->alias('i')
+            ->joinWith([
+                'bill b',
+                'bill.clientAccountModel',
+                'bill.clientAccountModel.options o'
+            ])
+            ->where([
+                'i.organization_id' => $organizationId,
+                'o.option' => ClientAccountOptions::OPTION_MAIL_DELIVERY,
+                'o.value' => ClientAccountOptions::OPTION_MAIL_DELIVERY__PAYMENT
+            ])
+            ->andWhere(['between', 'b.bill_date', $dateFrom, $dateTo])
+            ->orderBy(['i.id' => SORT_ASC])
+            ->all();
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getLines()
@@ -325,13 +351,13 @@ class Invoice extends ActiveRecord
     public static function getShippedDateFromTrouble(Bill $bill)
     {
         $value = \Yii::$app->db->createCommand("
-                     SELECT 
+                     SELECT
                         min(cast(date_start AS DATE))
-                     FROM 
-                        tt_troubles t , `tt_stages` s  
-                     WHERE 
+                     FROM
+                        tt_troubles t , `tt_stages` s
+                     WHERE
                             t.bill_no = :bill_no
-                        AND t.id = s.trouble_id 
+                        AND t.id = s.trouble_id
                         AND state_id IN (SELECT id FROM tt_states WHERE state_1c = 'Отгружен')
                         ", [":bill_no" => $bill->bill_no])
             ->queryScalar();
