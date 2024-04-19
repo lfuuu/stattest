@@ -134,6 +134,12 @@ class ClosingStatementsPrintController extends BaseController
                 $invoiceDocument->setBill($invoice->bill);
                 $invoiceDocument->setLanguage(Country::findOne(['code' => Country::RUSSIA])->lang);
                 $print .= $invoiceDocument->render() . self::PRINT_PAGE_BREAK;
+
+                // конверт
+                $print .= Yii::$app->runAction(
+                    'document/print-envelope',
+                    ['clientId' => $clientAccount->id]
+                ) . self::PRINT_PAGE_BREAK;
             }
 
             // портретная ориентация
