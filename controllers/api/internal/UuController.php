@@ -15,6 +15,9 @@ use app\models\Trouble;
 use app\models\TroubleRoistat;
 use app\models\TroubleRoistatStore;
 use app\models\User;
+use app\models\Country;
+use app\models\document\PaymentTemplate;
+use app\models\document\PaymentTemplateType;
 use app\modules\uu\classes\SyncVps;
 use app\modules\uu\dao\AccountTariffStructureGenerator;
 use app\modules\uu\filter\AccountTariffFilter;
@@ -44,6 +47,7 @@ use Yii;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidParamException;
 use yii\web\HttpException;
+use yii\web\Response;
 
 class UuController extends ApiInternalController
 {
@@ -417,6 +421,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги ЛС", in = "query", default = ""),
      *   @SWG\Parameter(name = "is_include_vat", type = "integer", description = "Включая НДС (0 / 1)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "template_id", type = "integer", description = "Идентификатор шаблона", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список тарифов",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/tariffRecord"))
@@ -448,6 +453,7 @@ class UuController extends ApiInternalController
      * @param string $voip_number
      * @param int $account_tariff_id
      * @param bool $is_include_vat
+     * @param int $template_id
      * @return array
      * @throws HttpException
      */
@@ -472,7 +478,8 @@ class UuController extends ApiInternalController
         $organization_id = null,
         $voip_number = null,
         $account_tariff_id = null,
-        $is_include_vat = null
+        $is_include_vat = null,
+        $template_id = null
     )
     {
         $methodName = __FUNCTION__;
@@ -507,6 +514,7 @@ class UuController extends ApiInternalController
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
 
+
         // "сначала намечались торжества. Потом аресты. Потом решили совместить" (С) К/ф "Тот самый Мюнхгаузен"
 //        $origCountryId = $country_id;
 //        $voip_country_id = (int)$country_id; // страна телефонного номера. Выбирается явно. Путаница с именами для обратной совместимости c API.
@@ -514,6 +522,32 @@ class UuController extends ApiInternalController
 
         $country_id = (int)$country_id;
         $voip_country_id = (int)$voip_country_id;
+
+        // если указан template_id, возвращаем шаблон
+        if ($template_id) {
+            $paymentTemplateType = PaymentTemplateType::findOne([
+                                       'id' => $template_id,
+                                       'data_source' => PaymentTemplateType::DATA_SOURCE_TARIFF,
+                                       'is_enabled' => 1
+                                   ]);
+
+            if (!$paymentTemplateType) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный template_id', AccountTariff::ERROR_CODE_TEMPLATE_TYPE_NOT_FOUND);
+            }
+
+            $paymentTemplate = PaymentTemplate::getDefaultByTypeIdAndCountryCode(
+                                   $paymentTemplateType->id,
+                                   $country_id ?: Country::RUSSIA
+                               );
+
+            if (!$paymentTemplate) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Для текущей страны клиента шаблон не найден', AccountTariff::ERROR_CODE_TEMPLATE_NOT_FOUND);
+            }
+
+            Yii::$app->response->format = Response::FORMAT_RAW;
+            Yii::$app->response->content = $paymentTemplate->content;
+            Yii::$app->end();
+        }
 
         $client_account_id = (int)$client_account_id;
         $tariff_status_id = (int)$tariff_status_id;

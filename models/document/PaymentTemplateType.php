@@ -41,6 +41,7 @@ class PaymentTemplateType extends ActiveRecord
     const TYPE_LANDSCAPE = 0;
     const DATA_SOURCE_INVOICE = 'invoice';
     const DATA_SOURCE_BILL = 'bill';
+    const DATA_SOURCE_TARIFF = 'tariff';
 
     public static $typeList = [
         self::TYPE_PORTRAIT => 'Портретная',
@@ -50,6 +51,7 @@ class PaymentTemplateType extends ActiveRecord
     public static $dataSourceList = [
         self::DATA_SOURCE_INVOICE => 'Счет-фактуры/Акты',
         self::DATA_SOURCE_BILL => 'Счета',
+        self::DATA_SOURCE_TARIFF => 'Тарифы',
     ];
 
     /**

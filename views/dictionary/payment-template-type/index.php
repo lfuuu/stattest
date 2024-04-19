@@ -38,6 +38,9 @@ echo GridView::widget([
             },
         ],
         [
+            'attribute' => 'data_source',
+        ],
+        [
             'attribute' => 'created_at',
             'value'     => function (PaymentTemplateType $model) {
                 return DateTimeZoneHelper::getDateTime($model->created_at);
