@@ -144,7 +144,7 @@ class Encrypt
      * @param app\models\Invoice $invoice
      * @return string
      */
-    public static function encodePdfLink($type, $invoice)
+    public static function encodePdfLink($type, $invoice, $isIncludeSignatureStamp = true)
     {
         $result = false;
 
@@ -158,6 +158,7 @@ class Encrypt
                     'client' => $invoice->bill->client_id,
                     'invoice_id' => $invoice->id,
                     'is_act' => 0,
+                    'include_signature_stamp' => $isIncludeSignatureStamp,
                 ]);
             break;
             case 'act':
@@ -167,6 +168,7 @@ class Encrypt
                     'client' => $invoice->bill->client_id,
                     'invoice_id' => $invoice->id,
                     'is_act' => 1,
+                    'include_signature_stamp' => $isIncludeSignatureStamp,
                 ]);
             break;
             case 'bill':
@@ -175,6 +177,7 @@ class Encrypt
                     'object' => 'bill-2-RUB',
                     'client' => $invoice->bill->client_id,
                     'is_pdf' => 1,
+                    'include_signature_stamp' => $isIncludeSignatureStamp,
                 ]);
             break;
         }

@@ -11,7 +11,10 @@ echo app\classes\Html::formLabel($this->title);
 echo Breadcrumbs::widget([
     'links' => [
         'Бухгалтерия',
-        ['label' => 'Печать закрывающих документов', 'url' => '/report/closing-statements-print/?organization_id=' . $organizationId],
+        ['label' => 'Печать закрывающих документов', 'url' =>
+            '/report/closing-statements-print/?organization_id=' . $organizationId
+            . '&include_signature_stamp=' . $isIncludeSignatureStamp
+        ],
     ],
 ]);
 
@@ -26,6 +29,17 @@ $baseView = $this;
         $organizationId,
         array_column($organizations, 'name', 'organization_id'),
         ['prompt' => 'Выберите организацию']
+    ); ?>
+
+    <br /><br />
+
+    <?= Html::dropDownList(
+        'include_signature_stamp',
+        $isIncludeSignatureStamp,
+        array_column([
+            ['value'=>0, 'name'=>'Без печати и подписи'],
+            ['value'=>1, 'name'=>'С печатью и подписью'],
+        ], 'name', 'value'),
     ); ?>
 
     <br /><br />
