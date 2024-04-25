@@ -134,6 +134,7 @@ class Invoice extends ActiveRecord
                 'o.value' => ClientAccountOptions::OPTION_MAIL_DELIVERY__PAYMENT
             ])
             ->andWhere(['between', 'b.bill_date', $dateFrom, $dateTo])
+            ->groupBy('b.bill_no')
             ->orderBy(['i.id' => SORT_ASC])
             ->all();
     }
