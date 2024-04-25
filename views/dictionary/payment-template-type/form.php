@@ -57,6 +57,10 @@ echo Breadcrumbs::widget([
             <?= $form->field($model, 'is_enabled')->checkbox() ?>
         </div>
 
+        <div class="col-sm-6">
+            <?= $form->field($model, 'short_name')->textInput() ?>
+        </div>
+
     </div>
 
     <div class="form-group text-right">

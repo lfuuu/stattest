@@ -100,6 +100,7 @@ class PaymentTemplateType extends ActiveRecord
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['updated_by' => 'id']],
             [['is_portrait'], 'integer'],
             [['data_source'], 'string'],
+            [['short_name'], 'string'],
         ];
     }
 
@@ -118,6 +119,7 @@ class PaymentTemplateType extends ActiveRecord
             'updated_by' => 'Изменён',
             'is_portrait' => 'Ориентация',
             'data_source' => 'Источник данных',
+            'short_name' => 'Короткое название',
         ];
     }
 
