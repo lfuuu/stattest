@@ -139,6 +139,10 @@ class AccountTariff extends ActiveRecord
     // Ошибка телефонии
     const ERROR_CODE_VOIP_WRONG_STATUS = 72; // Статус тарифа не совпадает со статусом телефонного номера
 
+    // Ошибки шаблона
+    const ERROR_CODE_TEMPLATE_TYPE_NOT_FOUND = 81; // Указан неправильный template_id
+    const ERROR_CODE_TEMPLATE_NOT_FOUND = 82; // Для текущей страны клиента шаблон не найден
+
     protected $isAttributeTypecastBehavior = true;
 
     public $voip_numbers_warehouse_status = null;

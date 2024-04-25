@@ -299,6 +299,7 @@ class InvoiceLight extends Component
             InvoiceBuyerLight::class,
             InvoiceBillLight::class,
             InvoiceItemsLight::class,
+            TariffLight::class,
         ];
     }
 
