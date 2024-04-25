@@ -11,7 +11,10 @@ echo app\classes\Html::formLabel($this->title);
 echo Breadcrumbs::widget([
     'links' => [
         'Бухгалтерия',
-        ['label' => 'Печать закрывающих документов', 'url' => '/report/closing-statements-print/?organization_id=' . $organizationId],
+        ['label' => 'Печать закрывающих документов', 'url' =>
+            '/report/closing-statements-print/?organization_id=' . $organizationId
+            . '&include_signature_stamp=' . $isIncludeSignatureStamp
+        ],
         ['label' => $this->title],
     ],
 ]);

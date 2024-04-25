@@ -35,10 +35,12 @@ class ClosingStatementsPrintController extends BaseController
         $this->view->title = 'Печать закрывающих документов';
 
         $organizationId = Yii::$app->request->get('organization_id');
+        $isIncludeSignatureStamp = Yii::$app->request->get('include_signature_stamp');
 
         return $this->render('index', [
             'organizationId' => $organizationId,
             'organizations' => Organization::dao()->getList($isWithEmpty = false),
+            'includeSignatureStamp' => $isIncludeSignatureStamp
         ]);
     }
 
@@ -53,6 +55,7 @@ class ClosingStatementsPrintController extends BaseController
         $this->view->title = 'Просмотр PDF';
 
         $organizationId = Yii::$app->request->get('organization_id');
+        $isIncludeSignatureStamp = Yii::$app->request->get('include_signature_stamp');
 
         $dateFrom = date("Y-m-01");
         $dateTo   = date("Y-m-t");
@@ -73,27 +76,28 @@ class ClosingStatementsPrintController extends BaseController
             // Акт
             $pdfList[] = array_merge($pdfItem, [
                 'doc_type' => 'Акт',
-                'link' => Encrypt::encodePdfLink('act', $invoice),
+                'link' => Encrypt::encodePdfLink('act', $invoice, $isIncludeSignatureStamp),
             ]);
 
             // Счет
             $pdfList[] = array_merge($pdfItem, [
                 'name' => $invoice->bill->bill_no,
                 'doc_type' => 'Счет',
-                'link' => Encrypt::encodePdfLink('bill', $invoice),
+                'link' => Encrypt::encodePdfLink('bill', $invoice, $isIncludeSignatureStamp),
             ]);
 
             // Счет-фактура
             $pdfList[] = array_merge($pdfItem, [
                 'doc_type' => 'Счет-фактура',
-                'link' => Encrypt::encodePdfLink('invoice', $invoice),
+                'link' => Encrypt::encodePdfLink('invoice', $invoice, $isIncludeSignatureStamp),
             ]);
 
         }
 
         return $this->render('review', [
             'organizationId' => $organizationId,
-            'pdfList' => $pdfList
+            'pdfList' => $pdfList,
+            'includeSignatureStamp' => $isIncludeSignatureStamp,
         ]);
     }
 
@@ -116,6 +120,7 @@ class ClosingStatementsPrintController extends BaseController
 
         $organizationId = Yii::$app->request->get('organization_id');
         $isLandscape = (bool) Yii::$app->request->get('is_landscape');
+        $isIncludeSignatureStamp = Yii::$app->request->get('include_signature_stamp');
 
         $print = '';
 
@@ -133,7 +138,7 @@ class ClosingStatementsPrintController extends BaseController
                 $invoiceDocument->setInvoice($invoice);
                 $invoiceDocument->setBill($invoice->bill);
                 $invoiceDocument->setLanguage(Country::findOne(['code' => Country::RUSSIA])->lang);
-                $print .= $invoiceDocument->render() . self::PRINT_PAGE_BREAK;
+                $print .= $invoiceDocument->render(false, $isLandscape, $isIncludeSignatureStamp) . self::PRINT_PAGE_BREAK;
 
                 // конверт
                 $print .= Yii::$app->runAction(
@@ -155,6 +160,7 @@ class ClosingStatementsPrintController extends BaseController
                 $_GET['object'] = 'akt-' . $invoice->type_id;
 
                 $design->assign('emailed', true);
+                $design->assign('include_signature_stamp', $isIncludeSignatureStamp);
 
                 ob_start();
                 \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');

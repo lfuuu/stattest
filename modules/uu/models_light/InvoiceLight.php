@@ -247,12 +247,13 @@ class InvoiceLight extends Component
      * @param bool $isPdf
      * @return string
      */
-    public function render($isPdf = false, $isLandscape = false)
+    public function render($isPdf = false, $isLandscape = false, $isIncludeSignatureStamp = true)
     {
         $content = null;
 
         $smarty = Smarty::init();
         $smarty->assign($this->getProperties());
+        $smarty->assign('include_signature_stamp', $isIncludeSignatureStamp);
 
         $invoiceTemplate = new InvoiceForm(
             $this->_language,

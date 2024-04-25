@@ -36,6 +36,8 @@ $_GET = $R;
 
 $isPdf = isset($R['is_pdf']) && $R['is_pdf'] == 1;
 $isEmailed = get_param_raw('emailed', 1);
+$isLandscape = (bool) $R['is_portrait'] ?? false;
+$isIncludeSignatureStamp = isset($R['include_signature_stamp']) && (bool) $R['include_signature_stamp'] ? true : false;
 
 header('Content-Type: ' . ($isPdf ? 'application/pdf' : 'text/html; charset=utf-8'));
 
@@ -61,6 +63,11 @@ if (
 
     global $design;
     $design->assign('emailed', true);
+
+    if ($isIncludeSignatureStamp) {
+        $design->assign('include_signature_stamp', true);
+    }
+
     \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
 
     $design->Process();
@@ -91,7 +98,7 @@ if (isset($R['tpl1']) && $R['tpl1'] == 1) {
     $invoiceDocument->setLanguage(Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->lang);
 
     $generator = new Html2Pdf();
-    $generator->html = $invoiceDocument->render();
+    $generator->html = $invoiceDocument->render(true, $isLandscape, $isIncludeSignatureStamp);
     $pdfContent = $generator->pdf;
 
 
@@ -166,7 +173,7 @@ if (
     $invoiceDocument->setCountry($R['country_code']);
     $invoiceDocument->setTemplateType($templateTypeId);
 
-    $pdfContent = $invoiceDocument->render(true, $isLandscape);
+    $pdfContent = $invoiceDocument->render(true, $isLandscape, $isIncludeSignatureStamp);
 
     $attachmentName = $clientAccount->id . '-' . $R['document_number'] . '.pdf';
 
@@ -204,6 +211,10 @@ if (
 
     $design->assign('dbg', isset($_REQUEST['dbg']) && (bool)$_REQUEST['dbg']);
     $design->assign('emailed', $isEmailed);
+
+    if ($isIncludeSignatureStamp) {
+        $design->assign('include_signature_stamp', true);
+    }
 
     \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
 

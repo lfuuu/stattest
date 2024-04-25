@@ -286,6 +286,7 @@ class LkDocsController extends ApiController
      *   @SWG\Parameter(name="document_number", type="string", description="идентификатор документа", in="formData", default="1240414-1235"),
      *   @SWG\Parameter(name="template_name", type="string", description="тип шаблона", in="formData", enum={"Invoice", "Счет РФ"}, default="Invoice"),
      *   @SWG\Parameter(name="country_code", type="string", description="код страны", in="formData", default="643"),
+     *   @SWG\Parameter(name="include_signature_stamp", type="boolean", description="печать и подпись", in="formData", default=false),
      *   @SWG\Response(
      *     response="default",
      *     description="Ошибки",
@@ -301,7 +302,7 @@ class LkDocsController extends ApiController
             Yii::$app->request->bodyParams,
             [
                 ['account_id', AccountIdValidator::class],
-                [['document_number', 'template_name', 'country_code'], 'required'],
+                [['document_number', 'template_name', 'country_code', 'include_signature_stamp'], 'required'],
             ]
         );
 
@@ -323,6 +324,7 @@ class LkDocsController extends ApiController
             'document_number' => $form->document_number,
             'template_type_id' => $templateType->id,
             'country_code' => $form->country_code,
+            'include_signature_stamp' => (bool) filter_var($form->include_signature_stamp, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
         ];
 
         $url = \Yii::$app->params['SITE_URL'] . 'bill.php?bill=';
