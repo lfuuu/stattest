@@ -32,6 +32,9 @@ echo GridView::widget([
             },
         ],
         [
+            'attribute' => 'short_name',
+        ],
+        [
             'attribute' => 'is_enabled',
             'value'     => function (PaymentTemplateType $model) {
                 return $model->is_enabled ? 'Да' : 'Нет';

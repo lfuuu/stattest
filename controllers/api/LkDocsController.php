@@ -284,7 +284,7 @@ class LkDocsController extends ApiController
      *   operationId="Получение pdf документа",
      *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор лицевого счёта", in="formData", default="54054"),
      *   @SWG\Parameter(name="document_number", type="string", description="идентификатор документа", in="formData", default="1240414-1235"),
-     *   @SWG\Parameter(name="template_name", type="string", description="тип шаблона", in="formData", enum={"Invoice", "Счет РФ"}, default="Invoice"),
+     *   @SWG\Parameter(name="template_short_name", type="string", description="короткое название шаблона", in="formData", default=""),
      *   @SWG\Parameter(name="country_code", type="string", description="код страны", in="formData", default="643"),
      *   @SWG\Parameter(name="include_signature_stamp", type="boolean", description="печать и подпись", in="formData", default=false),
      *   @SWG\Response(
@@ -302,11 +302,11 @@ class LkDocsController extends ApiController
             Yii::$app->request->bodyParams,
             [
                 ['account_id', AccountIdValidator::class],
-                [['document_number', 'template_name', 'country_code', 'include_signature_stamp'], 'required'],
+                [['document_number', 'template_short_name', 'country_code', 'include_signature_stamp'], 'required'],
             ]
         );
 
-        $templateType = PaymentTemplateType::findOne(['name' => $form->template_name]);
+        $templateType = PaymentTemplateType::findOne(['short_name' => $form->template_short_name]);
 
         if (!$templateType) {
             throw new \InvalidArgumentException('Template not found');
