@@ -22,7 +22,8 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $summary_vat = 0,
         $summary_with_vat = 0,
         $payment_type = '',
-        $original_id = '';
+        $original_id = '',
+        $client_id;
 
     private $_language;
 
@@ -56,6 +57,8 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
         $this->_setPaymentDate($statBill);
         $this->_setPaymentType($statBill);
+
+        $this->client_id = $invoice->bill->client_id;
     }
 
     /**
@@ -125,6 +128,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
             'summary_without_vat' => 'Сумма счета без НДС',
             'summary_vat' => 'Сумма НДС',
             'summary_with_vat' => 'Сумма счета с НДС',
+            'client_id' => 'Номер ЛС клиента',
         ];
     }
 
