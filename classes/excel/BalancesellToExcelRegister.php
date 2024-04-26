@@ -59,6 +59,8 @@ class BalancesellToExcelRegister extends Excel
             /** @var \app\models\filter\SaleBookFilter $invoice */
             $account = $invoice->bill->clientAccount;
             $contract = $account->contract;
+            $contractDate = isset($contract->document->contract_date) ? $contract->document->contract_date : $contract->offer_date;
+            $contractDate = $contractDate ? date('d.m.Y', strtotime($contractDate)) : '01.09.2021';
 
             $contragent = $contract->contragent;
 
@@ -84,10 +86,10 @@ class BalancesellToExcelRegister extends Excel
                 'inn' => trim($contragent->inn),
                 'kpp' => trim($contragent->kpp),
                 'inv_no' => $invoice->number,
-                'inv_date' => $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED), 
+                'inv_date' => $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'sum16' => $sum16,
                 'contract_number' => $contract->number,
-                'contract_date' => '01.09.2021',
+                'contract_date' => $contractDate,
             ];
         }
         return $data;
@@ -101,7 +103,7 @@ class BalancesellToExcelRegister extends Excel
 
         $data = array_values($data);
         $worksheet->insertNewRowBefore($this->insertPosition, (count($data)-1) * 2);
-        
+
         $this->setCompanyName($worksheet);
         $this->setYear($worksheet);
         $this->setInnKpp($worksheet);
@@ -146,9 +148,9 @@ class BalancesellToExcelRegister extends Excel
     {
         if (!($this->organization instanceof Organization)) {
             return false;
-        }  
+        }
         $worksheet->getStyle('A9')->getFont()->setSize('9');
-        $worksheet->getStyle('A9')->getFont()->setName('arial');  
+        $worksheet->getStyle('A9')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('Наименование / фамилия, имя, отчество налогоплательщика ');
 
@@ -162,9 +164,9 @@ class BalancesellToExcelRegister extends Excel
     {
         if (!($this->organization instanceof Organization)) {
             return false;
-        }  
+        }
         $worksheet->getStyle('A5')->getFont()->setSize('9');
-        $worksheet->getStyle('A5')->getFont()->setName('arial');  
+        $worksheet->getStyle('A5')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('Отчетный год: ');
 
@@ -178,9 +180,9 @@ class BalancesellToExcelRegister extends Excel
     {
         if (!($this->organization instanceof Organization)) {
             return false;
-        }  
+        }
         $worksheet->getStyle('A8')->getFont()->setSize('9');
-        $worksheet->getStyle('A8')->getFont()->setName('arial');  
+        $worksheet->getStyle('A8')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('ИНН ');
 
@@ -196,7 +198,7 @@ class BalancesellToExcelRegister extends Excel
     private function setTaxPeriod(\PHPExcel_Worksheet $worksheet)
     {
         $worksheet->getStyle('A4')->getFont()->setSize('9');
-        $worksheet->getStyle('A4')->getFont()->setName('arial');  
+        $worksheet->getStyle('A4')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('Налоговый период (код): ');
 
@@ -209,7 +211,7 @@ class BalancesellToExcelRegister extends Excel
     private function setCorrectionNumber(\PHPExcel_Worksheet $worksheet)
     {
         $worksheet->getStyle('A6')->getFont()->setSize('9');
-        $worksheet->getStyle('A6')->getFont()->setName('arial');  
+        $worksheet->getStyle('A6')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('Номер корректировки: ');
 
@@ -223,9 +225,9 @@ class BalancesellToExcelRegister extends Excel
     {
         if (!($this->organization instanceof Organization)) {
             return false;
-        }  
+        }
         $worksheet->getStyle('A7')->getFont()->setSize('9');
-        $worksheet->getStyle('A7')->getFont()->setName('arial');  
+        $worksheet->getStyle('A7')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('Налогоплательщик');
 
@@ -235,7 +237,7 @@ class BalancesellToExcelRegister extends Excel
     private function setReorganizationForm(\PHPExcel_Worksheet $worksheet)
     {
         $worksheet->getStyle('A10')->getFont()->setSize('9');
-        $worksheet->getStyle('A10')->getFont()->setName('arial');  
+        $worksheet->getStyle('A10')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('Форма реорганизации (ликвидация) (код): ');
 
@@ -249,9 +251,9 @@ class BalancesellToExcelRegister extends Excel
     {
         if (!($this->organization instanceof Organization)) {
             return false;
-        }  
+        }
         $worksheet->getStyle('A11')->getFont()->setSize('9');
-        $worksheet->getStyle('A11')->getFont()->setName('arial');  
+        $worksheet->getStyle('A11')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('ИНН/КПП реорганизованной организации: ');
 
@@ -264,7 +266,7 @@ class BalancesellToExcelRegister extends Excel
     private function setFileName(\PHPExcel_Worksheet $worksheet)
     {
         $worksheet->getStyle('A12')->getFont()->setSize('9');
-        $worksheet->getStyle('A12')->getFont()->setName('arial');  
+        $worksheet->getStyle('A12')->getFont()->setName('arial');
         $objRichText = new PHPExcel_RichText();
         $objRichText->createText('Имя файла требования о представлении пояснений: ');
 
@@ -272,5 +274,5 @@ class BalancesellToExcelRegister extends Excel
         $objBold->getFont()->setUnderline(true);
 
         $worksheet->getCell('A12')->setValue($objRichText);
-    }  
+    }
 }
