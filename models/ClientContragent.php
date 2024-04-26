@@ -411,15 +411,17 @@ class ClientContragent extends HistoryActiveRecord
 
     public function getSigner_position()
     {
-        return ($this->legal_type == ClientContragent::LEGAL_TYPE ?
-            $this->position :
-            '');
+        return $this->is_take_signatory ? $this->signatory_position :
+            ($this->legal_type == ClientContragent::LEGAL_TYPE ?
+                $this->position :
+                '');
     }
 
     public function getSigner_fio()
     {
-        return ($this->legal_type == ClientContragent::LEGAL_TYPE ?
-            $this->fio :
-            $this->name_full);
+        return $this->is_take_signatory ? $this->signatory_fio :
+            ($this->legal_type == ClientContragent::LEGAL_TYPE ?
+                $this->fio :
+                $this->name_full);
     }
 }
