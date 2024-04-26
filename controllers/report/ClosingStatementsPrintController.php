@@ -21,7 +21,10 @@ class ClosingStatementsPrintController extends BaseController
 {
 
     const PRINT_PAGE_LANDSCAPE = '<style>@media print { @page { size: landscape; } }</style>';
-    const PRINT_PAGE_PORTRAIT = '<style>@media print { @page { size: portrait; } }</style>';
+    const PRINT_PAGE_PORTRAIT = '<style>
+        @media print { @page { size: portrait; }
+        @page {size: 21cm 29.7cm !important; }
+    </style>';
     const PRINT_PAGE_BREAK = '<div style="page-break-after: always;"></div>';
 
     /**
@@ -129,22 +132,16 @@ class ClosingStatementsPrintController extends BaseController
         $design = new \MySmarty();
 
         foreach ($invoices as $invoice) {
+            $clientAccount = $invoice->bill->clientAccount;
 
             // ландщафтная ориентация
             if ($isLandscape) {
                 // счет-фактура
-                $clientAccount = $invoice->bill->clientAccount;
                 $invoiceDocument = (new InvoiceLight($clientAccount));
                 $invoiceDocument->setInvoice($invoice);
                 $invoiceDocument->setBill($invoice->bill);
                 $invoiceDocument->setLanguage(Country::findOne(['code' => Country::RUSSIA])->lang);
                 $print .= $invoiceDocument->render(false, $isLandscape, $isIncludeSignatureStamp) . self::PRINT_PAGE_BREAK;
-
-                // конверт
-                $print .= Yii::$app->runAction(
-                    'document/print-envelope',
-                    ['clientId' => $clientAccount->id]
-                ) . self::PRINT_PAGE_BREAK;
             }
 
             // портретная ориентация
@@ -177,6 +174,12 @@ class ClosingStatementsPrintController extends BaseController
                 );
 
                 $print .= $report->render(false) . self::PRINT_PAGE_BREAK;
+
+                // конверт
+                $print .= Yii::$app->runAction(
+                    'document/print-envelope',
+                    ['clientId' => $clientAccount->id]
+                ) . self::PRINT_PAGE_BREAK;
             }
 
         }
