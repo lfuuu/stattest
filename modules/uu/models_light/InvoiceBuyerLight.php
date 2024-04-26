@@ -17,7 +17,10 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
         $consignee,
         $currency,
         $currency_symbol,
-        $registration_address;
+        $registration_address,
+        $post_nominative,
+        $name_nominative
+    ;
 
     /**
      * @param ClientAccount $clientAccount
@@ -26,15 +29,20 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
     {
         parent::__construct();
 
+        $contragent = $clientAccount->contragent;
+
         $this->name = ($clientAccount->head_company ?: $clientAccount->company_full);
         $this->address = ($clientAccount->head_company_address_jur ?: $clientAccount->address_jur);
         $this->tax_registration_id = $clientAccount->contragent->inn;
-        $this->euro_tax_registration_id = $clientAccount->contragent->inn_euro;
-        $this->tax_registration_reason = $clientAccount->contragent->tax_registration_reason;
+        $this->euro_tax_registration_id = $contragent->inn_euro;
+        $this->tax_registration_reason = $contragent->tax_registration_reason;
         $this->consignee = ($clientAccount->is_with_consignee && $clientAccount->consignee) ? $clientAccount->consignee : '------';
         $this->currency = $clientAccount->currencyModel->name;
         $this->currency_symbol = $clientAccount->currencyModel->symbol;
-        $this->registration_address = $clientAccount->contragent->person ? $clientAccount->contragent->person->registration_address : '';
+        $this->registration_address = $contragent->person ? $contragent->person->registration_address : '';
+
+        $this->post_nominative = $contragent->signer_position;
+        $this->name_nominative = $contragent->signer_fio;
     }
 
     /**
@@ -68,6 +76,8 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
             'currency' => 'Наименование валюты',
             'currency_symbol' => 'Символ валюты',
             'registration_address' => 'Адрес регистрации',
+            'post_nominative' => 'Позиция подписанта',
+            'name_nominative' => 'ФИО подписанта',
         ];
     }
 
