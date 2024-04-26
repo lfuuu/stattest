@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\behaviors\ModelLifeRecorder;
 use app\classes\model\ActiveRecord;
 
 /**
@@ -36,6 +37,20 @@ class PaymentInfo extends ActiveRecord
         return ['payment_id'];
     }
 
+    /**
+     * Поведение
+     *
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'ModelLifeRec' => [
+                'class' => ModelLifeRecorder::class,
+                'modelName' => 'payment',
+            ]
+        ];
+    }
     public static function getInfoText(Payment $payment, self $i = null)
     {
         $res = '';
