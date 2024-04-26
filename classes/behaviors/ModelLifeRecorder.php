@@ -39,6 +39,9 @@ class ModelLifeRecorder extends Behavior
             $this->modelName = $sender::tableName();
         }
 
+        $idFieldArr = $sender::primaryKey();
+        $idField = $idFieldArr[0] ?? 'id';
+
         switch ($event->name) {
             case BaseActiveRecord::EVENT_AFTER_UPDATE:
                 if (!$this->isRegisterUpdate) {
@@ -59,6 +62,6 @@ class ModelLifeRecorder extends Behavior
                 $action = ModelLifeLog::DO_INSERT;
         }
 
-        ModelLifeLog::log($this->modelName, $id = $sender->id, $action);
+        ModelLifeLog::log($this->modelName, $id = $sender->{$idField}, $action);
     }
 }
