@@ -58,7 +58,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $this->_setPaymentDate($statBill);
         $this->_setPaymentType($statBill);
 
-        $this->client_id = $invoice->bill->client_id;
+        $this->client_id = $bill->client_id;
     }
 
     /**
