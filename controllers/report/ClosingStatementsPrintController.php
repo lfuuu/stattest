@@ -176,7 +176,7 @@ class ClosingStatementsPrintController extends BaseController
                     false
                 );
 
-                $print .= $report->render() . self::PRINT_PAGE_BREAK;
+                $print .= $report->render(false) . self::PRINT_PAGE_BREAK;
             }
 
         }
