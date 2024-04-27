@@ -156,7 +156,7 @@ class ClosingStatementsPrintController extends BaseController
                 ];
                 $_GET['object'] = 'akt-' . $invoice->type_id;
 
-                $design->assign('emailed', true);
+                $design->assign('emailed', $isIncludeSignatureStamp);
                 $design->assign('include_signature_stamp', $isIncludeSignatureStamp);
 
                 ob_start();
