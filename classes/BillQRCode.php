@@ -83,6 +83,17 @@ class BillQRCode
         return false;
     }
 
+    public static function getImgTag($billNo)
+    {
+        $result = self::getNo($billNo);
+
+        if (isset($result['bill'])) {
+            return '<img src="/utils/qr-code/get?data=' . $result['bill'] . '" border="0"/>';
+        }
+
+        return '';
+    }
+
     private static function convertBillNo($billNo)
     {
         $billNo = str_replace("-", "1", $billNo);
