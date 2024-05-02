@@ -47,7 +47,7 @@ class PaymentInfo extends ActiveRecord
         return [
             'ModelLifeRec' => [
                 'class' => ModelLifeRecorder::class,
-                'modelName' => 'payment',
+                'modelName' => 'payment_bank',
             ]
         ];
     }
