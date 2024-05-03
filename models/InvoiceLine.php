@@ -154,7 +154,7 @@ class InvoiceLine extends ActiveRecord
      */
     public function getTypeUnitName()
     {
-        return '';
+        return $this->type == BillLine::LINE_TYPE_GOOD ? 'шт.' : '-';
     }
 
     /**
