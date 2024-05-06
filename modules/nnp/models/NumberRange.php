@@ -12,6 +12,7 @@ use app\models\Number;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\caching\TagDependency;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 use yii\helpers\Url;
@@ -417,7 +418,7 @@ class NumberRange extends ActiveRecord
         }
 
         $cache = \Yii::$app->cache;
-        $cache->set('ndcdata', ['with_city_id' => $dataWithCity, 'without_city_id' => $dataAll], DependecyHelper::TIMELIFE_DAY);
+        $cache->set('ndcdata', ['with_city_id' => $dataWithCity, 'without_city_id' => $dataAll], DependecyHelper::TIMELIFE_DAY, (new TagDependency(['tags' => [DependecyHelper::TAG_NDC_LIST]])));
     }
 
     /**
