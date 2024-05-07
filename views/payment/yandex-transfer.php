@@ -25,7 +25,7 @@ echo Breadcrumbs::widget([
         <?= $form->field($model, 'from_client_id')->textInput(['disabled' => true]) ?>
     </div>
     <div class="col-sm-8">
-        <?= $form->field($model, 'payment_id')->dropDownList(['0' => '----'] + $model->getPayments()) ?>
+        <?= $form->field($model, 'payment_id')->dropDownList(['0' => '----'] + $model->getPayments(), ['class' => 'select2']) ?>
     </div>
     <div class="col-sm-2">
         <?= $form->field($model, 'to_client_id')->textInput() ?>

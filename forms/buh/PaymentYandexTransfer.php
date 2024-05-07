@@ -105,7 +105,7 @@ class PaymentYandexTransfer extends Form
                 'client_id' => $this->from_client_id,
                 'type' => [Payment::TYPE_ECASH, Payment::TYPE_API],
             ])
-            ->select(['name' => new Expression("CONCAT(sum, ' ', currency, ' - ', comment)"), 'id' => 'id'])
+            ->select(['name' => new Expression("CONCAT(sum, ' ', currency, ' - (', payment_date, ') - ', comment)"), 'id' => 'id'])
             ->orderBy(['id' => SORT_DESC])
             ->indexBy('id')
             ->column();
