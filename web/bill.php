@@ -97,15 +97,10 @@ if (isset($R['tpl1']) && $R['tpl1'] == 1) {
     $invoiceDocument->setBill($bill);
     $invoiceDocument->setLanguage(Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->lang);
 
-    $generator = new Html2Pdf();
-    $generator->html = $invoiceDocument->render(true, $isLandscape, $isIncludeSignatureStamp);
-    $pdfContent = $generator->pdf;
-
-
     $attachmentName = $clientAccount->id . '-' . $invoice->number . '.pdf';
 
     Yii::$app->response->format = Response::FORMAT_RAW;
-    Yii::$app->response->content = $pdfContent;
+    Yii::$app->response->content = $invoiceDocument->render(true, $isLandscape, $isIncludeSignatureStamp);;
     Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
 
     \Yii::$app->end();
