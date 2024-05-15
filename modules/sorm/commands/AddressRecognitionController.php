@@ -36,7 +36,7 @@ class AddressRecognitionController extends Controller
 
             if (stripos($address->address, 'а/я') !== false) {
                 $address->is_struct = false;
-                $address->state = 'checked';
+                $address->state = 'need_check';
                 $address->save();
                 continue;
             }

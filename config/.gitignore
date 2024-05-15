@@ -20,3 +20,4 @@ params.local.php
 /db_pg_nnp.local.php
 /db_pg_nnp2.local.php
 db_pg_lk.local.php
+db_pg_legs.local.php
