@@ -26,6 +26,11 @@ if (file_exists($file = __DIR__ . '/db_pgsql.local.php')) {
     $dbPg = ArrayHelper::merge($dbPg, require($file));
 }
 
+$dbPgLeg = require(__DIR__ . '/db_pgsql.php');
+if (file_exists($file = __DIR__ . '/db_pg_legs.local.php')) {
+    $dbPgLeg = ArrayHelper::merge($dbPgLeg, require($file));
+}
+
 $dbPgSlave = require(__DIR__ . '/db_pg_slave.php');
 if (file_exists($file = __DIR__ . '/db_pg_slave.local.php')) {
     $dbPgSlave = ArrayHelper::merge($dbPgSlave, require($file));
@@ -158,6 +163,7 @@ return [
         'dbPgAts' => $dbPgAts,
         'dbPgNnp' => $dbPgNnp,
         'dbPgNnp2' => $dbPgNnp2,
+        'dbPgLeg' => $dbPgLeg,
         'dbPgNnpSlave' => $dbPgSlave,
         'dbPgCallTracking' => $dbPgCallTracking,
         'dbPgNfDump' => $dbPgNfDump,

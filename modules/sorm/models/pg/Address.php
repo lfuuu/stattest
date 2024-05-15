@@ -49,7 +49,8 @@ class Address extends ActiveRecord
      */
     public static function getDb()
     {
-        return \Yii::$app->dbPg;
+//        return \Yii::$app->dbPg;
+        return \Yii::$app->dbPgLeg;
     }
 
     public static function primaryKey()
