@@ -19,7 +19,7 @@ class RouteMncDownloader
         $this->page = file_get_contents(self::URL_FILE_LIST);
 
         if (!$this->page) {
-            throw new \ValueError('Page not load');
+            throw new \ErrorException('Page not load');
         }
 
         return $this;
