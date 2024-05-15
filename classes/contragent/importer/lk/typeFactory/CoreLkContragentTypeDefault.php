@@ -16,6 +16,8 @@ class CoreLkContragentTypeDefault
     const ORG_TYPE_LEGAL = 'legal';
     const ORG_TYPE_INDIVIDUAL = 'individual';
 
+    const OPF_IP = 'ИП';
+
     public static $orgType = false;
 
     protected ?CoreLkContragent $coreLkContragent;

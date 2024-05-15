@@ -22,7 +22,8 @@ class CoreLkContragent
     public function getOrgType(): string
     {
         $name = $this->row['name'] ?? '';
-        if (strpos($name, 'ИП ') === 0) {
+
+        if ($this->row['opf'] == CoreLkContragentTypeDefault::OPF_IP || strpos($name, 'ИП ') === 0) {
             return CoreLkContragentTypeDefault::ORG_TYPE_INDIVIDUAL;
         };
 
