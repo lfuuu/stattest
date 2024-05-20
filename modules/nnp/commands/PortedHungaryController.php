@@ -122,7 +122,7 @@ SQL
             $this->insertValues(Country::HUNGARY, $insertValues, ['full_number', 'operator_source', 'operator_id']);
         }
 
-        $this->endTrackingForDeletion(Country::RUSSIA);
+        $this->endTrackingForDeletion(Country::HUNGARY);
         $this->actionNotifyEventPortedNumber();
     }
 
