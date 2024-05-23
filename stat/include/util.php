@@ -477,7 +477,9 @@ function get_inv_date($date, $source) {
         $tm = $date;
     }
     else {
-        $tm = mktime(0, 0, 0, $d['mon'], cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']), $d['year']);
+        // $tm = mktime(0, 0, 0, $d['mon'], cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']), $d['year']);
+        $daysInMonth = date('t', mktime(0, 0, 0, $d['mon'], 1, $d['year']));
+        $tm = mktime(0, 0, 0, $d['mon'], $daysInMonth, $d['year']);
     }
 
     return [$tm, $v];
