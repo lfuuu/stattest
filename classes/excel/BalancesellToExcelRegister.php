@@ -92,7 +92,7 @@ class BalancesellToExcelRegister extends Excel
                 'inv_date' => $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'sum16' => $sum16,
                 'contract_number' => $contract->number,
-                'contract_date' => $contractDate,
+                'contract_date' => date('d.m.Y', strtotime($contractDate)),
             ];
         }
         return $data;
