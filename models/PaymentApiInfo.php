@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use app\classes\payments\makeInfo\PaymentMakeInfoFactory;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 
@@ -42,4 +43,18 @@ class PaymentApiInfo extends ActiveRecord
         ];
     }
 
+    public function getInfoJsonAsJsin()
+    {
+        return json_decode($this->info_json ?? '{}', true);
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        PaymentMakeInfoFactory::me()
+            ->getInformatorByApiAnfo($this)
+            ->savePaymentInfo()
+            ->saveShortInfo();
+    }
 }
