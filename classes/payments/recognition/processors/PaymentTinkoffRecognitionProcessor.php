@@ -326,23 +326,4 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
 
         return false;
     }
-
-    public function getPaymentInfo(): ?PaymentInfo
-    {
-        $j = $this->infoJson;
-        $info = new PaymentInfo();
-        $info->payer = $j['payerName'] ?? '';
-        $info->payer_inn = $j['payerInn'];
-        $info->payer_bik = $j['payerBic'];
-        $info->payer_bank = $j['payerBank'];
-        $info->payer_account = $j['payerAccount'];
-        $info->getter = $j['recipient'];
-        $info->getter_inn = $j['recipientInn'];
-        $info->getter_bik = $j['recipientBic'];
-        $info->getter_bank = $j['recipientBank'];
-        $info->getter_account = $j['recipientAccount'];
-        $info->comment = $j['paymentPurpose'];
-
-        return $info;
-    }
 }

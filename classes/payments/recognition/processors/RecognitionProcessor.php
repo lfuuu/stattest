@@ -76,9 +76,4 @@ SQL;
 
         return ClientAccount::getDb()->createCommand($sql)->queryScalar() ?: 0;
     }
-
-    public function getPaymentInfo(): ?PaymentInfo
-    {
-        return null;
-    }
 }
