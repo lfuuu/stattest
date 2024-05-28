@@ -179,6 +179,14 @@ class PaymentController extends ApiInternalController
                 throw new ModelValidationException($paymentInfo);
             }
 
+            $paymentInfo = $processor->getPaymentInfo(); // bank from API
+            if ($paymentInfo) {
+                $paymentInfo->payment_id = $payment->id;
+                if (!$paymentInfo->save()) {
+                    throw new ModelValidationException($paymentInfo);
+                }
+            }
+
             $transaction->commit();
 
             return ['payment_id' => $payment->id];

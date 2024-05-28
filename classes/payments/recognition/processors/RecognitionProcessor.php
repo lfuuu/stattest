@@ -5,6 +5,7 @@ namespace app\classes\payments\recognition\processors;
 use app\classes\helpers\LoggerSimpleInternal;
 use app\classes\Utils;
 use app\models\ClientAccount;
+use app\models\PaymentInfo;
 
 abstract class RecognitionProcessor
 {
@@ -74,5 +75,10 @@ LIMIT 1
 SQL;
 
         return ClientAccount::getDb()->createCommand($sql)->queryScalar() ?: 0;
+    }
+
+    public function getPaymentInfo(): ?PaymentInfo
+    {
+        return null;
     }
 }

@@ -5,6 +5,7 @@ namespace app\classes\payments\recognition\processors;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\PaymentInfo;
 use app\modules\uu\models\AccountTariff;
 
 class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
@@ -91,8 +92,8 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
         if (preg_match("/id(\d{5,})/", $description, $matches)) {
             $data['account_id'] = $matches[1];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
-        } elseif (preg_match("/(л[\/\.\s]*с[.]*|лицевому счету)\s*(#|№| )?(\d{5,6})\b/iu", $description, $matches)) { // Абонентская плата за доступ в интернет Лицевой счет: 54183 -за февраль
-            $data['account_id'] = $matches[3];
+        } elseif (preg_match("/(л[\/\.\s]*с[.]*|лицево(й|му) счету?)\s*(#|№| )?\s*(\d{5,6})\b/iu", $description, $matches)) { // https://regex101.com/r/ZcSTFF/1  Абонентская плата за доступ в интернет Лицевой счет: 54183 -за февраль
+            $data['account_id'] = $matches[4];
             $this->logger->add('Скан: найден Л/С: ' . $data['account_id']);
         }
 
@@ -269,7 +270,7 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
     private function isPerson($payer)
     {
         if (strpos($payer, '//') !== false) {
-            $payerData = explode('//', $payer.'////');
+            $payerData = explode('//', $payer . '////');
 
             // ПАО СБЕРБАНК//Голубчиков Павел Васильевич//1522001036883//195252,РОССИЯ,САНКТ-ПЕТЕРБУРГ Г,Г САНКТ-ПЕТЕРБУРГ,УЛ СОФЬИ КОВАЛЕВСКОЙ//
             if ($this->isOrganizatoin($payerData[0]) && $this->isFio($payerData[1])) {
@@ -302,7 +303,7 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
 
     private function isOrganizatoin($payer)
     {
-        foreach(['ИП', 'ООО', 'АО', 'ПАО', 'НКО', 'ОП', 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ'] as $legalForm) {
+        foreach (['ИП', 'ООО', 'АО', 'ПАО', 'НКО', 'ОП', 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ'] as $legalForm) {
             if (preg_match("/\b{$legalForm}\b/u", $payer)) {
                 return true;
             }
@@ -324,5 +325,24 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
         }
 
         return false;
+    }
+
+    public function getPaymentInfo(): ?PaymentInfo
+    {
+        $j = $this->infoJson;
+        $info = new PaymentInfo();
+        $info->payer = $j['payerName'] ?? '';
+        $info->payer_inn = $j['payerInn'];
+        $info->payer_bik = $j['payerBic'];
+        $info->payer_bank = $j['payerBank'];
+        $info->payer_account = $j['payerAccount'];
+        $info->getter = $j['recipient'];
+        $info->getter_inn = $j['recipientInn'];
+        $info->getter_bik = $j['recipientBic'];
+        $info->getter_bank = $j['recipientBank'];
+        $info->getter_account = $j['recipientAccount'];
+        $info->comment = $j['paymentPurpose'];
+
+        return $info;
     }
 }
