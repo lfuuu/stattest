@@ -59,8 +59,11 @@ class BalancesellToExcelRegister extends Excel
             /** @var \app\models\filter\SaleBookFilter $invoice */
             $account = $invoice->bill->clientAccount;
             $contract = $account->contract;
-            $contractDate = isset($contract->document->contract_date) ? $contract->document->contract_date : $contract->offer_date;
-            $contractDate = $contractDate ? date('d.m.Y', strtotime($contractDate)) : '01.09.2021';
+            $contractDate = $contract->document->contract_date ?? $contract->offer_date;
+            $contractDate = $contractDate ?: '2021-09-01';
+            if (strtotime($contractDate) < strtotime('2021-09-01')) {
+                $contractDate = '2021-09-01';
+            }
 
             $contragent = $contract->contragent;
 

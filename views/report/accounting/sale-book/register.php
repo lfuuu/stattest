@@ -103,7 +103,11 @@
 
             $contract =  $invoice->bill->clientAccount->contract;
             $contractDate = isset($contract->document->contract_date) ? $contract->document->contract_date : $contract->offer_date;
-            $contractDate = $contractDate ? date('d.m.Y', strtotime($contractDate)) : '01.09.2021';
+            $contractDate = $contractDate ?: '2021-09-01';
+
+            if (strtotime($contractDate) < strtotime('2021-09-01')) {
+                $contractDate = '2021-09-01';
+            }
 
             ?>
             <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
@@ -115,7 +119,7 @@
                 <td rowspan="2"><?= $contragent->legal_type == ClientContragent::LEGAL_TYPE ? (trim($contragent->kpp) ?: '') : '' ?></td>
                 <td colspan="1">Лицензионное соглашение</td>
                 <td colspan="1"><?= $contract->number ?></td>
-                <td colspan="1"><?= $contractDate ?></td>
+                <td colspan="1"><?= date('d.m.Y', strtotime($contractDate)) ?></td>
                 <td rowspan="2" align="right"><?=  $printSum($linesSum16) ?></td>
             </tr>
             <td>Акт</td>
