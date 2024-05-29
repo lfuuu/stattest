@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\classes\HandlerLogger;
+use app\classes\payments\makeInfo\PaymentMakeInfoFactory;
 use app\classes\Utils;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\classes\model\ActiveRecord;
@@ -321,6 +323,41 @@ class Payment extends ActiveRecord
         LogBill::dao()->log($this->bill_no, "Удаление платежа ({$this->id}), на сумму: {$this->sum}");
 
         return parent::beforeDelete();
+    }
+
+    public static function onAddEvent($paymentId)
+    {
+        $payment = self::findOne(['id' => $paymentId]);
+
+        if (!$payment) {
+            return null;
+        }
+
+        $apiInfo = $payment->apiInfo;
+        $info = null;
+        if (!$apiInfo && $payment->type == self::TYPE_BANK) {
+            $info = PaymentInfo::findOne(['payment_id' => $payment->id]);
+            if ($info) {
+                $apiInfo = new PaymentApiInfo();
+                $apiInfo->payment_id = $payment->id;
+                $apiInfo->info_json = Utils::toJson([
+                    'paymentsFromBankStatement' => 1,
+                    'payment_no' => $payment->payment_no,
+                    'payment_date' => $payment->oper_date,
+                    'payment_data' => $info->getAttributes(),
+                ]);
+            }
+        }
+
+        if (!$apiInfo) {
+            HandlerLogger::me()->add("apiInfo not found (type: {$payment->type}, eoperator: {$payment->ecash_operator})");
+            return null;
+        }
+
+        PaymentMakeInfoFactory::me()
+            ->getInformatorByApiAnfo($apiInfo)
+            ->setPaymentInfo($info)
+            ->saveInfo();
     }
 
     public function detectPerson(): bool

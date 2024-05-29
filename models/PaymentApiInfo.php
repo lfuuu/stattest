@@ -47,14 +47,4 @@ class PaymentApiInfo extends ActiveRecord
     {
         return json_decode($this->info_json ?? '{}', true);
     }
-
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-
-        PaymentMakeInfoFactory::me()
-            ->getInformatorByApiAnfo($this)
-            ->savePaymentInfo()
-            ->saveShortInfo();
-    }
 }
