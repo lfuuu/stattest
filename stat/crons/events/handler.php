@@ -337,6 +337,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 
                 case EventQueue::ADD_PAYMENT:
                     EventHandler::updateBalance($param[1]);
+                    \app\models\Payment::onAddEvent($param[1]);
                     // (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
                     break;
 
