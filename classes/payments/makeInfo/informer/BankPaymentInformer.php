@@ -48,8 +48,8 @@ class BankPaymentInformer extends Informer
         }
 
         $operDate = date(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED, strtotime($this->json['drawDate']));
-        $s = "Платеж №{$this->json['id']} от {$operDate} bank-account={$this->info->payer_account} bank-name={$this->info->payer_bank}";
+        $s = "Платеж №{$this->json['id']} от {$operDate} bank_account={$this->info->payer_account} bank_name={$this->info->payer_bank}";
 
-        return new case_class_InformerShortInfo('Пополнение баланса через банковский перевод', $s);
+        return new case_class_InformerShortInfo('Банковский перевод', $s);
     }
 }
