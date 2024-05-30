@@ -48,6 +48,6 @@ class CardAcquiringUMoneyInformer extends Informer
         $card = $pm['first6'] . 'XXXXXX' . $pm['last4'];
         $s = "Оплата банковской картой {$card}{$bank} (id: {$this->json['id']})";
 
-        return new case_class_InformerShortInfo('Пополнение баланса банковской картой (Эквайринг)', $s);
+        return new case_class_InformerShortInfo('Оплата банковской картой (Эквайринг). Оператор: ЮMoney.', $s);
     }
 }

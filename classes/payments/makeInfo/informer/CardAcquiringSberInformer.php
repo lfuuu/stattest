@@ -26,7 +26,7 @@ class CardAcquiringSberInformer extends Informer
         $cardHolder = ($cardHolder && $cardHolder != 'CARDHOLDER NAME') ? " /{$cardHolder}/" : '';
         $s = "Оплата банковской картой {$this->json['cardAuthInfo']['maskedPan']}{$bank}{$cardHolder} (orderNumber: {$this->json['orderNumber']})";
 
-        return new case_class_InformerShortInfo('Пополнение баланса банковской картой (Эквайринг)', $s);
+        return new case_class_InformerShortInfo('Оплата банковской картой (Эквайринг). Оператор: Сбербанк.', $s);
     }
 
 }
