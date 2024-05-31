@@ -3,6 +3,7 @@
 namespace app\commands\convert;
 
 use app\classes\payments\PaymentParser;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Payment;
 use yii\console\Controller;
@@ -97,6 +98,7 @@ class PaymentController extends Controller
                 continue;
             }
 
+            $payment->detachBehaviors();
             $payment->organization_id = $orgId;
             echo ' + ' . $orgId;
 
