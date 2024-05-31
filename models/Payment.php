@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\behaviors\payment\SetPaymentOrganization;
 use app\classes\HandlerLogger;
 use app\classes\payments\makeInfo\PaymentMakeInfoFactory;
 use app\classes\Utils;
@@ -149,6 +150,7 @@ class Payment extends ActiveRecord
     public function behaviors()
     {
         return [
+            'setPaymentOrganization' => SetPaymentOrganization::class, // устанавливаем организацию платежа
             'RecalcRealtimeBalance' => RecalcRealtimeBalance::class, // Пересчитать realtime баланс при поступлении платежа
             'SendToOnlineCashRegister' => SendToOnlineCashRegister::class, // В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
         ];

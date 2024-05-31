@@ -43,8 +43,8 @@ class PaymentController extends Controller
             if ($payment) {
                 try {
                     $this->_c($payment, $pay);
-                }catch (\Exception $e) {
-                    echo PHP_EOL ;
+                } catch (\Exception $e) {
+                    echo PHP_EOL;
                     print_r($e->getMessage());
                 }
             } else {
@@ -81,6 +81,28 @@ class PaymentController extends Controller
 
         if (!$info->save()) {
             throw new ModelValidationException($info);
+        }
+    }
+
+    public function actionAddOrganizationId()
+    {
+        $query = Payment::find()->where(['organization_id' => null])->orderBy(['id' => SORT_DESC]);
+
+        /** @var Payment $payment */
+        foreach ($query->each() as $payment) {
+            echo PHP_EOL . $payment->id;
+            $orgId = $payment->bill->clientAccount->contract->organization_id;
+            if (!$orgId) {
+                echo " - ???";
+                continue;
+            }
+
+            $payment->organization_id = $orgId;
+            echo ' + ' . $orgId;
+
+            if (!$payment->save()) {
+                throw new ModelValidationException($payment);
+            }
         }
     }
 }
