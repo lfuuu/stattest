@@ -27,7 +27,7 @@ class BankPaymentInformer extends Informer
         $info = PaymentInfo::findOne(['payment_id' => $paymentId]) ?: (new PaymentInfo());
         $info->payment_id = $paymentId;
         $info->payer = $j['payerName'] ?? '';
-        $info->payer_inn = $j['payerInn'];
+        $info->payer_inn = $j['payerInn'] ?? '';
         $info->payer_bik = $j['payerBic'];
         $info->payer_bank = $j['payerBank'];
         $info->payer_account = $j['payerAccount'];
