@@ -82,7 +82,7 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
 
     private function parseDescription($description)
     {
-        $matches = [];
+        $data = $matches = [];
 
         if (preg_match("/\D(20\d{4}\s*-\s*\d{6,7})\D?/", $description, $matches)) {
             $data['bill_no'] = preg_replace('/[^\d\-]+/', '', $matches[1]);
