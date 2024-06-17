@@ -38,7 +38,7 @@ class PaymentInfoShort extends ActiveRecord
         return [
             'ModelLifeRec' => [
                 'class' => ModelLifeRecorder::class,
-                'modelName' => 'payment_unspecified',
+                'modelName' => 'payment_undefined',
             ]
         ];
     }
