@@ -41,7 +41,7 @@ cp session.local.tpl.php session.local.php
 
 #mysql
 cp db_stat.php db_stat.local.php
-sed -i "s/host=127.0.0.1/host=stat-mysql-slave.mcn.ru/" db_stat.local.php
+sed -i "s/host=127.0.0.1/host=$MYSQL_HOST/" db_stat.local.php
 sed -i "s/dbname=nispd/dbname=$MYSQL_DB/" db_stat.local.php
 sed -i "s/'username' => 'vagrant'/'username' => '$MYSQL_USER'/" db_stat.local.php
 sed -i "s/'password' => 'vagrant'/'password' => '$MYSQL_PASSWORD'/" db_stat.local.php
