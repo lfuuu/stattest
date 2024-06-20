@@ -92,7 +92,7 @@ class MonitorController extends BaseController
             $callHash = $sigCallId;
         }
 
-        $url = 'https://' . Encrypt::decodeToArray(urldecode($key1))[$rawServerId]
+        $url = 'https://' . Encrypt::decodeToArray(urldecode(\Yii::$app->params['vmonitor']['key1']))[$rawServerId]
             . '/' . $time->format('Y/m/d')
             . '/' . str_replace('-', '', $callHash) . ".wav";
 
