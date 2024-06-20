@@ -8,6 +8,7 @@ use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\web\BadRequestHttpException;
 use app\models\billing\CallsCdr;
 use app\models\filter\voip\MonitorFilter;
+use app\models\Region;
 use Yii;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
