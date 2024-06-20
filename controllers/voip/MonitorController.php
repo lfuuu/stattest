@@ -85,9 +85,18 @@ class MonitorController extends BaseController
     {
         $time = new \DateTimeImmutable($cdr->disconnect_time);
 
-        $url = 'https://' . Encrypt::decodeToArray(urldecode(\Yii::$app->params['vmonitor']['key1']))[$rawServerId]
+        if ($cdr['server_id'] == Region::MOSCOW && $time > (new \DateTimeImmutable('2024-06-20 00:00:00'))) {
+            $callHash = $cdr['hash_recordcall'];
+        } else {
+            $callHash = $sigCallId;
+        }
+
+        $url = 'https://' . Encrypt::decodeToArray(urldecode($key1))[$rawServerId]
             . '/' . $time->format('Y/m/d')
-            . '/' . str_replace('-', '', $sigCallId) . ".wav";
+            . '/' . str_replace('-', '', $callHash) . ".wav";
+
+//        echo $url;
+//        exit();
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
