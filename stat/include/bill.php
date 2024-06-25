@@ -708,9 +708,7 @@ class Bill {
 
         $ls = $db->AllRecords("select type, service, id_service from newbill_lines where bill_no='".$this->bill_no."'");
 
-        if(count($ls) != 1) return false;
-
-        return $ls[0]["type"] == "service" && $ls[0]["id_service"] == 0 && $ls[0]["service"] == "";
+        return array_reduce($ls, fn($carry, $l) => $carry && $l["type"] == "service" && $l["id_service"] == 0 && $l["service"] == "", count($ls) > 0);
     }
 
     public function isOneZadatok()
@@ -719,9 +717,7 @@ class Bill {
 
         $ls = $db->AllRecords("select type, service, id_service from newbill_lines where bill_no='".$this->bill_no."'");
 
-        if(count($ls) != 1) return false;
-
-        return $ls[0]["type"] == "zadatok";
+        return array_reduce($ls, fn($carry, $l) => $carry && $l["type"] == "zadatok", count($ls) > 0);
     }
 
     public static function getPreBillAmount($client_id)
