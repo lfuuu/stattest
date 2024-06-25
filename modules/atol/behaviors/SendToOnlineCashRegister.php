@@ -103,13 +103,9 @@ class SendToOnlineCashRegister extends Behavior
         } elseif ($payment->type == Payment::TYPE_ECASH) {
             $isToSend = true;
         } elseif ($payment->type == Payment::TYPE_API) {
-            if ($checkOrganizationId) {
+            if ($apiChannel && $apiChannel->check_organization_id) {
+                $checkOrganizationId = $apiChannel->check_organization_id;
                 $isToSend = true;
-            } else {
-                if ($apiChannel && $apiChannel->check_organization_id) {
-                    $checkOrganizationId = $apiChannel->check_organization_id;
-                    $isToSend = true;
-                }
             }
         }
 
