@@ -8,6 +8,7 @@
 namespace app\commands;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bik;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use DateTime;
@@ -216,5 +217,39 @@ class CurrencyController extends Controller
         }
 
         return true;
+    }
+
+    public function actionBikUpd()
+    {
+        $token = getenv('DADATA_TOKEN');
+        $secret = getenv('DADATA_SECRET');
+
+        $dadata = new \Dadata\DadataClient($token, $secret);
+
+        $query = <<<SQL
+with used_bics as (
+    select distinct payer_bik as bik
+    from nispd.newpayment_info
+    where payer_bik
+    union
+    select distinct getter_bik as bik
+    from nispd.newpayment_info
+    where payer_bik
+)
+
+select b.bik from bik b
+join used_bics using(bik)
+where b.dadata is null
+SQL;
+
+        $biks = \Yii::$app->db->createCommand($query)->queryColumn();
+        foreach ($biks as $bik) {
+            echo PHP_EOL . $bik;
+            $a = $dadata->findById('bank', $bik);
+
+            $bikModel = Bik::findOne(['bik' => $bik]);
+            $bikModel->dadata = reset($a);
+            $bikModel->save();
+        }
     }
 }
