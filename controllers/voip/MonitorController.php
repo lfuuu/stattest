@@ -86,7 +86,7 @@ class MonitorController extends BaseController
     {
         $time = new \DateTimeImmutable($cdr->disconnect_time);
 
-        if (false && $cdr['server_id'] == Region::MOSCOW && $time > (new \DateTimeImmutable('2024-06-20 00:00:00'))) {
+        if ($cdr['server_id'] == Region::MOSCOW) {
             $callHash = $cdr['hash_recordcall'];
         } else {
             $callHash = $sigCallId;
