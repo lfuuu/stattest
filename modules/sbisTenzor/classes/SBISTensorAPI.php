@@ -12,6 +12,7 @@ use app\modules\sbisTenzor\helpers\SBISInfo;
 use app\modules\sbisTenzor\helpers\SBISUtils;
 use app\modules\sbisTenzor\models\SBISAttachment;
 use app\modules\sbisTenzor\models\SBISDocument;
+use app\modules\sbisTenzor\models\SBISMchd;
 use app\modules\sbisTenzor\models\SBISOrganization;
 use DateTime;
 use yii\httpclient\Response;
@@ -725,13 +726,16 @@ class SBISTensorAPI
                 );
             }
 
-            $documentData['Вложение'][] = [
+            $attachStruct = [
                 'Идентификатор' => $attachment->external_id,
                 'Файл' => [
                     'ДвоичныеДанные' => base64_encode(file_get_contents($fileName)),
                     'Имя' => $attachment->file_name,
                 ],
             ];
+
+            SBISMchd::addMchd($document, $attachStruct);
+            $documentData['Вложение'][] = $attachStruct;
         }
 
 
@@ -872,7 +876,7 @@ class SBISTensorAPI
             foreach ($document->attachments as $attachment) {
                 $attachment->sign($this->signCommand, $this->hashCommand);
 
-                $attachments[] = [
+                $attachStruct = [
                     'Идентификатор' => $attachment->external_id,
                     'Подпись' => [
                         'Файл' => [
@@ -881,6 +885,9 @@ class SBISTensorAPI
                         ],
                     ],
                 ];
+
+                SBISMchd::addMchd($document, $attachStruct['Подпись']);
+                $attachments[] = $attachStruct;
             }
 
             $stage['Вложение'] = $attachments;

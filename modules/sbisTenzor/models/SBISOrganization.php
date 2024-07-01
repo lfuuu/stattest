@@ -34,6 +34,7 @@ use yii\db\Expression;
  *
  * @property-read User $updatedBy
  * @property-read Organization $organization
+ * @property-read SBISMchd $mchd
  */
 class SBISOrganization extends ActiveRecord
 {
@@ -139,6 +140,14 @@ class SBISOrganization extends ActiveRecord
     public function getOrganization()
     {
         return Organization::find()->byId($this->organization_id)->actual()->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMchd()
+    {
+        return $this->hasOne(SBISMchd::class, ['sbis_organization_id' => 'id']);
     }
 
     /**
