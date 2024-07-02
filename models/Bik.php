@@ -48,18 +48,21 @@ class Bik extends ActiveRecord
         if (!$data) {
             $bikWithDd = Bik::find()->where(['AND', ['bank_address' => $bikModel->bank_address], ['NOT', ['dadata' => null]], ['NOT', ['dadata' => false]]])->one();
 
+            $addr = $bikModel->bank_city . ', ' . $bikModel->bank_address;
+
             if ($bikWithDd) {
                 $data = [['data' => [
                     'bic' => $bik,
-                    'address' => $bikWithDd->dadata['data']['address'],
+                    'address' => ['data' => $bikWithDd->dadata['data']['address'], 'value' => $addr],
                     'data_from' => 'other_bik_with_address'
                 ]]];
             } else {
-                $result = $dadata->clean("address", $bikModel->bank_city . ', ' . $bikModel->bank_address);
+
+                $result = $dadata->clean("address", $addr);
                 if ($result) {
                     $data = [['data' => [
                         'bic' => $bik,
-                        'address' => $result,
+                        'address' => ['data' => $result, 'value' => $addr],
                         'data_from' => 'by_address_clean',
                     ]]];
                 }
