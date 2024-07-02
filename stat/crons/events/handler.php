@@ -93,6 +93,7 @@ $syncEvents = ['event' => [
     UuModule::EVENT_SIPTRUNK_SYNC,
     UuModule::EVENT_ROBOCALL_INTERNAL_CREATE,
     UuModule::EVENT_ROBOCALL_INTERNAL_REMOVE,
+    EventQueue::DADATA_BIK,
 ]];
 
 $uuSyncEvents = ['event' => [
@@ -115,23 +116,18 @@ $kafkaEvents2 = ['event' => [
     UuModule::EVENT_UU_ANONCE2,
 ]];
 
-$dadataEvents = ['event' => [
-    EventQueue::DADATA_BIK,
-]];
-
 
 //$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents['event']/*, $kafkaEvents*/);
 
 $map = [
-    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents], ['NOT', $dadataEvents]], // account_tariff_id => not null =>> already ['NOT', $syncEvents] && ['NOT', $nnpEvents]
-    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents], ['NOT', $dadataEvents]],
+    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]], // account_tariff_id => not null =>> already ['NOT', $syncEvents] && ['NOT', $nnpEvents]
+    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]],
 
     'kafka' => [$kafkaEvents1], // kafka events
     'kafka2' => [$kafkaEvents2], // kafka events
     'uu_sync' => [$uuSyncEvents],
     'ats3_sync' => [$syncEvents], // all sync events
     'nnp' => [$nnpEvents],
-    'dadata' => [$dadataEvents],
 
     'no_nnp' => [['NOT', $nnpEvents]], //для служебного пользования
 ];

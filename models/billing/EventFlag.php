@@ -55,7 +55,7 @@ class EventFlag extends ActiveRecord
             ['flag' => $flag, 'value' => $value]
         );
 
-        echo PHP_EOL . $query->rawSql;
+//        echo PHP_EOL . $query->rawSql;
 
         $result = $query->execute();
 

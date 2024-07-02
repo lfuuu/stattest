@@ -116,6 +116,7 @@ class EventQueue extends ActiveRecord
     const INVOICE_ALL_PDF_CREATED = 'invoice_all_pdf_created';
     const INVOICE_MASS_CREATE = 'invoice_mass_create';
     const SYNC_1C_CLIENT = 'sync_1c_client';
+    const DADATA_BIK = 'dadata_bik';
     const SYNC_TELE2_GET_IMSI = 'sync_tele2_get_imsi';
     const SYNC_TELE2_LINK_IMSI = 'sync_tele2_link_imsi';
     const SYNC_TELE2_UNSET_IMSI = 'sync_tele2_unset_imsi';
@@ -194,6 +195,7 @@ class EventQueue extends ActiveRecord
         self::MAKE_CALL => 'Сделать звонок',
         self::INVOICE_GENERATE_PDF => 'С/ф. Генерация PDF',
         self::INVOICE_ALL_PDF_CREATED => 'С/ф. Все PDF сгенерированы',
+        self::DADATA_BIK => 'Dadata. Получение информации. БИК.',
         self::SYNC_1C_CLIENT => 'Синхронизировать клиента в 1С',
         self::SYNC_TELE2_GET_IMSI => 'Теле2. Получить IMSI',
         self::SYNC_TELE2_LINK_IMSI => 'Теле2. Прикрепить номер к IMSI',
