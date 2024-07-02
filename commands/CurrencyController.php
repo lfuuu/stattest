@@ -7,6 +7,7 @@
 
 namespace app\commands;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bik;
 use app\models\Currency;
@@ -245,11 +246,42 @@ SQL;
         $biks = \Yii::$app->db->createCommand($query)->queryColumn();
         foreach ($biks as $bik) {
             echo PHP_EOL . $bik;
-            $a = $dadata->findById('bank', $bik);
+            $data = $dadata->findById('bank', $bik);
 
             $bikModel = Bik::findOne(['bik' => $bik]);
-            $bikModel->dadata = reset($a);
-            $bikModel->save();
+
+            if (!$data) {
+                $bikWithDd = Bik::find()->where(['AND', ['bank_address' => $bikModel->bank_address], ['NOT', ['dadata' => null]], ['NOT', ['dadata' => false]]])->one();
+
+                if ($bikWithDd) {
+                    $data = [['data' => [
+                        'bic' => $bik,
+                        'address' => $bikWithDd->dadata['data']['address'],
+                        'data_from' => 'other_bik_with_address'
+                    ]]];
+                } else {
+                    $result = $dadata->clean("address", $bikModel->bank_city . ', ' . $bikModel->bank_address);
+                    if ($result) {
+                        $data = [['data' => [
+                            'bic' => $bik,
+                            'address' => $result,
+                            'data_from' => 'by_address_clean',
+                        ]]];
+                    }
+                }
+            }
+
+
+            if ($data) {
+                $_data = reset($data);
+                echo ' - ' . ($_data['data_from'] ?? ' + ');
+                $bikModel->dadata = $_data;
+                if (!$bikModel->save()) {
+                    throw new ModelValidationException($bikModel);
+                }
+            } else {
+                echo ' ---- ';
+            }
         }
     }
 }
