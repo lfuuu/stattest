@@ -7,11 +7,12 @@
 
 namespace app\commands;
 
-use app\exceptions\ModelValidationException;
+use app\classes\HandlerLogger;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bik;
 use app\models\Currency;
 use app\models\CurrencyRate;
+use app\models\EventQueue;
 use DateTime;
 use Exception;
 use Yii;
@@ -198,6 +199,9 @@ class CurrencyController extends Controller
                     'bank_city' => $newInfo['bank_city'],
                     'bank_address' => $newInfo['bank_address'],
                 ])->execute();
+
+                EventQueue::go(EventQueue::DADATA_BIK, $newInfo['bik']);
+
             } else { // если запись имеется
                 $changeArray = [];
                 foreach (['bik', 'corr_acc', 'bank_name', 'bank_city', 'bank_address'] as $param) {
@@ -222,11 +226,6 @@ class CurrencyController extends Controller
 
     public function actionBikUpd()
     {
-        $token = getenv('DADATA_TOKEN');
-        $secret = getenv('DADATA_SECRET');
-
-        $dadata = new \Dadata\DadataClient($token, $secret);
-
         $query = <<<SQL
 with used_bics as (
     select distinct payer_bik as bik
@@ -246,42 +245,10 @@ SQL;
         $biks = \Yii::$app->db->createCommand($query)->queryColumn();
         foreach ($biks as $bik) {
             echo PHP_EOL . $bik;
-            $data = $dadata->findById('bank', $bik);
 
-            $bikModel = Bik::findOne(['bik' => $bik]);
-
-            if (!$data) {
-                $bikWithDd = Bik::find()->where(['AND', ['bank_address' => $bikModel->bank_address], ['NOT', ['dadata' => null]], ['NOT', ['dadata' => false]]])->one();
-
-                if ($bikWithDd) {
-                    $data = [['data' => [
-                        'bic' => $bik,
-                        'address' => $bikWithDd->dadata['data']['address'],
-                        'data_from' => 'other_bik_with_address'
-                    ]]];
-                } else {
-                    $result = $dadata->clean("address", $bikModel->bank_city . ', ' . $bikModel->bank_address);
-                    if ($result) {
-                        $data = [['data' => [
-                            'bic' => $bik,
-                            'address' => $result,
-                            'data_from' => 'by_address_clean',
-                        ]]];
-                    }
-                }
-            }
-
-
-            if ($data) {
-                $_data = reset($data);
-                echo ' - ' . ($_data['data_from'] ?? ' + ');
-                $bikModel->dadata = $_data;
-                if (!$bikModel->save()) {
-                    throw new ModelValidationException($bikModel);
-                }
-            } else {
-                echo ' ---- ';
-            }
+            Bik::updateDadata($bik);
+            echo implode(PHP_EOL, HandlerLogger::me()->get());
+            HandlerLogger::me()->clear();
         }
     }
 }
