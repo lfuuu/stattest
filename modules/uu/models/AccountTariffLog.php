@@ -27,6 +27,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
+use yii\web\Application;
 
 /**
  * Лог изменений тарифов универсальной услуги
@@ -513,10 +514,10 @@ class AccountTariffLog extends ActiveRecord
         if ($datimeNow->format(DateTimeZoneHelper::DATE_FORMAT) == $this->actual_from) {
             $this->actual_from = $accountTariff->getDefaultActualFrom();
             $msg = $error . '. Дата включения сдвинута.';
-            if (Yii::$app->session) {
+            if (Yii::$app instanceof Application) {
                 Yii::$app->session->setFlash('error', $msg);
             } else {
-                echo PHP_EOL . $msg;
+                echo PHP_EOL . 'Error: ' . $msg;
             }
         }
     }
