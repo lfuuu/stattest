@@ -11,7 +11,7 @@ configVersion: 1
 # {{ .env }}
 # {*{ $_ := set . "env" "prod" }*}
 
-{{- if or (eq .env "prod") (eq .env "dev") (eq .env "stage2") }}
+{{- if or (eq .env "prod") (eq .env "dev") (eq .env "stage") }}
 
 ---
 image: {{ .project }}-nginx-{{ .env }}
