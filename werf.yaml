@@ -11,7 +11,7 @@ configVersion: 1
 # {{ .env }}
 # {*{ $_ := set . "env" "prod" }*}
 
-{{- if or (eq .env "prod") (eq .env "dev") }}
+{{- if or (eq .env "prod") (eq .env "dev") (eq .env "stage2") }}
 
 ---
 image: {{ .project }}-nginx-{{ .env }}
@@ -710,7 +710,7 @@ docker:
   ENTRYPOINT: ["/docker-entrypoint.sh"]
 
 git:
-  - url: git@github.com:welltime/mailer.git
+  - url: git@gitlab.mcnloc.ru:stat/mailer.git
     branch: master
     herebyIAdmitThatBranchMightBreakReproducibility: true
     add: /
