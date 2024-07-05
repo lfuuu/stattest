@@ -91,3 +91,26 @@ function euprod()
   fi
 }
 
+function stage2()
+{
+	export ENVNAME=stage
+	CI_URL="stat.mcnloc.ru"
+	export CI_DIR_HOME="/home/httpd/stat.mcn.ru"
+	export COUNTRY="RU"
+	export IS_MINIKUBE=0
+	export IS_WITH_CRON=1
+
+  export IS_WITH_PHPMYADMIN=0
+  export IS_WITH_PGADMIN=0
+  export IS_WITH_CRYPTOPRO=0
+  export IS_WITH_COMET=1
+  export IS_WITH_GRAPHQL=0
+  export IS_WITH_NNPPORTED=0
+  export IS_WITH_BALANCE=0
+  export IS_WITH_MAILER=1
+
+  if [[ "$IS_MINIKUBE" == 1 ]]; then
+    CI_URL="${CI_URL}.local"
+  fi
+}
+
