@@ -410,7 +410,7 @@ docker:
   ENTRYPOINT: ["node","{{ .ci_dir_home }}/comet-server/index.js"]
 
 git:
-  - url: git@github.com:welltime/comet-server.git
+  - url: git@gitlab.mcnloc.ru:stat/comet-server.git
     branch: master
     herebyIAdmitThatBranchMightBreakReproducibility: true
     add: /
@@ -477,7 +477,7 @@ docker:
 
 {{ if ne (env "ENVNAME") "dev" }}
 git:
-  - url: git@github.com:welltime/balance_receipt_service.git
+  - url: git@gitlab.mcnloc.ru:stat/balance_receipt_service.git
     branch: master
     herebyIAdmitThatBranchMightBreakReproducibility: true
     add: /
@@ -534,7 +534,7 @@ docker:
   CMD: ["node","{{ .ci_dir_home }}/nnp-ported/index.js"]
 
 git:
-  - url: git@github.com:welltime/nnp-ported.git
+  - url: git@gitlab.mcnloc.ru:stat/nnp-ported.git
     branch: master
     herebyIAdmitThatBranchMightBreakReproducibility: true
     add: /
@@ -641,7 +641,7 @@ docker:
   CMD: ["/bin/sleep","infinity"]
 
 git:
-  - url: git@github.com:welltime/mailer.git
+  - url: git@gitlab.mcnloc.ru:stat/mailer.git
     branch: master
     herebyIAdmitThatBranchMightBreakReproducibility: true
     add: /
