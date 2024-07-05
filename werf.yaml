@@ -857,3 +857,129 @@ ansible:
         chdir: {{ .ci_dir_home }}/stat
 
 {{ end }}
+
+################################## STAGE ENVIRONMENT ###########################################################
+{{ if (eq .env "stage") }}
+---
+image: {{ .project }}-mysql8-stage
+from: mysql:8.0.25
+
+git:
+  - add: /migrations/migrations/data/m100000_000001_init/nispd.sql
+    to: /root/nispd.sql
+
+ansible:
+  beforeInstall:
+    - name: "install utils"
+      shell: |
+        apt-get update
+        apt-get install -y \
+                    vim \
+                    mc
+  setup:
+    - name: "entrypoint"
+      shell:
+        cmd: |
+          cat > /root/entry.sh << EOF
+          #!/bin/bash -x
+          docker-entrypoint.sh mysqld &
+          mysqld_pid=\$!
+          until mysqlcheck -u\$MYSQLDB_USER -p\$MYSQLDB_PASSWORD mysql; do sleep 2; done;
+
+          if [[ \$(mysql mysql -e "show databases like 'nispd'" | grep nispd | wc -l) -eq '0' ]]; then
+            /bin/bash /root/00-init-db.sh
+            mysql -e '\. /root/nispd.sql'
+            /bin/bash /root/01-set-000001-migration.sh
+          fi
+
+
+          date > /tmp/healthy
+          kill -9 \$mysqld_pid
+          docker-entrypoint.sh mysqld
+          EOF
+          chmod +x /root/entry.sh
+#docker:
+#  CMD: ["/bin/sleep","infinity"]
+#  EXPOSE: "3306"
+{{ end }}
+{{ if (eq .env "stage-disabled") }}
+---
+image: {{ .project }}-pgdb-stage
+from: postgres:12.3
+#git:
+#  - add: /install/db/SQL/init.sql
+#    to: /docker-entrypoint-initdb.d/init.sql
+---
+image: {{ .project }}-stage
+from: centos/systemd
+
+docker:
+  WORKDIR: /root
+  USER: root
+  ENV:
+    MYSQL_DB: nispd
+    MYSQL_HOST: mysql
+    MYSQL_USER: stat
+    MYSQL_PASSWORD: stat
+    POSTGRES_DB: nispd
+    POSTGRES_HOST: postgres
+    POSTGRES_USER: stat
+    POSTGRES_PASSWORD: stat
+  # LC_ALL: en_US.UTF-8
+  CMD: ["/usr/sbin/init"]
+  EXPOSE: "80 8080"
+
+git:
+  - add: /
+    to: {{ .ci_dir_home }}/stat
+    stageDependencies:
+      setup:
+        - "**/composer.*"
+
+ansible:
+  beforeInstall:
+    - name: 1
+      shell: |
+        yum install -y epel-release
+        yum install -y wget vim
+        yum install -y telnet
+        yum install -y unzip net-tools mc
+        yum install -y nano
+        yum -y install curl
+        yum -y update
+        yum install -y nginx cronie
+        yum -y update && yum -y upgrade
+        yum install -y mysql
+        yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+        yum -y update && yum -y upgrade
+        yum-config-manager --enable remi-php74
+        yum install -y php php-fpm php-cli php-curl php-gd php-json php-zip php-mcrypt php-mysqlnd php-pgsql php-readline php-xmlrpc php-intl php-mbstring php-bcmath php-xmlwriter php-process php-pecl-redis php-pecl-amqp php-pecl-xdebug php-pecl-ssh2 php-soap
+        yum clean all
+        mkdir /run/php-fpm/
+        touch /run/php-fpm/php-fpm.pid
+        mkdir -p /var/lib/php/session
+        chmod 777 /var/lib/php/session
+  install:
+    - name: 2
+      shell: |
+        curl -sS https://getcomposer.org/installer | php
+        mv composer.phar /usr/local/bin/composer
+        composer self-update --1
+        composer global require "fxp/composer-asset-plugin"
+        cd {{ .ci_dir_home }}/stat
+        cp stat/local.conf.php.tpl stat/local.conf.php
+        chmod -R 777 runtime
+        chmod 777 web/assets
+        mkdir stat/design_c
+        chmod 777 stat/design_c
+      args:
+        chdir: {{ .ci_dir_home }}/stat
+  setup:
+    - name: 3
+      shell: |
+        composer install --prefer-dist
+        composer clear-cache
+      args:
+        chdir: {{ .ci_dir_home }}/stat
+
+{{ end }}
