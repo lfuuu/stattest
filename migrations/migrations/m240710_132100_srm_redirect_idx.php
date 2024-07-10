@@ -19,7 +19,7 @@ CREATE TRIGGER sorm_redirect_ranges_after_ins_tr
     on sorm_redirect_ranges
     for each row
 BEGIN
-     insert into z_model_life_log (model, model_id, action, created_at) values ('sorm_redirect_ranges', NEW.id, 'insert', NOW());
+     insert into z_model_life_log (model, model_id, action, created_at) values ('redirect_ranges', NEW.id, 'insert', NOW());
 END;
 
 SQL;
@@ -31,7 +31,7 @@ CREATE TRIGGER sorm_redirect_ranges_after_upd_tr
     on sorm_redirect_ranges
     for each row
 BEGIN
-     insert into z_model_life_log (model, model_id, action, created_at) values ('sorm_redirect_ranges', NEW.id, 'update', NOW());
+     insert into z_model_life_log (model, model_id, action, created_at) values ('redirect_ranges', NEW.id, 'update', NOW());
 END;
 
 SQL;
@@ -43,7 +43,7 @@ CREATE TRIGGER sorm_redirect_ranges_before_upd_tr
     on sorm_redirect_ranges
     for each row
 BEGIN
-     insert into z_model_life_log (model, model_id, action, created_at) values ('sorm_redirect_ranges', OLD.id, 'delete', NOW());
+     insert into z_model_life_log (model, model_id, action, created_at) values ('redirect_ranges', OLD.id, 'delete', NOW());
 END;
 
 SQL;
