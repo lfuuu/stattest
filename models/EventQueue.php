@@ -136,6 +136,10 @@ class EventQueue extends ActiveRecord
     const EVENT_LK_CONTRAGENT_CHANGED = 'lk_contragent_changed';
     const EVENT_LK_CONTRACT_CHANGED = 'lk_contract_changed';
 
+    const SORM_REDIRECT_EXPORT = 'sorm_redirect_export';
+    const SORM_EXPORT_BY_DID_ID = 'sorm_export_by_did_id';
+    const SORM_REDIRECT_GROUP = 'sorm_redirect_group';
+
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
     public static $names = [
@@ -256,6 +260,10 @@ class EventQueue extends ActiveRecord
 
         ImportantEventsNames::ZERO_BALANCE => 'Фин. блокировка',
         ApiRobocall::EVENT_ADD_TR_CONTACT => 'Robocall. Добавление контакта',
+
+        self::SORM_REDIRECT_EXPORT => 'SRM. Экспорт переадресаций',
+        self::SORM_EXPORT_BY_DID_ID => 'SRM. Экспорт по DidId',
+        self::SORM_REDIRECT_GROUP => 'SRM. Группировка переадресаций',
     ];
 
     /**

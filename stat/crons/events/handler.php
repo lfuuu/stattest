@@ -1199,6 +1199,26 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = Registry::dao()->createAccountTariffForPortedNumber($number);
                     EventQueue::go(EventQueue::ACTUALIZE_NUMBER, ['number' => $number]);
                     break;
+
+
+                case EventQueue::SORM_REDIRECT_EXPORT:
+                    \app\modules\sorm\classes\redirects\RedirectCollectorDao::me()->export($param['number']);
+                    EventQueue::go(EventQueue::SORM_REDIRECT_GROUP, ['number' => $param['number']]);
+                    break;
+
+                case EventQueue::SORM_REDIRECT_GROUP:
+                    \app\modules\sorm\classes\redirects\RedirectCollectorDao::me()->group($param['number']);
+                    break;
+
+                case EventQueue::SORM_EXPORT_BY_DID_ID:
+                    @ob_start();
+                    \app\modules\sorm\classes\redirects\RedirectCollectorDao::me()->makeExportEventByDidId($param['did_id']);
+                    if ($log = ob_get_clean()) {
+                        echo ' ' . $log;
+                        HandlerLogger::me()->add($log);
+                    }
+                    break;
+
                 // --------------------------------------------
                 //
                 // --------------------------------------------
@@ -1217,11 +1237,11 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $message . ' in ' . $e->getFile() . ' +' . $e->getLine();
 
             // stop events
-            if ($event->status == EventQueue::PORTED_NUMBER_ADD) {
+            if ($event->event == EventQueue::PORTED_NUMBER_ADD) {
                 $event->setError($e, true);
             } else if ( // завершение задачи, в зависимости от ошибки
                 ($event->event == AtolModule::EVENT_SEND && strpos($message, 'Не указаны контакты клиента') !== false)
-                || ($event->event == EventQueue::CORE_CREATE_OWNER && $e->getCode() == 503 /* Пользователь с таким email существует */)
+                || ($event->event == EventQueue::CORE_CREATE_OWNER && $e->getCode() == 500 && strpos($message, 'user_already_exists') !== false /* Пользователь с таким email существует */)
                 || ($event->event == EventQueue::INVOICE_GENERATE_PDF && strpos($message, 'Content is not PDF') !== false)
             ) {
                 $event->setOk('[-] ' . $e->getCode() . ': ' . $message);
