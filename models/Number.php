@@ -386,7 +386,8 @@ class Number extends ActiveRecord
             $priceLevel = max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
         }
 
-        return $this->getCachedDidGroup()->getPrice($priceLevel);
+        $didGroup = $this->getCachedDidGroup();
+        return $didGroup ? $didGroup->getPrice($priceLevel) : null;
     }
 
     /**
@@ -397,6 +398,10 @@ class Number extends ActiveRecord
     {
         $formattedResult = new NumberPriceLight;
         try {
+
+            if (!$this->getCachedDidGroup()) {
+                throw new \LogicException('DID group not found');
+            }
 
             $formattedResult->setAttributes([
                 'currency' => $this->getCachedDidGroup()->getCachedCountry()->currency_id,

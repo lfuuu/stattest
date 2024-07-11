@@ -230,14 +230,19 @@ final class OpenController extends Controller
 
             $didGroup = $freeNumber->getCachedDidGroup();
 
-            $tariffStatusId = $clientAccount ? $didGroup->getTariffStatusMain($priceLevel) : TariffStatus::ID_TEST;
-            $packageStatusIds = [
-                $didGroup->getTariffStatusPackage($priceLevel)
-            ];
-
-            if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
-                // только для ОТТ (см. ClientAccount::getPriceLevels)
-                $packageStatusIds[] = $didGroup->tariff_status_beauty; // пакет за красивость
+            $tariffStatusId = $clientAccount && $didGroup ? $didGroup->getTariffStatusMain($priceLevel) : TariffStatus::ID_TEST;
+            if ($didGroup ) {
+                $packageStatusIds = [
+                    $didGroup->getTariffStatusPackage($priceLevel)
+                ];
+                if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
+                    // только для ОТТ (см. ClientAccount::getPriceLevels)
+                    $packageStatusIds[] = $didGroup->tariff_status_beauty; // пакет за красивость
+                }
+            } else {
+                $packageStatusIds = [
+                    TariffStatus::ID_PUBLIC
+                ];
             }
 
             $responseNumber->default_tariff = $this->_getDefaultTariff(
