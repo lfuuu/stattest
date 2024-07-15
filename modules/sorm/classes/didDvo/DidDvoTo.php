@@ -6,7 +6,7 @@ use app\classes\adapters\EbcKafka;
 
 abstract class DidDvoTo
 {
-    protected array $regionList = [99];
+//    protected array $regionList = [99];
 
     protected string $srcTopicName = "kafka-app1-DidForwarding-didForwarding-events";
     protected ?string $readerGroupId = null;
@@ -34,10 +34,10 @@ abstract class DidDvoTo
             return false;
         }
 
-        if (!in_array($message['region_id'], $this->regionList)) {
-            echo PHP_EOL . 'region: ' . $message['region_id'] . ' not in allowed list';
-            return false;
-        }
+//        if (!in_array($message['region_id'], $this->regionList)) {
+//            echo PHP_EOL . 'region: ' . $message['region_id'] . ' not in allowed list';
+//            return false;
+//        }
 
         return true;
     }
