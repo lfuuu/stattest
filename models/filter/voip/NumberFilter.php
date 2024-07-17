@@ -57,6 +57,7 @@ class NumberFilter extends Number
     public $registry_number_from = '';
     public $registry_id = '';
     public $mvno_partner_id = '';
+    public $is_with_discount = '';
 
     /**
      * @return array
@@ -66,7 +67,7 @@ class NumberFilter extends Number
         return [
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
             [['imsi', 'registry_id'], 'integer'],
-            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id', 'nnp_operator_id'], 'integer'],
+            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id', 'nnp_operator_id', 'is_with_discount'], 'integer'],
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
@@ -205,6 +206,7 @@ class NumberFilter extends Number
         $query->andFilterWhere(['n.source' => $this->source]);
 
         $this->nnp_operator_id !== '' && $query->andWhere(['n.nnp_operator_id' => $this->nnp_operator_id]);
+        $this->is_with_discount !== '' && $query->andWhere(['n.is_with_discount' => $this->is_with_discount]);
 
         switch ($this->imsi) {
             case GetListTrait::$isNull:

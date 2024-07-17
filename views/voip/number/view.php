@@ -34,7 +34,7 @@ echo \yii\widgets\Breadcrumbs::widget([
             <table class="table table-bordered table-striped table-condensed">
                 <tr>
                     <td>Номер</td>
-                    <th><?= $number->number ?></th>
+                    <th><?= $number->number ?><?= ($number->is_with_discount ? ' <sup style="color: gray;">Продается со скидкой</sup>' : '') ?></th>
                 </tr>
                 <tr>
                     <td>Город</td>
@@ -300,16 +300,22 @@ echo \yii\widgets\Breadcrumbs::widget([
 
                                     case NumberLog::ACTION_UNRELEASE:
                                         echo '<b>Номер вернули из открепленных</b>';
-
                                         break;
 
                                     case NumberLog::ACTION_MOVE_TO_RELEASED:
                                         echo '<b>Номер переведен в статус Откреплен</b>';
-
                                         break;
+
                                     case NumberLog::ACTION_CONNECTED:
                                         echo '<b>Номер подключен к услуге: №' . Html::a($log['addition'], \app\modules\uu\models\AccountTariff::getUrlById($log['addition']), ['target' => '_blank']) . '</b>';
+                                        break;
 
+                                    case NumberLog::ACTION_WITH_DISCOUNT:
+                                        echo 'Продается <b>со скидкой</b>';
+                                        break;
+
+                                    case NumberLog::ACTION_NO_DISCOUNT:
+                                        echo 'Продается <b>без скидки</b>';
                                         break;
                                         ?>
                                     <?php } ?>

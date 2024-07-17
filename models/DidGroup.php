@@ -180,14 +180,15 @@ class DidGroup extends ActiveRecord
         return $didGroupPriceLevel->tariff_status_package_id;
     }
 
-    public function getPrice($priceLevelId = ClientAccount::DEFAULT_PRICE_LEVEL)
+    public function getPrice($priceLevelId = ClientAccount::DEFAULT_PRICE_LEVEL, $isWithDiscount = false)
     {
         $didGroupPriceLevel = $this->getPriceLevel($priceLevelId);
 
         if (!$didGroupPriceLevel) {
             return null;
         }
-        return $didGroupPriceLevel->price;
+
+        return $isWithDiscount && !is_null($didGroupPriceLevel->price_discounted) ? $didGroupPriceLevel->price_discounted : $didGroupPriceLevel->price;
     }
 
     /**

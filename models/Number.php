@@ -63,6 +63,7 @@ use yii\helpers\Url;
  * @property integer $nnp_city_id
  * @property integer $nnp_region_id
  * @property integer $is_verified
+ * @property integer $is_with_discount
  *
  * @property-read City $city
  * @property-read AccountTariff $accountTariff
@@ -101,6 +102,8 @@ class Number extends ActiveRecord
 
     const STATUS_GROUP_ACTIVE = 'active';
     const STATUS_GROUP_NOTACTIVE = 'notactive';
+
+    const COUNT_CALLS_FOR_DISCOUNT = 3;
 
     /**
      * Номер не привязан к сим-карте, т.е. отсутствует imsi
@@ -178,6 +181,7 @@ class Number extends ActiveRecord
             'calls_per_month_0' => 'Кол-во звонков за текущий месяц',
             'calls_per_month_1' => 'Кол-во звонков за -1 месяц',
             'calls_per_month_2' => 'Кол-во звонков за -2 месяц',
+            'is_with_discount' => 'Со скидкой',
         ];
     }
 
@@ -190,7 +194,7 @@ class Number extends ActiveRecord
             [['status', 'number_tech', 'source'], 'string'],
             [['beauty_level', 'original_beauty_level'], 'integer'],
             [['imsi', 'warehouse_status_id'], 'integer'],
-            [['nnp_operator_id', 'usr_operator_id', 'registry_id', 'region'], 'integer'],
+            [['nnp_operator_id', 'usr_operator_id', 'registry_id', 'region', 'is_with_discount'], 'integer'],
             [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }
@@ -338,13 +342,23 @@ class Number extends ActiveRecord
     public function getPrice($currency = null, ClientAccount $clientAccount = null)
     {
         try {
-            $price = $this->getOriginPrice($clientAccount);
+            $price = $this->getOriginPrice($clientAccount, null, $this->is_with_discount);
 
-            if (is_null($price)) {
-                return $price;
-            }
+            return $this->_getPrice($price, $currency, $clientAccount);
         } catch (\Exception $e) {
             return null;
+        }
+    }
+
+    /**
+     * @param string|null $currency
+     * @param ClientAccount $clientAccount
+     * @return float|null
+     */
+    public function _getPrice($price, $currency = null, ClientAccount $clientAccount = null)
+    {
+        if (is_null($price)) {
+            return $price;
         }
 
         if (!is_null($currency) && $this->getCachedDidGroup()->getCachedCountry()->currency_id != $currency) {
@@ -380,14 +394,14 @@ class Number extends ActiveRecord
      * @param int $priceLevel
      * @return float
      */
-    public function getOriginPrice($clientAccount = null, $priceLevel = null)
+    public function getOriginPrice($clientAccount = null, $priceLevel = null, $isWithDiscount = false)
     {
         if (!$priceLevel) {
             $priceLevel = max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
         }
 
         $didGroup = $this->getCachedDidGroup();
-        return $didGroup ? $didGroup->getPrice($priceLevel) : null;
+        return $didGroup ? $didGroup->getPrice($priceLevel, $isWithDiscount) : null;
     }
 
     /**
@@ -405,7 +419,7 @@ class Number extends ActiveRecord
 
             $formattedResult->setAttributes([
                 'currency' => $this->getCachedDidGroup()->getCachedCountry()->currency_id,
-                'price' => $this->getOriginPrice($clientAccount),
+                'price' => $this->getOriginPrice($clientAccount, null, $this->is_with_discount),
             ]);
 
         } catch (\Exception $e) {

@@ -32,6 +32,7 @@ class NumberLight extends Model
         $did_group_id,
         $source,
         $default_tariff,
+        $is_with_discount,
         $calls_per_month = [];
 
     /**
@@ -40,7 +41,7 @@ class NumberLight extends Model
     public function rules()
     {
         return [
-            [['beauty_level', 'region', 'city_id', 'ndc_type_id', 'country_prefix', 'ndc', 'number_subscriber', 'common_ndc', 'common_number_subscriber', 'did_group_id'], 'integer'],
+            [['beauty_level', 'region', 'city_id', 'ndc_type_id', 'country_prefix', 'ndc', 'number_subscriber', 'common_ndc', 'common_number_subscriber', 'did_group_id', 'is_with_discount'], 'integer'],
             [['number', 'currency', 'origin_currency', 'source'], 'string'],
             [['price', 'price2', 'origin_price'], 'number'],
         ];
@@ -61,9 +62,10 @@ class NumberLight extends Model
         $this->currency = $actualPriceWithCurrency->currency;
         $this->origin_price = $originPriceWithCurrency->formattedPrice;
         $this->origin_currency = $originPriceWithCurrency->currency;
+        $this->is_with_discount = (bool)$number->is_with_discount;
 
         if (!$clientAccount) {
-            $this->price2 = $number->getOriginPrice(null, ClientAccount::PRICE_LEVEL2);
+            $this->price2 = $number->getOriginPrice(null, ClientAccount::PRICE_LEVEL2, $number->is_with_discount);
         }
     }
 

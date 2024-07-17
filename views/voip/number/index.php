@@ -204,6 +204,10 @@ $columns = [
         },
     ],
     [
+        'attribute' => 'is_with_discount',
+        'class' => \app\classes\grid\column\universal\YesNoColumn::class,
+    ],
+    [
         'attribute' => 'client_id',
         'class' => IntegerColumn::class,
         'isNullAndNotNull' => true,

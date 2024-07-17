@@ -167,14 +167,21 @@ class NumberController extends Controller
         });
     }
 
+    public function actionUpdateDiscountStatus()
+    {
+        Number::dao()->updateDiscountStatus();
+    }
+
     /**
      * Пересчитать voip_numbers.calls_per_month_0/1/2
      */
     public function actionCalcCallsPerMonth()
     {
-        $this->actionCalcCallsPerMonth0();
+        $this->actionCalcCallsPerMonth0($isUpdateDiscountStatus = false);
         $this->actionCalcCallsPerMonth1();
         $this->actionCalcCallsPerMonth2();
+
+        Number::dao()->updateDiscountStatus();
 
         return ExitCode::OK;
     }
@@ -183,12 +190,16 @@ class NumberController extends Controller
      * /**
      * Пересчитать voip_numbers.calls_per_month_0
      */
-    public function actionCalcCallsPerMonth0()
+    public function actionCalcCallsPerMonth0($isUpdateDiscountStatus = true)
     {
         $dtFrom = (new \DateTimeImmutable("now", new \DateTimeZone("UTC")))
             ->modify("first day of this month, 00:00:00");
 
         $this->calcCallsPerMonth('calls_per_month_0', $dtFrom, $dtTo = null);
+
+        if ($isUpdateDiscountStatus) {
+            Number::dao()->updateDiscountStatus();
+        }
 
         return ExitCode::OK;
     }

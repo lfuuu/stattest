@@ -10,6 +10,7 @@ use app\classes\model\ActiveRecord;
  * @property int $did_group_id
  * @property int $pricelevel_id
  * @property int $price
+ * @property int $price_discounted
  * @property int $tariff_status_main_id
  * @property int $tariff_status_package_id
  */
@@ -38,6 +39,8 @@ class DidGroupPriceLevel extends ActiveRecord
             'did_group_id' => 'DID группа',
             'price_level_id' => 'ID уровня цен',
             'price' => 'цена',
+            'price_discounted' => 'цена со скидкой',
+            'is_with_discount' => 'Со скидкой?',
             'tariff_status_main_id' => 'статус мэйн',
             'tariff_status_package_id' => 'статус  пакэдж',
         ];
@@ -52,7 +55,7 @@ class DidGroupPriceLevel extends ActiveRecord
             [['id'], 'integer'],
             [['did_group_id'], 'integer'],
             [['price_level_id'], 'integer'],
-            [['price'], 'integer'],
+            [['price', 'price_discounted'], 'integer'],
             [['tariff_status_main_id'], 'integer'],
             [['tariff_status_package_id'], 'integer'],
         ];

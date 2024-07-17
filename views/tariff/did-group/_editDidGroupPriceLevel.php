@@ -29,7 +29,8 @@ $didGroupPriceLevelModel = $formModel->didGroupPriceLevels;
     ?>
     <h2>Уровни цен для DID групп</h2>
     <div class="row">
-        <div class="col-sm-2 col-sm-offset-1"><label>Подключение, ¤</label></div>
+        <div class="col-sm-1 col-sm-offset-1"><label>Подключение, ¤</label></div>
+        <div class="col-sm-1"><label>Подключение <br>со скидкой, ¤</label></div>
         <div class="col-sm-3"><label>Тариф</label></div>
         <div class="col-sm-3"><label>Пакет</label></div>
         <div class="col-sm-3"><label>Пакет за красивость</label></div>
@@ -48,8 +49,12 @@ $didGroupPriceLevelModel = $formModel->didGroupPriceLevels;
             foreach ($didGroupPriceLevelModel as $index => $didGroupPriceLevel) :
             ?>
                 <?php if ($didGroupPriceLevel['price_level_id'] == $id) : ?>
-                    <div class="col-sm-2">
+                    <div class="col-sm-1">
                         <?= $form->field($didGroupPriceLevel, "[$index]price")->input('number', ['step' => 0.01])->label(false) ?>
+                    </div>
+
+                    <div class="col-sm-1">
+                        <?= $form->field($didGroupPriceLevel, "[$index]price_discounted")->input('number', ['step' => 0.01])->label(false) ?>
                     </div>
 
                     <div class="col-sm-3">

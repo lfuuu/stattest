@@ -648,4 +648,56 @@ class NumberDao extends Singleton
             ])->queryAll();
     }
 
+    public function updateDiscountStatus()
+    {
+        $transaction = Number::getDb()->beginTransaction();
+        try {
+            $this->_toDiscount();
+            $this->_fromDiscount();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+    }
+
+    private function _toDiscount()
+    {
+        $query = Number::find()
+            ->where(['is_with_discount' => 0])
+            ->andWhere(new Expression('(COALESCE(calls_per_month_0, 0) + COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0)) > ' . Number::COUNT_CALLS_FOR_DISCOUNT));
+
+        /** @var Number $number */
+        foreach ($query->each() as $number) {
+
+            echo PHP_EOL . '(+) ' . $number;
+            $number->is_with_discount = 1;
+
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+            Number::dao()->log($number, NumberLog::ACTION_WITH_DISCOUNT);
+        }
+    }
+
+    private function _fromDiscount()
+    {
+        $query = Number::find()
+            ->where(['is_with_discount' => 1])
+            ->andWhere(new Expression('(COALESCE(calls_per_month_0, 0) + COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0)) <= ' . Number::COUNT_CALLS_FOR_DISCOUNT));
+
+        /** @var Number $number */
+        foreach ($query->each() as $number) {
+
+            echo PHP_EOL . '(-) ' . $number;
+            $number->is_with_discount = 0;
+
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+            Number::dao()->log($number, NumberLog::ACTION_NO_DISCOUNT);
+        }
+    }
 }
