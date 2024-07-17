@@ -86,7 +86,7 @@ class MonitorController extends BaseController
     {
         $time = new \DateTimeImmutable($cdr->disconnect_time);
 
-        if (in_array($cdr['server_id'],  [99, 49,85,42,86,48,47,46,58,59,45,77,44,43,57,79,56, 36,37,83,89,  50,51,52,55,38,94,53,54,31,39])) {
+        if (in_array($cdr['server_id'],  [99, 49,85,42,86,48,47,46,58,59,45,77,44,43,57,79,56, 36,37,83,89,  50,51,52,55,38,94,53,54,31,39,  95,69,70,67,92,68,78,90,  74,93,88,64,65,96,41,66,80,63,84,62])) {
             $callHash = $cdr['hash_recordcall'];
         } else {
             $callHash = $sigCallId;
