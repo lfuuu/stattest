@@ -15,6 +15,9 @@ class m220725_155531_imsi_sip_storage extends Migration
     public function safeUp()
     {
         $this->addColumn(RegionSettings::tableName(), 'sip_warehouse_status_id', $this->integer());
+
+        return true;
+        
         foreach ([
                      98 => 26, //Санкт-Петербург
                      99 => 27, //Москва
