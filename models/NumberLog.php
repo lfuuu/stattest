@@ -42,6 +42,9 @@ class NumberLog extends ActiveRecord
     const ACTION_UNRELEASE = 'unrelease';
     const ACTION_MOVE_TO_RELEASED = 'moveToReleased';
 
+    const ACTION_WITH_DISCOUNT = 'with_discount';
+    const ACTION_NO_DISCOUNT = 'no_discount';
+
     /**
      * @return string
      */
