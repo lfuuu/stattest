@@ -86,11 +86,11 @@ class MonitorController extends BaseController
     {
         $time = new \DateTimeImmutable($cdr->disconnect_time);
 
-        if (in_array($cdr['server_id'],  [99, 49,85,42,86,48,47,46,58,59,45,77,44,43,57,79,56, 36,37,83,89,  50,51,52,55,38,94,53,54,31,39,  95,69,70,67,92,68,78,90,  74,93,88,64,65,96,41,66,80,63,84,62,  75,40,91,97,87,76,73,  35,28,32,72,71,33,34,98,29])) {
+        //if (in_array($cdr['server_id'],  [99, 49,85,42,86,48,47,46,58,59,45,77,44,43,57,79,56, 36,37,83,89,  50,51,52,55,38,94,53,54,31,39,  95,69,70,67,92,68,78,90,  74,93,88,64,65,96,41,66,80,63,84,62,  75,40,91,97,87,76,73,  35,28,32,72,71,33,34,98,29])) {
             $callHash = $cdr['hash_recordcall'];
-        } else {
-            $callHash = $sigCallId;
-        }
+        //} else {
+        //    $callHash = $sigCallId;
+        //}
 
         $url = 'https://' . Encrypt::decodeToArray(urldecode(\Yii::$app->params['vmonitor']['key1']))[$rawServerId]
             . '/' . $time->format('Y/m/d')
