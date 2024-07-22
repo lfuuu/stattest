@@ -129,6 +129,10 @@ return [
             'class' => 'yii\redis\Cache',
             'keyPrefix' => 'stat:',
         ],
+        'cacheDb' => [
+            'class' => 'yii\caching\DbCache',
+            'cacheTable' => 'z_cache',
+        ],
         'user' => [
             'class' => 'yii\web\User',
             'identityClass' => 'app\models\User',
