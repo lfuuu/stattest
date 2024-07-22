@@ -57,7 +57,7 @@ class m_newaccounts extends IModule
         }
         $inc = true;
         include_once INCLUDE_PATH . 'bill.php';
-        include_once INCLUDE_PATH . 'payments.php';
+//        include_once INCLUDE_PATH . 'payments.php';
     }
 
     function GetMain($action, $fixclient)
