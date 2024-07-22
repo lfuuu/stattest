@@ -7,6 +7,10 @@ use yii\web\HttpException;
 
 class ApiInternalController extends ApiController
 {
+    const DEFAULT_LIMIT = 50;
+    const MAX_LIMIT = 100;
+    const DEFAULT_TIMEOUT = 60;
+
     protected $requestData = null;
 
     /**

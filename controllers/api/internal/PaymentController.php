@@ -84,6 +84,11 @@ class PaymentController extends ApiInternalController
             $model->operation_id = $model->payment_no;
         }
 
+        $lockKey = "action_payment_add_" . $model->payment_no;
+        if (!\Yii::$app->mutex->acquire($lockKey, self::DEFAULT_TIMEOUT)) {
+            throw new \RuntimeException("Can't get account lock", 500);
+        }
+
         if ($model->payment_no) {
             $p = PaymentApiInfo::find()
                 ->where([
@@ -93,6 +98,7 @@ class PaymentController extends ApiInternalController
                 ->select('payment_id')->scalar();
 
             if ($p) {
+                \Yii::$app->mutex->release($lockKey);
                 return ['payment_id' => (int)$p];
 //                throw new \InvalidArgumentException('Payment No is exists');
             }
@@ -103,7 +109,7 @@ class PaymentController extends ApiInternalController
             ->select('check_organization_id')
             ->scalar();
 
-        $infoJson =  json_decode($requestData['info_json'] ?? '{}', true);
+        $infoJson = json_decode($requestData['info_json'] ?? '{}', true);
 
         $processor = PaymentRecognitionFactory::me()->getProcessor($infoJson);
 
@@ -113,14 +119,13 @@ class PaymentController extends ApiInternalController
             $isIdentificationPayment = $processor->isIdentificationPayment;
         }
 
-
-        $account = ClientAccount::find()->where(['id' => $model->account_id])->one();
-        Assert::isObject($account, 'Account not found');
-
-        $bill = Bill::find()->where(['bill_no' => $model->bill_no, 'client_id' => $model->account_id])->one();
-
         $transaction = \Yii::$app->db->beginTransaction();
         try {
+            $account = ClientAccount::find()->where(['id' => $model->account_id])->one();
+            Assert::isObject($account, 'Account not found');
+
+            $bill = Bill::find()->where(['bill_no' => $model->bill_no, 'client_id' => $model->account_id])->one();
+
             if (!$bill) {
                 $bill = Bill::dao()->getPrepayedBillOnSum($account->id, $model->sum, $model->currency);
             }
@@ -180,11 +185,13 @@ class PaymentController extends ApiInternalController
             }
 
             $transaction->commit();
+            \Yii::$app->mutex->release($lockKey);
 
             return ['payment_id' => $payment->id];
         } catch (\Exception $e) {
             \Yii::error($e);
             $transaction->rollBack();
+            \Yii::$app->mutex->release($lockKey);
 
             $msg = $e->getMessage();
 
