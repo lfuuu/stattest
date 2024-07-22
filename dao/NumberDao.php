@@ -121,6 +121,12 @@ class NumberDao extends Singleton
         $number->hold_from = null;
         $number->hold_to = null;
         $number->status = $newStatus;
+
+        if ($number->is_with_discount) {
+            $number->is_with_discount = 0;
+            Number::dao()->log($number, NumberLog::ACTION_NO_DISCOUNT);
+        }
+
         $number->save();
 
         $logStatus = Number::STATUS_ACTIVE_TESTED;
@@ -248,6 +254,11 @@ class NumberDao extends Singleton
         $number->uu_account_tariff_id = null;
         $number->hold_from = null;
         $number->hold_to = null;
+
+        if ($number->is_with_discount) {
+            $number->is_with_discount = 0;
+            Number::dao()->log($number, NumberLog::ACTION_NO_DISCOUNT);
+        }
 
         $number->status = Number::STATUS_INSTOCK;
         if (!$number->save()) {
@@ -666,7 +677,7 @@ class NumberDao extends Singleton
     private function _toDiscount()
     {
         $query = Number::find()
-            ->where(['is_with_discount' => 0])
+            ->where(['is_with_discount' => 0, 'instock' => Number::STATUS_INSTOCK])
             ->andWhere(new Expression('(COALESCE(calls_per_month_0, 0) + COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0)) > ' . Number::COUNT_CALLS_FOR_DISCOUNT));
 
         /** @var Number $number */
@@ -685,7 +696,7 @@ class NumberDao extends Singleton
     private function _fromDiscount()
     {
         $query = Number::find()
-            ->where(['is_with_discount' => 1])
+            ->where(['is_with_discount' => 1, 'instock' => Number::STATUS_INSTOCK])
             ->andWhere(new Expression('(COALESCE(calls_per_month_0, 0) + COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0)) <= ' . Number::COUNT_CALLS_FOR_DISCOUNT));
 
         /** @var Number $number */
