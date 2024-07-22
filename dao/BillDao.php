@@ -81,7 +81,7 @@ class BillDao extends Singleton
 //            $organizationPrefix = sprintf('%02d', $organizationId);
 //        }
 
-        $cache = \Yii::$app->cache;
+        $cache = \Yii::$app->cacheDb;
 
         do {
             $organizationPrefix = sprintf('%02d', $organizationId);

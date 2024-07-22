@@ -159,6 +159,10 @@ $config = [
             'class' => 'yii\redis\Cache',
             'keyPrefix' => 'stat:',
         ],
+        'cacheDb' => [
+            'class' => 'yii\caching\DbCache',
+            'cacheTable' => 'z_cache',
+        ],
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
