@@ -51,9 +51,6 @@ use yii\web\Response;
 
 class UuController extends ApiInternalController
 {
-    const DEFAULT_LIMIT = 50;
-    const MAX_LIMIT = 100;
-    const DEFAULT_TIMEOUT = 60;
 
     use IdNameRecordTrait;
 
