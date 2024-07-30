@@ -677,7 +677,7 @@ class NumberDao extends Singleton
     private function _toDiscount()
     {
         $query = Number::find()
-            ->where(['is_with_discount' => 0, 'instock' => Number::STATUS_INSTOCK])
+            ->where(['is_with_discount' => 0, 'status' => Number::STATUS_INSTOCK])
             ->andWhere(new Expression('(COALESCE(calls_per_month_0, 0) + COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0)) > ' . Number::COUNT_CALLS_FOR_DISCOUNT));
 
         /** @var Number $number */
@@ -696,7 +696,7 @@ class NumberDao extends Singleton
     private function _fromDiscount()
     {
         $query = Number::find()
-            ->where(['is_with_discount' => 1, 'instock' => Number::STATUS_INSTOCK])
+            ->where(['is_with_discount' => 1, 'status' => Number::STATUS_INSTOCK])
             ->andWhere(new Expression('(COALESCE(calls_per_month_0, 0) + COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0)) <= ' . Number::COUNT_CALLS_FOR_DISCOUNT));
 
         /** @var Number $number */
