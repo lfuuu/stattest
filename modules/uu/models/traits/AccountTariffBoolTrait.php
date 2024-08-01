@@ -299,7 +299,7 @@ trait AccountTariffBoolTrait
             }
 
             $accountTariffResourceLog->sync_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
-            if (!$accountTariffResourceLog->save()) {
+            if (!$accountTariffResourceLog->save(false, ['sync_time'])) {
                 throw new ModelValidationException($accountTariffResourceLog);
             }
 
