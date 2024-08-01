@@ -67,7 +67,7 @@ class AnnounceResourceChangesTarifficator extends Tarificator
 
                 $atl->is_announced = 1;
 
-                if (!$atl->save()) {
+                if (!$atl->save(false, ['is_announced'])) {
                     throw new ModelValidationException($atl);
                 }
 
