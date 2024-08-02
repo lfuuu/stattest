@@ -247,7 +247,7 @@ $payerCompany = $document->getPayer();
     </i>
 </p>
 
-<?php if (!$organization->isNotSimpleTaxSystem()): ?>
+<?php if (false && !$organization->isNotSimpleTaxSystem()): ?>
     <p align="center">
         <b>
             *НДС не облагается: Упрощенная система налогообложения, ст. 346.11 НК РФ.
