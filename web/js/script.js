@@ -176,7 +176,7 @@ function form_ip_ports_hide(is_first) {
         document.getElementById('tr_port').style.display = 'none';
         //document.getElementById('tr_speed_contract').style.display='';
         form_ip_ports_tarif()
-    } else if (val == 'wimax' || val == 'yota' || val == 'GPON' || val == 'megafon_4G') {
+    } else if (val == 'wimax' || val == 'yota' || val == 'GPON' || val == 'megafon_4G' || val == 'mts_4G') {
         document.getElementById('tr_node').style.display = 'none';
         document.getElementById('tr_phone').style.display = 'none';
         document.getElementById('tr_port').style.display = 'none';

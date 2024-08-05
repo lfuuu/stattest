@@ -506,16 +506,19 @@ class DbFormUsageIpPorts extends DbForm{
         if (isset($this->dbform['t_tarif_type']) && isset($this->dbform['t_tarif_status']) && isset($this->dbform['t_id_tarif'.$this->dbform['t_tarif_type'].$this->dbform['t_tarif_status']])) {
             $this->dbform['t_id_tarif']=$this->dbform['t_id_tarif'.$this->dbform['t_tarif_type'].$this->dbform['t_tarif_status']];
         }
-        if ($this->dbform['port_type'] == 'adsl'
-            || $this->dbform['port_type'] == 'adsl_cards'
-            || $this->dbform['port_type'] == 'adsl_connect'
-            || $this->dbform['port_type'] == 'adsl_karta'
-            || $this->dbform['port_type'] == 'adsl_rabota'
-            || $this->dbform['port_type'] == 'adsl_terminal'
-            || $this->dbform['port_type'] == 'adsl_tranzit1'
-            || $this->dbform['port_type'] == 'yota'
-            || $this->dbform['port_type'] == 'GPON'
-            || $this->dbform['port_type'] == 'megafon_4G'
+        if (in_array($this->dbform['port_type'], [
+                'adsl',
+                'adsl_cards',
+                'adsl_connect',
+                'adsl_karta',
+                'adsl_rabota',
+                'adsl_terminal',
+                'adsl_tranzit1',
+                'yota',
+                'GPON',
+                'megafon_4G',
+                'mts_4G',
+            ])
         ) {
             $v=$this->dbform['phone'];
             $v=preg_replace('/[^\d]+/','',$v);

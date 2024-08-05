@@ -23,7 +23,8 @@ class TechPort extends ActiveRecord
         'adsl_tranzit1',
         'yota',
         'GPON',
-        'megafon_4G'
+        'megafon_4G',
+        'mts_4G',
     ];
 
     public static function tableName()
