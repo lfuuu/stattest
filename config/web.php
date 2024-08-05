@@ -162,6 +162,7 @@ $config = [
         'cacheDb' => [
             'class' => 'yii\caching\DbCache',
             'cacheTable' => 'z_cache',
+            'db' => 'db2',
         ],
         'user' => [
             'identityClass' => 'app\models\User',
