@@ -132,6 +132,7 @@ return [
         'cacheDb' => [
             'class' => 'yii\caching\DbCache',
             'cacheTable' => 'z_cache',
+            'db' => 'db2',
         ],
         'user' => [
             'class' => 'yii\web\User',
