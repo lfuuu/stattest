@@ -151,22 +151,25 @@ class HistoryActiveRecord extends ActiveRecord
             $date = $this->getHistoryVersionStoredDate();
         }
 
-        $queryData = [
-            'model' => $this->getClassName(),
-            'model_id' => $this->primaryKey,
-            'date' => $date,
-            'data_json' => json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
-            'user_id' => Yii::$app->user->getId() ?: User::SYSTEM_USER_ID,
-        ];
-
         $model = HistoryVersion::findOne([
             'model' => $this->getClassName(),
             'model_id' => $this->primaryKey,
             'date' => $date,
         ]);
 
+        $userId = Yii::$app->user->getId();
         if (!$model) {
+            $queryData = [
+                'model' => $this->getClassName(),
+                'model_id' => $this->primaryKey,
+                'date' => $date,
+                'data_json' => json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
+                'user_id' => $userId ?: User::SYSTEM_USER_ID,
+            ];
+
             $model = new HistoryVersion($queryData);
+        }elseif ($userId && $model->user_id != $userId && $userId != User::SYSTEM_USER_ID) {
+            $model->user_id = $userId;
         }
 
         $model->data_json = json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
