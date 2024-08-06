@@ -48,6 +48,7 @@ use yii\helpers\Url;
  * @property int $calls_per_month_0 Кол-во звонков за текущий месяц
  * @property int $calls_per_month_1 Кол-во звонков за -1 месяц
  * @property int $calls_per_month_2 Кол-во звонков за -2 месяц
+ * @property int $calls_per_month_3 Кол-во звонков за -3 месяц
  * @property int $is_ported
  * @property int $is_service
  * @property integer $fmc_trunk_id
@@ -181,6 +182,7 @@ class Number extends ActiveRecord
             'calls_per_month_0' => 'Кол-во звонков за текущий месяц',
             'calls_per_month_1' => 'Кол-во звонков за -1 месяц',
             'calls_per_month_2' => 'Кол-во звонков за -2 месяц',
+            'calls_per_month_3' => 'Кол-во звонков за -3 месяц',
             'is_with_discount' => 'Со скидкой',
         ];
     }

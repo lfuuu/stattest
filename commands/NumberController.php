@@ -173,13 +173,14 @@ class NumberController extends Controller
     }
 
     /**
-     * Пересчитать voip_numbers.calls_per_month_0/1/2
+     * Пересчитать voip_numbers.calls_per_month_0/1/2/3
      */
     public function actionCalcCallsPerMonth()
     {
         $this->actionCalcCallsPerMonth0($isUpdateDiscountStatus = false);
         $this->actionCalcCallsPerMonth1();
         $this->actionCalcCallsPerMonth2();
+        $this->actionCalcCallsPerMonth3();
 
         Number::dao()->updateDiscountStatus();
 
@@ -228,6 +229,20 @@ class NumberController extends Controller
         $dtFrom = $dtTo->modify("first day of this month, 00:00:00");
 
         $this->calcCallsPerMonth('calls_per_month_2', $dtFrom, $dtTo);
+
+        return ExitCode::OK;
+    }
+
+    /**
+     * Пересчитать voip_numbers.calls_per_month_3
+     */
+    public function actionCalcCallsPerMonth3()
+    {
+        $dtTo = (new \DateTimeImmutable("now", new \DateTimeZone("UTC")))
+            ->modify("last day of -3 month, 23:59:59");
+        $dtFrom = $dtTo->modify("first day of this month, 00:00:00");
+
+        $this->calcCallsPerMonth('calls_per_month_3', $dtFrom, $dtTo);
 
         return ExitCode::OK;
     }
