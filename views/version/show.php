@@ -24,7 +24,7 @@ $links = [
 <table class="table table-condensed table-striped table-bordered" style="width: auto; margin-top: 20px">
     <tr class="info">
         <th>Дата</th>
-        <th>Пользователь</th>
+        <th>Последний изменивший Пользователь</th>
         <th>Атрибут</th>
         <th>Старое значение</th>
         <th>Новое значение</th>
