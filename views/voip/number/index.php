@@ -130,6 +130,7 @@ $baseView = $this;
 $month0 = (new DateTimeImmutable())->modify('first day of this month');
 $month1 = $month0->modify('-1 month');
 $month2 = $month1->modify('-1 month');
+$month3 = $month2->modify('-1 month');
 
 $columns = [
     [
@@ -206,6 +207,7 @@ $columns = [
     [
         'attribute' => 'is_with_discount',
         'class' => \app\classes\grid\column\universal\YesNoColumn::class,
+        'value' => fn(Number $number) => $number->status == Number::STATUS_INSTOCK ? $number->is_with_discount : '---',
     ],
     [
         'attribute' => 'client_id',
@@ -219,17 +221,22 @@ $columns = [
         },
     ],
     [
-        'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
+        'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month3->format('m')),
+        'attribute' => 'calls_per_month_3',
+        'class' => IntegerRangeColumn::class,
+    ],
+    [
+        'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month2->format('m')),
         'attribute' => 'calls_per_month_2',
         'class' => IntegerRangeColumn::class,
     ],
     [
-        'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month1, 'php:m'),
+        'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month1->format('m')),
         'attribute' => 'calls_per_month_1',
         'class' => IntegerRangeColumn::class,
     ],
     [
-        'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month0, 'php:m'),
+        'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month0->format('m')),
         'attribute' => 'calls_per_month_0',
         'class' => IntegerRangeColumn::class,
     ],
