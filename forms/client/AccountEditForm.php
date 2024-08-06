@@ -566,7 +566,14 @@ class AccountEditForm extends Form
 
         $this->is_agent = $this->is_agent ? 'Y' : 'N';
 
-        $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
+        $exceptFields = ['historyVersionRequestedDate', 'id'];
+        if (!\Yii::$app->user->can('clients.new')) {
+            $exceptFields[] = 'credit';
+            $exceptFields[] = 'voip_credit_limit_day';
+            $exceptFields[] = 'voip_limit_mn_day';
+        }
+
+        $client->setAttributes($this->getAttributes(null, $exceptFields), false);
         if ($client && $this->historyVersionStoredDate) {
             $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
         }
