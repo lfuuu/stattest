@@ -17,6 +17,11 @@ use kartik\widgets\ActiveForm;
 
 /** @var ActiveForm $f */
 /** @var AccountEditForm $model */
+
+$disabled = ['disabled' => 'disabled'];
+
+$creditEditOptions = \Yii::$app->user->can('clients.new') ? [] : $disabled;
+
 ?>
 
 <div class="max-screen">
@@ -32,9 +37,7 @@ use kartik\widgets\ActiveForm;
         </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'effective_vat_rate')
-                ->textInput([
-                    'disabled' => 'disabled',
-                ])
+                ->textInput($disabled)
             ?>
         </div>
     </div>
@@ -62,7 +65,7 @@ use kartik\widgets\ActiveForm;
 
     <div class="row">
         <div class="col-sm-3">
-            <?= $f->field($model, 'credit', ['options' => ['id' => 'credit-size']]) ?>
+            <?= $f->field($model, 'credit', ['options' => ['id' => 'credit-size']])->textInput($creditEditOptions) ?>
         </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'anti_fraud_disabled')->checkbox()->label('') ?>
@@ -88,7 +91,7 @@ use kartik\widgets\ActiveForm;
 
     <div class="row">
         <div class="col-sm-3">
-            <?= $f->field($model, 'voip_credit_limit_day') ?>
+            <?= $f->field($model, 'voip_credit_limit_day')->textInput($creditEditOptions) ?>
         </div>
         <div class="col-sm-3">
             <?php
@@ -119,7 +122,7 @@ use kartik\widgets\ActiveForm;
 
     <div class="row">
         <div class="col-sm-3">
-            <?= $f->field($model, 'voip_limit_mn_day') ?>
+            <?= $f->field($model, 'voip_limit_mn_day')->textInput($creditEditOptions) ?>
         </div>
         <div class="col-sm-3">
             <?php
