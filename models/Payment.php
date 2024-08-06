@@ -119,6 +119,8 @@ class Payment extends ActiveRecord
 
     public $isNeedToSendAtol = false;
     public $isIdentificationPayment = false;
+    public $bankBik = null;
+    public $bankAccount = null;
 
     /**
      * Название таблицы
@@ -293,15 +295,22 @@ class Payment extends ActiveRecord
 
         if ($insert) {
             Transaction::dao()->insertByPayment($this);
+            $data = [
+                'client_id' => $this->client_id,
+                'sum' => round($this->sum, 2),
+                'currency' => $this->currency,
+                'user_id' => Yii::$app->user->id,
+                'is_identification_payment' => $this->isIdentificationPayment,
+            ];
+
+            if ($this->isIdentificationPayment) {
+                $data['bank_bik'] = $this->bankBik;
+                $data['bank_account'] = $this->bankAccount;
+            }
 
             ImportantEvents::create(ImportantEventsNames::PAYMENT_ADD,
-                ImportantEventsSources::SOURCE_STAT, [
-                    'client_id' => $this->client_id,
-                    'sum' => round($this->sum, 2),
-                    'currency' => $this->currency,
-                    'user_id' => Yii::$app->user->id,
-                    'is_identification_payment' => $this->isIdentificationPayment,
-                ]);
+                                    ImportantEventsSources::SOURCE_STAT,
+                                    $data);
         } else {
             Transaction::dao()->updateByPayment($this);
         }

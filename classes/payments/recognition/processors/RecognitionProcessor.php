@@ -36,6 +36,14 @@ abstract class RecognitionProcessor
     }
 
     abstract protected function yetWho(): int;
+    
+    public function getBankBik(): ?string {
+        return null;
+    }
+
+    public function getBankAccount(): ?string {
+        return null;
+    }
 
     final protected function check()
     {

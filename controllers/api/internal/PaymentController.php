@@ -154,6 +154,11 @@ class PaymentController extends ApiInternalController
             }
 
             $payment->isIdentificationPayment = $isIdentificationPayment;
+            
+            if ($payment->isIdentificationPayment) {
+                $payment->bankBik = $processor->getBankBik();
+                $payment->bankAccount = $processor->getBankAccount();    
+            }
 
             if (!$payment->save()) {
                 throw new ModelValidationException($payment);

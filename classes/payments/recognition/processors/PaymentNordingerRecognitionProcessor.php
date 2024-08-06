@@ -36,6 +36,10 @@ class PaymentNordingerRecognitionProcessor extends RecognitionProcessor
         return $this->findByName($info['debtorName'] ?? $info['creditorName'] ?? '');
     }
 
+    public function getBankAccount(): ?string {
+        return $this->infoJson['debtorAccount']['iban'] ?? null;
+    }
+
     private function findByIban($iban)
     {
         $accountIds = $this->getAccountIdsByIban($iban);

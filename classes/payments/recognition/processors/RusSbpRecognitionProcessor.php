@@ -22,7 +22,6 @@ class RusSbpRecognitionProcessor extends RecognitionProcessor
         return true;
     }
 
-
     protected function yetWho(): int
     {
         $this->logger->add("Найден СБП платеж, переносим в Л/С " . self::SPB_ACCOUNT_ID);
