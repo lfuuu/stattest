@@ -180,6 +180,7 @@ abstract class TariffForm extends \app\classes\Form
                     'voip_group_id' => $post['Tariff']['voip_group_id'],
                     'overview' => $post['Tariff']['overview'],
                     'comment' => $post['Tariff']['comment'],
+                    'payment_template_type_id' => $post['Tariff']['payment_template_type_id'],
                 ];
             }
 
@@ -247,8 +248,7 @@ abstract class TariffForm extends \app\classes\Form
                     throw new ModelValidationException($this->tariff);
                 }
 
-                $cacheKey = 'uuapitariff' . $this->tariff->id;
-                \Yii::$app->cache->delete($cacheKey);
+                Tariff::deleteCacheById($this->tariff->id);
 
                 $this->id = $this->tariff->id;
                 $this->isSaved = true;
@@ -455,6 +455,7 @@ abstract class TariffForm extends \app\classes\Form
         $this->_cloneTariffVoipCountry($tariffCloned);
         $this->_cloneTariffVoipCity($tariffCloned);
         $this->_cloneTariffVoipNdcType($tariffCloned);
+        $this->_cloneTariffTags($tariffCloned);
         $this->_cloneTariffOrganization($tariffCloned);
         $this->_cloneTariffBundle($tariffCloned);
         $this->_cloneTariffPeriod($tariffCloned);
@@ -477,25 +478,15 @@ abstract class TariffForm extends \app\classes\Form
     private function _cloneTariffTariff()
     {
         $tariffCloned = new Tariff();
-        $fieldNames = [
-            'name',
-            'service_type_id',
-            'tariff_status_id',
-            'currency_id',
-            'count_of_validity_period',
-            'tariff_person_id',
-            'is_autoprolongation',
-            'is_charge_after_blocking',
-            'is_include_vat',
-            'is_default',
-            'voip_group_id',
-            'vm_id',
-            'is_one_active',
-            'is_bundle',
+        $fieldNamesExcept = [
+            'id',
+            'insert_time',
+            'insert_user_id',
+            'update_time',
+            'update_user_id',
         ];
-        foreach ($fieldNames as $fieldName) {
-            $tariffCloned->$fieldName = $this->tariff->$fieldName;
-        }
+
+        $tariffCloned->setAttributes($this->tariff->getAttributes(null, $fieldNamesExcept), false);
 
         if (!$tariffCloned->save()) {
             $this->validateErrors += $tariffCloned->getFirstErrors();
@@ -605,6 +596,32 @@ abstract class TariffForm extends \app\classes\Form
             if (!$voipNdcTypeCloned->save()) {
                 $this->validateErrors += $voipNdcTypeCloned->getFirstErrors();
                 throw new ModelValidationException($voipNdcTypeCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. TariffTags
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffTags(Tariff $tariffCloned)
+    {
+        $tags = $this->tariff->tags;
+        $fieldNames = [
+            'tag_id',
+        ];
+        foreach ($tags as $tag) {
+            $tagsCloned = new TariffTags();
+            $tagsCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $tagsCloned->$fieldName = $tag->$fieldName;
+            }
+
+            if (!$tagsCloned->save()) {
+                $this->validateErrors += $tagsCloned->getFirstErrors();
+                throw new ModelValidationException($tagsCloned);
             }
         }
     }

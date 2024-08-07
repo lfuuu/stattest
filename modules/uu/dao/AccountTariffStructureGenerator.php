@@ -7,6 +7,7 @@ use app\classes\Singleton;
 use app\controllers\api\internal\IdNameRecordTrait;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\document\PaymentTemplate;
 use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePricelist;
@@ -265,9 +266,7 @@ class AccountTariffStructureGenerator extends Singleton
             return null;
         }
 
-        $cacheKey = 'uuapitariff' . $tariff->id;
-
-        if (!($data = \Yii::$app->cache->get($cacheKey))) {
+        if (!($data = \Yii::$app->cache->get($tariff->cacheKey))) {
 //        if (true) {
 
             $package = $tariff->package;
@@ -314,9 +313,16 @@ class AccountTariffStructureGenerator extends Singleton
 //                'package_pricelist' => null,
             ];
 
+            if ($tariff->payment_template_type_id && $tariffCountries) {
+                $tariffCountry = reset($tariffCountries);
+
+                $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode($tariff->payment_template_type_id, $tariffCountry->country_id);
+                $data['template'] = $template ? $template->getAttributes(['id', 'content']) : null;
+            }
+
             $data['overview'] = $this->_getOverview($tariff->overview);
 
-            \Yii::$app->cache->set($cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
+            \Yii::$app->cache->set($tariff->cacheKey, $data, DependecyHelper::DEFAULT_TIMELIFE, (new TagDependency(['tags' => [DependecyHelper::TAG_PRICELIST]])));
         }
 
         $data['tariff_periods'] = $this->_getTariffPeriodRecord($tariffPeriod);

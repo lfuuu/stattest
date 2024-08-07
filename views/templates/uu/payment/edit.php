@@ -42,6 +42,9 @@ echo Breadcrumbs::widget([
     ?>
     <div class="col-xs-4">
         <?php
+
+            $model = $model ?: new PaymentTemplate();
+
             echo $form->field($model, 'type_id')->widget(Select2::class, [
                 'data' => PaymentTemplateType::getList(),
                 'options' => [

@@ -8,6 +8,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\Currency;
+use app\models\document\PaymentTemplateType;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
@@ -45,6 +46,7 @@ use yii\helpers\Url;
  * @property integer $tax_rate
  * @property integer $is_bundle
  * @property integer $is_one_alt
+ * @property integer $payment_template_type_id
  *
  * @property-read Currency $currency
  * @property-read TariffResource[] $tariffResources
@@ -84,7 +86,9 @@ use yii\helpers\Url;
  * @property-read TariffTags[] $tags
  * @property-read TariffVoipNdcType[] $voipNdcTypes
  * @property-read TariffVoipSource[] $voipSources
+ * @property-read PaymentTemplateType $paymentTemplateType
  * @property-read boolean $isTest
+ * @property-read string $cacheKey
  *
  * @method static Tariff findOne($condition)
  * @method static Tariff[] findAll($condition)
@@ -174,7 +178,7 @@ class Tariff extends ActiveRecord
                     'is_proportionately',
                     'tax_rate',
                     'is_one_alt',
-
+                    'payment_template_type_id',
                 ],
                 'integer'
             ],
@@ -452,6 +456,14 @@ class Tariff extends ActiveRecord
     /**
      * @return ActiveQuery
      */
+    public function getPaymentTemplateType()
+    {
+        return $this->hasOne(PaymentTemplateType::class, ['id' => 'payment_template_type_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getOrganizations()
     {
         return $this->hasMany(TariffOrganization::class, ['tariff_id' => 'id'])
@@ -529,7 +541,7 @@ class Tariff extends ActiveRecord
             $isWithEmpty,
             $isWithNullAndNotNull,
             $indexBy = 'id',
-            $select = new Expression("concat('№', id, ' ', name)") ,
+            $select = new Expression("concat('№', id, ' ', name)"),
             $orderBy = ['name' => SORT_ASC],
             $where
         );
@@ -792,4 +804,20 @@ class Tariff extends ActiveRecord
     {
         return in_array($this->id, self::AUTODIAL_IDS);
     }
+
+    public function getCacheKey(): ?string
+    {
+        return self::makeCacheKey($this->id);
+    }
+
+    public static function makeCacheKey($id): ?string
+    {
+        return 'uuapitariff' . $id;
+    }
+
+    public static function deleteCacheById($id): bool
+    {
+        return \Yii::$app->cache->delete(self::makeCacheKey($id));
+    }
+
 }

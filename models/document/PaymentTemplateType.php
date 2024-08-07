@@ -3,6 +3,7 @@
 namespace app\models\document;
 
 use app\classes\model\ActiveRecord;
+use app\modules\uu\models\Tariff;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -25,6 +26,8 @@ use app\models\User;
  *
  * @property PaymentTemplate[] $paymentTemplates
  * @property User $updatedBy
+ *
+ * @property-readonly Tariff[] $tariffs
  */
 class PaymentTemplateType extends ActiveRecord
 {
@@ -101,6 +104,7 @@ class PaymentTemplateType extends ActiveRecord
             [['is_portrait'], 'integer'],
             [['data_source'], 'string'],
             [['short_name'], 'string'],
+            ['is_enabled', 'validateIsEnabled']
         ];
     }
 
@@ -156,6 +160,14 @@ class PaymentTemplateType extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTariffs()
+    {
+        return $this->hasMany(Tariff::class, ['id' => 'payment_template_type_id']);
+    }
+
+    /**
      * Вернуть список всех доступных значений
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
@@ -164,7 +176,8 @@ class PaymentTemplateType extends ActiveRecord
      */
     public static function getList(
         $isWithEmpty = false,
-        $isWithNullAndNotNull = false
+        $isWithNullAndNotNull = false,
+        $dataSource = null
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -172,8 +185,47 @@ class PaymentTemplateType extends ActiveRecord
             $indexBy = 'id',
             $select = 'name',
             $orderBy = ['id' => SORT_ASC],
-            $where = ['is_enabled' => 1]
+            $where = ['is_enabled' => 1] + ($dataSource ? ['data_source' => $dataSource] : [])
         );
+    }
+
+    public function validateIsEnabled($attribute, $params)
+    {
+        $dirtyAttributes = $this->getDirtyAttributes();
+
+        if (!isset($dirtyAttributes[$attribute])) {
+            return true;
+        }
+
+        // включение не проверяем
+        if ($this->$attribute) {
+            return true;
+        }
+
+        // не используется
+        $tariffs = Tariff::find()->where(['payment_template_type_id' => $this->id])->limit(10)->all();
+        if(!$tariffs) {
+            return true;
+        }
+
+        $this->addError($attribute, 'Шаблон используется в тарифах: ' . implode(', ', array_map(fn(Tariff $tariff) => $tariff->link, $tariffs)));
+
+        return false;
+    }
+
+    public function getTemplateContent($countryId)
+    {
+        $query = $this->hasOne(PaymentTemplate::class, ['type_id' => 'id'])
+            ->andWhere(['is_active' => 1, 'country_code' => $countryId])
+            ->orderBy(['version' => SORT_DESC]);
+
+        /** @var PaymentTemplate $templateModel */
+        $templateModel = $query->one();
+        if ($templateModel) {
+            return $templateModel->content;
+        }
+
+        return '';
     }
 
     /**
@@ -190,5 +242,10 @@ class PaymentTemplateType extends ActiveRecord
     public function getToggleEnableUrl()
     {
         return Url::to(['/dictionary/payment-template-type/toggle-enable', 'id' => $this->id]);
+    }
+
+    public function __toString()
+    {
+        return $this->name;
     }
 }

@@ -7,6 +7,7 @@ use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Country;
 use app\models\User;
+use app\modules\uu\models\Tariff;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -122,6 +123,16 @@ class PaymentTemplate extends ActiveRecord
     public function getUpdatedBy()
     {
         return $this->hasOne(User::class, ['id' => 'updated_by']);
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        array_map(
+            fn(Tariff $tariff) => Tariff::deleteCacheById($tariff->id),
+            Tariff::find()->where(['payment_template_type_id' => $this->type_id])->all()
+        );
     }
 
     /**
