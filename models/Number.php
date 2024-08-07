@@ -104,7 +104,7 @@ class Number extends ActiveRecord
     const STATUS_GROUP_ACTIVE = 'active';
     const STATUS_GROUP_NOTACTIVE = 'notactive';
 
-    const COUNT_CALLS_FOR_DISCOUNT = 3;
+    const COUNT_CALLS_FOR_DISCOUNT = 7;
 
     /**
      * Номер не привязан к сим-карте, т.е. отсутствует imsi
