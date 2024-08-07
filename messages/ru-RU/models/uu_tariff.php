@@ -26,4 +26,5 @@ return [
     'is_proportionately' => 'Списывать пропорционально (иначе полностью сразу)',
     'tax_rate' => 'Ставка НДС',
     'is_one_alt' => 'Несгораемый пакет',
+    'payment_template_type_id' => 'Шаблон',
 ];

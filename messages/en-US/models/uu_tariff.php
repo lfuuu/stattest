@@ -25,4 +25,5 @@ return [
     'is_proportionately' => 'Write off proportionally (otherwise completely at once)',
     'tax_rate' => 'Tax rate',
     'is_one_alt' => 'Fireproof package',
+    'payment_template_type_id' => 'Template',
 ];

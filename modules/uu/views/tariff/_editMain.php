@@ -153,6 +153,13 @@ $viewParams = [
             ?>
         </div>
 
+        <div class="col-sm-1"><?= $form->field($tariff, 'payment_template_type_id')->widget(Select2::class, [
+                'data' => \app\models\document\PaymentTemplateType::getList(true, false, \app\models\document\PaymentTemplateType::DATA_SOURCE_TARIFF),
+            ])
+                ->label($tariff->getAttributeLabel('payment_template_type_id') . $helpConfluence)
+            ?>
+        </div>
+
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_person_id')->widget(Select2::class, [
                 'data' => TariffPerson::getList(false),
                 'options' => $options,
@@ -161,7 +168,7 @@ $viewParams = [
             ?>
         </div>
 
-        <div class="col-sm-2">
+        <div class="col-sm-1">
             <?= $form->field($tariff, 'count_of_validity_period')
                 ->textInput($options)
                 ->label($tariff->getAttributeLabel('count_of_validity_period') . $helpConfluence)
