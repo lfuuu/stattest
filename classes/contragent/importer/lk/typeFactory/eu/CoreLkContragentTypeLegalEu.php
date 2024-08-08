@@ -46,18 +46,19 @@ class CoreLkContragentTypeLegalEu extends CoreLkContragentTypeDefault
             $contragent->address_jur = $row['address'];
         }
 
-        if ($row['tax_id']) {
-            $contragent->inn = $row['tax_id'];
-        }
-
         if ($row['reg_id']) {
             $contragent->ogrn = $row['reg_id'];
         }
 
-        $data = $this->coreLkContragent->getDataResponse();
-        if ($data && isset($data['CC']) && $data['CC'] && isset($data['Number']) && $data['Number']) {
-            $contragent->inn_euro = mb_strtoupper($data['CC']) . $data['Number'];
+        if ($row['tax_id']) {
+            $contragent->inn_euro = $row['tax_id'];
             $contragent->tax_regime = ClientContragent::TAX_REGTIME_OCH_VAT18;
+        } else { 
+            $data = $this->coreLkContragent->getDataResponse();
+            if ($data && isset($data['CC']) && $data['CC'] && isset($data['Number']) && $data['Number']) {
+                $contragent->inn_euro = mb_strtoupper($data['CC']) . $data['Number'];
+                $contragent->tax_regime = ClientContragent::TAX_REGTIME_OCH_VAT18;
+            }
         }
 
         $statContragent = $this->coreLkContragent->getStatContragent();
