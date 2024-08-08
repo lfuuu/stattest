@@ -80,11 +80,13 @@ class PaymentTinkoffRecognitionProcessor extends RecognitionProcessor
         return $innAccountId;
     }
     
-    public function getBankBik(): ?string {
+    public function getBankBik(): ?string
+    {
         return $this->infoJson['payerBic'] ?? null;
     }
 
-    public function getBankAccount(): ?string {
+    public function getBankAccount(): ?string
+    {
         return $this->infoJson['payerAccount'] ?? null;
     }
 
