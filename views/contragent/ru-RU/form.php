@@ -80,70 +80,77 @@ endif;
                 'post_address_filial' => [],
             ],
         ]);
+        
+        if (\Yii::$app->isRus()) {
+            echo Form::widget([
+                'model' => $model,
+                'form' => $f,
+                'columns' => 2,
+                'columnOptions' => ['class' => 'col-sm-6'],
+                'options' => ['class' => 'pull-left percent50 block-right-indent'] + $optionState,
+                'attributeDefaults' => [
+                    'type' => Form::INPUT_TEXT
+                ],
+                'attributes' => [
+                    'inn' => [],
+                    'kpp' => [],
+                    'okvd' => [],
+                    'ogrn' => [],
+                    'opf_id' => [
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'items' => $codeOpfList,
+                    ],
+                    'okpo' => [],
+                ],
+            ]);    
+        }
+
+        $attrs = [
+            'tax_regime' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => ClientContragent::$taxRegtimeTypes,
+                'container' => []],
+            'inn_euro' => [],
+        ];
+        if (\Yii::$app->isEu()) {
+            $attrs['inn'] = [];
+            $attrs['ogrn'] = [];
+        }
         echo Form::widget([
             'model' => $model,
             'form' => $f,
             'columns' => 2,
-            'columnOptions' => ['class' => 'col-sm-6'],
-            'options' => ['class' => 'pull-left percent50 block-right-indent'] + $optionState,
+            'options' => ['class' => 'pull-right percent50 block-left-indent'] + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
-            'attributes' => [
-                'inn' => [],
-                'kpp' => [],
-                'okvd' => [],
-                'ogrn' => [],
-                'opf_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $codeOpfList,
+            'attributes' => $attrs,
+            'contentAfter' =>  Form::widget([
+                'model' => $model,
+                'form' => $f,
+                'columns' => 1,
+                'options' => ['class' => ''] + $optionState,
+                'attributeDefaults' => [
+                    'type' => Form::INPUT_TEXT
                 ],
-                'okpo' => [],
-            ],
+                'attributes' => [
+                    'tax_registration_reason' => [],
+    
+                    'position' => [],
+                    'fio' => [],
+                    'is_take_signatory' => [
+                        'type' => Form::INPUT_CHECKBOX,
+                    ],
+                    'signatory_position' => [
+                        'options' => ['disabled' => !$model->is_take_signatory],
+                    ],
+                    'signatory_fio' => [
+                        'options' => ['disabled' => !$model->is_take_signatory],
+                    ],
+                ],
+            ])
         ]);
-
-        echo Form::widget([
-            'model' => $model,
-            'form' => $f,
-            'columns' => 2,
-            'options' => ['class' => 'percent50 block-left-indent'] + $optionState,
-            'attributeDefaults' => [
-                'type' => Form::INPUT_TEXT
-            ],
-            'attributes' => [
-                'tax_regime' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => ClientContragent::$taxRegtimeTypes,
-                    'container' => []
-                ],
-                'inn_euro' => [],
-            ],
-        ]);
-
-        echo Form::widget([
-            'model' => $model,
-            'form' => $f,
-            'columns' => 1,
-            'options' => ['class' => 'percent50 block-left-indent'] + $optionState,
-            'attributeDefaults' => [
-                'type' => Form::INPUT_TEXT
-            ],
-            'attributes' => [
-                'tax_registration_reason' => [],
-
-                'position' => [],
-                'fio' => [],
-                'is_take_signatory' => [
-                    'type' => Form::INPUT_CHECKBOX,
-                ],
-                'signatory_position' => [
-                    'options' => ['disabled' => !$model->is_take_signatory],
-                ],
-                'signatory_fio' => [
-                    'options' => ['disabled' => !$model->is_take_signatory],
-                ],
-            ],
-        ]);
+        unset($attrs);
         ?>
     </div>
 
