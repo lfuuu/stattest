@@ -84,7 +84,7 @@ class PaymentController extends ApiInternalController
             $model->operation_id = $model->payment_no;
         }
 
-        $lockKey = hash('sha256', "action_payment_add_" . $model->payment_no);
+        $lockKey = hash('md5', "action_payment_add_" . $model->payment_no);
         if (!\Yii::$app->mutex->acquire($lockKey, self::DEFAULT_TIMEOUT)) {
             throw new \RuntimeException("Can't get account lock", 500);
         }
