@@ -2,7 +2,9 @@
 
 namespace app\controllers\api\internal;
 
+use app\classes\ActOfReconciliation;
 use app\exceptions\web\NotImplementedHttpException;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\models\Bill as uuBill;
 use app\modules\uu\models\ResourceModel;
@@ -80,4 +82,35 @@ class AccountingController extends ApiInternalController
             ],
         ];
     }
+
+    /**
+     * @SWG\Get(tags={"Accounting"}, path="/internal/accounting/get-invoice-balance/", summary="Получение баланса по с/ф", operationId="getInvoiceBalance",
+     *   @SWG\Parameter(name="accountId", type="integer", description="ID ЛС", in = "query", default=""),
+     *
+     *   @SWG\Response(response=200, description="баланс по с/ф",
+     *   ),
+     * )
+     */
+    public function actionGetInvoiceBalance($accountId)
+    {
+        if (is_array($accountId) || !$accountId || !preg_match("/^\d{1,6}$/", $accountId)) {
+            throw new \InvalidArgumentException("account_is_bad");
+        }
+
+        $clientAccount = ClientAccount::findOne(['id' => $accountId]);
+        if (!$clientAccount) {
+            throw new \InvalidArgumentException("account_not_found");
+        }
+
+        return ActOfReconciliation::me()->getData(
+            $clientAccount,
+            null,
+            (new \DateTimeImmutable('now'))
+                ->modify('last day of this month')
+                ->format(DateTimeZoneHelper::DATE_FORMAT)
+            , true, true
+        );
+    }
+
+
 }

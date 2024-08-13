@@ -43,6 +43,8 @@ use yii\web\Response;
  * @property int $is_invoice
  * @property int $is_act
  * @property string $pay_bill_until
+ * @property int $is_payed
+ * @property string $payment_date
  *
  * @property-read Bill $bill
  * @property-read InvoiceLine[] $lines
@@ -282,19 +284,15 @@ class Invoice extends ActiveRecord
         switch ($typeId) {
             case self::TYPE_1:
                 return $date->modify('last day of this month');
-                break;
 
             case self::TYPE_2:
                 return $date->modify('last day of previous month');
-                break;
 
             case self::TYPE_GOOD:
                 return self::getBillWithGoodDate($bill, $date);
-                break;
 
             case self::TYPE_PREPAID:
                 return self::getBillPaymentDate($bill);
-                break;
 
             default:
                 return $date;

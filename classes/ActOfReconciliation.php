@@ -70,6 +70,7 @@ class ActOfReconciliation extends Singleton
                 'correction_idx' => new Expression('""'),
                 'bill_date' => 'payment_date',
                 'add_datetime' => 'add_date',
+                'is_payed' => new Expression('null'),
             ])
             ->where([
                 'client_id' => $account->id,
@@ -89,6 +90,7 @@ class ActOfReconciliation extends Singleton
                 'correction_idx' => new Expression('""'),
                 'bill_date' => 'bill_date',
                 'add_datetime' => 'bill_date',
+                'b.is_payed',
             ])
             ->where([
                 'client_id' => $account->id,
@@ -111,6 +113,7 @@ class ActOfReconciliation extends Singleton
                 'correction_idx',
                 'bill_date',
                 'add_datetime' => 'add_date',
+                'i.is_payed',
             ])
             ->joinWith('bill b')
             ->where([
@@ -134,7 +137,8 @@ class ActOfReconciliation extends Singleton
   ex.ext_invoice_no                         AS number,
   \'\'                                        AS correction_idx,
   b.bill_date                               AS bill_date,
-  b.bill_date                               AS add_datetime
+  b.bill_date                               AS add_datetime,
+  null                                      AS is_payed
 FROM newbills b
   JOIN `newbills_external` ex USING (bill_no)
 WHERE b.client_id = ' . $account->id . '
@@ -200,7 +204,8 @@ WHERE b.client_id = ' . $account->id . '
                     'income_sum' => $sum > 0 ? $sum : '',
                     'outcome_sum' => $sum < 0 ? -$sum : '',
                 ] + ($isInvoice ? ['correction_idx' => $item['correction_idx']] : ['add_datetime' => $item['add_datetime']])
-                + ($item['type'] == 'bill' ? ['is_invoice_created' => $isServiceBill && $isInvoiceCreated] : []);
+                + ($item['type'] == 'bill' ? ['is_invoice_created' => $isServiceBill && $isInvoiceCreated] : [])
+                + (in_array($item['type'],  ['bill', 'invoice', 'act']) ? ['payment status' => (Payment::$paymentStatusPaid[$item['is_payed']] ?? Payment::$paymentStatusPaid[Payment::PAYMENT_STATUS_REJECTED])] : [] );
 
             $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
         }

@@ -17,6 +17,7 @@ use app\models\ClientContragent;
 use app\models\GoodsIncomeOrder;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
+use app\models\Invoice;
 use app\models\Param;
 use app\models\Payment;
 use app\models\PaymentOrder;
@@ -151,6 +152,8 @@ class ClientAccountDao extends Singleton
 
         $R1 = $this->_enumBillsFullSum($clientAccount, $saldo['ts']);
         $R2 = $this->_enumPayments($clientAccount, $saldo['ts']);
+        $invoiceAll = $this->_getInvoices($clientAccount->id);
+
 
         $sum = -$saldo['saldo'];
 
@@ -420,7 +423,22 @@ class ClientAccountDao extends Singleton
             }
         }
 
+
+        $paysAll = $this->_enumPayments($clientAccount, $saldo['ts'], true);
+        $paysIncome = array_filter($paysAll, function ($p) {
+            return !isset($p['payment_type']) || $p['payment_type'] != Payment::PAYMENT_TYPE_OUTCOME;
+        });
+
+        $invoiceCleared = array_filter($invoiceAll, fn($inv) => !isset($inv['_is_reversed']));
+        $invoiceRejected = array_filter($invoiceAll, fn($inv) => isset($inv['_is_reversed']));
+
+        UpdateBalanceHelper::mergePaymentIntoBills($invoiceCleared, $paysIncome);
+
+
         $transaction = Bill::getDb()->beginTransaction();
+
+        UpdateBalanceHelper::saveInvoicesIfPayed($invoiceCleared);
+        UpdateBalanceHelper::saveInvoicesRejected($invoiceRejected);
 
         $savedBills = [];
 
@@ -554,14 +572,13 @@ class ClientAccountDao extends Singleton
 
         $clientAccount = $clientAccountId instanceof ClientAccount ? $clientAccountId : ClientAccount::findOne(['id' => $clientAccountId]);
 
-        \Yii::$app->db->createCommand("update newbills set is_payed=0, payment_date = null where client_id={$clientAccountId} and sum < 0")->execute();
-
         Assert::isObject($clientAccount);
 
         $saldo = $this->_getSaldo($clientAccount);
 
         $billsAll = $this->_enumBillsFullSum($clientAccount, $saldo['ts']);
         $paysAll = $this->_enumPayments($clientAccount, $saldo['ts'], true);
+        $invoiceAll = $this->_getInvoices($clientAccount->id);
 
         $sum = -$saldo['saldo'];
 
@@ -607,6 +624,10 @@ class ClientAccountDao extends Singleton
             return $b['sum'] < 0;
         });
 
+        $invoiceCleared = array_filter($invoiceAll, fn($inv) => !isset($inv['_is_reversed']));
+        $invoiceRejected = array_filter($invoiceAll, fn($inv) => isset($inv['_is_reversed']));
+
+        UpdateBalanceHelper::mergePaymentIntoBills($invoiceCleared, $paysIncome);
         UpdateBalanceHelper::mergePaymentIntoBills($billsPlus, $paysIncome);
         UpdateBalanceHelper::mergePaymentIntoBills($billsMinus, $paysOutcome);
 
@@ -614,13 +635,17 @@ class ClientAccountDao extends Singleton
         $minusPaymentOrders = UpdateBalanceHelper::paymentOrders_extractFromBills($billsMinus);
 
         $paymentOrders = array_merge($plusPaymentOrders, $minusPaymentOrders);
-        UpdateBalanceHelper::paymentOrders_save($clientAccountId, $paymentOrders);
 
 
         $transaction = Bill::getDb()->beginTransaction();
 
+        \Yii::$app->db->createCommand("update newbills set is_payed=0, payment_date = null where client_id={$clientAccountId} and sum < 0")->execute();
+        UpdateBalanceHelper::paymentOrders_save($clientAccountId, $paymentOrders);
+
         $bills = array_merge($billsPlus, $billsMinus);
         UpdateBalanceHelper::saveBillIfPayed($bills);
+        UpdateBalanceHelper::saveInvoicesIfPayed($invoiceCleared);
+        UpdateBalanceHelper::saveInvoicesRejected($invoiceRejected);
 
 
         if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
@@ -753,10 +778,6 @@ class ClientAccountDao extends Singleton
 
         $result = [];
         foreach ($bills as $bill) {
-            if ($bill['currency'] == 'USD' && $bill['currency']) {
-
-            }
-
             $result[$bill['bill_no']] = $bill;
         }
 
@@ -878,6 +899,52 @@ class ClientAccountDao extends Singleton
     private function _sumMore($pay, $bill, $diff = 0.01)
     {
         return ($pay - $bill > -$diff);
+    }
+
+    private function _getInvoices($clientAccountId)
+    {
+        // tested on d138400
+        $invoices = Invoice::find()
+            ->alias('i')
+            ->joinWith('bill b', true, 'INNER JOIN')
+            ->where(['not', ['i.number' => null]])
+            ->andWhere(['b.client_id' => $clientAccountId])
+            ->orderBy(['i.date' => SORT_ASC, 'i.number' => SORT_ASC, 'i.add_date' => SORT_ASC, 'i.id' => SORT_ASC])
+            ->asArray()
+            ->indexBy('id')
+            ->all();
+
+        $c = [];
+
+        foreach ($invoices as $id => $invoice) {
+
+            echo PHP_EOL . 'id:' . $id . ' ';
+            if (!$invoice['is_reversal']) {
+                if ($invoice['sum'] == 0) {
+                    $invoices[$id]['_is_reversed'] = -1;
+                    continue;
+                }
+                $c[$invoice['number']] = $id;
+                continue;
+            }
+
+            // && $invoice['is_reversal']
+            if (isset($c[$invoice['number']])) {
+                echo "+";
+                $invoices[$c[$invoice['number']]]['_is_reversed'] = 1;
+                $invoices[$id]['_is_reversed'] = 0;
+                unset($c[$invoice['number']]);
+            }
+        }
+
+        echo PHP_EOL . '=====================' . PHP_EOL;
+        foreach ($invoices as $id => $invoice) {
+            unset ($invoice['bill']);
+            echo PHP_EOL . 'id:' . $id . ' ';
+            print_r($invoice);
+        }
+
+        return $invoices;
     }
 
     /**
@@ -1160,7 +1227,7 @@ class ClientAccountDao extends Singleton
             try {
                 ClientAccount::dao()->updateBalance($clientAccount);
             } catch (Exception $e) {
-                HandlerLogger::me()->add("!!! ERROR !!!" . $clientAccount->id. ': ' . $e->getMessage());
+                HandlerLogger::me()->add("!!! ERROR !!!" . $clientAccount->id . ': ' . $e->getMessage());
             }
             flush();
         }
