@@ -183,7 +183,8 @@ foreach ($invoices as $invoice) {
         'link' => $invoice->link,
         'date' => $invoice->date,
         'sum' => round($invoice->sum, 2),
-        'is_paid' => $paysPlusInv > $invoice->sum ? 1 : ($paysPlusInv > 0 ? 2 : 0),
+//        'is_paid' => $paysPlusInv > $invoice->sum ? 1 : ($paysPlusInv > 0 ? 2 : 0),
+        'is_paid' => $invoice->is_payed,
         'type' => 'invoice',
     ];
 
@@ -229,7 +230,7 @@ foreach ($billsPlus as $bill) {
         'link' => $bill->link,
         'date' => $bill->bill_date,
         'sum' => $bill->sum,
-        'is_paid' => $paysPlusBills > $bill->sum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
+        'is_paid' => $bill->is_payed, //$paysPlusBills > $bill->sum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
         'type' => 'bill',
     ];
     $vv[] = $v;
@@ -312,7 +313,7 @@ foreach ($billsMinus as $bill) {
         'link' => $bill->link,
         'date' => $bill->bill_date,
         'sum' => $bill->sum,
-        'is_paid' => $paysMinusBills <= $bill->sum ? 1 : (round($paysMinusBills, 4) < 0 ? 2 : 0),
+        'is_paid' => $bill->is_payed, //$paysMinusBills <= $bill->sum ? 1 : (round($paysMinusBills, 4) < 0 ? 2 : 0),
         'type' => 'bill_minus',
     ];
 
@@ -643,7 +644,7 @@ function cellContentOptions($is_paid, $addClass = '')
 {
     return $is_paid === null
         ? ($addClass ? ['class' => $addClass] : [])
-        : ['class' => ($is_paid === 1 ? 'success' : ($is_paid === 2 ? 'warning' : 'danger')) . ($addClass ? ' ' . $addClass : '')];
+        : ['class' => ($is_paid == 1 ? 'success' : ($is_paid == 2 ? 'warning' : ($is_paid == -1 ? 'info' : 'danger'))) . ($addClass ? ' ' . $addClass : '')];
 }
 
 ?>

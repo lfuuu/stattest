@@ -84,6 +84,18 @@ class Payment extends ActiveRecord
         self::PAYMENT_TYPE_OUTCOME => 'Расход',
     ];
 
+    const PAYMENT_STATUS_REJECTED = -1;
+    const PAYMENT_STATUS_NOT_PAID = 0;
+    const PAYMENT_STATUS_PAID_FULL = 1;
+    const PAYMENT_STATUS_PAID_PARTIALLY = 2;
+
+    public static $paymentStatusPaid = [
+        self::PAYMENT_STATUS_REJECTED => 'rejected',
+        self::PAYMENT_STATUS_NOT_PAID => 'not_paid',
+        self::PAYMENT_STATUS_PAID_FULL => 'paid_full',
+        self::PAYMENT_STATUS_PAID_PARTIALLY => 'paid_partially',
+    ];
+
     public static $types = [
         self::TYPE_PROV => 'Check',
         self::TYPE_NEPROV => 'Cash',
