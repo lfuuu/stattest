@@ -219,6 +219,7 @@ $billInvoiceCorrectionIds = array_reduce($billInvoiceCorrections, function ($acc
 
 $dataBillsPlus = [];
 $vv = [];
+$lastBillPayStatus = null;
 /** @var \app\models\Bill $bill */
 foreach ($billsPlus as $bill) {
 
@@ -233,6 +234,8 @@ foreach ($billsPlus as $bill) {
         'is_paid' => $bill->is_payed, //$paysPlusBills > $bill->sum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
         'type' => 'bill',
     ];
+    $lastBillPayStatus = $v['is_paid'];
+
     $vv[] = $v;
 
     $invoice = $billInvoiceCorrectionIds[$bill->id] ?? null;
@@ -265,7 +268,7 @@ if ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
         'link' => \app\models\Bill::makeLink('current_statement'),
         'date' => date('Y-m-d'),
         'sum' => $statementSum,
-        'is_paid' => $paysPlusBills > $statementSum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
+        'is_paid' => $lastBillPayStatus, //$paysPlusBills > $statementSum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
         'type' => 'bill',
     ];
     $vv[] = $v;
