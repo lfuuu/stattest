@@ -26,7 +26,8 @@ class UpdateBalanceHelper
                     $billIdx = key($bills);
                     next($bills);
                     $billSum = (float)$bill['sum'];
-
+                } else {
+                    break;
                 }
             }
 
