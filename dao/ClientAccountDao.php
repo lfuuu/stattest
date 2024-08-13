@@ -918,7 +918,6 @@ class ClientAccountDao extends Singleton
 
         foreach ($invoices as $id => $invoice) {
 
-            echo PHP_EOL . 'id:' . $id . ' ';
             if (!$invoice['is_reversal']) {
                 if ($invoice['sum'] == 0) {
                     $invoices[$id]['_is_reversed'] = -1;
@@ -930,18 +929,14 @@ class ClientAccountDao extends Singleton
 
             // && $invoice['is_reversal']
             if (isset($c[$invoice['number']])) {
-                echo "+";
                 $invoices[$c[$invoice['number']]]['_is_reversed'] = 1;
                 $invoices[$id]['_is_reversed'] = 0;
                 unset($c[$invoice['number']]);
             }
         }
 
-        echo PHP_EOL . '=====================' . PHP_EOL;
         foreach ($invoices as $id => $invoice) {
             unset ($invoice['bill']);
-            echo PHP_EOL . 'id:' . $id . ' ';
-            print_r($invoice);
         }
 
         return $invoices;
