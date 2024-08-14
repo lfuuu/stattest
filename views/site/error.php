@@ -15,7 +15,11 @@ $this->title = $name;
         <div class="site-error">
 
             <h1><?= Html::encode($this->title) ?></h1>
-
+            <?php 
+                $start = strpos($exception, ' ');
+                $end = strpos($exception, 'Stack trace');
+                echo '<p>'. Html::encode(substr($exception, $start, $end - $start)) . '</p>';
+            ?>
             <div class="alert alert-danger">
                 <?= nl2br(Html::encode($message)) ?>
             </div>
