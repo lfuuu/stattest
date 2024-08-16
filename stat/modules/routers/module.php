@@ -494,8 +494,8 @@ SQL;
                 $sql .= " WHERE c.client = '{$client}' ";
             }
             $sql.=<<<SQL
-                GROUP BY u_ipp.client
-                ORDER BY is_off_stage ASC;
+                GROUP BY u_ipp.client, is_off_stage
+                ORDER BY is_off_stage ASC, c.id ASC
 SQL;
             $db->Query($sql);
             while ($r=$db->NextRecord()) $R[$r['id']]=$r['text'];
