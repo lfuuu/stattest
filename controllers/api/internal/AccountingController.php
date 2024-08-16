@@ -6,6 +6,7 @@ use app\classes\ActOfReconciliation;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\Country;
 use app\modules\uu\models\Bill as uuBill;
 use app\modules\uu\models\ResourceModel;
 use app\classes\ApiInternalController;
@@ -86,13 +87,18 @@ class AccountingController extends ApiInternalController
     /**
      * @SWG\Get(tags={"Accounting"}, path="/internal/accounting/get-invoice-balance/", summary="Получение баланса по с/ф", operationId="getInvoiceBalance",
      *   @SWG\Parameter(name="accountId", type="integer", description="ID ЛС", in = "query", default=""),
+     *   @SWG\Parameter(name="countryCode", type="integer", description="Код страны (Россия - 643, Венгрия - 348), если не установлена - берется из точки подключения, или организциии клиента", in = "query", default=""),
      *
      *   @SWG\Response(response=200, description="баланс по с/ф",
      *   ),
      * )
      */
-    public function actionGetInvoiceBalance($accountId)
+    public function actionGetInvoiceBalance($accountId, $countryCode = null)
     {
+        if ($countryCode && !($country = Country::findOne(['code' => $countryCode]))) {
+            throw new \InvalidArgumentException("country_code_is_bad");
+        }
+
         if (is_array($accountId) || !$accountId || !preg_match("/^\d{1,6}$/", $accountId)) {
             throw new \InvalidArgumentException("account_is_bad");
         }
@@ -108,7 +114,7 @@ class AccountingController extends ApiInternalController
             (new \DateTimeImmutable('now'))
                 ->modify('last day of this month')
                 ->format(DateTimeZoneHelper::DATE_FORMAT)
-            , true, true
+            , true, true, ($country ? $country->code : null)
         );
     }
 

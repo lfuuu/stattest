@@ -242,9 +242,10 @@ WHERE b.client_id = ' . $account->id . '
         ];
     }
 
-    public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true, $isWithPrepaymentBills = false)
+    public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true, $isWithPrepaymentBills = false, $countryCodeParam = null)
     {
-        $isNotRussia = $account->getUuCountryId() != Country::RUSSIA;
+        $countryCode = $countryCodeParam ? $account->getUuCountryId() : null;
+        $isNotRussia = $countryCode != Country::RUSSIA;
         if (!$dateFrom) {
             $dateFrom = $isNotRussia ? '2019-07-31' : date('Y-01-01', strtotime('-3 year'));
         }
@@ -344,8 +345,8 @@ WHERE b.client_id = ' . $account->id . '
 
         $findDate = null;
 
-        $this->addingLinks($account, $data, !$isNotRussia);
-        $this->addingLinks($account, $result, !$isNotRussia);
+        $this->addingLinks($account, $data, !$isNotRussia, $countryCodeParam);
+        $this->addingLinks($account, $result, !$isNotRussia, $countryCodeParam);
 
         foreach ($data as $idx => &$row) {
             if ($row['type'] == 'invoice') {
@@ -418,7 +419,7 @@ WHERE b.client_id = ' . $account->id . '
         return $result;
     }
 
-    public function addingLinks(ClientAccount $account, &$data, $isRussia)
+    public function addingLinks(ClientAccount $account, &$data, $isRussia, $countryCodeParam = null)
     {
         $clientTimeZone = new \DateTimeZone($account->timezone_name);
         $utcTimeZone = new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
@@ -428,6 +429,8 @@ WHERE b.client_id = ' . $account->id . '
                 ->setTimezone($clientTimeZone)
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         };
+
+        $countryCodeAddLink = $countryCodeParam ? ['co' => $countryCodeParam] : [];
 
         foreach ($data as $idx => &$row) {
             $row['add_datetime'] = isset($row['add_datetime'])
@@ -452,7 +455,7 @@ WHERE b.client_id = ' . $account->id . '
                     'a' => $account->id,
                     'act' => $row['id'],
                     'is_pdf' => 1,
-                ]);
+                ] + $countryCodeAddLink);
 
                 if ($account->getTaxRateOnDate($row['bill_date']) > 0) {
                     $row['link_invoice'] = Encrypt::encodeArray([
@@ -467,7 +470,7 @@ WHERE b.client_id = ' . $account->id . '
                         'a' => $account->id,
                         'i' => $row['id'],
                         'is_pdf' => 1,
-                    ]);
+                    ] + $countryCodeAddLink);
                 }
             } elseif ($row['type'] == 'current_statement') {
                 $row['link'] = Encrypt::encodeArray([
@@ -482,7 +485,7 @@ WHERE b.client_id = ' . $account->id . '
                     'a' => $account->id,
                     'cur_st' => 1,
                     'is_pdf' => 1,
-                ]);
+                ] + $countryCodeAddLink);
 
 
             } elseif ($row['type'] == 'bill') {
@@ -505,7 +508,7 @@ WHERE b.client_id = ' . $account->id . '
                         'b' => $row['number'],
                         'a' => $account->id,
                         'is_pdf' => 1,
-                    ]);
+                    ] + $countryCodeAddLink);
                 } else {
                     $row['link'] = Encrypt::encodeArray([
                         'doc_type' => 'proforma',
