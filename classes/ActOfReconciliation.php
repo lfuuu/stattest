@@ -97,7 +97,7 @@ class ActOfReconciliation extends Singleton
                 'currency' => $account->currency,
                 'operation_type_id' => OperationType::ID_PRICE,
             ])
-            ->andWhere([($isWithPrepayedBills ? '>=' : '>' ), 'sum', 0])
+            ->andWhere([($isWithPrepayedBills ? '>=' : '>'), 'sum', 0])
             ->andWhere(['between', 'bill_date', $dateFrom, $dateTo]);
 
 
@@ -159,6 +159,7 @@ WHERE b.client_id = ' . $account->id . '
 
         foreach ($arr as $item) {
             $isInvoice = $item['type'] == 'invoice';
+            $isBill = $item['type'] == 'bill';
             $date = (new \DateTimeImmutable($item['date']))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED);
             $sum = $isInvoice ? $item['sum'] : -$item['sum'];
 
@@ -168,7 +169,7 @@ WHERE b.client_id = ' . $account->id . '
                     : (
                     ($item['payment_type'] == 'creditnote')
                         ? 'Кредит-нота от ' . $date
-                        : 'Оплата' . ' (' . $date . ', №' . $item['number'] . ')'
+                        : ($item['type'] == 'bill' ? 'Счет' : 'Оплата') . ' (' . $date . ', №' . $item['number'] . ')'
                     );
             } else {
                 $description = $isInvoice
@@ -180,7 +181,7 @@ WHERE b.client_id = ' . $account->id . '
                     );
             }
 
-            if ($item['type'] == 'bill') {
+            if ($isBill) {
                 // select count(*) from newbill_lines where bill_no = '202012-018854' and id_service is not null
                 $isServiceBill = BillLine::find()->where(['bill_no' => $item['number']])->andWhere(['NOT', ['type' => BillLine::LINE_TYPE_ZADATOK]])->exists();
                 $isInvoiceCreated = Invoice::find()->where(['bill_no' => $item['number']])->exists();
@@ -205,9 +206,11 @@ WHERE b.client_id = ' . $account->id . '
                     'outcome_sum' => $sum < 0 ? -$sum : '',
                 ] + ($isInvoice ? ['correction_idx' => $item['correction_idx']] : ['add_datetime' => $item['add_datetime']])
                 + ($item['type'] == 'bill' ? ['is_invoice_created' => $isServiceBill && $isInvoiceCreated] : [])
-                + (in_array($item['type'],  ['bill', 'invoice', 'act']) ? ['payment status' => (Payment::$paymentStatusPaid[$item['is_payed']] ?? Payment::$paymentStatusPaid[Payment::PAYMENT_STATUS_REJECTED])] : [] );
+                + (in_array($item['type'], ['bill', 'invoice', 'act']) ? ['payment status' => (Payment::$paymentStatusPaid[$item['is_payed']] ?? Payment::$paymentStatusPaid[Payment::PAYMENT_STATUS_REJECTED])] : []);
 
-            $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
+            if ($item['type'] != 'bill') {
+                $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
+            }
         }
 
         $result[] = ['type' => 'period', 'description' => $lang == Language::LANGUAGE_RUSSIAN ? 'Обороты за период' : 'Period transactions'] + $period;
@@ -323,12 +326,6 @@ WHERE b.client_id = ' . $account->id . '
             'add_datetime' => $setDateTime('now'),
             'income_sum' => (float)$currentStatementSum,
             'description' => 'current_statement',
-            'link' => Encrypt::encodeArray([
-                'client' => $account->id,
-                'doc_type' => DocumentReport::DOC_TYPE_CURRENT_STATEMENT,
-                'tpl1' => 2,
-                'is_pdf' => 1,
-            ])
         ];
         $balance += $currentStatementSum;
 
@@ -346,56 +343,15 @@ WHERE b.client_id = ' . $account->id . '
         }
 
         $findDate = null;
-        foreach ($data as $idx => &$row) {
-            $row['add_datetime'] = isset($row['add_datetime'])
-                ? $setDateTime($row['add_datetime'])
-                : $setDateTime($row['date'] . ' 00:00:00', true);
 
+        $this->addingLinks($account, $data, !$isNotRussia);
+        $this->addingLinks($account, $result, !$isNotRussia);
+
+        foreach ($data as $idx => &$row) {
             if ($row['type'] == 'invoice') {
                 $row['type'] = 'act';
             }
 
-            if ($row['type'] == 'act') {
-                $row['link'] = Encrypt::encodeArray([
-                    'is_pdf' => 1,
-                    'tpl1' => 1,
-                    'client' => $account->id,
-                    'invoice_id' => $row['id'],
-                    'is_act' => 1,
-                ]);
-
-                if ($account->getTaxRateOnDate($row['bill_date']) > 0) {
-                    $row['link_invoice'] = Encrypt::encodeArray([
-                        'is_pdf' => 1,
-                        'tpl1' => 1,
-                        'client' => $account->id,
-                        'invoice_id' => $row['id'],
-                    ]);
-                }
-            } elseif ($row['type'] == 'bill') {
-//                if (!$row['is_invoice_created']) {
-//                    $row['outcome_sum'] = 0;
-//                    $row['income_sum'] = $row['outcome_sum'];
-//                    $row['outcome_sum'] = 0;
-//                }
-
-                if (!$isNotRussia) { // Russia
-                    $row['link'] = Encrypt::encodeArray([
-                        'bill' => $row['number'],
-                        'object' => 'bill-2-RUB',
-                        'client' => $account->id,
-                        'is_pdf' => 1,
-                    ]);
-                } else {
-                    $row['link'] = Encrypt::encodeArray([
-                        'doc_type' => 'proforma',
-                        'bill' => $row['number'],
-                        'object' => 'bill-2-RUB',
-                        'client' => $account->id,
-                        'is_pdf' => 1,
-                    ]);
-                }
-            }
             unset($row['id']);
 
             $row['description'] = $row['type'];
@@ -460,6 +416,107 @@ WHERE b.client_id = ' . $account->id . '
         $this->_typeCast($result);
 
         return $result;
+    }
+
+    public function addingLinks(ClientAccount $account, &$data, $isRussia)
+    {
+        $clientTimeZone = new \DateTimeZone($account->timezone_name);
+        $utcTimeZone = new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
+
+        $setDateTime = function ($dateTime, $isInTimeZoneClient = false) use ($clientTimeZone, $utcTimeZone) {
+            return (new \DateTimeImmutable($dateTime, $isInTimeZoneClient ? $clientTimeZone : $utcTimeZone))
+                ->setTimezone($clientTimeZone)
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        };
+
+        foreach ($data as $idx => &$row) {
+            $row['add_datetime'] = isset($row['add_datetime'])
+                ? $setDateTime($row['add_datetime'])
+                : $setDateTime($row['date'] . ' 00:00:00', true);
+
+            if ($row['type'] == 'invoice') {
+                $row['type'] = 'act';
+            }
+
+            if ($row['type'] == 'act') {
+                $row['link'] = Encrypt::encodeArray([
+                    'is_pdf' => 1,
+                    'tpl1' => 1,
+                    'client' => $account->id,
+                    'invoice_id' => $row['id'],
+                    'is_act' => 1,
+                ]);
+
+                $row['link_t'] = Encrypt::encodeArray([
+                    'tpl' => 'b',
+                    'a' => $account->id,
+                    'act' => $row['id'],
+                    'is_pdf' => 1,
+                ]);
+
+                if ($account->getTaxRateOnDate($row['bill_date']) > 0) {
+                    $row['link_invoice'] = Encrypt::encodeArray([
+                        'is_pdf' => 1,
+                        'tpl1' => 1,
+                        'client' => $account->id,
+                        'invoice_id' => $row['id'],
+                    ]);
+
+                    $row['link_invoice_t'] = Encrypt::encodeArray([
+                        'tpl' => 'b',
+                        'a' => $account->id,
+                        'i' => $row['id'],
+                        'is_pdf' => 1,
+                    ]);
+                }
+            } elseif ($row['type'] == 'current_statement') {
+                $row['link'] = Encrypt::encodeArray([
+                    'client' => $account->id,
+                    'doc_type' => DocumentReport::DOC_TYPE_CURRENT_STATEMENT,
+                    'tpl1' => 2,
+                    'is_pdf' => 1,
+                ]);
+
+                $row['link_t'] = Encrypt::encodeArray([
+                    'tpl' => 'b',
+                    'a' => $account->id,
+                    'cur_st' => 1,
+                    'is_pdf' => 1,
+                ]);
+
+
+            } elseif ($row['type'] == 'bill') {
+//                if (!$row['is_invoice_created']) {
+//                    $row['outcome_sum'] = 0;
+//                    $row['income_sum'] = $row['outcome_sum'];
+//                    $row['outcome_sum'] = 0;
+//                }
+
+                if ($isRussia) { // Russia
+                    $row['link'] = Encrypt::encodeArray([
+                        'bill' => $row['number'],
+                        'object' => 'bill-2-RUB',
+                        'client' => $account->id,
+                        'is_pdf' => 1,
+                    ]);
+
+                    $row['link_t'] = Encrypt::encodeArray([
+                        'tpl' => 'b',
+                        'b' => $row['number'],
+                        'a' => $account->id,
+                        'is_pdf' => 1,
+                    ]);
+                } else {
+                    $row['link'] = Encrypt::encodeArray([
+                        'doc_type' => 'proforma',
+                        'bill' => $row['number'],
+                        'object' => 'bill-2-RUB',
+                        'client' => $account->id,
+                        'is_pdf' => 1,
+                    ]);
+                }
+            }
+        }
     }
 
     private function _typeCast(&$result)

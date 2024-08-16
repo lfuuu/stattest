@@ -49,7 +49,11 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $statBill = $this->_getStatBill($bill);
 
 //        $this->date = $invoice && ($invoice->is_reversal || $invoice->pay_bill_until) ? (new \DateTimeImmutable($invoice->date))->format(DateTimeZoneHelper::DATE_FORMAT) : $statBill->date;
-        $this->date = $invoice ? (new \DateTimeImmutable($invoice->date))->format(DateTimeZoneHelper::DATE_FORMAT) : $statBill->date;
+        $this->date = $invoice ? (new \DateTimeImmutable($invoice->date))->format(DateTimeZoneHelper::DATE_FORMAT) : ($statBill ? $statBill->date : $bill->date);
+
+        if ($bill instanceof uuBill && !$bill->is_converted) { // current statenent
+            $this->date = (new \DateTimeImmutable('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
+        }
 
         if (!$statBill) {
             return;

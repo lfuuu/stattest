@@ -15,7 +15,7 @@ use yii\widgets\Breadcrumbs;
 /* @var $contragent \app\models\ClientContragent */
 /* @var $firm \app\models\Organization */
 
-$isShowForm = $format == '';
+$isShowForm = $format == '' || $isWithLink;
 $lang = $contragent->lang_code;
 if ($isShowForm) {
     echo Html::formLabel($this->title);
@@ -57,7 +57,7 @@ if ($isShowForm) {
     echo '</span>';
 
     echo '<span class="col-sm-2"><label>Формат:</label>';
-    echo Html::dropDownList('format', '', ['' => ' ----- ', 'html' => 'HTML', 'pdf' => 'PDF'], ['class' => 'select2', 'id' => 'format']);
+    echo Html::dropDownList('format', $format, ['' => ' ----- ', 'html' => 'HTML', 'pdf' => 'PDF', 'w_links' => 'С ссылками на документ'], ['class' => 'select2', 'id' => 'format']);
     echo '</span>';
 
     echo '<span class="col-sm-1">';
@@ -151,7 +151,7 @@ if ($isSubmit) {
             <br>
             <br>
         </center>
-        
+
         <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
             <thead>
             <tr>
@@ -173,9 +173,33 @@ if ($isSubmit) {
             <?php foreach ($dataProvider->allModels as $idx => $item) : ?>
                 <tr>
                     <td><?= ($idx + 1) ?></td>
-                    <td><?= $item['description'] ?></td>
-                    <td align=right><?= ($item['income_sum'] !== '' ? number_format($item['income_sum'], 2, ',', '&nbsp;') : '') ?></td>
-                    <td align=right><?= ($item['outcome_sum'] !== '' ? number_format($item['outcome_sum'], 2, ',', '&nbsp;') : '') ?></td>
+                    <td><?php
+                        if (!$isWithLink) {
+                            echo $item['description'];
+                        } else {
+                            if (isset($item['link'])) {
+                                echo Html::a($item['description'], \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($item['link'])]), ['target' => '_blank']);
+                            } else {
+                                echo $item['description'];
+                            }
+
+                            if (isset($item['link_invoice'])) {
+                                echo \yii\helpers\Html::a(' (с/ф) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($item['link_invoice'])]), ['target' => '_blank']);
+                            }
+
+                            if (isset($item['link_t'])) {
+                                echo Html::a(' ('.$item['type'].'-tpl) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($item['link_t'])]), ['target' => '_blank']);
+                            }
+
+
+                            if (isset($item['link_invoice_t'])) {
+                                echo \yii\helpers\Html::a(' (с/ф'. '-tpl) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($item['link_invoice_t'])]), ['target' => '_blank']);
+                            }
+
+                        }
+                        ?></td>
+                    <td align=right<?=($item['type'] == 'bill' ? ' style="text-decoration: line-through;"' : '')?>><?= ($item['income_sum'] !== '' ? number_format($item['income_sum'], 2, ',', '&nbsp;') : '') ?></td>
+                    <td align=right<?=($item['type'] == 'bill' ? ' style="text-decoration: line-through;"' : '')?>><?= ($item['outcome_sum'] !== '' ? number_format($item['outcome_sum'], 2, ',', '&nbsp;') : '') ?></td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
@@ -186,7 +210,6 @@ if ($isSubmit) {
         </table>
     <?php
 }
-
 if (!$contragent) {
     return;
 }
@@ -212,7 +235,7 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
                             echo number_format(abs($value['sum']), 2, ',', ' ') . ' рублей.';
                         } else {
                             echo Currency::formatCurrency(abs($value['sum']), $currency);
-                        }           
+                        }
                     ?>
                 </td>
             </tr>
@@ -221,20 +244,20 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
 <?php endif; ?>
 
 <?php
-    echo Yii::t('reconcilliation', 'Before debt', [], $lang);  
+    echo Yii::t('reconcilliation', 'Before debt', [], $lang);
     if ($deposit_balance > 0.0001) {
         echo Yii::t('reconcilliation', 'Debt', [
-                'company_name' => $firm->name, 
+                'company_name' => $firm->name,
             ], $lang);
         if ($lang == Language::LANGUAGE_RUSSIAN) {
             echo number_format(abs($deposit_balance), 2, ',', ' ') . ' рублей.';
         } else {
             echo Currency::formatCurrency(abs($deposit_balance), $currency);
         }
-        
+
         } elseif ($deposit_balance < -0.0001) {
         echo Yii::t('reconcilliation', 'Debt', [
-            'company_name' => $contragent->name_full, 
+            'company_name' => $contragent->name_full,
             ], $lang);
         if ($lang == Language::LANGUAGE_RUSSIAN) {
             echo number_format(abs($deposit_balance), 2, ',', ' ') . ' рублей.';
@@ -245,7 +268,7 @@ $dateToFormated = (new \DateTimeImmutable($dateTo))->format(DateTimeZoneHelper::
         echo Yii::t('reconcilliation', 'Even', [], $lang);
     }
 ?>
-    
+
 <div>
     </br>
     <table border="0" cellpadding="0" cellspacing="5">

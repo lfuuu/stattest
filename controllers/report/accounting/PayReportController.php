@@ -9,12 +9,14 @@ use app\classes\payments\recognition\processors\RecognitionProcessor;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\Country;
 use app\models\EventQueue;
 use app\models\media\ClientFiles;
 use app\exceptions\ModelValidationException;
 use app\models\Payment;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\models\filter\PayReportFilter;
+use app\modules\uu\models\Bill as uuBill;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Yii;
 use yii\data\ArrayDataProvider;
@@ -193,8 +195,9 @@ class PayReportController extends BaseController
         $depositBalance = 0;
         $deposit = 0;
         $sign = '';
-        $format = '';
 
+        $format = isset($get['format']) ? $get['format'] : '';
+        $isWithLink = ($format == 'w_links');
         $isSubmit = isset($get['submit']);
 
         if ($isSubmit) {
@@ -203,7 +206,6 @@ class PayReportController extends BaseController
             $saldoView = preg_replace("/\s/", '', $get['saldo']);
             $saldo = (float)str_replace(',', '.', $saldoView);
             $sign = $get['sign'];
-            $format = isset($get['format']) ? $get['format'] : '';
 
             if ($dateFrom && $dateTo && $accountId) {
                 if (!$accountId || !($account = ClientAccount::findOne(['id' => $accountId]))) {
@@ -211,7 +213,24 @@ class PayReportController extends BaseController
                 }
 
                 $this->view->title .= ',  ' . $account->getAccountTypeAndId();
-                $result = ActOfReconciliation::me()->getRevise($account, $dateFrom, $dateTo, $saldo);
+                $result = ActOfReconciliation::me()->getRevise($account, $dateFrom, $dateTo, $saldo, false, $isWithLink);
+
+                if ($isWithLink) {
+                    $currentStatementSum = 0;
+                    if ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+                        $currentStatementSum = uuBill::getUnconvertedAccountEntries($account->id)->sum('price_with_vat') ?: 0;
+                    }
+
+                    $result['data'][] = [
+                        'type' => 'current_statement',
+                        'date' => date(DateTimeZoneHelper::DATE_FORMAT),
+                        'income_sum' => (float)$currentStatementSum,
+                        'description' => 'Текущая выписка',
+                    ];
+
+                    ActOfReconciliation::me()->addingLinks($account, $result['data'], $isRussia = $account->getUuCountryId() == Country::RUSSIA);
+                }
+
                 $allModels = $result['data'];
                 $deposit = $result['deposit'];
                 $depositBalance = $result['deposit_balance'];
@@ -242,6 +261,7 @@ class PayReportController extends BaseController
             'sign' => $sign,
             'format' => $format,
             'currency' => $account->currency,
+            'isWithLink' => $isWithLink,
         ];
 
 
