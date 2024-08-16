@@ -477,18 +477,26 @@ WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         global $db;
         $id_model=get_param_integer('id_model',0);
         $res=get_param_protected('res');
-        $client=get_param_raw('client','');
+        $client=get_param_protected('client','');
 
         $R=array();
         $R['0']='';
         if ($res=='client') {
-            $sql='select clients.client as id, concat(if (account_version = 5, \'У\', \'\'), \'ЛС \', clients.id) as text from clients ';
-            $sql.=' LEFT JOIN usage_ip_ports ON clients.client=usage_ip_ports.client';
-            $sql.=' WHERE clients.status="work"';
+            $sql=<<<SQL
+                SELECT c.client as id, 
+                concat(concat(if (account_version = 5, 'У', ''), 'ЛС ', c.id), if (is_off_stage = 1, ' (off)', '')) as text 
+                FROM clients c
+                JOIN client_contract cc ON c.contract_id = cc.id
+                JOIN client_contract_business_process_status cc_bp_status ON cc.business_process_status_id = cc_bp_status.id
+                LEFT JOIN usage_ip_ports u_ipp ON c.client=u_ipp.client
+SQL;
             if ($client) {
-                $sql .= " and clients.client = '{$client}'";
+                $sql .= " WHERE c.client = '{$client}' ";
             }
-            $sql.=' GROUP BY usage_ip_ports.client';
+            $sql.=<<<SQL
+                GROUP BY u_ipp.client
+                ORDER BY is_off_stage ASC;
+SQL;
             $db->Query($sql);
             while ($r=$db->NextRecord()) $R[$r['id']]=$r['text'];
         } else {
