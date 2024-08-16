@@ -23,7 +23,7 @@ if (!($R = Encrypt::decodeToArray($billStr))) {
 $bill = null;
 
 if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RUB")) {
-    if ($R['client'] && $R['bill']) {
+    if ($R['client'] ?? false && $R['bill'] ?? false) {
 
         $bill = Bill::findOne(['bill_no' => $R['bill'], 'client_id' => $R['client']]);
         if ($bill) {
@@ -36,8 +36,8 @@ $_GET = $R;
 
 $isPdf = isset($R['is_pdf']) && $R['is_pdf'] == 1;
 $isEmailed = get_param_raw('emailed', 1);
-$isLandscape = (bool) $R['is_portrait'] ?? false;
-$isIncludeSignatureStamp = isset($R['include_signature_stamp']) && (bool) $R['include_signature_stamp'] ? true : false;
+$isLandscape = (bool)($R['is_portrait'] ?? false);
+$isIncludeSignatureStamp = isset($R['include_signature_stamp']) && (bool)$R['include_signature_stamp'] ? true : false;
 
 header('Content-Type: ' . ($isPdf ? 'application/pdf' : 'text/html; charset=utf-8'));
 
@@ -100,8 +100,92 @@ if (isset($R['tpl1']) && $R['tpl1'] == 1) {
     $attachmentName = $clientAccount->id . '-' . $invoice->number . '.pdf';
 
     Yii::$app->response->format = Response::FORMAT_RAW;
-    Yii::$app->response->content = $invoiceDocument->render(true, $isLandscape, $isIncludeSignatureStamp);;
+    Yii::$app->response->content = $invoiceDocument->render(true, null, true /*$isIncludeSignatureStamp*/);;
     Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
+
+    \Yii::$app->end();
+}
+
+if (isset($R['tpl']) && $R['tpl'] == 'b') {
+
+    if (!isset($R['a']) || !($clientAccount = ClientAccount::findOne(['id' => $R['a']]))) {
+        return;
+    }
+
+    if (
+        isset($R['b'])
+        && (
+            !($bill = Bill::findOne(['bill_no' => $R['b']]))
+            || $bill->client_id != $clientAccount->id
+        )) {
+        return;
+    }
+
+    if (
+        isset($R['act'])
+        && (
+            !($act = Invoice::findOne(['id' => $R['act']]))
+            || $act->bill->client_id != $clientAccount->id
+        )) {
+        return;
+    }
+
+    if (
+        isset($R['i'])
+        && (
+            !($invoice = Invoice::findOne(['id' => $R['i']]))
+            || $invoice->bill->client_id != $clientAccount->id
+        )) {
+        return;
+    }
+
+
+    $invoiceDocument = (new InvoiceLight($clientAccount));
+
+    if (isset($R['cur_st'])) {
+
+        $billCs = \app\modules\uu\models\Bill::findOne(['client_account_id' => $R['a'], 'is_converted' => 0]);
+        if (!$billCs) {
+            $billCs = new Bill();
+            $billCs->client_id = $clientAccount->id;
+            $billCs->bill_date = date(\app\helpers\DateTimeZoneHelper::DATE_FORMAT);
+        }
+
+        $invoiceDocument
+            ->setBill($billCs)
+            ->setTemplateType(InvoiceLight::TYPE_CURRENT_STATEMENT);
+    }
+
+    if (isset($bill)) {
+        $invoiceDocument
+            ->setBill($bill)
+            ->setTemplateType(InvoiceLight::TYPE_BILL);
+    }
+
+    if (isset($invoice)) {
+        $invoiceDocument
+            ->setInvoice($invoice)
+            ->setBill($invoice->bill)
+            ->setTemplateType(InvoiceLight::TYPE_INVOICE);
+    }
+
+    if (isset($act)) {
+        $invoiceDocument
+            ->setInvoice($act)
+            ->setBill($act->bill)
+            ->setTemplateType(InvoiceLight::TYPE_ACT);
+    }
+
+
+    $invoiceDocument->setCountry($R['co'] ?? Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->code);
+    $attachmentName = $clientAccount->id . '-' . (isset($invoice) ? $invoice->number : (isset($act) ? $act->number : (isset($bill) ? $bill->bill_no : ''))) . '.pdf';
+
+    Yii::$app->response->content = $invoiceDocument->render($isPdf, $invoiceDocument->isLandscape(), $isIncludeSignatureStamp);;
+
+    if ($isPdf) {
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
+    }
 
     \Yii::$app->end();
 }
@@ -126,7 +210,7 @@ if (
 
     $templateTypeId = $templateType->id;
 
-    $isLandscape = (bool) $templateType->is_portrait ? false : true;
+    $isLandscape = (bool)$templateType->is_portrait ? false : true;
     $isBill = $templateType->data_source == PaymentTemplateType::DATA_SOURCE_BILL;
     $isInvoice = $templateType->data_source == PaymentTemplateType::DATA_SOURCE_INVOICE;
 

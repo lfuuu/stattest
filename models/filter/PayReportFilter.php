@@ -47,6 +47,7 @@ class PayReportFilter extends Payment
     public $uuid_log = '';
     public $info_json = '';
     public $payment_api_log = '';
+    public $is_with_links = '0';
 
     /**
      * @return array
@@ -68,6 +69,7 @@ class PayReportFilter extends Payment
                     'original_sum_to',
                     'add_user',
                     'uuid_status',
+                    'is_with_links',
                 ],
                 'integer'
             ],

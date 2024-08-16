@@ -40,6 +40,12 @@ class InvoiceLight extends Component
         $_country,
         $_date;
 
+    const TYPE_INVOICE = 1;
+    const TYPE_INVOICE_STORNO = 2;
+    const TYPE_BILL = 3;
+    const TYPE_ACT = 5;
+    const TYPE_CURRENT_STATEMENT = 10;
+
     /**
      * @param ClientAccount $clientAccount
      */
@@ -247,7 +253,7 @@ class InvoiceLight extends Component
      * @param bool $isPdf
      * @return string
      */
-    public function render($isPdf = false, $isLandscape = false, $isIncludeSignatureStamp = true)
+    public function render($isPdf = false, $isLandscape = null, $isIncludeSignatureStamp = true)
     {
         $content = null;
 
@@ -262,6 +268,10 @@ class InvoiceLight extends Component
             $this->_templateType,
             $this->_country,
         );
+
+        if (is_null($isLandscape)) {
+            $isLandscape = $this->isLandscape();
+        }
 
         if ($this->_templateType && $this->_country) {
             $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode($this->_templateType, $this->_country);
@@ -288,6 +298,10 @@ class InvoiceLight extends Component
         return $content;
     }
 
+    public function isLandscape()
+    {
+        return $this->_templateType == self::TYPE_INVOICE;
+    }
 
 
     /**
