@@ -422,6 +422,7 @@ class ClientCreateExternalForm extends Form
         }
 
         if (!$account->validate() || !$account->save()) {
+            throw new \Exception(var_export($account->errors, true));
             throw new ModelValidationException($account);
         }
 

@@ -206,7 +206,7 @@ WHERE b.client_id = ' . $account->id . '
                     'outcome_sum' => $sum < 0 ? -$sum : '',
                 ] + ($isInvoice ? ['correction_idx' => $item['correction_idx']] : ['add_datetime' => $item['add_datetime']])
                 + ($item['type'] == 'bill' ? ['is_invoice_created' => $isServiceBill && $isInvoiceCreated] : [])
-                + (in_array($item['type'], ['bill', 'invoice', 'act']) ? ['payment status' => (Payment::$paymentStatusPaid[$item['is_payed']] ?? Payment::$paymentStatusPaid[Payment::PAYMENT_STATUS_REJECTED])] : []);
+                + (in_array($item['type'], ['bill', 'invoice', 'act']) ? ['payment_status' => (Payment::$paymentStatusPaid[$item['is_payed']] ?? Payment::$paymentStatusPaid[Payment::PAYMENT_STATUS_REJECTED])] : []);
 
             if ($item['type'] != 'bill') {
                 $period[$isInvoice ? 'income_sum' : 'outcome_sum'] += $item['sum'];
