@@ -244,7 +244,7 @@ WHERE b.client_id = ' . $account->id . '
 
     public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true, $isWithPrepaymentBills = false, $countryCodeParam = null)
     {
-        $countryCode = $countryCodeParam ? $account->getUuCountryId() : null;
+        $countryCode = !$countryCodeParam ? $account->getUuCountryId() : null;
 
         $isNotRussia = $countryCode != Country::RUSSIA;
         if (!$dateFrom) {
