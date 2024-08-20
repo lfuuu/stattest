@@ -99,7 +99,7 @@ class HistoryChanges extends Behavior
         $allowNames = property_exists($this->owner, 'attributesAllowedForVersioning') ? $this->owner->attributesAllowedForVersioning: null;
         $exceptNames = property_exists($this->owner, 'attributesProtectedForVersioning') ? $this->owner->attributesProtectedForVersioning: [];
 
-        $attributes = $this->owner->getAttributes($allowNames, $exceptNames);
+        $attributes = $this->owner->getAttributes($allowNames ?: null, $exceptNames);
         $oldAttributes = $this->owner->getOldAttributes();
 
         $result = [];
