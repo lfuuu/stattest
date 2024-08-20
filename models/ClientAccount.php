@@ -1718,7 +1718,11 @@ class ClientAccount extends HistoryActiveRecord
 
         // страна организации клиента
         $organization = $this->organization;
-        return $organization ? $organization->country_id : null;
+        if ($organization) {
+            return $organization->country_id;
+        }
+
+        return $this->clientContractModel->clientContragent ->country_id;
     }
 
     /**

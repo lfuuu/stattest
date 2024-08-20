@@ -245,6 +245,7 @@ WHERE b.client_id = ' . $account->id . '
     public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true, $isWithPrepaymentBills = false, $countryCodeParam = null)
     {
         $countryCode = $countryCodeParam ? $account->getUuCountryId() : null;
+
         $isNotRussia = $countryCode != Country::RUSSIA;
         if (!$dateFrom) {
             $dateFrom = $isNotRussia ? '2019-07-31' : date('Y-01-01', strtotime('-3 year'));
@@ -502,13 +503,6 @@ WHERE b.client_id = ' . $account->id . '
                         'client' => $account->id,
                         'is_pdf' => 1,
                     ]);
-
-                    $row['link_t'] = Encrypt::encodeArray([
-                        'tpl' => 'b',
-                        'b' => $row['number'],
-                        'a' => $account->id,
-                        'is_pdf' => 1,
-                    ] + $countryCodeAddLink);
                 } else {
                     $row['link'] = Encrypt::encodeArray([
                         'doc_type' => 'proforma',
@@ -518,6 +512,12 @@ WHERE b.client_id = ' . $account->id . '
                         'is_pdf' => 1,
                     ]);
                 }
+                $row['link_t'] = Encrypt::encodeArray([
+                        'tpl' => 'b',
+                        'b' => $row['number'],
+                        'a' => $account->id,
+                        'is_pdf' => 1,
+                    ] + $countryCodeAddLink);
             }
         }
     }
