@@ -187,15 +187,13 @@ if ($isSubmit) {
                                 echo \yii\helpers\Html::a(' (с/ф) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($item['link_invoice'])]), ['target' => '_blank']);
                             }
 
-                            if (isset($item['link_t'])) {
-                                echo Html::a(' ('.$item['type'].'-tpl) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($item['link_t'])]), ['target' => '_blank']);
+                            if (isset($item['links'])) {
+                                $ll = $item['links'];
+
+                                foreach ($ll as $section => $link) {
+                                    echo Html::a(' (' . $section . '-tpl) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($link)]), ['target' => '_blank']);
+                                }
                             }
-
-
-                            if (isset($item['link_invoice_t'])) {
-                                echo \yii\helpers\Html::a(' (с/ф'. '-tpl) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($item['link_invoice_t'])]), ['target' => '_blank']);
-                            }
-
                         }
                         ?></td>
                     <td align=right<?=($item['type'] == 'bill' ? ' style="text-decoration: line-through;"' : '')?>><?= ($item['income_sum'] !== '' ? number_format($item['income_sum'], 2, ',', '&nbsp;') : '') ?></td>
