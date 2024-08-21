@@ -451,12 +451,14 @@ WHERE b.client_id = ' . $account->id . '
                     'is_act' => 1,
                 ]);
 
-                $row['link_t'] = Encrypt::encodeArray([
-                    'tpl' => 'b',
-                    'a' => $account->id,
-                    'act' => $row['id'],
-                    'is_pdf' => 1,
-                ] + $countryCodeAddLink);
+                $docKey = !$isRussia ? ($row['outcome_sum'] > 0 ? 'storno' : 'invoice') : 'act';
+
+                $row['links'][$docKey] = Encrypt::encodeArray([
+                        'tpl' => 'b',
+                        'a' => $account->id,
+                        ($docKey == 'invoice' ? 'i' : $docKey) => $row['id'],
+                        'is_pdf' => 1,
+                    ] + $countryCodeAddLink);
 
                 if ($account->getTaxRateOnDate($row['bill_date']) > 0) {
                     $row['link_invoice'] = Encrypt::encodeArray([
@@ -466,7 +468,7 @@ WHERE b.client_id = ' . $account->id . '
                         'invoice_id' => $row['id'],
                     ]);
 
-                    $row['link_invoice_t'] = Encrypt::encodeArray([
+                    $row['links']['invoice'] = Encrypt::encodeArray([
                         'tpl' => 'b',
                         'a' => $account->id,
                         'i' => $row['id'],
@@ -481,7 +483,7 @@ WHERE b.client_id = ' . $account->id . '
                     'is_pdf' => 1,
                 ]);
 
-                $row['link_t'] = Encrypt::encodeArray([
+                $row['links']['statement'] = Encrypt::encodeArray([
                     'tpl' => 'b',
                     'a' => $account->id,
                     'cur_st' => 1,
@@ -512,7 +514,7 @@ WHERE b.client_id = ' . $account->id . '
                         'is_pdf' => 1,
                     ]);
                 }
-                $row['link_t'] = Encrypt::encodeArray([
+                $row['links']['bill'] = Encrypt::encodeArray([
                         'tpl' => 'b',
                         'b' => $row['number'],
                         'a' => $account->id,
