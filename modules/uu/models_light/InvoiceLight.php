@@ -26,7 +26,7 @@ use app\models\document\PaymentTemplate;
 class InvoiceLight extends Component
 {
 
-    private
+    public
         $_seller,
         $_buyer,
         $_items,
@@ -43,8 +43,17 @@ class InvoiceLight extends Component
     const TYPE_INVOICE = 1;
     const TYPE_INVOICE_STORNO = 2;
     const TYPE_BILL = 3;
+    const TYPE_PROFORMA_INVOICE = 4;
     const TYPE_ACT = 5;
     const TYPE_CURRENT_STATEMENT = 10;
+
+    public static $typeName = [
+        self::TYPE_CURRENT_STATEMENT => 'statement',
+        self::TYPE_BILL => 'bill',
+        self::TYPE_ACT => 'act',
+        self::TYPE_INVOICE => 'invoice',
+        self::TYPE_INVOICE_STORNO => 'storno',
+    ];
 
     /**
      * @param ClientAccount $clientAccount
@@ -274,7 +283,11 @@ class InvoiceLight extends Component
         }
 
         if ($this->_templateType && $this->_country) {
-            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode($this->_templateType, $this->_country);
+//            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode($this->_templateType, $this->_country);
+            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCodeViaShortName($this->_templateType, $this->_country);
+            if (!$template) {
+                return '';
+            }
             $content = trim($smarty->fetch('string:' . $template->content));
         } else if ($invoiceTemplate->fileExists()) {
             $content = trim($smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName())));

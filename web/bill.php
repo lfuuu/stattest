@@ -139,6 +139,15 @@ if (isset($R['tpl']) && $R['tpl'] == 'b') {
         return;
     }
 
+    if (
+        isset($R['storno'])
+        && (
+            !($storno = Invoice::findOne(['id' => $R['storno']]))
+            || $storno->bill->client_id != $clientAccount->id
+        )) {
+        return;
+    }
+
 
     $invoiceDocument = (new InvoiceLight($clientAccount));
 
@@ -174,6 +183,13 @@ if (isset($R['tpl']) && $R['tpl'] == 'b') {
             ->setInvoice($act)
             ->setBill($act->bill)
             ->setTemplateType(InvoiceLight::TYPE_ACT);
+    }
+
+    if (isset($storno)) {
+        $invoiceDocument
+            ->setInvoice($storno)
+            ->setBill($storno->bill)
+            ->setTemplateType(InvoiceLight::TYPE_INVOICE_STORNO);
     }
 
 

@@ -8,6 +8,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Country;
 use app\models\User;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models_light\InvoiceLight;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -208,5 +209,26 @@ class PaymentTemplate extends ActiveRecord
                     'type_id' => $typeId,
                     'country_code' => $countryCode,
                 ]);
+    }
+
+    public static function getDefaultByTypeIdAndCountryCodeViaShortName($docTypeId, $countryCode)
+    {
+        $shortName = InvoiceLight::$typeName[$docTypeId] ?? null;
+
+        if (!$shortName) {
+            return false;
+        }
+
+        $typeId = PaymentTemplateType::find()
+            ->where(['short_name' => $shortName])
+            ->select('id')
+            ->orderBy(['id' => SORT_DESC])
+            ->scalar() ?: false;
+
+        if (!$typeId) {
+            return false;
+        }
+
+        return self::getDefaultByTypeIdAndCountryCode($typeId, $countryCode);
     }
 }
