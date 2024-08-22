@@ -468,12 +468,14 @@ WHERE b.client_id = ' . $account->id . '
                         'invoice_id' => $row['id'],
                     ]);
 
-                    $row['links']['invoice'] = Encrypt::encodeArray([
-                        'tpl' => 'b',
-                        'a' => $account->id,
-                        'i' => $row['id'],
-                        'is_pdf' => 1,
-                    ] + $countryCodeAddLink);
+                    if ($docKey != 'storno' && $docKey != 'invoice') {
+                        $row['links']['invoice'] = Encrypt::encodeArray([
+                                'tpl' => 'b',
+                                'a' => $account->id,
+                                'i' => $row['id'],
+                                'is_pdf' => 1,
+                            ] + $countryCodeAddLink);
+                    }
                 }
             } elseif ($row['type'] == 'current_statement') {
                 $row['link'] = Encrypt::encodeArray([
