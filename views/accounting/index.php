@@ -232,6 +232,7 @@ foreach ($billsPlus as $bill) {
         'date' => $bill->bill_date,
         'sum' => $bill->sum,
         'is_paid' => $bill->is_payed, //$paysPlusBills > $bill->sum ? 1 : ($paysPlusBills > 0 ? 2 : 0),
+        'is_show_in_lk' => $bill->is_show_in_lk,
         'type' => 'bill',
     ];
     $lastBillPayStatus = $v['is_paid'];
@@ -318,6 +319,7 @@ foreach ($billsMinus as $bill) {
         'sum' => $bill->sum,
         'is_paid' => $bill->is_payed, //$paysMinusBills <= $bill->sum ? 1 : (round($paysMinusBills, 4) < 0 ? 2 : 0),
         'type' => 'bill_minus',
+        'is_show_in_lk' => $bill->is_show_in_lk,
     ];
 
     $dataBillsMinus[] = $v;
@@ -785,7 +787,11 @@ function cellContentOptions($is_paid, $addClass = '')
                                 : '';
                         },
                         'contentOptions' => function ($row) {
-                            return cellContentOptions($row->bill_is_paid);
+                            $options = cellContentOptions($row->bill_is_paid);
+                            if ($row->bill['is_show_in_lk']) {
+                                $options['style'] = ['background-color' => '#aaa'];
+                            }
+                            return $options;
                         },
                     ],
                     [
