@@ -270,6 +270,14 @@ class Bill {
             $this->Set("price_include_vat", $price_include_vat);
         }
     }
+
+    public function SetIsShowInLk($is_show_in_lk)
+    {
+        if ($this->bill["is_show_in_lk"] != $is_show_in_lk) {
+            $this->Set("is_show_in_lk", $is_show_in_lk);
+        }
+    }
+    
     public function SetCourier($courierId){
         if ((int)$courierId != $courierId) return;
         if ($this->bill["courier_id"] != $courierId) {

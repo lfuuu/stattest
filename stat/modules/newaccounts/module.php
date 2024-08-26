@@ -760,7 +760,18 @@ class m_newaccounts extends IModule
                 }
             }
         }
-
+        
+        foreach ($result as $i => $r) {
+            foreach ($r as $j => $bill) {
+                if (isset($bill['bill_no'])) {
+                    $bill = NewBill::find($bill['bill_no']);
+                    if (isset($bill)) {
+                        $result[$i][$j]['is_show_in_lk'] = $bill->is_show_in_lk;                        
+                    }
+                }
+            }
+        }
+        
         $design->assign('client_type', $clientType);
         $design->assign("qrs", $qrs);
         $design->assign("qrs_date", $qrsDate);
@@ -1514,6 +1525,7 @@ class m_newaccounts extends IModule
         $akt_date_ext = get_param_raw("akt_date_ext");
 
         $price_include_vat = get_param_raw('price_include_vat', 'N');
+        $is_show_in_lk = get_param_raw('is_show_in_lk', 'N');
         $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
 
@@ -1584,6 +1596,7 @@ class m_newaccounts extends IModule
         $bill->SetSumWithoutVatExt($ext_sum_without_vat);
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
+        $bill->SetIsShowInLk($is_show_in_lk == 'Y' ? 1 : 0);
         if($bill_corr_date && $bill_corr_num) {
             if (!$bill_corr->save()) {
                 throw new ModelException('Ошибка сохранения');
