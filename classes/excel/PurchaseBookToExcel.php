@@ -111,7 +111,7 @@ class PurchaseBookToExcel extends Excel
         $cell = $worksheet->getCell('A5');
         $value = $cell->getValue();
 
-        $organization = Organization::findOne($this->organizationId);
+        $organization = Organization::find()->actual()->byId($this->organizationId)->one();
         $inn = ($organization) ? $organization->tax_registration_id : '';
         $kpp = ($organization) ? $organization->tax_registration_reason : '';
 
