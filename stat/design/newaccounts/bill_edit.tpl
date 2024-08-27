@@ -143,7 +143,7 @@
             <div class="col-sm-4">
                 <div class="form-group">
                     <label>
-                        Закрывающие документы
+                        Показывать счет в ЛК
                         <input type="checkbox" value="Y"
                                name="is_show_in_lk" {if $bill.is_show_in_lk} checked{/if}>
                     </label>
