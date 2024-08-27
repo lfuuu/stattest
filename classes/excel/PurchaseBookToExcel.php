@@ -97,7 +97,7 @@ class PurchaseBookToExcel extends Excel
         $cell = $worksheet->getCell('A4');
         $value = $cell->getValue();
 
-        $organization = Organization::findOne($this->organizationId);
+        $organization = Organization::find()->actual()->byId($this->organizationId)->one();
         $name = ($organization) ? $organization->name : '';
         $value = str_replace('{Name}', $name, $value);
 
