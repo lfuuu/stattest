@@ -788,7 +788,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         },
                         'contentOptions' => function ($row) {
                             $options = cellContentOptions($row->bill_is_paid);
-                            if ($row->bill['is_show_in_lk']) {
+                            if (!$row->bill['is_show_in_lk']) {
                                 $options['style'] = ['background-color' => '#aaa'];
                             }
                             return $options;
