@@ -490,7 +490,7 @@ class m_newaccounts extends IModule
                     SELECT
                     "income_order" as type,
                     number as bill_no,
-                    g.id as bill_id,
+                    convert(g.id using utf8mb4) as bill_id,
                     "" as bill_no_ext,
                     cast(date as date) as bill_date,
                     "" as payment_date, 
