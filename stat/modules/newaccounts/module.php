@@ -498,7 +498,7 @@ class m_newaccounts extends IModule
                     if(currency = "RUB", "RUB", currency) as currency,
                     sum,
                     is_payed,
-                    0,
+                    0 is_show_in_lk,
                     "" `comment`,
                     "0000-00-00" postreg ,
                     "" nal,
