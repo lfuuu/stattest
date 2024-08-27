@@ -455,7 +455,7 @@ class m_newaccounts extends IModule
                 SELECT * FROM (
             SELECT
                 "bill" AS type, P.bill_no, "" AS bill_id, ext_bill_no AS bill_no_ext, 
-                bill_date, payment_date, client_id, currency, P.sum, is_payed,
+                bill_date, payment_date, client_id, currency, P.sum, is_payed, is_show_in_lk,
                 P.comment, postreg, nal, 
                 IF(state_id IS NULL OR (state_id IS NOT NULL AND state_id !=21), 0,1) AS is_canceled,
                 is_pay_overdue,
@@ -760,7 +760,7 @@ class m_newaccounts extends IModule
                 }
             }
         }
-
+        
         $design->assign('client_type', $clientType);
         $design->assign("qrs", $qrs);
         $design->assign("qrs_date", $qrsDate);
@@ -1514,6 +1514,7 @@ class m_newaccounts extends IModule
         $akt_date_ext = get_param_raw("akt_date_ext");
 
         $price_include_vat = get_param_raw('price_include_vat', 'N');
+        $is_show_in_lk = get_param_raw('is_show_in_lk', 'N');
         $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
 
@@ -1584,6 +1585,7 @@ class m_newaccounts extends IModule
         $bill->SetSumWithoutVatExt($ext_sum_without_vat);
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
+        $bill->SetIsShowInLk($is_show_in_lk == 'Y' ? 1 : 0);
         if($bill_corr_date && $bill_corr_num) {
             if (!$bill_corr->save()) {
                 throw new ModelException('Ошибка сохранения');

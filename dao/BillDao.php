@@ -333,7 +333,9 @@ class BillDao extends Singleton
         $bill = Bill::find()
             ->where(['uu_bill_id' => $uuBill->id])
             ->one();
-
+        if (\Yii::$app->isEu()) {
+            $bill->is_show_in_lk = 0;
+        }
         $roundPrice = round($uuBill->price, 2);
         // нулевые счета не нужны
         $isSkip = !$roundPrice;
@@ -852,7 +854,7 @@ SQL;
         try {
 
             $bill = self::me()->createBill($clientAccount, $currency, $isForcePriceIncludeVat = true);
-
+            $bill->is_show_in_lk = 0;
             $bill->is_user_prepay = 1;
             if (!$bill->save()) {
                 throw new ModelValidationException($bill);

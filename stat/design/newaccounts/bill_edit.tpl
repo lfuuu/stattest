@@ -140,6 +140,15 @@
                     </label>
                 </div>
             </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>
+                        Закрывающие документы
+                        <input type="checkbox" value="Y"
+                               name="is_show_in_lk" {if $bill.is_show_in_lk} checked{/if}>
+                    </label>
+                </div>
+            </div>
             {if !$bill.uu_bill_id && $clientAccountVersion == 5}
                 <div class="col-sm-4">
                     <div class="form-group">
