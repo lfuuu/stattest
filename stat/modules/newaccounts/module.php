@@ -455,7 +455,7 @@ class m_newaccounts extends IModule
                 SELECT * FROM (
             SELECT
                 "bill" AS type, P.bill_no, "" AS bill_id, ext_bill_no AS bill_no_ext, 
-                bill_date, payment_date, client_id, currency, P.sum, is_payed,
+                bill_date, payment_date, client_id, currency, P.sum, is_payed, is_show_in_lk,
                 P.comment, postreg, nal, 
                 IF(state_id IS NULL OR (state_id IS NOT NULL AND state_id !=21), 0,1) AS is_canceled,
                 is_pay_overdue,
@@ -756,17 +756,6 @@ class m_newaccounts extends IModule
                     $ext = BillExternal::findOne(['bill_no' => $bill['bill_no']]);
                     if (isset($ext)) {
                         $result[$i][$j]['invoice_sum'] = ($ext['ext_sum_without_vat'] + $ext['ext_vat']) * -1;
-                    }
-                }
-            }
-        }
-        
-        foreach ($result as $i => $r) {
-            foreach ($r as $j => $bill) {
-                if (isset($bill['bill_no'])) {
-                    $bill = NewBill::find($bill['bill_no']);
-                    if (isset($bill)) {
-                        $result[$i][$j]['is_show_in_lk'] = $bill->is_show_in_lk;                        
                     }
                 }
             }
