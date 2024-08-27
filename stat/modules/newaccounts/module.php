@@ -502,6 +502,7 @@ class m_newaccounts extends IModule
                     "0000-00-00" postreg ,
                     "" nal,
                     0,
+                    0,
                     1 in_sum,
                     0 as is_pay_overdue,
 
