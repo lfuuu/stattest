@@ -82,12 +82,16 @@ class NumberLight extends Model
 
             $date = $date->modify('previous month');
             $monthNumbers[] = $date->format('m');
+
+            $date = $date->modify('previous month');
+            $monthNumbers[] = $date->format('m');
         }
 
         $this->calls_per_month = array_combine($monthNumbers, [
             $number->calls_per_month_0,
             $number->calls_per_month_1,
             $number->calls_per_month_2,
+            $number->calls_per_month_3,
         ]);
     }
 
