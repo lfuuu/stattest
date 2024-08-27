@@ -96,7 +96,7 @@ class ActOfReconciliation extends Singleton
                 'client_id' => $account->id,
                 'currency' => $account->currency,
                 'operation_type_id' => OperationType::ID_PRICE,
-                'is_show_in_lk' => 0,
+                'is_show_in_lk' => 1,
             ])
             ->andWhere([($isWithPrepayedBills ? '>=' : '>'), 'sum', 0])
             ->andWhere(['between', 'bill_date', $dateFrom, $dateTo]);
