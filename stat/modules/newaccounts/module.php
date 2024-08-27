@@ -498,10 +498,11 @@ class m_newaccounts extends IModule
                     if(currency = "RUB", "RUB", currency) as currency,
                     sum,
                     is_payed,
+                    0,
                     "" `comment`,
                     "0000-00-00" postreg ,
                     "" nal,
-                    0,
+
                     0,
                     1 in_sum,
                     0 as is_pay_overdue,
