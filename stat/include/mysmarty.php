@@ -215,9 +215,9 @@ function smarty_modifier_okei_name($string){
 	$res = GoodUnit::first($options);
 	return $res->name;
 }
-function smarty_modifier_round($value, $precision, $mode = ''){
-    return Utils::round($value, $precision, $mode = '');
-}
+//function smarty_modifier_round($value, $precision, $mode = ''){
+//    return Utils::round($value, $precision, $mode = '');
+//}
 function smarty_modifier_mround($value, $precision1, $precision2){
     return Utils::mround($value, $precision1, $precision2);
 }
@@ -452,7 +452,7 @@ class MySmarty extends SmartyStat {
 		$this->register_modifier('time_period','time_period');
 		$this->register_modifier('hl','smarty_modifier_hl');
 		$this->register_modifier('wordify', 'smarty_modifier_wordify');
-		$this->register_modifier('round','smarty_modifier_round');
+//		$this->register_modifier('round','smarty_modifier_round');
 		$this->register_modifier('mround','smarty_modifier_mround');
 		$this->register_modifier('mdate','smarty_modifier_mdate');
         $this->register_modifier('udate','smarty_modifier_udate');

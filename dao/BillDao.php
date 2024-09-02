@@ -333,7 +333,7 @@ class BillDao extends Singleton
         $bill = Bill::find()
             ->where(['uu_bill_id' => $uuBill->id])
             ->one();
-        if (\Yii::$app->isEu()) {
+        if (\Yii::$app->isEu() && $bill) {
             $bill->is_show_in_lk = 0;
         }
         $roundPrice = round($uuBill->price, 2);
