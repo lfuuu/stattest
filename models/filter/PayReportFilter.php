@@ -198,11 +198,16 @@ class PayReportFilter extends Payment
         $this->add_user !== '' && $query->andWhere(['p.add_user' => $this->add_user]);
 
         if ($this->type !== '') {
-            list($type, $ecashOperator) = $this->_getTypeAndSubtype($this->type);
-            $query->andWhere(['type' => $type]);
-            $ecashOperator && $query->andWhere(['ecash_operator' => $ecashOperator]);
+            $types = [];
+            $ecashOperators = [];
+            foreach ($this->type as $type_item) {
+                list($type, $ecashOperator) = $this->_getTypeAndSubtype($type_item);
+                $types[] = $type;
+                $ecashOperator && $ecashOperators[] = $ecashOperator; 
+            }
+            $query->andWhere(['type' => $types]);
+            $ecashOperators && $query->andWhere(['ecash_operator' => $ecashOperators]);      
         }
-
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
         $this->uuid_status !== '' && $query->andWhere([$paymentAtolTableName . '.uuid_status' => $this->uuid_status]);
         if($this->uuid_log !== '') {
@@ -241,7 +246,6 @@ class PayReportFilter extends Payment
         $pcList = array_combine($keys, $values);
 
         return [
-                '' => '----',
                 self::TYPE_BANK => 'Банк',
                 self::TYPE_PROV => 'Кассовый чек',
                 self::TYPE_NEPROV => 'Наличка',
