@@ -206,7 +206,7 @@ class PayReportFilter extends Payment
                 $ecashOperator && $ecashOperators[] = $ecashOperator; 
             }
             $query->andWhere(['type' => $types]);
-            $ecashOperators && $query->andWhere(['ecash_operator' => $ecashOperators]);      
+            $ecashOperators && $query->orWhere(['ecash_operator' => $ecashOperators]);      
         }
 
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
