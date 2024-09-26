@@ -199,16 +199,34 @@ class PayReportFilter extends Payment
 
         if ($this->type !== '') {
             $types = [];
-            $ecashOperators = [];
+            $typesEcashOperators = [];
+
             foreach ($this->type as $type_item) {
                 list($type, $ecashOperator) = $this->_getTypeAndSubtype($type_item);
-                $types[] = $type;
-                $ecashOperator && $ecashOperators[] = $ecashOperator; 
+                if (!$ecashOperator) {
+                    $types[] = $type;
+                } else {
+                    $typesEcashOperators[$type] ? $typesEcashOperators[$type][] = $ecashOperator : $typesEcashOperators[$type] = [$ecashOperator];
+                }
             }
-            $query->andWhere(['type' => $types]);
-            $ecashOperators && $query->orWhere(['ecash_operator' => $ecashOperators]);      
-        }
 
+            if ($typesEcashOperators) {
+                $condition = [];
+                (count($typesEcashOperators) > 1 || $types) && $condition = ['or'];
+                $types && $condition[] = ['type' => $types];
+
+                foreach ($typesEcashOperators as $type => $ecashOperators) {
+                    $condition ? $condition[] = ['and', ['type' => $type], ['ecash_operator' => $ecashOperators]] : $condition = ['type' => $type, 'ecash_operator' => $ecashOperators]; 
+                }
+
+                $query->andWhere($condition);
+            }
+            else {
+                $query->andWhere(['type' => $types]);
+            }
+        }
+        echo $query->createCommand()->getRawSql();
+        exit;
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
         $this->uuid_status !== '' && $query->andWhere([$paymentAtolTableName . '.uuid_status' => $this->uuid_status]);
         if($this->uuid_log !== '') {
