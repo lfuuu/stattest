@@ -196,34 +196,38 @@ class PayReportFilter extends Payment
         $this->payment_no !== '' && $query->andWhere(['p.payment_no' => $this->payment_no]);
         $this->comment !== '' && $query->andWhere(['LIKE', 'p.comment', $this->comment]);
         $this->add_user !== '' && $query->andWhere(['p.add_user' => $this->add_user]);
-
+ 
         if ($this->type !== '') {
-            $types = [];
-            $typesEcashOperators = [];
-
+            $typesCondition = ['type' => []];
+            $typesEcash = [];
             foreach ($this->type as $type_item) {
                 list($type, $ecashOperator) = $this->_getTypeAndSubtype($type_item);
-                if (!$ecashOperator) {
-                    $types[] = $type;
+
+                if ($ecashOperator) {
+                    $typesEcash[$type][] = $ecashOperator;
                 } else {
-                    $typesEcashOperators[$type] ? $typesEcashOperators[$type][] = $ecashOperator : $typesEcashOperators[$type] = [$ecashOperator];
-                }
+                    $typesCondition['type'][] = $type;
+                }   
             }
 
-            if ($typesEcashOperators) {
-                $condition = [];
-                (count($typesEcashOperators) > 1 || $types) && $condition = ['or'];
-                $types && $condition[] = ['type' => $types];
-
-                foreach ($typesEcashOperators as $type => $ecashOperators) {
-                    $condition ? $condition[] = ['and', ['type' => $type], ['ecash_operator' => $ecashOperators]] : $condition = ['type' => $type, 'ecash_operator' => $ecashOperators]; 
-                }
-
-                $query->andWhere($condition);
+            $typesEcashCondition = [];
+            foreach ($typesEcash as $type => $ecashOperators) {
+                $typesEcashCondition[] = ['type' => $type, 'ecash_operator' => $ecashOperators];
             }
-            else {
-                $query->andWhere(['type' => $types]);
+            if (count($typesEcashCondition) > 1) {
+                array_unshift($typesEcashCondition, 'or');
+            } else {
+                $typesEcashCondition && $typesEcashCondition = array_pop($typesEcashCondition);
             }
+    
+            if ($typesCondition['type'] && $typesEcashCondition) {
+                $condition = ['or', $typesCondition, $typesEcashCondition];
+            } else {
+                $typesCondition['type'] && $condition = $typesCondition;
+                $typesEcashCondition && $condition = $typesEcashCondition;
+            }   
+            
+            $query->andWhere($condition);
         }
 
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
