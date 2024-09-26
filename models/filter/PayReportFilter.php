@@ -225,8 +225,7 @@ class PayReportFilter extends Payment
                 $query->andWhere(['type' => $types]);
             }
         }
-        echo $query->createCommand()->getRawSql();
-        exit;
+
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
         $this->uuid_status !== '' && $query->andWhere([$paymentAtolTableName . '.uuid_status' => $this->uuid_status]);
         if($this->uuid_log !== '') {
