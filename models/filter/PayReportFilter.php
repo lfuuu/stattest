@@ -219,15 +219,8 @@ class PayReportFilter extends Payment
             } else {
                 $typesEcashCondition && $typesEcashCondition = array_pop($typesEcashCondition);
             }
-    
-            if ($typesCondition['type'] && $typesEcashCondition) {
-                $condition = ['or', $typesCondition, $typesEcashCondition];
-            } else {
-                $typesCondition['type'] && $condition = $typesCondition;
-                $typesEcashCondition && $condition = $typesEcashCondition;
-            }   
             
-            $query->andWhere($condition);
+            $query->andWhere(['or', $typesCondition, $typesEcashCondition]);
         }
 
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
