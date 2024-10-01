@@ -3614,6 +3614,7 @@ class m_newaccounts extends IModule
                 $design->assign('inv_is_new5', ($inv_date >= mktime(0, 0, 0, 10, 1, 2012))); // доработки в акте и сф, собственные (акциз, шт => -) + увеличен шрифт в шапке
                 $design->assign('inv_is_new6', ($inv_date >= mktime(0, 0, 0, 1, 1, 2013))); // 3 (объем), 5 всего, 6 сумма, 8 предъявлен покупателю, 8 всего
                 $design->assign('inv_is_new7', ($inv_date >= mktime(0, 0, 0, 7, 1, 2021)));
+                $design->assign('inv_is_new8', ($inv_date >= mktime(0, 0, 0, 10, 1, 2024))); // + слово "наименование"; если товар, то ТОРГ12-И
             }
 
             $bdata["sum"] = 0;
