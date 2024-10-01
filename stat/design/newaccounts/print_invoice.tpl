@@ -475,6 +475,7 @@
                         <td class="n">{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</td>
                         <td class="l">(5)</td>
                     </tr>
+                </table>
                 {if $inv_is_new8}
                     <table border="0" cellpadding="0" cellspacing="0" class="hst">
                         <tr>
