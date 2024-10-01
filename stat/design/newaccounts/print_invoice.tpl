@@ -479,8 +479,8 @@
                 {if $inv_is_new8}
                     <table border="0" cellpadding="0" cellspacing="0" class="hst">
                         <tr>
-                            <td class="f">Документ об отгрузке: наименование, №</td>
-                            <td class="n">{if ($invoice_source != 3 && $invoice_source != 4) || $shipped_date}{if $bill_lines|@count > 1}1-{$bill_lines|@count}{else}1{/if} № {$smarty.capture.invoice_name}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</td>
+                            <td class="f">Документ об отгрузке: наименование, АКТ №</td>
+                            <td class="n">{if ($invoice_source != 3 && $invoice_source != 4) || $shipped_date}  {$smarty.capture.invoice_name}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</td>
                             <td class="l">(5а)</td>
                         </tr>
                     </table>
