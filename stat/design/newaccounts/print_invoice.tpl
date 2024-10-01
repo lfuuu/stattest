@@ -475,8 +475,15 @@
                         <td class="n">{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</td>
                         <td class="l">(5)</td>
                     </tr>
-                </table>
-                {if $inv_is_new7}
+                {if $inv_is_new8}
+                    <table border="0" cellpadding="0" cellspacing="0" class="hst">
+                        <tr>
+                            <td class="f">Документ об отгрузке: наименование, №</td>
+                            <td class="n">{if ($invoice_source != 3 && $invoice_source != 4) || $shipped_date}{if $bill_lines|@count > 1}1-{$bill_lines|@count}{else}1{/if} № {$smarty.capture.invoice_name}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</td>
+                            <td class="l">(5а)</td>
+                        </tr>
+                    </table>                </table>
+                {elseif $inv_is_new7}
                     <table border="0" cellpadding="0" cellspacing="0" class="hst">
                         <tr>
                             <td class="f">Документ об отгрузке № п/п</td>
