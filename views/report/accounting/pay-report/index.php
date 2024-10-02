@@ -7,6 +7,7 @@
 use app\classes\grid\column\universal\CurrencyColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\DropdownColumn;
+use app\classes\grid\column\universal\DropdownColumnMulti;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\OrganizationColumn;
@@ -157,7 +158,7 @@ $columns = [
 
     [
         'attribute' => 'type',
-        'class' => DropdownColumn::class,
+        'class' => DropdownColumnMulti::class,
         'filter' => $filterModel->getTypeList(),
         'value' => function (Payment $payment) {
             return $payment->ecash_operator ? $payment->type . '_' . $payment->ecash_operator : $payment->type;

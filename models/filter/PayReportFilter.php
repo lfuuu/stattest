@@ -196,11 +196,31 @@ class PayReportFilter extends Payment
         $this->payment_no !== '' && $query->andWhere(['p.payment_no' => $this->payment_no]);
         $this->comment !== '' && $query->andWhere(['LIKE', 'p.comment', $this->comment]);
         $this->add_user !== '' && $query->andWhere(['p.add_user' => $this->add_user]);
-
+ 
         if ($this->type !== '') {
-            list($type, $ecashOperator) = $this->_getTypeAndSubtype($this->type);
-            $query->andWhere(['type' => $type]);
-            $ecashOperator && $query->andWhere(['ecash_operator' => $ecashOperator]);
+            $typesCondition = ['type' => []];
+            $typesEcash = [];
+            foreach ($this->type as $type_item) {
+                list($type, $ecashOperator) = $this->_getTypeAndSubtype($type_item);
+
+                if ($ecashOperator) {
+                    $typesEcash[$type][] = $ecashOperator;
+                } else {
+                    $typesCondition['type'][] = $type;
+                }   
+            }
+
+            $typesEcashCondition = [];
+            foreach ($typesEcash as $type => $ecashOperators) {
+                $typesEcashCondition[] = ['type' => $type, 'ecash_operator' => $ecashOperators];
+            }
+            if (count($typesEcashCondition) > 1) {
+                array_unshift($typesEcashCondition, 'or');
+            } else {
+                $typesEcashCondition && $typesEcashCondition = array_pop($typesEcashCondition);
+            }
+            
+            $query->andWhere(['or', $typesCondition, $typesEcashCondition]);
         }
 
         $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
@@ -241,7 +261,6 @@ class PayReportFilter extends Payment
         $pcList = array_combine($keys, $values);
 
         return [
-                '' => '----',
                 self::TYPE_BANK => 'Банк',
                 self::TYPE_PROV => 'Кассовый чек',
                 self::TYPE_NEPROV => 'Наличка',
