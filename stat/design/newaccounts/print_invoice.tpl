@@ -479,7 +479,7 @@
                 {if $inv_is_new8}
                     <table border="0" cellpadding="0" cellspacing="0" class="hst">
                         <tr>
-                            <td class="f">Документ об отгрузке: наименование, АКТ №</td>
+                            <td class="f">Документ об отгрузке: наименование, {if $inv_no == '-3'}ТОРГ12{else}АКТ{/if} №</td>
                             <td class="n">{if ($invoice_source != 3 && $invoice_source != 4) || $shipped_date}  {$smarty.capture.invoice_name}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</td>
                             <td class="l">(5а)</td>
                         </tr>
