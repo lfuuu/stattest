@@ -479,8 +479,26 @@
                 {if $inv_is_new8}
                     <table border="0" cellpadding="0" cellspacing="0" class="hst">
                         <tr>
-                            <td class="f">Документ об отгрузке: наименование, АКТ №</td>
-                            <td class="n">{if ($invoice_source != 3 && $invoice_source != 4) || $shipped_date}  {$smarty.capture.invoice_name}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</td>
+                            <td class="f">Документ об отгрузке: наименование, {if $invoice_source == 3}ТОРГ12{else}АКТ{/if} №</td>
+                            {if $invoice_source == 3}
+                                <td class="n">
+                                {if $shipped_date}
+                                {$bill.bill_no}
+                                {if !$without_date_date}
+                                    от {if $is_four_order && isset($inv_pays)}
+                                    {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}
+                                {else}
+                                    {$inv_date|mdate:"d.m.Y г."}
+                                {/if}
+                                {else}
+                                    {$without_date_date|mdate:"от d.m.Y г."}
+                                {/if}
+                                {else}
+                                    {section loop="43" name="mysec"}&nbsp;{/section}------
+                                {/if}</td>
+                            {else}
+                                <td class="n">{if ($invoice_source != 4) || $shipped_date}{$smarty.capture.invoice_name}{else}{section loop="43" name="mysec"}&nbsp;{/section}------{/if}</td>
+                            {/if}
                             <td class="l">(5а)</td>
                         </tr>
                     </table>
