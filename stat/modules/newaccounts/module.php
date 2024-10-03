@@ -1391,6 +1391,11 @@ class m_newaccounts extends IModule
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
         $design->assign('isEditable', $billModel->isEditable());
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
+        $draftedInvoices = $billModel->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
+                                     ->where(['is_reversal' => 0, 'idx' => null, 'type_id' => [1, 2]])
+                                     ->indexBy('type_id')
+                                     ->all();
+        $design->assign('draftedInvoices', $draftedInvoices);
         $lines = $bill->GetLines();
 
         if ($billModel->operation_type_id != OperationType::ID_COST) {
@@ -1518,6 +1523,18 @@ class m_newaccounts extends IModule
         $is_show_in_lk = get_param_raw('is_show_in_lk', 'N');
         $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
+
+        $drafted_invoices_new_date = get_param_raw('drafted_invoices_new_date');
+        if ($drafted_invoices_new_date) {
+            $invoices = $billModel->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
+                                     ->where(['is_reversal' => 0, 'idx' => null, 'type_id' => [1, 2]])
+                                     ->indexBy('type_id')
+                                     ->all();
+            foreach ($invoices as $invoice) {
+                $invoice->date = date('Y-m-d', strtotime($drafted_invoices_new_date));
+                $invoice->save();
+            }
+        }
 
         $bill = new \Bill($bill_no);
         if (!$bill->CheckForAdmin()) {
