@@ -160,6 +160,17 @@
             {/if}
         </div>
 
+        {if access('newaccounts_invoices_date', 'access')}
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label>Новая дата драфтов счёт-фактур и актов:</label>
+                        <input class="form-control input-sm" type=text id=drafted_invoices_new_date {if !$draftedInvoices}disabled=disabled{else}name=drafted_invoices_new_date{/if}
+                               value="{if $draftedInvoices}{$bill_date}{else}{/if}">
+                    </div>
+                </div>
+            </div>
+        {/if}
 
         {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
             <div class="row">
@@ -377,6 +388,10 @@
     });
 
     $('#date_created').datepicker({
+      dateFormat: 'dd-mm-yy',
+    });
+
+    $('#drafted_invoices_new_date').datepicker({
       dateFormat: 'dd-mm-yy',
     });
 
