@@ -169,6 +169,17 @@
                                value="{if $draftedInvoices}{$bill_date}{else}{/if}">
                     </div>
                 </div>
+                <div class="col-sm-5">
+                    {if count($drafted_invoice_dates_history)}
+                        {foreach from=$drafted_invoice_dates_history item=L key=key name=outer}
+                            {if $L.comment|strstr:"Дата счёт-фактур и актов обновлена. Новая дата: "}
+                                <b>{$L.ts|udate_with_timezone} - {$L.user}</b>
+                                : {$L.comment}
+                                <br>
+                            {/if}
+                        {/foreach}
+                    {/if}
+                </div>
             </div>
         {/if}
 
