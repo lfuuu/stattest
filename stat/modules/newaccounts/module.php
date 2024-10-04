@@ -1532,7 +1532,9 @@ class m_newaccounts extends IModule
                                      ->all();
             foreach ($invoices as $invoice) {
                 $invoice->drafted_new_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
-                $invoice->save();
+                if ($invoice->save()) {
+                    LogBill::log($bill_no, "Дата счёт-фактур и актов обновлена. Новая дата: $drafted_invoices_new_date");
+                }
             }
         }
 
