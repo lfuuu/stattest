@@ -1391,6 +1391,7 @@ class m_newaccounts extends IModule
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
         $design->assign('isEditable', $billModel->isEditable());
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
+        $design->assign('invoice_date', $billModel->invoice_date);
         $draftedInvoiceDatesHistory = $db->AllRecords('
         SELECT
             log_newbills.*,
@@ -1536,12 +1537,14 @@ class m_newaccounts extends IModule
 
         $drafted_invoices_new_date = get_param_raw('drafted_invoices_new_date');
         if ($drafted_invoices_new_date) {
+            $billModel->invoice_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
+            $billModel->save();
             $invoices = $billModel->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
                                      ->where(['is_reversal' => 0, 'idx' => null, 'type_id' => [1, 2]])
                                      ->indexBy('type_id')
                                      ->all();
             foreach ($invoices as $invoice) {
-                $invoice->drafted_new_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
+                $invoice->invoice_date = $billModel->invoice_date;
                 if ($invoice->save()) {
                     LogBill::log($bill_no, "Дата счёт-фактур и актов обновлена. Новая дата: $drafted_invoices_new_date");
                 }
