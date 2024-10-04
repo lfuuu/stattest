@@ -1531,7 +1531,7 @@ class m_newaccounts extends IModule
                                      ->indexBy('type_id')
                                      ->all();
             foreach ($invoices as $invoice) {
-                $invoice->date = date('Y-m-d', strtotime($drafted_invoices_new_date));
+                $invoice->drafted_new_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
                 $invoice->save();
             }
         }
