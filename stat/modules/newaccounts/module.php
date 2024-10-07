@@ -1535,7 +1535,12 @@ class m_newaccounts extends IModule
         $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
 
-        $drafted_invoices_new_date = get_param_raw('drafted_invoices_new_date');
+        if (access('newaccounts_bills', 'invoice_date')) {
+            $drafted_invoices_new_date = get_param_raw('drafted_invoices_new_date');
+        } else {
+            $drafted_invoices_new_date = null;
+        }
+
         if ($drafted_invoices_new_date) {
             $billModel->invoice_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
             $billModel->save();

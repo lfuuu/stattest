@@ -160,7 +160,7 @@
             {/if}
         </div>
 
-        {if access('newaccounts_invoices_date', 'access')}
+        {if access('newaccounts_bills', 'invoice_date')}
             <div class="row">
                 <div class="col-sm-4">
                     <div class="form-group">
