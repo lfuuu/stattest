@@ -395,8 +395,8 @@
                     <tr>
                         <td class="ff fs">СЧЕТ-ФАКТУРА №&nbsp;</td>
                         <td class="n fs">{capture name=invoice_name}{if !$inv_number}{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}
-                            {if $invoice.invoice_date}
-                                от {$invoice.invoice_date|mdate:"d.m.Y г."}
+                            {if $drafted_invoice_new_date}
+                                от {$drafted_invoice_new_date|mdate:"d.m.Y г."}
                             {else} 
                             {if !$without_date_date}
                                 от {if $is_four_order && isset($inv_pays)}
