@@ -1533,6 +1533,12 @@ class m_newaccounts extends IModule
         }
 
         if ($drafted_invoices_new_date) {
+            if (!preg_match('/^\d{2}-\d{2}-\d{4}$/', $drafted_invoices_new_date)) {
+                Yii::$app->session->addFlash('error', 'Неверно указана новая дата счёт-фактуры.');
+                header("Location: ?module=newaccounts&action=bill_edit&bill=" . $bill_no);
+                exit();    
+            }
+
             $billModel->invoice_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
             $billModel->save();
             $invoices = $billModel->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
