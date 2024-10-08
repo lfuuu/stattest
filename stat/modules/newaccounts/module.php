@@ -1525,11 +1525,10 @@ class m_newaccounts extends IModule
         $is_show_in_lk = get_param_raw('is_show_in_lk', 'N');
         $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
-
+    
+        $drafted_invoices_new_date = null;
         if (access('newaccounts_bills', 'invoice_date')) {
             $drafted_invoices_new_date = get_param_raw('drafted_invoices_new_date');
-        } else {
-            $drafted_invoices_new_date = null;
         }
 
         if ($drafted_invoices_new_date) {
