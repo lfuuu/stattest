@@ -3640,7 +3640,7 @@ class m_newaccounts extends IModule
                 $design->assign('invoice', $invoice);
 
                 $design->assign('inv_no', '-' . $source);
-                $design->assign('drafted_invoice_new_date', $invoice->invoice_date);
+                $design->assign('invoice_date', $invoice->invoice_date);
                 $design->assign('inv_date', $inv_date);
                 $design->assign('inv_is_new', ($inv_date >= mktime(0, 0, 0, 5, 1, 2006)));
                 $design->assign('inv_is_new2', ($inv_date >= mktime(0, 0, 0, 6, 1, 2009)));
