@@ -46,4 +46,13 @@ class LogBillDao extends Singleton
         $log->comment = $message;
         $log->save();
     }
+
+    public static function getLog($billNo)
+    {
+        return LogBill::find()
+            ->select(['log_newbills.*', 'user_users.user'])
+            ->leftJoin(['user_users' => User::tableName()], '`user_users`.`id` = `log_newbills`.`user_id`')
+            ->where(['bill_no' => $billNo])
+            ->orderBy(['ts' => SORT_DESC]);
+    }
 }

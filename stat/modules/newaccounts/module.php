@@ -42,6 +42,7 @@ use app\models\rewards\RewardBill;
 use app\modules\uu\models\Bill as uuBill;
 use yii\db\Expression;
 use yii\db\Query;
+use app\models\LogBill;
 
 class m_newaccounts extends IModule
 {
@@ -1392,9 +1393,8 @@ class m_newaccounts extends IModule
         $design->assign('isEditable', $billModel->isEditable());
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $design->assign('invoice_date', $billModel->invoice_date);
-        $design->assign("drafted_invoice_dates_history", LogBill::getLog($billModel->bill_no));
-        $draftedInvoices = $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all();
-        $design->assign('draftedInvoices', $draftedInvoices);
+        $design->assign('drafted_invoice_dates_history', LogBill::dao()->getLog($billModel->bill_no)->asArray()->all());
+        $design->assign('draftedInvoices', $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all());
         $lines = $bill->GetLines();
 
         if ($billModel->operation_type_id != OperationType::ID_COST) {
@@ -1544,7 +1544,7 @@ class m_newaccounts extends IModule
             foreach ($invoices as $invoice) {
                 $invoice->invoice_date = $billModel->invoice_date;
                 if ($invoice->save()) {
-                    LogBill::log($bill_no, "Дата счёт-фактур и актов обновлена. Новая дата: $drafted_invoices_new_date");
+                    LogBill::dao()->log($bill_no, "Дата счёт-фактур и актов обновлена. Новая дата: $drafted_invoices_new_date", $user);
                 }
             }
         }
