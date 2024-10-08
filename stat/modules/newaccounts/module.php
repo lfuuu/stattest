@@ -1539,7 +1539,10 @@ class m_newaccounts extends IModule
             }
 
             $billModel->invoice_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
-            $billModel->save();
+            if (!$billModel->save()) {
+                throw new ModelException('Ошибка сохранения');
+            }
+            
             $invoices = $billModel->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
                                      ->where(['is_reversal' => 0, 'idx' => null, 'type_id' => [1, 2]])
                                      ->indexBy('type_id')
