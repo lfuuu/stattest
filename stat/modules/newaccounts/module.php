@@ -1393,10 +1393,7 @@ class m_newaccounts extends IModule
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $design->assign('invoice_date', $billModel->invoice_date);
         $design->assign("drafted_invoice_dates_history", LogBill::getLog($billModel->bill_no));
-        $draftedInvoices = $billModel->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
-                                     ->where(['is_reversal' => 0, 'idx' => null, 'type_id' => [1, 2]])
-                                     ->indexBy('type_id')
-                                     ->all();
+        $draftedInvoices = $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all();
         $design->assign('draftedInvoices', $draftedInvoices);
         $lines = $bill->GetLines();
 
@@ -1543,10 +1540,7 @@ class m_newaccounts extends IModule
                 throw new ModelException('Ошибка сохранения');
             }
             
-            $invoices = $billModel->hasMany(Invoice::class, ['bill_no' => 'bill_no'])
-                                     ->where(['is_reversal' => 0, 'idx' => null, 'type_id' => [1, 2]])
-                                     ->indexBy('type_id')
-                                     ->all();
+            $invoices = $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all();
             foreach ($invoices as $invoice) {
                 $invoice->invoice_date = $billModel->invoice_date;
                 if ($invoice->save()) {
