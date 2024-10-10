@@ -264,6 +264,7 @@ class NumberController extends Controller
             $sql = 'CREATE TEMPORARY TABLE voip_numbers_tmp (
                 `number` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
                 `calls_per_month` INT(11) NOT NULL,
+                `unique_calls_per_month` INT(11) NOT NULL,
                 PRIMARY KEY (`number`)
                 )';
             Yii::$app->db->createCommand($sql)->execute();
@@ -278,7 +279,7 @@ class NumberController extends Controller
                     continue; // какой то левый номер
                 }
 
-                $values[] = sprintf("('%s', %d)", $calls['u'], $calls['c']);
+                $values[] = sprintf("('%s', %d, %d)", $calls['u'], $calls['c'], $calls['uc']);
 
                 if (count($values) % 1000 === 0) {
                     // добавить во временную таблицу
@@ -303,6 +304,7 @@ class NumberController extends Controller
             $numberTableName = \app\models\Number::tableName();
             $sql = "UPDATE {$numberTableName}, voip_numbers_tmp
                 SET {$numberTableName}.{$fieldName} = voip_numbers_tmp.calls_per_month
+                SET {$numberTableName}.{unique_$fieldName} = voip_numbers_tmp.unique_calls_per_month
                 WHERE {$numberTableName}.number = voip_numbers_tmp.number
             ";
             Yii::$app->db->createCommand($sql)->execute();
