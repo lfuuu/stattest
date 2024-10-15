@@ -39,6 +39,13 @@ class PackagePricelist extends ActiveRecord
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
+        ];
+    }
+
     /**
      * Имя таблицы
      *
@@ -100,5 +107,17 @@ class PackagePricelist extends ActiveRecord
     public function getPricelistNnp()
     {
         return $this->hasOne(nnp\models\Pricelist::class, ['id' => 'nnp_pricelist_id']);
+    }
+
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+            case 'pricelist_id':
+                if ($pricelist = Pricelist::findOne($value)) {
+                    return $pricelist->name;
+                }
+                break;
+        }
+        return parent::prepareHistoryValue($field, $value);
     }
 }

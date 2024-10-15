@@ -83,6 +83,15 @@ if (\Yii::$app->user->can('tarifs.priceEdit')) {
 $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
 
 $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelistsV2 ? null : $isRemovePackagePricelistsV1;
+
+$showHistory = '';
+if (!$formModel->tariff->isNewRecord) {
+    $showHistory = $this->render('//layouts/_showHistory', [
+        'model' => $isPriceListV2Checked ? $packagePricelistsNnp : $packagePricelists,
+        'idField' => 'tariff_id',
+    ]);
+} 
+
 ?>
 
 <div class="well package-pricelist">
@@ -169,6 +178,8 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
 
         ?>
     </div>
+
+    <?= $showHistory ?>
 
     <script>
         $('#is_pricelist_v2').on('change',)
