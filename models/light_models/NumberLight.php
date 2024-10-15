@@ -88,10 +88,10 @@ class NumberLight extends Model
         }
 
         $this->calls_per_month = array_combine($monthNumbers, [
-            $number->unique_calls_per_month_0,
-            $number->unique_calls_per_month_1,
-            $number->unique_calls_per_month_2,
-            $number->unique_calls_per_month_3,
+            $number->calls_per_month_0,
+            $number->calls_per_month_1,
+            $number->calls_per_month_2,
+            $number->calls_per_month_3,
         ]);
     }
 
