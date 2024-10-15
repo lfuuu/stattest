@@ -613,10 +613,13 @@ class NumberDao extends Singleton
             $subQuery->andWhere(['dst_number' => $dstNumber]);
         } 
 
+        $subQuery->andWhere(
+            ['between', 'dst_number', 70000000000, 80000000000]
+        );
+
         $query = (new \yii\db\Query())
             ->select([
                 'u' => 'dst_number',
-                'm' => (new Expression("to_char(MIN(d), 'MM')")),
                 'с' => (new Expression('SUM(total_calls)')),
                 'uc' => (new Expression('SUM(unique_calls)')),
             ])
