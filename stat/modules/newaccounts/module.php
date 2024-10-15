@@ -42,6 +42,7 @@ use app\models\rewards\RewardBill;
 use app\modules\uu\models\Bill as uuBill;
 use yii\db\Expression;
 use yii\db\Query;
+use app\models\LogBill;
 
 class m_newaccounts extends IModule
 {
@@ -1391,6 +1392,8 @@ class m_newaccounts extends IModule
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
         $design->assign('isEditable', $billModel->isEditable());
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
+        $design->assign('drafted_invoice_dates_history', LogBill::dao()->getLog($billModel->bill_no)->asArray()->all());
+        $design->assign('draftedInvoices', $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all());
         $lines = $bill->GetLines();
 
         if ($billModel->operation_type_id != OperationType::ID_COST) {
@@ -1518,6 +1521,32 @@ class m_newaccounts extends IModule
         $is_show_in_lk = get_param_raw('is_show_in_lk', 'N');
         $bill_no_ext_date = get_param_raw('bill_no_ext_date');
         $isToUuInvoice = get_param_raw('is_to_uu_invoice', null);
+    
+        $drafted_invoices_new_date = null;
+        if (access('newaccounts_bills', 'invoice_date')) {
+            $drafted_invoices_new_date = get_param_raw('drafted_invoices_new_date');
+        }
+
+        if ($drafted_invoices_new_date) {
+            if (!preg_match('/^\d{2}-\d{2}-\d{4}$/', $drafted_invoices_new_date)) {
+                Yii::$app->session->addFlash('error', 'Неверно указана новая дата счёт-фактуры.');
+                header("Location: ?module=newaccounts&action=bill_edit&bill=" . $bill_no);
+                exit();    
+            }
+
+            $billModel->invoice_date = date('Y-m-d', strtotime($drafted_invoices_new_date));
+            if (!$billModel->save()) {
+                throw new ModelException('Ошибка сохранения');
+            }
+            
+            $invoices = $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all();
+            foreach ($invoices as $invoice) {
+                $invoice->invoice_date = $billModel->invoice_date;
+                if ($invoice->save()) {
+                    LogBill::dao()->log($bill_no, "Дата счёт-фактур и актов обновлена. Новая дата: $drafted_invoices_new_date", $user);
+                }
+            }
+        }
 
         $bill = new \Bill($bill_no);
         if (!$bill->CheckForAdmin()) {
