@@ -580,38 +580,55 @@ class NumberDao extends Singleton
             $dtFrom->modify("first day of -3 month, 00:00:00");
         }
 
-        $query = CallsRaw::find()
+        $subQuery = CallsRaw::find()
             ->select([
-                'u' => 'dst_number',
-                'c' => (new Expression('count(*)')),
-                'm' => (new Expression("to_char(connect_time, 'MM')"))
+                'dst_number',
+                'd' => (new Expression("DATE_TRUNC('day', connect_time)")),
+                'total_calls' => (new Expression('count(*)')),
+                'unique_calls' => (new Expression('count(DISTINCT src_number)'))
             ])
             ->andWhere([
                 'number_service_id' => null,
                 'orig' => false
             ])
-            ->groupBy([
-                'u',
-                'm'
-            ]);
-
-        $region && $query->andWhere(['server_id' => $region]);
-        $dstNumber && $query->andWhere(['dst_number' => $dstNumber]);
-
+            ->groupBy(['dst_number', 'd']);
+        
         if ($dtTo) {
-            $query->andWhere(['BETWEEN', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT), $dtTo->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+            $subQuery->andWhere(['BETWEEN', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT), $dtTo->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         } else {
-            $query->andWhere(['>=', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+            $subQuery->andWhere(['>=', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         }
 
         if ($region == 99) {
-            $query->andWhere(
+            $subQuery->andWhere(
                 ['between', 'dst_number', 74950000000, 74999000000]
             );
         }
 
+        if ($region){
+            $subQuery->andWhere(['server_id' => $region]);
+        }
+        
+        if ($dstNumber) {
+            $subQuery->andWhere(['dst_number' => $dstNumber]);
+        } 
+
+        $subQuery->andWhere(
+            ['between', 'dst_number', 70000000000, 80000000000]
+        );
+
+        $query = (new \yii\db\Query())
+            ->select([
+                'u' => 'dst_number',
+                'с' => (new Expression('SUM(total_calls)')),
+                'uc' => (new Expression('SUM(unique_calls)')),
+            ])
+            ->from(['daily_counts' => $subQuery])
+            ->groupBy(['u']);
+    
         return $query;
     }
+    
 
     /**
      * Вернуть список статусов

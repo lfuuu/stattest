@@ -224,21 +224,41 @@ $columns = [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month3->format('m')),
         'attribute' => 'calls_per_month_3',
         'class' => IntegerRangeColumn::class,
+        'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
+        'value' => function ($model) {
+            return ($model->calls_per_month_3 ?? '(не задано)') . "\n" .
+                   ($model->unique_calls_per_month_3 ?? '(не задано)');
+        },
     ],
     [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month2->format('m')),
         'attribute' => 'calls_per_month_2',
         'class' => IntegerRangeColumn::class,
+        'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
+        'value' => function ($model) {
+            return ($model->calls_per_month_2 ?? '(не задано)') . "\n" .
+                   ($model->unique_calls_per_month_2 ?? '(не задано)');
+        },
     ],
     [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month1->format('m')),
         'attribute' => 'calls_per_month_1',
         'class' => IntegerRangeColumn::class,
+        'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
+        'value' => function ($model) {
+            return ($model->calls_per_month_1 ?? '(не задано)') . "\n" .
+                   ($model->unique_calls_per_month_1 ?? '(не задано)');
+        },
     ],
     [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month0->format('m')),
         'attribute' => 'calls_per_month_0',
         'class' => IntegerRangeColumn::class,
+        'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
+        'value' => function ($model) {
+            return ($model->calls_per_month_0 ?? '(не задано)') . "\n" .
+                   ($model->unique_calls_per_month_0 ?? '(не задано)');
+        },
     ],
     [
         'attribute' => 'usage_id',
