@@ -42,7 +42,7 @@
         <div align="center">
             <h2>
                 {if !$is_document_ready}<b style="color:red;">***ДОКУМЕНТ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ***</b><br>{/if}
-                Акт &#8470;{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}{if $invoice_date} от {$invoice_date|mdate:"d.m.Y г."}{else}{if !$without_date_date} от {$inv_date|mdate:"d.m.Y г."}{else} от {$without_date_date|mdate:"d.m.Y г."}{/if}{/if}
+                Акт &#8470;{if !$inv_number}{$bill.bill_no}{$inv_no}{else}{$inv_number}{/if}{if $invoice.invoice_date} от {$invoice.invoice_date|mdate:"d.m.Y г."}{else}{if !$without_date_date} от {$inv_date|mdate:"d.m.Y г."}{else} от {$without_date_date|mdate:"d.m.Y г."}{/if}{/if}
                 {if $correction_info}<br>Исправление №{$correction_info.number} от {$correction_info.date_timestamp|mdate:"d.m.Y г."}{/if}
             </h2>
 

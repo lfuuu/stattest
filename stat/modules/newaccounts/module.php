@@ -1392,7 +1392,6 @@ class m_newaccounts extends IModule
         $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
         $design->assign('isEditable', $billModel->isEditable());
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
-        $design->assign('invoice_date', $billModel->invoice_date);
         $design->assign('drafted_invoice_dates_history', LogBill::dao()->getLog($billModel->bill_no)->asArray()->all());
         $design->assign('draftedInvoices', $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all());
         $lines = $bill->GetLines();
@@ -3636,7 +3635,6 @@ class m_newaccounts extends IModule
                 $design->assign('invoice', $invoice);
 
                 $design->assign('inv_no', '-' . $source);
-                $design->assign('invoice_date', $invoice->invoice_date);
                 $design->assign('inv_date', $inv_date);
                 $design->assign('inv_is_new', ($inv_date >= mktime(0, 0, 0, 5, 1, 2006)));
                 $design->assign('inv_is_new2', ($inv_date >= mktime(0, 0, 0, 6, 1, 2009)));

@@ -166,7 +166,7 @@
                     <div class="form-group">
                         <label>Новая дата драфтов счёт-фактур и актов:</label>
                         <input class="form-control input-sm" type=text id=drafted_invoices_new_date {if !$draftedInvoices}disabled=disabled{else}name=drafted_invoices_new_date{/if}
-                               value="{if $invoice_date}{$invoice_date|mdate:"d-m-Y"}{else}{/if}">
+                               value="{if $bill.invoice_date}{$bill.invoice_date|mdate:"d-m-Y"}{else}{/if}">
                     </div>
                 </div>
                 <div class="col-sm-5">
