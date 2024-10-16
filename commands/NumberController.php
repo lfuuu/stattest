@@ -303,8 +303,8 @@ class NumberController extends Controller
             // обновить
             $numberTableName = \app\models\Number::tableName();
             $sql = "UPDATE {$numberTableName}, voip_numbers_tmp
-                SET {$numberTableName}.{$fieldName} = voip_numbers_tmp.calls_per_month
-                SET {$numberTableName}.{unique_$fieldName} = voip_numbers_tmp.unique_calls_per_month
+                SET {$numberTableName}.{$fieldName} = voip_numbers_tmp.calls_per_month,
+                    {$numberTableName}.unique_{$fieldName} = voip_numbers_tmp.unique_calls_per_month
                 WHERE {$numberTableName}.number = voip_numbers_tmp.number
             ";
             Yii::$app->db->createCommand($sql)->execute();
