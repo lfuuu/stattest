@@ -617,10 +617,10 @@ class NumberDao extends Singleton
             ['between', 'dst_number', 70000000000, 80000000000]
         );
 
-        $query = (new \yii\db\Query())
+        $query = CallsRaw::find()
             ->select([
                 'u' => 'dst_number',
-                'с' => (new Expression('SUM(total_calls)')),
+                'c' => (new Expression('SUM(total_calls)')),
                 'uc' => (new Expression('SUM(unique_calls)')),
             ])
             ->from(['daily_counts' => $subQuery])
