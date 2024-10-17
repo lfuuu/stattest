@@ -585,7 +585,7 @@ class NumberDao extends Singleton
                 'dst_number',
                 'd' => (new Expression("DATE_TRUNC('day', connect_time)")),
                 'total_calls' => (new Expression('count(*)')),
-                'unique_calls' => (new Expression('count(DISTINCT src_number)'))
+                'unique_calls' => (new Expression('count(DISTINCT COALESCE(src_number, 0))'))
             ])
             ->andWhere([
                 'number_service_id' => null,
@@ -617,10 +617,10 @@ class NumberDao extends Singleton
             ['between', 'dst_number', 70000000000, 80000000000]
         );
 
-        $query = (new \yii\db\Query())
+        $query = CallsRaw::find()
             ->select([
                 'u' => 'dst_number',
-                'с' => (new Expression('SUM(total_calls)')),
+                'c' => (new Expression('SUM(total_calls)')),
                 'uc' => (new Expression('SUM(unique_calls)')),
             ])
             ->from(['daily_counts' => $subQuery])
@@ -695,7 +695,7 @@ class NumberDao extends Singleton
     {
         $query = Number::find()
             ->where(['is_with_discount' => 0, 'status' => Number::STATUS_INSTOCK])
-            ->andWhere(new Expression('(COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0) + COALESCE(calls_per_month_3, 0)) > ' . Number::COUNT_CALLS_FOR_DISCOUNT));
+            ->andWhere(new Expression('(COALESCE(unique_calls_per_month_1, 0) + COALESCE(unique_calls_per_month_2, 0) + COALESCE(unique_calls_per_month_3, 0)) > ' . Number::COUNT_CALLS_FOR_DISCOUNT));
 
         /** @var Number $number */
         foreach ($query->each() as $number) {
@@ -714,7 +714,7 @@ class NumberDao extends Singleton
     {
         $query = Number::find()
             ->where(['is_with_discount' => 1, 'status' => Number::STATUS_INSTOCK])
-            ->andWhere(new Expression('(COALESCE(calls_per_month_1, 0) + COALESCE(calls_per_month_2, 0) + COALESCE(calls_per_month_3, 0)) <= ' . Number::COUNT_CALLS_FOR_DISCOUNT));
+            ->andWhere(new Expression('(COALESCE(unique_calls_per_month_1, 0) + COALESCE(unique_calls_per_month_2, 0) + COALESCE(unique_calls_per_month_3, 0)) <= ' . Number::COUNT_CALLS_FOR_DISCOUNT));
 
         /** @var Number $number */
         foreach ($query->each() as $number) {

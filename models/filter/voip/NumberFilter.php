@@ -38,17 +38,17 @@ class NumberFilter extends Number
     public $imsi = '';
     public $nnp_operator_id = '';
 
-    public $calls_per_month_3_from = '';
-    public $calls_per_month_3_to = '';
+    public $unique_calls_per_month_3_from = '';
+    public $unique_calls_per_month_3_to = '';
 
-    public $calls_per_month_2_from = '';
-    public $calls_per_month_2_to = '';
+    public $unique_calls_per_month_2_from = '';
+    public $unique_calls_per_month_2_to = '';
 
-    public $calls_per_month_1_from = '';
-    public $calls_per_month_1_to = '';
+    public $unique_calls_per_month_1_from = '';
+    public $unique_calls_per_month_1_to = '';
 
-    public $calls_per_month_0_from = '';
-    public $calls_per_month_0_to = '';
+    public $unique_calls_per_month_0_from = '';
+    public $unique_calls_per_month_0_to = '';
 
     public $number_tech = '';
     public $iccid = '';
@@ -71,10 +71,10 @@ class NumberFilter extends Number
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
             [['imsi', 'registry_id'], 'integer'],
             [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id', 'nnp_operator_id', 'is_with_discount'], 'integer'],
-            [['calls_per_month_3_from', 'calls_per_month_3_to'], 'integer'],
-            [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
-            [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
-            [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
+            [['unique_calls_per_month_3_from', 'unique_calls_per_month_3_to'], 'integer'],
+            [['unique_calls_per_month_2_from', 'unique_calls_per_month_2_to'], 'integer'],
+            [['unique_calls_per_month_1_from', 'unique_calls_per_month_1_to'], 'integer'],
+            [['unique_calls_per_month_0_from', 'unique_calls_per_month_0_to'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
     }
@@ -192,17 +192,17 @@ class NumberFilter extends Number
         $this->ndc_type_id !== '' && $query->andWhere(['n.ndc_type_id' => $this->ndc_type_id]);
         $this->number_tech !== '' && $query->andWhere(['n.number_tech' => $this->number_tech]);
 
-        $this->calls_per_month_3_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_3', $this->calls_per_month_3_from]);
-        $this->calls_per_month_3_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_3', $this->calls_per_month_3_to]);
+        $this->unique_calls_per_month_3_from !== '' && $query->andWhere(['>=', 'n.unique_calls_per_month_3', $this->unique_calls_per_month_3_from]);
+        $this->unique_calls_per_month_3_to !== '' && $query->andWhere(['<=', 'n.unique_calls_per_month_3', $this->unique_calls_per_month_3_to]);
 
-        $this->calls_per_month_2_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_2', $this->calls_per_month_2_from]);
-        $this->calls_per_month_2_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_2', $this->calls_per_month_2_to]);
+        $this->unique_calls_per_month_2_from !== '' && $query->andWhere(['>=', 'n.unique_calls_per_month_2', $this->unique_calls_per_month_2_from]);
+        $this->unique_calls_per_month_2_to !== '' && $query->andWhere(['<=', 'n.unique_calls_per_month_2', $this->unique_calls_per_month_2_to]);
 
-        $this->calls_per_month_1_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_1', $this->calls_per_month_1_from]);
-        $this->calls_per_month_1_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_1', $this->calls_per_month_1_to]);
+        $this->unique_calls_per_month_1_from !== '' && $query->andWhere(['>=', 'n.unique_calls_per_month_1', $this->unique_calls_per_month_1_from]);
+        $this->unique_calls_per_month_1_to !== '' && $query->andWhere(['<=', 'n.unique_calls_per_month_1', $this->unique_calls_per_month_1_to]);
 
-        $this->calls_per_month_0_from !== '' && $query->andWhere(['>=', 'n.calls_per_month_0', $this->calls_per_month_0_from]);
-        $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', 'n.calls_per_month_0', $this->calls_per_month_0_to]);
+        $this->unique_calls_per_month_0_from !== '' && $query->andWhere(['>=', 'n.unique_calls_per_month_0', $this->unique_calls_per_month_0_from]);
+        $this->unique_calls_per_month_0_to !== '' && $query->andWhere(['<=', 'n.unique_calls_per_month_0', $this->unique_calls_per_month_0_to]);
 
         $this->solution_number !== '' && $query->andWhere(['r.solution_number' => $this->solution_number]);
 

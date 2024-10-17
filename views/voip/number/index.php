@@ -222,7 +222,7 @@ $columns = [
     ],
     [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month3->format('m')),
-        'attribute' => 'calls_per_month_3',
+        'attribute' => 'unique_calls_per_month_3',
         'class' => IntegerRangeColumn::class,
         'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
         'value' => function ($model) {
@@ -232,7 +232,7 @@ $columns = [
     ],
     [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month2->format('m')),
-        'attribute' => 'calls_per_month_2',
+        'attribute' => 'unique_calls_per_month_2',
         'class' => IntegerRangeColumn::class,
         'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
         'value' => function ($model) {
@@ -242,7 +242,7 @@ $columns = [
     ],
     [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month1->format('m')),
-        'attribute' => 'calls_per_month_1',
+        'attribute' => 'unique_calls_per_month_1',
         'class' => IntegerRangeColumn::class,
         'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
         'value' => function ($model) {
@@ -252,7 +252,7 @@ $columns = [
     ],
     [
         'label' => 'Звонков за ' . \app\classes\DateFunction::dateReplaceMonth('месяц', $month0->format('m')),
-        'attribute' => 'calls_per_month_0',
+        'attribute' => 'unique_calls_per_month_0',
         'class' => IntegerRangeColumn::class,
         'contentOptions' => ['style' => 'white-space:pre-wrap; word-wrap:break-word', 'title' => "все\nуникальные"],
         'value' => function ($model) {
