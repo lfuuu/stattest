@@ -298,7 +298,7 @@ class NumberController extends Controller
             echo '# ';
 
             // всё сбросить
-            \app\models\Number::updateAll([$fieldName => 0, "unique_$fieldName" => 0]);
+            \app\models\Number::updateAll([$fieldName => 0, "unique_{$fieldName}" => 0]);
 
             // обновить
             $numberTableName = \app\models\Number::tableName();
