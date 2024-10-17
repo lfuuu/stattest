@@ -88,7 +88,6 @@ $showHistory = '';
 if (!$formModel->tariff->isNewRecord) {
     $showHistory = $this->render('//layouts/_showHistory', [
         'model' => $isPriceListV2Checked ? $packagePricelistsNnp : $packagePricelists,
-        'idField' => 'tariff_id',
     ]);
 } 
 
