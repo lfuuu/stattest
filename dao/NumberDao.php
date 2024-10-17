@@ -585,7 +585,7 @@ class NumberDao extends Singleton
                 'dst_number',
                 'd' => (new Expression("DATE_TRUNC('day', connect_time)")),
                 'total_calls' => (new Expression('count(*)')),
-                'unique_calls' => (new Expression('count(DISTINCT src_number)'))
+                'unique_calls' => (new Expression('count(DISTINCT COALESCE(src_number, 0))'))
             ])
             ->andWhere([
                 'number_service_id' => null,
