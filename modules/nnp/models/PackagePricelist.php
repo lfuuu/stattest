@@ -109,6 +109,26 @@ class PackagePricelist extends ActiveRecord
         return $this->hasOne(nnp\models\Pricelist::class, ['id' => 'nnp_pricelist_id']);
     }
 
+    /**
+     * Вернуть ID родителя
+     *
+     * @return int
+     */
+    public function getParentId()
+    {
+        return $this->tariff_id;
+    }
+
+    /**
+     * Установить ID родителя
+     *
+     * @param int $parentId
+     */
+    public function setParentId($parentId)
+    {
+        $this->tariff_id = $parentId;
+    }
+
     public static function prepareHistoryValue($field, $value)
     {
         switch ($field) {
