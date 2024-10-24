@@ -198,10 +198,6 @@ class NumberController extends Controller
 
         $this->calcCallsPerMonth('calls_per_month_0', $dtFrom, $dtTo = null);
 
-        if ($isUpdateDiscountStatus) {
-            Number::dao()->updateDiscountStatus();
-        }
-
         return ExitCode::OK;
     }
 
