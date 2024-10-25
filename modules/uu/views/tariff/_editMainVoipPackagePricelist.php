@@ -87,7 +87,7 @@ $isPriceListV2Checked = $isRemovePackagePricelistsV1 && $isRemovePackagePricelis
 $showHistory = '';
 if (!$formModel->tariff->isNewRecord) {
     $showHistory = $this->render('//layouts/_showHistory', [
-        'model' => $isPriceListV2Checked ? $packagePricelistsNnp : $packagePricelists,
+        'parentModel' => [$isPriceListV2Checked ? new PackagePricelistNnp() : new PackagePricelist(), $formModel->tariff->id],
     ]);
 } 
 
