@@ -157,9 +157,18 @@ class Invoice2016Form5_02 extends XmlGenerator
             $elPassInfo->appendChild($elPassInfoMain);
         }
 
+        // format 01.10.2024 (5a)
+        // <ДокПодтвОтгр НаимДокОтгр="АКТ № || ТОРГ12 №" НомДокОтгр="240621-ARG168" ДатаДокОтгр="24.07.2021"/>
+        if ($this->invoiceDate >= (new \DateTime('2024-10-01 00:00:00'))) {
+            $elDocShip = $dom->createElement('ДокПодтвОтгр');
+            $elDocShip->setAttribute('НаимДокОтгр', ($this->invoice->type_id == Invoice::TYPE_GOOD ? 'ТОРГ12 ' : 'АКТ ') . '№');
+            $elDocShip->setAttribute('НомДокОтгр', $this->invoice->number);
+            $elDocShip->setAttribute('ДатаДокОтгр', $this->invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED));
+            $elInvoiceInfo->appendChild($elDocShip);
+        }
         // format 01.07.2021 (5a)
         // <ДокПодтвОтгр НаимДокОтгр="п/п 1-2 УПД" НомДокОтгр="240621-ARG168" ДатаДокОтгр="24.07.2021"/>
-        if ($this->invoiceDate >= (new \DateTime('2021-07-01 00:00:00'))) {
+        else if ($this->invoiceDate >= (new \DateTime('2021-07-01 00:00:00'))) {
             $elDocShip = $dom->createElement('ДокПодтвОтгр');
             $elDocShip->setAttribute('НаимДокОтгр', 'п/п 1-' . (count($this->invoice->lines)));
             $elDocShip->setAttribute('НомДокОтгр', $this->invoice->number);
