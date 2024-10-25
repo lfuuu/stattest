@@ -3,6 +3,7 @@
 namespace app\modules\sbisTenzor\classes;
 
 use app\classes\HttpClient;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\Organization;
@@ -659,11 +660,19 @@ class SBISTensorAPI
      */
     public function fetchDocumentsInfo($lastEventId = null)
     {
+        $dateFrom = null;
+        $dateTo = null;
+
         if (is_null($lastEventId)) {
             $lastEventId = $this->sbisOrganization->last_event_id;
+            if (!$lastEventId) {
+                $dateFrom = new \DateTimeImmutable($this->sbisOrganization->last_fetched_at, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+                $dateTo = $dateFrom->modify('+3 day');
+                $lastEventId = null;
+            }
         }
 
-        $result = $this->changeList(SBISDocumentType::SHIPPED_OUT, $lastEventId);
+        $result = $this->changeList(SBISDocumentType::SHIPPED_OUT, $lastEventId, $dateFrom, $dateTo);
 
         $documentsInfo = [];
         if (!empty($result['Документ'])) {
