@@ -62,6 +62,7 @@ return [
     'Resource #66' => 'Trunk pre Vonkajšiu ústredňu',
     'Resource #69' => 'Funkcia SMART',
     'Resource #70' => 'Ďalšie stránky',
+    'Resource #71' => 'Počet operátorov',
     'Resource #72' => 'Prepis',
 
 
