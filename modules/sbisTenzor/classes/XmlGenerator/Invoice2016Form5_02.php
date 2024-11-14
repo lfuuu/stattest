@@ -161,9 +161,9 @@ class Invoice2016Form5_02 extends XmlGenerator
         // <ДокПодтвОтгр НаимДокОтгр="АКТ № || ТОРГ12 №" НомДокОтгр="240621-ARG168" ДатаДокОтгр="24.07.2021"/>
         if ($this->invoiceDate >= (new \DateTime('2024-10-01 00:00:00'))) {
             $elDocShip = $dom->createElement('ДокПодтвОтгр');
-            $elDocShip->setAttribute('НаимДокОтгр', ($this->invoice->type_id == Invoice::TYPE_GOOD ? 'ТОРГ12 ' : 'АКТ ') . '№');
+            $elDocShip->setAttribute('НаимДокОтгр', ($this->invoice->type_id == Invoice::TYPE_GOOD ? 'ТОРГ12' : 'АКТ'));
             $elDocShip->setAttribute('НомДокОтгр', $this->invoice->number);
-            $elDocShip->setAttribute('ДатаДокОтгр', $this->invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED));
+            $elDocShip->setAttribute('ДатаДокОтгр', $this->invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) .'г.');
             $elInvoiceInfo->appendChild($elDocShip);
         }
         // format 01.07.2021 (5a)
