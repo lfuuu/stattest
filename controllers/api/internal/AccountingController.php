@@ -2,11 +2,15 @@
 
 namespace app\controllers\api\internal;
 
+use ActiveRecord\RecordNotFound;
 use app\classes\ActOfReconciliation;
+use app\exceptions\NotFoundException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Country;
+use app\models\Invoice;
 use app\modules\uu\models\Bill as uuBill;
 use app\modules\uu\models\ResourceModel;
 use app\classes\ApiInternalController;
@@ -118,5 +122,43 @@ class AccountingController extends ApiInternalController
         );
     }
 
+
+    /**
+     * @SWG\Get(tags={"Accounting"}, path="/internal/accounting/get-account-by-document-no/", summary="Получение ЛС по номеру докумнта", operationId="GetAccountByDocumentNo",
+     *   @SWG\Parameter(name="documentNo", type="string", description="Название документа", in = "query", default="", required=true),
+     *
+     *   @SWG\Response(response=200, description="ЛС по номеру докумнта",
+     *   ),
+     * )
+     */
+    public function actionGetAccountByDocumentNo($documentNo)
+    {
+
+        // stat bills
+        if (preg_match("/^\d{6}-\d{4,6}$/", $documentNo)) {
+            $bill = Bill::findOne(['bill_no' => $documentNo]);
+            if (!$bill) {
+                throw new NotFoundException(sprintf('Bill %s not found', $documentNo));
+            }
+            return [
+                'type' => 'bill',
+                'account_id' => $bill->client_id,
+            ];
+        }
+
+        // stat invoice
+        if (preg_match("/^\d{7}-\d{4}$/", $documentNo)) {
+            $invoice = Invoice::findOne(['number' => $documentNo]);
+            if (!$invoice) {
+                throw new NotFoundException(sprintf('Invoice %s not found', $documentNo));
+            }
+            return [
+                'type' => 'invoice',
+                'account_id' => $invoice->bill->client_id,
+            ];
+        }
+
+        throw new \InvalidArgumentException('Undefined format');
+    }
 
 }
