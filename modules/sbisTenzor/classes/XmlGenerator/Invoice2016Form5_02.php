@@ -163,7 +163,7 @@ class Invoice2016Form5_02 extends XmlGenerator
             $elDocShip = $dom->createElement('ДокПодтвОтгр');
             $elDocShip->setAttribute('НаимДокОтгр', ($this->invoice->type_id == Invoice::TYPE_GOOD ? 'ТОРГ12' : 'АКТ'));
             $elDocShip->setAttribute('НомДокОтгр', $this->invoice->number);
-            $elDocShip->setAttribute('ДатаДокОтгр', $this->invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) .'г.');
+            $elDocShip->setAttribute('ДатаДокОтгр', $this->invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED));
             $elInvoiceInfo->appendChild($elDocShip);
         }
         // format 01.07.2021 (5a)
