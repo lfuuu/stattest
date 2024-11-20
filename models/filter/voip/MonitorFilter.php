@@ -145,7 +145,7 @@ WITH cdr AS (
         ("connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
         AND ({$cdrNumberSql})
     ORDER BY "connect_time" DESC
-    LIMIT 100000
+    LIMIT 1000000
 ), calls AS (
     SELECT raw.*
     FROM calls_raw.calls_raw raw,
