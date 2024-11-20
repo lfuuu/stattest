@@ -82,77 +82,32 @@ class MonitorFilter extends Form
         $toStr = $to->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $this->account = preg_replace('/[^\d]/', '', $this->account);
-
         $this->number = preg_replace('/[^\d]/', '', $this->number);
 
-        $cdrNumberSql = '';
-        $numbers = [];
-        $ranges = [];
+        $whereSql = '';
 
         if ($this->number) {
-            $numbers[] = $this->number;
+            $whereSql .= ' AND (src_number = '.$this->number.' OR dst_number = '.$this->number.')';
         }
-
         if ($this->account) {
-            $ranges = array_map(fn(StateServiceVoip $s) => [
-                'number' => $s->e164,
-                'activation_dt' => $s->activation_dt,
-                'expire_dt' => $s->expire_dt
-            ], StateServiceVoip::findAll(['client_id' => $this->account]));
-
-            $numbers = array_unique(array_map(fn($n) => $n['number'], $ranges));
-
-            if ($this->number) {
-                $numbers = array_filter($numbers, fn($n) => $n == $this->number);
-            }
+            $whereSql .= ' AND account_id = '.$this->account;
         }
-
-        if ($numbers) {
-            foreach ($numbers as $number) {
-                $numbersWithout7 = substr($number, 1);
-                $_numbers = [$number, $numbersWithout7];
-                $numberSql = ' src_number like \'' . implode('%\' OR src_number like \'', $_numbers) . '%\'';
-                $numberSql .= ' OR  dst_number like \'' . implode('%\' OR dst_number like \'', $_numbers) . '%\' ';
-
-                if ($ranges) {
-                    $rangeSql = "";
-
-                    $numberRanges = array_filter($ranges, fn(array $range) => $range['number'] == $number);
-
-                    if ($numberRanges) {
-                        $rangeSql = implode(" OR ",
-                            array_map(fn(array $range) => "connect_time > '{$range['activation_dt']}'" .
-                                ($range['expire_dt'] ? " AND connect_time < '{$range['expire_dt']}'" : '')
-                                , $numberRanges));
-                    }
-
-                    if ($rangeSql) {
-                        $numberSql = " ($numberSql) AND ($rangeSql) ";
-                    }
-                }
-                $cdrNumberSql .= PHP_EOL . ($cdrNumberSql ? " OR " : "    ") . " ($numberSql) ";
-            }
-        }
-
-        !$cdrNumberSql && $cdrNumberSql = " true ";
-
 
         $query = <<< SQL
-WITH cdr AS (
+WITH calls0 AS (
     SELECT *
-    FROM "calls_cdr"."cdr"
-    WHERE
-        ("connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
-        AND ({$cdrNumberSql})
-    ORDER BY "connect_time" DESC
-    LIMIT 1000000
+    FROM calls_raw.calls_raw
+    WHERE (connect_time BETWEEN '{$fromStr}' AND '{$toStr}')
+        {$whereSql}
+), cdr AS (
+    SELECT distinct d.*
+    FROM calls_cdr.cdr d
+    JOIN calls0 c ON d.server_id = c.server_id and d.id = c.cdr_id
+    WHERE d.connect_time BETWEEN '{$fromStr}' AND '{$toStr}'
 ), calls AS (
-    SELECT raw.*
-    FROM calls_raw.calls_raw raw,
-         cdr
-    WHERE raw.server_id = cdr.server_id
-      AND raw.cdr_id = cdr.id
-      AND (raw."connect_time" BETWEEN '{$fromStr}' AND '{$toStr}')
+    SELECT c.* FROM calls_raw.calls_raw c
+    JOIN cdr d ON d.server_id = c.server_id and d.id = c.cdr_id
+    WHERE (c.connect_time BETWEEN '{$fromStr}' AND '{$toStr}')
 )
 
 SELECT cdr.server_id, cdr.id as cdr_id, cdr.mcn_callid,
@@ -164,15 +119,6 @@ LEFT JOIN calls c_orig on cdr.server_id = c_orig.server_id and cdr.id = c_orig.c
 LEFT JOIN calls c_term on cdr.server_id = c_term.server_id and cdr.id = c_term.cdr_id and not c_term.orig
 WHERE True
 SQL;
-
-
-        if ($this->account && !$numbers) {
-            $query .= " AND (c_orig.account_id = '" . $this->account . "' OR c_term.account_id = '" . $this->account . "')";
-        }
-
-        if ($this->number) {
-            $query .= " AND (COALESCE(c_orig.src_number, c_term.src_number) = " . $this->number . "::bigint OR COALESCE(c_orig.dst_number, c_term.dst_number) = '" . $this->number . "'::bigint)";
-        }
 
         if ($this->is_with_session_time) {
             $query .= ' AND cdr.session_time > 0';
