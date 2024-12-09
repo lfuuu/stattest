@@ -129,7 +129,7 @@ data:
     
 
   crontab.file: |
-    * * * * * cd /app/mailer; flock -x /var/run/mailer.lock ./yii mail/mail >> /tmp/mailer.log
+    * * * * * cd /app/mailer; flock -w 3 -x /var/run/mailer.lock ./yii mail/mail >> /tmp/mailer.log
 
   empty: |
     empty
