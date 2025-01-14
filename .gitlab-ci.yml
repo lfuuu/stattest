@@ -28,11 +28,11 @@ build_stage:
   interruptible: true
   rules:
     - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
-lint_stage:
-  extends: .lint_stage
-  interruptible: true
-  rules:
-    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
+# lint_stage:
+#   extends: .lint_stage
+#   interruptible: true
+#   rules:
+#     - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
 deploy_stage:
   extends: .deploy_stage
   rules:
@@ -47,9 +47,9 @@ cleanup_stage:
     - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
       when: on_success
       allow_failure: true
-dismiss_stage:
-  extends: .dismiss_stage
-  rules:
-    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
-      when: manual
-      allow_failure: true
+# dismiss_stage:
+#   extends: .dismiss_stage
+#   rules:
+#     - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
+#       when: manual
+#       allow_failure: true
