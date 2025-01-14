@@ -1,0 +1,55 @@
+---
+include:
+  - project: 'ci-cd/templates'
+    ref: master
+    file: 'build.shell.gitlab-ci.yml'
+  - project: 'ci-cd/templates'
+    ref: master
+    file: 'lintv2.shell.gitlab-ci.yml'
+  - project: 'ci-cd/templates'
+    ref: master
+    file: 'deployv2.shell.gitlab-ci.yml'
+  - project: 'ci-cd/templates'
+    ref: master
+    file: 'cleanupv2.shell.gitlab-ci.yml'
+  - project: 'ci-cd/templates'
+    ref: master
+    file: 'dismiss.shell.gitlab-ci.yml'
+
+
+stages:
+  - build
+  - deploy
+  - cleanup
+
+# STAGE
+build_stage:
+  extends: .build_stage
+  interruptible: true
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
+# lint_stage:
+#   extends: .lint_stage
+#   interruptible: true
+#   rules:
+#     - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
+deploy_stage:
+  extends: .deploy_stage
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
+      when: manual
+      allow_failure: true
+cleanup_stage:
+  extends: .cleanup_stage
+  needs:
+    - job: deploy_stage
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
+      when: on_success
+      allow_failure: true
+# dismiss_stage:
+#   extends: .dismiss_stage
+#   rules:
+#     - if: ($CI_PIPELINE_SOURCE == "merge_request_event" || $STAGE_PIPELINE == "true")
+#       when: manual
+#       allow_failure: true
