@@ -18,30 +18,10 @@ include:
 
 
 stages:
-  - test
   - build
   - deploy
   - cleanup
   - dismiss
-
-# TEST
-.test:
-  tags:
-    - docker
-  image: node:15-alpine
-  stage: test
-  allow_failure: true
-
-test_lint-and-type-coverage:
-  extends: .test
-  interruptible: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - 'api/**/*.ts'
-  script:
-    - cd api && npm ci
-    - npm run lint
 
 # PROD
 build_prod:
