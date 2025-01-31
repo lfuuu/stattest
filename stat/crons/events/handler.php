@@ -114,14 +114,15 @@ $kafkaEvents1 = ['event' => [
 
 $kafkaEvents2 = ['event' => [
     UuModule::EVENT_UU_ANONCE2,
+    EventQueue::EVENT_LK_CONTRAGENT_CHANGED,
 ]];
 
 
 //$syncEvents['event'] = array_merge($syncEvents['event'], $uuSyncEvents['event']/*, $kafkaEvents*/);
 
 $map = [
-    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]], // account_tariff_id => not null =>> already ['NOT', $syncEvents] && ['NOT', $nnpEvents]
-    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents]],
+    'with_account_tariff' => [['NOT', ['account_tariff_id' => null]], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents], ['NOT', $kafkaEvents2]], // account_tariff_id => not null =>> already ['NOT', $syncEvents] && ['NOT', $nnpEvents]
+    'without_account_tariff' => [['account_tariff_id' => null], ['NOT', $nnpEvents], ['NOT', $syncEvents], ['NOT', $uuSyncEvents], ['NOT', $kafkaEvents], ['NOT', $kafkaEvents2]],
 
     'kafka' => [$kafkaEvents1], // kafka events
     'kafka2' => [$kafkaEvents2], // kafka events
@@ -188,6 +189,8 @@ do {
     foreach ($map[$consoleParam] as $where) {
         $activeQuery->andWhere($where);
     }
+
+    $activeQuery->limit(1000);
 
     if ($consoleParam == 'uu_sync') {
         $activeQuery->limit(10000);
