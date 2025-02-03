@@ -39,7 +39,7 @@ class RedirectListenerVpbxEvents extends RedirectListenerBase
         echo ' - OK';
 
         $runTime = DateTimeZoneHelper::getUtcDateTime()
-            ->modify('30 second')
+            ->modify('5 second')
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         EventQueue::go(EventQueue::SORM_REDIRECT_EXPORT, ['number' => $did], false, $runTime);
