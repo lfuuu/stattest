@@ -8,6 +8,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\billing\DataRaw;
 use app\models\billing\SmscRaw;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\filter\SmsFilter;
 use app\models\Number;
 use app\models\voip\Source;
@@ -679,4 +680,80 @@ class VoipController extends ApiInternalController
 
         return ['current_status' => $number->status];
     }
+
+
+    /**
+     * @SWG\Get(
+     *   tags={"Статистика"},
+     *   path="/internal/voip/ksim-start-generating-statstic/",
+     *   summary="КСИМ. Запуск формирования статсистики.",
+     *   operationId="КСИМ. Запуск формирования статсистики.",
+     *   @SWG\Parameter(name="phone",type="integer",description="идентификатор телефонного номера",in="query",default=""),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="статистика",
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionKsimStartGeneratingStatstic($phone)
+    {
+        if (!$phone) {
+            throw new \InvalidArgumentException('Phone number not set');
+        }
+
+        $number = Number::findOne(['number' => $phone]);
+
+        if (!$number) {
+            throw new \InvalidArgumentException('Phone number not found');
+        }
+
+        $event = EventQueue::go(EventQueue::KSIM_GET_STATISTIC, ['number' => $phone]);
+
+        return ['request_id' => $event->id];
+    }
+
+    /**
+     * @SWG\Get(
+     *   tags={"Статистика"},
+     *   path="/internal/voip/ksim-get-statstic/",
+     *   summary="КСИМ. Запуск формирования статсистики.",
+     *   operationId="КСИМ. Запуск формирования статсистики.",
+     *   @SWG\Parameter(name="request_id",type="integer",description="идентификатор запроса запуска статистики",in="query",default=""),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="статистика",
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionKsimGetStatstic($request_id)
+    {
+        $event = EventQueue::findOne(['id' => $request_id, 'event' => EventQueue::KSIM_GET_STATISTIC]);
+
+        if (!$event) {
+            throw new \InvalidArgumentException('Data by request id #' . $request_id . ' not found');
+        }
+
+        if ($event->status != EventQueue::STATUS_OK) {
+            throw new \InvalidArgumentException('request id #' . $request_id . ' not ready');
+        }
+
+        return ['result' => $event->trace];
+    }
+
 }

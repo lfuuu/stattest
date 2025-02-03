@@ -84,6 +84,7 @@ $nnpEvents = ['event' => [
     EventQueue::INVOICE_ALL_PDF_CREATED,
     EventQueue::ADD_RESOURCE_ON_ACCOUNT_TARIFFS,
     EventQueue::UPDATE_BALANCE_MASS,
+    EventQueue::KSIM_GET_STATISTIC,
 ]];
 
 $syncEvents = ['event' => [
@@ -1217,6 +1218,10 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         echo ' ' . $log;
                         HandlerLogger::me()->add($log);
                     }
+                    break;
+
+                case EventQueue::KSIM_GET_STATISTIC:
+                    \app\dao\statistics\KsimStatisticDao::me()->makeStatisticByNumber($event, $param['number']);
                     break;
 
                 // --------------------------------------------

@@ -140,6 +140,8 @@ class EventQueue extends ActiveRecord
     const SORM_EXPORT_BY_DID_ID = 'sorm_export_by_did_id';
     const SORM_REDIRECT_GROUP = 'sorm_redirect_group';
 
+    const KSIM_GET_STATISTIC = 'ksim_get_statistic';
+
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
     public static $names = [
@@ -264,6 +266,8 @@ class EventQueue extends ActiveRecord
         self::SORM_REDIRECT_EXPORT => 'SRM. Экспорт переадресаций',
         self::SORM_EXPORT_BY_DID_ID => 'SRM. Экспорт по DidId',
         self::SORM_REDIRECT_GROUP => 'SRM. Группировка переадресаций',
+
+        self::KSIM_GET_STATISTIC => 'КСИМ. Запуск сбора статистики',
     ];
 
     /**
