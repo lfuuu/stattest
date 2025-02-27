@@ -85,6 +85,7 @@ class NumberController extends BaseController
         return $this->render('index', [
             'filterModel' => $filterModel,
             'currentClientAccountId' => $this->_getCurrentClientAccountId(),
+            'countCallsForDiscount' => Number::COUNT_CALLS_FOR_DISCOUNT,
         ]);
     }
 

@@ -22,7 +22,6 @@ use app\models\filter\voip\NumberFilter;
 use app\models\Number;
 use app\models\voip\Registry;
 use app\modules\nnp\column\NdcTypeColumn;
-use app\modules\nnp\column\OperatorColumn;
 use app\modules\sim\columns\ImsiPartnerColumn;
 use kartik\grid\ActionColumn;
 use kartik\select2\Select2;
@@ -34,6 +33,7 @@ use yii\widgets\Breadcrumbs;
  * @var app\classes\BaseView $this
  * @var NumberFilter $filterModel
  * @var int $currentClientAccountId
+ * @var int $countCallsForDiscount
  */
 
 ?>
@@ -205,6 +205,8 @@ $columns = [
         },
     ],
     [
+        'label' => $filterModel->getAttributeLabel('is_with_discount').'<sup>*</sup>',
+        'encodeLabel' => false,
         'attribute' => 'is_with_discount',
         'class' => \app\classes\grid\column\universal\YesNoColumn::class,
         'value' => fn(Number $number) => $number->status == Number::STATUS_INSTOCK ? $number->is_with_discount : '---',
@@ -397,3 +399,5 @@ echo GridView::widget([
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/voip/registry/add/']),
     'columns' => $columns,
 ]);
+?>
+    <div class="small_grey">* - Номер «со скидкой» считается как — сумма уникальных звонков за предыдущие 3 месяца исключая текущий, и более <?=$countCallsForDiscount?> шт.</div>
