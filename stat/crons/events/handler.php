@@ -67,7 +67,7 @@ define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
 require PATH_TO_ROOT . 'conf_yii.php';
 
-echo PHP_EOL . 'Start ' . date(DateTimeZoneHelper::DATETIME_FORMAT);
+// echo PHP_EOL . 'Start ' . date(DateTimeZoneHelper::DATETIME_FORMAT);
 
 $sleepTime = 2;
 $workTime = 300; // перезагрузка каждые 5-8 минут
@@ -153,11 +153,11 @@ if (!empty($memoryLimitMap[$consoleParam])) {
     $memoryLimit = $memoryLimitMap[$consoleParam];
 
     ini_set('memory_limit', $memoryLimit);
-    echo 'Memory: ' . sprintf(
+    echo '. Memory: ' . sprintf(
             '%4.2f MB (%4.2f MB in peak)',
             memory_get_usage(true) / 1048576,
             memory_get_peak_usage(true) / 1048576
-        ) . PHP_EOL;
+        );
 }
 
 const MAX_PARALLEL_WORKERS = 5;
@@ -222,7 +222,7 @@ do {
 
 } while (!$isExit);
 
-echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
+echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . ' ' . $consoleParam . PHP_EOL;
 
 /**
  * Выполнить запланированное
