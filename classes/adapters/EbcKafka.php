@@ -2,7 +2,9 @@
 
 namespace app\classes\adapters;
 
+use app\classes\HandlerLogger;
 use app\classes\Singleton;
+use RdKafka\Exception;
 use yii\base\InvalidConfigException;
 
 class EbcKafka extends Singleton
@@ -41,12 +43,16 @@ class EbcKafka extends Singleton
         $config = new \RdKafka\Conf();
 //        $config->set('debug', 'all');
 //        $config->set('debug', 'consumer');
-        $config->set('group.id', $readerGroupId ?: self::DEFAULT_GROUPID);
+
+        if ($readerGroupId) {
+            $config->set('group.id', $readerGroupId ?: self::DEFAULT_GROUPID);
+            $config->set('enable.partition.eof', 'true');
+            $config->set('auto.offset.reset', 'latest');
+        }
+
         $config->set('metadata.broker.list', \Yii::$app->params['KAFKA_BROKERS']);
         $config->set('client.id', $readerGroupId ?: self::DEFAULT_GROUPID);
 
-        $config->set('auto.offset.reset', 'latest');
-        $config->set('enable.partition.eof', 'true');
         $config->set('message.max.bytes', 10485880);
 
         if (\Yii::$app->params['IS_KAFKA_WITH_SSL'] ?? false) {
@@ -111,7 +117,7 @@ class EbcKafka extends Singleton
                     return;
 
                 default:
-                    throw new \Exception($message->errstr(), $message->err);
+                    throw new Exception($message->errstr(), $message->err);
 
             }
         }
@@ -146,9 +152,14 @@ class EbcKafka extends Singleton
 
         $rdTopic = $this->getProducerTopic($topic);
 
-        $result = $rdTopic->producev(RD_KAFKA_PARTITION_UA, 0, $message, $key, $headers, $timestamp_ms);
+        $rdTopic->producev(RD_KAFKA_PARTITION_UA, 0, $message, $key, $headers, $timestamp_ms);
 
-        $this->producer->flush(self::SEND_TIMEOUT);
+        $result = $this->producer->flush(self::SEND_TIMEOUT);
+        HandlerLogger::me()->add('result: ' . var_export($result, true));
+
+        if ($result != RD_KAFKA_RESP_ERR_NO_ERROR) {
+            throw new Exception('Send error. Error code: ' . $result, $result);
+        }
 
         return (int) $result == RD_KAFKA_RESP_ERR_NO_ERROR;
     }
