@@ -15,6 +15,7 @@ use app\modules\sim\models\RegionSettings;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\db\Expression;
 use yii\web\Response;
 
 class SimController extends ApiInternalController
@@ -112,6 +113,9 @@ class SimController extends ApiInternalController
      * @SWG\Get(tags = {"SIM-card"}, path = "/internal/sim/get-cards", summary = "Список SIM-карт ЛС", operationId = "GetCards",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "iccid", type = "string", description = "ICCID", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "like_iccid", type = "string", description = "like ICCID", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "query limit", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "query offset", in = "query", required = false, default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список SIM-карт ЛС",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/simCardRecord"))
@@ -124,13 +128,29 @@ class SimController extends ApiInternalController
      * @param int $client_account_id
      * @return array
      */
-    public function actionGetCards($client_account_id, $iccid = null)
+    public function actionGetCards(
+        $client_account_id,
+        $iccid = null,
+        $like_iccid = null,
+        $limit = null,
+        $offset = null
+    )
     {
         $query = Card::find()
             ->where(['client_account_id' => $client_account_id])
             ->with('status', 'imsies', 'imsies.profile', 'imsies.status');
 
         $iccid && $query->andWhere(['iccid' => $iccid]);
+        if ($like_iccid) {
+            $like_iccid = preg_replace('/\D+/', '', $like_iccid);
+            if ($like_iccid) {
+                $query->andWhere(new Expression('iccid::text like :exp', ['exp' => '%' . $like_iccid . '%']));
+            }
+        }
+        !is_null($limit) && is_numeric($limit) && $limit >=0 && $query->limit($limit);
+        !is_null($offset) && is_numeric($offset) && $offset >=0 && $query->offset($offset);
+
+        $query->orderBy(['iccid' => SORT_ASC]);
 
         $result = [];
         foreach ($query->each() as $model) {
