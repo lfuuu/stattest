@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\api;
 
+use app\classes\HandlerLogger;
 use app\classes\HttpClient;
 use yii\base\InvalidConfigException;
 
@@ -114,6 +115,10 @@ class ApiFeedback
      */
     private static function _exec($action, $data = null)
     {
+        HandlerLogger::me()->add('API Feedback is off');
+
+        return true;
+
         if (!self::isAvailable()) {
             throw new InvalidConfigException('API Feedback was not configured');
         }
