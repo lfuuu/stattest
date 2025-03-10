@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\api\ApiRobocall;
+use app\classes\dto\ChangeClientStructureRegistratorDto;
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
@@ -268,6 +269,7 @@ class EventQueue extends ActiveRecord
         self::SORM_REDIRECT_GROUP => 'SRM. Группировка переадресаций',
 
         self::KSIM_GET_STATISTIC => 'КСИМ. Запуск сбора статистики',
+        ChangeClientStructureRegistratorDto::EVENT => 'Анонсировать (в Кафку) изменение структуры ЛС',
     ];
 
     /**

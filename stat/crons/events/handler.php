@@ -222,7 +222,7 @@ do {
 
 } while (!$isExit);
 
-echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . ' ' . $consoleParam . PHP_EOL;
+echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . ' ' . $consoleParam;
 
 /**
  * Выполнить запланированное
