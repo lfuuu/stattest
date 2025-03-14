@@ -102,12 +102,17 @@ class TrunkController extends BaseController
      */
     public function actionEditBy($clientAccountId, $trunkId)
     {
-        $usage = UsageTrunk::find()
-            ->where([
-                'client_account_id' => $clientAccountId,
-                'trunk_id' => $trunkId,
-            ])
-            ->one();
+        $where = [
+            'client_account_id' => $clientAccountId,
+            'trunk_id' => $trunkId,
+        ];
+
+
+        $usage = UsageTrunk::find()->where($where)->actual()->one();
+        if (!$usage) {
+            $usage = UsageTrunk::find()->where($where)->orderBy(['id' => SORT_DESC])->one();
+        }
+
         Assert::isObject($usage);
         return $this->_editUsageTrunk($usage);
     }
