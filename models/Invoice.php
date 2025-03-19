@@ -374,12 +374,12 @@ class Invoice extends ActiveRecord
      */
     public function setReversal($isRevertSum = false)
     {
+        if ($this->is_reversal) {
+            return;
+        }
+
         $transaction = $this->db->beginTransaction();
         try {
-            if ($this->is_reversal) {
-                return;
-            }
-
             $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)));
 
             $this->is_reversal = 1;
