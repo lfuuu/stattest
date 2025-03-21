@@ -19,7 +19,7 @@ class Api extends Singleton
     /** @var Module */
     private $_module = null;
 
-    private $_token = '';
+    private $_token = [];
 
     const RESPONSE_TOKEN_CODE_OK_NEW = 0; // Выдан новый токен
     const RESPONSE_TOKEN_CODE_OK_OLD = 1; // Выдан старый токен
@@ -456,8 +456,9 @@ class Api extends Singleton
      */
     private function _getToken($access)
     {
-        if ($this->_token) {
-            return $this->_token;
+        $key = md5(var_export($access, true));
+        if ($this->_token[$key] ?? false) {
+            return $this->_token[$key];
         }
 
         $apiVersion = $this->_module->params['apiVersion'];
@@ -499,7 +500,7 @@ class Api extends Singleton
             throw new BadRequestHttpException('Ошибка получения токена. ' . $responseData['text'] . PHP_EOL . PHP_EOL . $debugInfoResponse);
         }
 
-        return $this->_token = $responseData['token'];
+        return $this->_token[$key] = $responseData['token'];
     }
 
 }
