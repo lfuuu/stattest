@@ -157,7 +157,7 @@ class SendToOnlineCashRegister extends Behavior
      * @throws \yii\web\BadRequestHttpException
      * @throws \HttpRequestException
      */
-    public static function refreshStatus($paymentId)
+    public static function refreshStatus($paymentId, $isWithException = false)
     {
         $payment = Payment::findOne(['id' => $paymentId]);
         $paymentAtol = PaymentAtol::findOne(['id' => $paymentId]);
@@ -188,6 +188,12 @@ class SendToOnlineCashRegister extends Behavior
         $paymentAtol->uuid_log = $log;
         if (!$paymentAtol->save()) {
             throw new ModelValidationException($paymentAtol);
+        }
+
+        if ($isWithException) {
+            if ($status != PaymentAtol::UUID_STATUS_SUCCESS) {
+                throw new \UnderflowException('Unsuccessful status: ' . $status);
+            }
         }
 
         return $status;
