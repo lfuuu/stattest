@@ -118,7 +118,7 @@ class BalanceSimple
                     $sum[$params['client_currency']]['ts']
                         ?    'IF(P.payment_date>="'.$sum[$params['client_currency']]['ts'].'",1,0)'
                         :    '1'
-                ).' as in_sum, ai.info_json, atl.uuid_log
+                ).' as in_sum, ai.info_json, atl.uuid_log as uuid_log_json 
             from
                 newpayments as P
             LEFT JOIN newpayment_api_info ai ON ai.payment_id=P.id
@@ -154,8 +154,8 @@ class BalanceSimple
                 if ($r2['info_json']) {
                     $r2['info_json'] = var_export(json_decode($r2['info_json'], true), true);
                 }
-                if ($r2['uuid_log']) {
-                    $uuidLog = json_decode($r2['uuid_log'], true);
+                if ($r2['uuid_log_json']) {
+                    $uuidLog = json_decode($r2['uuid_log_json'], true);
                     $status = $uuidLog['status'] ?? false;
                     $atolStatus = false;
                     if ($status !== false) {

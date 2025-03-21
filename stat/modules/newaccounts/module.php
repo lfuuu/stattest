@@ -555,7 +555,7 @@ class m_newaccounts extends IModule
                 P.sum_pay,
                 P.bank,
                 ai.info_json,
-                atl.uuid_log
+                atl.uuid_log as uuid_log_json 
                 ,pi.payer_inn
                 ,pi.payer_bik
                 ,pi.payer_bank
@@ -623,8 +623,8 @@ class m_newaccounts extends IModule
                     $r2['comment'] = $payment->comment;
                 }
 
-                if ($r2['uuid_log']) {
-                    $uuidLog = json_decode($r2['uuid_log'], true);
+                if ($r2['uuid_log_json']) {
+                    $uuidLog = json_decode($r2['uuid_log_json'], true);
                     $status = $uuidLog['status'] ?? false;
                     $atolStatus = false;
                     if ($status !== false) {

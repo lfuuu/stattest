@@ -963,7 +963,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case AtolModule::EVENT_REFRESH:
                     // АТОЛ. Обновить статус из онлайн-кассы
                     $info = $isAtolServer ?
-                        SendToOnlineCashRegister::refreshStatus($param['paymentId']) :
+                        SendToOnlineCashRegister::refreshStatus($param['paymentId'], true) :
                         EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
