@@ -191,7 +191,7 @@ class SendToOnlineCashRegister extends Behavior
         }
 
         if ($isWithException) {
-            if ($status != PaymentAtol::UUID_STATUS_SUCCESS) {
+            if ($status != Api::RESPONSE_STATUS_DONE) {
                 throw new \UnderflowException('Unsuccessful status: ' . $status);
             }
         }
