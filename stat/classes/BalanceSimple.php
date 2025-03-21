@@ -149,11 +149,18 @@ class BalanceSimple
                 'isCanceled' => $r['is_canceled']
             );
             foreach($R2 as $k2=>$r2){
+                $payment = new \app\models\Payment();
+                $payment->setAttributes($r2, false);
+                $info = $payment->info;
+
+                $r2['info_json'] = \app\models\PaymentInfo::getInfoText($payment, $info);
+
+                if (!$r2['comment'] && $r2['info_json']) {
+                    $r2['comment'] = $payment->comment;
+                }
+
                 $r2['bill_vis_no'] = $r2['bill_no'];
                 $R2[$k2]['bill_vis_no'] = $r2['bill_no'];
-                if ($r2['info_json']) {
-                    $r2['info_json'] = var_export(json_decode($r2['info_json'], true), true);
-                }
                 if ($r2['uuid_log_json']) {
                     $uuidLog = json_decode($r2['uuid_log_json'], true);
                     $status = $uuidLog['status'] ?? false;
