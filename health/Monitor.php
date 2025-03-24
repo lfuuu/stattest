@@ -80,6 +80,7 @@ abstract class Monitor extends Component
             MonitorMultiAccountService::class,
             MonitorVoipDelayOnPackages::class,
             MonitorRouteMncOperator::class,
+            MonitorBalanceNotCalculatedDaily::class,
         ];
     }
 }
