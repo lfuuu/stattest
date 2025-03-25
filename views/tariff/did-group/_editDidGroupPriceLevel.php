@@ -30,7 +30,7 @@ $didGroupPriceLevelModel = $formModel->didGroupPriceLevels;
     <h2>Уровни цен для DID групп</h2>
     <div class="row">
         <div class="col-sm-1 col-sm-offset-1"><label>Подключение, ¤</label></div>
-        <div class="col-sm-1"><label>Подключение <br>со скидкой, ¤</label></div>
+        <div class="col-sm-1"><label for="didgroup_label_is_with_discount">Подключение <br>со скидкой, ¤</label></div>
         <div class="col-sm-3"><label>Тариф</label></div>
         <div class="col-sm-3"><label>Пакет</label></div>
         <div class="col-sm-3"><label>Пакет за красивость</label></div>
