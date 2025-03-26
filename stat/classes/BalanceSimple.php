@@ -140,20 +140,32 @@ class BalanceSimple
         '',MYSQLI_ASSOC);
 
         $R=array();
-        foreach($R1 as &$r){
-            $v=array(
-                'bill'=>$r,
-                'date'=>$r['bill_date'],
-                'pays'=>array(),
-                'delta'=>-$r['sum'],
+
+        $paymentInfos = \app\models\PaymentInfo::find()->where(['payment_id' => array_map(fn($a) => $a['id'], $R2)])->indexBy('payment_id')->all();
+
+        $paymentStorage = [];
+
+        foreach ($R1 as &$r) {
+            $v = array(
+                'bill' => $r,
+                'date' => $r['bill_date'],
+                'pays' => array(),
+                'delta' => -$r['sum'],
                 'isCanceled' => $r['is_canceled']
             );
-            foreach($R2 as $k2=>$r2){
-                $payment = new \app\models\Payment();
-                $payment->setAttributes($r2, false);
-                $info = $payment->info;
+            foreach ($R2 as $k2 => $r2) {
+                if (!isset($paymentStorage[$r2['id']])) {
+                    $payment = new \app\models\Payment();
+                    $payment->setAttributes($r2, false);
 
-                $r2['info_json'] = \app\models\PaymentInfo::getInfoText($payment, $info);
+                    $paymentStorage[$r2['id']] = $payment;
+                } else {
+                    $payment = $paymentStorage[$r2['id']];
+                }
+                $info = $paymentInfos[$r2['id']] ?? null;//$payment->info;
+
+
+                $r2['info_json'] = $info ? \app\models\PaymentInfo::getInfoText($payment, $info) : null;
 
                 if (!$r2['comment'] && $r2['info_json']) {
                     $r2['comment'] = $payment->comment;
@@ -168,21 +180,21 @@ class BalanceSimple
                     if ($status !== false) {
                         if ($status == 'done') {
                             $atolStatus = ['status' => 'done', 'text' => $uuidLog['payload']['ofd_receipt_url']];
-                        }else{
+                        } else {
                             $atolStatus = ['status' => $status, 'text' => $uuidLog['error']['text']];
                         }
                     }
                     $r2['uuid_log'] = $atolStatus;
                 }
-                if($r['bill_no'] == $r2['bill_no']
-                &&
+                if ($r['bill_no'] == $r2['bill_no']
+                    &&
                     (
                         $r2['bill_no'] == $r2['bill_vis_no']
                     )
-                ){
-                    $r2['divide']=0;
-                    $v['pays'][]=$r2;
-                    $v['delta']+=$r2['sum'];
+                ) {
+                    $r2['divide'] = 0;
+                    $v['pays'][] = $r2;
+                    $v['delta'] += $r2['sum'];
                     unset($R2[$k2]);
                 }
             }

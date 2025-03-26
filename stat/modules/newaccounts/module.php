@@ -297,10 +297,22 @@ class m_newaccounts extends IModule
             }
         }
 
+        $billNos =
+            array_map(
+                fn($bill) => $bill['bill']['bill_no'],
+                array_filter($R, fn($bill) => $bill['bill']['operation_type_id'] != OperationType::ID_COST)
+        );
+
+        $extBills = BillExternal::find()->where(['bill_no' => $billNos])->indexBy('bill_no')->select(['bill_no', 'ext_vat', 'ext_sum_without_vat'])->asArray()->all();
+
         foreach ($R as $bill) {
             if ($bill->operation_type_id != OperationType::ID_COST) {
-                $b = BillExternal::find()->where(['bill_no' => $bill['bill']['bill_no']])->one();
-                $R[$b['bill_no']]['ext_sum'] = $b['ext_vat'] + $b['ext_sum_without_vat'];
+//                $b = BillExternal::find()->where(['bill_no' => $bill['bill']['bill_no']])->one();
+                $billNo = $bill['bill']['bill_no'];
+                $b = $extBills[$billNo] ?? null;
+                if ($b) {
+                    $R[$billNo]['ext_sum'] = $b['ext_vat'] + $b['ext_sum_without_vat'];
+                }
             }
         }
 
@@ -591,6 +603,10 @@ class m_newaccounts extends IModule
         $result = [];
 
         $bill_total_add = ['p' => 0, 'n' => 0];
+
+        $paymentStorage = [];
+        $paymentInfoStorage = [];
+
         foreach ($R1 as $k => $r) {
             if ($r['sum'] > 0) {
                 $bill_total_add['p'] += $r['sum'];
@@ -610,12 +626,23 @@ class m_newaccounts extends IModule
             ];
 
             foreach ($R2 as $k2 => &$r2) {
-                $payment = new Payment();
-                $payment->setAttributes($r2, false);
-                $info = new \app\models\PaymentInfo();
-                $info->payment_id = $payment->id;
-                $info->setAttributes($r2, false);
-                $info->comment = $r2['pi_comment'];
+
+                if (!isset($paymentStorage[$r2['id']])) {
+                    $payment = new Payment();
+                    $payment->setAttributes($r2, false);
+
+                    $info = new \app\models\PaymentInfo();
+                    $info->payment_id = $payment->id;
+                    $info->setAttributes($r2, false);
+                    $info->comment = $r2['pi_comment'];
+
+
+                    $paymentStorage[$r2['id']] = $payment;
+                    $paymentInfoStorage[$r2['id']] = $info;
+                } else {
+                    $payment = $paymentStorage[$r2['id']];
+                    $info = $paymentInfoStorage[$r2['id']];
+                }
 
                 $r2['info_json'] = \app\models\PaymentInfo::getInfoText($payment, $info);
 
@@ -752,11 +779,27 @@ class m_newaccounts extends IModule
             $qrsDate[$q["bill_no"]][$q["doc_type"]] = $q["date"];
         }
 
+        $billNos = [];
         foreach ($result as $i => $r) {
             foreach ($r as $j => $bill) {
                 if (isset($bill['bill_no']) && ($bill['operation_type_id'] == OperationType::ID_COST)) {
-                    $ext = BillExternal::findOne(['bill_no' => $bill['bill_no']]);
-                    if (isset($ext)) {
+                    $billNos[] = $bill['bill_no'];
+                }
+            }
+        }
+
+        $extBills = BillExternal::find()
+            ->where(['bill_no' => $billNos])
+            ->indexBy('bill_no')
+            ->select(['bill_no', 'ext_vat', 'ext_sum_without_vat'])
+            ->asArray()
+            ->all();
+
+        foreach ($result as $i => $r) {
+            foreach ($r as $j => $bill) {
+                if (isset($bill['bill_no']) && ($bill['operation_type_id'] == OperationType::ID_COST)) {
+                    $ext = $extBills[$bill['bill_no']] ?? null;//BillExternal::findOne(['bill_no' => $bill['bill_no']]);
+                    if ($ext) {
                         $result[$i][$j]['invoice_sum'] = ($ext['ext_sum_without_vat'] + $ext['ext_vat']) * -1;
                     }
                 }
