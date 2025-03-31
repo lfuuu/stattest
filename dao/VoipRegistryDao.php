@@ -3,6 +3,7 @@
 namespace app\dao;
 
 use app\classes\enum\VoipRegistrySourceEnum;
+use app\classes\HandlerLogger;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -413,6 +414,21 @@ class VoipRegistryDao extends Singleton
         }
     }
 
+    public function checkAndAddPortedNumber($clientAccountId, $numberStr)
+    {
+        $numberStr = trim($numberStr);
+        if (!preg_match("/^\+?(79\d{9})$/", $numberStr, $m)) {
+            throw new \InvalidArgumentException('Invalid number format');
+        }
+
+        $number = Number::findOne(['number' => $numberStr]);
+        if ($number) {
+            throw new \LogicException('The number does not need to be ported');
+        }
+
+        return $this->addPortedNumber($clientAccountId, $numberStr);
+    }
+
     public function addPortedNumber($accountId, $numberStr)
     {
         $transaction = \Yii::$app->db->beginTransaction();
@@ -466,7 +482,9 @@ class VoipRegistryDao extends Singleton
 
             $transaction->commit();
 
-            return $info;
+            HandlerLogger::me()->add($info);
+
+            return $number;
         } catch (\Exception $e) {
             $transaction && $transaction->rollBack();
 

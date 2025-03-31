@@ -4,6 +4,7 @@ namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
+use app\dao\VoipRegistryDao;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
@@ -1307,6 +1308,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
      *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор внешнего запроса (отправляется в vpbx/add_did)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_create_user", type = "integer", description = "Создавать ли пользователя ЛК (при отсутствии: 1)", in = "formData", default = "1"),
+     *   @SWG\Parameter(name = "is_number_porting", type = "integer", description = "Это портированный номер", in = "formData", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
      *     @SWG\Schema(type = "integer", description = "ID")
@@ -1345,6 +1347,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "webhook_url", type = "string", description = "WebHook URL возврат результата при асинхронной схеме", in = "formData", default = ""),
      *   @SWG\Parameter(name = "request_id", type = "string", description = "идентификатор внешнего запроса (отправляется в vpbx/add_did)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_create_user", type = "integer", description = "Создавать ли пользователя ЛК (при отсутствии: 1)", in = "formData", default = "1"),
+     *   @SWG\Parameter(name = "is_number_porting", type = "integer", description = "Это портированный номер", in = "formData", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
      *     @SWG\Schema(type = "integer", description = "ID")
@@ -1404,6 +1407,11 @@ class UuController extends ApiInternalController
         $accountTariffLog = new AccountTariffLog;
 
         try {
+
+            if ($post['is_number_porting'] ?? false) {
+                $numberModel = VoipRegistryDao::me()->checkAndAddPortedNumber($post['client_account_id'], $post['voip_number']);
+                Number::dao()->toInstock($numberModel);
+            }
 
             $accountTariff->setAttributes($post);
             $accountTariff->addParam('is_create_user', $post['is_create_user']);
