@@ -5,7 +5,9 @@ namespace app\modules\sbisTenzor\forms\document;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\sbisTenzor\classes\SBISDocumentStatus;
+use app\modules\sbisTenzor\classes\SBISGeneratedDraftStatus;
 use app\modules\sbisTenzor\models\SBISDocument;
+use app\modules\sbisTenzor\models\SBISGeneratedDraft;
 use yii\base\InvalidArgumentException;
 
 class ViewForm extends \app\classes\Form
@@ -104,6 +106,22 @@ class ViewForm extends \app\classes\Form
         return $this->document->state == SBISDocumentStatus::CANCELLED_AUTO;
     }
 
+
+    /**
+     * Показывать ли кнопку Пересоздать
+     *
+     * @return bool
+     */
+    public function getShowReCreateButton()
+    {
+        return self::getShowReCreateButton_st($this->document);
+    }
+
+    public static function getShowReCreateButton_st($document)
+    {
+        return $document->state == SBISDocumentStatus::NEGOTIATED || $document->state == SBISDocumentStatus::ERROR;
+    }
+
     /**
      * @return string
      */
@@ -134,6 +152,14 @@ class ViewForm extends \app\classes\Form
     public function getRestoreAutoUrl()
     {
         return '/sbisTenzor/document/restore-auto?id=' . $this->document->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRecreateUrl()
+    {
+        return '/sbisTenzor/document/recreate?id=' . $this->document->id;
     }
 
     /**
@@ -283,6 +309,52 @@ class ViewForm extends \app\classes\Form
             SBISDocumentStatus::CREATED,
             'Пакет документов в статусе {state} не может быть перезапущен в работу.'
         );
+    }
+
+    /**
+     * ReCreate document
+     *
+     * @param $id
+     * @return int
+     * @throws ModelValidationException
+     * @throws \Exception
+     */
+    public static function recreate($id)
+    {
+        $originalDocument = SBISDocument::findOne(['id' => $id]);
+        if (!$originalDocument) {
+            throw new \InvalidArgumentException('Документ не найден');
+        }
+
+        if (!self::getShowReCreateButton_st($originalDocument)) {
+            throw new \LogicException('Документ не может быть пересоздан');
+        }
+
+        $transaction = SBISDocument::getDb()->beginTransaction();
+        try {
+            $draft = SBISGeneratedDraft::findOne(['sbis_document_id' => $id]);
+            $draft->sbis_document_id = null;
+            $draft->state = SBISGeneratedDraftStatus::PROCESSING;
+            if (!$draft->save()) {
+                throw new ModelValidationException($draft);
+            }
+
+            $originalDocument->setState(SBISDocumentStatus::CANCELLED);
+            if (!$originalDocument->save()) {
+                throw new ModelValidationException($originalDocument);
+            }
+
+            $document = $draft->generateDocument();
+
+            $transaction->commit();
+
+            return $document->id;
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            \Yii::$app->session->addFlash('error', $e->getTraceAsString());
+            throw $e;
+        }
     }
 
     /**

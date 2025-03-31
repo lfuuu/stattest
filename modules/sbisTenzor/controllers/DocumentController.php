@@ -38,7 +38,7 @@ class DocumentController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'add-files', 'cancel', 'cancel-auto', 'restore', 'restore-auto', 'start', 'restart', 'send-auto'],
+                        'actions' => ['add', 'add-files', 'cancel', 'cancel-auto', 'restore', 'restore-auto', 'start', 'restart', 'send-auto', 'recreate'],
                         'roles' => ['newaccounts_bills.edit'],
                     ],
                 ],
@@ -304,6 +304,25 @@ class DocumentController extends BaseController
 
         return $this->redirect('/sbisTenzor/document/' . ($clientId ? '?clientId=' . $clientId : ''));
     }
+
+
+    /**
+     * Пересоздать пакет
+     *
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionRecreate($id = 0)
+    {
+        try {
+            $id = ViewForm::recreate($id);
+        } catch (\Exception $e) {
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect('/sbisTenzor/document/view?id=' . $id);
+    }
+
 
     /**
      * Download attachment

@@ -95,6 +95,17 @@ echo Breadcrumbs::widget([
             ]);
         }
 
+        if ($form->getShowReCreateButton()) {
+            $out .= ($out ? '&nbsp;&nbsp;&nbsp;' : '') . $this->render('//layouts/_button', [
+                'text' => 'Пересоздать',
+                'glyphicon' => 'glyphicon-repeat',
+                'params' => [
+                    'class' => 'btn btn-warning',
+                    'onClick' => sprintf('if (confirm("%s")) { window.location.href = "%s"; };', 'Пересоздать данный пакет?', $form->getRecreateUrl()),
+                ],
+            ]);
+        }
+
         if ($form->getShowRefreshButton()) {
             $out .= $this->render('//layouts/_buttonLink', [
                 'url' => \Yii::$app->getRequest()->getUrl(),
