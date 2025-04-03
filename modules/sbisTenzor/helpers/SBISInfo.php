@@ -36,6 +36,7 @@ class SBISInfo
             case SBISOrganization::ID_VOICE_CONNECT:
                 $groupIds1 = [
                     SBISExchangeGroup::ACT_AND_INVOICE_2019,
+                    SBISExchangeGroup::ACT_AND_INVOICE_2025,
                 ];
                 break;
 
@@ -56,6 +57,7 @@ class SBISInfo
                     SBISExchangeGroup::ACT,
                     SBISExchangeGroup::ACT_AND_INVOICE_2016,
                     SBISExchangeGroup::ACT_AND_INVOICE_2019,
+                    SBISExchangeGroup::ACT_AND_INVOICE_2025,
                 ];
                 break;
 
