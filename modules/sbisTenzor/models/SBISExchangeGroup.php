@@ -26,6 +26,7 @@ class SBISExchangeGroup extends ActiveRecord
     const ACT = 1;
     const ACT_AND_INVOICE_2016 = 2;
     const ACT_AND_INVOICE_2019 = 3;
+    const ACT_AND_INVOICE_2025 = 4;
 
     /** @var SBISExchangeFile[] */
     protected $exchangeFiles;

@@ -25,6 +25,7 @@ class SBISExchangeForm extends ActiveRecord
     // счета-фактуры
     const INVOICE_2016_5_02 = 2;
     const INVOICE_2019_5_01 = 3;
+    const INVOICE_2025_5_03 = 4;
 
     /**
      * @inheritdoc
