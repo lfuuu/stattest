@@ -1195,7 +1195,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     break;
 
                 case EventQueue::PORTED_NUMBER_ADD:
-                    $info = Registry::dao()->addPortedNumber($param['account_id'], $param['number']);
+                    Registry::dao()->addPortedNumber($param['account_id'], $param['number']);
                     break;
 
                 case EventQueue::NUMBER_HAS_BEEN_PORTED:
