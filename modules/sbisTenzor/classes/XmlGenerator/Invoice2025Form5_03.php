@@ -152,9 +152,9 @@ class Invoice2025Form5_03 extends Invoice2016Form5_02
             $elPass->appendChild($elPassInfo);
 
             $elPassInfoMain = $dom->createElement('ОснПер');
-            $elPassInfoMain->setAttribute('ДатаОсн', $contractDate);
-            $elPassInfoMain->setAttribute('НаимОсн', sprintf('%s от %s', $contract->contract_no, $contractDate));
-            $elPassInfoMain->setAttribute('НомОсн', $contract->contract_no);
+            $elPassInfoMain->setAttribute('РеквДатаДок', $contractDate);
+            $elPassInfoMain->setAttribute('РеквНаимДок', sprintf('%s от %s', $contract->contract_no, $contractDate));
+            $elPassInfoMain->setAttribute('РеквНомерДок', $contract->contract_no);
             $elPassInfo->appendChild($elPassInfoMain);
         }
 
