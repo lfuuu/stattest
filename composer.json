@@ -1,6 +1,6 @@
 {
   "name": "yiisoft/yii2-app-basic",
-  "description": "Yii 2 Stat Project",
+  "description": "Yii 2 Stat Project.",
   "license": "MIT",
   "type": "project",
   "minimum-stability": "dev",
