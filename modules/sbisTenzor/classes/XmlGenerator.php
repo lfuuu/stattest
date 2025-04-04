@@ -12,6 +12,7 @@ use app\modules\sbisTenzor\models\SBISExchangeForm;
 use app\modules\sbisTenzor\classes\XmlGenerator\Act2016Form5_02;
 use app\modules\sbisTenzor\classes\XmlGenerator\Invoice2016Form5_02;
 use app\modules\sbisTenzor\classes\XmlGenerator\Invoice2019Form5_01;
+use app\modules\sbisTenzor\classes\XmlGenerator\Invoice2025Form5_03;
 use app\modules\sbisTenzor\helpers\SBISUtils;
 use DateTime;
 
@@ -25,6 +26,7 @@ abstract class XmlGenerator// extends SBISExchangeForm
         SBISExchangeForm::ACT_2016_5_02 => Act2016Form5_02::class,
         SBISExchangeForm::INVOICE_2016_5_02 => Invoice2016Form5_02::class,
         SBISExchangeForm::INVOICE_2019_5_01 => Invoice2019Form5_01::class,
+        SBISExchangeForm::INVOICE_2025_5_03 => Invoice2025Form5_03::class,
     ];
 
     protected static $xsdFilePathParts = [
@@ -72,6 +74,8 @@ abstract class XmlGenerator// extends SBISExchangeForm
     /** @var string */
     protected $xsdFile;
 
+    /** @var bool */
+    public $isInformationAboutParticipants = true;
     /**
      * Создание генератора
      *
@@ -336,17 +340,18 @@ abstract class XmlGenerator// extends SBISExchangeForm
         $elFile->setAttribute('ИдФайл', $this->fileId);
 
         // добавляем свойство Файл.СвУчДокОбор
-        $elInfo = $dom->createElement('СвУчДокОбор');
-        $elInfo->setAttribute('ИдОтпр', $this->sbisIdSender);
-        $elInfo->setAttribute('ИдПол', $sbisIdRecipient);
+        if ($this->isInformationAboutParticipants) {
+            $elInfo = $dom->createElement('СвУчДокОбор');
+            $elInfo->setAttribute('ИдОтпр', $this->sbisIdSender);
+            $elInfo->setAttribute('ИдПол', $sbisIdRecipient);
 
-        $elInfoSender = $dom->createElement('СвОЭДОтпр');
-        $elInfoSender->setAttribute('ИННЮЛ', 7605016030);
-        $elInfoSender->setAttribute('ИдЭДО', '2BE');
-        $elInfoSender->setAttribute('НаимОрг', 'ООО "Компания "Тензор"');
-        $elInfo->appendChild($elInfoSender);
-
-        $elFile->appendChild($elInfo);
+            $elInfoSender = $dom->createElement('СвОЭДОтпр');
+            $elInfoSender->setAttribute('ИННЮЛ', 7605016030);
+            $elInfoSender->setAttribute('ИдЭДО', '2BE');
+            $elInfoSender->setAttribute('НаимОрг', 'ООО "Компания "Тензор"');
+            $elInfo->appendChild($elInfoSender);
+            $elFile->appendChild($elInfo);
+        }
 
         return $elFile;
     }
