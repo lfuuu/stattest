@@ -214,6 +214,7 @@ class Invoice2025Form5_03 extends Invoice2016Form5_02
             $elLine->setAttribute('НалСт', $line->getVat_rate() ? $line->getVat_rate() . '%' : 'без НДС');// optional
             $elLine->setAttribute('НаимТов', $this->prepareText($line->getFullName()));
             $elLine->setAttribute('СтТовУчНал', $this->formatNumber($line->getPrice_with_vat()));
+
             // http://www.classbase.ru/okei
             // 796 - штука
             $elLine->setAttribute('ОКЕИ_Тов', 796);// choice1 required
