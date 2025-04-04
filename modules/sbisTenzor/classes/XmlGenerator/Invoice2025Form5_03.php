@@ -127,10 +127,20 @@ class Invoice2025Form5_03 extends Invoice2016Form5_02
 
         $clientContacts = $this->client->getOfficialContact();
         $phone = array_shift($clientContacts['phone']);
-        if ($phone) {
+        $email = array_shift($clientContacts['email']);
+        if ($phone || $email) {
             $elInfoBuyerContact = $dom->createElement('Контакт');
-            $elInfoBuyerContact->setAttribute('Тлф', $phone);
             $elInfoBuyer->appendChild($elInfoBuyerContact);
+
+            if ($phone) {
+                $elInfoBuyerContactPhone = $dom->createElement('Тлф', $this->formatText($phone));
+                $elInfoBuyerContact->appendChild($elInfoBuyerContactPhone);
+            }
+
+            if ($email) {
+                $elInfoBuyerContactEmail = $dom->createElement('ЭлПочта', $this->formatText($email));
+                $elInfoBuyerContact->appendChild($elInfoBuyerContactEmail);
+            }
         }
 
         // --------------------------------------------------------------------------------------------------------------
