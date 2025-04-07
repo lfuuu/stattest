@@ -3113,7 +3113,8 @@ class m_newaccounts extends IModule
                             break;
                     }
                     $content = $design->fetch('newaccounts/print_' . $obj . '.tpl');
-                    $file_name = '/tmp/' . time() . $user->_Data['id'];
+                    $tmp_dir = sys_get_temp_dir();
+                    $file_name = tempnam($tmp_dir, "html_to_pdf");
                     $file_html = $file_name . '.html';
                     $file_pdf = $file_name . '.pdf';
 

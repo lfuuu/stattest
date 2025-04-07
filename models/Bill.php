@@ -580,7 +580,7 @@ class Bill extends ActiveRecord
     {
         $billSend = BillSend::findOne(['bill_no' => $this->bill_no]);
 
-        if ($billSend->state == BillSend::STATE_VIEWED) {
+        if ($billSend && $billSend->state == BillSend::STATE_VIEWED) {
             return;
         }
 
