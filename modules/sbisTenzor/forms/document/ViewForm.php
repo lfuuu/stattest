@@ -119,7 +119,12 @@ class ViewForm extends \app\classes\Form
 
     public static function getShowReCreateButton_st($document)
     {
-        return $document->state == SBISDocumentStatus::NEGOTIATED || $document->state == SBISDocumentStatus::ERROR;
+        return
+            $document->state == SBISDocumentStatus::NEGOTIATED
+            || $document->state == SBISDocumentStatus::ERROR
+            || $document->state == SBISDocumentStatus::SENT
+            || $document->state == SBISDocumentStatus::SENT_ERROR
+            ;
     }
 
     /**
