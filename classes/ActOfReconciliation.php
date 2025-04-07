@@ -13,6 +13,7 @@ use app\models\Country;
 use app\models\Invoice;
 use app\models\Language;
 use app\models\OperationType;
+use app\models\Organization;
 use app\models\Payment;
 use app\modules\uu\models\Bill as uuBill;
 use Exception;
@@ -432,6 +433,9 @@ WHERE b.client_id = ' . $account->id . '
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         };
 
+        // FIX: прячем документы для АбонентСервиса с 1 янв2025
+        $isABS = $account->organization->organization_id == Organization::AB_SERVICE_MARCOMNET;
+
         $countryCodeAddLink = $countryCodeParam ? ['co' => $countryCodeParam] : [];
 
         foreach ($data as $idx => &$row) {
@@ -443,7 +447,13 @@ WHERE b.client_id = ' . $account->id . '
                 $row['type'] = 'act';
             }
 
+
             if ($row['type'] == 'act') {
+                $isIn2025 = strtotime($row['bill_date']) >= strtotime('2025-01-01');
+                if ($isABS && $isIn2025) {
+                    continue;
+                }
+
                 $row['link'] = Encrypt::encodeArray([
                     'is_pdf' => 1,
                     'tpl1' => 1,
