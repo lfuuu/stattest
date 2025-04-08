@@ -17,6 +17,7 @@ class OrganizationForm extends Form
         $country_id,
         $lang_code,
         $is_simple_tax_system = 0,
+        $is_agent_tax_rate = 0,
         $vat_rate = 0,
         $registration_id,
         $tax_registration_id,
@@ -59,6 +60,7 @@ class OrganizationForm extends Form
                 [
                     'lang_code',
                     'is_simple_tax_system',
+                    'is_agent_tax_rate',
                     'registration_id',
                     'tax_registration_id',
                     'tax_registration_reason',

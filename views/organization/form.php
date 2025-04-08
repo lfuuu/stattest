@@ -217,6 +217,15 @@ if (!empty($title)) {
                     echo $form->field($model, 'invoice_counter_range_id')
                         ->dropDownList(\app\models\Organization::$invoiceCounterRangeNames)
                     ;
+
+                    echo $form->field($model, 'is_agent_tax_rate')
+                        ->checkbox([
+                            'id' => 'IsAgentTaxRate',
+                            'label' => Html::tag('span', 'Агентская схема НДС', [
+                                'style' => 'display: inline-block; margin-top: 2px;'
+                            ]),
+                        ], true);
+
                     ?>
                 </div>
             </div>

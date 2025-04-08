@@ -194,6 +194,12 @@ $viewParams = [
                         'placeholder' => \Yii::t('common', '(not set)')
                     ])
             ?>
+            <?= $form->field($tariff, 'agent_tax_rate')
+                ->textInput($options + [
+                        'label' => $tariff->getAttributeLabel('agent_tax_rate') . $helpConfluence,
+                        'placeholder' => \Yii::t('common', '(not set)')
+                    ])
+            ?>
 
         </div>
 
