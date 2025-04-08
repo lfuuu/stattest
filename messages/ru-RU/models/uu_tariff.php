@@ -25,6 +25,7 @@ return [
     'is_one_active' => 'Только один активный',
     'is_proportionately' => 'Списывать пропорционально (иначе полностью сразу)',
     'tax_rate' => 'Ставка НДС',
+    'agent_tax_rate' => 'Агентская ставка НДС',
     'is_one_alt' => 'Несгораемый пакет',
     'payment_template_type_id' => 'Шаблон',
 ];

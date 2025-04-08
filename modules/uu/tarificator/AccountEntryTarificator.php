@@ -363,28 +363,50 @@ SQL;
             {$sqlAndWhere}
 SQL;
         $tariffRates = $this->getTariffTaxRates();
+        $tariffAgentRates = $this->getTariffAgentTaxRates();
 
         $query = $db->createCommand($selectSql)->query();
         $clientCache = []; // [client_account_id => ClientAccount]
         $clientDateVatCache = []; // [{client_account_id}_{date} => VAT]
+        $organisationAgentCache = [];
         foreach ($query as $row) {
+            $vatRate = null;
 
-            if (isset($tariffRates[$row['tariff_period_id']])) {
-                $vatRate = $tariffRates[$row['tariff_period_id']];
-            } else {
+            // В тарифе установлен агентский НДС
+            if (isset($tariffAgentRates[$row['tariff_period_id']])) {
+
                 $clientKey = $row['client_account_id'];
-                $clientDateVatKey = $row['client_account_id'] . '_' . $row['date'];
-                if (!array_key_exists($clientDateVatKey, $clientDateVatCache)) { // isset() быстрее, но нам надо учитывать значение null
-                    // Посчитать НДС и записать в кэш
+                $clientAccount = $clientCache[$clientKey] ?? ClientAccount::findOne(['id' => $row['client_account_id']]);
+                $contract = $clientAccount->getContract($row['date']);
 
-                    $clientAccount = isset($clientCache[$clientKey]) ?
-                        $clientCache[$clientKey] :
-                        ClientAccount::findOne(['id' => $row['client_account_id']]);
-
-                    $contract = $clientAccount->getContract($row['date']);
-                    $clientDateVatCache[$clientDateVatKey] = ClientContract::dao()->getEffectiveVATRate($contract, $row['date']);
+                // состояние организации на дату
+                $key = $contract->organization_id . '-' . $row['date'];
+                if (!isset($organisationAgentCache[$key])) {
+                    $organisationAgentCache[$key] = $contract->getOrganization($row['date'])->is_agent_tax_rate;
                 }
-                $vatRate = $clientDateVatCache[$clientDateVatKey];
+
+                // включена ли Агентская система НДС
+                if ($organisationAgentCache[$key]) {
+                    $vatRate = $tariffAgentRates[$row['tariff_period_id']];
+                }
+            }
+
+            if ($vatRate === null) {
+                if (isset($tariffRates[$row['tariff_period_id']])) {
+                    $vatRate = $tariffRates[$row['tariff_period_id']];
+                } else {
+                    $clientKey = $row['client_account_id'];
+                    $clientDateVatKey = $row['client_account_id'] . '_' . $row['date'];
+                    if (!array_key_exists($clientDateVatKey, $clientDateVatCache)) { // isset() быстрее, но нам надо учитывать значение null
+                        // Посчитать НДС и записать в кэш
+
+                        $clientAccount = $clientCache[$clientKey] ?? ClientAccount::findOne(['id' => $row['client_account_id']]);
+                        $contract = $clientAccount->getContract($row['date']);
+
+                        $clientDateVatCache[$clientDateVatKey] = ClientContract::dao()->getEffectiveVATRate($contract, $row['date']);
+                    }
+                    $vatRate = $clientDateVatCache[$clientDateVatKey];
+                }
             }
 
             $updateSql = <<<SQL
@@ -482,6 +504,30 @@ SQL;
             ->innerJoinWith('tariffPeriods tp')
             ->where(['not', ['t.tax_rate' => null]])
             ->select(['t.tax_rate', 'tp.id'])
+            ->indexBy('id')
+            ->column();
+
+        return $res;
+    }
+
+    /**
+     * Получаем карту tariffPeriod и ставки Агенского НДС
+     *
+     * @return array
+     */
+    private function getTariffAgentTaxRates()
+    {
+        static $res = [];
+
+        if ($res) {
+            return $res;
+        }
+
+        $res = Tariff::find()
+            ->alias('t')
+            ->innerJoinWith('tariffPeriods tp')
+            ->where(['not', ['t.agent_tax_rate' => null]])
+            ->select(['t.agent_tax_rate', 'tp.id'])
             ->indexBy('id')
             ->column();
 

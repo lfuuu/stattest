@@ -33,6 +33,7 @@ use yii\helpers\Url;
  * @property string $lang_code                   Код языка
  * @property int $is_simple_tax_system           Упрощенная схема налогооблажения (1 - Да)
  * @property int $vat_rate                       Ставка налога
+ * @property int $is_agent_tax_rate              Агенская система налогооблажения
  * @property string $registration_id             Регистрационный номер (ОГРН)
  * @property string $tax_registration_id         Идентификационный номер налогоплательщика (ИНН)
  * @property string $tax_registration_reason     Код причины постановки (КПП)
