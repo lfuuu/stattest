@@ -67,7 +67,7 @@ class AccountLogPeriod extends ActiveRecord
             parent::behaviors(),
             [
                 SyncAccountTariffLight::class, // Синхронизировать данные в AccountTariffLight
-                AccountTariffVoipInternet::class, // Синхронизировать данные в MTT
+//                AccountTariffVoipInternet::class, // Синхронизировать данные в MTT
             ]
         );
     }
