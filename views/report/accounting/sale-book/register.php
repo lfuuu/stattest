@@ -63,6 +63,10 @@
 //                continue;
 //            }
 
+            if ($invoice->invoice_date) {
+                $invoice->date = $invoice->invoice_date;
+            }
+
             if (!$invoice->bill || !$invoice->bill->clientAccount) {
                 Yii::$app->session->addFlash('error', 'С/ф без счета: ' . $invoice->number);
                 continue;

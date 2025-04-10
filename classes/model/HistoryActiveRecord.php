@@ -199,6 +199,7 @@ class HistoryActiveRecord extends ActiveRecord
             ->andWhere(['model_id' => $this->primaryKey])
             ->andWhere(['<=', 'date', $date])
             ->orderBy(['date' => SORT_DESC])
+            ->limit(1)
             ->one();
 
         if ($historyModel) {
@@ -211,6 +212,7 @@ class HistoryActiveRecord extends ActiveRecord
                 ->andWhere(['model_id' => $this->primaryKey])
                 ->andWhere(['>', 'date', $date])
                 ->orderBy(['date' => SORT_ASC])
+                ->limit(1)
                 ->one();
 
             if ($historyModel) {

@@ -45,6 +45,7 @@ use yii\web\Response;
  * @property string $pay_bill_until
  * @property int $is_payed
  * @property string $payment_date
+ * @property string $invoice_date
  *
  * @property-read Bill $bill
  * @property-read InvoiceLine[] $lines

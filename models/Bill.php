@@ -272,8 +272,15 @@ class Bill extends ActiveRecord
      */
     public function getClientAccount()
     {
-        /** @var ClientAccount $account */
-        $account = ClientAccount::findOne(['id' => $this->client_id]);
+        static $cache = [];
+
+        if (array_key_exists($this->client_id, $cache)) {
+            $account = $cache[$this->client_id];
+        } else {
+            /** @var ClientAccount $account */
+            $account = ClientAccount::findOne(['id' => $this->client_id]);
+            $cache[$this->client_id] = $account;
+        }
 
         if (!$account) {
             return null;

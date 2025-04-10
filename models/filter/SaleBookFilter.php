@@ -108,11 +108,15 @@ class SaleBookFilter extends Invoice
             ->where([
                 'inv.organization_id' => $this->organization_id,
             ])
-            ->andWhere(['between',
+            ->andWhere(['OR', ['between',
                 'inv.date',
                 $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                 $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-            ])
+            ], ['between',
+                'inv.invoice_date',
+                $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            ]])
             ->andWhere(['NOT', ['number' => null]])
             ->orderBy([
                 'inv.idx' => SORT_ASC,
@@ -121,14 +125,12 @@ class SaleBookFilter extends Invoice
 
         $query->joinWith('bill bill', true, 'INNER JOIN');
         $query->with('bill');
+        $query->with('bill.payments');
+        $query->with('lines');
+        $query->with('lines.line');
+        $query->with('lines.line.accountTariff');
 
         $this->currency && $query->andWhere(['bill.currency' => $this->currency]);
-
-        if ($this->is_register) {
-            $query->with('lines');
-            $query->with('lines.line');
-            $query->with('lines.line.accountTariff');
-        }
 
         if (\Yii::$app->isEu()) {
             $query->joinWith('bill.clientAccountModel c');
