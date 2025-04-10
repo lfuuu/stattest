@@ -114,10 +114,6 @@ return [
     'id' => 'basic-console',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
-    'aliases' => [
-        '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
-    ],
     'controllerNamespace' => 'app\commands',
     'language' => 'ru-RU',
     'timeZone' => 'UTC',
