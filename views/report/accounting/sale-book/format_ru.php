@@ -81,7 +81,7 @@
 
     $idx = 1;
 
-    $total = ['sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0, 'sumCol16' => 0];
+    $total = ['sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0, 'sumCol16' => 0, 'sumTax20' => 0];
 
     if ($query)
         foreach ($query->each() as $invoice) : ?>
@@ -90,6 +90,10 @@
 //            if (!$filter->check($invoice)) {
 //                continue;
 //            }
+
+            if ($invoice->invoice_date) {
+                $invoice->date = $invoice->invoice_date;
+            }
 
             if (!$invoice->bill || !$invoice->bill->clientAccount) {
                 Yii::$app->session->addFlash('error', 'С/ф без счета: ' . $invoice->number);
