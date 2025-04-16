@@ -11,6 +11,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillCorrection;
+use app\models\BillDocument;
 use app\models\billing\CallsRaw;
 use app\models\billing\Trunk;
 use app\models\BillLine;
@@ -21,6 +22,7 @@ use app\models\ClientAccountOptions;
 use app\models\ClientContractAdditionalAgreement;
 use app\models\ClientDocument;
 use app\models\Currency;
+use app\models\EventQueue;
 use app\models\Invoice;
 use app\models\LogBill;
 use app\models\OperationType;
@@ -1215,9 +1217,9 @@ SQL;
      * @param bool $isAsInsert
      * @throws \Throwable
      */
-    public static function generateInvoices(Bill $bill, $is4Invoice = false, $isAsInsert = false)
+    public static function generateInvoices(Bill $bill, $is4Invoice = false, $isAsInsert = false, $isForceUpdate = false)
     {
-        if (!$bill->isEditable()) {
+        if (!$bill->isEditable() && !$isForceUpdate) {
             return;
         }
 
@@ -1269,8 +1271,12 @@ SQL;
                     ->one();
 
                 // Если последний документ - зарегистрирован, то ничего делать не надо
-                if ($invoice && $invoice->number) {
+                if ($invoice && $invoice->number && !$isForceUpdate) {
                     continue;
+                }
+
+                if ($isForceUpdate && $invoice->lines) {
+                    array_walk($invoice->lines, fn($line) => $line->delete());
                 }
 
                 $lines = $invoice && $invoice->lines ?
@@ -1325,6 +1331,24 @@ SQL;
 
                 if (!$invoice->save()) {
                     throw new ModelValidationException($invoice);
+                }
+
+                if ($isForceUpdate && $invoice->number) {
+                    if ($invoice->is_act) {
+                        $filePath = $invoice->getFilePath(BillDocument::TYPE_ACT);
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                        EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_ACT]);
+                    }
+
+                    if ($invoice->is_invoice) {
+                        $filePath = $invoice->getFilePath(BillDocument::TYPE_INVOICE);
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                        EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_INVOICE]);
+                    }
                 }
 
             }
