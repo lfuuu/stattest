@@ -82,7 +82,7 @@
     use app\models\Invoice;
 
     $query = $filter->search();
-//    $query->andWhere(['inv.bill_no' => ['202504-140437', '202504-140226']]);
+//    $query->andWhere(['inv.bill_no' => ['202504-140437', '202504-140226', '202504-144450']]);
 //    $query->limit(10);
 
 
@@ -116,7 +116,7 @@
                 $contract = $account->contract;
                 $contragent = $contract->contragent;
 
-                $taxRate = $account->getTaxRate();
+//                $taxRate = $account->getTaxRate();
 
                 $sum = $invoice->sum;
                 $sum_without_tax = $invoice->type_id != Invoice::TYPE_PREPAID ? $invoice->sum_without_tax : null;
@@ -124,9 +124,36 @@
 
                 $linesSum16 = 0;
                 $linesTax20 = 0;
+                $linesData = ['sumCol16' => 0];
                 foreach ($invoice->lines as $line) {
-                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
-                    $linesTax20 += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
+                    if ($line->sum < 0) {
+                        continue;
+                    }
+
+                    $taxRate = $line->tax_rate;
+
+//                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
+                    $l16 = $line['sum_tax'] > 0 ? $line['sum'] : 0;
+//                    $linesTax20 += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
+                    $lt20 = abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
+
+                    if (!isset($linesData['sum' . $taxRate])) {
+                        $linesData['sum' . $taxRate] = 0;
+                        $linesData['tax' . $taxRate] = 0;
+                    }
+
+                    $linesData['sum' . $taxRate] += $line->sum_without_tax;
+                    $linesData['tax' . $taxRate] += $line->sum_tax;
+
+                    if ($line->sum_tax > 0) {
+                        $linesData['sumCol16'] += $line->sum;
+                    }
+
+                    $total['sum' . $taxRate] += $line->sum_without_tax;
+                    $total['tax' . $taxRate] += $line->sum_tax;
+                    $total['sumCol16'] += $linesData['sumCol16'];
+                    $total['sumTax20'] += $lt20 ?: 0;
+
                 }
             } catch (Exception $e) {
                 Yii::$app->session->addFlash('error', $e->getMessage());
@@ -134,10 +161,10 @@
             }
 
             $total['sumAll'] += $sum;
-            $sum_without_tax && $total['sum' . $taxRate] += $sum_without_tax;
-            $total['tax' . $taxRate] += $sum_tax;
-            $total['sumCol16'] += $linesSum16 ?: 0;  
-            $total['sumTax20'] += $linesTax20 ?: 0;
+//            $sum_without_tax && $total['sum' . $taxRate] += $sum_without_tax;
+//            $total['tax' . $taxRate] += $sum_tax;
+//            $total['sumCol16'] += $linesSum16 ?: 0;
+//            $total['sumTax20'] += $linesTax20 ?: 0;
 
             ?>
             <tr class="<?= ($idx % 2 == 0 ? 'odd' : 'even') ?>">
@@ -158,19 +185,19 @@
                 <td><?= $account->currency == 'RUB' ? ' ' : $account->currencyModel->name. ' ' . $account->currencyModel->code ?></td>
                 <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
                 <td><?= $printSum($sum) ?></td>
-                <td><?= $sum_without_tax !== null && $taxRate == 20 ? $printSum($linesTax20) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 18 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 10 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 7 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 5 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 0 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 20 ? $printSum($sum_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 18 ? $printSum($sum_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 10 ? $printSum($sum_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 7 ? $printSum($sum_tax) : '&nbsp;' ?></td>
-                <td><?= $taxRate == 5 ? $printSum($sum_tax) : '&nbsp;' ?></td>
+                <td><?= $linesData['sum20'] ? $printSum($linesData['sum20']) : '&nbsp;' ?></td>
+                <td><?= $linesData['sum18'] ? $printSum($linesData['sum18']) : '&nbsp;' ?></td>
+                <td><?= $linesData['sum10'] ? $printSum($linesData['sum10']) : '&nbsp;' ?></td>
+                <td><?= $linesData['sum7'] ? $printSum($linesData['sum7']): '&nbsp;' ?></td>
+                <td><?= $linesData['sum5'] ? $printSum($linesData['sum5']) : '&nbsp;' ?></td>
+                <td><?= $linesData['sum0'] ? $printSum($linesData['sum0']): '&nbsp;' ?></td>
+                <td><?= $linesData['tax20'] ? $printSum($linesData['tax20']) : '&nbsp;' ?></td>
+                <td><?= $linesData['tax18'] ? $printSum($linesData['tax18']) : '&nbsp;' ?></td>
+                <td><?= $linesData['tax10'] ? $printSum($linesData['tax10']) : '&nbsp;' ?></td>
+                <td><?= $linesData['tax7'] ? $printSum($linesData['tax7']) : '&nbsp;' ?></td>
+                <td><?= $linesData['tax5'] ? $printSum($linesData['tax5']) : '&nbsp;' ?></td>
                 <td>&nbsp;</td>
-                <td><?= $sum_tax > 0 ? $printSum($linesSum16) : "" ?></td>
+                <td><?= ($linesData['sumCol16'] ?? 0) > 0 ? $printSum($linesData['sumCol16']) : "" ?></td>
             </tr>
         <?php
         endforeach;
