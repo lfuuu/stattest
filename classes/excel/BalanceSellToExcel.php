@@ -47,7 +47,9 @@ class BalanceSellToExcel extends Excel
     private function _dataConversionToStandard()
     {
         $data = [];
-        foreach ($this->filter->search()->each() as $invoice) {
+        $query = $this->filter->search();
+//        $query->andWhere(['inv.bill_no' => ['202504-140437', '202504-140226', '202504-144450']]);
+        foreach ($query->each() as $invoice) {
 
             if (!$this->filter->check($invoice)) {
                 continue;
@@ -62,12 +64,23 @@ class BalanceSellToExcel extends Excel
             $currencyId = $currencyModel->id;
             $currencyName = $currencyModel->name;
             $currencyCode = $currencyModel->code;
-            $taxRate = $account->getTaxRate();
+//            $taxRate = $account->getTaxRate();
             $paymentsStr = $invoice->getPaymentsStr();
 
             $sumTax = 0;
+
+            $lineData = [];
             foreach($invoice->lines as $line) {
-                $sumTax += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
+
+                if (!isset($lineData['sum' . $line->tax_rate])) {
+                    $lineData['sum' . $line->tax_rate] = 0;
+                    $lineData['tax' . $line->tax_rate] = 0;
+                }
+
+                $sumTax += $line->tax_rate > 0 ? $line['sum'] : 0;
+
+                $lineData['sum' . $line->tax_rate] += $line->sum_without_tax;
+                $lineData['tax' . $line->tax_rate] += $line->sum_tax;;
             }
 
             $data[] = [
@@ -81,12 +94,12 @@ class BalanceSellToExcel extends Excel
                 'inv_no' => $invoice->number . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED),
                 'type' => $contragent->legal_type,
                 'correction' => ($invoice->correction_idx ? $invoice->correction_idx . '; ' . $invoice->getDateImmutable()->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED) : ''),
-                'taxRate' => $taxRate,
                 'currency_id' => $currencyId,
                 'currency_name' => $currencyName,
                 'currency_code' => $currencyCode,
                 'payments_str' => $paymentsStr,
                 'sumTax' => $sumTax,
+                'lineData' => $lineData,
             ];
         }
         return $data;
@@ -105,40 +118,45 @@ class BalanceSellToExcel extends Excel
         $this->setTaxRegistration($worksheet);
         $this->setDateRange($worksheet);
 
+        $l = function ($pColumn = 0, $pRow = 1, $pValue = null, $returnCell = false) use ($worksheet) {
+            return $worksheet->setCellValueByColumnAndRow($pColumn, $pRow, $pValue, $returnCell);
+        };
+
+        $p = fn($value) => sprintf('%0.2f', round($value, 2));
+
+
         for ($i = 0, $t = count($data); $i < $t; $i++) {
             $row = $data[$i];
 
             $line = $i + $this->insertPosition - 1;
             $companyName = str_replace(['«', '»'], '"', html_entity_decode($row['company_full']));
 
-            $worksheet->setCellValueByColumnAndRow(0, $line, ($i + 1));
-            $worksheet->setCellValueByColumnAndRow(1, $line, $row['code']);
-            $worksheet->setCellValueByColumnAndRow(2, $line, $row['inv_no']);
-            $worksheet->setCellValueByColumnAndRow(5, $line, $row['correction']);
-            $worksheet->setCellValueByColumnAndRow(8, $line, $companyName);
-            $worksheet->setCellValueByColumnAndRow(9, $line,
-                $row['inn'] . ($row['type'] == 'legal' ? '/' . ($row['kpp'] ?: '') : ''));
-            $worksheet->setCellValueByColumnAndRow(12, $line, $row['payments_str']);
-            $worksheet->setCellValueByColumnAndRow(13, $line,
-                $row['currency_id'] == 'RUB' ? ' ' : $row['currency_name'] .' '. $row['currency_code']);
-            $worksheet->setCellValueByColumnAndRow(14, $line,
-                $row['currency_id'] == 'RUB' ? '' :
-                        sprintf('%0.2f', round($row['sum'], 2)));
-            $worksheet->setCellValueByColumnAndRow(15, $line, sprintf('%0.2f', round($row['sum'], 2)));
-            $worksheet->setCellValueByColumnAndRow(16, $line,
-                $row['sum_without_tax'] !== null && $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sumTax'], 2)) : '');
-            $worksheet->setCellValueByColumnAndRow(17, $line,
-                $row['taxRate'] == 18 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
-            $worksheet->setCellValueByColumnAndRow(18, $line,
-                $row['taxRate'] == 10 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
-            $worksheet->setCellValueByColumnAndRow(19, $line,
-                $row['taxRate'] == 0 ? sprintf('%0.2f', round($row['sum_without_tax'], 2)) : '');
-            $worksheet->setCellValueByColumnAndRow(20, $line,
-                $row['taxRate'] == 20 ? sprintf('%0.2f', round($row['sum_tax'], 2)) : '');
-            $worksheet->setCellValueByColumnAndRow(21, $line,
-                $row['taxRate'] == 18 ? sprintf('%0.2f', round($row['sum_tax'], 2)) : '');
-            $worksheet->setCellValueByColumnAndRow(22, $line,
-                $row['taxRate'] == 10 ? sprintf('%0.2f', round($row['sum_tax'], 2)) : '');
+            $l(0, $line, ($i + 1));
+            $l(1, $line, $row['code']);
+            $l(2, $line, $row['inv_no']);
+            $l(5, $line, $row['correction']);
+            $l(8, $line, $companyName);
+            $l(9, $line,$row['inn'] . ($row['type'] == 'legal' ? '/' . ($row['kpp'] ?: '') : ''));
+            $l(12, $line, $row['payments_str']);
+            $l(13, $line, $row['currency_id'] == 'RUB' ? ' ' : $row['currency_name'] .' '. $row['currency_code']);
+            $l(14, $line, $row['currency_id'] == 'RUB' ? '' : $p($row['sum']));
+            $l(15, $line, $p($row['sum']));
+
+            $lineData = $row['lineData'];
+            $l(16, $line, $lineData['sum20'] ? $p($lineData['sum20']) : '');
+            $l(17, $line, $lineData['sum18'] ? $p($lineData['sum18']) : '');
+            $l(18, $line, $lineData['sum10'] ? $p($lineData['sum10']) : '');
+            $l(19, $line, $lineData['sum7'] ? $p($lineData['sum7']) : '');
+            $l(20, $line, $lineData['sum5'] ? $p($lineData['sum5']) : '');
+            $l(21, $line, $lineData['sum0'] ? $p($lineData['sum0']) : '');
+
+            $l(22, $line, $lineData['tax20'] ? $p($lineData['tax20']) : '');
+            $l(23, $line, $lineData['tax18'] ? $p($lineData['tax18']) : '');
+            $l(24, $line, $lineData['tax10'] ? $p($lineData['tax10']) : '');
+            $l(25, $line, $lineData['tax7'] ? $p($lineData['tax7']) : '');
+            $l(26, $line, $lineData['tax5'] ? $p($lineData['tax5']) : '');
+            $l(27, $line, ($row['sumTax'] ?? 0) > 0 ? $p($row['sumTax']) : '');
+
         }
     }
 

@@ -151,10 +151,9 @@
 
                     $total['sum' . $taxRate] += $line->sum_without_tax;
                     $total['tax' . $taxRate] += $line->sum_tax;
-                    $total['sumCol16'] += $linesData['sumCol16'];
-                    $total['sumTax20'] += $lt20 ?: 0;
-
                 }
+                $total['sumCol16'] += $linesData['sumCol16'];
+                $total['sumTax20'] += $lt20 ?: 0;
             } catch (Exception $e) {
                 Yii::$app->session->addFlash('error', $e->getMessage());
                 continue;

@@ -228,7 +228,7 @@ class AccountEntry extends ActiveRecord
         if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_ONE_TIME])) {
             $serviceType = $accountTariff->serviceType;
 
-            $tmp1StartDate = new \DateTimeImmutable('2025-04-01 00:00:00');
+            $tmp1StartDate = new \DateTimeImmutable('2025-01-01 00:00:00');
             $entryDate = new \DateTimeImmutable($this->date);
 
             if ($langCode == Language::LANGUAGE_RUSSIAN && $tmp1StartDate <= $entryDate) {
