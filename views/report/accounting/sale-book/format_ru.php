@@ -20,23 +20,23 @@
         </td>
         <td rowspan="2" class="s" align="center">Наименование покупателя</td>
         <td rowspan="2" class="s" align="center">ИНН/КПП<br/>покупателя</td>
-        <td colspan="2" class="s" align="center">Сведения о посреднике (комиссио-нере, агенте)</td>
+        <td colspan="2" class="s" align="center">Сведения о посреднике (комиссионере, агенте)</td>
         <td rowspan="2" class="s" align="center">Номер и дата документа, подтверждаю-щего оплату</td>
         <td rowspan="2" class="s" align="center">Наимено-вание <br/>и<br/>код валюты</td>
         <td colspan="2" class="s" align="center">
             Стоимость продаж по счету-фактуре, разница стоимости по
-            корректировочному счету-фактуре (включая НДС) в валюте
+            корректиро- вочному счету-фактуре (включая НДС) в валюте
             счета-фактуры
         </td>
-        <td colspan="4" class="s">
+        <td colspan="6" class="s">
             Стоимость продаж, облагаемых налогом, по
             счету-фактуре, разница стоимости по корректировочному
-            счету-фактуре<br/>(без НДС) в рублях и
+            счету-фактуре (без НДС) в рублях и
             копейках по ставке
         </td>
-        <td colspan="3" class="s">
+        <td colspan="5" class="s">
             Сумма НДС по счету-фактуре,
-            разница суммы налога по корректировочному
+            разница суммы налога по корректиро-вочному
             счету-фактуре в рублях и копейках, по ставке
         </td>
         <td rowspan="2" class="s" align="center">
@@ -65,10 +65,14 @@
     <td class="s" align="center">20 про-цен-тов</td>
     <td class="s" align="center">18 про-цен-тов</td>
     <td class="s" align="center">10 про-цен-тов</td>
+    <td class="s" align="center">7 про-цен-тов</td>
+    <td class="s" align="center">5 про-цен-тов</td>
     <td class="s" align="center">0 про-цен-тов</td>
     <td class="s" align="center">20 про-цен-тов</td>
     <td class="s" align="center">18 про-цен-тов</td>
     <td class="s" align="center">10 про-цен-тов</td>
+    <td class="s" align="center">7 про-цен-тов</td>
+    <td class="s" align="center">5 про-цен-тов</td>
     </thead>
     <tbody>
     <?php
@@ -78,10 +82,18 @@
     use app\models\Invoice;
 
     $query = $filter->search();
+//    $query->andWhere(['inv.bill_no' => ['202504-140437', '202504-140226']]);
+//    $query->limit(10);
+
+
 
     $idx = 1;
 
-    $total = ['sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum0' => 0, 'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax' => 0, 'sumCol16' => 0, 'sumTax20' => 0];
+    $total = [
+        'sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum7' => 0, 'sum5' => 0, 'sum0' => 0,
+        'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax7' => 0, 'tax5' => 0, 'tax' => 0,
+        'sumCol16' => 0, 'sumTax20' => 0
+    ];
 
     if ($query)
         foreach ($query->each() as $invoice) : ?>
@@ -149,10 +161,14 @@
                 <td><?= $sum_without_tax !== null && $taxRate == 20 ? $printSum($linesTax20) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
+                <td><?= $taxRate == 7 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
+                <td><?= $taxRate == 5 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 0 ? $printSum($sum_without_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 20 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 18 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td><?= $taxRate == 10 ? $printSum($sum_tax) : '&nbsp;' ?></td>
+                <td><?= $taxRate == 7 ? $printSum($sum_tax) : '&nbsp;' ?></td>
+                <td><?= $taxRate == 5 ? $printSum($sum_tax) : '&nbsp;' ?></td>
                 <td>&nbsp;</td>
                 <td><?= $sum_tax > 0 ? $printSum($linesSum16) : "" ?></td>
             </tr>
@@ -163,13 +179,17 @@
         <td colspan="14" align="right">Всего:</td>
         <td><?= $account->currency == 'RUB' ? " " : $printSum($sum) ?></td>
         <td><?= $printSum($total['sumAll']) ?></td>
-        <td><?= $printSum($total['sumTax20']) ?></td>
+        <td><?= $printSum($total['sum20']) ?></td>
         <td><?= $printSum($total['sum18']) ?></td>
         <td><?= $printSum($total['sum10']) ?></td>
+        <td><?= $printSum($total['sum7']) ?></td>
+        <td><?= $printSum($total['sum5']) ?></td>
         <td><?= $printSum($total['sum0']) ?></td>
         <td><?= $printSum($total['tax20']) ?></td>
         <td><?= $printSum($total['tax18']) ?></td>
         <td><?= $printSum($total['tax10']) ?></td>
+        <td><?= $printSum($total['tax7']) ?></td>
+        <td><?= $printSum($total['tax5']) ?></td>
         <td>&nbsp;</td>
         <td><?= $printSum($total['sumCol16']) ?></td>
     </tr>
