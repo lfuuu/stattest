@@ -3,6 +3,7 @@
 namespace app\classes\excel;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContragent;
 use app\models\filter\SaleBookFilter;
 use app\models\Invoice;
 use DateTime;
@@ -99,6 +100,7 @@ class BalanceSellToExcel extends Excel
                 'currency_code' => $currencyCode,
                 'payments_str' => $paymentsStr,
                 'sumTax' => $sumTax,
+                'tax_regime' => ClientContragent::$taxRegtimeTypes[$contragent->tax_regime],
                 'lineData' => $lineData,
             ];
         }
@@ -156,6 +158,8 @@ class BalanceSellToExcel extends Excel
             $l(25, $line, $lineData['tax7'] ? $p($lineData['tax7']) : '');
             $l(26, $line, $lineData['tax5'] ? $p($lineData['tax5']) : '');
             $l(27, $line, ($row['sumTax'] ?? 0) > 0 ? $p($row['sumTax']) : '');
+
+            $l(29, $line, $row['tax_regime']);
 
         }
     }
