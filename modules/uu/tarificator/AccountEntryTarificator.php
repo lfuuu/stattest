@@ -353,7 +353,7 @@ SQL;
             account_entry.id as account_entry_id, 
             account_entry.date_from as date, 
             account_tariff.client_account_id,
-            account_tariff.tariff_period_id
+            account_entry.tariff_period_id
         FROM
             {$accountEntryTableName} account_entry,
             {$accountTariffTableName} account_tariff
