@@ -111,6 +111,7 @@ class ClientSuperDao extends Singleton
                             'business_id' => $contract['business_id'],
                             'business_process_id' => $contract['business_process_id'],
                             'business_process_status_id' => $contract['business_process_status_id'],
+                            'organization_id' => (int)$contract['organization_id'],
                         ] + ($contragent['legal_type'] == ClientContragent::LEGAL_TYPE ? [
                             'inn' => $contragent['inn'],
                             'kpp' => $contragent['kpp'],
