@@ -20,6 +20,10 @@ $director = $organization->director;
 $accountant = $organization->accountant;
 
 $payerCompany = $document->getPayer();
+
+$isOsn = $payerCompany->getTaxRate() != 0;
+
+
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -136,7 +140,7 @@ $payerCompany = $document->getPayer();
             <td align="center"><b>Количество</b></td>
             <td align="center"><b>Единица измерения</b></td>
             <td align="center"><b>Стоимость,&nbsp;<?= $currencyWithoutValue; ?></b></td>
-            <?php if ($organization->isNotSimpleTaxSystem()): ?>
+            <?php if ($isOsn): ?>
                 <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
             <?php endif; ?>
             <?php if ($hasDiscount): ?>
@@ -144,7 +148,7 @@ $payerCompany = $document->getPayer();
             <?php endif; ?>
 
 
-            <?php if ($organization->isNotSimpleTaxSystem()): ?>
+            <?php if ($isOsn): ?>
                 <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
                 <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currencyWithoutValue; ?></b></td>
             <?php else: ?>
@@ -173,7 +177,7 @@ $payerCompany = $document->getPayer();
                     }
                     ?>
                 </td>
-                <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                <?php if ($isOsn): ?>
                     <td align="center"><?= Utils::round(round($line['sum_without_tax'] / $line['amount'], 2), 2); ?></td>
                     <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
                 <?php else: ?>
@@ -185,7 +189,7 @@ $payerCompany = $document->getPayer();
                     <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
                 <?php endif; ?>
 
-                <?php if ($organization->isNotSimpleTaxSystem()): ?>
+                <?php if ($isOsn): ?>
                     <td align="center"><?= ($document->bill->clientAccount->getTaxRate() ? Utils::round($line['sum_tax'], 2) : 'без НДС'); ?></td>
                     <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                 <?php else: ?>
@@ -206,7 +210,7 @@ $payerCompany = $document->getPayer();
         </td>
 
         <?php if (!$isCurrentStatement) : ?>
-            <?php if ($organization->isNotSimpleTaxSystem()): ?>
+            <?php if ($isOsn): ?>
                 <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
                 <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
                 <td align="center"><?= Utils::round($document->sum, 2); ?></td>
@@ -218,7 +222,7 @@ $payerCompany = $document->getPayer();
         <?php endif; ?>
     </tr>
 
-    <?php if (!$isCurrentStatement && !$organization->isNotSimpleTaxSystem()): ?>
+    <?php if (!$isCurrentStatement && !$isOsn): ?>
         <tr>
             <td colspan="<?= $hasDiscount ? '6' : '5' ?>" align="right">
                 <div style="padding-top: 3px; height: 15px;">
@@ -247,7 +251,7 @@ $payerCompany = $document->getPayer();
     </i>
 </p>
 
-<?php if (false && !$organization->isNotSimpleTaxSystem()): ?>
+<?php if (false && !$isOsn): ?>
     <p align="center">
         <b>
             *НДС не облагается: Упрощенная система налогообложения, ст. 346.11 НК РФ.
