@@ -886,6 +886,14 @@ class Invoice extends ActiveRecord
         }
     }
 
+    public function afterFind()
+    {
+        if ($this->invoice_date) {
+            $this->date = $this->invoice_date;
+        }
+        parent::afterFind();
+    }
+
     public function getLink()
     {
         return Url::to(['/',
