@@ -82,7 +82,12 @@
                         continue;
                     }
                     if ($line->line->id_service) {
-                        if ($line->line->accountTariff->service_type_id != ServiceType::ID_VPBX) {
+                        if (
+                            ($filter->is_register_vp && in_array($line->line->accountTariff->service_type_id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP]))
+                            || ($filter->is_register && $line->line->accountTariff->service_type_id = ServiceType::ID_VPBX)
+                        ) {
+                            // pass
+                        } else {
                             continue;
                         }
                     }

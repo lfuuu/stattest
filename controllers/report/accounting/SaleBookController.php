@@ -59,7 +59,10 @@ class SaleBookController extends BaseController
                     $excel->download('Sale book');
                 } elseif ($filter->is_register) {
                     $excel = new BalancesellToExcelRegister(['filter' => $filter]);
-                    $excel->download('Реестр');
+                    $excel->download('Реестр МСН Телеком');
+                } elseif ($filter->is_register_vp) {
+                    $excel = new BalancesellToExcelRegister(['filter' => $filter, 'is_register_vp' => true]);
+                    $excel->download('Реестр Абонент Сервис');
                 } else {
                     $excel = new BalanceSellToExcel(['filter' => $filter]);
                     $excel->download('Книга продаж');
