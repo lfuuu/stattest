@@ -42,6 +42,11 @@ class CoreLkContragentTypeLegal extends CoreLkContragentTypeDefault
         $contragent->fio = $contragent->fioV = $data['management']['name'] ?? null;
         $contragent->post_address_filial = $this->coreLkContragent->getAddressPostFilial();
 
+        $taxRegime = $this->coreLkContragent->getTaxRegime();
+        if ($taxRegime) {
+            $contragent->tax_regime = $taxRegime;
+        }
+
         $position = $data['management']['post'] ?? '';
 
         if ($position) {

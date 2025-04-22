@@ -40,6 +40,11 @@ class CoreLkContragentTypeIp extends CoreLkContragentTypeDefault
         }
 //        $contragent->opf_id = CodeOpf::IP; // @TODO
 
+        $taxRegime = $lkContragent->getTaxRegime();
+        if ($taxRegime) {
+            $contragent->tax_regime = $taxRegime;
+        }
+
         $m = preg_split('/\s+/', trim($contragent->name));
 
         $person = new ClientContragentPerson();

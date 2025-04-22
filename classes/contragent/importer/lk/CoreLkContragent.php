@@ -73,6 +73,22 @@ class CoreLkContragent
         return (string)$this->row['address'];
     }
 
+    public function getTaxRegime(): ?string
+    {
+        $ts = $this->row['tax_system'];
+        if (!$ts || $ts == 'null') {
+            return null;
+        }
+
+        switch ($ts) {
+            case 'OSN': return  ClientContragent::TAX_REGTIME_OCH_VAT18;
+            case 'AUSN':
+            case 'ESHN':
+            case 'USN': return  ClientContragent::TAX_REGTIME_YCH_VAT0;
+            default: return null;
+        }
+    }
+
     public function setStatContragent(ClientContragent $contragent)
     {
         $this->statContragent = $contragent;

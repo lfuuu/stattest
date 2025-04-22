@@ -102,6 +102,7 @@ class ClientContragent extends HistoryActiveRecord
         'sale_channel_id',
         'partner_contract_id',
         'branch_code',
+        'tax_regime',
     ];
 
 
