@@ -51,7 +51,8 @@ class SaleBookFilter extends Invoice
         $currency = Currency::RUB,
         $is_euro_format = 0,
         $is_excel_eu_bmd = 0,
-        $is_register = 0;
+        $is_register = 0,
+        $is_register_vp = 0;
 
     public function __construct()
     {
@@ -66,7 +67,7 @@ class SaleBookFilter extends Invoice
     {
         return [
             [['date_from', 'date_to', 'organization_id', /*'filter', */ 'currency'], 'required'],
-            [['is_euro_format', 'is_euro_format_bmd', 'is_register'], 'integer'],
+            [['is_euro_format', 'is_euro_format_bmd', 'is_register', 'is_register_vp'], 'integer'],
             [['date_from', 'date_to'], 'date'],
             [['organization_id'], 'in', 'range' => array_keys(Organization::dao()->getList())],
 //            ['filter', 'in', 'range' => array_keys(self::$filters)],
@@ -78,7 +79,8 @@ class SaleBookFilter extends Invoice
         return parent::attributeLabels() + [
                 'is_euro_format' => 'ЕвроФормат',
                 'is_euro_format_bmd' => 'ЕвроФормат (BMD)',
-                'is_register' => 'Реестр',
+                'is_register' => 'Реестр МСН Телеком (ВАТС)',
+                'is_register_vp' => 'Реестр АбСервис (ВАТС+ТелСистема)',
             ];
     }
 

@@ -24,7 +24,8 @@ class BalancesellToExcelRegister extends Excel
         $dateFrom,
         $dateTo,
         $filter,
-        $skipping_bps;
+        $skipping_bps,
+        $is_register_vp;
 
 
     public function init()
@@ -69,11 +70,19 @@ class BalancesellToExcelRegister extends Excel
 
             $sum16 = 0;
             foreach($invoice->lines as $line) {
-                if (!($line->date_to <= (new DateTimeImmutable($this->dateTo))->format(DateTimeZoneHelper::DATE_FORMAT) && $line->date_from >= (new DateTimeImmutable($this->dateFrom))->format(DateTimeZoneHelper::DATE_FORMAT))){
+                if (
+                    !($line->date_to <= (new DateTimeImmutable($this->dateTo))->format(DateTimeZoneHelper::DATE_FORMAT)
+                    && $line->date_from >= (new DateTimeImmutable($this->dateFrom))->format(DateTimeZoneHelper::DATE_FORMAT))
+                ) {
                     continue;
                 }
                 if ($line->line->id_service) {
-                    if ($line->line->accountTariff->service_type_id != ServiceType::ID_VPBX) {
+                    if (
+                        ($this->filter->is_register_vp && in_array($line->line->accountTariff->service_type_id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP]))
+                        || ($this->filter->is_register && $line->line->accountTariff->service_type_id = ServiceType::ID_VPBX)
+                    ) {
+                        // pass
+                    } else {
                         continue;
                     }
                 }

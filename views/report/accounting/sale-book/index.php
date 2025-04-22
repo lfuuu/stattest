@@ -31,6 +31,9 @@ $printSum = function ($sum, $len = 2) {
         <div class="col-sm-1">
             <?=\app\classes\Html::activeCheckbox($filter, 'is_register')?>
         </div>
+        <div class="col-sm-1">
+            <?=\app\classes\Html::activeCheckbox($filter, 'is_register_vp')?>
+        </div>
     </div>
 
     <div class="row">
@@ -71,7 +74,9 @@ $printSum = function ($sum, $len = 2) {
             <input type="submit" value="Показать" class="btn btn-primary" name="do"/>
 </form>
 
-<?=$this->render(($filter->is_register ? 'register' : ($filter->is_euro_format ? 'format_eu' : 'format_ru')), ['filter' => $filter, 'printSum' => $printSum])?>
+<?=$this->render(($filter->is_register || $filter->is_register_vp ? 'register' :
+                ($filter->is_euro_format ? 'format_eu' :
+                    'format_ru')), ['filter' => $filter, 'printSum' => $printSum])?>
 
 <script type="text/javascript">
   optools.DatePickerInit();
