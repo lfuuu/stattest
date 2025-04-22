@@ -15,6 +15,7 @@ use app\models\InvoiceSettings;
 use app\models\Organization;
 use yii\base\NotSupportedException;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 class SaleBookFilter extends Invoice
 {
@@ -108,15 +109,20 @@ class SaleBookFilter extends Invoice
             ->where([
                 'inv.organization_id' => $this->organization_id,
             ])
-            ->andWhere(['OR', ['between',
-                'inv.date',
+//            ->andWhere(['OR', ['between',
+//                'inv.date',
+//                $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+//                $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+//            ], ['between',
+//                'inv.invoice_date',
+//                $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+//                $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+//            ]])
+            ->andWhere(['between',
+                (new Expression('COALESCE(inv.invoice_date, inv.date)')),
                 $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                 $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-            ], ['between',
-                'inv.invoice_date',
-                $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-            ]])
+            ])
             ->andWhere(['NOT', ['number' => null]])
             ->orderBy([
                 'inv.idx' => SORT_ASC,
