@@ -70,14 +70,15 @@ class BalanceSellToExcel extends Excel
 
             $sumTax = 0;
 
-            $lineData = [];
+            $lineData = [
+                'sum20' => 0, 'tax20' => 0,
+                'sum18' => 0, 'tax18' => 0,
+                'sum10' => 0, 'tax10' => 0,
+                'sum7' => 0, 'tax7' => 0,
+                'sum5' => 0, 'tax5' => 0,
+                'sum0' => 0, 'tax0' => 0,
+                ];
             foreach($invoice->lines as $line) {
-
-                if (!isset($lineData['sum' . $line->tax_rate])) {
-                    $lineData['sum' . $line->tax_rate] = 0;
-                    $lineData['tax' . $line->tax_rate] = 0;
-                }
-
                 $sumTax += $line->tax_rate > 0 ? $line['sum'] : 0;
 
                 $lineData['sum' . $line->tax_rate] += $line->sum_without_tax;

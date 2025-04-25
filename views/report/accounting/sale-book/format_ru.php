@@ -120,7 +120,14 @@
 
                 $linesSum16 = 0;
                 $linesTax20 = 0;
-                $linesData = ['sumCol16' => 0];
+                $linesData = ['sumCol16' => 0,
+                    'sum20' => 0, 'tax20' => 0,
+                    'sum18' => 0, 'tax18' => 0,
+                    'sum10' => 0, 'tax10' => 0,
+                    'sum7' => 0, 'tax7' => 0,
+                    'sum5' => 0, 'tax5' => 0,
+                    'sum0' => 0, 'tax0' => 0,
+                    ];
                 foreach ($invoice->lines as $line) {
                     if ($line->sum < 0) {
                         continue;
