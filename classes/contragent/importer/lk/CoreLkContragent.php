@@ -25,7 +25,11 @@ class CoreLkContragent
 
         if ($this->row['opf'] == CoreLkContragentTypeDefault::OPF_IP || strpos($name, 'ИП ') === 0) {
             return CoreLkContragentTypeDefault::ORG_TYPE_INDIVIDUAL;
-        };
+        }
+
+        if ($this->row['opf'] == CoreLkContragentTypeDefault::OPF_OOO) {
+            return CoreLkContragentTypeDefault::ORG_TYPE_LEGAL;
+        }
 
         if ($this->row['org_type'] == CoreLkContragentTypeDefault::ORG_TYPE_BUSINESS) {
             switch ($this->row['legal_type']) {
