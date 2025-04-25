@@ -77,7 +77,11 @@ class CoreLkContragent
     {
         $ts = $this->row['tax_system'];
         if (!$ts || $ts == 'null') {
-            return null;
+            if ($this->getOrgType() == CoreLkContragentTypeDefault::ORG_TYPE_LEGAL) {
+                return ClientContragent::TAX_REGTIME_OCH_VAT18; // В LK tax_system = NULL значит общая система налога (Для юриков)
+            } else {
+                return null;
+            }
         }
 
         switch ($ts) {
