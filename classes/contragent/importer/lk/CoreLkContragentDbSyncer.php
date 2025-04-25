@@ -19,7 +19,7 @@ class CoreLkContragentDbSyncer
             return false;
         }
 
-        $rowLk = \Yii::$app->dbPgLk->createCommand('select * from contragent where contragent_id = :id', ['id' => $this->contragentId])->queryOne();
+        $rowLk = \Yii::$app->dbPgLk->createCommand('select * from public.contragent where contragent_id = :id', ['id' => $this->contragentId])->queryOne();
 
         if (!$rowLk) {
             return false;
