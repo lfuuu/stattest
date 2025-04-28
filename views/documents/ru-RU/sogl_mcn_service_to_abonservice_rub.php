@@ -22,9 +22,9 @@ $contragent = $contract->contragent;
 /** @var ClientContractAdditionalAgreement $info */
 $info = ClientContractAdditionalAgreement::find()->where([
     'account_id' => $account->id,
-    'from_organization_id' => Organization::MCN_TELECOM_SERVICE,
-    'to_organization_id' => Organization::AB_SERVICE_MARCOMNET,
-    // 'transfer_date' => $document->bill->bill_date,
+//    'from_organization_id' => Organization::MCN_TELECOM_SERVICE,
+//    'to_organization_id' => Organization::AB_SERVICE_MARCOMNET,
+    'transfer_date' => $document->bill->bill_date,
 ])->one();
 
 if (!$info) {
@@ -40,8 +40,8 @@ $documentDateStr =
     \app\classes\DateFunction::mdate($documentDateTs, 'месяца Y г.');
 
 
-$organizationService = Organization::find()->byId(Organization::MCN_TELECOM_SERVICE)->actual()->one(); //Сервис
-$organizationAbonService = Organization::find()->byId(Organization::AB_SERVICE_MARCOMNET)->actual()->one(); //АбонСервисе
+$organizationService = Organization::find()->byId($info->from_organization_id)->actual()->one(); //Сервис
+$organizationAbonService = Organization::find()->byId($info->to_organization_id)->actual()->one(); //АбонСервисе
 
 $director_service = $organizationService->director;
 $director_abonservice = $organizationAbonService->director;
