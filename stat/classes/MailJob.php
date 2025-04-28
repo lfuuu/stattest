@@ -183,7 +183,9 @@ class MailJob {
                     $this->get_object_link('sogl_mcn_telekom_to_service', $this->client['id'], 2, true);
             }
 
-            case 'SOGL_MCNSERVICETOABONSERV': {
+            case 'SOGL_MCNSERVICETOABONSERV':
+            case 'SOGL_ABONSERVTOMCNTELEKOM':
+            {
                 return
                     'Соглашение о передаче прав и обязанностей по договору №' .
                     BillContract::getString($this->client['contract_id'], time()) . ': ' .
