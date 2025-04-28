@@ -418,6 +418,7 @@ class MailJob {
         $text = preg_replace_callback('/%(SOGL_MCNSERVICE)%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCNTELEKOMTOSERVICE)%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCNSERVICETOABONSERV)%/',array($this,'_get_assignments'),$text);
+        $text = preg_replace_callback('/%(SOGL_ABONSERVTOMCNTELEKOM)%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}
