@@ -74,8 +74,13 @@ abstract class DocumentReport extends BaseObject
     {
         return self::TEMPLATE_PATH .
             $this->getLanguage() . '/' .
-            $this->getDocType() .
+            $this->getDocTypeFileName() .
             ($this->isMultiCurrencyDocument ? '' : '_' . mb_strtolower($this->getCurrency(), 'UTF-8'));
+    }
+
+    public function getDocTypeFileName()
+    {
+        return $this->getDocType();
     }
 
     /**

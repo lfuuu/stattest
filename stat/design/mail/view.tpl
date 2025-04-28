@@ -26,6 +26,7 @@
 <a href='#' onclick='form.body.value+="\n%SOGL_MCNSERVICE%";return false;'>Соглашение о передаче прав (МСН Телеком Ритейл => МСН Телеком Сервис)</a><br>
 <a href='#' onclick='form.body.value+="\n%SOGL_MCNTELEKOMTOSERVICE%";return false;'>Соглашение о передаче прав (МСН Телеком => МСН Телеком Сервис)</a><br>
 <a href='#' onclick='form.body.value+="\n%SOGL_MCNSERVICETOABONSERV%";return false;'>Соглашение о передаче прав (МСН Телеком Сервис => АбонСервис)</a><br>
+<a href='#' onclick='form.body.value+="\n%SOGL_ABONSERVTOMCNTELEKOM%";return false;'>Соглашение о передаче прав (АбонСервис => МСН Телеком)</a><br>
 <a href='#' onclick='form.body.value+="\n%APDFBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>счета клиента за месяц в PDF</a><br><br>
 <a href='#' onclick='form.body.value+="\n%UPDFBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные(красные) в PDF</a><br><br>
 <a href='#' onclick='form.body.value+="\n%PPDFBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью(желтые) в PDF</a><br><br>
