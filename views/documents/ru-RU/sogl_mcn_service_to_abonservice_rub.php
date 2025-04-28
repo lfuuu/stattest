@@ -24,8 +24,8 @@ $info = ClientContractAdditionalAgreement::find()->where([
     'account_id' => $account->id,
 //    'from_organization_id' => Organization::MCN_TELECOM_SERVICE,
 //    'to_organization_id' => Organization::AB_SERVICE_MARCOMNET,
-    'transfer_date' => $document->bill->bill_date,
-])->one();
+//    'transfer_date' => $document->bill->bill_date,
+])->orderBy(['transfer_date' => SORT_DESC])->one();
 
 if (!$info) {
     return;
@@ -40,7 +40,9 @@ $documentDateStr =
     \app\classes\DateFunction::mdate($documentDateTs, 'месяца Y г.');
 
 
+/** @var Organization $organizationService */
 $organizationService = Organization::find()->byId($info->from_organization_id)->actual()->one(); //Сервис
+/** @var Organization $organizationAbonService */
 $organizationAbonService = Organization::find()->byId($info->to_organization_id)->actual()->one(); //АбонСервисе
 
 $director_service = $organizationService->director;
@@ -91,7 +93,7 @@ $isWithStamp = $isPdf;
 <div class="Section1">
     <p style="<?= $fsStyle ?>text-align: center;" align="center">Соглашение о передаче прав и обязанностей</p>
     <p style="<?= $fsStyle ?>text-align: center;" align="center">по
-        Договору между <?= $organizationService->name ?> и <?= $contragent->name_full ?> №<?= $contractNumber ?></p>
+        Договору между <?= $organizationService->name ?><br> и <?= $contragent->name_full ?> №<?= $contractNumber ?></p>
     <table border="0" width="100%">
         <tr>
             <td style="text-align: justify;<?= $fsStyle ?>">
@@ -103,10 +105,10 @@ $isWithStamp = $isPdf;
         </tr>
     </table>
     <p style="<?= $fsStyle ?>text-align: justify; text-indent: 35.0pt;">
-        <?= $organizationService->name ?> в лице Генерального директора Кима А.Г.,
+        <?= $organizationService->name ?> в лице Генерального директора <?= $organizationService->director->name_genitive ?>
         действующего на основании Устава, с
         одной стороны, и <?= $organizationAbonService->name ?> в лице Генерального
-        директора Бирюковой Н. В.,
+        директора <?= $organizationAbonService->director->name_genitive ?>,
         действующей на основании Устава, с другой стороны, при совместном упоминании именуемые Стороны, заключили
         настоящее Соглашение (далее - «Соглашение») о передаче прав и обязанностей по Договору
         между <?= $organizationService->name ?>
@@ -160,10 +162,10 @@ $isWithStamp = $isPdf;
                 <br><br><br></td>
             <td><?php if ($isWithStamp && MediaFileHelper::checkExists('SIGNATURE_DIR', $director_service->signature_file_name)):
                     $image_options = [
-                        'width' => 140,
+                        'width' => 170,
                         'border' => 0,
                         'align' => 'bottom',
-                        'style' => 'position:relative; left:-50px; margin-top: -60px;',
+                        'style' => 'position:relative; left:-80px; margin-top: -60px;',
                     ];
 
                     if ($inline_img):
@@ -226,9 +228,9 @@ $isWithStamp = $isPdf;
                 <br><?= $organizationAbonService->director ?><br><br><br></td>
             <td><?php if ($isWithStamp && MediaFileHelper::checkExists('SIGNATURE_DIR', $director_abonservice->signature_file_name)):
                     $image_options = [
-                        'width' => 140,
+                        'width' => 170,
                         'border' => 0,
-                        'style' => 'position:relative; margin-top: -30px; left: -30px; vertical-align: middle'
+                        'style' => 'position:relative; margin-top: -30px; left: -80px; vertical-align: middle'
                     ];
 
                     if ($inline_img):
@@ -245,7 +247,7 @@ $isWithStamp = $isPdf;
 
                 <?php if ($isWithStamp && MediaFileHelper::checkExists('STAMP_DIR', $organizationAbonService->stamp_file_name)):
                     $image_options = [
-                        'width' => 140,
+                        'width' => 170,
                         'border' => 0,
                         //'style' => 'position:absolute; margin-top: -90px; left: 480px; vertical-align: middle',
                         'style' => 'float: left; margin: -1.5cm 0 0 0.5cm;'

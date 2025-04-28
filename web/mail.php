@@ -59,13 +59,13 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
             (isset($R['obect_type']) && in_array($R['object_type'], ['sogl_mcn_service', 'sogl_mcn_telekom_to_service', 'sogl_mcn_service_to_abonservice']))
             || (isset($R['obj']) && in_array($R['obj'], ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'sogl_mcn_service', 'sogl_mcn_telekom_to_service', 'sogl_mcn_service_to_abonservice']))
         ) {
-            $bill = Bill::find()->where(['client_id' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
+            $bill = Bill::find()->where(['client_id' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->limit(1)->one();
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
             header('Content-Type: application/pdf');
             echo $report->renderAsPDF();
         } else {
             /** @var Bill $bill */
-            $bill = Bill::find()->where(['bill_no' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
+            $bill = Bill::find()->where(['bill_no' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->limit(1)->one();
 
 
             $addWhere = [];
