@@ -366,10 +366,18 @@ SQL;
         $tariffAgentRates = $this->getTariffAgentTaxRates();
 
         $query = $db->createCommand($selectSql)->query();
+
+        $countAll = $query->count();
+
         $clientCache = []; // [client_account_id => ClientAccount]
         $clientDateVatCache = []; // [{client_account_id}_{date} => VAT]
         $organisationAgentCache = [];
+        $count = 0;
         foreach ($query as $row) {
+            if (($count % 100) == 0) {
+                echo "\r[ " . str_pad($count . ' / ' . $countAll . ' => ' . round($count / ($countAll / 100)) . '% ', 30, '.') . ']';
+            }
+            $count++;
             $vatRate = null;
 
             // В тарифе установлен агентский НДС
@@ -464,10 +472,45 @@ SQL;
             AND tariff_period.tariff_id = tariff.id
             {$sqlAndWhere}
 SQL;
+//            $db->createCommand($updateSql)
+//                ->execute();
+            unset($updateSql);
+        }
+
+
+        $updateSql = <<<SQL
+UPDATE
+    (
+        {$accountEntryTableName} account_entry,
+            {$tariffPeriodTableName} tariff_period,
+            {$tariffTableName} tariff
+        )
+        LEFT JOIN
+        {$tariffResourceTableName} tariff_resource
+        ON account_entry.type_id = tariff_resource.id
+SET account_entry.price_without_vat = IF(
+        tariff.is_include_vat,
+        round(account_entry.price * 100 / (100 + account_entry.vat_rate), 4),
+        account_entry.price
+    )
+WHERE account_entry.vat_rate IS NOT NULL
+  AND account_entry.tariff_period_id = tariff_period.id
+  AND tariff_period.tariff_id = tariff.id
+  and account_entry.date >= '2025-01-01'
+  and (
+        account_entry.price_without_vat IS NULL
+            OR account_entry.price_without_vat != IF(
+                tariff.is_include_vat,
+                round(account_entry.price * 100 / (100 + account_entry.vat_rate), 4),
+                account_entry.price
+            )
+    )
+    {$sqlAndWhere}
+SQL;
+
             $db->createCommand($updateSql)
                 ->execute();
             unset($updateSql);
-        }
 
 
         // посчитать НДС и цену с НДС для юр.лиц
@@ -480,6 +523,7 @@ SQL;
             price_with_vat = price_without_vat * (100 + vat_rate) / 100
         WHERE
             price_without_vat IS NOT NULL
+            and account_entry.date >= '2025-01-01'
             {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql)
