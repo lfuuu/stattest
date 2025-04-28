@@ -1321,6 +1321,7 @@ SQL;
                 // сумму меняем только для новых, или принудительно
                 if (
                     abs((float)$invoice->sum - $sum) > 0.001
+                    || abs((float)$invoice->sum_tax - $sumData['sum_tax']) > 0.001
                     || $invoice->isAsInsert
                 ) {
                     $invoice->sum = $sum;
@@ -1337,7 +1338,8 @@ SQL;
                     if ($invoice->is_act) {
                         $filePath = $invoice->getFilePath(BillDocument::TYPE_ACT);
                         if (file_exists($filePath)) {
-                            unlink($filePath);
+                            rename($filePath, $filePath.'.unlinked');
+//                            unlink($filePath);
                         }
                         EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_ACT]);
                     }
@@ -1345,7 +1347,8 @@ SQL;
                     if ($invoice->is_invoice) {
                         $filePath = $invoice->getFilePath(BillDocument::TYPE_INVOICE);
                         if (file_exists($filePath)) {
-                            unlink($filePath);
+                            rename($filePath, $filePath.'.unlinked');
+//                            unlink($filePath);
                         }
                         EventQueue::go(EventQueue::INVOICE_GENERATE_PDF, ['id' => $invoice->id, 'document' => BillDocument::TYPE_INVOICE]);
                     }
