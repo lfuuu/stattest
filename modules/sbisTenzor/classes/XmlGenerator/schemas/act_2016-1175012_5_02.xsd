@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1251" ?>
 <!-- created by  Sbis 3.0 -->
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:usch="http://www.unisoftware.ru/schematron-extensions" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:usch="http://www.unisoftware.ru/schematron-extensions" xmlns:xs="http://www.w3.org/2001/XMLSchema">                                    
 
   <xs:element name="Файл">
     <xs:complexType>
@@ -47,9 +47,9 @@
             <xs:attribute name="ИдОтпр" use="required">
               <xs:annotation>
                 <xs:documentation>Значение элемента представляется в виде ИдОЭДОСФКодПрод(Пок), где:
-                  ИдОЭДОСФ - идентификатор оператора электронного оборота счетов-фактур и первичных документов (оператор ЭДО СФ) - символьный трехзначный код. При включении оператора ЭДО СФ в сеть доверенных операторов ЭДО СФ ФНС России, идентификатор присваивается ФНС России;
-                  КодПрод(Пок) - код продавца (покупателя) - уникальный код участника, присваиваемый оператором ЭДО СФ, длина кода продавца (покупателя) не более 43 символов.
-                  При направлении</xs:documentation>
+ИдОЭДОСФ - идентификатор оператора электронного оборота счетов-фактур и первичных документов (оператор ЭДО СФ) - символьный трехзначный код. При включении оператора ЭДО СФ в сеть доверенных операторов ЭДО СФ ФНС России, идентификатор присваивается ФНС России;
+КодПрод(Пок) - код продавца (покупателя) - уникальный код участника, присваиваемый оператором ЭДО СФ, длина кода продавца (покупателя) не более 43 символов.
+При направлении</xs:documentation>
               </xs:annotation>
               <xs:simpleType>
                 <xs:restriction base="xs:string">
@@ -61,9 +61,9 @@
             <xs:attribute name="ИдПол" use="required">
               <xs:annotation>
                 <xs:documentation>Значение элемента представляется в виде ИдОЭДОСФКодПрод(Пок), где:
-                  ИдОЭДОСФ - идентификатор оператора электронного оборота счетов-фактур и первичных документов (оператор ЭДО СФ) - символьный трехзначный код. При включении оператора ЭДО СФ в сеть доверенных операторов ЭДО СФ ФНС России, идентификатор присваивается ФНС России;
-                  КодПрод(Пок) - код продавца (покупателя) - уникальный код участника, присваиваемый оператором ЭДО СФ, длина кода продавца (покупателя) не более 43 символов.
-                  При направлении</xs:documentation>
+ИдОЭДОСФ - идентификатор оператора электронного оборота счетов-фактур и первичных документов (оператор ЭДО СФ) - символьный трехзначный код. При включении оператора ЭДО СФ в сеть доверенных операторов ЭДО СФ ФНС России, идентификатор присваивается ФНС России;
+КодПрод(Пок) - код продавца (покупателя) - уникальный код участника, присваиваемый оператором ЭДО СФ, длина кода продавца (покупателя) не более 43 символов.
+При направлении</xs:documentation>
               </xs:annotation>
               <xs:simpleType>
                 <xs:restriction base="xs:string">
@@ -121,7 +121,7 @@
                             <xs:restriction base="xs:string">
                               <xs:maxLength value="10"/>
                               <xs:minLength value="10"/>
-                              <xs:pattern value="[0-9\-\.]{4,10}"/>
+                              <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                             </xs:restriction>
                           </xs:simpleType>
                         </xs:attribute>
@@ -144,7 +144,7 @@
                             <xs:restriction base="xs:string">
                               <xs:maxLength value="10"/>
                               <xs:minLength value="10"/>
-                              <xs:pattern value="[0-9\-\.]{4,10}"/>
+                              <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                             </xs:restriction>
                           </xs:simpleType>
                         </xs:attribute>
@@ -167,7 +167,7 @@
                         <xs:attribute name="НаимОКВ" use="required">
                           <xs:annotation>
                             <xs:documentation>Наименование согласно Общероссийсскому классификатору валют (ОКВ).
-                              Формируется автоматически согласно указанному коду валюты</xs:documentation>
+																	Формируется автоматически согласно указанному коду валюты</xs:documentation>
                           </xs:annotation>
                           <xs:simpleType>
                             <xs:restriction base="xs:string">
@@ -1017,7 +1017,7 @@
                                   <xs:restriction base="xs:string">
                                     <xs:maxLength value="10"/>
                                     <xs:minLength value="10"/>
-                                    <xs:pattern value="[0-9\-\.]{4,10}"/>
+                                    <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                                   </xs:restriction>
                                 </xs:simpleType>
                               </xs:attribute>
@@ -1122,7 +1122,16 @@
                                     <xs:attribute name="НаимЕдИзм" use="optional">
                                       <xs:annotation>
                                         <xs:documentation>Формируется автоматически в соответствии с указанным ОКЕИ.
-                                          При ОКЕИ=0000 автоматическое формирование наименования единицы измерения не производится, наименование единицы измерения указывается пользователем</xs:documentation>
+При ОКЕИ=0000 автоматическое формирование наименования единицы измерения не производится, наименование единицы измерения указывается пользователем</xs:documentation>
+                                        <xs:appinfo>
+                                          <sch:pattern>
+                                            <sch:rule>
+                                              <sch:assert test="@ОКЕИ">
+                                                <usch:error>0001.950.611</usch:error>
+                                              </sch:assert>
+                                            </sch:rule>
+                                          </sch:pattern>
+                                        </xs:appinfo>
                                       </xs:annotation>
                                       <xs:simpleType>
                                         <xs:restriction base="xs:string">
@@ -1134,14 +1143,12 @@
                                     <xs:attribute name="ОКЕИ" use="optional">
                                       <xs:annotation>
                                         <xs:documentation>Обязателен при наличии НаимРабот.
-                                          Код единицы измерения по ОКЕИ или "0000" (при отсутствии необходимой единицы измерения в ОКЕИ).
-                                          В случае указания ОКЕИ=0000 наименование единицы измерения определяется пользователем</xs:documentation>
+																				Код единицы измерения по ОКЕИ или "0000" (при отсутствии необходимой единицы измерения в ОКЕИ).
+				В случае указания ОКЕИ=0000 наименование единицы измерения определяется пользователем</xs:documentation>
                                         <xs:appinfo>
                                           <sch:pattern>
                                             <sch:rule>
-                                              <sch:assert test="@НаимРабот">
-                                                <usch:error>0001.950.43</usch:error>
-                                              </sch:assert>
+                                              <sch:assert test="@НаимРабот"/>
                                             </sch:rule>
                                           </sch:pattern>
                                         </xs:appinfo>
@@ -1204,8 +1211,15 @@
                                           <xs:enumeration value="10/110"/>
                                           <xs:enumeration value="18/118"/>
                                           <xs:enumeration value="без НДС"/>
+                                          <xs:enumeration value="НДС исчисляется налоговым агентом"/>
                                           <xs:enumeration value="20%"/>
                                           <xs:enumeration value="20/120"/>
+                                          <xs:enumeration value="5%"/>
+                                          <xs:enumeration value="7%"/>
+                                          <xs:enumeration value="5/105"/>
+                                          <xs:enumeration value="7/107"/>
+                                          <xs:enumeration value="9.09%"/>
+                                          <xs:enumeration value="16.67%"/>
                                         </xs:restriction>
                                       </xs:simpleType>
                                     </xs:attribute>
@@ -1267,7 +1281,7 @@
                                   <xs:restriction base="xs:string">
                                     <xs:maxLength value="10"/>
                                     <xs:minLength value="10"/>
-                                    <xs:pattern value="[0-9\-\.]{4,10}"/>
+                                    <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                                   </xs:restriction>
                                 </xs:simpleType>
                               </xs:attribute>
@@ -1276,7 +1290,7 @@
                                   <xs:restriction base="xs:string">
                                     <xs:maxLength value="10"/>
                                     <xs:minLength value="10"/>
-                                    <xs:pattern value="[0-9\-\.]{4,10}"/>
+                                    <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                                   </xs:restriction>
                                 </xs:simpleType>
                               </xs:attribute>
@@ -1343,8 +1357,8 @@
                               </xs:sequence>
                               <xs:attribute name="ИдФайлИнфПол" use="optional">
                                 <xs:annotation>
-                                  <xs:documentation>GUID.
-                                    Указывается идентификатор файла, связанного со сведениями данного электронного документа</xs:documentation>
+                                  <xs:documentation>GUID. 
+														Указывается идентификатор файла, связанного со сведениями данного электронного документа</xs:documentation>
                                 </xs:annotation>
                                 <xs:simpleType>
                                   <xs:restriction base="xs:string">
@@ -1382,7 +1396,7 @@
                             <xs:restriction base="xs:string">
                               <xs:maxLength value="10"/>
                               <xs:minLength value="10"/>
-                              <xs:pattern value="[0-9\-\.]{4,10}"/>
+                              <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                             </xs:restriction>
                           </xs:simpleType>
                         </xs:attribute>
@@ -1436,7 +1450,7 @@
                       <xs:restriction base="xs:string">
                         <xs:maxLength value="10"/>
                         <xs:minLength value="10"/>
-                        <xs:pattern value="[0-9\-\.]{4,10}"/>
+                        <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                       </xs:restriction>
                     </xs:simpleType>
                   </xs:attribute>
@@ -1634,9 +1648,9 @@
                   <xs:attribute name="ОблПолн" use="required">
                     <xs:annotation>
                       <xs:documentation>, где:
-                        1 - лицо, совершившее сделку, операцию;
-                        2 – лицо, совершившее сделку, операцию и ответственное за ее оформление;
-                        3 – лицо, ответственное за оформление свершившегося события</xs:documentation>
+1 - лицо, совершившее сделку, операцию; 
+2 – лицо, совершившее сделку, операцию и ответственное за ее оформление;
+3 – лицо, ответственное за оформление свершившегося события</xs:documentation>
                     </xs:annotation>
                     <xs:simpleType>
                       <xs:restriction base="xs:string">
@@ -1651,10 +1665,10 @@
                   <xs:attribute name="Статус" use="required">
                     <xs:annotation>
                       <xs:documentation>, где:
-                        1 - Работник организации - исполнителя работ (услуг);
-                        2 – Работник организации - составителя информации исполнителя;
-                        3 - Работник иной уполномоченной организации;
-                        4 - Уполномоченное физическое лицо (в том числе индивидуальный предприниматель)</xs:documentation>
+1 - Работник организации - исполнителя работ (услуг);
+2 – Работник организации - составителя информации исполнителя;
+3 - Работник иной уполномоченной организации;
+4 - Уполномоченное физическое лицо (в том числе индивидуальный предприниматель)</xs:documentation>
                     </xs:annotation>
                     <xs:simpleType>
                       <xs:restriction base="xs:string">
@@ -1669,8 +1683,8 @@
                   </xs:attribute>
                   <xs:attribute name="ОснПолнПодп" use="required">
                     <xs:annotation>
-                      <xs:documentation>Для Статус=1 или Статус=2 или Статус=3 указываются «Должностные обязанности» по умолчанию или иные основания полномочий (доверия).
-                        Для Статус=4 указываются основания полномочий (доверия)</xs:documentation>
+                      <xs:documentation>Для Статус=1 или Статус=2 или Статус=3 указываются «Должностные обязанности» по умолчанию или иные основания полномочий (доверия). 
+Для Статус=4 указываются основания полномочий (доверия)</xs:documentation>
                     </xs:annotation>
                     <xs:simpleType>
                       <xs:restriction base="xs:string">
@@ -1719,7 +1733,7 @@
                 <xs:restriction base="xs:string">
                   <xs:maxLength value="10"/>
                   <xs:minLength value="10"/>
-                  <xs:pattern value="[0-9\-\.]{4,10}"/>
+                  <xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(140[1-9]{1}|14[1-9]{1}[0-9]{1}|1[5-9]{1}[0-9]{2}|20[0-9]{2})"/>
                 </xs:restriction>
               </xs:simpleType>
             </xs:attribute>
@@ -1757,6 +1771,24 @@
       <xs:attribute name="ИдФайл" use="required">
         <xs:annotation>
           <xs:documentation>Содержит (повторяет) имя сформированного файла (без расширения и точки)</xs:documentation>
+          <xs:appinfo>
+            <sch:pattern>
+              <sch:rule>
+                <sch:assert test="contains(@ИдФайл, 'xml') = false">
+                  <usch:error>0001.60</usch:error>
+                </sch:assert>
+              </sch:rule>
+            </sch:pattern>
+          </xs:appinfo>
+          <xs:appinfo>
+            <sch:pattern>
+              <sch:rule>
+                <sch:assert test="upper-case(concat(@ИдФайл, '.xml')) = upper-case(current_file_name())">
+                  <usch:error>0001.400.10</usch:error>
+                </sch:assert>
+              </sch:rule>
+            </sch:pattern>
+          </xs:appinfo>
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
