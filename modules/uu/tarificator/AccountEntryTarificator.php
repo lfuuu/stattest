@@ -6,6 +6,7 @@ use app\classes\Connection;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\OperationType;
+use app\modules\uu\classes\helper\AccountTariffRunner;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -33,19 +34,13 @@ class AccountEntryTarificator extends Tarificator
         if ($accountTariffId) {
             $sectionCb($accountTariffId);
         } else {
-            $maxId = AccountTariff::find()->max('id');
-            echo PHP_EOL . $maxId;
-            $stepLen = self::STEP_BATCH;
-
-            for ($i = 0; $i <= $maxId + $stepLen; $i += $stepLen) {
-                echo "\r[ " . str_pad($i . ' / ' . $maxId . ' => ' . round($i / ($maxId / 100)) . '% ', 30, '.') . ']';
-                $this->isEcho = false;
-                $_accountTariffId = [($i + 1), ($i + $stepLen)];
-
+            $this->isEcho = false;
+            (new AccountTariffRunner())->run(function($fromAccountId, $toAccountId) use ($sectionCb) {
+                $_accountTariffId = [$fromAccountId, $toAccountId];
                 $sectionCb($_accountTariffId);
+            });
+            $this->isEcho = true;
 
-                $this->isEcho = true;
-            }
             echo PHP_EOL;
         }
     }
