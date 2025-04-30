@@ -4,6 +4,7 @@ namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\uu\classes\helper\AccountTariffRunner;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -138,8 +139,18 @@ class AccountLogResource extends ActiveRecord
      */
     public static function clearCalls($dateFromModify, $dateToModify)
     {
+        (new AccountTariffRunner())->run(function($fromId, $toId) use ($dateFromModify, $dateToModify) {
+            self::_clearCalls($dateFromModify, $dateToModify, $fromId, $toId);
+        });
+
+        return null;
+    }
+
+    private static function _clearCalls($dateFromModify, $dateToModify, $fromAccountTariffId, $toAccountTariffId)
+    {
         // сбросить кэш, чтобы биллер все пересчитал
-        AccountTariff::updateAll(['account_log_resource_utc' => null]);
+        $query = AccountTariff::getDb()->createCommand()->update(AccountTariff::tableName(), ['account_log_resource_utc' => null], ['between', 'id', $fromAccountTariffId, $toAccountTariffId]);
+        $query->execute();
 
         // удалить ресурсы
         $accountLogResourceTableName = AccountLogResource::tableName();
@@ -155,15 +166,18 @@ class AccountLogResource extends ActiveRecord
                 account_log_resource.tariff_resource_id = tariff_resource.id
                 AND tariff_resource.resource_id IN ({$resourceIdCalls})
                 AND account_log_resource.date_from BETWEEN :date_from AND :date_to
+                AND account_log_resource.account_tariff_id BETWEEN :account_tariff_id_from AND :account_tariff_id_to
 SQL;
 
-        return AccountLogResource::getDb()
+        $query = AccountLogResource::getDb()
             ->createCommand($sql, [
                 ':date_from' => (new \DateTime())->modify($dateFromModify)->format(DateTimeZoneHelper::DATE_FORMAT),
                 ':date_to' => (new \DateTime())->modify($dateToModify)->format(DateTimeZoneHelper::DATE_FORMAT),
-            ])
-            ->execute();
+                ':account_tariff_id_from' => $fromAccountTariffId,
+                ':account_tariff_id_to' => $toAccountTariffId,
+            ]);
 
+        return $query->execute();
     }
 
     /**
