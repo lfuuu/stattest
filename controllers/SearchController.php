@@ -7,6 +7,7 @@ use app\classes\DynamicModel;
 use app\classes\validators\FormFieldValidator;
 use app\models\Bank;
 use app\models\Bill;
+use app\models\BillExternal;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\GoodsIncomeOrder;
@@ -137,7 +138,38 @@ class SearchController extends BaseController
                     }
 
                     return $this->redirect($bill->getUrl());
+                } elseif ($extBill = BillExternal::find()
+                    ->where(['ext_bill_no' => trim($search)])
+                    ->orderBy(['bill_no' => SORT_DESC])->one()) {
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [
+                            [
+                                'url' => $extBill->bill->getUrl(),
+                                'value' => $extBill->bill_no,
+                                'type' => 'bill',
+                            ]
+                        ];
+                    }
+
+                    return $this->redirect($extBill->bill->getUrl());
+                } elseif ($extBill = BillExternal::find()
+                    ->where(['ext_invoice_no' => trim($search)])
+                    ->orderBy(['bill_no' => SORT_DESC])->one()) {
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [
+                            [
+                                'url' => $extBill->bill->getUrl(),
+                                'value' => $extBill->bill_no,
+                                'type' => 'bill',
+                            ]
+                        ];
+                    }
+
+                    return $this->redirect($extBill->bill->getUrl());
                 }
+
 
                 return $this->render('result', ['message' => 'Счет № ' . $search . ' не найден']);
 
@@ -204,7 +236,6 @@ class SearchController extends BaseController
                     ]);
                     return $this->render('roistat', ['dataProvider' => $dataProvider,]);
                 }
-                break;
 
             case 'troubleText':
                 /** @var Trouble $model */
@@ -222,7 +253,6 @@ class SearchController extends BaseController
                 }
 
                 return $this->render('result', ['message' => 'Ничего не найдено']);
-                break;
 
             case 'troubleComment':
                 $controller = 'search';
