@@ -34,6 +34,7 @@ class SBISInfo
         switch ($sbisOrganization->id) {
             case SBISOrganization::ID_MCN_TELECOM:
             case SBISOrganization::ID_VOICE_CONNECT:
+            case SBISOrganization::ID_AB_SERVICE_MARCOMNET:
                 $groupIds1 = [
                     SBISExchangeGroup::ACT_AND_INVOICE_2019,
                     SBISExchangeGroup::ACT_AND_INVOICE_2025,
@@ -41,7 +42,6 @@ class SBISInfo
                 break;
 
             case SBISOrganization::ID_MCN_TELECOM_SERVICE:
-            case SBISOrganization::ID_AB_SERVICE_MARCOMNET:
                 $groupIds1 = [
                     SBISExchangeGroup::ACT,
                 ];
