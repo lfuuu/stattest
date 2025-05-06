@@ -36,6 +36,7 @@ class CoreLkContragentTypeIp extends CoreLkContragentTypeDefault
 //        $contragent->address_jur = $resp['data']['address']['unrestricted_value'] ?? null;
         $address = $lkContragent->getAddressRegistratonIp();
         if ($address) {
+            $contragent->address_jur = $address;
             $contragent->address_registration_ip = $address;
         }
 //        $contragent->opf_id = CodeOpf::IP; // @TODO
