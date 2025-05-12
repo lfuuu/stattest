@@ -81,7 +81,7 @@ $nnpEvents = ['event' => [
     NnpModule::EVENT_EXAMPLES,
     NnpModule::EVENT_IMPORT,
     EventQueue::INVOICE_MASS_CREATE,
-    EventQueue::INVOICE_GENERATE_PDF,
+//    EventQueue::INVOICE_GENERATE_PDF,
     EventQueue::INVOICE_ALL_PDF_CREATED,
     EventQueue::ADD_RESOURCE_ON_ACCOUNT_TARIFFS,
     EventQueue::UPDATE_BALANCE_MASS,
@@ -117,6 +117,8 @@ $kafkaEvents1 = ['event' => [
 $kafkaEvents2 = ['event' => [
     UuModule::EVENT_UU_ANONCE2,
     EventQueue::EVENT_LK_CONTRAGENT_CHANGED,
+    EventQueue::INVOICE_GENERATE_PDF,
+
 ]];
 
 
