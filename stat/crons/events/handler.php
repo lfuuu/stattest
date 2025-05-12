@@ -19,6 +19,7 @@ use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\classes\partners\RewardCalculate;
 use app\classes\sender\RocketChat;
+use app\classes\voip\StateVoipUpdater;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bik;
 use app\models\ClientAccount;
@@ -339,6 +340,13 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                 case EventQueue::USAGE_VOIP__UPDATE:
                 case EventQueue::USAGE_VOIP__DELETE:
                     // ats2Numbers::check();
+                    break;
+
+                case EventQueue::STATE_VOIP_UPDATE:
+                    HandlerLogger::me()->echoToLog(function () use ($param) {
+                        return StateVoipUpdater::me()->update($param['account_tariff_id']);
+                    });
+
                     break;
 
                 case EventQueue::ADD_PAYMENT:

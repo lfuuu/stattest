@@ -638,9 +638,9 @@ FROM
         }
     }
 
-    public function actionStateVoipUpdate()
+    public function actionStateVoipUpdate($accountTariffId = null)
     {
-        StateVoipUpdater::me()->update();
+        StateVoipUpdater::me()->update($accountTariffId);
     }
 
     private function _getNumbersForTransfer()

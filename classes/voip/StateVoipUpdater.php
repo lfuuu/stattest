@@ -3,59 +3,74 @@
 namespace app\classes\voip;
 
 use app\classes\Singleton;
+use app\models\voip\StateServiceVoip;
 
 class StateVoipUpdater extends Singleton
 {
     private array $sql = [];
 
-    protected ?int $accountTariffId = null; // @TODO обработка по наличию услуги
+    protected ?int $accountTariffId = null;
+
+    protected ?string $table = null;
 
     public function update(?int $accountTariffId = null)
     {
         echo PHP_EOL . date('r');
+        $this->table = StateServiceVoip::tableName();
 
-        $this->binLogOff();
+        if (!$accountTariffId) {
+            $this->binLogOff();
+        }
 
         $this->createTable();
-        $this->makeActual();
+        $this->makeActual($accountTariffId);
 
-        $this->binLogOff();
+        if (!$accountTariffId) {
+            $this->binLogOff();
+        }
 
         $this->addMissing();
-        $this->deleteMissing();
-        $this->makeChanges();
+        $this->deleteMissing($accountTariffId);
+        $this->makeChanges($accountTariffId);
+        $this->_dropTable();
 
         try {
             foreach ($this->sql as $sql) {
 //                echo PHP_EOL . $sql;
                 preg_match('/^\s*(\w+)\b/', $sql, $m);
                 echo PHP_EOL . $m[1] . ': ';
-                echo \Yii::$app->db->createCommand($sql)->execute();
+                echo var_export(\Yii::$app->db->createCommand($sql)->execute(), true);
             }
         } catch (\Exception $e) {
-            $this->_dropTable();
+            $this->_dropTable(true);
             throw $e;
         }
-        $this->_dropTable();
         echo PHP_EOL;
     }
 
     private function createTable()
     {
         $this->_dropTable();
-        $this->sql[] = "CREATE TEMPORARY TABLE state_service_voip_tmp LIKE state_service_voip";
+        $this->sql[] = "CREATE TEMPORARY TABLE {$this->table}_tmp LIKE {$this->table}";
     }
 
-    private function _dropTable()
+    private function _dropTable($isExecuteNow = false)
     {
-        \Yii::$app->db->createCommand("DROP TEMPORARY TABLE IF EXISTS state_service_voip_tmp");
+        $sql = "DROP TEMPORARY TABLE IF EXISTS {$this->table}_tmp";
+        if ($isExecuteNow) {
+            \Yii::$app->db->createCommand($sql);
+        } else {
+            $this->sql[] = $sql;
+        }
     }
 
-    private function makeActual()
+    private function makeActual($accountTariffId)
     {
+        $where = $accountTariffId ? 'AND u.id = '.$accountTariffId : '';
+
         $this->sql[] = <<<SQL
 
-INSERT INTO state_service_voip_tmp
+INSERT INTO {$this->table}_tmp
 SELECT usage_id,
        client_id,
        e164,
@@ -85,6 +100,7 @@ FROM (
          WHERE true
            AND c.client = u.client
            AND u.e164 = v.number
+           {$where}
 
          UNION
 
@@ -128,6 +144,7 @@ FROM (
                     AND u.voip_number = v.number
                     AND c.id = u.client_account_id
                     AND service_type_id = 2
+                    {$where}
               ) a
      ) a;
 SQL;
@@ -136,38 +153,42 @@ SQL;
     private function addMissing()
     {
         $this->sql[] = <<<SQL
-insert into state_service_voip
+insert into {$this->table}
 select a.*
-from state_service_voip_tmp a
-         left join state_service_voip b using (usage_id)
+from {$this->table}_tmp a
+         left join {$this->table} b using (usage_id)
 where b.usage_id is null;
 SQL;
     }
 
-    private function deleteMissing()
+    private function deleteMissing($accountTariffId)
     {
+        $where = $accountTariffId ? 'AND a.usage_id = '.$accountTariffId : '';
+
         $this->sql[] = <<<SQL
 DELETE z
-FROM state_service_voip z,
+FROM {$this->table} z,
      (
          SELECT a.usage_id
-         FROM state_service_voip a
-                  LEFT JOIN state_service_voip_tmp b USING (usage_id)
+         FROM {$this->table} a
+                  LEFT JOIN {$this->table}_tmp b USING (usage_id)
          WHERE b.usage_id is null
      ) a
 WHERE a.usage_id = z.usage_id
-
+      {$where}
 SQL;
     }
 
-    private function makeChanges()
+    private function makeChanges($accountTariffId)
     {
+        $where = $accountTariffId ? 'AND a.usage_id = '.$accountTariffId : '';
+
         $this->sql[] = <<<SQL
 update
-    state_service_voip s,
+    {$this->table} s,
     (select b.*
-     from state_service_voip a
-              join state_service_voip_tmp b using (usage_id)
+     from {$this->table} a
+              join {$this->table}_tmp b using (usage_id)
      where true
        and (
                  a.lines_amount != b.lines_amount
@@ -177,7 +198,9 @@ update
              or coalesce(a.expire_dt, '') != coalesce(b.expire_dt, '')
              or coalesce(a.device_address, '') != coalesce(b.device_address, '')
              or coalesce(a.is_verified, '') != coalesce(b.is_verified, '')
+             or coalesce(a.region, '') != coalesce(b.region, '')
          )
+         {$where}
     ) b
 set s.lines_amount = b.lines_amount,
     s.actual_from = b.actual_from,
@@ -185,7 +208,8 @@ set s.lines_amount = b.lines_amount,
     s.expire_dt = b.expire_dt,
     s.activation_dt = b.activation_dt,
     s.device_address = b.device_address,
-    s.is_verified = b.is_verified
+    s.region = b.region,
+    s.is_verified = b.is_verified    
 where s.usage_id = b.usage_id
 SQL;
     }

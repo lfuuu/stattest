@@ -141,6 +141,8 @@ class EventQueue extends ActiveRecord
     const SORM_EXPORT_BY_DID_ID = 'sorm_export_by_did_id';
     const SORM_REDIRECT_GROUP = 'sorm_redirect_group';
 
+    const STATE_VOIP_UPDATE = 'state_voip_update';
+
     const KSIM_GET_STATISTIC = 'ksim_get_statistic';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
@@ -188,6 +190,7 @@ class EventQueue extends ActiveRecord
         self::USAGE_VIRTPBX__INSERT => 'Услуга ВАТС добавлена',
         self::USAGE_VIRTPBX__UPDATE => 'Услуга ВАТС изменена',
         self::USAGE_VIRTPBX__DELETE => 'Услуга ВАТС удалена',
+        self::STATE_VOIP_UPDATE => 'Обновить состояние услуги телефонии',
         self::USAGE_VOIP__INSERT => 'Услуга телефонии добавлена',
         self::USAGE_VOIP__UPDATE => 'Услуга телефонии изменена',
         self::USAGE_VOIP__DELETE => 'Услуга телефонии удалена',

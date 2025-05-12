@@ -4,6 +4,7 @@ namespace app\modules\uu\behaviors;
 
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
+use app\models\EventQueue;
 use app\models\Number;
 use app\models\NumberLog;
 use app\modules\uu\models\AccountTariff;
@@ -59,5 +60,11 @@ class AccountTariffVoipNumber extends Behavior
             NumberLog::ACTION_CONNECTED,
             $accountTariff->id
         );
+
+        EventQueue::go(EventQueue::STATE_VOIP_UPDATE, [
+            'client_account_id' => $accountTariff->client_account_id,
+            'account_tariff_id' => $accountTariff->id,
+            'number' => $accountTariff->voip_number,
+        ]);
     }
 }
