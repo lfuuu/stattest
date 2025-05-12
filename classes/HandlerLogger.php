@@ -45,4 +45,27 @@ class HandlerLogger extends Singleton
     {
         return $this->_logs;
     }
+
+
+    function echoToLog(\Closure $cb)
+    {
+        ob_start();
+        try {
+            $result = $cb();
+            if ($log = ob_get_clean()) {
+                echo ' ' . $log;
+                $this->add($log);
+            }
+            ob_end_clean();
+            return $result;
+        }catch (\Exception $e) {
+            if ($log = ob_get_clean()) {
+                $this->add($log);
+            }
+            ob_end_clean();
+
+            throw $e;
+        }
+    }
+
 }
