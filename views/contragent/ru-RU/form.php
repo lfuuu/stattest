@@ -120,7 +120,7 @@ endif;
             'model' => $model,
             'form' => $f,
             'columns' => 2,
-            'options' => ['class' => 'pull-right percent50 block-left-indent'] + $optionState,
+            'options' => ['class' => 'pull-right percent50 block-left-indent'] ,// + $optionState,
             'attributeDefaults' => [
                 'type' => Form::INPUT_TEXT
             ],
@@ -129,25 +129,51 @@ endif;
                 'model' => $model,
                 'form' => $f,
                 'columns' => 1,
-                'options' => ['class' => ''] + $optionState,
+                'options' => ['class' => ''] ,//+ $optionState,
                 'attributeDefaults' => [
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'tax_registration_reason' => [],
+                    'tax_registration_reason' => [
+                        'options' => $optionState,
+                    ],
     
-                    'position' => [],
-                    'fio' => [],
-                    'is_take_signatory' => [
-                        'type' => Form::INPUT_CHECKBOX,
-                    ],
-                    'signatory_position' => [
-                        'options' => ['disabled' => !$model->is_take_signatory],
-                    ],
-                    'signatory_fio' => [
-                        'options' => ['disabled' => !$model->is_take_signatory],
-                    ],
+                    'position' => ['options' => $optionState,],
+                    'fio' => ['options' => $optionState,],
+//                    'is_take_signatory' => [
+//                        'type' => Form::INPUT_CHECKBOX,
+//                    ],
+//                    'signatory_position' => [
+//                        'options' => ['disabled' => !$model->is_take_signatory],
+//                    ],
+//                    'signatory_fio' => [
+//                        'options' => ['disabled' => !$model->is_take_signatory],
+//                    ],
                 ],
+                'contentAfter' =>  Form::widget([
+                    'model' => $model,
+                    'form' => $f,
+                    'columns' => 1,
+                    'options' => ['class' => ''],// + $optionState,
+                    'attributeDefaults' => [
+                        'type' => Form::INPUT_TEXT
+                    ],
+                    'attributes' => [
+//                        'tax_registration_reason' => [],
+
+//                        'position' => [],
+//                        'fio' => [],
+                        'is_take_signatory' => [
+                            'type' => Form::INPUT_CHECKBOX,
+                        ],
+                        'signatory_position' => [
+                            'options' => ['disabled' => !$model->is_take_signatory],
+                        ],
+                        'signatory_fio' => [
+                            'options' => ['disabled' => !$model->is_take_signatory],
+                        ],
+                    ],
+                ])
             ])
         ]);
         unset($attrs);
