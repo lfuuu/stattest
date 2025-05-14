@@ -2,12 +2,12 @@
 
 namespace app\controllers\api\internal;
 
-use ActiveRecord\RecordNotFound;
 use app\classes\ActOfReconciliation;
 use app\exceptions\NotFoundException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\BillExternal;
 use app\models\ClientAccount;
 use app\models\Country;
 use app\models\Invoice;
@@ -133,6 +133,7 @@ class AccountingController extends ApiInternalController
      */
     public function actionGetAccountByDocumentNo($documentNo)
     {
+        $documentNo = trim($documentNo);
 
         // stat bills
         if (preg_match("/^\d{6}-\d{4,6}$/", $documentNo)) {
@@ -155,6 +156,34 @@ class AccountingController extends ApiInternalController
             return [
                 'type' => 'invoice',
                 'account_id' => $invoice->bill->client_id,
+            ];
+        }
+
+        if (strlen($documentNo) <= 3) {
+            throw new \InvalidArgumentException('Undefined format');
+        }
+
+        if (
+            $extBill = BillExternal::find()
+                ->where(['ext_bill_no' => $documentNo])
+                ->orderBy(['bill_no' => SORT_DESC])
+                ->one()
+        ) {
+            return [
+                'type' => 'bill_ext',
+                'account_id' => $extBill->bill->client_id,
+            ];
+        }
+
+        if (
+            $extInvoice = BillExternal::find()
+                ->where(['ext_invoice_no' => $documentNo])
+                ->orderBy(['bill_no' => SORT_DESC])
+                ->one()
+        ) {
+            return [
+                'type' => 'invoice_ext',
+                'account_id' => $extInvoice->bill->client_id,
             ];
         }
 
