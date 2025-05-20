@@ -2,6 +2,7 @@
 
 namespace app\modules\sim\commands;
 
+use app\exceptions\ModelValidationException;
 use app\models\Country;
 use app\models\Number;
 use app\models\Region;
@@ -12,6 +13,7 @@ use app\modules\uu\behaviors\AccountTariffCheckHlr;
 use app\modules\uu\models\AccountTariff;
 use InvalidArgumentException;
 use yii\console\Controller;
+use yii\db\Expression;
 
 class CardController extends Controller
 {
@@ -113,5 +115,19 @@ class CardController extends Controller
         }
 
         echo PHP_EOL;
+    }
+
+    public function actionFix()
+    {
+        $imsies = Imsi::find()->where(new Expression("msisdn::text like '749%'"))->all();
+        /** @var Imsi $imsi */
+        foreach ($imsies as $imsi) {
+            echo PHP_EOL . $imsi->msisdn . ' -> ' . $imsi->imsi;
+            sleep(1);
+            $imsi->msisdn = null;
+            if (!$imsi->save()) {
+                throw new ModelValidationException($imsi);
+            }
+        }
     }
 }
