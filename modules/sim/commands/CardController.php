@@ -6,6 +6,7 @@ use app\exceptions\ModelValidationException;
 use app\models\Country;
 use app\models\Number;
 use app\models\Region;
+use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Imsi;
@@ -93,7 +94,12 @@ class CardController extends Controller
             throw new InvalidArgumentException(sprintf('Для regionId: %s не найден склад с виртуальными картами', $storageRegionId ?? $regionId));
         }
 
-        $numberQuery = Number::find()->where(['region' => $regionId, 'status' => Number::STATUS_ACTIVE_COMMERCIAL, 'imsi' => null]);
+        $numberQuery = Number::find()->where([
+            'region' => $regionId,
+            'status' => Number::STATUS_ACTIVE_COMMERCIAL,
+            'imsi' => null,
+            'ndc_type_id' => NdcType::ID_MOBILE,
+        ]);
 
         /** @var Number $number */
         foreach ($numberQuery->each() as $number) {
