@@ -20,9 +20,13 @@ class CardController extends Controller
      *
      * @return void
      */
-    public function actionClear($regionId = null)
+    public function actionClear($filterRegionId = null)
     {
         foreach (Region::getList(false, Country::RUSSIA, Region::TYPE_NODE) as $regionId => $regionName) {
+            if ($filterRegionId && $filterRegionId != $regionId) {
+                continue;
+            }
+
             echo PHP_EOL . sprintf("(=) Region: %s (id: %s)", $regionName, $regionId);
 
             /** @var CardStatus $storage */
