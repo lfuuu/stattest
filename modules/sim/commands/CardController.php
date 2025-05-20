@@ -2,6 +2,7 @@
 
 namespace app\modules\sim\commands;
 
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\exceptions\ModelValidationException;
 use app\models\Country;
 use app\models\Number;
@@ -99,6 +100,7 @@ class CardController extends Controller
             'status' => Number::STATUS_ACTIVE_COMMERCIAL,
             'imsi' => null,
             'ndc_type_id' => NdcType::ID_MOBILE,
+            'source' => VoipRegistrySourceEnum::REGULATOR,
         ]);
 
         /** @var Number $number */
