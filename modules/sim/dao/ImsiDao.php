@@ -3,9 +3,13 @@
 namespace app\modules\sim\dao;
 
 use app\classes\Singleton;
+use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
+use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\ImsiExternalStatusLog;
+use app\modules\sim\models\ImsiPartner;
+use app\modules\sim\models\ImsiProfile;
 
 class ImsiDao extends Singleton
 {
@@ -89,5 +93,72 @@ limit {$limit}
 SQL
         )->queryColumn();
     }
+
+    /**
+     * @param integer $statusId
+     * @return array|\yii\db\ActiveRecord
+     */
+    public function getNextImsi($statusId)
+    {
+        $transaction = CardStatus::getDb()->beginTransaction();
+        try {
+            $selectSql = CardStatus::find()->where(['id' => $statusId])->createCommand()->rawSql. ' FOR UPDATE';
+            $status = CardStatus::getDb()->createCommand($selectSql)->queryOne();
+
+            if (!$status) {
+                throw new \InvalidArgumentException('Status not found');
+            }
+
+            $nextImsiQuery = $this->_getNextImsiQuery($statusId);
+
+            if ($status['last_iccid']) {
+                $nextImsiQuery->andWhere(['>', 'c.iccid', $status['last_iccid']]);
+            }
+
+            /** @var Imsi $nextImsi */
+            $nextImsi = $nextImsiQuery->one();
+
+            if (!$nextImsi) {
+                $nextImsi = $this->_getNextImsiQuery($statusId)->one(); // если не нашли последнюю, начинаем с первой
+            }
+
+            if (!$nextImsi) {
+                throw new \LogicException(sprintf('Не найдена IMSI для склада %s (id: %s)', $status['name'], $status['id']));
+            }
+
+            CardStatus::getDb()
+                ->createCommand()
+                ->update(
+                    CardStatus::tableName(),
+                    ['last_iccid' => $nextImsi->iccid, 'last_iccid_set_at' => DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT)],
+                    ['id' => $statusId]
+                )
+                ->execute();
+
+            $transaction->commit();
+
+            return $nextImsi;
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    private function _getNextImsiQuery($statusId)
+    {
+        return Imsi::find()->alias('i')
+            ->joinWith('card c')
+            ->andWhere([
+                'i.profile_id' => ImsiProfile::ID_MSN_RUS,
+                'i.partner_id' => ImsiPartner::ID_TELE2,
+                'c.status_id' => $statusId,
+                'c.is_active' => 1,
+                'i.is_active' => 1,
+                'c.client_account_id' => null,
+            ])
+            ->orderBy(['c.iccid' => SORT_ASC])
+            ;
+    }
+
 
 }

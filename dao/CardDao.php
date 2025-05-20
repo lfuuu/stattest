@@ -50,7 +50,7 @@ class CardDao extends Singleton
         }
     }
 
-    public function actionSetUnLink($iccids)
+    public function actionSetUnLink($iccids, $isWithSession = true)
     {
         $transaction = Card::getDb()->beginTransaction();
         try {
@@ -75,10 +75,15 @@ class CardDao extends Singleton
                 $counter++;
             }
             $transaction->commit();
-            \Yii::$app->session->addFlash('success', 'Отвязано карт: ' . $counter);
+            $isWithSession && \Yii::$app->session->addFlash('success', 'Отвязано карт: ' . $counter);
+
+            return $counter;
         } catch (\Exception $e) {
             $transaction->rollBack();
-            \Yii::$app->session->addFlash('error', $e->getMessage());
+            $isWithSession && \Yii::$app->session->addFlash('error', $e->getMessage());
+            if (!$isWithSession) {
+                throw $e;
+            }
         }
     }
 
