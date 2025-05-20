@@ -83,12 +83,12 @@ class CardController extends Controller
         print_r($imsi->getAttributes());
     }
 
-    public function actionEnterImsiIfNotEntered($regionId)
+    public function actionEnterImsiIfNotEntered($regionId, $storageRegionId = null)
     {
         /** @var CardStatus $cardStatus */
-        $cardStatus = CardStatus::find()->isVirt()->regionId($regionId)->one();
+        $cardStatus = CardStatus::find()->isVirt()->regionId($storageRegionId ?? $regionId)->one();
         if (!$cardStatus) {
-            throw new InvalidArgumentException(sprintf('Для regionId: %s не найден склад с виртуальными картами', $regionId));
+            throw new InvalidArgumentException(sprintf('Для regionId: %s не найден склад с виртуальными картами', $storageRegionId ?? $regionId));
         }
 
         $numberQuery = Number::find()->where(['region' => $regionId, 'status' => Number::STATUS_ACTIVE_COMMERCIAL, 'imsi' => null]);
