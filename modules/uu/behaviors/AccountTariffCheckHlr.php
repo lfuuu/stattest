@@ -191,7 +191,7 @@ class AccountTariffCheckHlr extends Behavior
             }
 
             /** @var Imsi $foundImsi */
-            $foundImsi = self::getNextImsi($params['voip_numbers_warehouse_status']);
+            $foundImsi = Imsi::dao()->getNextImsi($params['voip_numbers_warehouse_status']);
 
             if (!$foundImsi) {
                 throw new \LogicException('IMSI не найдена');
@@ -256,25 +256,6 @@ class AccountTariffCheckHlr extends Behavior
         }
 
         return $card->iccid;
-    }
-
-    /**
-     * @param integer $statusId
-     * @return array|\yii\db\ActiveRecord
-     */
-    private static function getNextImsi($statusId)
-    {
-        return Imsi::find()->alias('i')
-            ->joinWith('card c')
-            ->andWhere([
-                'i.profile_id' => ImsiProfile::ID_MSN_RUS,
-                'i.partner_id' => ImsiPartner::ID_TELE2,
-                'c.status_id' => $statusId,
-                'c.is_active' => 1,
-                'i.is_active' => 1,
-                'c.client_account_id' => null,
-            ])
-            ->one();
     }
 
     public static function linkImsi($requestId, $param)
