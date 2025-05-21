@@ -87,6 +87,12 @@ class CardController extends Controller
         print_r($imsi->getAttributes());
     }
 
+    public function actionEnterImsiIfNotEnteredWithAltStorage($alternativeStorageRegionId, $filterRegionId = null)
+    {
+        return $this->actionEnterImsiIfNotEntered($filterRegionId, $alternativeStorageRegionId);
+    }
+
+
     public function actionEnterImsiIfNotEntered($filterRegionId = null, $alternativeStorageRegionId = null)
     {
         foreach (Region::getList(false, Country::RUSSIA, Region::TYPE_NODE) as $regionId => $regionName) {
