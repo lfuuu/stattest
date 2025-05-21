@@ -96,7 +96,12 @@ class CardController extends Controller
 
             echo PHP_EOL . sprintf("(=) Region: %s (id: %s)", $regionName, $regionId);
 
-            $this->_enterImsiIfNotEntered($regionId, $storageRegionId);
+            try {
+                $this->_enterImsiIfNotEntered($regionId, $storageRegionId);
+            }catch (\Exception $e) {
+                echo PHP_EOL . '(?) ERROR: ' . $e->getMessage();
+                continue;
+            }
 
         }
     }
