@@ -131,6 +131,12 @@ sed -i "s/'username' => 'vagrant'/'username' => '$POSTGRES_USER'/" db_pg_call_tr
 sed -i "s/'password' => 'vagrant'/'password' => '$POSTGRES_PASSWORD'/" db_pg_call_tracking.local.php
 
 # Redis
+### @TODO убрать в values'ы
+case "$HOSTNAME" in
+	*"-prod-ru-"*)
+    export REDIS_HOST="tiberis.mcn.ru";
+esac
+
 cp cache_redis.local.tpl.php cache_redis.local.php
 sed -i "s/'hostname' => 'localhost'/'hostname' => '$REDIS_HOST'/" cache_redis.local.php
 
