@@ -87,7 +87,7 @@ class CardController extends Controller
         print_r($imsi->getAttributes());
     }
 
-    public function actionEnterImsiIfNotEntered($filterRegionId = null, $storageRegionId = null)
+    public function actionEnterImsiIfNotEntered($filterRegionId = null, $alternativeStorageRegionId = null)
     {
         foreach (Region::getList(false, Country::RUSSIA, Region::TYPE_NODE) as $regionId => $regionName) {
             if ($filterRegionId && $filterRegionId != $regionId) {
@@ -97,7 +97,7 @@ class CardController extends Controller
             echo PHP_EOL . sprintf("(=) Region: %s (id: %s)", $regionName, $regionId);
 
             try {
-                $this->_enterImsiIfNotEntered($regionId, $storageRegionId);
+                $this->_enterImsiIfNotEntered($regionId, $alternativeStorageRegionId);
             }catch (\Exception $e) {
                 echo PHP_EOL . '(?) ERROR: ' . $e->getMessage();
                 continue;
@@ -106,12 +106,21 @@ class CardController extends Controller
         }
     }
 
-    public function _enterImsiIfNotEntered($regionId, $storageRegionId = null)
+    public function _enterImsiIfNotEntered($regionId, $alternativeStorageRegionId = null)
     {
         /** @var CardStatus $cardStatus */
-        $cardStatus = CardStatus::find()->isVirt()->regionId($storageRegionId ?? $regionId)->one();
+        $cardStatus = CardStatus::find()->isVirt()->regionId($regionId)->one();
         if (!$cardStatus) {
-            throw new InvalidArgumentException(sprintf('Для regionId: %s не найден склад с виртуальными картами', $storageRegionId ?? $regionId));
+            throw new InvalidArgumentException(sprintf('Для regionId: %s не найден склад с виртуальными картами', $regionId));
+        }
+
+        $altCardStatus = null;
+        if ($alternativeStorageRegionId) {
+            /** @var CardStatus $cardStatus */
+            $altCardStatus = CardStatus::find()->isVirt()->regionId($alternativeStorageRegionId)->one();
+            if (!$altCardStatus) {
+                throw new InvalidArgumentException(sprintf('Для алтернативного regionId: %s не найден склад с виртуальными картами', $alternativeStorageRegionId));
+            }
         }
 
         $numberQuery = Number::find()->where([
@@ -133,12 +142,26 @@ class CardController extends Controller
                 continue;
             }
 
-            $iccid = AccountTariffCheckHlr::reservImsi([
-                'account_tariff_id' => $accountTariff->id,
-                'voip_numbers_warehouse_status' => $cardStatus->id,
-            ]);
+            echo ' -> ' ;
 
-            echo ' -> ' . $iccid;
+            $iccid = null;
+            /** @var CardStatus $cardStatusO */
+            foreach ([$cardStatus, $altCardStatus] as $cardStatusO) {
+                if (!$cardStatusO) {
+                    continue;
+                }
+                try {
+                    echo sprintf('склад "%s" (id: %s)', $cardStatusO->name, $cardStatusO->id);
+                    $iccid = AccountTariffCheckHlr::reservImsi([
+                        'account_tariff_id' => $accountTariff->id,
+                        'voip_numbers_warehouse_status' => $cardStatusO->id,
+                    ]);
+                } catch (\LogicException $e) {
+                    echo ' - нет IMSI, ';
+                }
+            }
+
+            echo $iccid ?? ' - IMSI не получена';
         }
 
         echo PHP_EOL;
