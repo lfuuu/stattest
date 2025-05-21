@@ -87,13 +87,13 @@ class CardController extends Controller
         print_r($imsi->getAttributes());
     }
 
-    public function actionEnterImsiIfNotEnteredWithAltStorage($alternativeStorageRegionId, $filterRegionId = null)
+    public function actionAssignImsiIfNotEnteredUsingAlternativeWarehouse($alternativeStorageRegionId, $filterRegionId = null)
     {
-        return $this->actionEnterImsiIfNotEntered($filterRegionId, $alternativeStorageRegionId);
+        return $this->actionAssignImsiIfNotEntered($filterRegionId, $alternativeStorageRegionId);
     }
 
 
-    public function actionEnterImsiIfNotEntered($filterRegionId = null, $alternativeStorageRegionId = null)
+    public function actionAssignImsiIfNotEntered($filterRegionId = null, $alternativeStorageRegionId = null)
     {
         foreach (Region::getList(false, Country::RUSSIA, Region::TYPE_NODE) as $regionId => $regionName) {
             if ($filterRegionId && $filterRegionId != $regionId) {
@@ -103,7 +103,7 @@ class CardController extends Controller
             echo PHP_EOL . sprintf("(=) Region: %s (id: %s)", $regionName, $regionId);
 
             try {
-                $this->_enterImsiIfNotEntered($regionId, $alternativeStorageRegionId);
+                $this->_assignImsiIfNotEntered($regionId, $alternativeStorageRegionId);
             }catch (\Exception $e) {
                 echo PHP_EOL . '(?) ERROR: ' . $e->getMessage();
                 continue;
@@ -112,7 +112,7 @@ class CardController extends Controller
         }
     }
 
-    public function _enterImsiIfNotEntered($regionId, $alternativeStorageRegionId = null)
+    public function _assignImsiIfNotEntered($regionId, $alternativeStorageRegionId = null)
     {
         /** @var CardStatus $cardStatus */
         $cardStatus = CardStatus::find()->isVirt()->regionId($regionId)->one();
@@ -162,17 +162,17 @@ class CardController extends Controller
                     continue;
                 }
                 try {
-                    echo sprintf('склад "%s" (id: %s)', $cardStatusO->name, $cardStatusO->id);
+                    echo sprintf('склад "%s" (id: %s) ', $cardStatusO->name, $cardStatusO->id);
                     $iccid = AccountTariffCheckHlr::reservImsi([
                         'account_tariff_id' => $accountTariff->id,
                         'voip_numbers_warehouse_status' => $cardStatusO->id,
                     ]);
                 } catch (\LogicException $e) {
-                    echo ' - нет IMSI, ';
+                    echo '- нет IMSI, ';
                 }
             }
 
-            echo $iccid ?? ' - IMSI не получена';
+            echo $iccid ?? '- IMSI не получена';
         }
 
         echo PHP_EOL;
