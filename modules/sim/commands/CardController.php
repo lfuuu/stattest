@@ -117,7 +117,12 @@ class CardController extends Controller
         /** @var CardStatus $cardStatus */
         $cardStatus = CardStatus::find()->isVirt()->regionId($regionId)->one();
         if (!$cardStatus) {
-            throw new InvalidArgumentException(sprintf('Для regionId: %s не найден склад с виртуальными картами', $regionId));
+            $msg = sprintf('Для regionId: %s не найден склад с виртуальными картами', $regionId);
+            if (!$alternativeStorageRegionId) {
+                throw new InvalidArgumentException($msg);
+            } else {
+                echo ' Error: ' . $msg;
+            }
         }
 
         $altCardStatus = null;
