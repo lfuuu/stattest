@@ -87,7 +87,21 @@ class CardController extends Controller
         print_r($imsi->getAttributes());
     }
 
-    public function actionEnterImsiIfNotEntered($regionId, $storageRegionId = null)
+    public function actionEnterImsiIfNotEntered($filterRegionId = null, $storageRegionId = null)
+    {
+        foreach (Region::getList(false, Country::RUSSIA, Region::TYPE_NODE) as $regionId => $regionName) {
+            if ($filterRegionId && $filterRegionId != $regionId) {
+                continue;
+            }
+
+            echo PHP_EOL . sprintf("(=) Region: %s (id: %s)", $regionName, $regionId);
+
+            $this->_enterImsiIfNotEntered($regionId, $storageRegionId);
+
+        }
+    }
+
+    public function _enterImsiIfNotEntered($regionId, $storageRegionId = null)
     {
         /** @var CardStatus $cardStatus */
         $cardStatus = CardStatus::find()->isVirt()->regionId($storageRegionId ?? $regionId)->one();
