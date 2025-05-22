@@ -6,6 +6,7 @@ use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\HandlerLogger;
 use app\exceptions\ModelValidationException;
 use app\models\Country;
+use app\models\ModelLifeLog;
 use app\models\Number;
 use app\models\Region;
 use app\modules\nnp\models\NdcType;
@@ -133,6 +134,7 @@ class CardController extends Controller
 
             HandlerLogger::me()->clear('set_imsi');
 
+            $iccid = null;
             try {
                 $iccid = AccountTariffCheckHlr::reservImsi([
                     'account_tariff_id' => $accountTariff->id,
@@ -141,6 +143,10 @@ class CardController extends Controller
                 HandlerLogger::me()->add((string)$iccid, 'set_imsi');
             } catch (\LogicException $e) {
                 echo ' Error: ' . $e->getMessage() ;
+            }
+
+            if ($iccid) {
+                ModelLifeLog::log('service', $accountTariff->id, ModelLifeLog::DO_UPDATE);
             }
 
             echo implode(' -> ', HandlerLogger::me()->get('set_imsi')) . ' ';
