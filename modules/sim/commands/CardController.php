@@ -26,6 +26,7 @@ class CardController extends Controller
      */
     public function actionClear($filterRegionId = null)
     {
+        echo PHP_EOL . '(=) Start: ' . date('r');
         foreach (Region::getList(false, Country::RUSSIA, Region::TYPE_NODE) as $regionId => $regionName) {
             if ($filterRegionId && $filterRegionId != $regionId) {
                 continue;
@@ -78,6 +79,7 @@ class CardController extends Controller
             }
         }
 
+        echo PHP_EOL . '(=) Stop: ' . date('r');
         echo PHP_EOL;
     }
 
@@ -141,7 +143,7 @@ class CardController extends Controller
                 echo ' Error: ' . $e->getMessage() ;
             }
 
-            echo implode(' -> ', HandlerLogger::me()->get(set_imsi)) . ' ';
+            echo implode(' -> ', HandlerLogger::me()->get('set_imsi')) . ' ';
         }
 
         echo PHP_EOL;
