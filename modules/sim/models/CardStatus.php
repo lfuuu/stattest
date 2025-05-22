@@ -4,6 +4,7 @@ namespace app\modules\sim\models;
 
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use app\models\Number;
 use app\modules\sim\classes\query\CardStatusQuery;
 use Yii;
 use yii\db\ActiveQuery;
@@ -78,6 +79,25 @@ class CardStatus extends ActiveRecord
         return new CardStatusQuery(get_called_class());
     }
 
+    /**
+     * @return CardStatus
+     */
+    public static function getVirtByNumberModel(Number $number) {
+        return self::find()
+            ->isVirt()
+            ->regionId($number->region)
+            ->one();
+    }
+
+    /**
+     * @return CardStatus
+     */
+    public static function getVirtByRegionId($regionId) {
+        return self::find()
+            ->isVirt()
+            ->regionId($regionId)
+            ->one();
+    }
 
     /**
      * @return ActiveQuery

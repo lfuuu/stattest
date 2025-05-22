@@ -96,7 +96,7 @@ SQL
 
     /**
      * @param integer $statusId
-     * @return array|\yii\db\ActiveRecord
+     * @return Imsi
      */
     public function getNextImsi($statusId)
     {
@@ -144,6 +144,10 @@ SQL
         }
     }
 
+    /**
+     * @param $statusId
+     * @return \yii\db\ActiveQuery
+     */
     private function _getNextImsiQuery($statusId)
     {
         return Imsi::find()->alias('i')

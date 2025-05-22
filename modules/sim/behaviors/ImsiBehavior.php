@@ -31,13 +31,20 @@ class ImsiBehavior extends Behavior
         /** @var Imsi $model */
         $model = $event->sender;
         // Производим синхронизацию IMSI, если прошлое значение не соответствует настоящему
-        if (!$model->isAttributeChanged('imsi')) {
+        if (
+            !$model->isAttributeChanged('imsi')
+            || strpos((string)$model->imsi, '25037') !== 0
+            || !$model->msisdn
+        ) {
             return;
         }
+
         /** @var Number $number */
-        if (!$model->msisdn || !$number = Number::findOne(['number' => $model->msisdn])) {
+        $number = Number::findOne(['number' => $model->msisdn]);
+        if (!$number) {
             return;
         }
+
         $number->imsi = $model->imsi;
         if (!$number->save()) {
             throw new ModelValidationException($number);
