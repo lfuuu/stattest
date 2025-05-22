@@ -11,15 +11,16 @@ namespace app\classes;
  */
 class HandlerLogger extends Singleton
 {
-    /** @var string[] */
-    private $_logs = [];
+    /** @var array */
+    private array $_logs = ['main' => []];
 
     /**
      * Очистить лог
      */
-    public function clear()
+    public function clear($category = 'main')
     {
-        $this->_logs = [];
+
+        $this->_logs[$category] = [];
     }
 
     /**
@@ -27,13 +28,21 @@ class HandlerLogger extends Singleton
      *
      * @param string $log
      */
-    public function add($log)
+    public function add($log, $category = 'main')
     {
         if (!$log) {
             return;
         }
 
-        $this->_logs[] = $log;
+        if (!isset($this->_logs[$category])) {
+            $this->_logs[$category] = [];
+        }
+        $this->_logs[$category][] = $log;
+    }
+
+    public function __toString()
+    {
+        return implode(PHP_EOL, $this->get());
     }
 
     /**
@@ -41,26 +50,26 @@ class HandlerLogger extends Singleton
      *
      * @return string[]
      */
-    public function get()
+    public function get($category = 'main')
     {
-        return $this->_logs;
+        return $this->_logs[$category] ?: [];
     }
 
 
-    function echoToLog(\Closure $cb)
+    function echoToLog(\Closure $cb, $category = 'main')
     {
         ob_start();
         try {
             $result = $cb();
             if ($log = ob_get_clean()) {
                 echo ' ' . $log;
-                $this->add($log);
+                $this->add($log, $category);
             }
             ob_end_clean();
             return $result;
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             if ($log = ob_get_clean()) {
-                $this->add($log);
+                $this->add($log, $category);
             }
             ob_end_clean();
 

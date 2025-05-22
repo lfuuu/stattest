@@ -9,16 +9,16 @@ use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
+use app\models\Region;
 use app\modules\nnp\models\NdcType;
 use app\modules\sim\models\Card;
+use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Imsi;
-use app\modules\sim\models\ImsiPartner;
 use app\modules\sim\models\ImsiProfile;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use yii\base\Behavior;
 use yii\db\AfterSaveEvent;
-use yii\db\Exception;
 
 
 class AccountTariffCheckHlr extends Behavior
@@ -65,10 +65,10 @@ class AccountTariffCheckHlr extends Behavior
             return;
         }
 
-        if ($isTurnOn && !($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
-            HandlerLogger::me()->add('mob number without sim');
-            return;
-        }
+//        if ($isTurnOn && !($accountTariff->getParam('voip_numbers_warehouse_status') && $accountTariff->getParam('voip_numbers_warehouse_status') > 0)) {
+//            HandlerLogger::me()->add('mob number without sim');
+//            return;
+//        }
 
         if ($isTurnOn) {
             if ($accountTariff->prev_usage_id) {
@@ -76,13 +76,15 @@ class AccountTariffCheckHlr extends Behavior
                 $this->transferCard($accountTariff);
             } else {
                 // проставляем IMSI если его нет.
-                if ($accountTariff->number && !$accountTariff->number->imsi) {
+                if ($accountTariff->number) {
                     HandlerLogger::me()->add('get imsi');
+
+                    $warehouseStatusId = $accountTariff->voip_numbers_warehouse_status ?: $accountTariff->getParam('voip_numbers_warehouse_status');
                     EventQueue::go(EventQueue::SYNC_TELE2_GET_IMSI, [
-                        'account_tariff_id' => $accountTariff->id,
-                        'voip_number' => $accountTariff->voip_number,
-                        'voip_numbers_warehouse_status' => $accountTariff->voip_numbers_warehouse_status ?: $accountTariff->getParam('voip_numbers_warehouse_status'),
-                    ]);
+                            'account_tariff_id' => $accountTariff->id,
+                            'voip_number' => $accountTariff->voip_number,
+                        ] + ($warehouseStatusId ? ['voip_numbers_warehouse_status' => $warehouseStatusId] : [])
+                    );
                 }
             }
             return;
@@ -158,23 +160,24 @@ class AccountTariffCheckHlr extends Behavior
 
             throw $e;
         }
-/*
-        if ($partnerTele2Imsi) {
-            EventQueue::go(EventQueue::SYNC_TELE2_UNLINK_IMSI, [
-                'account_tariff_id' => $accountTariff->id,
-                'voip_number' => $accountTariff->voip_number,
-                'imsi' => $partnerTele2Imsi->imsi,
-                'iccid' => $partnerTele2Imsi->iccid,
-            ]);
-        }
-*/
+        /*
+                if ($partnerTele2Imsi) {
+                    EventQueue::go(EventQueue::SYNC_TELE2_UNLINK_IMSI, [
+                        'account_tariff_id' => $accountTariff->id,
+                        'voip_number' => $accountTariff->voip_number,
+                        'imsi' => $partnerTele2Imsi->imsi,
+                        'iccid' => $partnerTele2Imsi->iccid,
+                    ]);
+                }
+        */
     }
 
     public static function reservImsi($params)
     {
+        $logger = HandlerLogger::me();
         $accountTariff = AccountTariff::findOne(['id' => $params['account_tariff_id']]);
 
-        if (!$accountTariff) {
+        if (!$accountTariff || !$accountTariff->number || $accountTariff->number->ndc_type_id != NdcType::ID_MOBILE) {
             throw new \LogicException('AccountTraiff ' . $params['account_tariff_id'] . ' не найден');
         }
 
@@ -187,15 +190,46 @@ class AccountTariffCheckHlr extends Behavior
             $card = $params['card'];
         } else {
             if (!$params['voip_numbers_warehouse_status']) {
-                throw new \LogicException('Склад не установлен');
+                $params['voip_numbers_warehouse_status'] = -1;
+
+                if (\Yii::$app->isRus()) {
+                    $warehouseStatus = CardStatus::getVirtByNumberModel($accountTariff->number);
+
+                    if (!$warehouseStatus) {
+                        $logger->add('Склад не установлен', 'set_imsi');
+//                        throw new \LogicException('Склад не установлен');
+                    } else {
+                        $params['voip_numbers_warehouse_status'] = $warehouseStatus->id;
+                    }
+                }
             }
 
-            /** @var Imsi $foundImsi */
-            $foundImsi = Imsi::dao()->getNextImsi($params['voip_numbers_warehouse_status']);
+            $warehouseStatus = CardStatus::findOne(['id' => $params['voip_numbers_warehouse_status']]);
+            $altWarehouseStatus = \Yii::$app->isRus() ? CardStatus::getVirtByRegionId(Region::MOSCOW) : null;
+
+            $foundImsi = null;
+            $errorText = '';
+            foreach ([$warehouseStatus, $altWarehouseStatus] as $warehouseStatusO) {
+                try {
+                    /** @var Imsi $foundImsi */
+                    if (!$warehouseStatusO) {
+                        continue;
+                    }
+                    $storeInfo = sprintf('склад "%s" (id: %s)', $warehouseStatusO->name, $warehouseStatusO->id);
+                    $logger->add($storeInfo, 'set_imsi');
+                    $foundImsi = Imsi::dao()->getNextImsi($warehouseStatusO->id);
+                    break;
+                } catch (\LogicException $e) {
+                    $errorText = 'LogicException: ' . $e->getMessage();
+                    $logger->add($errorText, 'set_imsi'); // not found
+                }
+            }
 
             if (!$foundImsi) {
-                throw new \LogicException('IMSI не найдена');
+                throw new \LogicException('IMSI не найдена' . ($errorText ? ' (' . $errorText . ')' : ''));
             }
+
+            $logger->add('IMSI: ' . $foundImsi->imsi, 'set_imsi');
 
             $card = $foundImsi->card;
         }
@@ -239,14 +273,14 @@ class AccountTariffCheckHlr extends Behavior
             if (!$number->save()) {
                 throw new ModelValidationException($number);
             }
-/*
-            EventQueue::go(EventQueue::SYNC_TELE2_LINK_IMSI, [
-                'account_tariff_id' => $accountTariff->id,
-                'voip_number' => $accountTariff->voip_number,
-                'imsi' => $linkedImsi->imsi,
-                'iccid' => $linkedImsi->iccid,
-            ]);
-*/
+            /*
+                        EventQueue::go(EventQueue::SYNC_TELE2_LINK_IMSI, [
+                            'account_tariff_id' => $accountTariff->id,
+                            'voip_number' => $accountTariff->voip_number,
+                            'imsi' => $linkedImsi->imsi,
+                            'iccid' => $linkedImsi->iccid,
+                        ]);
+            */
             $transactionPg->commit();
 //            $transactionMs->commit();
         } catch (\Exception $e) {

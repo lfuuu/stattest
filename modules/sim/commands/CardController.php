@@ -3,6 +3,7 @@
 namespace app\modules\sim\commands;
 
 use app\classes\enum\VoipRegistrySourceEnum;
+use app\classes\HandlerLogger;
 use app\exceptions\ModelValidationException;
 use app\models\Country;
 use app\models\Number;
@@ -13,7 +14,6 @@ use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Imsi;
 use app\modules\uu\behaviors\AccountTariffCheckHlr;
 use app\modules\uu\models\AccountTariff;
-use InvalidArgumentException;
 use yii\console\Controller;
 use yii\db\Expression;
 
@@ -87,13 +87,7 @@ class CardController extends Controller
         print_r($imsi->getAttributes());
     }
 
-    public function actionAssignImsiIfNotEnteredUsingAlternativeWarehouse($alternativeStorageRegionId, $filterRegionId = null)
-    {
-        return $this->actionAssignImsiIfNotEntered($filterRegionId, $alternativeStorageRegionId);
-    }
-
-
-    public function actionAssignImsiIfNotEntered($filterRegionId = null, $alternativeStorageRegionId = null)
+    public function actionAssignImsiIfNotEntered($filterRegionId = null)
     {
         foreach (Region::getList(false, Country::RUSSIA, Region::TYPE_NODE) as $regionId => $regionName) {
             if ($filterRegionId && $filterRegionId != $regionId) {
@@ -103,7 +97,7 @@ class CardController extends Controller
             echo PHP_EOL . sprintf("(=) Region: %s (id: %s)", $regionName, $regionId);
 
             try {
-                $this->_assignImsiIfNotEntered($regionId, $alternativeStorageRegionId);
+                $this->_assignImsiIfNotEntered($regionId);
             }catch (\Exception $e) {
                 echo PHP_EOL . '(?) ERROR: ' . $e->getMessage();
                 continue;
@@ -112,28 +106,8 @@ class CardController extends Controller
         }
     }
 
-    public function _assignImsiIfNotEntered($regionId, $alternativeStorageRegionId = null)
+    public function _assignImsiIfNotEntered($regionId)
     {
-        /** @var CardStatus $cardStatus */
-        $cardStatus = CardStatus::find()->isVirt()->regionId($regionId)->one();
-        if (!$cardStatus) {
-            $msg = sprintf('Для regionId: %s не найден склад с виртуальными картами', $regionId);
-            if (!$alternativeStorageRegionId) {
-                throw new InvalidArgumentException($msg);
-            } else {
-                echo ' Error: ' . $msg;
-            }
-        }
-
-        $altCardStatus = null;
-        if ($alternativeStorageRegionId) {
-            /** @var CardStatus $cardStatus */
-            $altCardStatus = CardStatus::find()->isVirt()->regionId($alternativeStorageRegionId)->one();
-            if (!$altCardStatus) {
-                throw new InvalidArgumentException(sprintf('Для алтернативного regionId: %s не найден склад с виртуальными картами', $alternativeStorageRegionId));
-            }
-        }
-
         $numberQuery = Number::find()->where([
             'region' => $regionId,
             'status' => Number::STATUS_ACTIVE_COMMERCIAL,
@@ -155,24 +129,19 @@ class CardController extends Controller
 
             echo ' -> ' ;
 
-            $iccid = null;
-            /** @var CardStatus $cardStatusO */
-            foreach ([$cardStatus, $altCardStatus] as $cardStatusO) {
-                if (!$cardStatusO) {
-                    continue;
-                }
-                try {
-                    echo sprintf('склад "%s" (id: %s) ', $cardStatusO->name, $cardStatusO->id);
-                    $iccid = AccountTariffCheckHlr::reservImsi([
-                        'account_tariff_id' => $accountTariff->id,
-                        'voip_numbers_warehouse_status' => $cardStatusO->id,
-                    ]);
-                } catch (\LogicException $e) {
-                    echo '- нет IMSI, ';
-                }
+            HandlerLogger::me()->clear('set_imsi');
+
+            try {
+                $iccid = AccountTariffCheckHlr::reservImsi([
+                    'account_tariff_id' => $accountTariff->id,
+                ]);
+
+                HandlerLogger::me()->add((string)$iccid, 'set_imsi');
+            } catch (\LogicException $e) {
+                echo ' Error: ' . $e->getMessage() ;
             }
 
-            echo $iccid ?? '- IMSI не получена';
+            echo implode(' -> ', HandlerLogger::me()->get(set_imsi)) . ' ';
         }
 
         echo PHP_EOL;
