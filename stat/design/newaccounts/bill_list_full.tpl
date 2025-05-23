@@ -51,7 +51,6 @@
         </td>
     </tr>
 </table>
-
 <span title="Клиент должен нам">Входящее сальдо</span>:
 <form style="display: inline;" action="?" method="POST" onSubmit="return optools.bills.checkSubmitSetSaldo();">
     <input type="hidden" name="module" value="newaccounts" />
@@ -224,15 +223,35 @@
             <td class="text-right">{$currentStatement.sum|money:$fixclient_data.currency}</td>
             <td colspan="11">&nbsp;</td>
         </tr>
-
     {/if}
+
+    {if !$billops && $sum_cur.last_saldo_ts}
+        <tr>
+            <td colspan="15" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #dbf09e; font-size: 8pt; text-align: center;">Сальдо: {$sum_cur.last_saldo} на {$sum_cur.last_saldo_ts}</td>
+        </tr>
+    {/if}
+
+
+    {assign var=is_show_saldo value=0}
     {foreach from=$billops item=op key=key name=outer}
         {count_comments v=$op}
-        {if isset($op.bill) && (($op.bill && $op.bill.currency!=$fixclient_data.currency) || (!$op.bill && (count($op.pays)==1) && !$op.pays.0.in_sum))}
+        {if
+            isset($op.bill.bill_date) && isset($sum_cur.last_saldo_ts) && $op.bill.bill_date < $sum_cur.last_saldo_ts
+            || isset($op.bill) && (($op.bill && $op.bill.currency!=$fixclient_data.currency)
+            || (!$op.bill && (count($op.pays)==1) && !$op.pays.0.in_sum))
+        }
             {assign var=class value=other}
         {else}
             {cycle values="odd,even" assign=class}
         {/if}
+
+        {if isset($op.bill.bill_date) && isset($sum_cur.last_saldo_ts) && $op.bill.bill_date < $sum_cur.last_saldo_ts && $is_show_saldo == 0}
+            {assign var=is_show_saldo value=1}
+            <tr>
+                <td colspan="15" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #dbf09e; font-size: 8pt; text-align: center;">Сальдо: {$sum_cur.last_saldo} на {$sum_cur.last_saldo_ts}</td>
+            </tr>
+        {/if}
+
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
                 <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}{if $op.bill.is_pay_overdue}color: #c40000;{/if}">{$op.bill.bill_date}</td>
@@ -398,6 +417,9 @@
             <tr>
                 <td colspan="13" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.organization_switched.name}</td>
             </tr>
+        {/if}
+        {if $op.bill.bill_no == 'saldo'}
+            {assign var=is_hide_after_saldo value=1}
         {/if}
     {/foreach}
 </table>

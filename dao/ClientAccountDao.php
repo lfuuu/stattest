@@ -160,27 +160,27 @@ class ClientAccountDao extends Singleton
         $balance = 0;
 
         if ($sum > 0) {
-            array_unshift($R2, [
-                'id' => '0',
-                'client_id' => $clientAccount->id,
-                'payment_no' => 0,
-                'bill_no' => 'saldo',
-                'bill_vis_no' => 'saldo',
-                'payment_date' => $saldo['ts'],
-                'oper_date' => $saldo['ts'],
-                'comment' => '',
-                'add_date' => $saldo['ts'],
-                'add_user' => 0,
-                'sum' => $sum,
-                'is_billpay' => 0,
-            ]);
+//            array_unshift($R2, [
+//                'id' => '0',
+//                'client_id' => $clientAccount->id,
+//                'payment_no' => 0,
+//                'bill_no' => 'saldo',
+//                'bill_vis_no' => 'saldo',
+//                'payment_date' => $saldo['ts'],
+//                'oper_date' => $saldo['ts'],
+//                'comment' => '',
+//                'add_date' => $saldo['ts'],
+//                'add_user' => 0,
+//                'sum' => $sum,
+//                'is_billpay' => 0,
+//            ]);
         } elseif ($sum < 0) {
-            array_unshift($R1, [
-                'bill_no' => 'saldo',
-                'is_payed' => 1,
-                'sum' => -$sum,
-                'new_is_payed' => 0,
-            ]);
+//            array_unshift($R1, [
+//                'bill_no' => 'saldo',
+//                'is_payed' => 1,
+//                'sum' => -$sum,
+//                'new_is_payed' => 0,
+//            ]);
         }
 
         $paymentsOrders = [];
@@ -608,21 +608,11 @@ class ClientAccountDao extends Singleton
         }
 
 
-        $paysOutcome = array_filter($paysAll, function ($p) {
-            return isset($p['payment_type']) && $p['payment_type'] == Payment::PAYMENT_TYPE_OUTCOME;
-        });
+        $paysOutcome = array_filter($paysAll, fn($p) => isset($p['payment_type']) && $p['payment_type'] == Payment::PAYMENT_TYPE_OUTCOME);
+        $paysIncome = array_filter($paysAll, fn($p) => !isset($p['payment_type']) || $p['payment_type'] != Payment::PAYMENT_TYPE_OUTCOME);
 
-        $paysIncome = array_filter($paysAll, function ($p) {
-            return !isset($p['payment_type']) || $p['payment_type'] != Payment::PAYMENT_TYPE_OUTCOME;
-        });
-
-        $billsPlus = array_filter($billsAll, function ($b) {
-            return $b['sum'] >= 0;
-        });
-
-        $billsMinus = array_filter($billsAll, function ($b) {
-            return $b['sum'] < 0;
-        });
+        $billsPlus = array_filter($billsAll, fn($b) => $b['sum'] >= 0);
+        $billsMinus = array_filter($billsAll, fn($b) => $b['sum'] < 0);
 
         $invoiceCleared = array_filter($invoiceAll, fn($inv) => !isset($inv['_is_reversed']));
         $invoiceRejected = array_filter($invoiceAll, fn($inv) => isset($inv['_is_reversed']));

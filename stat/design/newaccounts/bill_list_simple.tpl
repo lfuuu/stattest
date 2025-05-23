@@ -180,18 +180,37 @@
             </tr>
         {/if}
 
+        {if !$billops && $sum_cur.last_saldo_ts}
+            <tr>
+                <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #dbf09e; font-size: 8pt; text-align: center;">Сальдо: {$sum_cur.last_saldo} на {$sum_cur.last_saldo_ts}</td>
+            </tr>
+        {/if}
+
+        {assign var=is_show_saldo value=0}
         {foreach from=$billops item=op key=key name=outer}
             {count_comments v=$op}
-            {if (isset($op.bill) && $op.bill && $op.bill.currency!=$fixclient_data.currency) || ((!isset($op.bill) || !$op.bill) && (count($op.pays)==1) && !$op.pays.0.in_sum)}
+            {if
+                    isset($op.bill.bill_date) && isset($sum_cur.last_saldo_ts) && $op.bill.bill_date < $sum_cur.last_saldo_ts
+                || (isset($op.bill) && $op.bill && $op.bill.currency!=$fixclient_data.currency)
+                || ((!isset($op.bill) || !$op.bill) && (count($op.pays)==1) && !$op.pays.0.in_sum)
+            }
                 {assign var=class value=other}
             {else}
                 {cycle values="odd,even" assign=class}
             {/if}
+
+            {if isset($op.bill.bill_date) && isset($sum_cur.last_saldo_ts) && $op.bill.bill_date < $sum_cur.last_saldo_ts && $is_show_saldo == 0}
+                {assign var=is_show_saldo value=1}
+                <tr>
+                    <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #dbf09e; font-size: 8pt; text-align: center;">Сальдо: {$sum_cur.last_saldo} на {$sum_cur.last_saldo_ts}</td>
+                </tr>
+            {/if}
+
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
                 <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}{if $op.bill.is_pay_overdue}color: #c40000;{/if}">{$op.bill.bill_date}</td>
                 <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}" style="{if !$op.bill.is_show_in_lk}background-color: #aaa;{/if} {if $op.isCanceled==1}text-decoration: line-through;{/if}">
-                    <a href="{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}">{$op.bill.bill_no}</a>
+                        <a href="{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}">{$op.bill.bill_no}</a>
                 </td>
                 <td rowspan="{$rowspan}">{$op.bill.payment_date}</td>
                 <td rowspan="{$rowspan}" align="right">{if $op.ext_sum} -{$op.ext_sum|money:$op.bill.currency} {else} {$op.bill.sum|money:$op.bill.currency} {/if}</td>
@@ -283,6 +302,7 @@
                     <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.organization_switched.name}</td>
                 </tr>
             {/if}
+
         {/foreach}
     </table>
     {if $is_partner}
