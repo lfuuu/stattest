@@ -476,6 +476,10 @@ class row
     public $invoice_for_correction = null;
 
     public $co = '';
+
+    public $saldo = '';
+    public $isListCutoffByBalance = false;
+
 }
 
 class rowCorrection extends row
@@ -514,9 +518,46 @@ class ChangeCompanyFounder
     }
 }
 
+class SaldoHelper
+{
+    private $saldo = [];
+
+    public function __construct(?\app\models\Saldo $saldo)
+    {
+        if (!$saldo) {
+            return;
+        }
+        $saldo = $saldo->getAttributes(['ts', 'saldo']);
+        $saldo['date'] = (new \DateTimeImmutable($saldo['ts']))->setTime(0, 0, 0);
+
+        $this->saldo = $saldo;
+    }
+
+    public function getDate()
+    {
+        if (!$this->saldo) {
+            return null;
+        }
+
+        return $this->saldo['date'];
+    }
+
+    public function __toString()
+    {
+        if (!$this->saldo) {
+            return 'Салдо не установленно';
+        }
+
+        return sprintf('Сальдо: %s на %s', $this->saldo['saldo'], $this->saldo['ts']);
+    }
+}
+
+/** @var array $changeCompany */
 $chCo = new ChangeCompanyFounder($changeCompany);
 
 $nextCo = $chCo->get();
+
+$saldoHelper = (new SaldoHelper($saldo));
 
 $rr = [];
 
@@ -526,6 +567,7 @@ $invoice_is_paid = null;
 $invoice_minus_is_paid = null;
 
 $prevCo = '';
+$isSaldoShown = false;
 foreach ($d as $year => &$yearData) {
     foreach ($yearData as $month => &$monthData) {
         ksort($monthData);
@@ -555,6 +597,16 @@ foreach ($d as $year => &$yearData) {
             $row->invoice_minus_is_paid = $invoice_minus_is_paid;
             $row->co = $isSetCo ? $prevCo : '';
 
+            if ($saldo && !$isSaldoShown) {
+                if ($saldoHelper->getDate() <= $date) {
+                    $row->saldo = $saldoHelper;
+                    $isSaldoShown = true;
+                }
+            }
+
+            $row->isListCutoffByBalance = !$isSaldoShown;
+
+
             foreach ($dayData as $idx => $typeData) {
 
                 if ($idx > 0) {
@@ -570,6 +622,7 @@ foreach ($d as $year => &$yearData) {
                     $row->invoice_is_paid = $invoice_is_paid;
                     $row->invoice_minus_is_paid = $invoice_minus_is_paid;
                     $row->co = '';
+                    $row->isListCutoffByBalance = !$isSaldoShown;
                 }
 
                 foreach ($typeData as $type => $value) {
@@ -592,6 +645,7 @@ foreach ($d as $year => &$yearData) {
                                 $rc->bill_minus_is_paid = $bill_minus_is_paid;
                                 $rc->invoice_is_paid = $invoice_is_paid;
                                 $rc->invoice_minus_is_paid = $invoice_minus_is_paid;
+                                $rc->isListCutoffByBalance = !$isSaldoShown;
 
                                 $rr[] = $rc;
                             }
@@ -652,6 +706,10 @@ function cellContentOptions($is_paid, $addClass = '')
         : ['class' => ($is_paid == 1 ? 'success' : ($is_paid == 2 ? 'warning' : ($is_paid == -1 ? 'info' : 'danger'))) . ($addClass ? ' ' . $addClass : '')];
 }
 
+function contentNotShowInLkSpan()
+{
+    return Html::tag('span', '', ['class' => 'glyphicon glyphicon-eye-close', 'style' => 'padding-left: 5px;', 'title' => 'Не показывать в ЛК']);
+}
 ?>
 <style>
     td {
@@ -675,6 +733,20 @@ function cellContentOptions($is_paid, $addClass = '')
         background-color: #9edbf0;
         text-align: center;
         font-size: 7pt;
+    }
+
+    .text-saldo {
+        background-color: #dbf09e;
+        text-align: center;
+        font-size: 7pt;
+    }
+
+    td.is_not_show_in_lk > a, td.is_not_show_in_lk > span{
+        color: #888;
+    }
+
+    .list-cutoff-by-balance-tr-class {
+        opacity: 50%;
     }
 
 </style>
@@ -740,7 +812,7 @@ function cellContentOptions($is_paid, $addClass = '')
 //                        'disabled' => true,
                     'hidden' => true,
                     'value' => function ($model) {
-                        return $model->comment || $model->co ? GridView::ROW_EXPANDED : GridView::ROW_COLLAPSED;
+                        return $model->comment || $model->co || $model->saldo ? GridView::ROW_EXPANDED : GridView::ROW_COLLAPSED;
                     },
                     'detail' => function ($model) {
                         $return = '';
@@ -752,10 +824,15 @@ function cellContentOptions($is_paid, $addClass = '')
                         if ($model->co) {
                             $return .= Html::tag('div', $model->co, ['class' => 'text-co']);
                         }
+
+                        if ($model->saldo) {
+                            $return .= Html::tag('div', $model->saldo, ['class' => 'text-saldo']);
+                        }
+
                         return $return;
                     },
                     'headerOptions' => ['class' => 'kartik-sheet-style'],
-                    'detailOptions' => ['class' => 'detail-class'],
+                    'detailOptions' => ['class' => 'detail-class other'],
                     'detailRowCssClass' => \kartik\grid\GridView::TYPE_ACTIVE,
                 ],
                 [
@@ -768,7 +845,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         return Yii::$app->formatter->asDate($date, 'php:Y-m-d');
 
                     }
-                ]
+                ],
             ];
 
             if ($listFilter == 'income' || $listFilter == 'full') {
@@ -781,15 +858,17 @@ function cellContentOptions($is_paid, $addClass = '')
                                 return Yii::$app->formatter->asDate($row->date, 'php:Y-m-d');
                             }
 
+                            $isNotShowInLk = $row->bill && isset($row->bill['is_show_in_lk']) && !$row->bill['is_show_in_lk'];
+
                             return $row->bill
-                                ? Html::a($row->bill['number'], $row->bill['link'])
+                                ? Html::a($row->bill['number'], $row->bill['link']) . ($isNotShowInLk ? contentNotShowInLkSpan() : '')
                                 . ' ' . ($row->bill_is_correction ? Html::tag('span', '(К)', ['title' => 'Корректировочный счет', 'class' => 'correction_bill']) : '')
                                 : '';
                         },
                         'contentOptions' => function ($row) {
                             $options = cellContentOptions($row->bill_is_paid);
-                            if (!$row->bill['is_show_in_lk']) {
-                                $options['style'] = ['background-color' => '#aaa'];
+                            if ($row->bill && isset($row->bill['is_show_in_lk']) && !$row->bill['is_show_in_lk']) {
+                                $options['class'] .= ' is_not_show_in_lk';
                             }
                             return $options;
                         },
@@ -965,6 +1044,7 @@ function cellContentOptions($is_paid, $addClass = '')
                         'pagination' => false,
                     ]),
                     'panelHeadingTemplate' => '',
+                    'rowOptions' => fn($row) => $row->isListCutoffByBalance ? ['class' => 'list-cutoff-by-balance-tr-class'] : [],
 
                     'columns' => $columns,
                 ]

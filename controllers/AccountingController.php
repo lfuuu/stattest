@@ -7,6 +7,7 @@ use app\classes\traits\AddClientAccountFilterTraits;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\Organization;
+use app\models\Saldo;
 use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
@@ -98,7 +99,8 @@ class AccountingController extends BaseController
                     'account' => $account,
                     'billOperations' => $billOperations,
                     'listFilter' => $listFilter,
-                    'changeCompany' => Organization::dao()->getWhenOrganizationSwitched($account->contract_id)
+                    'changeCompany' => Organization::dao()->getWhenOrganizationSwitched($account->contract_id),
+                    'saldo' => Saldo::getLastSaldo($account->id),
                 ]
             );
     }

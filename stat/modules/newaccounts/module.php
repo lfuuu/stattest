@@ -537,21 +537,21 @@ class m_newaccounts extends IModule
         ', '', MYSQLI_ASSOC);
 
 
-        if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0) {
-            array_unshift($R1, [
-                'bill_no' => 'saldo',
-                'bill_date' => $sum[$fixclient_data['currency']]['ts'],
-                'client_id' => $fixclient_data['id'],
-                'currency' => $fixclient_data['currency'],
-                'sum' => $sum[$fixclient_data['currency']]['saldo'],
-                'is_payed' => 1,
-                'comment' => '',
-                'postreg' => $sum[$fixclient_data['currency']]['ts'],
-                'nal' => 'prov',
-                'in_sum' => 1
-            ]);
-            $sum[$fixclient_data['currency']]['saldo'] = 0;
-        }
+//        if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0) {
+//            array_unshift($R1, [
+//                'bill_no' => 'saldo',
+//                'bill_date' => $sum[$fixclient_data['currency']]['ts'],
+//                'client_id' => $fixclient_data['id'],
+//                'currency' => $fixclient_data['currency'],
+//                'sum' => $sum[$fixclient_data['currency']]['saldo'],
+//                'is_payed' => 1,
+//                'comment' => '',
+//                'postreg' => $sum[$fixclient_data['currency']]['ts'],
+//                'nal' => 'prov',
+//                'in_sum' => 1
+//            ]);
+//            $sum[$fixclient_data['currency']]['saldo'] = 0;
+//        }
 
         $R2 = $db->AllRecords('
             select
@@ -805,7 +805,7 @@ class m_newaccounts extends IModule
                 }
             }
         }
-        
+
         $design->assign('client_type', $clientType);
         $design->assign("qrs", $qrs);
         $design->assign("qrs_date", $qrsDate);

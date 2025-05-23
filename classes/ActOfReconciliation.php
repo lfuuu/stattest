@@ -14,6 +14,7 @@ use app\models\Invoice;
 use app\models\Language;
 use app\models\OperationType;
 use app\models\Payment;
+use app\models\Saldo;
 use app\modules\uu\models\Bill as uuBill;
 use Exception;
 use yii\db\Expression;
@@ -417,6 +418,13 @@ WHERE b.client_id = ' . $account->id . '
 
         $result = $this->makingAdjustments($account, $result);
         $this->_typeCast($result);
+
+        /** @var Saldo $saldo */
+        $saldo = Saldo::getLastSaldo($account->id);
+
+        if ($saldo) {
+            $result = array_filter($result, fn($l) => $l['date'] >= $saldo->ts);
+        }
 
         return $result;
     }
