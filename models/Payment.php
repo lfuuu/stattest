@@ -134,6 +134,7 @@ class Payment extends ActiveRecord
     public $bankBik = null;
     public $bankAccount = null;
 
+    public const dateField = 'payment_date';
     /**
      * Название таблицы
      *

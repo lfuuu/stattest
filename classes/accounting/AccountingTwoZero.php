@@ -14,6 +14,6 @@ class AccountingTwoZero
     public function __construct(ClientAccount $account)
     {
         $this->list = new Lists(['account' => $account]);
-        $this->totals = new Totals(['lists' => $this->list]);
+        $this->totals = new Totals(['lists' => $this->list, 'account' => $account]);
     }
 }
