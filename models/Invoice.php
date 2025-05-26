@@ -74,6 +74,8 @@ class Invoice extends ActiveRecord
 
     public $isAsInsert = false;
 
+    public const dateField = 'date';
+
     /**
      * Название таблицы
      *

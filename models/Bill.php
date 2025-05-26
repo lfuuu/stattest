@@ -121,6 +121,8 @@ class Bill extends ActiveRecord
 
     public $isSkipCheckCorrection = false;
 
+
+    public const dateField = 'bill_date';
     /**
      * Название таблицы
      *

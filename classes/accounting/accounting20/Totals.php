@@ -3,6 +3,8 @@
 namespace app\classes\accounting\accounting20;
 
 use app\models\BillExternal;
+use app\models\ClientAccount;
+use app\models\Saldo;
 use yii\base\BaseObject;
 
 /**
@@ -14,6 +16,7 @@ use yii\base\BaseObject;
  */
 class Totals extends BaseObject
 {
+    public ?ClientAccount $account = null;
     public float $invSum = 0;
 
     public float $billSumPlus = 0;
@@ -30,6 +33,8 @@ class Totals extends BaseObject
     public float $paysPlusInv = 0;
 
     public ?Lists $lists = null;
+
+    private ?string $saldoDate = null;
 
     public function getTotalPlus(): float
     {
@@ -56,31 +61,38 @@ class Totals extends BaseObject
 
         $lists = $this->lists;
 
-        $this->invSum = array_reduce($lists->invoices, function ($acum, $i) {
-            return $acum + $i->sum;
-        }, 0);
+        $saldo = Saldo::getLastSaldo($this->account->id);
+        $this->saldoDate = $saldo ? $saldo->ts : null;
 
-        $this->billSumPlus = array_reduce($lists->billsPlus, function ($acum, $i) {
-            return $acum + $i->sum;
-        }, 0);
-
-        $this->billSumMinus = array_reduce($lists->billsMinus, function ($acum, $i) {
-            return $acum + $i->sum;
-        }, 0);
-
-        $this->invoiceExtSum = array_reduce($lists->invoiceExt, function ($acum, BillExternal $i) {
-            return $acum + $i->ext_vat + $i->ext_sum_without_vat;
-        }, 0);
-
-        $this->paysPlusSum = array_reduce($lists->paysPlus, function ($acum, $i) {
-            return $acum + $i->sum;
-        }, 0);
-
-        $this->paysMinusSum = array_reduce($lists->paysMinus, function ($acum, $i) {
-            return $acum + $i->sum;
-        }, 0);
+        $this->invSum = $this->filterAndReduce($lists->invoices, fn($acum, $i) => $acum + $i->sum);
+        $this->billSumPlus = $this->filterAndReduce($lists->billsPlus, fn($acum, $i) => $acum + $i->sum);
+        $this->billSumMinus = $this->filterAndReduce($lists->billsMinus, fn($acum, $i) => $acum + $i->sum);
+        $this->invoiceExtSum = $this->filterAndReduce($lists->invoiceExt, fn($acum, BillExternal $i) => $acum + $i->ext_vat + $i->ext_sum_without_vat);
+        $this->paysPlusSum = $this->filterAndReduce($lists->paysPlus, fn($acum, $i) => $acum + $i->sum);
+        $this->paysMinusSum = $this->filterAndReduce($lists->paysMinus, fn($acum, $i) => $acum + $i->sum);
 
         $this->paysPlusInv = $this->paysPlusBills = $this->paysPlusSum;
         $this->invoiceExtPays = $this->paysMinusBills = $this->paysMinusSum;
     }
+
+    public function filterAndReduce(array $list, \Closure $fn)
+    {
+        return array_reduce($this->filterByDate($list, $this->saldoDate), $fn, 0);
+    }
+
+    public function filterByDate($list, $date)
+    {
+        if (!$date || !$list) {
+            return $list;
+        }
+
+        $el = reset($list);
+
+        if (!(new \ReflectionClass(get_class($el)))->hasConstant('dateField')) {
+            throw new \RuntimeException(sprintf('В модели %s не найдена константа с названием поля с датой', get_class($el)));
+        }
+
+        return array_filter($list, function($el) use ($date) { return $el->{$el::dateField} >= $date;});
+    }
+
 }

@@ -108,7 +108,7 @@
                 </tr>
                 <tr style="background-color: #eaeaea;">
                     <td>Общая сумма оказанных услуг:</td>
-                    <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum.RUB.bill|money:'RUB'}{else}{$sum_cur.bill|money:$currency}{/if}</b></td>
+                    <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum.RUB.bill|money:'RUB'}{else}{$sum_l.service.RUB|money:$currency}{/if}</b></td>
                     <td align="right">{if $bill_list_filter_income}<b>{$sum_cur.invoice|money:$currency}</b>{/if}</td>
                     <td></td>
                     <td align="right"><b>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|money:'USD'}{else}{$sum.USD.bill|money:'USD'}{/if}</b></td>

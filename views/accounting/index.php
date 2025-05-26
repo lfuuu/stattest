@@ -82,6 +82,19 @@ function nf($d)
 }
 
 ?>
+
+<?php if ($saldo): ?>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="row">
+        <div class="col-sm-3"><b>Сальдо</b></div>
+        <div class="col-sm-3">Сумма: <?= nf($saldo->saldo) ?></div>
+        <div class="col-sm-3">На дату: <?= $saldo->ts ?></div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="row">
     <div class="col-sm-3">
         <div class="row text-center"><h2>Доходные (с/ф)</h2></div>
@@ -368,7 +381,6 @@ function getPaymentInfo(\app\models\Payment $pay)
 
 function getPaymentInfoJson(\app\models\Payment $pay)
 {
-
     return \app\models\PaymentInfo::getInfoText($pay);
 }
 

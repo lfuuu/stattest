@@ -186,9 +186,10 @@ class m_newaccounts extends IModule
             "service" => ["USD" => 0, "RUB" => 0],
             "zalog" => ["USD" => 0, "RUB" => 0],
             "zadatok" => ["USD" => 0, "RUB" => 0],
-            "good" => ["USD" => 0, "RUB" => 0]
-
+            "good" => ["USD" => 0, "RUB" => 0],
         ];
+
+        $saldo = \app\models\Saldo::getLastSaldo($fixclient_data->id);
 
         foreach ($db->AllRecords(
             "SELECT sum(l.sum) AS sum, l.type, b.currency
@@ -197,11 +198,16 @@ class m_newaccounts extends IModule
                     client_id = '" . $fixclient_data["id"] . "'
                 AND b.bill_no = l.bill_no
                 AND state_1c != 'Отказ'
+                " . ($saldo ? "AND l.date_from >= '" . $saldo->ts . "'" : '') . "
             GROUP BY l.type, b.currency") as $s) {
             $sum_l[$s["type"]][$s["currency"]] = $s["sum"];
         }
 
-        $sum_l["payments"] = $db->GetValue("SELECT sum(p.sum) FROM newpayments p WHERE p.client_id ='" . $fixclient_data["id"] . "'");
+        $queryPayment = Payment::find()->where(['client_id' => $fixclient_data["id"]]);
+        if ($saldo) {
+            $queryPayment->andWhere(['>=', 'payment_date', $saldo->ts]);
+        }
+        $sum_l["payments"] = $queryPayment->sum('sum');
 
         $design->assign("sum_l", $sum_l);
 
