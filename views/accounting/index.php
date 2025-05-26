@@ -366,7 +366,8 @@ function getPaymentInfo(\app\models\Payment $pay)
     return $info;
 }
 
-function getPaymentInfoJson(\app\models\Payment $pay) {
+function getPaymentInfoJson(\app\models\Payment $pay)
+{
 
     return \app\models\PaymentInfo::getInfoText($pay);
 }
@@ -710,6 +711,7 @@ function contentNotShowInLkSpan()
 {
     return Html::tag('span', '', ['class' => 'glyphicon glyphicon-eye-close', 'style' => 'padding-left: 5px;', 'title' => 'Не показывать в ЛК']);
 }
+
 ?>
 <style>
     td {
@@ -741,7 +743,7 @@ function contentNotShowInLkSpan()
         font-size: 7pt;
     }
 
-    td.is_not_show_in_lk > a, td.is_not_show_in_lk > span{
+    td.is_not_show_in_lk > a, td.is_not_show_in_lk > span {
         color: #888;
     }
 
@@ -816,17 +818,18 @@ function contentNotShowInLkSpan()
                     },
                     'detail' => function ($model) {
                         $return = '';
+                        $addClass = (fn($row) => ($row->isListCutoffByBalance ? ' list-cutoff-by-balance-tr-class' : ''))($model);
 
                         if ($model->comment) {
-                            $return .= Html::tag('div', $model->comment, ['class' => 'text-comment']);
+                            $return .= Html::tag('div', $model->comment, ['class' => 'text-comment' . $addClass]);
                         }
 
                         if ($model->co) {
-                            $return .= Html::tag('div', $model->co, ['class' => 'text-co']);
+                            $return .= Html::tag('div', $model->co, ['class' => 'text-co' . $addClass]);
                         }
 
                         if ($model->saldo) {
-                            $return .= Html::tag('div', $model->saldo, ['class' => 'text-saldo']);
+                            $return .= Html::tag('div', $model->saldo, ['class' => 'text-saldo' . $addClass]);
                         }
 
                         return $return;
@@ -1054,12 +1057,12 @@ function contentNotShowInLkSpan()
     </div>
 </form>
 <script>
-$(function () {
-    $('[data-toggle="popover"]').popover()
-})
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    })
 </script>
 <style type="text/css">
-    .popover{
-        max-width:600px;
+    .popover {
+        max-width: 600px;
     }
 </style>
