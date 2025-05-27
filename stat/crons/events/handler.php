@@ -1140,16 +1140,16 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     }
                     break;
 
-                case CallTrackingModule::EVENT_CALLTRACKING_CREATE:
-                    $info = $isCallTrackingServer
-                        ? ApiCalltracking::me()->create($param['account_id'], $param['stat_product_id'])
-                        : EventQueue::API_IS_SWITCHED_OFF;
-                    break;
-
-                case CallTrackingModule::EVENT_CALLTRACKING_DELETE:
-                    $info = $isCallTrackingServer
-                        ? ApiCalltracking::me()->delete($param['account_id'], $param['stat_product_id'])
-                        : EventQueue::API_IS_SWITCHED_OFF;
+//                case CallTrackingModule::EVENT_CALLTRACKING_CREATE:
+//                    $info = $isCallTrackingServer
+//                        ? ApiCalltracking::me()->create($param['account_id'], $param['stat_product_id'])
+//                        : EventQueue::API_IS_SWITCHED_OFF;
+//                    break;
+//
+//                case CallTrackingModule::EVENT_CALLTRACKING_DELETE:
+//                    $info = $isCallTrackingServer
+//                        ? ApiCalltracking::me()->delete($param['account_id'], $param['stat_product_id'])
+//                        : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
 

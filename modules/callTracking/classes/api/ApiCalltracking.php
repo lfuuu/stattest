@@ -19,7 +19,8 @@ class ApiCalltracking extends Singleton
      */
     public function isAvailable()
     {
-        return (bool)$this->_getHost();
+        return false;
+//        return (bool)$this->_getHost();
     }
 
     /**
