@@ -46,7 +46,7 @@ use yii\helpers\Url;
             $accountTariff->getUrl()
         ) .
         // если у номера есть симка - показываем
-        ($accountTariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->number->imsi ? ' (' . Html::tag('small', $accountTariff->number->imsiModel->link) . ')' : '') .
+//        ($accountTariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->number->imsi ? ' (' . Html::tag('small', $accountTariff->number->imsiModel->link) . ')' : '') .
         // Отключенную ВАТС можно разархивировать
         (
         ($accountTariff->isVpbxUnzippable()) ?
