@@ -323,19 +323,19 @@ SQL;
                     break;
                 }
 
-                if ($eventType == ImportantEventsNames::UU_SWITCHED_ON) {
-                    EventQueue::go(\app\modules\callTracking\Module::EVENT_CALLTRACKING_CREATE, [
-                        'account_id' => $accountTariff->client_account_id,
-                        'stat_product_id' => $accountTariff->id,
-                        'account_tariff_id' => $accountTariff->id,
-                    ]);
-                } elseif ($eventType == ImportantEventsNames::UU_SWITCHED_OFF) {
-                    EventQueue::go(\app\modules\callTracking\Module::EVENT_CALLTRACKING_DELETE, [
-                        'account_id' => $accountTariff->client_account_id,
-                        'stat_product_id' => $accountTariff->id,
-                        'account_tariff_id' => $accountTariff->id,
-                    ]);
-                }
+//                if ($eventType == ImportantEventsNames::UU_SWITCHED_ON) {
+//                    EventQueue::go(\app\modules\callTracking\Module::EVENT_CALLTRACKING_CREATE, [
+//                        'account_id' => $accountTariff->client_account_id,
+//                        'stat_product_id' => $accountTariff->id,
+//                        'account_tariff_id' => $accountTariff->id,
+//                    ]);
+//                } elseif ($eventType == ImportantEventsNames::UU_SWITCHED_OFF) {
+//                    EventQueue::go(\app\modules\callTracking\Module::EVENT_CALLTRACKING_DELETE, [
+//                        'account_id' => $accountTariff->client_account_id,
+//                        'stat_product_id' => $accountTariff->id,
+//                        'account_tariff_id' => $accountTariff->id,
+//                    ]);
+//                }
 
                 // При выключении или выключении услуги добавить в очередь экспорт номера
                 EventQueue::go(\app\modules\callTracking\Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
