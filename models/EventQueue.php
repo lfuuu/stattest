@@ -248,8 +248,6 @@ class EventQueue extends ActiveRecord
         NnpModule::EVENT_IMPORT => 'ННП. Импорт страны',
         NnpModule::EVENT_LINKER => 'ННП. Линковка исходных к ID',
         NnpModule::EVENT_FILTER_TO_PREFIX => 'ННП. Фильтр -> префикс',
-        CallTrackingModule::EVENT_EXPORT_ACCOUNT_TARIFF => 'Экспорт услуги в Call tracking',
-        CallTrackingModule::EVENT_EXPORT_VOIP_NUMBER => 'Экспорт номера в Call tracking',
 
         MttModule::EVENT_CALLBACK_GET_ACCOUNT_BALANCE => 'МТТ-callback. Получить баланс',
         MttModule::EVENT_CALLBACK_GET_ACCOUNT_DATA => 'МТТ-callback. Получить инфо',

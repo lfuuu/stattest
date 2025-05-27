@@ -25,31 +25,31 @@ class AccountTariffImportantEvents extends Behavior
         return [
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
             ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
+//            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
         ];
     }
 
-    /**
-     * @param Event $event
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \yii\base\Exception
-     */
-    public function beforeUpdate(Event $event)
-    {
-        /** @var AccountTariff $accountTariff */
-        $accountTariff = $event->sender;
-        if (
-            $accountTariff->service_type_id == ServiceType::ID_CALLTRACKING
-            && $accountTariff->isAttributeChanged('calltracking_params')
-        ) {
-            // При обновлении calltracking_params в услуге добавить в очередь экспорт номера
-            EventQueue::go(Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
-                'account_tariff_id' => $accountTariff->id,
-                'is_active' => (bool)$accountTariff->tariff_period_id,
-                'calltracking_params' => $accountTariff->calltracking_params,
-            ]);
-        }
-    }
+//    /**
+//     * @param Event $event
+//     * @throws \app\exceptions\ModelValidationException
+//     * @throws \yii\base\Exception
+//     */
+//    public function beforeUpdate(Event $event)
+//    {
+//        /** @var AccountTariff $accountTariff */
+//        $accountTariff = $event->sender;
+//        if (
+//            $accountTariff->service_type_id == ServiceType::ID_CALLTRACKING
+//            && $accountTariff->isAttributeChanged('calltracking_params')
+//        ) {
+//            // При обновлении calltracking_params в услуге добавить в очередь экспорт номера
+//            EventQueue::go(Module::EVENT_EXPORT_ACCOUNT_TARIFF, [
+//                'account_tariff_id' => $accountTariff->id,
+//                'is_active' => (bool)$accountTariff->tariff_period_id,
+//                'calltracking_params' => $accountTariff->calltracking_params,
+//            ]);
+//        }
+//    }
 
     /**
      * @param Event $event
