@@ -1150,7 +1150,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
 //                    $info = $isCallTrackingServer
 //                        ? ApiCalltracking::me()->delete($param['account_id'], $param['stat_product_id'])
 //                        : EventQueue::API_IS_SWITCHED_OFF;
-                    break;
+//                    break;
 
 
                 case ClientChangedAmqAdapter::EVENT:
