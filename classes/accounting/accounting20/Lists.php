@@ -52,8 +52,10 @@ class Lists extends BaseObject
 
         $account = $this->account;
 
-        $this->paysPlus = Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => Payment::PAYMENT_TYPE_INCOME] /* ['>', 'sum', 0] */)->all();
-        $this->paysMinus = Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => Payment::PAYMENT_TYPE_OUTCOME] /* ['<', 'sum', 0] */)->all();
+//        $this->paysPlus = Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => Payment::PAYMENT_TYPE_INCOME] /* ['>', 'sum', 0] */)->all();
+        //        $this->paysMinus = Payment::find()->where(['client_id' => $account->id])->andWhere(['payment_type' => Payment::PAYMENT_TYPE_OUTCOME] /* ['<', 'sum', 0] */)->all();
+        $this->paysPlus = Payment::find()->where(['client_id' => $account->id])->andWhere(['>', 'sum', 0])->all();
+        $this->paysMinus = Payment::find()->where(['client_id' => $account->id])->andWhere(['<', 'sum', 0])->all();
 
         $this->invoices = Invoice::find()
             ->alias('i')
