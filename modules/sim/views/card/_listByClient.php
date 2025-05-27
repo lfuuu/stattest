@@ -19,55 +19,57 @@ if (!$cards) {
 }
 ?>
 
-<div class="col-sm-4">
-    <div class="panel panel-danger">
-        <div class="panel-heading">
-            <h2 class="panel-title">SIM-карты</h2>
-        </div>
+    <div class="col-sm-4">
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <h2 class="panel-title">SIM-карты</h2>
+            </div>
 
-        <div class="panel-body">
-            <?php
-            /** @var Card $card */
-            foreach ($cards as $card) {
-                echo $card->getLink();
+            <div class="panel-body">
+                <?php
+                /** @var Card $card */
+                foreach ($cards as $card) {
+                    echo $card->getLink();
 
-                $cnt = 0;
+                    $cnt = 0;
 
-                if (!($imsies = $card->imsies)) {
-                    echo ' ';
+                    if (!($imsies = $card->imsies)) {
+                        echo ' ';
 
-                    continue;
-                }
-
-                echo Html::beginTag('small');
-                foreach ($imsies as $imsi) {
-                    if ($imsi->msisdn) {
-                        if (!$cnt) {
-                            echo '&nbsp;(';
-                        }
-
-                        if ($cnt) {
-                            echo ', ';
-                        }
-                        $cnt++;
-
-                        echo $imsi->number->link;
+                        continue;
                     }
-                }
 
-                if ($cnt) {
-                    echo ')';
+                    echo Html::beginTag('small');
+                    foreach ($imsies as $imsi) {
+                        if ($imsi->msisdn) {
+                            if (!$cnt) {
+                                echo '&nbsp;(';
+                            }
+
+                            if ($cnt) {
+                                echo ', ';
+                            }
+                            $cnt++;
+
+                            echo $imsi->number->link;
+                        }
+                    }
+
+                    if ($cnt) {
+                        echo ')';
+                    }
+                    echo Html::endTag('small') . ' ';
                 }
-                echo Html::endTag('small') . ' ';
-            }
-            ?>
+                ?>
+            </div>
         </div>
     </div>
-</div>
 <?php
 if ($account->superClient->entry_point_id != \app\models\EntryPoint::ID_MNP_RU_DANYCOM) {
 //    return;
 }
+
+return;
 
 $isView = true;
 ob_start();
