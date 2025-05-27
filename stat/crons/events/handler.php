@@ -268,7 +268,6 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
     $isChatBotServer = $flags['isChatBotServer'];
     $isAccountTariffLightServer = $flags['isAccountTariffLightServer'];
     $isNnpServer = $flags['isNnpServer'];
-    $isCallTrackingServer = $flags['isCallTrackingServer'];
     $isAtolServer = $flags['isAtolServer'];
     $isMttServer = $flags['isMttServer'];
     $isTele2Server = $flags['isTele2Server'];
@@ -1116,42 +1115,6 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                         Socket::PARAM_MESSAGE_HTML => 'Просмотреть выполненную задачу можно по ' . $completedEventMessage,
                     ]);
                     break;
-
-                // --------------------------------------------
-                // CallTracking Module
-                // --------------------------------------------
-                case CallTrackingModule::EVENT_EXPORT_ACCOUNT_TARIFF:
-                    if ($isCallTrackingServer) {
-                        \app\modules\callTracking\models\AccountTariff::setActive(
-                            $param['account_tariff_id'], $param['is_active'], $param['calltracking_params']
-                        );
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
-                    break;
-
-                case CallTrackingModule::EVENT_EXPORT_VOIP_NUMBER:
-                    if ($isCallTrackingServer) {
-                        VoipNumber::setActive(
-                            $param['voip_number'], $param['is_active']
-                        );
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
-                    break;
-
-//                case CallTrackingModule::EVENT_CALLTRACKING_CREATE:
-//                    $info = $isCallTrackingServer
-//                        ? ApiCalltracking::me()->create($param['account_id'], $param['stat_product_id'])
-//                        : EventQueue::API_IS_SWITCHED_OFF;
-//                    break;
-//
-//                case CallTrackingModule::EVENT_CALLTRACKING_DELETE:
-//                    $info = $isCallTrackingServer
-//                        ? ApiCalltracking::me()->delete($param['account_id'], $param['stat_product_id'])
-//                        : EventQueue::API_IS_SWITCHED_OFF;
-//                    break;
-
 
                 case ClientChangedAmqAdapter::EVENT:
                     /*
