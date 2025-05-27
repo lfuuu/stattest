@@ -81,6 +81,8 @@ function nf($d)
     return preg_replace('/(^0.00|\.?[0]+)$/', '<span style="color: lightgrey;">$1</span>', $v);
 }
 
+$currencyLabel = $account->currencyModel->symbol;
+
 ?>
 
 <?php if ($saldo): ?>
@@ -580,7 +582,7 @@ $invoice_is_paid = null;
 $invoice_minus_is_paid = null;
 
 $prevCo = '';
-$isSaldoShown = false;
+$isSaldoShown = (bool)$saldo;
 foreach ($d as $year => &$yearData) {
     foreach ($yearData as $month => &$monthData) {
         ksort($monthData);
@@ -610,14 +612,14 @@ foreach ($d as $year => &$yearData) {
             $row->invoice_minus_is_paid = $invoice_minus_is_paid;
             $row->co = $isSetCo ? $prevCo : '';
 
-            if ($saldo && !$isSaldoShown) {
+            if ($saldo && $isSaldoShown) {
                 if ($saldoHelper->getDate() <= $date) {
                     $row->saldo = $saldoHelper;
-                    $isSaldoShown = true;
+                    $isSaldoShown = false;
                 }
             }
 
-            $row->isListCutoffByBalance = !$isSaldoShown;
+            $row->isListCutoffByBalance = $isSaldoShown;
 
 
             foreach ($dayData as $idx => $typeData) {
@@ -635,7 +637,7 @@ foreach ($d as $year => &$yearData) {
                     $row->invoice_is_paid = $invoice_is_paid;
                     $row->invoice_minus_is_paid = $invoice_minus_is_paid;
                     $row->co = '';
-                    $row->isListCutoffByBalance = !$isSaldoShown;
+                    $row->isListCutoffByBalance = $isSaldoShown;
                 }
 
                 foreach ($typeData as $type => $value) {
@@ -658,7 +660,7 @@ foreach ($d as $year => &$yearData) {
                                 $rc->bill_minus_is_paid = $bill_minus_is_paid;
                                 $rc->invoice_is_paid = $invoice_is_paid;
                                 $rc->invoice_minus_is_paid = $invoice_minus_is_paid;
-                                $rc->isListCutoffByBalance = !$isSaldoShown;
+                                $rc->isListCutoffByBalance = $isSaldoShown;
 
                                 $rr[] = $rc;
                             }
@@ -830,7 +832,7 @@ function contentNotShowInLkSpan()
                     },
                     'detail' => function ($model) {
                         $return = '';
-                        $addClass = (fn($row) => ($row->isListCutoffByBalance ? ' list-cutoff-by-balance-tr-class' : ''))($model);
+                        $addClass = (fn(row $row) => ($row->isListCutoffByBalance ? ' list-cutoff-by-balance-tr-class' : ''))($model);
 
                         if ($model->comment) {
                             $return .= Html::tag('div', $model->comment, ['class' => 'text-comment' . $addClass]);
@@ -889,7 +891,7 @@ function contentNotShowInLkSpan()
                         },
                     ],
                     [
-                        'label' => '₽',
+                        'label' => $currencyLabel,
                         'format' => 'raw',
                         'value' => function (row $row) use ($sumInvoice) {
                             if ($row instanceof rowCorrection) {
@@ -936,7 +938,7 @@ function contentNotShowInLkSpan()
                         },
                     ],
                     [
-                        'label' => '₽ +',
+                        'label' => $currencyLabel . ' +',
                         'format' => 'raw',
                         'value' => function (row $row) {
                             if ($row->invoice_for_correction) {
@@ -995,7 +997,7 @@ function contentNotShowInLkSpan()
                         },
                     ],
                     [
-                        'label' => '₽ -',
+                        'label' => $currencyLabel . ' -',
                         'format' => 'raw',
                         'value' => function (row $row) {
                             return $row->bill_minus ? nf($row->bill_minus['sum']) : '';
@@ -1019,7 +1021,7 @@ function contentNotShowInLkSpan()
                         'value' => function (row $row) {
                             return $row->invoice_minus ? nf($row->invoice_minus['sum']) : '';
                         },
-                        'label' => '₽ -',
+                        'label' => $currencyLabel . ' -',
                         'contentOptions' => function ($row) {
                             return cellContentOptions($row->invoice_minus_is_paid, 'text-right');
                         },
@@ -1059,7 +1061,7 @@ function contentNotShowInLkSpan()
                         'pagination' => false,
                     ]),
                     'panelHeadingTemplate' => '',
-                    'rowOptions' => fn($row) => $row->isListCutoffByBalance ? ['class' => 'list-cutoff-by-balance-tr-class'] : [],
+                    'rowOptions' => fn(row $row) => $row->isListCutoffByBalance ? ['class' => 'list-cutoff-by-balance-tr-class'] : [],
 
                     'columns' => $columns,
                 ]
