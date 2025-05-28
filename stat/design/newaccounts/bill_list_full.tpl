@@ -29,7 +29,7 @@
                 <a href="{$LINK_START}module=newaccounts&action=bill_create_outcome">Создать расходный счёт</a> /
             {/if}
             <a href="{$LINK_START}module=newaccounts&action=bill_balance">Обновить баланс</a>&nbsp;
-            <a style="padding-left: 200px;" href="{$LINK_START}module=newaccounts&action=bill_balance2" title="Разносит отдельно по доходные и расходные платежи">Обновить баланс (новая версия, для тестирования) <div class="glyphicon glyphicon-refresh"></div></a>
+            <a style="padding-left: 200px;" href="{$LINK_START}module=newaccounts&action=bill_balance2" title="Разносит отдельно по доходные и расходные платежи">Обновить баланс (с учетом сальдо) <div class="glyphicon glyphicon-refresh"></div></a>
             <br/><br/>
         </td>
         <td style="text-align: right">
@@ -136,6 +136,18 @@
                                 {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:$currency}{else}{$sum_cur.invoice-$sum_l.payments|money:$currency}{/if}
                             </b>
                         {/if}
+                    </td>
+                    <td></td>
+                    <td align="right">
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>RT Баланс:</td>
+                    <td align="right">
+                        <b>
+                            {$fixclient_data.balance|money:'RUB'}
+                        </b>
                     </td>
                     <td></td>
                     <td align="right">
