@@ -1,4 +1,8 @@
-# ENVNAME 
+
+export http_proxy=https://deploy:xHkYueLCmUdS7xNK@ppp.kompaas.tech:443
+export https_proxy=https://deploy:xHkYueLCmUdS7xNK@ppp.kompaas.tech:443
+
+# ENVNAME
 #   prod - конфигурация "Продакшин", приложение смотрит на боевой сервер.
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
