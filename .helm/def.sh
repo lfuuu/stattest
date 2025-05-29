@@ -7,7 +7,7 @@ export https_proxy=https://deploy:xHkYueLCmUdS7xNK@ppp.kompaas.tech:443
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.543
+TAG=1.544
 
 function dev()
 {
