@@ -1,7 +1,4 @@
 
-export http_proxy=https://deploy:xHkYueLCmUdS7xNK@ppp.kompaas.tech:443
-export https_proxy=https://deploy:xHkYueLCmUdS7xNK@ppp.kompaas.tech:443
-
 # ENVNAME
 #   prod - конфигурация "Продакшин", приложение смотрит на боевой сервер.
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
@@ -89,9 +86,6 @@ function euprod()
   export IS_WITH_NNPPORTED=0
   export IS_WITH_BALANCE=0
   export IS_WITH_MAILER=1
-
-  unset http_proxy
-  unset https_proxy
 
   if [[ "$IS_MINIKUBE" == 1 ]]; then
     CI_URL="${CI_URL}.local"
