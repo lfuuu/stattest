@@ -7,7 +7,7 @@ export https_proxy=https://deploy:xHkYueLCmUdS7xNK@ppp.kompaas.tech:443
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.543
+TAG=1.544
 
 function dev()
 {
@@ -89,6 +89,9 @@ function euprod()
   export IS_WITH_NNPPORTED=0
   export IS_WITH_BALANCE=0
   export IS_WITH_MAILER=1
+
+  unset http_proxy
+  unset https_proxy
 
   if [[ "$IS_MINIKUBE" == 1 ]]; then
     CI_URL="${CI_URL}.local"
