@@ -136,6 +136,69 @@ class SimController extends ApiInternalController
         $offset = null
     )
     {
+        $query = $this->_getCardsQuery($client_account_id, $iccid, $like_iccid, $limit, $offset);
+        $query->orderBy(['iccid' => SORT_ASC]);
+
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->simCardRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @SWG\Definition(definition = "simCardRecordCount", type = "object",
+     *   @SWG\Property(property = "count", type = "integer", description = "кол-во SIM-карт"),
+     * ),
+     *
+     * @SWG\Get(tags = {"SIM-card"}, path = "/internal/sim/get-cards-count", summary = "Кол-во SIM-карт ЛС", operationId = "GetCardsCount",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "iccid", type = "string", description = "ICCID", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "like_iccid", type = "string", description = "like ICCID", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "query limit", in = "query", required = false, default = ""),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "query offset", in = "query", required = false, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Кол-во SIM-карт ЛС",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/simCardRecordCount"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param int $client_account_id
+     * @return array
+     */
+    public function actionGetCardsCount(
+        $client_account_id,
+        $iccid = null,
+        $like_iccid = null,
+        $limit = null,
+        $offset = null
+    )
+    {
+        $query = $this->_getCardsQuery(
+            $client_account_id,
+            $iccid,
+            $like_iccid,
+            $limit,
+            $offset
+        );
+
+        return ['count' => $query->count()];
+    }
+
+    /**
+     * @param $client_account_id
+     * @param $iccid
+     * @param $like_iccid
+     * @param $limit
+     * @param $offset
+     * @return \yii\db\ActiveQuery
+     */
+    private function _getCardsQuery($client_account_id, $iccid, $like_iccid, $limit, $offset): \yii\db\ActiveQuery
+    {
         $query = Card::find()
             ->where(['client_account_id' => $client_account_id])
             ->with('status', 'imsies', 'imsies.profile', 'imsies.status');
@@ -147,17 +210,10 @@ class SimController extends ApiInternalController
                 $query->andWhere(new Expression('iccid::text like :exp', ['exp' => '%' . $like_iccid . '%']));
             }
         }
-        !is_null($limit) && is_numeric($limit) && $limit >=0 && $query->limit($limit);
-        !is_null($offset) && is_numeric($offset) && $offset >=0 && $query->offset($offset);
+        is_numeric($limit) && $limit >= 0 && $query->limit($limit);
+        is_numeric($offset) && $offset >= 0 && $query->offset($offset);
 
-        $query->orderBy(['iccid' => SORT_ASC]);
-
-        $result = [];
-        foreach ($query->each() as $model) {
-            $result[] = $this->simCardRecord($model);
-        }
-
-        return $result;
+        return $query;
     }
 
     /**
