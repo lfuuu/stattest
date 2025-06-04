@@ -213,6 +213,9 @@ ansible:
     - name: "Php-fpm: 3. Install dependencies"
       shell: |
         # install composer
+        export HTTP_PROXY=http://p.kompaas.tech:3128
+        export HTTPS_PROXY=http://p.kompaas.tech:3128
+        export NO_PROXY="localhost, 127.0.0.0/8, 10.0.0.0/8, 85.94.32.0/24, 85.94.48.0/24, 85.94.49.0/24, 192.168.0.0/16, 172.16.0.0/12, .mcn.ru, .mcnloc.ru, .mcnspd.ru, .local"
         curl -sS https://getcomposer.org/installer | php
         mv composer.phar /usr/local/bin/composer
         composer self-update --1
@@ -380,6 +383,9 @@ ansible:
       - name: "Php (cron): 3. Install dependencies"
         shell: |
           # install composer
+          export HTTP_PROXY=http://p.kompaas.tech:3128
+          export HTTPS_PROXY=http://p.kompaas.tech:3128
+          export NO_PROXY="localhost, 127.0.0.0/8, 10.0.0.0/8, 85.94.32.0/24, 85.94.48.0/24, 85.94.49.0/24, 192.168.0.0/16, 172.16.0.0/12, .mcn.ru, .mcnloc.ru, .mcnspd.ru, .local"
           curl -sS https://getcomposer.org/installer | php
           mv composer.phar /usr/local/bin/composer
           composer self-update --1
@@ -688,6 +694,9 @@ ansible:
       - name: "Php-fpm: 3. Install dependencies"
         shell: |
           # install composer
+          export HTTP_PROXY=http://p.kompaas.tech:3128
+          export HTTPS_PROXY=http://p.kompaas.tech:3128
+          export NO_PROXY="localhost, 127.0.0.0/8, 10.0.0.0/8, 85.94.32.0/24, 85.94.48.0/24, 85.94.49.0/24, 192.168.0.0/16, 172.16.0.0/12, .mcn.ru, .mcnloc.ru, .mcnspd.ru, .local"
           curl -sS https://getcomposer.org/installer | php
           mv composer.phar /usr/local/bin/composer
           composer self-update --1
@@ -836,6 +845,9 @@ ansible:
   install:
     - name: 2
       shell: |
+        export HTTP_PROXY=http://p.kompaas.tech:3128
+        export HTTPS_PROXY=http://p.kompaas.tech:3128
+        export NO_PROXY="localhost, 127.0.0.0/8, 10.0.0.0/8, 85.94.32.0/24, 85.94.48.0/24, 85.94.49.0/24, 192.168.0.0/16, 172.16.0.0/12, .mcn.ru, .mcnloc.ru, .mcnspd.ru, .local"
         curl -sS https://getcomposer.org/installer | php
         mv composer.phar /usr/local/bin/composer
         composer self-update --1
@@ -962,6 +974,9 @@ ansible:
   install:
     - name: 2
       shell: |
+        export HTTP_PROXY=http://p.kompaas.tech:3128
+        export HTTPS_PROXY=http://p.kompaas.tech:3128
+        export NO_PROXY="localhost, 127.0.0.0/8, 10.0.0.0/8, 85.94.32.0/24, 85.94.48.0/24, 85.94.49.0/24, 192.168.0.0/16, 172.16.0.0/12, .mcn.ru, .mcnloc.ru, .mcnspd.ru, .local"
         curl -sS https://getcomposer.org/installer | php
         mv composer.phar /usr/local/bin/composer
         composer self-update --1
