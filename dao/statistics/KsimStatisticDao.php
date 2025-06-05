@@ -28,7 +28,8 @@ class KsimStatisticDao extends Singleton
         $at = AccountTariff::find()->where(['voip_number' => $number])->andWhere(['not', ['tariff_period_id' => null]])->one();
 
         if (!$at) {
-            throw new \InvalidArgumentException('not found atId for voip number: ' . $number);
+//            throw new \InvalidArgumentException('not found AccountTariff for voip number: ' . $number);
+            $at = new AccountTariff(['id' => 0]);
         }
 
         $tzMoscow = new \DateTimeZone('Europe/Moscow');
@@ -36,8 +37,17 @@ class KsimStatisticDao extends Singleton
 
         $now = (new \DateTimeImmutable('now', $tzMoscow))->setTimezone($tzUtc);;
 
-        $startDateStr = end($at->accountTariffLogs)->getAttributes(['actual_from_utc'])['actual_from_utc'];
-        $startDate = (new \DateTimeImmutable($startDateStr, $tzUtc));
+        if ($at) {
+            $lastLog = end($at->accountTariffLogs);
+            if ($lastLog) {
+                $startDateStr = $lastLog->getAttributes(['actual_from_utc'])['actual_from_utc'];
+                $startDate = (new \DateTimeImmutable($startDateStr, $tzUtc));
+            } else {
+                $startDate = $now;
+            }
+        } else {
+            $startDate = $now;
+        }
 
         $lastAtl = array_filter($at->accountTariffLogs, fn(AccountTariffLog $atl) => $atl->tariff_period_id == null);
         $endDate = $now;
@@ -118,7 +128,7 @@ SQL;
         $result = '';
         foreach ($data as $day => $d) {
             $result .= implode(';', [
-                        $at->voip_number,
+                        substr((string)$number, 1),
                         $day,
                         $d['sms_in'],
                         $d['sms_out'],
@@ -133,7 +143,7 @@ SQL;
                 ) . PHP_EOL;
         }
 
-        $event->log_error = $result;
+        $event->trace = $result;
 
         return $result;
     }
