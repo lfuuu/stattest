@@ -753,7 +753,7 @@ class VoipController extends ApiInternalController
             throw new \InvalidArgumentException('request id #' . $request_id . ' not ready');
         }
 
-        return ['result' => $event->trace];
+        return ['result' => $event->log_error];
     }
 
 }
