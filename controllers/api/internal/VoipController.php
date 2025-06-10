@@ -14,6 +14,8 @@ use app\models\Number;
 use app\models\voip\Source;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use DateTime;
 use app\exceptions\web\NotImplementedHttpException;
@@ -679,6 +681,26 @@ class VoipController extends ApiInternalController
         $number->refresh();
 
         return ['current_status' => $number->status];
+    }
+
+
+    /**
+     * @SWG\Get(tags = {"Numbers"}, path = "/internal/voip/get-worked-numbers/", summary = "Получение списка работающих услуг/номеров", operationId = "get-worked-numbers",
+     *   @SWG\Response(response = 200, description = "Получение информации о номере/услуге",
+     *   )
+     * )
+     */
+
+    public function actionGetWorkedNumbers()
+    {
+        return AccountTariff::find()
+            ->select(['voip_number', 'client_account_id', 'id'])
+            ->where([
+                'NOT', ['tariff_period_id' => null],
+            ])
+            ->andWhere(['service_type_id' => ServiceType::ID_VOIP])
+            ->asArray()
+            ->all();
     }
 
 
