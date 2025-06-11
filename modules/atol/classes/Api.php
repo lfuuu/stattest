@@ -39,9 +39,11 @@ class Api extends Singleton
     // Устанавливает номер налога в ККТ
     const TAX_NONE = 'none'; // без НДС
     const TAX_VAT0 = 'vat0'; // НДС по ставке 0%
+    const TAX_VAT5 = 'vat5'; // НДС чека по ставке 5%
     const TAX_VAT10 = 'vat10'; // НДС чека по ставке 10%
     const TAX_VAT18 = 'vat18'; // НДС чека по ставке 18%
     const TAX_VAT20 = 'vat20'; // НДС чека по ставке 20%
+    const TAX_VAT105 = 'vat105'; // НДС чека по расчетной ставке 5/105
     const TAX_VAT110 = 'vat110'; // НДС чека по расчетной ставке 10/110
     const TAX_VAT118 = 'vat118'; // НДС чека по расчетной ставке 18/118
     const TAX_VAT120 = 'vat120'; // НДС чека по расчетной ставке 18/120
@@ -144,6 +146,11 @@ class Api extends Singleton
             case self::TAX_NONE:
             case self::TAX_VAT0:
                 $taxRate = 0;
+                break;
+
+            case self::TAX_VAT5:
+            case self::TAX_VAT105:
+                $taxRate = 5;
                 break;
 
             case self::TAX_VAT10:
