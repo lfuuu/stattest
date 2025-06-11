@@ -97,18 +97,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>RT Баланс:</td>
-                    <td align="right">
-                        <b>
-                            {$fixclient_data.balance|money:'RUB'}
-                        </b>
-                    </td>
-                    <td></td>
-                    <td align="right">
-                        &nbsp;
-                    </td>
-                </tr>
-                <tr>
                     <td>Баланс с учетом текущей выписки:</td>
                     <td align="right">
                         <b>
