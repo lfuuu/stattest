@@ -433,7 +433,7 @@ class NumberController extends Controller
     /**
      * Заливка ННП данных в redis
      */
-    public function actionFullNnpToRedis()
+    public function actionFillNnpToRedis()
     {
         $this->_redisGetAndSet(Operator::find()->asArray(), 'operator');
         $this->_redisGetAndSet(Country::find()->asArray(), 'country', 'code');

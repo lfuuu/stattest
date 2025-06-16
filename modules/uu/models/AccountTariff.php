@@ -59,7 +59,8 @@ use yii\db\Expression;
  * @property string $calltracking_params
  * @property string $route_name
  * @property string $route_name_default
- * @property string $iccid
+ * @property int $calligrapher_node_id
+ * @property int $calligrapher_type_connection_id
  * @property integer $is_verified
  */
 class AccountTariff extends ActiveRecord
@@ -214,7 +215,9 @@ class AccountTariff extends ActiveRecord
                     'prev_account_tariff_id',
                     'trunk_type_id',
                     'vm_elid_id',
-                    'voip_numbers_warehouse_status'
+                    'voip_numbers_warehouse_status',
+                    'calligrapher_node_id',
+                    'calligrapher_type_connection_id',
                 ],
                 'integer'
             ],
