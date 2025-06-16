@@ -523,7 +523,7 @@ trait AccountTariffRelationsTrait
 
     public function getCalligrapher_type_connection_id()
     {
-        return $this->getParam('calligrapher_type_connection_id', 111);
+        return $this->getParam('calligrapher_type_connection_id', 0);
     }
 
     public function setcalligrapher_type_connection_id($id)
