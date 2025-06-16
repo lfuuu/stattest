@@ -57,3 +57,35 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
     <?php endif ?>
 
 </div>
+<?php
+
+// Calligrapher is On
+if (true):
+
+?>
+<div class="row">
+
+    <?php // Наш узел ?>
+    <div class="col-sm-2">
+        <?= $form->field($accountTariff, 'calligrapher_node_id')
+            ->widget(Select2::class, [
+                'data' => AccountTariff::getCalligrapherNodeList($accountTariff->region_id),
+//                'disabled' => !$accountTariff->isNewRecord,
+            ])
+            ->label(Yii::t('models/' . $accountTariff::tableName(), 'calligrapher_node_id'))
+        ?>
+    </div>
+
+    <?php // Наш узел ?>
+    <div class="col-sm-2">
+        <?= $form->field($accountTariff, 'calligrapher_type_connection_id')
+            ->widget(Select2::class, [
+                'data' => AccountTariff::getCalligrapherTypeConnectionList(),
+//                'disabled' => !$accountTariff->isNewRecord,
+            ])
+            ->label(Yii::t('models/' . $accountTariff::tableName(), 'calligrapher_type_connection_id'))
+        ?>
+    </div>
+
+</div>
+<?php endif ?>

@@ -511,4 +511,25 @@ trait AccountTariffRelationsTrait
         $this->addParam('iccid', $routeName);
     }
 
+    public function getCalligrapher_node_id()
+    {
+        return $this->getParam('calligrapher_node_id', 0);
+    }
+
+    public function setCalligrapher_node_id($id)
+    {
+        $this->addParam('calligrapher_node_id', $id);
+    }
+
+    public function getCalligrapher_type_connection_id()
+    {
+        return $this->getParam('calligrapher_type_connection_id', 111);
+    }
+
+    public function setcalligrapher_type_connection_id($id)
+    {
+        $this->addParam('calligrapher_type_connection_id', $id);
+    }
+
+
 }

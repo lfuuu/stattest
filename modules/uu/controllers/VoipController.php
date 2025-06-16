@@ -19,6 +19,7 @@ use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use app\modules\sim\models\Card;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use yii\db\Expression;
 use yii\web\Response;
@@ -236,6 +237,19 @@ class VoipController extends BaseController
     {
         $trunks = Trunk::dao()->getList(['serverIds' => $regionId], (int)$isWithEmpty);
         ReturnFormatted::me()->returnFormattedValues($trunks, $format);
+    }
+
+    /**
+     * Вернуть массив Узлов из калиграфии
+     * Используется для динамической подгрузки select2 или selectbox при редктировании (создании) транка
+     *
+     * @param int $regionId
+     * @param string $format
+     * @throws \yii\base\ExitException
+     */
+    public function actionGetCalligrapherNodes($regionId, $format = null)
+    {
+        ReturnFormatted::me()->returnFormattedValues(AccountTariff::getCalligrapherNodeList($regionId), $format);
     }
 
     /**
