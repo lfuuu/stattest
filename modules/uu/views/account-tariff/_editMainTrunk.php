@@ -60,7 +60,7 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
 <?php
 
 // Calligrapher is On
-if (true):
+if (\Yii::$app->isRus()):
 
 ?>
 <div class="row">
