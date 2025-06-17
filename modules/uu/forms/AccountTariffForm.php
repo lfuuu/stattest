@@ -219,8 +219,8 @@ abstract class AccountTariffForm extends Form
                         if (!$usageTrunk->save()) {
                             throw new ModelValidationException($usageTrunk);
                         }
-                        $this->accountTariff->calligrapher_node_id = $post['AccountTariff']['calligrapher_node_id'];
-                        $this->accountTariff->calligrapher_type_connection_id = $post['AccountTariff']['calligrapher_type_connection_id'];
+                        $this->accountTariff->calligrapher_node_id = $post['AccountTariff']['calligrapher_node_id'] ?? null;
+                        $this->accountTariff->calligrapher_type_connection_id = $post['AccountTariff']['calligrapher_type_connection_id'] ?? null;
                     }
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
