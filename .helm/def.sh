@@ -4,7 +4,7 @@
 #   dev* - конфигурация для разработки, запускаются база и пгадмин 
 
 APPNAME=stat
-TAG=1.552-STAT-819
+TAG=1.553-tpl-info
 
 function dev()
 {
