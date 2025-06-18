@@ -8,6 +8,7 @@ use app\models\BillDocument;
 use app\models\ClientAccount;
 use app\models\Country;
 use app\models\Organization;
+use app\modules\uu\models_light\InvoiceLight;
 
 /**
  * Class BillDocumentDao
@@ -204,5 +205,39 @@ class BillDocumentDao extends Singleton
         } else {
             return true;
         }
+    }
+
+    public static function getTpl4DocTypeByR($R)
+    {
+        if (!isset($R['tpl']) || $R['tpl'] != 'b') {
+            return null;
+        }
+
+        if (!isset($R['a'])) {
+            return null;
+        }
+
+        if (isset($R['b'])) {
+            return InvoiceLight::TYPE_BILL;
+        }
+
+        if (isset($R['cur_st'])) {
+            return InvoiceLight::TYPE_CURRENT_STATEMENT;
+        }
+
+        if (isset($R['act'])) {
+            return InvoiceLight::TYPE_ACT;
+        }
+
+
+        if (isset($R['i'])) {
+            return InvoiceLight::TYPE_INVOICE;
+        }
+
+        if (isset($R['storno'])) {
+            return InvoiceLight::TYPE_INVOICE_STORNO;
+        }
+
+        return null;
     }
 }

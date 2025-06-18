@@ -3,6 +3,7 @@
 namespace app\classes;
 
 use app\classes\documents\DocumentReport;
+use app\dao\BillDocumentDao;
 use app\dao\TroubleDao;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
@@ -10,12 +11,14 @@ use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\Country;
+use app\models\document\PaymentTemplate;
 use app\models\Invoice;
 use app\models\Language;
 use app\models\OperationType;
 use app\models\Payment;
 use app\models\Saldo;
 use app\modules\uu\models\Bill as uuBill;
+use app\modules\uu\models_light\InvoiceLight;
 use Exception;
 use yii\db\Expression;
 use yii\db\Query;
@@ -462,7 +465,7 @@ WHERE b.client_id = ' . $account->id . '
 
                 $docKey = !$isRussia ? ($row['outcome_sum'] > 0 ? 'storno' : 'invoice') : 'act';
 
-                $row['links'][$docKey] = Encrypt::encodeArray([
+                $this->_mkLink($row, $docKey, [
                         'tpl' => 'b',
                         'a' => $account->id,
                         ($docKey == 'invoice' ? 'i' : $docKey) => $row['id'],
@@ -478,7 +481,7 @@ WHERE b.client_id = ' . $account->id . '
                     ]);
 
                     if ($docKey != 'storno' && $docKey != 'invoice') {
-                        $row['links']['invoice'] = Encrypt::encodeArray([
+                        $this->_mkLink($row, 'invoice', [
                                 'tpl' => 'b',
                                 'a' => $account->id,
                                 'i' => $row['id'],
@@ -494,12 +497,12 @@ WHERE b.client_id = ' . $account->id . '
                     'is_pdf' => 1,
                 ]);
 
-                $row['links']['statement'] = Encrypt::encodeArray([
-                    'tpl' => 'b',
-                    'a' => $account->id,
-                    'cur_st' => 1,
-                    'is_pdf' => 1,
-                ] + $countryCodeAddLink);
+                $this->_mkLink($row, 'statement', [
+                        'tpl' => 'b',
+                        'a' => $account->id,
+                        'cur_st' => 1,
+                        'is_pdf' => 1,
+                    ] + $countryCodeAddLink);
 
 
             } elseif ($row['type'] == 'bill') {
@@ -525,7 +528,7 @@ WHERE b.client_id = ' . $account->id . '
                         'is_pdf' => 1,
                     ]);
                 }
-                $row['links']['bill'] = Encrypt::encodeArray([
+                $this->_mkLink($row, 'bill', [
                         'tpl' => 'b',
                         'b' => $row['number'],
                         'a' => $account->id,
@@ -544,6 +547,41 @@ WHERE b.client_id = ' . $account->id . '
                 }
             }
         });
+    }
+
+    private function _mkLink(&$row, $section, $array)
+    {
+        static $country = null;
+
+        if ($country === null) {
+            $clientAccount = ClientAccount::findOne(['id' => $array['a']]);
+            $country = $R['co'] ?? Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->code;
+        }
+
+        static $cache = [];
+
+        $docTypeId = BillDocumentDao::me()->getTpl4DocTypeByR($array);
+
+        if (!isset($cache[$docTypeId ?? 'null'][$country ?? 'null'])) {
+            $cache[$docTypeId ?? 'null'][$country ?? 'null'] = PaymentTemplate::getDefaultByTypeIdAndCountryCodeViaShortName($docTypeId, $country);
+        }
+
+        $tpl = $cache[$docTypeId ?? 'null'][$country ?? 'null'];
+
+
+        $row['links'][$section] = [
+            'template' => [
+                'engine_version' => 4,
+                'tpl' => $tpl->getAttributes(['id', 'version']),
+                'doc_type' => [
+                    'id' => $docTypeId,
+                    'code' => $docTypeId ? InvoiceLight::$typeName[$docTypeId] : null,
+                ],
+            ],
+
+            'country' => $country,
+            'link' => Encrypt::encodeArray($array)
+        ];
     }
 
     protected function makingAdjustments(ClientAccount $account, $result)
