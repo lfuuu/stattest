@@ -58,7 +58,11 @@ class SimController extends ApiInternalController
         $query = CardStatus::find();
         $result = [];
         foreach ($query->each() as $model) {
-            $result[] = $this->_getIdNameRecord($model);
+            $result[] = [
+                'id' => $model->id,
+                'name' => (string)$model->name,
+                'is_virtual' => $model->is_virtual,
+            ];
         }
 
         return $result;

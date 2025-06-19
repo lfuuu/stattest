@@ -31,6 +31,10 @@ use yii\widgets\Breadcrumbs;
         <div class="col-sm-6">
             <?= $form->field($cardStatus, 'name')->textInput() ?>
         </div>
+        <?php // Виртальный? ?>
+        <div class="col-sm-6">
+            <?= $form->field($cardStatus, 'is_virtual')->checkbox() ?>
+        </div>
 
         <?php // Сим-карты ?>
         <div class="col-sm-6">

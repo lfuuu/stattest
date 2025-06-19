@@ -13,6 +13,7 @@ use yii\helpers\Url;
 /**
  * @property int $id
  * @property string $name
+ * @property bool $is_virtual
  *
  * @property-read Card[] $cards
  *
@@ -45,6 +46,7 @@ class CardStatus extends ActiveRecord
         return [
             [['name'], 'required'],
             [['name'], 'string'],
+            ['is_virtual', 'integer'],
         ];
     }
 

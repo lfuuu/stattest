@@ -57,6 +57,10 @@ $columns = [
         'class' => StringColumn::class,
     ],
     [
+        'attribute' => 'is_virtual',
+        'class' => \app\classes\grid\column\universal\YesNoColumn::class,
+    ],
+    [
         'label' => 'SIM-карты',
         'format' => 'html',
         'value' => function (CardStatus $cardStatus) {
