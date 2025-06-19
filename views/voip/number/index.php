@@ -280,9 +280,9 @@ $columns = [
     [
         'label' => 'Реестр',
         'attribute' => 'registry_id',
-        'value' => function ($model) {
+        'value' => function (Number $model) {
             if ($model->registry_id) {
-                return Html::a('Реестр №' . $model->registry_id, ['voip/registry/edit', 'id' => $model->registry_id]);
+                return Html::a('Реестр №' . $model->registry_id, $model->registry->getUrl());
             }
             return '';
         },
@@ -375,6 +375,22 @@ $columns = [
             return '(не задано)';
         },
         
+    ],
+    [
+        'attribute' => 'orig_nnp_operator_id',
+        'filter' => Select2::widget([
+            'model' => $filterModel,
+            'data' => Operator::getList(true, false, $filterModel->country_id),
+            'attribute' => 'orig_nnp_operator_id',
+        ]),
+        'value' => function (Number $model) {
+            /** @var Number $model */
+            if ($model->origNnpOperator) {
+                return $model->origNnpOperator->name;
+            }
+            return '(не задано)';
+        },
+
     ],
     [
         'attribute' => 'imsi',

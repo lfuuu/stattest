@@ -57,6 +57,7 @@ use yii\helpers\Url;
  * @property integer $imsi
  * @property integer $warehouse_status_id
  * @property integer $nnp_operator_id
+ * @property integer $orig_nnp_operator_id
  * @property integer $usr_operator_id
  * @property string $source
  * @property integer $numbers_count
@@ -79,6 +80,7 @@ use yii\helpers\Url;
  * @property-read Imsi $imsiModel
  * @property-read Registry $registry
  * @property-read Operator $nnpOperator
+ * @property-read Operator $origNnpOperator
  * @property-read \app\modules\nnp\models\Region $nnpRegion
  * @property-read \app\modules\nnp\models\City $nnpCity
  * @property-read string $link
@@ -175,7 +177,8 @@ class Number extends ActiveRecord
             'number_tech' => 'Технический номер',
             'imsi' => 'Привязка к сим-карте (IMSI)',
             'warehouse_status_id' => 'Статус скалада сим-карты',
-            'nnp_operator_id' => 'ННП-оператор',
+            'nnp_operator_id' => 'Текущий ННП-оператор',
+            'orig_nnp_operator_id' => 'Первоначальный ННП-оператор',
             'usr_operator_id' => 'ННП-оператор пользователя',
             'source' => 'Источник',
             'original_beauty_level' => 'Степень красивости (изначальная)',
@@ -324,6 +327,11 @@ class Number extends ActiveRecord
     public function getNnpOperator()
     {
         return $this->hasOne(Operator::class, ['id' => 'nnp_operator_id']);
+    }
+
+    public function getOrigNnpOperator()
+    {
+        return $this->hasOne(Operator::class, ['id' => 'orig_nnp_operator_id']);
     }
 
     public function getNnpRegion()
