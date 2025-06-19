@@ -12,6 +12,7 @@ class CardStatusFilter extends CardStatus
 {
     public $id = '';
     public $name = '';
+    public $is_virtual = '';
 
     /**
      * @return array
@@ -21,6 +22,7 @@ class CardStatusFilter extends CardStatus
         return [
             [['id'], 'integer'],
             [['name'], 'string'],
+            [['is_virtual'], 'integer'],
         ];
     }
 
@@ -39,6 +41,7 @@ class CardStatusFilter extends CardStatus
 
         $this->id && $query->andWhere([$cardStatusTableName . '.id' => $this->id]);
         $this->name && $query->andWhere(['LIKE', $cardStatusTableName . '.name', $this->name]);
+        $this->is_virtual !== '' && $query->andWhere([$cardStatusTableName . '.is_virtual' => (bool)$this->is_virtual]);
 
         return $dataProvider;
     }

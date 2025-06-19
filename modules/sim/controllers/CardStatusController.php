@@ -31,7 +31,7 @@ class CardStatusController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['new', 'edit'],
-                        'roles' => ['sim.write'],
+                        'roles' => ['sim.read'],
                     ],
                 ],
             ],
