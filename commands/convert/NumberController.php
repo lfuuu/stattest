@@ -4,8 +4,10 @@ namespace app\commands\convert;
 
 use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\helpers\CalculateGrowthRate;
+use app\models\Country;
 use app\models\Number;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use app\widgets\ConsoleProgress;
 use yii\console\Controller;
@@ -123,6 +125,50 @@ class NumberController extends Controller
     }
 
 
+    /**
+     * Ежедневная проверка смены ННП оператора у мобильного в России
+     *
+     * @return void
+     * @throws ModelValidationException
+     */
+    public function actionDailyCheckNnpOperator()
+    {
+        $query = Number::find()
+            ->where([
+                'ndc_type_id' => NdcType::ID_MOBILE,
+                'country_code' => Country::RUSSIA,
+            ]);
+
+        $speedProc = new CalculateGrowthRate();
+        $countAll = count($query->count());
+        $counter = 0;
+        /** @var Number $number */
+        foreach ($query->each() as $number) {
+            $counter++;
+            $speed = $speedProc->calculate($counter);
+
+            if (($counter % 100) == 0) {
+                echo "\n\r[ " . str_pad($counter . ' / ' . $countAll . ' => ' . round($counter / ($countAll / 100)) . '% ', 30, '.') . '] speed: ' . number_format($speed) . ' per sec';
+            }
+            try {
+                $numberInfo = Number::getNnpInfo($number->number);
+            } catch (\Exception $e) {
+                echo PHP_EOL . 'ERROR: ' . $e->getMessage();
+                continue;
+            }
+
+            $nnpOperatorId = $numberInfo['nnp_operator_id'];
+            if ($nnpOperatorId != $number->nnp_operator_id) {
+                echo PHP_EOL . date('r') . ': ' . $number->nnp_operator_id . ' => ' . $nnpOperatorId;
+                $number->nnp_operator_id = $nnpOperatorId;
+                if (!$number->save()) {
+                    throw new ModelValidationException($number);
+                }
+            }
+        }
+    }
+
+
     public function actionFillOrigOperator()
     {
         $numbers = Number::find()->where(['orig_nnp_operator_id' => null])
@@ -154,19 +200,23 @@ class NumberController extends Controller
             $collector[$nnpOperatorId][] = $number;
 
             if (($counter % 1000) == 0) {
-                $this->_flushCollector($collector);
+                $this->_setNumberValue_flushCollector($collector, 'orig_nnp_operator_id');
             }
         }
 
         if ($collector) {
-            $this->_flushCollector($collector);
+            $this->_setNumberValue_flushCollector($collector, 'orig_nnp_operator_id');
         }
     }
 
-    private function _flushCollector(&$collector)
+    private function _setNumberValue_flushCollector(&$collector, $field)
     {
+        if (!$collector) {
+            return;
+        }
+
         foreach ($collector as $nnpOperatortId => $numbers) {
-            echo PHP_EOL . 'update rows: ' . $nnpOperatortId . ' => ' . Number::updateAll(['orig_nnp_operator_id' => $nnpOperatortId], ['number' => $numbers]);
+            echo PHP_EOL . 'update rows: ' . $nnpOperatortId . ' => ' . Number::updateAll([$field => $nnpOperatortId], ['number' => $numbers]);
         }
 
         $collector = [];
