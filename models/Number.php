@@ -608,11 +608,12 @@ class Number extends ActiveRecord
     /**
      * Получить nnp-информацию по номеру
      *
-     * @param $number
+     * @param number|string $number
+     * @param bool $isWithPorting - с учетом портирования
      * @return array
      * @throws InvalidConfigException
      */
-    public static function getNnpInfo($number)
+    public static function getNnpInfo($number, bool $isWithPorting = true)
     {
         $url = \Yii::$app->params['nnpInfoServiceURL'] ?? false;
 
@@ -626,7 +627,9 @@ class Number extends ActiveRecord
                 return (new HttpClient())
                     ->get($url, [
                         'cmd' => 'getNumberRangeByNum',
-                        'num' => $number])
+                        'num' => $number,
+                    ] + ($isWithPorting ? [] : ['isWithoutPorted' => 1])
+                    )
                     ->getResponseDataWithCheck();
             } catch (\Exception $e) {
                 \Yii::error($e);
