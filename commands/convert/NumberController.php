@@ -3,15 +3,13 @@
 namespace app\commands\convert;
 
 use app\classes\enum\VoipRegistrySourceEnum;
-use app\classes\HttpClient;
+use app\classes\helpers\CalculateGrowthRate;
 use app\models\Number;
 use app\models\voip\Registry;
 use app\modules\nnp\models\NumberRange;
 use app\widgets\ConsoleProgress;
-use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use app\exceptions\ModelValidationException;
-use yii\db\Expression;
 
 class NumberController extends Controller
 {
@@ -94,7 +92,6 @@ class NumberController extends Controller
             ->select(['nnp_region_id', 'nnp_city_id', 'nnp_operator_id', 'number'])
             ->asArray()
             ->all();
-        ;
 
         /** @var Number $number */
         foreach ($numbers as $number) {
@@ -119,9 +116,59 @@ class NumberController extends Controller
                 $update['nnp_operator_id'] = $numberInfo['nnp_operator_id'];
             }
 
-            if($update) {
+            if ($update) {
                 Number::updateAll($update, ['number' => $number['number']]);
             }
         }
+    }
+
+
+    public function actionFillOrigOperator()
+    {
+        $numbers = Number::find()->where(['orig_nnp_operator_id' => null])
+            ->select(['number'])
+            ->column();
+
+        $speedProc = new CalculateGrowthRate();
+        $countAll = count($numbers);
+        $counter = 0;
+        $collector = [];
+        foreach ($numbers as $number) {
+            $counter++;
+            $speed = $speedProc->calculate($counter);
+
+            if (($counter % 100) == 0) {
+                echo "\n\r[ " . str_pad($counter . ' / ' . $countAll . ' => ' . round($counter / ($countAll / 100)) . '% ', 30, '.') . '] speed: ' . number_format($speed) . ' per sec';
+            }
+            try {
+                $numberInfo = Number::getNnpInfo($number, false);
+            } catch (\Exception $e) {
+                echo PHP_EOL . 'ERROR: ' . $e->getMessage();
+                continue;
+            }
+
+            $nnpOperatorId = $numberInfo['nnp_operator_id'];
+            if (!isset($collector[$nnpOperatorId])) {
+                $collector[$nnpOperatorId] = [];
+            }
+            $collector[$nnpOperatorId][] = $number;
+
+            if (($counter % 1000) == 0) {
+                $this->_flushCollector($collector);
+            }
+        }
+
+        if ($collector) {
+            $this->_flushCollector($collector);
+        }
+    }
+
+    private function _flushCollector(&$collector)
+    {
+        foreach ($collector as $nnpOperatortId => $numbers) {
+            echo PHP_EOL . 'update rows: ' . $nnpOperatortId . ' => ' . Number::updateAll(['orig_nnp_operator_id' => $nnpOperatortId], ['number' => $numbers]);
+        }
+
+        $collector = [];
     }
 }
