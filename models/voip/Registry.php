@@ -11,6 +11,7 @@ use app\models\City;
 use app\models\Country;
 use app\modules\nnp\models\NdcType;
 use yii\db\Expression;
+use yii\helpers\Url;
 
 /**
  * Class Registry
@@ -234,5 +235,10 @@ class Registry extends ActiveRecord
     public static function getList()
     {
         return self::getListTrait(true, true, 'id' , (new Expression('concat(\'Реестр №\', id) as name ')), ['id' => SORT_ASC]);
+    }
+
+    public function getUrl()
+    {
+        return Url::to(['voip/registry/edit', 'id' => $this->id]);
     }
 }

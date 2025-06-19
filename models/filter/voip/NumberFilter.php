@@ -37,6 +37,7 @@ class NumberFilter extends Number
     public $ndc_type_id = '';
     public $imsi = '';
     public $nnp_operator_id = '';
+    public $orig_nnp_operator_id = '';
 
     public $unique_calls_per_month_3_from = '';
     public $unique_calls_per_month_3_to = '';
@@ -70,7 +71,7 @@ class NumberFilter extends Number
         return [
             [['number', 'number_from', 'number_to', 'status', 'number_tech', 'source', 'solution_date', 'solution_number', 'registry_number_from'], 'string'],
             [['imsi', 'registry_id'], 'integer'],
-            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id', 'nnp_operator_id', 'is_with_discount'], 'integer'],
+            [['city_id', 'region', 'beauty_level', 'original_beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id', 'mvno_partner_id', 'did_group_id', 'nnp_operator_id', 'orig_nnp_operator_id', 'is_with_discount'], 'integer'],
             [['unique_calls_per_month_3_from', 'unique_calls_per_month_3_to'], 'integer'],
             [['unique_calls_per_month_2_from', 'unique_calls_per_month_2_to'], 'integer'],
             [['unique_calls_per_month_1_from', 'unique_calls_per_month_1_to'], 'integer'],
@@ -95,7 +96,15 @@ class NumberFilter extends Number
             ],
         ]);
 
-        $query->with('registry')->with('didGroup')->with('country');
+        $query
+            ->with('registry')
+            ->with('didGroup')
+            ->with('country')
+            ->with('nnpOperator')
+            ->with('origNnpOperator')
+            ->with('clientAccount')
+            ->with('usage')
+        ;
 
         $query->joinWith('registry r');
 
@@ -213,6 +222,7 @@ class NumberFilter extends Number
         $query->andFilterWhere(['n.source' => $this->source]);
 
         $this->nnp_operator_id !== '' && $query->andWhere(['n.nnp_operator_id' => $this->nnp_operator_id]);
+        $this->orig_nnp_operator_id !== '' && $query->andWhere(['n.orig_nnp_operator_id' => $this->orig_nnp_operator_id]);
         $this->is_with_discount !== '' && $query->andWhere(['n.is_with_discount' => $this->is_with_discount, 'status' => Number::STATUS_INSTOCK]);
 
         switch ($this->imsi) {
