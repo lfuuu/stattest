@@ -159,7 +159,7 @@ class NumberController extends Controller
 
             $nnpOperatorId = $numberInfo['nnp_operator_id'];
             if ($nnpOperatorId != $number->nnp_operator_id) {
-                echo PHP_EOL . date('r') . ': ' . $number->nnp_operator_id . ' => ' . $nnpOperatorId;
+                echo PHP_EOL . date('r') . ': ' . $number->number . ' ' . $number->nnp_operator_id . ' => ' . $nnpOperatorId;
                 $number->nnp_operator_id = $nnpOperatorId;
                 if (!$number->save()) {
                     throw new ModelValidationException($number);
