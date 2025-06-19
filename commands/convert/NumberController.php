@@ -140,7 +140,7 @@ class NumberController extends Controller
             ]);
 
         $speedProc = new CalculateGrowthRate();
-        $countAll = count($query->count());
+        $countAll = $query->count();
         $counter = 0;
         /** @var Number $number */
         foreach ($query->each() as $number) {
