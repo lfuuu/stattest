@@ -19,6 +19,11 @@ if (!$cards) {
 }
 ?>
 
+    <style>
+        span.is_virtual > a {
+            color: darkgray;
+        }
+    </style>
     <div class="col-sm-4">
         <div class="panel panel-danger">
             <div class="panel-heading">
@@ -29,7 +34,13 @@ if (!$cards) {
                 <?php
                 /** @var Card $card */
                 foreach ($cards as $card) {
-                    echo $card->getLink();
+
+                    if ($card->status->is_virtual) {
+                        echo Html::tag('span', $card->getLink(), ['class' => 'is_virtual', 'title' => 'Виртуальная карта']);
+                    } else {
+                        echo Html::tag('span', $card->getLink(), ['title' => $card->status->name]);
+                    }
+
 
                     $cnt = 0;
 

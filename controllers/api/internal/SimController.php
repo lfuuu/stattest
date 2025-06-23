@@ -58,11 +58,7 @@ class SimController extends ApiInternalController
         $query = CardStatus::find();
         $result = [];
         foreach ($query->each() as $model) {
-            $result[] = [
-                'id' => $model->id,
-                'name' => (string)$model->name,
-                'is_virtual' => $model->is_virtual,
-            ];
+            $result[] = $this->_getCardStatusRecord($model);
         }
 
         return $result;
@@ -231,7 +227,7 @@ class SimController extends ApiInternalController
             'imei' => (string)$card->imei,
             'is_active' => $card->is_active,
             'region' => $this->regionRecord($card->region_id),
-            'status' => $this->_getIdNameRecord($card->status),
+            'status' => $this->_getCardStatusRecord($card->status),
             'imsies' => $this->simImsiesRecord($card->imsies),
             'sim_type' => $this->_getIdNameRecord($card->type),
         ];
@@ -278,6 +274,19 @@ class SimController extends ApiInternalController
         }
 
         return $record;
+    }
+
+    /**
+     * @param ?CardStatus $model
+     * @return array
+     */
+    protected function _getCardStatusRecord(?CardStatus $model): array
+    {
+        return [
+            'id' => $model->id,
+            'name' => (string)$model->name,
+            'is_virtual' => $model->is_virtual,
+        ];
     }
 
     /**
