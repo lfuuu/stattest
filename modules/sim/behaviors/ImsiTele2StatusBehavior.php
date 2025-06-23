@@ -61,6 +61,14 @@ class ImsiTele2StatusBehavior extends Behavior
                 'imsi' => $model->imsi,
                 'iccid' => $model->iccid,
             ]);
+
+            $card = $model->card;
+            if ($card->status->is_virtual) {
+                $card->client_account_id = null;
+                if (!$card->save()) {
+                    throw new ModelValidationException($card);
+                }
+            }
         }
 
         if ($newMsisdn) {

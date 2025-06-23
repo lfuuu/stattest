@@ -281,7 +281,7 @@ $columns = [
         'label' => 'Реестр',
         'attribute' => 'registry_id',
         'value' => function (Number $model) {
-            if ($model->registry_id) {
+            if ($model->registry_id && $model->registry) {
                 return Html::a('Реестр №' . $model->registry_id, $model->registry->getUrl());
             }
             return '';

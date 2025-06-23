@@ -587,6 +587,10 @@ SQL;
                 'operator_source' => 'VIKOM',
                 'operator_id' => 34349,
                 'mnc' => '20'
+            ], [
+                'operator_source' => 'KANTRI',
+                'operator_id' => 9372,
+                'mnc' => '44'
             ],
 
         ], \Yii::$app->dbPg->createCommand($sql)->cache(86400)->queryAll());
