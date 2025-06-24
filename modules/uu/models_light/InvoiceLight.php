@@ -282,15 +282,22 @@ class InvoiceLight extends Component
             $isLandscape = $this->isLandscape();
         }
 
-        if ($this->_templateType && $this->_country) {
+
+        try {
+            if ($this->_templateType && $this->_country) {
 //            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCode($this->_templateType, $this->_country);
-            $template = PaymentTemplate::getDefaultByTypeIdAndCountryCodeViaShortName($this->_templateType, $this->_country);
-            if (!$template) {
-                return '';
+                $template = PaymentTemplate::getDefaultByTypeIdAndCountryCodeViaShortName($this->_templateType, $this->_country);
+                $content = trim($smarty->fetch('string:' . ($template ? $template->content : sprintf('Template not found (%s/%s/%s)', InvoiceLight::$typeName[$this->_templateType] ?? 0, $this->_templateType, $this->_country))));
+            } else if ($invoiceTemplate->fileExists()) {
+                $content = trim($smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName())));
             }
-            $content = trim($smarty->fetch('string:' . $template->content));
-        } else if ($invoiceTemplate->fileExists()) {
-            $content = trim($smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName())));
+        }catch (\Exception $e) {
+            $content = 'Error '. sprintf(' (id:%s/%s/%s/%s)', $template ? $template->id : 0, InvoiceLight::$typeName[$this->_templateType] ?? 0, $this->_templateType, $this->_country);
+            if ($e instanceof \SmartyCompilerException) {
+                $content .= PHP_EOL . htmlentities(str_replace($e->source, '' , $e->getMessage()));
+            } else {
+                $content .= PHP_EOL . mb_substr($e->getMessage(), 0, 512);
+            }
         }
 
         if ($content && $isPdf) {

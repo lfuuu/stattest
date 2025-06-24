@@ -91,7 +91,7 @@ class AccountingController extends ApiInternalController
     /**
      * @SWG\Get(tags={"Accounting"}, path="/internal/accounting/get-invoice-balance/", summary="Получение баланса по с/ф", operationId="getInvoiceBalance",
      *   @SWG\Parameter(name="accountId", type="integer", description="ID ЛС", in = "query", default=""),
-     *   @SWG\Parameter(name="countryCode", type="integer", description="Код страны (Россия - 643, Венгрия - 348), если не установлена - берется из точки подключения, или организциии клиента", in = "query", default=""),
+     *   @SWG\Parameter(name="countryCode", type="integer", description="Код страны (Россия - 643, Венгрия - 348, Казахстан - 398), если не установлена - берется из точки подключения, или организциии клиента", in = "query", default=""),
      *
      *   @SWG\Response(response=200, description="баланс по с/ф",
      *   ),
@@ -99,6 +99,7 @@ class AccountingController extends ApiInternalController
      */
     public function actionGetInvoiceBalance($accountId, $countryCode = null)
     {
+        $country = null;
         if ($countryCode && !($country = Country::findOne(['code' => $countryCode]))) {
             throw new \InvalidArgumentException("country_code_is_bad");
         }
@@ -117,8 +118,9 @@ class AccountingController extends ApiInternalController
             null,
             (new \DateTimeImmutable('now'))
                 ->modify('last day of this month')
-                ->format(DateTimeZoneHelper::DATE_FORMAT)
-            , true, true, ($country ? $country->code : null)
+                ->format(DateTimeZoneHelper::DATE_FORMAT),
+            true, true,
+            ($country ? $country->code : null)
         );
     }
 
