@@ -8,11 +8,13 @@ class Wordifier
 {
     private static $curBig = array(
         'USD' => array('доллар США', 'доллара США', 'долларов США'),
-        'RUB' => array('рубль', 'рубля', 'рублей')
+        'RUB' => array('рубль', 'рубля', 'рублей'),
+        'KZT' => array('тенге', 'тенге', 'тенге'),
     );
     private static $curSmall = array(
         'USD' => array('цент', 'цента', 'центов'),
-        'RUB' => array('копейка', 'копейки', 'копеек')
+        'RUB' => array('копейка', 'копейки', 'копеек'),
+        'KZT' => array('тиын', 'тиын', 'тиын'),
     );
     private static $num10 = array(
         "",
