@@ -228,7 +228,8 @@ class PayReportController extends BaseController
                         'description' => 'Текущая выписка',
                     ];
 
-                    ActOfReconciliation::me()->addingLinks($account, $result['data'], $isRussia = $account->getUuCountryId() == Country::RUSSIA);
+                    $countryCode = $account->getUuCountryId();
+                    ActOfReconciliation::me()->addingLinks($account, $result['data'], $isRussia = $countryCode == Country::RUSSIA, $countryCode);
                 }
 
                 $allModels = $result['data'];
