@@ -190,8 +190,8 @@ if ($isSubmit) {
                             if (isset($item['links'])) {
                                 $ll = $item['links'];
 
-                                foreach ($ll as $section => $link) {
-                                    echo Html::a(' (' . $section . '-tpl) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($link)]), ['target' => '_blank']);
+                                foreach ($ll as $section => $linkData) {
+                                    echo Html::a(' (' . $section . '-tpl) ', \yii\helpers\Url::to(['/bill.php', 'bill' => urldecode($linkData['link'])]), ['target' => '_blank']);
                                 }
                             }
                         }
