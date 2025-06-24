@@ -148,7 +148,7 @@ FROM newbills b
   JOIN `newbills_external` ex USING (bill_no)
 WHERE b.client_id = ' . $account->id . '
       AND b.currency = \'' . $account->currency . '\'
-      AND length(trim(coalesce(ext_invoice_date))) > 0
+      AND length(trim(coalesce(ext_invoice_date, \'\'))) > 0
       AND trim(coalesce(ext_invoice_no, \'\')) != \'\'
       AND STR_TO_DATE(ext_invoice_date, \'%d-%m-%Y\') BETWEEN \'' . $dateFrom . '\' AND \'' . $dateTo . '\'', true);
 
@@ -249,7 +249,7 @@ WHERE b.client_id = ' . $account->id . '
 
     public function getData(ClientAccount $account, $dateFrom, $dateTo, $isWithCorrection = true, $isWithPrepaymentBills = false, $countryCodeParam = null)
     {
-        $countryCode = !$countryCodeParam ? $account->getUuCountryId() : null;
+        $countryCode = $countryCodeParam ?? $account->getUuCountryId();
 
         $isNotRussia = $countryCode != Country::RUSSIA;
         if (!$dateFrom) {
@@ -351,8 +351,8 @@ WHERE b.client_id = ' . $account->id . '
 
         $findDate = null;
 
-        $this->addingLinks($account, $data, !$isNotRussia, $countryCodeParam);
-        $this->addingLinks($account, $result, !$isNotRussia, $countryCodeParam);
+        $this->addingLinks($account, $data, !$isNotRussia, $countryCode);
+        $this->addingLinks($account, $result, !$isNotRussia, $countryCode);
 
         foreach ($data as $idx => &$row) {
             if ($row['type'] == 'invoice') {
@@ -443,7 +443,8 @@ WHERE b.client_id = ' . $account->id . '
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         };
 
-        $countryCodeAddLink = $countryCodeParam ? ['co' => $countryCodeParam] : [];
+//        $countryCodeAddLink = $countryCodeParam ? ['co' => $countryCodeParam] : [];
+        $countryCodeAddLink = ['co' => $countryCodeParam];
 
         foreach ($data as $idx => &$row) {
             $row['add_datetime'] = isset($row['add_datetime'])
@@ -555,7 +556,7 @@ WHERE b.client_id = ' . $account->id . '
 
         if ($country === null) {
             $clientAccount = ClientAccount::findOne(['id' => $array['a']]);
-            $country = $R['co'] ?? Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->code;
+            $country = $array['co'] ?? Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->code;
         }
 
         static $cache = [];
@@ -572,15 +573,14 @@ WHERE b.client_id = ' . $account->id . '
         $row['links'][$section] = [
             'template' => [
                 'engine_version' => 4,
-                'tpl' => $tpl->getAttributes(['id', 'version']),
-                'doc_type' => [
+                'country' => $country,
+                'doc_type' => $docTypeId ? [
                     'id' => $docTypeId,
-                    'code' => $docTypeId ? InvoiceLight::$typeName[$docTypeId] : null,
-                ],
+                    'code' => InvoiceLight::$typeName[$docTypeId] ?? null,
+                ] : null,
+                'tpl' => $tpl ? $tpl->getAttributes(['id', 'version']) : null,
             ],
-
-            'country' => $country,
-            'link' => Encrypt::encodeArray($array)
+            'link' => Encrypt::encodeArray($array),
         ];
     }
 
