@@ -57,6 +57,7 @@ class InvoicePersonLight extends Component implements InvoiceLightInterface
             'name_genitive' => 'ФИО (род. п.)',
             'post_nominative' => 'Должность',
             'post_genitive' => 'Должность (род. п.)',
+            'signature' => 'Подпись',
         ];
     }
 
