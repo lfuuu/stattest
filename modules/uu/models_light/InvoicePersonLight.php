@@ -72,7 +72,7 @@ class InvoicePersonLight extends Component implements InvoiceLightInterface
                 'width' => 140,
                 'border' => 0,
 //                'align' => 'top',
-                'style' => ['position' => 'absolute', 'left' => '20px', /* 'top' => '-15px', */ 'z-index' => '-10', 'transform' => 'translateY(calc(-50% + 5px))'],
+                'style' => ['position' => 'absolute', 'left' => '80px', /* 'top' => '-15px', */ 'z-index' => '-10', 'transform' => 'translateY(calc(-50% + 5px))'],
             ];
 
             return Html::tag('div',
