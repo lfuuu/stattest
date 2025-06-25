@@ -468,7 +468,7 @@ SQL;
             $this->checkBalance(
                 $accountTariff,
                 $eventType == ImportantEventsNames::UU_UPDATED
-                || $accountTariff->tariffPeriod->tariff->is_charge_after_blocking
+//                || $accountTariff->tariffPeriod->tariff->is_charge_after_blocking
                 || $accountTariff->tariffPeriod->tariff->is_default
                 || $accountTariff->tariffPeriod->tariff->is_bundle
             );
