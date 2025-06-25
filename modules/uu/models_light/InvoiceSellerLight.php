@@ -126,7 +126,8 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
             'accountant' => InvoicePersonLight::attributeLabels(),
             'bank' => InvoiceBankLight::attributeLabels(),
             'logo_image' => 'Логотип компании',
-            'include_signature_stamp' => 'Печать и подпись',
+//            'include_signature_stamp' => 'Печать и подпись',
+            'stamp' => 'печать организации',
         ];
     }
 
