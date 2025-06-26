@@ -40,18 +40,27 @@ $serviceType = $filterModel->getServiceType();
 // базовые столбцы
 $baseView = $this;
 $columns = [
+//    [
+//        'class' => ActionColumn::class,
+//        'template' => '{update}',
+//        'buttons' => [
+//            'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
+//                return $baseView->render('//layouts/_actionEdit', [
+//                        'url' => $model->getUrl(),
+//                    ]
+//                );
+//            },
+//        ],
+//        'hAlign' => GridView::ALIGN_CENTER,
+//    ],
     [
-        'class' => ActionColumn::class,
-        'template' => '{update}',
-        'buttons' => [
-            'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
+        'label' => Yii::t('tariff', 'id'),
+        'attribute' => 'id',
+        'class' => IntegerRangeColumn::class,
+        'format' => 'raw',
+        'value' => function (AccountTariff $accountTariff) {
+            return Html::a($accountTariff->id, $accountTariff->getUrl());
+        },
     ],
     [
         'label' => Yii::t('tariff', 'Universal services'),
@@ -460,9 +469,8 @@ echo $this->render('_indexMainGroupAction', [
     'filterModel' => $filterModel,
 ]);
 
-if ($serviceType && in_array($serviceType->id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY, ServiceType::ID_VOIP_PACKAGE_SMS])) {
-    echo $this->render('_addPackage', [
-        'filterModel' => $filterModel,
-        'service_type_id' => $serviceType->id
-    ]);
-}
+// рендеринг формы добавления пакетов
+echo $this->render('_addPackage', [
+    'filterModel' => $filterModel,
+    'service_type_id' => $serviceType->id
+]);

@@ -31,6 +31,8 @@ use yii\db\Expression;
 class AccountTariffFilter extends AccountTariff
 {
     public $id = '';
+    public $id_from = '';
+    public $id_to = '';
     public $client_account_id = '';
     public $prev_account_tariff_tariff_id = '';
     public $region_id = '';
@@ -129,6 +131,7 @@ class AccountTariffFilter extends AccountTariff
         $rules = parent::rules();
         $rules[] = [['beauty_level', 'prev_account_tariff_tariff_id'], 'integer'];
         $rules[] = [['price_from', 'price_to'], 'integer'];
+        $rules[] = [['id_from', 'id_to'], 'integer'];
         $rules[] = [
             [
                 'tariff_period_id',
@@ -212,7 +215,13 @@ class AccountTariffFilter extends AccountTariff
             'query' => $query,
         ]);
 
-        $this->id !== '' && $query->andWhere(["{$accountTariffTableName}.id" => $this->id]);
+        if ($this->id_from !== '' && $this->id_to == '') {
+            $query->andWhere(["{$accountTariffTableName}.id" => $this->id_from]);
+        } else {
+            $this->id_from !== '' && $query->andWhere(['>=', "{$accountTariffTableName}.id", (int)$this->id_from]);
+            $this->id_to !== '' && $query->andWhere(['<=', "{$accountTariffTableName}.id", (int)$this->id_to]);
+        }
+
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
         $this->region_id !== '' && $query->andWhere([$accountTariffTableName . '.region_id' => $this->region_id]);
         $this->city_id !== '' && $query->andWhere([$accountTariffTableName . '.city_id' => $this->city_id]);
@@ -222,6 +231,7 @@ class AccountTariffFilter extends AccountTariff
         $this->is_active_client_account !== '' && $query->andWhere([ClientAccount::tableName().'.is_active' => 1]);
 
         $this->is_unzipped !== '' && $query->andWhere([$accountTariffTableName . '.is_unzipped' => $this->is_unzipped]);
+        $this->comment && $query->andWhere(['LIKE', $accountTariffTableName . '.comment',  $this->comment]);
 
         $this->tariff_status_id !== '' && $query->andWhere(['tariff.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_is_include_vat !== '' && $query->andWhere(['tariff.is_include_vat' => $this->tariff_is_include_vat]);
