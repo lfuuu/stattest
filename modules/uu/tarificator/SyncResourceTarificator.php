@@ -109,6 +109,7 @@ class SyncResourceTarificator extends Tarificator
             'is_robocall_enabled' => ($accountTariff->tariff_period_id && $accountTariff->tariffPeriod->tariff->isAutodial()) || $accountTariff->getResourceValue(ResourceModel::ID_VOIP_ROBOCALL),
             'is_smart' => $accountTariff->getResourceValue(ResourceModel::ID_VOIP_IS_SMART),
             'is_geo_substitute' => $accountTariff->getResourceValue(ResourceModel::ID_VOIP_GEO_REPLACE),
+            'is_for_siptrunk_or_vpbx_only' => $accountTariff->getResourceValue(ResourceModel::ID_VOIP_ONLY_FOR_TRUNK_VATS),
         ]);
     }
 }

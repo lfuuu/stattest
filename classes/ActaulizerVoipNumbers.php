@@ -324,6 +324,7 @@ class ActaulizerVoipNumbers extends Singleton
         }
 
         $paramIsGeoSubstitute = null;
+        $isForSiptrunkOrVpbxOnly = null;
         if (!$usage) {
             /** @var AccountTariff $usage */
             $usage = AccountTariff::find()
@@ -333,6 +334,7 @@ class ActaulizerVoipNumbers extends Singleton
 
             if ($usage) {
                 $paramIsGeoSubstitute = $usage->getResourceValue(ResourceModel::ID_VOIP_GEO_REPLACE);
+                $isForSiptrunkOrVpbxOnly = $usage->getResourceValue(ResourceModel::ID_VOIP_ONLY_FOR_TRUNK_VATS);
                 if ($usage->calltracking_params) {
                     $params = json_decode($usage->calltracking_params, true) ?: [];
                 }
@@ -357,7 +359,8 @@ class ActaulizerVoipNumbers extends Singleton
             $params['vpbx_stat_product_id'] ?? null,
             $params['is_create_user'] ?? null,
             $params['request_id'] ?? null,
-            $paramIsGeoSubstitute
+            $paramIsGeoSubstitute,
+            $isForSiptrunkOrVpbxOnly
         );
     }
 
@@ -493,8 +496,10 @@ class ActaulizerVoipNumbers extends Singleton
 
             $isRobocallEnabled = $accountTariff && $accountTariff->tariff_period_id && $accountTariff->tariffPeriod->tariff->isAutodial();
             $isGeoSubstitute = null;
+            $isForSiptrunkOrVpbxOnly = null;
             if ($accountTariff) {
                 $isGeoSubstitute = $accountTariff->getResourceValue(ResourceModel::ID_VOIP_GEO_REPLACE);
+                $isForSiptrunkOrVpbxOnly = $accountTariff->getResourceValue(ResourceModel::ID_VOIP_ONLY_FOR_TRUNK_VATS);
             }
 
             $this->_getPhoneApi()->editDid(
@@ -508,7 +513,8 @@ class ActaulizerVoipNumbers extends Singleton
                 isset($changedFields['region']) ? (int)$changedFields['region'] : null,
                 isset($changedFields['number7800']) ? $changedFields['number7800'] : null,
                 $isRobocallEnabled,
-                $isGeoSubstitute
+                $isGeoSubstitute,
+                $isForSiptrunkOrVpbxOnly
             );
         }
     }

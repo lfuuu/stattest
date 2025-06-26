@@ -124,6 +124,7 @@ class ApiPhone extends Singleton
      * @param int $isCreateUser
      * @param string $requestId
      * @param bool $isGeoSubstitute
+     * @param bool $isForSiptrunkOrVpbxOnly
      * @return array
      * @throws InvalidConfigException
      * @throws \yii\base\Exception
@@ -139,7 +140,8 @@ class ApiPhone extends Singleton
         $vpbxStatProductId = null,
         $isCreateUser = null,
         $requestId = null,
-        $isGeoSubstitute = null
+        $isGeoSubstitute = null,
+        $isForSiptrunkOrVpbxOnly = null
     ) {
         $accountClient = ClientAccount::findOne(['id' => $clientAccountId]);
 
@@ -177,6 +179,8 @@ class ApiPhone extends Singleton
                 ->scalar() ?: '';
         }
 
+        $params['is_for_siptrunk_or_vpbx_only'] = (int)(bool)$isForSiptrunkOrVpbxOnly;
+
         $params = array_merge($params, NumberRange::getNumberInfo($number));
 
         return $this->_exec('add_did', $params);
@@ -195,6 +199,7 @@ class ApiPhone extends Singleton
      * @param bool $isRobocallEnabled
      * @param bool $isSmart
      * @param bool $isGeoSubstitute
+     * @param bool $isForSiptrunkOrVpbxOnly
      * @return array
      */
     public function editDid(
@@ -209,7 +214,8 @@ class ApiPhone extends Singleton
         $number7800 = null,
         $isRobocallEnabled = false,
         $isSmart = false,
-        $isGeoSubstitute = null
+        $isGeoSubstitute = null,
+        $isForSiptrunkOrVpbxOnly = null
     ) {
         $params = [
             'client_id' => $clientAccountId,
@@ -257,6 +263,8 @@ class ApiPhone extends Singleton
         }
 
         $params['is_robocall_enabled'] = (int)$isRobocallEnabled;
+
+        $params['is_for_siptrunk_or_vpbx_only'] = (int)(bool)$isForSiptrunkOrVpbxOnly;
 
         $params = array_merge($params, NumberRange::getNumberInfo($number));
 

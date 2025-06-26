@@ -69,6 +69,7 @@ class ResourceModel extends ActiveRecord
     const ID_VOIP_SMS_DUPMTSMS = 56; // Телефония. SMS. Отправка всегда
     const ID_VOIP_GEO_REPLACE = 65; // Телефония - Гео-Автозамена
     const ID_VOIP_IS_SMART = 69; // Телефония. Is Smart
+    const ID_VOIP_ONLY_FOR_TRUNK_VATS = 76; // Телефония. Только для ВАТС/транк
 
     const ID_VOIP_PACKAGE_CALLS = 40; // Пакеты телефонии. Звонки
     const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
