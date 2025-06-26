@@ -900,6 +900,7 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                             $param['is_robocall_enabled'],
                             $param['is_smart'],
                             $param['is_geo_substitute'] ?? null,
+                            $param['is_for_siptrunk_or_vpbx_only'] ?? null,
                         );
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
