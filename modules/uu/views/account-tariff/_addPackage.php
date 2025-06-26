@@ -10,19 +10,21 @@ use kartik\form\ActiveForm;
 if (
     $filterModel->tariff_period_id <= 0 ||
     !($accountTariffFirst = $filterModel->search()->query->one())
-    || !in_array($accountTariffFirst->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY, ServiceType::ID_VOIP_PACKAGE_SMS])
+    || !in_array($accountTariffFirst->service_type_id,
+//        [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY, ServiceType::ID_VOIP_PACKAGE_SMS]
+        array_unique(array_merge(array_keys(ServiceType::$packages), ServiceType::$packages))
+    )
 ) {
     return '';
 }
 
-$serviceTypeMap = [
-        ServiceType::ID_VOIP => ServiceType::ID_VOIP_PACKAGE_CALLS,
-        ServiceType::ID_VOIP_PACKAGE_CALLS => ServiceType::ID_VOIP_PACKAGE_CALLS,
-        ServiceType::ID_VOIP_PACKAGE_SMS => ServiceType::ID_VOIP_PACKAGE_SMS,
-        ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY => ServiceType::ID_VOIP_PACKAGE_INTERNET_ROAMABILITY,
-];
-
-$serviceTypePackageId = $serviceTypeMap[$service_type_id];
+if (isset(ServiceType::$packages[$service_type_id])) { // package
+    $serviceTypePackageId = $service_type_id;
+} elseif (isset(ServiceType::$serviceToPackage[$service_type_id])) { // main service
+    $serviceTypePackageId = ServiceType::$serviceToPackage[$service_type_id];
+} else {
+    throw new \InvalidArgumentException('нет настроек для работы с serviceType=' . var_export($service_type_id, true));
+}
 
 $accountTariffLog = new AccountTariffLogAdd();
 $accountTariffLog->actual_from = $accountTariffFirst->getDefaultActualFrom();
