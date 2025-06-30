@@ -15,18 +15,12 @@ use app\models\Number;
 use app\models\Region;
 use app\models\Sorm7800;
 use app\models\UsageVoip;
-use app\modules\nnp\models\City;
-use app\modules\nnp\models\Country;
-use app\modules\nnp\models\NdcType;
-use app\modules\nnp\models\Operator;
-use app\modules\nnp\models\Region as nnpRegion;
+use app\modules\nnp\classes\NnpToRedis;
 use DateTime;
 use DateTimeImmutable;
 use Yii;
-use yii\caching\TagDependency;
 use yii\console\Controller;
 use yii\console\ExitCode;
-use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 
 class NumberController extends Controller
@@ -435,28 +429,7 @@ class NumberController extends Controller
      */
     public function actionFillNnpToRedis()
     {
-        $this->_redisGetAndSet(Operator::find()->asArray(), 'operator');
-        $this->_redisGetAndSet(Country::find()->asArray(), 'country', 'code');
-        $this->_redisGetAndSet(City::find()->asArray(), 'city');
-        $this->_redisGetAndSet(nnpRegion::find()->asArray(), 'region');
-        $this->_redisGetAndSet(NdcType::find()->asArray(), 'ndcType');
-
-        $this->_redisGetAndSet(Operator::find()->asArray(), 'operatorEn', 'id', 'name_translit');
-        $this->_redisGetAndSet(Country::find()->asArray(), 'countryEn', 'code', 'name_eng');
-        $this->_redisGetAndSet(City::find()->asArray(), 'cityEn', 'id', 'name_translit');
-        $this->_redisGetAndSet(nnpRegion::find()->asArray(), 'regionEn', 'id', 'name_translit');
-    }
-
-    private function _redisGetAndSet(ActiveQuery $query, $prefix, $id = 'id', $name = 'name')
-    {
-        echo PHP_EOL . $prefix;
-
-        /** @var yii\redis\Cache $redis */
-        $redis = \Yii::$app->redis;
-
-        foreach ($query->each() as $o) {
-            $redis->set($prefix . ':' . $o[$id], $o[$name]);
-        }
+        NnpToRedis::me()->refillAll();
     }
 
     /**
