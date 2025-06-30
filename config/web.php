@@ -15,6 +15,11 @@ if (file_exists($file = __DIR__ . '/cache_redis.local.php')) {
     $cacheRedis = ArrayHelper::merge($cacheRedis, require($file));
 }
 
+$cacheRedis2 = require(__DIR__ . '/cache_redis.php');
+if (file_exists($file = __DIR__ . '/cache_redis2.local.php')) {
+    $cacheRedis2 = ArrayHelper::merge($cacheRedis2, require($file));
+}
+
 $dbConf = require(__DIR__ . '/db_stat.php');
 if (file_exists($file = __DIR__ . '/db_stat.local.php')) {
     $dbConf = ArrayHelper::merge($dbConf, require($file));
@@ -159,6 +164,7 @@ $config = [
             'fileMode' => 0666,
         ],*/
         'redis' => $cacheRedis,
+        'redis2' => $cacheRedis2,
         'cache' => [
             'class' => 'yii\redis\Cache',
             'keyPrefix' => 'stat:',
