@@ -468,23 +468,37 @@ SQL;
         if ($this->isOption()) {
             $sql = <<<SQL
             INSERT INTO {$accountTariffResourceLogTableName}
-                (account_tariff_id, resource_id, amount, actual_from_utc, insert_time, insert_user_id)
-            SELECT
-                {$accountTariffLogTableName}.account_tariff_id,
-                {$resourceId},
-                {$amount},
-                {$accountTariffLogTableName}.actual_from_utc,
-                {$accountTariffLogTableName}.insert_time,
-                {$accountTariffLogTableName}.insert_user_id
-            FROM
-                {$accountTariffLogTableName}, 
-                {$tariffPeriodTableName}, 
-                {$tariffTableName}
-            WHERE 
-                {$accountTariffLogTableName}.tariff_period_id IS NOT NULL
-                AND {$accountTariffLogTableName}.tariff_period_id = {$tariffPeriodTableName}.id
-                AND {$tariffPeriodTableName}.tariff_id = {$tariffTableName}.id
-                AND {$tariffTableName}.service_type_id = {$serviceTypeId};
+                (account_tariff_id, resource_id, amount, actual_from_utc, insert_time, insert_user_id, sync_time)
+                
+            WITH main AS (
+                SELECT
+                    {$accountTariffLogTableName}.account_tariff_id,
+                    {$accountTariffLogTableName}.actual_from_utc,
+                    {$accountTariffLogTableName}.insert_time,
+                    {$accountTariffLogTableName}.insert_user_id,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY {$accountTariffLogTableName}.account_tariff_id 
+                        ORDER BY {$accountTariffLogTableName}.actual_from_utc, {$accountTariffLogTableName}.id
+                    ) as idx
+                FROM
+                    {$accountTariffLogTableName}, 
+                    {$tariffPeriodTableName}, 
+                    {$tariffTableName}
+                WHERE 
+                    {$accountTariffLogTableName}.tariff_period_id IS NOT NULL
+                    AND {$accountTariffLogTableName}.tariff_period_id = {$tariffPeriodTableName}.id
+                    AND {$tariffPeriodTableName}.tariff_id = {$tariffTableName}.id
+                    AND {$tariffTableName}.service_type_id = {$serviceTypeId}
+            )
+            SELECT account_tariff_id,
+                   {$resourceId},
+                   {$amount},
+                   actual_from_utc,
+                   insert_time,
+                   insert_user_id,
+                   UTC_TIMESTAMP
+            FROM main WHERE idx = 1
+
 SQL;
             $db->createCommand($sql)->execute();
         }
