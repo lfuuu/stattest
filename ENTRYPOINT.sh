@@ -140,6 +140,9 @@ esac
 cp cache_redis.local.tpl.php cache_redis.local.php
 sed -i "s/'hostname' => 'localhost'/'hostname' => '$REDIS_HOST'/" cache_redis.local.php
 
+cp cache_redis.local.tpl.php cache_redis2.local.php
+sed -i "s/'hostname' => 'localhost'/'hostname' => 'redis-prod'/" cache_redis2.local.php
+
 # Logger
 cp log.local.tpl.php log.local.php
 sed -i "s/source = 'developer_stat';/source = '$LOG_SOURCE';/" log.local.php
