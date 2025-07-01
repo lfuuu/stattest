@@ -65,7 +65,7 @@
     <tr style="border-top: 2px solid #555555; {if $r.is_important}background-color: #f4f0f0;{/if}">
         <td colspan=1>
             <input class="select-client-checkbox" type="checkbox"
-                   {if $r.user_main != $user_name} disabled data-disabled='{$r.trouble_id}'{/if}
+                   {if !(access('tt', 'admin') || $r.user_main == $user_name)} disabled data-disabled='{$r.trouble_id}'{/if}
                    onclick="setState('{$r.trouble_type}'); disableCheckboxes(); getItemsForSelect();"
                    name='trouble_ids[]' value='{$r.trouble_id}' data-trouble_type='{$r.trouble_type}'>
         </td>

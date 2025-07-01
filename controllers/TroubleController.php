@@ -24,8 +24,12 @@ class TroubleController extends BaseController
         $currentUser = Yii::$app->user->identity->user;
         $troublesQuery = Trouble::find()
             ->joinWith('stages')
-            ->where(['id' => $post['trouble_ids']])
-            ->andWhere(['user_main' => $currentUser]);
+            ->where(['id' => $post['trouble_ids']]);
+
+        if (!\Yii::$app->user->can('tt.admin')) {
+            $troublesQuery->andWhere(['user_main' => $currentUser]);
+        }
+
         $userId = User::find()->select('id')->where(['user' => $post['user']])->scalar();
 
         $state = $post['state'];
