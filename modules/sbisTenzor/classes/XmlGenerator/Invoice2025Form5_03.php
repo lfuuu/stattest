@@ -227,8 +227,8 @@ class Invoice2025Form5_03 extends Invoice2016Form5_02
 
             // http://www.classbase.ru/okei
             // 796 - штука
-            $elLine->setAttribute('ОКЕИ_Тов', 796);// choice1 required
-            $elLine->setAttribute('НаимЕдИзм', 'шт');// choice1 required
+            $elLine->setAttribute('ОКЕИ_Тов', '-');// choice1 required
+            $elLine->setAttribute('НаимЕдИзм', '-');// choice1 required
             $elLine->setAttribute('КолТов', $this->formatNumber($line->getAmount(), 3));// optional
             $elLine->setAttribute('СтТовБезНДС', $this->formatNumber($line->getPrice_without_vat()));// optional
             $elLine->setAttribute('ЦенаТов', $this->formatNumber($line->price));// optional
