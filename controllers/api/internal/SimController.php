@@ -320,12 +320,12 @@ class SimController extends ApiInternalController
     {
         $card = Card::findOne(['iccid' => $iccid, 'client_account_id' => $client_account_id]);
         if (!$card) {
-            throw new InvalidParamException('Не найдена карта по iccid и client_account_id', self::EDIT_CARD_ERROR_CODE_WRONG_CARD);
+            throw new \InvalidArgumentException('Не найдена карта по iccid и client_account_id', self::EDIT_CARD_ERROR_CODE_WRONG_CARD);
         }
 
         $imsies = $card->imsies;
         if (!isset($imsies[$imsi])) {
-            throw new InvalidParamException('Неправильные параметры imsi - нет такой imsi для данного iccid', self::EDIT_CARD_ERROR_CODE_WRONG_IMSI);
+            throw new \InvalidArgumentException('Неправильные параметры imsi - нет такой imsi для данного iccid', self::EDIT_CARD_ERROR_CODE_WRONG_IMSI);
         }
 
         $post = Yii::$app->request->post();
@@ -336,22 +336,24 @@ class SimController extends ApiInternalController
                     (is_bool($value) ? (int)$value : $value);
         }, $post);
 
+        /** @var ?Imsi $imsiExists */
+        $imsiExists = null;
         if (!empty($post['msisdn'])) {
             $msisdn = $post['msisdn'];
 
             $number = Number::findOne(['number' => $msisdn]);
             if (!$number) {
-                throw new InvalidParamException('Неверный msisdn, не найден в voip_numbers', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_FOUND);
+                throw new \InvalidArgumentException('Неверный msisdn, не найден в voip_numbers', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_FOUND);
             }
 
             if (!RegionSettings::checkIfRegionsEqual($number->region, $card->region_id)) {
-                throw new InvalidParamException('Регион номера и регион SIM-карты не совместимы', self::EDIT_CARD_ERROR_CODE_WRONG_REGION);
+                throw new \InvalidArgumentException('Регион номера и регион SIM-карты не совместимы', self::EDIT_CARD_ERROR_CODE_WRONG_REGION);
             }
 
             try {
                 $isMcnNumber = $number->isMcnNumber();
             } catch (Exception $e) {
-                throw new InvalidParamException('Не удалось получить данные по номеру', self::EDIT_CARD_ERROR_CODE_NUMBER_NO_DATA);
+                throw new \InvalidArgumentException('Не удалось получить данные по номеру', self::EDIT_CARD_ERROR_CODE_NUMBER_NO_DATA);
             }
 
             if (!$isMcnNumber) {
@@ -361,10 +363,11 @@ class SimController extends ApiInternalController
 
             $imsiExists = Imsi::find()
                 ->andWhere(['msisdn' => $msisdn])
-                ->andWhere('iccid != ' . $iccid)
+                ->andWhere(['not', ['iccid' => $iccid]])
                 ->one();
-            if ($imsiExists) {
-                throw new InvalidParamException('Данный номер уже связан с другой SIM картой', self::EDIT_CARD_ERROR_CODE_NUMBER_OCCUPIED);
+
+            if ($imsiExists && !$imsiExists->card->status->is_virtual) {
+                throw new \InvalidArgumentException('Данный номер уже связан с другой SIM картой', self::EDIT_CARD_ERROR_CODE_NUMBER_OCCUPIED);
             }
         }
 
@@ -373,6 +376,22 @@ class SimController extends ApiInternalController
         $transaction = Yii::$app->db->beginTransaction();
         $transactionSim = Card::getDb()->beginTransaction();
         try {
+
+            // выключаем виртуальную карту на которой сейчас номер
+            if ($imsiExists && $imsiExists->card->status->is_virtual) {
+                array_walk($imsiExists->card->imsies, function(Imsi $imsi) {
+                    $imsi->msisdn = '';
+                    if (!$imsi->save()) {
+                        throw new ModelValidationException($imsi);
+                    }
+                });
+
+                $imsiExists->card->client_account_id = null;
+                if (!$imsiExists->card->save()) {
+                    throw new ModelValidationException($imsiExists->card);
+                }
+            }
+
             $imsiObject->setAttributes($post);
             if (!$imsiObject->save()) {
                 throw new ModelValidationException($imsiObject);
