@@ -180,6 +180,16 @@ if (!$operator->isNewRecord) {
             ?>
         </div>
 
+        <?php // mnc ?>
+        <div class="col-sm-2">
+            <?= $form->field($operator, 'mnc')->textInput() ?>
+        </div>
+
+        <?php // uvr_operator_id ?>
+        <div class="col-sm-2">
+            <?= $form->field($operator, 'uvr_operator_id')->textInput() ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>
