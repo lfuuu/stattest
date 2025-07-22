@@ -129,6 +129,11 @@ if (!$country->isNewRecord) {
         <div class="col-sm-3">
             <?= $form->field($country,'alpha_3')->textInput() ?>
         </div>
+
+        <?php // MCC ?>
+        <div class="col-sm-3">
+            <?= $form->field($country,'mcc')->textInput() ?>
+        </div>
     </div>
 
     <?php // кнопки ?>

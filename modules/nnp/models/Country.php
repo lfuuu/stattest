@@ -16,6 +16,7 @@ use yii\helpers\Url;
  * @property string $name_rus
  * @property string $name_eng
  * @property string $alpha_3
+ * @property string $mcc
  * @property string $prefixes integer[]
  *
  * @link https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%89%D0%B5%D1%80%D0%BE%D1%81%D1%81%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80_%D1%81%D1%82%D1%80%D0%B0%D0%BD_%D0%BC%D0%B8%D1%80%D0%B0
@@ -66,6 +67,7 @@ class Country extends ActiveRecord
             'use_weak_matching' => 'Использовать слабое соответствие?',
             'default_operator' => 'Оператор по-умолчания',
             'default_type_ndc' => 'NDC тип по-умолчанию',
+            'mcc' => 'MCC (Mobile Country Code)'
         ];
     }
 
@@ -96,7 +98,7 @@ class Country extends ActiveRecord
     {
         return [
             [['is_open_numbering_plan', 'use_weak_matching'], 'boolean'],
-            [['default_operator', 'default_type_ndc', 'code', 'prefix'], 'integer'],
+            [['default_operator', 'default_type_ndc', 'code', 'prefix', 'mcc'], 'integer'],
             [['name', 'name_rus', 'name_eng'], 'string'],
             [['is_open_numbering_plan', 'use_weak_matching', 'alpha_2', 'alpha_3', 'name', 'name_eng', 'name_rus', 'prefix', 'prefixes'], 'required'],
             ['alpha_2', 'string', 'min' => 2, 'max' => 2],

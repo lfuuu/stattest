@@ -21,6 +21,8 @@ use yii\helpers\Url;
  * @property string $operator_src_code
  * @property int $parent_id
  * @property int $is_valid
+ * @property int $mnc
+ * @property int $uvr_operator_id
  *
  * @property-read Country $country
  * @property-read Operator $parent
@@ -97,6 +99,8 @@ class Operator extends ActiveRecord
             'operator_src_code' => 'Код оператора портирования',
             'parent_id' => 'Оператор-родитель',
             'is_valid' => 'Подтверждён',
+            'mnc' => 'MNC (Mobile Network Code)',
+            'uvr_operator_id' => 'УВР Id оператора',
         ];
     }
 
@@ -117,7 +121,7 @@ class Operator extends ActiveRecord
     {
         return [
             [['name', 'name_translit', 'partner_code'], 'string'],
-            [['country_code', 'group', 'parent_id'], 'integer'],
+            [['country_code', 'group', 'parent_id', 'mnc', 'uvr_operator_id'], 'integer'],
             [['is_valid'], 'boolean'],
             [['name', 'country_code'], 'required'],
             ['operator_src_code', 'safe'],
