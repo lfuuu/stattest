@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\classes\HttpClient;
 use app\exceptions\ModelValidationException;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
@@ -45,7 +46,7 @@ class AccountController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['set-block', 'set-voip-disable'],
+                        'actions' => ['set-block', 'set-voip-disable', 'fix-fin-lock'],
                         'roles' => ['clients.restatus'],
                     ],
                 ],
@@ -298,6 +299,57 @@ class AccountController extends BaseController
         $model->save();
         return $this->redirect(['client/view', 'id' => $id]);
     }
+
+    /**
+     * @param int $id
+     * @return Response
+     * @throws Exception
+     */
+    public function actionFixFinLock($id)
+    {
+        $account = ClientAccount::findOne($id);
+        if (!$account) {
+            throw new Exception('ЛС не найден');
+        }
+
+        $warnings = $account->voipWarnings;
+        $lockByCredit = isset($warnings[ClientAccount::WARNING_CREDIT]) || isset($warnings[ClientAccount::WARNING_FINANCE]);
+
+        if (!$lockByCredit) {
+            \Yii::$app->session->addFlash('error', 'Не найдена блокировка');
+            return $this->redirect(['client/view', 'id' => $id]);
+        }
+
+        if (!\Yii::$app->isRus()) {
+            \Yii::$app->session->addFlash('error', 'Доступно только в России');
+            return $this->redirect(['client/view', 'id' => $id]);
+        }
+
+        $httpClient = (new HttpClient())
+            ->setResponseFormat(HttpClient::FORMAT_RAW_URLENCODED)
+            ->createRequest()
+            ->setMethod('DELETE')
+            ->setUrl("http://reg99.mcntelecom.ru:8033/v1/api/client_lock/" . $account->id);
+
+        try {
+            $response = $httpClient->send();
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', 'Произошла ошибка во время удаления блокировки');
+            \Yii::$app->session->addFlash('error', $e->getMessage());
+            return $this->redirect(['client/view', 'id' => $id]);
+        }
+
+        if ($response->getIsOk()) {
+            \Yii::$app->session->addFlash('success', 'Блокировки стерты');
+            \Yii::$app->session->addFlash('success', $response->getContent());
+        } else {
+            \Yii::$app->session->addFlash('error', 'Произошла ошибка во время удаления блокировки');
+            \Yii::$app->session->addFlash('error', $response->getContent());
+        }
+
+        return $this->redirect(['client/view', 'id' => $id]);
+    }
+
 
     /**
      * @param int $accountId

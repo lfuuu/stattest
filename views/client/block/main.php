@@ -300,12 +300,21 @@ $priceLevels = PriceLevel::getList();
                                                 </button>
                                             </div>
                                             <?php if ($warnings) : ?>
-                                                <div class="col-sm-12">
+                                                <div class="col-sm-9">
                                                     <?php foreach ($warnings as $warningCode => $warningText): ?>
                                                         <?php if (is_string($warningText)) : ?>
                                                             <span class="label label-danger"><?= $warningText; ?></span>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
+                                                    <?php if ($lockByCredit && \Yii::$app->user->can('clients.restatus') && \Yii::$app->isRus()): ?>
+                                                    <a
+                                                            class="btn btn-sm btn-warning"
+                                                            style="padding: 0px 4px;"
+                                                            href="<?= Url::toRoute(['/account/fix-fin-lock', 'id' => $contractAccount->id]) ?>"
+                                                    >
+                                                        Принудительный сброс фин.блокировки
+                                                    </a>
+                                                    <?php endif; ?>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
