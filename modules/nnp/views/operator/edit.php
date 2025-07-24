@@ -190,6 +190,11 @@ if (!$operator->isNewRecord) {
             <?= $form->field($operator, 'uvr_operator_id')->textInput() ?>
         </div>
 
+        <?php // bdpn_code ?>
+        <div class="col-sm-2">
+            <?= $form->field($operator, 'bdpn_code')->textInput() ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>
