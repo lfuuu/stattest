@@ -188,6 +188,7 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_UNAVAILABLE_LOCKS = 'unavailable.locks'; // Сервер статистики недоступен. Данные о блокировках недоступны
     const WARNING_SYNC_ERROR = 'balance.sync_error'; // Ошибка синхронизации баланса
     const WARNING_FINANCE = 'lock.is_finance_block'; // Финансовая блокировка
+    const WARNING_FINANCE_LAG = 'lock.is_finance_block_lag'; // Финансовая блокировка должна быть снята, но не снята. Какая то задержка
     const WARNING_OVERRAN = 'lock.is_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали
     const WARNING_MN_OVERRAN = 'lock.is_mn_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали (МН)
     const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
@@ -1242,6 +1243,10 @@ class ClientAccount extends HistoryActiveRecord
                         ''
                     ) : ''
                 );
+
+            if ($counters->realtimeBalance > -$this->credit) {
+                $warnings[self::WARNING_FINANCE_LAG] = 'Задержка снятия блокировки';
+            }
 
             unset($warnings[ClientAccount::WARNING_LAST_DT]);
         }

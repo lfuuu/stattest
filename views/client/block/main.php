@@ -306,7 +306,11 @@ $priceLevels = PriceLevel::getList();
                                                             <span class="label label-danger"><?= $warningText; ?></span>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
-                                                    <?php if ($lockByCredit && \Yii::$app->user->can('clients.restatus') && \Yii::$app->isRus()): ?>
+                                                    <?php if (
+                                                            isset($warnings[ClientAccount::WARNING_FINANCE_LAG])
+                                                            && \Yii::$app->user->can('clients.restatus')
+                                                            && \Yii::$app->isRus()
+                                                    ): ?>
                                                     <a
                                                             class="btn btn-sm btn-warning"
                                                             style="padding: 0px 4px;"

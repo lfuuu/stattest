@@ -313,9 +313,8 @@ class AccountController extends BaseController
         }
 
         $warnings = $account->voipWarnings;
-        $lockByCredit = isset($warnings[ClientAccount::WARNING_CREDIT]) || isset($warnings[ClientAccount::WARNING_FINANCE]);
 
-        if (!$lockByCredit) {
+        if (!isset($warnings[ClientAccount::WARNING_FINANCE_LAG])) {
             \Yii::$app->session->addFlash('error', 'Не найдена блокировка');
             return $this->redirect(['client/view', 'id' => $id]);
         }
