@@ -195,6 +195,11 @@ if (!$operator->isNewRecord) {
             <?= $form->field($operator, 'bdpn_code')->textInput() ?>
         </div>
 
+        <?php // taxpayer_identification_number ?>
+        <div class="col-sm-2">
+            <?= $form->field($operator, 'taxpayer_identification_number')->textInput() ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>
