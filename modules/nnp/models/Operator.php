@@ -24,6 +24,7 @@ use yii\helpers\Url;
  * @property int $mnc
  * @property int $uvr_operator_id
  * @property string $bdpn_code
+ * @property string $taxpayer_identification_number
  *
  * @property-read Country $country
  * @property-read Operator $parent
@@ -103,6 +104,7 @@ class Operator extends ActiveRecord
             'mnc' => 'MNC (Mobile Network Code)',
             'uvr_operator_id' => 'УВР Id оператора',
             'bdpn_code' => 'БДПН код оператора',
+            'taxpayer_identification_number' => 'ИНН (taxpayer identification number)',
         ];
     }
 
@@ -122,7 +124,7 @@ class Operator extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'name_translit', 'partner_code', 'bdpn_code'], 'string'],
+            [['name', 'name_translit', 'partner_code', 'bdpn_code', 'taxpayer_identification_number'], 'string'],
             [['country_code', 'group', 'parent_id', 'mnc', 'uvr_operator_id'], 'integer'],
             [['is_valid'], 'boolean'],
             [['name', 'country_code'], 'required'],
