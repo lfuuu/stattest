@@ -1,0 +1,31 @@
+
+
+input.esim {
+    width: 150px;
+    border: 1px solid lightgrey;
+    padding-left: 4px;
+    border-radius: 4px;
+
+}
+
+input.esim.error {
+    border-color: red !important;
+}
+input.esim.saving {
+    border-color: #ffc107;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.esim-saved-value {
+    padding-left: 6px;
+    display: inline;
+    min-width: 150px;
+}
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-left: 5px;
+    display: block;
+}

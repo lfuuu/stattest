@@ -25,14 +25,21 @@ use yii\helpers\Url;
 
     <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK && $accountTariff->trunk_type_id != AccountTariff::TRUNK_TYPE_MULTITRUNK) : ?>
         <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
-    <?php elseif ($accountTariff->service_type_id == ServiceType::ID_ESIM ) : ?>
-        <?= Html::a('<span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span>', $accountTariff->getUrl()) . '&nbsp;' .
-        Html::a($accountTariff->iccid, ['/sim/card/edit', 'originIccid' => $accountTariff->iccid]) ?>
+    <?php elseif ($accountTariff->service_type_id == ServiceType::ID_ESIM) : ?>
+        <?= Html::a('<span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span>', $accountTariff->getUrl()) . '&nbsp;' ?>
+        <?php
+        if ($accountTariff->iccid) {
+            echo Html::tag('span', Html::a($accountTariff->iccid, ['/sim/card/edit', 'originIccid' => $accountTariff->iccid]), ['class' => 'esim-saved-value']);
+        } elseif ($tagName == 'div' && \Yii::$app->user->can('sim.write')) {
+            echo Html::input('text', 'esim' . $accountTariff->id, '', ['data-id' => $accountTariff->id, 'class' => 'esim', 'autocomplete' => 'off']);
+        }
+
+        ?>
     <?php else : ?>
         <?= Html::a(
             $accountTariff->voip_number ?
                 Html::tag('span', $accountTariff->voip_number . (
-                        ($isNumberNotVerified = $accountTariff->voip_number && $accountTariff->number->status == \app\models\Number::STATUS_NOT_VERFIED) ? Html::tag('sup', 'нв') : ''),
+                    ($isNumberNotVerified = $accountTariff->voip_number && $accountTariff->number->status == \app\models\Number::STATUS_NOT_VERFIED) ? Html::tag('sup', 'нв') : ''),
                     $isNumberNotVerified ? ['style' => ['color' => 'gray'], 'title' => 'Не верифицирован'] : [])
                 :
                 (
