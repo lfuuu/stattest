@@ -41,12 +41,12 @@ class AccountController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['view', 'index', 'unfix'],
+                        'actions' => ['view', 'index', 'unfix', 'fix-fin-lock'],
                         'roles' => ['clients.read'],
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['set-block', 'set-voip-disable', 'fix-fin-lock'],
+                        'actions' => ['set-block', 'set-voip-disable'],
                         'roles' => ['clients.restatus'],
                     ],
                 ],
