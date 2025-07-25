@@ -308,7 +308,7 @@ $priceLevels = PriceLevel::getList();
                                                     <?php endforeach; ?>
                                                     <?php if (
                                                             isset($warnings[ClientAccount::WARNING_FINANCE_LAG])
-                                                            && \Yii::$app->user->can('clients.restatus')
+                                                            && \Yii::$app->user->can('clients.read')
                                                             && \Yii::$app->isRus()
                                                     ): ?>
                                                     <a
