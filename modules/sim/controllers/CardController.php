@@ -5,11 +5,9 @@ namespace app\modules\sim\controllers;
 use app\classes\BaseController;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
-use app\models\EntryPoint;
 use app\models\Number;
 use app\models\Region;
 use app\modules\nnp\models\NdcType;
-use app\modules\sim\classes\Linker;
 use app\modules\sim\classes\workers\MsisdnsWorker;
 use app\modules\sim\classes\workers\UnassignedNumberWorker;
 use app\modules\sim\filters\CardFilter;
@@ -19,10 +17,10 @@ use app\modules\sim\models\Dsm;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\VirtualCard;
 use app\modules\uu\behaviors\AccountTariffCheckHlr;
-use Exception;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\base\InvalidParamException;
-use yii\console\ExitCode;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -50,7 +48,7 @@ class CardController extends BaseController
                     [
                         'allow' => true,
                         'actions' => [
-                            'new', 'change-msisdn', 'change-iccid-and-imsi', 'change-unassigned-number', 'create-card', 'update-card'
+                            'new', 'change-msisdn', 'change-iccid-and-imsi', 'change-unassigned-number', 'create-card', 'update-card', 'set-esim-iccid'
                         ],
                         'roles' => ['sim.write'],
                     ],
@@ -99,7 +97,7 @@ class CardController extends BaseController
             $dataProvier = $filterModel->search();
             $query = $dataProvier->query;
 
-            $cardIccids =  $query->select(Card::tableName().'.iccid')->limit(10000)->column();
+            $cardIccids = $query->select(Card::tableName() . '.iccid')->limit(10000)->column();
 
             if (count($cardIccids) >= 10000) {
                 \Yii::$app->session->addFlash('error', 'Обрабатывается не более 10000 карт за раз');
@@ -137,7 +135,7 @@ class CardController extends BaseController
                 } else {
                     \Yii::$app->session->addFlash('error', 'Действие запрещено');
                 }
-            } 
+            }
         }
 
 
@@ -526,4 +524,86 @@ class CardController extends BaseController
         return $return;
     }
     */
+
+    /**
+     * AJAX. Подключение ICCID к услуге eSIM
+     *
+     * @param \yii\web\Request $request
+     * @return array
+     */
+    public function actionSetEsimIccid()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $transaction1 = Card::getDb()->beginTransaction();
+        $transaction2 = AccountTariff::getDb()->beginTransaction();
+        try {
+            $accountTariffId = \Yii::$app->request->post('id');
+            $iccid = \Yii::$app->request->post('iccid');
+
+            $accountTariffId = preg_replace('/\D/', '', $accountTariffId);
+            $iccid = preg_replace('/\D/', '', $iccid);
+
+            if (!$accountTariffId || !$iccid) {
+                throw new \InvalidArgumentException('Карта не задана');
+            }
+
+            $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+            if (!$accountTariff || $accountTariff->service_type_id != ServiceType::ID_ESIM) {
+                throw new \InvalidArgumentException('Услуга не найдена');
+            }
+
+            $card = Card::findOne(['iccid' => $iccid]);
+            if (!$card) {
+                throw new \InvalidArgumentException('Карта не найдена');
+            }
+
+            if ($card->client_account_id && $card->client_account_id != $accountTariff->client_account_id) {
+                throw new \InvalidArgumentException('Карта привязана к ЛС: ' . $card->client_account_id);
+            }
+
+            $accountTariffs = AccountTariff::find()->where([
+                'client_account_id' => $accountTariff->client_account_id,
+                'service_type_id' => ServiceType::ID_ESIM,
+            ])->all();
+
+            $isUsed = array_filter($accountTariffs, function (AccountTariff $ac) use ($iccid) {
+                return $ac->iccid == $iccid;
+            });
+            if ($isUsed) {
+                throw new \InvalidArgumentException('Карта уже привязана к этому ЛС');
+            }
+
+            $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
+            if ($numbers) {
+                throw new \InvalidArgumentException('К карте привязан номер: ' . (implode(', ', $numbers)));
+            }
+
+            $accountTariff->iccid = $card->iccid;
+            if (!$accountTariff->save()) {
+                throw new ModelValidationException($accountTariff);
+            }
+
+            $card->client_account_id = $accountTariff->client_account_id;
+            if (!$card->save()) {
+                throw new ModelValidationException($card);
+            }
+
+            $transaction1->commit();
+            $transaction2->commit();
+
+        } catch (\Exception $e) {
+            $transaction1->rollBack();
+            $transaction2->rollBack();
+
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+
+        return [
+            'success' => true,
+        ];
+    }
 }
