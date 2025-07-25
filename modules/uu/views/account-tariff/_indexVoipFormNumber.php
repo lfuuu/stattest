@@ -30,7 +30,7 @@ use yii\helpers\Url;
         <?php
         if ($accountTariff->iccid) {
             echo Html::tag('span', Html::a($accountTariff->iccid, ['/sim/card/edit', 'originIccid' => $accountTariff->iccid]), ['class' => 'esim-saved-value']);
-        } elseif ($tagName == 'div') {
+        } elseif ($tagName == 'div' && \Yii::$app->user->can('sim.write')) {
             echo Html::input('text', 'esim' . $accountTariff->id, '', ['data-id' => $accountTariff->id, 'class' => 'esim', 'autocomplete' => 'off']);
         }
 
