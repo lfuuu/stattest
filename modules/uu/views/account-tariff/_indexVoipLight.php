@@ -23,12 +23,15 @@ $query->orderBy(new \yii\db\Expression('IF(tariff_period_id, 1, 0) DESC, uu_acco
 
 $key = 'uu_service_' . $filterModel->client_account_id . '-' . md5($query->createCommand()->rawSql);
 
+//$key .= md5(time());
+
 $queryDep = clone $query;
-$queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CONCAT(COALESCE(tariff_period_id, -1010)+ CAST(REPLACE(COALESCE(actual_from_utc, \'3020\'), \'-\', \'\') AS UNSIGNED)))
+$queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CONCAT(COALESCE(tariff_period_id, -1010)
+                    + unix_timestamp(actual_from_utc)
+                    ))
                    FROM uu_account_tariff_log
                    WHERE account_tariff_id = uu_account_tariff.id
-                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id))'),
-    'voip_status' => new \yii\db\Expression("sum(vn.status+vn.number)")
+                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id)) + sum(vn.status+0)'),
 ]);
 $queryDep->leftJoin(['vn' => \app\models\Number::tableName()], 'vn.number = voip_number');
 
