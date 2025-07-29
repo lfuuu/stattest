@@ -31,7 +31,8 @@ $queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CON
                     ))
                    FROM uu_account_tariff_log
                    WHERE account_tariff_id = uu_account_tariff.id
-                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id)) + sum(vn.status+0)'),
+                  ), 0)) + count(*) + sum(uu_account_tariff.id) + sum(coalesce(tariff_period_id, -uu_account_tariff.id)) + sum(coalesce(vn.status, 0)+0)'),
+    'md5sum_param' => new \yii\db\Expression('md5(group_concat(md5(calltracking_params)))')
 ]);
 $queryDep->leftJoin(['vn' => \app\models\Number::tableName()], 'vn.number = voip_number');
 
