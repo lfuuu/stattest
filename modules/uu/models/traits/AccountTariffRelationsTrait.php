@@ -3,6 +3,7 @@
 namespace app\modules\uu\models\traits;
 
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Datacenter;
@@ -14,6 +15,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffExtVoip;
 use app\modules\uu\models\AccountTariffHeap;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
@@ -28,6 +30,7 @@ use yii\db\Expression;
 
 /**
  * @property string iccid
+ * @property-read string iccid_saved_at_utc
  * @property-read ClientAccount $clientAccount
  * @property-read ServiceType $serviceType
  * @property-read ResourceModel[] $resources
@@ -506,9 +509,15 @@ trait AccountTariffRelationsTrait
         return $this->getParam('iccid', '');
     }
 
+    public function getIccid_saved_at_utc()
+    {
+        return $this->getParam('iccid_saved_at_utc', null);
+    }
+
     public function setIccid($routeName)
     {
         $this->addParam('iccid', $routeName);
+        $this->addParam('iccid_saved_at_utc', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT));
     }
 
     public function getCalligrapher_node_id()
@@ -518,6 +527,9 @@ trait AccountTariffRelationsTrait
 
     public function setCalligrapher_node_id($id)
     {
+        if (!$id) {
+            $id = '';
+        }
         $this->addParam('calligrapher_node_id', $id);
     }
 
@@ -528,6 +540,9 @@ trait AccountTariffRelationsTrait
 
     public function setcalligrapher_type_connection_id($id)
     {
+        if (!$id) {
+            $id = '';
+        }
         $this->addParam('calligrapher_type_connection_id', $id);
     }
 
