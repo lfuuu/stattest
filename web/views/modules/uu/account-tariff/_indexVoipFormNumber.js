@@ -8,14 +8,14 @@ $(document).ready(function() {
         var value = input.val().trim();
 
         // Если значение не изменилось, ничего не делаем
-        if (input.data('last-saved') === value) return;
+        // if (input.data('last-saved') === value) return;
 
         // Очищаем предыдущие сообщения об ошибках
         input.next('.error-message').remove();
         input.removeClass('error');
 
         // Если поле пустое, ничего не делаем
-        if (!value) return;
+        if (!value && input.data('last-saved') == '') return;
 
         // AJAX запрос на сервер
         $.ajax({
@@ -39,18 +39,20 @@ $(document).ready(function() {
                     input.data('last-saved', value);
 
                     // Опционально: заменяем input на div с сохраненным значением
-                    var savedDiv = $('<div>', {
-                        'class': 'esim-saved-value',
-                        'text': value,
-                        'id': 'saved-' + id
-                    });
-                    input.replaceWith(savedDiv);
+                    // var savedDiv = $('<div>', {
+                    //     'class': 'esim-saved-value',
+                    //     'text': value,
+                    //     'id': 'saved-' + id
+                    // });
+                    // input.replaceWith(savedDiv);
 
                     // Или просто показываем успешное сохранение
                     input.css('border-color', '#4CAF50');
+                    input.css('color', '#4CAF50');
                     setTimeout(function() {
-                        input.css('border-color', '');
-                    }, 1000);
+                    //     input.css('border-color', '');
+                            input.css('color', '');
+                    }, 1500);
                 } else {
                     // Ошибка от сервера
                     input.addClass('error');
@@ -67,6 +69,7 @@ $(document).ready(function() {
             error: function(xhr, status, error) {
                 input.removeClass('saving');
                 input.addClass('error');
+                input.prop('disabled', false)
 
                 var errorSpan = $('<span>', {
                     'class': 'error-message',

@@ -544,8 +544,8 @@ class CardController extends BaseController
             $accountTariffId = preg_replace('/\D/', '', $accountTariffId);
             $iccid = preg_replace('/\D/', '', $iccid);
 
-            if (!$accountTariffId || !$iccid) {
-                throw new \InvalidArgumentException('Карта не задана');
+            if (!$accountTariffId) {
+                throw new \InvalidArgumentException('eSim не задан');
             }
 
             $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
@@ -553,40 +553,71 @@ class CardController extends BaseController
                 throw new \InvalidArgumentException('Услуга не найдена');
             }
 
-            $card = Card::findOne(['iccid' => $iccid]);
-            if (!$card) {
-                throw new \InvalidArgumentException('Карта не найдена');
+            // do nothing
+            if (
+                $accountTariff->iccid == $iccid
+            ) {
+                return [
+                    'success' => true,
+                    'do' => 'nothing',
+                ];
             }
 
-            if ($card->client_account_id && $card->client_account_id != $accountTariff->client_account_id) {
-                throw new \InvalidArgumentException('Карта привязана к ЛС: ' . $card->client_account_id);
+            // открепляем старую карту
+            if ($accountTariff->iccid) {
+                $card = Card::findOne(['iccid' => $accountTariff->iccid]);
+                if (!$card) {
+                    throw new \InvalidArgumentException('Карта в услуге не найдена');
+                }
+
+                $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
+                if ($numbers) {
+                    throw new \InvalidArgumentException('К карте ' . $card->iccid . ' привязан номер: ' . (implode(', ', $numbers)) . '. Открепить карту нельзя');
+                }
+
+                $card->client_account_id = null;
+                if (!$card->save()) {
+                    throw new ModelValidationException($card);
+                }
             }
 
-            $accountTariffs = AccountTariff::find()->where([
-                'client_account_id' => $accountTariff->client_account_id,
-                'service_type_id' => ServiceType::ID_ESIM,
-            ])->all();
+            $card = null;
+            if ($iccid) {
+                $card = Card::findOne(['iccid' => $iccid]);
+                if (!$card) {
+                    throw new \InvalidArgumentException('Карта не найдена');
+                }
 
-            $isUsed = array_filter($accountTariffs, function (AccountTariff $ac) use ($iccid) {
-                return $ac->iccid == $iccid;
-            });
-            if ($isUsed) {
-                throw new \InvalidArgumentException('Карта уже привязана к этому ЛС');
+                if ($card->client_account_id && $card->client_account_id != $accountTariff->client_account_id) {
+                    throw new \InvalidArgumentException('Карта привязана к ЛС: ' . $card->client_account_id);
+                }
+
+                $accountTariffs = AccountTariff::find()->where([
+                    'client_account_id' => $accountTariff->client_account_id,
+                    'service_type_id' => ServiceType::ID_ESIM,
+                ])->all();
+
+                $isUsed = array_filter($accountTariffs, function (AccountTariff $ac) use ($iccid) {
+                    return $ac->iccid == $iccid;
+                });
+                if ($isUsed) {
+                    throw new \InvalidArgumentException('Карта уже привязана к этому ЛС');
+                }
+
+                $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
+                if ($numbers) {
+                    throw new \InvalidArgumentException('К карте привязан номер: ' . (implode(', ', $numbers)));
+                }
+
+                $card->client_account_id = $accountTariff->client_account_id;
+                if (!$card->save()) {
+                    throw new ModelValidationException($card);
+                }
             }
 
-            $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
-            if ($numbers) {
-                throw new \InvalidArgumentException('К карте привязан номер: ' . (implode(', ', $numbers)));
-            }
-
-            $accountTariff->iccid = $card->iccid;
+            $accountTariff->iccid = $card ? $card->iccid : null;
             if (!$accountTariff->save()) {
                 throw new ModelValidationException($accountTariff);
-            }
-
-            $card->client_account_id = $accountTariff->client_account_id;
-            if (!$card->save()) {
-                throw new ModelValidationException($card);
             }
 
             $transaction1->commit();

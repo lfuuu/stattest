@@ -28,10 +28,26 @@ use yii\helpers\Url;
     <?php elseif ($accountTariff->service_type_id == ServiceType::ID_ESIM) : ?>
         <?= Html::a('<span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span>', $accountTariff->getUrl()) . '&nbsp;' ?>
         <?php
+
+        $isShowEditable = false;
         if ($accountTariff->iccid) {
+            if ($tagName == 'div' && $accountTariff->iccid_saved_at_utc) {
+                $saved = DateTimeZoneHelper::getUtcDateTime($accountTariff->iccid_saved_at_utc);
+                $savedModif = $saved->modify('+1 day');
+                $now = DateTimeZoneHelper::getUtcDateTime();
+
+                if ($savedModif > $now) {
+                    $isShowEditable = true;
+                }
+            }
+        } elseif ($tagName == 'div') {
+            $isShowEditable = true;
+        }
+
+        if ($isShowEditable && \Yii::$app->user->can('sim.write')) {
+            echo Html::input('text', 'esim' . $accountTariff->id, (string)$accountTariff->iccid, ['data-id' => $accountTariff->id, 'class' => 'esim', 'autocomplete' => 'off', 'data-last-saved' => (string)$accountTariff->iccid]);
+        } else {
             echo Html::tag('span', Html::a($accountTariff->iccid, ['/sim/card/edit', 'originIccid' => $accountTariff->iccid]), ['class' => 'esim-saved-value']);
-        } elseif ($tagName == 'div' && \Yii::$app->user->can('sim.write')) {
-            echo Html::input('text', 'esim' . $accountTariff->id, '', ['data-id' => $accountTariff->id, 'class' => 'esim', 'autocomplete' => 'off']);
         }
 
         ?>
