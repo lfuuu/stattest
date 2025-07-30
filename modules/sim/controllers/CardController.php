@@ -544,6 +544,12 @@ class CardController extends BaseController
             $accountTariffId = preg_replace('/\D/', '', $accountTariffId);
             $iccid = preg_replace('/\D/', '', $iccid);
 
+            if (strlen($iccid) > 20) {
+                throw new \InvalidArgumentException('Формат карты не поддерживается');
+            }elseif (strlen($iccid) == 20) {
+                $iccid = substr($iccid, 0, 19);
+            }
+
             if (!$accountTariffId) {
                 throw new \InvalidArgumentException('eSim не задан');
             }
@@ -559,6 +565,7 @@ class CardController extends BaseController
             ) {
                 return [
                     'success' => true,
+                    'iccid' => $iccid,
                     'do' => 'nothing',
                 ];
             }
@@ -635,6 +642,7 @@ class CardController extends BaseController
 
         return [
             'success' => true,
+            'iccid' => $iccid,
         ];
     }
 }
