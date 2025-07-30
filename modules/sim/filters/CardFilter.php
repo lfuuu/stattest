@@ -45,6 +45,23 @@ class CardFilter extends Card
         ];
     }
 
+    public function load($data, $formName = null)
+    {
+        $result = parent::load($data, $formName);
+
+        if ($result) {
+            if ($this->iccid_from && strlen($this->iccid_from) > 19) {
+                $this->iccid_from = substr($this->iccid_from, 0, 19);
+            }
+
+            if ($this->iccid_to && strlen($this->iccid_to) > 19) {
+                $this->iccid_to = substr($this->iccid_to, 0, 19);
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * Фильтровать
      *

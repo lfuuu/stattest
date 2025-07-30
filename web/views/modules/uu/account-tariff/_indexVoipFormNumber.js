@@ -1,6 +1,26 @@
 
 
 $(document).ready(function() {
+
+    $('input[type="text"].esim').on('keydown', function(e) {
+        if (e.keyCode != 13) { // Enter
+            return true;
+        }
+        e.preventDefault();
+
+        // Находим все текстовые input'ы в форме
+        var inputs = $(this).closest('form').find('input[type="text"].esim');
+        // Находим индекс текущего input'а
+        var currentIndex = inputs.index(this);
+        // Переключаем фокус на следующий input
+        if (currentIndex < inputs.length - 1) {
+            inputs.eq(currentIndex + 1).focus();
+        } else {
+            // Если это последний input, можно вернуться к первому
+            inputs.eq(0).focus();
+        }
+    });
+
     // Обработчик для текстовых input'ов с классом esim
     $('input[type="text"].esim').on('blur', function() {
         var input = $(this);
@@ -36,7 +56,8 @@ $(document).ready(function() {
 
                 if (response.success) {
                     // Успешное сохранение - запоминаем последнее сохраненное значение
-                    input.data('last-saved', value);
+                    input.data('last-saved', response.iccid);
+                    input.val(response.iccid);
 
                     // Опционально: заменяем input на div с сохраненным значением
                     // var savedDiv = $('<div>', {
@@ -56,6 +77,7 @@ $(document).ready(function() {
                 } else {
                     // Ошибка от сервера
                     input.addClass('error');
+                    input.focus().select();
 
                     // Показываем сообщение об ошибке
                     var errorSpan = $('<span>', {
@@ -70,6 +92,7 @@ $(document).ready(function() {
                 input.removeClass('saving');
                 input.addClass('error');
                 input.prop('disabled', false)
+                input.focus().select();
 
                 var errorSpan = $('<span>', {
                     'class': 'error-message',
