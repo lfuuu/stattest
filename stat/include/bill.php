@@ -313,7 +313,7 @@ class Bill {
             $line->amount = $amount;
             $line->price = $price;
             $line->type = $type;
-            $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
+//            $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
             if ($this->bill['operation_type_id'] == OperationType::ID_COST) {
                 $line->sum = $price;
             } else {
