@@ -5,17 +5,11 @@ namespace app\modules\nnp\commands;
 use app\classes\helpers\CalculateGrowthRate;
 use app\classes\helpers\DependecyHelper;
 use app\classes\helpers\file\SortCsvFileHelper;
-use app\modules\nnp\classes\FtpSsh2Downloader;
-use app\modules\nnp\classes\RouteMncDownloader;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Number;
 use app\modules\nnp\models\NumberRange;
-use app\modules\nnp\models\NumberRangePrefix;
-use yii\base\InvalidConfigException;
-use yii\console\ExitCode;
-use yii\db\Expression;
-use yii\web\NotFoundHttpException;
+use app\modules\nnp\models\Operator;
 
 
 class PortedFromUvrController extends PortedController
@@ -252,8 +246,8 @@ class PortedFromUvrController extends PortedController
 
         $mncRanges = $this->getMncRanges();
         $opers = $this->getOper();
-        $operatorCodes = $this->getOperatorCodes();
-        $operatorMncs = $this->getOperatorMnc();
+//        $operatorCodes = $this->getOperatorCodes();
+//        $operatorMncs = $this->get    OperatorMnc();
 
         echo PHP_EOL;
 
@@ -267,8 +261,8 @@ class PortedFromUvrController extends PortedController
         ];
 
         $speedProc = new CalculateGrowthRate();
-
-        while (($row = fgetcsv($fileHandler, 1024, ';')) !== false) {
+        $operNotFound = [];
+            while (($row = fgetcsv($fileHandler, 1024, ';')) !== false) {
             $countAll++;
 
 //            if ($countAll < 115000000) {
@@ -307,30 +301,58 @@ class PortedFromUvrController extends PortedController
 
             $counter++;
 
-            $operatorId = $row[$operatorIdx];
+            $uvrOperatorId = $row[$operatorIdx];
 
             $row = [
                 'phone' => $phone,
-                'bdpn_operator_id' => $operatorId,
+                'bdpn_operator_id' => $uvrOperatorId,
             ];
 
             // MCN operator ID by operator from OPER file
-            $row['bdpn_operator'] = $opers[$operatorId] ?? null;
+            $operatorByUvrId = $this->getOperatorById($uvrOperatorId);
+            $row['bdpn_operator'] = $operatorByUvrId ? $operatorByUvrId->getAttributes() : null;
             $mcnOperatorId = null;
             $mncOperator = null;
+
             $ro = $row['bdpn_operator'];
-            if ($ro && isset($ro['bdpn_code'])) {
-                if (isset($operatorCodes[$ro['bdpn_code']])) {
-                    $mcnOperatorId = $operatorCodes[$ro['bdpn_code']];
-                    $mncOperator = $operatorMncs[$ro['bdpn_code']] ?? $ro['mnc'] ?? null;
-                } else {
+            if ($ro && $ro['bdpn_code']) {
+                    $mcnOperatorId = $ro['id'];
+                    $mncOperator = $ro['mnc'];
+            } else {
+                if (
+                    $uvrOperatorId == 11090 // ИНТЕГРАЛ
+                    || $uvrOperatorId == 13119	// МИНЦИФРЫ РОССИИ
+                    || $uvrOperatorId == 10226	// ПАО "Башинформсвязь"
+                    || $uvrOperatorId == 11220	// ООО "ЮнитТелеком"
+                    || $uvrOperatorId == 10413	// ООО "ПОРЛАМАР"
+                    || $uvrOperatorId == 11198	// ЗАО "Джи Ти Эн Ти"
+                    || $uvrOperatorId == 11127	// ООО "Иридиум Коммьюникешенс"
+                    || $uvrOperatorId == 11013	// ФГУП "Морсвязьспутник"
+                    || $uvrOperatorId == 13115	// ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ОКЕЙ ТЕЛЕКОМ"
+                    || $uvrOperatorId == 10994	// ООО "Юнисел"
+                    || $uvrOperatorId == 11051	// ООО "Белитон"
+                    || $uvrOperatorId == 11257	// ООО "БИТ-ЦЕНТР"
+                    || $uvrOperatorId == 11002  // ФГУП «ГРЧЦ»
+                    || $uvrOperatorId == 11245  // ООО "Метро-пэй"
+                    || $uvrOperatorId == 10062  // ООО "ТЕЛЕПОРТ"
+                    || $uvrOperatorId == 11038  // АО "Компания ТрансТелеКом"
+                    || $uvrOperatorId == 11070  // ООО "Оранж Бизнес Сервисез"
+                    || $uvrOperatorId == 12151  // ООО "СЕРЕНИТИ САЙБЕР СЕКЬЮРИТИ"
+                    || $uvrOperatorId == 11057  // ОАО "АСВТ"
+                ) {
+                    $stat['s']++;
+                    continue;
+                }
+                if (!isset($operNotFound[$uvrOperatorId])) {
                     print_r($row);
                     print_r($ro);
-//                    echo PHP_EOL . ' ERROR: Не найден operator code: ' . $ro['bdpn_code'];
-//                    continue;
-
-                    throw new \LogicException('Не найден operator code: ' . $ro['bdpn_code']);
+//                    throw new \LogicException('Не найден operator by uvr id: ' . $uvrOperatorId);
+                    echo PHP_EOL . 'Не найден operator by uvr id: ' . $uvrOperatorId;
+                    var_dump($opers[$uvrOperatorId]);
+                    echo PHP_EOL;
+                    $operNotFound[$uvrOperatorId] = 1;
                 }
+
             }
 
             if ($ro['bdpn_code'] == 'Mirandam') {
@@ -611,6 +633,42 @@ SQL;
         return $vv;
     }
 
+    private function getOperatorById($uvrOperatorId = null, $mcnOperatorId = null)
+    {
+        static $cacheU = [];
+        static $cacheM = [];
+
+        if ($uvrOperatorId && array_key_exists($uvrOperatorId, $cacheU)) {
+            return $cacheU[$uvrOperatorId];
+        } elseif ($mcnOperatorId && array_key_exists($mcnOperatorId, $cacheM)) {
+            return $cacheM[$mcnOperatorId];
+        }
+
+        $query = Operator::find()
+            ->where([
+                'country_code' => 643,
+            ])
+            ->andWhere(['not', ['bdpn_code' => null]])
+            ->andWhere(['not', ['mnc' => null]])
+            ->orderBy(['id' => SORT_DESC])
+//            ->cache(600)
+;
+
+        if ($uvrOperatorId) {
+            $query->andWhere(['uvr_operator_id' => $uvrOperatorId]);
+        } elseif ($mcnOperatorId) {
+            $query->andWhere(['id' => $mcnOperatorId]);
+        } else {
+            throw new \InvalidArgumentException('параметр для поиска оператора не найден');
+        }
+
+        if ($uvrOperatorId) {
+            return ($cacheU[$uvrOperatorId] = $query->one());
+        } elseif ($mcnOperatorId) {
+            return ($cacheM[$mcnOperatorId] = $query->one());
+        }
+    }
+
     private function getNumberRange(&$numberRanges, $number)
     {
         $cnt = 0;
@@ -839,6 +897,7 @@ SQL;
                 $ported = $portedData[$phone];
                 if (
                     $ported['operator_source'] != $row['bpmn_code']
+                    || $ported['operator_id'] != $row['operator_id']
                     || $ported['region_code_fz'] != $row['region_code_fz']
                     || (int)$ported['mnc'] != (int)$row['mnc']
                 ) {
