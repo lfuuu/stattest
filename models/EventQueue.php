@@ -224,6 +224,7 @@ class EventQueue extends ActiveRecord
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',
 
         UuModule::EVENT_ADD_DEFAULT_PACKAGES => 'УУ. Добавить дефолтные пакеты',
+        UuModule::EVENT_VOIP_BUNDLE => 'УУ. Добавить бандл-пакеты',
         UuModule::EVENT_VOIP_CALLS => 'УУ. Телефония',
         UuModule::EVENT_VPBX => 'УУ. ВАТС',
         UuModule::EVENT_CALL_CHAT_CREATE => 'УУ. Call chat создать',

@@ -53,45 +53,48 @@ if (Yii::$app->user->can('sim.write') || Yii::$app->user->can('sim.link')) {
     echo "</div>";
     $width = $account ? 300 : 170;
 
-    echo "<div class=well style='width: " . $width . "px; float: left; margin-left: 10px;'>";
-    echo Html::tag('b', 'Связка с ЛС') . '<br>';
-    if ($account) {
+    // STAT-883: Закрыть старый механизм назначение СИМ-карты на ЛС.
+    if (false) {
+        echo "<div class=well style='width: " . $width . "px; float: left; margin-left: 10px;'>";
+        echo Html::tag('b', 'Связка с ЛС') . '<br>';
+        if ($account) {
+            echo $this->render('//layouts/_submitButton', [
+                'text' => 'Привязать',
+                'glyphicon' => 'glyphicon-link',
+                'params' => [
+                    'name' => 'set-link',
+                    'class' => 'btn btn-success',
+                    'style' => 'margin-left: 10px;',
+                ],
+            ]);
+        }
         echo $this->render('//layouts/_submitButton', [
-            'text' => 'Привязать',
-            'glyphicon' => 'glyphicon-link',
+            'text' => 'Отвязать',
+            'glyphicon' => 'glyphicon-scissors',
             'params' => [
-                'name' => 'set-link',
-                'class' => 'btn btn-success',
+                'name' => 'set-unlink',
+                'class' => 'btn btn-warning',
                 'style' => 'margin-left: 10px;',
             ],
         ]);
+
+        echo "</div>";
+        echo "<div class=well style='width: " . $width . "px; float: left; margin-left: 10px;'>";
+        echo Html::tag('b', 'Перенос на другой ЛС') . '<br>';
+        echo $this->render('//layouts/_submitButton', [
+            'text' => 'Перенести',
+            'glyphicon' => 'glyphicon-link',
+            'params' => [
+                'name' => 'set-transfer',
+                'class' => 'btn btn-primary',
+                'style' => 'margin-left: 10px;',
+            ],
+        ]);
+
+        echo Html::input('number', 'newAccountId', '', ['class' => 'form-control', 'placeholder' => 'Введите ЛС для трансфера', 'style' => 'margin-left: 10px; margin-top: 10px']);
+
+        echo "</div>";
     }
-    echo $this->render('//layouts/_submitButton', [
-        'text' => 'Отвязать',
-        'glyphicon' => 'glyphicon-scissors',
-        'params' => [
-            'name' => 'set-unlink',
-            'class' => 'btn btn-warning',
-            'style' => 'margin-left: 10px;',
-        ],
-    ]);
-
-    echo "</div>";
-    echo "<div class=well style='width: " . $width . "px; float: left; margin-left: 10px;'>";
-    echo Html::tag('b', 'Перенос на другой ЛС') . '<br>';
-    echo $this->render('//layouts/_submitButton', [
-        'text' => 'Перенести',
-        'glyphicon' => 'glyphicon-link',
-        'params' => [
-            'name' => 'set-transfer',
-            'class' => 'btn btn-primary',
-            'style' => 'margin-left: 10px;',
-        ],
-    ]);
-
-    echo Html::input('number', 'newAccountId', '' ,  ['class' => 'form-control', 'placeholder' => 'Введите ЛС для трансфера', 'style' => 'margin-left: 10px; margin-top: 10px']);
-    
-    echo "</div>";
     echo "</div>";
 }
 
