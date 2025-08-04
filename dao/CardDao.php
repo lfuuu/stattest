@@ -89,6 +89,8 @@ class CardDao extends Singleton
 
     public function actionSetLink($iccids, $accountId)
     {
+        throw new \InvalidArgumentException('действие закрыто'); // STAT-883
+
         $transaction = Card::getDb()->beginTransaction();
         try {
 
@@ -127,6 +129,8 @@ class CardDao extends Singleton
 
     public function actionSetTransfer($iccids, $accountId, $newAccountId)
     {
+        throw new \InvalidArgumentException('действие закрыто'); // STAT-883
+
         $transaction = Card::getDb()->beginTransaction();
         try {
             $counter = 0;
