@@ -74,6 +74,8 @@ class ServiceType extends ActiveRecord
     const ID_CONTACT_CENTER_AI = 38;
 
     const ID_ESIM = 39;
+    
+    const ID_AI_AGENT = 40;
 
     const CLOSE_AFTER_DAYS = 60;
 

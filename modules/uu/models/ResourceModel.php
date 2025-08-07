@@ -120,6 +120,8 @@ class ResourceModel extends ActiveRecord
     const ID_CC_RESOURCE1 = 74;
     const ID_CC_RESOURCE2 = 75;
 
+    const ID_AI_AGENT_QTY = 77;
+
 
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
