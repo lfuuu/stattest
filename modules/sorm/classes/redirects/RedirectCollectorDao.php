@@ -9,6 +9,7 @@ use app\models\EventQueue;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use app\models\Number;
 use yii\caching\TagDependency;
 use yii\helpers\ArrayHelper;
 
@@ -45,7 +46,14 @@ class RedirectCollectorDao extends Singleton
                             $v[] = $row[$f];
                         }
 
-                        ImportantEvents::create(ImportantEventsNames::REDIRECT_ADD, ImportantEventsSources::SOURCE_STAT, $row);
+                        $row['region_id'] = Number::find()
+                            ->where(['number' => $row['did']])
+                            ->select('region')->scalar();
+
+                        ImportantEvents::create(
+                            ImportantEventsNames::REDIRECT_ADD, 
+                            ImportantEventsSources::SOURCE_STAT, 
+                            $row);
 
                         return array_values($v);
                     }, $toAdd))->execute();
@@ -65,7 +73,15 @@ class RedirectCollectorDao extends Singleton
                         $id = $row['id'];
                         unset($row['id']);
 
-                        ImportantEvents::create(ImportantEventsNames::REDIRECT_DELETE, ImportantEventsSources::SOURCE_STAT, $row);
+                        $row['region_id'] = Number::find()
+                            ->where(['number' => $row['did']])
+                            ->select('region')
+                            ->scalar();
+
+                        ImportantEvents::create(
+                            ImportantEventsNames::REDIRECT_DELETE, 
+                            ImportantEventsSources::SOURCE_STAT, 
+                            $row);
 
                         return $id;
                     }, $toDel))]
