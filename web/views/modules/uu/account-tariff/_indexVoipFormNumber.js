@@ -74,6 +74,10 @@ $(document).ready(function() {
                     //     input.css('border-color', '');
                             input.css('color', '');
                     }, 1500);
+
+                    if (response.action && response.action == 'reloadpage') {
+                        window.location.href = '/uu/account-tariff?serviceTypeId=39&AccountTariffFilter%5Bclient_account_id%5D=' + response.client_account_id
+                    }
                 } else {
                     // Ошибка от сервера
                     input.addClass('error');
