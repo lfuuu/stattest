@@ -48,7 +48,13 @@ class CardController extends BaseController
                     [
                         'allow' => true,
                         'actions' => [
-                            'new', 'change-msisdn', 'change-iccid-and-imsi', 'change-unassigned-number', 'create-card', 'update-card', 'set-esim-iccid'
+                            'new',
+                            'change-msisdn',
+                            'change-iccid-and-imsi',
+                            'change-unassigned-number',
+                            'create-card',
+                            'update-card',
+                            'set-esim-iccid'
                         ],
                         'roles' => ['sim.write'],
                     ],
@@ -250,14 +256,18 @@ class CardController extends BaseController
             // Вызов воркера, выполняющего локальные и удаленные операции
             $msisdnsWorker = new MsisdnsWorker($imsies['origin'], $imsies['virtual']);
             $response = $msisdnsWorker->callOnionSync([
-                Card::getDb()->beginTransaction(), Number::getDb()->beginTransaction()
+                Card::getDb()->beginTransaction(),
+                Number::getDb()->beginTransaction()
             ]);
             return [
                 'status' => 'success',
                 'data' => $response,
                 'message' => sprintf(
                     'Успешная синхронизация. Подробнее: OriginImsi: %s, OriginMsisdn: %s. VirtualImsi: %s, VirtualMsisdn: %s.',
-                    $imsies['origin']->imsi, $response['origin_msisdn'], $imsies['virtual']->imsi, $response['virtual_msisdn']
+                    $imsies['origin']->imsi,
+                    $response['origin_msisdn'],
+                    $imsies['virtual']->imsi,
+                    $response['virtual_msisdn']
                 ),
             ];
         } catch (\Exception $e) {
@@ -300,14 +310,17 @@ class CardController extends BaseController
             // Вызов воркера, выполняющего локальные и удаленные операции
             $unassignedNumberWorker = new UnassignedNumberWorker($originImsi, $virtualNumber);
             $response = $unassignedNumberWorker->callOnionSync([
-                Card::getDb()->beginTransaction(), Number::getDb()->beginTransaction()
+                Card::getDb()->beginTransaction(),
+                Number::getDb()->beginTransaction()
             ]);
             return [
                 'status' => 'success',
                 'data' => $response,
                 'message' => sprintf(
                     'Номера успешно обменяны межды сим-картой и непривязанным номером. Детализация: OriginImsi: %s, OriginMsisdn: %s. VirtualNumber: %s.',
-                    $originImsi->imsi, $response['origin_msisdn'], $response['virtual_number']
+                    $originImsi->imsi,
+                    $response['origin_msisdn'],
+                    $response['virtual_number']
                 ),
             ];
         } catch (\Exception $e) {
@@ -334,7 +347,9 @@ class CardController extends BaseController
             /** @see loadFromInput */
             $this->_loadFromSerialize($card, $request->post());
             $transaction->commit();
-            return ['status' => 'success', 'message' => 'Успешое выполнение операции по сохранение сим-карты',
+            return [
+                'status' => 'success',
+                'message' => 'Успешое выполнение операции по сохранение сим-карты',
                 'data' => [
                     'redirect' => Url::to(['/sim/card/edit', 'originIccid' => $card->iccid]),
                 ],
@@ -376,7 +391,8 @@ class CardController extends BaseController
             /** @see loadFromInput */
             $this->_loadFromSerialize($card, $post);
             $transaction->commit();
-            return ['status' => 'success',
+            return [
+                'status' => 'success',
                 'message' => 'Успешое выполнение операции по обновлению сим-карты',
             ];
         } catch (\Exception $e) {
@@ -444,7 +460,8 @@ class CardController extends BaseController
     private function _getImsiesFromRequest($request)
     {
         list($originImsiParam, $virtualImsiParam) = [
-            $request->post('origin_imsi'), $request->post('virtual_imsi')
+            $request->post('origin_imsi'),
+            $request->post('virtual_imsi')
         ];
         // Проверка наличия требуемых параметров
         if (!$originImsiParam || !$virtualImsiParam) {
@@ -535,96 +552,18 @@ class CardController extends BaseController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
+        $accountTariffId = \Yii::$app->request->post('id');
+        $iccid = \Yii::$app->request->post('iccid');
+
         $transaction1 = Card::getDb()->beginTransaction();
         $transaction2 = AccountTariff::getDb()->beginTransaction();
+
         try {
-            $accountTariffId = \Yii::$app->request->post('id');
-            $iccid = \Yii::$app->request->post('iccid');
-
-            $accountTariffId = preg_replace('/\D/', '', $accountTariffId);
-            $iccid = preg_replace('/\D/', '', $iccid);
-
-            if (strlen($iccid) > 20) {
-                throw new \InvalidArgumentException('Формат карты не поддерживается');
-            }elseif (strlen($iccid) == 20) {
-                $iccid = substr($iccid, 0, 19);
-            }
-
-            if (!$accountTariffId) {
-                throw new \InvalidArgumentException('eSim не задан');
-            }
-
-            $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
-            if (!$accountTariff || $accountTariff->service_type_id != ServiceType::ID_ESIM) {
-                throw new \InvalidArgumentException('Услуга не найдена');
-            }
-
-            // do nothing
-            if (
-                $accountTariff->iccid == $iccid
-            ) {
-                return [
-                    'success' => true,
-                    'iccid' => $iccid,
-                    'do' => 'nothing',
-                ];
-            }
-
-            // открепляем старую карту
-            if ($accountTariff->iccid) {
-                $card = Card::findOne(['iccid' => $accountTariff->iccid]);
-                if (!$card) {
-                    throw new \InvalidArgumentException('Карта в услуге не найдена');
-                }
-
-                $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
-                if ($numbers) {
-                    throw new \InvalidArgumentException('К карте ' . $card->iccid . ' привязан номер: ' . (implode(', ', $numbers)) . '. Открепить карту нельзя');
-                }
-
-                $card->client_account_id = null;
-                if (!$card->save()) {
-                    throw new ModelValidationException($card);
-                }
-            }
-
-            $card = null;
-            if ($iccid) {
-                $card = Card::findOne(['iccid' => $iccid]);
-                if (!$card) {
-                    throw new \InvalidArgumentException('Карта не найдена');
-                }
-
-                if ($card->client_account_id && $card->client_account_id != $accountTariff->client_account_id) {
-                    throw new \InvalidArgumentException('Карта привязана к ЛС: ' . $card->client_account_id);
-                }
-
-                $accountTariffs = AccountTariff::find()->where([
-                    'client_account_id' => $accountTariff->client_account_id,
-                    'service_type_id' => ServiceType::ID_ESIM,
-                ])->all();
-
-                $isUsed = array_filter($accountTariffs, function (AccountTariff $ac) use ($iccid) {
-                    return $ac->iccid == $iccid;
-                });
-                if ($isUsed) {
-                    throw new \InvalidArgumentException('Карта уже привязана к этому ЛС');
-                }
-
-                $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
-                if ($numbers) {
-                    throw new \InvalidArgumentException('К карте привязан номер: ' . (implode(', ', $numbers)));
-                }
-
-                $card->client_account_id = $accountTariff->client_account_id;
-                if (!$card->save()) {
-                    throw new ModelValidationException($card);
-                }
-            }
-
-            $accountTariff->iccid = $card ? $card->iccid : null;
-            if (!$accountTariff->save()) {
-                throw new ModelValidationException($accountTariff);
+            $matches = [];
+            if (preg_match('/^(8\d{18})\.\.\.(\d+)/', $iccid, $matches)) {
+                $result = $this->doGroupSetEsimIccid($accountTariffId, $matches);
+            } else {
+                $result = $this->doOnceSetEsimIccid($accountTariffId, $iccid);
             }
 
             $transaction1->commit();
@@ -641,8 +580,197 @@ class CardController extends BaseController
         }
 
         return [
-            'success' => true,
-            'iccid' => $iccid,
+                'success' => true,
+            ] + $result;
+    }
+
+    private function doGroupSetEsimIccid($accountTariffId, $matches)
+    {
+        $maxCount = 101;
+        // return ['matches' => $matches];
+
+        $start = $matches[1];
+        $end = $matches[2];
+
+        $prefix = substr($start, 0, -strlen($end));
+        $startNum = substr($start, -strlen($end));
+        $endNum = $end;
+
+        if ($startNum > $endNum) {
+            throw new \InvalidArgumentException('Диапазон задан не верно');
+        }
+
+        if (($endNum - $startNum + 1) > $maxCount) {
+            throw new \InvalidArgumentException("Превышено кол-во вносимых ICCID (" . ($endNum - $startNum + 1) . " > {$maxCount})");
+        }
+
+        // Создаем массив последовательности
+        $iccids = [];
+        for ($i = $startNum; $i <= $endNum; $i++) {
+            $iccids[] = $prefix . str_pad($i, strlen($endNum), '0', STR_PAD_LEFT);
+        }
+
+        $accountTariffStart = $this->getAccountTariffById($accountTariffId);
+
+        // проверяем - есть в наличии кол-во услуг без iccid, начиная с указанной
+        $accountTariffs = AccountTariff::find()->where([
+            'client_account_id' => $accountTariffStart->client_account_id,
+            'service_type_id' => ServiceType::ID_ESIM,
+        ])->orderBy(['id' => SORT_ASC])->all();
+
+        $accountTariffs = array_values(array_filter($accountTariffs, fn(AccountTariff $a) => $a->iccid == ''));
+
+        $countAccountTariffs = $accountTariffs;
+        $countIccids = count($iccids);
+
+        if ($countAccountTariffs < $countIccids) {
+            throw new \InvalidArgumentException('Нет столько услуг eSim без ICCID (кол-во услуг: ' . $countAccountTariffs . ' < кол-во eSim' . $countIccids . ')');
+        }
+
+        // сортируем список услуг 
+
+        // array_search in objects
+        $startIdx = null;
+        foreach ($accountTariffs as $idx => $accountTariff) {
+            if ($accountTariff->id == $accountTariffStart->id) {
+                $startIdx = $idx;
+                break;
+            }
+        }
+
+        if ($startIdx === null) {
+            throw new \InvalidArgumentException('Начальная услуга не найдена (' . $accountTariffStart->id . ') ');
+        }
+
+        if ($startIdx !== 0) {
+            $accountTariffs = array_merge(
+                array_slice($accountTariffs, $startIdx), // часть от старта до конца
+                array_slice($accountTariffs, 0, $startIdx) // часть от начала до старта
+            );
+        }
+
+        // проверяем - свободны ли iccid
+        array_walk($iccids, function ($iccid) use ($accountTariffStart) {
+            return $this->getCardByIccid($iccid, $accountTariffStart->client_account_id, true);
+        });
+
+        // назначаем на услуги
+        foreach ($accountTariffs as $accountTariff) {
+            $this->doOnceSetEsimIccid($accountTariff->id, array_shift($iccids), true);
+        }
+
+        return [
+            'action' => 'reloadpage',
+            'client_account_id' => $accountTariffStart->client_account_id,
+        ];
+    }
+
+    private function getAccountTariffById($accountTariffId)
+    {
+        $accountTariffId = preg_replace('/\D/', '', $accountTariffId);
+        if (!$accountTariffId) {
+            throw new \InvalidArgumentException('eSim не задан');
+        }
+
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+        if (!$accountTariff || $accountTariff->service_type_id != ServiceType::ID_ESIM) {
+            throw new \InvalidArgumentException('Услуга не найдена');
+        }
+
+        return $accountTariff;
+    }
+
+    private function getCardByIccid($iccid, $clientAccountId, $isWithCardIccid = false): Card
+    {
+        $card = Card::findOne(['iccid' => $iccid]);
+        if (!$card) {
+            throw new \InvalidArgumentException('Карта не найдена');
+        }
+
+        $cardIccidStr = $isWithCardIccid ? ' (iccid: ' . $card->iccid . ')' : '';
+
+        if ($card->client_account_id && $card->client_account_id != $clientAccountId) {
+            throw new \InvalidArgumentException('Карта привязана к ЛС: ' . $card->client_account_id . $cardIccidStr);
+        }
+
+        $accountTariffs = AccountTariff::find()->where([
+            'client_account_id' => $clientAccountId,
+            'service_type_id' => ServiceType::ID_ESIM,
+        ])->all();
+
+        $isUsed = array_filter($accountTariffs, function (AccountTariff $ac) use ($iccid) {
+            return $ac->iccid == $iccid;
+        });
+        if ($isUsed) {
+            throw new \InvalidArgumentException('Карта уже привязана к этому ЛС' . $cardIccidStr);
+        }
+
+        $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
+        if ($numbers) {
+            throw new \InvalidArgumentException('К карте привязан номер: ' . (implode(', ', $numbers)) . $cardIccidStr);
+        }
+
+        return $card;
+    }
+
+    private function doOnceSetEsimIccid($accountTariffId, $iccid, $isWithCardIccid = false)
+    {
+        $iccid = preg_replace('/\D/', '', $iccid);
+
+        if (strlen($iccid) > 20) {
+            throw new \InvalidArgumentException('Формат карты не поддерживается');
+        } elseif (strlen($iccid) == 20) {
+            $iccid = substr($iccid, 0, 19);
+        }
+
+        $accountTariff = $this->getAccountTariffById($accountTariffId);
+
+
+        // do nothing
+        if (
+            $accountTariff->iccid == $iccid
+        ) {
+            return [
+                'iccid' => $iccid,
+                'do' => 'nothing',
+            ];
+        }
+
+        // открепляем старую карту
+        if ($accountTariff->iccid) {
+            $card = Card::findOne(['iccid' => $accountTariff->iccid]);
+            if (!$card) {
+                throw new \InvalidArgumentException('Карта в услуге не найдена');
+            }
+
+            $numbers = array_unique(array_filter(array_map(fn(Imsi $imsi) => $imsi->msisdn, $card->imsies)));
+            if ($numbers) {
+                throw new \InvalidArgumentException('К карте ' . $card->iccid . ' привязан номер: ' . (implode(', ', $numbers)) . '. Открепить карту нельзя');
+            }
+
+            $card->client_account_id = null;
+            if (!$card->save()) {
+                throw new ModelValidationException($card);
+            }
+        }
+
+        $card = null;
+        if ($iccid) {
+            $card = $this->getCardByIccid($iccid, $accountTariff->client_account_id, $isWithCardIccid);
+
+            $card->client_account_id = $accountTariff->client_account_id;
+            if (!$card->save()) {
+                throw new ModelValidationException($card);
+            }
+        }
+
+        $accountTariff->iccid = $card ? $card->iccid : null;
+        if (!$accountTariff->save()) {
+            throw new ModelValidationException($accountTariff);
+        }
+
+        return [
+            'iccid' => $iccid
         ];
     }
 }
