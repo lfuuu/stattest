@@ -61,6 +61,7 @@ use yii\db\Expression;
  * @property-read AccountLogResource[] $accountLogResourceTraffics
  *
  * @property-read AccountTariffHelper $helper
+ * @property-read AccountTariffExtVoip $extVoip
  *
  * @method ActiveQuery hasMany($class, array $link) see [[BaseActiveRecord::hasMany()]] for more info
  * @method ActiveQuery hasOne($class, array $link) see [[BaseActiveRecord::hasOne()]] for more info
@@ -401,6 +402,14 @@ trait AccountTariffRelationsTrait
     /**
      * @return ActiveQuery
      */
+    public function getExtVoip()
+    {
+        return $this->hasOne(AccountTariffExtVoip::class, ['account_tariff_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
     public function getAccountTroubles()
     {
         return $this->hasMany(AccountTrouble::class, ['account_tariff_id' => 'id']);
@@ -544,6 +553,22 @@ trait AccountTariffRelationsTrait
             $id = '';
         }
         $this->addParam('calligrapher_type_connection_id', $id);
+    }
+
+    public function getDomain_name()
+    {
+        return $this->getParam('domain_name', '');
+    }
+
+    public function setdomain_name($name)
+    {
+        $name = trim($name);
+        
+        if (!$name) {
+            $name = '';
+        }
+        
+        $this->addParam('domain_name', $name);
     }
 
 

@@ -31,6 +31,8 @@ return [
 
     'calligrapher_node_id' => 'Наш узел (Calligrapher)',
     'calligrapher_type_connection_id' => 'Тип присоединения оператора (Calligrapher)',
+    
+    'domain_name' => 'Домен (для MS Teams)',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

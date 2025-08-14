@@ -221,6 +221,7 @@ abstract class AccountTariffForm extends Form
                         }
                         $this->accountTariff->calligrapher_node_id = $post['AccountTariff']['calligrapher_node_id'] ?? null;
                         $this->accountTariff->calligrapher_type_connection_id = $post['AccountTariff']['calligrapher_type_connection_id'] ?? null;
+                        $this->accountTariff->domain_name = $post['AccountTariff']['domain_name'] ?? null;
                     }
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных

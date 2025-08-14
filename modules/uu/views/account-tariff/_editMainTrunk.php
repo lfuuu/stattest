@@ -56,6 +56,14 @@ $helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHel
         </div>
     <?php endif ?>
 
+    <?php // domain_name ?>
+    <div class="col-sm-2">
+        <?= $form->field($accountTariff, 'domain_name')
+            ->input('string')
+            ->label(Yii::t('models/' . $accountTariff::tableName(), 'domain_name'))
+        ?>
+    </div>
+
 </div>
 <?php
 
