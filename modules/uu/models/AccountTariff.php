@@ -62,6 +62,7 @@ use yii\db\Expression;
  * @property int $calligrapher_node_id
  * @property int $calligrapher_type_connection_id
  * @property integer $is_verified
+ * @property string $domain_name
  */
 class AccountTariff extends ActiveRecord
 {
@@ -221,7 +222,7 @@ class AccountTariff extends ActiveRecord
                 ],
                 'integer'
             ],
-            [['comment', 'device_address', 'calltracking_params'], 'string'],
+            [['comment', 'device_address', 'calltracking_params', 'domain_name'], 'string'],
             [['comment', 'device_address'], FormFieldValidator::class, 'skipOnError' => true],
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],
