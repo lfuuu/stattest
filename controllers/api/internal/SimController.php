@@ -12,6 +12,8 @@ use app\modules\sim\models\CardStatus;
 use app\modules\sim\models\Imsi;
 use app\modules\sim\models\ImsiStatus;
 use app\modules\sim\models\RegionSettings;
+use app\modules\uu\behaviors\AccountTariffCheckHlr;
+use app\modules\uu\models\AccountTariff;
 use Exception;
 use Yii;
 use yii\base\InvalidParamException;
@@ -313,7 +315,7 @@ class SimController extends ApiInternalController
      * @param int $client_account_id
      * @param int $iccid
      * @param int $imsi
-     * @return int
+     * @return mixed
      * @throws \Exception
      */
     public function actionEditCard($client_account_id, $iccid, $imsi)
@@ -338,9 +340,15 @@ class SimController extends ApiInternalController
 
         /** @var ?Imsi $imsiExists */
         $imsiExists = null;
-        if (!empty($post['msisdn'])) {
-            $msisdn = $post['msisdn'];
+        $imsiObject = $imsies[$imsi];
+        $msisdn = $post['msisdn'];
+        $msisdnFromImsi = $imsiObject->msisdn;
 
+        if ($msisdn == $msisdnFromImsi) {
+            return true;
+        }
+
+        if (!empty($msisdn)) {
             $number = Number::findOne(['number' => $msisdn]);
             if (!$number) {
                 throw new \InvalidArgumentException('Неверный msisdn, не найден в voip_numbers', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_FOUND);
@@ -371,7 +379,6 @@ class SimController extends ApiInternalController
             }
         }
 
-        $imsiObject = $imsies[$imsi];
 
         $transaction = Yii::$app->db->beginTransaction();
         $transactionSim = Card::getDb()->beginTransaction();
@@ -392,9 +399,40 @@ class SimController extends ApiInternalController
                 }
             }
 
-            $imsiObject->setAttributes($post);
-            if (!$imsiObject->save()) {
-                throw new ModelValidationException($imsiObject);
+            if ($msisdn) { // set
+                $accountTariff = AccountTariff::find()
+                    ->where(['voip_number' => $msisdn ?: -1 ])
+                    ->andWhere(['not', ['tariff_period_id' => null]])
+                    ->one();
+                if (!$accountTariff) {
+                    throw new \InvalidArgumentException('Неверный msisdn, не найдена включенная услуга с этим номером', self::EDIT_CARD_ERROR_CODE_NUMBER_NOT_FOUND);
+                }
+
+                $iccid = AccountTariffCheckHlr::reservImsi([
+                    'account_tariff_id' => $accountTariff->id,
+                    'card' => $card,
+                ]);
+            } else if ($imsiObject->msisdn) { // unset
+                array_walk($imsiObject->card->imsies, function(Imsi $imsi) {
+                    $imsi->msisdn = '';
+                    if (!$imsi->save()) {
+                        throw new ModelValidationException($imsi);
+                    }
+                });
+            }
+
+            $imsiObject->refresh();
+
+            if (!$msisdn && $msisdnFromImsi) {
+                $accountTariff = AccountTariff::find()
+                    ->where(['voip_number' => $msisdnFromImsi])
+                    ->andWhere(['not', ['tariff_period_id' => null]])
+                    ->one();
+                if ($accountTariff) {
+                    $iccid = AccountTariffCheckHlr::reservImsi([
+                        'account_tariff_id' => $accountTariff->id,
+                    ]);
+                }
             }
 
             $transaction->commit();
