@@ -35,7 +35,7 @@ class AccountTariffCheckHlr extends Behavior
     }
 
     /**
-     * Проверка при отключении услуги
+     * Проверка при включении/отключении услуги
      *
      * @param AfterSaveEvent $event
      */
