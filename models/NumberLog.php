@@ -30,6 +30,7 @@ class NumberLog extends ActiveRecord
     const ACTION_ADDITION_TESTED = 'tested';
     const ACTION_ADDITION_COMMERCIAL = 'commercial';
     const ACTION_NOT_VERFIED = 'not_verfied';
+    const ACTION_MSTEAMS = 'msteams';
 
     const ACTION_CONNECTED = 'connected';
 
