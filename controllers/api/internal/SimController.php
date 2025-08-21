@@ -325,6 +325,12 @@ class SimController extends ApiInternalController
             throw new \InvalidArgumentException('Не найдена карта по iccid и client_account_id', self::EDIT_CARD_ERROR_CODE_WRONG_CARD);
         }
 
+        $lockKey = "sim_card_edit_" . $card->iccid;
+        if (!\Yii::$app->mutex->acquire($lockKey, self::DEFAULT_TIMEOUT)) {
+            throw new \RuntimeException("Can't get carf lock", 500);
+        }
+
+
         $imsies = $card->imsies;
         if (!isset($imsies[$imsi])) {
             throw new \InvalidArgumentException('Неправильные параметры imsi - нет такой imsi для данного iccid', self::EDIT_CARD_ERROR_CODE_WRONG_IMSI);
@@ -345,6 +351,7 @@ class SimController extends ApiInternalController
         $msisdnFromImsi = $imsiObject->msisdn;
 
         if ($msisdn == $msisdnFromImsi) {
+            \Yii::$app->mutex->release($lockKey);
             return true;
         }
 
@@ -429,14 +436,21 @@ class SimController extends ApiInternalController
                     ->andWhere(['not', ['tariff_period_id' => null]])
                     ->one();
                 if ($accountTariff) {
-                    $iccid = AccountTariffCheckHlr::reservImsi([
-                        'account_tariff_id' => $accountTariff->id,
-                    ]);
+                    $imsiExists = Imsi::find()
+                        ->andWhere(['msisdn' => $msisdnFromImsi])
+                        ->one();
+                    if (!$imsiExists) {
+                        $iccid = AccountTariffCheckHlr::reservImsi([
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                    }
                 }
             }
 
             $transaction->commit();
             $transactionSim->commit();
+            \Yii::$app->mutex->release($lockKey);
+
             return true;
         } catch (Exception $e) {
             $transactionSim->rollBack();
@@ -444,6 +458,7 @@ class SimController extends ApiInternalController
             if ($transaction->isActive) {
                 $transaction->rollBack();
             }
+            \Yii::$app->mutex->release($lockKey);
 
             \Yii::error($e);
             throw $e;
