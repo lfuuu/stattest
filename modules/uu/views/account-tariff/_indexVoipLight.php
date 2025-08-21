@@ -35,7 +35,6 @@ $queryDep->select(['sum' => new \yii\db\Expression('SUM(COALESCE((SELECT sum(CON
     'md5sum_param' => new \yii\db\Expression('md5(group_concat(md5(calltracking_params)))')
 ]);
 $queryDep->leftJoin(['vn' => \app\models\Number::tableName()], 'vn.number = voip_number');
-$queryDep->groupBy('vn.number');
 
 
 $sqlDep = $queryDep->createCommand()->rawSql;
