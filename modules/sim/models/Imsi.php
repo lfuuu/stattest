@@ -225,4 +225,9 @@ class Imsi extends ActiveRecord
     {
         return Url::to(['/sim/card/edit', 'originIccid' => $this->iccid]);
     }
+
+    public function __toString()
+    {
+        return 'IMSI: ' . $this->imsi . '(iccid: ' . $this->iccid . ')';
+    }
 }

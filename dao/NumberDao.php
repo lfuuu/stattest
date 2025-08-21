@@ -110,6 +110,8 @@ class NumberDao extends Singleton
 
         if ($number->is_verified === 0) {
             $newStatus = Number::STATUS_NOT_VERFIED;
+        }elseif ($number->is_in_msteams) {
+            $newStatus = Number::STATUS_ACTIVE_MSTEAMS;
         }
 
         if ($fieldsEqual && $newStatus == $number->status) {
@@ -134,6 +136,9 @@ class NumberDao extends Singleton
                 break;
             case Number::STATUS_NOT_VERFIED:
                 $logStatus = NumberLog::ACTION_NOT_VERFIED;
+                break;
+            case Number::STATUS_ACTIVE_MSTEAMS:
+                $logStatus = NumberLog::ACTION_MSTEAMS;
                 break;
         }
 

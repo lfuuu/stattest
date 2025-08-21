@@ -66,6 +66,7 @@ use yii\helpers\Url;
  * @property integer $nnp_region_id
  * @property integer $is_verified
  * @property integer $is_with_discount
+ * @property integer $is_in_msteams
  *
  * @property-read City $city
  * @property-read AccountTariff $accountTariff
@@ -98,6 +99,7 @@ class Number extends ActiveRecord
     const STATUS_ACTIVE_CONNECTED = 'active_connected';
     const STATUS_ACTIVE_TESTED = 'active_tested';
     const STATUS_ACTIVE_COMMERCIAL = 'active_commercial';
+    const STATUS_ACTIVE_MSTEAMS = 'active_msteams';
     const STATUS_NOTACTIVE_RESERVED = 'notactive_reserved';
     const STATUS_NOTACTIVE_HOLD = 'notactive_hold';
     const STATUS_RELEASED = 'released';
@@ -130,14 +132,24 @@ class Number extends ActiveRecord
         self::STATUS_ACTIVE_TESTED => 'Используется. Тестируется.',
         self::STATUS_ACTIVE_COMMERCIAL => 'Используется. В коммерции.',
         self::STATUS_ACTIVE_CONNECTED => 'Подключение запланировано',
+        self::STATUS_ACTIVE_MSTEAMS => 'Используется. MS Teams',
         self::STATUS_NOTACTIVE_RESERVED => 'В резерве',
         self::STATUS_NOTACTIVE_HOLD => 'В отстойнике',
         self::STATUS_RELEASED => 'Откреплен',
     ];
 
     public static $statusGroup = [
-        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_CONNECTED, self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL, self::STATUS_NOT_VERFIED],
-        self::STATUS_GROUP_NOTACTIVE => [self::STATUS_NOTACTIVE_RESERVED, self::STATUS_NOTACTIVE_HOLD],
+        self::STATUS_GROUP_ACTIVE => [
+            self::STATUS_ACTIVE_CONNECTED,
+            self::STATUS_ACTIVE_TESTED,
+            self::STATUS_ACTIVE_COMMERCIAL,
+            self::STATUS_NOT_VERFIED,
+            self::STATUS_ACTIVE_MSTEAMS
+        ],
+        self::STATUS_GROUP_NOTACTIVE => [
+            self::STATUS_NOTACTIVE_RESERVED,
+            self::STATUS_NOTACTIVE_HOLD
+        ],
     ];
 
     protected $callsCount = null;

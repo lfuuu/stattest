@@ -47,6 +47,7 @@ class AccountTariffVoipNumber extends Behavior
         }
 
         $number->is_verified = null;
+        $number->is_in_msteams = null;
         $number->status = Number::STATUS_ACTIVE_CONNECTED;
         $number->uu_account_tariff_id = $accountTariff->id;
         $number->client_id = $accountTariff->client_account_id;
