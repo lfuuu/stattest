@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\BillInvoiceReversal;
 use app\classes\behaviors\CheckBillPaymentOverdue;
+use app\classes\behaviors\ModelLifeRecorder;
 use app\classes\behaviors\SetBillPaymentDate;
 use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\ActiveRecord;
@@ -157,6 +158,10 @@ class Bill extends ActiveRecord
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::class,
             'SetBillPaymentDate' => SetBillPaymentDate::class,
             'BillInvoicesReversal' => BillInvoiceReversal::class,
+            'ModelLifeRec' => [
+                'class' => ModelLifeRecorder::class,
+                'modelName' => 'bill',
+            ],
         ];
     }
 
