@@ -6,6 +6,7 @@ use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
+use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
@@ -278,6 +279,11 @@ class ClientContractDao extends Singleton
      */
     public function getEffectiveVATRate(ClientContract $contract, $date = null)
     {
+        // специальная папка "Госники - 20% НДС"
+        if ($contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_GOVERNMENT_AGENCIES) {
+            return 20;
+        }
+
         $rate = $this->_getEffectiveVATRate($contract);
 
         // @todo переделать на версионность настроек платежных документов
