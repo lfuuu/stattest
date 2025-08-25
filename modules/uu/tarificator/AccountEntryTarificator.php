@@ -3,6 +3,7 @@
 namespace app\modules\uu\tarificator;
 
 use app\classes\Connection;
+use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\OperationType;
@@ -357,6 +358,7 @@ SQL;
             AND account_entry.vat_rate IS NULL
             {$sqlAndWhere}
 SQL;
+
         $tariffRates = $this->getTariffTaxRates();
         $tariffAgentRates = $this->getTariffAgentTaxRates();
 
@@ -375,11 +377,18 @@ SQL;
             $count++;
             $vatRate = null;
 
-            // В тарифе установлен агентский НДС
-            if (isset($tariffAgentRates[$row['tariff_period_id']])) {
+            $clientKey = $row['client_account_id'];
+            $clientAccount = $clientCache[$clientKey] ?? ClientAccount::findOne(['id' => $row['client_account_id']]);
+            $contract = $clientAccount->clientContractModel();
 
-                $clientKey = $row['client_account_id'];
-                $clientAccount = $clientCache[$clientKey] ?? ClientAccount::findOne(['id' => $row['client_account_id']]);
+            // специальная папка "Госники - 20% НДС"
+            if ($contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_GOVERNMENT_AGENCIES) {
+                $vatRate = 20;
+            }
+
+            // В тарифе установлен агентский НДС
+            if ($vatRate === null && isset($tariffAgentRates[$row['tariff_period_id']])) {
+
                 $contract = $clientAccount->getContract($row['date']);
 
                 // состояние организации на дату
