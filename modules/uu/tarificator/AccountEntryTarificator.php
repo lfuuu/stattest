@@ -379,7 +379,7 @@ SQL;
 
             $clientKey = $row['client_account_id'];
             $clientAccount = $clientCache[$clientKey] ?? ClientAccount::findOne(['id' => $row['client_account_id']]);
-            $contract = $clientAccount->clientContractModel();
+            $contract = $clientAccount->clientContractModel;
 
             // специальная папка "Госники - 20% НДС"
             if ($contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_GOVERNMENT_AGENCIES) {
