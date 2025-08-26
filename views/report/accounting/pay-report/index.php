@@ -186,13 +186,13 @@ $columns = [
         'value' => function (Payment $payment) {
             $apiInfo = $payment->apiInfo ? json_decode($payment->apiInfo->request, true) : [];
             return Html::tag('small', $payment->comment . ($apiInfo ? "<br>" .
-                    Html::tag('i', $apiInfo['description'], [
+                    Html::tag('i', $apiInfo['description'] ?? '', [
                         'class' => 'btn btn-xs btn-default event-queue-log-param-button text-overflow-ellipsis',
                         'aria-hidden' => 'true',
                         'data-toggle' => 'popover',
                         'data-html' => 'true',
                         'data-placement' => 'bottom',
-                        'data-content' => nl2br(htmlspecialchars($apiInfo['description'])),
+                        'data-content' => nl2br(htmlspecialchars($apiInfo['description'] ?? '')),
                     ])
                     : ''));
         },

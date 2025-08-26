@@ -278,6 +278,7 @@
             <th width=80%>Наименование</th>
             <th>Количество</th>
             <th>Цена</th>
+            <th>НДС (%)</th>
             <th>Тип</th>
             <th>
                 Удаление
@@ -307,6 +308,10 @@
                 <td><input class="form-control input-sm" style="width: 80px"
                            value="{if isset($item.price)}{$item.price}{/if}"
                            name=price[{$key}]{if !$isEditable} disabled{/if}></td>
+                <td><input class="form-control input-sm" style="width: 80px"
+                           value="{if isset($item.tax_rate)}{$item.tax_rate}{/if}"
+                           name=tax_rate[{$key}]{if !$isEditable} disabled{/if}
+                           placeholder={$tax_rate_default}></td>                           
                 <td>
                     <select class="form-control input-sm" style="width: 90px"
                             name=type[{$key}]{if !$isEditable} disabled{/if}>
