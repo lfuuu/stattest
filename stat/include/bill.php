@@ -149,7 +149,7 @@ class Bill {
      * @param float $costPrice
      * @return bool
      */
-    public function AddLine($title, $amount, $price, $type, $service='', $id_service='', $date_from='', $date_to='', $costPrice = 0.0)
+    public function AddLine($title, $amount, $price, $type, $service='', $id_service='', $date_from='', $date_to='', $costPrice = 0.0, $tax_rate = null)
     {
         $this->changed = 1;
         $this->max_sort++;
@@ -186,7 +186,7 @@ class Bill {
         $line->id_service = $id_service;
         $line->date_from = $date_from;
         $line->date_to = $date_to;
-        $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
+        $line->tax_rate = $tax_rate !== null ? $tax_rate : $clientAccount->getTaxRateOnDate($line->date_from);
         $line->price = $price;
         $line->cost_price = $costPrice;
         if ($this->bill['operation_type_id'] == OperationType::ID_COST) {
@@ -296,7 +296,7 @@ class Bill {
         $this->Set('is_to_uu_invoice', (int)(bool)$isToUuInvoice);
     }
 
-    public function EditLine($sort,$title,$amount,$price,$type) {
+    public function EditLine($sort, $title, $amount, $price, $type, $tax_rate = null) {
 
         $this->changed = 1;
 
@@ -313,6 +313,9 @@ class Bill {
             $line->amount = $amount;
             $line->price = $price;
             $line->type = $type;
+            if ($tax_rate !== null) {
+                $line->tax_rate = $tax_rate;
+            }
 //            $line->tax_rate = $clientAccount->getTaxRateOnDate($line->date_from);
             if ($this->bill['operation_type_id'] == OperationType::ID_COST) {
                 $line->sum = $price;

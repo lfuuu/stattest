@@ -567,7 +567,7 @@ class ClientContract extends HistoryActiveRecord
      * Рассчитывает эффективную ставку НДС для данного договора
      *
      * @param bool $isWithTrace
-     * @return int
+     * @return array
      */
     public function resetEffectiveVATRate($isWithTrace = true)
     {

@@ -278,6 +278,8 @@ echo \yii\widgets\Breadcrumbs::widget([
                                             <b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
                                         } elseif ($log['addition'] == NumberLog::ACTION_NOT_VERFIED) { ?>
                                             <b>Используется. <?= Number::$statusList[Number::STATUS_NOT_VERFIED] ?></b><?php
+                                        } elseif ($log['addition'] == NumberLog::ACTION_MSTEAMS) { ?>
+                                            <b><?= Number::$statusList[Number::STATUS_ACTIVE_MSTEAMS] ?></b><?php
                                         } else {
                                             ?><b>Используется</b><?php
                                         }

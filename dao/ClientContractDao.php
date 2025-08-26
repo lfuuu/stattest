@@ -274,7 +274,7 @@ class ClientContractDao extends Singleton
      * Рассчитывает эффективную ставку НДС для данного договора
      *
      * @param ClientContract $contract
-     * @param null $date
+     * @param \DateTime|\DateTimeImmutable|string|null $date
      * @return int
      */
     public function getEffectiveVATRate(ClientContract $contract, $date = null)

@@ -43,6 +43,7 @@ use app\modules\uu\models\Bill as uuBill;
 use yii\db\Expression;
 use yii\db\Query;
 use app\models\LogBill;
+use app\classes\validators\FormFieldValidator;
 
 class m_newaccounts extends IModule
 {
@@ -1448,12 +1449,15 @@ class m_newaccounts extends IModule
         $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', ['parentModel' => [new \app\models\BillLine(), $billModel->id]]));
         $design->assign('drafted_invoice_dates_history', LogBill::dao()->getLog($billModel->bill_no)->asArray()->all());
         $design->assign('draftedInvoices', $billModel->getInvoices()->andWhere(['idx' => null, 'type_id' => [1, 2]])->all());
+        $design->assign('tax_rate_default', $fixclient_data->getTaxRateOnDate(date('Y-m-d', strtotime('first day of this month', $bill->GetTs()))));
         $lines = $bill->GetLines();
 
         if ($billModel->operation_type_id != OperationType::ID_COST) {
-            $lines[$bill->GetMaxSort() + 1] = [];
-            $lines[$bill->GetMaxSort() + 2] = [];
-            $lines[$bill->GetMaxSort() + 3] = [];
+            $maxSort = $bill->GetMaxSort();
+            foreach(range(1, 5) as $idx) {
+                $lines[$maxSort + $idx] = [];
+            };
+
         } else {
             if (!$lines) {
                 $lines[$bill->GetMaxSort() + 1] = [];
@@ -1684,6 +1688,7 @@ class m_newaccounts extends IModule
         $amount = get_param_raw("amount");
         $price = get_param_raw("price");
         $type = get_param_raw("type");
+        $tax_rate = get_param_raw("tax_rate");
         $del = get_param_raw("del", []);
 
         if (!$item || !$amount || !$price || !$type) { // Сохранение только "шапки" счета     
@@ -1692,13 +1697,16 @@ class m_newaccounts extends IModule
             exit();
         }
 
+        // clear
+        array_walk($item, function(&$i, $key) { $i = FormFieldValidator::cleanField($i);});
+
         $transaction = \Yii::$app->db->beginTransaction();
         try {
 
             $lines = $bill->GetLines();
-            $lines[$bill->GetMaxSort() + 1] = [];
-            $lines[$bill->GetMaxSort() + 2] = [];
-            $lines[$bill->GetMaxSort() + 3] = [];
+            foreach(range(1, 5) as $idx) {
+                $lines[$bill->GetMaxSort() + $idx] = [];
+            }
             if ($billModel->isEditable()) {
                 foreach ($lines as $k => $arr_v) {
 //                    if ($arr_v && isset($arr_v['id_service']) && $arr_v['id_service'] >= 100000) {
@@ -1708,11 +1716,17 @@ class m_newaccounts extends IModule
                     if ((!isset($item[$k]) || (isset($item[$k]) && !$item[$k]) || (isset($del[$k]) && $del[$k])) && isset($arr_v['item'])) {
                         $bill->RemoveLine($k);
                     } elseif (isset($item[$k]) && $item[$k] && isset($arr_v['item'])) {
-                        if ($item[$k] != $arr_v['item'] || $amount[$k] != $arr_v['amount'] || $price[$k] != $arr_v['price'] || $type[$k] != $arr_v['type']) {
-                            $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k]);
+                        if (
+                            $item[$k] != $arr_v['item'] 
+                            || $amount[$k] != $arr_v['amount'] 
+                            || $price[$k] != $arr_v['price'] 
+                            || $type[$k] != $arr_v['type']
+                            || $tax_rate[$k] != $arr_v['vat_rate']
+                            ) {
+                            $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k], $tax_rate[$k]);
                         }
                     } elseif (isset($item[$k]) && $item[$k]) {
-                        $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '');
+                        $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '', 0, $tax_rate[$k]);
                     }
                 }
             }
