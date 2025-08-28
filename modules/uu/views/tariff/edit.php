@@ -66,6 +66,8 @@ if (!$serviceType) {
         $viewParams['editableType'] = TariffController::EDITABLE_NONE;
     }
 
+    $viewParams['isCanEditTheVatRate'] = \Yii::$app->user->can('tarifs.editTax');
+
     // сообщение об ошибке
     if ($formModel->validateErrors) {
         Yii::$app->session->setFlash('error', $formModel->validateErrors);

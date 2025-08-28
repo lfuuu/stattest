@@ -170,18 +170,22 @@ abstract class TariffForm extends \app\classes\Form
             if (isset($post['Tariff']['name'])) {
                 // checkbox передаются даже disabled, потому что они в паре с hidden. Надо все лишнее убрать
                 $post['Tariff'] = [
-                    'name' => $post['Tariff']['name'],
-                    'tariff_status_id' => $post['Tariff']['tariff_status_id'],
-                    'tag_id' => $post['Tariff']['tag_id'],
-                    'is_default' => $post['Tariff']['is_default'],
-                    'is_charge_after_blocking' => $post['Tariff']['is_charge_after_blocking'],
-                    'is_one_active' => $post['Tariff']['is_one_active'],
-                    'is_proportionately' => $post['Tariff']['is_proportionately'],
-                    'voip_group_id' => $post['Tariff']['voip_group_id'],
-                    'overview' => $post['Tariff']['overview'],
-                    'comment' => $post['Tariff']['comment'],
-                    'payment_template_type_id' => $post['Tariff']['payment_template_type_id'],
-                ];
+                        'name' => $post['Tariff']['name'],
+                        'tariff_status_id' => $post['Tariff']['tariff_status_id'],
+                        'tag_id' => $post['Tariff']['tag_id'],
+                        'is_default' => $post['Tariff']['is_default'],
+                        'is_charge_after_blocking' => $post['Tariff']['is_charge_after_blocking'],
+                        'is_one_active' => $post['Tariff']['is_one_active'],
+                        'is_proportionately' => $post['Tariff']['is_proportionately'],
+                        'voip_group_id' => $post['Tariff']['voip_group_id'],
+                        'overview' => $post['Tariff']['overview'],
+                        'comment' => $post['Tariff']['comment'],
+                        'payment_template_type_id' => $post['Tariff']['payment_template_type_id'],
+                    ] + (\Yii::$app->user->can('tarifs.editTax') ? [
+                        'tax_rate' => $post['Tariff']['tax_rate'],
+                        'agent_tax_rate' => $post['Tariff']['agent_tax_rate'],
+                    ] : []);
+
             }
 
             unset($post['TariffPeriod']/*, $post['TariffResource']*/, $post['Package']);
@@ -415,7 +419,7 @@ abstract class TariffForm extends \app\classes\Form
                         $packageApi = new PackageApi();
                         $packageApi->tariff_id = $this->id;
                         $this->packageApi = $this->crudMultiple($this->packageApi, $post, $packageApi);
-                        
+
                         break;
 
                 }
