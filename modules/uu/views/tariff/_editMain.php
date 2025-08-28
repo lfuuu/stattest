@@ -5,6 +5,8 @@
  * @var \app\classes\BaseView $this
  * @var \app\modules\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
+ * @var \app\models\ClientAccount $clientAccount
+ * @var bool $isCanEditTheVatRate
  * @var int $editableType
  */
 
@@ -22,10 +24,13 @@ use kartik\select2\Select2;
 
 $tariff = $formModel->tariff;
 
+$optionEnabled = [];
+$optionDisabled = ['disabled' => 'disabled'];
+
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
-    $options = ['disabled' => 'disabled'];
+    $options = $optionDisabled;
 } else {
-    $options = [];
+    $options = $optionEnabled;
 }
 
 $viewParams = [
@@ -189,13 +194,13 @@ $viewParams = [
                     ['label' => $tariff->getAttributeLabel('is_proportionately') . $helpConfluence])
             ?>
             <?= $form->field($tariff, 'tax_rate')
-                ->textInput($options + [
+                ->textInput(($isCanEditTheVatRate ? $optionEnabled : $options) + [
                         'label' => $tariff->getAttributeLabel('tax_rate') . $helpConfluence,
                         'placeholder' => \Yii::t('common', '(not set)')
                     ])
             ?>
             <?= $form->field($tariff, 'agent_tax_rate')
-                ->textInput($options + [
+                ->textInput(($isCanEditTheVatRate ? $optionEnabled : $options) + [
                         'label' => $tariff->getAttributeLabel('agent_tax_rate') . $helpConfluence,
                         'placeholder' => \Yii::t('common', '(not set)')
                     ])
