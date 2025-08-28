@@ -186,7 +186,7 @@ class Bill {
         $line->id_service = $id_service;
         $line->date_from = $date_from;
         $line->date_to = $date_to;
-        $line->tax_rate = $tax_rate !== null ? $tax_rate : $clientAccount->getTaxRateOnDate($line->date_from);
+        $line->tax_rate = is_numeric($tax_rate) ? $tax_rate : $clientAccount->getTaxRateOnDate($line->date_from);
         $line->price = $price;
         $line->cost_price = $costPrice;
         if ($this->bill['operation_type_id'] == OperationType::ID_COST) {
