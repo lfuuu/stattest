@@ -546,7 +546,8 @@ class BillLine extends ActiveRecord
 
         $isChanged = false;
         foreach (['item', 'amount', 'price', 'type'] as $field) {
-            if ($this->isAttributeChanged($field)) {
+//            if ($this->isAttributeChanged($field)) {
+            if ($this->getOldAttribute($field) != $this->getAttribute($field)) {
                 $isChanged = true;
                 break;
             }

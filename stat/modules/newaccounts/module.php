@@ -1723,7 +1723,7 @@ class m_newaccounts extends IModule
                             || $type[$k] != $arr_v['type']
                             || $tax_rate[$k] != $arr_v['vat_rate']
                             ) {
-                            $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k], $tax_rate[$k]);
+                            $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k], $tax_rate[$k], $arr_v['uu_account_entry_id']);
                         }
                     } elseif (isset($item[$k]) && $item[$k]) {
                         $bill->AddLine($item[$k], $amount[$k], $price[$k], $type[$k], '', '', '', '', 0, $tax_rate[$k]);
