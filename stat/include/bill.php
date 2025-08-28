@@ -296,7 +296,7 @@ class Bill {
         $this->Set('is_to_uu_invoice', (int)(bool)$isToUuInvoice);
     }
 
-    public function EditLine($sort, $title, $amount, $price, $type, $tax_rate = null) {
+    public function EditLine($sort, $title, $amount, $price, $type, $tax_rate = null, $accountEntryId = null) {
 
         $this->changed = 1;
 
@@ -323,6 +323,23 @@ class Bill {
                 $line->calculateSum($this->bill['price_include_vat']);
             }
             $line->save();
+
+            if ($line->uu_account_entry_id === $accountEntryId) {
+                $entry = $line->accountEntry;
+
+                if (!$entry || $entry->vat_rate == $line->tax_rate) {
+                    return;
+                }
+
+                $entry->vat_rate = $line->tax_rate;
+                $entry->vat = $line->sum_tax;
+                $entry->price_without_vat = $line->sum_without_tax;
+                $entry->price_with_vat = $line->sum;
+
+                if (!$entry->save()) {
+                    throw new ModelValidationException($entry);
+                }
+            }
         }
     }
 
