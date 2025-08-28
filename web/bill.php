@@ -193,7 +193,9 @@ if (isset($R['tpl']) && $R['tpl'] == 'b') {
     }
 
 
-    $invoiceDocument->setCountry($R['co'] ?? Country::findOne(['code' => $clientAccount->getUuCountryId() ?: Country::RUSSIA])->code);
+    $country = Country::findOne(['code' => $R['co'] ?? ($clientAccount->getUuCountryId() ?: Country::RUSSIA)]);
+    $invoiceDocument->setCountry($country->code);
+    $invoiceDocument->setLanguage($country->lang);
     $attachmentName = $clientAccount->id . '-' . (isset($invoice) ? $invoice->number : (isset($act) ? $act->number : (isset($bill) ? $bill->bill_no : ''))) . '.pdf';
 
     Yii::$app->response->content = $invoiceDocument->render($isPdf, $invoiceDocument->isLandscape(), $isIncludeSignatureStamp);;
