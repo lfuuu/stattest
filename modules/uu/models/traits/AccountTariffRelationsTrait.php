@@ -388,7 +388,13 @@ trait AccountTariffRelationsTrait
      */
     public function getHelper()
     {
-        return new AccountTariffHelper($this);
+        static $helperStorage = [];
+
+        if (!array_key_exists($this->id, $helperStorage)) {
+             $helperStorage[$this->id] = new AccountTariffHelper($this);
+        }
+
+        return $helperStorage[$this->id];
     }
 
     /**

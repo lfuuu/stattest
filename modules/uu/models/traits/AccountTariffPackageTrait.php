@@ -34,16 +34,13 @@ trait AccountTariffPackageTrait
      */
     public static function actualizeDefaultPackages($params)
     {
-        $accountTariffLog = AccountTariffLog::findOne(['id' => $params['account_tariff_log_id']]);
-        if (!$accountTariffLog) {
-            throw new \InvalidArgumentException('AccountTariffLog id: ' . $params['account_tariff_log_id'] . ' не найден');
-        }
-
-        $accountTariff = $accountTariffLog->accountTariff;
-
+        $accountTariffId = $params['account_tariff_id'] ?? 0;
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
         if (!$accountTariff) {
-            throw new \InvalidArgumentException('Услуга не найдена: ' . $accountTariffLog->account_tariff_id);
+            throw new \InvalidArgumentException('Услуга не найдена: ' . $accountTariffId->account_tariff_id);
         }
+
+        $accountTariffLog = self::_getAccountTariffLogByParam($params, $accountTariff);
 
         self::checkEventSuitable($accountTariff, $accountTariffLog);
 
@@ -172,11 +169,36 @@ trait AccountTariffPackageTrait
         }
     }
 
+    static public function _getAccountTariffLogByParam(array $params, AccountTariff $accountTariff)
+    {
+        if (isset($params['account_tariff_log_id'])) {
+            $accountTariffLog = AccountTariffLog::findOne(['id' => $params['account_tariff_log_id']]);
+            if (!$accountTariffLog) {
+                throw new \InvalidArgumentException('AccountTariffLog id: ' . $params['account_tariff_log_id'] . ' не найден');
+            }
+
+            if ($accountTariff->id != $accountTariffLog->account_tariff_id) {
+                throw new \InvalidArgumentException('AccountTariffLog не является логом тарифа услуги (' . $accountTariff->id . ' != ' . $accountTariffLog->account_tariff_id . ')');
+            }
+
+        } elseif (isset($params['account_tariff_log_actual_from_utc']) && isset($params['new_tariff_period_id'])) {
+            $accountTariffLog = new AccountTariffLog;
+            $accountTariffLog->tariff_period_id = $params['new_tariff_period_id'];
+            $accountTariffLog->account_tariff_id = $accountTariff->id;
+            $accountTariffLog->actual_from_utc = $params['account_tariff_log_actual_from_utc'];
+            HandlerLogger::me()->add('create AccountTariffLog with actual_from_utc: ' . $accountTariffLog->actual_from_utc);
+        } else {
+            throw new \InvalidArgumentException('AccountTariffLog: не установлен');
+        }
+
+        return $accountTariffLog;
+    }
+
     private function closeAlienPackages(AccountTariffLog $accountTariffLog, $type)
     {
         foreach ($this->nextAccountTariffs as $nextAccountTariff) {
             if (!$nextAccountTariff->isActive()) {
-                HandlerLogger::me()->add($nextAccountTariff->id . ' is off');
+                HandlerLogger::me()->add($nextAccountTariff->id . ' is off. Skip.');
                 continue;
             }
 
@@ -297,9 +319,10 @@ trait AccountTariffPackageTrait
 
     /**
      * @param Tariff $tariff
+     * @return AccountTariff
      * @throws ModelValidationException
      */
-    private function _addPackage(Tariff $tariff, AccountTariffLog $accountTariffLog)
+    public function _addPackage(Tariff $tariff, AccountTariffLog $accountTariffLog)
     {
         $tariffPeriods = $tariff->tariffPeriods;
         $tariffPeriod = reset($tariffPeriods);
@@ -323,6 +346,8 @@ trait AccountTariffPackageTrait
         if (!$accountTariffPackageLog->save()) {
             throw new ModelValidationException($accountTariffPackageLog);
         }
+
+        return $accountTariffPackage;
     }
 
     // @TODO объединить с setClosed ("остаться должен только один")
@@ -550,15 +575,13 @@ trait AccountTariffPackageTrait
             return;
         }
 
-        $accountTariffLog = AccountTariffLog::findOne(['id' => $params['account_tariff_log_id']]);
-        if (!$accountTariffLog) {
-            throw new \InvalidArgumentException('AccountTariffLog id: ' . $params['account_tariff_log_id'] . ' не найден');
+        $accountTariffId = $params['account_tariff_id'] ?? 0;
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+        if (!$accountTariff) {
+            throw new \InvalidArgumentException('Услуга не найдена: ' . $accountTariffId->account_tariff_id);
         }
 
-        $accountTariff = AccountTariff::findOne(['id' => $accountTariffLog->account_tariff_id]);
-        if (!$accountTariff) {
-            throw new \InvalidArgumentException('Услуга не найдена: ' . $accountTariffLog->account_tariff_id);
-        }
+        $accountTariffLog = self::_getAccountTariffLogByParam($params, $accountTariff);
 
         self::checkEventSuitable($accountTariff, $accountTariffLog);
 
@@ -582,7 +605,7 @@ trait AccountTariffPackageTrait
             throw new \InvalidArgumentException('Ошибка получения логов включения по услуге: ' . $accountTariffLog->account_tariff_id);
         }
 
-        if ($lastAccountTariffLog->tariff_period_id != $accountTariffLog->tariff_period_id) {
+        if ($lastAccountTariffLog->tariff_period_id != $accountTariffLog->tariff_period_id && $accountTariffLog->id) {
             throw new \LogicException('Последнее включение лога тариф-периода не совпадает с тариф-периодом в задаче');
         }
     }
@@ -645,15 +668,16 @@ trait AccountTariffPackageTrait
         }
 
         if ($bundleTariffs) {
-            foreach ($bundleTariffs as $tariff) {
-                HandlerLogger::me()->add('on: (' . $tariff->id . ')' . $tariff->name);
-                $this->_addPackage($tariff, $accountTariffLog);
+            foreach ($bundleTariffs as $tariffToAdd) {
+//                HandlerLogger::me()->add($accountTariffLog->account_tariff_id . ': on: ' . $tariffToAdd->name . ' (' . $tariffToAdd->id . ') - ' . $tariff->name . '(' . $tariff->id . ')');
+                $addedAccountTariff = $this->_addPackage($tariffToAdd, $accountTariffLog);
+                HandlerLogger::me()->add($accountTariffLog->account_tariff_id . ': on: ' . $tariffToAdd->name . ' (' . $tariffToAdd->id . ') - ' . $tariff->name . '(' . $tariff->id . ') - at: ' . $addedAccountTariff->id);
             }
         }
 
         if ($needClose) {
             foreach ($needClose as $nextAccountTariff) {
-                HandlerLogger::me()->add('off: (' . $nextAccountTariff->id . ') ' . ($nextAccountTariff->tariff_period_id ? $nextAccountTariff->tariffPeriod->getName() : '???') . ' - ' . $accountTariffLog->actual_from_utc);
+                HandlerLogger::me()->add($accountTariffLog->account_tariff_id . ': off: (' . $nextAccountTariff->id . ') ' . ($nextAccountTariff->tariff_period_id ? $nextAccountTariff->tariffPeriod->getName() : '???') . ' - ' . $accountTariffLog->actual_from_utc);
                 $nextAccountTariff->closeAccountTariff($accountTariffLog->actual_from_utc);
             }
         }
