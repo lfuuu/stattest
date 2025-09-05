@@ -106,7 +106,6 @@ ansible:
         apk add net-tools mc
         apk add curl
         apk add cronie
-        apk add 
         apk add git
         apk add vim
         # libs
@@ -167,8 +166,7 @@ ansible:
         mv install-php-extensions /usr/local/bin/
         chmod uga+x /usr/local/bin/install-php-extensions && sync
         # install extensions 1
-        install-php-extensions rdkafka
-        install-php-extensions bcmath
+        install-php-extensions rdkafka bcmath
         install-php-extensions bz2 calendar exif gd gettext 
         install-php-extensions intl mysqli  
         # install extensions 2
@@ -177,8 +175,7 @@ ansible:
         install-php-extensions apcu gmp memcache zip
         # install pecl extensions
         install-php-extensions igbinary mcrypt msgpack redis
-        install-php-extensions ssh2
-        install-php-extensions amqp
+        install-php-extensions ssh2 amqp
         # install xdebug extension
         # install-php-extensions xdebug
         # permissions
