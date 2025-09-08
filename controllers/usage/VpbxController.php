@@ -94,7 +94,7 @@ class VpbxController extends BaseController
                 throw new ModelValidationException($actualVirtpbx);
             }
 
-            $result = ApiVpbx::me()->transferVpbxOnly($account->id, $usage->id, $account->id, $newUsage->id);
+            $result = ApiVpbx::me()->transfer($account->id, $usage->id, $account->id, $newUsage->id);
 
             if (!$result || !isset($result['success'])) {
                 throw new \LogicException('ВАТС неразархивированна');
