@@ -1721,7 +1721,7 @@ class m_newaccounts extends IModule
                             || $amount[$k] != $arr_v['amount'] 
                             || $price[$k] != $arr_v['price'] 
                             || $type[$k] != $arr_v['type']
-                            || $tax_rate[$k] != $arr_v['vat_rate']
+                            || $tax_rate[$k] != $arr_v['tax_rate']
                             ) {
                             $bill->EditLine($k, $item[$k], $amount[$k], $price[$k], $type[$k], $tax_rate[$k], $arr_v['uu_account_entry_id']);
                         }
