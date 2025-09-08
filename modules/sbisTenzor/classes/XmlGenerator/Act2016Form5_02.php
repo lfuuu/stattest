@@ -115,7 +115,7 @@ class Act2016Form5_02 extends XmlGenerator
         $elInfoContentBuyer->appendChild($elInfoContentBuyerAddress);
 
         $elInfoContentBuyerAddressData = $dom->createElement('АдрИно');
-        $elInfoContentBuyerAddressData->setAttribute('АдрТекст', $this->client->contragent->address_jur);
+        $elInfoContentBuyerAddressData->setAttribute('АдрТекст', $this->client->address);
         $elInfoContentBuyerAddressData->setAttribute('КодСтр', $this->client->contragent->country_id);
         $elInfoContentBuyerAddress->appendChild($elInfoContentBuyerAddressData);
 

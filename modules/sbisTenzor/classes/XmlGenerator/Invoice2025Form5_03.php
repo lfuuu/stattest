@@ -122,7 +122,7 @@ class Invoice2025Form5_03 extends Invoice2016Form5_02
         $elInfoBuyerAddressData = $dom->createElement('АдрИнф');
         $elInfoBuyerAddressData->setAttribute('КодСтр', $this->client->contragent->country_id);
         $elInfoBuyerAddressData->setAttribute('НаимСтран', $this->client->contragent->country->name);
-        $elInfoBuyerAddressData->setAttribute('АдрТекст', $this->client->contragent->address_jur);
+        $elInfoBuyerAddressData->setAttribute('АдрТекст', $this->client->address);
         $elInfoBuyerAddress->appendChild($elInfoBuyerAddressData);
 
         $clientContacts = $this->client->getOfficialContact();
