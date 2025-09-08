@@ -147,7 +147,7 @@ class ApiVpbx extends Singleton
     }
 
     /**
-     * Перенос ВАТС с номерами
+     * Перенос ВАТС без номеров
      *
      * @param int $fromAccountId
      * @param int $fromUsageId
@@ -171,37 +171,9 @@ class ApiVpbx extends Singleton
             'to_stat_product_id' => $toUsageId
         ];
 
-        return $this->_exec('transfer', $query);
-    }
-
-    /**
-     * Перенос ВАТС без номеров
-     *
-     * @param int $fromAccountId
-     * @param int $fromUsageId
-     * @param int $toAccountId
-     * @param int $toUsageId
-     * @return mixed
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function transferVpbxOnly(
-        $fromAccountId,
-        $fromUsageId,
-        $toAccountId,
-        $toUsageId
-    ) {
-        $query = [
-            'from_account_id' => $fromAccountId,
-            'from_stat_product_id' => $fromUsageId,
-            'to_account_id' => $toAccountId,
-            'to_stat_product_id' => $toUsageId
-        ];
-
-        if (UsageVirtpbx::dao()->isVpbxExists($toAccountId) && UsageVoip::dao()->isVoipExists($toAccountId)) {
-            return $this->_exec('transfer', $query);
-        }
+//        if (UsageVirtpbx::dao()->isVpbxExists($toAccountId) && UsageVoip::dao()->isVoipExists($toAccountId)) {
+//            return $this->_exec('transfer', $query);
+//        }
 
         return $this->_exec('transfer_vpbx_only', $query);
     }

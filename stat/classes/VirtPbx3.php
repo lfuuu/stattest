@@ -483,7 +483,7 @@ class VirtPbx3Action
             if (VirtPbx3::getApi()->isAvailable()) {
 
                 // $numInfo = ApiPhone::me()->getNumbersInfo($fromUsage->clientAccount);
-                VirtPbx3::getApi()->transferVpbxOnly(
+                VirtPbx3::getApi()->transfer(
                     $fromUsage->clientAccount->id,
                     $fromUsage->id,
                     $toUsage->clientAccount->id,
