@@ -120,7 +120,7 @@ class Invoice2016Form5_02 extends XmlGenerator
         $elInfoBuyer->appendChild($elInfoBuyerAddress);
 
         $elInfoBuyerAddressData = $dom->createElement('АдрИнф');
-        $elInfoBuyerAddressData->setAttribute('АдрТекст', $this->client->contragent->address_jur);
+        $elInfoBuyerAddressData->setAttribute('АдрТекст', $this->client->address);
         $elInfoBuyerAddressData->setAttribute('КодСтр', $this->client->contragent->country_id);
         $elInfoBuyerAddress->appendChild($elInfoBuyerAddressData);
 
