@@ -90,7 +90,9 @@
                 {foreach from=$i.acc item=a}
                     <td style="padding: 3px 3px 3px 3px;background-color: {if $k=="mcn"}#f5e1e1{elseif $k == "all4net"}#fbfbdd{else}#f0fff0{/if};">
                         {if isset($di[$k][$a]) && $di[$k][$a]}
-                            <a href=".?module=newaccounts&action=pi_process&file={$di[$k][$a]}">{$a}</a>
+                            {foreach from=$di[$k][$a].links item=ll key=l}
+                                <a href=".?module=newaccounts&action=pi_process&file={$ll}">{if $l == 'all'}{$a} ({$di[$k][$a].count} шт){else}{$l}{/if}</a>
+                            {/foreach}
                         {else}
                             &nbsp;
                         {/if}

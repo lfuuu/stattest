@@ -6,6 +6,7 @@ use app\classes\BillContract;
 use app\classes\BillQRCode;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\Encrypt;
+use app\classes\helpers\DependecyHelper;
 use app\classes\rewards\CalculateReward;
 use app\classes\StatModule;
 use app\classes\payments\PaymentParser;
@@ -50,6 +51,7 @@ class m_newaccounts extends IModule
     private static $object;
     private static $bb_c = [];
     const SLEEPING_TIME = 3;
+    const PI_IMPORT_RECPERPAGE = 50;
 
     function do_include()
     {
@@ -3865,6 +3867,33 @@ class m_newaccounts extends IModule
             $data[$paymentDay['day_timestamp']]['sber_online']['sber'] = 'sber_online_' . date('d-m-Y', $paymentDay['day_timestamp']);
         }
 
+        foreach($data as &$dayData) {
+            foreach($dayData as &$co) {
+                $b = [];
+                foreach($co as $k => $file) {
+                    $b = [$k => ['name' => $file]];
+                    $key = 'payment_file_count:' . $file;
+                    $count = \Yii::$app->cache->get($k);
+                    if ($count === false) {
+                        [, , $payments] = PaymentParser::Parse(PAYMENTS_FILES_PATH . $file);
+                        $count = count($payments);
+
+                        \Yii::$app->cache->set($key, $count, \app\classes\helpers\DependecyHelper::TIMELIFE_MONTH, new \yii\caching\TagDependency(['tags' => [DependecyHelper::TAG_PAYMENTS]]));
+                    }
+
+                    $b[$k]['count'] = $count;
+                    $b[$k]['links'] = ['all' => $file];
+                    $pages = ceil($count / self::PI_IMPORT_RECPERPAGE);
+                    if ($pages > 1) {
+                        foreach (range(1, $pages) as $i) {
+                            $b[$k]['links']['p' . $i] = $file . 'p' . $i;
+                        }
+                    }
+                }
+                $co = $b;
+            }
+        }
+
         ksort($data);
         $d->close();
         sort($R);
@@ -4783,6 +4812,13 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
             return $this->importSberOnline($file);
         }
 
+        $matches = [];
+        $page = null;
+        if (preg_match('/(.+\-\d{4}.txt)(p(\d+))?/', $file, $matches)) {
+            $file = $matches[1];
+            $page = $matches[3];
+        }
+
         if (!file_exists(PAYMENTS_FILES_PATH . $file)) {
             //trigger_error2('Файл не существует');
             return;
@@ -4792,7 +4828,7 @@ WHERE b.bill_no = '" . $billNo . "' AND c.id = b.client_id AND cr.organization_i
             //, array("40702810700320000882","40702810038110015462","301422002")
             return $this->importPL_citibank(PAYMENTS_FILES_PATH . $file);
         } else {
-            [$type, $payAccs, $payments] = PaymentParser::Parse(PAYMENTS_FILES_PATH . $file);
+            [$type, $payAccs, $payments] = PaymentParser::Parse(PAYMENTS_FILES_PATH . $file, $page, self::PI_IMPORT_RECPERPAGE);
 
             if (isset($_GET['check_payments']) && $_GET['check_payments']) {
                 $this->_checkPaymenets($payments);

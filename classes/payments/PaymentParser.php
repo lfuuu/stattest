@@ -54,9 +54,14 @@ class PaymentParser
         ),
     );
 
-    public static function Parse($file)
+    public static function Parse($file, $page = null, $perPage = 100)
     {
         $f = fopen($file, 'r');
+
+        if (!$f) {
+            throw new \InvalidArgumentException('файл не может быть открыт');
+        }
+
         $mode = 0;
         $R = array();
         $payAcc = array();
@@ -121,8 +126,25 @@ class PaymentParser
                 $payAcc[$k] = $pay;
         }
 
+        if ($page !== null && $perPage) {
+            $R = self::paginateArray($R, $page, $perPage);
+        }
+
         return array($v, $payAcc, $R);
+    }
+
+    private static function paginateArray($array, $page = 1, $perPage = 10) {
+        // Валидация входных параметров
+        $page = max(1, (int)$page);
+        $perPage = max(1, (int)$perPage);
+
+        // Вычисляем смещение
+        $offset = ($page - 1) * $perPage;
+
+        // Получаем срез массива
+        $result = array_slice($array, $offset, $perPage);
+
+        return $result;
     }
 }
 
-?>
