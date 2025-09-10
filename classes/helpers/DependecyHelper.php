@@ -38,6 +38,7 @@ class DependecyHelper extends Singleton
     const TAG_PRICELIST = 'pricelist';
     const TAG_NUMBER_INFO = 'number_info';
     const TAG_NDC_LIST = 'ndclist';
+    const TAG_PAYMENTS = 'payments';
 
     const LIST_TAGS = [
         self::TAG_USAGE  => 'Список услуг',
@@ -50,6 +51,7 @@ class DependecyHelper extends Singleton
         self::TAG_PRICELIST => 'Прайс-лист (api тариф)',
         self::TAG_NUMBER_INFO => 'Информация по номерам',
         self::TAG_NDC_LIST => 'Префиксы в Реестре',
+        self::TAG_PAYMENTS => 'Импорт платеж (кол-во платежей в ффайле)',
     ];
 
     public function getKey($name, $value, $value2 = null)
