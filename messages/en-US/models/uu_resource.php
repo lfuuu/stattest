@@ -67,6 +67,7 @@ return [
     'Resource #70' => 'Additional site',
     'Resource #71' => 'Number of operators',
     'Resource #72' => 'Transcription',
+    'Resource #78' => 'Duration of dialogues',
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
 ];

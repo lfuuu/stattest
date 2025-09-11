@@ -7,6 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\models\Language;
 use app\models\OperationType;
 use app\modules\uu\resourceReader\A2pResourceReader;
+use app\modules\uu\resourceReader\AiAgentResourceReader;
 use app\modules\uu\resourceReader\ApiResourceReader;
 use app\modules\uu\resourceReader\CalltrackingResourceReader;
 use app\modules\uu\resourceReader\InternetResourceReader;
@@ -121,6 +122,7 @@ class ResourceModel extends ActiveRecord
     const ID_CC_RESOURCE2 = 75;
 
     const ID_AI_AGENT_QTY = 77;
+    const ID_AI_DIALOGUE_DURATION = 78;
 
 
     const TYPE_BOOLEAN = 'boolean';
@@ -165,6 +167,9 @@ class ResourceModel extends ActiveRecord
         self::ID_API_CALL => ApiResourceReader::class,
 
         self::ID_A2P_SMS => A2pResourceReader::class,
+
+        // AI Agent Dialogs
+        self::ID_AI_DIALOGUE_DURATION => AiAgentResourceReader::class,
     ];
 
     public static $calls = [
@@ -175,6 +180,11 @@ class ResourceModel extends ActiveRecord
         self::ID_QUOTA_TRAFFIC => self::ID_QUOTA_TRAFFIC,
         self::ID_A2P_SMS => self::ID_A2P_SMS,
         self::ID_VOIP_PACKAGE_SMS => self::ID_VOIP_PACKAGE_SMS,
+    ];
+
+    // ресурс считается в шт. за потребление
+    public static $billPerPiece = [
+        self::ID_AI_DIALOGUE_DURATION
     ];
 
     // map for operation types

@@ -64,6 +64,7 @@ return [
     'Resource #70' => 'Ďalšie stránky',
     'Resource #71' => 'Počet operátorov',
     'Resource #72' => 'Prepis',
+    'Resource #78' => 'Trvanie dialógov',
 
 
     'Gb' => 'Gb',

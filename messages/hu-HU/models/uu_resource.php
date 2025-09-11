@@ -59,6 +59,7 @@ return [
     'Resource #70' => 'További webhely',
     'Resource #71' => 'Operátorok száma',
     'Resource #72' => 'Átírása',
+    'Resource #78' => 'A párbeszédek időtartama',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

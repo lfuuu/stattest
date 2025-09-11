@@ -320,7 +320,9 @@ class AccountEntry extends ActiveRecord
                     ($tariffResource = $this->tariffResource)
                     && ($resource = $tariffResource->resource)
                 ) {
-                    if (array_key_exists($resource->id, ResourceModel::$calls)) {
+                    $isBillPerPiece = in_array($resource->id, ResourceModel::$billPerPiece);
+
+                    if (array_key_exists($resource->id, ResourceModel::$calls) && !$isBillPerPiece) {
                         // В звонках указана стоимость, но не минуты
                         return 1;
                     }
@@ -337,7 +339,7 @@ class AccountEntry extends ActiveRecord
                                 $summary = (float)$summary;
                                 return ($summary + $accountLogResource->amount_overhead);
                             }
-                        ) / count($accountLogResources);
+                        ) / ($isBillPerPiece ? 1 : count($accountLogResources));
                     return round($amount, self::AMOUNT_PRECISION);
                 }
 
