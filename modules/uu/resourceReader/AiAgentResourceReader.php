@@ -3,6 +3,7 @@
 namespace app\modules\uu\resourceReader;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\AiDialogRaw;
 use app\modules\callTracking\models\Log;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
@@ -23,8 +24,6 @@ class AiAgentResourceReader extends BaseObject implements ResourceReaderInterfac
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        return new Amounts();
-
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
         $utcDateTimeZone = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
@@ -45,26 +44,19 @@ class AiAgentResourceReader extends BaseObject implements ResourceReaderInterfac
             ->modify('+1 day')
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        $logTableName = Log::tableName();
+        $tableName = AiDialogRaw::tableName();
+
         // Получение количества минут
         $minutes = Log::getDb()
             ->createCommand(
                 "
-                SELECT
-                  sum(round(
-                    EXTRACT (EPOCH FROM (
-                      LEAST('{$nextDateTime}', stop_dt)
-                        - 
-                      GREATEST('{$currentDateTime}', start_dt)
-                    ) :: INTERVAL) / 60
-                  )) AS minutes
-                FROM
-                  {$logTableName}
-                WHERE
-                  account_tariff_id = {$accountTariff->id} AND
-                  (
-                    start_dt <= '{$nextDateTime}' AND stop_dt >= '{$currentDateTime}'
-                  );
+                        SELECT
+                               sum(ceil(duration/60.0)) as minutes
+                        FROM
+                            {$tableName}
+                        WHERE
+                                account_tariff_id = {$accountTariff->id}
+                           AND    action_start between  '{$currentDateTime}' and '{$nextDateTime}'
                 "
             )->queryScalar();
 

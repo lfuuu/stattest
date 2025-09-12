@@ -648,7 +648,7 @@ GROUP BY client_id')->queryAll();
         }
     }
 
-    public function actionAiDialogRaw()
+    public function actionListenAiDialogRaw()
     {
         /**
          * {
@@ -688,9 +688,9 @@ GROUP BY client_id')->queryAll();
             }
 
 
-
             $data0 = $msg['data'];
             $data = $data0['data'];
+
             $raw = new AiDialogRaw();
             $raw->event_id = $msg['id'];
 
@@ -710,20 +710,21 @@ GROUP BY client_id')->queryAll();
             $raw->kafka_offset = $message->offset;
 
             try {
-                if (!$raw->save()) {
-                    throw new ModelValidationException($raw);
-                }
-            } catch (\yii\db\IntegrityException $e) {
+                $raw->save();
+            } catch (\Exception $e) {
                 $msg = $e->getMessage();
 
+                echo PHP_EOL . 'Error: ';
+                var_dump($msg);
+
                 if (strpos($msg, 'SQLSTATE[23505]') !== false) {
+                    echo '!!!!!!!!!';
                     return ; // SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "raw_pkey"
                 }
 
                 throw $e;
             }
 
-            throw new \Exception('stop');
         });
     }
 }
