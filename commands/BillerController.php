@@ -3,11 +3,14 @@
 namespace app\commands;
 
 use app\classes\ActOfReconciliation;
+use app\classes\adapters\EbcKafka;
 use app\classes\api\SberbankApi;
 use app\classes\HandlerLogger;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BalanceByMonth;
 use app\models\Bill;
+use app\models\billing\AiDialogRaw;
 use app\models\ClientAccountOptions;
 use app\models\EntryPoint;
 use app\models\important_events\ImportantEvents;
@@ -643,5 +646,84 @@ GROUP BY client_id')->queryAll();
         foreach ($clients as $clientId => $null) {
             $cache->delete('lock' . $clientId);
         }
+    }
+
+    public function actionAiDialogRaw()
+    {
+        /**
+         * {
+         *     "id": "1730fcfd-1e1e-44be-a843-ce435b62cdd7",
+         *    "data": {
+         *            "data": {
+         *                "agent": {
+         *                    "id": "31",
+         *                    "name": "Должники"
+         *                },
+         *                "accountId": "142329",
+         *                "durationSec": 113,
+         *                "endTimestamp": "2025-09-12T14:23:10.343120611Z",
+         *                "serviceTypeId": 40,
+         *                "statProductId": 2948443,
+         *                "startTimestamp": "2025-09-12T14:21:17.375489573Z"
+         *        },
+         *        "eventTs": "2025-09-12T14:23:10.343208086Z",
+         *        "eventName": "rts_agent_billing",
+         *        "eventVersion": 1
+         *   },
+         *    "type": "billing_event"
+         * }
+         */
+
+        $topic = 'rts_events';
+        EbcKafka::me()->getMessage($topic, function (\RdKafka\Message $message) {
+
+            print_r($message);
+
+            $data = $message->payload;
+            $msg = json_decode($data, true);
+
+            if (!$msg || !is_array($msg) || !isset($msg['type']) || $msg['type'] != 'billing_event') {
+                print_r('SKIP (type=' . ($msg['type'] ?? '?') . ')');
+                return;
+            }
+
+
+
+            $data0 = $msg['data'];
+            $data = $data0['data'];
+            $raw = new AiDialogRaw();
+            $raw->event_id = $msg['id'];
+
+            $raw->event_type = $msg['type'];
+            $raw->agent_id = $data['agent']['id'];
+            $raw->agent_name = $data['agent']['name'];
+            $raw->account_id = $data['accountId'];
+            $raw->service_type_id = $data['serviceTypeId'];
+            $raw->account_tariff_id = $data['statProductId'];
+            $raw->duration = $data['durationSec'];
+            $raw->action_start = $data['startTimestamp'];
+            $raw->action_end = $data['endTimestamp'];
+
+            $raw->event_ts = $data0['eventTs'];
+            $raw->event_name = $data0['eventName'];
+            $raw->event_version = $data0['eventVersion'];
+            $raw->kafka_offset = $message->offset;
+
+            try {
+                if (!$raw->save()) {
+                    throw new ModelValidationException($raw);
+                }
+            } catch (\yii\db\IntegrityException $e) {
+                $msg = $e->getMessage();
+
+                if (strpos($msg, 'SQLSTATE[23505]') !== false) {
+                    return ; // SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "raw_pkey"
+                }
+
+                throw $e;
+            }
+
+            throw new \Exception('stop');
+        });
     }
 }

@@ -66,6 +66,7 @@ return [
     'Resource #70' => 'Zusätzliche Seite',
     'Resource #71' => 'Anzahl der Betreiber',
     'Resource #72' => 'Transkription',
+    'Resource #78' => 'Dauer der Dialoge',
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];
