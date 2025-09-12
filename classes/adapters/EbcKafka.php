@@ -47,7 +47,8 @@ class EbcKafka extends Singleton
         if ($readerGroupId) {
             $config->set('group.id', $readerGroupId ?: self::DEFAULT_GROUPID);
             $config->set('enable.partition.eof', 'true');
-            $config->set('auto.offset.reset', 'latest');
+            $config->set('auto.offset.reset', 'earliest');
+            $config->set('enable.auto.commit', 'false');
         }
 
         $config->set('metadata.broker.list', \Yii::$app->params['KAFKA_BROKERS']);
@@ -105,6 +106,7 @@ class EbcKafka extends Singleton
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
                     echo "\n" . date("r") .": Message >>> \n";
                     $callback($message);
+                    $consumer->commitAsync($message);
                     break;
 
                 case RD_KAFKA_RESP_ERR__PARTITION_EOF:
