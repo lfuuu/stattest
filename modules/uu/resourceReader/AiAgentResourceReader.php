@@ -23,7 +23,7 @@ class AiAgentResourceReader extends BaseObject implements ResourceReaderInterfac
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        return new Amounts(0, 0); // @TODO
+        return new Amounts();
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
