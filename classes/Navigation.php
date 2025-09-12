@@ -91,6 +91,7 @@ class Navigation
                 ->addItem('Отчет по OnLime оборудование', ['/reports/onlime-devices-report'], ['stats.report'])
                 ->addItem('Себестоимость звонков', ['/report/voip/cost-report'], ['stats.report'])
                 ->addItem('Статистика: Вызовы-API', ['/stats/billing-api'], ['stats.r'])
+                ->addItem('ИИ-агент: Диалоги', ['/stats/ai-dialogs'], ['stats.r'])
         );
         if ($isRus) {
             $this->_addBlockForStatModule('routers');
