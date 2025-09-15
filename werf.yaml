@@ -173,6 +173,7 @@ ansible:
         install-php-extensions pcntl pdo_mysql pdo_pgsql pgsql soap shmop sockets sysvmsg sysvsem sysvshm xmlrpc xsl
         # install extensions 3
         install-php-extensions apcu gmp memcache zip
+        install-php-extensions zip
         # install pecl extensions
         install-php-extensions igbinary mcrypt msgpack redis
         install-php-extensions ssh2 amqp
