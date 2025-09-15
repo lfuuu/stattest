@@ -177,6 +177,7 @@ ansible:
         # install pecl extensions
         install-php-extensions igbinary mcrypt msgpack redis
         install-php-extensions ssh2 amqp
+        install-php-extensions rdkafka bcmath bz2 calendar exif gd gettext intl mysqli pcntl pdo_mysql pdo_pgsql pgsql soap shmop sockets sysvmsg sysvsem sysvshm xmlrpc xsl apcu gmp memcache zip igbinary mcrypt msgpack redis ssh2 amqp
         # install xdebug extension
         # install-php-extensions xdebug
         # permissions
