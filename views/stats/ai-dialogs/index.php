@@ -1,21 +1,18 @@
 <?php
 /**
- * Вознаграждения партнеров
+ * Статистика / ИИ-агент: Диалоги
  *
  * @var \app\classes\BaseView $this
  * @var \app\models\filter\AiDialogFilter $filterModel
  */
 
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
-use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
-use app\classes\grid\column\universal\DropdownColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\models\billing\api\ApiMethod;
-use app\models\billing\api\ApiRaw;
-use app\models\filter\BillingApiFilter;
+use app\helpers\DateTimeZoneHelper;
+use app\models\billing\AiDialogRaw;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -51,18 +48,35 @@ $form = ActiveForm::begin(['method' => 'get', 'action' => $baseUrl]);
 $columns = [
     [
         'attribute' => 'action_start',
+        'label' => 'Время начала', 
+        'value' => function(AiDialogRaw $raw) {
+            $t = (new DateTimeImmutable($raw->action_start, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
+            ->setTimezone($raw->clientAccount->timezone);
+            
+            return $t->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        },
         'class' => DateRangeDoubleColumn::class,
     ],
     [
         'attribute' => 'agent_id',
+        'label' => 'ID Агента',
         'class' => \app\classes\grid\column\universal\IntegerColumn::class,
     ],
     [
         'attribute' => 'agent_name',
+        'label' => 'Имя агента',
         'class' => StringColumn::class,
     ],
     [
+        'attribute' => 'duration_minute',
+        'label' => 'Длительность, минуты',
+        'value' => function(AiDialogRaw $raw) {
+            return ceil($raw->duration / 60);
+        }
+    ],
+    [
         'attribute' => 'duration',
+        'label' => 'Длительность, сек',
         'class' => IntegerRangeColumn::class,
     ],
 ];

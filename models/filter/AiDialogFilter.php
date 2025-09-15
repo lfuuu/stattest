@@ -3,8 +3,10 @@
 namespace app\models\filter;
 
 use app\classes\grid\ActiveDataProvider;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\AiDialogRaw;
 use app\models\billing\api\ApiRaw;
+use DateTimeImmutable;
 use Yii;
 use yii\db\Expression;
 
@@ -41,14 +43,30 @@ class AiDialogFilter extends AiDialogRaw
     {
         $this->accountId = $clientId;
 
-        parent::load(Yii::$app->request->get());
+        $get = Yii::$app->request->get();
+
+        if (!is_array($get)) {
+            $get = [];
+        }
+
+        $classData = explode('\\', self::className());
+        $className = array_pop($classData);
+
+        if (!isset($get[$className])) {
+            $now = new DateTimeImmutable('now');
+            $get[$className] = [
+                'action_start_from' => $now->modify('first day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
+                'action_start_to' => $now->format(DateTimeZoneHelper::DATE_FORMAT)
+            ];
+        }
+        parent::load($get);
 
         return $this;
     }
 
     private function makeQuery()
     {
-        $query = AiDialogRaw::find();
+        $query = AiDialogRaw::find()->with('clientAccount');
 
         if (!($this->action_start_from && $this->action_start_to && $this->accountId)) {
             $query->andWhere('false');
@@ -65,7 +83,6 @@ class AiDialogFilter extends AiDialogRaw
 
         $this->agent_id && $query->andWhere(['agent_id' => $this->agent_id]);
         $this->agent_name && $query->andWhere(['agent_name' => $this->agent_name]);
-
         return $query;
     }
 

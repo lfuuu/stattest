@@ -4,6 +4,7 @@ namespace app\models\billing;
 
 use app\classes\model\ActiveRecord;
 use app\dao\billing\CallsDao;
+use app\models\ClientAccount;
 use app\modules\nnp\models\AccountTariffLight;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\PackageMinute;
@@ -32,6 +33,8 @@ use yii\db\Query;
  * @property string $event_name        text,
  * @property string $event_version     integer,
  * @property string $processed_at      timestamp with time zone default CURRENT_TIMESTAMP
+ * 
+ * @property-read ClientAccount $clientAccount
  */
 class AiDialogRaw extends ActiveRecord
 {
@@ -51,5 +54,10 @@ class AiDialogRaw extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPg;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::class, ['id' => 'account_id']);
     }
 }
