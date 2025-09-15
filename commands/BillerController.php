@@ -707,7 +707,6 @@ GROUP BY client_id')->queryAll();
             $raw->event_ts = $data0['eventTs'];
             $raw->event_name = $data0['eventName'];
             $raw->event_version = $data0['eventVersion'];
-            $raw->kafka_offset = $message->offset;
 
             try {
                 $raw->save();
