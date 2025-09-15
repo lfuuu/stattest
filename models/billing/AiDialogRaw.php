@@ -31,7 +31,6 @@ use yii\db\Query;
  * @property string $event_ts          timestamp with time zone,
  * @property string $event_name        text,
  * @property string $event_version     integer,
- * @property string $kafka_offset      bigint,
  * @property string $processed_at      timestamp with time zone default CURRENT_TIMESTAMP
  */
 class AiDialogRaw extends ActiveRecord
