@@ -94,6 +94,10 @@ ansible:
   beforeInstall:
     - name: "Php-fpm: 1. Utils"
       shell: |
+        export HTTP_PROXY=http://p.kompaas.tech:3128
+        export HTTPS_PROXY=http://p.kompaas.tech:3128
+        export NO_PROXY="localhost, 127.0.0.0/8, 10.0.0.0/8, 85.94.32.0/24, 85.94.48.0/24, 85.94.49.0/24, 192.168.0.0/16, 172.16.0.0/12, .mcn.ru, .mcnloc.ru, .mcnspd.ru, .local"
+
         echo "http://dl-3.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
         echo "http://dl-3.alpinelinux.org/alpine/v3.10/community/" >> /etc/apk/repositories
         echo "http://dl-4.alpinelinux.org/alpine/v3.10/main/" >> /etc/apk/repositories
@@ -159,6 +163,10 @@ ansible:
   install:
     - name: "Php-fpm: 2. Configs"
       shell: |
+        export HTTP_PROXY=http://p.kompaas.tech:3128
+        export HTTPS_PROXY=http://p.kompaas.tech:3128
+        export NO_PROXY="localhost, 127.0.0.0/8, 10.0.0.0/8, 85.94.32.0/24, 85.94.48.0/24, 85.94.49.0/24, 192.168.0.0/16, 172.16.0.0/12, .mcn.ru, .mcnloc.ru, .mcnspd.ru, .local"
+
         apk add libssh2-dev
         cd /tmp/
         # curl https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions >> install-php-extensions
