@@ -38,6 +38,7 @@ class SBISInfo
                 $groupIds1 = [
 //                    SBISExchangeGroup::ACT_AND_INVOICE_2019,
                     SBISExchangeGroup::ACT_AND_INVOICE_2025,
+                    SBISExchangeGroup::ACT,
                 ];
                 break;
 
