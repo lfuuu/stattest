@@ -674,7 +674,7 @@ GROUP BY client_id')->queryAll();
          * }
          */
 
-        $topic = 'rts_events';
+        $topic = 'products_billing_events';
         EbcKafka::me()->getMessage($topic, function (\RdKafka\Message $message) {
 
             print_r($message);
