@@ -48,5 +48,5 @@ return [
     'Type #37' => 'Hangos robot',
     'Type #38' => 'Multichat',
     'Type #39' => '(e)SIM',
-    'Type #40' => 'MI-ügynök',
+    'Type #40' => 'Ai ügynök',
 ];
