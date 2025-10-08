@@ -677,6 +677,14 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                     $info = $isTele2Server ? AccountTariffCheckHlr::removeRedirect($event->id, $param, Tele2Adapter::REDIRECT_CFNRC) : EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
+                case \app\modules\sim\Module::EVENT_ESIM_CHECK:
+                    $info = \app\modules\sim\classes\EsimChecker::me()->check($param['account_tariff_id']);
+                    break;
+
+                case \app\modules\sim\Module::EVENT_ESIM_ATTACH:
+                    $info = \app\modules\sim\classes\EsimChecker::me()->attach($param['account_tariff_id'], $param['esim_tag_names']);
+                    break;
+
                 case EventQueue::CREATE_CONTRACT:
                     \app\classes\behaviors\important_events\ClientContract::eventAddContract($param);
                     $registr = ChangeClientStructureRegistratorDto::me();

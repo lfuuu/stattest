@@ -14,7 +14,7 @@ use app\modules\atol\Module as AtolModule;
 use app\modules\freeNumber\Module as FreeNumberModule;
 use app\modules\mtt\Module as MttModule;
 use app\modules\nnp\Module as NnpModule;
-use app\modules\callTracking\Module as CallTrackingModule;
+use app\modules\sim\Module as SimModule;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\Module as UuModule;
 use Exception;
@@ -269,6 +269,9 @@ class EventQueue extends ActiveRecord
         self::SORM_REDIRECT_EXPORT => 'SRM. Экспорт переадресаций',
         self::SORM_EXPORT_BY_DID_ID => 'SRM. Экспорт по DidId',
         self::SORM_REDIRECT_GROUP => 'SRM. Группировка переадресаций',
+
+        SimModule::EVENT_ESIM_CHECK => 'SIM. Проверка',
+        SimModule::EVENT_ESIM_ATTACH => 'SIM. Привязка',
 
         self::KSIM_GET_STATISTIC => 'КСИМ. Запуск сбора статистики',
         ChangeClientStructureRegistratorDto::EVENT => 'Анонсировать (в Кафку) изменение структуры ЛС',
