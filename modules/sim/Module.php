@@ -9,6 +9,9 @@ use Yii;
 
 class Module extends \yii\base\Module
 {
+    const EVENT_ESIM_CHECK = 'esim_check';
+    const EVENT_ESIM_ATTACH = 'esim_attach';
+
     /**
      * @inheritdoc
      */

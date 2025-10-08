@@ -98,7 +98,7 @@ SQL
      * @param integer $statusId
      * @return Imsi
      */
-    public function getNextImsi($statusId)
+    public function getNextImsi($statusId, $profileId = ImsiProfile::ID_MSN_RUS): Imsi
     {
         $transaction = CardStatus::getDb()->beginTransaction();
         try {
@@ -109,7 +109,7 @@ SQL
                 throw new \InvalidArgumentException('Status not found');
             }
 
-            $nextImsiQuery = $this->_getNextImsiQuery($statusId);
+            $nextImsiQuery = $this->_getNextImsiQuery($statusId, $profileId);
 
             if ($status['last_iccid']) {
                 $nextImsiQuery->andWhere(['>', 'c.iccid', $status['last_iccid']]);
@@ -119,7 +119,7 @@ SQL
             $nextImsi = $nextImsiQuery->one();
 
             if (!$nextImsi) {
-                $nextImsi = $this->_getNextImsiQuery($statusId)->one(); // если не нашли последнюю, начинаем с первой
+                $nextImsi = $this->_getNextImsiQuery($statusId, $profileId)->one(); // если не нашли последнюю, начинаем с первой
             }
 
             if (!$nextImsi) {
@@ -148,13 +148,13 @@ SQL
      * @param $statusId
      * @return \yii\db\ActiveQuery
      */
-    private function _getNextImsiQuery($statusId)
+    private function _getNextImsiQuery($statusId, $profileId)
     {
         return Imsi::find()->alias('i')
             ->joinWith('card c')
             ->andWhere([
-                'i.profile_id' => ImsiProfile::ID_MSN_RUS,
-                'i.partner_id' => ImsiPartner::ID_TELE2,
+                'i.profile_id' => $profileId,
+//                'i.partner_id' => ImsiPartner::ID_TELE2,
                 'c.status_id' => $statusId,
                 'c.is_active' => 1,
                 'i.is_active' => 1,

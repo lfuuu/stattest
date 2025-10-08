@@ -40,5 +40,10 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
             $form->field($accountTariff, 'iccid')->textInput(['disabled' => true])->label('ICCID')
         ?>
     </div>
+    <div class="col-sm-4">
+        <?=  (!$accountTariff->isNewRecord && $accountTariff->iccid && $accountTariff->iccidModel) ?
+            \app\classes\Html::a('<span class="glyphicon edit" aria-hidden="true"></span> ICCID: '.$accountTariff->iccid, $accountTariff->iccidModel->getUrl()) : '' ?>
+    </div>
+
 </div>
 

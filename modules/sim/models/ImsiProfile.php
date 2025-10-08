@@ -23,6 +23,8 @@ class ImsiProfile extends ActiveRecord
     const ID_S1 = 2;
     const ID_S2 = 3;
 
+    const ID_S6 = 8;
+
     const IDS_OWN = [self::ID_MSN_RUS, self::ID_S1, self::ID_S2];
 
 

@@ -392,6 +392,15 @@ SQL;
                         break;
                 }
                 break;
+
+            case ServiceType::ID_ESIM:
+                if ($eventType == ImportantEventsNames::UU_SWITCHED_ON) {
+                    EventQueue::go(\app\modules\sim\Module::EVENT_ESIM_CHECK, [
+                        'client_account_id' => $accountTariff->client_account_id,
+                        'account_tariff_id' => $accountTariff->id,
+                    ]);
+                }
+                break;
         }
 
         if (
