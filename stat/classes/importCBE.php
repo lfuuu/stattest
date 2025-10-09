@@ -74,7 +74,7 @@ class parserCBE
             throw new Exception("Неизвестный формат");
 
 
-        $f = iconv("cp1251", "utf8", $f);
+        $f = iconv("cp1251", "utf-8", $f);
 
         $f = explode("\r\n", $f);
 

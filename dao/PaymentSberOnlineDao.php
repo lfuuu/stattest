@@ -30,7 +30,8 @@ class PaymentSberOnlineDao extends Singleton
     {
         $zip = new \ZipArchive;
 
-        if (!$zip->open($filePath)) {
+        $zipOpenResult = $zip->open($filePath);
+        if (!$zipOpenResult || $zipOpenResult != \ZipArchive::ER_OK) {
             return false;
         }
 
@@ -188,8 +189,8 @@ class PaymentSberOnlineDao extends Singleton
         if (isset($row[13])) {
             $payment->code5 = trim($row[13]);
         }
-        $payment->payer = iconv('CP1251', 'UTF8', $row[5]);
-        $payment->description = iconv('CP1251', 'UTF8', $row[6]);
+        $payment->payer = iconv('CP1251', 'UTF-8', $row[5]);
+        $payment->description = iconv('CP1251', 'UTF-8', $row[6]);
         $payment->sum_paid = str_replace(',', '.', $row[7]);
         $payment->sum_received = str_replace(',', '.', $row[8]);
         $payment->sum_fee = str_replace(',', '.', $row[9]);
