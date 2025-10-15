@@ -25,6 +25,7 @@ use yii\helpers\Url;
  * @property-read ClientAccount $clientAccount
  * @property-read Imsi[] $imsies
  * @property-read CardStatus $status
+ * @property-read CardType $type
  *
  * @method static Card findOne($condition)
  * @method static Card[] findAll($condition)

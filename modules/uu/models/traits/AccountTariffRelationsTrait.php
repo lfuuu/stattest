@@ -10,6 +10,7 @@ use app\models\Datacenter;
 use app\models\dictionary\A2pSmsRoute;
 use app\models\Region;
 use app\models\UsageTrunk;
+use app\modules\sim\models\Card;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
@@ -62,6 +63,7 @@ use yii\db\Expression;
  *
  * @property-read AccountTariffHelper $helper
  * @property-read AccountTariffExtVoip $extVoip
+ * @property-read Card $iccidModel
  *
  * @method ActiveQuery hasMany($class, array $link) see [[BaseActiveRecord::hasMany()]] for more info
  * @method ActiveQuery hasOne($class, array $link) see [[BaseActiveRecord::hasOne()]] for more info
@@ -533,6 +535,16 @@ trait AccountTariffRelationsTrait
     {
         $this->addParam('iccid', $routeName);
         $this->addParam('iccid_saved_at_utc', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT));
+    }
+
+    public function getIccidModel()
+    {
+        $iccid = $this->iccid;
+        if (!$iccid) {
+            return null;
+        }
+
+        return Card::findOne(['iccid' => $iccid]);
     }
 
     public function getCalligrapher_node_id()
