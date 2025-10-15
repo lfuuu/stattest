@@ -12,6 +12,7 @@ use app\modules\nnp\models\PackageApi;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\nnp\models\PackagePricelistNnp;
+use app\modules\sim\models\Imsi;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
@@ -133,6 +134,9 @@ class AccountTariffStructureGenerator extends Singleton
             'account_tariff_light_ids' => !$isDefaultTariff ? $this->_getAccountTariffLights($accountTariff->id) : [],
         ];
 
+        if ($accountTariff->service_type_id == ServiceType::ID_ESIM) {
+            $record['esim'] = $this->_getRecordEsimSection($accountTariff);
+        }
 
         $packages = $accountTariff->nextAccountTariffsEager;
         if ($packages) {
@@ -728,6 +732,43 @@ class AccountTariffStructureGenerator extends Singleton
         }
 
         return $result;
+    }
+
+    private function _getRecordEsimSection(AccountTariff $accountTariff)
+    {
+        if (!$accountTariff->iccid) {
+            return null;
+        }
+
+        $result = [
+            'card' => [
+                'iccid' => (string)$accountTariff->iccid,
+            ]
+        ];
+
+        if (!$accountTariff->iccidModel) {
+            return $result;
+        }
+
+        $result['card']['sim_type'] = $this->_getIdNameRecord($accountTariff->iccidModel->type);
+        $result['card']['imsies'] = array_map(function (Imsi $imsi) {
+            $data = $imsi->getAttributes(['imsi', 'is_default']);
+            if ($imsi->token) {
+                $data['token'] = $imsi->token->token;
+            }
+            if ($imsi->profile) {
+                $data['profile'] = $this->_getIdNameRecord($imsi->profile);
+            }
+
+            if ($imsi->status) {
+                $data['status'] = $this->_getIdNameRecord($imsi->status);
+            }
+
+            return $data;
+        }, $accountTariff->iccidModel->imsies);
+
+        return $result;
+
     }
 
 }
