@@ -135,7 +135,7 @@ class AccountTariffStructureGenerator extends Singleton
         ];
 
         if ($accountTariff->service_type_id == ServiceType::ID_ESIM) {
-            $record['esim'] = $this->_getRecordEsimSection($accountTariff);
+            $record['sim'] = $this->_getRecordSimSection($accountTariff);
         }
 
         $packages = $accountTariff->nextAccountTariffsEager;
@@ -734,7 +734,7 @@ class AccountTariffStructureGenerator extends Singleton
         return $result;
     }
 
-    private function _getRecordEsimSection(AccountTariff $accountTariff)
+    private function _getRecordSimSection(AccountTariff $accountTariff)
     {
         if (!$accountTariff->iccid) {
             return null;
@@ -768,7 +768,6 @@ class AccountTariffStructureGenerator extends Singleton
         }, $accountTariff->iccidModel->imsies);
 
         return $result;
-
     }
 
 }
