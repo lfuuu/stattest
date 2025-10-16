@@ -64,12 +64,12 @@
 //                continue;
 //            }
 
-            if (!$invoice->bill || !$invoice->bill->clientAccount) {
+            if (!$invoice->bill || !$invoice->bill->clientAccountModel) {
                 Yii::$app->session->addFlash('error', 'С/ф без счета: ' . $invoice->number);
                 continue;
             }
             try {
-                $account = $invoice->bill->clientAccount;
+                $account = $invoice->bill->clientAccountModel;
                 $contract = $account->contract;
                 $contragent = $contract->contragent;
 
