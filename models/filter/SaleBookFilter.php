@@ -133,6 +133,7 @@ class SaleBookFilter extends Invoice
 
         $query->joinWith('bill bill', true, 'INNER JOIN');
         $query->with('bill');
+        $query->with('bill.clientAccountModel');
         $query->with('bill.payments');
         $query->with('lines');
         $query->with('lines.line');

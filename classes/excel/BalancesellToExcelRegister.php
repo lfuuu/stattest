@@ -70,22 +70,33 @@ class BalancesellToExcelRegister extends Excel
 
             $sum16 = 0;
             foreach($invoice->lines as $line) {
-                if (
-                    !($line->date_to <= (new DateTimeImmutable($this->dateTo))->format(DateTimeZoneHelper::DATE_FORMAT)
-                    && $line->date_from >= (new DateTimeImmutable($this->dateFrom))->format(DateTimeZoneHelper::DATE_FORMAT))
+                if (!(
+                    $line->date_to <= $this->filter->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+                    && $line->date_from >= $this->filter->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+                )
                 ) {
                     continue;
                 }
+
                 if ($line->line->id_service) {
                     if (
-                        ($this->filter->is_register_vp && in_array($line->line->accountTariff->service_type_id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP]))
-                        || ($this->filter->is_register && $line->line->accountTariff->service_type_id = ServiceType::ID_VPBX)
+                        ($this->filter->is_register && $line->line->accountTariff->service_type_id == ServiceType::ID_VPBX)
+                        || ($this->filter->is_register_vp && in_array($line->line->accountTariff->service_type_id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP]))
                     ) {
                         // pass
                     } else {
                         continue;
                     }
+                } else {
+                    if ($this->filter->is_register && strpos($line->item, 'ВАТС') !== false) {
+                        // pass
+                    } elseif ($this->filter->is_register_vp && (strpos($line->item, 'ВАТС') !== false || strpos($line->item, 'Телефон') !== false)) {
+                        // pass
+                    } else {
+                        continue;
+                    }
                 }
+
                 $sum16 += abs($line['sum_tax']) > 0  ? 0 : $line['sum'];
             }
 
