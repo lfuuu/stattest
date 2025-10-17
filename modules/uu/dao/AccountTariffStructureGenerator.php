@@ -135,7 +135,7 @@ class AccountTariffStructureGenerator extends Singleton
         ];
 
         if ($accountTariff->service_type_id == ServiceType::ID_ESIM) {
-            $record['sim'] = $this->_getRecordSimSection($accountTariff);
+            $record['data'] =['sim' => $this->_getRecordSimSection($accountTariff)];
         }
 
         $packages = $accountTariff->nextAccountTariffsEager;
@@ -750,7 +750,7 @@ class AccountTariffStructureGenerator extends Singleton
             return $result;
         }
 
-        $result['card']['sim_type'] = $this->_getIdNameRecord($accountTariff->iccidModel->type);
+        $result['card']['type'] = $this->_getIdNameRecord($accountTariff->iccidModel->type);
         $result['card']['imsies'] = array_map(function (Imsi $imsi) {
             $data = $imsi->getAttributes(['imsi', 'is_default']);
             if ($imsi->token) {
