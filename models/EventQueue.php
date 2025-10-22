@@ -396,14 +396,14 @@ class EventQueue extends ActiveRecord
         $this->save();
 
         // Создаем событие, уведомляющее автора о завершении задачи
-        if ($this->param && $this->event != self::COMET_NOTIFIER_EVENT) {
-            $param = json_decode($this->param, true);
-            if (isset($param['notified_user_id'])) {
-                $param['completed_id'] = $this->id;
-                $param['completed_event'] = $this->event;
-                self::go(self::COMET_NOTIFIER_EVENT, $param);
-            }
-        }
+//        if ($this->param && $this->event != self::COMET_NOTIFIER_EVENT) {
+//            $param = json_decode($this->param, true);
+//            if (isset($param['notified_user_id'])) {
+//                $param['completed_id'] = $this->id;
+//                $param['completed_event'] = $this->event;
+//                self::go(self::COMET_NOTIFIER_EVENT, $param);
+//            }
+//        }
     }
 
     /**

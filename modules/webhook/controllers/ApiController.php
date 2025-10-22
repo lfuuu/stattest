@@ -51,6 +51,11 @@ class ApiController extends Controller
      */
     public function actionIndex()
     {
+        return [
+            'status' => 'OK',
+            'result' => 'skipped',
+        ];
+
         try {
             return [
                 'status' => 'OK',
