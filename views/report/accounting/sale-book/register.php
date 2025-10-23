@@ -80,13 +80,13 @@
                 $linesSum16 = 0;
                 foreach ($invoice->lines as $line) {
 
-                    if (!(
-                        $line->date_to <= $filter->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-                        && $line->date_from >= $filter->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
-                    )
-                    ) {
-                        continue;
-                    }
+//                    if (!(
+//                        $line->date_to <= $filter->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+//                        && $line->date_from >= $filter->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+//                    )
+//                    ) {
+//                        continue;
+//                    }
 
                     if ($line->line->id_service) {
                         if (
