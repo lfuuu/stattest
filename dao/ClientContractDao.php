@@ -79,9 +79,10 @@ class ClientContractDao extends Singleton
     public function getPartnerList($isWithEmpty = true)
     {
         $list = [];
-        $cts = ClientContract::find()->andWhere(['business_id' => Business::PARTNER])->all();
+        $cts = ClientContract::find()->andWhere(['business_id' => Business::PARTNER])->with('clientContragent')->all();
+        /** @var ClientContract $ct */
         foreach ($cts as $ct) {
-            $list[$ct->id] = $ct->contragent->name . ' (' . $ct->number . ($ct->number != (string)$ct->id ? ', #' . $ct->id : '') . ')';
+            $list[$ct->id] = $ct->clientContragent->name . ' (' . $ct->number . ($ct->number != (string)$ct->id ? ', #' . $ct->id : '') . ')';
         }
 
         if ($isWithEmpty) {
