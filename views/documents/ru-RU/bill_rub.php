@@ -355,6 +355,12 @@ $isOsn = $payerCompany->getTaxRate() != 0;
             погашения задолженности.
         </small>
     <?php endif; ?>
+    <?php if ($document->bill->clientAccount->firma == 'mcn_telekom' && $document->bill->bill_date >= '2025-11-01' && $document->bill->bill_date < '2026-01-01'): ?>
+        <div style="text-align: center; padding-top: 50px; font-size: 7pt">
+            Обратите внимание, с 01.11.2025г. у нас новые платёжные реквизиты!<br>
+            Для того чтобы платежи были зачислены своевременно, просьба осуществлять оплату на реквизиты ООО "МСН Телеком" в АО "Т-Банк"!
+        </div>
+    <?php endif; ?>
 <?php endif; ?>
 </body>
 </html>
