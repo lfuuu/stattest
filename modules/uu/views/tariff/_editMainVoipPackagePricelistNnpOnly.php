@@ -28,7 +28,7 @@ switch ($formModel->tariff->service_type_id) {
 
     case ServiceType::ID_VOIP_PACKAGE_SMS:
     case ServiceType::ID_A2P_PACKAGE:
-        $pricelistServiceTypeId = uuPricelist::ID_SERVICE_TYPE_SMS;
+        $pricelistServiceTypeId = uuPricelist::ID_SERVICE_GROUP_SMS;
         $packagePricelistModel = new PackagePricelistNnpSms();
         $packagePricelistModels = $formModel->tariff->packagePricelistsNnpSms;
         break;
