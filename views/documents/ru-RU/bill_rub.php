@@ -16,6 +16,21 @@ $currencyWithoutValue = Utils::money('', $document->getCurrency());
 
 $organization = $document->organization;
 
+// $this->bill->c->getOrganization($this->bill->bill_date)->setLanguage($this->getLanguage());
+/** @var \app\models\Bill $b */
+
+$b = $document->bill;
+
+// Для ОТТ и Межоператорки - с 1 ноября - оставляем реквизиты банка по старому
+$isNewPayAcc = true;
+if (
+    \Yii::$app->isRus()
+    && in_array($b->clientAccount->clientContractModel->business_id, [\app\models\Business::OTT, \app\models\Business::OPERATOR])
+) {
+    $organization = $b->clientAccount->getOrganization('2025-10-31')->setLanguage($document->getLanguage());
+    $isNewPayAcc = false;
+}
+
 $director = $organization->director;
 $accountant = $organization->accountant;
 
@@ -100,7 +115,7 @@ $isOsn = $payerCompany->getTaxRate() != 0;
 
         $time = time() + (3600 * 3); // moscow TZ
         $billNo = $document->bill->bill_no;
-        $hourLimit = 13;
+        $hourLimit = 14;
 
         $isCompleted = true;
         if (
@@ -355,8 +370,9 @@ $isOsn = $payerCompany->getTaxRate() != 0;
             погашения задолженности.
         </small>
     <?php endif; ?>
-    <?php if ($document->bill->clientAccount->firma == 'mcn_telekom' && $document->bill->bill_date >= '2025-11-01' && $document->bill->bill_date < '2026-01-01'): ?>
-        <div style="text-align: center; padding-top: 50px; font-size: 8pt; color: #c40000;">
+
+    <?php if ($isNewPayAcc && $document->bill->clientAccount->firma == 'mcn_telekom' && $document->bill->bill_date >= '2025-11-01' && $document->bill->bill_date < '2026-01-01'): ?>
+        <div style="text-align: center; padding-top: 50px; font-size: 9pt; color: #c40000;">
             Обратите внимание, с 01.11.2025г. у нас новые платёжные реквизиты!<br>
             Для того чтобы платежи были зачислены своевременно, просьба осуществлять оплату на реквизиты ООО "МСН Телеком" в АО "Т-Банк"!
         </div>
