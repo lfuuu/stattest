@@ -266,7 +266,7 @@ class CalculateSmsCharges
             } else {
                 $total += 8;   // Свыше 6 - по 4 ед
             }
-            echo ' p:' . $position . '.t:' . $total . ' ';
+//            echo ' p:' . $position . '.t:' . $total . ' ';
         }
 
         $this->alreadyWrittenOffUnits += $amountToWriteOffUnits;
