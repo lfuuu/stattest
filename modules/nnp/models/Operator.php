@@ -42,6 +42,8 @@ class Operator extends ActiveRecord
     // temporary constants ;)
     const ID_DENI_CALL = 5090;
 
+    const ID_BEELINE = 6667;
+
     /*
      * Группа оператора:
      *
