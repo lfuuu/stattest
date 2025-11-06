@@ -90,12 +90,12 @@ class SmsController extends Controller
                     continue;
                 }
 
-                echo PHP_EOL . $this->s($sms);
-
-                echo $calc->getId();
-                echo ' - ';
+//                echo PHP_EOL . $this->s($sms);
+//
+//                echo $calc->getId();
+//                echo ' - ';
                 $total = $calc->writeOff($sms->count);
-                echo ' => ' . $total;
+//                echo ' => ' . $total;
 
                 $setRate = 8;
 
@@ -219,7 +219,7 @@ class SmsController extends Controller
 
     private function _applyUpdates($updSet)
     {
-        $db = A2pSms::getDb();
+        $db = \Yii::$app->dbPg;
         $transaction = $db->beginTransaction();
         try {
             foreach ($updSet as $update) {
