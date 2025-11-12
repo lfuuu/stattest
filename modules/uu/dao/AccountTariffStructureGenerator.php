@@ -463,7 +463,7 @@ class AccountTariffStructureGenerator extends Singleton
         $tariffResourcesIndexedByResourceId = $tariff ? $tariff->tariffResourcesIndexedByResourceId : [];
 
         foreach ($accountTariff->serviceType->resources as $resource) {
-            $tariffResource = isset($tariffResourcesIndexedByResourceId[$resource->id]) ? $tariffResourcesIndexedByResourceId[$resource->id] : null;
+            $tariffResource = $tariffResourcesIndexedByResourceId[$resource->id] ?? null;
 
             if (!$tariffResource || !$tariffResource->is_show_resource) {
                 continue;
