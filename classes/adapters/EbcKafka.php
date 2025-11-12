@@ -54,7 +54,7 @@ class EbcKafka extends Singleton
         $config->set('metadata.broker.list', \Yii::$app->params['KAFKA_BROKERS']);
         $config->set('client.id', $readerGroupId ?: self::DEFAULT_GROUPID);
 
-        $config->set('message.max.bytes', 10485880);
+        $config->set('message.max.bytes', 50485880);
 
         if (\Yii::$app->params['IS_KAFKA_WITH_SSL'] ?? false) {
             $config->set('security.protocol', 'ssl');
