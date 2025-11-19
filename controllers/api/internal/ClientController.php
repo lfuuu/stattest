@@ -1159,7 +1159,7 @@ class ClientController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags={"Dictionaries"}, path="/internal/client/get-entry-point-list/", summary="Получения списка Точек Входа", operationId="EntryPointList",
+     * @SWG\Get(tags={"Dictionaries"}, path="/internal/client/get-entry-point-list/", summary="Получения списка Точек Входа", operationId="EntryPointList",
      *   @SWG\Parameter(name = "code", type = "string", description = "код Точки Входа", in = "query", required = false, default = ""),
      *   @SWG\Parameter(name = "country_code", type = "string", description = "Страна точки входа", in = "query", required = false, default = "643"),
      *   @SWG\Parameter(name = "is_default", type = "string", description = "Точка Входа по-умолчанию", in = "query", required = false, default = ""),

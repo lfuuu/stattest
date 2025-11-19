@@ -72,7 +72,7 @@ class EsimChecker extends \app\classes\Singleton
                 $transactionA = AccountTariff::getDb()->beginTransaction();
                 $transactionC = Card::getDb()->beginTransaction();
 
-                $imsi = Imsi::dao()->getNextImsi($cardStatus->id, ImsiProfile::ID_S6);
+                $imsi = Imsi::dao()->getNextImsi($cardStatus->id, [ImsiProfile::ID_S6, ImsiProfile::ID_S6_Global]);
 
                 $card = $imsi->card;
                 $card->client_account_id = $accountTariff->client_account_id;
