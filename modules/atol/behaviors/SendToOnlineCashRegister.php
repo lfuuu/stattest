@@ -90,7 +90,7 @@ class SendToOnlineCashRegister extends Behavior
 
             if (
                 /* $apiChannel->id == PaymentApiChannel::ID_API_TINKOFF_ABONENTSERVICE && */
-                !$payment->detectPerson()
+                !$payment->detectPersonOrCard()
             ) {
                 HandlerLogger::me()->add('No detect person. Channel: ' . $apiChannel->name);
                 return false;

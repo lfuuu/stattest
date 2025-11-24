@@ -135,6 +135,7 @@ class Payment extends ActiveRecord
     public $bankAccount = null;
 
     public const dateField = 'payment_date';
+
     /**
      * Название таблицы
      *
@@ -154,7 +155,7 @@ class Payment extends ActiveRecord
     {
         return [
             'default' => self::OP_INSERT | self::OP_UPDATE | self::OP_DELETE,
-	];
+        ];
     }
 
     /**
@@ -322,8 +323,8 @@ class Payment extends ActiveRecord
             }
 
             ImportantEvents::create(ImportantEventsNames::PAYMENT_ADD,
-                                    ImportantEventsSources::SOURCE_STAT,
-                                    $data);
+                ImportantEventsSources::SOURCE_STAT,
+                $data);
         } else {
             Transaction::dao()->updateByPayment($this);
         }
@@ -384,21 +385,40 @@ class Payment extends ActiveRecord
             ->saveInfo();
     }
 
-    public function detectPerson(): bool
+    public function detectPersonOrCard(): bool
     {
         $jsonInfo = Utils::fromJson($this->apiInfo->info_json);
         if (!$jsonInfo) {
             return false;
         }
 
+        if ($jsonInfo['Pan'] ?? false) {
+            HandlerLogger::me()->add("card payment detected (PAN=" . $jsonInfo['Pan'] . ")");
+            return true;
+        }
+
         $name = mb_strtolower($jsonInfo['payerName'] ?? "");
 
-        if (!$name || preg_match('/\B(индивидуальный\s+предприниматель|ип|нотариус|адвокат)\B/', $name)) {
+        if (!$name) {
+            if ($this->client->contragent->legal_type != ClientContragent::PERSON_TYPE) {
+                HandlerLogger::me()->add("no person detected (by contragent type)");
+                return false;
+            }
+
+            $name = $this->client->contragent->name;
+        }
+
+        if (!$name || preg_match('/\B(индивидуальный\s+предприниматель|ип|нотариус|адвокат|ооо|ао|shop)\B/', $name)) {
             return false;
         }
 
         $payerInn = $jsonInfo['payerInn'] ?? "";
         if (!(strlen($payerInn) == 12 || $payerInn == "")) {
+            return false;
+        }
+
+        $matches = [];
+        if (!preg_match('/^\s*(\S+[^\S\r\n]+\S+[^\S\r\n]+\S+)\s*$/', $name, $matches)) {
             return false;
         }
 
