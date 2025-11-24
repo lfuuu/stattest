@@ -6093,16 +6093,29 @@ ORDER BY STR_TO_DATE(ext_invoice_date, '%d-%m-%Y'), sum DESC";
   date_format(str_to_date(ex.ext_invoice_date, '%d-%m-%Y'), '%d.%m.%Y') as ext_invoice_date,
   (ex.ext_vat+ex.ext_sum_without_vat) AS sum,
   ex.ext_vat AS vat,
+  COALESCE(bill_lines.vat_20, 0) AS vat_20,
+  COALESCE(bill_lines.vat_7, 0) AS vat_7,
+  COALESCE(bill_lines.vat_5, 0) AS vat_5,
   ex.ext_registration_date,
   (SELECT value
    FROM organization_i18n n
    WHERE n.organization_record_id = (SELECT max(id) max_id
                                      FROM `organization` o
-                                     WHERE o.organization_id = b.organization_id) AND lang_code = 'ru-RU' AND
-         field = 'name') AS orgznization_name
+                                     WHERE o.organization_id = b.organization_id)
+         AND lang_code = 'ru-RU'
+         AND field = 'name') AS orgznization_name
 FROM clients c, client_contract cc, client_contragent cg, newbills b
-inner join currency cur on cur.id = b.currency 
-left join newbills_external ex ON (ex.bill_no = b.bill_no)
+INNER JOIN currency cur ON cur.id = b.currency 
+LEFT JOIN newbills_external ex ON ex.bill_no = b.bill_no
+LEFT JOIN (
+    SELECT
+        bill_no,
+        SUM(CASE WHEN tax_rate = 20 THEN ABS(sum_tax) ELSE 0 END) AS vat_20,
+        SUM(CASE WHEN tax_rate = 7 THEN ABS(sum_tax) ELSE 0 END) AS vat_7,
+        SUM(CASE WHEN tax_rate = 5 THEN ABS(sum_tax) ELSE 0 END) AS vat_5
+    FROM newbill_lines
+    GROUP BY bill_no
+) bill_lines ON bill_lines.bill_no = b.bill_no
 WHERE " . $dateField . " BETWEEN :date_from AND :date_to
       AND b.organization_id = :organization_id
       AND c.id = b.client_id AND cc.id = c.contract_id AND cc.contragent_id = cg.id
@@ -6132,11 +6145,29 @@ ORDER BY " . $dateField . ", sum DESC";
                 $total[$row['currency']] = [
                     'sum' => 0,
                     'vat' => 0,
+                    'vat_20' => 0,
+                    'vat_7' => 0,
+                    'vat_5' => 0,
                 ];
             }
 
             $total[$row['currency']]['sum'] += $row['sum'];
             $total[$row['currency']]['vat'] += $row['vat'];
+            $vat20 = (float)$row['vat_20'];
+            $vat7 = (float)$row['vat_7'];
+            $vat5 = (float)$row['vat_5'];
+
+            if (!$vat20 && !$vat7 && !$vat5 && $row['vat']) {
+                $vat20 = abs($row['vat']);
+            }
+
+            $data[$i]['vat_20'] = $vat20;
+            $data[$i]['vat_7'] = $vat7;
+            $data[$i]['vat_5'] = $vat5;
+
+            $total[$row['currency']]['vat_20'] += $vat20;
+            $total[$row['currency']]['vat_7'] += $vat7;
+            $total[$row['currency']]['vat_5'] += $vat5;
         }
 
         if (get_param_raw('is_to_excel', 0) == 1) {

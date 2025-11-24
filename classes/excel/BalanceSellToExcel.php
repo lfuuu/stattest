@@ -8,6 +8,7 @@ use app\models\filter\SaleBookFilter;
 use app\models\Invoice;
 use DateTime;
 use app\models\Organization;
+use app\modules\uu\models\ServiceType;
 
 /** @var SaleBookFilter $filter */
 class BalanceSellToExcel extends Excel
@@ -77,12 +78,46 @@ class BalanceSellToExcel extends Excel
                 'sum7' => 0, 'tax7' => 0,
                 'sum5' => 0, 'tax5' => 0,
                 'sum0' => 0, 'tax0' => 0,
-                ];
+                'sum0_agent' => 0,
+            ];
             foreach($invoice->lines as $line) {
-                $sumTax += $line->tax_rate > 0 ? $line['sum'] : 0;
+                if ($line->tax_rate > 0) {
+                    $sumTax += $line['sum'];
+                }
 
-                $lineData['sum' . $line->tax_rate] += $line->sum_without_tax;
-                $lineData['tax' . $line->tax_rate] += $line->sum_tax;;
+                $taxRate = (int)$line->tax_rate;
+                $isVatsTs = false;
+                try {
+                    if (isset($line->line) && $line->line && !empty($line->line->id_service)) {
+                        $serviceTypeId = $line->line->accountTariff->service_type_id ?? null;
+                        $isVatsTs = in_array($serviceTypeId, [ServiceType::ID_VPBX, ServiceType::ID_VOIP], true);
+                    } else {
+                        $item = (string)($line->item ?? '');
+                        $isVatsTs =
+                            (mb_stripos($item, 'ВАТС') !== false) ||
+                            (mb_stripos($item, 'Телефон') !== false) ||
+                            (mb_stripos($item, 'ТС') !== false);
+                    }
+                } catch (\Throwable $e) {
+                    $isVatsTs = false;
+                }
+
+                if ($taxRate === 0) {
+                    if ($isVatsTs) {
+                        $lineData['sum0'] += $line->sum_without_tax;
+                        $lineData['tax0'] += $line->sum_tax;
+                    } else {
+                        $lineData['sum0_agent'] += $line->sum_without_tax;
+
+                    }
+                } else {
+                    if (!isset($lineData['sum' . $taxRate])) {
+                        $lineData['sum' . $taxRate] = 0;
+                        $lineData['tax' . $taxRate] = 0;
+                    }
+                    $lineData['sum' . $taxRate] += $line->sum_without_tax;
+                    $lineData['tax' . $taxRate] += $line->sum_tax;
+                }
             }
 
             $data[] = [
@@ -108,7 +143,7 @@ class BalanceSellToExcel extends Excel
         return $data;
     }
 
-
+    
     public function prepare(array $data)
     {
         /** @var \PHPExcel_Worksheet $worksheet */
@@ -159,9 +194,8 @@ class BalanceSellToExcel extends Excel
             $l(25, $line, $lineData['tax7'] ? $p($lineData['tax7']) : '');
             $l(26, $line, $lineData['tax5'] ? $p($lineData['tax5']) : '');
             $l(27, $line, ($row['sumTax'] ?? 0) > 0 ? $p($row['sumTax']) : '');
-
-            $l(29, $line, $row['tax_regime']);
-
+            $l(29, $line, $lineData['sum0_agent'] ? $p($lineData['sum0_agent']) : '');
+            $l(30, $line, $row['tax_regime']);
         }
     }
 
