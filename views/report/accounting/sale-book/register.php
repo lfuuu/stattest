@@ -49,6 +49,7 @@
     use app\models\ClientContragent;
     use app\models\Invoice;
     use app\modules\uu\models\ServiceType;
+    use app\helpers\SaleBookHelper;
 
     $query = $filter->search();
 
@@ -80,31 +81,8 @@
                 $linesSum16 = 0;
                 foreach ($invoice->lines as $line) {
 
-//                    if (!(
-//                        $line->date_to <= $filter->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-//                        && $line->date_from >= $filter->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
-//                    )
-//                    ) {
-//                        continue;
-//                    }
-
-                    if ($line->line->id_service) {
-                        if (
-                            ($filter->is_register && $line->line->accountTariff->service_type_id == ServiceType::ID_VPBX)
-                            || ($filter->is_register_vp && in_array($line->line->accountTariff->service_type_id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP]))
-                        ) {
-                            // pass
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        if ($filter->is_register && strpos($line->item, 'ВАТС') !== false) {
-                            // pass
-                        } elseif ($filter->is_register_vp && (strpos($line->item, 'ВАТС') !== false || strpos($line->item, 'Телефон') !== false)) {
-                            // pass
-                        } else {
-                            continue;
-                        }
+                    if (!SaleBookHelper::isTelephonyService($line, $filter)) {
+                        continue;
                     }
                     $linesSum16 += abs($line['sum_tax']) > 0 ? 0 : $line['sum'];
                 }
