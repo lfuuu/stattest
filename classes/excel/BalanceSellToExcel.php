@@ -9,6 +9,7 @@ use app\models\Invoice;
 use DateTime;
 use app\models\Organization;
 use app\modules\uu\models\ServiceType;
+use app\helpers\SaleBookHelper;
 
 /** @var SaleBookFilter $filter */
 class BalanceSellToExcel extends Excel
@@ -80,27 +81,13 @@ class BalanceSellToExcel extends Excel
                 'sum0' => 0, 'tax0' => 0,
                 'sum0_agent' => 0,
             ];
-            foreach($invoice->lines as $line) {
+            foreach ($invoice->lines as $line) {
                 if ($line->tax_rate > 0) {
                     $sumTax += $line['sum'];
                 }
 
-                $taxRate = (int)$line->tax_rate;
-                $isVatsTs = false;
-                try {
-                    if (isset($line->line) && $line->line && !empty($line->line->id_service)) {
-                        $serviceTypeId = $line->line->accountTariff->service_type_id ?? null;
-                        $isVatsTs = in_array($serviceTypeId, [ServiceType::ID_VPBX, ServiceType::ID_VOIP], true);
-                    } else {
-                        $item = (string)($line->item ?? '');
-                        $isVatsTs =
-                            (mb_stripos($item, 'ВАТС') !== false) ||
-                            (mb_stripos($item, 'Телефон') !== false) ||
-                            (mb_stripos($item, 'ТС') !== false);
-                    }
-                } catch (\Throwable $e) {
-                    $isVatsTs = false;
-                }
+                $taxRate  = (int)$line->tax_rate;
+                $isVatsTs = SaleBookHelper::isTelephonyService($line);
 
                 if ($taxRate === 0) {
                     if ($isVatsTs) {
@@ -108,7 +95,6 @@ class BalanceSellToExcel extends Excel
                         $lineData['tax0'] += $line->sum_tax;
                     } else {
                         $lineData['sum0_agent'] += $line->sum_without_tax;
-
                     }
                 } else {
                     if (!isset($lineData['sum' . $taxRate])) {

@@ -84,6 +84,7 @@
     use app\models\ClientContragent;
     use app\models\Invoice;
     use app\modules\uu\models\ServiceType;
+    use app\helpers\SaleBookHelper;
 
         $query = $filter->search();
     //if($query){
@@ -137,37 +138,21 @@
 
                 $lt20 = 0;
 
-                foreach ($invoice->lines as $line) {
+                                foreach ($invoice->lines as $line) {
                     if ($line->sum < 0) {
                         continue;
                     }
 
                     $taxRate = (int)$line->tax_rate;
-
-//                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
+                    //                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
                     $l16 = $line['sum_tax'] > 0 ? $line['sum'] : 0;
-//                    $linesTax20 += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
+                    //                    $linesTax20 += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
                     $lt20 = abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
 
-                    $isVatsTs = false;
-                    try {
-                        if (isset($line->line) && $line->line && !empty($line->line->id_service)) {
-                            $serviceTypeId = $line->line->accountTariff->service_type_id ?? null;
-                            $isVatsTs = in_array($serviceTypeId, [ServiceType::ID_VPBX, ServiceType::ID_VOIP], true);
-                        } else {
-                            $item = (string)($line->item ?? '');
-                            $isVatsTs =
-                                (mb_stripos($item, 'ВАТС') !== false) ||
-                                (mb_stripos($item, 'Телефон') !== false) ||
-                                (mb_stripos($item, 'ТС') !== false);
-                        }
-                    } catch (\Throwable $e) {
-                        $isVatsTs = false;
-                    }
+                    $isVatsTs = SaleBookHelper::isTelephonyService($line);
 
                     if ($taxRate === 0) {
                         if ($isVatsTs) {
-                            // остаётся в стандартном столбце 0%
                             if (!isset($linesData['sum0'])) {
                                 $linesData['sum0'] = 0;
                                 $linesData['tax0'] = 0;
@@ -178,21 +163,20 @@
                             $total['sum0'] += $line->sum_without_tax;
                             $total['tax0'] = ($total['tax0'] ?? 0) + $line->sum_tax;
                         } else {
-                            // агентские 0% — в отдельную колонку
                             $linesData['sum0_agent'] += $line->sum_without_tax;
                             $total['sum0_agent'] += $line->sum_without_tax;
                         }
                     } else {
-                    if (!isset($linesData['sum' . $taxRate])) {
-                        $linesData['sum' . $taxRate] = 0;
-                        $linesData['tax' . $taxRate] = 0;
-                    }
+                        if (!isset($linesData['sum' . $taxRate])) {
+                            $linesData['sum' . $taxRate] = 0;
+                            $linesData['tax' . $taxRate] = 0;
+                        }
 
-                    $linesData['sum' . $taxRate] += $line->sum_without_tax;
-                    $linesData['tax' . $taxRate] += $line->sum_tax;
+                        $linesData['sum' . $taxRate] += $line->sum_without_tax;
+                        $linesData['tax' . $taxRate] += $line->sum_tax;
 
-                    $total['sum' . $taxRate] += $line->sum_without_tax;
-                    $total['tax' . $taxRate] += $line->sum_tax;
+                        $total['sum' . $taxRate] += $line->sum_without_tax;
+                        $total['tax' . $taxRate] += $line->sum_tax;
                     }
 
                     if ($line->sum_tax > 0) {

@@ -6144,7 +6144,7 @@ ORDER BY " . $dateField . ", sum DESC";
             if (!isset($total[$row['currency']])) {
                 $total[$row['currency']] = [
                     'sum' => 0,
-                    'vat' => 0,
+                    //'vat' => 0,
                     'vat_20' => 0,
                     'vat_7' => 0,
                     'vat_5' => 0,
@@ -6152,7 +6152,7 @@ ORDER BY " . $dateField . ", sum DESC";
             }
 
             $total[$row['currency']]['sum'] += $row['sum'];
-            $total[$row['currency']]['vat'] += $row['vat'];
+            //$total[$row['currency']]['vat'] += $row['vat'];
             $vat20 = (float)$row['vat_20'];
             $vat7 = (float)$row['vat_7'];
             $vat5 = (float)$row['vat_5'];

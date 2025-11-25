@@ -106,7 +106,7 @@ class PurchaseBookToExcel extends Excel
             $worksheet->setCellValueByColumnAndRow(9, $rowsCounter, $chunk['legal_type'] != 'person' ? $chunk['inn']. '/'. $chunk['kpp'] : '');
             $worksheet->setCellValueByColumnAndRow(12, $rowsCounter, $chunk['currency']);
             $worksheet->setCellValueByColumnAndRow(13, $rowsCounter, $chunk['sum']);
-            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['vat_20'] ?? $chunk['vat']);
+            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['vat_20'] ?? 0);
             $worksheet->setCellValueByColumnAndRow(15, $rowsCounter, $chunk['vat_7'] ?? 0);
             $worksheet->setCellValueByColumnAndRow(16, $rowsCounter, $chunk['vat_5'] ?? 0);
 
