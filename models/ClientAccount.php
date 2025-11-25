@@ -872,6 +872,47 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * Получение email среди ЛС контрагентов
+     *
+     * @return false|string
+     * @throws \yii\db\Exception
+     */
+    public function getContactEmail()
+    {
+        $contactTable = ClientContact::tableName();
+        $accountTable = ClientAccount::tableName();
+        $contractTable = ClientContract::tableName();
+        $sql = <<<SQL
+WITH cl AS (
+    SELECT c.id
+    FROM {$contractTable} cc
+             JOIN {$accountTable} c ON c.contract_id = cc.id
+    WHERE contragent_id IN (
+        SELECT contragent_id
+        FROM {$accountTable} c
+                 JOIN {$contractTable} cc ON cc.id = c.contract_id
+        WHERE c.id = {$this->id}
+    )
+)
+
+SELECT c.data
+FROM {$contactTable} c
+         INNER JOIN cl a ON c.client_id = a.id
+WHERE c.type = 'email'
+ORDER BY CASE
+             WHEN c.client_id = {$this->id} AND c.is_official = 1 THEN 1
+             WHEN c.client_id = {$this->id} AND c.is_official = 0 THEN 2
+             WHEN c.client_id != {$this->id} AND c.is_official = 1 THEN 3
+             ELSE 4
+             END,
+         c.id ASC
+LIMIT 1;
+SQL;
+        return ClientContact::getDb()->createCommand($sql)->queryScalar();
+
+    }
+
+    /**
      * @return ActiveQuery
      */
     public function getContacts()
