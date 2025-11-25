@@ -12,88 +12,77 @@ use app\modules\uu\models\ServiceType;
 class SaleBookHelper
 {
     /**
-     * Определяет, относится ли строка счета к телеком-услугам (ВАТС / VOIP / телефония).
+     * Определяет, относится ли строка счета к телеком-услугам.
      *
-     * Используется:
-     *  - в книге продаж — для разделения обычных 0% и "НДС 0% (агент)";
-     *  - в реестре — для отбора строк по галочкам "регистр" / "регистр ВАТС+VOIP".
+     * Наличие $filter и его флагов регулирует,
+     * какие типы услуг мы ищем:
      *
-     * Поведение:
-     *  - если передан $filter и в нём выставлены флаги is_register / is_register_vp,
-     *    используется логика из views/report/accounting/sale-book/register.php;
-     *  - иначе — общий "телефонный" детектор для книги продаж.
+     *  - $filter->is_register      => ищем только ВАТС;
+     *  - $filter->is_register_vp   => ищем ВАТС и ТС;
+     *  - отсутствие $filter        => ищем ВАТС и ТС.
      *
-     * @param InvoiceLine        $line
+     * Под "ВАТС" и "ТС" здесь понимаются:
+     *  - ВАТС:  ServiceType::ID_VPBX;
+     *  - ТС:    ServiceType::ID_VOIP.
+     *
+     * @param InvoiceLine         $line
      * @param SaleBookFilter|null $filter
      *
      * @return bool
      */
     public static function isTelephonyService(InvoiceLine $line, ?SaleBookFilter $filter = null): bool
     {
-        /**
-         * 1) Режим РЕЕСТРА (когда стоит галочка "регистр" / "регистр ВАТС+VOIP")
-         *    Логика 1 в 1 перенесена из views/report/accounting/sale-book/register.php
-         */
-        if ($filter && ($filter->is_register || $filter->is_register_vp)) {
-            // Есть привязанный сервис (по id_service / accountTariff->service_type_id)
-            if ($line->line && $line->line->id_service) {
-                $serviceTypeId = $line->line->accountTariff->service_type_id ?? null;
 
+        $allowedServiceTypeIds = [];
+        $textMarkers           = [];
+
+        $hasRegisterFlags = $filter && ($filter->is_register || $filter->is_register_vp);
+
+        if ($hasRegisterFlags) {
+            // Есть фильтр реестра — смотрим флаги
+            if ($filter->is_register_vp) {
+                // ВАТС + ТС
+                $allowedServiceTypeIds = [ServiceType::ID_VPBX, ServiceType::ID_VOIP];
+                $textMarkers           = ['ВАТС', 'Телефон'];
+            } elseif ($filter->is_register) {
                 // Только ВАТС
-                if ($filter->is_register && $serviceTypeId === ServiceType::ID_VPBX) {
-                    return true;
-                }
-
-                // ВАТС + VOIP
-                if (
-                    $filter->is_register_vp
-                    && in_array($serviceTypeId, [ServiceType::ID_VPBX, ServiceType::ID_VOIP], true)
-                ) {
-                    return true;
-                }
-
-                return false;
+                $allowedServiceTypeIds = [ServiceType::ID_VPBX];
+                $textMarkers           = ['ВАТС'];
             }
+        } else {
+            // Фильтра нет — ищем и ВАТС, и ТС
+            $allowedServiceTypeIds = [ServiceType::ID_VPBX, ServiceType::ID_VOIP];
+            $textMarkers           = ['ВАТС', 'Телефон'];
+        }
 
-            // Фолбэк — по тексту item
-            $item = (string)$line->item;
-
-            // Только ВАТС
-            if ($filter->is_register && strpos($item, 'ВАТС') !== false) {
-                return true;
-            }
-
-            // ВАТС + Телефон
-            if (
-                $filter->is_register_vp
-                && (strpos($item, 'ВАТС') !== false || strpos($item, 'Телефон') !== false)
-            ) {
-                return true;
-            }
-
+        // Если по какой-то причине ничего не настроили — явно говорим "нет"
+        if (!$allowedServiceTypeIds && !$textMarkers) {
             return false;
         }
 
-        /**
-         * 2) Обычный режим (книга продаж)
-         *    Обобщённый детектор телеком-услуг.
-         */
-
-        // Привязанный сервис
+        //Проверка по типу услуги (service_type_id)
         if ($line->line && $line->line->id_service) {
             $serviceTypeId = $line->line->accountTariff->service_type_id ?? null;
 
-            return in_array($serviceTypeId, [ServiceType::ID_VPBX, ServiceType::ID_VOIP], true);
+            if ($serviceTypeId && in_array($serviceTypeId, $allowedServiceTypeIds, true)) {
+                return true;
+            }
+
+            // Если сервис есть, но тип не входит в разрешённые — сразу нет
+            return false;
         }
 
-        // Фолбэк — по тексту позиции
         $item = (string)$line->item;
         if ($item === '') {
             return false;
         }
 
-        return
-            (mb_stripos($item, 'ВАТС') !== false) ||
-            (mb_stripos($item, 'Телефон') !== false);
+        foreach ($textMarkers as $marker) {
+            if ($marker !== '' && mb_stripos($item, $marker) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
