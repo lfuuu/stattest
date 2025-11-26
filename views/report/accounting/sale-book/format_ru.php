@@ -54,6 +54,9 @@
             копейках
         </td>
         <td rowspan="2" class="s" align="center">
+            НДС 0% (агент)
+        </td>
+        <td rowspan="2" class="s" align="center">
             Сумма <br/>
             С/Ф с НДС
         </td>
@@ -80,17 +83,19 @@
     use app\helpers\DateTimeZoneHelper;
     use app\models\ClientContragent;
     use app\models\Invoice;
+    use app\modules\uu\models\ServiceType;
+    use app\helpers\SaleBookHelper;
 
-    $query = $filter->search();
-//    $query->andWhere(['inv.bill_no' => ['202504-140437', '202504-140226', '202504-144450']]);
-//    $query->limit(10);
-
-
+        $query = $filter->search();
+    //if($query){
+    //$query->andWhere(['inv.number' => ['1251001-0984', '2250901-3329', '1251101-0668', '1251001-1088','1251001-0984','1251101-0668']]);
+    //$query->limit(10);
+    //}
 
     $idx = 1;
 
     $total = [
-        'sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum7' => 0, 'sum5' => 0, 'sum0' => 0,
+        'sumAll' => 0, 'sum20' => 0, 'sum18' => 0, 'sum10' => 0, 'sum7' => 0, 'sum5' => 0, 'sum0' => 0, 'sum0_agent' => 0,
         'tax20' => 0, 'tax18' => 0, 'tax10' => 0, 'tax7' => 0, 'tax5' => 0, 'tax' => 0,
         'sumCol16' => 0, 'sumTax20' => 0
     ];
@@ -120,40 +125,63 @@
 
                 $linesSum16 = 0;
                 $linesTax20 = 0;
-                $linesData = ['sumCol16' => 0,
+                $linesData = [
+                    'sumCol16' => 0,
                     'sum20' => 0, 'tax20' => 0,
                     'sum18' => 0, 'tax18' => 0,
                     'sum10' => 0, 'tax10' => 0,
                     'sum7' => 0, 'tax7' => 0,
                     'sum5' => 0, 'tax5' => 0,
                     'sum0' => 0, 'tax0' => 0,
-                    ];
-                foreach ($invoice->lines as $line) {
+                    'sum0_agent' => 0,
+                ];
+
+                $lt20 = 0;
+
+                                foreach ($invoice->lines as $line) {
                     if ($line->sum < 0) {
                         continue;
                     }
 
-                    $taxRate = $line->tax_rate;
-
-//                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
+                    $taxRate = (int)$line->tax_rate;
+                    //                    $linesSum16 += $line['sum_tax'] > 0 ? $line['sum'] : 0;
                     $l16 = $line['sum_tax'] > 0 ? $line['sum'] : 0;
-//                    $linesTax20 += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
+                    //                    $linesTax20 += abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
                     $lt20 = abs($line['sum_tax']) > 0 ? $line['sum_without_tax'] : 0;
 
-                    if (!isset($linesData['sum' . $taxRate])) {
-                        $linesData['sum' . $taxRate] = 0;
-                        $linesData['tax' . $taxRate] = 0;
-                    }
+                    $isVatsTs = SaleBookHelper::isTelephonyService($line);
 
-                    $linesData['sum' . $taxRate] += $line->sum_without_tax;
-                    $linesData['tax' . $taxRate] += $line->sum_tax;
+                    if ($taxRate === 0) {
+                        if ($isVatsTs) {
+                            if (!isset($linesData['sum0'])) {
+                                $linesData['sum0'] = 0;
+                                $linesData['tax0'] = 0;
+                            }
+                            $linesData['sum0'] += $line->sum_without_tax;
+                            $linesData['tax0'] += $line->sum_tax;
+
+                            $total['sum0'] += $line->sum_without_tax;
+                            $total['tax0'] = ($total['tax0'] ?? 0) + $line->sum_tax;
+                        } else {
+                            $linesData['sum0_agent'] += $line->sum_without_tax;
+                            $total['sum0_agent'] += $line->sum_without_tax;
+                        }
+                    } else {
+                        if (!isset($linesData['sum' . $taxRate])) {
+                            $linesData['sum' . $taxRate] = 0;
+                            $linesData['tax' . $taxRate] = 0;
+                        }
+
+                        $linesData['sum' . $taxRate] += $line->sum_without_tax;
+                        $linesData['tax' . $taxRate] += $line->sum_tax;
+
+                        $total['sum' . $taxRate] += $line->sum_without_tax;
+                        $total['tax' . $taxRate] += $line->sum_tax;
+                    }
 
                     if ($line->sum_tax > 0) {
                         $linesData['sumCol16'] += $line->sum;
                     }
-
-                    $total['sum' . $taxRate] += $line->sum_without_tax;
-                    $total['tax' . $taxRate] += $line->sum_tax;
                 }
                 $total['sumCol16'] += $linesData['sumCol16'];
                 $total['sumTax20'] += $lt20 ?: 0;
@@ -199,6 +227,7 @@
                 <td><?= $linesData['tax7'] ? $printSum($linesData['tax7']) : '&nbsp;' ?></td>
                 <td><?= $linesData['tax5'] ? $printSum($linesData['tax5']) : '&nbsp;' ?></td>
                 <td>&nbsp;</td>
+                <td><?= $linesData['sum0_agent'] ? $printSum($linesData['sum0_agent']) : '&nbsp;' ?></td>
                 <td><?= ($linesData['sumCol16'] ?? 0) > 0 ? $printSum($linesData['sumCol16']) : "" ?></td>
             </tr>
         <?php
@@ -220,6 +249,7 @@
         <td><?= $printSum($total['tax7']) ?></td>
         <td><?= $printSum($total['tax5']) ?></td>
         <td>&nbsp;</td>
+        <td><?= $printSum($total['sum0_agent']) ?></td>
         <td><?= $printSum($total['sumCol16']) ?></td>
     </tr>
     </tbody>
