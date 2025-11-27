@@ -6134,6 +6134,7 @@ ORDER BY " . $dateField . ", sum DESC";
                 $total[$row['currency']] = [
                     'sum' => 0,
                     //'vat' => 0,
+                    'vat_22' => 0,
                     'vat_20' => 0,
                     'vat_7' => 0,
                     'vat_5' => 0,
@@ -6145,6 +6146,7 @@ ORDER BY " . $dateField . ", sum DESC";
             $vat  = (float)$row['vat'];            
             $base = (float)$row['sum_without_vat'];
 
+            $vat22 = 0.0;
             $vat20 = 0.0;
             $vat7  = 0.0;
             $vat5  = 0.0;
@@ -6152,21 +6154,26 @@ ORDER BY " . $dateField . ", sum DESC";
             if ($vat != 0.0 && $base != 0.0) {
                 $rate = $vat / $base * 100;
 
-                if (abs($rate - 20.0) < 0.5) {
+                if (abs($rate - 22.0) < 0.5) {
+                    $vat22 = $vat;
+                } elseif (abs($rate - 20.0) < 0.5) {
                     $vat20 = $vat;
                 } elseif (abs($rate - 7.0) < 0.5) {
                     $vat7 = $vat;
                 } elseif (abs($rate - 5.0) < 0.5) {
                     $vat5 = $vat;
                 } else {
+                    // дефолт — считаем как 20%, чтобы не ломать старое поведение
                     $vat20 = $vat;
                 }
             }
 
+            $data[$i]['vat_22'] = $vat22;
             $data[$i]['vat_20'] = $vat20;
             $data[$i]['vat_7']  = $vat7;
             $data[$i]['vat_5']  = $vat5;
 
+            $total[$row['currency']]['vat_22'] += $vat22;
             $total[$row['currency']]['vat_20'] += $vat20;
             $total[$row['currency']]['vat_7']  += $vat7;
             $total[$row['currency']]['vat_5']  += $vat5;
