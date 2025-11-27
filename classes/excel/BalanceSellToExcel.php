@@ -51,10 +51,10 @@ class BalanceSellToExcel extends Excel
     {
         $data = [];
         $query = $this->filter->search();
-if($query){
-    $query->andWhere(['inv.number' => ['1251001-0984', '2250901-3329', '1251101-0668', '1251001-1088','1251001-0984','1251101-0668', '1251101-2452']]);
-    $query->limit(10);
-    }
+//if($query){
+    //$query->andWhere(['inv.number' => ['1251001-0984', '2250901-3329', '1251101-0668', '1251001-1088','1251001-0984','1251101-0668', '1251101-2452']]);
+    //$query->limit(10);
+    //}
         foreach ($query->each() as $invoice) {
 
             if (!$this->filter->check($invoice)) {

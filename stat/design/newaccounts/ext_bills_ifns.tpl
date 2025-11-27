@@ -137,8 +137,8 @@
         <td align="center">
             ИНН/КПП посредника
         </td>
-        <td align="center">20%</td>
         <td align="center">22%</td>
+        <td align="center">20%</td>
         <td align="center">7%</td>
         <td align="center">5%</td>
     </tr>
@@ -161,8 +161,8 @@
             <td></td>
             <td>{$item.currency}</td>
             <td class="text-right">{$item.sum|replace:".":","}</td>
-            <td class="text-right">{$item.vat_20|replace:".":","}</td>
             <td class="text-right">{$item.vat_22|replace:".":","}</td>
+            <td class="text-right">{$item.vat_20|replace:".":","}</td>
             <td class="text-right">{$item.vat_7|replace:".":","}</td>
             <td class="text-right">{$item.vat_5|replace:".":","}</td>
             <td>{$item.ext_registration_date}</td>
@@ -173,8 +173,8 @@
         <tr>
             <td colspan="13" style="text-align: right">Итого:</td>
             <td>{$total.sum|replace:".":","}</td>
-            <td>{$total.vat_20|replace:".":","}</td>
             <td>{$total.vat_22|replace:".":","}</td>
+            <td>{$total.vat_20|replace:".":","}</td>
             <td>{$total.vat_7|replace:".":","}</td>
             <td>{$total.vat_5|replace:".":","}</td>
             <td>&nbsp;</td>
