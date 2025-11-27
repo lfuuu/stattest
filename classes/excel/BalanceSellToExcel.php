@@ -51,7 +51,10 @@ class BalanceSellToExcel extends Excel
     {
         $data = [];
         $query = $this->filter->search();
-//        $query->andWhere(['inv.bill_no' => ['202504-140437', '202504-140226', '202504-144450']]);
+//if($query){
+    //$query->andWhere(['inv.number' => ['1251001-0984', '2250901-3329', '1251101-0668', '1251001-1088','1251001-0984','1251101-0668', '1251101-2452']]);
+    //$query->limit(10);
+    //}
         foreach ($query->each() as $invoice) {
 
             if (!$this->filter->check($invoice)) {
@@ -180,8 +183,8 @@ class BalanceSellToExcel extends Excel
             $l(25, $line, $lineData['tax7'] ? $p($lineData['tax7']) : '');
             $l(26, $line, $lineData['tax5'] ? $p($lineData['tax5']) : '');
             $l(27, $line, ($row['sumTax'] ?? 0) > 0 ? $p($row['sumTax']) : '');
-            $l(29, $line, $lineData['sum0_agent'] ? $p($lineData['sum0_agent']) : '');
-            $l(30, $line, $row['tax_regime']);
+            $l(28, $line, $lineData['sum0_agent'] ? $p($lineData['sum0_agent']) : '');
+            $l(29, $line, $row['tax_regime']);
         }
     }
 

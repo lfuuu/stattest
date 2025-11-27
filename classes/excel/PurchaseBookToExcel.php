@@ -74,27 +74,6 @@ class PurchaseBookToExcel extends Excel
         $this->setDateRange($worksheet);
         $this->setInnKpp($worksheet);
 
-        $mergeCells = $worksheet->getMergeCells();
-        foreach ($mergeCells as $range) {
-            if (in_array($range, ['Q9:Q10', 'R9:R10'])) {
-                $worksheet->unmergeCells($range);
-            }
-        }
-
-        $worksheet->mergeCells('P9:R9');
-        $worksheet->setCellValue('P9',
-            'Сумма НДС по счету-фактуре, разница суммы НДС по корректировочному ' .
-            'счету-фактуре, принимаемая к вычету в рублях и копейках'
-        );
-
-        $worksheet->setCellValue('P10', '20%');
-        $worksheet->setCellValue('Q10', '7%');
-        $worksheet->setCellValue('R10', '5%');
-
-        $worksheet->getStyle('P9:R10')->getAlignment()
-            ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER)
-            ->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER)
-            ->setWrapText(true);
 
         foreach ($this->data as $chunk) {
             $worksheet->setCellValueByColumnAndRow(0, $rowsCounter, $counter);
@@ -106,9 +85,10 @@ class PurchaseBookToExcel extends Excel
             $worksheet->setCellValueByColumnAndRow(9, $rowsCounter, $chunk['legal_type'] != 'person' ? $chunk['inn']. '/'. $chunk['kpp'] : '');
             $worksheet->setCellValueByColumnAndRow(12, $rowsCounter, $chunk['currency']);
             $worksheet->setCellValueByColumnAndRow(13, $rowsCounter, $chunk['sum']);
-            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['vat_20'] ?? 0);
-            $worksheet->setCellValueByColumnAndRow(15, $rowsCounter, $chunk['vat_7'] ?? 0);
-            $worksheet->setCellValueByColumnAndRow(16, $rowsCounter, $chunk['vat_5'] ?? 0);
+            $worksheet->setCellValueByColumnAndRow(14, $rowsCounter, $chunk['vat_22'] ?? 0);
+            $worksheet->setCellValueByColumnAndRow(15, $rowsCounter, $chunk['vat_20'] ?? 0);
+            $worksheet->setCellValueByColumnAndRow(16, $rowsCounter, $chunk['vat_7'] ?? 0);
+            $worksheet->setCellValueByColumnAndRow(17, $rowsCounter, $chunk['vat_5'] ?? 0);
 
             ++$rowsCounter;
             ++$counter;
