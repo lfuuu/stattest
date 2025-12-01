@@ -1295,6 +1295,9 @@ class ClientController extends ApiInternalController
                             'IDDN' => $person->passport_number,
                         ]
                     ],
+                    "Numbers" => [
+                        substr((string)$number, 1)
+                    ]
                 ]
             ];
         }
