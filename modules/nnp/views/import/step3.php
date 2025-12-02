@@ -14,6 +14,7 @@
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp2\forms\import\Form;
+use app\modules\nnp\classes\helpers\ImportPreviewHelper;
 use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -49,12 +50,17 @@ if (!$handle) {
     return;
 }
 
+$delimiter = ImportPreviewHelper::detectDelimiter($handle);
+
+$expectedHeader = ImportPreviewHelper::getExpectedHeader();
+
 $rowNumber = 0;
 $isFileOK = true;
 $errorLines = [];
 
 $warningLines = [];
 $alreadyRead = [];
+$rangesByPrefix = [];
 
 $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 $isButtonShown = false;
@@ -122,65 +128,14 @@ if ($useCache) {
 
         <?= $this->render('_step3_th') ?>
 
-        <?php /**
-         * @param int $lineNumber
-         * @param array|null $row
-         * @param ImportServiceUploaded $importServiceUploaded
-         * @param array $errorLines
-         * @param array $warningLines
-         * @param array $alreadyRead
-         * @param int $countryCode
-         * @param int $countryFileId
-         * @return array
-         */
-        function checkIfValid(int $lineNumber, array $row, ImportServiceUploaded $importServiceUploaded, array $errorLines, array $warningLines, array $alreadyRead, $countryCode, $countryFileId, $isFileOK): array
-        {
-            $oldLine = null;
-            if (!($lineNumber == 1 && !is_numeric($row[0]))) {
-                $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
-                $rowStatus = $importServiceUploaded->getRowHasError($numberRangeImport);
-
-                $key = sprintf("(%s) %s %s - %s %s", $numberRangeImport->country_prefix, $numberRangeImport->ndc_str, $numberRangeImport->number_from, $numberRangeImport->ndc_str, $numberRangeImport->number_to);
-                if ($errors = $numberRangeImport->getErrors()) {
-                    $isFileOK = false;
-
-                    $text = '';
-                    foreach ($errors as $key => $errorList) {
-                        foreach ($errorList as $value) {
-                            $text .= sprintf("%s: %s", $key, $value) . PHP_EOL;
-                        }
-                    }
-                    $errorLines[$lineNumber] = $text;
-                } elseif (empty($numberRangeImport->ndc_str) && $numberRangeImport->ndc_str != '0') {
-                    $warningLines[$lineNumber] = 'Пустой NDC - диапазон не будет загружен';
-//                } elseif ($numberRangeImport->ndc_type_id == 6) {
-//                    $warningLines[$lineNumber] = 'Короткий номер - диапазон не будет загружен';
-                } elseif (isset($alreadyRead[$key])) {
-                    $oldLine = $alreadyRead[$key];
-
-                    $warningLines[$lineNumber] = "Диапазон $key уже добавлен в " . Html::a(
-                            'строке ' . $oldLine,
-                            Url::to([
-                                '/nnp/import/step3',
-                                'countryCode' => $countryCode,
-                                'fileId' => $countryFileId,
-                                'offset' => $oldLine,
-                                'limit' => min($lineNumber - $oldLine, 100)
-                            ]) . '#line' . $oldLine
-                        );
-                }
-
-                $alreadyRead[$key] = $lineNumber;
-            }
-
-            return array($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead);
-        }
-
+        <?php
         // ############################################
         // ### Start reading
         // ############################################
         $records = [];
-        while (($row = fgetcsv($handle, $rowLength = 4096, $delimiter = ';')) !== false) : ?>
+        $headerChecked = false;
+
+        while (($row = fgetcsv($handle, $rowLength = 4096, $delimiter)) !== false) : ?>
 
             <?php
             $rowNumber++;
@@ -199,7 +154,26 @@ if ($useCache) {
                     continue;
                 }
 
-                list($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead) = checkIfValid($rowNumber, $row, $importServiceUploaded, $errorLines, $warningLines, $alreadyRead, $country->code, $countryFile->id, $isFileOK);
+            if ($rowNumber == 1 && !is_numeric($row[0])) {
+                if (!$headerChecked) {
+                    $headerChecked = true;
+                    $headerResult  = ImportPreviewHelper::validateHeaderRow($row);
+
+                    if (!empty($headerResult['errors'])) {
+                        $isFileOK               = false;
+                        $errorLines[$rowNumber] = implode(PHP_EOL, $headerResult['errors']);
+                    }
+                    if (!empty($headerResult['warnings'])) {
+                        $warningLines[$rowNumber] =
+                            (isset($warningLines[$rowNumber]) && $warningLines[$rowNumber] !== '' ? $warningLines[$rowNumber] . PHP_EOL : '') .
+                            implode(PHP_EOL, $headerResult['warnings']);
+                    }
+                }
+                // шапку в таблицу не выводим
+                continue;
+            }
+
+                list($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix) = ImportPreviewHelper::checkRow($rowNumber, $row, $importServiceUploaded, $errorLines, $warningLines, $alreadyRead, $rangesByPrefix, $country->code, $countryFile->id, $isFileOK);
                 $records[$rowNumber] = [
                     $rowStatus,
                     $oldLine,
@@ -249,11 +223,6 @@ if ($useCache) {
                 }
                 continue;
             endif;
-
-            if ($rowNumber == 1 && !is_numeric($row[0])) {
-                // Шапка (первая строчка с названиями полей) - пропустить
-                continue;
-            }
             ?>
             <tr>
                 <?php
@@ -266,8 +235,8 @@ if ($useCache) {
                     ]
                 );
                 foreach ($row as $columnIndex => $cellValue) {
-                    echo Html::tag('td', $cellValue, ['class' => $rowStatus[$columnIndex] ? 'danger' : 'success']);
-                    if ($rowStatus[$columnIndex]) {
+                    echo Html::tag('td', $cellValue, ['class' => !empty($rowStatus[$columnIndex]) ? 'danger' : 'success']);
+                    if (!empty($rowStatus[$columnIndex])) {
                         $isFileOK = false;
                     }
                 }
