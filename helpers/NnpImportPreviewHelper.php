@@ -69,11 +69,18 @@ class NnpImportPreviewHelper
         $expectedHeader = self::getExpectedHeader();
         $trimmed        = array_map('trim', $row);
 
-        if (count($trimmed) < count($expectedHeader)) {
-            $errors[] = 'В шапке слишком мало колонок. Ожидается: ' . implode(';', $expectedHeader);
+        $cols    = count($trimmed);
+        $expCols = count($expectedHeader);
+
+        if ($cols !== $expCols) {
+            $errors[] = sprintf(
+                'Количество столбцов в шапке должно быть %d, сейчас %d.',
+                $expCols,
+                $cols
+            );
         }
 
-        $max = min(count($trimmed), count($expectedHeader));
+        $max = min($cols, $expCols);
         for ($i = 0; $i < $max; $i++) {
             if ($trimmed[$i] !== $expectedHeader[$i]) {
                 $errors[] = sprintf(
@@ -85,9 +92,7 @@ class NnpImportPreviewHelper
             }
         }
 
-        if (count($trimmed) > count($expectedHeader)) {
-            $warnings[] = 'В шапке есть дополнительные столбцы, которые будут проигнорированы.';
-        }
+        // дополнительных колонок быть не должно, поэтому отдельный warning не нужен
 
         return ['errors' => $errors, 'warnings' => $warnings];
     }
@@ -163,10 +168,7 @@ class NnpImportPreviewHelper
     }
 
     /**
-     * Проверка одной строки (кроме шапки):
-     * - вызывает ImportServiceUploaded (старые проверки)
-     * - добавляет новые ошибки/варнинги
-     * - ищет пересечения диапазонов номеров по CC
+     * Проверка одной строки (кроме шапки).
      *
      * Возвращает:
      *  [$rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix]
@@ -198,6 +200,45 @@ class NnpImportPreviewHelper
         $oldLine   = null;
         $rowStatus = [];
 
+        $expectedHeader = self::getExpectedHeader();
+        $expectedCols   = count($expectedHeader);
+
+        // 0. Пустая строка — отдельная ошибка
+        $allEmpty = true;
+        foreach ($row as $cell) {
+            if (trim($cell) !== '') {
+                $allEmpty = false;
+                break;
+            }
+        }
+        if ($allEmpty) {
+            $text = 'Пустая строка в файле не допускается.';
+            $errorLines[$lineNumber] = $text;
+            foreach ($row as $idx => $_) {
+                $rowStatus[$idx] = true;
+            }
+            $isFileOK = false;
+
+            return [$rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix];
+        }
+
+        // 1. Строгое количество столбцов
+        $cols = count($row);
+        if ($cols !== $expectedCols) {
+            $text = sprintf(
+                'Количество столбцов в строке должно быть %d, сейчас %d.',
+                $expectedCols,
+                $cols
+            );
+            $errorLines[$lineNumber] = $text;
+            foreach ($row as $idx => $_) {
+                $rowStatus[$idx] = true;
+            }
+            $isFileOK = false;
+
+            return [$rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix];
+        }
+
         // шапка обрабатывается отдельно во вьюхе
         if (!($lineNumber == 1 && !is_numeric($row[0]))) {
             $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
@@ -225,24 +266,59 @@ class NnpImportPreviewHelper
                 $errorLines[$lineNumber] = $text;
             } else {
                 // наши дополнительные проверки
-
                 $extraErrors   = [];
                 $extraWarnings = [];
 
-                // 1) Лишние пробелы в Type (колонка 2)
-                if (isset($row[2]) && $row[2] !== trim($row[2])) {
-                    $extraErrors[] = 'Поле Type содержит лишние пробелы в начале или в конце.';
+                // 1. Лишние пробелы во всех 9 полях
+                foreach ($row as $idx => $cell) {
+                    if ($cell !== '' && $cell !== trim($cell)) {
+                        $fieldName = $expectedHeader[$idx] ?? ('#' . $idx);
+                        $extraErrors[] = sprintf(
+                            'Поле %s содержит лишние пробелы в начале или в конце.',
+                            $fieldName
+                        );
+                        $rowStatus[$idx] = true;
+                    }
+                }
+
+                // 2. Обязательность полей (CC,NDC,Type,Type_id,From,To,Operator)
+                $cc       = isset($row[0]) ? trim($row[0]) : '';
+                $ndc      = isset($row[1]) ? trim($row[1]) : '';
+                $type     = isset($row[2]) ? trim($row[2]) : '';
+                $typeId   = $numberRangeImport->ndc_type_id;
+                $typeIdSn = isset($row[3]) ? trim($row[3]) : '';
+                $fromSn   = (string)$numberRangeImport->number_from;
+                $toSn     = (string)$numberRangeImport->number_to;
+                $operator = isset($row[8]) ? trim($row[8]) : '';
+
+                if ($cc === '') {
+                    $extraErrors[] = 'CC (префикс страны) не может быть пустым.';
+                    $rowStatus[0]  = true;
+                }
+
+                // NDC обязателен, кроме коротких номеров (Type_id = 6)
+                if ((string)$typeId !== '6') {
+                    if ($ndc === '') {
+                        $extraErrors[] = 'NDC не может быть пустым.';
+                        $rowStatus[1]  = true;
+                    }
+                }
+
+                if ($type === '') {
+                    $extraErrors[] = 'Type не может быть пустым.';
                     $rowStatus[2]  = true;
                 }
 
-                // 2) From/To – строковые числа и From <= To
-                $fromSn = (string)$numberRangeImport->number_from;
-                $toSn   = (string)$numberRangeImport->number_to;
+                if ($typeIdSn === '' || $typeId === null || $typeId === '') {
+                    $extraErrors[] = 'Type_id (ID типа NDC) не может быть пустым.';
+                    $rowStatus[3]  = true;
+                }
 
                 if ($fromSn === '' || !ctype_digit($fromSn)) {
                     $extraErrors[] = 'From должно быть числовой строкой.';
                     $rowStatus[4]  = true;
                 }
+
                 if ($toSn === '' || !ctype_digit($toSn)) {
                     $extraErrors[] = 'To должно быть числовой строкой.';
                     $rowStatus[5]  = true;
@@ -258,20 +334,29 @@ class NnpImportPreviewHelper
                     }
                 }
 
-                // 3) Обязательность CC / Type_id
-                if ($numberRangeImport->country_prefix === '' || $numberRangeImport->country_prefix === null) {
-                    $extraErrors[] = 'CC (префикс страны) пустой.';
-                    $rowStatus[0]  = true;
+                if ($operator === '') {
+                    $extraErrors[] = 'Operator не может быть пустым.';
+                    $rowStatus[8]  = true;
                 }
 
-                if ($numberRangeImport->ndc_type_id === null || $numberRangeImport->ndc_type_id === '') {
-                    $extraErrors[] = 'Type_id (ID типа NDC) пустой.';
-                    $rowStatus[3]  = true;
+                // 3. Region/City пустые для негеографических номеров (Type_id != 1)
+                $region = isset($row[6]) ? trim($row[6]) : '';
+                $city   = isset($row[7]) ? trim($row[7]) : '';
+
+                if ((int)$typeId !== 1) {
+                    if ($region !== '' || $city !== '') {
+                        $extraErrors[] = 'Для негеографических номеров поля Region и City должны быть пустыми.';
+                        if ($region !== '') {
+                            $rowStatus[6] = true;
+                        }
+                        if ($city !== '') {
+                            $rowStatus[7] = true;
+                        }
+                    }
                 }
 
-                // 4) Проверка пересечения диапазонов по CC
+                // 4. Проверка пересечения диапазонов по CC
                 $ccKey = (string)$numberRangeImport->country_prefix;
-                $ndc   = (string)$numberRangeImport->ndc_str;
 
                 if (!isset($rangesByPrefix[$ccKey])) {
                     $rangesByPrefix[$ccKey] = null;
@@ -337,10 +422,7 @@ class NnpImportPreviewHelper
                     );
                 }
 
-                // 5) Пустой NDC — предупреждение (как было)
-                if (empty($numberRangeImport->ndc_str) && $numberRangeImport->ndc_str != '0') {
-                    $extraWarnings[] = 'Пустой NDC - диапазон не будет загружен';
-                }
+                // 5. старый warning про пустой NDC мы больше не используем (заменён на ошибку/исключение для type_id=6)
 
                 if (!empty($extraErrors)) {
                     $isFileOK = false;
@@ -355,7 +437,7 @@ class NnpImportPreviewHelper
                         implode(PHP_EOL, $extraWarnings);
                 }
 
-                // 6) старая логика дублей диапазона по key
+                // 6. старая логика дублей диапазона по key
                 if (isset($alreadyRead[$key])) {
                     $oldLine = $alreadyRead[$key];
 
