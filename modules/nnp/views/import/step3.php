@@ -14,12 +14,12 @@
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp2\forms\import\Form;
+use app\modules\nnp\classes\helpers\ImportPreviewHelper;
 use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
-use app\helpers\NnpImportPreviewHelper;
 
 $country = $countryFile->country;
 
@@ -50,9 +50,9 @@ if (!$handle) {
     return;
 }
 
-$delimiter = NnpImportPreviewHelper::detectDelimiter($handle);
+$delimiter = ImportPreviewHelper::detectDelimiter($handle);
 
-$expectedHeader = NnpImportPreviewHelper::getExpectedHeader();
+$expectedHeader = ImportPreviewHelper::getExpectedHeader();
 
 $rowNumber = 0;
 $isFileOK = true;
@@ -157,7 +157,7 @@ if ($useCache) {
             if ($rowNumber == 1 && !is_numeric($row[0])) {
                 if (!$headerChecked) {
                     $headerChecked = true;
-                    $headerResult  = NnpImportPreviewHelper::validateHeaderRow($row);
+                    $headerResult  = ImportPreviewHelper::validateHeaderRow($row);
 
                     if (!empty($headerResult['errors'])) {
                         $isFileOK               = false;
@@ -173,7 +173,7 @@ if ($useCache) {
                 continue;
             }
 
-                list($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix) = NnpImportPreviewHelper::checkRow($rowNumber, $row, $importServiceUploaded, $errorLines, $warningLines, $alreadyRead, $rangesByPrefix, $country->code, $countryFile->id, $isFileOK);
+                list($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix) = ImportPreviewHelper::checkRow($rowNumber, $row, $importServiceUploaded, $errorLines, $warningLines, $alreadyRead, $rangesByPrefix, $country->code, $countryFile->id, $isFileOK);
                 $records[$rowNumber] = [
                     $rowStatus,
                     $oldLine,
