@@ -235,11 +235,21 @@ if ($useCache) {
                     ]
                 );
                 foreach ($row as $columnIndex => $cellValue) {
-                    echo Html::tag('td', $cellValue, ['class' => !empty($rowStatus[$columnIndex]) ? 'danger' : 'success']);
-                    if (!empty($rowStatus[$columnIndex])) {
-                        $isFileOK = false;
-                    }
+                $status = isset($rowStatus[$columnIndex]) ? $rowStatus[$columnIndex] : null;
+
+                $class = 'success';
+                if ($status === true) {
+                    $class = 'danger';
+                } elseif ($status === 'warning') {
+                    $class = 'warning';
                 }
+
+                echo Html::tag('td', $cellValue, ['class' => $class]);
+
+                if ($status === true) {
+                    $isFileOK = false;
+                }
+            }
                 ?>
             </tr>
         <?php endwhile ?>

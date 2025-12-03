@@ -225,9 +225,9 @@ class ImportPreviewHelper
             // --- Region/City только для гео (type_id = 1) ---
             if ((int)$typeId !== 1) {
                 if ($region !== '' || $city !== '') {
-                    $extraErrors[] = 'Для негеографических номеров Region и City должны быть пустыми.';
-                    if ($region !== '') $rowStatus[6] = true;
-                    if ($city !== '')   $rowStatus[7] = true;
+                    $extraWarnings[] = 'Для негеографических номеров Region и City должны быть пустыми.';
+                    if ($region !== '') $rowStatus[6] = 'warning';
+                    if ($city !== '')   $rowStatus[7] = 'warning';
                 }
             }
 
