@@ -235,10 +235,21 @@ if ($useCache) {
                     ]
                 );
                 foreach ($row as $columnIndex => $cellValue) {
-                    echo Html::tag('td', $cellValue, ['class' => !empty($rowStatus[$columnIndex]) ? 'danger' : 'success']);
-                    if (!empty($rowStatus[$columnIndex])) {
-                        $isFileOK = false;
+                    $status = $rowStatus[$columnIndex] ?? ImportPreviewHelper::STATUS_OK;
+
+                    switch ($status) {
+                        case ImportPreviewHelper::STATUS_ERROR:
+                            $class = 'danger';
+                            $isFileOK = false;
+                            break;
+                        case ImportPreviewHelper::STATUS_WARNING:
+                            $class = 'warning';
+                            break;
+                        default:
+                            $class = 'success';
                     }
+
+                    echo Html::tag('td', $cellValue, ['class' => $class]);
                 }
                 ?>
             </tr>

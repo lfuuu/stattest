@@ -9,6 +9,10 @@ use app\modules\nnp\classes\helpers\RangesTreeHelper;
 
 class ImportPreviewHelper
 {
+    public const STATUS_OK      = 0;
+    public const STATUS_ERROR   = 1;
+    public const STATUS_WARNING = 2;
+
     /**
      * Ожидаемые заголовки CSV.
      */
@@ -122,7 +126,7 @@ class ImportPreviewHelper
         if ($allEmpty) {
             $errorLines[$lineNumber] = 'Пустая строка в файле не допускается.';
             foreach ($row as $idx => $_) {
-                $rowStatus[$idx] = true;
+                $rowStatus[$idx] = self::STATUS_ERROR;
             }
             return [$rowStatus, false, $errorLines, $warningLines, null, $alreadyRead, $rangesByPrefix];
         }
@@ -136,7 +140,7 @@ class ImportPreviewHelper
                 $cols
             );
             foreach ($row as $idx => $_) {
-                $rowStatus[$idx] = true;
+                $rowStatus[$idx] = self::STATUS_ERROR;
             }
             return [$rowStatus, false, $errorLines, $warningLines, null, $alreadyRead, $rangesByPrefix];
         }
@@ -145,7 +149,11 @@ class ImportPreviewHelper
         if (!($lineNumber == 1 && !is_numeric($row[0]))) {
 
             $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
-            $rowStatus         = $importServiceUploaded->getRowHasError($numberRangeImport);
+
+            $rowStatus = array_map(
+                fn($hasError) => $hasError ? self::STATUS_ERROR : self::STATUS_OK,
+                $importServiceUploaded->getRowHasError($numberRangeImport)
+            );
 
             $key = sprintf(
                 '(%s) %s %s - %s %s',
@@ -184,50 +192,54 @@ class ImportPreviewHelper
 
             if ($cc === '') {
                 $extraErrors[] = 'CC (префикс страны) не может быть пустым.';
-                $rowStatus[0] = true;
+                $rowStatus[0] = self::STATUS_ERROR;
             }
 
             if ((string)$typeId !== '6' && $ndc === '') {
                 $extraErrors[] = 'NDC не может быть пустым.';
-                $rowStatus[1] = true;
+                $rowStatus[1] = self::STATUS_ERROR;
             }
 
             if ($type === '') {
                 $extraErrors[] = 'Type не может быть пустым.';
-                $rowStatus[2] = true;
+                $rowStatus[2] = self::STATUS_ERROR;
             }
 
             if ($typeIdSn === '') {
                 $extraErrors[] = 'Тип NDC не может быть пустым.';
-                $rowStatus[3] = true;
+                $rowStatus[3] = self::STATUS_ERROR;
             }
 
             if ($fromSn === '' || !ctype_digit($fromSn)) {
                 $extraErrors[] = 'Начальное значение должно быть числом.';
-                $rowStatus[4] = true;
+                $rowStatus[4] = self::STATUS_ERROR;
             }
 
             if ($toSn === '' || !ctype_digit($toSn)) {
                 $extraErrors[] = 'Конечное значение должно быть числом.';
-                $rowStatus[5] = true;
+                $rowStatus[5] = self::STATUS_ERROR;
             }
 
             if (ctype_digit($fromSn) && ctype_digit($toSn) && (int)$fromSn > (int)$toSn) {
                 $extraErrors[] = 'Начальное значение не может быть больше конечного.';
-                $rowStatus[4] = $rowStatus[5] = true;
+                $rowStatus[4] = $rowStatus[5] = self::STATUS_ERROR;
             }
 
             if ($operator === '') {
                 $extraErrors[] = 'Operator не может быть пустым.';
-                $rowStatus[8] = true;
+                $rowStatus[8] = self::STATUS_ERROR;
             }
 
             // --- Region/City только для гео (type_id = 1) ---
             if ((int)$typeId !== 1) {
                 if ($region !== '' || $city !== '') {
-                    $extraErrors[] = 'Для негеографических номеров Region и City должны быть пустыми.';
-                    if ($region !== '') $rowStatus[6] = true;
-                    if ($city !== '')   $rowStatus[7] = true;
+                    $extraWarnings[] = 'Для негеографических номеров Region и City должны быть пустыми.';
+                    if ($region !== '') {
+                        $rowStatus[6] = self::STATUS_WARNING;
+                    }
+                    if ($city !== '') {
+                        $rowStatus[7] = self::STATUS_WARNING;
+                    }
                 }
             }
 
@@ -264,7 +276,7 @@ class ImportPreviewHelper
                     );
 
                     $extraErrors[] = $msgCurr;
-                    $rowStatus[4] = $rowStatus[5] = true;
+                    $rowStatus[4] = $rowStatus[5] = self::STATUS_ERROR;
 
                     $errorLines[$prev['line']] =
                         (isset($errorLines[$prev['line']]) ? $errorLines[$prev['line']] . PHP_EOL : '') .
