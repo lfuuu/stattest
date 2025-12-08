@@ -149,10 +149,9 @@ class ImportPreviewHelper
         if (!($lineNumber == 1 && !is_numeric($row[0]))) {
 
             $numberRangeImport = $importServiceUploaded->getNumberRangeByRow($row);
-            $rowStatus         = array_map(
-                function ($hasError) {
-                    return $hasError ? self::STATUS_ERROR : self::STATUS_OK;
-                },
+
+            $rowStatus = array_map(
+                fn($hasError) => $hasError ? self::STATUS_ERROR : self::STATUS_OK,
                 $importServiceUploaded->getRowHasError($numberRangeImport)
             );
 
