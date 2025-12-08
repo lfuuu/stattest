@@ -1270,6 +1270,8 @@ class ClientController extends ApiInternalController
      */
     public function actionFindContragentByNumberForBdpn($number)
     {
+        $origNumber = $number;
+        $number = '79311110000';
         /** @var AccountTariff $accountTariff */
         $accountTariff = AccountTariff::find()->where(['voip_number' => $number])->orderBy(['id' => SORT_DESC])->one();
         if (!$accountTariff) {
@@ -1296,7 +1298,7 @@ class ClientController extends ApiInternalController
                         ]
                     ],
                     "Numbers" => [
-                        substr((string)$number, 1)
+                        substr((string)$origNumber, 1)
                     ]
                 ]
             ];
