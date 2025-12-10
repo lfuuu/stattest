@@ -20,7 +20,7 @@ $organization = $document->organization;
 /** @var \app\models\Bill $b */
 
 $b = $document->bill;
-
+$organizationOrig = $organization;
 // Для ОТТ и Межоператорки - с 1 ноября - оставляем реквизиты банка по старому
 $isNewPayAcc = true;
 if (
@@ -29,6 +29,12 @@ if (
 ) {
     $organization = $b->clientAccount->getOrganization('2025-10-31')->setLanguage($document->getLanguage());
     $isNewPayAcc = false;
+}
+
+// но если поменялась компания - то показывается её
+if ($organizationOrig->organization_id != $organization->organization_id) {
+    $organization = $organizationOrig;
+    $isNewPayAcc = true;
 }
 
 $director = $organization->director;
