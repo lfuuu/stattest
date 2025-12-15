@@ -151,20 +151,22 @@ $useCache = !$clear;
 $cachedRecords = [];
 $recordsCoverage = 'full';
 $hasCachedRecords = false;
+$skipPreview = false;
 
 if ($useCache) {
     if ($cachedData = $countryFile->getCachedPreviewData()) {
         $cachedData = json_decode($cachedData, true);
-        $checkFull = $checkFull && empty($cachedData['checked']);
-        if (!$checkFull) {
-            $isFileOK = $cachedData['isFileOK'];
-            $errorLines = $cachedData['errorLines'];
-            $warningLines = $cachedData['warningLines'];
-
-            $cachedRecords = $cachedData['records'];
-            $recordsCoverage = $cachedData['recordsCoverage'] ?? 'full';
-            $hasCachedRecords = !empty($cachedRecords);
+        if (!empty($cachedData['checked'])) {
+            $checkFull = true;
         }
+
+        $isFileOK = $cachedData['isFileOK'];
+        $errorLines = $cachedData['errorLines'];
+        $warningLines = $cachedData['warningLines'];
+
+        $cachedRecords = $cachedData['records'];
+        $recordsCoverage = $cachedData['recordsCoverage'] ?? 'full';
+        $hasCachedRecords = !empty($cachedRecords);
     }
 } else {
     $countryFile->removeCachedPreviewData();
@@ -172,16 +174,17 @@ if ($useCache) {
 
 // Если очередь завершилась успешно и в кэше нет строк (сохранялись только проблемные записи),
 // нет смысла прогружать весь файл ради предпросмотра — сразу показываем успешный результат.
+$hasErrors = !empty($errorLines) || !empty($warningLines);
+
 if (
     $previewEvent &&
     $previewEvent->status === EventQueue::STATUS_OK &&
     $useCache &&
+    !$hasErrors &&
     !$hasCachedRecords &&
     $recordsCoverage !== 'full'
 ) {
-    echo Html::tag('div', 'Проверка файла завершена. Ошибок и предупреждений нет.', ['class' => 'alert alert-success']);
-    ActiveForm::end();
-    return;
+    $skipPreview = true;
 }
 ?>
 
@@ -215,6 +218,7 @@ if (
 
 <?php ob_start() ?>
 
+    <?php if (!$skipPreview): ?>
     <table class="table">
 
         <?= $this->render('_step3_th') ?>
@@ -374,6 +378,9 @@ if (
         ?>
 
     </table>
+    <?php else: ?>
+        <?= Html::tag('div', 'Проверка файла завершена. Ошибок и предупреждений нет.', ['class' => 'alert alert-success']) ?>
+    <?php endif; ?>
 
 <?php
 fclose($handle);
