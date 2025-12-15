@@ -6,11 +6,15 @@
  * @var CountryFile $countryFile
  * @var bool $clear
  * @var bool $checkFull
+ * @var bool $runCheck
+ * @var bool $isSmall
  * @var int $offset
  * @var int $limit
  * @var Form $formModel
+ * @var app\models\EventQueue|null $previewEvent
  */
 
+use app\models\EventQueue;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp2\forms\import\Form;
@@ -24,6 +28,17 @@ use yii\widgets\Breadcrumbs;
 $country = $countryFile->country;
 
 $form = ActiveForm::begin();
+$baseStep3Params = [
+    'countryCode' => $country->code,
+    'fileId' => $countryFile->id,
+    'runCheck' => 1,
+];
+$startQueueParams = [
+    'countryCode' => $country->code,
+    'fileId' => $countryFile->id,
+    'startQueue' => 1,
+];
+$progressData = $previewEvent ? ImportPreviewHelper::getProgressData($previewEvent) : [0, 0, 'info', 0, '', ''];
 ?>
 
 <?= Breadcrumbs::widget([
@@ -41,6 +56,72 @@ $form = ActiveForm::begin();
     'glyphicon' => 'glyphicon-step-backward',
     'class' => 'btn-default',
 ]) ?>
+
+<?php if ($previewEvent && $previewEvent->status !== EventQueue::STATUS_OK): ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <?php if (!$progressData[4] && $progressData[2] !== 'success'): ?>
+                <script>
+                    setTimeout(function () {
+                        window.location.reload(false);
+                    }, 4000);
+                </script>
+            <?php endif; ?>
+
+            <b><?= $progressData[3] ?>%</b> (<?= $progressData[1] ?> из <?= $progressData[0] ?>)<br>
+            <?php if ($progressData[5]): ?>
+                <small class="text-muted"><?= Html::encode($progressData[5]) ?></small><br>
+            <?php endif; ?>
+
+            <?php if ($progressData[4]): ?>
+                <div class="alert alert-danger"><?= Html::encode($progressData[4]) ?></div>
+                <?= $this->render('//layouts/_link', [
+                    'url' => Url::to(array_merge(['/nnp/import/step3'], $startQueueParams)),
+                    'text' => 'Запустить проверку повторно',
+                    'glyphicon' => 'glyphicon-refresh',
+                    'params' => ['class' => 'btn btn-warning'],
+                ]) ?>
+            <?php else: ?>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-<?= $progressData[2] ?> progress-bar-striped" role="progressbar" aria-valuenow="<?= $progressData[3] ?>"
+                        aria-valuemin="0" aria-valuemax="100" style="width:<?= $progressData[3] ?>%">
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php
+    ActiveForm::end();
+    return;
+endif; ?>
+
+<?php if (!$runCheck): ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <?= Html::tag('div', 'Проверка файла готовится. Дождитесь завершения очереди или запустите повторно.', ['class' => 'alert alert-info']) ?>
+            <?= $this->render('//layouts/_link', [
+                'url' => Url::to(array_merge(['/nnp/import/step3'], $startQueueParams)),
+                'text' => 'Запустить проверку файла',
+                'glyphicon' => 'glyphicon-play',
+                'params' => ['class' => 'btn btn-primary'],
+            ]) ?>
+        </div>
+    </div>
+<?php
+    ActiveForm::end();
+    return;
+endif; ?>
+
+<div class="row">
+    <div class="col-sm-12">
+        <?php
+        $checkMessage = $previewEvent && $previewEvent->status === EventQueue::STATUS_OK
+            ? 'Проверка файла завершена очередью.'
+            : 'Проверка файла запущена' . ($checkFull ? ' полностью.' : sprintf(' для строк %d–%d.', $offset + 1, $offset + $limit));
+        ?>
+        <?= Html::tag('div', $checkMessage, ['class' => 'alert alert-success']) ?>
+    </div>
+</div>
 
 <?php
 $filePath = $country->getMediaManager()->getUnzippedFilePath($countryFile);
@@ -61,26 +142,46 @@ $errorLines = [];
 $warningLines = [];
 $alreadyRead = [];
 $rangesByPrefix = [];
+$segmentsMeta = [];
 
 $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 $isButtonShown = false;
 
 $useCache = !$clear;
 $cachedRecords = [];
+$recordsCoverage = 'full';
+$hasCachedRecords = false;
+
 if ($useCache) {
     if ($cachedData = $countryFile->getCachedPreviewData()) {
         $cachedData = json_decode($cachedData, true);
-        $checkFull = $checkFull && empty($cachedRecords['checked']);
+        $checkFull = $checkFull && empty($cachedData['checked']);
         if (!$checkFull) {
             $isFileOK = $cachedData['isFileOK'];
             $errorLines = $cachedData['errorLines'];
             $warningLines = $cachedData['warningLines'];
 
             $cachedRecords = $cachedData['records'];
+            $recordsCoverage = $cachedData['recordsCoverage'] ?? 'full';
+            $hasCachedRecords = !empty($cachedRecords);
         }
     }
 } else {
     $countryFile->removeCachedPreviewData();
+}
+
+// Если очередь завершилась успешно и в кэше нет строк (сохранялись только проблемные записи),
+// нет смысла прогружать весь файл ради предпросмотра — сразу показываем успешный результат.
+if (
+    $previewEvent &&
+    $previewEvent->status === EventQueue::STATUS_OK &&
+    $useCache &&
+    !$hasCachedRecords &&
+    $recordsCoverage !== 'full'
+) {
+    echo Html::tag('div', 'Проверка файла завершена. Ошибок и предупреждений нет.', ['class' => 'alert alert-success']);
+    ActiveForm::end();
+    return;
 }
 ?>
 
@@ -91,12 +192,7 @@ if ($useCache) {
     echo 'Превью файла прочитано из кэша. ' .
         Html::a(
             'сбросить кэш',
-            Url::to([
-                '/nnp/import/step3',
-                'countryCode' => $country->code,
-                'fileId' => $countryFile->id,
-                'clear' => 1,
-            ])
+            Url::to(array_merge(['/nnp/import/step3'], $baseStep3Params, ['clear' => 1]))
         );
 ?>
     </div>
@@ -110,12 +206,7 @@ if ($useCache) {
     echo 'Проверка файла произведена лишь частично. ' .
         Html::a(
             'проверить полностью',
-            Url::to([
-                '/nnp/import/step3',
-                'countryCode' => $country->code,
-                'fileId' => $countryFile->id,
-                'check' => 1,
-            ])
+            Url::to(array_merge(['/nnp/import/step3'], $baseStep3Params, ['check' => 1]))
         );
 ?>
     </div>
@@ -134,25 +225,12 @@ if ($useCache) {
         // ############################################
         $records = [];
         $headerChecked = false;
+        $useCachedRecords = $recordsCoverage !== 'full' || $hasCachedRecords;
 
-        while (($row = fgetcsv($handle, $rowLength = 4096, $delimiter)) !== false) : ?>
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) : ?>
 
             <?php
             $rowNumber++;
-
-            if ($cachedRecords) {
-                $rowStatus = $cachedRecords[$rowNumber][0];
-                $oldLine = $cachedRecords[$rowNumber][1];
-            } else {
-                if (
-                    !$checkFull &&
-                    (
-                        ($rowNumber < $offset) ||
-                        ($rowNumber > $offset + $limit)
-                    )
-                ) {
-                    continue;
-                }
 
             if ($rowNumber == 1 && !is_numeric($row[0])) {
                 if (!$headerChecked) {
@@ -173,7 +251,33 @@ if ($useCache) {
                 continue;
             }
 
-                list($rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix) = ImportPreviewHelper::checkRow($rowNumber, $row, $importServiceUploaded, $errorLines, $warningLines, $alreadyRead, $rangesByPrefix, $country->code, $countryFile->id, $isFileOK);
+            if ($useCachedRecords) {
+                $rowStatus = $cachedRecords[$rowNumber][0] ?? array_fill(0, count($expectedHeader), ImportPreviewHelper::STATUS_OK);
+                $oldLine = $cachedRecords[$rowNumber][1] ?? null;
+            } else {
+                if (
+                    !$checkFull &&
+                    (
+                        ($rowNumber < $offset) ||
+                        ($rowNumber > $offset + $limit)
+                    )
+                ) {
+                    continue;
+                }
+
+                [$rowStatus, $oldLine] = ImportPreviewHelper::checkRow(
+                    $rowNumber,
+                    $row,
+                    $importServiceUploaded,
+                    $errorLines,
+                    $warningLines,
+                    $alreadyRead,
+                    $rangesByPrefix,
+                    $segmentsMeta,
+                    $country->code,
+                    $countryFile->id,
+                    $isFileOK
+                );
                 $records[$rowNumber] = [
                     $rowStatus,
                     $oldLine,
@@ -189,7 +293,7 @@ if ($useCache) {
                     <tr>
                         <td colspan="12">
                             <?= $this->render('//layouts/_buttonLink', [
-                                'url' => Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'offset' => $newOffset, 'limit' => $limit]),
+                                'url' => Url::to(array_merge(['/nnp/import/step3'], $baseStep3Params, ['offset' => $newOffset, 'limit' => $limit])),
                                 'text' => sprintf('Проверить предыдущие строки (%d - %d)', $newOffset + 1, $newOffset + $limit),
                                 'glyphicon' => 'glyphicon-menu-up',
                                 'class' => 'btn-default btn-xs',
@@ -208,7 +312,7 @@ if ($useCache) {
                     <tr>
                         <td colspan="12">
                             <?= $this->render('//layouts/_buttonLink', [
-                                'url' => Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'offset' => $newOffset, 'limit' => $limit]),
+                                'url' => Url::to(array_merge(['/nnp/import/step3'], $baseStep3Params, ['offset' => $newOffset, 'limit' => $limit])),
                                 'text' => sprintf('Проверить следующие строки (%d - %d)', $newOffset + 1, $newOffset + $limit),
                                 'glyphicon' => 'glyphicon-menu-down',
                                 'class' => 'btn-default btn-xs',
@@ -263,6 +367,7 @@ if ($useCache) {
                     'errorLines' => $errorLines,
                     'warningLines' => $warningLines,
                     'checked' => $checkFull,
+                    'recordsCoverage' => $checkFull ? 'full' : 'partial',
                 ];
                 $countryFile->setCachedPreviewData(json_encode($data));
             }
@@ -282,16 +387,15 @@ if ($isFileOK) {
             echo Html::tag(
                 'li',
                 //'Строка ' . $line,
-                Html::a(
-                    'Строка ' . $line,
-                    Url::to([
-                        '/nnp/import/step3',
-                        'countryCode' => $country->code,
-                        'fileId' => $countryFile->id,
-                        'offset' => $line,
-                        'limit' => $limit,
-                    ])
-                ) . ': ' . $text,
+                    Html::a(
+                        'Строка ' . $line,
+                        Url::to(array_merge([
+                            '/nnp/import/step3',
+                        ], $baseStep3Params, [
+                            'offset' => $line,
+                            'limit' => $limit,
+                        ]))
+                    ) . ': ' . $text,
                 ['class' => 'alert alert-warning']
             );
         }
@@ -335,11 +439,30 @@ if ($isFileOK) {
         $params['onClick'] = 'return confirm("Файл не проверен полностью.\nВозможны ошибки при импорте!\nПродолжить?")';
     }
     echo $this->render('//layouts/_link', [
-            'url' => Url::to(['/nnp/import/step4', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'version' => $formModel->version]),
-            'text' => $buttonText,
-            'glyphicon' => 'glyphicon-fast-forward',
-            'params' => $params,
+        'url' => Url::to(['/nnp/import/step4', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'version' => $formModel->version]),
+        'text' => $buttonText,
+        'glyphicon' => 'glyphicon-fast-forward',
+        'params' => $params,
+    ]);
+
+    if ($isSmall) {
+        echo '&nbsp;';
+        echo $this->render('//layouts/_link', [
+            'url' => Url::to([
+                '/nnp/import/step4',
+                'countryCode' => $country->code,
+                'fileId' => $countryFile->id,
+                'version' => $formModel->version,
+                'queue' => 1,
+            ]),
+            'text' => 'Поставить импорт в очередь',
+            'glyphicon' => 'glyphicon-time',
+            'params' => [
+                'class' => 'btn btn-info',
+                'id' => 'btnQueueImport',
+            ],
         ]);
+    }
 //    }
 } else {
     echo Html::tag('div', 'Импорт невозможен, потому что файл содержит ошибки (' . count($errorLines) . '). Исправьте ошибки в файле и загрузите его заново.', ['class' => 'alert alert-danger']);
@@ -350,13 +473,12 @@ if ($isFileOK) {
                 'li',
                 Html::a(
                     'Строка ' . $line,
-                    Url::to([
+                    Url::to(array_merge([
                         '/nnp/import/step3',
-                        'countryCode' => $country->code,
-                        'fileId' => $countryFile->id,
+                    ], $baseStep3Params, [
                         'offset' => $line,
                         'limit' => $limit,
-                    ]) . '#line' . $oldLine
+                    ])) . '#line' . $oldLine
                 ) . ': ' . nl2br($text),
                 ['class' => 'alert alert-danger']
             );

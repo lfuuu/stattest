@@ -148,6 +148,7 @@ class ImportController extends BaseController
             }
 
             Yii::$app->session->addFlash('success', 'Файл успешно загружен');
+            EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id]);
             return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id]));
         }
 
@@ -185,6 +186,18 @@ class ImportController extends BaseController
     }
 
     /**
+     * Получить очередь предпросмотра файла.
+     */
+    private function getPreviewEvent(CountryFile $countryFile): ?EventQueue
+    {
+        return EventQueue::find()
+            ->where(['event' => Module::EVENT_IMPORT_PREVIEW])
+            ->andWhere(['like', 'param', sprintf('"fileId":%d', $countryFile->id)])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+    }
+
+    /**
      * Шаг 3. Предпросмотр файла
      *
      * @param int $countryCode
@@ -210,21 +223,39 @@ class ImportController extends BaseController
         }
 
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
+        $previewEvent = $this->getPreviewEvent($countryFile);
 
+        if (Yii::$app->request->get('startQueue')) {
+            EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id], true);
+
+            return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryCode, 'fileId' => $fileId]));
+        }
+
+        $runCheck = boolval(Yii::$app->request->get('runCheck'));
         $checkFull = boolval(Yii::$app->request->get('check'));
+        $country = $countryFile->country;
+        $mediaManager = $country->getMediaManager();
+        $isSmall = $mediaManager->isSmall($countryFile);
+
         if (!$checkFull) {
-            $country = $countryFile->country;
-            $mediaManager = $country->getMediaManager();
-            $checkFull = $mediaManager->isSmall($countryFile);
+            $checkFull = $isSmall;
+        }
+
+        if ($previewEvent && $previewEvent->status === EventQueue::STATUS_OK) {
+            $runCheck = true;
+            $checkFull = true;
         }
 
         return $this->render('step3', [
             'countryFile' => $countryFile,
             'clear' => boolval(Yii::$app->request->get('clear')),
             'checkFull' => $checkFull,
+            'runCheck' => $runCheck,
+            'isSmall' => $isSmall,
             'offset' => $offset,
             'limit' => $limit,
             'formModel' => $formModel,
+            'previewEvent' => $previewEvent,
         ]);
     }
 
@@ -283,12 +314,13 @@ class ImportController extends BaseController
      * @param int $countryCode
      * @param int $fileId
      * @param int|null $version
+     * @param int|null $queue
      * @return string
      * @throws \app\exceptions\ModelValidationException
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
-    public function actionStep4($countryCode, $fileId, $version = null)
+    public function actionStep4($countryCode, $fileId, $version = null, $queue = null)
     {
         try {
             /** @var Form $form */
@@ -315,7 +347,10 @@ class ImportController extends BaseController
 
         $country = $countryFile->country;
         $mediaManager = $country->getMediaManager();
-        if ($mediaManager->isSmall($countryFile)) {
+        $isSmall = $mediaManager->isSmall($countryFile);
+        $forceQueue = boolval($queue);
+
+        if (!$forceQueue && $isSmall) {
             // файл маленький - загрузить сразу
 
             // import version 1
