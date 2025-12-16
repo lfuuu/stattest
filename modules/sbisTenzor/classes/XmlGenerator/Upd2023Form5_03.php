@@ -5,7 +5,7 @@ namespace app\modules\sbisTenzor\classes\XmlGenerator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Invoice;
 
-class Upd2025Form5_03 extends Invoice2016Form5_02
+class Upd2023Form5_03 extends Invoice2016Form5_02
 {
     const KND_CODE = 1115131;
 
