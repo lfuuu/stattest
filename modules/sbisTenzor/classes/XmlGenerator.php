@@ -6,6 +6,7 @@ use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Invoice;
 use app\models\Organization;
+use app\modules\sbisTenzor\classes\XmlGenerator\Upd2025Form5_03;
 use app\modules\sbisTenzor\helpers\SBISDataProvider;
 use app\modules\sbisTenzor\helpers\SBISInfo;
 use app\modules\sbisTenzor\models\SBISExchangeForm;
@@ -27,6 +28,7 @@ abstract class XmlGenerator// extends SBISExchangeForm
         SBISExchangeForm::INVOICE_2016_5_02 => Invoice2016Form5_02::class,
         SBISExchangeForm::INVOICE_2019_5_01 => Invoice2019Form5_01::class,
         SBISExchangeForm::INVOICE_2025_5_03 => Invoice2025Form5_03::class,
+        SBISExchangeForm::UPD_2023_5_03 => Upd2025Form5_03::class,
     ];
 
     protected static $xsdFilePathParts = [

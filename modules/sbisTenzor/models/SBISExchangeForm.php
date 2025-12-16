@@ -26,6 +26,7 @@ class SBISExchangeForm extends ActiveRecord
     const INVOICE_2016_5_02 = 2;
     const INVOICE_2019_5_01 = 3;
     const INVOICE_2025_5_03 = 4;
+    const UPD_2023_5_03 = 5;
 
     /**
      * @inheritdoc
