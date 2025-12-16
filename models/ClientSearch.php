@@ -199,6 +199,7 @@ class ClientSearch extends ClientAccount
                             ])
                     );
                 $query->innerJoin(['a' => $queryNumbers], 'a.client_id = client.id');
+                $query->orderBy(['a.actual_from' => SORT_DESC]);
             } else {
                 $query->leftJoin(['base_voip' => UsageVoip::tableName()], 'base_voip.client = client.client');
                 $query->leftJoin(['uu_voip' => AccountTariff::tableName()], 'uu_voip.client_account_id = client.id');
