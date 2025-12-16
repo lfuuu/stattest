@@ -36,7 +36,7 @@ class SBISInfo
             case SBISOrganization::ID_VOICE_CONNECT:
             case SBISOrganization::ID_AB_SERVICE_MARCOMNET:
                 $groupIds1 = [
-//                    SBISExchangeGroup::ACT_AND_INVOICE_2019,
+                    SBISExchangeGroup::UPD_2023,
                     SBISExchangeGroup::ACT_AND_INVOICE_2025,
                     SBISExchangeGroup::ACT,
                 ];
@@ -57,7 +57,7 @@ class SBISInfo
                 $groupIds2 = [
                     SBISExchangeGroup::ACT,
                     SBISExchangeGroup::ACT_AND_INVOICE_2016,
-//                    SBISExchangeGroup::ACT_AND_INVOICE_2019,
+                    SBISExchangeGroup::UPD_2023,
                     SBISExchangeGroup::ACT_AND_INVOICE_2025,
                 ];
                 break;
