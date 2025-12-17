@@ -324,7 +324,8 @@ class MailJob {
 
 
             if ($this->countryId == \app\models\Country::RUSSIA) {
-                [$b_akt, $b_sf, $b_upd] = m_newaccounts::get_bill_docs_static($bill->bill_no);
+                /* @TODO upd2 */
+                [$b_akt, $b_sf, $b_upd, $b_upd2] = m_newaccounts::get_bill_docs_static($bill->bill_no);
             } else {
                 $b_akt = $b_sf = $b_upd = [null, false, false];
                 $b_sf[1] = true;
