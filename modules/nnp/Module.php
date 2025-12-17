@@ -46,8 +46,6 @@ class Module extends \yii\base\Module
     const EVENT_EXAMPLES = 'nnp_examples';
     const EVENT_IMPORT = 'nnp_import';
     const EVENT_IMPORT_PREVIEW = 'nnp_import_preview';
-    // Совместимость с существующими вызовами, ожидающими EVENT_PREVIEW.
-    const EVENT_PREVIEW = self::EVENT_IMPORT_PREVIEW;
     const EVENT_FILTER_TO_PREFIX = 'nnp_filter_to_prefix';
 
     /**

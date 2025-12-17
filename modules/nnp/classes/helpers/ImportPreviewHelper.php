@@ -5,6 +5,7 @@ namespace app\modules\nnp\classes\helpers;
 use app\models\EventQueue;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\media\ImportServiceUploaded;
+use app\helpers\DateTimeZoneHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\modules\nnp\classes\helpers\RangesTreeHelper;
@@ -16,15 +17,7 @@ class ImportPreviewHelper
     public const STATUS_WARNING = 2;
 
     private const PROGRESS_TEMPLATE = "Count all: %d\ncount: %d";
-
-    /**
-     * Добавляет строку в log_error для отладки фоновой проверки.
-     */
-    private static function appendDebugLog(EventQueue $eventQueue, string $message): void
-    {
-        $eventQueue->log_error = trim($eventQueue->log_error . PHP_EOL . sprintf('[%s] %s', date('Y-m-d H:i:s'), $message));
-        $eventQueue->save(false, ['log_error']);
-    }
+    private const PROGRESS_ROW_STEP = 2000;
 
     /**
      * Обновляет счётчик прогресса, сохраняя уже записанные отладочные строки.
@@ -101,39 +94,13 @@ class ImportPreviewHelper
             throw new \RuntimeException(sprintf('Ошибка чтения файла %s: %s', $filePath, json_encode(error_get_last())));
         }
 
-        $startTime  = microtime(true);
-        $lastHeartbeatRow = 0;
-        $lastHeartbeatTime = $startTime;
         $delimiter  = self::detectDelimiter($handle);
         $fileSize   = filesize($filePath) ?: 0;
         if ($fileSize > 0) {
             self::updateProgress($eventQueue, $fileSize, 0);
         }
-        $debugEnabled = filter_var(getenv('NNP_DEBUG_LOGS') ?: '0', FILTER_VALIDATE_BOOL);
-        $profilingEnabled = filter_var(getenv('NNP_DEBUG_PROFILING') ?: '0', FILTER_VALIDATE_BOOL) || $debugEnabled;
-        $saveAllRecords = filter_var(getenv('NNP_SAVE_ALL_RECORDS') ?: '0', FILTER_VALIDATE_BOOL);
-        $recordsCoverage = $saveAllRecords ? 'full' : 'errors_only';
 
-        $profiling = $profilingEnabled
-            ? [
-                'rows' => 0,
-                'row_time' => 0.0,
-                'row_time_max' => 0.0,
-                'row_time_line' => null,
-                'row_time_cc' => null,
-                'row_time_ndc' => null,
-            ]
-            : null;
-
-        $debugLogger = $debugEnabled
-            ? function (string $message) use ($eventQueue): void {
-                self::appendDebugLog($eventQueue, $message);
-            }
-            : null;
-
-        if ($debugLogger) {
-            $debugLogger(sprintf('started: file=%s, delimiter="%s"', $filePath, $delimiter));
-        }
+        $recordsCoverage = 'errors_only';
 
         $rowNumber = 0;
         $linesCount = 0;
@@ -146,92 +113,39 @@ class ImportPreviewHelper
         $records = [];
         $headerChecked = false;
         $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $countryFile->country->code]);
-        try {
-            while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-                $rowNumber++;
-                $rowStartedAt = microtime(true);
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+            $rowNumber++;
 
-                if ($rowNumber === 1 && !is_numeric($row[0])) {
-                    if (!$headerChecked) {
-                        $headerChecked = true;
-                        $headerResult  = self::validateHeaderRow($row);
-
-                        if (!empty($headerResult['errors'])) {
-                            $isFileOK               = false;
-                            $errorLines[$rowNumber] = implode(PHP_EOL, $headerResult['errors']);
-                        }
-                        if (!empty($headerResult['warnings'])) {
-                            $warningLines[$rowNumber] =
-                                (isset($warningLines[$rowNumber]) && $warningLines[$rowNumber] !== '' ? $warningLines[$rowNumber] . PHP_EOL : '') .
-                                implode(PHP_EOL, $headerResult['warnings']);
-                        }
-                    }
-                    continue;
-                }
-
-                [$rowStatus, $oldLine] = self::checkRow(
-                    $rowNumber,
-                    $row,
-                    $importServiceUploaded,
-                    $errorLines,
-                    $warningLines,
-                    $alreadyRead,
-                    $rangesByPrefix,
-                    $segmentsMeta,
-                    $countryFile->country->code,
-                    $countryFile->id,
-                    $isFileOK,
-                    $debugLogger,
-                    $rowStartedAt,
-                    $profiling
-                );
-
-                $needsRecord = $saveAllRecords || $oldLine !== null || self::hasNonOkStatus($rowStatus);
-
-                if ($needsRecord) {
-                    $records[$rowNumber] = [
-                        $rowStatus,
-                        $oldLine,
-                    ];
-                }
-
-                if ($fileSize > 0 && $rowNumber % 2000 === 0) {
-                    self::updateProgress($eventQueue, $fileSize, ftell($handle));
-                }
-
-                if ($debugLogger && is_array($profiling) && $rowNumber % 5000 === 0) {
-                    $avgRow = $profiling['rows'] > 0 ? $profiling['row_time'] / $profiling['rows'] : 0.0;
-                    $deltaRows = $rowNumber - $lastHeartbeatRow;
-                    $deltaTime = microtime(true) - $lastHeartbeatTime;
-                    $recentRate = $deltaTime > 0 ? $deltaRows / $deltaTime : 0.0;
-                    $debugLogger(sprintf(
-                        'heartbeat: row=%d, mem=%.2f MB, elapsed=%.1fs, avgRow=%.5fs, maxRow=%.5fs(line %s %s/%s) recentRate=%.1f rows/s over last %.1fs',
-                        $rowNumber,
-                        memory_get_usage(true) / 1024 / 1024,
-                        microtime(true) - $startTime,
-                        $avgRow,
-                        $profiling['row_time_max'],
-                        $profiling['row_time_line'] ?? 'n/a',
-                        $profiling['row_time_cc'] ?? 'n/a',
-                        $profiling['row_time_ndc'] ?? 'n/a',
-                        $recentRate,
-                        $deltaTime
-                    ));
-                    $lastHeartbeatRow = $rowNumber;
-                    $lastHeartbeatTime = microtime(true);
-                }
+            if (self::handleHeaderRow($rowNumber, $row, $headerChecked, $errorLines, $warningLines, $isFileOK)) {
+                continue;
             }
-        } catch (\Throwable $e) {
-            if ($debugLogger) {
-                $debugLogger(sprintf(
-                    'exception on row %d: %s at %s:%d',
-                    $rowNumber,
-                    $e->getMessage(),
-                    $e->getFile(),
-                    $e->getLine()
-                ));
+
+            [$rowStatus, $oldLine] = self::checkRow(
+                $rowNumber,
+                $row,
+                $importServiceUploaded,
+                $errorLines,
+                $warningLines,
+                $alreadyRead,
+                $rangesByPrefix,
+                $segmentsMeta,
+                $countryFile->country->code,
+                $countryFile->id,
+                $isFileOK
+            );
+
+            $needsRecord = $oldLine !== null || self::hasNonOkStatus($rowStatus);
+
+            if ($needsRecord) {
+                $records[$rowNumber] = [
+                    $rowStatus,
+                    $oldLine,
+                ];
             }
-            throw $e;
+
+            if ($fileSize > 0 && $rowNumber % self::PROGRESS_ROW_STEP === 0) {
+                self::updateProgress($eventQueue, $fileSize, ftell($handle));
+            }
         }
 
         $linesCount = $rowNumber;
@@ -242,29 +156,12 @@ class ImportPreviewHelper
             $records,
             $errorLines,
             $isFileOK,
-            $debugLogger,
             $eventQueue,
             $linesCount
         );
 
         // Финальный прогресс фиксируем даже если total не кратен 100.
         self::updateProgress($eventQueue, $progressTotal, $progressTotal);
-
-        if ($debugLogger && is_array($profiling)) {
-            $avgRow = $profiling['rows'] > 0 ? $profiling['row_time'] / $profiling['rows'] : 0.0;
-
-            $debugLogger(sprintf(
-                'completed: rows=%d, mem=%.2f MB, elapsed=%.1fs, avgRow=%.5fs, maxRow=%.5fs(line %s %s/%s)',
-                $rowNumber,
-                memory_get_usage(true) / 1024 / 1024,
-                microtime(true) - $startTime,
-                $avgRow,
-                $profiling['row_time_max'],
-                $profiling['row_time_line'] ?? 'n/a',
-                $profiling['row_time_cc'] ?? 'n/a',
-                $profiling['row_time_ndc'] ?? 'n/a'
-            ));
-        }
 
         $data = [
             'isFileOK' => $isFileOK,
@@ -280,6 +177,34 @@ class ImportPreviewHelper
         fclose($handle);
     }
 
+    private static function handleHeaderRow(
+        int $rowNumber,
+        array $row,
+        bool &$headerChecked,
+        array &$errorLines,
+        array &$warningLines,
+        bool &$isFileOK
+    ): bool {
+        if ($headerChecked || $rowNumber !== 1 || ctype_digit((string)$row[0])) {
+            return false;
+        }
+
+        $headerChecked = true;
+        $headerResult  = self::validateHeaderRow($row);
+
+        if (!empty($headerResult['errors'])) {
+            $isFileOK               = false;
+            $errorLines[$rowNumber] = implode(PHP_EOL, $headerResult['errors']);
+        }
+        if (!empty($headerResult['warnings'])) {
+            $warningLines[$rowNumber] =
+                (isset($warningLines[$rowNumber]) && $warningLines[$rowNumber] !== '' ? $warningLines[$rowNumber] . PHP_EOL : '') .
+                implode(PHP_EOL, $headerResult['warnings']);
+        }
+
+        return true;
+    }
+
     /**
      * Финальная проверка пересечений после полного чтения файла.
      */
@@ -289,7 +214,6 @@ class ImportPreviewHelper
         array &$records,
         array &$errorLines,
         bool &$isFileOK,
-        ?callable $debugLogger,
         EventQueue $eventQueue,
         int $linesCount
     ): int {
@@ -370,10 +294,6 @@ class ImportPreviewHelper
 
         if ($segmentsTotal > 0 && $processedSegments < $segmentsTotal) {
             self::updateProgress($eventQueue, $progressTotal, $linesCount + $processedSegments);
-        }
-
-        if ($debugLogger && $overlapCount > 0) {
-            $debugLogger(sprintf('overlap scan completed: total overlaps=%d', $overlapCount));
         }
 
         return $progressTotal;
@@ -489,29 +409,9 @@ class ImportPreviewHelper
 
         return sprintf(
             'Оценка завершения: ≈%s (до %s)',
-            self::formatDuration($remainingSeconds),
+            DateTimeZoneHelper::formatDurationHuman($remainingSeconds),
             date('H:i', $etaTime)
         );
-    }
-
-    private static function formatDuration(int $seconds): string
-    {
-        $hours = intdiv($seconds, 3600);
-        $minutes = intdiv($seconds % 3600, 60);
-        $secs = $seconds % 60;
-
-        $parts = [];
-        if ($hours > 0) {
-            $parts[] = $hours . ' ч';
-        }
-        if ($minutes > 0) {
-            $parts[] = $minutes . ' мин';
-        }
-        if (!$hours && !$minutes) {
-            $parts[] = max(1, $secs) . ' с';
-        }
-
-        return implode(' ', $parts);
     }
 
     /**
@@ -565,13 +465,8 @@ class ImportPreviewHelper
         array &$segmentsMeta,
         $countryCode,
         int $countryFileId,
-        bool &$isFileOK,
-        ?callable $debugLogger = null,
-        ?float $rowStartedAt = null,
-        ?array &$profiling = null
+        bool &$isFileOK
     ): array {
-        $rowStartedAt = $rowStartedAt ?? microtime(true);
-        $profiling = $profiling ?? null;
         $oldLine   = null;
         $rowStatus = [];
 
@@ -602,11 +497,16 @@ class ImportPreviewHelper
         // --- Количество столбцов ---
         $cols = count($row);
         if ($cols !== $expectedCols) {
-            $errorLines[$lineNumber] = sprintf(
+            $columnsError = sprintf(
                 'Количество столбцов в строке должно быть %d, сейчас %d.',
                 $expectedCols,
                 $cols
             );
+
+            // Логируем несоответствие колонок только один раз на весь файл
+            if (!in_array($columnsError, $errorLines, true)) {
+                $errorLines[$lineNumber] = $columnsError;
+            }
             foreach ($row as $idx => $_) {
                 $rowStatus[$idx] = self::STATUS_ERROR;
             }
@@ -779,17 +679,6 @@ class ImportPreviewHelper
 
             $alreadyRead[$key] = $lineNumber;
 
-        }
-
-        if (is_array($profiling)) {
-            $profiling['rows']++;
-            $profiling['row_time'] += microtime(true) - $rowStartedAt;
-            if (($profiling['row_time_max'] ?? 0) < ($profiling['row_time_last'] = microtime(true) - $rowStartedAt)) {
-                $profiling['row_time_max'] = $profiling['row_time_last'];
-                $profiling['row_time_line'] = $lineNumber;
-                $profiling['row_time_cc'] = $ccKey ?? null;
-                $profiling['row_time_ndc'] = $ndc ?? null;
-            }
         }
 
         return [$rowStatus, $oldLine];

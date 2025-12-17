@@ -15,6 +15,7 @@ use app\modules\nnp\Module;
 use app\modules\nnp2\media\ImportServiceUploadedNew;
 use app\modules\nnp2\models\ImportHistory;
 use Yii;
+use yii\db\Expression;
 use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
@@ -148,7 +149,8 @@ class ImportController extends BaseController
             }
 
             Yii::$app->session->addFlash('success', 'Файл успешно загружен');
-            EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id]);
+            $previewEvent = EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id]);
+            $countryFile->rememberPreviewEventId($previewEvent->id);
             return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id]));
         }
 
@@ -190,11 +192,25 @@ class ImportController extends BaseController
      */
     private function getPreviewEvent(CountryFile $countryFile): ?EventQueue
     {
-        return EventQueue::find()
+        $eventId = $countryFile->getCachedPreviewEventId();
+        if ($eventId) {
+            return EventQueue::findOne($eventId);
+        }
+
+        $event = EventQueue::find()
             ->where(['event' => Module::EVENT_IMPORT_PREVIEW])
-            ->andWhere(['like', 'param', sprintf('"fileId":%d', $countryFile->id)])
+            ->andWhere(new Expression(
+                "JSON_UNQUOTE(JSON_EXTRACT(param, '$.fileId')) = :fileId",
+                [':fileId' => (string)$countryFile->id]
+            ))
             ->orderBy(['id' => SORT_DESC])
             ->one();
+
+        if ($event) {
+            $countryFile->rememberPreviewEventId($event->id);
+        }
+
+        return $event;
     }
 
     /**
@@ -226,7 +242,8 @@ class ImportController extends BaseController
         $previewEvent = $this->getPreviewEvent($countryFile);
 
         if (Yii::$app->request->get('startQueue')) {
-            EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id], true);
+            $previewEvent = EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id], true);
+            $countryFile->rememberPreviewEventId($previewEvent->id);
 
             return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryCode, 'fileId' => $fileId]));
         }
