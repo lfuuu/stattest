@@ -46,6 +46,7 @@ class InvoiceLight extends Component
     const TYPE_PROFORMA_INVOICE = 4;
     const TYPE_ACT = 5;
     const TYPE_CURRENT_STATEMENT = 10;
+    const TYPE_UPD = 14;
 
     public static $typeName = [
         self::TYPE_CURRENT_STATEMENT => 'statement',
@@ -53,6 +54,7 @@ class InvoiceLight extends Component
         self::TYPE_ACT => 'act',
         self::TYPE_INVOICE => 'invoice',
         self::TYPE_INVOICE_STORNO => 'storno',
+        self::TYPE_UPD => 'upd',
     ];
 
     /**
