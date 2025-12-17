@@ -231,6 +231,7 @@ if (
     $isLandscape = (bool)$templateType->is_portrait ? false : true;
     $isBill = $templateType->data_source == PaymentTemplateType::DATA_SOURCE_BILL;
     $isInvoice = $templateType->data_source == PaymentTemplateType::DATA_SOURCE_INVOICE;
+    $isUpd = $templateType->data_source == PaymentTemplateType::DATA_SOURCE_UPD;
 
     if ($isBill) {
         $bill = Bill::findOne(['bill_no' => $R['document_number'], 'client_id' => $R['account_id']]);
@@ -244,7 +245,7 @@ if (
         $invoiceDocument = (new InvoiceLight($clientAccount));
         $invoiceDocument->setInvoiceProformaBill($bill);
 
-    } else if ($isInvoice) {
+    } else if ($isInvoice || $isUpd) {
         $invoice = Invoice::findOne(['number' => $R['document_number']]);
         $bill = $invoice->bill;
 

@@ -28,6 +28,7 @@ use app\models\Organization;
 use app\models\OrganizationSettlementAccount;
 use app\models\Timezone;
 use app\models\usages\UsageInterface;
+use app\modules\uu\models\AccountTariff;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Yii;
@@ -1259,5 +1260,48 @@ class ClientController extends ApiInternalController
         },
             Organization::dao()->getList()
         );
+    }
+
+    /**
+     * @SWG\Get(tags={"Работа с клиентами"}, path="/internal/client/find-contragent-by-number-for-bdpn", summary="Получение данных по контрагенту по номер для БДПН", operationId="Получение данных по контрагенту по номер для БДПН",
+     *   @SWG\Parameter(name="number", type="integer", description="номер в e164", in="query", default="79311110000"),
+     *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
+     * )
+     */
+    public function actionFindContragentByNumberForBdpn($number)
+    {
+        $origNumber = $number;
+        $number = '79311110000';
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()->where(['voip_number' => $number])->orderBy(['id' => SORT_DESC])->one();
+        if (!$accountTariff) {
+            return ['is_found' => false];
+        }
+
+        $contragent = $accountTariff->clientAccount->contragent;
+
+        if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
+            $person = $contragent->person;
+            return [
+                'is_found' => true,
+                'data' => [
+                    'Type' => 'Person',
+                    'FN' => $person->first_name,
+                    'LN' => $person->last_name,
+                    'PN' => $person->middle_name,
+                    'Docs' => [
+                        [
+                            'Type' => 'CPassport',
+                            'IDNAME' => 'Паспорт гражданина Российской Федерации',
+                            'IDDS' => $person->passport_serial,
+                            'IDDN' => $person->passport_number,
+                        ]
+                    ],
+                    "Numbers" => [
+                        substr((string)$origNumber, 1)
+                    ]
+                ]
+            ];
+        }
     }
 }

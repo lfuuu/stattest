@@ -87,8 +87,13 @@ class SendToOnlineCashRegister extends Behavior
         $apiChannel = null;
         if ($payment->type == Payment::TYPE_API) {
             $apiChannel = PaymentApiChannel::findOne(['code' => $payment->ecash_operator]);
+            if (!$apiChannel) {
+                return false;
+            }
 
-            if (
+            if (strpos($apiChannel->code, 'card_') === 0) {
+                // return true;
+            } elseif (
                 /* $apiChannel->id == PaymentApiChannel::ID_API_TINKOFF_ABONENTSERVICE && */
                 !$payment->detectPersonOrCard()
             ) {
@@ -117,14 +122,15 @@ class SendToOnlineCashRegister extends Behavior
         }
 
         $client = $payment->client;
-        $contacts = $client->getOfficialContact();
+//        $contacts = $client->getOfficialContact();
+        $email = $client->getContactEmail();
 
         $organizationId = $checkOrganizationId ?: $payment->client->contract->organization_id;
 
         list($uuid, $log) = Api::me()->sendSell(
             $payment->id,
-            reset($contacts[ClientContact::TYPE_EMAIL]),
-            reset($contacts[ClientContact::TYPE_PHONE]),
+            $email, //reset($contacts[ClientContact::TYPE_EMAIL]),
+            null, //reset($contacts[ClientContact::TYPE_PHONE]),
             $payment->sum, $organizationId);
 
         $paymentAtol = new PaymentAtol;

@@ -13,6 +13,7 @@ use app\modules\sbisTenzor\classes\XmlGenerator\Act2016Form5_02;
 use app\modules\sbisTenzor\classes\XmlGenerator\Invoice2016Form5_02;
 use app\modules\sbisTenzor\classes\XmlGenerator\Invoice2019Form5_01;
 use app\modules\sbisTenzor\classes\XmlGenerator\Invoice2025Form5_03;
+use app\modules\sbisTenzor\classes\XmlGenerator\Upd2023Form5_03;
 use app\modules\sbisTenzor\helpers\SBISUtils;
 use DateTime;
 
@@ -27,6 +28,7 @@ abstract class XmlGenerator// extends SBISExchangeForm
         SBISExchangeForm::INVOICE_2016_5_02 => Invoice2016Form5_02::class,
         SBISExchangeForm::INVOICE_2019_5_01 => Invoice2019Form5_01::class,
         SBISExchangeForm::INVOICE_2025_5_03 => Invoice2025Form5_03::class,
+        SBISExchangeForm::UPD_2023_5_03 => Upd2023Form5_03::class,
     ];
 
     protected static $xsdFilePathParts = [

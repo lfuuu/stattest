@@ -445,7 +445,6 @@
                 <a class="{if $bill_invoices[5] eq 0}notactive {/if}"
                    href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=invoice-4&to_print=true&is_word=true">MS
                     Word</a><br/>
-
                 <input type=checkbox value="1" name="upd-1" id="upd1">
                 <label for="upd1" class="{if !$bill_upd[1]}notactive {/if}{if $bill_upd[1] == -1}invalid{/if}">
                     УПД (1 абонентка)
@@ -517,6 +516,19 @@
                 <input type="checkbox" value="1" name="gds-2" id="cbd"/><label for="cbd" style="color:#808080">Товарный
                     чек (все позиции)</label>
                 <hr/>
+
+                <input type=checkbox value="1" name="upd2-1" id="upd2-1">
+                <label for="upd2-1" class="{if !$bill_upd2[1]}notactive {/if}{if $bill_upd2[1] == -1}invalid{/if}">
+                    УПД2 (1 абонентка)
+                </label>
+                <br/>
+                <input type=checkbox value="1" name="upd2-2" id="upd2-2">
+                <label for="upd2-2" class="{if !$bill_upd2[2]}notactive {/if}{if $bill_upd2[2] == -1}invalid{/if}">
+                    УПД2 (2 превышение)
+                </label>
+                <br/>
+
+
                 {if $is_set_date}
                     <input type="text"
                            value="{if $bill.doc_ts}{$bill.doc_ts|date_format:"%d.%m.%Y"}{else}{$smarty.now|date_format:"%d.%m.%Y"}{/if}"

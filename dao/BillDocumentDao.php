@@ -28,10 +28,15 @@ class BillDocumentDao extends Singleton
         $docs = BillDocument::findOne($billNo);
 
         if (!$docs) {
-            return $this->updateByBillNo($billNo, null, true);
+            $docsArr =  $this->updateByBillNo($billNo, null, true);
+        } else {
+            $docsArr = $docs->toArray();
         }
 
-        return $docs->toArray();
+        $docsArr['upd2-1'] = $docsArr['i1'];
+        $docsArr['upd2-2'] = $docsArr['i2'];
+
+        return $docsArr;
     }
 
     /**
