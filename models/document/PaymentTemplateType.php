@@ -40,11 +40,15 @@ class PaymentTemplateType extends ActiveRecord
     const TYPE_INVOICE_STORNO = 2;
     const TYPE_INVOICE_RF = 3;
     const TYPE_INVOICE_PROFORMA = 4;
+
+    const TYPE_ID_UPD = 14;
+
     const TYPE_PORTRAIT = 1;
     const TYPE_LANDSCAPE = 0;
     const DATA_SOURCE_INVOICE = 'invoice';
     const DATA_SOURCE_BILL = 'bill';
     const DATA_SOURCE_TARIFF = 'tariff';
+    const DATA_SOURCE_UPD = 'upd';
 
     public static $typeList = [
         self::TYPE_PORTRAIT => 'Портретная',
@@ -55,6 +59,7 @@ class PaymentTemplateType extends ActiveRecord
         self::DATA_SOURCE_INVOICE => 'Счет-фактуры/Акты',
         self::DATA_SOURCE_BILL => 'Счета',
         self::DATA_SOURCE_TARIFF => 'Тарифы',
+        self::DATA_SOURCE_UPD => 'УПД',
     ];
 
     /**
