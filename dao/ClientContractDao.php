@@ -280,30 +280,43 @@ class ClientContractDao extends Singleton
      */
     public function getEffectiveVATRate(ClientContract $contract, $date = null)
     {
-        // специальная папка "Госники - 20% НДС"
-        if ($contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_GOVERNMENT_AGENCIES) {
-            return 20;
-        }
-
-        $rate = $this->_getEffectiveVATRate($contract);
-
-        // @todo переделать на версионность настроек платежных документов
-        // Ставка 18 только в России.
-        if ($rate != 18) {
-            return $rate;
-        }
-
         if ($date && ($date instanceof \DateTime || $date instanceof \DateTimeImmutable)) {
             $date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         !$date && $date = date(DateTimeZoneHelper::DATE_FORMAT);
 
+        // специальная папка "Госники - 20% НДС"
+        if ($contract->business_process_status_id == BusinessProcessStatus::TELEKOM_MAINTENANCE_GOVERNMENT_AGENCIES) {
+            return $this->_correctTaxRateRussia($date);
+        }
+
+        $rate = $this->_getEffectiveVATRate($contract);
+
+        if ($rate != 20) { // 20% базовая для России
+            return $rate;
+        }
+
+        return $this->_correctTaxRateRussia($date);
+    }
+
+    /**
+     * Корректируем ставку по времени
+     *
+     * @param $date
+     * @return int
+     */
+    private function _correctTaxRateRussia($date): int
+    {
+        if ($date >= '2026-01-01') {
+            return 22;
+        }
+
         if ($date >= '2019-01-01') {
             return 20;
         }
 
-        return $rate;
+        return 18;
     }
 
     private function _getEffectiveVATRate(ClientContract $contract)
