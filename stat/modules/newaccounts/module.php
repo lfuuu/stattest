@@ -2942,8 +2942,8 @@ class m_newaccounts extends IModule
 
         self::$object = $object;
         if ($object && strpos($object, 'upd2-') === 0) {
-            $obj = $object;
-            $source = 1;
+            $obj = 'upd';
+            $source = (int)substr($object, -1);
             $curr = 'RUB';
         } elseif ($object) {
             [$obj, $source, $curr] = explode('-', $object . '---');
@@ -2975,40 +2975,6 @@ class m_newaccounts extends IModule
 
         if ($billModel->isCorrectionType()) {
             throw new LogicException('Нет документов у корректировки');
-        }
-
-        if (in_array($obj, ['upd2-1', 'upd2-2'])) {
-            $invoiceTypeId = $obj === 'upd2-1' ? Invoice::TYPE_1 : Invoice::TYPE_2;
-            $invoice = Invoice::find()->where(['bill_no' => $bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
-
-            if (!$invoice) {
-                if ($only_html == '1') {
-                    return '';
-                }
-                trigger_error2('Документ не готов');
-                return false;
-            }
-
-            $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
-                ->setBill($billModel)
-                ->setInvoice($invoice)
-                ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
-                ->setCountry($billModel->clientAccount->getUuCountryId());
-
-            $content = $invoiceDocument->render((bool)$is_pdf);
-
-            if ($is_pdf) {
-                header('Content-Type: application/pdf');
-                echo $content;
-                exit;
-            }
-
-            if ($only_html == '1') {
-                return $content;
-            }
-
-            echo $content;
-            exit;
         }
 
         switch ($obj) {
@@ -3131,7 +3097,7 @@ class m_newaccounts extends IModule
         }
 
         if (!in_array($obj,
-            ['invoice', 'akt', 'upd', 'upd2-1', 'upd2-2', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
+            ['invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
         ) {
             $obj = 'bill';
         }
