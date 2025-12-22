@@ -85,12 +85,24 @@ class BillQRCode
         return false;
     }
 
-    public static function getImgTag($billNo)
+    public static function getImgUrl($billNo, $docType = 'bill')
     {
-        $result = self::getNo($billNo);
+        $docType = $docType ?: 'bill';
+        $data = self::encode($docType, $billNo);
 
-        if (isset($result['bill'])) {
-            return '<img src="/utils/qr-code/get?data=' . $result['bill'] . '" border="0"/>';
+        if ($data) {
+            return '/utils/qr-code/get?data=' . $data;
+        }
+
+        return '';
+    }
+
+    public static function getImgTag($billNo, $docType = 'bill')
+    {
+        $url = self::getImgUrl($billNo, $docType);
+
+        if ($url) {
+            return '<img src="' . $url . '" border="0"/>';
         }
 
         return '';
