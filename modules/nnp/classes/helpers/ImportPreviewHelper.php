@@ -6,6 +6,7 @@ use app\models\EventQueue;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\helpers\DateTimeZoneHelper;
+use app\exceptions\ModelValidationException;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\modules\nnp\classes\helpers\RangesTreeHelper;
@@ -18,6 +19,10 @@ class ImportPreviewHelper
 
     private const PROGRESS_TEMPLATE = "Count all: %d\ncount: %d";
     private const PROGRESS_ROW_STEP = 2000;
+    private const RECORDS_COVERAGE_ERRORS_ONLY = 'errors_only';
+    public const ISSUE_ERRORS = 'errors';
+    public const ISSUE_WARNINGS = 'warnings';
+    public const ISSUE_ALREADY_READ = 'already_read';
 
     /**
      * Обновляет счётчик прогресса, сохраняя уже записанные отладочные строки.
@@ -40,7 +45,9 @@ class ImportPreviewHelper
         }
 
         $eventQueue->log_error = $logError;
-        $eventQueue->save(false, ['log_error']);
+        if (!$eventQueue->save(false, ['log_error'])) {
+            throw new ModelValidationException($eventQueue);
+        }
     }
 
     /**
@@ -95,44 +102,55 @@ class ImportPreviewHelper
         }
 
         $delimiter  = self::detectDelimiter($handle);
-        $fileSize   = filesize($filePath) ?: 0;
-        if ($fileSize > 0) {
+        $fileSize   = filesize($filePath);
+        if ($fileSize) {
             self::updateProgress($eventQueue, $fileSize, 0);
         }
 
-        $recordsCoverage = 'errors_only';
+        $recordsCoverage = self::RECORDS_COVERAGE_ERRORS_ONLY;
 
         $rowNumber = 0;
         $linesCount = 0;
         $isFileOK = true;
-        $errorLines = [];
-        $warningLines = [];
+        $issues = self::initIssues();
         $alreadyRead = [];
         $rangesByPrefix = [];
         $segmentsMeta = [];
         $records = [];
-        $headerChecked = false;
         $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $countryFile->country->code]);
         while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
             $rowNumber++;
 
-            if (self::handleHeaderRow($rowNumber, $row, $headerChecked, $errorLines, $warningLines, $isFileOK)) {
+            if ($rowNumber === 1 && self::isHeaderRow($row)) {
+                $headerResult = self::validateHeaderRow($row);
+
+                if (!empty($headerResult['errors'])) {
+                    foreach ($headerResult['errors'] as $error) {
+                        self::appendIssue($issues, self::ISSUE_ERRORS, $rowNumber, $error);
+                    }
+                    $isFileOK = false;
+                    break;
+                }
+
+                foreach ($headerResult['warnings'] as $warning) {
+                    self::appendIssue($issues, self::ISSUE_WARNINGS, $rowNumber, $warning);
+                }
+
                 continue;
             }
 
-            [$rowStatus, $oldLine] = self::checkRow(
+            [$rowStatus, $oldLine, $rangeContext] = self::checkRow(
                 $rowNumber,
                 $row,
                 $importServiceUploaded,
-                $errorLines,
-                $warningLines,
+                $issues,
                 $alreadyRead,
-                $rangesByPrefix,
-                $segmentsMeta,
                 $countryFile->country->code,
                 $countryFile->id,
                 $isFileOK
             );
+
+            self::prepareRangeContext($rangeContext, $rangesByPrefix, $segmentsMeta, $rowNumber);
 
             $needsRecord = $oldLine !== null || self::hasNonOkStatus($rowStatus);
 
@@ -154,7 +172,7 @@ class ImportPreviewHelper
             $rangesByPrefix,
             $segmentsMeta,
             $records,
-            $errorLines,
+            $issues,
             $isFileOK,
             $eventQueue,
             $linesCount
@@ -166,8 +184,9 @@ class ImportPreviewHelper
         $data = [
             'isFileOK' => $isFileOK,
             'records' => $records,
-            'errorLines' => $errorLines,
-            'warningLines' => $warningLines,
+            'errorLines' => $issues[self::ISSUE_ERRORS],
+            'warningLines' => $issues[self::ISSUE_WARNINGS],
+            'alreadyRead' => $issues[self::ISSUE_ALREADY_READ],
             'checked' => true,
             'recordsCoverage' => $recordsCoverage,
         ];
@@ -177,34 +196,6 @@ class ImportPreviewHelper
         fclose($handle);
     }
 
-    private static function handleHeaderRow(
-        int $rowNumber,
-        array $row,
-        bool &$headerChecked,
-        array &$errorLines,
-        array &$warningLines,
-        bool &$isFileOK
-    ): bool {
-        if ($headerChecked || $rowNumber !== 1 || ctype_digit((string)$row[0])) {
-            return false;
-        }
-
-        $headerChecked = true;
-        $headerResult  = self::validateHeaderRow($row);
-
-        if (!empty($headerResult['errors'])) {
-            $isFileOK               = false;
-            $errorLines[$rowNumber] = implode(PHP_EOL, $headerResult['errors']);
-        }
-        if (!empty($headerResult['warnings'])) {
-            $warningLines[$rowNumber] =
-                (isset($warningLines[$rowNumber]) && $warningLines[$rowNumber] !== '' ? $warningLines[$rowNumber] . PHP_EOL : '') .
-                implode(PHP_EOL, $headerResult['warnings']);
-        }
-
-        return true;
-    }
-
     /**
      * Финальная проверка пересечений после полного чтения файла.
      */
@@ -212,7 +203,7 @@ class ImportPreviewHelper
         array $rangesByPrefix,
         array $segmentsMeta,
         array &$records,
-        array &$errorLines,
+        array &$issues,
         bool &$isFileOK,
         EventQueue $eventQueue,
         int $linesCount
@@ -239,7 +230,7 @@ class ImportPreviewHelper
         foreach ($rangesByPrefix as $ccKey => $types) {
             foreach ($types as $typeBucket => $ndcs) {
                 foreach ($ndcs as $ndc => $segments) {
-                    RangesTreeHelper::scanOverlaps($segments, function (array $curr, array $prev) use (&$records, &$errorLines, &$isFileOK, &$overlapCount, $ccKey, $typeBucket, $ndc, $defaultStatuses, $segmentsMeta): void {
+                    RangesTreeHelper::scanOverlaps($segments, function (array $curr, array $prev) use (&$records, &$issues, &$isFileOK, &$overlapCount, $ccKey, $typeBucket, $ndc, $defaultStatuses, $segmentsMeta): void {
                         $currMeta = $segmentsMeta[$curr[2]] ?? ['ndc' => $ndc, 'from_sn' => '', 'to_sn' => ''];
                         $prevMeta = $segmentsMeta[$prev[2]] ?? ['ndc' => $ndc, 'from_sn' => '', 'to_sn' => ''];
 
@@ -274,7 +265,7 @@ class ImportPreviewHelper
                                 $records[$line][0][5] = self::STATUS_ERROR;
                             }
 
-                            $errorLines[$line] = (isset($errorLines[$line]) ? $errorLines[$line] . PHP_EOL : '') . $msg;
+                            self::appendIssue($issues, self::ISSUE_ERRORS, $line, $msg);
                         }
 
                         $isFileOK = false;
@@ -416,40 +407,71 @@ class ImportPreviewHelper
 
     /**
      * Проверка заголовка CSV.
+     *
+     * Правило:
+     * - Если в шапке < 9 столбцов — это ERROR (файл невалиден).
+     * - Если >= 9 — ошибки по шапке НЕ блокируют файл:
+     *   * неправильные названия / лишние пробелы / несовпадение количества (>=9) => WARNING.
      */
     public static function validateHeaderRow(array $row): array
     {
         $errors   = [];
         $warnings = [];
 
-        $expected = self::getExpectedHeader();
-        $trimmed  = array_map('trim', $row);
+        $expected = self::getExpectedHeader(); // 9 колонок
+        $exp      = count($expected);
 
-        $cols = count($trimmed);
-        $exp  = count($expected);
+        $colsRaw = count($row);
 
-        if ($cols !== $exp) {
+        // Фаталим ТОЛЬКО если столбцов меньше ожидаемого минимума.
+        if ($colsRaw < $exp) {
             $errors[] = sprintf(
-                'Количество столбцов должно быть %d, сейчас %d.',
+                'Количество столбцов в шапке должно быть минимум %d, сейчас %d.',
                 $exp,
-                $cols
+                $colsRaw
+            );
+            return ['errors' => $errors, 'warnings' => $warnings];
+        }
+
+        // Любое "не равно 9", но >=9 — это предупреждение (не блокирует файл по шапке).
+        if ($colsRaw !== $exp) {
+            $warnings[] = sprintf(
+                'Количество столбцов в шапке обычно %d, сейчас %d. Это предупреждение.',
+                $exp,
+                $colsRaw
             );
         }
 
-        $max = min($cols, $exp);
+        // Проверяем первые 9 колонок: пробелы/несовпадения — только WARNING.
+        $max = min($colsRaw, $exp);
         for ($i = 0; $i < $max; $i++) {
-            if ($trimmed[$i] !== $expected[$i]) {
-                $errors[] = sprintf(
-                    'Неверное имя колонки %d: ожидалось "%s", получено "%s"',
+            $raw     = (string)$row[$i];
+            $trimmed = trim($raw);
+
+            // Лишние пробелы — warning
+            if ($raw !== $trimmed) {
+                $warnings[] = sprintf(
+                    'Лишние пробелы в названии колонки %d: ожидалось "%s", получено "%s"',
                     $i + 1,
                     $expected[$i],
-                    $trimmed[$i]
+                    $raw
+                );
+            }
+
+            // Неверное имя — warning
+            if ($trimmed !== $expected[$i]) {
+                $warnings[] = sprintf(
+                    'Неверное имя колонки %d: ожидалось "%s", получено "%s". Это предупреждение.',
+                    $i + 1,
+                    $expected[$i],
+                    $trimmed
                 );
             }
         }
 
         return ['errors' => $errors, 'warnings' => $warnings];
     }
+
 
     /**
      * Проверка одной строки CSV.
@@ -458,17 +480,15 @@ class ImportPreviewHelper
         int $lineNumber,
         array $row,
         ImportServiceUploaded $importServiceUploaded,
-        array &$errorLines,
-        array &$warningLines,
+        array &$issues,
         array &$alreadyRead,
-        array &$rangesByPrefix,
-        array &$segmentsMeta,
         $countryCode,
         int $countryFileId,
         bool &$isFileOK
     ): array {
         $oldLine   = null;
         $rowStatus = [];
+        $rangeContext = null;
 
         $expectedHeader = self::getExpectedHeader();
         $expectedCols   = count($expectedHeader);
@@ -486,12 +506,12 @@ class ImportPreviewHelper
         }
 
         if ($allEmpty) {
-            $errorLines[$lineNumber] = 'Пустая строка в файле не допускается.';
+            self::appendIssue($issues, self::ISSUE_ERRORS, $lineNumber, 'Пустая строка в файле не допускается.');
             foreach ($row as $idx => $_) {
                 $rowStatus[$idx] = self::STATUS_ERROR;
             }
             $isFileOK = false;
-            return [$rowStatus, null];
+            return [$rowStatus, null, $rangeContext];
         }
 
         // --- Количество столбцов ---
@@ -504,14 +524,14 @@ class ImportPreviewHelper
             );
 
             // Логируем несоответствие колонок только один раз на весь файл
-            if (!in_array($columnsError, $errorLines, true)) {
-                $errorLines[$lineNumber] = $columnsError;
+            if (!self::hasIssue($issues[self::ISSUE_ERRORS], $columnsError)) {
+                self::appendIssue($issues, self::ISSUE_ERRORS, $lineNumber, $columnsError);
             }
             foreach ($row as $idx => $_) {
                 $rowStatus[$idx] = self::STATUS_ERROR;
             }
             $isFileOK = false;
-            return [$rowStatus, null];
+            return [$rowStatus, null, $rangeContext];
         }
 
         // --- Обработка данных ---
@@ -548,13 +568,14 @@ class ImportPreviewHelper
                         $text .= sprintf("%s: %s", $field, $value) . PHP_EOL;
                     }
                 }
-                $errorLines[$lineNumber] = $text;
+                self::appendIssue($issues, self::ISSUE_ERRORS, $lineNumber, rtrim($text));
                 $isFileOK = false;
-                return [$rowStatus, null];
+                return [$rowStatus, null, $rangeContext];
             }
 
             // --- Дополнительные проверки ---
-                $extraErrors = [];
+            $extraErrors = [];
+            $extraWarnings = [];
 
             $cc       = $row[0];
             $ndc      = $row[1];
@@ -620,50 +641,37 @@ class ImportPreviewHelper
                 }
             }
 
-            // --- Подготовка к оффлайновой проверке пересечений ---
-            $ccKey = (string)$numberRangeImport->country_prefix;
-
-            if (!isset($rangesByPrefix[$ccKey])) {
-                $rangesByPrefix[$ccKey] = [];
-            }
-
-            $typeBucket = ctype_digit((string)$typeId) ? (string)$typeId : 'unknown';
-
-            if (!array_key_exists($typeBucket, $rangesByPrefix[$ccKey])) {
-                $rangesByPrefix[$ccKey][$typeBucket] = [];
-            }
-
             if (ctype_digit($ndc) && ctype_digit($fromSn) && ctype_digit($toSn)) {
-                if (!array_key_exists($ndc, $rangesByPrefix[$ccKey][$typeBucket])) {
-                    $rangesByPrefix[$ccKey][$typeBucket][$ndc] = [];
-                }
-
-                $rangesByPrefix[$ccKey][$typeBucket][$ndc][] = [
-                    (int)($ndc . $fromSn),
-                    (int)($ndc . $toSn),
-                    $lineNumber,
-                ];
-
-                $segmentsMeta[$lineNumber] = [
+                $typeBucket = ctype_digit((string)$typeId) ? (string)$typeId : 'unknown';
+                $rangeContext = [
+                    'ccKey' => (string)$numberRangeImport->country_prefix,
+                    'typeBucket' => $typeBucket,
                     'ndc' => $ndc,
-                    'from_sn' => $fromSn,
-                    'to_sn' => $toSn,
+                    'from' => $fromSn,
+                    'to' => $toSn,
                 ];
             }
 
             // --- Запись ошибок ---
             if ($extraErrors) {
                 $isFileOK = false;
-                $errorLines[$lineNumber] =
-                    (isset($errorLines[$lineNumber]) ? $errorLines[$lineNumber] . PHP_EOL : '') .
-                    implode(PHP_EOL, $extraErrors);
+                foreach ($extraErrors as $error) {
+                    self::appendIssue($issues, self::ISSUE_ERRORS, $lineNumber, $error);
+                }
+            }
+            if ($extraWarnings) {
+                foreach ($extraWarnings as $warning) {
+                    self::appendIssue($issues, self::ISSUE_WARNINGS, $lineNumber, $warning);
+                }
             }
 
             if (isset($alreadyRead[$key])) {
                 $oldLine = $alreadyRead[$key];
 
-                $warningLines[$lineNumber] =
-                    (isset($warningLines[$lineNumber]) ? $warningLines[$lineNumber] . PHP_EOL : '') .
+                self::appendIssue(
+                    $issues,
+                    self::ISSUE_ALREADY_READ,
+                    $lineNumber,
                     "Диапазон $keyDisplay уже добавлен в строке " .
                     Html::a(
                         $oldLine,
@@ -674,20 +682,92 @@ class ImportPreviewHelper
                             'offset'      => $oldLine,
                             'limit'       => min($lineNumber - $oldLine, 100),
                         ]) . '#line'.$oldLine
-                    );
+                    )
+                );
             }
 
             $alreadyRead[$key] = $lineNumber;
 
         }
 
-        return [$rowStatus, $oldLine];
+        return [$rowStatus, $oldLine, $rangeContext];
     }
 
     private static function hasNonOkStatus(array $rowStatus): bool
     {
         foreach ($rowStatus as $status) {
             if ($status !== self::STATUS_OK) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function prepareRangeContext(?array $rangeContext, array &$rangesByPrefix, array &$segmentsMeta, int $lineNumber): void
+    {
+        if (!$rangeContext) {
+            return;
+        }
+
+        $ccKey = $rangeContext['ccKey'];
+        $typeBucket = $rangeContext['typeBucket'];
+        $ndc = $rangeContext['ndc'];
+        $fromSn = $rangeContext['from'];
+        $toSn = $rangeContext['to'];
+
+        if (!isset($rangesByPrefix[$ccKey])) {
+            $rangesByPrefix[$ccKey] = [];
+        }
+
+        if (!array_key_exists($typeBucket, $rangesByPrefix[$ccKey])) {
+            $rangesByPrefix[$ccKey][$typeBucket] = [];
+        }
+
+        if (!array_key_exists($ndc, $rangesByPrefix[$ccKey][$typeBucket])) {
+            $rangesByPrefix[$ccKey][$typeBucket][$ndc] = [];
+        }
+
+        $rangesByPrefix[$ccKey][$typeBucket][$ndc][] = [
+            (int)($ndc . $fromSn),
+            (int)($ndc . $toSn),
+            $lineNumber,
+        ];
+
+        $segmentsMeta[$lineNumber] = [
+            'ndc' => $ndc,
+            'from_sn' => $fromSn,
+            'to_sn' => $toSn,
+        ];
+    }
+
+    public static function isHeaderRow(array $row): bool
+    {
+        return !ctype_digit((string)$row[0]);
+    }
+
+    public static function initIssues(): array
+    {
+        return [
+            self::ISSUE_ERRORS => [],
+            self::ISSUE_WARNINGS => [],
+            self::ISSUE_ALREADY_READ => [],
+        ];
+    }
+
+    private static function appendIssue(array &$issues, string $type, int $lineNumber, string $message): void
+    {
+        if (!isset($issues[$type][$lineNumber])) {
+            $issues[$type][$lineNumber] = [];
+        }
+
+        $issues[$type][$lineNumber][] = $message;
+    }
+
+    private static function hasIssue(array $bucket, string $needle): bool
+    {
+        foreach ($bucket as $messages) {
+            if (in_array($needle, $messages, true)) {
                 return true;
             }
         }
