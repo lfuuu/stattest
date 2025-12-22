@@ -2687,12 +2687,12 @@ class m_newaccounts extends IModule
             $printObjects = [];
 
             foreach ($printDocs as $printDocId) {
-                $templateTypeId = \app\models\document\PaymentTemplateType::TYPE_ID_UPD;
-
                 if ($printDocId == 'upd2-1') {
                     $invoiceTypeId = Invoice::TYPE_1;
+                    $documentType = 'upd2-1';
                 } elseif ($printDocId == 'upd2-2') {
                     $invoiceTypeId = Invoice::TYPE_2;
+                    $documentType = 'upd2-2';
                 } else {
                     continue;
                 }
@@ -2700,28 +2700,34 @@ class m_newaccounts extends IModule
                 /** @var Invoice $invoiceObject */
                 $invoiceObject = Invoice::find()->where(['bill_no' => $bill->bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
 
-                $printObject = [
-                    'tpl1' => 3,
-                    'account_id' => $bill->client_id,
-                    'document_number' => $invoiceObject->number,
-                    'template_type_id' => $templateTypeId,
-                    'country_code' => $bill->clientAccount->getUuCountryId(),
-                    'include_signature_stamp' => false,
-                    'renderMode' => $isPDF ? 'pdf' : 'html',
-                    'is_pdf' => $isPDF ? 1 : 0,
-                ];
+                if (!$invoiceObject) {
+                    continue;
+                }
 
-                $printObjects[] = $printObject;
+                $printObjects[] = [
+                    'document_type' => $documentType,
+                ];
 //                $printObjects['include_signature_stamp'] = true;
 //                $printObjects[] = $printObject;
             }
 
             foreach ($printObjects as $idx => $obj) {
-                $R[] = [
-                    'isLink' => true,
-                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($obj)
-                ];
+                $baseObj = $obj['document_type'];
 
+                // без подписи клиента
+                $R[] = [
+                    'bill_no' => $bill->bill_no,
+                    'obj' => $baseObj . '&' . http_build_query(['to_print' => 'true']),
+                    'bill_client' => $bill->client_id,
+                ];
+                $P .= ($P ? ',' : '') . '1';
+
+                // с подписью клиента
+                $R[] = [
+                    'bill_no' => $bill->bill_no,
+                    'obj' => $baseObj . '&' . http_build_query(['to_print' => 'true', 'to_client' => 'true']),
+                    'bill_client' => $bill->client_id,
+                ];
                 $P .= ($P ? ',' : '') . '1';
             }
         }
