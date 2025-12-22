@@ -2706,9 +2706,12 @@ class m_newaccounts extends IModule
                     'template_type_id' => $templateTypeId,
                     'country_code' => $bill->clientAccount->getUuCountryId(),
                     'include_signature_stamp' => false,
-                    'is_pdf' => $isPDF ? 1 : 0,
                     'renderMode' => $isPDF ? 'pdf' : 'html',
                 ];
+
+                if ($isPDF) {
+                    $printObject['is_pdf'] = 1;
+                }
 
                 $printObjects[] = $printObject;
 //                $printObjects['include_signature_stamp'] = true;

@@ -34,13 +34,12 @@ if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RU
 
 $_GET = $R;
 
-$isPdf = null;
-if (isset($R['is_pdf'])) {
-    $isPdf = (int)$R['is_pdf'] === 1;
-} elseif (isset($R['renderMode'])) {
+$isPdf = false;
+if (isset($R['renderMode'])) {
     $isPdf = $R['renderMode'] === 'pdf';
+} elseif (isset($R['is_pdf'])) {
+    $isPdf = (int)$R['is_pdf'] === 1;
 }
-$isPdf = $isPdf ?? false;
 $isEmailed = get_param_raw('emailed', 1);
 $isLandscape = (bool)($R['is_portrait'] ?? false);
 $isIncludeSignatureStamp = isset($R['include_signature_stamp']) && (bool)$R['include_signature_stamp'] ? true : false;
