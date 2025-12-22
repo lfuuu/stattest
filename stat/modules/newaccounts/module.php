@@ -3181,7 +3181,7 @@ class m_newaccounts extends IModule
                     $design->ProcessEx('newaccounts/print_akt_num3.tpl');
                 }
             } else {
-                if (in_array($obj, ['invoice', 'upd'])) {
+                if (in_array($obj, ['invoice', 'upd', 'upd2-1', 'upd2-2'])) {
 
                     $design->assign("client_contract",
                         BillContract::getString($billModel->clientAccount->contract_id, $bill->getTs()));
