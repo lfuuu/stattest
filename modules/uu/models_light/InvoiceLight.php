@@ -219,7 +219,12 @@ class InvoiceLight extends Component
 
         if (count($items)) {
             // Данные о счете
-            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage);
+            $qrDocType = 'bill';
+            if ($this->_templateType == PaymentTemplateType::TYPE_ID_UPD && $this->_invoice) {
+                $qrDocType = $this->_invoice->type_id == Invoice::TYPE_1 ? 'upd-1' : 'upd-2';
+            }
+
+            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage, $qrDocType);
             // Данные проводках
             $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $dataLanguage))->getAll();
         }
