@@ -2925,6 +2925,7 @@ class m_newaccounts extends IModule
         $this->do_include();
 
         $object = (isset($params['object'])) ? $params['object'] : get_param_protected('object');
+        $rawObject = $object;
 
         $mode = get_param_protected('mode', 'html');
 
@@ -2940,7 +2941,11 @@ class m_newaccounts extends IModule
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
         self::$object = $object;
-        if ($object) {
+        if ($object && strpos($object, 'upd2-') === 0) {
+            $obj = $object;
+            $source = 1;
+            $curr = 'RUB';
+        } elseif ($object) {
             [$obj, $source, $curr] = explode('-', $object . '---');
         } else {
             $obj = get_param_protected("obj");
@@ -3126,7 +3131,7 @@ class m_newaccounts extends IModule
         }
 
         if (!in_array($obj,
-            ['invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
+            ['invoice', 'akt', 'upd', 'upd2-1', 'upd2-2', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
         ) {
             $obj = 'bill';
         }
