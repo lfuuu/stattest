@@ -93,7 +93,7 @@ class Invoice2025Form5_03 extends Invoice2016Form5_02
         // <ДокПодтвОтгр НаимДокОтгр="АКТ № || ТОРГ12 №" НомДокОтгр="240621-ARG168" ДатаДокОтгр="24.07.2021"/>
         if ($this->invoiceDate >= (new \DateTime('2024-10-01 00:00:00'))) {
             $elDocShip = $dom->createElement('ДокПодтвОтгрНом');
-            $elDocShip->setAttribute('РеквНаимДок', ($this->invoice->type_id == Invoice::TYPE_GOOD ? 'ТОРГ12' : 'АКТ'));
+            $elDocShip->setAttribute('РеквНаимДок', $this->getDocumentTitle());
             $elDocShip->setAttribute('РеквНомерДок', $this->invoice->number);
             $elDocShip->setAttribute('РеквДатаДок', $this->invoiceDate->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE_DOTTED));
             $elInvoiceInfo->appendChild($elDocShip);
@@ -143,42 +143,58 @@ class Invoice2025Form5_03 extends Invoice2016Form5_02
             }
         }
 
-        // --------------------------------------------------------------------------------------------------------------
-        // Файл.Документ.ТаблСчФакт
-        $elInvoiceTable = $this->addElementItemsTable($dom);
 
-        // --------------------------------------------------------------------------------------------------------------
-        $elPass = null;
-
-        $billDateTime = new \DateTime($this->bill->date);
-        if ($contract = $this->client->contract->getContractInfo($billDateTime)) {
-            $contractDateTime = new \DateTime($contract->contract_date, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
-            $contractDate = $contractDateTime->format('d.m.Y');
-
-            // Файл.Документ.СвПродПер
-            $elPass = $dom->createElement('СвПродПер');
-            $elPassInfo = $dom->createElement('СвПер');
-            $elPassInfo->setAttribute('СодОпер', 'Реализация');
-            $elPass->appendChild($elPassInfo);
-
-            $elPassInfoMain = $dom->createElement('ОснПер');
-            $elPassInfoMain->setAttribute('РеквДатаДок', $contractDate);
-            $elPassInfoMain->setAttribute('РеквНаимДок', sprintf('%s от %s', $contract->contract_no, $contractDate));
-            $elPassInfoMain->setAttribute('РеквНомерДок', $contract->contract_no);
-            $elPassInfo->appendChild($elPassInfoMain);
-        }
 
         $elMoney = $dom->createElement('ДенИзм');
         $elMoney->setAttribute('КодОКВ', $this->bill->currencyModel->code);
         $elMoney->setAttribute('НаимОКВ', $this->bill->currencyModel->name);
         $elInvoiceInfo->appendChild($elMoney);
-
-        // add
         $elDoc->appendChild($elInvoiceInfo);
+
+        // --------------------------------------------------------------------------------------------------------------
+        // Файл.Документ.ТаблСчФакт
+        $elInvoiceTable = $this->addElementItemsTable($dom);
         $elDoc->appendChild($elInvoiceTable);
+
+        // --------------------------------------------------------------------------------------------------------------
+        $elPass = $this->getFileDocumentContentsOfTheEconomicFact($dom);
+
         if ($elPass) {
             $elDoc->appendChild($elPass);
         }
+    }
+
+    protected function getDocumentTitle()
+    {
+        return $this->invoice->type_id == Invoice::TYPE_GOOD ? 'ТОРГ12' : 'АКТ';
+    }
+
+    protected function getFileDocumentContentsOfTheEconomicFact($dom)
+    {
+        $elPass = null;
+
+        $billDateTime = new \DateTime($this->bill->date);
+        $contract = $this->client->contract->getContractInfo($billDateTime);
+        if (!$contract) {
+            return $elPass;
+        }
+
+        $contractDateTime = new \DateTime($contract->contract_date, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+        $contractDate = $contractDateTime->format('d.m.Y');
+
+        // Файл.Документ.СвПродПер
+        $elPass = $dom->createElement('СвПродПер');
+        $elPassInfo = $dom->createElement('СвПер');
+        $elPassInfo->setAttribute('СодОпер', 'Реализация');
+        $elPass->appendChild($elPassInfo);
+
+        $elPassInfoMain = $dom->createElement('ОснПер');
+        $elPassInfoMain->setAttribute('РеквДатаДок', $contractDate);
+        $elPassInfoMain->setAttribute('РеквНаимДок', sprintf('%s от %s', $contract->contract_no, $contractDate));
+        $elPassInfoMain->setAttribute('РеквНомерДок', $contract->contract_no);
+        $elPassInfo->appendChild($elPassInfoMain);
+
+        return $elPass;
     }
 
     /**
