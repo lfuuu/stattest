@@ -271,13 +271,16 @@ if (
     $invoiceDocument->setCountry($R['country_code']);
     $invoiceDocument->setTemplateType($templateTypeId);
 
-    $pdfContent = $invoiceDocument->render(true, $isLandscape, $isIncludeSignatureStamp);
+    $content = $invoiceDocument->render($isPdf, $isLandscape, $isIncludeSignatureStamp);
 
     $attachmentName = $clientAccount->id . '-' . $R['document_number'] . '.pdf';
 
-    Yii::$app->response->format = Response::FORMAT_RAW;
-    Yii::$app->response->content = $pdfContent;
-    Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
+    Yii::$app->response->content = $content;
+
+    if ($isPdf) {
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
+    }
 
     \Yii::$app->end();
 }
