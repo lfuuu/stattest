@@ -34,7 +34,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
      * @param Invoice $invoice
      * @param string $language
      */
-    public function __construct($bill, $invoice, $language)
+    public function __construct($bill, $invoice, $language, $qrDocType = 'bill')
     {
         parent::__construct();
 
@@ -66,7 +66,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
         $this->client_id = $statBill->client_id;
 
-        $this->qr_code = BillQRCode::getImgTag($statBill->bill_no);
+        $this->qr_code = BillQRCode::getImgUrl($statBill->bill_no, $qrDocType);
     }
 
     /**
