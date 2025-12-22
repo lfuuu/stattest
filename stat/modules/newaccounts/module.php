@@ -2707,6 +2707,7 @@ class m_newaccounts extends IModule
                     'country_code' => $bill->clientAccount->getUuCountryId(),
                     'include_signature_stamp' => false,
                     'is_pdf' => $isPDF ? 1 : 0,
+                    'renderMode' => $isPDF ? 'pdf' : 'html',
                 ];
 
                 $printObjects[] = $printObject;

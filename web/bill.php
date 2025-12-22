@@ -34,7 +34,13 @@ if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RU
 
 $_GET = $R;
 
-$isPdf = isset($R['is_pdf']) && $R['is_pdf'] == 1;
+$isPdf = null;
+if (isset($R['is_pdf'])) {
+    $isPdf = (int)$R['is_pdf'] === 1;
+} elseif (isset($R['renderMode'])) {
+    $isPdf = $R['renderMode'] === 'pdf';
+}
+$isPdf = $isPdf ?? false;
 $isEmailed = get_param_raw('emailed', 1);
 $isLandscape = (bool)($R['is_portrait'] ?? false);
 $isIncludeSignatureStamp = isset($R['include_signature_stamp']) && (bool)$R['include_signature_stamp'] ? true : false;
@@ -280,6 +286,9 @@ if (
     if ($isPdf) {
         Yii::$app->response->format = Response::FORMAT_RAW;
         Yii::$app->response->setDownloadHeaders($attachmentName, 'application/pdf', true);
+    } else {
+        Yii::$app->response->format = Response::FORMAT_HTML;
+        Yii::$app->response->headers->set('Content-Type', 'text/html; charset=utf-8');
     }
 
     \Yii::$app->end();
