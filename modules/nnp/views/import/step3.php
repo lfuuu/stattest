@@ -138,11 +138,8 @@ $expectedHeader = ImportPreviewHelper::getExpectedHeader();
 $rowNumber = 0;
 $isFileOK = true;
 $errorLines = [];
-
 $warningLines = [];
 $alreadyRead = [];
-$rangesByPrefix = [];
-$segmentsMeta = [];
 
 $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 $isButtonShown = false;
@@ -152,6 +149,23 @@ $cachedRecords = [];
 $recordsCoverage = 'full';
 $hasCachedRecords = false;
 $skipPreview = false;
+$issues = [
+    ImportPreviewHelper::ISSUE_ERRORS => &$errorLines,
+    ImportPreviewHelper::ISSUE_WARNINGS => &$warningLines,
+    ImportPreviewHelper::ISSUE_ALREADY_READ => &$alreadyRead,
+];
+
+$normalizeIssueBucket = static function ($bucket): array {
+    if (!is_array($bucket)) {
+        return [];
+    }
+
+    foreach ($bucket as $line => $messages) {
+        $bucket[$line] = (array)$messages;
+    }
+
+    return $bucket;
+};
 
 if ($useCache) {
     if ($cachedData = $countryFile->getCachedPreviewData()) {
@@ -161,12 +175,19 @@ if ($useCache) {
         }
 
         $isFileOK = $cachedData['isFileOK'];
-        $errorLines = $cachedData['errorLines'];
-        $warningLines = $cachedData['warningLines'];
+        $errorLines = $normalizeIssueBucket($cachedData['errorLines'] ?? []);
+        $warningLines = $normalizeIssueBucket($cachedData['warningLines'] ?? []);
+        $alreadyRead = $normalizeIssueBucket($cachedData['alreadyRead'] ?? []);
 
         $cachedRecords = $cachedData['records'];
         $recordsCoverage = $cachedData['recordsCoverage'] ?? 'full';
         $hasCachedRecords = !empty($cachedRecords);
+
+        $issues = [
+            ImportPreviewHelper::ISSUE_ERRORS => &$errorLines,
+            ImportPreviewHelper::ISSUE_WARNINGS => &$warningLines,
+            ImportPreviewHelper::ISSUE_ALREADY_READ => &$alreadyRead,
+        ];
     }
 } else {
     $countryFile->removeCachedPreviewData();
@@ -174,7 +195,7 @@ if ($useCache) {
 
 // Если очередь завершилась успешно и в кэше нет строк (сохранялись только проблемные записи),
 // нет смысла прогружать весь файл ради предпросмотра — сразу показываем успешный результат.
-$hasErrors = !empty($errorLines) || !empty($warningLines);
+$hasErrors = !empty($errorLines) || !empty($warningLines) || !empty($alreadyRead);
 
 if (
     $previewEvent &&
@@ -228,7 +249,6 @@ if (
         // ### Start reading
         // ############################################
         $records = [];
-        $headerChecked = false;
         $useCachedRecords = $recordsCoverage !== 'full' || $hasCachedRecords;
 
         while (($row = fgetcsv($handle, 0, $delimiter)) !== false) : ?>
@@ -236,20 +256,16 @@ if (
             <?php
             $rowNumber++;
 
-            if ($rowNumber == 1 && !is_numeric($row[0])) {
-                if (!$headerChecked) {
-                    $headerChecked = true;
-                    $headerResult  = ImportPreviewHelper::validateHeaderRow($row);
+            if ($rowNumber === 1 && ImportPreviewHelper::isHeaderRow($row)) {
+                $headerResult  = ImportPreviewHelper::validateHeaderRow($row);
 
-                    if (!empty($headerResult['errors'])) {
-                        $isFileOK               = false;
-                        $errorLines[$rowNumber] = implode(PHP_EOL, $headerResult['errors']);
-                    }
-                    if (!empty($headerResult['warnings'])) {
-                        $warningLines[$rowNumber] =
-                            (isset($warningLines[$rowNumber]) && $warningLines[$rowNumber] !== '' ? $warningLines[$rowNumber] . PHP_EOL : '') .
-                            implode(PHP_EOL, $headerResult['warnings']);
-                    }
+                if (!empty($headerResult['errors'])) {
+                    $isFileOK = false;
+                    $errorLines[$rowNumber] = $headerResult['errors'];
+                    break;
+                }
+                if (!empty($headerResult['warnings'])) {
+                    $warningLines[$rowNumber] = $headerResult['warnings'];
                 }
                 // шапку в таблицу не выводим
                 continue;
@@ -273,11 +289,8 @@ if (
                     $rowNumber,
                     $row,
                     $importServiceUploaded,
-                    $errorLines,
-                    $warningLines,
+                    $issues,
                     $alreadyRead,
-                    $rangesByPrefix,
-                    $segmentsMeta,
                     $country->code,
                     $countryFile->id,
                     $isFileOK
@@ -370,6 +383,7 @@ if (
                     'records' => $records,
                     'errorLines' => $errorLines,
                     'warningLines' => $warningLines,
+                    'alreadyRead' => $alreadyRead,
                     'checked' => $checkFull,
                     'recordsCoverage' => $checkFull ? 'full' : 'partial',
                 ];
@@ -387,13 +401,19 @@ fclose($handle);
 $content = ob_get_clean();
 
 if ($isFileOK) {
-    if ($warningLines) {
-        echo Html::tag('div', 'Предупреждения (' . count($warningLines) . '):', ['class' => 'alert alert-warning']);
+    $warningsToShow = [];
+    foreach ([$warningLines, $alreadyRead] as $bucket) {
+        foreach ($bucket as $line => $messages) {
+            $warningsToShow[$line] = array_merge($warningsToShow[$line] ?? [], (array)$messages);
+        }
+    }
+
+    if ($warningsToShow) {
+        echo Html::tag('div', 'Предупреждения (' . count($warningsToShow) . '):', ['class' => 'alert alert-warning']);
         echo "<ul>";
-        foreach ($warningLines as $line => $text) {
+        foreach ($warningsToShow as $line => $messages) {
             echo Html::tag(
                 'li',
-                //'Строка ' . $line,
                     Html::a(
                         'Строка ' . $line,
                         Url::to(array_merge([
@@ -402,7 +422,7 @@ if ($isFileOK) {
                             'offset' => $line,
                             'limit' => $limit,
                         ]))
-                    ) . ': ' . $text,
+                    ) . ': ' . nl2br(implode(PHP_EOL, (array)$messages)),
                 ['class' => 'alert alert-warning']
             );
         }
@@ -475,7 +495,7 @@ if ($isFileOK) {
     echo Html::tag('div', 'Импорт невозможен, потому что файл содержит ошибки (' . count($errorLines) . '). Исправьте ошибки в файле и загрузите его заново.', ['class' => 'alert alert-danger']);
     if ($errorLines) {
         echo "<ul>";
-        foreach ($errorLines as $line => $text) {
+        foreach ($errorLines as $line => $messages) {
             echo Html::tag(
                 'li',
                 Html::a(
@@ -485,8 +505,8 @@ if ($isFileOK) {
                     ], $baseStep3Params, [
                         'offset' => $line,
                         'limit' => $limit,
-                    ])) . '#line' . $oldLine
-                ) . ': ' . nl2br($text),
+                    ])) . '#line' . $line
+                ) . ': ' . nl2br(implode(PHP_EOL, (array)$messages)),
                 ['class' => 'alert alert-danger']
             );
         }

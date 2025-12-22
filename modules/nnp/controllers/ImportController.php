@@ -194,11 +194,17 @@ class ImportController extends BaseController
     {
         $eventId = $countryFile->getCachedPreviewEventId();
         if ($eventId) {
-            return EventQueue::findOne($eventId);
+            $event = EventQueue::findOne($eventId);
+            if ($event) {
+                return $event;
+            }
+
+            $countryFile->rememberPreviewEventId(null);
         }
 
         $event = EventQueue::find()
             ->where(['event' => Module::EVENT_IMPORT_PREVIEW])
+            ->andWhere(['status' => [EventQueue::STATUS_PLAN, EventQueue::STATUS_ERROR]])
             ->andWhere(new Expression(
                 "JSON_UNQUOTE(JSON_EXTRACT(param, '$.fileId')) = :fileId",
                 [':fileId' => (string)$countryFile->id]
@@ -208,9 +214,13 @@ class ImportController extends BaseController
 
         if ($event) {
             $countryFile->rememberPreviewEventId($event->id);
+            return $event;
         }
 
-        return $event;
+        $newEvent = EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id]);
+        $countryFile->rememberPreviewEventId($newEvent->id);
+
+        return $newEvent;
     }
 
     /**
@@ -239,7 +249,6 @@ class ImportController extends BaseController
         }
 
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
-        $previewEvent = $this->getPreviewEvent($countryFile);
 
         if (Yii::$app->request->get('startQueue')) {
             $previewEvent = EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id], true);
@@ -247,6 +256,8 @@ class ImportController extends BaseController
 
             return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryCode, 'fileId' => $fileId]));
         }
+
+        $previewEvent = $this->getPreviewEvent($countryFile);
 
         $runCheck = boolval(Yii::$app->request->get('runCheck'));
         $checkFull = boolval(Yii::$app->request->get('check'));
