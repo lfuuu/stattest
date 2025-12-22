@@ -40,6 +40,7 @@ if (isset($R['renderMode'])) {
 } elseif (isset($R['is_pdf'])) {
     $isPdf = (int)$R['is_pdf'] === 1;
 }
+$isPdf = (bool)$isPdf;
 $isEmailed = get_param_raw('emailed', 1);
 $isLandscape = (bool)($R['is_portrait'] ?? false);
 $isIncludeSignatureStamp = isset($R['include_signature_stamp']) && (bool)$R['include_signature_stamp'] ? true : false;
