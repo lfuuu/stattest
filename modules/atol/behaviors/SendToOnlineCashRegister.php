@@ -70,6 +70,7 @@ class SendToOnlineCashRegister extends Behavior
      */
     public static function send($paymentId, $isForcePush = false)
     {
+
         $payment = Payment::findOne(['id' => $paymentId]);
         if (!$payment) {
             throw new \InvalidArgumentException('Неправильный платеж ' . $paymentId);
@@ -88,17 +89,19 @@ class SendToOnlineCashRegister extends Behavior
         if ($payment->type == Payment::TYPE_API) {
             $apiChannel = PaymentApiChannel::findOne(['code' => $payment->ecash_operator]);
             if (!$apiChannel) {
-                return false;
+                return false; // отсутствие канала - это критично
             }
 
-            if (strpos($apiChannel->code, 'card_') === 0) {
-                // return true;
-            } elseif (
-                /* $apiChannel->id == PaymentApiChannel::ID_API_TINKOFF_ABONENTSERVICE && */
+            if (!$isForcePush) {
+                if (strpos($apiChannel->code, 'card_') === 0) {
+                    // return true;
+                } elseif (
+                    /* $apiChannel->id == PaymentApiChannel::ID_API_TINKOFF_ABONENTSERVICE && */
                 !$payment->detectPersonOrCard()
-            ) {
-                HandlerLogger::me()->add('No detect person. Channel: ' . $apiChannel->name);
-                return false;
+                ) {
+                    HandlerLogger::me()->add('No detect person. Channel: ' . $apiChannel->name);
+                    return false;
+                }
             }
         }
 
