@@ -408,6 +408,10 @@ class Payment extends ActiveRecord
             $name = $this->client->contragent->name;
         }
 
+        if ($name && $this->detectSberPerson($name)) {
+            return true;
+        }
+
         if (!$name || preg_match('/\B(индивидуальный\s+предприниматель|ип|нотариус|адвокат|ооо|ао|shop)\B/', $name)) {
             return false;
         }
@@ -423,5 +427,17 @@ class Payment extends ActiveRecord
         }
 
         return true;
+    }
+
+    private function detectSberPerson($name)
+    {
+        $pattern = '/^ПАО СБЕРБАНК\/\/([^\/]+)\/\//';
+
+        if (preg_match($pattern, $name, $matches)) {
+            $fio = trim($matches[1]);
+            return preg_match('/^[А-ЯЁ][а-яё]+(\s+[А-ЯЁ][а-яё]+){1,2}$/u', $fio);
+        }
+
+        return false;
     }
 }
