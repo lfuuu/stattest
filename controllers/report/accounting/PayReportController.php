@@ -150,7 +150,7 @@ class PayReportController extends BaseController
     public function actionSendToAtol($id)
     {
         try {
-            $log = SendToOnlineCashRegister::send($id);
+            $log = SendToOnlineCashRegister::send($id, true);
             Yii::$app->session->setFlash('success', $log);
         } catch (\Exception $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
