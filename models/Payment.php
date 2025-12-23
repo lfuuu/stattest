@@ -431,11 +431,11 @@ class Payment extends ActiveRecord
 
     private function detectSberPerson($name)
     {
-        $pattern = '/^ПАО СБЕРБАНК\/\/([^\/]+)\/\//';
+        $pattern = '/^пао сбербанк\/\/([^\/]+)\/\//';
 
         if (preg_match($pattern, $name, $matches)) {
             $fio = trim($matches[1]);
-            return preg_match('/^[А-ЯЁ][а-яё]+(\s+[А-ЯЁ][а-яё]+){1,2}$/u', $fio);
+            return preg_match('/^[а-яё]+(\s+[а-яё\-]+){1,2}$/u', $fio);
         }
 
         return false;
