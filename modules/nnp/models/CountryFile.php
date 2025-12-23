@@ -162,6 +162,11 @@ class CountryFile extends ActiveRecord
         return sprintf('nnp_import_preview_%s', $this->id);
     }
 
+    protected function getPreviewEventCacheKey()
+    {
+        return sprintf('nnp_import_preview_event_%s', $this->id);
+    }
+
     public function getCachedPreviewData()
     {
         /** @var yii\redis\Cache $redis */
@@ -181,6 +186,24 @@ class CountryFile extends ActiveRecord
         $redis->set($this->getPreviewCacheKey(), $data, 3600 * 24);
     }
 
+    public function rememberPreviewEventId(?int $eventId): void
+    {
+        /** @var yii\redis\Cache $redis */
+        $redis = \Yii::$app->cache;
+
+        $redis->set($this->getPreviewEventCacheKey(), $eventId, 3600 * 24);
+    }
+
+    public function getCachedPreviewEventId(): ?int
+    {
+        /** @var yii\redis\Cache $redis */
+        $redis = \Yii::$app->cache;
+
+        $cached = $redis->get($this->getPreviewEventCacheKey());
+
+        return $cached === false ? null : (int)$cached;
+    }
+
     /**
      *
      */
@@ -190,6 +213,7 @@ class CountryFile extends ActiveRecord
         $redis = \Yii::$app->cache;
 
         $redis->delete($this->getPreviewCacheKey());
+        $redis->delete($this->getPreviewEventCacheKey());
     }
 
 }

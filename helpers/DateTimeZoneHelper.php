@@ -89,6 +89,26 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
                 ->format($format);
     }
 
+    public static function formatDurationHuman(int $seconds): string
+    {
+        $hours = intdiv($seconds, 3600);
+        $minutes = intdiv($seconds % 3600, 60);
+        $secs = $seconds % 60;
+
+        $parts = [];
+        if ($hours > 0) {
+            $parts[] = $hours . ' ч';
+        }
+        if ($minutes > 0) {
+            $parts[] = $minutes . ' мин';
+        }
+        if (!$hours && !$minutes) {
+            $parts[] = max(1, $secs) . ' с';
+        }
+
+        return implode(' ', $parts);
+    }
+
     public static function setDateTime($date, $format = false)
     {
         $datetime = new DateTime($date, new DateTimeZone(self::getUserTimeZone()));
