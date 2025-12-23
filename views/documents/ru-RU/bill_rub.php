@@ -4,6 +4,7 @@ use app\classes\Utils;
 use app\classes\Wordifier;
 use app\classes\Html;
 use app\helpers\MediaFileHelper;
+use app\classes\BillQRCode;
 
 /** @var $document app\classes\documents\DocumentReport */
 /** @var $inline_img bool */
@@ -101,14 +102,14 @@ $isOsn = $payerCompany->getTaxRate() != 0;
                         <td colspan="2" align="center">
                             <?php
                             if (!$isCurrentStatement) {
-                                if ($inline_img) {
-                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
-                                } else {
-                                    ?><img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>"
-                                           border="0"/><?php
-                                };
-                            } ?>
-                        </td>
+                                $qrData = $document->getQrCode('bill');
+
+                                if ($qrData) {
+                                    echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
+                                }
+                            }
+                            ?>
+                            </td>
                     </tr>
                 </table>
             <?php endif; ?>
