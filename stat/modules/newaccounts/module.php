@@ -2358,6 +2358,7 @@ class m_newaccounts extends IModule
             $v && $upd2storage[$upd2Name] = $upd2Name;
         }
         if ($upd2storage) {
+            $isPdf = filter_var($is_pdf, FILTER_VALIDATE_BOOLEAN);
             $P = '';
             $R = [];
 
@@ -2395,7 +2396,8 @@ class m_newaccounts extends IModule
                         'template_type_id' => \app\models\document\PaymentTemplateType::TYPE_ID_UPD,
                         'country_code' => $bill->clientAccount->getUuCountryId(),
                         'include_signature_stamp' => false,
-                        'renderMode' => $is_pdf ? 'pdf' : 'html',
+                        'renderMode' => $isPdf ? 'pdf' : 'html',
+                        'qr_doc_type' => $printDocId,
                     ];
 
                     $R[] = [
@@ -2413,7 +2415,7 @@ class m_newaccounts extends IModule
                 }
             }
 
-            $design->assign('is_pdf', $is_pdf);
+            $design->assign('is_pdf', $isPdf);
             $design->assign('rows', $P);
             $design->assign('objects', $R);
             $design->ProcessEx('newaccounts/print_bill_frames.tpl');

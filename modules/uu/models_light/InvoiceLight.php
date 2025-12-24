@@ -38,6 +38,7 @@ class InvoiceLight extends Component
         $_clientAccount,
         $_language = Language::LANGUAGE_DEFAULT,
         $_templateType,
+        $_qrDocType,
         $_country,
         $_date;
 
@@ -119,6 +120,16 @@ class InvoiceLight extends Component
     public function setTemplateType($templateTypeId)
     {
         $this->_templateType = $templateTypeId;
+        return $this;
+    }
+
+    /**
+     * @param string|null $qrDocType
+     * @return $this
+     */
+    public function setQrDocType($qrDocType)
+    {
+        $this->_qrDocType = $qrDocType;
         return $this;
     }
 
@@ -220,7 +231,7 @@ class InvoiceLight extends Component
 
         if (count($items)) {
             // Данные о счете
-            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage);
+            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage, $this->_qrDocType);
             // Данные проводках
             $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $dataLanguage))->getAll();
         }
