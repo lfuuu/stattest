@@ -2710,8 +2710,10 @@ class m_newaccounts extends IModule
                     'template_type_id' => $templateTypeId,
                     'country_code' => $bill->clientAccount->getUuCountryId(),
                     'include_signature_stamp' => false,
-                    'is_pdf' => (int)$isPDF,
                 ];
+                if ($isPDF) {
+                    $printObject['is_pdf'] = 1;
+                }
 
                 $printObjects[] = $printObject;
                 $printObjects[] = array_merge($printObject, ['include_signature_stamp' => true]);

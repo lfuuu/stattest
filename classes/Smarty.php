@@ -21,6 +21,16 @@ class Smarty
             $smarty->registerPlugin('modifier', 'mdate', [new \app\classes\DateFunction, 'mdate']);
             $smarty->registerPlugin('modifier', 'wordify', [new \app\classes\Wordifier, 'Make']);
 
+            if (defined('WEB_ADDRESS') && defined('WEB_PATH')) {
+                $smarty->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
+            }
+            if (defined('WEB_IMAGES_PATH')) {
+                $smarty->assign('IMAGES_PATH', WEB_IMAGES_PATH);
+            }
+            if (defined('WEB_PATH')) {
+                $smarty->assign('PATH_TO_ROOT', WEB_PATH);
+            }
+
             self::$_smarty = $smarty;
         }
 
