@@ -2302,17 +2302,6 @@ class m_newaccounts extends IModule
         $one_pdf = get_param_raw("one_pdf", 0);
         $invoiceId = get_param_raw("invoice_id", 0);
         $isDirectLink = (bool)get_param_raw("isDirectLink", 0);
-        $renderAction = get_param_raw("render", "");
-
-        if ($renderAction === 'upd2') {
-            $billNo = get_param_raw('bill', '');
-            $object = get_param_raw('object', '');
-            $includeSignatureStamp = (bool)get_param_raw('include_signature_stamp', 0);
-
-            return $this->renderUpd2Document($billNo, $object, (bool)$is_pdf, $includeSignatureStamp);
-        }
-
-
         $this->do_include();
         $bills = get_param_raw("bill", []);
         if (!$bills) {
@@ -2730,11 +2719,12 @@ class m_newaccounts extends IModule
 
             foreach ($printObjects as $idx => $obj) {
                 $payload = [
-                    'render' => 'upd2',
-                    'bill_no' => $bill->bill_no,
+                    'bill' => $bill->bill_no,
                     'object' => $obj['document_type'],
-                    'is_pdf' => $isPDF ? 1 : 0,
                 ];
+                if ($isPDF) {
+                    $payload['is_pdf'] = 1;
+                }
                 if (!empty($obj['include_signature_stamp'])) {
                     $payload['include_signature_stamp'] = 1;
                 }
@@ -2839,42 +2829,6 @@ class m_newaccounts extends IModule
 
     }
 
-    function renderUpd2Document(string $billNo, string $object, bool $isPdf, bool $includeSignatureStamp)
-    {
-        $this->do_include();
-
-        if (!$billNo || !in_array($object, ['upd2-1', 'upd2-2'], true)) {
-            return false;
-        }
-
-        $billModel = app\models\Bill::findOne(['bill_no' => $billNo]);
-        if (!$billModel) {
-            return false;
-        }
-
-        $invoiceTypeId = $object === 'upd2-1' ? Invoice::TYPE_1 : Invoice::TYPE_2;
-        $invoice = Invoice::find()->where(['bill_no' => $billNo, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
-
-        if (!$invoice) {
-            trigger_error2('Документ не готов');
-            return false;
-        }
-
-        $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
-            ->setBill($billModel)
-            ->setInvoice($invoice)
-            ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
-            ->setCountry($billModel->clientAccount->getUuCountryId());
-
-        $content = $invoiceDocument->render($isPdf, null, $includeSignatureStamp);
-
-        if ($isPdf) {
-            header('Content-Type: application/pdf');
-        }
-
-        echo $content;
-        exit;
-    }
 
     function newaccounts_bill_clear($fixclient)
     {
@@ -3023,6 +2977,41 @@ class m_newaccounts extends IModule
 
         if ($billModel->isCorrectionType()) {
             throw new LogicException('Нет документов у корректировки');
+        }
+
+        if (in_array($obj, ['upd2-1', 'upd2-2'])) {
+            $includeSignatureStamp = (bool)get_param_raw('include_signature_stamp', 0);
+            $invoiceTypeId = $obj === 'upd2-1' ? Invoice::TYPE_1 : Invoice::TYPE_2;
+            $invoice = Invoice::find()->where(['bill_no' => $bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
+
+            if (!$invoice) {
+                if ($only_html == '1') {
+                    return '';
+                }
+                trigger_error2('Документ не готов');
+                return false;
+            }
+
+            $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
+                ->setBill($billModel)
+                ->setInvoice($invoice)
+                ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
+                ->setCountry($billModel->clientAccount->getUuCountryId());
+
+            $content = $invoiceDocument->render((bool)$is_pdf, null, $includeSignatureStamp);
+
+            if ($is_pdf) {
+                header('Content-Type: application/pdf');
+                echo $content;
+                exit;
+            }
+
+            if ($only_html == '1') {
+                return $content;
+            }
+
+            echo $content;
+            exit;
         }
 
         switch ($obj) {
