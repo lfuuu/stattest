@@ -2358,7 +2358,67 @@ class m_newaccounts extends IModule
             $v && $upd2storage[$upd2Name] = $upd2Name;
         }
         if ($upd2storage) {
-            return $this->printmTpl3($upd2storage, $bills, $is_pdf);
+            $P = '';
+            $R = [];
+
+            foreach ($bills as $billNo) {
+                /** @var Bill $bill */
+                $bill = Bill::findOne(['bill_no' => $billNo]);
+
+                if (!$bill) {
+                    continue;
+                }
+
+                foreach ($upd2storage as $printDocId) {
+                    if ($printDocId == 'upd2-1') {
+                        $invoiceTypeId = Invoice::TYPE_1;
+                    } elseif ($printDocId == 'upd2-2') {
+                        $invoiceTypeId = Invoice::TYPE_2;
+                    } else {
+                        continue;
+                    }
+
+                    /** @var Invoice $invoiceObject */
+                    $invoiceObject = Invoice::find()
+                        ->where(['bill_no' => $bill->bill_no, 'type_id' => $invoiceTypeId])
+                        ->orderBy(['id' => SORT_DESC])
+                        ->one();
+
+                    if (!$invoiceObject) {
+                        continue;
+                    }
+
+                    $printObject = [
+                        'tpl1' => 3,
+                        'account_id' => $bill->client_id,
+                        'document_number' => $invoiceObject->number,
+                        'template_type_id' => \app\models\document\PaymentTemplateType::TYPE_ID_UPD,
+                        'country_code' => $bill->clientAccount->getUuCountryId(),
+                        'include_signature_stamp' => false,
+                        'renderMode' => $is_pdf ? 'pdf' : 'html',
+                    ];
+
+                    $R[] = [
+                        'isLink' => true,
+                        'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($printObject),
+                    ];
+                    $P .= ($P ? ',' : '') . '1';
+
+                    $printObject['include_signature_stamp'] = true;
+                    $R[] = [
+                        'isLink' => true,
+                        'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($printObject),
+                    ];
+                    $P .= ($P ? ',' : '') . '1';
+                }
+            }
+
+            $design->assign('is_pdf', $is_pdf);
+            $design->assign('rows', $P);
+            $design->assign('objects', $R);
+            $design->ProcessEx('newaccounts/print_bill_frames.tpl');
+
+            return;
         }
 
 
