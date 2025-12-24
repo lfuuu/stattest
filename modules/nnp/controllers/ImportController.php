@@ -15,6 +15,7 @@ use app\modules\nnp\Module;
 use app\modules\nnp2\media\ImportServiceUploadedNew;
 use app\modules\nnp2\models\ImportHistory;
 use Yii;
+use yii\db\Expression;
 use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
@@ -148,6 +149,8 @@ class ImportController extends BaseController
             }
 
             Yii::$app->session->addFlash('success', 'Файл успешно загружен');
+            $previewEvent = EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id]);
+            $countryFile->rememberPreviewEventId($previewEvent->id);
             return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id]));
         }
 
@@ -185,6 +188,32 @@ class ImportController extends BaseController
     }
 
     /**
+     * Получить очередь предпросмотра файла.
+     */
+    private function getPreviewEvent(CountryFile $countryFile): ?EventQueue
+    {
+        $eventId = $countryFile->getCachedPreviewEventId();
+        if ($eventId) {
+            return EventQueue::findOne($eventId);
+        }
+
+        $event = EventQueue::find()
+            ->where(['event' => Module::EVENT_IMPORT_PREVIEW])
+            ->andWhere(new Expression(
+                "JSON_UNQUOTE(JSON_EXTRACT(param, '$.fileId')) = :fileId",
+                [':fileId' => (string)$countryFile->id]
+            ))
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+
+        if ($event) {
+            $countryFile->rememberPreviewEventId($event->id);
+        }
+
+        return $event;
+    }
+
+    /**
      * Шаг 3. Предпросмотр файла
      *
      * @param int $countryCode
@@ -210,21 +239,40 @@ class ImportController extends BaseController
         }
 
         $countryFile = $this->_getCountryFile($countryCode, $fileId);
+        $previewEvent = $this->getPreviewEvent($countryFile);
 
+        if (Yii::$app->request->get('startQueue')) {
+            $previewEvent = EventQueue::go(Module::EVENT_IMPORT_PREVIEW, ['fileId' => $countryFile->id, 'notified_user_id' => Yii::$app->user->id], true);
+            $countryFile->rememberPreviewEventId($previewEvent->id);
+
+            return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $countryCode, 'fileId' => $fileId]));
+        }
+
+        $runCheck = boolval(Yii::$app->request->get('runCheck'));
         $checkFull = boolval(Yii::$app->request->get('check'));
+        $country = $countryFile->country;
+        $mediaManager = $country->getMediaManager();
+        $isSmall = $mediaManager->isSmall($countryFile);
+
         if (!$checkFull) {
-            $country = $countryFile->country;
-            $mediaManager = $country->getMediaManager();
-            $checkFull = $mediaManager->isSmall($countryFile);
+            $checkFull = $isSmall;
+        }
+
+        if ($previewEvent && $previewEvent->status === EventQueue::STATUS_OK) {
+            $runCheck = true;
+            $checkFull = true;
         }
 
         return $this->render('step3', [
             'countryFile' => $countryFile,
             'clear' => boolval(Yii::$app->request->get('clear')),
             'checkFull' => $checkFull,
+            'runCheck' => $runCheck,
+            'isSmall' => $isSmall,
             'offset' => $offset,
             'limit' => $limit,
             'formModel' => $formModel,
+            'previewEvent' => $previewEvent,
         ]);
     }
 
@@ -283,12 +331,13 @@ class ImportController extends BaseController
      * @param int $countryCode
      * @param int $fileId
      * @param int|null $version
+     * @param int|null $queue
      * @return string
      * @throws \app\exceptions\ModelValidationException
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
-    public function actionStep4($countryCode, $fileId, $version = null)
+    public function actionStep4($countryCode, $fileId, $version = null, $queue = null)
     {
         try {
             /** @var Form $form */
@@ -315,7 +364,10 @@ class ImportController extends BaseController
 
         $country = $countryFile->country;
         $mediaManager = $country->getMediaManager();
-        if ($mediaManager->isSmall($countryFile)) {
+        $isSmall = $mediaManager->isSmall($countryFile);
+        $forceQueue = boolval($queue);
+
+        if (!$forceQueue && $isSmall) {
             // файл маленький - загрузить сразу
 
             // import version 1

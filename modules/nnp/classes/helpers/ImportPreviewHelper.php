@@ -2,7 +2,10 @@
 
 namespace app\modules\nnp\classes\helpers;
 
+use app\models\EventQueue;
+use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\media\ImportServiceUploaded;
+use app\helpers\DateTimeZoneHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\modules\nnp\classes\helpers\RangesTreeHelper;
@@ -12,6 +15,33 @@ class ImportPreviewHelper
     public const STATUS_OK      = 0;
     public const STATUS_ERROR   = 1;
     public const STATUS_WARNING = 2;
+
+    private const PROGRESS_TEMPLATE = "Count all: %d\ncount: %d";
+    private const PROGRESS_ROW_STEP = 2000;
+
+    /**
+     * Обновляет счётчик прогресса, сохраняя уже записанные отладочные строки.
+     */
+    private static function updateProgress(EventQueue $eventQueue, int $total, int $done): void
+    {
+        $rows = array_values(array_filter(explode(PHP_EOL, (string)$eventQueue->log_error), 'strlen'));
+
+        $debugRows = [];
+        foreach ($rows as $row) {
+            if (strpos($row, 'Count all: ') === 0 || strpos($row, 'count: ') === 0) {
+                continue;
+            }
+            $debugRows[] = $row;
+        }
+
+        $logError = sprintf(self::PROGRESS_TEMPLATE, $total, $done);
+        if ($debugRows) {
+            $logError .= PHP_EOL . implode(PHP_EOL, $debugRows);
+        }
+
+        $eventQueue->log_error = $logError;
+        $eventQueue->save(false, ['log_error']);
+    }
 
     /**
      * Ожидаемые заголовки CSV.
@@ -51,6 +81,337 @@ class ImportPreviewHelper
         fseek($handle, $pos);
 
         return $delimiter;
+    }
+
+    /**
+     * Очередная проверка файла с прогрессом.
+     */
+    public static function runQueuedCheck(CountryFile $countryFile, EventQueue $eventQueue): void
+    {
+        $filePath = $countryFile->country->getMediaManager()->getUnzippedFilePath($countryFile);
+        $handle = fopen($filePath, 'r');
+        if (!$handle) {
+            throw new \RuntimeException(sprintf('Ошибка чтения файла %s: %s', $filePath, json_encode(error_get_last())));
+        }
+
+        $delimiter  = self::detectDelimiter($handle);
+        $fileSize   = filesize($filePath) ?: 0;
+        if ($fileSize > 0) {
+            self::updateProgress($eventQueue, $fileSize, 0);
+        }
+
+        $recordsCoverage = 'errors_only';
+
+        $rowNumber = 0;
+        $linesCount = 0;
+        $isFileOK = true;
+        $errorLines = [];
+        $warningLines = [];
+        $alreadyRead = [];
+        $rangesByPrefix = [];
+        $segmentsMeta = [];
+        $records = [];
+        $headerChecked = false;
+        $importServiceUploaded = new ImportServiceUploaded(['countryCode' => $countryFile->country->code]);
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+            $rowNumber++;
+
+            if (self::handleHeaderRow($rowNumber, $row, $headerChecked, $errorLines, $warningLines, $isFileOK)) {
+                continue;
+            }
+
+            [$rowStatus, $oldLine] = self::checkRow(
+                $rowNumber,
+                $row,
+                $importServiceUploaded,
+                $errorLines,
+                $warningLines,
+                $alreadyRead,
+                $rangesByPrefix,
+                $segmentsMeta,
+                $countryFile->country->code,
+                $countryFile->id,
+                $isFileOK
+            );
+
+            $needsRecord = $oldLine !== null || self::hasNonOkStatus($rowStatus);
+
+            if ($needsRecord) {
+                $records[$rowNumber] = [
+                    $rowStatus,
+                    $oldLine,
+                ];
+            }
+
+            if ($fileSize > 0 && $rowNumber % self::PROGRESS_ROW_STEP === 0) {
+                self::updateProgress($eventQueue, $fileSize, ftell($handle));
+            }
+        }
+
+        $linesCount = $rowNumber;
+
+        $progressTotal = self::validateOverlaps(
+            $rangesByPrefix,
+            $segmentsMeta,
+            $records,
+            $errorLines,
+            $isFileOK,
+            $eventQueue,
+            $linesCount
+        );
+
+        // Финальный прогресс фиксируем даже если total не кратен 100.
+        self::updateProgress($eventQueue, $progressTotal, $progressTotal);
+
+        $data = [
+            'isFileOK' => $isFileOK,
+            'records' => $records,
+            'errorLines' => $errorLines,
+            'warningLines' => $warningLines,
+            'checked' => true,
+            'recordsCoverage' => $recordsCoverage,
+        ];
+
+        $countryFile->setCachedPreviewData(json_encode($data));
+
+        fclose($handle);
+    }
+
+    private static function handleHeaderRow(
+        int $rowNumber,
+        array $row,
+        bool &$headerChecked,
+        array &$errorLines,
+        array &$warningLines,
+        bool &$isFileOK
+    ): bool {
+        if ($headerChecked || $rowNumber !== 1 || ctype_digit((string)$row[0])) {
+            return false;
+        }
+
+        $headerChecked = true;
+        $headerResult  = self::validateHeaderRow($row);
+
+        if (!empty($headerResult['errors'])) {
+            $isFileOK               = false;
+            $errorLines[$rowNumber] = implode(PHP_EOL, $headerResult['errors']);
+        }
+        if (!empty($headerResult['warnings'])) {
+            $warningLines[$rowNumber] =
+                (isset($warningLines[$rowNumber]) && $warningLines[$rowNumber] !== '' ? $warningLines[$rowNumber] . PHP_EOL : '') .
+                implode(PHP_EOL, $headerResult['warnings']);
+        }
+
+        return true;
+    }
+
+    /**
+     * Финальная проверка пересечений после полного чтения файла.
+     */
+    private static function validateOverlaps(
+        array $rangesByPrefix,
+        array $segmentsMeta,
+        array &$records,
+        array &$errorLines,
+        bool &$isFileOK,
+        EventQueue $eventQueue,
+        int $linesCount
+    ): int {
+        $overlapCount = 0;
+        $segmentsTotal = 0;
+        $processedSegments = 0;
+        $nextProgressAt = 20000;
+        $defaultStatuses = array_fill(0, count(self::getExpectedHeader()), self::STATUS_OK);
+
+        foreach ($rangesByPrefix as $types) {
+            foreach ($types as $ndcs) {
+                foreach ($ndcs as $segments) {
+                    $segmentsTotal += count($segments);
+                }
+            }
+        }
+
+        $progressTotal = $linesCount + $segmentsTotal;
+        if ($segmentsTotal > 0) {
+            self::updateProgress($eventQueue, $progressTotal, $linesCount);
+        }
+
+        foreach ($rangesByPrefix as $ccKey => $types) {
+            foreach ($types as $typeBucket => $ndcs) {
+                foreach ($ndcs as $ndc => $segments) {
+                    RangesTreeHelper::scanOverlaps($segments, function (array $curr, array $prev) use (&$records, &$errorLines, &$isFileOK, &$overlapCount, $ccKey, $typeBucket, $ndc, $defaultStatuses, $segmentsMeta): void {
+                        $currMeta = $segmentsMeta[$curr[2]] ?? ['ndc' => $ndc, 'from_sn' => '', 'to_sn' => ''];
+                        $prevMeta = $segmentsMeta[$prev[2]] ?? ['ndc' => $ndc, 'from_sn' => '', 'to_sn' => ''];
+
+                        $msgCurr = sprintf(
+                            'Пересечение диапазонов: (CC %s) NDC %s %s-%s пересекается с NDC %s %s-%s (строка %d)',
+                            $ccKey,
+                            $ndc, $currMeta['from_sn'], $currMeta['to_sn'],
+                            $prevMeta['ndc'], $prevMeta['from_sn'], $prevMeta['to_sn'],
+                            $prev[2]
+                        );
+
+                        $msgPrev = sprintf(
+                            'Пересечение диапазонов: (CC %s) NDC %s %s-%s пересекается с NDC %s %s-%s (строка %d)',
+                            $ccKey,
+                            $prevMeta['ndc'], $prevMeta['from_sn'], $prevMeta['to_sn'],
+                            $ndc, $currMeta['from_sn'], $currMeta['to_sn'],
+                            $curr[2]
+                        );
+
+                        foreach ([[$curr[2], $msgCurr], [$prev[2], $msgPrev]] as $pair) {
+                            $line = $pair[0];
+                            $msg = $pair[1];
+
+                            if (!isset($records[$line])) {
+                                $records[$line] = [$defaultStatuses, null];
+                            }
+
+                            if (isset($records[$line][0][4])) {
+                                $records[$line][0][4] = self::STATUS_ERROR;
+                            }
+                            if (isset($records[$line][0][5])) {
+                                $records[$line][0][5] = self::STATUS_ERROR;
+                            }
+
+                            $errorLines[$line] = (isset($errorLines[$line]) ? $errorLines[$line] . PHP_EOL : '') . $msg;
+                        }
+
+                        $isFileOK = false;
+                        $overlapCount++;
+                    });
+
+                    if ($segmentsTotal > 0) {
+                        $processedSegments += count($segments);
+                        if ($processedSegments >= $segmentsTotal || $processedSegments >= $nextProgressAt) {
+                            self::updateProgress($eventQueue, $progressTotal, $linesCount + $processedSegments);
+                            $nextProgressAt += 20000;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($segmentsTotal > 0 && $processedSegments < $segmentsTotal) {
+            self::updateProgress($eventQueue, $progressTotal, $linesCount + $processedSegments);
+        }
+
+        return $progressTotal;
+    }
+
+    /**
+     * Расчёт данных прогресса из log_error.
+     */
+    public static function getProgressData(EventQueue $eventQueue): array
+    {
+        $countAll = 0;
+        $count = 0;
+        $progressStyle = 'info';
+        $error = '';
+        $eta = '';
+
+        $rows = array_values(array_filter(explode(PHP_EOL, trim($eventQueue->log_error))));
+
+        if ($rows && strpos($rows[0], 'Count all: ') !== false) {
+            $countAll = (int)str_replace('Count all: ', '', $rows[0]);
+            $count = $countAll;
+
+            foreach ($rows as $row) {
+                if (strpos($row, 'count: ') === 0) {
+                    $count = (int)str_replace('count: ', '', $row);
+                }
+            }
+
+            if ($count === $countAll && $countAll !== 0 && (!isset($rows[1]) || strpos($rows[1], 'count: ') !== 0)) {
+                $progressStyle = 'error';
+                $error = end($rows);
+            }
+        } elseif ($rows) {
+            $progressStyle = 'error';
+            $error = $rows[0];
+        }
+
+        if ($eventQueue->status === EventQueue::STATUS_OK) {
+            $count = $countAll;
+            $progressStyle = 'success';
+            $error = '';
+        }
+
+        $progressValue = $countAll ? round($count / ($countAll / 100)) : 0;
+
+        if ($countAll > 0 && $count > 0 && $count < $countAll && $progressStyle !== 'error') {
+            $eta = self::calculateEta($countAll, $count, $rows);
+        }
+
+        return [$countAll, $count, $progressStyle, $progressValue, $error, $eta];
+    }
+
+    private static function calculateEta(int $total, int $done, array $rows): string
+    {
+        $timestamps = [];
+        $progressSamples = [];
+
+        foreach ($rows as $row) {
+            if (!preg_match('/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', $row, $matches)) {
+                continue;
+            }
+
+            $timestamp = strtotime($matches[1]);
+            if ($timestamp === false) {
+                continue;
+            }
+
+            $timestamps[] = $timestamp;
+
+            if (preg_match('/row=(\d+)/', $row, $rowMatch)) {
+                $progressSamples[] = [$timestamp, (int)$rowMatch[1]];
+            }
+        }
+
+        $rate = 0.0;
+        $referenceTs = null;
+
+        // Используем последние 2-3 heartbeat-замера (row=...) для более живой оценки.
+        $samplesCount = count($progressSamples);
+        if ($samplesCount >= 2) {
+            $window = array_slice($progressSamples, max(0, $samplesCount - 3));
+            $first = $window[0];
+            $last  = $window[count($window) - 1];
+            $deltaRows = $last[1] - $first[1];
+            $deltaTime = $last[0] - $first[0];
+            if ($deltaRows > 0 && $deltaTime > 0) {
+                $rate = $deltaRows / $deltaTime;
+                $referenceTs = $last[0];
+            }
+        }
+
+        // Fallback: общий средний темп по всем отметкам времени.
+        if (!$rate && count($timestamps) >= 2) {
+            $startTs = $timestamps[0];
+            $lastTs  = end($timestamps);
+            $elapsed = $lastTs - $startTs;
+            if ($elapsed > 0) {
+                $rate = $done / $elapsed;
+                $referenceTs = $lastTs;
+            }
+        }
+
+        if ($rate <= 0 || $referenceTs === null) {
+            return '';
+        }
+
+        $remainingSeconds = (int)round(($total - $done) / $rate);
+        if ($remainingSeconds < 1) {
+            return '';
+        }
+
+        $etaTime = $referenceTs + $remainingSeconds;
+
+        return sprintf(
+            'Оценка завершения: ≈%s (до %s)',
+            DateTimeZoneHelper::formatDurationHuman($remainingSeconds),
+            date('H:i', $etaTime)
+        );
     }
 
     /**
@@ -97,13 +458,14 @@ class ImportPreviewHelper
         int $lineNumber,
         array $row,
         ImportServiceUploaded $importServiceUploaded,
-        array $errorLines,
-        array $warningLines,
-        array $alreadyRead,
-        array $rangesByPrefix,
+        array &$errorLines,
+        array &$warningLines,
+        array &$alreadyRead,
+        array &$rangesByPrefix,
+        array &$segmentsMeta,
         $countryCode,
         int $countryFileId,
-        bool $isFileOK
+        bool &$isFileOK
     ): array {
         $oldLine   = null;
         $rowStatus = [];
@@ -128,21 +490,28 @@ class ImportPreviewHelper
             foreach ($row as $idx => $_) {
                 $rowStatus[$idx] = self::STATUS_ERROR;
             }
-            return [$rowStatus, false, $errorLines, $warningLines, null, $alreadyRead, $rangesByPrefix];
+            $isFileOK = false;
+            return [$rowStatus, null];
         }
 
         // --- Количество столбцов ---
         $cols = count($row);
         if ($cols !== $expectedCols) {
-            $errorLines[$lineNumber] = sprintf(
+            $columnsError = sprintf(
                 'Количество столбцов в строке должно быть %d, сейчас %d.',
                 $expectedCols,
                 $cols
             );
+
+            // Логируем несоответствие колонок только один раз на весь файл
+            if (!in_array($columnsError, $errorLines, true)) {
+                $errorLines[$lineNumber] = $columnsError;
+            }
             foreach ($row as $idx => $_) {
                 $rowStatus[$idx] = self::STATUS_ERROR;
             }
-            return [$rowStatus, false, $errorLines, $warningLines, null, $alreadyRead, $rangesByPrefix];
+            $isFileOK = false;
+            return [$rowStatus, null];
         }
 
         // --- Обработка данных ---
@@ -155,7 +524,14 @@ class ImportPreviewHelper
                 $importServiceUploaded->getRowHasError($numberRangeImport)
             );
 
-            $key = sprintf(
+            $key = implode('|', [
+                $numberRangeImport->country_prefix,
+                $numberRangeImport->ndc_str,
+                $numberRangeImport->number_from,
+                $numberRangeImport->number_to,
+            ]);
+
+            $keyDisplay = sprintf(
                 '(%s) %s %s - %s %s',
                 $numberRangeImport->country_prefix,
                 $numberRangeImport->ndc_str,
@@ -173,11 +549,12 @@ class ImportPreviewHelper
                     }
                 }
                 $errorLines[$lineNumber] = $text;
-                return [$rowStatus, false, $errorLines, $warningLines, null, $alreadyRead, $rangesByPrefix];
+                $isFileOK = false;
+                return [$rowStatus, null];
             }
 
             // --- Дополнительные проверки ---
-            $extraErrors = [];
+                $extraErrors = [];
 
             $cc       = $row[0];
             $ndc      = $row[1];
@@ -243,57 +620,35 @@ class ImportPreviewHelper
                 }
             }
 
-            // --- Пересечения диапазонов ---
+            // --- Подготовка к оффлайновой проверке пересечений ---
             $ccKey = (string)$numberRangeImport->country_prefix;
 
             if (!isset($rangesByPrefix[$ccKey])) {
-                $rangesByPrefix[$ccKey] = null;
+                $rangesByPrefix[$ccKey] = [];
+            }
+
+            $typeBucket = ctype_digit((string)$typeId) ? (string)$typeId : 'unknown';
+
+            if (!array_key_exists($typeBucket, $rangesByPrefix[$ccKey])) {
+                $rangesByPrefix[$ccKey][$typeBucket] = [];
             }
 
             if (ctype_digit($ndc) && ctype_digit($fromSn) && ctype_digit($toSn)) {
-
-                $fullFrom = (int)($ndc . $fromSn);
-                $fullTo   = (int)($ndc . $toSn);
-
-                $overlaps = [];
-                RangesTreeHelper::search($rangesByPrefix[$ccKey], $fullFrom, $fullTo, $overlaps);
-
-                foreach ($overlaps as $prev) {
-                    $msgCurr = sprintf(
-                        'Пересечение диапазонов: (CC %s) NDC %s %s-%s пересекается с NDC %s %s-%s (строка %d)',
-                        $ccKey,
-                        $ndc, $fromSn, $toSn,
-                        $prev['ndc'], $prev['from_sn'], $prev['to_sn'],
-                        $prev['line']
-                    );
-
-                    $msgPrev = sprintf(
-                        'Пересечение диапазонов: (CC %s) NDC %s %s-%s пересекается с NDC %s %s-%s (строка %d)',
-                        $ccKey,
-                        $prev['ndc'], $prev['from_sn'], $prev['to_sn'],
-                        $ndc, $fromSn, $toSn,
-                        $lineNumber
-                    );
-
-                    $extraErrors[] = $msgCurr;
-                    $rowStatus[4] = $rowStatus[5] = self::STATUS_ERROR;
-
-                    $errorLines[$prev['line']] =
-                        (isset($errorLines[$prev['line']]) ? $errorLines[$prev['line']] . PHP_EOL : '') .
-                        $msgPrev;
-
-                    $isFileOK = false;
+                if (!array_key_exists($ndc, $rangesByPrefix[$ccKey][$typeBucket])) {
+                    $rangesByPrefix[$ccKey][$typeBucket][$ndc] = [];
                 }
 
-                $rangesByPrefix[$ccKey] = RangesTreeHelper::insert(
-                    $rangesByPrefix[$ccKey],
-                    $fullFrom,
-                    $fullTo,
+                $rangesByPrefix[$ccKey][$typeBucket][$ndc][] = [
+                    (int)($ndc . $fromSn),
+                    (int)($ndc . $toSn),
                     $lineNumber,
-                    $ndc,
-                    $fromSn,
-                    $toSn
-                );
+                ];
+
+                $segmentsMeta[$lineNumber] = [
+                    'ndc' => $ndc,
+                    'from_sn' => $fromSn,
+                    'to_sn' => $toSn,
+                ];
             }
 
             // --- Запись ошибок ---
@@ -309,7 +664,7 @@ class ImportPreviewHelper
 
                 $warningLines[$lineNumber] =
                     (isset($warningLines[$lineNumber]) ? $warningLines[$lineNumber] . PHP_EOL : '') .
-                    "Диапазон $key уже добавлен в строке " .
+                    "Диапазон $keyDisplay уже добавлен в строке " .
                     Html::a(
                         $oldLine,
                         Url::to([
@@ -323,8 +678,21 @@ class ImportPreviewHelper
             }
 
             $alreadyRead[$key] = $lineNumber;
+
         }
 
-        return [$rowStatus, $isFileOK, $errorLines, $warningLines, $oldLine, $alreadyRead, $rangesByPrefix];
+        return [$rowStatus, $oldLine];
     }
+
+    private static function hasNonOkStatus(array $rowStatus): bool
+    {
+        foreach ($rowStatus as $status) {
+            if ($status !== self::STATUS_OK) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

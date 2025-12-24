@@ -34,7 +34,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
      * @param Invoice $invoice
      * @param string $language
      */
-    public function __construct($bill, $invoice, $language)
+    public function __construct($bill, $invoice, $language, $qrDocType = 'bill')
     {
         parent::__construct();
 

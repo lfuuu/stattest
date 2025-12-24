@@ -45,6 +45,7 @@ use app\modules\nnp\classes\OperatorLinker;
 use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\models\CountryFile;
+use app\modules\nnp\classes\helpers\ImportPreviewHelper;
 use app\modules\nnp\models\NumberExample;
 use app\modules\nnp\Module as NnpModule;
 use app\modules\notifier\Module;
@@ -80,6 +81,7 @@ $nnpEvents = ['event' => [
     NnpModule::EVENT_LINKER,
     NnpModule::EVENT_EXAMPLES,
     NnpModule::EVENT_IMPORT,
+    NnpModule::EVENT_IMPORT_PREVIEW,
     EventQueue::INVOICE_MASS_CREATE,
 //    EventQueue::INVOICE_GENERATE_PDF,
     EventQueue::INVOICE_ALL_PDF_CREATED,
@@ -986,6 +988,20 @@ function doEvents($eventQueueQuery, $uuSyncEvents)
                             // поставить в очередь для пересчета операторов, регионов и городов
                             EventQueue::go(NnpModule::EVENT_LINKER, ['country_code' => $countryCode]);
                         }
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+                case NnpModule::EVENT_IMPORT_PREVIEW:
+                    if ($isNnpServer) {
+                        $countryFile = CountryFile::findOne($param['fileId'] ?? null);
+                        if (!$countryFile) {
+                            throw new Exception('Файл не найден для предпросмотра');
+                        }
+
+                        ImportPreviewHelper::runQueuedCheck($countryFile, $event);
+                        $info = '';
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
