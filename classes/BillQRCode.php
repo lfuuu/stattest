@@ -2,7 +2,7 @@
 
 namespace app\classes;
 
-use app\controllers\utils\QrCodeController;
+use app\classes\QRcode\QRcode;
 
 class BillQRCode
 {
@@ -105,13 +105,26 @@ class BillQRCode
         return '';
     }
 
+    public static function generateGifData($data, $errorLevel = 'H', $size = 4, $margin = 2)
+    {
+        if (!$data) {
+            return '';
+        }
+
+        ob_start();
+        QRcode::gif(trim($data), false, $errorLevel, $size, $margin);
+        $imageData = ob_get_clean();
+
+        return $imageData === false ? '' : $imageData;
+    }
+
     public static function getInlineImgTagByData($data, $options = [], $mimeType = 'image/gif')
     {
         if (!$data) {
             return '';
         }
 
-        $imageData = QrCodeController::generateGifData($data, 'H', 4, 2);
+        $imageData = self::generateGifData($data, 'H', 4, 2);
 
         if ($imageData === false || $imageData === '') {
             return '';

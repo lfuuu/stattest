@@ -13,19 +13,6 @@ use app\classes\QRcode\QRcode;
 class QrCodeController extends BaseController
 {
     const QR_RECEIPT_HEADER = 'ST00011'; // prefix: 'ST'; format ver 0001; encode: 1-CP151, 2-UTF8
-
-    public static function generateGifData($data, $errorLevel = 'H', $size = 4, $margin = 2)
-    {
-        if (!$data) {
-            return '';
-        }
-
-        ob_start();
-        QRcode::gif(trim($data), false, $errorLevel, $size, $margin);
-        $imageData = ob_get_clean();
-
-        return $imageData === false ? '' : $imageData;
-    }
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -45,7 +32,7 @@ class QrCodeController extends BaseController
         $response->headers->set('Content-Type', 'image/gif');
         $response->format = Response::FORMAT_RAW;
 
-        echo self::generateGifData($data, 'H', 4, 2);
+        echo BillQRCode::generateGifData($data, 'H', 4, 2);
         //\PHPQRCode\QRcode::png(trim($data), false, 'H', 4, 2);
     }
 
@@ -123,6 +110,6 @@ class QrCodeController extends BaseController
         $response->headers->set('Content-Type', 'image/gif');
         $response->format = Response::FORMAT_RAW;
 
-        echo self::generateGifData($qrString, 'M', 3, 1);
+        echo BillQRCode::generateGifData($qrString, 'M', 3, 1);
     }
 }
