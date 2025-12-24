@@ -2302,6 +2302,15 @@ class m_newaccounts extends IModule
         $one_pdf = get_param_raw("one_pdf", 0);
         $invoiceId = get_param_raw("invoice_id", 0);
         $isDirectLink = (bool)get_param_raw("isDirectLink", 0);
+        $renderAction = get_param_raw("render", "");
+
+        if ($renderAction === 'upd2') {
+            $billNo = get_param_raw('bill', '');
+            $object = get_param_raw('object', '');
+            $includeSignatureStamp = (bool)get_param_raw('include_signature_stamp', 0);
+
+            return $this->renderUpd2Document($billNo, $object, (bool)$is_pdf, $includeSignatureStamp);
+        }
 
 
         $this->do_include();
@@ -2690,8 +2699,10 @@ class m_newaccounts extends IModule
                 $templateTypeId = \app\models\document\PaymentTemplateType::TYPE_ID_UPD;
                 if ($printDocId == 'upd2-1') {
                     $invoiceTypeId = Invoice::TYPE_1;
+                    $documentType = 'upd2-1';
                 } elseif ($printDocId == 'upd2-2') {
                     $invoiceTypeId = Invoice::TYPE_2;
+                    $documentType = 'upd2-2';
                 } else {
                     continue;
                 }
@@ -2710,19 +2721,30 @@ class m_newaccounts extends IModule
                     'template_type_id' => $templateTypeId,
                     'country_code' => $bill->clientAccount->getUuCountryId(),
                     'include_signature_stamp' => false,
+                    'document_type' => $documentType,
                 ];
-                if ($isPDF) {
-                    $printObject['is_pdf'] = 1;
-                }
 
                 $printObjects[] = $printObject;
                 $printObjects[] = array_merge($printObject, ['include_signature_stamp' => true]);
             }
 
             foreach ($printObjects as $idx => $obj) {
+                $baseObj = $obj['document_type'];
+                $params = [
+                    'module' => 'newaccounts',
+                    'action' => 'bill_mprint',
+                    'render' => 'upd2',
+                    'bill' => $bill->bill_no,
+                    'object' => $baseObj,
+                    'is_pdf' => $isPDF ? 1 : 0,
+                ];
+                if (!empty($obj['include_signature_stamp'])) {
+                    $params['include_signature_stamp'] = 1;
+                }
+
                 $R[] = [
                     'isLink' => true,
-                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($obj),
+                    'link' => \Yii::$app->params['SITE_URL'] . '?' . http_build_query($params),
                 ];
                 $P .= ($P ? ',' : '') . '1';
             }
@@ -2818,6 +2840,43 @@ class m_newaccounts extends IModule
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
 
 
+    }
+
+    private function renderUpd2Document(string $billNo, string $object, bool $isPdf, bool $includeSignatureStamp)
+    {
+        $this->do_include();
+
+        if (!$billNo || !in_array($object, ['upd2-1', 'upd2-2'], true)) {
+            return false;
+        }
+
+        $billModel = app\models\Bill::findOne(['bill_no' => $billNo]);
+        if (!$billModel) {
+            return false;
+        }
+
+        $invoiceTypeId = $object === 'upd2-1' ? Invoice::TYPE_1 : Invoice::TYPE_2;
+        $invoice = Invoice::find()->where(['bill_no' => $billNo, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
+
+        if (!$invoice) {
+            trigger_error2('Документ не готов');
+            return false;
+        }
+
+        $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
+            ->setBill($billModel)
+            ->setInvoice($invoice)
+            ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
+            ->setCountry($billModel->clientAccount->getUuCountryId());
+
+        $content = $invoiceDocument->render($isPdf, null, $includeSignatureStamp);
+
+        if ($isPdf) {
+            header('Content-Type: application/pdf');
+        }
+
+        echo $content;
+        exit;
     }
 
     function newaccounts_bill_clear($fixclient)
