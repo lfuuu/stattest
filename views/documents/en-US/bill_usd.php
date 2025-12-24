@@ -123,7 +123,15 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
                                 $qrData = $document->getQrCode('bill');
 
                                 if ($qrData) {
-                                    echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
+                                    if ($inline_img) {
+                                        echo Html::inlineImg(
+                                            Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $qrData,
+                                            [],
+                                            'image/gif'
+                                        );
+                                    } else {
+                                        echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
+                                    }
                                 }
                             }
                             ?>
