@@ -117,6 +117,13 @@ $isOsn = $payerCompany->getTaxRate() != 0;
                                 }
                             }
                             ?>
+                            <script>
+                                console.log('bill_rub qr', {
+                                    isCurrentStatement: <?= $isCurrentStatement ? 'true' : 'false' ?>,
+                                    inlineImg: <?= $inline_img ? 'true' : 'false' ?>,
+                                    qrData: <?= json_encode($qrData ?? null, JSON_UNESCAPED_UNICODE) ?>
+                                });
+                            </script>
                             </td>
                     </tr>
                 </table>
