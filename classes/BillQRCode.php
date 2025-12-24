@@ -2,6 +2,8 @@
 
 namespace app\classes;
 
+use app\classes\QRcode\QRcode;
+
 class BillQRCode
 {
     const NUMBER_FORMAT_LENGTH = 15; // new document number format
@@ -101,6 +103,25 @@ class BillQRCode
         }
 
         return '';
+    }
+
+    public static function getInlineImgTagByData($data, $options = [], $mimeType = 'image/gif')
+    {
+        if (!$data) {
+            return '';
+        }
+
+        ob_start();
+        QRcode::gif(trim($data), false, 'H', 4, 2);
+        $imageData = ob_get_clean();
+
+        if ($imageData === false) {
+            return '';
+        }
+
+        $options['src'] = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
+
+        return Html::tag('img', '', $options);
     }
 
     private static function convertBillNo($billNo)

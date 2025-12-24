@@ -106,11 +106,7 @@ $isOsn = $payerCompany->getTaxRate() != 0;
 
                                 if ($qrData) {
                                     if ($inline_img) {
-                                        echo Html::inlineImg(
-                                            Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $qrData,
-                                            [],
-                                            'image/gif'
-                                        );
+                                        echo BillQRCode::getInlineImgTagByData($qrData, ['border' => 0]);
                                     } else {
                                         echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
                                     }
