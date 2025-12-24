@@ -28,7 +28,6 @@ use app\models\CurrencyRate;
 use app\models\filter\PartnerRewardsFilter;
 use app\models\GoodPriceType;
 use app\models\Invoice;
-use app\models\document\PaymentTemplateType;
 use app\models\Language;
 use app\models\OperationType;
 use app\models\Organization;
@@ -1141,7 +1140,7 @@ class m_newaccounts extends IModule
                 ->asArray()
                 ->column();
         }
-        [$bill_akts, $bill_invoices, $bill_upd, $bill_upd2] = $this->get_bill_docs($bill, $L);
+        [$bill_akts, $bill_invoices, $bill_upd] = $this->get_bill_docs($bill, $L);
 
         if ($invoices) {
             foreach (Invoice::$types as $invoiceType) {
@@ -1160,7 +1159,6 @@ class m_newaccounts extends IModule
         $design->assign('bill_invoices', $bill_invoices);
 
         $design->assign('bill_upd', $bill_upd);
-        $design->assign('bill_upd2', $bill_upd2);
 
         $design->assign('template_bills',
             $db->AllRecords('
@@ -1283,7 +1281,7 @@ class m_newaccounts extends IModule
 
     static function get_bill_docs_static($billNo, $L = null)
     {
-        $bill_akts = $bill_invoices = $bill_upd = $bill_upd2 = [];
+        $bill_akts = $bill_invoices = $bill_upd = [];
 
         if (($doctypes = BillDocument::dao()->getByBillNo($billNo)) == false) {
             $doctypes = BillDocument::dao()->updateByBillNo($billNo, $L, true);
@@ -1299,12 +1297,9 @@ class m_newaccounts extends IModule
             for ($i = 1; $i <= 2; $i++) {
                 $bill_upd[$i] = $doctypes['ia' . $i];
             }
-            for ($i = 1; $i <= 2; $i++) {
-                $bill_upd2[$i] = $doctypes['upd2-' . $i];
-            }
         }
 
-        return [$bill_akts, $bill_invoices, $bill_upd, $bill_upd2];
+        return [$bill_akts, $bill_invoices, $bill_upd];
     }
 
     function newaccounts_bill_courier_comment($comment = '')
@@ -2351,18 +2346,6 @@ class m_newaccounts extends IModule
         if ($isFromImport2) {
             return $this->importOnDocType($bills, $is_pdf);
         }
-
-        // 'tpl1' => 3
-        $upd2storage=[];
-        foreach(['upd2-1', 'upd2-2'] as $upd2Name) {
-            $v = get_param_raw($upd2Name);
-            $v && $upd2storage[$upd2Name] = $upd2Name;
-        }
-        if ($upd2storage) {
-            return $this->printmTpl3($upd2storage, $bills, $is_pdf);
-        }
-
-
         //$L = array("invoice-1");
 
         //$bills = array("201204-0465");
@@ -2647,98 +2630,6 @@ class m_newaccounts extends IModule
 
     }
 
-
-    /**
-     * Новый, экспериментальный, импорт для документов
-     *
-     * @param array $bills
-     * @param bool $isPDF
-     */
-    function printmTpl3($printDocs = [], $bills = [], $isPDF = false)
-    {
-        global $design;
-
-        /*
-         *         $data = [
-            'tpl1' => 3,
-            'account_id' => $form->account_id,
-            'document_number' => $form->document_number,
-            'template_type_id' => $templateType->id,
-            'country_code' => $form->country_code,
-            'include_signature_stamp' => (bool) filter_var($form->include_signature_stamp, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
-        ];
-         */
-        $P = "";
-        $R = [];
-
-        foreach ($bills as $billNo) {
-            /** @var Bill $bill */
-            $bill = Bill::findOne(['bill_no' => $billNo]);
-
-            if (!$bill) {
-                continue;
-            }
-
-            $docs = BillDocument::dao()->getByBillNo($billNo);
-            if (!$docs) {
-                continue;
-            }
-
-            $printObjects = [];
-
-            foreach ($printDocs as $printDocId) {
-                if ($printDocId == 'upd2-1') {
-                    $invoiceTypeId = Invoice::TYPE_1;
-                    $documentType = 'upd2-1';
-                } elseif ($printDocId == 'upd2-2') {
-                    $invoiceTypeId = Invoice::TYPE_2;
-                    $documentType = 'upd2-2';
-                } else {
-                    continue;
-                }
-
-                /** @var Invoice $invoiceObject */
-                $invoiceObject = Invoice::find()->where(['bill_no' => $bill->bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
-
-                if (!$invoiceObject) {
-                    continue;
-                }
-
-                $printObjects[] = [
-                    'document_type' => $documentType,
-                ];
-//                $printObjects['include_signature_stamp'] = true;
-//                $printObjects[] = $printObject;
-            }
-
-            foreach ($printObjects as $idx => $obj) {
-                $baseObj = $obj['document_type'];
-
-                // без подписи клиента
-                $R[] = [
-                    'bill_no' => $bill->bill_no,
-                    'obj' => $baseObj . '&' . http_build_query(['to_print' => 'true']),
-                    'bill_client' => $bill->client_id,
-                ];
-                $P .= ($P ? ',' : '') . '1';
-
-                // с подписью клиента
-                $R[] = [
-                    'bill_no' => $bill->bill_no,
-                    'obj' => $baseObj . '&' . http_build_query(['to_print' => 'true', 'to_client' => 'true']),
-                    'bill_client' => $bill->client_id,
-                ];
-                $P .= ($P ? ',' : '') . '1';
-            }
-        }
-
-        $design->assign('is_pdf', $isPDF);
-        $design->assign('rows', $P);
-        $design->assign('objects', $R);
-        $design->ProcessEx('newaccounts/print_bill_frames.tpl');
-
-    }
-
     private function _portingPrintNoRub(Bill $bill, $isPdf, $invoiceId, $isDirectLink)
     {
         global $design;
@@ -2925,7 +2816,6 @@ class m_newaccounts extends IModule
         $this->do_include();
 
         $object = (isset($params['object'])) ? $params['object'] : get_param_protected('object');
-        $rawObject = $object;
 
         $mode = get_param_protected('mode', 'html');
 
@@ -2941,11 +2831,7 @@ class m_newaccounts extends IModule
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
         self::$object = $object;
-        if ($object && strpos($object, 'upd2-') === 0) {
-            $obj = $object;
-            $source = 1;
-            $curr = 'RUB';
-        } elseif ($object) {
+        if ($object) {
             [$obj, $source, $curr] = explode('-', $object . '---');
         } else {
             $obj = get_param_protected("obj");
@@ -2975,40 +2861,6 @@ class m_newaccounts extends IModule
 
         if ($billModel->isCorrectionType()) {
             throw new LogicException('Нет документов у корректировки');
-        }
-
-        if (in_array($obj, ['upd2-1', 'upd2-2'])) {
-            $invoiceTypeId = $obj === 'upd2-1' ? Invoice::TYPE_1 : Invoice::TYPE_2;
-            $invoice = Invoice::find()->where(['bill_no' => $bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
-
-            if (!$invoice) {
-                if ($only_html == '1') {
-                    return '';
-                }
-                trigger_error2('Документ не готов');
-                return false;
-            }
-
-            $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
-                ->setBill($billModel)
-                ->setInvoice($invoice)
-                ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
-                ->setCountry($billModel->clientAccount->getUuCountryId());
-
-            $content = $invoiceDocument->render((bool)$is_pdf);
-
-            if ($is_pdf) {
-                header('Content-Type: application/pdf');
-                echo $content;
-                exit;
-            }
-
-            if ($only_html == '1') {
-                return $content;
-            }
-
-            echo $content;
-            exit;
         }
 
         switch ($obj) {
@@ -3131,7 +2983,7 @@ class m_newaccounts extends IModule
         }
 
         if (!in_array($obj,
-            ['invoice', 'akt', 'upd', 'upd2-1', 'upd2-2', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
+            ['invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
         ) {
             $obj = 'bill';
         }
@@ -3181,7 +3033,7 @@ class m_newaccounts extends IModule
                     $design->ProcessEx('newaccounts/print_akt_num3.tpl');
                 }
             } else {
-                if (in_array($obj, ['invoice', 'upd', 'upd2-1', 'upd2-2'])) {
+                if (in_array($obj, ['invoice', 'upd'])) {
 
                     $design->assign("client_contract",
                         BillContract::getString($billModel->clientAccount->contract_id, $bill->getTs()));

@@ -94,10 +94,15 @@ abstract class DocumentReport extends BaseObject
     /**
      * @return array
      */
-    public function getQrCode()
+    public function getQrCode(string $docType = self::DOC_TYPE_BILL)
     {
         $result = BillQRCode::getNo($this->bill->bill_no);
-        return $result['bill'];
+
+        if (isset($result[$docType])) {
+            return $result[$docType];
+        }
+
+        return $result['bill'] ?? null;
     }
 
     /**

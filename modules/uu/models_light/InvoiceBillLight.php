@@ -3,7 +3,6 @@
 namespace app\modules\uu\models_light;
 
 use app\helpers\DateTimeZoneHelper;
-use app\classes\BillQRCode;
 use app\models\Bill;
 use app\models\Invoice;
 use app\models\Payment;
@@ -25,7 +24,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $payment_type = '',
         $original_id = '',
         $client_id,
-        $qr_code = '';
+        $bill_no;
 
     private $_language;
 
@@ -34,7 +33,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
      * @param Invoice $invoice
      * @param string $language
      */
-    public function __construct($bill, $invoice, $language, $qrDocType = 'bill')
+    public function __construct($bill, $invoice, $language)
     {
         parent::__construct();
 
@@ -59,14 +58,13 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
             return;
         }
 
+        $this->bill_no = $statBill->bill_no;
         $this->pay_bill_until = $invoice->pay_bill_until ?: $statBill->pay_bill_until;
 
         $this->_setPaymentDate($statBill);
         $this->_setPaymentType($statBill);
 
         $this->client_id = $statBill->client_id;
-
-        $this->qr_code = BillQRCode::getImgUrl($statBill->bill_no, $qrDocType);
     }
 
     /**
@@ -137,7 +135,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
             'summary_vat' => 'Сумма НДС',
             'summary_with_vat' => 'Сумма счета с НДС',
             'client_id' => 'Номер ЛС клиента',
-            'qr_code' => 'QR-код',
+            'bill_no' => 'Номер счета',
         ];
     }
 

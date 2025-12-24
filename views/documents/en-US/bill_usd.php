@@ -7,7 +7,7 @@ use app\classes\Html;
 use app\helpers\MediaFileHelper;
 use app\models\Currency;
 use app\models\Language;
-use app\classes\BillQRCode;
+use app\helpers\InvoiceQrCodeHelper;
 
 $organization = $document->organization;
 $bill = $document->bill;
@@ -120,10 +120,15 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
                         <td colspan="2" align="center">
                             <?php
                             if (!$isCurrentStatement) {
-                                $qrData = $document->getQrCode('bill');
+                                $qrSrc = InvoiceQrCodeHelper::getImageSrc(
+                                    'bill',
+                                    $document->bill->bill_no,
+                                    null,
+                                    $inline_img
+                                );
 
-                                if ($qrData) {
-                                    echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
+                                if ($qrSrc) {
+                                    echo '<img src="' . $qrSrc . '" border="0"/>';
                                 }
                             }
                             ?>

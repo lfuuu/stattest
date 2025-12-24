@@ -4,7 +4,7 @@ use app\classes\Utils;
 use app\classes\Wordifier;
 use app\classes\Html;
 use app\helpers\MediaFileHelper;
-use app\classes\BillQRCode;
+use app\helpers\InvoiceQrCodeHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 /** @var $inline_img bool */
@@ -102,10 +102,15 @@ $isOsn = $payerCompany->getTaxRate() != 0;
                         <td colspan="2" align="center">
                             <?php
                             if (!$isCurrentStatement) {
-                                $qrData = $document->getQrCode('bill');
+                                $qrSrc = InvoiceQrCodeHelper::getImageSrc(
+                                    'bill',
+                                    $document->bill->bill_no,
+                                    null,
+                                    $inline_img
+                                );
 
-                                if ($qrData) {
-                                    echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
+                                if ($qrSrc) {
+                                    echo '<img src="' . $qrSrc . '" border="0"/>';
                                 }
                             }
                             ?>

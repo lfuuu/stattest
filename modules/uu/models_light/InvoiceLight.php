@@ -22,7 +22,6 @@ use yii\base\InvalidParamException;
 use yii\db\Expression;
 use yii\db\Query;
 use app\models\document\PaymentTemplate;
-use app\models\document\PaymentTemplateType;
 
 class InvoiceLight extends Component
 {
@@ -220,12 +219,7 @@ class InvoiceLight extends Component
 
         if (count($items)) {
             // Данные о счете
-            $qrDocType = 'bill';
-            if ($this->_templateType == PaymentTemplateType::TYPE_ID_UPD && $this->_invoice) {
-                $qrDocType = $this->_invoice->type_id == Invoice::TYPE_1 ? 'upd-1' : 'upd-2';
-            }
-
-            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage, $qrDocType);
+            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage);
             // Данные проводках
             $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $dataLanguage))->getAll();
         }
@@ -277,6 +271,10 @@ class InvoiceLight extends Component
         $smarty = Smarty::init();
         $smarty->assign($this->getProperties());
         $smarty->assign('include_signature_stamp', $isIncludeSignatureStamp);
+        $smarty->assign('invoice', $this->_invoice);
+        $smarty->assign('template_type', $this->_templateType);
+        $smarty->assign('template_type_short', self::$typeName[$this->_templateType] ?? null);
+        $smarty->assign('is_pdf', $isPdf);
 
         $invoiceTemplate = new InvoiceForm(
             $this->_language,
