@@ -2718,21 +2718,17 @@ class m_newaccounts extends IModule
             }
 
             foreach ($printObjects as $idx => $obj) {
-                $payload = [
-                    'bill' => $bill->bill_no,
-                    'object' => $obj['document_type'],
-                    'obj' => $obj['document_type'],
+                $params = [
+                    'to_print' => 'true',
                 ];
-                if ($isPDF) {
-                    $payload['is_pdf'] = 1;
-                }
                 if (!empty($obj['include_signature_stamp'])) {
-                    $payload['include_signature_stamp'] = 1;
+                    $params['include_signature_stamp'] = 1;
                 }
 
                 $R[] = [
-                    'isLink' => true,
-                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($payload),
+                    'bill_no' => $bill->bill_no,
+                    'obj' => $obj['document_type'] . '&' . http_build_query($params),
+                    'bill_client' => $bill->client_id,
                 ];
                 $P .= ($P ? ',' : '') . '1';
             }
