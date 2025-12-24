@@ -2947,7 +2947,11 @@ class m_newaccounts extends IModule
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
         self::$object = $object;
-        if ($object) {
+        if ($object && strpos($object, 'upd2-') === 0) {
+            $obj = $object;
+            $source = 1;
+            $curr = 'RUB';
+        } elseif ($object) {
             [$obj, $source, $curr] = explode('-', $object . '---');
         } else {
             $obj = get_param_protected("obj");
