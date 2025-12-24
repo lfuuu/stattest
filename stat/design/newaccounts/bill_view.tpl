@@ -527,6 +527,11 @@
                     УПД2 (2 превышение)
                 </label>
                 <br/>
+                <input type=checkbox value="1" name="upd2-3" id="upd2-3">
+                <label for="upd2-3" class="{if !$bill_upd2[3]}notactive {/if}{if $bill_upd2[3] == -1}invalid{/if}">
+                    УПД2 (3 оборудование)
+                </label>
+                <br/>
 
 
                 {if $is_set_date}

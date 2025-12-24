@@ -1298,7 +1298,7 @@ class m_newaccounts extends IModule
             for ($i = 1; $i <= 2; $i++) {
                 $bill_upd[$i] = $doctypes['ia' . $i];
             }
-            for ($i = 1; $i <= 2; $i++) {
+            for ($i = 1; $i <= 3; $i++) {
                 $bill_upd2[$i] = $doctypes['upd2-' . $i];
             }
         }
@@ -2353,7 +2353,7 @@ class m_newaccounts extends IModule
 
         // 'tpl1' => 3
         $upd2storage=[];
-        foreach(['upd2-1', 'upd2-2'] as $upd2Name) {
+        foreach(['upd2-1', 'upd2-2', 'upd2-3'] as $upd2Name) {
             $v = get_param_raw($upd2Name);
             $v && $upd2storage[$upd2Name] = $upd2Name;
         }
@@ -2692,12 +2692,18 @@ class m_newaccounts extends IModule
                     $invoiceTypeId = Invoice::TYPE_1;
                 } elseif ($printDocId == 'upd2-2') {
                     $invoiceTypeId = Invoice::TYPE_2;
+                } elseif ($printDocId == 'upd2-3') {
+                    $invoiceTypeId = Invoice::TYPE_GOOD;
                 } else {
                     continue;
                 }
 
                 /** @var Invoice $invoiceObject */
                 $invoiceObject = Invoice::find()->where(['bill_no' => $bill->bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
+
+                if (!$invoiceObject) {
+                    continue;
+                }
 
                 $printObject = [
                     'tpl1' => 3,
@@ -2717,6 +2723,7 @@ class m_newaccounts extends IModule
                 $R[] = [
                     'isLink' => true,
                     'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($obj)
+//                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?' . http_build_query($obj)
                 ];
 
                 $P .= ($P ? ',' : '') . '1';
