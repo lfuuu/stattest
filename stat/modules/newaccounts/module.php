@@ -2687,12 +2687,12 @@ class m_newaccounts extends IModule
             $printObjects = [];
 
             foreach ($printDocs as $printDocId) {
+                $templateTypeId = PaymentTemplateType::TYPE_ID_UPD;
+
                 if ($printDocId == 'upd2-1') {
                     $invoiceTypeId = Invoice::TYPE_1;
-                    $documentType = 'upd2-1';
                 } elseif ($printDocId == 'upd2-2') {
                     $invoiceTypeId = Invoice::TYPE_2;
-                    $documentType = 'upd2-2';
                 } else {
                     continue;
                 }
@@ -2705,29 +2705,31 @@ class m_newaccounts extends IModule
                 }
 
                 $printObjects[] = [
-                    'document_type' => $documentType,
+                    'tpl1' => 3,
+                    'account_id' => $bill->client_id,
+                    'document_number' => $invoiceObject->number,
+                    'template_type_id' => $templateTypeId,
+                    'country_code' => $bill->clientAccount->getUuCountryId(),
+                    'include_signature_stamp' => false,
+                    'is_pdf' => $isPDF ? 1 : 0,
                 ];
-//                $printObjects['include_signature_stamp'] = true;
-//                $printObjects[] = $printObject;
+                $printObjects[] = [
+                    'tpl1' => 3,
+                    'account_id' => $bill->client_id,
+                    'document_number' => $invoiceObject->number,
+                    'template_type_id' => $templateTypeId,
+                    'country_code' => $bill->clientAccount->getUuCountryId(),
+                    'include_signature_stamp' => true,
+                    'is_pdf' => $isPDF ? 1 : 0,
+                ];
             }
 
             foreach ($printObjects as $idx => $obj) {
-                $baseObj = $obj['document_type'];
-
-                // без подписи клиента
                 $R[] = [
-                    'bill_no' => $bill->bill_no,
-                    'obj' => $baseObj . '&' . http_build_query(['to_print' => 'true']),
-                    'bill_client' => $bill->client_id,
+                    'isLink' => true,
+                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($obj),
                 ];
-                $P .= ($P ? ',' : '') . '1';
 
-                // с подписью клиента
-                $R[] = [
-                    'bill_no' => $bill->bill_no,
-                    'obj' => $baseObj . '&' . http_build_query(['to_print' => 'true', 'to_client' => 'true']),
-                    'bill_client' => $bill->client_id,
-                ];
                 $P .= ($P ? ',' : '') . '1';
             }
         }
@@ -2941,11 +2943,7 @@ class m_newaccounts extends IModule
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
         self::$object = $object;
-        if ($object && strpos($object, 'upd2-') === 0) {
-            $obj = $object;
-            $source = 1;
-            $curr = 'RUB';
-        } elseif ($object) {
+        if ($object) {
             [$obj, $source, $curr] = explode('-', $object . '---');
         } else {
             $obj = get_param_protected("obj");
@@ -2975,40 +2973,6 @@ class m_newaccounts extends IModule
 
         if ($billModel->isCorrectionType()) {
             throw new LogicException('Нет документов у корректировки');
-        }
-
-        if (in_array($obj, ['upd2-1', 'upd2-2'])) {
-            $invoiceTypeId = $obj === 'upd2-1' ? Invoice::TYPE_1 : Invoice::TYPE_2;
-            $invoice = Invoice::find()->where(['bill_no' => $bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
-
-            if (!$invoice) {
-                if ($only_html == '1') {
-                    return '';
-                }
-                trigger_error2('Документ не готов');
-                return false;
-            }
-
-            $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
-                ->setBill($billModel)
-                ->setInvoice($invoice)
-                ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
-                ->setCountry($billModel->clientAccount->getUuCountryId());
-
-            $content = $invoiceDocument->render((bool)$is_pdf);
-
-            if ($is_pdf) {
-                header('Content-Type: application/pdf');
-                echo $content;
-                exit;
-            }
-
-            if ($only_html == '1') {
-                return $content;
-            }
-
-            echo $content;
-            exit;
         }
 
         switch ($obj) {
@@ -3131,7 +3095,7 @@ class m_newaccounts extends IModule
         }
 
         if (!in_array($obj,
-            ['invoice', 'akt', 'upd', 'upd2-1', 'upd2-2', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
+            ['invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice', 'new_director_info', 'envelope'])
         ) {
             $obj = 'bill';
         }
@@ -3181,7 +3145,7 @@ class m_newaccounts extends IModule
                     $design->ProcessEx('newaccounts/print_akt_num3.tpl');
                 }
             } else {
-                if (in_array($obj, ['invoice', 'upd', 'upd2-1', 'upd2-2'])) {
+                if (in_array($obj, ['invoice', 'upd'])) {
 
                     $design->assign("client_contract",
                         BillContract::getString($billModel->clientAccount->contract_id, $bill->getTs()));
