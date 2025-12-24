@@ -106,24 +106,13 @@ $isOsn = $payerCompany->getTaxRate() != 0;
 
                                 if ($qrData) {
                                     if ($inline_img) {
-                                        echo Html::inlineImg(
-                                            Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $qrData,
-                                            [],
-                                            'image/gif'
-                                        );
+                                        echo BillQRCode::getInlineImgTagByData($qrData, ['border' => 0]);
                                     } else {
                                         echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
                                     }
                                 }
                             }
                             ?>
-                            <script>
-                                console.log('bill_rub qr', {
-                                    isCurrentStatement: <?= $isCurrentStatement ? 'true' : 'false' ?>,
-                                    inlineImg: <?= $inline_img ? 'true' : 'false' ?>,
-                                    qrData: <?= json_encode($qrData ?? null, JSON_UNESCAPED_UNICODE) ?>
-                                });
-                            </script>
                             </td>
                     </tr>
                 </table>
