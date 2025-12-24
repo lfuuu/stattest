@@ -2721,6 +2721,7 @@ class m_newaccounts extends IModule
                 $payload = [
                     'bill' => $bill->bill_no,
                     'object' => $obj['document_type'],
+                    'obj' => $obj['document_type'],
                 ];
                 if ($isPDF) {
                     $payload['is_pdf'] = 1;
