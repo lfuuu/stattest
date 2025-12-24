@@ -34,11 +34,12 @@ if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RU
 
 $_GET = $R;
 
-$isPdf = false;
 if (isset($R['renderMode'])) {
-    $isPdf = $R['renderMode'] === 'pdf';
+    $isPdf = ($R['renderMode'] === 'pdf');
 } elseif (isset($R['is_pdf'])) {
-    $isPdf = (int)$R['is_pdf'] === 1;
+    $isPdf = ((int)$R['is_pdf'] === 1);
+} else {
+    $isPdf = false;
 }
 $isPdf = (bool)$isPdf;
 $isEmailed = get_param_raw('emailed', 1);
