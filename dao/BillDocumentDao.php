@@ -35,6 +35,7 @@ class BillDocumentDao extends Singleton
 
         $docsArr['upd2-1'] = $docsArr['i1'];
         $docsArr['upd2-2'] = $docsArr['i2'];
+        $docsArr['upd2-3'] = $docsArr['i3'];
 
         return $docsArr;
     }

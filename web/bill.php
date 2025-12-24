@@ -15,9 +15,16 @@ use app\models\document\PaymentTemplateType;
 define("PATH_TO_ROOT", '../stat/');
 include PATH_TO_ROOT . "conf_yii.php";
 
+$isPassGet = false;
+if (isset($_GET['tpl1'])) {
+    $isPassGet = true;
+}
+
 $billStr = get_param_raw('bill');
 if (!($R = Encrypt::decodeToArray($billStr))) {
-    return;
+    if (!$isPassGet) {
+        return;
+    }
 }
 
 $bill = null;
@@ -32,7 +39,14 @@ if (!isset($R['tpl1']) && (!isset($R["object"]) || $R["object"] != "receipt-2-RU
     }
 }
 
-$_GET = $R;
+if ($R) {
+    $_GET = $R;
+} elseif($isPassGet){
+    $R = $_GET;
+} else {
+    exit();
+}
+
 
 $isPdf = isset($R['is_pdf']) && $R['is_pdf'] == 1;
 $isEmailed = get_param_raw('emailed', 1);
