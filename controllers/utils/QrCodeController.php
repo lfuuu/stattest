@@ -8,6 +8,7 @@ use app\models\Organization;
 use Yii;
 use yii\web\Response;
 use app\classes\BaseController;
+use app\classes\BillQRCode;
 use app\classes\QRcode\QRcode;
 
 class QrCodeController extends BaseController
