@@ -120,7 +120,7 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
                         <td colspan="2" align="center">
                             <?php
                             if (!$isCurrentStatement) {
-                                $qrData = $document->getQrCode('bill');
+                                $qrData = $document->getQrCode();
 
                                 if ($qrData) {
                                     if ($inline_img) {
