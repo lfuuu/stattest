@@ -106,7 +106,14 @@ $isOsn = $payerCompany->getTaxRate() != 0;
 
                                 if ($qrData) {
                                     if ($inline_img) {
-                                        echo BillQRCode::getInlineImgTagByData($qrData, ['border' => 0]);
+                                        $fallbackSrc = '/utils/qr-code/get?data=' . $qrData;
+                                        echo BillQRCode::getInlineImgTagByData(
+                                            $qrData,
+                                            [
+                                                'border' => 0,
+                                                'onerror' => "this.onerror=null;this.src='{$fallbackSrc}';",
+                                            ]
+                                        );
                                     } else {
                                         echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
                                     }
