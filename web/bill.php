@@ -253,8 +253,13 @@ if (
         $invoiceDocument->setInvoiceProformaBill($bill);
 
     } else if ($isInvoice || $isUpd) {
-        $invoice = Invoice::findOne(['number' => $R['document_number']]);
-        $bill = $invoice->bill;
+        if (isset($R['invoice_id'])) {
+            $invoice = Invoice::findOne(['id' => $R['invoice_id']]);
+        } else {
+            $invoice = Invoice::findOne(['number' => $R['document_number']]);
+        }
+
+        $bill = $invoice ? $invoice->bill : null;
 
         if (!$invoice || !$bill) {
             return;
