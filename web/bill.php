@@ -81,6 +81,15 @@ if (
     exit;
 }
 
+if (isset($R['render']) && $R['render'] === 'upd2') {
+    $billNo = $R['bill_no'] ?? '';
+    $object = $R['object'] ?? '';
+    $includeSignatureStamp = isset($R['include_signature_stamp']) && (bool)$R['include_signature_stamp'];
+
+    \app\classes\StatModule::newaccounts()->renderUpd2Document($billNo, $object, $isPdf, $includeSignatureStamp);
+    exit;
+}
+
 if (isset($R['tpl1']) && $R['tpl1'] == 1) {
 
     if (!isset($R['invoice_id']) || !isset($R['client'])) {

@@ -2729,22 +2729,19 @@ class m_newaccounts extends IModule
             }
 
             foreach ($printObjects as $idx => $obj) {
-                $baseObj = $obj['document_type'];
-                $params = [
-                    'module' => 'newaccounts',
-                    'action' => 'bill_mprint',
+                $payload = [
                     'render' => 'upd2',
-                    'bill' => $bill->bill_no,
-                    'object' => $baseObj,
+                    'bill_no' => $bill->bill_no,
+                    'object' => $obj['document_type'],
                     'is_pdf' => $isPDF ? 1 : 0,
                 ];
                 if (!empty($obj['include_signature_stamp'])) {
-                    $params['include_signature_stamp'] = 1;
+                    $payload['include_signature_stamp'] = 1;
                 }
 
                 $R[] = [
                     'isLink' => true,
-                    'link' => \Yii::$app->params['SITE_URL'] . '?' . http_build_query($params),
+                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($payload),
                 ];
                 $P .= ($P ? ',' : '') . '1';
             }
@@ -2842,7 +2839,7 @@ class m_newaccounts extends IModule
 
     }
 
-    private function renderUpd2Document(string $billNo, string $object, bool $isPdf, bool $includeSignatureStamp)
+    function renderUpd2Document(string $billNo, string $object, bool $isPdf, bool $includeSignatureStamp)
     {
         $this->do_include();
 
