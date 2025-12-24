@@ -2,7 +2,7 @@
 
 namespace app\classes;
 
-use app\classes\QRcode\QRcode;
+use app\controllers\utils\QrCodeController;
 
 class BillQRCode
 {
@@ -111,9 +111,7 @@ class BillQRCode
             return '';
         }
 
-        ob_start();
-        QRcode::gif(trim($data), false, 'H', 4, 2);
-        $imageData = ob_get_clean();
+        $imageData = QrCodeController::generateGifData($data, 'H', 4, 2);
 
         if ($imageData === false || $imageData === '') {
             return '';
