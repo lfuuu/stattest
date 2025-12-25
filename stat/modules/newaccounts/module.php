@@ -3154,11 +3154,11 @@ class m_newaccounts extends IModule
                 foreach ($billNoQr as $key => $value) {
                     if (is_array($value)) {
                         foreach ($value as $subKey => $subValue) {
-                            $imageData = BillQRCode::generateGifData($subValue, 'H', 4, 2);
+                            $imageData = BillQRCode::generateGifData($subValue);
                             $billNoQrImg[$key][$subKey] = $imageData === '' ? '' : 'data:image/gif;base64,' . base64_encode($imageData);
                         }
                     } else {
-                        $imageData = BillQRCode::generateGifData($value, 'H', 4, 2);
+                        $imageData = BillQRCode::generateGifData($value);
                         $billNoQrImg[$key] = $imageData === '' ? '' : 'data:image/gif;base64,' . base64_encode($imageData);
                     }
                 }
