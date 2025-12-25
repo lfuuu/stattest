@@ -8,7 +8,7 @@ class QRCode
             "bill"  => array("code" => "01", "c" => "bill",          "name" => "Счет"),
             "akt-1" => array("code" => "11", "c" => "akt", "s" => 1, "name" => "Акт 1"),
             "akt-2" => array("code" => "12", "c" => "akt", "s" => 2, "name" => "Акт 2"),
-            "upd-1" => array("code" => "21", "c" => "upd", "s" => 1, "name" => "УПД 1"),
+            "upd-1" => array("code" => "21", "c" => "upd", "s" => 1, "name" => "УПД Т+А"),
             "upd-2" => array("code" => "22", "c" => "upd", "s" => 2, "name" => "УПД 2"),
             "upd-3" => array("code" => "23", "c" => "upd", "s" => 3, "name" => "УПД Т"),
             "upd2-1" => array("code" => "31", "c" => "upd", "s" => 1, "name" => "УПД2 1"),

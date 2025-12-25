@@ -20,7 +20,7 @@ class BillQRCode
         "bill" => ["code" => "01", "c" => "bill", "name" => "Счет"],
         "akt-1" => ["code" => "11", "c" => "akt", "s" => 1, "name" => "Акт 1"],
         "akt-2" => ["code" => "12", "c" => "akt", "s" => 2, "name" => "Акт 2"],
-        "upd-1" => ["code" => "21", "c" => "upd", "s" => 1, "name" => "УПД 1"],
+        "upd-1" => ["code" => "21", "c" => "upd", "s" => 1, "name" => "УПД Т+А"],
         "upd-2" => ["code" => "22", "c" => "upd", "s" => 2, "name" => "УПД 2"],
         "upd-3" => ["code" => "23", "c" => "upd", "s" => 3, "name" => "УПД Т"],
         "upd2-1" => ["code" => "31", "c" => "upd", "s" => 1, "name" => "УПД2 1"],
@@ -116,23 +116,6 @@ class BillQRCode
         $imageData = ob_get_clean();
 
         return $imageData === false ? '' : $imageData;
-    }
-
-    public static function getInlineImgTagByData($data, $options = [], $mimeType = 'image/gif')
-    {
-        if (!$data) {
-            return '';
-        }
-
-        $imageData = self::generateGifData($data, 'H', 4, 2);
-
-        if ($imageData === false || $imageData === '') {
-            return '';
-        }
-
-        $options['src'] = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
-
-        return Html::tag('img', '', $options);
     }
 
     private static function convertBillNo($billNo)

@@ -2690,16 +2690,15 @@ class m_newaccounts extends IModule
                 $templateTypeId = \app\models\document\PaymentTemplateType::TYPE_ID_UPD;
                 if ($printDocId == 'upd2-1') {
                     $invoiceTypeId = Invoice::TYPE_1;
-                    $documentType = 'upd2-1';
                 } elseif ($printDocId == 'upd2-2') {
                     $invoiceTypeId = Invoice::TYPE_2;
-                    $documentType = 'upd2-2';
-                    } elseif ($printDocId == 'upd2-3') {
+                } elseif ($printDocId == 'upd2-3') {
                     $invoiceTypeId = Invoice::TYPE_GOOD;
-                    $documentType = 'upd2-3';
                 } else {
                     continue;
                 }
+
+                $documentType = $printDocId;
 
                 /** @var Invoice $invoiceObject */
                 $invoiceObject = Invoice::find()->where(['bill_no' => $bill->bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
@@ -2716,10 +2715,10 @@ class m_newaccounts extends IModule
                     'country_code' => $bill->clientAccount->getUuCountryId(),
                     'include_signature_stamp' => false,
                     'document_type' => $documentType,
+                    'is_pdf' => $isPDF,
                 ];
 
                 $printObjects[] = $printObject;
-                $printObjects[] = array_merge($printObject, ['include_signature_stamp' => true]);
             }
 
             foreach ($printObjects as $idx => $obj) {
@@ -2929,7 +2928,6 @@ class m_newaccounts extends IModule
     function newaccounts_bill_print($fixclient, $params = [])
     {
         global $design, $db, $user;
-        $this->do_include();
 
         $object = (isset($params['object'])) ? $params['object'] : get_param_protected('object');
         $rawObject = $object;
