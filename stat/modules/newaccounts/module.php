@@ -2941,7 +2941,7 @@ class m_newaccounts extends IModule
 
         $design->assign("is_pdf", $is_pdf);
         if (empty($design->_tpl_vars['WEB_PATH'])) {
-            $design->assign('WEB_PATH', \Yii::$app->params['SITE_URL']);
+            $design->assign('WEB_PATH', rtrim(\Yii::$app->params['SITE_URL'], '/') . '/');
         }
 
         $isToPrint = (isset($params['to_print'])) ? (bool)$params['to_print'] : get_param_raw('to_print',
