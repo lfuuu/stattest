@@ -314,13 +314,6 @@ class InvoiceLight extends Component
             }
         }
 
-        if ($content && !$isPdf && $this->_bill && isset($this->_bill->qr_code)) {
-            $content .= "\n<!-- QR_DEBUG: "
-                . "qr_code=" . $this->_bill->qr_code
-                . "; qr_doc_type=" . ($this->_qrDocType ?? '')
-                . " -->";
-        }
-
         if ($content && $isPdf) {
             $generator = new Html2Pdf(['landscape' => $isLandscape]);
             $generator->html = $content;

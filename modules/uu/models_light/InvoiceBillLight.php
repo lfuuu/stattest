@@ -70,7 +70,11 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $this->client_id = $statBill->client_id;
 
         $docType = $this->_getQrDocType($invoice);
-        $this->qr_code = BillQRCode::getImgUrl($statBill->bill_no, $docType);
+        $qrUrl = BillQRCode::getImgUrl($statBill->bill_no, $docType);
+        if ($qrUrl && strpos($qrUrl, 'http') !== 0) {
+            $qrUrl = \Yii::$app->params['SITE_URL'] . ltrim($qrUrl, '/');
+        }
+        $this->qr_code = $qrUrl;
     }
 
     /**
