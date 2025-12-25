@@ -28,13 +28,15 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $qr_code = '';
 
     private $_language;
+    private $_qrDocType;
 
     /**
      * @param Bill|uuBill $bill
      * @param Invoice $invoice
      * @param string $language
+     * @param string|null $qrDocType
      */
-    public function __construct($bill, $invoice, $language)
+    public function __construct($bill, $invoice, $language, $qrDocType = null)
     {
         parent::__construct();
 
@@ -45,6 +47,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         }
 
         $this->_language = $language;
+        $this->_qrDocType = $qrDocType;
 
         $statBill = $this->_getStatBill($bill);
 
@@ -194,6 +197,10 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
      */
     private function _getQrDocType($invoice)
     {
+        if ($this->_qrDocType) {
+            return $this->_qrDocType;
+        }
+
         if (!$invoice) {
             return 'bill';
         }
