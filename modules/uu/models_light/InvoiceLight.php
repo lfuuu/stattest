@@ -230,6 +230,17 @@ class InvoiceLight extends Component
         }
 
         if (count($items)) {
+            $pagesCount = 1;
+            if (!class_exists('printUPD')) {
+                $printUpdPath = Yii::$app->basePath . '/stat/classes/printUPD.php';
+                if (is_file($printUpdPath)) {
+                    require_once $printUpdPath;
+                }
+            }
+            if (class_exists('printUPD')) {
+                $info = printUPD::getInfo(count($items));
+                $pagesCount = $info['pages'] ?? 1;
+            }
             // Данные о счете
             $this->_bill = new InvoiceBillLight(
                 $this->_bill,
@@ -237,6 +248,7 @@ class InvoiceLight extends Component
                 $dataLanguage,
                 $this->_qrDocType
             );
+            $this->_bill->pages_count = $pagesCount;
             // Данные проводках
             $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $dataLanguage))->getAll();
         }

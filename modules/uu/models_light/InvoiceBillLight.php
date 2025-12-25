@@ -25,7 +25,8 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $payment_type = '',
         $original_id = '',
         $client_id,
-        $qr_code = '';
+        $qr_code = '',
+        $pages_count = 1;
 
     private $_language;
     private $_qrDocType;
