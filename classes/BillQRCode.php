@@ -23,10 +23,10 @@ class BillQRCode
         "upd-1" => ["code" => "21", "c" => "upd", "s" => 1, "name" => "УПД 1"],
         "upd-2" => ["code" => "22", "c" => "upd", "s" => 2, "name" => "УПД 2"],
         "upd-3" => ["code" => "23", "c" => "upd", "s" => 3, "name" => "УПД Т"],
-        "upd2-1" => ["code" => "31", "c" => "upd", "s" => 1, "name" => "УПД2 1"],
-        "upd2-2" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 2"],
-        "upd2-3" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 3"],
-        "upd2-4" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 4"],
+        "upd2-1" => ["code" => "31", "c" => "upd2", "s" => 1, "name" => "УПД2 1"],
+        "upd2-2" => ["code" => "32", "c" => "upd2", "s" => 2, "name" => "УПД2 2"],
+        "upd2-3" => ["code" => "32", "c" => "upd2", "s" => 2, "name" => "УПД2 3"],
+        "upd2-4" => ["code" => "32", "c" => "upd2", "s" => 2, "name" => "УПД2 4"],
     ];
 
     public static function encode($docType, $billNo)
