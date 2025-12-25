@@ -20,11 +20,13 @@ class BillQRCode
         "bill" => ["code" => "01", "c" => "bill", "name" => "Счет"],
         "akt-1" => ["code" => "11", "c" => "akt", "s" => 1, "name" => "Акт 1"],
         "akt-2" => ["code" => "12", "c" => "akt", "s" => 2, "name" => "Акт 2"],
-        "upd-1" => ["code" => "21", "c" => "upd", "s" => 1, "name" => "УПД Т+А"],
+        "upd-1" => ["code" => "21", "c" => "upd", "s" => 1, "name" => "УПД 1"],
         "upd-2" => ["code" => "22", "c" => "upd", "s" => 2, "name" => "УПД 2"],
         "upd-3" => ["code" => "23", "c" => "upd", "s" => 3, "name" => "УПД Т"],
         "upd2-1" => ["code" => "31", "c" => "upd", "s" => 1, "name" => "УПД2 1"],
         "upd2-2" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 2"],
+        "upd2-3" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 3"],
+        "upd2-4" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 4"],
     ];
 
     public static function encode($docType, $billNo)

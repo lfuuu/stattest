@@ -40,7 +40,7 @@ class Html extends \yii\helpers\Html
      * @param string $mimeType
      * @return string
      */
-    public static function inlineImgFromData($data, $options = [], $mimeType = 'image/gif')
+    public static function inlineImgFromBinaryData($data, $options = [], $mimeType = 'image/gif')
     {
         if ($data === '' || $data === false || $data === null) {
             return '';
