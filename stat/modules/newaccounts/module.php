@@ -2719,6 +2719,7 @@ class m_newaccounts extends IModule
                 ];
 
                 $printObjects[] = $printObject;
+                $printObjects[] = array_merge($printObject, ['include_signature_stamp' => true]);
             }
 
             foreach ($printObjects as $idx => $obj) {

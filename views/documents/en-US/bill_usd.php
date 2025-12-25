@@ -123,7 +123,7 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
                                 $qrData = $document->getQrCode();
 
                                 if ($qrData) {
-                                    if ($inline_img) {
+                                    if ($inline_img && empty($isPdf)) {
                                         echo Html::inlineImgFromBinaryData(
                                             BillQRCode::generateGifData($qrData, 'H', 4, 2),
                                             ['border' => 0]
