@@ -28,6 +28,7 @@ use app\models\CurrencyRate;
 use app\models\filter\PartnerRewardsFilter;
 use app\models\GoodPriceType;
 use app\models\Invoice;
+use app\models\document\PaymentTemplateType;
 use app\models\Language;
 use app\models\OperationType;
 use app\models\Organization;
@@ -2687,13 +2688,15 @@ class m_newaccounts extends IModule
 
             foreach ($printDocs as $printDocId) {
                 $templateTypeId = \app\models\document\PaymentTemplateType::TYPE_ID_UPD;
-
                 if ($printDocId == 'upd2-1') {
                     $invoiceTypeId = Invoice::TYPE_1;
+                    $documentType = 'upd2-1';
                 } elseif ($printDocId == 'upd2-2') {
                     $invoiceTypeId = Invoice::TYPE_2;
-                } elseif ($printDocId == 'upd2-3') {
+                    $documentType = 'upd2-2';
+                    } elseif ($printDocId == 'upd2-3') {
                     $invoiceTypeId = Invoice::TYPE_GOOD;
+                    $documentType = 'upd2-3';
                 } else {
                     continue;
                 }
@@ -2712,20 +2715,26 @@ class m_newaccounts extends IModule
                     'template_type_id' => $templateTypeId,
                     'country_code' => $bill->clientAccount->getUuCountryId(),
                     'include_signature_stamp' => false,
+                    'document_type' => $documentType,
                 ];
 
                 $printObjects[] = $printObject;
-//                $printObjects['include_signature_stamp'] = true;
-//                $printObjects[] = $printObject;
+                $printObjects[] = array_merge($printObject, ['include_signature_stamp' => true]);
             }
 
             foreach ($printObjects as $idx => $obj) {
-                $R[] = [
-                    'isLink' => true,
-                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?bill=' . Encrypt::encodeArray($obj)
-//                    'link' => \Yii::$app->params['SITE_URL'] . 'bill.php?' . http_build_query($obj)
+                $params = [
+                    'to_print' => 'true',
                 ];
+                if (!empty($obj['include_signature_stamp'])) {
+                    $params['include_signature_stamp'] = 1;
+                }
 
+                $R[] = [
+                    'bill_no' => $bill->bill_no,
+                    'obj' => $obj['document_type'] . '&' . http_build_query($params),
+                    'bill_client' => $bill->client_id,
+                ];
                 $P .= ($P ? ',' : '') . '1';
             }
         }
@@ -2923,6 +2932,7 @@ class m_newaccounts extends IModule
         $this->do_include();
 
         $object = (isset($params['object'])) ? $params['object'] : get_param_protected('object');
+        $rawObject = $object;
 
         $mode = get_param_protected('mode', 'html');
 
@@ -2938,7 +2948,11 @@ class m_newaccounts extends IModule
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
         self::$object = $object;
-        if ($object) {
+        if ($object && strpos($object, 'upd2-') === 0) {
+            $obj = $object;
+            $source = 1;
+            $curr = 'RUB';
+        } elseif ($object) {
             [$obj, $source, $curr] = explode('-', $object . '---');
         } else {
             $obj = get_param_protected("obj");
@@ -2968,6 +2982,42 @@ class m_newaccounts extends IModule
 
         if ($billModel->isCorrectionType()) {
             throw new LogicException('Нет документов у корректировки');
+        }
+
+        if (in_array($obj, ['upd2-1', 'upd2-2', 'upd2-3'])) {
+            $includeSignatureStamp = (bool)get_param_raw('include_signature_stamp', 0);
+            $map = ['upd2-1' => Invoice::TYPE_1, 'upd2-2' => Invoice::TYPE_2, 'upd2-3' => Invoice::TYPE_GOOD];
+            $invoiceTypeId = $map[$obj];
+            $invoice = Invoice::find()->where(['bill_no' => $bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
+
+            if (!$invoice) {
+                if ($only_html == '1') {
+                    return '';
+                }
+                trigger_error2('Документ не готов');
+                return false;
+            }
+
+            $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
+                ->setBill($billModel)
+                ->setInvoice($invoice)
+                ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
+                ->setCountry($billModel->clientAccount->getUuCountryId());
+
+            $content = $invoiceDocument->render((bool)$is_pdf, null, $includeSignatureStamp);
+
+            if ($is_pdf) {
+                header('Content-Type: application/pdf');
+                echo $content;
+                exit;
+            }
+
+            if ($only_html == '1') {
+                return $content;
+            }
+
+            echo $content;
+            exit;
         }
 
         switch ($obj) {

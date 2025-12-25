@@ -22,6 +22,7 @@ use yii\base\InvalidParamException;
 use yii\db\Expression;
 use yii\db\Query;
 use app\models\document\PaymentTemplate;
+use app\models\document\PaymentTemplateType;
 
 class InvoiceLight extends Component
 {

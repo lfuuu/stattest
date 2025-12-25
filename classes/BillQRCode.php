@@ -2,6 +2,8 @@
 
 namespace app\classes;
 
+use app\classes\QRcode\QRcode;
+
 class BillQRCode
 {
     const NUMBER_FORMAT_LENGTH = 15; // new document number format
@@ -21,6 +23,8 @@ class BillQRCode
         "upd-1" => ["code" => "21", "c" => "upd", "s" => 1, "name" => "УПД 1"],
         "upd-2" => ["code" => "22", "c" => "upd", "s" => 2, "name" => "УПД 2"],
         "upd-3" => ["code" => "23", "c" => "upd", "s" => 3, "name" => "УПД Т"],
+        "upd2-1" => ["code" => "31", "c" => "upd", "s" => 1, "name" => "УПД2 1"],
+        "upd2-2" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 2"],
     ];
 
     public static function encode($docType, $billNo)
@@ -83,15 +87,52 @@ class BillQRCode
         return false;
     }
 
-    public static function getImgTag($billNo)
+    public static function getImgUrl($billNo, $docType = 'bill')
     {
-        $result = self::getNo($billNo);
+        $docType = $docType ?: 'bill';
+        $data = self::encode($docType, $billNo);
+        return $data ? '/utils/qr-code/get?data=' . $data : '';
+    }
 
-        if (isset($result['bill'])) {
-            return '<img src="/utils/qr-code/get?data=' . $result['bill'] . '" border="0"/>';
+    public static function getImgTag($billNo, $docType = 'bill')
+    {
+        $url = self::getImgUrl($billNo, $docType);
+
+        if ($url) {
+            return '<img src="' . $url . '" border="0"/>';
         }
 
         return '';
+    }
+
+    public static function generateGifData($data, $errorLevel = 'H', $size = 4, $margin = 2)
+    {
+        if (!$data) {
+            return '';
+        }
+
+        ob_start();
+        QRcode::gif(trim($data), false, $errorLevel, $size, $margin);
+        $imageData = ob_get_clean();
+
+        return $imageData === false ? '' : $imageData;
+    }
+
+    public static function getInlineImgTagByData($data, $options = [], $mimeType = 'image/gif')
+    {
+        if (!$data) {
+            return '';
+        }
+
+        $imageData = self::generateGifData($data, 'H', 4, 2);
+
+        if ($imageData === false || $imageData === '') {
+            return '';
+        }
+
+        $options['src'] = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
+
+        return Html::tag('img', '', $options);
     }
 
     private static function convertBillNo($billNo)
