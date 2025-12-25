@@ -2943,7 +2943,7 @@ class m_newaccounts extends IModule
         if ($is_pdf) {
             $webPath = $design->_tpl_vars['WEB_PATH'] ?? '';
             if (!$webPath || strpos($webPath, 'http') !== 0) {
-                $design->assign('WEB_PATH', rtrim(\Yii::$app->params['SITE_URL'], '/') . '/');
+                $design->assign('WEB_PATH', rtrim(\Yii::$app->request->hostInfo, '/') . '/');
             }
         }
 
