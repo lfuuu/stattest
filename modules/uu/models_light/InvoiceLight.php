@@ -39,7 +39,8 @@ class InvoiceLight extends Component
         $_language = Language::LANGUAGE_DEFAULT,
         $_templateType,
         $_country,
-        $_date;
+        $_date,
+        $_qrDocType;
 
     const TYPE_INVOICE = 1;
     const TYPE_INVOICE_STORNO = 2;
@@ -119,6 +120,16 @@ class InvoiceLight extends Component
     public function setTemplateType($templateTypeId)
     {
         $this->_templateType = $templateTypeId;
+        return $this;
+    }
+
+    /**
+     * @param string|null $docType
+     * @return $this
+     */
+    public function setQrDocType($docType)
+    {
+        $this->_qrDocType = $docType;
         return $this;
     }
 
@@ -219,8 +230,25 @@ class InvoiceLight extends Component
         }
 
         if (count($items)) {
+            $pagesCount = 1;
+            if (!class_exists('printUPD', false)) {
+                $printUpdPath = Yii::$app->basePath . '/stat/classes/printUPD.php';
+                if (is_file($printUpdPath)) {
+                    require_once $printUpdPath;
+                }
+            }
+            if (class_exists('printUPD', false)) {
+                $info = \printUPD::getInfo(count($items));
+                $pagesCount = $info['pages'] ?? 1;
+            }
             // Данные о счете
-            $this->_bill = new InvoiceBillLight($this->_bill, $this->_invoice, $dataLanguage);
+            $this->_bill = new InvoiceBillLight(
+                $this->_bill,
+                $this->_invoice,
+                $dataLanguage,
+                $this->_qrDocType
+            );
+            $this->_bill->pages_count = $pagesCount;
             // Данные проводках
             $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $dataLanguage))->getAll();
         }

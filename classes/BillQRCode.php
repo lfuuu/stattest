@@ -25,6 +25,8 @@ class BillQRCode
         "upd-3" => ["code" => "23", "c" => "upd", "s" => 3, "name" => "УПД Т"],
         "upd2-1" => ["code" => "31", "c" => "upd", "s" => 1, "name" => "УПД2 1"],
         "upd2-2" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 2"],
+        "upd2-3" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 3"],
+        "upd2-4" => ["code" => "32", "c" => "upd", "s" => 2, "name" => "УПД2 4"],
     ];
 
     public static function encode($docType, $billNo)
@@ -116,23 +118,6 @@ class BillQRCode
         $imageData = ob_get_clean();
 
         return $imageData === false ? '' : $imageData;
-    }
-
-    public static function getInlineImgTagByData($data, $options = [], $mimeType = 'image/gif')
-    {
-        if (!$data) {
-            return '';
-        }
-
-        $imageData = self::generateGifData($data, 'H', 4, 2);
-
-        if ($imageData === false || $imageData === '') {
-            return '';
-        }
-
-        $options['src'] = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
-
-        return Html::tag('img', '', $options);
     }
 
     private static function convertBillNo($billNo)

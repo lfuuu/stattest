@@ -105,8 +105,11 @@ $isOsn = $payerCompany->getTaxRate() != 0;
                                 $qrData = $document->getQrCode();
 
                                 if ($qrData) {
-                                    if ($inline_img) {
-                                        echo BillQRCode::getInlineImgTagByData($qrData, ['border' => 0]);
+                                    if ($inline_img && empty($isPdf)) {
+                                        echo Html::inlineImgFromBinaryData(
+                                            BillQRCode::generateGifData($qrData),
+                                            ['border' => 0]
+                                        );
                                     } else {
                                         echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
                                     }

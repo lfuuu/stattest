@@ -499,6 +499,9 @@
                 <label for="cba" class="{if !$bill_akts[3]}notactive {/if}{if $bill_akts[3] == -1}invalid{/if}">
                     Акт (3 оборудование)
                 </label><br/>
+                <a class="{if !$bill_akts[3]}notactive {/if}"
+                   href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-3&to_print=true&is_word=true">MS
+                    Word</a><br/>
 
                 <input type=checkbox value="1" name="lading" id="cbb"><label
                         for="cbb"{if !$bill_invoices[4]} style="color:#C0C0C0"{/if}>Накладная</label>
