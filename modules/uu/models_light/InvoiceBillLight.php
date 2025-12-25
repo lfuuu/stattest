@@ -29,16 +29,14 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
     private $_language;
     private $_qrDocType;
-    private $_isPdf;
 
     /**
      * @param Bill|uuBill $bill
      * @param Invoice $invoice
      * @param string $language
      * @param string|null $qrDocType
-     * @param bool $isPdf
      */
-    public function __construct($bill, $invoice, $language, $qrDocType = null, $isPdf = false)
+    public function __construct($bill, $invoice, $language, $qrDocType = null)
     {
         parent::__construct();
 
@@ -50,7 +48,6 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
 
         $this->_language = $language;
         $this->_qrDocType = $qrDocType;
-        $this->_isPdf = $isPdf;
 
         $statBill = $this->_getStatBill($bill);
 
@@ -73,9 +70,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $this->client_id = $statBill->client_id;
 
         $docType = $this->_getQrDocType($invoice);
-        $this->qr_code = $this->_isPdf
-            ? $this->_getInlineQrData($statBill->bill_no, $docType)
-            : $this->_getAbsoluteQrUrl($statBill->bill_no, $docType);
+        $this->qr_code = $this->_getAbsoluteQrUrl($statBill->bill_no, $docType);
     }
 
     /**
@@ -240,18 +235,4 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
      * @param string $docType
      * @return string
      */
-    private function _getInlineQrData($billNo, $docType)
-    {
-        $data = BillQRCode::encode($docType, $billNo);
-        if (!$data) {
-            return '';
-        }
-
-        $imageData = BillQRCode::generateGifData($data, 'H', 4, 2);
-        if ($imageData === '') {
-            return '';
-        }
-
-        return 'data:image/gif;base64,' . base64_encode($imageData);
-    }
 }
