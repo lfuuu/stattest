@@ -120,10 +120,18 @@ $isOperatorBill = $document->getDocType() == DocumentReport::DOC_TYPE_BILL_OPERA
                         <td colspan="2" align="center">
                             <?php
                             if (!$isCurrentStatement) {
-                                $qrData = $document->getQrCode('bill');
+                                $qrUrl = BillQRCode::getImgUrl($document->bill->bill_no, $document->getDocType());
 
-                                if ($qrData) {
-                                    echo '<img src="/utils/qr-code/get?data=' . $qrData . '" border="0"/>';
+                                if ($qrUrl) {
+                                    if ($inline_img) {
+                                        echo Html::inlineImg(
+                                            Yii::$app->request->hostInfo . $qrUrl,
+                                            [],
+                                            'image/gif'
+                                        );
+                                    } else {
+                                        echo '<img src="' . $qrUrl . '" border="0"/>';
+                                    }
                                 }
                             }
                             ?>
