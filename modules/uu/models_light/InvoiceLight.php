@@ -231,14 +231,14 @@ class InvoiceLight extends Component
 
         if (count($items)) {
             $pagesCount = 1;
-            if (!class_exists('printUPD')) {
+            if (!class_exists('printUPD', false)) {
                 $printUpdPath = Yii::$app->basePath . '/stat/classes/printUPD.php';
                 if (is_file($printUpdPath)) {
                     require_once $printUpdPath;
                 }
             }
-            if (class_exists('printUPD')) {
-                $info = printUPD::getInfo(count($items));
+            if (class_exists('printUPD', false)) {
+                $info = \printUPD::getInfo(count($items));
                 $pagesCount = $info['pages'] ?? 1;
             }
             // Данные о счете
