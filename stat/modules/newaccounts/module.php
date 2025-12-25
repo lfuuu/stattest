@@ -2731,7 +2731,8 @@ class m_newaccounts extends IModule
 
                 $R[] = [
                     'bill_no' => $bill->bill_no,
-                    'obj' => $obj['document_type'] . '&' . http_build_query($params),
+                    'isLink' => true,
+                    'link' => '/bill.php?' . http_build_query($obj + $params),
                     'bill_client' => $bill->client_id,
                 ];
                 $P .= ($P ? ',' : '') . '1';
@@ -2928,9 +2929,9 @@ class m_newaccounts extends IModule
     function newaccounts_bill_print($fixclient, $params = [])
     {
         global $design, $db, $user;
+        $this->do_include();
 
         $object = (isset($params['object'])) ? $params['object'] : get_param_protected('object');
-        $rawObject = $object;
 
         $mode = get_param_protected('mode', 'html');
 
@@ -2946,11 +2947,7 @@ class m_newaccounts extends IModule
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
 
         self::$object = $object;
-        if ($object && strpos($object, 'upd2-') === 0) {
-            $obj = $object;
-            $source = 1;
-            $curr = 'RUB';
-        } elseif ($object) {
+        if ($object) {
             [$obj, $source, $curr] = explode('-', $object . '---');
         } else {
             $obj = get_param_protected("obj");
@@ -2980,42 +2977,6 @@ class m_newaccounts extends IModule
 
         if ($billModel->isCorrectionType()) {
             throw new LogicException('Нет документов у корректировки');
-        }
-
-        if (in_array($obj, ['upd2-1', 'upd2-2', 'upd2-3'])) {
-            $includeSignatureStamp = (bool)get_param_raw('include_signature_stamp', 0);
-            $map = ['upd2-1' => Invoice::TYPE_1, 'upd2-2' => Invoice::TYPE_2, 'upd2-3' => Invoice::TYPE_GOOD];
-            $invoiceTypeId = $map[$obj];
-            $invoice = Invoice::find()->where(['bill_no' => $bill_no, 'type_id' => $invoiceTypeId])->orderBy(['id' => SORT_DESC])->one();
-
-            if (!$invoice) {
-                if ($only_html == '1') {
-                    return '';
-                }
-                trigger_error2('Документ не готов');
-                return false;
-            }
-
-            $invoiceDocument = (new \app\modules\uu\models_light\InvoiceLight($billModel->clientAccount))
-                ->setBill($billModel)
-                ->setInvoice($invoice)
-                ->setTemplateType(PaymentTemplateType::TYPE_ID_UPD)
-                ->setCountry($billModel->clientAccount->getUuCountryId());
-
-            $content = $invoiceDocument->render((bool)$is_pdf, null, $includeSignatureStamp);
-
-            if ($is_pdf) {
-                header('Content-Type: application/pdf');
-                echo $content;
-                exit;
-            }
-
-            if ($only_html == '1') {
-                return $content;
-            }
-
-            echo $content;
-            exit;
         }
 
         switch ($obj) {
