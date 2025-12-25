@@ -2940,8 +2940,11 @@ class m_newaccounts extends IModule
         $is_word = get_param_raw('is_word', false);
 
         $design->assign("is_pdf", $is_pdf);
-        if (empty($design->_tpl_vars['WEB_PATH'])) {
-            $design->assign('WEB_PATH', rtrim(\Yii::$app->params['SITE_URL'], '/') . '/');
+        if ($is_pdf) {
+            $webPath = $design->_tpl_vars['WEB_PATH'] ?? '';
+            if (!$webPath || strpos($webPath, 'http') !== 0) {
+                $design->assign('WEB_PATH', rtrim(\Yii::$app->params['SITE_URL'], '/') . '/');
+            }
         }
 
         $isToPrint = (isset($params['to_print'])) ? (bool)$params['to_print'] : get_param_raw('to_print',
