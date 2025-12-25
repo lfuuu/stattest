@@ -107,14 +107,25 @@ class BillQRCode
         return '';
     }
 
-    public static function generateGifData($data, $errorLevel = 'H', $size = 4, $margin = 2)
+    private static $gifErrorLevel = 'H';
+    private static $gifSize = 4;
+    private static $gifMargin = 2;
+
+    public static function setGifOptions($errorLevel = 'H', $size = 4, $margin = 2)
+    {
+        self::$gifErrorLevel = $errorLevel;
+        self::$gifSize = $size;
+        self::$gifMargin = $margin;
+    }
+
+    public static function generateGifData($data)
     {
         if (!$data) {
             return '';
         }
 
         ob_start();
-        QRcode::gif(trim($data), false, $errorLevel, $size, $margin);
+        QRcode::gif(trim($data), false, self::$gifErrorLevel, self::$gifSize, self::$gifMargin);
         $imageData = ob_get_clean();
 
         return $imageData === false ? '' : $imageData;
@@ -126,7 +137,7 @@ class BillQRCode
             return '';
         }
 
-        $imageData = self::generateGifData($data, 'H', 4, 2);
+        $imageData = self::generateGifData($data);
 
         if ($imageData === false || $imageData === '') {
             return '';

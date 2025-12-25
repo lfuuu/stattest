@@ -247,7 +247,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
             return '';
         }
 
-        $imageData = BillQRCode::generateGifData($data, 'H', 4, 2);
+        $imageData = BillQRCode::generateGifData($data);
         if ($imageData === '') {
             return '';
         }
